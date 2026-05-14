@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Bookings{% endblock %}
+
+{% block content %}
+<div class="board-head">
+  <div class="board-title">
+    <span class="plane">🎫</span>
+    <span>Bookings</span>
+  </div>
+  <div class="clock">{{ bookings | length }}</div>
+</div>
+
+<form method="get" action="/dashboard/bookings" class="filter-bar">
+  <div class="fg">
+    <span class="fl">Search</span>
+    <input type="search" name="q" value="{{ query }}" placeholder="ID, name, or email…">
+  </div>
+
+  <div class="fg">
+    <span class="fl">Type</span>
+    <select name="type" onchange="this.form.submit()">
+      <option value="">All types</option>
+      <option value="flight" {% if selected_type == 'flight' %}selected{% endif %}>Flights</option>
+      <option value="hotel"  {% if selected_type == 'hotel'  %}selected{% endif %}>Hotels</option>
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">Sort</span>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="created_desc" {% if sort == 'created_desc' %}selected{% endif %}>Newest first</option>
+      <option value="created_asc"  {% if sort == 'created_asc'  %}selected{% endif %}>Oldest first</option>
+      <option value="price_desc"   {% if sort == 'price_desc'   %}selected{% endif %}>Total ↓</option>
+      <option value="price_asc"    {% if sort == 'price_asc'    %}selected{% endif %}>Total ↑</option>
+    </select>
+  </div>
+
+  <button class="fb-btn" type="submit">Search</button>
+
+  {% if query or selected_type %}
+    <a class="fb-link" href="/dashboard/bookings">✕ Clear</a>
+  {% endif %}
+
+  <span class="spacer"></span>
+  <a class="fb-link hi" href="/dashboard/flights">Flight board →</a>
+</form>
+
+{% if not bookings %}
+  {% if total == 0 %}
+  <p class="empty">
+    No bookings yet — create one via <code>POST /flights/book</code> or
+    <code>POST /hotels/book</code>.
+  </p>
+  {% else %}
+  <p class="empty">No bookings match the current search or filters.</p>
+  {% endif %}
+{% else %}
+<div class="table-wrap">
+  <table class="fids ledger">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>Type</th>
+        <th>Item</th>
+        <th>Customer</th>
+        <th>Booked</th>
+        <th>Total</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for booking in bookings %}
+      <tr>
+        <td class="ref">{{ booking.id }}</td>
+        <td><span class="type-badge {{ booking.type }}">{{ booking.type | upper }}</span></td>
+        <td>
+          {% if booking.type == "flight" %}
+            <span class="from-city">
+              {{ booking.details.airline }} {{ booking.details.flight_number }}
+            </span>
+            <span class="sub">{{ booking.details.origin }} → {{ booking.details.destination }}</span>
+          {% else %}
+            <span class="from-city">{{ booking.details.hotel_name }}</span>
+            <span class="sub">
+              {{ booking.details.city }} ·
+              {{ booking.details.nights }} night{{ "s" if booking.details.nights != 1 else "" }}
+            </span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="from-city">{{ booking.customer_name }}</span>
+          <span class="sub">{{ booking.customer_email }}</span>
+        </td>
+        <td>
+          {{ booking.created_at.strftime("%H:%M") }}
+          <span class="sub">{{ booking.created_at.strftime("%d %b %Y") }}</span>
+        </td>
+        <td class="sta">{{ booking.currency }} {{ "%.2f" | format(booking.total_price) }}</td>
+        <td><span class="status-pill">{{ booking.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

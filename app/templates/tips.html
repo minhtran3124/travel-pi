@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Local Tips{% endblock %}
+
+{% block content %}
+<div class="board-head">
+  <div class="board-title"><span class="plane">💡</span> Local Tips</div>
+  <span class="page-meta">
+    {% if result %}{{ result.tips | length }} tip{{ '' if result.tips | length == 1 else 's' }}{% else %}Pick a destination{% endif %}
+  </span>
+</div>
+
+<form method="get" action="/dashboard/tips" class="filter-bar">
+  <div class="fg">
+    <span class="fl">Country</span>
+    <select name="country" onchange="this.form.city.value=''; this.form.submit()">
+      <option value="">All countries</option>
+      {% for c in countries %}
+        <option value="{{ c }}" {% if selected_country == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">City</span>
+    <select name="city" onchange="this.form.submit()">
+      <option value="">{{ "— any city —" if selected_country else "All cities" }}</option>
+      {% for c in cities %}
+        <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">Category</span>
+    <select name="category" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for key, label in categories.items() %}
+        <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fb-sep"></div>
+
+  <label class="toggle-chip {{ 'is-on' if essential_only else '' }}">
+    <input type="checkbox" name="essential_only" value="true" onchange="this.form.submit()"
+           {% if essential_only %}checked{% endif %}>
+    <span class="tc-box">{% if essential_only %}✓{% endif %}</span>
+    Essential only
+  </label>
+
+  {% if selected_country or selected_city or selected_category or essential_only %}
+    <a href="/dashboard/tips" class="fb-link">✕ Clear</a>
+  {% endif %}
+</form>
+
+{% if not result %}
+  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
+    Pick a <strong>country</strong> or <strong>city</strong> above to see local tips.
+    <br>City selection resolves its own country and merges city-specific advice on top.
+  </div>
+{% elif result.tips %}
+  <div class="tips-panel">
+    {% if result.summary %}
+      <div class="tips-summary">
+        <div class="tips-summary-loc">
+          {% if result.city %}{{ result.city }} · {% endif %}{{ result.country }}
+        </div>
+        <p>{{ result.summary }}</p>
+      </div>
+    {% endif %}
+
+    <div class="tip-grid">
+      {% for tip in result.tips %}
+        <div class="tip-card {{ 'is-essential' if tip.is_essential else '' }}">
+          <div class="tip-card-head">
+            <span class="chip cat-{{ tip.category }}">{{ categories.get(tip.category, tip.category) }}</span>
+            <span class="scope-badge scope-{{ tip.scope }}">{{ tip.scope }}</span>
+            {% if tip.is_essential %}
+              <span class="ess-badge">★ Essential</span>
+            {% endif %}
+          </div>
+          <div class="tip-title">{{ tip.title }}</div>
+          <div class="tip-content">{{ tip.content }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
+    No tips found for
+    {% if result.city %}<strong>{{ result.city }}</strong>{% else %}<strong>{{ result.country }}</strong>{% endif %}
+    {% if selected_category or essential_only %}with the current filters{% endif %}.
+    <a href="/dashboard/tips" style="color: var(--accent-dim);">Clear filters</a>
+  </div>
+{% endif %}
+
+<style>
+  .tips-panel {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    padding: 16px;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .tips-summary {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px;
+    margin-bottom: 16px;
+  }
+  .tips-summary-loc {
+    font-size: 0.68rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent-dim); margin-bottom: 5px;
+  }
+  .tips-summary p { margin: 0; color: var(--white); font-size: 0.9rem; line-height: 1.55; }
+
+  .tip-grid {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  }
+  .tip-card {
+    display: flex; flex-direction: column; gap: 8px;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 15px;
+    transition: transform .16s, border-color .16s, box-shadow .16s;
+  }
+  .tip-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .tip-card.is-essential { border-left: 3px solid var(--yellow); }
+
+  .tip-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+  .chip {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    border: 1px solid var(--line);
+  }
+  .cat-transport    { background: rgba(56,189,248,.16);  color: var(--cyan); }
+  .cat-money        { background: rgba(52,211,153,.16);  color: var(--green); }
+  .cat-safety       { background: rgba(248,113,113,.16); color: var(--red); }
+  .cat-culture      { background: rgba(180,120,255,.16); color: #b47eff; }
+  .cat-food         { background: rgba(251,146,60,.16);  color: var(--orange); }
+  .cat-connectivity { background: rgba(56,189,248,.16);  color: var(--cyan); }
+  .cat-health       { background: rgba(52,211,153,.16);  color: var(--green); }
+  .cat-etiquette    { background: rgba(180,120,255,.16); color: #b47eff; }
+  .cat-best_time    { background: rgba(251,191,36,.16);  color: var(--yellow); }
+  .cat-language     { background: rgba(251,146,60,.16);  color: var(--orange); }
+
+  .scope-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 5px;
+    font-size: 0.63rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .scope-country { background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
+  .scope-city { background: var(--accent); color: #fff; }
+  .ess-badge { margin-left: auto; font-size: 0.65rem; font-weight: 800; color: var(--yellow); white-space: nowrap; }
+
+  .tip-title { font-weight: 800; font-size: 0.93rem; line-height: 1.3; }
+  .tip-content { color: var(--muted); font-size: 0.83rem; line-height: 1.55; }
+
+  @media (max-width: 640px) {
+    .tips-panel { padding: 12px; }
+    .tip-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+</style>
+{% endblock %}

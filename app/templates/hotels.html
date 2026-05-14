@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Hotels{% if selected_city %} · {{ selected_city }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="board-head">
+  <div class="board-title">
+    <span class="plane">🏨</span>
+    <span>Hotels{% if selected_city %} · {{ selected_city }}{% endif %}</span>
+  </div>
+  <div class="clock">{{ hotels | length }} / {{ total }}</div>
+</div>
+
+<form method="get" action="/dashboard/hotels" class="filter-bar">
+  <div class="fg">
+    <span class="fl">Search</span>
+    <input type="search" name="q" value="{{ query }}" placeholder="Hotel name…">
+  </div>
+
+  <div class="fg">
+    <span class="fl">City</span>
+    <select name="city" onchange="this.form.submit()">
+      <option value="">All cities ({{ total }})</option>
+      {% for c in cities %}
+        <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">Sort</span>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="featured"    {% if sort == 'featured'    %}selected{% endif %}>Featured</option>
+      <option value="rating_desc" {% if sort == 'rating_desc' %}selected{% endif %}>Rating ↓</option>
+      <option value="rating_asc"  {% if sort == 'rating_asc'  %}selected{% endif %}>Rating ↑</option>
+      <option value="price_asc"   {% if sort == 'price_asc'   %}selected{% endif %}>Price ↑</option>
+      <option value="price_desc"  {% if sort == 'price_desc'  %}selected{% endif %}>Price ↓</option>
+      <option value="name"        {% if sort == 'name'        %}selected{% endif %}>Name A–Z</option>
+    </select>
+  </div>
+
+  <button class="fb-btn" type="submit">Search</button>
+
+  {% if query or selected_city %}
+    <a class="fb-link" href="/dashboard/hotels">✕ Clear</a>
+  {% endif %}
+
+  <span class="spacer"></span>
+  <a class="fb-link hi" href="/dashboard/flights">Flight board →</a>
+</form>
+
+{% if not hotels %}
+  <p class="empty">
+    No hotels match
+    {%- if query %} "{{ query }}"{% endif %}
+    {%- if selected_city %} in {{ selected_city }}{% endif %}
+    {%- if not query and not selected_city %} the current filters{% endif %}.
+  </p>
+{% else %}
+<div class="hotel-grid">
+  {% for hotel in hotels %}
+  <article class="hotel-card">
+    <div class="photo">
+      <img src="{{ hotel.image_url }}" alt="{{ hotel.name }}" loading="lazy">
+      <span class="stars" title="{{ hotel.star_rating }}-star">{{ "★" * hotel.star_rating }}</span>
+      <span class="rating-badge" title="{{ hotel.review_count }} reviews">
+        {{ "%.1f" | format(hotel.rating) }}
+      </span>
+    </div>
+    <div class="body">
+      <div class="name">{{ hotel.name }}</div>
+      <div class="loc">
+        <span class="city">{{ hotel.city }}</span><br>
+        {{ hotel.address }}
+      </div>
+      <div class="amenities">
+        {% for amenity in hotel.amenities %}
+          <span class="chip">{{ amenity }}</span>
+        {% endfor %}
+      </div>
+      <div class="foot">
+        <div class="price">
+          {{ hotel.currency }} {{ "%.0f" | format(hotel.price_per_night) }}<span> / night</span>
+        </div>
+        <div class="reviews">{{ "{:,}".format(hotel.review_count) }} reviews</div>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

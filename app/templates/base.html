@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · Travel Planner</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0c0d12;
+      --panel:    #13141b;
+      --panel-2:  #1a1c25;
+      --line:     #252836;
+      --line-soft:#1e2030;
+      /* accent — indigo */
+      --accent:   #6366f1;
+      --accent-2: #4f46e5;
+      --accent-dim: #a5b4fc;
+      --accent-glow: rgba(99, 102, 241, 0.18);
+      /* text */
+      --white:    #eef0f6;
+      --muted:    #7c829a;
+      /* status */
+      --yellow:   #fbbf24;
+      --green:    #34d399;
+      --orange:   #fb923c;
+      --cyan:     #38bdf8;
+      --red:      #f87171;
+      /* shape */
+      --radius:   12px;
+      --radius-sm: 8px;
+      --shadow:   0 2px 12px rgba(0,0,0,.4);
+      --shadow-lg: 0 8px 28px rgba(0,0,0,.55);
+      --ring:     0 0 0 3px rgba(99,102,241,.25);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--white);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ── Top nav bar ── */
+    .topbar {
+      display: flex; align-items: center; gap: 0;
+      padding: 0 24px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      height: 52px;
+    }
+    .topbar-brand {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 0.95rem; font-weight: 800; letter-spacing: -0.01em;
+      color: var(--white);
+      text-decoration: none;
+      padding-right: 28px;
+      border-right: 1px solid var(--line);
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+    .topbar-brand .icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      font-size: 0.88rem;
+    }
+    .tabs {
+      display: flex; align-items: center; gap: 2px;
+      flex: 1;
+    }
+    .tab {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 13px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.875rem; font-weight: 600;
+      border-radius: var(--radius-sm);
+      transition: color .15s, background .15s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--white); background: var(--panel-2); }
+    .tab.on { color: var(--white); background: var(--panel-2); position: relative; }
+    .tab.on::after {
+      content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
+      width: 20px; height: 2px; background: var(--accent); border-radius: 2px;
+    }
+    .tabs .spacer { flex: 1; }
+    .tab-ext { color: var(--accent-dim); }
+    .tab-ext:hover { color: var(--white); background: transparent; }
+
+    .wrap { max-width: 1140px; margin: 0 auto; padding: 28px 20px 64px; }
+
+    /* ── Page header (section title strip) ── */
+    .page-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .page-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em;
+    }
+    .page-title .icon { font-size: 1.25rem; }
+    .page-meta { font-size: 0.88rem; font-weight: 600; color: var(--muted); }
+
+    /* ── Board head (coloured strip for FIDS pages) ── */
+    .board-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 14px 20px;
+    }
+    .board-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.1rem; font-weight: 800;
+    }
+    .board-title .plane { font-size: 1.1rem; }
+    .clock {
+      font-size: 1.35rem; font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent-dim);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: none; border-bottom: none;
+      padding: 14px 18px;
+    }
+    /* filter group: stacked label + control */
+    .fg { display: flex; flex-direction: column; gap: 4px; }
+    .fg .fl {
+      font-size: 0.62rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      white-space: nowrap;
+    }
+    .fg select, .fg input {
+      height: 34px;
+      background: var(--panel-2); color: var(--white);
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 0 10px; font-size: 0.875rem; font-family: inherit;
+      transition: border-color .15s, box-shadow .15s;
+      min-width: 0;
+    }
+    .fg input[type=search] { min-width: 170px; }
+    .fg select:focus, .fg input:focus {
+      outline: none; border-color: var(--accent); box-shadow: var(--ring);
+    }
+    /* toggle chip — styled checkbox */
+    .toggle-chip {
+      display: flex; align-items: center; gap: 7px;
+      height: 34px; padding: 0 13px;
+      background: var(--panel-2); border: 1px solid var(--line);
+      border-radius: var(--radius-sm); cursor: pointer; user-select: none;
+      font-size: 0.83rem; font-weight: 600; color: var(--muted);
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .toggle-chip:hover { border-color: var(--accent); color: var(--white); }
+    .toggle-chip.is-on {
+      background: var(--accent-glow); border-color: var(--accent); color: var(--white);
+    }
+    .toggle-chip input[type=checkbox] { display: none; }
+    .tc-box {
+      width: 15px; height: 15px; border-radius: 4px; flex-shrink: 0;
+      border: 1.5px solid currentColor;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; transition: background .15s, border-color .15s;
+    }
+    .toggle-chip.is-on .tc-box {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    /* thin divider inside filter bar */
+    .fb-sep { width: 1px; height: 34px; background: var(--line); flex-shrink: 0; }
+    /* primary action button */
+    .fb-btn {
+      height: 34px; padding: 0 18px;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      transition: filter .15s, transform .05s; white-space: nowrap;
+    }
+    .fb-btn:hover { filter: brightness(1.1); }
+    .fb-btn:active { transform: translateY(1px); }
+    /* ghost link/button */
+    .fb-link {
+      height: 34px; padding: 0 13px;
+      display: inline-flex; align-items: center;
+      text-decoration: none; font-size: 0.8rem; font-weight: 600;
+      color: var(--muted); border: 1px solid var(--line);
+      border-radius: var(--radius-sm); white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .fb-link:hover { color: var(--accent-dim); border-color: var(--accent); }
+    .fb-link.hi { color: var(--accent-dim); }
+    .fb-link.hi:hover { color: var(--white); }
+    /* segmented toggle (arrivals / departures) */
+    .seg { display: flex; gap: 0; }
+    .seg a {
+      display: flex; align-items: center;
+      height: 34px; padding: 0 14px;
+      text-decoration: none; font-size: 0.8rem; font-weight: 600;
+      color: var(--muted); background: var(--panel-2);
+      border: 1px solid var(--line);
+      transition: color .15s, background .15s, border-color .15s;
+    }
+    .seg a:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .seg a:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
+    .seg a:hover { color: var(--white); border-color: var(--muted); }
+    .seg a.on { background: var(--accent); color: #fff; border-color: var(--accent); z-index: 1; }
+    .spacer { flex: 1; }
+    .route-link {
+      color: var(--accent-dim); text-decoration: none;
+      font-size: 0.83rem; font-weight: 600;
+      transition: color .15s;
+    }
+    .route-link:hover { color: var(--white); }
+
+    /* ── FIDS table ── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    table.fids {
+      width: 100%; border-collapse: collapse;
+      background: var(--panel);
+      font-size: 0.9rem;
+    }
+    table.fids th {
+      text-align: left; padding: 10px 16px;
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--accent);
+      color: var(--accent-dim);
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    table.fids th span { display: block; color: var(--muted); font-size: 0.65rem; text-transform: none; letter-spacing: 0; }
+    table.fids td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: middle; white-space: nowrap;
+    }
+    table.fids tbody tr { transition: background .1s; }
+    table.fids tbody tr:hover { background: var(--accent-glow); }
+    table.fids tbody tr:last-child td { border-bottom: 0; }
+
+    .sta { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .eta { font-size: 1rem; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
+    .from-city { font-weight: 700; }
+    .sub { display: block; color: var(--muted); font-size: 0.75rem; }
+    .airline {
+      display: inline-block; min-width: 30px; text-align: center;
+      padding: 2px 7px; border-radius: 5px;
+      color: #fff; font-weight: 800; font-size: 0.78rem; margin-right: 8px;
+    }
+    .airline-name { color: var(--muted); font-size: 0.82rem; }
+    .flight a {
+      color: var(--white); font-weight: 700;
+      font-variant-numeric: tabular-nums; text-decoration: none;
+      transition: color .15s;
+    }
+    .flight a:hover { color: var(--accent-dim); text-decoration: underline; }
+
+    .remark { font-weight: 700; }
+    .remark.landed    { color: var(--green); }
+    .remark.departed  { color: var(--muted); }
+    .remark.ontime    { color: var(--white); }
+    .remark.estimated { color: var(--yellow); }
+    .remark.delayed   { color: var(--orange); }
+    .remark.boarding  { color: var(--cyan); }
+
+    .empty, .error {
+      padding: 32px; text-align: center; color: var(--muted);
+      background: var(--panel);
+      border: 1px solid var(--line); border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .error { color: var(--orange); }
+
+    .count { margin: 0 0 12px; font-weight: 700; color: var(--muted); font-size: 0.85rem; }
+
+    .badge {
+      display: inline-block; padding: 2px 9px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700;
+    }
+    .badge.direct { background: rgba(52,211,153,.14); color: var(--green); }
+    .badge.stops  { background: rgba(251,146,60,.14); color: var(--orange); }
+
+    /* ── Generic page bits ── */
+    h1 { font-size: 1.3rem; margin: 0 0 18px; letter-spacing: -0.01em; }
+    .back {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-bottom: 14px;
+      color: var(--accent-dim); text-decoration: none;
+      font-size: 0.875rem; font-weight: 600;
+      transition: color .15s;
+    }
+    .back:hover { color: var(--white); }
+    .card {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    form.search {
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 18px; margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    form.search label {
+      display: flex; flex-direction: column; gap: 5px;
+      font-size: 0.72rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    form.search select, form.search input {
+      background: var(--panel-2); color: var(--white);
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 8px 11px; font-size: 0.875rem; font-family: inherit;
+      min-width: 200px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    form.search select:focus, form.search input:focus {
+      outline: none; border-color: var(--accent); box-shadow: var(--ring);
+    }
+    form.search button {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: var(--radius-sm); padding: 9px 22px;
+      font-size: 0.875rem; font-weight: 700; font-family: inherit; cursor: pointer;
+      transition: filter .15s, transform .05s;
+    }
+    form.search button:hover { filter: brightness(1.1); }
+    form.search button:active { transform: translateY(1px); }
+
+    .detail-route .code { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; }
+    .detail-grid {
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .detail-grid > div {
+      background: var(--panel-2); border: 1px solid var(--line);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+    }
+    .detail-grid .span-full { grid-column: 1 / -1; }
+    .detail-grid .label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+    .detail-grid .value { font-size: 1rem; font-weight: 700; margin-top: 3px; }
+    .detail-grid .value.mono { font-family: "Menlo","Consolas","SF Mono",monospace; font-size: 0.85rem; word-break: break-all; }
+    .detail-route {
+      display: flex; align-items: center; gap: 0; margin: 8px 0 22px;
+    }
+    .detail-route .route-end { flex: 1; }
+    .detail-route .route-end.right { text-align: right; }
+    .route-mid {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 0 18px; color: var(--muted);
+    }
+    .route-mid .arrow { color: var(--accent-dim); font-size: 1.1rem; }
+    .route-mid .dur { font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+
+    /* ── Hotel card grid ── */
+    .hotel-grid {
+      display: grid; gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      background: var(--panel);
+      border: 1px solid var(--line); border-top: none;
+      padding: 16px;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .hotel-card {
+      display: flex; flex-direction: column;
+      background: var(--panel-2); border: 1px solid var(--line);
+      border-radius: 10px; overflow: hidden;
+      transition: transform .16s, border-color .16s, box-shadow .16s;
+    }
+    .hotel-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+    .hotel-card .photo { position: relative; aspect-ratio: 3/2; background: #181b24; overflow: hidden; }
+    .hotel-card .photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+    .hotel-card:hover .photo img { transform: scale(1.05); }
+    .hotel-card .stars {
+      position: absolute; top: 8px; left: 8px;
+      background: rgba(8,9,11,.75); backdrop-filter: blur(3px);
+      border-radius: 5px; padding: 2px 8px;
+      font-size: 0.75rem; color: var(--yellow); letter-spacing: 0.04em;
+    }
+    .hotel-card .rating-badge {
+      position: absolute; top: 8px; right: 8px;
+      background: var(--accent); color: #fff;
+      border-radius: 999px; padding: 2px 10px;
+      font-size: 0.8rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    }
+    .hotel-card .body { display: flex; flex-direction: column; gap: 9px; padding: 13px 14px 14px; flex: 1; }
+    .hotel-card .name { font-weight: 800; font-size: 0.95rem; line-height: 1.3; }
+    .hotel-card .loc { color: var(--muted); font-size: 0.78rem; }
+    .hotel-card .loc .city { color: var(--accent-dim); font-weight: 700; }
+    .amenities { display: flex; flex-wrap: wrap; gap: 5px; }
+    .amenities .chip {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 999px; padding: 2px 9px;
+      font-size: 0.68rem; color: var(--muted); white-space: nowrap;
+    }
+    .hotel-card .foot {
+      margin-top: auto;
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 8px; padding-top: 10px; border-top: 1px solid var(--line-soft);
+    }
+    .hotel-card .price { font-size: 1.1rem; font-weight: 800; }
+    .hotel-card .price span { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+    .hotel-card .reviews { font-size: 0.72rem; color: var(--muted); text-align: right; }
+
+    /* ── Booking ledger ── */
+    .type-badge {
+      display: inline-block; min-width: 48px; text-align: center;
+      padding: 3px 8px; border-radius: 5px;
+      color: #fff; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.05em;
+    }
+    .type-badge.flight { background: var(--accent); }
+    .type-badge.hotel  { background: #2563eb; }
+    .status-pill {
+      display: inline-block; padding: 3px 11px; border-radius: 999px;
+      font-size: 0.73rem; font-weight: 700;
+      background: rgba(52,211,153,.12); color: var(--green);
+      text-transform: capitalize;
+    }
+    .ref { font-variant-numeric: tabular-nums; font-size: 0.84rem; }
+    table.fids.ledger td, table.fids.ledger th { white-space: normal; }
+    table.fids.ledger .ref, table.fids.ledger .sta { white-space: nowrap; }
+
+    footer {
+      max-width: 1140px; margin: 0 auto;
+      padding: 18px 20px 0; color: var(--muted); font-size: 0.78rem;
+      border-top: 1px solid var(--line);
+    }
+    footer a { color: var(--accent-dim); }
+    footer a:hover { color: var(--white); }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       Breakpoints: 900 (tablet)  640 (mobile)  400 (small mobile)
+    ═══════════════════════════════════════════ */
+
+    /* ── Tablet ≤ 900px ── */
+    @media (max-width: 900px) {
+      .detail-grid { grid-template-columns: repeat(2, 1fr); }
+      .hotel-grid  { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    }
+
+    /* ── Mobile ≤ 640px ── */
+    @media (max-width: 640px) {
+      /* Page chrome */
+      .wrap { padding: 14px 12px 52px; }
+
+      /* ── Topbar: horizontal scroll so all tabs stay reachable ── */
+      .topbar {
+        padding: 0 10px;
+        overflow-x: auto; overflow-y: hidden;
+        scrollbar-width: none;          /* Firefox */
+        -webkit-overflow-scrolling: touch;
+      }
+      .topbar::-webkit-scrollbar { display: none; }
+      .topbar-brand {
+        padding-right: 14px;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+      }
+      .tab { padding: 6px 10px; font-size: 0.78rem; flex-shrink: 0; }
+      /* underline indicator gets lost on scroll; replace with bg highlight */
+      .tab.on::after { display: none; }
+      .tab.on { background: var(--panel-2); }
+
+      /* ── Board head ── */
+      .board-head { padding: 11px 14px; gap: 8px; flex-wrap: wrap; }
+      .board-title { font-size: 0.92rem; }
+      .clock { font-size: 1rem; }
+
+      /* ── Filter bar ── */
+      .filter-bar { padding: 12px 14px; gap: 8px; }
+      /* Every filter group fills available space; 2 per row on most phones */
+      .fg { flex: 1 1 130px; }
+      .fg select, .fg input { width: 100%; }
+      /* Hide decorative separators — layout speaks for itself */
+      .fb-sep { display: none; }
+      /* Stretch action buttons to match control height */
+      .fb-btn { flex: 0 0 auto; }
+      .fb-link { flex: 0 0 auto; }
+      /* Segmented control wraps but stays intact */
+      .seg { flex-shrink: 0; }
+      .seg a { padding: 0 11px; font-size: 0.77rem; }
+      /* Hide "spacer" on mobile so Clear/nav links don't float far away */
+      .filter-bar .spacer { display: none; }
+
+      /* ── FIDS table ── */
+      table.fids { font-size: 0.8rem; }
+      table.fids th, table.fids td { padding: 9px 10px; }
+
+      /* ── Flight detail ── */
+      .detail-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .detail-route .code { font-size: 1.3rem; }
+      .route-mid { padding: 0 10px; }
+
+      /* ── Search form (route search page) ── */
+      form.search { padding: 14px; gap: 10px; }
+      form.search label { flex: 1 1 140px; }
+      form.search select,
+      form.search input  { min-width: 0; width: 100%; }
+
+      /* ── Cards ── */
+      .hotel-grid { padding: 12px; gap: 12px; }
+      .hotel-grid { grid-template-columns: 1fr; }
+
+      /* ── Generic ── */
+      h1 { font-size: 1.1rem; }
+      footer { font-size: 0.73rem; padding: 14px 12px 0; }
+    }
+
+    /* ── Small mobile ≤ 400px ── */
+    @media (max-width: 400px) {
+      /* Brand: keep icon, drop text to save 80px of nav space */
+      .topbar-brand .brand-label { display: none; }
+      /* 1 col only */
+      .fg { flex: 1 1 100%; }
+      .detail-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <a class="topbar-brand" href="/dashboard/flights">
+      <span class="icon">✈</span><span class="brand-label">Travel Mock</span>
+    </a>
+    {% set path = request.url.path %}
+    <div class="tabs">
+      <a href="/dashboard/flights" class="tab {{ 'on' if path.startswith('/dashboard/flights') else '' }}">Flights</a>
+      <a href="/dashboard/hotels"  class="tab {{ 'on' if path.startswith('/dashboard/hotels')  else '' }}">Hotels</a>
+      <a href="/dashboard/places"  class="tab {{ 'on' if path.startswith('/dashboard/places')  else '' }}">Places</a>
+      <a href="/dashboard/tips"    class="tab {{ 'on' if path.startswith('/dashboard/tips')    else '' }}">Local Tips</a>
+      <a href="/dashboard/weather" class="tab {{ 'on' if path.startswith('/dashboard/weather') else '' }}">Weather</a>
+      <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
+      <span class="spacer"></span>
+      <a href="/docs" class="tab tab-ext">API Docs ↗</a>
+    </div>
+  </nav>
+  <div class="wrap">
+    {% block content %}{% endblock %}
+  </div>
+  <footer>
+    Mock data · flights are generated, bookings stored locally ·
+    <a href="/docs">API docs</a>
+  </footer>
+</body>
+</html>

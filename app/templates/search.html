@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Search by route{% endblock %}
+
+{% block content %}
+<a class="back" href="/dashboard/flights">← Flight board</a>
+<h1>Search flights by route</h1>
+
+<form class="search" method="get" action="/dashboard/flights/search">
+  <label>
+    Origin
+    <select name="origin" required>
+      <option value="">— choose origin —</option>
+      {% for airport in airports %}
+        <option value="{{ airport.code }}"
+                {% if airport.code == search.origin %}selected{% endif %}>
+          {{ airport.code }} — {{ airport.city }} ({{ airport.country }})
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Destination
+    <select name="destination" required>
+      <option value="">— choose destination —</option>
+      {% for airport in airports %}
+        <option value="{{ airport.code }}"
+                {% if airport.code == search.destination %}selected{% endif %}>
+          {{ airport.code }} — {{ airport.city }} ({{ airport.country }})
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Departure date
+    <input type="date" name="departure_date"
+           value="{{ search.departure_date or '' }}" required>
+  </label>
+  <label>
+    Airline
+    <select name="airline">
+      <option value="">Any airline</option>
+      {% for a in airlines %}
+        <option value="{{ a.code }}"
+                {% if a.code == search.airline %}selected{% endif %}>
+          {{ a.code }} — {{ a.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Max price (USD)
+    <input type="number" name="max_price" min="0" step="10"
+           placeholder="Any"
+           value="{{ search.max_price if search.max_price is not none else '' }}">
+  </label>
+  <label>
+    Stops
+    <select name="max_stops">
+      <option value="">Any</option>
+      <option value="0" {% if search.max_stops == 0 %}selected{% endif %}>Direct only</option>
+      <option value="1" {% if search.max_stops == 1 %}selected{% endif %}>Up to 1 stop</option>
+    </select>
+  </label>
+  <label>
+    Sort by
+    <select name="sort">
+      {% for value, label in sort_options %}
+        <option value="{{ value }}" {% if value == search.sort %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Search</button>
+</form>
+
+{% if error %}
+  <p class="error">{{ error }}</p>
+{% elif searched %}
+  {% if flights %}
+    <p class="count">{{ flights | length }} flight(s) found</p>
+    <div class="table-wrap" style="border-radius: var(--radius); border: 1px solid var(--line);">
+      <table class="fids">
+        <thead>
+          <tr>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Airline</th>
+            <th>Flight</th>
+            <th>Stops</th>
+            <th>Duration</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flight in flights %}
+            {% set origin_airport = airports_by_code.get(flight.origin) %}
+            {% set dest_airport = airports_by_code.get(flight.destination) %}
+            <tr>
+              <td class="sta">{{ flight.departure_time.strftime("%H:%M") }}
+                <span class="sub">{{ flight.departure_time.strftime("%d %b") }}</span>
+              </td>
+              <td class="sta">{{ flight.arrival_time.strftime("%H:%M") }}
+                <span class="sub">{{ flight.arrival_time.strftime("%d %b") }}</span>
+              </td>
+              <td>
+                <span class="from-city">{{ flight.origin }}</span>
+                <span class="sub">{{ origin_airport.city ~ ", " ~ origin_airport.country if origin_airport else "—" }}</span>
+              </td>
+              <td>
+                <span class="from-city">{{ flight.destination }}</span>
+                <span class="sub">{{ dest_airport.city ~ ", " ~ dest_airport.country if dest_airport else "—" }}</span>
+              </td>
+              <td>
+                <span class="airline">{{ flight.airline.code }}</span>
+                <span class="airline-name">{{ flight.airline.name }}</span>
+              </td>
+              <td class="flight"><a href="/dashboard/flights/{{ flight.id }}">{{ flight.flight_number }}</a></td>
+              <td>
+                {% if flight.stops == 0 %}
+                  <span class="badge direct">Direct</span>
+                {% else %}
+                  <span class="badge stops">{{ flight.stops }} stop{{ "s" if flight.stops > 1 else "" }}</span>
+                {% endif %}
+              </td>
+              <td>{{ flight.duration_minutes | hm }}</td>
+              <td class="sta">{{ flight.currency }} {{ "%.2f" | format(flight.price) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">No flights match this route, date, and filters.</p>
+  {% endif %}
+{% else %}
+  <p class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">Pick an origin, destination, and date, then hit Search.</p>
+{% endif %}
+{% endblock %}

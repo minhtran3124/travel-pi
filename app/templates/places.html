@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Places & Attractions{% endblock %}
+
+{% block content %}
+<div class="board-head">
+  <div class="board-title"><span class="plane">🗺️</span> Places &amp; Attractions</div>
+  <span class="page-meta">{{ places | length }} of {{ total }} places</span>
+</div>
+
+<form method="get" action="/dashboard/places" class="filter-bar">
+  <div class="fg">
+    <span class="fl">City</span>
+    <select name="city" onchange="this.form.submit()">
+      <option value="">All cities</option>
+      {% for c in cities %}
+        <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">Category</span>
+    <select name="category" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for key, label in categories.items() %}
+        <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">Min rating</span>
+    <select name="min_rating" onchange="this.form.submit()">
+      <option value="">Any</option>
+      {% for r in [3.0, 3.5, 4.0, 4.5] %}
+        <option value="{{ r }}" {% if selected_min_rating == r %}selected{% endif %}>{{ r }}+</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fg">
+    <span class="fl">Price</span>
+    <select name="price_level" onchange="this.form.submit()">
+      <option value="">Any</option>
+      {% for lvl, label in price_labels.items() %}
+        <option value="{{ lvl }}" {% if selected_price_level == lvl %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="fb-sep"></div>
+
+  <label class="toggle-chip {{ 'is-on' if recommended else '' }}">
+    <input type="checkbox" name="recommended" value="true" onchange="this.form.submit()"
+           {% if recommended %}checked{% endif %}>
+    <span class="tc-box">{% if recommended %}✓{% endif %}</span>
+    Recommended
+  </label>
+
+  <div class="fb-sep"></div>
+
+  <div class="fg">
+    <span class="fl">Sort</span>
+    <select name="sort" onchange="this.form.submit()">
+      {% for key, label in sort_options.items() %}
+        <option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if selected_city or selected_category or selected_min_rating or selected_price_level or recommended %}
+    <a href="/dashboard/places" class="fb-link">✕ Clear</a>
+  {% endif %}
+</form>
+
+{% if places %}
+  <div class="place-grid">
+    {% for place in places %}
+      <div class="place-card">
+        <div class="place-photo">
+          <img src="{{ place.image_url }}" alt="{{ place.name }}" loading="lazy">
+          <span class="place-cat cat-{{ place.category }}">{{ categories.get(place.category, place.category) }}</span>
+          {% if place.is_recommended %}
+            <span class="place-rec">★ Pick</span>
+          {% endif %}
+          <span class="place-price price-{{ place.price_level }}">
+            {{ "💰" * place.price_level }}
+          </span>
+        </div>
+        <div class="place-body">
+          <div class="place-name">{{ place.name }}</div>
+          <div class="place-loc">
+            <span class="place-city">{{ place.city }}</span> · {{ place.country }}
+          </div>
+          <div class="place-desc">{{ place.description[:120] }}{% if place.description | length > 120 %}…{% endif %}</div>
+          <div class="place-tags">
+            {% for tag in place.tags[:4] %}
+              <span class="chip">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          <div class="place-foot">
+            <div class="place-rating">
+              <span class="stars">★</span> {{ "%.1f" | format(place.rating) }}
+              <span class="rev-count">({{ "{:,}".format(place.review_count) }})</span>
+            </div>
+            {% if place.opening_hours %}
+              <div class="place-hours">🕐 {{ place.opening_hours }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
+    No places match your filters.
+    <a href="/dashboard/places" style="color: var(--accent-dim);">Clear all filters</a>
+  </div>
+{% endif %}
+
+<style>
+  .place-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    padding: 16px;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .place-card {
+    display: flex; flex-direction: column;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+    transition: transform .16s, border-color .16s, box-shadow .16s;
+  }
+  .place-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .place-photo { position: relative; aspect-ratio: 16/9; background: #181b24; overflow: hidden; }
+  .place-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+  .place-card:hover .place-photo img { transform: scale(1.05); }
+
+  .place-cat {
+    position: absolute; top: 8px; left: 8px;
+    padding: 2px 9px; border-radius: 5px;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+    backdrop-filter: blur(4px);
+  }
+  .cat-attraction { background: rgba(56,189,248,.22); color: var(--cyan); }
+  .cat-restaurant { background: rgba(251,146,60,.22); color: var(--orange); }
+  .cat-cafe       { background: rgba(251,191,36,.22); color: var(--yellow); }
+  .cat-activity   { background: rgba(52,211,153,.22); color: var(--green); }
+  .cat-nightlife  { background: rgba(248,113,113,.22); color: var(--red); }
+  .cat-shopping   { background: rgba(180,120,255,.22); color: #b47eff; }
+
+  .place-rec {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--accent); color: #fff; border-radius: 999px;
+    padding: 2px 9px; font-size: 0.7rem; font-weight: 800;
+  }
+  .place-price {
+    position: absolute; bottom: 8px; right: 8px;
+    background: rgba(8,9,11,.72); backdrop-filter: blur(3px);
+    border-radius: 5px; padding: 2px 8px;
+    font-size: 0.75rem;
+  }
+
+  .place-body { display: flex; flex-direction: column; gap: 8px; padding: 13px 14px 14px; flex: 1; }
+  .place-name { font-weight: 800; font-size: 0.93rem; line-height: 1.3; }
+  .place-loc { color: var(--muted); font-size: 0.77rem; }
+  .place-city { color: var(--accent-dim); font-weight: 700; }
+  .place-desc { color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
+  .place-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .place-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 4px; }
+  .place-rating { font-size: 0.87rem; font-weight: 700; }
+  .place-rating .stars { color: var(--yellow); }
+  .rev-count { color: var(--muted); font-size: 0.74rem; font-weight: 400; }
+  .place-hours { color: var(--muted); font-size: 0.73rem; }
+
+  @media (max-width: 640px) {
+    .place-grid {
+      grid-template-columns: 1fr;
+      padding: 12px; gap: 12px;
+    }
+  }
+  @media (min-width: 641px) and (max-width: 900px) {
+    .place-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{% if flight %}{{ flight.flight_number }}{% else %}Flight not found{% endif %}{% endblock %}
+
+{% block content %}
+<a class="back" href="/dashboard/flights">← Flight board</a>
+
+{% if flight %}
+  {% set origin_airport = airports_by_code.get(flight.origin) %}
+  {% set dest_airport = airports_by_code.get(flight.destination) %}
+
+  <div class="card">
+    <h1>{{ flight.airline.name }} · {{ flight.flight_number }}</h1>
+
+    <div class="detail-route">
+      <div class="route-end">
+        <div class="code">{{ flight.origin }}</div>
+        <div class="sub">
+          {% if origin_airport %}{{ origin_airport.city }} · {{ origin_airport.country }}
+          {% else %}Unknown airport{% endif %}
+        </div>
+      </div>
+      <div class="route-mid">
+        <span class="arrow">✈</span>
+        <span class="dur">{{ flight.duration_minutes | hm }}</span>
+      </div>
+      <div class="route-end right">
+        <div class="code">{{ flight.destination }}</div>
+        <div class="sub">
+          {% if dest_airport %}{{ dest_airport.city }} · {{ dest_airport.country }}
+          {% else %}Unknown airport{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <div class="label">Departure</div>
+        <div class="value">{{ flight.departure_time.strftime("%H:%M") }}</div>
+        <div class="sub">{{ flight.departure_time.strftime("%A, %d %b %Y") }}</div>
+      </div>
+      <div>
+        <div class="label">Arrival</div>
+        <div class="value">{{ flight.arrival_time.strftime("%H:%M") }}</div>
+        <div class="sub">{{ flight.arrival_time.strftime("%A, %d %b %Y") }}</div>
+      </div>
+      <div>
+        <div class="label">Duration</div>
+        <div class="value">{{ flight.duration_minutes | hm }}</div>
+      </div>
+      <div>
+        <div class="label">Stops</div>
+        <div class="value">
+          {% if flight.stops == 0 %}Direct
+          {% else %}{{ flight.stops }} stop{{ "s" if flight.stops > 1 else "" }}
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="label">Price</div>
+        <div class="value">{{ flight.currency }} {{ "%.2f" | format(flight.price) }}</div>
+      </div>
+      <div>
+        <div class="label">Seats available</div>
+        <div class="value">{{ flight.seats_available }}</div>
+      </div>
+      <div class="span-full">
+        <div class="label">Flight ID</div>
+        <div class="value mono">{{ flight.id }}</div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <p class="error">
+    No flight matches <code>{{ flight_id }}</code>.
+    The ID may be malformed or the flight does not exist.
+  </p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+[project]
+name = "travel-pi"
+version = "0.1.0"
+description = "Travel Planner Mock API — mock backend for flight and hotel search/booking."
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    "jinja2>=3.1.0",
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=9.0.0"]
+dev = ["pytest>=9.0.0", "ruff>=0.15.0"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+# Lint/format the application code; tests follow the same style but are not
+# gated. Run: `ruff check app scripts` and `ruff format app scripts`.
+src = ["app", "scripts"]
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: isort, B: bugbear,
+# UP: pyupgrade, C4: comprehensions, SIM: simplify.
+select = ["E", "W", "F", "I", "B", "UP", "C4", "SIM"]
+# E501 (line-too-long) is delegated to the formatter — it wraps what it can,
+# and the rest (long URLs, inline comments, single-line seed-data records in
+# app/data/) is intentional and not worth fighting.
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # re-exports
+
+[tool.ruff.format]
+quote-style = "double"
