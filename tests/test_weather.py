@@ -122,6 +122,20 @@ def test_weather_upstream_failure_returns_502(client, monkeypatch):
     assert resp.status_code == 502
 
 
+def test_weather_malformed_upstream_body_returns_502(client, monkeypatch):
+    """A 200 with a body shape we don't recognise must surface as 502, not 500."""
+
+    async def _malformed(url, params):
+        if "geocoding" in url:
+            return _GEOCODE_HIT
+        # Forecast URL: missing the "current" / "daily" keys we expect.
+        return {"timezone": "Asia/Ho_Chi_Minh"}
+
+    monkeypatch.setattr(weather_service, "_fetch_json", _malformed)
+    resp = client.get("/weather", params={"city": "Da Nang"})
+    assert resp.status_code == 502
+
+
 # --- Unit: WMO code mapping ---------------------------------------------------
 
 

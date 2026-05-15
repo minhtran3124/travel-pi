@@ -31,15 +31,23 @@ def list_hotels() -> list[Hotel]:
 
 
 def count_nights(check_in: str, check_out: str) -> int:
-    """Number of nights between two YYYY-MM-DD dates (minimum 1).
+    """Number of nights between two YYYY-MM-DD dates.
 
-    Raises ``ValueError`` if either date is not valid ``YYYY-MM-DD``.
+    Raises ``ValueError`` if either date is not valid ``YYYY-MM-DD``, or if
+    ``check_out`` is not strictly after ``check_in``. The latter previously
+    clamped to 1 night and silently booked a positive-priced stay — the
+    routers wrap this exception into a 422 envelope, so callers now get a
+    clear "fix your dates" failure instead of a surprise charge.
     """
     nights = (
         datetime.strptime(check_out, _DATE_FORMAT)
         - datetime.strptime(check_in, _DATE_FORMAT)
     ).days
-    return max(nights, 1)
+    if nights < 1:
+        raise ValueError(
+            f"check_out ({check_out}) must be after check_in ({check_in})"
+        )
+    return nights
 
 
 def total_rooms(hotel: Hotel) -> int:

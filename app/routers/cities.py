@@ -103,7 +103,7 @@ def list_cities(
     "/route",
     response_model=RouteResponse,
     summary="Route between two cities — distance, time, and best travel mode",
-    responses=error_responses(404, 422),
+    responses=error_responses(404, 422, 502),
 )
 async def route_between_cities(
     origin: Annotated[

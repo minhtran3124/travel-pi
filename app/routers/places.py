@@ -4,6 +4,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Path, Query, status
 
+from app.core.params import parse_optional_number
+from app.enums import PlaceCategory, PlaceSort
 from app.exceptions import NotFoundError
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
@@ -18,22 +20,10 @@ from app.services import place_service, routing_service
 
 router = APIRouter(prefix="/places", tags=["places"])
 
-VALID_CATEGORIES = {
-    "attraction",
-    "restaurant",
-    "cafe",
-    "activity",
-    "nightlife",
-    "shopping",
-}
-VALID_SORTS = {
-    "rating_desc",
-    "rating_asc",
-    "name",
-    "price_asc",
-    "price_desc",
-    "reviews_desc",
-}
+# Valid sets retained for the dashboard's lenient HTML path; the JSON API
+# now relies on the ``PlaceCategory`` / ``PlaceSort`` enums for validation.
+VALID_CATEGORIES = {c.value for c in PlaceCategory}
+VALID_SORTS = {s.value for s in PlaceSort}
 
 
 @router.get(
@@ -68,9 +58,9 @@ def search_places(
         ),
     ] = None,
     category: Annotated[
-        str | None,
+        PlaceCategory | None,
         Query(
-            description="Category filter: attraction | restaurant | cafe | activity | nightlife | shopping",
+            description="Category filter — Swagger renders the dropdown.",
             example="restaurant",
         ),
     ] = None,
@@ -93,12 +83,12 @@ def search_places(
         Query(description="Return only editor-recommended places", example=True),
     ] = False,
     sort: Annotated[
-        str,
+        PlaceSort,
         Query(
-            description="rating_desc (default) | rating_asc | name | price_asc | price_desc | reviews_desc",
+            description="Sort order — Swagger renders the dropdown.",
             example="rating_desc",
         ),
-    ] = place_service.DEFAULT_SORT,
+    ] = PlaceSort.RATING_DESC,
 ) -> PlaceSearchResponse:
     """Search places with optional filters and pagination.
 
@@ -106,51 +96,24 @@ def search_places(
     ``price_level`` accept empty strings as "no filter".
     ``total`` reflects the full match count; ``results`` is the current page.
     """
-    min_rating_val: float | None = None
-    if min_rating:
-        try:
-            min_rating_val = float(min_rating)
-        except ValueError:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="min_rating must be a number between 0 and 5",
-            ) from None
-        if not (0 <= min_rating_val <= 5):
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="min_rating must be between 0 and 5",
-            )
-
-    price_level_val: int | None = None
-    if price_level:
-        try:
-            price_level_val = int(price_level)
-        except ValueError:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="price_level must be an integer between 1 and 4",
-            ) from None
-        if not (1 <= price_level_val <= 4):
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="price_level must be between 1 and 4",
-            )
-
-    if category and category.lower() not in VALID_CATEGORIES:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid category '{category}'. Valid: {sorted(VALID_CATEGORIES)}",
-        )
-    if sort not in VALID_SORTS:
-        sort = place_service.DEFAULT_SORT
+    min_rating_val, err = parse_optional_number(
+        min_rating, label="min_rating", kind=float, minimum=0, maximum=5
+    )
+    if err:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
+    price_level_val, err = parse_optional_number(
+        price_level, label="price_level", kind=int, minimum=1, maximum=4
+    )
+    if err:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
 
     all_results = place_service.search_places(
         city=city,
-        category=category,
+        category=category.value if category else None,
         min_rating=min_rating_val,
         price_level=price_level_val,
         recommended_only=recommended,
-        sort=sort,
+        sort=sort.value,
     )
     page, total = pagination.page_of(all_results)
     # Echo the canonical city name when the fuzzy lookup resolved it.
@@ -160,11 +123,11 @@ def search_places(
         limit=pagination.limit,
         offset=pagination.offset,
         city=echoed_city,
-        category=category,
+        category=category.value if category else None,
         min_rating=min_rating_val,
         price_level=price_level_val,
         recommended_only=recommended,
-        sort=sort,
+        sort=sort.value,
         results=page,
     )
 
@@ -215,9 +178,9 @@ def nearby_places(
         Query(ge=1, le=50, description="Maximum number of results", example=10),
     ] = 10,
     category: Annotated[
-        str | None,
+        PlaceCategory | None,
         Query(
-            description="Optional category filter, e.g. 'restaurant'",
+            description="Optional category filter — Swagger renders the dropdown.",
             example="restaurant",
         ),
     ] = None,
@@ -229,13 +192,11 @@ def nearby_places(
     no coordinates; an empty ``results`` list (not a 404) when nothing is in
     range.
     """
-    if category and category.lower() not in VALID_CATEGORIES:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid category '{category}'. Valid: {sorted(VALID_CATEGORIES)}",
-        )
     origin, results = place_service.nearby_places(
-        place_id, radius_km=radius_km, limit=limit, category=category
+        place_id,
+        radius_km=radius_km,
+        limit=limit,
+        category=category.value if category else None,
     )
     return PlaceNearbyResponse(
         origin_place_id=origin.id,

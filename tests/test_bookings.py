@@ -105,10 +105,11 @@ def test_list_bookings_filter_by_type_hotel(client):
     assert all(b["type"] == "hotel" for b in results)
 
 
-def test_list_bookings_unknown_type_returns_all(client):
-    all_b = _all_bookings(client)
-    filtered = _all_bookings(client, type="unknown")
-    assert len(filtered) == len(all_b)
+def test_list_bookings_unknown_type_returns_422(client):
+    """``type`` is a BookingType enum — an unknown value is now 422 instead of
+    being silently dropped."""
+    resp = client.get("/bookings", params={"type": "unknown"})
+    assert resp.status_code == 422
 
 
 def test_list_bookings_search_by_name(client):
@@ -352,3 +353,69 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
     # The loser's INSERT hit the UNIQUE index and we got the winner back instead.
     assert second.id == first.id
     assert repo.get("22222222-2222-2222-2222-222222222222") is None
+
+
+# ---------------------------------------------------------------------------
+# Confirmation-code lookup (indexed column, no full-table scan)
+# ---------------------------------------------------------------------------
+
+
+def test_repo_get_by_confirmation_code_resolves(tmp_db):
+    """The new indexed lookup returns the same booking the original add stored."""
+    import sqlite3
+
+    from app.crud.booking import BookingRepository
+
+    repo = BookingRepository(tmp_db + "_codes")
+    repo.init_db()
+    booking = repo.add(_sample_booking("33333333-3333-3333-3333-333333333333"))
+
+    found = repo.get_by_confirmation_code(booking.confirmation_code)
+    assert found is not None and found.id == booking.id
+    # Case-insensitive: the helper upper-cases the input before the lookup.
+    assert (
+        repo.get_by_confirmation_code(booking.confirmation_code.lower()).id
+        == booking.id
+    )
+    # The index actually exists on disk.
+    with sqlite3.connect(tmp_db + "_codes") as conn:
+        names = {r[1] for r in conn.execute("PRAGMA index_list(bookings)")}
+    assert "ix_bookings_confirmation_code" in names
+
+
+def test_repo_init_db_backfills_confirmation_code(tmp_db):
+    """A row written before the new column existed gets its code filled in."""
+    import sqlite3
+
+    from app.crud.booking import BookingRepository
+    from app.schemas.booking import confirmation_code_for
+
+    path = tmp_db + "_legacy"
+    # Simulate an older DB: the table without the confirmation_code column.
+    with sqlite3.connect(path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE bookings (
+                id TEXT PRIMARY KEY, type TEXT NOT NULL, reference_id TEXT NOT NULL,
+                customer_name TEXT NOT NULL, customer_email TEXT NOT NULL,
+                total_price REAL NOT NULL, currency TEXT NOT NULL,
+                status TEXT NOT NULL, created_at TEXT NOT NULL,
+                details TEXT NOT NULL, notes TEXT
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO bookings VALUES (?, 'flight', 'r', 'n', 'e@x.com', 1.0, "
+            "'USD', 'confirmed', '2026-01-01T00:00:00Z', '{}', NULL)",
+            ("44444444-4444-4444-4444-444444444444",),
+        )
+        conn.commit()
+
+    BookingRepository(path).init_db()
+
+    with sqlite3.connect(path) as conn:
+        row = conn.execute(
+            "SELECT confirmation_code FROM bookings WHERE id = ?",
+            ("44444444-4444-4444-4444-444444444444",),
+        ).fetchone()
+    assert row[0] == confirmation_code_for("44444444-4444-4444-4444-444444444444")

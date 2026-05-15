@@ -6,8 +6,13 @@ for local development. See ``.env.example`` for the available knobs.
 """
 
 from functools import lru_cache
+from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+Environment = Literal["development", "production", "test"]
 
 
 class Settings(BaseSettings):
@@ -22,8 +27,11 @@ class Settings(BaseSettings):
     # Deployment environment. When set to "production" the interactive API
     # docs (/docs, /redoc, /openapi.json) are disabled — a FastAPI best
     # practice so the schema is not exposed in production. Local dev and the
-    # test suite leave it at "development", where the docs stay on.
-    environment: str = "development"
+    # test suite leave it at "development", where the docs stay on. A typo
+    # like ``ENVIRONMENT=producton`` used to silently run in dev — the
+    # ``Literal`` constrains it so a bad value fails startup with a clear
+    # error naming the offending field.
+    environment: Environment = "development"
 
     # OpenAPI / app metadata.
     app_name: str = "Travel Planner Mock API"
@@ -34,9 +42,22 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
-    # Logging — the minimum level emitted to the console (DEBUG, INFO,
-    # WARNING, ERROR). Applied process-wide by ``app.core.logging``.
-    log_level: str = "INFO"
+    # Logging — the minimum level emitted to the console. Applied
+    # process-wide by ``app.core.logging``. The validator below uppercases
+    # the input so ``LOG_LEVEL=debug`` (the common form people type) still
+    # works, while ``LOG_LEVEL=debugg`` fails fast with a clear error
+    # instead of crashing later inside ``dictConfig``.
+    log_level: LogLevel = "INFO"
+
+    @field_validator("log_level", mode="before")
+    @classmethod
+    def _normalize_log_level(cls, value: object) -> object:
+        return value.upper() if isinstance(value, str) else value
+
+    @field_validator("environment", mode="before")
+    @classmethod
+    def _normalize_environment(cls, value: object) -> object:
+        return value.strip().lower() if isinstance(value, str) else value
 
     # Storage — bookings are persisted to this SQLite file (created on first
     # run). Relative paths are resolved from the working directory.
@@ -72,7 +93,7 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         """True when running in a production deployment."""
-        return self.environment.strip().lower() == "production"
+        return self.environment == "production"
 
 
 @lru_cache

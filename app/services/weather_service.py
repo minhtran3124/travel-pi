@@ -171,35 +171,54 @@ async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
         },
     )
 
-    current = data["current"]
-    daily = data["daily"]
+    # Walk the response defensively: ``_fetch_json`` already turns transport
+    # and HTTP errors into ``WeatherUnavailableError`` (502), but a 200 with
+    # an unexpected body shape (Open-Meteo changes a field, returns null
+    # arrays, etc.) would otherwise escape as a raw KeyError/IndexError →
+    # 500. Convert those to the same upstream-error envelope so callers see
+    # a consistent failure mode. Mirrors ``routing_service._ors_leg``.
+    try:
+        current = data["current"]
+        daily = data["daily"]
+        daily_dates: list = daily["time"]
 
-    return WeatherResponse(
-        location=WeatherLocation(
-            name=location["name"],
-            country=location.get("country"),
-            latitude=location["latitude"],
-            longitude=location["longitude"],
-            timezone=data.get("timezone", "UTC"),
-        ),
-        current=CurrentWeather(
-            time=current["time"],
-            temperature_c=current["temperature_2m"],
-            apparent_temperature_c=current["apparent_temperature"],
-            relative_humidity=current["relative_humidity_2m"],
-            wind_speed_kmh=current["wind_speed_10m"],
-            weather_code=current["weather_code"],
-            description=describe_code(current["weather_code"]),
-        ),
-        daily=[
-            DailyForecast(
-                date=daily["time"][i],
-                temp_min_c=daily["temperature_2m_min"][i],
-                temp_max_c=daily["temperature_2m_max"][i],
-                precipitation_probability_max=daily["precipitation_probability_max"][i],
-                weather_code=daily["weather_code"][i],
-                description=describe_code(daily["weather_code"][i]),
-            )
-            for i in range(len(daily["time"]))
-        ],
-    )
+        return WeatherResponse(
+            location=WeatherLocation(
+                name=location["name"],
+                country=location.get("country"),
+                latitude=location["latitude"],
+                longitude=location["longitude"],
+                timezone=data.get("timezone", "UTC"),
+            ),
+            current=CurrentWeather(
+                time=current["time"],
+                temperature_c=current["temperature_2m"],
+                apparent_temperature_c=current["apparent_temperature"],
+                relative_humidity=current["relative_humidity_2m"],
+                wind_speed_kmh=current["wind_speed_10m"],
+                weather_code=current["weather_code"],
+                description=describe_code(current["weather_code"]),
+            ),
+            daily=[
+                DailyForecast(
+                    date=daily_dates[i],
+                    temp_min_c=daily["temperature_2m_min"][i],
+                    temp_max_c=daily["temperature_2m_max"][i],
+                    precipitation_probability_max=daily[
+                        "precipitation_probability_max"
+                    ][i],
+                    weather_code=daily["weather_code"][i],
+                    description=describe_code(daily["weather_code"][i]),
+                )
+                for i in range(len(daily_dates))
+            ],
+        )
+    except (KeyError, IndexError, TypeError) as exc:
+        logger.warning(
+            "Open-Meteo returned an unexpected response shape for %s: %s",
+            city,
+            exc,
+        )
+        raise WeatherUnavailableError(
+            "Open-Meteo returned an unexpected response shape"
+        ) from exc

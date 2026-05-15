@@ -10,26 +10,32 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-from app.schemas.booking import Booking
+from app.schemas.booking import Booking, confirmation_code_for
 
 # One row per booking. The type-specific payload is kept as JSON text in
 # `details` — it varies between flight and hotel bookings. `idempotency_key`
 # is the optional client-supplied key that makes booking POSTs replay-safe;
 # it is persistence metadata, not part of the Booking resource itself.
+# `confirmation_code` is derived deterministically from `id` (see
+# `confirmation_code_for`) — storing it as its own column lets lookups by
+# confirmation code use an index instead of scanning the whole table and
+# rebuilding every model. The migration in `init_db` backfills it for any
+# rows created before this column existed.
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS bookings (
-    id              TEXT PRIMARY KEY,
-    type            TEXT NOT NULL,
-    reference_id    TEXT NOT NULL,
-    customer_name   TEXT NOT NULL,
-    customer_email  TEXT NOT NULL,
-    total_price     REAL NOT NULL,
-    currency        TEXT NOT NULL,
-    status          TEXT NOT NULL,
-    created_at      TEXT NOT NULL,
-    details         TEXT NOT NULL,
-    notes           TEXT,
-    idempotency_key TEXT
+    id                 TEXT PRIMARY KEY,
+    type               TEXT NOT NULL,
+    reference_id       TEXT NOT NULL,
+    customer_name      TEXT NOT NULL,
+    customer_email     TEXT NOT NULL,
+    total_price        REAL NOT NULL,
+    currency           TEXT NOT NULL,
+    status             TEXT NOT NULL,
+    created_at         TEXT NOT NULL,
+    details            TEXT NOT NULL,
+    notes              TEXT,
+    idempotency_key    TEXT,
+    confirmation_code  TEXT
 )
 """
 
@@ -46,6 +52,7 @@ _COLUMNS = (
     "details",
     "notes",
     "idempotency_key",
+    "confirmation_code",
 )
 
 
@@ -90,9 +97,9 @@ class BookingRepository:
     def init_db(self) -> None:
         """Create the bookings table if it does not exist. Called on startup.
 
-        Also runs a tiny forward migration: a ``bookings`` table created
-        before idempotency support existed is missing ``idempotency_key``,
-        so add it in place rather than forcing the DB file to be recreated.
+        Also runs tiny forward migrations: a ``bookings`` table created
+        before a feature shipped is missing the column it needs, so add it
+        in place rather than forcing the DB file to be recreated.
         """
         with self._connect() as conn:
             conn.execute(_SCHEMA)
@@ -102,6 +109,18 @@ class BookingRepository:
             }
             if "idempotency_key" not in existing:
                 conn.execute("ALTER TABLE bookings ADD COLUMN idempotency_key TEXT")
+            if "confirmation_code" not in existing:
+                conn.execute("ALTER TABLE bookings ADD COLUMN confirmation_code TEXT")
+                # Backfill the new column for rows that pre-date it. The code
+                # is deterministic from the UUID, so this is a one-shot
+                # idempotent migration — re-running init_db is a no-op.
+                rows = conn.execute(
+                    "SELECT id FROM bookings WHERE confirmation_code IS NULL"
+                ).fetchall()
+                conn.executemany(
+                    "UPDATE bookings SET confirmation_code = ? WHERE id = ?",
+                    [(confirmation_code_for(r["id"]), r["id"]) for r in rows],
+                )
             # A UNIQUE index makes the idempotency check atomic: two concurrent
             # POSTs with the same key can't both pass the replay check and
             # insert — the second INSERT fails, and `add()` returns the row the
@@ -112,6 +131,13 @@ class BookingRepository:
             conn.execute(
                 "CREATE UNIQUE INDEX IF NOT EXISTS ix_bookings_idempotency_key "
                 "ON bookings (idempotency_key) WHERE idempotency_key IS NOT NULL"
+            )
+            # Plain (non-unique) index on confirmation_code — the alphabet is
+            # 31 chars × 6 positions ≈ 887M codes; collisions are extremely
+            # unlikely but a UNIQUE index would crash on the off chance.
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS ix_bookings_confirmation_code "
+                "ON bookings (confirmation_code)"
             )
 
     def get(self, booking_id: str) -> Booking | None:
@@ -132,6 +158,19 @@ class BookingRepository:
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM bookings WHERE idempotency_key = ?", (key,)
+            ).fetchone()
+        return _row_to_booking(row) if row is not None else None
+
+    def get_by_confirmation_code(self, code: str) -> Booking | None:
+        """Return the booking with this 6-char confirmation code, or ``None``.
+
+        Uses the ``ix_bookings_confirmation_code`` index — O(log n) instead
+        of the scan-and-rebuild approach the service used to do.
+        """
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM bookings WHERE confirmation_code = ?",
+                (code.strip().upper(),),
             ).fetchone()
         return _row_to_booking(row) if row is not None else None
 
@@ -177,6 +216,7 @@ class BookingRepository:
             json.dumps(booking.details, default=str),
             booking.notes,
             idempotency_key,
+            booking.confirmation_code,
         )
         placeholders = ", ".join("?" for _ in _COLUMNS)
         try:

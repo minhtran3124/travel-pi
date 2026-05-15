@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 
+from app.enums import BookingSort, BookingType
 from app.schemas.booking import Booking, BookingListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
@@ -31,24 +32,29 @@ def list_bookings(
         ),
     ] = None,
     booking_type: Annotated[
-        str | None,
+        BookingType | None,
         Query(alias="type", description="Filter by booking type", example="flight"),
     ] = None,
     sort: Annotated[
-        str,
+        BookingSort,
         Query(
-            description="created_desc | created_asc | price_desc | price_asc",
+            description="Sort order — Swagger renders the dropdown.",
             example="created_desc",
         ),
-    ] = "created_desc",
+    ] = BookingSort.CREATED_DESC,
 ) -> BookingListResponse:
     """Return bookings matching the optional filters, sorted, and paginated.
 
-    ``total`` reflects the full match count before pagination.
-    Unknown ``type`` or ``sort`` values are ignored.
+    ``total`` reflects the full match count before pagination. ``type`` and
+    ``sort`` are validated against their enums — an unknown value returns a
+    422 with the list of valid options instead of being silently ignored.
     """
     page, total = pagination.page_of(
-        bookings.query(q=q, booking_type=booking_type, sort=sort)
+        bookings.query(
+            q=q,
+            booking_type=booking_type.value if booking_type else None,
+            sort=sort.value,
+        )
     )
     return BookingListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page

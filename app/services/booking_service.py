@@ -50,17 +50,14 @@ class BookingService:
         """Return a booking by UUID *or* confirmation code.
 
         Callers can use the friendly 6-char ``confirmation_code`` wherever a
-        booking UUID is accepted — we try the UUID first, then fall back to a
-        case-insensitive confirmation-code scan. Raises :class:`NotFoundError`
-        if neither matches.
+        booking UUID is accepted — we try the UUID first, then look up the
+        code via the ``ix_bookings_confirmation_code`` index. Both paths are
+        O(log n); no full-table scan. Raises :class:`NotFoundError` if
+        neither matches.
         """
-        booking = self._repo.get(booking_id)
-        if booking is None:
-            code = booking_id.strip().upper()
-            booking = next(
-                (b for b in self._repo.list_all() if b.confirmation_code == code),
-                None,
-            )
+        booking = self._repo.get(booking_id) or self._repo.get_by_confirmation_code(
+            booking_id
+        )
         if booking is None:
             raise NotFoundError("Booking not found")
         return booking

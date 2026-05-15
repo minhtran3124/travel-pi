@@ -210,10 +210,11 @@ def test_search_sort_price_asc(client: TestClient) -> None:
     assert levels == sorted(levels)
 
 
-def test_search_invalid_sort_falls_back(client: TestClient) -> None:
+def test_search_invalid_sort_returns_422(client: TestClient) -> None:
+    """``sort`` is a PlaceSort enum — an unknown value is now 422 instead of
+    being silently coerced to the default."""
     resp = client.get("/places/search", params={"sort": "bogus"})
-    assert resp.status_code == 200
-    assert resp.json()["sort"] == "rating_desc"
+    assert resp.status_code == 422
 
 
 def test_search_empty_string_min_rating_treated_as_no_filter(client: TestClient) -> None:
@@ -229,11 +230,19 @@ def test_search_empty_string_price_level_treated_as_no_filter(client: TestClient
 
 
 def test_search_all_empty_strings(client: TestClient) -> None:
+    """Empty strings on the free-text + numeric params are treated as no filter.
+    ``category`` is now a strict enum, so it is excluded from this test —
+    sending ``category=""`` correctly 422s (covered separately)."""
     resp = client.get("/places/search", params={
-        "city": "", "category": "", "min_rating": "", "price_level": ""
+        "city": "", "min_rating": "", "price_level": ""
     })
     assert resp.status_code == 200
     assert resp.json()["total"] > 0
+
+
+def test_search_empty_string_category_returns_422(client: TestClient) -> None:
+    """``category`` is an enum: an empty string is not a valid value."""
+    assert client.get("/places/search", params={"category": ""}).status_code == 422
 
 
 def test_search_pagination(client: TestClient) -> None:
@@ -368,3 +377,29 @@ def test_search_places_city_is_fuzzy(client: TestClient) -> None:
 def test_search_places_unknown_city_returns_zero(client: TestClient) -> None:
     body = client.get("/places/search", params={"city": "zzzznowhere"}).json()
     assert body["total"] == 0
+
+
+# ── Bad numeric input via the shared params helper ────────────────────────────
+
+
+def test_search_min_rating_non_numeric_returns_422(client: TestClient) -> None:
+    resp = client.get("/places/search", params={"min_rating": "abc"})
+    assert resp.status_code == 422
+    assert "Min" in resp.json()["message"] or "min_rating" in resp.json()["message"]
+
+
+def test_search_min_rating_out_of_range_returns_422(client: TestClient) -> None:
+    assert client.get("/places/search", params={"min_rating": "9"}).status_code == 422
+
+
+def test_search_price_level_out_of_range_returns_422(client: TestClient) -> None:
+    assert client.get("/places/search", params={"price_level": "7"}).status_code == 422
+
+
+def test_dashboard_places_bad_min_rating_returns_200_with_error(
+    client: TestClient,
+) -> None:
+    """Dashboard renders a friendly inline error rather than 500'ing."""
+    resp = client.get("/dashboard/places", params={"min_rating": "abc"})
+    assert resp.status_code == 200
+    assert "Min rating" in resp.text

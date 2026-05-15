@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
+from app.enums import FlightSort
 from app.exceptions import NotFoundError
 from app.schemas.booking import Booking
 from app.schemas.error import error_responses
@@ -79,15 +80,12 @@ def search_flights(
         ),
     ] = None,
     sort: Annotated[
-        str,
+        FlightSort,
         Query(
-            description=(
-                "Sort order: departure_asc (default) | departure_desc | "
-                "price_asc | price_desc | duration_asc | duration_desc"
-            ),
+            description="Sort order — Swagger renders the dropdown.",
             example="departure_asc",
         ),
-    ] = "departure_asc",
+    ] = FlightSort.DEPARTURE_ASC,
 ) -> FlightSearchResponse:
     """Return up to 5 deterministic mock flights for a route and date.
 
@@ -107,7 +105,7 @@ def search_flights(
             airline=airline_upper,
             max_price=max_price,
             max_stops=max_stops,
-            sort=sort,
+            sort=sort.value,
         )
     except ValueError as exc:
         raise HTTPException(
@@ -125,7 +123,7 @@ def search_flights(
                 airline=airline_upper,
                 max_price=max_price,
                 max_stops=max_stops,
-                sort=sort,
+                sort=sort.value,
             )
         except ValueError as exc:
             raise HTTPException(
@@ -144,7 +142,7 @@ def search_flights(
             airline=airline_upper,
             max_price=max_price,
             max_stops=max_stops,
-            sort=sort,
+            sort=sort.value,
         ),
         results=flights,
         return_count=len(return_flights) if return_flights is not None else None,

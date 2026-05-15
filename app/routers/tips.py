@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
 
+from app.enums import TipCategory
 from app.schemas.error import error_responses
 from app.schemas.tip import TipsResponse
 from app.services import tip_service
@@ -35,12 +36,9 @@ def get_tips(
         ),
     ] = None,
     category: Annotated[
-        str | None,
+        TipCategory | None,
         Query(
-            description=(
-                "Filter by category: transport | money | safety | culture | food | "
-                "connectivity | health | etiquette | best_time | language"
-            ),
+            description="Filter by category — Swagger renders the dropdown.",
             example="money",
         ),
     ] = None,
@@ -67,16 +65,10 @@ def get_tips(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Provide either 'city' or 'country'.",
         )
-    if category and category.strip().lower() not in tip_service.VALID_CATEGORIES:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid category '{category}'. "
-            f"Valid: {sorted(tip_service.VALID_CATEGORIES)}",
-        )
 
     return tip_service.get_tips(
         city=city,
         country=country,
-        category=category,
+        category=category.value if category else None,
         essential_only=essential_only,
     )

@@ -23,6 +23,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from app.core.params import parse_optional_number
 from app.data.cities import CITIES as _CITY_DATA
 from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
@@ -122,24 +123,14 @@ def flight_search(
     non-numeric value shows a friendly error rather than a 422.
     """
     airports = airport_service.list_airports()
-    error: str | None = None
 
-    def _optional_number(raw: str | None, label: str, cast):
-        nonlocal error
-        if raw is None or raw.strip() == "":
-            return None
-        try:
-            value = cast(raw)
-        except ValueError:
-            error = f"{label} must be a number."
-            return None
-        if value < 0:
-            error = f"{label} cannot be negative."
-            return None
-        return value
-
-    max_price_val = _optional_number(max_price, "Max price", float)
-    max_stops_val = _optional_number(max_stops, "Max stops", int)
+    max_price_val, err_price = parse_optional_number(
+        max_price, label="Max price", kind=float, minimum=0
+    )
+    max_stops_val, err_stops = parse_optional_number(
+        max_stops, label="Max stops", kind=int, minimum=0
+    )
+    error: str | None = err_price or err_stops
 
     search = {
         "origin": (origin or "").upper() or None,
@@ -304,20 +295,31 @@ def places_page(
     if sort not in _PLACE_SORTS:
         sort = "rating_desc"
 
-    # Coerce empty strings (HTML form "Any" option) to None.
-    min_rating_val: float | None = float(min_rating) if min_rating else None
-    price_level_val: int | None = int(price_level) if price_level else None
+    # Bad numeric input renders a friendly inline message instead of 500'ing.
+    min_rating_val, err_rating = parse_optional_number(
+        min_rating, label="Min rating", kind=float, minimum=0, maximum=5
+    )
+    price_level_val, err_price = parse_optional_number(
+        price_level, label="Price level", kind=int, minimum=1, maximum=4
+    )
+    error: str | None = err_rating or err_price
 
     all_places = place_service.list_places()
     cities = place_service.CITIES
 
-    results = place_service.search_places(
-        city=city or None,
-        category=category or None,
-        min_rating=min_rating_val,
-        price_level=price_level_val,
-        recommended_only=recommended,
-        sort=sort,
+    # Skip the search on bad input so the page renders the error and the
+    # picker, not a misleading "everything" list.
+    results = (
+        []
+        if error
+        else place_service.search_places(
+            city=city or None,
+            category=category or None,
+            min_rating=min_rating_val,
+            price_level=price_level_val,
+            recommended_only=recommended,
+            sort=sort,
+        )
     )
 
     return _TEMPLATES.TemplateResponse(
@@ -336,6 +338,7 @@ def places_page(
             "selected_price_level": price_level_val,
             "recommended": recommended,
             "sort": sort,
+            "error": error,
         },
     )
 

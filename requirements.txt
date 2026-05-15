@@ -1,10 +1,12 @@
-fastapi>=0.110.0
-uvicorn[standard]>=0.27.0
-pydantic>=2.6.0
-pydantic-settings>=2.2.0
-jinja2>=3.1.0
-httpx>=0.28.0
+# Pin upper bounds to the current major so a fresh install can't pull a
+# breaking new release (e.g. Pydantic v3, FastAPI 1.0). Loosen as we test.
+fastapi>=0.110.0,<1.0.0
+uvicorn[standard]>=0.27.0,<1.0.0
+pydantic>=2.6.0,<3.0.0
+pydantic-settings>=2.2.0,<3.0.0
+jinja2>=3.1.0,<4.0.0
+httpx>=0.28.0,<1.0.0
 
 # dev / test
-pytest>=9.0.0
-ruff>=0.15.0
+pytest>=9.0.0,<10.0.0
+ruff>=0.15.0,<1.0.0

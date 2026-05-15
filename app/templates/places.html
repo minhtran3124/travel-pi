@@ -115,7 +115,7 @@
   </div>
 {% else %}
   <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
-    No places match your filters.
+    {% if error %}{{ error }}{% else %}No places match your filters.{% endif %}
     <a href="/dashboard/places" style="color: var(--accent-dim);">Clear all filters</a>
   </div>
 {% endif %}

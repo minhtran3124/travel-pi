@@ -68,6 +68,12 @@ def test_availability_bad_date_returns_422(client):
     assert _availability(client, check_in="not-a-date").status_code == 422
 
 
+def test_availability_check_out_before_check_in_returns_422(client):
+    """check_out earlier than check_in used to silently book a 1-night stay."""
+    resp = _availability(client, check_in="2026-06-05", check_out="2026-06-01")
+    assert resp.status_code == 422
+
+
 def test_availability_unknown_city_returns_zero(client):
     body = client.get(
         "/hotels/availability",
