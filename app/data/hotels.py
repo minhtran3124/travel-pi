@@ -2244,3 +2244,22 @@ _COUNTRY_BY_CITY: dict[str, str] = {c["name"]: c["country"] for c in _CITIES}
 
 for _hotel in HOTELS:
     _hotel["country"] = _COUNTRY_BY_CITY[_hotel["city"]]
+
+# CLAUDE.md promises every city in cities.py has ≥3 hotels — enforce it at
+# import time so a future edit can't silently drop below the threshold (or
+# leave a city with no hotels at all). Failing here is loud and obvious;
+# tracking it down at request time would not be.
+_MIN_HOTELS_PER_CITY = 3
+_HOTEL_COUNTS: dict[str, int] = {}
+for _hotel in HOTELS:
+    _HOTEL_COUNTS[_hotel["city"]] = _HOTEL_COUNTS.get(_hotel["city"], 0) + 1
+_short = {
+    c["name"]: _HOTEL_COUNTS.get(c["name"], 0)
+    for c in _CITIES
+    if _HOTEL_COUNTS.get(c["name"], 0) < _MIN_HOTELS_PER_CITY
+}
+if _short:
+    raise ValueError(
+        f"hotels.py: every city in cities.py must have ≥{_MIN_HOTELS_PER_CITY} "
+        f"hotels (CLAUDE.md invariant). Short cities: {_short}"
+    )

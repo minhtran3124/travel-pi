@@ -53,7 +53,18 @@ def test_unknown_route_uses_envelope(client):
     path = "/this/route/does/not/exist"
     resp = client.get(path)
     assert resp.status_code == 404
-    _assert_envelope(resp.json(), 404, path)
+    body = resp.json()
+    _assert_envelope(body, 404, path)
+    # Route-not-found 404 must be distinguishable from a domain NotFoundError —
+    # the envelope's ``error`` field is mapped from the status code.
+    assert body["error"] == "NotFound"
+
+
+def test_method_not_allowed_envelope_label(client):
+    """A POST to a GET-only route gets a labelled 405 envelope."""
+    resp = client.post("/airports")
+    assert resp.status_code == 405
+    assert resp.json()["error"] == "MethodNotAllowed"
 
 
 # --- Request validation (422) ------------------------------------------------

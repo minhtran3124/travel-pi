@@ -11,15 +11,9 @@ _PLACES: list[Place] = [Place(**record) for record in PLACES]
 CATEGORIES = sorted({p.category for p in _PLACES})
 CITIES = sorted({p.city for p in _PLACES})
 
-_SORTS: dict[str, str | None] = {
-    "rating_desc": None,  # default — handled below
-    "rating_asc": None,
-    "name": None,
-    "price_asc": None,
-    "price_desc": None,
-    "reviews_desc": None,
-}
-
+# Valid sort keys live in ``app.enums.PlaceSort`` (the JSON router validates
+# against the enum). The actual sort dispatch happens via the if/elif chain
+# in ``search_places`` below.
 DEFAULT_SORT = "rating_desc"
 
 

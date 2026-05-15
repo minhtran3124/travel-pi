@@ -4253,3 +4253,21 @@ for _place in PLACES:
             f"{_place['country']!r} but cities.py says "
             f"{_COUNTRY_BY_CITY[_city]!r}"
         )
+
+# CLAUDE.md promises every city in cities.py has ≥3 places — same invariant
+# the hotels.py guard enforces. Failing at import time prevents a future
+# trim from silently leaving a city with one or two places (or none).
+_MIN_PLACES_PER_CITY = 3
+_PLACE_COUNTS: dict[str, int] = {}
+for _place in PLACES:
+    _PLACE_COUNTS[_place["city"]] = _PLACE_COUNTS.get(_place["city"], 0) + 1
+_short = {
+    c["name"]: _PLACE_COUNTS.get(c["name"], 0)
+    for c in _CITIES
+    if _PLACE_COUNTS.get(c["name"], 0) < _MIN_PLACES_PER_CITY
+}
+if _short:
+    raise ValueError(
+        f"places.py: every city in cities.py must have ≥{_MIN_PLACES_PER_CITY} "
+        f"places (CLAUDE.md invariant). Short cities: {_short}"
+    )

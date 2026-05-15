@@ -86,15 +86,30 @@ def create_app() -> FastAPI:
         )
 
     # HTTPException covers both routers that raise it directly (e.g. a bad
-    # date → 422) and Starlette's own 404/405 for unmatched routes.
+    # date → 422) and Starlette's own 404/405 for unmatched routes. Map by
+    # status code so the envelope's ``error`` field is self-documenting —
+    # an unmatched route's ``"NotFound"`` is then distinguishable from a
+    # domain ``"NotFoundError"`` raised by the service layer.
+    _HTTP_ERROR_LABELS = {
+        400: "BadRequest",
+        401: "Unauthorized",
+        403: "Forbidden",
+        404: "NotFound",
+        405: "MethodNotAllowed",
+        409: "Conflict",
+        422: "UnprocessableEntity",
+        429: "TooManyRequests",
+    }
+
     @app.exception_handler(StarletteHTTPException)
     async def _handle_http_exception(
         request: Request, exc: StarletteHTTPException
     ) -> JSONResponse:
+        label = _HTTP_ERROR_LABELS.get(exc.status_code, "HTTPException")
         return JSONResponse(
             status_code=exc.status_code,
             content=_error_body(
-                "HTTPException", str(exc.detail), exc.status_code, request
+                label, str(exc.detail), exc.status_code, request
             ),
         )
 
