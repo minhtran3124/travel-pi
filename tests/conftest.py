@@ -1,12 +1,12 @@
 """Shared fixtures for all endpoint tests."""
 
-import tempfile
 
 import pytest
-from fastapi.testclient import TestClient
-
+from app.crud.flight import FlightIndexRepository
 from app.main import create_app
+from app.services import flight_service
 from app.services.booking_service import BookingService, get_booking_service
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="session")
@@ -21,6 +21,10 @@ def client(tmp_db):
     """TestClient that uses an isolated booking store."""
     svc = BookingService(tmp_db)
     svc.init_db()
+
+    # Point flight-ID persistence at the temp DB too, so flight lookups stay
+    # isolated from the real travel.db.
+    flight_service.set_index_repo(FlightIndexRepository(tmp_db))
 
     app = create_app()
     app.dependency_overrides[get_booking_service] = lambda: svc
@@ -59,6 +63,30 @@ def get_first_flight_id(client: TestClient) -> str:
         },
     )
     return resp.json()["results"][0]["id"]
+
+
+def get_first_flight_booking_fields(client: TestClient) -> dict:
+    """Return the friendly identifier fields for booking the first flight.
+
+    The booking endpoint identifies a flight the way an agent does — by
+    flight_number + route + date — so this helper builds that bundle from a
+    deterministic search. Spread it into a booking payload alongside the
+    passenger details.
+    """
+    flight = client.get(
+        "/flights/search",
+        params={
+            "origin": VALID_ORIGIN,
+            "destination": VALID_DESTINATION,
+            "departure_date": VALID_DATE,
+        },
+    ).json()["results"][0]
+    return {
+        "flight_number": flight["flight_number"],
+        "origin": VALID_ORIGIN,
+        "destination": VALID_DESTINATION,
+        "departure_date": VALID_DATE,
+    }
 
 
 def get_first_hotel_id(client: TestClient) -> str:

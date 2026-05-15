@@ -8,14 +8,16 @@
 </div>
 
 <form method="get" action="/dashboard/places" class="filter-bar">
-  <div class="fg">
+  <div class="fg" style="position: relative;">
     <span class="fl">City</span>
-    <select name="city" onchange="this.form.submit()">
-      <option value="">All cities</option>
+    <input type="text" id="city-input" name="city" value="{{ selected_city or '' }}"
+           placeholder="All cities" autocomplete="off">
+    <ul id="city-dropdown" class="city-dropdown">
+      <li data-value="">All cities</li>
       {% for c in cities %}
-        <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+        <li data-value="{{ c }}">{{ c }}</li>
       {% endfor %}
-    </select>
+    </ul>
   </div>
 
   <div class="fg">
@@ -119,6 +121,21 @@
 {% endif %}
 
 <style>
+  .city-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0;
+    margin: 4px 0 0 0; padding: 0; list-style: none;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); max-height: 240px; overflow-y: auto;
+    display: none; z-index: 1000;
+  }
+  .city-dropdown.show { display: block; }
+  .city-dropdown li {
+    padding: 10px 12px; cursor: pointer;
+    font-size: 0.875rem; transition: background .1s;
+  }
+  .city-dropdown li:hover { background: var(--accent-glow); }
+  .city-dropdown li.filtered { display: none; }
+
   .place-grid {
     display: grid; gap: 14px;
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -189,4 +206,48 @@
     .place-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
   }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('city-input');
+  const dropdown = document.getElementById('city-dropdown');
+  const items = dropdown.querySelectorAll('li');
+
+  input.addEventListener('focus', () => {
+    dropdown.classList.add('show');
+  });
+
+  input.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      if (text.includes(query)) {
+        item.classList.remove('filtered');
+      } else {
+        item.classList.add('filtered');
+      }
+    });
+  });
+
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      input.value = item.dataset.value;
+      dropdown.classList.remove('show');
+      input.form.submit();
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.fg')) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      input.form.submit();
+    }
+  });
+});
+</script>
 {% endblock %}

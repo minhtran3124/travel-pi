@@ -69,3 +69,45 @@ def test_airports_limit_validation(client):
 
 def test_airports_offset_validation(client):
     assert client.get("/airports", params={"offset": -1}).status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# GET /airports?q=  (fuzzy search)
+# ---------------------------------------------------------------------------
+
+
+def _all_airports(client, **params):
+    return client.get("/airports", params={"limit": 500, **params}).json()["results"]
+
+
+def test_airports_fuzzy_by_iata_code(client):
+    results = _all_airports(client, q="DAD")
+    assert results
+    assert results[0]["code"] == "DAD"
+
+
+def test_airports_fuzzy_code_case_insensitive(client):
+    results = _all_airports(client, q="dad")
+    assert any(a["code"] == "DAD" for a in results)
+
+
+def test_airports_fuzzy_by_city(client):
+    results = _all_airports(client, q="Da Nang")
+    assert any(a["city"] == "Da Nang" for a in results)
+
+
+def test_airports_fuzzy_partial_city(client):
+    results = _all_airports(client, q="danang")
+    assert any(a["city"] == "Da Nang" for a in results)
+
+
+def test_airports_fuzzy_by_name(client):
+    results = _all_airports(client, q="International")
+    assert results
+    assert all("international" in a["name"].lower() for a in results)
+
+
+def test_airports_fuzzy_no_match_returns_empty(client):
+    body = client.get("/airports", params={"q": "zzzznowhere"}).json()
+    assert body["results"] == []
+    assert body["total"] == 0

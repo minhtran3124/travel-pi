@@ -2,12 +2,15 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
 from app.exceptions import NotFoundError
 from app.schemas.booking import Booking
+from app.schemas.error import error_responses
 from app.schemas.hotel import (
     Hotel,
+    HotelAvailabilityInfo,
+    HotelAvailabilityResponse,
     HotelBookingRequest,
     HotelListResponse,
     HotelSearchInfo,
@@ -26,6 +29,7 @@ BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
     "",
     response_model=HotelListResponse,
     summary="List all hotels (paginated)",
+    responses=error_responses(422),
 )
 def list_hotels(pagination: PaginationDep) -> HotelListResponse:
     """Return all seeded hotels with pagination.
@@ -38,67 +42,166 @@ def list_hotels(pagination: PaginationDep) -> HotelListResponse:
     )
 
 
+# Required amenities, shared by /search and /availability. No default here —
+# FastAPI requires the default to be set with ``= None`` at the call site.
+_AMENITIES_QUERY = Query(
+    description=(
+        "Required amenities (all must match). Repeat the param for multiple "
+        "values, e.g. ?amenities=Pool&amenities=Spa"
+    ),
+    example="Pool",
+)
+
+
 # Note: declare "/search" before "/{hotel_id}" so it is not captured as an ID.
 @router.get(
     "/search",
     response_model=HotelSearchResponse,
-    summary="Search hotels by city, date range, and optional filters",
+    summary="Browse hotels in a city (no dates — discovery)",
+    responses=error_responses(422),
 )
 def search_hotels(
     pagination: PaginationDep,
     city: Annotated[
         str,
         Query(
-            description="City name, case-insensitive exact match", examples=["Da Nang"]
+            description="City name — fuzzy (typo/case tolerant)",
+            example="Da Nang",
         ),
     ],
-    check_in: Annotated[
-        str,
-        Query(description="Check-in date, YYYY-MM-DD", examples=["2026-06-01"]),
-    ],
-    check_out: Annotated[
-        str,
-        Query(description="Check-out date, YYYY-MM-DD", examples=["2026-06-03"]),
-    ],
-    guests: Annotated[int, Query(description="Guest count; echoed back")] = 1,
     min_stars: Annotated[
         int | None,
-        Query(ge=1, le=5, description="Minimum star rating (1–5)"),
+        Query(ge=1, le=5, description="Minimum star rating (1–5)", example=4),
     ] = None,
     max_price: Annotated[
         float | None,
-        Query(ge=0, description="Maximum price per night (USD)"),
-    ] = None,
-    amenities: Annotated[
-        list[str] | None,
         Query(
-            description=(
-                "Required amenities (all must match). "
-                "Repeat the param for multiple values, e.g. ?amenities=Pool&amenities=Spa"
-            ),
-            examples=["Pool"],
+            ge=0, description="Maximum price per night (USD)", example=150
         ),
     ] = None,
+    amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelSearchResponse:
-    """Return hotels matching the city and optional filters, with pagination.
+    """Browse the hotels in a city — pure discovery, no dates needed.
 
-    ``check_in``, ``check_out``, and ``guests`` are echoed back but do not
-    filter results. Unknown cities return ``total: 0`` (not a 404).
-    ``total`` reflects the full match count; ``results`` is the current page.
+    Answers "are there any hotels in this city" and lets the client filter
+    by stars / price / amenities. To check whether rooms are actually free
+    for specific dates, use ``GET /hotels/availability``. Unknown cities
+    return ``total: 0`` (not a 404).
     """
     all_results = hotel_service.search_hotels(
         city, min_stars=min_stars, max_price=max_price, amenities=amenities
     )
     page, total = pagination.page_of(all_results)
+    # Echo the canonical city name when the fuzzy lookup resolved it.
+    echoed_city = hotel_service.resolve_city(city) or city
     return HotelSearchResponse(
         total=total,
         limit=pagination.limit,
         offset=pagination.offset,
         search=HotelSearchInfo(
-            city=city,
+            city=echoed_city,
+            min_stars=min_stars,
+            max_price=max_price,
+            amenities=amenities,
+        ),
+        results=page,
+    )
+
+
+# Note: declare "/availability" before "/{hotel_id}" so it is not an ID.
+@router.get(
+    "/availability",
+    response_model=HotelAvailabilityResponse,
+    summary="Check room availability for specific dates and party size",
+    responses=error_responses(422),
+)
+def hotel_availability(
+    pagination: PaginationDep,
+    city: Annotated[
+        str,
+        Query(
+            description="City name — fuzzy (typo/case tolerant)",
+            example="Da Nang",
+        ),
+    ],
+    check_in: Annotated[
+        str,
+        Query(description="Check-in date, YYYY-MM-DD", example="2026-06-01"),
+    ],
+    check_out: Annotated[
+        str,
+        Query(description="Check-out date, YYYY-MM-DD", example="2026-06-03"),
+    ],
+    rooms: Annotated[int, Query(ge=1, description="Rooms needed", example=1)] = 1,
+    adults: Annotated[
+        int, Query(ge=1, description="Adults in the party", example=2)
+    ] = 2,
+    children: Annotated[
+        int, Query(ge=0, description="Children in the party", example=0)
+    ] = 0,
+    available_only: Annotated[
+        bool,
+        Query(
+            description="Return only hotels that can take the booking",
+            example=True,
+        ),
+    ] = False,
+    min_stars: Annotated[
+        int | None,
+        Query(ge=1, le=5, description="Minimum star rating (1–5)", example=4),
+    ] = None,
+    max_price: Annotated[
+        float | None,
+        Query(
+            ge=0, description="Maximum price per night (USD)", example=150
+        ),
+    ] = None,
+    amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
+) -> HotelAvailabilityResponse:
+    """Check, for specific dates and party size, which hotels have rooms.
+
+    Each result carries ``available`` (enough rooms *and* they can hold the
+    party), the free-room count, per-room capacity, and the all-in
+    ``total_price`` (``price_per_night × nights × rooms``). With
+    ``available_only=true`` the unavailable hotels are dropped. Unknown
+    cities return ``total: 0``; a bad date is **422**.
+    """
+    try:
+        nights = hotel_service.count_nights(check_in, check_out)
+        results = hotel_service.check_availability(
+            city,
+            check_in,
+            check_out,
+            rooms=rooms,
+            adults=adults,
+            children=children,
+            min_stars=min_stars,
+            max_price=max_price,
+            amenities=amenities,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid check_in/check_out; expected format YYYY-MM-DD",
+        ) from exc
+
+    if available_only:
+        results = [r for r in results if r.available]
+
+    page, total = pagination.page_of(results)
+    echoed_city = hotel_service.resolve_city(city) or city
+    return HotelAvailabilityResponse(
+        total=total,
+        limit=pagination.limit,
+        offset=pagination.offset,
+        search=HotelAvailabilityInfo(
+            city=echoed_city,
             check_in=check_in,
             check_out=check_out,
-            guests=guests,
+            nights=nights,
+            rooms=rooms,
+            adults=adults,
+            children=children,
             min_stars=min_stars,
             max_price=max_price,
             amenities=amenities,
@@ -111,8 +214,17 @@ def search_hotels(
     "/{hotel_id}",
     response_model=Hotel,
     summary="Get a single hotel by ID",
+    responses=error_responses(404, 422),
 )
-def get_hotel(hotel_id: str) -> Hotel:
+def get_hotel(
+    hotel_id: Annotated[
+        str,
+        Path(
+            description="Hotel UUID from /hotels or /hotels/search",
+            example="5c1a8d2c-5e1c-4d6f-9a73-2c3b9b0a4ac5",
+        ),
+    ],
+) -> Hotel:
     """Return a single hotel, or 404 if the ID does not exist."""
     hotel = hotel_service.get_hotel(hotel_id)
     if hotel is None:
@@ -124,7 +236,27 @@ def get_hotel(hotel_id: str) -> Hotel:
     "/book",
     response_model=Booking,
     summary="Create a hotel booking",
+    responses=error_responses(404, 409, 422),
 )
-def book_hotel(request: HotelBookingRequest, bookings: BookingsDep) -> Booking:
-    """Create a hotel booking. ``total_price`` is computed server-side."""
-    return bookings.book_hotel(request)
+def book_hotel(
+    request: HotelBookingRequest,
+    bookings: BookingsDep,
+    idempotency_key: Annotated[
+        str | None,
+        Header(
+            alias="Idempotency-Key",
+            description=(
+                "Optional client-supplied key that makes this POST "
+                "replay-safe: repeating the request with the same key "
+                "returns the original booking instead of creating a "
+                "duplicate."
+            ),
+            example="booking-2026-06-01-abc123",
+        ),
+    ] = None,
+) -> Booking:
+    """Create a hotel booking, or replay an earlier one for the same key.
+
+    ``total_price`` is computed server-side.
+    """
+    return bookings.book_hotel(request, idempotency_key=idempotency_key)

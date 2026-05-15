@@ -24,6 +24,16 @@ class NotFoundError(AppError):
     default_detail = "Resource not found"
 
 
+class ConflictError(AppError):
+    """The request cannot be fulfilled in the current state (HTTP 409).
+
+    Used e.g. when a hotel has no rooms available for the requested dates.
+    """
+
+    status_code = 409
+    default_detail = "Request conflicts with the current state"
+
+
 class UpstreamError(AppError):
     """A call to an upstream service failed (HTTP 502)."""
 
@@ -37,3 +47,7 @@ class CityNotFoundError(NotFoundError):
 
 class WeatherUnavailableError(UpstreamError):
     """The upstream Open-Meteo API call failed."""
+
+
+class RoutingUnavailableError(UpstreamError):
+    """The upstream OpenRouteService API call failed."""

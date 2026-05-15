@@ -25,11 +25,20 @@ class PaginationParams:
         self,
         limit: Annotated[
             int,
-            Query(ge=1, le=500, description="Page size (1-500, default 20)"),
+            Query(
+                ge=1,
+                le=500,
+                description="Page size (1-500, default 20)",
+                example=20,
+            ),
         ] = 20,
         offset: Annotated[
             int,
-            Query(ge=0, description="Number of items to skip (default 0)"),
+            Query(
+                ge=0,
+                description="Number of items to skip (default 0)",
+                example=0,
+            ),
         ] = 0,
     ) -> None:
         self.limit = limit

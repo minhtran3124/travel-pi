@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
 
+from app.schemas.error import error_responses
 from app.schemas.tip import TipsResponse
 from app.services import tip_service
 
@@ -14,15 +15,24 @@ router = APIRouter(prefix="/tips", tags=["tips"])
     "",
     response_model=TipsResponse,
     summary="Get local tips for a city or country",
+    responses=error_responses(422),
 )
 def get_tips(
     city: Annotated[
         str | None,
-        Query(description="City name — resolves its own country", examples=["Hanoi"]),
+        Query(
+            description=(
+                "City name (fuzzy — typo/case tolerant) — resolves its own country"
+            ),
+            example="Hanoi",
+        ),
     ] = None,
     country: Annotated[
         str | None,
-        Query(description="Country name, case-insensitive", examples=["Vietnam"]),
+        Query(
+            description="Country name (fuzzy — typo/case tolerant)",
+            example="Vietnam",
+        ),
     ] = None,
     category: Annotated[
         str | None,
@@ -31,12 +41,15 @@ def get_tips(
                 "Filter by category: transport | money | safety | culture | food | "
                 "connectivity | health | etiquette | best_time | language"
             ),
-            examples=["money"],
+            example="money",
         ),
     ] = None,
     essential_only: Annotated[
         bool,
-        Query(description="Return only the must-know (essential) tips"),
+        Query(
+            description="Return only the must-know (essential) tips",
+            example=True,
+        ),
     ] = False,
 ) -> TipsResponse:
     """Return country-level tips merged with any city-specific tips.

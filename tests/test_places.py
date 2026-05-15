@@ -1,8 +1,6 @@
 """Tests for the /places endpoints."""
 
-import pytest
 from fastapi.testclient import TestClient
-
 
 # ── List all (paginated) ──────────────────────────────────────────────────────
 
@@ -267,3 +265,106 @@ def test_get_place_correct_id(client: TestClient) -> None:
 
 def test_get_place_not_found(client: TestClient) -> None:
     assert client.get("/places/nonexistent-id").status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# GET /places/nearby
+# ---------------------------------------------------------------------------
+
+_DRAGON_BRIDGE = "56f5b6d7-f0e2-5867-a9dd-087a98cff34c"  # Da Nang
+
+
+def test_nearby_returns_200(client: TestClient) -> None:
+    resp = client.get("/places/nearby", params={"place_id": _DRAGON_BRIDGE})
+    assert resp.status_code == 200
+
+
+def test_nearby_response_shape(client: TestClient) -> None:
+    body = client.get(
+        "/places/nearby", params={"place_id": _DRAGON_BRIDGE, "radius_km": 3}
+    ).json()
+    for field in ("origin_place_id", "radius_km", "count", "results"):
+        assert field in body
+    assert body["origin_place_id"] == _DRAGON_BRIDGE
+    assert body["count"] == len(body["results"])
+
+
+def test_nearby_excludes_origin_and_sorts_by_distance(client: TestClient) -> None:
+    body = client.get(
+        "/places/nearby", params={"place_id": _DRAGON_BRIDGE, "radius_km": 5}
+    ).json()
+    ids = [p["id"] for p in body["results"]]
+    assert _DRAGON_BRIDGE not in ids  # origin excluded
+    distances = [p["distance_km"] for p in body["results"]]
+    assert distances == sorted(distances)  # nearest-first
+    for p in body["results"]:
+        assert p["distance_km"] <= 5
+
+
+def test_nearby_respects_limit(client: TestClient) -> None:
+    body = client.get(
+        "/places/nearby",
+        params={"place_id": _DRAGON_BRIDGE, "radius_km": 50, "limit": 2},
+    ).json()
+    assert len(body["results"]) <= 2
+
+
+def test_nearby_tiny_radius_returns_empty(client: TestClient) -> None:
+    body = client.get(
+        "/places/nearby", params={"place_id": _DRAGON_BRIDGE, "radius_km": 0.01}
+    ).json()
+    assert body["results"] == []
+    assert body["count"] == 0
+
+
+def test_nearby_category_filter(client: TestClient) -> None:
+    body = client.get(
+        "/places/nearby",
+        params={"place_id": _DRAGON_BRIDGE, "radius_km": 50, "category": "restaurant"},
+    ).json()
+    assert all(p["category"] == "restaurant" for p in body["results"])
+
+
+def test_nearby_invalid_category_returns_422(client: TestClient) -> None:
+    resp = client.get(
+        "/places/nearby",
+        params={"place_id": _DRAGON_BRIDGE, "category": "spaceship"},
+    )
+    assert resp.status_code == 422
+
+
+def test_nearby_unknown_place_returns_404(client: TestClient) -> None:
+    resp = client.get("/places/nearby", params={"place_id": "no-such-id"})
+    assert resp.status_code == 404
+
+
+def test_nearby_radius_validation(client: TestClient) -> None:
+    assert (
+        client.get(
+            "/places/nearby", params={"place_id": _DRAGON_BRIDGE, "radius_km": 0}
+        ).status_code
+        == 422
+    )
+    assert (
+        client.get(
+            "/places/nearby", params={"place_id": _DRAGON_BRIDGE, "radius_km": 999}
+        ).status_code
+        == 422
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /places/search — fuzzy city matching
+# ---------------------------------------------------------------------------
+
+
+def test_search_places_city_is_fuzzy(client: TestClient) -> None:
+    body = client.get("/places/search", params={"city": "danang"}).json()
+    assert body["total"] > 0
+    assert body["city"] == "Da Nang"  # echoes the resolved name
+    assert all(p["city"] == "Da Nang" for p in body["results"])
+
+
+def test_search_places_unknown_city_returns_zero(client: TestClient) -> None:
+    body = client.get("/places/search", params={"city": "zzzznowhere"}).json()
+    assert body["total"] == 0

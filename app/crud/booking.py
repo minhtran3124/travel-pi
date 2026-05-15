@@ -13,20 +13,23 @@ from contextlib import contextmanager
 from app.schemas.booking import Booking
 
 # One row per booking. The type-specific payload is kept as JSON text in
-# `details` — it varies between flight and hotel bookings.
+# `details` — it varies between flight and hotel bookings. `idempotency_key`
+# is the optional client-supplied key that makes booking POSTs replay-safe;
+# it is persistence metadata, not part of the Booking resource itself.
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS bookings (
-    id             TEXT PRIMARY KEY,
-    type           TEXT NOT NULL,
-    reference_id   TEXT NOT NULL,
-    customer_name  TEXT NOT NULL,
-    customer_email TEXT NOT NULL,
-    total_price    REAL NOT NULL,
-    currency       TEXT NOT NULL,
-    status         TEXT NOT NULL,
-    created_at     TEXT NOT NULL,
-    details        TEXT NOT NULL,
-    notes          TEXT
+    id              TEXT PRIMARY KEY,
+    type            TEXT NOT NULL,
+    reference_id    TEXT NOT NULL,
+    customer_name   TEXT NOT NULL,
+    customer_email  TEXT NOT NULL,
+    total_price     REAL NOT NULL,
+    currency        TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    created_at      TEXT NOT NULL,
+    details         TEXT NOT NULL,
+    notes           TEXT,
+    idempotency_key TEXT
 )
 """
 
@@ -42,6 +45,7 @@ _COLUMNS = (
     "created_at",
     "details",
     "notes",
+    "idempotency_key",
 )
 
 
@@ -84,15 +88,50 @@ class BookingRepository:
             conn.close()
 
     def init_db(self) -> None:
-        """Create the bookings table if it does not exist. Called on startup."""
+        """Create the bookings table if it does not exist. Called on startup.
+
+        Also runs a tiny forward migration: a ``bookings`` table created
+        before idempotency support existed is missing ``idempotency_key``,
+        so add it in place rather than forcing the DB file to be recreated.
+        """
         with self._connect() as conn:
             conn.execute(_SCHEMA)
+            existing = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(bookings)").fetchall()
+            }
+            if "idempotency_key" not in existing:
+                conn.execute("ALTER TABLE bookings ADD COLUMN idempotency_key TEXT")
+            # A UNIQUE index makes the idempotency check atomic: two concurrent
+            # POSTs with the same key can't both pass the replay check and
+            # insert — the second INSERT fails, and `add()` returns the row the
+            # winner created. SQLite can't add a UNIQUE column via ALTER TABLE,
+            # so the constraint lives in this index instead. Partial (`WHERE
+            # ... IS NOT NULL`) so the many keyless bookings aren't forced
+            # unique on NULL.
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_bookings_idempotency_key "
+                "ON bookings (idempotency_key) WHERE idempotency_key IS NOT NULL"
+            )
 
     def get(self, booking_id: str) -> Booking | None:
         """Return a booking by ID, or ``None`` if there is no such row."""
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM bookings WHERE id = ?", (booking_id,)
+            ).fetchone()
+        return _row_to_booking(row) if row is not None else None
+
+    def get_by_idempotency_key(self, key: str) -> Booking | None:
+        """Return the booking previously stored under ``key``, or ``None``.
+
+        Used to make booking POSTs replay-safe: a repeat request carrying a
+        key already on file returns the original booking instead of creating
+        a duplicate.
+        """
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM bookings WHERE idempotency_key = ?", (key,)
             ).fetchone()
         return _row_to_booking(row) if row is not None else None
 
@@ -104,8 +143,27 @@ class BookingRepository:
             ).fetchall()
         return [_row_to_booking(row) for row in rows]
 
-    def add(self, booking: Booking) -> Booking:
-        """Insert a booking and return it unchanged."""
+    def update_status(self, booking_id: str, status: str) -> bool:
+        """Set a booking's ``status``. Returns ``True`` if a row was updated."""
+        with self._connect() as conn:
+            cursor = conn.execute(
+                "UPDATE bookings SET status = ? WHERE id = ?",
+                (status, booking_id),
+            )
+            return cursor.rowcount > 0
+
+    def add(self, booking: Booking, idempotency_key: str | None = None) -> Booking:
+        """Insert a booking and return it.
+
+        ``idempotency_key`` is stored alongside the row (when supplied) so a
+        later repeat request can be detected via
+        :meth:`get_by_idempotency_key`.
+
+        If a concurrent request already inserted a row under the same
+        ``idempotency_key``, the UNIQUE index makes this INSERT fail with an
+        ``IntegrityError``; rather than surface that, we return the row the
+        winner created — so racing requests still get one shared booking.
+        """
         values = (
             booking.id,
             booking.type.value,
@@ -118,11 +176,21 @@ class BookingRepository:
             booking.created_at.isoformat(),
             json.dumps(booking.details, default=str),
             booking.notes,
+            idempotency_key,
         )
         placeholders = ", ".join("?" for _ in _COLUMNS)
-        with self._connect() as conn:
-            conn.execute(
-                f"INSERT INTO bookings ({', '.join(_COLUMNS)}) VALUES ({placeholders})",
-                values,
-            )
+        try:
+            with self._connect() as conn:
+                conn.execute(
+                    f"INSERT INTO bookings ({', '.join(_COLUMNS)}) "
+                    f"VALUES ({placeholders})",
+                    values,
+                )
+        except sqlite3.IntegrityError:
+            # Lost an idempotency-key race — return the winner's booking.
+            if idempotency_key is not None:
+                existing = self.get_by_idempotency_key(idempotency_key)
+                if existing is not None:
+                    return existing
+            raise
         return booking

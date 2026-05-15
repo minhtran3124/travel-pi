@@ -12,6 +12,10 @@ class Tip(AppBaseModel):
     title: str
     content: str
     is_essential: bool = False
+    # Where the tip applies — useful when a list mixes destinations
+    # (e.g. the dashboard's "all tips" view); None when the API caller has
+    # already named the location.
+    location: str | None = None
 
 
 class TipsResponse(AppBaseModel):

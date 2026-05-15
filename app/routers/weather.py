@@ -12,6 +12,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
+from app.schemas.error import error_responses
 from app.schemas.weather import WeatherResponse
 from app.services import weather_service
 
@@ -22,19 +23,25 @@ router = APIRouter(prefix="/weather", tags=["weather"])
     "",
     response_model=WeatherResponse,
     summary="Get current weather and a short forecast for a city",
+    responses=error_responses(404, 422, 502),
 )
 async def get_weather(
     city: Annotated[
         str,
         Query(
             description="City name to look up, e.g. 'Da Nang' or 'Bangkok'",
-            examples=["Da Nang"],
+            example="Da Nang",
             min_length=1,
         ),
     ],
     days: Annotated[
         int,
-        Query(description="Number of forecast days (1–16)", ge=1, le=16),
+        Query(
+            description="Number of forecast days (1–16)",
+            ge=1,
+            le=16,
+            example=3,
+        ),
     ] = 3,
 ) -> WeatherResponse:
     """Resolve ``city`` to coordinates and return live weather from Open-Meteo.

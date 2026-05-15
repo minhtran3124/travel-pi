@@ -1,22 +1,30 @@
 """Tests for booking endpoints: list (paginated) and detail."""
 
+import pytest
+from app.services import hotel_service
+
 from tests.conftest import (
     VALID_CHECK_IN,
     VALID_CHECK_OUT,
-    get_first_flight_id,
+    get_first_flight_booking_fields,
     get_first_hotel_id,
 )
 
 
+@pytest.fixture(autouse=True)
+def _rooms_always_available(monkeypatch):
+    """Pin hotel availability high so hotel bookings here always succeed."""
+    monkeypatch.setattr(hotel_service, "available_rooms", lambda *a, **k: 99)
+
+
 def _create_flight_booking(client, name="Test User", email="test@example.com"):
-    flight_id = get_first_flight_id(client)
     return client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": name,
             "passenger_email": email,
-            "total_price": 199.0,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
 
@@ -32,6 +40,7 @@ def _create_hotel_booking(client, name="Test User", email="test@example.com"):
             "guests": 1,
             "guest_name": name,
             "guest_email": email,
+            "guest_phone": "+84 901 234 567",
         },
     ).json()
 
@@ -209,3 +218,137 @@ def test_get_hotel_booking_by_id(client):
     body = client.get(f"/bookings/{booking['id']}").json()
     assert body["id"] == booking["id"]
     assert body["type"] == "hotel"
+
+
+# ---------------------------------------------------------------------------
+# Confirmation code + summary (friendly identifiers)
+# ---------------------------------------------------------------------------
+
+_CODE_ALPHABET = set("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
+
+
+def test_booking_has_confirmation_code(client):
+    booking = _create_flight_booking(client, "CodeUser", "code@example.com")
+    code = booking["confirmation_code"]
+    assert len(code) == 6
+    assert set(code) <= _CODE_ALPHABET
+
+
+def test_confirmation_code_is_stable_for_same_booking(client):
+    booking = _create_hotel_booking(client, "StableUser", "stable@example.com")
+    refetched = client.get(f"/bookings/{booking['id']}").json()
+    assert refetched["confirmation_code"] == booking["confirmation_code"]
+
+
+def test_booking_has_human_readable_summary(client):
+    flight = _create_flight_booking(client, "SummaryUser", "summary@example.com")
+    assert "SummaryUser" in flight["summary"]
+    assert "→" in flight["summary"]
+    hotel = _create_hotel_booking(client, "HotelSummary", "hsummary@example.com")
+    assert "HotelSummary" in hotel["summary"]
+    assert "night" in hotel["summary"]
+
+
+def test_get_booking_by_confirmation_code(client):
+    booking = _create_flight_booking(client, "ByCodeUser", "bycode@example.com")
+    body = client.get(f"/bookings/{booking['confirmation_code']}").json()
+    assert body["id"] == booking["id"]
+
+
+def test_get_booking_by_confirmation_code_case_insensitive(client):
+    booking = _create_hotel_booking(client, "LowerCode", "lowercode@example.com")
+    code = booking["confirmation_code"].lower()
+    body = client.get(f"/bookings/{code}").json()
+    assert body["id"] == booking["id"]
+
+
+def test_get_booking_unknown_confirmation_code_returns_404(client):
+    assert client.get("/bookings/ZZZZZZ").status_code == 404
+
+
+def test_search_bookings_by_confirmation_code(client):
+    booking = _create_flight_booking(client, "SearchCode", "searchcode@example.com")
+    results = _all_bookings(client, q=booking["confirmation_code"])
+    assert any(b["id"] == booking["id"] for b in results)
+
+
+# ---------------------------------------------------------------------------
+# POST /bookings/{id}/cancel
+# ---------------------------------------------------------------------------
+
+
+def test_cancel_booking_sets_status_cancelled(client):
+    booking = _create_flight_booking(client, "CancelMe", "cancelme@example.com")
+    body = client.post(f"/bookings/{booking['id']}/cancel").json()
+    assert body["status"] == "cancelled"
+    assert body["id"] == booking["id"]
+
+
+def test_cancel_booking_persists(client):
+    booking = _create_hotel_booking(client, "CancelPersist", "cp@example.com")
+    client.post(f"/bookings/{booking['id']}/cancel")
+    assert client.get(f"/bookings/{booking['id']}").json()["status"] == "cancelled"
+
+
+def test_cancel_booking_by_confirmation_code(client):
+    booking = _create_flight_booking(client, "CancelByCode", "cbc@example.com")
+    body = client.post(f"/bookings/{booking['confirmation_code']}/cancel").json()
+    assert body["status"] == "cancelled"
+    assert body["id"] == booking["id"]
+
+
+def test_cancel_booking_is_idempotent(client):
+    booking = _create_flight_booking(client, "CancelTwice", "ct@example.com")
+    first = client.post(f"/bookings/{booking['id']}/cancel").json()
+    second = client.post(f"/bookings/{booking['id']}/cancel").json()
+    assert first["status"] == second["status"] == "cancelled"
+
+
+def test_cancel_unknown_booking_returns_404(client):
+    assert (
+        client.post(
+            "/bookings/00000000-0000-0000-0000-000000000000/cancel"
+        ).status_code
+        == 404
+    )
+
+
+# ---------------------------------------------------------------------------
+# Idempotency-key uniqueness (data layer)
+# ---------------------------------------------------------------------------
+
+
+def _sample_booking(booking_id):
+    from datetime import datetime, timezone
+
+    from app.enums import BookingType
+    from app.schemas.booking import Booking
+
+    return Booking(
+        id=booking_id,
+        type=BookingType.FLIGHT,
+        reference_id="ref-1",
+        customer_name="Race Tester",
+        customer_email="race@example.com",
+        total_price=100.0,
+        created_at=datetime.now(timezone.utc),
+        details={"origin": "DAD", "destination": "SGN"},
+    )
+
+
+def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
+    """A second add() under an already-used idempotency key must not create a
+    duplicate row — it returns the booking the first add() created."""
+    from app.crud.booking import BookingRepository
+
+    repo = BookingRepository(tmp_db)
+    repo.init_db()
+
+    first = repo.add(_sample_booking("11111111-1111-1111-1111-111111111111"), "race-key")
+    second = repo.add(
+        _sample_booking("22222222-2222-2222-2222-222222222222"), "race-key"
+    )
+
+    # The loser's INSERT hit the UNIQUE index and we got the winner back instead.
+    assert second.id == first.id
+    assert repo.get("22222222-2222-2222-2222-222222222222") is None

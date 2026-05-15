@@ -11,6 +11,8 @@ class City(AppBaseModel):
     country: str
     airport_codes: list[str]
     hotel_count: int
+    latitude: float | None = None
+    longitude: float | None = None
 
 
 class CityListResponse(PagedResponse[City]):

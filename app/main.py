@@ -10,26 +10,18 @@ import logging
 import time
 from collections.abc import Awaitable, Callable
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import Settings, get_settings
 from app.core.lifespan import lifespan
 from app.core.logging import configure_logging
 from app.exceptions import AppError
-from app.routers import (
-    airports,
-    bookings,
-    cities,
-    dashboard,
-    flights,
-    hotels,
-    meta,
-    places,
-    tips,
-    weather,
-)
+from app.routers.main import router as api_router
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +47,26 @@ def create_app() -> FastAPI:
         **docs_kwargs,
     )
 
+    # Every error — domain, HTTP, or request-validation — leaves the API in
+    # the same JSON envelope, so an agent consuming the API can parse failures
+    # the same way regardless of where they originated:
+    #   {"error": <class>, "message": <str>, "status_code": <int>,
+    #    "path": <str>, "errors": [...]?}
+    def _error_body(
+        error: str,
+        message: str,
+        status_code: int,
+        request: Request,
+        **extra: object,
+    ) -> dict:
+        return {
+            "error": error,
+            "message": message,
+            "status_code": status_code,
+            "path": request.url.path,
+            **extra,
+        }
+
     # Turn any domain error raised by the service layer into an HTTP response,
     # so services stay free of FastAPI/HTTP concerns.
     @app.exception_handler(AppError)
@@ -66,7 +78,42 @@ def create_app() -> FastAPI:
             request.url.path,
             exc.detail,
         )
-        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=_error_body(
+                type(exc).__name__, exc.detail, exc.status_code, request
+            ),
+        )
+
+    # HTTPException covers both routers that raise it directly (e.g. a bad
+    # date → 422) and Starlette's own 404/405 for unmatched routes.
+    @app.exception_handler(StarletteHTTPException)
+    async def _handle_http_exception(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=_error_body(
+                "HTTPException", str(exc.detail), exc.status_code, request
+            ),
+        )
+
+    # Pydantic request-validation failures (422) — keep the per-field detail
+    # under ``errors`` so callers can pinpoint what to fix.
+    @app.exception_handler(RequestValidationError)
+    async def _handle_validation_error(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=_error_body(
+                "ValidationError",
+                "Request validation failed",
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                request,
+                errors=jsonable_encoder(exc.errors()),
+            ),
+        )
 
     # Log one line per request: method, path, status, and how long it took.
     # This is the single source of access logs (Uvicorn's is silenced in
@@ -97,18 +144,8 @@ def create_app() -> FastAPI:
         allow_headers=settings.cors_headers,
     )
 
-    # Register routers. Order is cosmetic — it sets the Swagger tag order.
-    app.include_router(meta.router)
-    app.include_router(airports.router)
-    app.include_router(cities.router)
-    app.include_router(flights.router)
-    app.include_router(hotels.router)
-    app.include_router(places.router)
-    app.include_router(tips.router)
-    app.include_router(weather.router)
-    app.include_router(bookings.router)
-    # Server-rendered HTML dashboard — excluded from the OpenAPI schema.
-    app.include_router(dashboard.router)
+    # Register every endpoint group via the aggregate router.
+    app.include_router(api_router)
 
     return app
 

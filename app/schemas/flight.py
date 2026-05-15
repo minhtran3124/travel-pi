@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from pydantic import ConfigDict
+
 from app.schemas.base import AppBaseModel
 
 
@@ -58,13 +60,36 @@ class FlightSearchResponse(AppBaseModel):
 class FlightBookingRequest(AppBaseModel):
     """Request body for ``POST /flights/book``.
 
-    Note: ``total_price`` is client-supplied. In a real system this is a
-    security issue (the client could send ``$1``). For the mock it keeps the
-    FE simple — they pass back whatever price was shown to the user.
+    Mirrors what an airline actually collects to issue a ticket: the chosen
+    flight plus the passenger's name (as on their ID) and contact details.
+    The flight is identified the way an agent or human reads it back from
+    search results — the **flight number** (e.g. ``"VN123"``) plus the
+    **route and date** that pin which leg it is (the same flight number is
+    reused on other days and routes). The fare is *not* sent by the client —
+    it is taken server-side from the selected flight, so the price can't be
+    tampered with.
     """
 
-    flight_id: str
-    passenger_name: str
-    passenger_email: str
-    total_price: float
+    flight_number: str  # e.g. "VN123" — case-insensitive, "VN 123" also accepted
+    origin: str  # IATA 3-letter code, e.g. "DAD"
+    destination: str  # IATA 3-letter code, e.g. "SGN"
+    departure_date: str  # YYYY-MM-DD — the date the flight departs
+    passenger_name: str  # Full name as printed on the passenger's ID/passport
+    passenger_email: str  # Contact email for the itinerary / e-ticket
+    passenger_phone: str  # Contact phone for airline notifications (delays, gate)
     notes: str | None = None
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "flight_number": "VN123",
+                "origin": "DAD",
+                "destination": "SGN",
+                "departure_date": "2026-06-01",
+                "passenger_name": "Nguyen Van A",
+                "passenger_email": "nguyen.a@example.com",
+                "passenger_phone": "+84 901 234 567",
+                "notes": "Window seat preferred",
+            }
+        }
+    )

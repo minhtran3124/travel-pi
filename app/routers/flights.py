@@ -2,10 +2,11 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
 from app.exceptions import NotFoundError
 from app.schemas.booking import Booking
+from app.schemas.error import error_responses
 from app.schemas.flight import (
     Flight,
     FlightBookingRequest,
@@ -25,23 +26,27 @@ BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
     "/search",
     response_model=FlightSearchResponse,
     summary="Search flights for a route, with optional round-trip, filters, and sort",
+    responses=error_responses(422),
 )
 def search_flights(
     origin: Annotated[
         str,
-        Query(description="IATA 3-letter code, case-insensitive", examples=["DAD"]),
+        Query(description="IATA 3-letter code, case-insensitive", example="DAD"),
     ],
     destination: Annotated[
         str,
-        Query(description="IATA 3-letter code, case-insensitive", examples=["SGN"]),
+        Query(description="IATA 3-letter code, case-insensitive", example="SGN"),
     ],
     departure_date: Annotated[
         str,
-        Query(description="Departure date, YYYY-MM-DD", examples=["2026-06-01"]),
+        Query(description="Departure date, YYYY-MM-DD", example="2026-06-01"),
     ],
     adults: Annotated[
         int,
-        Query(description="Passenger count; echoed back, does not affect results"),
+        Query(
+            description="Passenger count; echoed back, does not affect results",
+            example=1,
+        ),
     ] = 1,
     return_date: Annotated[
         str | None,
@@ -50,20 +55,28 @@ def search_flights(
                 "Return date YYYY-MM-DD. When set, response includes "
                 "``return_results`` (destination → origin flights)."
             ),
-            examples=["2026-06-08"],
+            example="2026-06-08",
         ),
     ] = None,
     airline: Annotated[
         str | None,
-        Query(description="Filter by IATA airline code, e.g. VN", examples=["VN"]),
+        Query(description="Filter by IATA airline code, e.g. VN", example="VN"),
     ] = None,
     max_price: Annotated[
         float | None,
-        Query(ge=0, description="Only flights at or below this price (USD)"),
+        Query(
+            ge=0,
+            description="Only flights at or below this price (USD)",
+            example=300,
+        ),
     ] = None,
     max_stops: Annotated[
         int | None,
-        Query(ge=0, description="Only flights with at most this many stops"),
+        Query(
+            ge=0,
+            description="Only flights with at most this many stops",
+            example=0,
+        ),
     ] = None,
     sort: Annotated[
         str,
@@ -71,7 +84,8 @@ def search_flights(
             description=(
                 "Sort order: departure_asc (default) | departure_desc | "
                 "price_asc | price_desc | duration_asc | duration_desc"
-            )
+            ),
+            example="departure_asc",
         ),
     ] = "departure_asc",
 ) -> FlightSearchResponse:
@@ -142,8 +156,17 @@ def search_flights(
     "/{flight_id}",
     response_model=Flight,
     summary="Get a single flight by ID",
+    responses=error_responses(404, 422),
 )
-def get_flight(flight_id: str) -> Flight:
+def get_flight(
+    flight_id: Annotated[
+        str,
+        Path(
+            description="Flight UUID returned by /flights/search",
+            example="7af6f5a4-ce3a-5b24-8f2e-8a0a8b3c2c5a",
+        ),
+    ],
+) -> Flight:
     """Return a single flight, or 404 if the ID does not resolve."""
     flight = flight_service.find_flight_by_id(flight_id)
     if flight is None:
@@ -155,7 +178,24 @@ def get_flight(flight_id: str) -> Flight:
     "/book",
     response_model=Booking,
     summary="Create a flight booking",
+    responses=error_responses(404, 422),
 )
-def book_flight(request: FlightBookingRequest, bookings: BookingsDep) -> Booking:
-    """Create a flight booking and store it in memory."""
-    return bookings.book_flight(request)
+def book_flight(
+    request: FlightBookingRequest,
+    bookings: BookingsDep,
+    idempotency_key: Annotated[
+        str | None,
+        Header(
+            alias="Idempotency-Key",
+            description=(
+                "Optional client-supplied key that makes this POST "
+                "replay-safe: repeating the request with the same key "
+                "returns the original booking instead of creating a "
+                "duplicate."
+            ),
+            example="booking-2026-06-01-abc123",
+        ),
+    ] = None,
+) -> Booking:
+    """Create a flight booking, or replay an earlier one for the same key."""
+    return bookings.book_flight(request, idempotency_key=idempotency_key)

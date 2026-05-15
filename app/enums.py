@@ -16,9 +16,14 @@ class BookingType(str, Enum):
 
 
 class BookingStatus(str, Enum):
-    """Lifecycle state of a booking. The mock only ever creates confirmed ones."""
+    """Lifecycle state of a booking.
+
+    New bookings are always ``CONFIRMED``; ``POST /bookings/{id}/cancel``
+    moves them to ``CANCELLED`` (a soft state change — the row is kept).
+    """
 
     CONFIRMED = "confirmed"
+    CANCELLED = "cancelled"
 
 
 class BookingSort(str, Enum):

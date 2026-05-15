@@ -123,3 +123,69 @@ def test_tips_empty_strings_treated_as_missing(client: TestClient) -> None:
     """HTML forms send empty strings — treated as missing, so 422."""
     resp = client.get("/tips", params={"city": "", "country": ""})
     assert resp.status_code == 422
+
+
+# ── Fuzzy city / country matching ─────────────────────────────────────────────
+
+def test_tips_city_is_fuzzy(client: TestClient) -> None:
+    data = client.get("/tips", params={"city": "danang"}).json()
+    assert data["city"] == "Da Nang"
+    assert data["country"] == "Vietnam"
+    assert data["count"] > 0
+
+
+def test_tips_country_is_fuzzy(client: TestClient) -> None:
+    data = client.get("/tips", params={"country": "viet nam"}).json()
+    assert data["country"] == "Vietnam"
+    assert data["count"] > 0
+
+
+def test_tips_unknown_city_still_zero(client: TestClient) -> None:
+    data = client.get("/tips", params={"city": "zzzznowhere"}).json()
+    assert data["count"] == 0
+
+
+# ── Dashboard /dashboard/tips: shows all tips by default ─────────────────────
+
+
+def test_dashboard_tips_no_filter_returns_200(client: TestClient) -> None:
+    """Landing on /dashboard/tips with no filters should render, not 422."""
+    assert client.get("/dashboard/tips").status_code == 200
+
+
+def test_dashboard_tips_no_filter_renders_tip_cards(client: TestClient) -> None:
+    """Default view shows the every-destination tip list, not the picker."""
+    html = client.get("/dashboard/tips").text
+    assert "tip-card" in html
+    # Each card carries its location chip in the all-tips view.
+    assert "loc-badge" in html
+
+
+def test_dashboard_tips_category_filter_narrows_results(client: TestClient) -> None:
+    """A category filter applied to the all-tips view yields fewer cards."""
+    all_count = client.get("/dashboard/tips").text.count("tip-card")
+    money_count = client.get(
+        "/dashboard/tips", params={"category": "money"}
+    ).text.count("tip-card")
+    assert 0 < money_count < all_count
+
+
+# ── tip_service.get_all_tips: unit-level coverage ─────────────────────────────
+
+
+def test_get_all_tips_includes_country_and_city_scopes(client: TestClient) -> None:
+    from app.services import tip_service
+
+    result = tip_service.get_all_tips()
+    scopes = {t.scope for t in result.tips}
+    assert scopes == {"country", "city"}
+    # Every tip in the all view carries a location, so the UI can label it.
+    assert all(t.location for t in result.tips)
+
+
+def test_get_all_tips_essential_only_filter(client: TestClient) -> None:
+    from app.services import tip_service
+
+    essential = tip_service.get_all_tips(essential_only=True)
+    assert essential.count > 0
+    assert all(t.is_essential for t in essential.tips)

@@ -1,14 +1,13 @@
 """Tests for flight endpoints: search, detail, and booking."""
 
-import pytest
 
 from tests.conftest import (
     VALID_DATE,
     VALID_DESTINATION,
     VALID_ORIGIN,
+    get_first_flight_booking_fields,
     get_first_flight_id,
 )
-
 
 # ---------------------------------------------------------------------------
 # GET /flights/search
@@ -284,34 +283,49 @@ def test_get_flight_malformed_id_returns_404(client):
     assert resp.status_code == 404
 
 
+def test_get_flight_resolves_from_persisted_index(client):
+    """A flight ID resolves even when the in-process cache is empty — i.e.
+    after a restart or on a different worker — because the search params are
+    persisted to SQLite."""
+    from app.services import flight_service
+
+    flight_id = get_first_flight_id(client)
+    # Simulate a fresh process: the in-memory cache is gone, only the DB remains.
+    flight_service._flight_index.clear()
+
+    resp = client.get(f"/flights/{flight_id}")
+    assert resp.status_code == 200
+    assert resp.json()["id"] == flight_id
+
+
 # ---------------------------------------------------------------------------
 # POST /flights/book
 # ---------------------------------------------------------------------------
 
 
 def test_book_flight_returns_200(client):
-    flight_id = get_first_flight_id(client)
+
     resp = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Alice Smith",
             "passenger_email": "alice@example.com",
-            "total_price": 250.0,
+            "passenger_phone": "+84 901 234 567",
         },
     )
     assert resp.status_code == 200
 
 
 def test_book_flight_response_structure(client):
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Bob Jones",
             "passenger_email": "bob@example.com",
-            "total_price": 300.0,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
     for field in (
@@ -329,14 +343,14 @@ def test_book_flight_response_structure(client):
 
 
 def test_book_flight_type_is_flight(client):
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Carol White",
             "passenger_email": "carol@example.com",
-            "total_price": 199.99,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
     assert body["type"] == "flight"
@@ -345,64 +359,69 @@ def test_book_flight_type_is_flight(client):
 def test_book_flight_id_is_uuid(client):
     import uuid as _uuid
 
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Dave Brown",
             "passenger_email": "dave@example.com",
-            "total_price": 150.0,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
     _uuid.UUID(body["id"])  # raises if not a valid UUID
 
 
 def test_book_flight_status_is_confirmed(client):
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Eve Green",
             "passenger_email": "eve@example.com",
-            "total_price": 200.0,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
     assert body["status"] == "confirmed"
 
 
 def test_book_flight_customer_name_stored(client):
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Frank Lee",
             "passenger_email": "frank@example.com",
-            "total_price": 175.0,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
     assert body["customer_name"] == "Frank Lee"
 
 
-def test_book_flight_invalid_id_returns_404(client):
+def test_book_flight_unknown_flight_returns_404(client):
+    """A well-formed payload that names a flight nobody operates → 404."""
     resp = client.post(
         "/flights/book",
         json={
-            "flight_id": "FL_NONEXISTENT",
+            "flight_number": "ZZ999",
+            "origin": VALID_ORIGIN,
+            "destination": VALID_DESTINATION,
+            "departure_date": VALID_DATE,
             "passenger_name": "Ghost User",
             "passenger_email": "ghost@example.com",
-            "total_price": 100.0,
+            "passenger_phone": "+84 901 234 567",
         },
     )
     assert resp.status_code == 404
 
 
 def test_book_flight_missing_fields_returns_422(client):
+    """flight_number alone (no route/date, no passenger info) → 422."""
     resp = client.post(
         "/flights/book",
-        json={"flight_id": "FL_DADSGN_20260601_00"},
+        json={"flight_number": "VN123"},
     )
     assert resp.status_code == 422
 
@@ -483,14 +502,14 @@ def test_search_flights_roundtrip_invalid_return_date_returns_422(client):
 
 
 def test_book_flight_with_notes(client):
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "Notes User",
             "passenger_email": "notes@example.com",
-            "total_price": 250.0,
+            "passenger_phone": "+84 901 234 567",
             "notes": "Part of Da Nang 3-day trip",
         },
     ).json()
@@ -498,14 +517,145 @@ def test_book_flight_with_notes(client):
 
 
 def test_book_flight_notes_optional(client):
-    flight_id = get_first_flight_id(client)
+
     body = client.post(
         "/flights/book",
         json={
-            "flight_id": flight_id,
+            **get_first_flight_booking_fields(client),
             "passenger_name": "No Notes",
             "passenger_email": "nonotes@example.com",
-            "total_price": 199.0,
+            "passenger_phone": "+84 901 234 567",
         },
     ).json()
     assert body["notes"] is None
+
+
+# ---------------------------------------------------------------------------
+# POST /flights/book — Idempotency-Key
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_idempotency_key_replays_same_booking(client):
+
+    payload = {
+        **get_first_flight_booking_fields(client),
+        "passenger_name": "Idem Potent",
+        "passenger_email": "idem@example.com",
+        "passenger_phone": "+84 901 234 567",
+    }
+    headers = {"Idempotency-Key": "flight-key-abc"}
+    first = client.post("/flights/book", json=payload, headers=headers).json()
+    second = client.post("/flights/book", json=payload, headers=headers).json()
+    assert first["id"] == second["id"]
+
+
+def test_book_flight_idempotency_key_does_not_create_duplicate(client):
+
+    payload = {
+        **get_first_flight_booking_fields(client),
+        "passenger_name": "No Dupe",
+        "passenger_email": "nodupe@example.com",
+        "passenger_phone": "+84 901 234 567",
+    }
+    headers = {"Idempotency-Key": "flight-key-nodupe"}
+    client.post("/flights/book", json=payload, headers=headers)
+    client.post("/flights/book", json=payload, headers=headers)
+    matches = client.get(
+        "/bookings", params={"limit": 500, "q": "nodupe@example.com"}
+    ).json()["results"]
+    assert len(matches) == 1
+
+
+def test_book_flight_without_idempotency_key_creates_each_time(client):
+
+    payload = {
+        **get_first_flight_booking_fields(client),
+        "passenger_name": "Twice Booked",
+        "passenger_email": "twice@example.com",
+        "passenger_phone": "+84 901 234 567",
+    }
+    first = client.post("/flights/book", json=payload).json()
+    second = client.post("/flights/book", json=payload).json()
+    assert first["id"] != second["id"]
+
+
+def test_book_flight_distinct_idempotency_keys_create_distinct_bookings(client):
+
+    payload = {
+        **get_first_flight_booking_fields(client),
+        "passenger_name": "Distinct Keys",
+        "passenger_email": "distinct@example.com",
+        "passenger_phone": "+84 901 234 567",
+    }
+    first = client.post(
+        "/flights/book", json=payload, headers={"Idempotency-Key": "flight-key-1"}
+    ).json()
+    second = client.post(
+        "/flights/book", json=payload, headers={"Idempotency-Key": "flight-key-2"}
+    ).json()
+    assert first["id"] != second["id"]
+
+
+# ---------------------------------------------------------------------------
+# POST /flights/book — realistic request shape
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_price_taken_from_flight_server_side(client):
+    """total_price comes from the selected flight, not the request body."""
+    flight_id = get_first_flight_id(client)
+    flight = client.get(f"/flights/{flight_id}").json()
+    body = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Server Price",
+            "passenger_email": "serverprice@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    ).json()
+    assert body["total_price"] == flight["price"]
+
+
+def test_book_flight_client_supplied_price_is_ignored(client):
+    """A stray total_price in the body must not override the real fare."""
+    flight_id = get_first_flight_id(client)
+    flight = client.get(f"/flights/{flight_id}").json()
+    body = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Tampered Price",
+            "passenger_email": "tampered@example.com",
+            "passenger_phone": "+84 901 234 567",
+            "total_price": 1.0,
+        },
+    ).json()
+    assert body["total_price"] == flight["price"]
+
+
+def test_book_flight_requires_passenger_phone(client):
+
+    resp = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "No Phone",
+            "passenger_email": "nophone@example.com",
+        },
+    )
+    assert resp.status_code == 422
+
+
+def test_book_flight_details_includes_passenger_phone(client):
+
+    body = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Phone Carrier",
+            "passenger_email": "phonecarrier@example.com",
+            "passenger_phone": "+84 987 654 321",
+        },
+    ).json()
+    assert body["details"]["passenger_phone"] == "+84 987 654 321"

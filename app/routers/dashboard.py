@@ -20,7 +20,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Query, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.data.cities import CITIES as _CITY_DATA
@@ -48,6 +48,13 @@ _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:0
 
 # The board defaults to this airport when none is given (busiest hub).
 _DEFAULT_AIRPORT = "SGN"
+
+
+@router.get("", include_in_schema=False)
+@router.get("/", include_in_schema=False)
+def dashboard_index() -> RedirectResponse:
+    """Redirect the bare /dashboard path to the default flights board."""
+    return RedirectResponse(url="/dashboard/flights")
 
 
 @router.get("/flights", response_class=HTMLResponse)
@@ -100,8 +107,8 @@ def flight_search(
     destination: str | None = Query(None),
     departure_date: str | None = Query(None),
     airline: str | None = Query(None),
-    max_price: float | None = Query(None, ge=0),
-    max_stops: int | None = Query(None, ge=0),
+    max_price: str | None = Query(None),
+    max_stops: str | None = Query(None),
     sort: str = Query(flight_service.DEFAULT_SORT),
 ) -> HTMLResponse:
     """Render the optional 'search by route' page.
@@ -109,30 +116,52 @@ def flight_search(
     With no query params it shows just the empty form. Once origin,
     destination, and date are all provided it renders the matching flights,
     with the same airline / price / stops filters and sort as the JSON API.
+
+    The numeric filters arrive as raw strings because an HTML form submits
+    empty fields as ``""`` — those are treated as "not filtered", and a
+    non-numeric value shows a friendly error rather than a 422.
     """
     airports = airport_service.list_airports()
+    error: str | None = None
+
+    def _optional_number(raw: str | None, label: str, cast):
+        nonlocal error
+        if raw is None or raw.strip() == "":
+            return None
+        try:
+            value = cast(raw)
+        except ValueError:
+            error = f"{label} must be a number."
+            return None
+        if value < 0:
+            error = f"{label} cannot be negative."
+            return None
+        return value
+
+    max_price_val = _optional_number(max_price, "Max price", float)
+    max_stops_val = _optional_number(max_stops, "Max stops", int)
+
     search = {
         "origin": (origin or "").upper() or None,
         "destination": (destination or "").upper() or None,
         "departure_date": departure_date or None,
         "airline": (airline or "").upper() or None,
-        "max_price": max_price,
-        "max_stops": max_stops,
+        "max_price": max_price_val,
+        "max_stops": max_stops_val,
         "sort": sort,
     }
     searched = all((search["origin"], search["destination"], search["departure_date"]))
 
     flights: list = []
-    error: str | None = None
-    if searched:
+    if searched and error is None:
         try:
             flights = flight_service.search_flights(
                 search["origin"],
                 search["destination"],
                 search["departure_date"],
                 airline=search["airline"],
-                max_price=max_price,
-                max_stops=max_stops,
+                max_price=max_price_val,
+                max_stops=max_stops_val,
                 sort=sort,
             )
         except ValueError:
@@ -364,11 +393,18 @@ def tips_page(
     # Coerce an unknown category to "no filter" rather than erroring.
     selected_category = category if category in _TIP_CATEGORIES else None
 
-    result = None
+    # No destination selected → show every tip; selecting a country/city just
+    # narrows the same list. Filters (category, essential-only) apply to both
+    # paths.
     if selected_city or selected_country:
         result = tip_service.get_tips(
             city=selected_city,
             country=selected_country,
+            category=selected_category,
+            essential_only=essential_only,
+        )
+    else:
+        result = tip_service.get_all_tips(
             category=selected_category,
             essential_only=essential_only,
         )

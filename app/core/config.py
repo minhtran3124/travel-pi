@@ -49,6 +49,19 @@ class Settings(BaseSettings):
     weather_timeout_seconds: float = 10.0
     weather_forecast_days: int = 3
 
+    # Routing — /places/route. OpenRouteService gives real road distance and
+    # duration per travel mode; it is free but needs an API key (no credit
+    # card). Leave ``ors_api_key`` unset and the endpoint still works — it
+    # falls back to an offline straight-line (haversine) estimate.
+    ors_api_key: str | None = None
+    ors_base_url: str = "https://api.openrouteservice.org"
+    ors_timeout_seconds: float = 10.0
+
+    @property
+    def routing_provider_enabled(self) -> bool:
+        """True when an OpenRouteService API key is configured."""
+        return bool(self.ors_api_key and self.ors_api_key.strip())
+
     # CORS — wide open by default so the FE (usually on :3000) and any agent
     # worker can call freely during development.
     cors_origins: list[str] = ["*"]

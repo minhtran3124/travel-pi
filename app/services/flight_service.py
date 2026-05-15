@@ -17,15 +17,34 @@ import uuid
 from collections.abc import Callable
 from datetime import datetime, timedelta
 
+from app.core.config import get_settings
+from app.crud.flight import FlightIndexRepository
 from app.data.airlines import AIRLINES
 from app.schemas.flight import Airline, Flight
 
 # Fixed namespace for deterministic flight UUIDs (UUID5).
 _FLIGHT_NS = uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
 
-# Maps flight UUID → (origin, destination, departure_date) so find_flight_by_id
-# can look up without decoding the ID. Populated on every generate_flights call.
+# Flight IDs are a one-way uuid5 hash of their search params, so a lookup
+# can't decode the ID — it needs the params on file. They are persisted in
+# SQLite (so a flight ID resolves across restarts and worker processes), with
+# this in-process dict as a write-through cache to skip the DB on a repeat
+# search of a route already seen this process.
 _flight_index: dict[str, tuple[str, str, str]] = {}
+_index_repo = FlightIndexRepository(get_settings().database_path)
+
+
+def init_flight_index() -> None:
+    """Create the flight-index table. Called once on application startup."""
+    _index_repo.init_db()
+
+
+def set_index_repo(repo: FlightIndexRepository) -> None:
+    """Point flight-ID lookups at a different store — used by tests to isolate
+    persistence into a temporary database."""
+    global _index_repo
+    _index_repo = repo
+    _flight_index.clear()
 
 FLIGHTS_PER_SEARCH = 5
 _DEPARTURE_MINUTES = (0, 15, 30, 45)
@@ -76,6 +95,7 @@ def generate_flights(
     base_date = datetime.strptime(departure_date, "%Y-%m-%d")
 
     flights: list[Flight] = []
+    new_rows: list[tuple[str, str, str, str]] = []
     for index in range(count):
         airline = rng.choice(AIRLINES)
         departure = base_date.replace(
@@ -85,7 +105,9 @@ def generate_flights(
         duration_minutes = rng.randint(80, 360)  # 1h20m to 6h
         slug = f"FL_{origin}{destination}_{base_date:%Y%m%d}_{index:02d}"
         flight_id = str(uuid.uuid5(_FLIGHT_NS, slug))
-        _flight_index[flight_id] = (origin, destination, departure_date)
+        if flight_id not in _flight_index:
+            _flight_index[flight_id] = (origin, destination, departure_date)
+            new_rows.append((flight_id, origin, destination, departure_date))
         flights.append(
             Flight(
                 id=flight_id,
@@ -101,6 +123,9 @@ def generate_flights(
                 stops=rng.choice(_STOPS_DISTRIBUTION),
             )
         )
+
+    # Persist any newly seen flight IDs so they resolve after a restart.
+    _index_repo.remember_many(new_rows)
 
     flights.sort(key=lambda flight: flight.departure_time)
     return flights
@@ -139,18 +164,50 @@ def search_flights(
     return sorted(flights, key=key, reverse=reverse)
 
 
-def find_flight_by_id(flight_id: str) -> Flight | None:
-    """Resolve a flight UUID by looking up the in-memory index.
+def find_flight_by_number(
+    flight_number: str,
+    origin: str,
+    destination: str,
+    departure_date: str,
+) -> Flight | None:
+    """Resolve a human-friendly flight reference (e.g. ``"VN123"``) to a Flight.
 
-    ``generate_flights`` populates ``_flight_index`` with each flight's UUID
-    mapped to its search params. We re-run the generator for those params
-    (deterministic — identical result every time) and return the matching
-    flight. Returns ``None`` if the UUID is unknown (never generated this
-    session) or invalid.
+    Booking by UUID was hostile to agents — they don't see UUIDs in search
+    results. ``flight_number`` alone isn't unique either (the same code is
+    reused across dates and routes), so the route+date qualifier is required:
+    together they pin a single flight from the 5 our generator returns.
+
+    Match is case-insensitive (``"vn123"`` resolves the same as ``"VN123"``);
+    spaces are stripped (``"VN 123"`` works too). Returns ``None`` if no
+    flight in the route+date set carries that number, or if the date doesn't
+    parse.
+    """
+    try:
+        candidates = generate_flights(origin, destination, departure_date)
+    except ValueError:
+        return None
+    needle = flight_number.replace(" ", "").upper()
+    for flight in candidates:
+        if flight.flight_number.upper() == needle:
+            return flight
+    return None
+
+
+def find_flight_by_id(flight_id: str) -> Flight | None:
+    """Resolve a flight UUID back to its flight.
+
+    A flight ID maps to the search params that generated it — first via the
+    in-process cache, then the persisted ``flight_index`` table. We re-run the
+    generator for those params (deterministic — identical result every time)
+    and return the matching flight. Returns ``None`` if the UUID was never
+    issued by this deployment or is invalid.
     """
     params = _flight_index.get(flight_id)
     if params is None:
-        return None
+        params = _index_repo.lookup(flight_id)
+        if params is None:
+            return None
+        _flight_index[flight_id] = params
     origin, destination, departure_date = params
     for flight in generate_flights(origin, destination, departure_date):
         if flight.id == flight_id:

@@ -6,10 +6,8 @@ to return canned Open-Meteo payloads — no network access in the suite.
 """
 
 import pytest
-
 from app.exceptions import WeatherUnavailableError
 from app.services import weather_service
-
 
 # --- Canned Open-Meteo payloads ------------------------------------------------
 

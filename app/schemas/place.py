@@ -29,6 +29,25 @@ class Place(AppBaseModel):
     longitude: float | None = None
 
 
+class NearbyPlace(Place):
+    """A place plus its straight-line distance from the query origin."""
+
+    distance_km: float
+
+
+class PlaceNearbyResponse(AppBaseModel):
+    """Response body for ``GET /places/nearby``.
+
+    ``results`` is ordered nearest-first and excludes the origin place
+    itself. ``count`` is the number returned (after the ``limit`` cap).
+    """
+
+    origin_place_id: str
+    radius_km: float
+    count: int
+    results: list[NearbyPlace]
+
+
 class PlaceListResponse(PagedResponse[Place]):
     """Response body for ``GET /places`` (paginated list of all places)."""
 

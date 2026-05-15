@@ -542,9 +542,27 @@
       .fg { flex: 1 1 100%; }
       .detail-grid { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ── Navigation progress bar ── */
+    #nav-progress {
+      position: fixed; top: 0; left: 0;
+      height: 3px; width: 0;
+      background: var(--accent);
+      z-index: 10000;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #nav-progress::after {
+      content: '';
+      position: absolute; right: 0; top: 0;
+      width: 80px; height: 100%;
+      box-shadow: 0 0 10px 2px var(--accent);
+      opacity: .7;
+    }
   </style>
 </head>
 <body>
+  <div id="nav-progress" aria-hidden="true"></div>
   <nav class="topbar">
     <a class="topbar-brand" href="/dashboard/flights">
       <span class="icon">✈</span><span class="brand-label">Travel Mock</span>
@@ -568,5 +586,40 @@
     Mock data · flights are generated, bookings stored locally ·
     <a href="/docs">API docs</a>
   </footer>
+  <script>
+    (function () {
+      var bar = document.getElementById('nav-progress');
+      var t1, t2;
+
+      function reset() {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        bar.style.cssText = 'transition:none;width:0;opacity:0';
+      }
+
+      function start() {
+        reset();
+        void bar.offsetWidth; // flush
+        bar.style.cssText = 'transition:width .35s cubic-bezier(.4,0,.2,1),opacity .15s;width:60%;opacity:1';
+        t1 = setTimeout(function () {
+          bar.style.cssText = 'transition:width 8s cubic-bezier(.05,0,.02,1),opacity .15s;width:88%;opacity:1';
+        }, 400);
+      }
+
+      // Any internal link click
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest('a[href]');
+        if (!a || a.target || a.getAttribute('href').charAt(0) === '#') return;
+        try { if (new URL(a.href).origin !== location.origin) return; } catch (_) { return; }
+        start();
+      });
+
+      // Filter / search form submissions (all are GET, same origin)
+      document.addEventListener('submit', function () { start(); });
+
+      // Reset when page is shown (back/forward cache re-use)
+      window.addEventListener('pageshow', function () { reset(); });
+    }());
+  </script>
 </body>
 </html>

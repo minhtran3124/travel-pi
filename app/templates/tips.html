@@ -5,7 +5,7 @@
 <div class="board-head">
   <div class="board-title"><span class="plane">💡</span> Local Tips</div>
   <span class="page-meta">
-    {% if result %}{{ result.tips | length }} tip{{ '' if result.tips | length == 1 else 's' }}{% else %}Pick a destination{% endif %}
+    {{ result.tips | length }} tip{{ '' if result.tips | length == 1 else 's' }}
   </span>
 </div>
 
@@ -54,12 +54,7 @@
   {% endif %}
 </form>
 
-{% if not result %}
-  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
-    Pick a <strong>country</strong> or <strong>city</strong> above to see local tips.
-    <br>City selection resolves its own country and merges city-specific advice on top.
-  </div>
-{% elif result.tips %}
+{% if result.tips %}
   <div class="tips-panel">
     {% if result.summary %}
       <div class="tips-summary">
@@ -76,6 +71,9 @@
           <div class="tip-card-head">
             <span class="chip cat-{{ tip.category }}">{{ categories.get(tip.category, tip.category) }}</span>
             <span class="scope-badge scope-{{ tip.scope }}">{{ tip.scope }}</span>
+            {% if tip.location %}
+              <span class="loc-badge">{{ tip.location }}</span>
+            {% endif %}
             {% if tip.is_essential %}
               <span class="ess-badge">★ Essential</span>
             {% endif %}
@@ -88,9 +86,7 @@
   </div>
 {% else %}
   <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
-    No tips found for
-    {% if result.city %}<strong>{{ result.city }}</strong>{% else %}<strong>{{ result.country }}</strong>{% endif %}
-    {% if selected_category or essential_only %}with the current filters{% endif %}.
+    No tips match the current filters.
     <a href="/dashboard/tips" style="color: var(--accent-dim);">Clear filters</a>
   </div>
 {% endif %}
@@ -156,6 +152,11 @@
   }
   .scope-country { background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
   .scope-city { background: var(--accent); color: #fff; }
+  .loc-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 5px;
+    font-size: 0.66rem; font-weight: 700; color: var(--muted);
+    background: var(--panel); border: 1px dashed var(--line);
+  }
   .ess-badge { margin-left: auto; font-size: 0.65rem; font-weight: 800; color: var(--yellow); white-space: nowrap; }
 
   .tip-title { font-weight: 800; font-size: 0.93rem; line-height: 1.3; }

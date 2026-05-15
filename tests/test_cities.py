@@ -73,6 +73,13 @@ def test_get_city_not_found(client):
     assert client.get("/cities/Atlantis").status_code == 404
 
 
+def test_get_city_is_case_insensitive(client):
+    for variant in ("da nang", "DA NANG", "Da Nang"):
+        resp = client.get(f"/cities/{variant}")
+        assert resp.status_code == 200
+        assert resp.json()["name"] == "Da Nang"
+
+
 def test_total_cities_covers_airports_and_hotels(client):
     """At least 49 cities — 48 airport cities + Hoi An from hotels."""
     body = client.get("/cities").json()
@@ -134,3 +141,91 @@ def test_cities_limit_validation(client):
 
 def test_cities_offset_validation(client):
     assert client.get("/cities", params={"offset": -1}).status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# GET /cities?q=  (fuzzy search)
+# ---------------------------------------------------------------------------
+
+
+def test_cities_fuzzy_exact_match(client):
+    results = _all_cities(client, q="Bangkok")
+    assert results
+    assert results[0]["name"] == "Bangkok"
+
+
+def test_cities_fuzzy_case_insensitive(client):
+    results = _all_cities(client, q="bangkok")
+    assert any(c["name"] == "Bangkok" for c in results)
+
+
+def test_cities_fuzzy_partial_match(client):
+    # "danang" (no space) should still resolve "Da Nang".
+    results = _all_cities(client, q="danang")
+    assert any(c["name"] == "Da Nang" for c in results)
+
+
+def test_cities_fuzzy_typo_tolerant(client):
+    # A small typo should still surface the intended city, ranked first.
+    results = _all_cities(client, q="Bangok")
+    assert results
+    assert results[0]["name"] == "Bangkok"
+
+
+def test_cities_fuzzy_ranks_best_match_first(client):
+    results = _all_cities(client, q="Chiang")
+    assert results
+    assert results[0]["name"].startswith("Chiang")
+
+
+def test_cities_fuzzy_by_country(client):
+    # An exact country hit scores 1.0, so every Vietnamese city ranks ahead
+    # of any merely name-similar city from elsewhere.
+    results = _all_cities(client, q="Vietnam")
+    vietnam_count = sum(1 for c in results if c["country"] == "Vietnam")
+    assert vietnam_count > 0
+    assert all(c["country"] == "Vietnam" for c in results[:vietnam_count])
+
+
+def test_cities_fuzzy_no_match_returns_empty(client):
+    body = client.get("/cities", params={"q": "zzzznowhere"}).json()
+    assert body["results"] == []
+    assert body["total"] == 0
+
+
+def test_cities_fuzzy_combines_with_country_filter(client):
+    results = _all_cities(client, q="Chiang", country="Thailand")
+    assert all(c["country"] == "Thailand" for c in results)
+
+
+# ---------------------------------------------------------------------------
+# City coordinates
+# ---------------------------------------------------------------------------
+
+
+def test_city_includes_coordinates(client):
+    city = client.get("/cities/Da Nang").json()
+    assert isinstance(city["latitude"], float)
+    assert isinstance(city["longitude"], float)
+
+
+def test_all_cities_have_coordinates(client):
+    for city in _all_cities(client):
+        assert city["latitude"] is not None
+        assert city["longitude"] is not None
+
+
+# ---------------------------------------------------------------------------
+# ?country= fuzzy filter
+# ---------------------------------------------------------------------------
+
+
+def test_cities_country_filter_is_fuzzy(client):
+    # lowercase / fuzzy country still filters correctly
+    cities = _all_cities(client, country="vietnam")
+    assert len(cities) > 0
+    assert all(c["country"] == "Vietnam" for c in cities)
+
+
+def test_cities_country_filter_unknown_returns_empty(client):
+    assert _all_cities(client, country="zzzznowhere") == []
