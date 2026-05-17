@@ -25,28 +25,28 @@ def get_tips(
             description=(
                 "City name (fuzzy — typo/case tolerant) — resolves its own country"
             ),
-            example="Hanoi",
+            examples=["Hanoi"],
         ),
     ] = None,
     country: Annotated[
         str | None,
         Query(
             description="Country name (fuzzy — typo/case tolerant)",
-            example="Vietnam",
+            examples=["Vietnam"],
         ),
     ] = None,
     category: Annotated[
         TipCategory | None,
         Query(
             description="Filter by category — Swagger renders the dropdown.",
-            example="money",
+            examples=["money"],
         ),
     ] = None,
     essential_only: Annotated[
         bool,
         Query(
             description="Return only the must-know (essential) tips",
-            example=True,
+            examples=[True],
         ),
     ] = False,
 ) -> TipsResponse:

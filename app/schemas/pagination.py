@@ -29,7 +29,7 @@ class PaginationParams:
                 ge=1,
                 le=500,
                 description="Page size (1-500, default 20)",
-                example=20,
+                examples=[20],
             ),
         ] = 20,
         offset: Annotated[
@@ -37,7 +37,7 @@ class PaginationParams:
             Query(
                 ge=0,
                 description="Number of items to skip (default 0)",
-                example=0,
+                examples=[0],
             ),
         ] = 0,
     ) -> None:

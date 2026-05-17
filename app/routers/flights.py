@@ -32,21 +32,21 @@ BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 def search_flights(
     origin: Annotated[
         str,
-        Query(description="IATA 3-letter code, case-insensitive", example="DAD"),
+        Query(description="IATA 3-letter code, case-insensitive", examples=["DAD"]),
     ],
     destination: Annotated[
         str,
-        Query(description="IATA 3-letter code, case-insensitive", example="SGN"),
+        Query(description="IATA 3-letter code, case-insensitive", examples=["SGN"]),
     ],
     departure_date: Annotated[
         str,
-        Query(description="Departure date, YYYY-MM-DD", example="2026-06-01"),
+        Query(description="Departure date, YYYY-MM-DD", examples=["2026-06-01"]),
     ],
     adults: Annotated[
         int,
         Query(
             description="Passenger count; echoed back, does not affect results",
-            example=1,
+            examples=[1],
         ),
     ] = 1,
     return_date: Annotated[
@@ -56,19 +56,19 @@ def search_flights(
                 "Return date YYYY-MM-DD. When set, response includes "
                 "``return_results`` (destination → origin flights)."
             ),
-            example="2026-06-08",
+            examples=["2026-06-08"],
         ),
     ] = None,
     airline: Annotated[
         str | None,
-        Query(description="Filter by IATA airline code, e.g. VN", example="VN"),
+        Query(description="Filter by IATA airline code, e.g. VN", examples=["VN"]),
     ] = None,
     max_price: Annotated[
         float | None,
         Query(
             ge=0,
             description="Only flights at or below this price (USD)",
-            example=300,
+            examples=[300],
         ),
     ] = None,
     max_stops: Annotated[
@@ -76,14 +76,14 @@ def search_flights(
         Query(
             ge=0,
             description="Only flights with at most this many stops",
-            example=0,
+            examples=[0],
         ),
     ] = None,
     sort: Annotated[
         FlightSort,
         Query(
             description="Sort order — Swagger renders the dropdown.",
-            example="departure_asc",
+            examples=["departure_asc"],
         ),
     ] = FlightSort.DEPARTURE_ASC,
 ) -> FlightSearchResponse:
@@ -161,7 +161,7 @@ def get_flight(
         str,
         Path(
             description="Flight UUID returned by /flights/search",
-            example="7af6f5a4-ce3a-5b24-8f2e-8a0a8b3c2c5a",
+            examples=["7af6f5a4-ce3a-5b24-8f2e-8a0a8b3c2c5a"],
         ),
     ],
 ) -> Flight:
@@ -191,7 +191,7 @@ def book_flight(
                 "returns the original booking instead of creating a "
                 "duplicate."
             ),
-            example="booking-2026-06-01-abc123",
+            examples=["booking-2026-06-01-abc123"],
         ),
     ] = None,
 ) -> Booking:

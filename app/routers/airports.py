@@ -26,7 +26,7 @@ def list_airports(
             "tolerant of typos and partial input (e.g. 'danang', 'dad'). "
             "Results are ranked best-match-first."
         ),
-        example="danang",
+        examples=["danang"],
     ),
 ) -> AirportListResponse:
     """Return supported airports with pagination.

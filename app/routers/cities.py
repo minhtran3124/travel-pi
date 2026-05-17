@@ -56,17 +56,17 @@ def list_cities(
             "typos and partial input (e.g. 'danang', 'phu ket'). Results are "
             "ranked best-match-first."
         ),
-        example="danang",
+        examples=["danang"],
     ),
     country: str | None = Query(
         None,
         description="Filter by country name (fuzzy — typo/case tolerant)",
-        example="Vietnam",
+        examples=["Vietnam"],
     ),
     has_hotels: bool | None = Query(
         None,
         description="If true, return only cities with hotel data",
-        example=True,
+        examples=[True],
     ),
 ) -> CityListResponse:
     """Return known cities with pagination.
@@ -108,11 +108,11 @@ def list_cities(
 async def route_between_cities(
     origin: Annotated[
         str,
-        Query(description="City name to start from", example="Da Nang"),
+        Query(description="City name to start from", examples=["Da Nang"]),
     ],
     destination: Annotated[
         str,
-        Query(description="City name to travel to", example="Hoi An"),
+        Query(description="City name to travel to", examples=["Hoi An"]),
     ],
 ) -> RouteResponse:
     """Return distance and duration per travel mode (walk / bike / car)
@@ -136,7 +136,7 @@ async def route_between_cities(
 def get_city(
     city_name: Annotated[
         str,
-        Path(description="City name (case-insensitive)", example="Da Nang"),
+        Path(description="City name (case-insensitive)", examples=["Da Nang"]),
     ],
 ) -> City:
     """Return a single city record, or 404 if unknown.

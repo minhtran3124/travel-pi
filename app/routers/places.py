@@ -54,39 +54,39 @@ def search_places(
     city: Annotated[
         str | None,
         Query(
-            description="City name, case-insensitive exact match", example="Da Nang"
-        ),
+            description="City name, case-insensitive exact match", examples=["Da Nang"
+        ]),
     ] = None,
     category: Annotated[
         PlaceCategory | None,
         Query(
             description="Category filter — Swagger renders the dropdown.",
-            example="restaurant",
+            examples=["restaurant"],
         ),
     ] = None,
     min_rating: Annotated[
         str | None,
         Query(
             description="Minimum rating (0–5); empty string treated as no filter",
-            example="4",
+            examples=["4"],
         ),
     ] = None,
     price_level: Annotated[
         str | None,
         Query(
             description="Exact price level 1–4 (1=free/cheap … 4=luxury); empty string treated as no filter",
-            example="2",
+            examples=["2"],
         ),
     ] = None,
     recommended: Annotated[
         bool,
-        Query(description="Return only editor-recommended places", example=True),
+        Query(description="Return only editor-recommended places", examples=[True]),
     ] = False,
     sort: Annotated[
         PlaceSort,
         Query(
             description="Sort order — Swagger renders the dropdown.",
-            example="rating_desc",
+            examples=["rating_desc"],
         ),
     ] = PlaceSort.RATING_DESC,
 ) -> PlaceSearchResponse:
@@ -164,24 +164,24 @@ def nearby_places(
         str,
         Query(
             description="The place to search around",
-            example="56f5b6d7-f0e2-5867-a9dd-087a98cff34c",
+            examples=["56f5b6d7-f0e2-5867-a9dd-087a98cff34c"],
         ),
     ],
     radius_km: Annotated[
         float,
         Query(
-            gt=0, le=50, description="Search radius in kilometres (0–50)", example=5
-        ),
+            gt=0, le=50, description="Search radius in kilometres (0–50)", examples=[5
+        ]),
     ] = 5.0,
     limit: Annotated[
         int,
-        Query(ge=1, le=50, description="Maximum number of results", example=10),
+        Query(ge=1, le=50, description="Maximum number of results", examples=[10]),
     ] = 10,
     category: Annotated[
         PlaceCategory | None,
         Query(
             description="Optional category filter — Swagger renders the dropdown.",
-            example="restaurant",
+            examples=["restaurant"],
         ),
     ] = None,
 ) -> PlaceNearbyResponse:
@@ -218,14 +218,14 @@ async def route_between_places(
         str,
         Query(
             description="Place ID to start from",
-            example="56f5b6d7-f0e2-5867-a9dd-087a98cff34c",
+            examples=["56f5b6d7-f0e2-5867-a9dd-087a98cff34c"],
         ),
     ],
     destination: Annotated[
         str,
         Query(
             description="Place ID to travel to",
-            example="26afc73a-6773-55c9-8e61-1f0fe75576e7",
+            examples=["26afc73a-6773-55c9-8e61-1f0fe75576e7"],
         ),
     ],
 ) -> RouteResponse:
@@ -252,7 +252,7 @@ def get_place(
         str,
         Path(
             description="Place UUID from /places or /places/search",
-            example="56f5b6d7-f0e2-5867-a9dd-087a98cff34c",
+            examples=["56f5b6d7-f0e2-5867-a9dd-087a98cff34c"],
         ),
     ],
 ) -> Place:

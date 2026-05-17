@@ -30,7 +30,7 @@ async def get_weather(
         str,
         Query(
             description="City name to look up, e.g. 'Da Nang' or 'Bangkok'",
-            example="Da Nang",
+            examples=["Da Nang"],
             min_length=1,
         ),
     ],
@@ -40,7 +40,7 @@ async def get_weather(
             description="Number of forecast days (1–16)",
             ge=1,
             le=16,
-            example=3,
+            examples=[3],
         ),
     ] = 3,
 ) -> WeatherResponse:

@@ -49,7 +49,7 @@ _AMENITIES_QUERY = Query(
         "Required amenities (all must match). Repeat the param for multiple "
         "values, e.g. ?amenities=Pool&amenities=Spa"
     ),
-    example="Pool",
+    examples=["Pool"],
 )
 
 
@@ -66,18 +66,18 @@ def search_hotels(
         str,
         Query(
             description="City name — fuzzy (typo/case tolerant)",
-            example="Da Nang",
+            examples=["Da Nang"],
         ),
     ],
     min_stars: Annotated[
         int | None,
-        Query(ge=1, le=5, description="Minimum star rating (1–5)", example=4),
+        Query(ge=1, le=5, description="Minimum star rating (1–5)", examples=[4]),
     ] = None,
     max_price: Annotated[
         float | None,
         Query(
-            ge=0, description="Maximum price per night (USD)", example=150
-        ),
+            ge=0, description="Maximum price per night (USD)", examples=[150
+        ]),
     ] = None,
     amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelSearchResponse:
@@ -121,40 +121,40 @@ def hotel_availability(
         str,
         Query(
             description="City name — fuzzy (typo/case tolerant)",
-            example="Da Nang",
+            examples=["Da Nang"],
         ),
     ],
     check_in: Annotated[
         str,
-        Query(description="Check-in date, YYYY-MM-DD", example="2026-06-01"),
+        Query(description="Check-in date, YYYY-MM-DD", examples=["2026-06-01"]),
     ],
     check_out: Annotated[
         str,
-        Query(description="Check-out date, YYYY-MM-DD", example="2026-06-03"),
+        Query(description="Check-out date, YYYY-MM-DD", examples=["2026-06-03"]),
     ],
-    rooms: Annotated[int, Query(ge=1, description="Rooms needed", example=1)] = 1,
+    rooms: Annotated[int, Query(ge=1, description="Rooms needed", examples=[1])] = 1,
     adults: Annotated[
-        int, Query(ge=1, description="Adults in the party", example=2)
+        int, Query(ge=1, description="Adults in the party", examples=[2])
     ] = 2,
     children: Annotated[
-        int, Query(ge=0, description="Children in the party", example=0)
+        int, Query(ge=0, description="Children in the party", examples=[0])
     ] = 0,
     available_only: Annotated[
         bool,
         Query(
             description="Return only hotels that can take the booking",
-            example=True,
+            examples=[True],
         ),
     ] = False,
     min_stars: Annotated[
         int | None,
-        Query(ge=1, le=5, description="Minimum star rating (1–5)", example=4),
+        Query(ge=1, le=5, description="Minimum star rating (1–5)", examples=[4]),
     ] = None,
     max_price: Annotated[
         float | None,
         Query(
-            ge=0, description="Maximum price per night (USD)", example=150
-        ),
+            ge=0, description="Maximum price per night (USD)", examples=[150
+        ]),
     ] = None,
     amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelAvailabilityResponse:
@@ -221,7 +221,7 @@ def get_hotel(
         str,
         Path(
             description="Hotel UUID from /hotels or /hotels/search",
-            example="5c1a8d2c-5e1c-4d6f-9a73-2c3b9b0a4ac5",
+            examples=["5c1a8d2c-5e1c-4d6f-9a73-2c3b9b0a4ac5"],
         ),
     ],
 ) -> Hotel:
@@ -251,7 +251,7 @@ def book_hotel(
                 "returns the original booking instead of creating a "
                 "duplicate."
             ),
-            example="booking-2026-06-01-abc123",
+            examples=["booking-2026-06-01-abc123"],
         ),
     ] = None,
 ) -> Booking:

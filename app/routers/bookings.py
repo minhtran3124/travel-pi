@@ -28,18 +28,18 @@ def list_bookings(
         str | None,
         Query(
             description="Case-insensitive match on booking ID, customer name, or email",
-            example="john",
+            examples=["john"],
         ),
     ] = None,
     booking_type: Annotated[
         BookingType | None,
-        Query(alias="type", description="Filter by booking type", example="flight"),
+        Query(alias="type", description="Filter by booking type", examples=["flight"]),
     ] = None,
     sort: Annotated[
         BookingSort,
         Query(
             description="Sort order — Swagger renders the dropdown.",
-            example="created_desc",
+            examples=["created_desc"],
         ),
     ] = BookingSort.CREATED_DESC,
 ) -> BookingListResponse:
@@ -73,7 +73,7 @@ def get_booking(
         str,
         Path(
             description="Booking UUID *or* 6-char confirmation code",
-            example="A2B4C6",
+            examples=["A2B4C6"],
         ),
     ],
 ) -> Booking:
@@ -96,7 +96,7 @@ def cancel_booking(
         str,
         Path(
             description="Booking UUID *or* 6-char confirmation code",
-            example="A2B4C6",
+            examples=["A2B4C6"],
         ),
     ],
 ) -> Booking:
