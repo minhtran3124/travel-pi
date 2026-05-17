@@ -199,7 +199,10 @@ def test_route_with_ors_parses_distance_and_duration(client, with_ors):
     assert legs["car"]["duration_minutes"] == 5.0
 
 
-def test_route_ors_upstream_failure_returns_502(client, monkeypatch):
+def test_route_ors_upstream_failure_falls_back_to_estimate(client, monkeypatch):
+    """When every ORS leg fails (e.g. upstream is down), the route still
+    returns a usable response built from the offline estimate — the
+    ``source`` field flips to ``"estimate"`` so callers can tell."""
     monkeypatch.setattr(
         routing_service,
         "get_settings",
@@ -214,10 +217,15 @@ def test_route_ors_upstream_failure_returns_502(client, monkeypatch):
         "/places/route",
         params={"origin": DRAGON_BRIDGE, "destination": MARBLE_MOUNTAINS},
     )
-    assert resp.status_code == 502
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["source"] == "estimate"
+    assert {leg["mode"] for leg in body["legs"]} == {"walk", "bike", "car"}
 
 
-def test_route_ors_unexpected_response_returns_502(client, monkeypatch):
+def test_route_ors_unexpected_response_falls_back_to_estimate(client, monkeypatch):
+    """An empty/malformed ORS payload is treated the same as upstream
+    failure — fall back per-leg rather than surfacing a 502."""
     monkeypatch.setattr(
         routing_service,
         "get_settings",
@@ -232,7 +240,8 @@ def test_route_ors_unexpected_response_returns_502(client, monkeypatch):
         "/places/route",
         params={"origin": DRAGON_BRIDGE, "destination": MARBLE_MOUNTAINS},
     )
-    assert resp.status_code == 502
+    assert resp.status_code == 200
+    assert resp.json()["source"] == "estimate"
 
 
 # --- Unit: recommend_mode + haversine -----------------------------------------

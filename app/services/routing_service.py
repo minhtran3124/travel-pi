@@ -219,17 +219,45 @@ async def get_route_between(
 
     if provider_enabled:
         # Fetch every travel mode concurrently — one round-trip's latency
-        # instead of three back to back.
-        legs = list(
-            await asyncio.gather(
-                *(
-                    _ors_leg(mode, profile, origin, destination)
-                    for mode, (profile, _speed) in _MODES.items()
-                )
-            )
+        # instead of three back to back. ``return_exceptions=True`` so a
+        # single failing leg (rare — all three call the same ORS host)
+        # falls back to the offline estimate for that mode instead of
+        # taking the whole response down with it.
+        results = await asyncio.gather(
+            *(
+                _ors_leg(mode, profile, origin, destination)
+                for mode, (profile, _speed) in _MODES.items()
+            ),
+            return_exceptions=True,
         )
-        source = "openrouteservice"
-        attribution = _ATTRIBUTION_ORS
+        legs = []
+        any_ors = False
+        any_fallback = False
+        for (mode, (profile, speed)), result in zip(_MODES.items(), results, strict=True):
+            if isinstance(result, BaseException):
+                logger.warning(
+                    "ORS leg %s failed (%s) — falling back to offline estimate",
+                    mode,
+                    result,
+                )
+                legs.append(_estimate_leg(mode, profile, speed, straight_line_km))
+                any_fallback = True
+            else:
+                legs.append(result)
+                any_ors = True
+        # If at least one leg came from ORS, keep ``source="openrouteservice"``
+        # so the response still flags real routing as the primary source; if
+        # every leg fell back, surface that honestly to the caller.
+        if any_ors:
+            source = "openrouteservice"
+            attribution = (
+                _ATTRIBUTION_ORS
+                if not any_fallback
+                else _ATTRIBUTION_ORS + " (some modes estimated offline)"
+            )
+        else:
+            source = "estimate"
+            attribution = _ATTRIBUTION_ESTIMATE
     else:
         legs = [
             _estimate_leg(mode, profile, speed, straight_line_km)

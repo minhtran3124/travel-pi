@@ -58,6 +58,12 @@ _COLUMNS = (
 
 def _row_to_booking(row: sqlite3.Row) -> Booking:
     """Rebuild a ``Booking`` model from a database row."""
+    details = json.loads(row["details"])
+    # Backfill the discriminator on rows written before ``details`` became a
+    # tagged union — ``row["type"]`` is the source of truth and matches the
+    # ``kind`` literal on each details model.
+    if isinstance(details, dict) and "kind" not in details:
+        details["kind"] = row["type"]
     return Booking(
         id=row["id"],
         type=row["type"],
@@ -68,7 +74,7 @@ def _row_to_booking(row: sqlite3.Row) -> Booking:
         currency=row["currency"],
         status=row["status"],
         created_at=row["created_at"],
-        details=json.loads(row["details"]),
+        details=details,
         notes=row["notes"],
     )
 
@@ -213,7 +219,7 @@ class BookingRepository:
             booking.currency,
             booking.status.value,
             booking.created_at.isoformat(),
-            json.dumps(booking.details, default=str),
+            json.dumps(booking.details.model_dump(mode="json")),
             booking.notes,
             idempotency_key,
             booking.confirmation_code,

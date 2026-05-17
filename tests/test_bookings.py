@@ -323,7 +323,7 @@ def _sample_booking(booking_id):
     from datetime import datetime, timezone
 
     from app.enums import BookingType
-    from app.schemas.booking import Booking
+    from app.schemas.booking import Booking, FlightBookingDetails
 
     return Booking(
         id=booking_id,
@@ -333,7 +333,16 @@ def _sample_booking(booking_id):
         customer_email="race@example.com",
         total_price=100.0,
         created_at=datetime.now(timezone.utc),
-        details={"origin": "DAD", "destination": "SGN"},
+        details=FlightBookingDetails(
+            flight_id="ref-1",
+            flight_number="VN123",
+            airline="Vietnam Airlines",
+            origin="DAD",
+            destination="SGN",
+            departure_time="2026-06-01T08:30:00",
+            arrival_time="2026-06-01T10:00:00",
+            passenger_name="Race Tester",
+        ),
     )
 
 

@@ -4,13 +4,22 @@ Shared by ``GET /places/route`` (place → place) and ``GET /cities/route``
 (city → city).
 """
 
+from typing import Literal
+
 from app.schemas.base import AppBaseModel
+
+# Closed sets, exposed in the OpenAPI schema so FE codegen produces real TS
+# unions instead of plain strings.
+EndpointKind = Literal["place", "city"]
+TravelMode = Literal["walk", "bike", "car"]
+ORSProfile = Literal["foot-walking", "cycling-regular", "driving-car"]
+RouteSource = Literal["openrouteservice", "estimate"]
 
 
 class RouteEndpoint(AppBaseModel):
     """One end of a route — a resolved place or city with its coordinates."""
 
-    kind: str  # "place" | "city"
+    kind: EndpointKind
     id: str  # the place ID, or the city name
     name: str
     latitude: float
@@ -20,8 +29,8 @@ class RouteEndpoint(AppBaseModel):
 class RouteLeg(AppBaseModel):
     """Distance and time for one travel mode between the two endpoints."""
 
-    mode: str  # walk | bike | car — the friendly label
-    profile: str  # ORS routing profile, e.g. "foot-walking"
+    mode: TravelMode
+    profile: ORSProfile
     distance_km: float
     duration_minutes: float
 
@@ -39,7 +48,7 @@ class RouteResponse(AppBaseModel):
     origin: RouteEndpoint
     destination: RouteEndpoint
     straight_line_km: float
-    recommended_mode: str
+    recommended_mode: TravelMode
     legs: list[RouteLeg]
-    source: str  # "openrouteservice" | "estimate"
+    source: RouteSource
     attribution: str

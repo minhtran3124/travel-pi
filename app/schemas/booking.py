@@ -2,8 +2,9 @@
 
 import hashlib
 from datetime import datetime
+from typing import Annotated, Literal
 
-from pydantic import computed_field
+from pydantic import Field, computed_field
 
 from app.enums import BookingStatus, BookingType
 from app.schemas.base import AppBaseModel
@@ -38,28 +39,71 @@ def _trim_iso(value: str) -> str:
     return value[:16].replace("T", " ") if isinstance(value, str) else str(value)
 
 
-def build_summary(booking_type: BookingType, customer_name: str, details: dict) -> str:
+class FlightBookingDetails(AppBaseModel):
+    """Flight-specific payload stored on a ``Booking``.
+
+    The ``kind`` discriminator lets ``Booking.details`` be a tagged union so
+    OpenAPI / FE codegen produce a real ``FlightBookingDetails | HotelBookingDetails``
+    type instead of an untyped object.
+    """
+
+    kind: Literal["flight"] = "flight"
+    flight_id: str
+    flight_number: str
+    airline: str
+    origin: str
+    destination: str
+    departure_time: str  # ISO 8601
+    arrival_time: str  # ISO 8601
+    passenger_name: str
+    passenger_phone: str | None = None
+
+
+class HotelBookingDetails(AppBaseModel):
+    """Hotel-specific payload stored on a ``Booking``."""
+
+    kind: Literal["hotel"] = "hotel"
+    hotel_id: str
+    hotel_name: str
+    city: str
+    check_in: str  # YYYY-MM-DD
+    check_out: str  # YYYY-MM-DD
+    nights: int
+    rooms: int
+    adults: int
+    children: int
+    price_per_night: float
+    guest_phone: str | None = None
+
+
+BookingDetails = Annotated[
+    FlightBookingDetails | HotelBookingDetails,
+    Field(discriminator="kind"),
+]
+
+
+def build_summary(
+    booking_type: BookingType, customer_name: str, details: BookingDetails
+) -> str:
     """Build a one-line, human-readable description of a booking.
 
     Agents (and people) shouldn't have to dig through ``details`` to know
     what a booking *is* — this is the at-a-glance version.
     """
-    if booking_type == BookingType.FLIGHT:
+    if booking_type == BookingType.FLIGHT and isinstance(details, FlightBookingDetails):
         return (
-            f"{details.get('airline', 'Flight')} "
-            f"{details.get('flight_number', '')} · "
-            f"{details.get('origin', '?')}→{details.get('destination', '?')} · "
-            f"departs {_trim_iso(details.get('departure_time', ''))} · "
+            f"{details.airline} {details.flight_number} · "
+            f"{details.origin}→{details.destination} · "
+            f"departs {_trim_iso(details.departure_time)} · "
             f"{customer_name}"
         )
-    nights = details.get("nights", "?")
-    rooms = details.get("rooms", "?")
-    guests = details.get("adults", 0) + details.get("children", 0) or "?"
+    assert isinstance(details, HotelBookingDetails)
+    guests = (details.adults + details.children) or "?"
     return (
-        f"{details.get('hotel_name', 'Hotel')}, {details.get('city', '?')} · "
-        f"{details.get('check_in', '?')}→{details.get('check_out', '?')} "
-        f"({nights} night{'s' if nights != 1 else ''}) · "
-        f"{rooms} room{'s' if rooms != 1 else ''}, {guests} guest"
+        f"{details.hotel_name}, {details.city} · "
+        f"{details.check_in}→{details.check_out} "
+        f"({details.nights} night{'s' if details.nights != 1 else ''}) · "
+        f"{details.rooms} room{'s' if details.rooms != 1 else ''}, {guests} guest"
         f"{'s' if guests != 1 else ''} · {customer_name}"
     )
 
@@ -81,7 +125,7 @@ class Booking(AppBaseModel):
     currency: str = "USD"
     status: BookingStatus = BookingStatus.CONFIRMED
     created_at: datetime
-    details: dict  # Type-specific payload (see endpoint specs)
+    details: BookingDetails
     notes: str | None = None  # Optional agent/user context
 
     @computed_field  # type: ignore[prop-decorator]

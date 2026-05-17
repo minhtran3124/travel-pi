@@ -12,6 +12,7 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from app.core.config import get_settings
+from app.core.invariants import check_city_coverage
 from app.services.booking_service import get_booking_service
 from app.services.flight_service import init_flight_index
 
@@ -26,6 +27,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # "where did my bookings go?" debugging session into a one-line answer.
     db_path = Path(get_settings().database_path).resolve()
     logger.info("SQLite database resolved to %s", db_path)
+
+    # Enforce the "every city has ≥3 hotels and ≥3 places" promise from
+    # CLAUDE.md — a typo in seed data would otherwise only surface when a
+    # user searched the affected city.
+    check_city_coverage()
 
     # Wrap init so a write/permission failure surfaces with the path that
     # caused it, instead of an opaque ``sqlite3.OperationalError`` traceback

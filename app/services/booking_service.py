@@ -15,7 +15,7 @@ from app.core.config import get_settings
 from app.crud.booking import BookingRepository
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
-from app.schemas.booking import Booking
+from app.schemas.booking import Booking, FlightBookingDetails, HotelBookingDetails
 from app.schemas.flight import FlightBookingRequest
 from app.schemas.hotel import HotelBookingRequest
 from app.services import flight_service, hotel_service
@@ -169,17 +169,17 @@ class BookingService:
             currency=flight.currency,
             created_at=datetime.now(timezone.utc),
             notes=request.notes,
-            details={
-                "flight_id": flight.id,
-                "flight_number": flight.flight_number,
-                "airline": flight.airline.name,
-                "origin": flight.origin,
-                "destination": flight.destination,
-                "departure_time": flight.departure_time.isoformat(),
-                "arrival_time": flight.arrival_time.isoformat(),
-                "passenger_name": request.passenger_name,
-                "passenger_phone": request.passenger_phone,
-            },
+            details=FlightBookingDetails(
+                flight_id=flight.id,
+                flight_number=flight.flight_number,
+                airline=flight.airline.name,
+                origin=flight.origin,
+                destination=flight.destination,
+                departure_time=flight.departure_time.isoformat(),
+                arrival_time=flight.arrival_time.isoformat(),
+                passenger_name=request.passenger_name,
+                passenger_phone=request.passenger_phone,
+            ),
         )
         self._repo.add(booking, idempotency_key=idempotency_key)
         logger.info("Created flight booking %s for flight %s", booking.id, flight.id)
@@ -233,19 +233,19 @@ class BookingService:
             currency=hotel.currency,
             created_at=datetime.now(timezone.utc),
             notes=request.notes,
-            details={
-                "hotel_id": hotel.id,
-                "hotel_name": hotel.name,
-                "city": hotel.city,
-                "check_in": request.check_in,
-                "check_out": request.check_out,
-                "nights": nights,
-                "rooms": request.rooms,
-                "adults": request.adults,
-                "children": request.children,
-                "price_per_night": hotel.price_per_night,
-                "guest_phone": request.guest_phone,
-            },
+            details=HotelBookingDetails(
+                hotel_id=hotel.id,
+                hotel_name=hotel.name,
+                city=hotel.city,
+                check_in=request.check_in,
+                check_out=request.check_out,
+                nights=nights,
+                rooms=request.rooms,
+                adults=request.adults,
+                children=request.children,
+                price_per_night=hotel.price_per_night,
+                guest_phone=request.guest_phone,
+            ),
         )
         self._repo.add(booking, idempotency_key=idempotency_key)
         logger.info(
