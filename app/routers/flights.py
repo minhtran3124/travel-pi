@@ -168,7 +168,15 @@ def get_flight(
     """Return a single flight, or 404 if the ID does not resolve."""
     flight = flight_service.find_flight_by_id(flight_id)
     if flight is None:
-        raise NotFoundError("Flight not found")
+        raise NotFoundError(
+            f"Flight {flight_id!r} not found",
+            hint=(
+                "Flight IDs come from GET /flights/search and have the form "
+                "'FL_<ORIGIN>_<DEST>_<YYYYMMDD>_<NN>'. Re-run the search "
+                "for the same origin/destination/departure_date to get a "
+                "valid ID."
+            ),
+        )
     return flight
 
 

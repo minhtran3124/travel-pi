@@ -51,7 +51,9 @@ def create_app() -> FastAPI:
     # the same JSON envelope, so an agent consuming the API can parse failures
     # the same way regardless of where they originated:
     #   {"error": <class>, "message": <str>, "status_code": <int>,
-    #    "path": <str>, "errors": [...]?}
+    #    "path": <str>, "hint": <str>?, "errors": [...]?}
+    # ``hint`` is an optional, machine-actionable recovery suggestion for the
+    # caller — what to try next. See ``app.exceptions.AppError``.
     def _error_body(
         error: str,
         message: str,
@@ -78,10 +80,13 @@ def create_app() -> FastAPI:
             request.url.path,
             exc.detail,
         )
+        extra: dict[str, object] = {}
+        if exc.hint:
+            extra["hint"] = exc.hint
         return JSONResponse(
             status_code=exc.status_code,
             content=_error_body(
-                type(exc).__name__, exc.detail, exc.status_code, request
+                type(exc).__name__, exc.detail, exc.status_code, request, **extra
             ),
         )
 
@@ -126,6 +131,11 @@ def create_app() -> FastAPI:
                 "Request validation failed",
                 status.HTTP_422_UNPROCESSABLE_ENTITY,
                 request,
+                hint=(
+                    "Inspect the 'errors' array for per-field problems "
+                    "(each entry has 'loc', 'msg', and 'type'). Fix the "
+                    "listed fields and retry."
+                ),
                 errors=jsonable_encoder(exc.errors()),
             ),
         )

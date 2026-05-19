@@ -104,9 +104,22 @@ def _place_endpoint(place_id: str, label: str) -> RouteEndpoint:
     """
     place = place_service.get_place(place_id)
     if place is None:
-        raise NotFoundError(f"{label} place '{place_id}' not found")
+        raise NotFoundError(
+            f"{label} place '{place_id}' not found",
+            hint=(
+                "Use GET /places/search?city=<city> to find a valid place_id "
+                "(or pass the short PLC-XXXX code)."
+            ),
+        )
     if place.latitude is None or place.longitude is None:
-        raise NotFoundError(f"{label} place '{place_id}' has no coordinates")
+        raise NotFoundError(
+            f"{label} place '{place_id}' has no coordinates",
+            hint=(
+                "This place is missing latitude/longitude in the seed data "
+                "and cannot take part in a route. Pick another place from "
+                "GET /places/search."
+            ),
+        )
     return RouteEndpoint(
         kind="place",
         id=place.id,
@@ -127,9 +140,21 @@ def _city_endpoint(city_name: str, label: str) -> RouteEndpoint:
     """
     record = best_match(city_name, _CITY_DATA, [lambda c: c["name"]])
     if record is None:
-        raise NotFoundError(f"{label} city '{city_name}' not found")
+        raise NotFoundError(
+            f"{label} city '{city_name}' not found",
+            hint=(
+                "Use GET /cities?q=<partial-name> to find the canonical "
+                "city name (the lookup is fuzzy / typo-tolerant)."
+            ),
+        )
     if record.get("latitude") is None or record.get("longitude") is None:
-        raise NotFoundError(f"{label} city '{record['name']}' has no coordinates")
+        raise NotFoundError(
+            f"{label} city '{record['name']}' has no coordinates",
+            hint=(
+                "This city is missing latitude/longitude in the seed data "
+                "and cannot take part in a route."
+            ),
+        )
     return RouteEndpoint(
         kind="city",
         id=record["name"],

@@ -151,7 +151,13 @@ async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
 
     location = await geocode_city(city)
     if location is None:
-        raise CityNotFoundError(f"Could not find a location named '{city}'")
+        raise CityNotFoundError(
+            f"Could not find a location named '{city}'",
+            hint=(
+                "Check the spelling, or use GET /cities?q=<partial-name> "
+                "to find a supported city name."
+            ),
+        )
 
     data = await _fetch_json(
         settings.weather_forecast_url,

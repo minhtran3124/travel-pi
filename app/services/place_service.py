@@ -11,6 +11,23 @@ _PLACES: list[Place] = [Place(**record) for record in PLACES]
 CATEGORIES = sorted({p.category for p in _PLACES})
 CITIES = sorted({p.city for p in _PLACES})
 
+
+def _build_short_code_index(places: list[Place]) -> dict[str, Place]:
+    """Map ``short_code -> Place``, failing fast on collisions (see hotel_service)."""
+    index: dict[str, Place] = {}
+    for place in places:
+        existing = index.get(place.short_code)
+        if existing is not None:
+            raise RuntimeError(
+                f"Place short-code collision: {place.short_code} maps to "
+                f"both {existing.id!r} and {place.id!r}"
+            )
+        index[place.short_code] = place
+    return index
+
+
+_PLACES_BY_SHORT_CODE: dict[str, Place] = _build_short_code_index(_PLACES)
+
 # Valid sort keys live in ``app.enums.PlaceSort`` (the JSON router validates
 # against the enum). The actual sort dispatch happens via the if/elif chain
 # in ``search_places`` below.
@@ -72,7 +89,17 @@ def search_places(
 
 
 def get_place(place_id: str) -> Place | None:
-    return next((p for p in _PLACES if p.id == place_id), None)
+    """Return the place by raw ID *or* its friendly ``PLC-XXXXXX`` short code.
+
+    The short-code lookup is case-insensitive (``plc-ab23xy`` is the same as
+    ``PLC-AB23XY``). Returns ``None`` if nothing matches.
+    """
+    if not place_id:
+        return None
+    normalised = place_id.strip()
+    if normalised.upper().startswith("PLC-"):
+        return _PLACES_BY_SHORT_CODE.get(normalised.upper())
+    return next((p for p in _PLACES if p.id == normalised), None)
 
 
 def nearby_places(
@@ -91,9 +118,21 @@ def nearby_places(
     """
     origin = get_place(place_id)
     if origin is None:
-        raise NotFoundError(f"Place '{place_id}' not found")
+        raise NotFoundError(
+            f"Place '{place_id}' not found",
+            hint=(
+                "Use GET /places/search?city=<city> to find a valid "
+                "place_id (or pass the short PLC-XXXX code)."
+            ),
+        )
     if origin.latitude is None or origin.longitude is None:
-        raise NotFoundError(f"Place '{place_id}' has no coordinates")
+        raise NotFoundError(
+            f"Place '{place_id}' has no coordinates",
+            hint=(
+                "This place is missing latitude/longitude in the seed data "
+                "and cannot anchor a nearby search."
+            ),
+        )
 
     wanted = category.strip().lower() if category else None
     found: list[NearbyPlace] = []

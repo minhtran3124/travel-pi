@@ -7,13 +7,20 @@ that turns any :class:`AppError` into the right HTTP response.
 
 
 class AppError(Exception):
-    """Base class for domain errors. Carries the HTTP status to respond with."""
+    """Base class for domain errors. Carries the HTTP status to respond with.
+
+    An optional ``hint`` field gives the caller — typically an LLM agent —
+    a concrete recovery suggestion ("call X to find valid IDs", "try
+    different dates"). It is surfaced in the error envelope so the agent
+    can act on it without parsing the human-readable ``message``.
+    """
 
     status_code: int = 500
     default_detail: str = "Internal server error"
 
-    def __init__(self, detail: str | None = None) -> None:
+    def __init__(self, detail: str | None = None, *, hint: str | None = None) -> None:
         self.detail = detail or self.default_detail
+        self.hint = hint
         super().__init__(self.detail)
 
 

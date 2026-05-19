@@ -228,7 +228,13 @@ def get_hotel(
     """Return a single hotel, or 404 if the ID does not exist."""
     hotel = hotel_service.get_hotel(hotel_id)
     if hotel is None:
-        raise NotFoundError("Hotel not found")
+        raise NotFoundError(
+            f"Hotel {hotel_id!r} not found",
+            hint=(
+                "Use GET /hotels/search?city=<city> or GET /hotels to find "
+                "a valid hotel_id, or pass the short HTL-XXXX code."
+            ),
+        )
     return hotel
 
 

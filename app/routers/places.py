@@ -259,5 +259,11 @@ def get_place(
     """Return a single place, or 404 if the ID does not exist."""
     place = place_service.get_place(place_id)
     if place is None:
-        raise NotFoundError("Place not found")
+        raise NotFoundError(
+            f"Place {place_id!r} not found",
+            hint=(
+                "Use GET /places/search?city=<city> or GET /places to find "
+                "a valid place_id, or pass the short PLC-XXXX code."
+            ),
+        )
     return place

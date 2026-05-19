@@ -22,6 +22,30 @@ _HOTELS: list[Hotel] = [Hotel(**record) for record in HOTELS]
 # fuzzy city resolver.
 _HOTEL_CITIES: list[str] = sorted({hotel.city for hotel in _HOTELS})
 
+
+def _build_short_code_index(hotels: list[Hotel]) -> dict[str, Hotel]:
+    """Build a ``short_code -> Hotel`` map, failing fast on any collision.
+
+    The codes are hash-derived (see :mod:`app.core.codes`) so two hotels
+    could in principle map to the same code. With 154 hotels and 31^6
+    possible codes the odds are ~3e-7, but checking at import time turns a
+    theoretical bug into a loud startup error rather than a silent wrong
+    lookup later.
+    """
+    index: dict[str, Hotel] = {}
+    for hotel in hotels:
+        existing = index.get(hotel.short_code)
+        if existing is not None:
+            raise RuntimeError(
+                f"Hotel short-code collision: {hotel.short_code} maps to "
+                f"both {existing.id!r} and {hotel.id!r}"
+            )
+        index[hotel.short_code] = hotel
+    return index
+
+
+_HOTELS_BY_SHORT_CODE: dict[str, Hotel] = _build_short_code_index(_HOTELS)
+
 _DATE_FORMAT = "%Y-%m-%d"
 
 
@@ -112,8 +136,17 @@ def search_hotels(
 
 
 def get_hotel(hotel_id: str) -> Hotel | None:
-    """Return the hotel with ``hotel_id``, or ``None`` if it does not exist."""
-    return next((hotel for hotel in _HOTELS if hotel.id == hotel_id), None)
+    """Return the hotel by raw ID *or* its friendly ``HTL-XXXXXX`` short code.
+
+    The short-code lookup is case-insensitive (``htl-ab23xy`` is the same as
+    ``HTL-AB23XY``). Returns ``None`` if neither matches.
+    """
+    if not hotel_id:
+        return None
+    normalised = hotel_id.strip()
+    if normalised.upper().startswith("HTL-"):
+        return _HOTELS_BY_SHORT_CODE.get(normalised.upper())
+    return next((hotel for hotel in _HOTELS if hotel.id == normalised), None)
 
 
 def is_available(

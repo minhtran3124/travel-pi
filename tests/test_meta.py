@@ -66,6 +66,7 @@ def test_openapi_documents_error_envelope(client):
         "message",
         "status_code",
         "path",
+        "hint",
         "errors",
     }
 

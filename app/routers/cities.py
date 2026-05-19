@@ -146,5 +146,11 @@ def get_city(
     """
     city = _BY_NAME.get(city_name.strip().lower())
     if city is None:
-        raise NotFoundError(f"City '{city_name}' not found")
+        raise NotFoundError(
+            f"City '{city_name}' not found",
+            hint=(
+                "This endpoint requires an exact name match. For "
+                "typo-tolerant lookup use GET /cities?q=<partial-name>."
+            ),
+        )
     return city

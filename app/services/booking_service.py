@@ -59,7 +59,14 @@ class BookingService:
             booking_id
         )
         if booking is None:
-            raise NotFoundError("Booking not found")
+            raise NotFoundError(
+                f"Booking {booking_id!r} not found",
+                hint=(
+                    "Accepts either the booking UUID or the 6-character "
+                    "confirmation_code (e.g. 'AB23XY'). Use GET /bookings to "
+                    "list existing bookings."
+                ),
+            )
         return booking
 
     def list_all(self) -> list[Booking]:
@@ -156,7 +163,12 @@ class BookingService:
             raise NotFoundError(
                 f"No flight {request.flight_number!r} on "
                 f"{request.origin.upper()}→{request.destination.upper()} "
-                f"on {request.departure_date}"
+                f"on {request.departure_date}",
+                hint=(
+                    "Run GET /flights/search with the same origin, "
+                    "destination, and departure_date to see the available "
+                    "flight_numbers for that route and date."
+                ),
             )
 
         booking = Booking(
@@ -203,7 +215,14 @@ class BookingService:
 
         hotel = hotel_service.get_hotel(request.hotel_id)
         if hotel is None:
-            raise NotFoundError("Hotel not found")
+            raise NotFoundError(
+                f"Hotel {request.hotel_id!r} not found",
+                hint=(
+                    "Use GET /hotels/search?city=<city> or "
+                    "GET /hotels/availability to discover a valid hotel_id "
+                    "(or the short HTL-XXXX code)."
+                ),
+            )
 
         guests = request.adults + request.children
         if not hotel_service.is_available(
@@ -219,7 +238,12 @@ class BookingService:
             raise ConflictError(
                 f"{hotel.name} cannot take {request.rooms} room(s) for "
                 f"{guests} guest(s) on those dates "
-                f"({free} room(s) available)."
+                f"({free} room(s) available).",
+                hint=(
+                    "Try different check_in/check_out dates, reduce rooms "
+                    "or party size, or pick another hotel via "
+                    "GET /hotels/availability (filter with available_only=true)."
+                ),
             )
 
         nights = hotel_service.count_nights(request.check_in, request.check_out)

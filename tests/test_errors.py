@@ -92,3 +92,35 @@ def test_validation_error_on_missing_required_body(client):
     resp = client.post(path, json={})
     assert resp.status_code == 422
     _assert_envelope(resp.json(), 422, path)
+
+
+# --- Recovery hints ----------------------------------------------------------
+
+
+def test_domain_error_includes_actionable_hint(client):
+    """AppError hints — what an agent should try next — appear in the envelope."""
+    body = client.get("/bookings/no-such-booking").json()
+    assert "hint" in body and isinstance(body["hint"], str) and body["hint"]
+    # The hint should point at a concrete recovery action.
+    assert "GET /bookings" in body["hint"] or "confirmation_code" in body["hint"]
+
+
+def test_404_for_unknown_hotel_hints_at_search(client):
+    body = client.get("/hotels/00000000-0000-0000-0000-000000000000").json()
+    assert "GET /hotels" in body["hint"]
+
+
+def test_404_for_unknown_flight_hints_at_search(client):
+    body = client.get("/flights/no-such-flight").json()
+    assert "GET /flights/search" in body["hint"]
+
+
+def test_validation_error_has_recovery_hint(client):
+    body = client.get("/airports", params={"limit": 0}).json()
+    assert body.get("hint") and "errors" in body["hint"]
+
+
+def test_route_not_found_has_no_hint(client):
+    """Unmatched-route 404s come from Starlette and don't carry a domain hint."""
+    body = client.get("/this/route/does/not/exist").json()
+    assert "hint" not in body or body.get("hint") is None

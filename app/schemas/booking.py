@@ -1,20 +1,14 @@
 """Booking schema, shared by flight and hotel bookings."""
 
-import hashlib
 from datetime import datetime
 from typing import Annotated, Literal
 
 from pydantic import Field, computed_field
 
+from app.core.codes import short_code_for
 from app.enums import BookingStatus, BookingType
 from app.schemas.base import AppBaseModel
 from app.schemas.pagination import PagedResponse
-
-# Confirmation-code alphabet: uppercase letters + digits, minus the
-# visually ambiguous ones (0/O, 1/I/L) — the same trick real airlines and
-# hotels use to keep a reference readable when typed or read aloud.
-_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
-_CODE_LENGTH = 6
 
 
 def confirmation_code_for(booking_id: str) -> str:
@@ -25,13 +19,7 @@ def confirmation_code_for(booking_id: str) -> str:
     UUID. We derive it deterministically from the UUID so it needs no extra
     storage and never drifts: the same booking always has the same code.
     """
-    digest = hashlib.sha256(booking_id.encode()).digest()
-    number = int.from_bytes(digest[:8], "big")
-    chars = []
-    for _ in range(_CODE_LENGTH):
-        number, index = divmod(number, len(_CODE_ALPHABET))
-        chars.append(_CODE_ALPHABET[index])
-    return "".join(chars)
+    return short_code_for(booking_id)
 
 
 def _trim_iso(value: str) -> str:
@@ -47,33 +35,39 @@ class FlightBookingDetails(AppBaseModel):
     type instead of an untyped object.
     """
 
-    kind: Literal["flight"] = "flight"
-    flight_id: str
-    flight_number: str
-    airline: str
-    origin: str
-    destination: str
-    departure_time: str  # ISO 8601
-    arrival_time: str  # ISO 8601
-    passenger_name: str
-    passenger_phone: str | None = None
+    kind: Literal["flight"] = Field(
+        default="flight",
+        description="Tag for the discriminated union — always 'flight' here.",
+    )
+    flight_id: str = Field(description="The canonical flight_id booked.")
+    flight_number: str = Field(description="Airline + number, e.g. 'VN123'.")
+    airline: str = Field(description="Marketing name of the airline.")
+    origin: str = Field(description="IATA origin code.")
+    destination: str = Field(description="IATA destination code.")
+    departure_time: str = Field(description="Scheduled departure time, ISO 8601.")
+    arrival_time: str = Field(description="Scheduled arrival time, ISO 8601.")
+    passenger_name: str = Field(description="Name on the ticket.")
+    passenger_phone: str | None = Field(default=None, description="Contact phone.")
 
 
 class HotelBookingDetails(AppBaseModel):
     """Hotel-specific payload stored on a ``Booking``."""
 
-    kind: Literal["hotel"] = "hotel"
-    hotel_id: str
-    hotel_name: str
-    city: str
-    check_in: str  # YYYY-MM-DD
-    check_out: str  # YYYY-MM-DD
-    nights: int
-    rooms: int
-    adults: int
-    children: int
-    price_per_night: float
-    guest_phone: str | None = None
+    kind: Literal["hotel"] = Field(
+        default="hotel",
+        description="Tag for the discriminated union — always 'hotel' here.",
+    )
+    hotel_id: str = Field(description="The hotel ID booked.")
+    hotel_name: str = Field(description="Hotel name at the time of booking.")
+    city: str = Field(description="City the hotel is in.")
+    check_in: str = Field(description="Check-in date, YYYY-MM-DD.")
+    check_out: str = Field(description="Check-out date, YYYY-MM-DD.")
+    nights: int = Field(description="Stay length, in nights.")
+    rooms: int = Field(description="Rooms booked.")
+    adults: int = Field(description="Adults in the party.")
+    children: int = Field(description="Children in the party.")
+    price_per_night: float = Field(description="Locked nightly rate at booking time.")
+    guest_phone: str | None = Field(default=None, description="Contact phone for the hotel.")
 
 
 BookingDetails = Annotated[
@@ -116,17 +110,33 @@ class Booking(AppBaseModel):
     quote — either can be passed to ``GET /bookings/{id}``.
     """
 
-    id: str
-    type: BookingType
-    reference_id: str  # The flight_id or hotel_id
-    customer_name: str
-    customer_email: str
-    total_price: float
-    currency: str = "USD"
-    status: BookingStatus = BookingStatus.CONFIRMED
-    created_at: datetime
+    id: str = Field(
+        description="Canonical booking UUID. Accepted by /bookings/{id}.",
+        examples=["c1e1f5a4-ce3a-5b24-8f2e-8a0a8b3c2c5a"],
+    )
+    type: BookingType = Field(description="Booking kind — 'flight' or 'hotel'.")
+    reference_id: str = Field(
+        description="The flight_id or hotel_id this booking references."
+    )
+    customer_name: str = Field(description="Name on the booking (passenger or guest).")
+    customer_email: str = Field(description="Contact email for the booking.")
+    total_price: float = Field(
+        description=(
+            "Server-computed total: flight fare for flights; "
+            "price_per_night × nights × rooms for hotels."
+        )
+    )
+    currency: str = Field(default="USD", description="ISO 4217 currency code.")
+    status: BookingStatus = Field(
+        default=BookingStatus.CONFIRMED,
+        description="'confirmed' (default) or 'cancelled' after /cancel.",
+    )
+    created_at: datetime = Field(description="When the booking was created (UTC).")
     details: BookingDetails
-    notes: str | None = None  # Optional agent/user context
+    notes: str | None = Field(
+        default=None,
+        description="Free-form note an agent or user attached at booking time.",
+    )
 
     @computed_field  # type: ignore[prop-decorator]
     @property

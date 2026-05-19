@@ -267,6 +267,47 @@ def test_get_hotel_nonexistent_returns_404(client):
     assert client.get("/hotels/00000000-0000-0000-0000-000000000000").status_code == 404
 
 
+def test_hotel_response_exposes_short_code(client):
+    hotel_id = get_first_hotel_id(client)
+    body = client.get(f"/hotels/{hotel_id}").json()
+    assert body.get("short_code", "").startswith("HTL-")
+    assert len(body["short_code"]) == 10  # "HTL-" + 6 chars
+
+
+def test_get_hotel_by_short_code(client):
+    hotel_id = get_first_hotel_id(client)
+    short_code = client.get(f"/hotels/{hotel_id}").json()["short_code"]
+    body = client.get(f"/hotels/{short_code}").json()
+    assert body["id"] == hotel_id
+
+
+def test_get_hotel_by_lowercased_short_code(client):
+    hotel_id = get_first_hotel_id(client)
+    short_code = client.get(f"/hotels/{hotel_id}").json()["short_code"]
+    body = client.get(f"/hotels/{short_code.lower()}").json()
+    assert body["id"] == hotel_id
+
+
+def test_book_hotel_by_short_code(client):
+    hotel_id = get_first_hotel_id(client)
+    short_code = client.get(f"/hotels/{hotel_id}").json()["short_code"]
+    resp = client.post(
+        "/hotels/book",
+        json={
+            "hotel_id": short_code,
+            "check_in": VALID_CHECK_IN,
+            "check_out": VALID_CHECK_OUT,
+            "rooms": 1,
+            "adults": 2,
+            "guest_name": "Test Guest",
+            "guest_email": "test@example.com",
+            "guest_phone": "+84 901 000 000",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["reference_id"] == hotel_id
+
+
 # ---------------------------------------------------------------------------
 # POST /hotels/book
 # ---------------------------------------------------------------------------

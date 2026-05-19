@@ -403,3 +403,32 @@ def test_dashboard_places_bad_min_rating_returns_200_with_error(
     resp = client.get("/dashboard/places", params={"min_rating": "abc"})
     assert resp.status_code == 200
     assert "Min rating" in resp.text
+
+
+# ---------------------------------------------------------------------------
+# Short codes (PLC-XXXXXX)
+# ---------------------------------------------------------------------------
+
+
+def test_place_response_exposes_short_code(client: TestClient) -> None:
+    body = client.get(f"/places/{_DRAGON_BRIDGE}").json()
+    assert body.get("short_code", "").startswith("PLC-")
+    assert len(body["short_code"]) == 10
+
+
+def test_get_place_by_short_code(client: TestClient) -> None:
+    short_code = client.get(f"/places/{_DRAGON_BRIDGE}").json()["short_code"]
+    body = client.get(f"/places/{short_code}").json()
+    assert body["id"] == _DRAGON_BRIDGE
+
+
+def test_get_place_by_lowercased_short_code(client: TestClient) -> None:
+    short_code = client.get(f"/places/{_DRAGON_BRIDGE}").json()["short_code"]
+    body = client.get(f"/places/{short_code.lower()}").json()
+    assert body["id"] == _DRAGON_BRIDGE
+
+
+def test_nearby_accepts_short_code(client: TestClient) -> None:
+    short_code = client.get(f"/places/{_DRAGON_BRIDGE}").json()["short_code"]
+    resp = client.get("/places/nearby", params={"place_id": short_code})
+    assert resp.status_code == 200
