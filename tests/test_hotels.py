@@ -321,7 +321,7 @@ def test_book_hotel_returns_200(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 2,
+            "adults": 2,
             "guest_name": "Alice Smith",
             "guest_email": "alice@example.com",
             "guest_phone": "+84 901 234 567",
@@ -338,7 +338,7 @@ def test_book_hotel_response_structure(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Bob Jones",
             "guest_email": "bob@example.com",
             "guest_phone": "+84 901 234 567",
@@ -359,7 +359,7 @@ def test_book_hotel_type_is_hotel(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Carol White",
             "guest_email": "carol@example.com",
             "guest_phone": "+84 901 234 567",
@@ -378,7 +378,7 @@ def test_book_hotel_id_is_uuid(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Dave Brown",
             "guest_email": "dave@example.com",
             "guest_phone": "+84 901 234 567",
@@ -395,7 +395,7 @@ def test_book_hotel_status_is_confirmed(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Eve Green",
             "guest_email": "eve@example.com",
             "guest_phone": "+84 901 234 567",
@@ -415,7 +415,7 @@ def test_book_hotel_total_price_computed_server_side(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Frank Lee",
             "guest_email": "frank@example.com",
             "guest_phone": "+84 901 234 567",
@@ -432,7 +432,7 @@ def test_book_hotel_details_includes_nights(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Grace Hall",
             "guest_email": "grace@example.com",
             "guest_phone": "+84 901 234 567",
@@ -448,13 +448,37 @@ def test_book_hotel_nonexistent_hotel_returns_404(client):
             "hotel_id": "00000000-0000-0000-0000-000000000000",
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Ghost",
             "guest_email": "ghost@example.com",
             "guest_phone": "+84 901 234 567",
         },
     )
     assert resp.status_code == 404
+
+
+def test_book_hotel_unknown_field_returns_422(client):
+    """An unknown request field is rejected, not silently dropped.
+
+    Guards the ``extra="forbid"`` contract on ``AppBaseModel``: sending the
+    old ``guests`` field (the real schema uses rooms/adults/children) must
+    fail loudly so a client mismatch surfaces instead of booking defaults.
+    """
+    hotel_id = get_first_hotel_id(client)
+    resp = client.post(
+        "/hotels/book",
+        json={
+            "hotel_id": hotel_id,
+            "check_in": VALID_CHECK_IN,
+            "check_out": VALID_CHECK_OUT,
+            "guests": 2,
+            "guest_name": "Test Guest",
+            "guest_email": "test@example.com",
+            "guest_phone": "+84 901 000 000",
+        },
+    )
+    assert resp.status_code == 422
+    assert resp.json()["error"] == "ValidationError"
 
 
 def test_book_hotel_missing_fields_returns_422(client):
@@ -545,7 +569,7 @@ def test_book_hotel_with_notes(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 2,
+            "adults": 2,
             "guest_name": "Notes Guest",
             "guest_email": "notesg@example.com",
             "guest_phone": "+84 901 234 567",
@@ -563,7 +587,7 @@ def test_book_hotel_notes_optional(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Silent Guest",
             "guest_email": "silent@example.com",
             "guest_phone": "+84 901 234 567",
@@ -583,7 +607,7 @@ def test_book_hotel_idempotency_key_replays_same_booking(client):
         "hotel_id": hotel_id,
         "check_in": VALID_CHECK_IN,
         "check_out": VALID_CHECK_OUT,
-        "guests": 1,
+        "adults": 1,
         "guest_name": "Idem Guest",
         "guest_email": "idemguest@example.com",
         "guest_phone": "+84 901 234 567",
@@ -600,7 +624,7 @@ def test_book_hotel_idempotency_key_does_not_create_duplicate(client):
         "hotel_id": hotel_id,
         "check_in": VALID_CHECK_IN,
         "check_out": VALID_CHECK_OUT,
-        "guests": 1,
+        "adults": 1,
         "guest_name": "No Dupe Guest",
         "guest_email": "nodupeguest@example.com",
         "guest_phone": "+84 901 234 567",
@@ -620,7 +644,7 @@ def test_book_hotel_without_idempotency_key_creates_each_time(client):
         "hotel_id": hotel_id,
         "check_in": VALID_CHECK_IN,
         "check_out": VALID_CHECK_OUT,
-        "guests": 1,
+        "adults": 1,
         "guest_name": "Twice Guest",
         "guest_email": "twiceguest@example.com",
         "guest_phone": "+84 901 234 567",
@@ -635,24 +659,29 @@ def test_book_hotel_without_idempotency_key_creates_each_time(client):
 # ---------------------------------------------------------------------------
 
 
-def test_book_hotel_client_supplied_price_is_ignored(client):
-    """A stray total_price in the body must not override the computed price."""
+def test_book_hotel_client_supplied_price_is_rejected(client):
+    """A stray total_price in the body is rejected, not silently dropped.
+
+    The request model forbids unknown fields, so a tampered price fails
+    loudly (422) instead of being quietly ignored — a stronger guarantee
+    than the old silent-drop behaviour.
+    """
     hotel_id = get_first_hotel_id(client)
-    hotel = client.get(f"/hotels/{hotel_id}").json()
-    body = client.post(
+    resp = client.post(
         "/hotels/book",
         json={
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Tampered Price",
             "guest_email": "tamperedhotel@example.com",
             "guest_phone": "+84 901 234 567",
             "total_price": 1.0,
         },
-    ).json()
-    assert body["total_price"] == pytest.approx(hotel["price_per_night"] * 2)
+    )
+    assert resp.status_code == 422
+    assert resp.json()["error"] == "ValidationError"
 
 
 def test_book_hotel_requires_guest_phone(client):
@@ -663,7 +692,7 @@ def test_book_hotel_requires_guest_phone(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "No Phone",
             "guest_email": "nophonehotel@example.com",
         },
@@ -679,7 +708,7 @@ def test_book_hotel_details_includes_guest_phone(client):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": "Phone Carrier",
             "guest_email": "phonecarrierhotel@example.com",
             "guest_phone": "+84 987 654 321",

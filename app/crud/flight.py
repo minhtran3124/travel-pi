@@ -43,6 +43,10 @@ class FlightIndexRepository:
         """
         conn = sqlite3.connect(self._db_path)
         conn.row_factory = sqlite3.Row
+        # WAL for concurrent readers/writer under the threadpool — same
+        # rationale as ``BookingRepository._connect``.
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         try:
             yield conn
             conn.commit()

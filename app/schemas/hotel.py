@@ -3,7 +3,7 @@
 from pydantic import ConfigDict, Field, computed_field
 
 from app.core.codes import prefixed_code
-from app.schemas.base import AppBaseModel
+from app.schemas.base import AppBaseModel, RequestModel
 from app.schemas.pagination import PagedResponse
 
 # Prefix used for the friendly hotel short code, e.g. "HTL-AB23XY".
@@ -145,7 +145,7 @@ class HotelAvailabilityResponse(PagedResponse[HotelAvailability]):
 # --- POST /hotels/book -------------------------------------------------------
 
 
-class HotelBookingRequest(AppBaseModel):
+class HotelBookingRequest(RequestModel):
     """Request body for ``POST /hotels/book``.
 
     Mirrors what a hotel actually collects to hold rooms: the chosen hotel,

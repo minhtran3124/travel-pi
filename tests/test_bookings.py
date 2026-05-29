@@ -37,7 +37,7 @@ def _create_hotel_booking(client, name="Test User", email="test@example.com"):
             "hotel_id": hotel_id,
             "check_in": VALID_CHECK_IN,
             "check_out": VALID_CHECK_OUT,
-            "guests": 1,
+            "adults": 1,
             "guest_name": name,
             "guest_email": email,
             "guest_phone": "+84 901 234 567",

@@ -94,6 +94,13 @@ class BookingRepository:
         """
         conn = sqlite3.connect(self._db_path)
         conn.row_factory = sqlite3.Row
+        # WAL lets readers and the single writer proceed concurrently instead
+        # of blocking each other — the right journal mode under FastAPI's sync
+        # threadpool, where requests hit fresh connections in parallel. It is a
+        # persistent property of the DB file, so re-setting it per connection
+        # is a cheap no-op; ``synchronous=NORMAL`` is the safe companion.
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         try:
             yield conn
             conn.commit()

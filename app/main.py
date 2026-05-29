@@ -140,6 +140,37 @@ def create_app() -> FastAPI:
             ),
         )
 
+    # Last-resort safety net: anything not caught above (a bug — an
+    # unhandled ValueError/KeyError/etc.) would otherwise escape as
+    # Starlette's raw text/plain "Internal Server Error", breaking the
+    # JSON-envelope contract the rest of the API upholds. Catch it here so a
+    # consumer (e.g. an agent) can parse a 500 the same way as every other
+    # failure. The real cause is logged with a traceback at ERROR; the
+    # response stays generic so no internal detail leaks to the caller.
+    @app.exception_handler(Exception)
+    async def _handle_unexpected_error(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
+        logger.exception(
+            "Unhandled %s on %s %s",
+            type(exc).__name__,
+            request.method,
+            request.url.path,
+        )
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=_error_body(
+                "InternalServerError",
+                "An unexpected error occurred while processing the request.",
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                request,
+                hint=(
+                    "This is a server-side bug, not a problem with your "
+                    "request. Retry later; if it persists, report the 'path'."
+                ),
+            ),
+        )
+
     # Log one line per request: method, path, status, and how long it took.
     # This is the single source of access logs (Uvicorn's is silenced in
     # app.core.logging), so it works the same however the app is launched.

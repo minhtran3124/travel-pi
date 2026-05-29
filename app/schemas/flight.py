@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import ConfigDict, Field
 
-from app.schemas.base import AppBaseModel
+from app.schemas.base import AppBaseModel, RequestModel
 
 
 class Airline(AppBaseModel):
@@ -131,7 +131,7 @@ class FlightSearchResponse(AppBaseModel):
     )
 
 
-class FlightBookingRequest(AppBaseModel):
+class FlightBookingRequest(RequestModel):
     """Request body for ``POST /flights/book``.
 
     Mirrors what an airline actually collects to issue a ticket: the chosen

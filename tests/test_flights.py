@@ -617,11 +617,14 @@ def test_book_flight_price_taken_from_flight_server_side(client):
     assert body["total_price"] == flight["price"]
 
 
-def test_book_flight_client_supplied_price_is_ignored(client):
-    """A stray total_price in the body must not override the real fare."""
-    flight_id = get_first_flight_id(client)
-    flight = client.get(f"/flights/{flight_id}").json()
-    body = client.post(
+def test_book_flight_client_supplied_price_is_rejected(client):
+    """A stray total_price in the body is rejected, not silently dropped.
+
+    The request model forbids unknown fields, so an attempt to tamper with
+    the fare fails loudly (422) rather than being quietly ignored — a
+    stronger guarantee that the client can't influence the price.
+    """
+    resp = client.post(
         "/flights/book",
         json={
             **get_first_flight_booking_fields(client),
@@ -630,8 +633,9 @@ def test_book_flight_client_supplied_price_is_ignored(client):
             "passenger_phone": "+84 901 234 567",
             "total_price": 1.0,
         },
-    ).json()
-    assert body["total_price"] == flight["price"]
+    )
+    assert resp.status_code == 422
+    assert resp.json()["error"] == "ValidationError"
 
 
 def test_book_flight_requires_passenger_phone(client):

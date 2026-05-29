@@ -6,6 +6,9 @@ consumer can parse errors uniformly:
     {"error", "message", "status_code", "path", ["errors"]}
 """
 
+from app.main import create_app
+from fastapi.testclient import TestClient
+
 ENVELOPE_FIELDS = ("error", "message", "status_code", "path")
 
 
@@ -124,3 +127,32 @@ def test_route_not_found_has_no_hint(client):
     """Unmatched-route 404s come from Starlette and don't carry a domain hint."""
     body = client.get("/this/route/does/not/exist").json()
     assert "hint" not in body or body.get("hint") is None
+
+
+# --- Unexpected server error (catch-all) -------------------------------------
+
+
+def test_unhandled_exception_uses_envelope():
+    """A bug that raises a plain exception still returns the JSON envelope.
+
+    Mount a throwaway route that raises on a fresh app, and let the
+    TestClient surface the 500 instead of re-raising it, so we exercise the
+    catch-all ``Exception`` handler the real app installs.
+    """
+    app = create_app()
+
+    @app.get("/_boom")
+    def _boom() -> None:
+        raise RuntimeError("internal detail that must not leak")
+
+    path = "/_boom"
+    with TestClient(app, raise_server_exceptions=False) as boom_client:
+        resp = boom_client.get(path)
+
+    assert resp.status_code == 500
+    body = resp.json()
+    _assert_envelope(body, 500, path)
+    assert body["error"] == "InternalServerError"
+    # The internal cause is logged, never returned to the caller.
+    assert "internal detail" not in body["message"]
+    assert isinstance(body.get("hint"), str) and body["hint"]
