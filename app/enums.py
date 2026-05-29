@@ -35,6 +35,19 @@ class BookingSort(str, Enum):
     PRICE_ASC = "price_asc"
 
 
+class TripStatus(str, Enum):
+    """Lifecycle state of a trip (itinerary).
+
+    A trip starts in ``PLANNING``; an agent can move it to ``BOOKED`` once
+    its flight/hotel bookings are confirmed. ``DELETE /trips/{id}`` (or a
+    PATCH) sets ``CANCELLED`` — a soft state change, the row is kept.
+    """
+
+    PLANNING = "planning"
+    BOOKED = "booked"
+    CANCELLED = "cancelled"
+
+
 class FlightSort(str, Enum):
     """Sort orders accepted by ``GET /flights/search``."""
 

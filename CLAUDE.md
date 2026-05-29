@@ -7,11 +7,13 @@ Guidance for Claude Code when working in this repo.
 A FastAPI **mock backend** for a Travel Planner agent — flight search, hotel
 search, booking, places/attractions, local tips, and weather endpoints that
 fake real travel APIs (no keys, no payments, no external calls — except
-`/weather`, which proxies the free Open-Meteo API). `mock-api-spec.md`
-describes the original behavioral contract; the structure has since moved to
-a layered `app/` package and grown endpoints beyond the original spec
-(places, tips, weather, cities), so the spec is out of date on layout/config
-and no longer lists every endpoint — see `APIS.md` for the current set.
+`/weather`, which proxies the free Open-Meteo API, and `/places/route` /
+`/cities/route`, which optionally call OpenRouteService). The project began
+from a `mock-api-spec.md` behavioural contract, but that file is no longer in
+the repo: the code has since moved to a layered `app/` package and grown
+endpoints beyond the original spec (places, tips, weather, cities, routing).
+**`APIS.md` is the current endpoint reference, and the `tests/` suite is the
+behavioural contract.**
 
 ## Run it
 
@@ -23,7 +25,9 @@ uvicorn app.main:app --reload --port 8000
 
 - Swagger UI: http://localhost:8000/docs · raw spec: `/openapi.json`
 - Run the test suite: `.venv/bin/python -m pytest tests/ -v`
-- Verify behaviour changes against the acceptance criteria in `mock-api-spec.md` §9.
+- The current endpoint set + behaviour lives in `APIS.md` and is pinned by the
+  `tests/` suite — treat those as the contract (the older `mock-api-spec.md` is
+  no longer in the repo).
 
 ## Layout
 
@@ -31,10 +35,10 @@ uvicorn app.main:app --reload --port 8000
 app/
   main.py          # app factory + CORS + global exception handler
   exceptions.py    # domain exceptions (AppError + subclasses), no FastAPI deps
-  enums.py         # shared string enums (BookingType, BookingStatus, BookingSort)
+  enums.py         # shared string enums (BookingType/Status/Sort, TripStatus)
   core/config.py   # settings (env vars, all have defaults)
   core/logging.py  # process-wide logging setup (dictConfig)
-  core/lifespan.py # startup/shutdown hooks (creates the bookings table)
+  core/lifespan.py # startup/shutdown hooks (creates the bookings + trips tables)
   core/geo.py      # shared haversine distance helper
   core/text.py     # shared fuzzy text matcher
   routers/         # one file per endpoint group, each tagged for Swagger
@@ -45,7 +49,7 @@ app/
   templates/       # Jinja2 templates for the /dashboard/* HTML pages
   data/            # seed data (airlines, airports, cities, hotels, places, tips)
 scripts/generate_data.py   # manual tool to generate more mock hotels
-tests/             # pytest suite — 336 tests covering all API endpoints
+tests/             # pytest suite — 417 tests covering all API endpoints
   conftest.py      # shared TestClient fixture (isolated temp SQLite DB)
   test_meta.py
   test_airports.py
@@ -59,6 +63,9 @@ tests/             # pytest suite — 336 tests covering all API endpoints
   test_weather.py
   test_bookings.py
   test_errors.py   # consistent error-envelope across AppError/HTTP/validation
+  test_trips.py    # /trips itinerary CRUD + idempotency
+  test_destinations.py  # /destinations/{city}/overview composition (weather stubbed)
+  test_workflows.py     # end-to-end agent journeys across endpoints
   test_text.py     # fuzzy text matcher (app/core/text.py)
   test_logging.py
 ```
@@ -83,6 +90,26 @@ tests/             # pytest suite — 336 tests covering all API endpoints
   also matched by the `q` search. `POST /bookings/{id}/cancel` is a soft
   state change — `status` becomes `cancelled`, the row is kept — and is
   idempotent.
+- **Trips** are the second piece of mutable state — a planning aggregate
+  (`schemas/trip.py`, `crud/trip.py`, `services/trip_service.py`,
+  `routers/trips.py`) that groups a destination + dates with the bookings made
+  for it (`booking_ids`) and an itinerary of places (`items`). Same two-tier
+  split and SQLite patterns as bookings (WAL, partial-unique idempotency
+  index, derived `confirmation_code` — here `TRP-XXXXXX`). `TripService`
+  validates references on create/patch (unknown city/booking/place → 404, bad
+  date range → 422) and takes the `BookingService` as a **parameter** (passed
+  by the router) rather than the singleton, so it reads the same booking store
+  the `/bookings` routes do — which is what keeps the test suite's isolated DB
+  working. `GET /trips/{id}` returns a `TripDetail` that resolves
+  `booking_ids` → full `bookings` and `items` → an `itinerary` with each
+  `place` embedded, so an agent gets the whole plan in one call. `DELETE` is a
+  soft, idempotent cancel (mirrors bookings).
+- **`GET /destinations/{city}/overview`** is read-only composition over the
+  place/tip/hotel/airport/weather services (`services/destination_service.py`)
+  — one agent round-trip for top places + essential tips + live weather +
+  hotel count + serving airports. Weather is **best-effort**: an upstream
+  failure logs a warning and returns `weather: null` rather than failing the
+  request. Tests stub `weather_service.get_weather` to stay network-free.
 - **Error handling is layered.** Services raise domain exceptions from
   `app/exceptions.py` (`NotFoundError` → 404, `ConflictError` → 409,
   `UpstreamError` → 502); the
@@ -157,10 +184,12 @@ tests/             # pytest suite — 336 tests covering all API endpoints
 - Python 3.10+ type hints (`list[X]`, `X | None`), Pydantic v2.
 - `datetime.now(timezone.utc)` for timestamps, never `utcnow()`.
 - Lint/format with `ruff check app scripts` and `ruff format app scripts`.
-- Keep it minimal — no auth, DB/ORM, pagination, or rate limiting (see the
-  out-of-scope list in `mock-api-spec.md` §1). Lightweight console logging
-  *is* in scope (see the Logging note above); anything heavier (file
-  rotation, JSON/structured logs, log shipping) is not.
+- Keep it minimal. **Out of scope:** auth, an ORM/migration framework, and
+  rate limiting. **In scope:** lightweight `limit`/`offset` pagination is
+  *already implemented* (`schemas/pagination.py`'s `PagedResponse`, used by the
+  list endpoints) — keep it as-is, don't expand it to cursor pagination. Also
+  in scope: lightweight console logging (see the Logging note above); anything
+  heavier (file rotation, JSON/structured logs, log shipping) is not.
 - Booking requests carry only what's needed to issue the booking — never the
   price. `total_price` on a `Booking` is always computed server-side (flight
   fare from `flight.price`; hotel from `price_per_night × nights`).
@@ -175,3 +204,42 @@ tests/             # pytest suite — 336 tests covering all API endpoints
   codes) stay exact — they are machine identifiers, not names.
 - Known intentional quirk: an unrecognised city/country returns `count: 0`,
   not a 404.
+
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
+the codebase.** The graph is faster, cheaper (fewer tokens), and gives
+you structural context (callers, dependents, test coverage) that file
+scanning cannot.
+
+### When to use graph tools FIRST
+
+- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
+- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
+- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
+- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
+- **Architecture questions**: `get_architecture_overview` + `list_communities`
+
+Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
+
+### Key Tools
+
+| Tool | Use when |
+| ------ | ---------- |
+| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
+| `get_review_context` | Need source snippets for review — token-efficient |
+| `get_impact_radius` | Understanding blast radius of a change |
+| `get_affected_flows` | Finding which execution paths are impacted |
+| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
+| `semantic_search_nodes` | Finding functions/classes by name or keyword |
+| `get_architecture_overview` | Understanding high-level codebase structure |
+| `refactor_tool` | Planning renames, finding dead code |
+
+### Workflow
+
+1. The graph auto-updates on file changes (via hooks).
+2. Use `detect_changes` for code review.
+3. Use `get_affected_flows` to understand impact.
+4. Use `query_graph` pattern="tests_for" to check coverage.

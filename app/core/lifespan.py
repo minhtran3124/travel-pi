@@ -15,6 +15,7 @@ from app.core.config import get_settings
 from app.core.invariants import check_city_coverage
 from app.services.booking_service import get_booking_service
 from app.services.flight_service import init_flight_index
+from app.services.trip_service import get_trip_service
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +39,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # at boot.
     try:
         get_booking_service().init_db()
+        get_trip_service().init_db()
         init_flight_index()
     except Exception:
         logger.exception("Could not initialise SQLite database at %s", db_path)
         raise
 
-    logger.info("Startup complete — bookings and flight-index tables ready")
+    logger.info("Startup complete — bookings, trips, and flight-index tables ready")
     yield
     logger.info("Shutting down")

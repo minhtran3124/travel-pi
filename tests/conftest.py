@@ -2,11 +2,28 @@
 
 
 import pytest
+from app.core.config import get_settings
 from app.crud.flight import FlightIndexRepository
 from app.main import create_app
 from app.services import flight_service
 from app.services.booking_service import BookingService, get_booking_service
+from app.services.trip_service import TripService, get_trip_service
 from fastapi.testclient import TestClient
+
+
+@pytest.fixture(autouse=True)
+def _clear_settings_cache():
+    """Drop the ``get_settings`` lru_cache around every test.
+
+    ``get_settings`` is cached process-wide, so a test that tweaks env vars
+    (e.g. ``monkeypatch.setenv("ENVIRONMENT", "production")``) would otherwise
+    silently get a stale ``Settings`` built before the change. Clearing the
+    cache before and after each test keeps config-dependent tests reliable;
+    it is a cheap no-op for the many tests that never touch settings.
+    """
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
 
 
 @pytest.fixture(scope="session")
@@ -18,9 +35,12 @@ def tmp_db(tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def client(tmp_db):
-    """TestClient that uses an isolated booking store."""
+    """TestClient that uses isolated booking and trip stores."""
     svc = BookingService(tmp_db)
     svc.init_db()
+
+    trip_svc = TripService(tmp_db)
+    trip_svc.init_db()
 
     # Point flight-ID persistence at the temp DB too, so flight lookups stay
     # isolated from the real travel.db.
@@ -28,6 +48,7 @@ def client(tmp_db):
 
     app = create_app()
     app.dependency_overrides[get_booking_service] = lambda: svc
+    app.dependency_overrides[get_trip_service] = lambda: trip_svc
 
     with TestClient(app) as c:
         yield c

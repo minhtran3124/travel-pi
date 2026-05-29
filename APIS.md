@@ -29,9 +29,15 @@ Base URL: `http://localhost:8000`
 | GET | `/places/{place_id}` | Get one place by ID |
 | GET | `/tips` | Local tips for a city or country |
 | GET | `/weather` | Current weather + short forecast for a city |
+| GET | `/destinations/{city}/overview` | One-call city snapshot: places + tips + weather + hotels + airports |
 | GET | `/bookings` | List bookings (search / filter / sort) |
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
+| POST | `/trips` | Create a trip (itinerary aggregate) |
+| GET | `/trips` | List trips (search / filter / paginate) |
+| GET | `/trips/{trip_id}` | Get one trip (expanded) by UUID or TRP code |
+| PATCH | `/trips/{trip_id}` | Amend a trip (partial update) |
+| DELETE | `/trips/{trip_id}` | Cancel a trip (soft) |
 
 ---
 
@@ -612,6 +618,84 @@ curl -X POST http://localhost:8000/bookings/HDEAX4/cancel
 
 ---
 
+## `GET /destinations/{city}/overview` — one-call city snapshot
+
+Aggregates everything an agent needs to size up a destination into a single
+response, so it can skip four or five separate calls. Composition only — no
+new data.
+
+| Param | Default | Notes |
+|-------|---------|-------|
+| `city` (path) | — | City name, fuzzy (typo/case tolerant). **404** if unresolvable |
+| `top_places` | `5` | How many top-rated places to include (1–20) |
+
+Returns `city`, `country`, `latitude`/`longitude`, `airports`, `hotel_count`,
+`top_places` (rating-sorted), `essential_tips`, `weather`, and a one-line
+`summary`. **Weather is best-effort**: if the live provider is unreachable the
+rest is still returned with `weather: null`.
+
+```bash
+curl "http://localhost:8000/destinations/Da%20Nang/overview?top_places=3"
+```
+
+---
+
+## `POST /trips` — create a trip (itinerary)
+
+A **trip** is the planning aggregate the agent builds up: a destination with
+dates, the bookings made for it, and an itinerary of places. Trips are mutable
+state, persisted alongside bookings.
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `name` | ✓ | Human name for the trip |
+| `destination_city` | ✓ | City, fuzzy. **404** if unresolvable |
+| `start_date` | ✓ | YYYY-MM-DD |
+| `end_date` | ✓ | YYYY-MM-DD — must be on/after `start_date` (**422** otherwise) |
+| `booking_ids` | — | Existing booking UUIDs **or** confirmation codes — **404** if any is unknown |
+| `items` | — | Itinerary stops: `{place_id, day?, note?}` — **404** if a place is unknown |
+| `notes` | — | Free-text note |
+
+Unknown request fields are rejected with **422** (the request model forbids
+extras). Supports the `Idempotency-Key` header, same as booking POSTs. The
+response includes a derived `confirmation_code` (`TRP-XXXXXX`), `nights`, and a
+one-line `summary`.
+
+```bash
+curl -X POST http://localhost:8000/trips -H 'Content-Type: application/json' -d '{
+  "name": "Da Nang weekend", "destination_city": "Da Nang",
+  "start_date": "2026-06-01", "end_date": "2026-06-04",
+  "booking_ids": ["HDEAX4"], "items": [{"place_id": "PLC-AB23XY", "day": 1}]
+}'
+```
+
+## `GET /trips` — list trips
+
+Paginated (`limit`/`offset`), newest first. Optional `q` (matches ID, code,
+name, or city), `status` (`planning`/`booked`/`cancelled`), and `destination`
+(city substring) filters.
+
+## `GET /trips/{trip_id}` — expanded trip
+
+Accepts the UUID **or** the `TRP-XXXXXX` code. Returns the trip with its
+`booking_ids` resolved to full `bookings` and its `items` resolved to an
+`itinerary` (each stop carries the full `place`), so the whole plan comes back
+in one call. **404** if no trip matches.
+
+## `PATCH /trips/{trip_id}` — amend a trip
+
+Partial update — only the fields you send change. Changing the
+city/dates/references re-runs the same validation as create (**404** unknown
+city/booking/place, **422** bad date range). Send `status: "cancelled"` to
+cancel.
+
+## `DELETE /trips/{trip_id}` — cancel a trip
+
+Soft cancel — `status` becomes `cancelled`, the row is kept and still
+retrievable. **Idempotent**. **404** if no trip matches.
+
+---
+
 ## Error format
 
 Every error response — domain (404/409/502), HTTP, and request-validation
@@ -651,6 +735,7 @@ All resource IDs are **UUIDs**.
 | Flight | `3f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c` |
 | Hotel | `0acc4018-3bb2-5760-8101-630dda1d011a` |
 | Booking | `550e8400-e29b-41d4-a716-446655440000` |
+| Trip | `b2c3d4e5-6f70-5182-93a4-b5c6d7e8f901` |
 
 Hotel UUIDs are stable forever (derived deterministically from seed data).
 Flight UUIDs are stable within a server session — obtain them via
@@ -660,3 +745,6 @@ Bookings additionally expose a friendly `confirmation_code` — a 6-character
 PNR-style reference (uppercase letters + digits, ambiguous characters like
 `0/O/1/I/L` omitted), e.g. `HDEAX4`. It is derived deterministically from the
 booking UUID, so it is stable, and is accepted anywhere the booking UUID is.
+Trips expose the same idea with a `TRP-` prefix, e.g. `TRP-AB23XY`, accepted
+anywhere the trip UUID is. (Hotels and places likewise carry `HTL-`/`PLC-`
+short codes.)
