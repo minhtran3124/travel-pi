@@ -34,9 +34,7 @@ class Hotel(AppBaseModel):
         description="Country, derived from `city`.", examples=["Vietnam"]
     )
     address: str = Field(description="Street address.")
-    star_rating: int = Field(
-        ge=1, le=5, description="Star rating, 1–5.", examples=[4]
-    )
+    star_rating: int = Field(ge=1, le=5, description="Star rating, 1–5.", examples=[4])
     price_per_night: float = Field(
         description="Nightly rate for one room in `currency`.", examples=[120.0]
     )
@@ -49,8 +47,41 @@ class Hotel(AppBaseModel):
     rating: float = Field(
         ge=0, le=5, description="Average guest rating 0–5.", examples=[4.6]
     )
-    review_count: int = Field(
-        description="Number of guest reviews.", examples=[842]
+    review_count: int = Field(description="Number of guest reviews.", examples=[842])
+    description: str = Field(
+        description="One-paragraph editorial summary of the property.",
+        examples=[
+            "Park Hyatt Saigon is a 5-star hotel in Ho Chi Minh City, Vietnam, "
+            "offering pool, spa, restaurant and bar."
+        ],
+    )
+    property_type: str = Field(
+        description="Kind of property: Hotel, Resort, Boutique Hotel, or Villa Resort.",
+        examples=["Resort"],
+    )
+    chain: str = Field(
+        description="Operating brand / hotel group, or 'Independent'.",
+        examples=["Marriott International"],
+    )
+    check_in_time: str = Field(
+        description="Earliest standard check-in time, local 24-hour HH:MM.",
+        examples=["14:00"],
+    )
+    check_out_time: str = Field(
+        description="Latest standard check-out time, local 24-hour HH:MM.",
+        examples=["12:00"],
+    )
+    breakfast_included: bool = Field(
+        description="Whether breakfast is included in the nightly rate.",
+        examples=[True],
+    )
+    free_cancellation: bool = Field(
+        description="Whether a free-cancellation rate is available.",
+        examples=[True],
+    )
+    languages_spoken: list[str] = Field(
+        description="Languages spoken at the front desk.",
+        examples=[["English", "Vietnamese"]],
     )
 
     @computed_field  # type: ignore[prop-decorator]
@@ -161,16 +192,16 @@ class HotelBookingRequest(AppBaseModel):
         ),
         examples=["h_dn_01", "HTL-AB23XY"],
     )
-    check_in: str = Field(description="Check-in date, YYYY-MM-DD.", examples=["2026-06-01"])
+    check_in: str = Field(
+        description="Check-in date, YYYY-MM-DD.", examples=["2026-06-01"]
+    )
     check_out: str = Field(
         description="Check-out date, YYYY-MM-DD. Must be after check_in.",
         examples=["2026-06-03"],
     )
     rooms: int = Field(default=1, ge=1, description="Number of rooms to book.")
     adults: int = Field(default=2, ge=1, description="Adults across all rooms.")
-    children: int = Field(
-        default=0, ge=0, description="Children across all rooms."
-    )
+    children: int = Field(default=0, ge=0, description="Children across all rooms.")
     guest_name: str = Field(
         description="Full name of the lead guest as on their ID.",
         examples=["Nguyen Van A"],

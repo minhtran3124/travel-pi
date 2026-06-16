@@ -25,6 +25,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.core.params import parse_optional_number
 from app.data.cities import CITIES as _CITY_DATA
+from app.data.countries import COUNTRIES as _COUNTRIES
 from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
@@ -361,6 +362,37 @@ _TIP_CATEGORIES = {
 }
 
 
+def _flag_emoji(code: str) -> str:
+    """Turn an ISO 3166-1 alpha-2 code into its flag emoji (VN → 🇻🇳)."""
+    code = code.strip().upper()
+    if len(code) != 2 or not code.isalpha():
+        return "🏳️"
+    return "".join(chr(0x1F1E6 + ord(ch) - ord("A")) for ch in code)
+
+
+def _tip_destinations() -> list[dict]:
+    """Country tiles for the picker — name, flag, region, and tip counts.
+
+    Counts come straight from the country-level seed (what a country view
+    shows), so the tile number matches the page you land on.
+    """
+    out: list[dict] = []
+    for c in _COUNTRIES:
+        tips = _COUNTRY_TIPS.get(c["name"], [])
+        if not tips:
+            continue
+        out.append(
+            {
+                "name": c["name"],
+                "flag": _flag_emoji(c.get("code", "")),
+                "region": c.get("region", "Other"),
+                "count": len(tips),
+                "essential": sum(1 for t in tips if t.get("is_essential")),
+            }
+        )
+    return out
+
+
 @router.get("/tips", response_class=HTMLResponse)
 def tips_page(
     request: Request,
@@ -368,13 +400,18 @@ def tips_page(
     city: str | None = Query(None, description="Filter tips by city"),
     category: str | None = Query(None, description="Filter tips by category"),
     essential_only: bool = Query(False, description="Show only must-know tips"),
+    browse: str | None = Query(None, description="Set to 'all' to browse every tip"),
 ) -> HTMLResponse:
     """Render the Local Tips page — curated destination advice.
 
-    Filter by ``country`` or ``city`` (city wins and resolves its own
-    country), optionally narrowed to one ``category`` or to the essential
-    tips only. With no country/city it shows just the picker. Country and
-    city options are sourced from the same seed data the JSON API uses.
+    Three views, chosen by what's selected:
+    - **picker** (default, nothing selected): a friendly grid of destinations.
+    - **destination** (``country`` or ``city``): that place's field guide,
+      essentials first. A city wins and resolves its own country.
+    - **browse** (``browse=all``, or a category / essential-only filter with
+      no destination): every tip merged, grouped by category.
+
+    Country and city options come from the same seed data as the JSON API.
     """
     countries = sorted(_COUNTRY_TIPS)
 
@@ -396,26 +433,33 @@ def tips_page(
     # Coerce an unknown category to "no filter" rather than erroring.
     selected_category = category if category in _TIP_CATEGORIES else None
 
-    # No destination selected → show every tip; selecting a country/city just
-    # narrows the same list. Filters (category, essential-only) apply to both
-    # paths.
     if selected_city or selected_country:
+        view = "destination"
         result = tip_service.get_tips(
             city=selected_city,
             country=selected_country,
             category=selected_category,
             essential_only=essential_only,
         )
-    else:
+    elif browse == "all" or selected_category or essential_only:
+        # Explicit "browse everything", or a filter applied without a place.
+        view = "browse"
         result = tip_service.get_all_tips(
             category=selected_category,
             essential_only=essential_only,
         )
+    else:
+        # Nothing chosen → invite the user to pick a destination.
+        view = "picker"
+        result = None
+
+    destinations = _tip_destinations()
 
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="tips.html",
         context={
+            "view": view,
             "countries": countries,
             "cities": cities,
             "categories": _TIP_CATEGORIES,
@@ -424,6 +468,8 @@ def tips_page(
             "selected_category": selected_category,
             "essential_only": essential_only,
             "result": result,
+            "destinations": destinations,
+            "total_tips": sum(d["count"] for d in destinations),
         },
     )
 
