@@ -16,7 +16,7 @@ router = APIRouter(prefix="/destinations", tags=["destinations"])
     "/{city}/overview",
     response_model=DestinationOverviewResponse,
     summary="Get a destination overview for a city",
-    responses=error_responses(404, 422, 502),
+    responses=error_responses(404, 422),
 )
 async def get_destination_overview(
     city: Annotated[
@@ -31,11 +31,15 @@ async def get_destination_overview(
     ] = None,
     place_limit: Annotated[
         int,
-        Query(ge=1, le=20, description="Maximum number of places to return"),
+        Query(
+            ge=1, le=20, description="Maximum number of places to return", examples=[5]
+        ),
     ] = 5,
     tip_limit: Annotated[
         int,
-        Query(ge=1, le=20, description="Maximum number of tips to return"),
+        Query(
+            ge=1, le=20, description="Maximum number of tips to return", examples=[5]
+        ),
     ] = 5,
 ) -> DestinationOverviewResponse:
     """Return an aggregate overview of a destination city.
@@ -43,12 +47,12 @@ async def get_destination_overview(
     Combines weather, top places, travel tips, and hotel highlights into a
     single response. Use ``include`` to restrict which sections are returned;
     omit it to receive all four. Unknown cities raise 404; unknown section
-    names are rejected with 422 before the service is called.
+    names are rejected with 422 before the service is called. A weather-service
+    outage does not fail the request — the ``weather`` section degrades to
+    ``null`` and the rest of the overview is still returned.
     """
     sections = (
-        {s.value for s in include}
-        if include
-        else {"weather", "places", "tips", "hotels"}
+        {s.value for s in include} if include else {s.value for s in OverviewSection}
     )
     return await destination_service.get_overview(
         city,
