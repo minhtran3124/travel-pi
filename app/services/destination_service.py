@@ -12,7 +12,7 @@ import logging
 
 from app.core.text import best_match
 from app.data.cities import CITIES
-from app.exceptions import NotFoundError, UpstreamError
+from app.exceptions import NotFoundError
 from app.schemas.destination import (
     DestinationOverviewResponse,
     HotelSummary,
@@ -110,14 +110,16 @@ async def get_overview(
     if "weather" in include:
         try:
             weather = await weather_service.get_weather(name)
-        except (UpstreamError, NotFoundError):
-            # The destination already resolved locally; a weather failure —
-            # upstream down (UpstreamError) or Open-Meteo not recognising the
-            # city name (CityNotFoundError, a NotFoundError) — must not 404 the
-            # whole overview. Degrade to weather: null.
+        except Exception:
+            # Weather is best-effort enrichment: the destination already
+            # resolved locally, so ANY weather failure — an upstream outage,
+            # Open-Meteo not recognising the city name, or a malformed upstream
+            # response — must degrade to weather: null rather than fail the
+            # whole overview (its documented contract).
             logger.warning(
                 "[destination_service] Weather unavailable for %s; returning null",
                 name,
+                exc_info=True,
             )
 
     # 6. Assemble and return.

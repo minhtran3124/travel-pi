@@ -55,6 +55,20 @@ def broken_weather(monkeypatch):
     monkeypatch.setattr(weather_service, "get_weather", _fail)
 
 
+@pytest.fixture()
+def broken_weather_unexpected(monkeypatch):
+    """get_weather raises a non-AppError (e.g. malformed upstream → KeyError).
+
+    The overview promises weather degrades to null on ANY weather failure, not
+    just the AppError subclasses — guards against the guard being too narrow.
+    """
+
+    async def _fail(city: str, days: int | None = None) -> WeatherResponse:
+        raise KeyError("latitude")
+
+    monkeypatch.setattr(weather_service, "get_weather", _fail)
+
+
 # ---------------------------------------------------------------------------
 # 1. Happy path
 # ---------------------------------------------------------------------------
@@ -169,6 +183,14 @@ def test_overview_weather_degradation_rest_present(client, broken_weather):
     assert body["city"] == "Da Nang"
     assert len(body["top_places"]) > 0
     assert body["hotel_summary"] is not None
+
+
+def test_overview_weather_unexpected_error_degrades(client, broken_weather_unexpected):
+    # A non-AppError from the weather call (e.g. malformed Open-Meteo response)
+    # must still degrade to weather: null, not 500 the whole overview.
+    resp = client.get("/destinations/Da Nang/overview")
+    assert resp.status_code == 200
+    assert resp.json()["weather"] is None
 
 
 # ---------------------------------------------------------------------------
