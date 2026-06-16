@@ -31,6 +31,7 @@ Base URL: `http://localhost:8000`
 | GET | `/places/route` | Route between two places — distance, time, best travel mode |
 | GET | `/places/{place_id}` | Get one place by ID |
 | GET | `/tips` | Local tips for a city or country |
+| GET | `/visa` | Visa / entry requirements for a city or country |
 | GET | `/weather` | Current weather + short forecast for a city |
 | GET | `/air-quality` | Current US-AQI + pollutants + short max-AQI forecast for a city |
 | GET | `/destinations/climate` | Monthly climate normals (temp, rain, comfort) + best-time guidance for a city |
@@ -818,6 +819,59 @@ curl "http://localhost:8000/tips?city=Bali&essential_only=true"
 
 Each tip's `scope` is `"country"` or `"city"`. Use `is_essential` to surface
 the must-know tips first in a compact itinerary.
+
+---
+
+## `GET /visa` — visa / entry guidance
+
+General visa and entry requirements for a city or country — visa-free days,
+visa-on-arrival and e-visa availability, and minimum passport validity.
+Guidance is general and nationality-dependent; the response always carries a
+`disclaimer` reminding the caller to verify with official sources before
+travel.
+
+### Params
+
+| Param | Required | Default | Notes |
+|-------|----------|---------|-------|
+| `city` | one of `city`/`country` | — | City name — fuzzy (typo/case tolerant). Resolves the city's country automatically. |
+| `country` | one of `city`/`country` | — | Country name — fuzzy (typo/case tolerant). |
+
+Provide **either** `city` **or** `country` — neither → **422**. An unknown
+city or country returns `found: false` with `entry: null` (not a 404).
+
+```bash
+curl "http://localhost:8000/visa?city=Da%20Nang"
+curl "http://localhost:8000/visa?country=Vietnam"
+```
+
+```json
+{
+  "city": "Da Nang",
+  "country": "Vietnam",
+  "found": true,
+  "entry": {
+    "visa_free_days": 45,
+    "visa_on_arrival": true,
+    "e_visa": true,
+    "passport_validity_months": 6,
+    "summary": "Many nationalities get 45 days visa-free; others can apply for a 90-day e-visa online before arrival."
+  },
+  "disclaimer": "General guidance only and dependent on your nationality — always confirm current requirements with the destination's official immigration authority or embassy before you travel."
+}
+```
+
+- `entry.visa_free_days` — `0` when a visa is generally required (not just for some nationalities).
+- `entry.passport_validity_months` — `0` means "valid for the duration of stay" (no fixed minimum beyond the trip length).
+- `entry` — `null` when `found` is `false` (unrecognised city or country).
+- `disclaimer` — always present; surface it to the end user.
+
+### Response codes
+
+| Code | Condition |
+|------|-----------|
+| 200 | Success — including unknown location (`found: false`, `entry: null`) |
+| 422 | Neither `city` nor `country` provided |
 
 ---
 
