@@ -54,8 +54,9 @@ def search_places(
     city: Annotated[
         str | None,
         Query(
-            description="City name, case-insensitive exact match", examples=["Da Nang"
-        ]),
+            description="City name — fuzzy (typo/case tolerant)",
+            examples=["Da Nang"],
+        ),
     ] = None,
     category: Annotated[
         PlaceCategory | None,

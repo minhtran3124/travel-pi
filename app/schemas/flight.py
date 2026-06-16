@@ -109,7 +109,7 @@ class FlightSearchInfo(AppBaseModel):
         description=(
             "Sort key applied to the results. One of: "
             "'departure_asc', 'departure_desc', 'price_asc', "
-            "'price_desc', 'duration_asc'."
+            "'price_desc', 'duration_asc', 'duration_desc'."
         ),
         examples=["price_asc"],
     )

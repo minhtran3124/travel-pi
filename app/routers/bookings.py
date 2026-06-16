@@ -27,7 +27,7 @@ def list_bookings(
     q: Annotated[
         str | None,
         Query(
-            description="Case-insensitive match on booking ID, customer name, or email",
+            description="Case-insensitive match on booking ID, confirmation code, customer name, or email",
             examples=["john"],
         ),
     ] = None,
