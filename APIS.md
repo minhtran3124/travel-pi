@@ -32,6 +32,7 @@ Base URL: `http://localhost:8000`
 | GET | `/places/{place_id}` | Get one place by ID |
 | GET | `/tips` | Local tips for a city or country |
 | GET | `/weather` | Current weather + short forecast for a city |
+| GET | `/destinations/climate` | Monthly climate normals (temp, rain, comfort) + best-time guidance for a city |
 | GET | `/destinations/{city}/overview` | Aggregated city overview — weather, top places, essential tips, hotel summary |
 | GET | `/bookings` | List bookings (search / filter / sort) |
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
@@ -421,6 +422,81 @@ requested rooms/party for those dates, you get **409 Conflict** (check
 
 Supports the same optional `Idempotency-Key` header as `POST /flights/book`
 (see above) — a repeated key returns the original booking unchanged.
+
+---
+
+## `GET /destinations/climate` — monthly climate normals
+
+Returns monthly climate normals for a city derived from ~3 years of
+[Open-Meteo](https://open-meteo.com/) historical archive data (free, keyless).
+Each month carries average high/low temperature, total precipitation,
+rainy-day count, and a short comfort label. The response also includes
+`best_months` (the most comfortable and driest months to visit, up to 3) and
+a prose `summary` of the destination's climate.
+
+`city` is fuzzy-matched (typo/case tolerant) — the same resolver used by
+`/weather` and `/destinations/{city}/overview`. An unrecognised city returns
+**404**. Unlike `/destinations/{city}/overview`, **502 is a real failure
+here** — the endpoint does not degrade; if the Open-Meteo Archive API is
+unavailable or returns malformed data the call fails with 502.
+
+### Query params
+
+| Param | Required | Default | Notes |
+|-------|----------|---------|-------|
+| `city` | ✓ | — | City name — fuzzy-matched. Unknown city → **404**. |
+| `month` | — | (all twelve) | Integer 1–12. When set, returns only that month and `best_months` is `[]`. Out of range → **422**. |
+
+```bash
+curl "http://localhost:8000/destinations/climate?city=Da%20Nang"
+
+# Single month only
+curl "http://localhost:8000/destinations/climate?city=Bangkok&month=2"
+```
+
+```json
+{
+  "location": {
+    "name": "Da Nang",
+    "country": "Vietnam",
+    "latitude": 16.05,
+    "longitude": 108.20,
+    "timezone": "Asia/Ho_Chi_Minh"
+  },
+  "based_on_years": [2022, 2023, 2024],
+  "months": [
+    {
+      "month": 1,
+      "name": "January",
+      "avg_temp_max_c": 25.1,
+      "avg_temp_min_c": 19.3,
+      "avg_precip_mm": 83.4,
+      "rainy_days": 12,
+      "comfort": "mild, wet"
+    },
+    { "...": "11 more months" }
+  ],
+  "best_months": [2, 3, 4],
+  "summary": "Da Nang has a tropical monsoon climate. The driest and most comfortable months are February through April.",
+  "attribution": "Climate normals derived from Open-Meteo historical data (CC BY 4.0)"
+}
+```
+
+- `location` — resolved city coordinates and timezone (same `WeatherLocation` shape as `/weather`).
+- `based_on_years` — the calendar years averaged to produce the normals (typically ~3 years).
+- `months` — always in calendar order (January first). Contains one entry when `month` is specified.
+- `best_months` — month numbers (1–12) scoring highest on comfort + dryness; up to 3 entries. Empty (`[]`) when `month` is specified.
+- `comfort` — temperature band (`hot` / `warm` / `mild` / `cool`) + wetness (`wet` / `dry`), e.g. `"warm, dry"`.
+- `attribution` — required Open-Meteo attribution; always present.
+
+### Response codes
+
+| Code | Condition |
+|------|-----------|
+| 200 | Success |
+| 404 | City not found |
+| 422 | `month` out of range (1–12) or `city` missing |
+| 502 | Open-Meteo Archive API unavailable or returned malformed/empty data |
 
 ---
 
