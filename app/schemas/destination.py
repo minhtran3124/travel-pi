@@ -70,12 +70,14 @@ class DestinationOverviewResponse(AppBaseModel):
     )
     weather: WeatherResponse | None = Field(
         default=None,
-        description="Current weather and 7-day forecast. None when the weather service is unavailable.",
+        description="Current weather and short-range forecast. None when the weather service is unavailable.",
     )
     top_places: list[Place] = Field(
+        default=[],
         description="Up to 5 recommended attractions/restaurants in the city, sorted by rating.",
     )
     essential_tips: list[Tip] = Field(
+        default=[],
         description="Essential travel tips applicable to this city or country.",
     )
     hotel_summary: HotelSummary | None = Field(
