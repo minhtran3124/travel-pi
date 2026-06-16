@@ -11,7 +11,12 @@
 
 <div class="board-head">
   <h1 class="board-title"><span class="plane">🗺️</span> Places &amp; Attractions</h1>
-  <span class="page-meta">{{ places | length }} of {{ total }} places</span>
+  <div class="cl-saveto">
+    <span class="page-meta">{{ places | length }} of {{ total }} places</span>
+    <label class="saveto"><span>Saving to</span>
+      <select id="saveto-trip" aria-label="Trip to save into"></select>
+    </label>
+  </div>
 </div>
 
 <form method="get" action="/dashboard/places" class="filter-bar">
@@ -127,6 +132,7 @@
             {% if place.opening_hours %}<span class="pc-sep">·</span><span class="pc-hours">🕐 {{ place.opening_hours }}</span>{% endif %}
           </div>
         </div>
+        <button class="pc-save" type="button" data-save title="Save to my list" aria-label="Save to my list">＋</button>
       </div>
     {% endfor %}
   </div>
@@ -166,6 +172,7 @@
       <div class="pm-tags" id="pm-tags"></div>
       <div class="pm-foot">
         <span class="pm-code" id="pm-code"></span>
+        <button id="pm-save" type="button" class="pm-save">＋ Save to list</button>
         <a id="pm-map" class="pm-map" href="#" target="_blank" rel="noopener" hidden>📍 View on map</a>
       </div>
     </div>
@@ -243,6 +250,33 @@
     background: var(--yellow); color: #2a1e05; border-radius: 999px;
     padding: 2px 9px; font-size: 0.68rem; font-weight: 800;
   }
+
+  /* Save-to-list controls */
+  .pc-save {
+    position: absolute; right: 9px; bottom: 9px; z-index: 2;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(10,14,13,.6); backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,.18); color: #fff;
+    font-size: 1.1rem; line-height: 1; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .15s, transform .12s, border-color .15s;
+  }
+  .pc-save:hover { transform: scale(1.12); }
+  .pc-save.saved { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .cl-saveto { display: flex; align-items: center; gap: 14px; }
+  .saveto { display: inline-flex; align-items: center; gap: 7px; font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+  .saveto select {
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); padding: 4px 8px; font: 600 0.8rem inherit; cursor: pointer;
+  }
+  .pm-save {
+    background: var(--accent); color: var(--on-accent); border: none;
+    border-radius: var(--radius-sm); padding: 7px 14px; font: 700 0.82rem inherit;
+    cursor: pointer; transition: filter .12s;
+  }
+  .pm-save:hover { filter: brightness(1.08); }
+  .pm-save.saved { background: var(--panel-2); color: var(--accent-dim); border: 1px solid var(--accent); }
+  @media (max-width: 560px) { .cl-saveto { flex-direction: column; align-items: flex-end; gap: 4px; } }
 
   .pc-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 14px; }
   .place-name { font-weight: 800; font-size: 0.96rem; line-height: 1.25; text-shadow: 0 1px 8px rgba(0,0,0,.55); }
@@ -472,6 +506,67 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
   });
+});
+</script>
+
+<script>
+/* ── Save places to a trip checklist (TripStore) ── */
+document.addEventListener('DOMContentLoaded', function () {
+  var T = window.TripStore;
+  if (!T) return;
+  var sel = document.getElementById('saveto-trip');
+  var pm = document.getElementById('pm-save');
+  var NEW = '__new__';
+  var lastCard = null;
+
+  function keyOf(c) { return c.dataset.code || c.dataset.name; }
+  function itemFromCard(c) {
+    var d = c.dataset;
+    return { key: keyOf(c), name: d.name, catKey: d.catKey, category: d.category, city: d.city, country: d.country, image: d.image, code: d.code };
+  }
+  function toggle(card) {
+    var trip = T.ensureCurrent(), k = keyOf(card);
+    if (T.has(trip.id, k)) T.removeItem(trip.id, k); else T.add(trip.id, itemFromCard(card));
+  }
+
+  function refreshSelect() {
+    if (!sel) return;
+    var trips = T.trips(), cur = T.current();
+    var html = trips.map(function (t) {
+      return '<option value="' + t.id + '"' + (cur && t.id === cur.id ? ' selected' : '') + '>' +
+        t.name.replace(/</g, '&lt;') + ' (' + t.items.length + ')</option>';
+    }).join('');
+    sel.innerHTML = html + '<option value="' + NEW + '">＋ New trip…</option>';
+  }
+  function refreshCards() {
+    var cur = T.current();
+    document.querySelectorAll('.place-card').forEach(function (c) {
+      var btn = c.querySelector('.pc-save'); if (!btn) return;
+      var saved = cur && T.has(cur.id, keyOf(c));
+      btn.classList.toggle('saved', !!saved);
+      btn.textContent = saved ? '✓' : '＋';
+    });
+    if (pm && lastCard) {
+      var cur2 = T.current(), s = cur2 && T.has(cur2.id, keyOf(lastCard));
+      pm.classList.toggle('saved', !!s);
+      pm.textContent = s ? '✓ Saved' : '＋ Save to list';
+    }
+  }
+
+  if (sel) sel.addEventListener('change', function () {
+    if (sel.value === NEW) { var n = prompt('Trip name:', 'My trip'); if (n) T.create(n); else refreshSelect(); return; }
+    T.setCurrent(sel.value);
+  });
+
+  document.querySelectorAll('.place-card').forEach(function (card) {
+    var btn = card.querySelector('.pc-save');
+    if (btn) btn.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); toggle(card); });
+    card.addEventListener('click', function () { lastCard = card; setTimeout(refreshCards, 0); });
+  });
+  if (pm) pm.addEventListener('click', function () { if (lastCard) toggle(lastCard); });
+
+  refreshSelect(); refreshCards();
+  window.addEventListener('tripschange', function () { refreshSelect(); refreshCards(); });
 });
 </script>
 {% endblock %}

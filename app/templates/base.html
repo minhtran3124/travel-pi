@@ -140,6 +140,12 @@
     .tabs .spacer { flex: 1; }
     .tab-ext { color: var(--accent-dim); }
     .tab-ext:hover { color: var(--ink); background: transparent; }
+    .tab-badge {
+      margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 999px; background: var(--accent); color: var(--on-accent);
+      font-size: 0.66rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    }
 
     /* ── Topbar buttons (theme switch + palette trigger) ── */
     .theme-btn {
@@ -744,6 +750,80 @@
       } catch (e) {}
     })();
   </script>
+  <script>
+    /* ── TripStore: client-side travel checklists (localStorage) ──
+       State: { trips: [{id,name,items:[{key,name,catKey,category,city,country,image,code,done}]}],
+                currentTripId }. Items keyed by place code/name (deduped per trip).
+       Emits a 'tripschange' event on every mutation so the UI can refresh. */
+    window.TripStore = (function () {
+      var KEY = 'tp-trips';
+      function read() {
+        try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+      }
+      function write(s) {
+        try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+        window.dispatchEvent(new CustomEvent('tripschange'));
+      }
+      function uid() { return 't' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36); }
+      function state() {
+        var s = read();
+        if (!Array.isArray(s.trips)) s.trips = [];
+        return s;
+      }
+      var API = {
+        trips: function () { return state().trips; },
+        current: function () {
+          var s = state();
+          return s.trips.find(function (t) { return t.id === s.currentTripId; }) || s.trips[0] || null;
+        },
+        setCurrent: function (id) { var s = state(); s.currentTripId = id; write(s); },
+        create: function (name) {
+          var s = state();
+          var t = { id: uid(), name: (name || 'My trip').trim() || 'My trip', items: [] };
+          s.trips.push(t); s.currentTripId = t.id; write(s); return t;
+        },
+        rename: function (id, name) {
+          var s = state(); var t = s.trips.find(function (x) { return x.id === id; });
+          if (t) { t.name = (name || t.name).trim() || t.name; write(s); }
+        },
+        remove: function (id) {
+          var s = state(); s.trips = s.trips.filter(function (t) { return t.id !== id; });
+          if (s.currentTripId === id) s.currentTripId = s.trips[0] ? s.trips[0].id : null;
+          write(s);
+        },
+        /* Ensure there's a current trip (auto-create the first one). */
+        ensureCurrent: function () {
+          var c = this.current();
+          if (c) return c;
+          return this.create('My trip');
+        },
+        has: function (tripId, key) {
+          var t = state().trips.find(function (x) { return x.id === tripId; });
+          return !!(t && t.items.some(function (i) { return i.key === key; }));
+        },
+        add: function (tripId, item) {
+          var s = state(); var t = s.trips.find(function (x) { return x.id === tripId; });
+          if (!t || t.items.some(function (i) { return i.key === item.key; })) return;
+          t.items.push(Object.assign({ done: false }, item)); write(s);
+        },
+        removeItem: function (tripId, key) {
+          var s = state(); var t = s.trips.find(function (x) { return x.id === tripId; });
+          if (t) { t.items = t.items.filter(function (i) { return i.key !== key; }); write(s); }
+        },
+        toggleDone: function (tripId, key) {
+          var s = state(); var t = s.trips.find(function (x) { return x.id === tripId; });
+          if (!t) return;
+          var i = t.items.find(function (x) { return x.key === key; });
+          if (i) { i.done = !i.done; write(s); }
+        },
+        /* total items across all trips — for the nav badge */
+        totalItems: function () {
+          return state().trips.reduce(function (n, t) { return n + t.items.length; }, 0);
+        }
+      };
+      return API;
+    })();
+  </script>
 </head>
 <body>
   <div id="nav-progress" aria-hidden="true"></div>
@@ -759,6 +839,7 @@
       <a href="/dashboard/tips"    class="tab {{ 'on' if path.startswith('/dashboard/tips')    else '' }}">Local Tips</a>
       <a href="/dashboard/weather" class="tab {{ 'on' if path.startswith('/dashboard/weather') else '' }}">Weather</a>
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
+      <a href="/dashboard/checklist" class="tab {{ 'on' if path.startswith('/dashboard/checklist') else '' }}">My List<span id="trip-badge" class="tab-badge" hidden></span></a>
       <span class="spacer"></span>
       <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
         <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
@@ -904,6 +985,20 @@
       });
       input.addEventListener('input', function () { render(input.value); });
       modal.querySelectorAll('[data-cmdk-close]').forEach(function (el) { el.addEventListener('click', close); });
+    })();
+
+    /* ── Nav badge: total saved items across trips ── */
+    (function () {
+      var badge = document.getElementById('trip-badge');
+      if (!badge || !window.TripStore) return;
+      function refresh() {
+        var n = TripStore.totalItems();
+        badge.textContent = n;
+        badge.hidden = n === 0;
+      }
+      refresh();
+      window.addEventListener('tripschange', refresh);
+      window.addEventListener('storage', refresh);  // sync across tabs
     })();
   </script>
   <script>

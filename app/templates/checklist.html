@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}My List{% endblock %}
+
+{% block content %}
+<div class="board-head">
+  <h1 class="board-title"><span class="plane">🧳</span> My List</h1>
+  <span class="page-meta" id="cl-meta"></span>
+</div>
+
+<div class="cl-panel">
+  <!-- Trips bar -->
+  <div class="cl-trips" id="cl-trips"></div>
+
+  <!-- Active trip body -->
+  <div id="cl-body"></div>
+</div>
+
+<style>
+  .cl-panel {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 18px 20px 26px;
+  }
+
+  /* ── Trips bar ── */
+  .cl-trips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+  .trip-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 13px; border-radius: 999px; cursor: pointer;
+    background: var(--panel-2); border: 1px solid var(--line);
+    color: var(--muted); font-size: 0.85rem; font-weight: 700;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .trip-chip:hover { color: var(--ink); border-color: var(--accent); }
+  .trip-chip.active { background: var(--accent-glow); border-color: var(--accent); color: var(--ink); }
+  .trip-chip .n { font-size: 0.7rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .trip-chip.active .n { color: var(--accent-dim); }
+  .trip-new {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 13px; border-radius: 999px; cursor: pointer;
+    background: transparent; border: 1px dashed var(--line);
+    color: var(--accent-dim); font-size: 0.85rem; font-weight: 700;
+  }
+  .trip-new:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ── Active trip head ── */
+  .cl-head { display: flex; align-items: center; gap: 12px; margin: 18px 0 4px; }
+  .cl-name { margin: 0; font-size: 1.3rem; font-weight: 800; }
+  .cl-act { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.82rem; font-weight: 600; padding: 4px 6px; border-radius: var(--radius-sm); }
+  .cl-act:hover { color: var(--ink); }
+  .cl-act.danger:hover { color: var(--red); }
+  .cl-progress-wrap { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px; }
+  .cl-progress { flex: 1; height: 8px; border-radius: 999px; background: var(--panel-2); overflow: hidden; }
+  .cl-progress > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s; }
+  .cl-progress-txt { font-size: 0.8rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* ── City group + items ── */
+  .cl-city { margin-top: 18px; }
+  .cl-city-h { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-dim); margin: 0 0 9px; }
+  .cl-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px;
+    background: var(--panel-2); transition: border-color .15s, background .15s;
+  }
+  .cl-item.done { opacity: .62; }
+  .cl-item.done .cl-it-name { text-decoration: line-through; }
+  .cl-check {
+    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--line); background: transparent; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 0.8rem; transition: background .15s, border-color .15s, color .15s;
+  }
+  .cl-item.done .cl-check { background: var(--green); border-color: var(--green); color: #06281b; }
+  .cl-thumb { flex: 0 0 auto; width: 46px; height: 46px; border-radius: 8px; object-fit: cover; background: var(--photo-bg); }
+  .cl-it-main { flex: 1; min-width: 0; }
+  .cl-it-name { font-weight: 700; font-size: 0.92rem; }
+  .cl-it-sub { font-size: 0.76rem; color: var(--muted); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .cl-cat { font-weight: 700; color: var(--c, var(--accent-dim)); }
+  .cl-rm { flex: 0 0 auto; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; padding: 4px 6px; border-radius: var(--radius-sm); }
+  .cl-rm:hover { color: var(--red); }
+
+  /* ── Empty states ── */
+  .cl-empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .cl-empty .ic { font-size: 2.4rem; margin-bottom: 10px; }
+  .cl-empty strong { color: var(--ink); font-weight: 700; font-size: 1.05rem; }
+  .cl-empty p { margin: 8px 0 16px; }
+  .cl-empty a, .cl-empty button { color: var(--on-accent); background: var(--accent); border: none; border-radius: var(--radius-sm); padding: 9px 18px; font: 700 0.9rem inherit; text-decoration: none; cursor: pointer; display: inline-block; }
+
+  @media (max-width: 560px) { .cl-thumb { width: 40px; height: 40px; } }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var T = window.TripStore;
+  var CAT = { attraction: '#38bdf8', restaurant: '#fb923c', cafe: '#fbbf24', activity: '#34d399', nightlife: '#f87171', shopping: '#c4b5fd' };
+  var tripsEl = document.getElementById('cl-trips');
+  var bodyEl = document.getElementById('cl-body');
+  var metaEl = document.getElementById('cl-meta');
+  var esc = function (s) { return (s == null ? '' : String(s)).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
+
+  function render() {
+    var trips = T.trips();
+    var cur = T.current();
+
+    // meta
+    metaEl.textContent = trips.length
+      ? trips.length + (trips.length === 1 ? ' trip' : ' trips') + ' · ' + T.totalItems() + ' saved'
+      : '';
+
+    // trips bar
+    var bar = trips.map(function (t) {
+      return '<button class="trip-chip' + (cur && t.id === cur.id ? ' active' : '') + '" data-switch="' + t.id + '">' +
+             esc(t.name) + ' <span class="n">' + t.items.length + '</span></button>';
+    }).join('');
+    bar += '<button class="trip-new" data-new>＋ New trip</button>';
+    tripsEl.innerHTML = bar;
+
+    // no trips at all
+    if (!trips.length) {
+      bodyEl.innerHTML = '<div class="cl-empty"><div class="ic">🧳</div><strong>No trips yet</strong>' +
+        '<p>Create a trip, then save places to it from the Places page.</p>' +
+        '<button data-new>＋ Create your first trip</button></div>';
+      return;
+    }
+
+    var items = cur.items;
+    var done = items.filter(function (i) { return i.done; }).length;
+    var pct = items.length ? Math.round(done / items.length * 100) : 0;
+
+    var head = '<div class="cl-head"><h2 class="cl-name">' + esc(cur.name) + '</h2>' +
+      '<button class="cl-act" data-rename="' + cur.id + '">✎ Rename</button>' +
+      '<button class="cl-act danger" data-del="' + cur.id + '">🗑 Delete</button></div>' +
+      '<div class="cl-progress-wrap"><div class="cl-progress"><i style="width:' + pct + '%"></i></div>' +
+      '<span class="cl-progress-txt">' + done + '/' + items.length + ' visited</span></div>';
+
+    if (!items.length) {
+      bodyEl.innerHTML = head + '<div class="cl-empty"><div class="ic">📍</div><strong>This trip is empty</strong>' +
+        '<p>Browse the Places page and tap “Save” to add spots here.</p>' +
+        '<a href="/dashboard/places">Find places →</a></div>';
+      return;
+    }
+
+    // group by city (preserve insertion order)
+    var groups = {}, order = [];
+    items.forEach(function (it) {
+      var city = it.city || 'Other';
+      if (!groups[city]) { groups[city] = []; order.push(city); }
+      groups[city].push(it);
+    });
+
+    var html = head;
+    order.forEach(function (city) {
+      html += '<div class="cl-city"><p class="cl-city-h">' + esc(city) + '</p>';
+      groups[city].forEach(function (it) {
+        var c = CAT[it.catKey] || 'var(--accent-dim)';
+        html += '<div class="cl-item' + (it.done ? ' done' : '') + '" style="--c:' + c + '">' +
+          '<button class="cl-check" data-done="' + esc(it.key) + '" title="Mark visited">✓</button>' +
+          (it.image ? '<img class="cl-thumb" src="' + esc(it.image) + '" alt="" loading="lazy">' : '<span class="cl-thumb"></span>') +
+          '<div class="cl-it-main"><div class="cl-it-name">' + esc(it.name) + '</div>' +
+          '<div class="cl-it-sub"><span class="cl-cat">' + esc(it.category || it.catKey || '') + '</span>' +
+          (it.country ? '<span>· ' + esc(it.country) + '</span>' : '') + '</div></div>' +
+          '<button class="cl-rm" data-rm="' + esc(it.key) + '" title="Remove">✕</button></div>';
+      });
+      html += '</div>';
+    });
+    bodyEl.innerHTML = html;
+  }
+
+  // event delegation
+  tripsEl.addEventListener('click', function (e) {
+    var sw = e.target.closest('[data-switch]'); if (sw) { T.setCurrent(sw.dataset.switch); return; }
+    if (e.target.closest('[data-new]')) { var n = prompt('Trip name:', 'My trip'); if (n) T.create(n); }
+  });
+  bodyEl.addEventListener('click', function (e) {
+    if (e.target.closest('[data-new]')) { var n = prompt('Trip name:', 'My trip'); if (n) T.create(n); return; }
+    var cur = T.current(); if (!cur) return;
+    var d = e.target.closest('[data-done]'); if (d) { T.toggleDone(cur.id, d.dataset.done); return; }
+    var rm = e.target.closest('[data-rm]'); if (rm) { T.removeItem(cur.id, rm.dataset.rm); return; }
+    var rn = e.target.closest('[data-rename]'); if (rn) { var nm = prompt('Rename trip:', cur.name); if (nm) T.rename(cur.id, nm); return; }
+    var del = e.target.closest('[data-del]'); if (del) { if (confirm('Delete “' + cur.name + '” and its saved places?')) T.remove(cur.id); return; }
+  });
+
+  render();
+  window.addEventListener('tripschange', render);
+  window.addEventListener('storage', render);
+});
+</script>
+{% endblock %}
