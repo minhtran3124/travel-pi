@@ -34,6 +34,7 @@ node_modules/
 
 # Claude Code — personal, machine-local settings (shared settings.json IS tracked)
 .claude/settings.local.json
+.claude/skills/
 .agents/
 .codex/
 .cursor/

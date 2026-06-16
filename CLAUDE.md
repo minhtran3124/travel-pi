@@ -89,9 +89,10 @@ UI work on them, read `PRODUCT.md` (strategy: register, users, principles,
 anti-references) and `DESIGN.md` (visual: colors, typography, components). The
 CSS tokens and component styles live in `app/templates/base.html` (`:root`
 variables); it's the single source of truth for the dashboard's look — the v2
-**"Nightfall"** system: a dark, teal-tinted operations board with friendly
-per-topic color-coding. `--ink` = primary text, `--accent`/`--accent-2` = teal
-(brand voice), a closed status spectrum (`--green/--yellow/--orange/--cyan/--red`),
+**"Sunset"** system: a dark, warm-coral operations board with friendly
+per-topic color-coding. `--ink` = primary text, `--accent`/`--accent-2` = coral
+(brand voice; bright `--accent` takes dark `--on-accent` text, deep `--accent-2`
+takes white), a closed status spectrum (`--green/--yellow/--orange/--cyan/--red`),
 and per-card `--c` hues for topic/type color-coding (tips categories, hotel
 types). Page-specific styles live in each template's `<style>` block. Use
 `/impeccable` for design tasks; `DESIGN.md` documents the full visual system.

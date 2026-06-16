@@ -1,17 +1,18 @@
 ---
 name: Travel Planner Dashboard
-description: A dark, teal, friendly operations board for the mock Travel Planner API
+description: A dark, warm-coral, friendly operations board for the mock Travel Planner API
 colors:
-  teal-bright: "#2dd4bf"
-  teal-deep: "#0f766e"
-  teal-soft: "#5eead4"
-  void: "#141b1a"
-  panel: "#1b2424"
-  panel-raised: "#243030"
-  line: "#33403e"
-  line-soft: "#2a3534"
-  ink: "#e7eceb"
-  muted: "#93a1a0"
+  coral-bright: "#ff6f5e"
+  coral-deep: "#c2410c"
+  coral-soft: "#ffa99c"
+  on-coral: "#3a0f08"
+  void: "#1a1614"
+  panel: "#221d1a"
+  panel-raised: "#2e2723"
+  line: "#3e342e"
+  line-soft: "#2f2823"
+  ink: "#efe9e6"
+  muted: "#a89c96"
   amber: "#fbbf24"
   green: "#34d399"
   orange: "#fb923c"
@@ -62,7 +63,7 @@ spacing:
   xl: "24px"
 components:
   button-primary:
-    backgroundColor: "{colors.teal-deep}"
+    backgroundColor: "{colors.coral-deep}"
     textColor: "#ffffff"
     rounded: "{rounded.sm}"
     padding: "0 18px"
@@ -94,12 +95,12 @@ components:
 
 ## 1. Overview
 
-**Creative North Star: "The Night Departures Board"**
+**Creative North Star: "Sunset Departures Board"**
 
 A dark airport flight-information board, evolved into a friendly, color-coded
 operations dashboard for the mock Travel Planner API. The room is dark and
-slightly teal-tinted; surfaces are low-glow cards lifted by soft shadows over a
-near-black canvas. A single deep teal is the system's voice — focus, action,
+slightly warm-tinted; surfaces are low-glow cards lifted by soft shadows over a
+deep warm-neutral canvas. A single coral is the system's voice — focus, action,
 active state — while a fixed status spectrum and a per-topic color palette make
 dense travel data (flights, hotels, places, tips, weather, bookings) instantly
 scannable and warm rather than clinical.
@@ -116,30 +117,31 @@ glassmorphism; and colored side-stripe borders. Color is functional — it
 encodes status, topic, or scarcity, never decoration for its own sake.
 
 **Key Characteristics:**
-- Dark teal-neutral surfaces (Void → Panel → Panel Raised) separated by hairlines + soft shadows
-- One teal brand voice; a closed status spectrum; a 10-hue topic palette
+- Dark warm-neutral surfaces (Void → Panel → Panel Raised) separated by hairlines + soft shadows
+- One coral brand voice; a closed status spectrum; a 10-hue topic palette
 - Friendly emoji iconography for categories, amenities, and empty states
 - Color-coded, interactive rows/cards/tiles with same-hue hover feedback
 - Tabular figures everywhere data is compared
 
 ## 2. Colors
 
-A near-black teal-tinted palette: one teal accent and four neutral surface
-tones, plus a fixed status spectrum and a topic-coding palette.
+A dark warm-neutral palette: one coral accent and four neutral surface tones,
+plus a fixed status spectrum and a topic-coding palette.
 
 ### Primary
-- **Teal Bright** (#2dd4bf): Focus rings, active tab underline, table-head rule,
-  hairline accents, the boarding-pass plane.
-- **Teal Deep** (#0f766e): Solid fills under white text — primary buttons,
-  active segmented control, flight type badge, brand icon.
-- **Teal Soft** (#5eead4): Text-accent on dark — links, clock, city names,
+- **Coral Bright** (#ff6f5e): Focus rings, active tab underline, table-head rule,
+  hairline accents, the boarding-pass plane. Bright coral takes **dark** text
+  (`On Coral` #3a0f08) on solid fills — never white (white fails AA on it).
+- **Coral Deep** (#c2410c): Solid fills under **white** text — primary buttons,
+  active segmented control, flight type badge.
+- **Coral Soft** (#ffa99c): Text-accent on dark — links, clock, city names,
   "API Docs", back links.
 
 ### Neutral
-- **Void** (#141b1a): App canvas. **Panel** (#1b2424): cards, table, nav.
-  **Panel Raised** (#243030): inputs, table head, tiles, insets.
-- **Line** (#33403e) / **Line Soft** (#2a3534): borders and row dividers.
-- **Ink** (#e7eceb): primary text. **Muted** (#93a1a0): secondary text (AA on
+- **Void** (#1a1614): App canvas. **Panel** (#221d1a): cards, table, nav.
+  **Panel Raised** (#2e2723): inputs, table head, tiles, insets.
+- **Line** (#3e342e) / **Line Soft** (#2f2823): borders and row dividers.
+- **Ink** (#efe9e6): primary text. **Muted** (#a89c96): secondary text (AA on
   every surface — verified ≥5.0:1).
 
 ### Status (closed, fixed-meaning spectrum)
@@ -152,15 +154,17 @@ tones, plus a fixed status spectrum and a topic-coding palette.
 Tips categories and hotel types each get a signature hue, applied to icon
 tiles, count chips, jump pills, markers, and same-hue hover tints:
 transport=amber, money=green, safety=red, culture=purple (#c084fc),
-food=orange, connectivity=cyan, health=rose (#fb7185), etiquette=teal,
+food=orange, connectivity=cyan, health=rose (#fb7185), etiquette=teal (#2dd4bf),
 best_time=lime (#a3e635), language=indigo (#818cf8). Hotels: Hotel=sky (#38bdf8),
 Resort=amber, Villa Resort=rose (#fb7185), Boutique=purple (#c084fc).
+These topic/type hues are deliberately diverse and independent of the coral
+brand voice — teal here is just one topic hue, not the accent.
 
 ### Named Rules
-**The One Voice Rule.** Teal is the only *brand* color — actions, focus, active
+**The One Voice Rule.** Coral is the only *brand* color — actions, focus, active
 state. Topic and status hues are a separate, functional vocabulary.
 
-**The Functional Color Rule.** Every non-teal hue means something specific
+**The Functional Color Rule.** Every non-coral hue means something specific
 (status, topic, or scarcity) and is paired with text or an icon — never color
 alone. The status spectrum is closed; don't invent or reuse hues.
 
@@ -203,14 +207,14 @@ blurred scrim.
 ## 5. Components
 
 ### Buttons & controls
-Teal-deep primary button (white text), ghost link (muted, hairline border →
-teal on hover), 34px controls, keyboard-accessible toggle chip with a
+Coral-deep primary button (white text), ghost link (muted, hairline border →
+coral on hover), 34px controls, keyboard-accessible toggle chip with a
 visually-hidden checkbox and `:focus-within` ring.
 
 ### FIDS table (flights / search / bookings)
-Panel table, raised header with a teal bottom rule. **Status remarks are
+Panel table, raised header with a coral bottom rule. **Status remarks are
 color-coded pills** (boarding/delayed/landed/estimated/departed). Rows are
-clickable to detail (the flight-number link is the keyboard path) and wash teal
+clickable to detail (the flight-number link is the keyboard path) and wash coral
 on hover. Airline codes are brand-colored chips. Bookings status pills color by
 state (confirmed=green, cancelled=red).
 
@@ -224,7 +228,7 @@ topic).
 
 ### Signature: the Boarding Pass (flight detail)
 A ticket: airline-colored side rail + code chip, large route codes with a dashed
-route line and a teal plane, a die-cut **perforation** (notched dashed divider),
+route line and a coral plane, a die-cut **perforation** (notched dashed divider),
 stub cells (price, duration, stops, and **seat-scarcity colored** seats-left),
 and a mono flight ID.
 
@@ -239,12 +243,12 @@ reduced-motion), Esc/backdrop close.
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** keep Teal Bright/Deep for brand actions/focus only; use the topic and
+- **Do** keep Coral Bright/Deep for brand actions/focus only; use the topic and
   status palettes for everything color-coded.
 - **Do** pair every status/topic color with text or an icon (FIDS pill pattern).
 - **Do** set compared numbers in `tabular-nums`.
 - **Do** lighten colored text on same-hue tints toward Ink to hold AA.
-- **Do** keep the teal focus ring on every focusable control, and a
+- **Do** keep the coral focus ring on every focusable control, and a
   `prefers-reduced-motion` alternative for every animation.
 
 ### Don't:
