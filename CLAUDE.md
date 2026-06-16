@@ -81,3 +81,15 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   stay exact. An unrecognised city/country returns `count: 0`, not 404.
 - Keep it minimal — no auth, ORM, pagination, or rate limiting (see
   `mock-api-spec.md` §1). Console logging is in scope; anything heavier is not.
+
+## Design Context
+
+The `/dashboard/*` HTML pages (Jinja2) have a captured design system. Before
+UI work on them, read `PRODUCT.md` (strategy: register, users, principles,
+anti-references) and `DESIGN.md` (visual: colors, typography, components). The
+CSS tokens and component styles live in `app/templates/base.html` (`:root`
+variables); it's the single source of truth for the dashboard's look — the v2
+"Daylight" system: light, airy, deep-teal accent on true-neutral surfaces
+(`--ink` = primary text, `--accent` = teal). Use `/impeccable` for design tasks.
+Note: `DESIGN.md`/`.impeccable/design.json` still describe the old dark FIDS
+system and are due a refresh via `/impeccable document`.
