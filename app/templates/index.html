@@ -2,104 +2,185 @@
 {% block title %}Home{% endblock %}
 
 {#
-  Dashboard landing page. A standalone intro to the Travel Planner that frames
-  the product as one flowing itinerary: Flights → Hotels → Places → Local Tips
-  → Weather. The five "stops" form an animated timeline that lights up in
-  sequence (pure CSS, looped), each linking to its section. Per-stop --c hues
-  follow the design system's per-topic colour-coding; the whole thing freezes
-  to a fully-lit static state under prefers-reduced-motion.
+  Dashboard landing page. The one welcome surface (not a data tool), so it earns
+  a livelier, travel-themed treatment than the rest of the dashboard: a warm
+  "Sunset Departures Board" sky, a dashed flight-route arc with a plane riding
+  it, and an itinerary timeline a plane actually travels — lighting each stop as
+  it passes (Flights → Hotels → Places → Local Tips → Weather). Per-stop --c hues
+  follow the design system's per-topic colour-coding. Everything freezes to a
+  legible, fully-lit static state under prefers-reduced-motion.
 #}
 
 {% set stops = [
-  {'icon': '🛫', 'kw': 'Book',     'title': 'Flights',    'desc': 'Find and lock in the route. Deterministic, FIDS-style boards.', 'url': '/dashboard/flights',  'c': 'var(--accent)'},
-  {'icon': '🏨', 'kw': 'Stay',     'title': 'Hotels',     'desc': 'Pick where to sleep — rooms priced and reserved server-side.',  'url': '/dashboard/hotels',   'c': 'var(--hotel)'},
-  {'icon': '🗺️', 'kw': 'Explore',  'title': 'Places',     'desc': 'Build the day plan from attractions, food and activities.',     'url': '/dashboard/places',   'c': 'var(--green)'},
-  {'icon': '🧭', 'kw': 'Local',    'title': 'Local Tips', 'desc': 'Know the ground rules — transport, money, safety, etiquette.',  'url': '/dashboard/tips',     'c': 'var(--yellow)'},
-  {'icon': '🌦️', 'kw': 'Check',    'title': 'Weather',    'desc': 'Live forecast for the dates, so the itinerary holds up.',       'url': '/dashboard/weather',  'c': 'var(--cyan)'}
+  {'icon': '🛫', 'kind': 'flight',  'kw': 'Book',    'title': 'Flights',    'desc': 'Find and lock in the route. Deterministic, FIDS-style boards.', 'url': '/dashboard/flights',  'c': 'var(--accent)'},
+  {'icon': '🏨', 'kind': 'hotel',   'kw': 'Stay',    'title': 'Hotels',     'desc': 'Pick where to sleep — rooms priced and reserved server-side.',  'url': '/dashboard/hotels',   'c': 'var(--hotel)'},
+  {'icon': '🗺️', 'kind': 'places',  'kw': 'Explore', 'title': 'Places',     'desc': 'Build the day plan from attractions, food and activities.',     'url': '/dashboard/places',   'c': 'var(--green)'},
+  {'icon': '🧭', 'kind': 'tips',    'kw': 'Local',   'title': 'Local Tips', 'desc': 'Know the ground rules — transport, money, safety, etiquette.',  'url': '/dashboard/tips',     'c': 'var(--yellow)'},
+  {'icon': '🌤️', 'kind': 'weather', 'kw': 'Check',   'title': 'Weather',    'desc': 'Live forecast for the dates, so the itinerary holds up.',       'url': '/dashboard/weather',  'c': 'var(--cyan)'}
 ] %}
 
 {% block content %}
 <style>
-  /* ── Hero ── */
-  .home-hero {
-    text-align: center;
-    padding: 30px 16px 10px;
-    max-width: 760px; margin: 0 auto;
+  /* ═══════════════════════════════════════════
+     Landing page — "Sunset Departures Board"
+     Lives entirely on the existing Sunset tokens.
+     Loop cadence is shared so the rail plane and the
+     stop highlights stay locked together.
+  ═══════════════════════════════════════════ */
+  .home { --cycle: 13s; --step: 2.6s; position: relative; }
+
+  /* ── Ambient sky (decorative, never under reading text) ── */
+  .hero-sky {
+    position: absolute; inset: -28px -20px auto -20px; height: 340px;
+    pointer-events: none; z-index: 0; overflow: hidden;
   }
-  .home-eyebrow {
+  /* Warm sunset glow, top-right — the brand light source, gently breathing. */
+  .hero-sky .sun {
+    position: absolute; top: -120px; right: -60px;
+    width: 360px; height: 360px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%,
+      color-mix(in srgb, var(--accent) 38%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 14%, transparent) 38%,
+      transparent 70%);
+    filter: blur(6px);
+    animation: sun-breathe 7s ease-in-out infinite;
+  }
+  @keyframes sun-breathe {
+    0%, 100% { transform: scale(1);    opacity: .85; }
+    50%      { transform: scale(1.08); opacity: 1; }
+  }
+
+  /* Drifting travel emoji — ambient texture, low-opacity, slow. */
+  .hero-sky .drift {
+    position: absolute; font-size: 1.5rem; opacity: .14;
+    filter: saturate(.8);
+    animation: drift 18s ease-in-out infinite;
+    will-change: transform;
+  }
+  .hero-sky .drift.d1 { left: 7%;  top: 30%; animation-delay: -2s;  }
+  .hero-sky .drift.d2 { left: 24%; top: 64%; animation-delay: -9s; font-size: 1.15rem; }
+  .hero-sky .drift.d3 { left: 78%; top: 58%; animation-delay: -5s;  }
+  .hero-sky .drift.d4 { left: 90%; top: 26%; animation-delay: -13s; font-size: 1.2rem; }
+  .hero-sky .drift.d5 { left: 60%; top: 70%; animation-delay: -16s; font-size: 1.1rem; }
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) rotate(-4deg); }
+    50%      { transform: translate(10px, -16px) rotate(4deg); }
+  }
+
+  /* Flight-route arc + the plane that flies it (top-of-hero motif). */
+  .route-wrap {
+    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 720px; height: 150px;
+  }
+  .route-wrap svg { position: absolute; inset: 0; width: 720px; height: 150px; overflow: visible; }
+  .route-line {
+    fill: none; stroke: var(--accent-dim); stroke-width: 2;
+    stroke-dasharray: 3 9; stroke-linecap: round; opacity: .5;
+  }
+  /* Endpoint pins (origin → destination). */
+  .route-pin { fill: var(--accent); }
+  .route-pin.ring { fill: none; stroke: var(--accent); stroke-width: 2; opacity: .5;
+    transform-origin: center; animation: pin-ping 2.6s ease-out infinite; }
+  @keyframes pin-ping { 0% { r: 4; opacity: .55; } 70%, 100% { r: 13; opacity: 0; } }
+
+  .route-plane {
+    position: absolute; top: 0; left: 0; font-size: 1.45rem; line-height: 1;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,.5));
+    offset-path: path('M 44 116 C 230 14 500 14 676 110');
+    offset-rotate: auto -48deg;       /* ✈ glyph points ↗ by default; correct to tangent */
+    offset-distance: 0%;
+    animation: route-fly var(--cycle) cubic-bezier(.45,0,.55,1) infinite;
+  }
+  @keyframes route-fly {
+    0%   { offset-distance: 0%;   opacity: 0; }
+    6%   { opacity: 1; }
+    82%  { offset-distance: 100%; opacity: 1; }
+    90%, 100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  /* ── Hero content (sits above the sky) ── */
+  .home-hero { position: relative; z-index: 1; text-align: center; padding: 92px 16px 8px; max-width: 760px; margin: 0 auto; }
+  .home-chip {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 5px 13px; margin-bottom: 18px;
-    background: var(--accent-glow); border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.05em;
-    text-transform: uppercase; color: var(--accent-dim);
+    padding: 5px 13px 5px 11px; margin-bottom: 20px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 999px; font-size: 0.78rem; font-weight: 600; color: var(--muted);
   }
-  .home-eyebrow .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow);
+  .home-chip .live {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 60%, transparent);
+    animation: live-ping 2.4s ease-out infinite;
   }
+  @keyframes live-ping {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 55%, transparent); }
+    70%, 100% { box-shadow: 0 0 0 7px transparent; }
+  }
+  .home-chip b { color: var(--ink); font-weight: 700; }
   .home-hero h1 {
-    font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.08;
+    font-size: clamp(2rem, 5vw, 3rem); line-height: 1.08;
     letter-spacing: -0.025em; margin: 0 0 14px; font-weight: 800;
+    text-wrap: balance;
   }
-  .home-hero h1 .grad {
-    background: linear-gradient(95deg, var(--accent-dim), var(--accent));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
+  .home-hero h1 .hi { color: var(--accent-dim); }
   .home-hero p {
-    font-size: clamp(0.95rem, 2vw, 1.1rem); color: var(--muted);
-    margin: 0 auto 24px; max-width: 560px;
+    font-size: clamp(0.95rem, 2vw, 1.08rem); color: var(--ink); opacity: .82;
+    margin: 0 auto 26px; max-width: 560px; text-wrap: pretty;
   }
   .home-cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
   .home-cta a {
-    display: inline-flex; align-items: center; gap: 8px;
-    height: 44px; padding: 0 22px; border-radius: var(--radius-sm);
-    font-size: 0.92rem; font-weight: 700; text-decoration: none;
-    transition: filter .15s, transform .05s, border-color .15s, color .15s;
+    display: inline-flex; align-items: center; gap: 9px;
+    height: 46px; padding: 0 22px; border-radius: var(--radius-sm);
+    font-size: 0.94rem; font-weight: 700; text-decoration: none;
+    transition: filter .15s, transform .12s cubic-bezier(.25,1,.5,1), border-color .15s, color .15s, box-shadow .15s;
   }
-  .home-cta .primary { background: var(--accent-2); color: #fff; }
-  .home-cta .primary:hover { filter: brightness(1.1); }
-  .home-cta .primary:active { transform: translateY(1px); }
+  .home-cta .primary { background: var(--accent-2); color: #fff; box-shadow: 0 6px 18px -8px var(--accent-2); }
+  .home-cta .primary:hover { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 10px 24px -8px var(--accent-2); }
+  .home-cta .primary:active { transform: translateY(0); }
+  .home-cta .primary .pl { display: inline-block; transition: transform .25s cubic-bezier(.25,1,.5,1); }
+  .home-cta .primary:hover .pl { transform: translateX(3px) translateY(-2px); }
   .home-cta .ghost { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
-  .home-cta .ghost:hover { border-color: var(--accent); color: var(--accent-dim); }
+  .home-cta .ghost:hover { border-color: var(--accent); color: var(--accent-dim); transform: translateY(-2px); }
+  .home-cta a:focus-visible { outline: none; box-shadow: var(--ring); }
 
   /* ── Journey timeline ── */
-  .journey-head {
-    text-align: center; margin: 56px auto 30px; max-width: 620px;
-  }
-  .journey-head h2 {
-    font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 6px;
-  }
+  .journey-head { text-align: center; margin: 64px auto 34px; max-width: 620px; }
+  .journey-head h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 6px; }
   .journey-head p { margin: 0; color: var(--muted); font-size: 0.92rem; }
-
-  /* Total loop length and per-stop cadence (5 stops). Negative animation-delay
-     phases each stop so the highlight sweeps left→right and keeps repeating. */
-  .journey { --cycle: 12s; --step: 2.4s; }
 
   .journey {
     position: relative;
     display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
-    margin: 0 auto; max-width: 1080px;
-    padding: 8px 4px 4px;
+    margin: 0 auto; max-width: 1080px; padding: 14px 4px 4px;
   }
-  /* Connecting rail behind the stop badges (sits on the badge row centre). */
-  .journey::before, .journey-fill {
-    content: ''; position: absolute;
-    top: 42px; left: 10%; right: 10%; height: 3px; border-radius: 999px;
+  /* The rail: a faint base line + a coral fill the plane lays as it flies. */
+  .journey-rail, .journey-fill {
+    content: ''; position: absolute; top: 48px; height: 3px; border-radius: 999px;
   }
-  .journey::before { background: var(--line); }
+  .journey-rail { left: 10%; right: 10%; background: var(--line); }
   .journey-fill {
-    right: auto; width: 0;
+    left: 10%; width: 0;
     background: linear-gradient(90deg, var(--accent-2), var(--accent), var(--cyan));
-    box-shadow: 0 0 10px var(--accent-glow);
-    animation: journey-flow var(--cycle) linear infinite;
+    box-shadow: 0 0 12px var(--accent-glow);
+    animation: rail-fill var(--cycle) cubic-bezier(.45,0,.55,1) infinite;
   }
-  @keyframes journey-flow {
-    0%   { width: 0; opacity: 0; }
+  @keyframes rail-fill {
+    0%   { width: 0;   opacity: 0; }
     6%   { opacity: 1; }
-    88%  { width: 80%; opacity: 1; }
-    96%  { width: 80%; opacity: 0; }
-    100% { width: 80%; opacity: 0; }
+    80%  { width: 80%; opacity: 1; }
+    92%, 100% { width: 80%; opacity: 0; }
+  }
+  /* Plane riding the rail's leading edge, locked to the fill timing. */
+  .journey-plane {
+    position: absolute; top: 48px; left: 10%; transform: translate(-50%, -50%);
+    font-size: 1.35rem; line-height: 1; z-index: 2;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,.55));
+    animation: rail-plane var(--cycle) cubic-bezier(.45,0,.55,1) infinite;
+  }
+  @keyframes rail-plane {
+    0%   { left: 6%;  opacity: 0; }
+    6%   { opacity: 1; }
+    80%  { left: 90%; opacity: 1; }
+    90%, 100% { left: 104%; opacity: 0; }
   }
 
   .stop {
@@ -112,12 +193,12 @@
   .stop .badge {
     position: relative;
     display: flex; align-items: center; justify-content: center;
-    width: 60px; height: 60px; border-radius: 50%;
+    width: 62px; height: 62px; border-radius: 50%;
     background: var(--panel-2); border: 2px solid var(--line);
-    font-size: 1.5rem; line-height: 1;
-    transition: transform .25s, border-color .25s, box-shadow .25s, background .25s;
+    transition: transform .25s cubic-bezier(.25,1,.5,1), border-color .25s, box-shadow .25s, background .25s;
     animation: stop-pulse var(--cycle) var(--delay) infinite;
   }
+  .stop .glyph { font-size: 1.5rem; line-height: 1; display: inline-block; }
   .stop .step-no {
     position: absolute; top: -4px; right: -4px;
     width: 20px; height: 20px; border-radius: 50%;
@@ -125,32 +206,26 @@
     font-size: 0.64rem; font-weight: 800; color: var(--muted);
     display: flex; align-items: center; justify-content: center;
   }
-  .stop .title { font-size: 0.98rem; font-weight: 800; letter-spacing: -0.01em; }
-  .stop .kw {
-    font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--muted);
-  }
+  .stop .kw { font-size: 0.64rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .stop .title { font-size: 0.98rem; font-weight: 800; letter-spacing: -0.01em; transition: color .2s; }
   .stop .desc { font-size: 0.8rem; color: var(--muted); line-height: 1.4; max-width: 190px; }
 
-  /* The highlight window — each stop "fires" at the start of its phased cycle,
-     simulating the action being scheduled, then settles back to resting. */
+  /* Each stop fires as the rail plane reaches it (phased by --delay). */
   @keyframes stop-pulse {
-    0%   { transform: translateY(0) scale(1); border-color: var(--line); background: var(--panel-2);
-           box-shadow: 0 0 0 0 transparent; }
+    0%   { transform: translateY(0) scale(1); border-color: var(--line); background: var(--panel-2); box-shadow: 0 0 0 0 transparent; }
     4%   { transform: translateY(-6px) scale(1.12); border-color: var(--c);
            background: color-mix(in srgb, var(--c) 22%, var(--panel-2));
-           box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent), 0 10px 22px -8px var(--c); }
+           box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent), 0 12px 24px -8px var(--c); }
     14%  { transform: translateY(-3px) scale(1.06); border-color: var(--c);
            box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 12%, transparent); }
-    22%  { transform: translateY(0) scale(1); border-color: var(--line); background: var(--panel-2);
-           box-shadow: 0 0 0 0 transparent; }
+    22%  { transform: translateY(0) scale(1); border-color: var(--line); background: var(--panel-2); box-shadow: 0 0 0 0 transparent; }
     100% { transform: translateY(0) scale(1); border-color: var(--line); background: var(--panel-2); }
   }
 
-  /* Hover always beats the loop: a clear, immediate affordance that this is a link. */
+  /* Hover always wins over the loop — immediate, themed affordance. */
   .stop:hover .badge {
     border-color: var(--c) !important;
-    background: color-mix(in srgb, var(--c) 22%, var(--panel-2)) !important;
+    background: color-mix(in srgb, var(--c) 24%, var(--panel-2)) !important;
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--c) 16%, transparent) !important;
     transform: translateY(-4px) scale(1.06) !important;
     animation-play-state: paused;
@@ -158,87 +233,125 @@
   .stop:hover .title { color: var(--c); }
   .stop:focus-visible { outline: none; box-shadow: var(--ring); }
 
+  /* Per-topic emoji micro-animations on hover — the glyph reacts in character. */
+  .stop[data-kind="flight"]:hover  .glyph { animation: g-takeoff .6s cubic-bezier(.3,.8,.4,1) both; }
+  .stop[data-kind="hotel"]:hover   .glyph { animation: g-bob .9s ease-in-out infinite; }
+  .stop[data-kind="places"]:hover  .glyph { animation: g-wiggle .7s ease-in-out infinite; }
+  .stop[data-kind="tips"]:hover    .glyph { animation: g-compass 1.4s cubic-bezier(.4,0,.2,1) infinite; }
+  .stop[data-kind="weather"]:hover .glyph { animation: g-float 1.6s ease-in-out infinite; }
+  @keyframes g-takeoff { 0% { transform: translate(0,0) rotate(0); } 100% { transform: translate(5px,-7px) rotate(8deg); } }
+  @keyframes g-bob     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes g-wiggle  { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+  @keyframes g-compass { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+  @keyframes g-float   { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.08); } }
+
   /* ── Feature footer strip ── */
-  .home-foot {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    margin: 52px auto 0; max-width: 880px;
-  }
+  .home-foot { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 56px auto 0; max-width: 880px; }
   .home-foot .cell {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 16px 18px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; transition: border-color .18s, transform .18s cubic-bezier(.25,1,.5,1);
   }
+  .home-foot .cell:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); transform: translateY(-2px); }
   .home-foot .cell .h { font-weight: 800; font-size: 0.9rem; margin-bottom: 4px; }
   .home-foot .cell .s { color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
 
   /* ── Responsive ── */
   @media (max-width: 760px) {
-    /* Timeline rotates to a vertical schedule on narrow screens. */
+    .hero-sky { height: 280px; }
+    .route-wrap { display: none; }       /* fixed-coord arc doesn't scale; drop it cleanly */
+    .home-hero { padding-top: 54px; }
+    /* Timeline rotates to a vertical schedule. */
     .journey { grid-template-columns: 1fr; gap: 0; max-width: 420px; }
-    .journey::before { top: 24px; bottom: 24px; left: 33px; right: auto; width: 3px; height: auto; }
-    .journey-fill { display: none; }   /* horizontal fill doesn't map to the vertical rail */
-    .stop {
-      flex-direction: row; align-items: flex-start; text-align: left;
-      gap: 16px; padding: 12px 6px;
-    }
+    .journey-rail { top: 30px; bottom: 30px; left: 35px; right: auto; width: 3px; height: auto; }
+    .journey-fill, .journey-plane { display: none; }   /* horizontal rail motion doesn't map to vertical */
+    .stop { flex-direction: row; align-items: flex-start; text-align: left; gap: 16px; padding: 12px 6px; }
     .stop .desc { max-width: none; }
-    .stop .badge { width: 52px; height: 52px; font-size: 1.3rem; flex-shrink: 0; }
+    .stop .badge { width: 54px; height: 54px; flex-shrink: 0; }
+    .stop .glyph { font-size: 1.3rem; }
     .home-foot { grid-template-columns: 1fr; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* No looping highlight: present every stop in its resting-but-legible state
-       and drop the moving rail fill entirely. */
-    .stop .badge { animation: none; }
-    .journey-fill { animation: none; width: 80%; opacity: 1; }
+    /* No looping or drifting: present a calm, fully-legible static state. */
+    .hero-sky .sun, .hero-sky .drift, .route-plane, .route-pin.ring,
+    .home-chip .live, .stop .badge, .journey-fill, .journey-plane { animation: none !important; }
+    .route-plane { offset-distance: 92%; }
+    /* Static "route drawn, plane arrived" state — fill and plane both at the end. */
+    .journey-fill { width: 80%; opacity: 1; }
+    .journey-plane { left: 90%; opacity: 1; }
+    .stop[data-kind] :is(.glyph) { animation: none !important; }
   }
 </style>
 
-<section class="home-hero">
-  <span class="home-eyebrow"><span class="dot"></span> Travel Planner · Mock API</span>
-  <h1>Plan a whole trip, <span class="grad">one step at a time</span>.</h1>
-  <p>
-    A sandbox travel back-end that takes you from a flight to a finished
-    itinerary — flights, hotels, places, local know-how and live weather, all
-    in one flow. Everything's faked except real weather and routing.
-  </p>
-  <div class="home-cta">
-    <a class="primary" href="/dashboard/flights">Start with Flights →</a>
-    <a class="ghost" href="/docs">Browse the API ↗</a>
+<div class="home">
+  <div class="hero-sky" aria-hidden="true">
+    <span class="sun"></span>
+    <span class="drift d1">☁️</span>
+    <span class="drift d2">🧳</span>
+    <span class="drift d3">🗺️</span>
+    <span class="drift d4">🌴</span>
+    <span class="drift d5">📷</span>
+    <div class="route-wrap">
+      <svg viewBox="0 0 720 150" role="presentation">
+        <path class="route-line" d="M 44 116 C 230 14 500 14 676 110" />
+        <circle class="route-pin" cx="44" cy="116" r="4" />
+        <circle class="route-pin ring" cx="44" cy="116" r="4" />
+        <circle class="route-pin" cx="676" cy="110" r="4" />
+        <circle class="route-pin ring" cx="676" cy="110" r="4" />
+      </svg>
+      <span class="route-plane">✈️</span>
+    </div>
   </div>
-</section>
 
-<div class="journey-head">
-  <h2>Your itinerary, scheduled</h2>
-  <p>Follow the trip from takeoff to forecast — each stop is a section you can open.</p>
-</div>
+  <section class="home-hero">
+    <span class="home-chip"><span class="live"></span> <b>Travel Planner</b> · mock API, live</span>
+    <h1>Plan a whole trip, <span class="hi">one step at a time</span>.</h1>
+    <p>
+      A sandbox travel back-end that takes you from a flight to a finished
+      itinerary — flights, hotels, places, local know-how and live weather, all
+      in one flow. Everything's faked except real weather and routing.
+    </p>
+    <div class="home-cta">
+      <a class="primary" href="/dashboard/flights">Start with Flights <span class="pl">🛫</span></a>
+      <a class="ghost" href="/docs">Browse the API ↗</a>
+    </div>
+  </section>
 
-<nav class="journey" aria-label="Itinerary sections">
-  <span class="journey-fill" aria-hidden="true"></span>
-  {% for s in stops %}
-  <a class="stop" href="{{ s.url }}" style="--i: {{ loop.index0 }}; --c: {{ s.c }};">
-    <span class="badge">
-      {{ s.icon }}
-      <span class="step-no">{{ loop.index }}</span>
-    </span>
-    <span class="kw">{{ s.kw }}</span>
-    <span class="title">{{ s.title }}</span>
-    <span class="desc">{{ s.desc }}</span>
-  </a>
-  {% endfor %}
-</nav>
-
-<div class="home-foot">
-  <div class="cell">
-    <div class="h">🎫 Real bookings</div>
-    <div class="s">Flight & hotel reservations persist in SQLite with server-computed prices and confirmation codes.</div>
+  <div class="journey-head">
+    <h2>Your itinerary, scheduled ✦</h2>
+    <p>Watch the trip come together — each stop is a section you can open.</p>
   </div>
-  <div class="cell">
-    <div class="h">🔁 Deterministic data</div>
-    <div class="s">The same search always returns the same flights and rooms — IDs reverse back into their query.</div>
-  </div>
-  <div class="cell">
-    <div class="h">🌍 Live where it counts</div>
-    <div class="s">Weather (Open-Meteo) and routing (OpenRouteService) hit real upstreams; routing degrades gracefully offline.</div>
+
+  <nav class="journey" aria-label="Itinerary sections">
+    <span class="journey-rail" aria-hidden="true"></span>
+    <span class="journey-fill" aria-hidden="true"></span>
+    <span class="journey-plane" aria-hidden="true">✈️</span>
+    {% for s in stops %}
+    <a class="stop" href="{{ s.url }}" data-kind="{{ s.kind }}" style="--i: {{ loop.index0 }}; --c: {{ s.c }};">
+      <span class="badge">
+        <span class="glyph" aria-hidden="true">{{ s.icon }}</span>
+        <span class="step-no">{{ loop.index }}</span>
+      </span>
+      <span class="kw">{{ s.kw }}</span>
+      <span class="title">{{ s.title }}</span>
+      <span class="desc">{{ s.desc }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+
+  <div class="home-foot">
+    <div class="cell">
+      <div class="h">🎫 Real bookings</div>
+      <div class="s">Flight &amp; hotel reservations persist in SQLite with server-computed prices and confirmation codes.</div>
+    </div>
+    <div class="cell">
+      <div class="h">🔁 Deterministic data</div>
+      <div class="s">The same search always returns the same flights and rooms — IDs reverse back into their query.</div>
+    </div>
+    <div class="cell">
+      <div class="h">🌍 Live where it counts</div>
+      <div class="s">Weather (Open-Meteo) and routing (OpenRouteService) hit real upstreams; routing degrades gracefully offline.</div>
+    </div>
   </div>
 </div>
 {% endblock %}
