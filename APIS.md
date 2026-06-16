@@ -32,6 +32,7 @@ Base URL: `http://localhost:8000`
 | GET | `/places/{place_id}` | Get one place by ID |
 | GET | `/tips` | Local tips for a city or country |
 | GET | `/weather` | Current weather + short forecast for a city |
+| GET | `/destinations/{city}/overview` | Aggregated city overview — weather, top places, essential tips, hotel summary |
 | GET | `/bookings` | List bookings (search / filter / sort) |
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
@@ -420,6 +421,87 @@ requested rooms/party for those dates, you get **409 Conflict** (check
 
 Supports the same optional `Idempotency-Key` header as `POST /flights/book`
 (see above) — a repeated key returns the original booking unchanged.
+
+---
+
+## `GET /destinations/{city}/overview` — aggregated city overview
+
+Combines weather, top places, essential tips, and a hotel summary for a city
+into **one response**, so an agent or dashboard can present a destination
+briefing with a single call instead of four.
+
+`{city}` is fuzzy-matched (typo/case tolerant) against the seed city list —
+the same resolver used by `/weather`, `/places/search`, and `/tips`.
+An unrecognised city returns **404**.
+
+### Path param
+
+| Param | Notes |
+|-------|-------|
+| `city` | City name — fuzzy-matched. Unknown city → **404**. |
+
+### Query params
+
+| Param | Default | Notes |
+|-------|---------|-------|
+| `include` | all four | Comma-separated subset of `weather,places,tips,hotels`. Omit to include everything. Unknown member → **422**. |
+| `place_limit` | `5` | Max top places to return, 1–20. |
+| `tip_limit` | `5` | Max essential tips to return, 1–20. |
+
+### Degradation
+
+If Open-Meteo is unavailable, `weather` is `null` and the rest of the
+response is still returned with **200**. The endpoint never returns **502**
+— weather failure is handled gracefully.
+
+```bash
+curl "http://localhost:8000/destinations/Da%20Nang/overview"
+
+# Only weather + places, limit places to 3
+curl "http://localhost:8000/destinations/Bangkok/overview?include=weather,places&place_limit=3"
+```
+
+```json
+{
+  "city": "Da Nang",
+  "country": "Vietnam",
+  "latitude": 16.05,
+  "longitude": 108.20,
+  "weather": {
+    "city": "Da Nang",
+    "current": { "temperature_c": 31.2, "condition": "Partly cloudy", "...": "..." },
+    "forecast": [ "..." ]
+  },
+  "top_places": [
+    { "id": "56f5b6d7-...", "name": "Dragon Bridge", "category": "landmark", "rating": 4.7, "...": "..." }
+  ],
+  "essential_tips": [
+    { "id": "tip_city_danang_00", "category": "transport", "title": "Grab is the standard taxi app", "is_essential": true, "...": "..." }
+  ],
+  "hotel_summary": {
+    "count": 4,
+    "price_range_usd": { "min": 45.0, "max": 450.0 },
+    "star_range": { "min": 3, "max": 5 },
+    "sample": [
+      { "id": "uuid", "name": "Novotel Da Nang Premier Han River", "star_rating": 5, "price_per_night": 130.0, "...": "..." }
+    ]
+  },
+  "attribution": "Weather: Open-Meteo (https://open-meteo.com)"
+}
+```
+
+- `top_places` — recommended places first, then sorted by rating, up to `place_limit`.
+- `essential_tips` — only tips with `is_essential: true`, up to `tip_limit`.
+- `hotel_summary` — `null` if `hotels` is not in `include`; otherwise `count` is the total hotel count for the city, `price_range_usd` and `star_range` are `null` if the city has no hotels, and `sample` contains up to 3 representative hotels.
+- `weather` — `null` if `weather` is not in `include` or if Open-Meteo is unreachable.
+
+### Response codes
+
+| Code | Condition |
+|------|-----------|
+| 200 | Success (weather may be `null` on upstream outage) |
+| 404 | City not found |
+| 422 | Invalid query params (unknown `include` member, `place_limit`/`tip_limit` out of range) |
 
 ---
 
