@@ -1,10 +1,11 @@
-{# Cross-link strip: jump between a city's Weather / Hotels / Places / Tips.
+{# Cross-link strip: jump between a city's Weather / Air / Hotels / Places / Tips.
    Usage: {% from "_explore.html" import explore %} then {{ explore(city, 'hotels') }} #}
 {% macro explore(city, current='') -%}
 {%- if city %}
 <div class="explore">
   <span class="explore-lbl">Explore {{ city }}</span>
   <a href="/dashboard/weather?city={{ city | urlencode }}"{% if current == 'weather' %} aria-current="page"{% endif %}>🌦️ Weather</a>
+  <a href="/dashboard/air-quality?city={{ city | urlencode }}"{% if current == 'air-quality' %} aria-current="page"{% endif %}>🌫️ Air</a>
   <a href="/dashboard/hotels?city={{ city | urlencode }}"{% if current == 'hotels' %} aria-current="page"{% endif %}>🏨 Hotels</a>
   <a href="/dashboard/places?city={{ city | urlencode }}"{% if current == 'places' %} aria-current="page"{% endif %}>🗺️ Places</a>
   <a href="/dashboard/tips?city={{ city | urlencode }}"{% if current == 'tips' %} aria-current="page"{% endif %}>💡 Tips</a>
