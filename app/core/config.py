@@ -72,6 +72,11 @@ class Settings(BaseSettings):
     # Same keyless Open-Meteo provider; used for historical climate normals.
     weather_archive_url: str = "https://archive-api.open-meteo.com/v1/archive"
     climate_years: int = 3  # number of years of history to average for climate normals
+    # Same keyless Open-Meteo provider; used for real-time air-quality forecasts.
+    weather_air_quality_url: str = (
+        "https://air-quality-api.open-meteo.com/v1/air-quality"
+    )
+    air_quality_forecast_days: int = 3  # forecast horizon; the API supports 1–7
 
     # Routing — /places/route. OpenRouteService gives real road distance and
     # duration per travel mode; it is free but needs an API key (no credit
