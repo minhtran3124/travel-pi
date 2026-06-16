@@ -31,6 +31,15 @@ logger = logging.getLogger(__name__)
 # The month filter is applied at return time, never at cache-write time.
 _climate_cache: dict[tuple, ClimateResponse] = {}
 
+# Heuristic thresholds — tunable; see specs/destinations-climate/design.md §4.
+_LAG_DAYS = 7  # Open-Meteo ERA5 lags ~5 days; 7 is a safe buffer for end_date.
+_RAINY_DAY_MM = 1.0  # a "rain day": daily precipitation_sum ≥ this many mm.
+_WET_MONTH_DAYS = 10  # a month with ≥ this many rainy days is labelled "wet".
+_COMFORT_TEMP_MIN = 22.0  # comfortable avg-high band lower bound (°C).
+_COMFORT_TEMP_MAX = 32.0  # comfortable avg-high band upper bound (°C).
+_COMFORT_TEMP_IDEAL = 27.0  # avg-high midpoint used to rank comfortable months.
+_WARM_ABOVE = 28.0  # avg-high > this (and ≤ MAX) → "warm"; ≤ MIN → "cool".
+
 
 def clear_climate_cache() -> None:
     """Empty the climate cache. Used by tests to keep cases isolated."""
@@ -58,17 +67,17 @@ def _median(xs: list[float | int]) -> float:
 
 
 def _temp_band(avg_temp_max_c: float) -> str:
-    if avg_temp_max_c > 32:
+    if avg_temp_max_c > _COMFORT_TEMP_MAX:
         return "hot"
-    if avg_temp_max_c > 28:
+    if avg_temp_max_c > _WARM_ABOVE:
         return "warm"
-    if avg_temp_max_c > 22:
+    if avg_temp_max_c > _COMFORT_TEMP_MIN:
         return "mild"
     return "cool"
 
 
 def _comfort_label(avg_temp_max_c: float, rainy_days: int) -> str:
-    wetness = "wet" if rainy_days >= 10 else "dry"
+    wetness = "wet" if rainy_days >= _WET_MONTH_DAYS else "dry"
     return f"{_temp_band(avg_temp_max_c)}, {wetness}"
 
 
@@ -92,10 +101,8 @@ def _build_summary(
     month_names = [calendar.month_name[m] for m in best_months]
     if len(month_names) == 1:
         best_str = month_names[0]
-    elif len(month_names) == 2:
-        best_str = f"{month_names[0]} and {month_names[1]}"
     else:
-        best_str = f"{month_names[0]}, {month_names[1]} and {month_names[2]}"
+        best_str = f"{', '.join(month_names[:-1])} and {month_names[-1]}"
 
     return (
         f"{name} is driest and most comfortable around {best_str}; "
@@ -120,12 +127,15 @@ def _pick_best_months(months: list[ClimateMonth]) -> list[int]:
     all_rainy = [m.rainy_days for m in months]
     med = _median(all_rainy)
 
-    candidates = [m for m in months if 22 <= m.avg_temp_max_c <= 32]
+    candidates = [
+        m for m in months if _COMFORT_TEMP_MIN <= m.avg_temp_max_c <= _COMFORT_TEMP_MAX
+    ]
     comfortable_dry = [m for m in candidates if m.rainy_days <= med]
 
     if comfortable_dry:
         ranked = sorted(
-            comfortable_dry, key=lambda m: (m.rainy_days, abs(m.avg_temp_max_c - 27))
+            comfortable_dry,
+            key=lambda m: (m.rainy_days, abs(m.avg_temp_max_c - _COMFORT_TEMP_IDEAL)),
         )
         return [m.month for m in ranked[:3]]
 
@@ -136,12 +146,14 @@ def _pick_best_months(months: list[ClimateMonth]) -> list[int]:
 
 def _aggregate(
     data: dict, lat: float, lon: float, location_name: str, country: str | None
-) -> ClimateResponse:  # noqa: E501
+) -> ClimateResponse:
     """Walk the archive response and build a full ClimateResponse.
 
-    The entire function body is intentionally wrapped in a try/except by the
-    caller — this lets us use direct indexing without None guards inside, and
-    the caller converts any structural error into WeatherUnavailableError.
+    Structural access (``data["daily"]["time"]`` etc.) is intentionally
+    unguarded: the caller wraps this in a try/except that converts any
+    KeyError/IndexError/TypeError/ZeroDivisionError into
+    WeatherUnavailableError. The one explicit guard here is the empty
+    time-series case, which raises WeatherUnavailableError directly.
     """
     daily = data["daily"]
     times: list[str] = daily["time"]
@@ -185,7 +197,7 @@ def _aggregate(
         if pr is not None:
             pr_f = float(pr)
             precip_by_year[m][ym] = precip_by_year[m].get(ym, 0.0) + pr_f
-            if pr_f >= 1.0:
+            if pr_f >= _RAINY_DAY_MM:
                 rainy_by_year[m][ym] = rainy_by_year[m].get(ym, 0) + 1
         else:
             # Ensure the year-month key exists so it contributes a zero
@@ -197,11 +209,11 @@ def _aggregate(
 
     climate_months: list[ClimateMonth] = []
     for m in range(1, 13):
-        if not tmax_vals[m]:
-            continue  # month has no valid temperature data — skip
+        if not tmax_vals[m] or not tmin_vals[m]:
+            continue  # need both temperature series to describe the month
 
         avg_max = round(_mean(tmax_vals[m]), 1)
-        avg_min = round(_mean(tmin_vals[m]), 1) if tmin_vals[m] else avg_max
+        avg_min = round(_mean(tmin_vals[m]), 1)
 
         year_precips = list(precip_by_year[m].values())
         avg_precip = round(_mean(year_precips), 1) if year_precips else 0.0
@@ -278,7 +290,7 @@ async def get_climate(city: str, month: int | None = None) -> ClimateResponse:
 
     if full_response is None:
         # 3. Build date window (never hardcoded dates) -------------------------
-        end: date = datetime.now(timezone.utc).date() - timedelta(days=7)
+        end: date = datetime.now(timezone.utc).date() - timedelta(days=_LAG_DAYS)
         start: date = date(end.year - settings.climate_years, end.month, end.day)
         start_date = start.isoformat()
         end_date = end.isoformat()
