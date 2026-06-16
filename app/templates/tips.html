@@ -159,7 +159,7 @@
       {% for key, label in categories.items() %}
         {% set group = result.tips | selectattr('category', 'equalto', key) | list %}
         {% if group %}
-          <a href="#cat-{{ key }}" style="--c: {{ colors.get(key, '#2dd4bf') }}"><span class="j-ico">{{ icons.get(key, '📍') }}</span>{{ label }}<span class="j-n">{{ group | length }}</span></a>
+          <a href="#cat-{{ key }}" style="--c: {{ colors.get(key, 'var(--accent)') }}"><span class="j-ico">{{ icons.get(key, '📍') }}</span>{{ label }}<span class="j-n">{{ group | length }}</span></a>
         {% endif %}
       {% endfor %}
     </nav>
@@ -169,7 +169,7 @@
     {% for key, label in categories.items() %}
       {% set group = result.tips | selectattr('category', 'equalto', key) | list %}
       {% if group %}
-        <section class="cat" id="cat-{{ key }}" style="--c: {{ colors.get(key, '#2dd4bf') }}">
+        <section class="cat" id="cat-{{ key }}" style="--c: {{ colors.get(key, 'var(--accent)') }}">
           <div class="cat-head">
             <span class="cat-ico" aria-hidden="true">{{ icons.get(key, '📍') }}</span>
             <h2 class="cat-name">{{ label }}</h2>

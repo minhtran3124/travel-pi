@@ -93,7 +93,7 @@
       {% if is_feat %}{% set ns.feat = ns.feat + 1 %}{% endif %}
       {% set size = 'feat' if is_feat else ('wide' if loop.index0 % 6 == 5 else '') %}
       <div class="place-card {{ size }}" role="button" tabindex="0"
-           style="--c: {{ cat_colors.get(place.category, '#2dd4bf') }}"
+           style="--c: {{ cat_colors.get(place.category, 'var(--accent)') }}"
            data-name="{{ place.name }}"
            data-city="{{ place.city }}"
            data-country="{{ place.country }}"
