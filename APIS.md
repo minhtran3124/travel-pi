@@ -34,6 +34,7 @@ Base URL: `http://localhost:8000`
 | GET | `/weather` | Current weather + short forecast for a city |
 | GET | `/destinations/climate` | Monthly climate normals (temp, rain, comfort) + best-time guidance for a city |
 | GET | `/destinations/{city}/overview` | Aggregated city overview — weather, top places, essential tips, hotel summary |
+| GET | `/currency/convert` | Convert an amount between currencies (mock FX rates) |
 | GET | `/bookings` | List bookings (search / filter / sort) |
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
@@ -579,6 +580,61 @@ curl "http://localhost:8000/destinations/Bangkok/overview?include=weather,places
 | 200 | Success (weather may be `null` on upstream outage) |
 | 404 | City not found |
 | 422 | Invalid query params (unknown `include` member, `place_limit`/`tip_limit` out of range) |
+
+---
+
+## `GET /currency/convert` — convert an amount between currencies
+
+Every price in this API is quoted in USD; this endpoint converts an amount into
+another currency so an agent can answer "how much is that in local money?".
+
+**Rates are mock data, not live FX** — a static table with a `last_updated`
+snapshot date. Currency codes are exact ISO 4217 identifiers (case-insensitive);
+an unknown `from`/`to` returns **404**. An optional `country` is fuzzy-matched
+and, when resolved, attaches its `local_currency` so the agent need not know it;
+an unrecognised `country` is simply ignored (no error).
+
+Supported codes: `USD`, `EUR`, `GBP`, `AUD`, plus every seed-country currency
+(`VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`,
+`KRW`, `JPY`).
+
+### Query params
+
+| Param | Required | Default | Notes |
+|-------|----------|---------|-------|
+| `from` | — | `USD` | Source ISO 4217 code, case-insensitive. Unknown → **404**. |
+| `to` | ✓ | — | Target ISO 4217 code, case-insensitive. Unknown → **404**. |
+| `amount` | — | `1.0` | Amount in the source currency. Must be `> 0` → else **422**. |
+| `country` | — | — | Destination country (fuzzy). Resolved → adds `local_currency`; unknown → ignored. |
+
+```bash
+curl "http://localhost:8000/currency/convert?from=USD&to=VND&amount=100&country=Vietnam"
+```
+
+```json
+{
+  "from": "USD",
+  "to": "VND",
+  "rate": 25400.0,
+  "amount": 100.0,
+  "converted": 2540000.0,
+  "last_updated": "2026-06-01",
+  "local_currency": { "code": "VND", "name": "Vietnamese Dong" }
+}
+```
+
+- `rate` — units of `to` per 1 unit of `from` (cross-rate via USD base).
+- `converted` — `amount × rate`, rounded to 2 decimals.
+- `last_updated` — snapshot date of the mock rates (this is **not** live data).
+- `local_currency` — the `country`'s own currency, or `null` if no/unknown `country`.
+
+### Response codes
+
+| Code | Condition |
+|------|-----------|
+| 200 | Success |
+| 404 | Unknown `from` or `to` currency code |
+| 422 | `amount` ≤ 0, or `to` missing |
 
 ---
 

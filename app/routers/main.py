@@ -11,6 +11,7 @@ from app.routers import (
     airports,
     bookings,
     cities,
+    currency,
     dashboard,
     destinations,
     flights,
@@ -32,6 +33,7 @@ router.include_router(hotels.router)
 router.include_router(places.router)
 router.include_router(tips.router)
 router.include_router(destinations.router)
+router.include_router(currency.router)
 router.include_router(weather.router)
 router.include_router(bookings.router)
 # Server-rendered HTML dashboard — excluded from the OpenAPI schema.
