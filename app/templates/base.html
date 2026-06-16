@@ -581,23 +581,52 @@
       .detail-grid { grid-template-columns: 1fr 1fr; }
     }
 
-    /* ── Navigation progress bar ── */
+    /* ── Page-load progress bar ──
+       A premium top loading bar shown while a page (or its assets) loads and
+       while navigating between pages. Driven by translateX — never scaleX —
+       so the gradient, comet glow, and sheen don't distort as it fills.
+       Progress is set inline as translateX(-(100 - pct)%): 0% hidden, 100%
+       full. The JS owns the timing; CSS owns the look. */
     #nav-progress {
       position: fixed; top: 0; left: 0;
-      height: 3px; width: 100%;
-      background: var(--accent);
+      width: 100%; height: 3px;
       z-index: var(--z-progress);
       pointer-events: none;
       opacity: 0;
-      transform: scaleX(0);
-      transform-origin: 0 50%;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg,
+        var(--accent-2) 0%, var(--accent) 58%, var(--accent-dim) 100%);
+      will-change: transform, opacity;
+      transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .25s ease;
     }
+    /* Glowing comet head riding the leading edge of the fill. */
     #nav-progress::after {
       content: '';
-      position: absolute; right: 0; top: 0;
-      width: 80px; height: 100%;
-      box-shadow: 0 0 10px 2px var(--accent);
-      opacity: .7;
+      position: absolute; top: 0; right: 0; height: 100%; width: 96px;
+      background: linear-gradient(90deg, transparent, var(--accent-dim));
+      box-shadow: 0 0 10px 2px var(--accent), 0 0 16px 3px var(--accent-glow);
+      border-radius: 0 3px 3px 0;
+    }
+    /* While waiting, the comet head pulses — a soft "still working" heartbeat.
+       Opacity-only so it stays cheap and never bleeds past the leading edge. */
+    #nav-progress.is-busy::after {
+      animation: np-pulse 1.3s cubic-bezier(.4,0,.6,1) infinite;
+    }
+    @keyframes np-pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .55; }
+    }
+
+    /* ── Cross-document view transitions (progressive enhancement) ──
+       Native, JS-free crossfade between dashboard pages where supported
+       (Chromium-based browsers). Everywhere else, navigation is unaffected. */
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: vt-out .16s cubic-bezier(.4,0,1,1) both; }
+    ::view-transition-new(root) { animation: vt-in  .26s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes vt-out { to { opacity: 0; } }
+    @keyframes vt-in  {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: none; }
     }
 
     /* ── Reduced motion ──
@@ -611,6 +640,8 @@
         scroll-behavior: auto !important;
       }
       #nav-progress { display: none; }
+      ::view-transition-old(root),
+      ::view-transition-new(root) { animation: none !important; }
       .hotel-card:hover { transform: none; }
       .hotel-card:hover .photo img { transform: none; }
       .fb-btn:active, form.search button:active { transform: none; }
@@ -645,42 +676,94 @@
   <script>
     (function () {
       var bar = document.getElementById('nav-progress');
-      var t1, t2;
+      if (!bar) return;
 
       // Respect reduced-motion: skip the animated bar entirely.
-      var reduceMotion = window.matchMedia
+      var reduce = window.matchMedia
         && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      function reset() {
-        clearTimeout(t1);
-        clearTimeout(t2);
-        bar.style.cssText = 'transition:none;transform:scaleX(0);opacity:0';
+      var pct = 0;          // current fill, 0–100
+      var active = false;   // is a load in flight?
+      var trickle = null;   // creep interval
+      var fade1 = null, fade2 = null;
+
+      function set(p) {
+        pct = p < 0 ? 0 : p > 100 ? 100 : p;
+        bar.style.transform = 'translateX(-' + (100 - pct) + '%)';
       }
 
+      function clearAll() {
+        clearInterval(trickle); trickle = null;
+        clearTimeout(fade1); clearTimeout(fade2);
+      }
+
+      // Begin (or restart) the loading indicator: snap to a starting chunk,
+      // then creep toward ~90% — slower the closer it gets, never finishing
+      // on its own (done() owns the finish).
       function start() {
-        if (reduceMotion) return;
-        reset();
-        void bar.offsetWidth; // flush
-        // Animate transform (compositor-only), not width (triggers layout).
-        bar.style.cssText = 'transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .15s;transform:scaleX(.6);opacity:1';
-        t1 = setTimeout(function () {
-          bar.style.cssText = 'transition:transform 8s cubic-bezier(.05,0,.02,1),opacity .15s;transform:scaleX(.88);opacity:1';
-        }, 400);
+        if (reduce || active) return;
+        active = true;
+        clearAll();
+        bar.classList.add('is-busy');
+        bar.style.transition = 'none';
+        set(0);
+        bar.style.opacity = '1';
+        // Next frame: re-enable easing and jump in, so the snap-to-0 doesn't
+        // animate but the climb does.
+        requestAnimationFrame(function () {
+          bar.style.transition = '';
+          set(18 + Math.random() * 12);
+          trickle = setInterval(function () {
+            var remaining = 90 - pct;
+            if (remaining < 0.4) return;
+            set(pct + Math.max(0.4, remaining * 0.08));
+          }, 360);
+        });
       }
 
-      // Any internal link click
+      // Finish: rush to 100%, then fade out and reset off-screen for next time.
+      function done() {
+        if (!active) return;
+        active = false;
+        clearAll();
+        bar.classList.remove('is-busy');
+        set(100);
+        fade1 = setTimeout(function () {
+          bar.style.opacity = '0';
+          fade2 = setTimeout(function () {
+            bar.style.transition = 'none';
+            set(0);
+            requestAnimationFrame(function () { bar.style.transition = ''; });
+          }, 300);
+        }, 200);
+      }
+
+      // ── Initial page load ──
+      // If assets are still arriving when this runs, show the bar climbing and
+      // complete it on window 'load'. Already-complete (cached/instant) pages
+      // skip it — no gratuitous flash.
+      if (!reduce && document.readyState !== 'complete') {
+        start();
+        window.addEventListener('load', done, { once: true });
+      }
+
+      // ── Navigation away ── start the bar; the next document replaces it.
+      // Any same-origin internal link click.
       document.addEventListener('click', function (e) {
         var a = e.target.closest('a[href]');
         if (!a || a.target || a.getAttribute('href').charAt(0) === '#') return;
+        if (a.hasAttribute('download') || /^(mailto|tel):/i.test(a.getAttribute('href'))) return;
         try { if (new URL(a.href).origin !== location.origin) return; } catch (_) { return; }
         start();
       });
 
-      // Filter / search form submissions (all are GET, same origin)
-      document.addEventListener('submit', function () { start(); });
+      // Filter / search form submissions (all are GET, same origin).
+      document.addEventListener('submit', start);
 
-      // Reset when page is shown (back/forward cache re-use)
-      window.addEventListener('pageshow', function () { reset(); });
+      // Back/forward cache re-use: cancel any in-flight bar so it isn't stuck.
+      window.addEventListener('pageshow', function (e) {
+        if (e.persisted) { clearAll(); active = false; bar.classList.remove('is-busy'); bar.style.transition = 'none'; set(0); bar.style.opacity = '0'; }
+      });
     }());
   </script>
 </body>
