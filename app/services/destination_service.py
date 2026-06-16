@@ -69,7 +69,9 @@ async def get_overview(
     places = []
     if "places" in include:
         results = place_service.search_places(city=name, sort="rating_desc")
-        results.sort(key=lambda p: not p.is_recommended)
+        # Recommended places first, then by rating (search already sorted by
+        # rating, so the tuple key keeps that order within each group).
+        results.sort(key=lambda p: (not p.is_recommended, -p.rating))
         places = results[:place_limit]
 
     # 3. Tips — sync, in-memory.
@@ -108,7 +110,11 @@ async def get_overview(
     if "weather" in include:
         try:
             weather = await weather_service.get_weather(name)
-        except UpstreamError:
+        except (UpstreamError, NotFoundError):
+            # The destination already resolved locally; a weather failure —
+            # upstream down (UpstreamError) or Open-Meteo not recognising the
+            # city name (CityNotFoundError, a NotFoundError) — must not 404 the
+            # whole overview. Degrade to weather: null.
             logger.warning(
                 "[destination_service] Weather unavailable for %s; returning null",
                 name,
