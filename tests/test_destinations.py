@@ -89,6 +89,7 @@ def test_overview_happy_path_hotel_summary(client, mock_weather):
     assert hs is not None
     assert hs["count"] >= 1
     assert isinstance(hs["sample"], list)
+    assert 0 < len(hs["sample"]) <= 3
 
 
 def test_overview_happy_path_attribution_set(client, mock_weather):

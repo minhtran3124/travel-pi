@@ -486,7 +486,7 @@ curl "http://localhost:8000/destinations/Bangkok/overview?include=weather,places
       { "id": "uuid", "name": "Novotel Da Nang Premier Han River", "star_rating": 5, "price_per_night": 130.0, "...": "..." }
     ]
   },
-  "attribution": "Weather: Open-Meteo (https://open-meteo.com)"
+  "attribution": "Weather data by Open-Meteo.com (CC BY 4.0)"
 }
 ```
 
