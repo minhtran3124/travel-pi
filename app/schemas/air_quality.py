@@ -72,7 +72,7 @@ class AirQualityResponse(AppBaseModel):
     )
     forecast: list[AirQualityDay] = Field(
         default=[],
-        description="Daily air-quality forecast, in date order (typically 7 days).",
+        description="Per-day max-AQI forecast, in date order (a few days ahead).",
     )
     attribution: str = Field(
         description="Required data-source attribution string.",
