@@ -477,8 +477,8 @@ curl "http://localhost:8000/destinations/climate?city=Bangkok&month=2"
     { "...": "11 more months" }
   ],
   "best_months": [2, 3, 4],
-  "summary": "Da Nang has a tropical monsoon climate. The driest and most comfortable months are February through April.",
-  "attribution": "Climate normals derived from Open-Meteo historical data (CC BY 4.0)"
+  "summary": "Da Nang is driest and most comfortable around February, March and April; October is wettest.",
+  "attribution": "Weather data by Open-Meteo.com (CC BY 4.0)"
 }
 ```
 
@@ -487,6 +487,7 @@ curl "http://localhost:8000/destinations/climate?city=Bangkok&month=2"
 - `months` — always in calendar order (January first). Contains one entry when `month` is specified.
 - `best_months` — month numbers (1–12) scoring highest on comfort + dryness; up to 3 entries. Empty (`[]`) when `month` is specified.
 - `comfort` — temperature band (`hot` / `warm` / `mild` / `cool`) + wetness (`wet` / `dry`), e.g. `"warm, dry"`.
+- `summary` — server-generated one-liner naming the best months to visit and the wettest month.
 - `attribution` — required Open-Meteo attribution; always present.
 
 ### Response codes

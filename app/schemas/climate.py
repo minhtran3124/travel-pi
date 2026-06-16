@@ -64,7 +64,5 @@ class ClimateResponse(AppBaseModel):
     )
     attribution: str = Field(
         description="Required data-source attribution string.",
-        examples=[
-            "Climate normals derived from Open-Meteo historical data (CC BY 4.0)"
-        ],
+        examples=["Weather data by Open-Meteo.com (CC BY 4.0)"],
     )

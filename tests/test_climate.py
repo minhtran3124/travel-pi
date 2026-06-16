@@ -291,9 +291,15 @@ def test_climate_null_cells_returns_200(client, monkeypatch):
     resp = client.get("/destinations/climate", params={"city": "Da Nang"})
     assert resp.status_code == 200
     body = resp.json()
-    # January must still be present (enough non-None data in both tmax and tmin)
-    months_nums = [m["month"] for m in body["months"]]
-    assert 1 in months_nums
+    jan = next(m for m in body["months"] if m["month"] == 1)
+    # Prove the None cells were SKIPPED (not crashed, not coerced to a value):
+    #   precip: Jan-2022 day-4 is None → 30×0.5 = 15.0; 2023/2024 = 15.5 each
+    #   → mean = (15.0 + 15.5 + 15.5)/3 = 15.3 (it would be 15.5 with no None handling)
+    assert jan["avg_precip_mm"] == 15.3
+    #   tmax: Jan-2022 day-1 None dropped; every remaining value is 25.0
+    assert jan["avg_temp_max_c"] == 25.0
+    assert jan["rainy_days"] == 0
+    assert jan["comfort"] == "mild, dry"
 
 
 # ---------------------------------------------------------------------------
@@ -357,3 +363,6 @@ def test_climate_upstream_error_returns_502(client, monkeypatch):
 
     resp = client.get("/destinations/climate", params={"city": "Da Nang"})
     assert resp.status_code == 502
+    body = resp.json()
+    assert body["status_code"] == 502
+    assert "error" in body
