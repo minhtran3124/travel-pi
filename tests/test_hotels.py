@@ -714,3 +714,55 @@ def test_search_hotels_unknown_city_still_zero(client):
         },
     ).json()
     assert body["total"] == 0
+
+
+def test_book_hotel_invalid_date_returns_422(client):
+    """A malformed check-in date is rejected at the schema boundary (422).
+
+    Previously this slipped through to count_nights in book_hotel and raised
+    an uncaught ValueError → HTTP 500.
+    """
+    resp = client.post(
+        "/hotels/book",
+        json={
+            "hotel_id": get_first_hotel_id(client),
+            "check_in": "01-06-2026",  # wrong format
+            "check_out": VALID_CHECK_OUT,
+            "guest_name": "Bad Date",
+            "guest_email": "baddate@example.com",
+            "guest_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 422
+
+
+def test_book_hotel_check_out_not_after_check_in_returns_422(client):
+    """check_out must be strictly after check_in (≥ 1 night)."""
+    resp = client.post(
+        "/hotels/book",
+        json={
+            "hotel_id": get_first_hotel_id(client),
+            "check_in": VALID_CHECK_OUT,
+            "check_out": VALID_CHECK_IN,  # reversed
+            "guest_name": "Bad Order",
+            "guest_email": "badorder@example.com",
+            "guest_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 422
+
+
+def test_book_hotel_invalid_email_returns_422(client):
+    """guest_email is validated as a real email address."""
+    resp = client.post(
+        "/hotels/book",
+        json={
+            "hotel_id": get_first_hotel_id(client),
+            "check_in": VALID_CHECK_IN,
+            "check_out": VALID_CHECK_OUT,
+            "guest_name": "Bad Email",
+            "guest_email": "not-an-email",
+            "guest_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 422

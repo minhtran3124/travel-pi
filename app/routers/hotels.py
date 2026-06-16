@@ -167,8 +167,7 @@ def hotel_availability(
     cities return ``total: 0``; a bad date is **422**.
     """
     try:
-        nights = hotel_service.count_nights(check_in, check_out)
-        results = hotel_service.check_availability(
+        nights, results = hotel_service.check_availability(
             city,
             check_in,
             check_out,

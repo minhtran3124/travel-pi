@@ -172,13 +172,15 @@ def check_availability(
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
-) -> list[HotelAvailability]:
-    """Return every hotel matching ``city``/filters, each with availability.
+) -> tuple[int, list[HotelAvailability]]:
+    """Return ``(nights, results)`` — hotels matching ``city``/filters, each
+    annotated with availability.
 
     Each result carries ``available`` (can it take this booking), the free
     room count, per-room capacity, and the all-in ``total_price``
-    (``price_per_night × nights × rooms``). Raises ``ValueError`` if the
-    dates are not valid ``YYYY-MM-DD``.
+    (``price_per_night × nights × rooms``). ``nights`` is returned alongside
+    so the caller can echo it even when no hotels match (empty ``results``).
+    Raises ``ValueError`` if the dates are not valid ``YYYY-MM-DD``.
     """
     nights = count_nights(check_in, check_out)
     guests = adults + children
@@ -199,4 +201,4 @@ def check_availability(
                 total_price=round(hotel.price_per_night * nights * rooms, 2),
             )
         )
-    return results
+    return nights, results

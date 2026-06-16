@@ -659,3 +659,33 @@ def test_book_flight_details_includes_passenger_phone(client):
         },
     ).json()
     assert body["details"]["passenger_phone"] == "+84 987 654 321"
+
+
+def test_book_flight_invalid_date_returns_422(client):
+    """A malformed departure_date is rejected at the schema boundary (422),
+    not passed through to the flight lookup as a misleading 404."""
+    resp = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "departure_date": "01-06-2026",  # wrong format
+            "passenger_name": "Bad Date",
+            "passenger_email": "baddate@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 422
+
+
+def test_book_flight_invalid_email_returns_422(client):
+    """passenger_email is validated as a real email address."""
+    resp = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Bad Email",
+            "passenger_email": "not-an-email",
+            "passenger_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 422
