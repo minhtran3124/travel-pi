@@ -71,7 +71,10 @@ def _build_forecast(hourly: dict, max_days: int) -> list[AirQualityDay]:
             bucket.append(value)
 
     days: list[AirQualityDay] = []
-    for day in list(by_date)[:max_days]:
+    # Sort by date (YYYY-MM-DD sorts chronologically) before capping, so the
+    # "in date order" contract holds even if the upstream hourly series isn't
+    # ordered, and the cap keeps the earliest days rather than insertion order.
+    for day in sorted(by_date)[:max_days]:
         values = by_date[day]
         max_aqi = max(values) if values else None
         days.append(
