@@ -2,6 +2,12 @@
 {% block title %}Places & Attractions{% endblock %}
 
 {% block content %}
+{# category → signature colour, mirrors the .cat-* text colours below #}
+{% set cat_colors = {
+  'attraction': '#38bdf8', 'restaurant': '#fb923c', 'cafe': '#fbbf24',
+  'activity': '#34d399', 'nightlife': '#f87171', 'shopping': '#c4b5fd'
+} %}
+
 <div class="board-head">
   <h1 class="board-title"><span class="plane">🗺️</span> Places &amp; Attractions</h1>
   <span class="page-meta">{{ places | length }} of {{ total }} places</span>
@@ -78,7 +84,9 @@
 {% if places %}
   <div class="place-grid">
     {% for place in places %}
+      {% set rk = 'r-exc' if place.rating >= 4.5 else 'r-great' if place.rating >= 4.0 else 'r-ok' %}
       <div class="place-card" role="button" tabindex="0"
+           style="--c: {{ cat_colors.get(place.category, '#2dd4bf') }}"
            data-name="{{ place.name }}"
            data-city="{{ place.city }}"
            data-country="{{ place.country }}"
@@ -119,7 +127,7 @@
             {% endfor %}
           </div>
           <div class="place-foot">
-            <div class="place-rating">
+            <div class="place-rating {{ rk }}">
               <span class="stars">★</span> {{ "%.1f" | format(place.rating) }}
               <span class="rev-count">({{ "{:,}".format(place.review_count) }})</span>
             </div>
@@ -184,7 +192,8 @@
     padding: 10px 12px; cursor: pointer;
     font-size: 0.875rem; transition: background .1s;
   }
-  .city-dropdown li:hover { background: var(--accent-glow); }
+  .city-dropdown li:hover,
+  .city-dropdown li.active { background: var(--accent-glow); }
   .city-dropdown li.filtered { display: none; }
 
   .place-grid {
@@ -202,11 +211,12 @@
     box-shadow: var(--shadow);
     transition: transform .16s, border-color .16s, box-shadow .16s;
   }
-  .place-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .place-card:focus-visible { outline: 2px solid var(--c, var(--accent)); outline-offset: 2px; }
   .place-card:hover {
-    border-color: var(--accent);
+    border-color: var(--c, var(--accent));
     transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg),
+                0 0 0 1px color-mix(in srgb, var(--c, var(--accent)) 45%, transparent);
   }
   .place-photo { position: relative; aspect-ratio: 16/9; background: var(--photo-bg); overflow: hidden; }
   .place-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
@@ -229,7 +239,7 @@
 
   .place-rec {
     position: absolute; top: 8px; right: 8px;
-    background: var(--accent); color: var(--on-accent); border-radius: 999px;
+    background: var(--yellow); color: #2a1e05; border-radius: 999px;
     padding: 2px 9px; font-size: 0.7rem; font-weight: 800;
   }
   .place-price {
@@ -243,11 +253,16 @@
   .place-name { font-weight: 800; font-size: 0.93rem; line-height: 1.3; }
   .place-loc { color: var(--muted); font-size: 0.77rem; }
   .place-city { color: var(--accent-dim); font-weight: 700; }
-  .place-desc { color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
+  .place-desc { color: #bcc5c3; font-size: 0.8rem; line-height: 1.5; }
   .place-tags { display: flex; flex-wrap: wrap; gap: 5px; }
   .place-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 4px; }
   .place-rating { font-size: 0.87rem; font-weight: 700; }
+  /* rating number tinted by score tier (stars stay gold) */
+  .place-rating.r-exc   { color: var(--green); }
+  .place-rating.r-great { color: var(--accent-dim); }
+  .place-rating.r-ok    { color: var(--yellow); }
   .place-rating .stars { color: var(--yellow); }
+  .place-rating .rev-count { color: var(--muted); }
   .rev-count { color: var(--muted); font-size: 0.74rem; font-weight: 400; }
   .place-hours { color: var(--muted); font-size: 0.73rem; }
 
@@ -336,16 +351,24 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdown.classList.add('show');
   });
 
+  let active = -1;
+  const visibleItems = () => [...items].filter(i => !i.classList.contains('filtered'));
+  const setActive = (list, idx) => {
+    list.forEach(i => i.classList.remove('active'));
+    if (idx >= 0 && idx < list.length) {
+      list[idx].classList.add('active');
+      list[idx].scrollIntoView({ block: 'nearest' });
+    }
+  };
+
   input.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     items.forEach(item => {
       const text = item.textContent.toLowerCase();
-      if (text.includes(query)) {
-        item.classList.remove('filtered');
-      } else {
-        item.classList.add('filtered');
-      }
+      item.classList.toggle('filtered', !text.includes(query));
     });
+    active = -1;
+    dropdown.classList.add('show');
   });
 
   items.forEach(item => {
@@ -363,8 +386,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
+    const vis = visibleItems();
+    if (e.key === 'ArrowDown') {
+      e.preventDefault(); dropdown.classList.add('show');
+      active = Math.min(active + 1, vis.length - 1); setActive(vis, active);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      active = Math.max(active - 1, 0); setActive(vis, active);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (active >= 0 && vis[active]) input.value = vis[active].dataset.value;
       input.form.submit();
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('show'); active = -1;
     }
   });
 

@@ -87,6 +87,7 @@
            data-price="{{ '%.0f' | format(hotel.price_per_night) }}"
            data-currency="{{ hotel.currency }}"
            data-type="{{ hotel.property_type }}"
+           data-type-color="{{ ts.c }}"
            data-chain="{{ hotel.chain }}"
            data-checkin="{{ hotel.check_in_time }}"
            data-checkout="{{ hotel.check_out_time }}"
@@ -350,13 +351,25 @@ document.addEventListener('DOMContentLoaded', () => {
     $('hm-image').src = d.image;
     $('hm-image').alt = d.name;
     $('hm-stars').textContent = '★'.repeat(parseInt(d.stars, 10) || 0);
-    $('hm-rating-badge').textContent = d.rating;
+    // rating badge tinted by score tier (dark text), matching the card
+    const rt = parseFloat(d.rating) || 0;
+    const rbColor = rt >= 9 ? '#22c55e' : rt >= 8 ? '#2dd4bf' : rt >= 7 ? '#60a5fa' : '#fbbf24';
+    const rb = $('hm-rating-badge');
+    rb.textContent = d.rating;
+    rb.style.background = rbColor;
+    rb.style.color = '#0b1413';
     $('hm-name').textContent = d.name;
     $('hm-city').textContent = d.city;
     $('hm-country').textContent = d.country;
     $('hm-rating').textContent = d.rating;
     $('hm-reviews').textContent = d.reviews;
-    $('hm-type').textContent = d.type;
+    // type tag in the property-type colour (solid, dark text), matching the card
+    const tc = d.typeColor || '#2dd4bf';
+    const typeEl = $('hm-type');
+    typeEl.textContent = d.type;
+    typeEl.style.background = tc;
+    typeEl.style.borderColor = tc;
+    typeEl.style.color = '#0b1413';
     $('hm-price').innerHTML = d.currency + ' ' + d.price + '<span> / night</span>';
     $('hm-desc').textContent = d.desc;
     $('hm-chain').textContent = d.chain;
