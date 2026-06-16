@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% from "_explore.html" import explore %}
+{% block title %}Air Quality{% endblock %}
+
+{#
+  One colour system carries meaning here: the US-AQI category band. It maps to
+  the EPA's standard six-colour ramp (green→maroon), adapted to dark gradient
+  stops + an RGB glow triple so light text keeps AA contrast. Colour is always
+  redundant with the category label and AQI number, so it never stands alone.
+   • aqi_class — band keyed to the category string
+   • aqi_emoji — a face/symbol for the band
+   • aqi_advice — one-line health guidance for the band
+#}
+{%- macro aqi_class(cat) -%}
+  {%- if cat == "Good" -%}aqi-good
+  {%- elif cat == "Moderate" -%}aqi-moderate
+  {%- elif cat == "Unhealthy for Sensitive Groups" -%}aqi-usg
+  {%- elif cat == "Unhealthy" -%}aqi-unhealthy
+  {%- elif cat == "Very Unhealthy" -%}aqi-vunhealthy
+  {%- elif cat == "Hazardous" -%}aqi-hazardous
+  {%- else -%}aqi-unknown
+  {%- endif -%}
+{%- endmacro -%}
+{%- macro aqi_emoji(cat) -%}
+  {%- if cat == "Good" -%}😊
+  {%- elif cat == "Moderate" -%}🙂
+  {%- elif cat == "Unhealthy for Sensitive Groups" -%}😷
+  {%- elif cat == "Unhealthy" -%}😨
+  {%- elif cat == "Very Unhealthy" -%}🤢
+  {%- elif cat == "Hazardous" -%}☠️
+  {%- else -%}❓
+  {%- endif -%}
+{%- endmacro -%}
+{%- macro aqi_advice(cat) -%}
+  {%- if cat == "Good" -%}Air quality is satisfactory — enjoy the outdoors.
+  {%- elif cat == "Moderate" -%}Acceptable, but unusually sensitive people should limit long exertion.
+  {%- elif cat == "Unhealthy for Sensitive Groups" -%}Sensitive groups should reduce prolonged outdoor exertion.
+  {%- elif cat == "Unhealthy" -%}Everyone may feel effects — limit time outdoors.
+  {%- elif cat == "Very Unhealthy" -%}Health alert — avoid outdoor activity and mask up.
+  {%- elif cat == "Hazardous" -%}Emergency conditions — stay indoors with air filtered.
+  {%- else -%}No air-quality reading is available for this location right now.
+  {%- endif -%}
+{%- endmacro -%}
+
+{# Pollutant rows: label, value attribute on the response, unit. #}
+{%- set pollutants = [
+  ("PM2.5", air_quality.pm2_5 if air_quality else none, "μg/m³", "Fine particles"),
+  ("PM10", air_quality.pm10 if air_quality else none, "μg/m³", "Coarse particles"),
+  ("Ozone", air_quality.ozone if air_quality else none, "μg/m³", "O₃"),
+  ("NO₂", air_quality.nitrogen_dioxide if air_quality else none, "μg/m³", "Nitrogen dioxide"),
+  ("SO₂", air_quality.sulphur_dioxide if air_quality else none, "μg/m³", "Sulphur dioxide"),
+  ("CO", air_quality.carbon_monoxide if air_quality else none, "μg/m³", "Carbon monoxide"),
+] -%}
+
+{% block content %}
+<div class="board-head">
+  <h1 class="board-title"><span class="plane">🌫️</span> Air Quality</h1>
+  {% if air_quality %}
+    <span class="page-meta">📍 {{ air_quality.location.name }}{% if air_quality.location.country %}, {{ air_quality.location.country }}{% endif %}</span>
+  {% else %}
+    <span class="page-meta">Live data · Open-Meteo</span>
+  {% endif %}
+</div>
+
+<form method="get" action="/dashboard/air-quality" class="filter-bar">
+  <div class="fg">
+    <span class="fl">City</span>
+    <select name="city" class="city-select" required>
+      <option value="" disabled {% if not query_city %}selected{% endif %}>Select a city…</option>
+      {% for c in suggestions %}
+        <option value="{{ c }}" {% if query_city == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <button class="fb-btn" type="submit">Check air quality</button>
+
+  {% if query_city %}
+    <div class="fb-sep"></div>
+    <a href="/dashboard/air-quality" class="fb-link">✕ Clear</a>
+  {% endif %}
+</form>
+
+{% if error %}
+  <div class="error" style="border-radius: 0 0 var(--radius) var(--radius);">{{ error }}</div>
+
+{% elif air_quality %}
+  {% set cat = air_quality.category %}
+  <div class="aq-panel">
+    <div class="aq-now {{ aqi_class(cat) }}">
+      <div class="aq-now-lead">
+        <div class="aq-dial">
+          <div class="aq-dial-val">{{ air_quality.us_aqi if air_quality.us_aqi is not none else "—" }}</div>
+          <div class="aq-dial-unit">US AQI</div>
+        </div>
+        <div class="aq-now-main">
+          <div class="aq-badge">{{ aqi_emoji(cat) }} {{ cat }}</div>
+          <div class="aq-advice">{{ aqi_advice(cat) }}</div>
+          <div class="aq-now-sub">🕑 {{ air_quality.time.replace("T", " ") }} · 🌐 {{ air_quality.location.timezone }}</div>
+        </div>
+      </div>
+
+      {# Position the current reading on the 0–300+ AQI scale. #}
+      {% if air_quality.us_aqi is not none %}
+        {% set pct = (air_quality.us_aqi / 300 * 100) %}
+        <div class="aq-scale">
+          <div class="aq-scale-track"></div>
+          <div class="aq-scale-marker" style="left: {{ [pct, 100] | min }}%">
+            <span class="aq-scale-dot"></span>
+          </div>
+          <div class="aq-scale-ends"><span>0 Good</span><span>300+ Hazardous</span></div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="aq-pollutants">
+      {% for label, value, unit, desc in pollutants %}
+        <div class="aq-poll">
+          <div class="aq-poll-head">
+            <span class="aq-poll-lbl">{{ label }}</span>
+            <span class="aq-poll-desc">{{ desc }}</span>
+          </div>
+          <div class="aq-poll-val">
+            {% if value is not none %}{{ "%.1f" | format(value) }}<span class="aq-poll-unit">{{ unit }}</span>{% else %}<span class="aq-na">—</span>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if air_quality.forecast %}
+      <h2 class="aq-sub">Daily forecast — peak AQI</h2>
+      <div class="aq-grid">
+        {% for day in air_quality.forecast %}
+          <div class="aq-card {{ aqi_class(day.category) }}{{ ' is-today' if loop.first }}" style="--d: {{ loop.index0 }}">
+            <div class="aq-date">{% if loop.first %}<span class="aq-today-tag">Today</span>{% else %}{{ day.date }}{% endif %}</div>
+            <div class="aq-card-emoji">{{ aqi_emoji(day.category) }}</div>
+            <div class="aq-card-val">{{ day.max_us_aqi if day.max_us_aqi is not none else "—" }}</div>
+            <div class="aq-card-cat">{{ day.category }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="aq-attribution">{{ air_quality.attribution }}</div>
+  </div>
+
+{% else %}
+  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
+    Enter a city above to see its current air quality and a short forecast.
+  </div>
+{% endif %}
+
+{% if air_quality %}{{ explore(air_quality.location.name, 'air-quality') }}{% endif %}
+
+<style>
+  /* ── US-AQI category palettes ──────────────────────────────────────────
+     Each band sets two dark gradient stops (--cg1/--cg2) for the hero
+     backdrop and an RGB glow triple (--cglow) used for halos, the dial ring,
+     card tints and the scale marker. Stops stay dark so light text keeps AA. */
+  .aqi-good       { --cg1: #0e3a2a; --cg2: #123330; --cglow: 52, 211, 153; }   /* green   */
+  .aqi-moderate   { --cg1: #3a3410; --cg2: #332b12; --cglow: 250, 204, 21; }   /* yellow  */
+  .aqi-usg        { --cg1: #3d2710; --cg2: #33220f; --cglow: 251, 146, 60; }   /* orange  */
+  .aqi-unhealthy  { --cg1: #3d1414; --cg2: #2f1212; --cglow: 248, 113, 113; }  /* red     */
+  .aqi-vunhealthy { --cg1: #2c143c; --cg2: #221830; --cglow: 192, 132, 252; }  /* violet  */
+  .aqi-hazardous  { --cg1: #3a0e1e; --cg2: #2a0c18; --cglow: 244, 114, 182; }  /* maroon  */
+  .aqi-unknown    { --cg1: #232c35; --cg2: #20272c; --cglow: 148, 163, 184; }  /* slate   */
+
+  .aq-panel {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 18px;
+  }
+
+  /* ── Current-reading hero ── */
+  .aq-now {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 26px 28px;
+    background:
+      radial-gradient(130% 150% at 100% 0%, rgba(var(--cglow), .26), transparent 58%),
+      linear-gradient(135deg, var(--cg1), var(--cg2));
+  }
+  .aq-now::before {
+    content: ''; position: absolute; inset: -40% -10% auto auto;
+    width: 360px; height: 360px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--cglow), .20), transparent 70%);
+    filter: blur(8px); pointer-events: none;
+    animation: aq-drift 14s ease-in-out infinite;
+  }
+  .aq-now-lead {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 26px; flex-wrap: wrap;
+  }
+
+  /* AQI dial — the number sits inside a glowing ring tinted to the band. */
+  .aq-dial {
+    position: relative; flex: none;
+    width: 132px; height: 132px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 40%, rgba(var(--cglow), .18), transparent 70%);
+    box-shadow: inset 0 0 0 4px rgba(var(--cglow), .55), inset 0 0 0 9px rgba(var(--cglow), .12);
+    animation: aq-pulse 4.5s ease-in-out infinite;
+  }
+  .aq-dial-val {
+    font-size: 3rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em;
+    color: rgb(var(--cglow)); font-variant-numeric: tabular-nums;
+  }
+  .aq-dial-unit {
+    margin-top: 4px; font-size: 0.64rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.09em; color: #c2cfce;
+  }
+  .aq-now-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .aq-badge {
+    display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+    padding: 5px 14px; border-radius: 999px;
+    background: rgba(var(--cglow), .16);
+    border: 1px solid rgba(var(--cglow), .5);
+    color: var(--ink); font-size: 1rem; font-weight: 800; letter-spacing: 0.01em;
+  }
+  .aq-advice { font-size: 0.95rem; font-weight: 600; color: var(--ink); max-width: 46ch; }
+  .aq-now-sub { font-size: 0.8rem; color: #c2cfce; font-variant-numeric: tabular-nums; }
+
+  /* ── AQI scale bar ── */
+  .aq-scale { position: relative; z-index: 1; margin-top: 22px; }
+  .aq-scale-track {
+    height: 8px; border-radius: 999px;
+    background: linear-gradient(90deg,
+      #34d399 0%, #facc15 17%, #fb923c 33%, #f87171 50%, #c084fc 67%, #f472b6 100%);
+  }
+  .aq-scale-marker { position: absolute; top: -3px; transform: translateX(-50%); }
+  .aq-scale-dot {
+    display: block; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 0 3px rgba(0, 0, 0, .35), 0 0 8px rgba(255, 255, 255, .6);
+  }
+  .aq-scale-ends {
+    display: flex; justify-content: space-between; margin-top: 7px;
+    font-size: 0.66rem; font-weight: 700; color: #b5c2c1;
+  }
+
+  /* ── Pollutant grid ── */
+  .aq-pollutants {
+    display: grid; gap: 10px; margin-top: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .aq-poll {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  .aq-poll-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .aq-poll-lbl { font-size: 0.92rem; font-weight: 800; color: var(--ink); }
+  .aq-poll-desc { font-size: 0.66rem; color: var(--muted); font-weight: 600; }
+  .aq-poll-val {
+    margin-top: 6px; font-size: 1.5rem; font-weight: 800;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .aq-poll-unit { font-size: 0.72rem; font-weight: 600; color: #c2cfce; margin-left: 4px; }
+  .aq-na { color: var(--muted); }
+
+  /* ── Forecast cards ── */
+  .aq-sub {
+    margin: 22px 0 10px; font-size: 0.82rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+  }
+  .aq-grid {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  }
+  .aq-card {
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 14px 10px 13px; text-align: center;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(var(--cglow), .16), transparent 72%),
+      var(--panel);
+    box-shadow: var(--shadow);
+    transition: transform .16s, border-color .16s, box-shadow .16s;
+    animation: aq-rise .5s cubic-bezier(.2, .7, .2, 1) backwards;
+    animation-delay: calc(var(--d, 0) * 55ms);
+  }
+  .aq-card:hover { transform: translateY(-3px); border-color: rgba(var(--cglow), .7); box-shadow: var(--shadow-lg); }
+  .aq-card.is-today { border-color: rgba(var(--cglow), .55); box-shadow: 0 0 0 1px rgba(var(--cglow), .25), var(--shadow); }
+  .aq-date { font-size: 0.74rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.2em; }
+  .aq-today-tag {
+    display: inline-block; padding: 1px 9px; border-radius: 999px;
+    background: rgba(var(--cglow), .18); color: var(--ink);
+    font-size: 0.66rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .aq-card-emoji { font-size: 1.7rem; line-height: 1; }
+  .aq-card-val { font-size: 1.6rem; font-weight: 800; color: rgb(var(--cglow)); font-variant-numeric: tabular-nums; line-height: 1; }
+  .aq-card-cat { font-size: 0.68rem; font-weight: 700; color: #c2cfce; min-height: 2.2em; display: flex; align-items: center; }
+
+  .aq-attribution { margin-top: 16px; text-align: right; font-size: 0.71rem; color: var(--muted); }
+
+  .city-select { min-width: 220px; }
+
+  /* ── Motion ── */
+  @keyframes aq-rise  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes aq-pulse { 0%, 100% { box-shadow: inset 0 0 0 4px rgba(var(--cglow), .55), inset 0 0 0 9px rgba(var(--cglow), .12); } 50% { box-shadow: inset 0 0 0 4px rgba(var(--cglow), .8), inset 0 0 0 12px rgba(var(--cglow), .18); } }
+  @keyframes aq-drift { 0%, 100% { transform: translate(0, 0); opacity: .8; } 50% { transform: translate(-26px, 18px); opacity: 1; } }
+
+  @media (max-width: 640px) {
+    .aq-panel { padding: 12px; }
+    .aq-now { padding: 18px; }
+    .aq-now-lead { gap: 18px; }
+    .aq-dial { width: 108px; height: 108px; }
+    .aq-dial-val { font-size: 2.4rem; }
+    .city-select { min-width: 0; width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aq-card { animation: none; }
+    .aq-now::before, .aq-dial { animation: none; }
+  }
+</style>
+{% endblock %}

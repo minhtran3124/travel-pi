@@ -13,6 +13,7 @@ Pages:
     GET /dashboard/places               browsable grid of attractions
     GET /dashboard/tips                 local tips by country / city
     GET /dashboard/weather              live city weather lookup (Open-Meteo)
+    GET /dashboard/air-quality          live city air-quality lookup (Open-Meteo)
     GET /dashboard/bookings             ledger of every flight/hotel booking
 """
 
@@ -30,6 +31,7 @@ from app.data.countries import COUNTRIES as _COUNTRIES
 from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
+    air_quality_service,
     airport_service,
     board_service,
     flight_service,
@@ -555,6 +557,46 @@ async def weather_page(
             "weather": weather,
             "error": error,
             "emoji_for_code": weather_service.emoji_for_code,
+        },
+    )
+
+
+@router.get("/air-quality", response_class=HTMLResponse)
+async def air_quality_page(
+    request: Request,
+    city: str | None = Query(None, description="City name to look up"),
+) -> HTMLResponse:
+    """Render the live air-quality page — a city lookup backed by Open-Meteo.
+
+    With no ``city`` it shows just the search form. Once a city is given it
+    fetches the current US-AQI, the six pollutants, and a short per-day max-AQI
+    forecast; an unknown city or an upstream failure is shown as a friendly
+    inline message (the page itself still returns HTTP 200).
+    """
+    # Same canonical city list the /cities API uses — drives the dropdown.
+    suggestions = sorted(c["name"] for c in _CITY_DATA)
+
+    query_city = (city or "").strip()
+    air_quality = None
+    error: str | None = None
+    if query_city:
+        try:
+            air_quality = await air_quality_service.get_air_quality(query_city)
+        except CityNotFoundError:
+            error = f"Could not find a location named “{query_city}”."
+        except WeatherUnavailableError:
+            error = (
+                "The air-quality service is unavailable right now — try again shortly."
+            )
+
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="air_quality.html",
+        context={
+            "suggestions": suggestions,
+            "query_city": query_city,
+            "air_quality": air_quality,
+            "error": error,
         },
     )
 

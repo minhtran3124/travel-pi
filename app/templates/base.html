@@ -898,6 +898,7 @@
       <a href="/dashboard/places"  class="tab {{ 'on' if path.startswith('/dashboard/places')  else '' }}">Places</a>
       <a href="/dashboard/tips"    class="tab {{ 'on' if path.startswith('/dashboard/tips')    else '' }}">Local Tips</a>
       <a href="/dashboard/weather" class="tab {{ 'on' if path.startswith('/dashboard/weather') else '' }}">Weather</a>
+      <a href="/dashboard/air-quality" class="tab {{ 'on' if path.startswith('/dashboard/air-quality') else '' }}">Air Quality</a>
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
       <a href="/dashboard/checklist" class="tab {{ 'on' if path.startswith('/dashboard/checklist') else '' }}">My List<span id="trip-badge" class="tab-badge" hidden></span></a>
       <span class="spacer"></span>
@@ -980,6 +981,7 @@
         { ic: '🗺️', lbl: 'Places', sub: 'Attractions & things to do', url: '/dashboard/places', kw: 'places attractions' },
         { ic: '💡', lbl: 'Local Tips', sub: '', url: '/dashboard/tips', kw: 'tips advice' },
         { ic: '🌦️', lbl: 'Weather', sub: '', url: '/dashboard/weather', kw: 'weather forecast' },
+        { ic: '🌫️', lbl: 'Air Quality', sub: 'US-AQI & pollutants', url: '/dashboard/air-quality', kw: 'air quality aqi pollution haze smog pm2.5' },
         { ic: '🎫', lbl: 'Bookings', sub: '', url: '/dashboard/bookings', kw: 'bookings reservations' },
         { ic: '📚', lbl: 'API Docs', sub: '', url: '/docs', kw: 'api docs swagger' }
       ];
@@ -991,6 +993,7 @@
         (data.cities || []).forEach(function (c) {
           var kw = (c.name + ' ' + (c.country || '')).toLowerCase();
           out.push({ ic: '🌦️', lbl: 'Weather', sub: c.name, url: '/dashboard/weather?city=' + enc(c.name), kw: kw, grp: c.name });
+          out.push({ ic: '🌫️', lbl: 'Air Quality', sub: c.name, url: '/dashboard/air-quality?city=' + enc(c.name), kw: kw, grp: c.name });
           out.push({ ic: '🏨', lbl: 'Hotels', sub: c.name, url: '/dashboard/hotels?city=' + enc(c.name), kw: kw, grp: c.name });
           out.push({ ic: '🗺️', lbl: 'Places', sub: c.name, url: '/dashboard/places?city=' + enc(c.name), kw: kw, grp: c.name });
           out.push({ ic: '💡', lbl: 'Tips', sub: c.name, url: '/dashboard/tips?city=' + enc(c.name), kw: kw, grp: c.name });
