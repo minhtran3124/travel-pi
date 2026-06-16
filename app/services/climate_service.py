@@ -290,8 +290,12 @@ async def get_climate(city: str, month: int | None = None) -> ClimateResponse:
 
     if full_response is None:
         # 3. Build date window (never hardcoded dates) -------------------------
+        # Subtract whole days rather than reconstructing date(year-N, month,
+        # day): the latter raises ValueError when `end` is Feb 29, because the
+        # year N back is never itself a leap year. A day or two of slop on a
+        # multi-year window is immaterial for climate normals.
         end: date = datetime.now(timezone.utc).date() - timedelta(days=_LAG_DAYS)
-        start: date = date(end.year - settings.climate_years, end.month, end.day)
+        start: date = end - timedelta(days=365 * settings.climate_years)
         start_date = start.isoformat()
         end_date = end.isoformat()
 

@@ -366,3 +366,31 @@ def test_climate_upstream_error_returns_502(client, monkeypatch):
     body = resp.json()
     assert body["status_code"] == 502
     assert "error" in body
+
+
+# ---------------------------------------------------------------------------
+# Regression: leap-day date window must not crash (uncaught 500)
+# ---------------------------------------------------------------------------
+
+
+def test_climate_leap_day_window_no_crash(client, monkeypatch):
+    """When today-7d lands on Feb 29, the start-of-window date must not raise.
+
+    Reconstructing date(year - N, 2, 29) would ValueError (year-N is never a
+    leap year) and escape as a 500. The service subtracts whole days instead.
+    """
+    import datetime as _dt
+
+    from app.services import climate_service
+
+    class _FixedDatetime(_dt.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            # 2024-03-07 minus the 7-day lag lands on 2024-02-29 (a leap day).
+            return _dt.datetime(2024, 3, 7, tzinfo=tz)
+
+    monkeypatch.setattr(climate_service, "datetime", _FixedDatetime)
+    monkeypatch.setattr(weather_service, "_fetch_json", _fake_fetch(_GEOCODE_HIT))
+
+    resp = client.get("/destinations/climate", params={"city": "Da Nang"})
+    assert resp.status_code == 200
