@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     weather_forecast_url: str = "https://api.open-meteo.com/v1/forecast"
     weather_timeout_seconds: float = 10.0
     weather_forecast_days: int = 3
+    # Same keyless Open-Meteo provider; used for historical climate normals.
+    weather_archive_url: str = "https://archive-api.open-meteo.com/v1/archive"
+    climate_years: int = 3  # number of years of history to average for climate normals
 
     # Routing — /places/route. OpenRouteService gives real road distance and
     # duration per travel mode; it is free but needs an API key (no credit
