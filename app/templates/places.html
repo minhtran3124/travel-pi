@@ -78,7 +78,25 @@
 {% if places %}
   <div class="place-grid">
     {% for place in places %}
-      <div class="place-card">
+      <div class="place-card" role="button" tabindex="0"
+           data-name="{{ place.name }}"
+           data-city="{{ place.city }}"
+           data-country="{{ place.country }}"
+           data-category="{{ categories.get(place.category, place.category) }}"
+           data-cat-key="{{ place.category }}"
+           data-desc="{{ place.description }}"
+           data-address="{{ place.address }}"
+           data-rating="{{ '%.1f' | format(place.rating) }}"
+           data-reviews="{{ '{:,}'.format(place.review_count) }}"
+           data-price-level="{{ place.price_level }}"
+           data-price-label="{{ price_labels.get(place.price_level, '') }}"
+           data-hours="{{ place.opening_hours or '' }}"
+           data-image="{{ place.image_url }}"
+           data-tags='{{ place.tags | tojson }}'
+           data-recommended="{{ '1' if place.is_recommended else '0' }}"
+           data-code="{{ place.short_code }}"
+           data-lat="{{ place.latitude if place.latitude is not none else '' }}"
+           data-lng="{{ place.longitude if place.longitude is not none else '' }}">
         <div class="place-photo">
           <img src="{{ place.image_url }}" alt="{{ place.name }}" loading="lazy">
           <span class="place-cat cat-{{ place.category }}">{{ categories.get(place.category, place.category) }}</span>
@@ -120,6 +138,38 @@
   </div>
 {% endif %}
 
+<!-- Place detail modal — populated client-side from the clicked card. -->
+<div id="place-modal" class="place-modal" aria-hidden="true">
+  <div class="pm-backdrop" data-close></div>
+  <div class="pm-dialog" role="dialog" aria-modal="true" aria-labelledby="pm-name">
+    <button class="pm-close" type="button" data-close aria-label="Close">✕</button>
+    <div class="pm-photo">
+      <img id="pm-image" src="" alt="">
+      <span id="pm-cat" class="place-cat"></span>
+      <span id="pm-rec" class="place-rec" hidden>★ Pick</span>
+    </div>
+    <div class="pm-body">
+      <h2 id="pm-name" class="pm-name"></h2>
+      <div class="pm-loc">
+        <span id="pm-city" class="place-city"></span> · <span id="pm-country"></span>
+      </div>
+      <div class="pm-meta">
+        <span class="pm-rating"><span class="stars">★</span> <span id="pm-rating"></span>
+          <span class="rev-count">(<span id="pm-reviews"></span> reviews)</span></span>
+        <span id="pm-price" class="pm-price"></span>
+        <span id="pm-hours-wrap" class="pm-hours" hidden>🕐 <span id="pm-hours"></span></span>
+      </div>
+      <p id="pm-desc" class="pm-desc"></p>
+      <div class="pm-row"><span class="pm-label">Address</span><span id="pm-address"></span></div>
+      <div class="pm-tags" id="pm-tags"></div>
+      <div class="pm-foot">
+        <span class="pm-code" id="pm-code"></span>
+        <a id="pm-map" class="pm-map" href="#" target="_blank" rel="noopener" hidden>📍 View on map</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
   .city-dropdown {
     position: absolute; top: 100%; left: 0; right: 0;
@@ -147,9 +197,10 @@
   .place-card {
     display: flex; flex-direction: column;
     background: var(--panel-2); border: 1px solid var(--line);
-    border-radius: 10px; overflow: hidden;
+    border-radius: 10px; overflow: hidden; cursor: pointer;
     transition: transform .16s, border-color .16s, box-shadow .16s;
   }
+  .place-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .place-card:hover {
     border-color: var(--accent);
     transform: translateY(-3px);
@@ -195,6 +246,70 @@
   .place-rating .stars { color: var(--yellow); }
   .rev-count { color: var(--muted); font-size: 0.74rem; font-weight: 400; }
   .place-hours { color: var(--muted); font-size: 0.73rem; }
+
+  /* ── Detail modal ───────────────────────────────────────────────── */
+  .place-modal {
+    position: fixed; inset: 0; z-index: 2000;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .place-modal.show { display: flex; }
+  .pm-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(6,7,10,.74); backdrop-filter: blur(3px);
+  }
+  .pm-dialog {
+    position: relative; z-index: 1;
+    width: min(640px, 100%); max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    animation: pm-pop .16s ease-out;
+  }
+  @keyframes pm-pop {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .pm-close {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: none; cursor: pointer;
+    background: rgba(8,9,11,.72); color: #fff; backdrop-filter: blur(3px);
+    font-size: 0.9rem; line-height: 1;
+    transition: background .12s;
+  }
+  .pm-close:hover { background: var(--red); }
+  .pm-photo { position: relative; aspect-ratio: 16/9; background: #181b24; overflow: hidden; }
+  .pm-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pm-body { display: flex; flex-direction: column; gap: 11px; padding: 18px 20px 20px; }
+  .pm-name { margin: 0; font-size: 1.25rem; font-weight: 800; line-height: 1.25; }
+  .pm-loc { color: var(--muted); font-size: 0.85rem; margin-top: -4px; }
+  .pm-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+    font-size: 0.9rem; font-weight: 700;
+    padding-bottom: 11px; border-bottom: 1px solid var(--line-soft);
+  }
+  .pm-rating .stars { color: var(--yellow); }
+  .pm-rating .rev-count { color: var(--muted); font-size: 0.78rem; font-weight: 400; }
+  .pm-hours { color: var(--muted); font-weight: 400; font-size: 0.82rem; }
+  .pm-desc { margin: 0; color: var(--text, #d6dae3); font-size: 0.9rem; line-height: 1.6; }
+  .pm-row { display: flex; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .pm-label {
+    flex: 0 0 70px; color: var(--accent-dim); font-weight: 700;
+    text-transform: uppercase; font-size: 0.7rem; letter-spacing: .04em; padding-top: 1px;
+  }
+  .pm-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pm-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--line-soft);
+  }
+  .pm-code { font-family: ui-monospace, monospace; font-size: 0.78rem; color: var(--muted); }
+  .pm-map {
+    background: var(--accent); color: #fff; text-decoration: none;
+    padding: 7px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 700;
+    transition: filter .12s;
+  }
+  .pm-map:hover { filter: brightness(1.1); }
 
   @media (max-width: 640px) {
     .place-grid {
@@ -247,6 +362,82 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') {
       input.form.submit();
     }
+  });
+
+  // ── Place detail modal ───────────────────────────────────────────
+  const modal = document.getElementById('place-modal');
+  const $ = (id) => document.getElementById(id);
+
+  function openModal(card) {
+    const d = card.dataset;
+    $('pm-image').src = d.image;
+    $('pm-image').alt = d.name;
+    $('pm-name').textContent = d.name;
+    $('pm-city').textContent = d.city;
+    $('pm-country').textContent = d.country;
+    $('pm-rating').textContent = d.rating;
+    $('pm-reviews').textContent = d.reviews;
+    $('pm-desc').textContent = d.desc;
+    $('pm-address').textContent = d.address;
+    $('pm-code').textContent = d.code;
+
+    const cat = $('pm-cat');
+    cat.textContent = d.category;
+    cat.className = 'place-cat cat-' + d.catKey;
+
+    $('pm-rec').hidden = d.recommended !== '1';
+
+    const level = parseInt(d.priceLevel, 10) || 0;
+    $('pm-price').textContent = '💰'.repeat(level) + (d.priceLabel ? '  ' + d.priceLabel : '');
+
+    const hoursWrap = $('pm-hours-wrap');
+    if (d.hours) { hoursWrap.hidden = false; $('pm-hours').textContent = d.hours; }
+    else { hoursWrap.hidden = true; }
+
+    const tagsBox = $('pm-tags');
+    tagsBox.innerHTML = '';
+    let tags = [];
+    try { tags = JSON.parse(d.tags); } catch (e) { tags = []; }
+    tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = t;
+      tagsBox.appendChild(span);
+    });
+
+    const map = $('pm-map');
+    if (d.lat && d.lng) {
+      map.hidden = false;
+      map.href = 'https://www.google.com/maps/search/?api=1&query=' +
+                 encodeURIComponent(d.lat + ',' + d.lng);
+    } else {
+      map.hidden = true;
+    }
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.place-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card); }
+    });
+  });
+
+  modal.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', closeModal);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
   });
 });
 </script>

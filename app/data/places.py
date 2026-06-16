@@ -129,7 +129,7 @@ PLACES: list[dict] = [
         "city": "Da Nang",
         "country": "Vietnam",
         "category": "restaurant",
-        "description": "Family-run institution serving central Vietnamese specialties for over 30 years. Must-try: mi Quang (turmeric noodles), banh xeo, and cau lau.",
+        "description": "Family-run institution serving central Vietnamese specialties for over 30 years. Must-try: mi Quang (turmeric noodles), banh xeo, and cao lau.",
         "address": "4 Bach Dang Street, Hai Chau, Da Nang",
         "rating": 4.4,
         "review_count": 5100,
