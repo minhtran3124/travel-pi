@@ -81,3 +81,16 @@ class TipCategory(str, Enum):
     ETIQUETTE = "etiquette"
     BEST_TIME = "best_time"
     LANGUAGE = "language"
+
+
+class OverviewSection(str, Enum):
+    """Sections of a destination overview response.
+
+    Pass one or more via ``?include=weather&include=places`` to restrict
+    which sections are returned. Omit the param to get all four.
+    """
+
+    WEATHER = "weather"
+    PLACES = "places"
+    TIPS = "tips"
+    HOTELS = "hotels"
