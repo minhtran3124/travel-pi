@@ -32,6 +32,7 @@ Base URL: `http://localhost:8000`
 | GET | `/places/{place_id}` | Get one place by ID |
 | GET | `/tips` | Local tips for a city or country |
 | GET | `/weather` | Current weather + short forecast for a city |
+| GET | `/air-quality` | Current US-AQI + pollutants + short max-AQI forecast for a city |
 | GET | `/destinations/climate` | Monthly climate normals (temp, rain, comfort) + best-time guidance for a city |
 | GET | `/destinations/{city}/overview` | Aggregated city overview — weather, top places, essential tips, hotel summary |
 | GET | `/currency/convert` | Convert an amount between currencies (mock FX rates) |
@@ -839,6 +840,73 @@ upstream Open-Meteo service is unreachable.
 ```bash
 curl "http://localhost:8000/weather?city=Da%20Nang&days=5"
 ```
+
+---
+
+## `GET /air-quality` — current air quality + short forecast
+
+Resolves a city name to coordinates and returns live air quality from the
+keyless [Open-Meteo Air-Quality API](https://open-meteo.com/en/docs/air-quality-api):
+the current **US AQI** with its category label, the six standard pollutants,
+and a short per-day **max-AQI** forecast. Like `/weather`, this makes a real
+outbound call; there is no cache (point-in-time data).
+
+### Params
+
+| Param | Required | Default | Notes |
+|-------|----------|---------|-------|
+| `city` | ✓ | — | City name to look up, e.g. `Da Nang`. |
+
+The forecast horizon is server-configured (`air_quality_forecast_days`,
+default `3`).
+
+Returns **404** if the city name cannot be geocoded, **422** if `city` is
+missing, and **502** if Open-Meteo is unreachable or returns a malformed body.
+
+```bash
+curl "http://localhost:8000/air-quality?city=Da%20Nang"
+```
+
+### Response (`AirQualityResponse`)
+
+```json
+{
+  "location": { "name": "Da Nang", "country": "Vietnam", "latitude": 16.07, "longitude": 108.22, "timezone": "Asia/Ho_Chi_Minh" },
+  "time": "2026-06-16T14:00",
+  "us_aqi": 35,
+  "category": "Good",
+  "pm2_5": 8.3,
+  "pm10": 15.1,
+  "ozone": 62.4,
+  "nitrogen_dioxide": 10.7,
+  "sulphur_dioxide": 2.1,
+  "carbon_monoxide": 189.5,
+  "forecast": [
+    { "date": "2026-06-16", "max_us_aqi": 42, "category": "Good" }
+  ],
+  "attribution": "Air quality data by Open-Meteo.com (CC BY 4.0)"
+}
+```
+
+- `location` — resolved city coordinates and timezone (same `WeatherLocation`
+  shape as `/weather`).
+- `us_aqi` / pollutant cells / `forecast[].max_us_aqi` are **nullable**; when
+  AQI is `null` the `category` is `"Unknown"`.
+- `category` follows the **US-AQI bands**: `Good` ≤50, `Moderate` ≤100,
+  `Unhealthy for Sensitive Groups` ≤150, `Unhealthy` ≤200, `Very Unhealthy`
+  ≤300, `Hazardous` >300.
+- `forecast` — one entry per day (in date order) with that day's peak AQI,
+  derived from the hourly series.
+- `attribution` — required Open-Meteo attribution; always present.
+
+### Response codes
+
+| Code | Condition |
+|------|-----------|
+| 200 | Success |
+| 404 | City not found |
+| 422 | `city` missing or empty |
+| 502 | Open-Meteo Air-Quality API unavailable or returned malformed/empty data |
 
 ---
 

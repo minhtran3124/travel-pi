@@ -35,7 +35,7 @@ When you see `Application startup complete`, it's running at
   per-flight detail page. HTML for humans, not the API client.
 - **Try endpoints in the browser:** open **http://localhost:8000/docs** — an
   interactive page to call every endpoint and see the responses.
-- **Full endpoint reference:** see **[APIS.md](./APIS.md)**. Highlights: `/flights/search`, `/hotels/availability`, `/places/search`, `/tips`, `/weather`, `GET /destinations/climate` (monthly climate normals + best-time guidance), `GET /destinations/{city}/overview` (one-call city briefing: weather + places + tips + hotel summary), and `GET /currency/convert` (mock-FX currency conversion).
+- **Full endpoint reference:** see **[APIS.md](./APIS.md)**. Highlights: `/flights/search`, `/hotels/availability`, `/places/search`, `/tips`, `/weather`, `GET /air-quality` (live US-AQI + pollutants + short forecast via Open-Meteo, also at `/dashboard/air-quality`), `GET /destinations/climate` (monthly climate normals + best-time guidance), `GET /destinations/{city}/overview` (one-call city briefing: weather + places + tips + hotel summary), and `GET /currency/convert` (mock-FX currency conversion).
 - **Generate TypeScript types** (re-run whenever the API changes):
 
   ```bash
