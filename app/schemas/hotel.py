@@ -1,6 +1,15 @@
 """Hotel schemas: domain model, search/availability responses, booking request."""
 
-from pydantic import ConfigDict, Field, computed_field
+from datetime import datetime
+
+from pydantic import (
+    ConfigDict,
+    EmailStr,
+    Field,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 from app.core.codes import prefixed_code
 from app.schemas.base import AppBaseModel
@@ -206,7 +215,7 @@ class HotelBookingRequest(AppBaseModel):
         description="Full name of the lead guest as on their ID.",
         examples=["Nguyen Van A"],
     )
-    guest_email: str = Field(
+    guest_email: EmailStr = Field(
         description="Contact email for the reservation.",
         examples=["nguyen.a@example.com"],
     )
@@ -219,6 +228,30 @@ class HotelBookingRequest(AppBaseModel):
         description="Free-form note for the hotel — e.g. arrival time, bed preference.",
         examples=["Late arrival ~22:00"],
     )
+
+    @field_validator("check_in", "check_out")
+    @classmethod
+    def _valid_date(cls, value: str) -> str:
+        """Reject a malformed date at the schema boundary → 422.
+
+        Without this, a bad date reaches ``book_hotel`` and the
+        ``count_nights`` call there raises an uncaught ``ValueError`` → 500.
+        Caught here it becomes a clean per-field validation error instead.
+        """
+        try:
+            datetime.strptime(value, "%Y-%m-%d")
+        except ValueError as exc:
+            raise ValueError("expected date in YYYY-MM-DD format") from exc
+        return value
+
+    @model_validator(mode="after")
+    def _check_out_after_check_in(self) -> "HotelBookingRequest":
+        """Require ``check_out`` strictly after ``check_in`` (≥ 1 night)."""
+        if datetime.strptime(self.check_out, "%Y-%m-%d") <= datetime.strptime(
+            self.check_in, "%Y-%m-%d"
+        ):
+            raise ValueError("check_out must be after check_in")
+        return self
 
     model_config = ConfigDict(
         json_schema_extra={

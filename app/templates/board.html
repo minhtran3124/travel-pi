@@ -47,7 +47,11 @@
 {% if error %}
   <p class="error">{{ error }}</p>
 {% elif not rows %}
-  <p class="empty">No flights to show.</p>
+  <div class="empty">
+    <div class="empty-ico">🛫</div>
+    <strong>No {{ mode }} to show</strong> for {{ airport.city }} on this date.<br>
+    <span class="empty-hint">Try another date or airport above.</span>
+  </div>
 {% else %}
 <div class="table-wrap">
   <table class="fids">
@@ -63,7 +67,7 @@
     </thead>
     <tbody>
       {% for row in rows %}
-      <tr>
+      <tr class="frow" data-href="/dashboard/flights/{{ row.flight_id }}" tabindex="0">
         <td class="sta">{{ row.scheduled.strftime("%H:%M") }}</td>
         <td class="eta">{{ row.estimated.strftime("%H:%M") if row.estimated else "" }}</td>
         <td>
@@ -79,13 +83,20 @@
           <span class="airline-name">{{ row.airline_name }}</span>
         </td>
         <td class="flight"><a href="/dashboard/flights/{{ row.flight_id }}">{{ row.flight_number }}</a></td>
-        <td class="remark {{ row.status_kind }}">{{ row.status }}</td>
+        <td><span class="remark {{ row.status_kind }}">{{ row.status }}</span></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 {% endif %}
+
+<style>
+  /* Whole flight row is clickable → detail (the flight-number link stays the
+     keyboard/semantic path). */
+  .frow { cursor: pointer; }
+  .frow:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+</style>
 
 <script>
   setInterval(function () {
@@ -94,5 +105,16 @@
     var mm = String(d.getMinutes()).padStart(2, "0");
     document.getElementById("clock").textContent = hh + ":" + mm;
   }, 1000);
+
+  // Click anywhere on a row to open the flight detail (links still work).
+  document.querySelectorAll("tr.frow").forEach(function (tr) {
+    tr.addEventListener("click", function (e) {
+      if (e.target.closest("a")) return;            // let real links win
+      window.location.href = tr.dataset.href;
+    });
+    tr.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") window.location.href = tr.dataset.href;
+    });
+  });
 </script>
 {% endblock %}

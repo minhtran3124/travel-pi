@@ -47,12 +47,18 @@
 
 {% if not bookings %}
   {% if total == 0 %}
-  <p class="empty">
-    No bookings yet — create one via <code>POST /flights/book</code> or
-    <code>POST /hotels/book</code>.
-  </p>
+  <div class="empty">
+    <div class="empty-ico">🎫</div>
+    <strong>No bookings yet</strong><br>
+    Create one via <code>POST /flights/book</code> or <code>POST /hotels/book</code>.
+  </div>
   {% else %}
-  <p class="empty">No bookings match the current search or filters.</p>
+  <div class="empty">
+    <div class="empty-ico">🔍</div>
+    <strong>No matching bookings</strong><br>
+    Nothing matches the current search or filters.<br>
+    <a class="empty-hint" href="/dashboard/bookings">Clear search and filters →</a>
+  </div>
   {% endif %}
 {% else %}
 <div class="table-wrap">
@@ -113,7 +119,10 @@
           <span class="sub">{{ booking.created_at.strftime("%d %b %Y") }}</span>
         </td>
         <td class="sta">{{ booking.currency }} {{ "%.2f" | format(booking.total_price) }}</td>
-        <td><span class="status-pill">{{ booking.status }}</span></td>
+        <td>
+          {% set st = booking.status.value if booking.status.value is defined else booking.status %}
+          <span class="status-pill st-{{ st }}">{{ st }}</span>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

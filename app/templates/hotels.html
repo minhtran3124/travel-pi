@@ -62,12 +62,15 @@
 </form>
 
 {% if not hotels %}
-  <p class="empty">
-    No hotels match
+  <div class="empty">
+    <div class="empty-ico">🏨</div>
+    <strong>No hotels found</strong><br>
+    Nothing matches
     {%- if query %} "{{ query }}"{% endif %}
     {%- if selected_city %} in {{ selected_city }}{% endif %}
-    {%- if not query and not selected_city %} the current filters{% endif %}.
-  </p>
+    {%- if not query and not selected_city %} the current filters{% endif %}.<br>
+    <a class="empty-hint" href="/dashboard/hotels">Clear search and filters →</a>
+  </div>
 {% else %}
 <div class="hotel-grid">
   {% for hotel in hotels %}

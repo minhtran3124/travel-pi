@@ -24,6 +24,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.core.params import parse_optional_number
+from app.data.airlines import AIRLINE_COLOR_DEFAULT, AIRLINE_COLORS
 from app.data.cities import CITIES as _CITY_DATA
 from app.data.countries import COUNTRIES as _COUNTRIES
 from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
@@ -166,6 +167,8 @@ def flight_search(
             "airports": airports,
             "airports_by_code": {a.code: a for a in airports},
             "airlines": flight_service.list_airlines(),
+            "airline_colors": AIRLINE_COLORS,
+            "airline_color_default": AIRLINE_COLOR_DEFAULT,
             "sort_options": flight_service.sort_options(),
             "search": search,
             "searched": searched,
@@ -191,6 +194,8 @@ def flight_detail_page(request: Request, flight_id: str) -> HTMLResponse:
             "flight": flight,
             "flight_id": flight_id,
             "airports_by_code": {a.code: a for a in airports},
+            "airline_colors": AIRLINE_COLORS,
+            "airline_color_default": AIRLINE_COLOR_DEFAULT,
         },
     )
 

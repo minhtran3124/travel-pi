@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, EmailStr, Field, field_validator
 
 from app.schemas.base import AppBaseModel
 
@@ -162,7 +162,7 @@ class FlightBookingRequest(AppBaseModel):
         description="Full name as printed on the passenger's ID/passport.",
         examples=["Nguyen Van A"],
     )
-    passenger_email: str = Field(
+    passenger_email: EmailStr = Field(
         description="Contact email for the itinerary and e-ticket.",
         examples=["nguyen.a@example.com"],
     )
@@ -178,6 +178,21 @@ class FlightBookingRequest(AppBaseModel):
         ),
         examples=["Window seat preferred"],
     )
+
+    @field_validator("departure_date")
+    @classmethod
+    def _valid_departure_date(cls, value: str) -> str:
+        """Reject a malformed date at the schema boundary → 422.
+
+        Without this, a bad date slips through to the flight lookup, which
+        can't resolve it and returns a misleading 404 instead of a clear
+        "fix your date" validation error.
+        """
+        try:
+            datetime.strptime(value, "%Y-%m-%d")
+        except ValueError as exc:
+            raise ValueError("expected date in YYYY-MM-DD format") from exc
+        return value
 
     model_config = ConfigDict(
         json_schema_extra={

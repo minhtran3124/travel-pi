@@ -331,7 +331,7 @@
   .guide-jump .j-ico { font-size: 0.92rem; line-height: 1; }
   .guide-jump .j-n {
     font-size: 0.68rem; font-weight: 700; font-variant-numeric: tabular-nums;
-    color: var(--c, var(--muted));
+    color: color-mix(in srgb, var(--c, var(--muted)) 55%, var(--ink));
     background: color-mix(in srgb, var(--c, var(--muted)) 16%, var(--panel-2));
     border-radius: 999px; padding: 1px 7px;
   }
@@ -368,7 +368,8 @@
   }
   .cat-name { margin: 0; flex: 1; font-size: 1.16rem; font-weight: 800; letter-spacing: -0.01em; }
   .cat-count {
-    font-size: 0.72rem; font-weight: 800; color: var(--c, var(--muted));
+    font-size: 0.72rem; font-weight: 800;
+    color: color-mix(in srgb, var(--c, var(--muted)) 55%, var(--ink));
     font-variant-numeric: tabular-nums;
     background: color-mix(in srgb, var(--c, var(--muted)) 15%, var(--panel-2));
     border: 1px solid color-mix(in srgb, var(--c, var(--muted)) 32%, var(--line));

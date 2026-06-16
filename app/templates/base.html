@@ -291,7 +291,7 @@
     .from-city { font-weight: 700; }
     .sub { display: block; color: var(--muted); font-size: 0.75rem; }
     .airline {
-      display: inline-block; min-width: 30px; text-align: center;
+      display: inline-block; vertical-align: middle; min-width: 30px; text-align: center;
       padding: 2px 7px; border-radius: 5px;
       color: #fff; font-weight: 800; font-size: 0.78rem; margin-right: 8px;
     }
@@ -303,13 +303,18 @@
     }
     .flight a:hover { color: var(--accent-dim); text-decoration: underline; }
 
-    .remark { font-weight: 700; }
-    .remark.landed    { color: var(--green); }
-    .remark.departed  { color: var(--muted); }
-    .remark.ontime    { color: var(--ink); }
-    .remark.estimated { color: var(--yellow); }
-    .remark.delayed   { color: var(--orange); }
-    .remark.boarding  { color: var(--cyan); }
+    /* Status remarks render as colour-coded pills (FIDS-style). */
+    .remark {
+      display: inline-block; vertical-align: middle;
+      padding: 3px 11px; border-radius: 999px;
+      font-weight: 700; font-size: 0.76rem; white-space: nowrap;
+    }
+    .remark.landed    { color: var(--green);  background: rgba(52,211,153,.13); }
+    .remark.departed  { color: var(--muted);  background: rgba(147,161,160,.13); }
+    .remark.ontime    { color: var(--ink);    background: rgba(231,236,235,.08); }
+    .remark.estimated { color: var(--yellow); background: rgba(251,191,36,.13); }
+    .remark.delayed   { color: var(--orange); background: rgba(251,146,60,.14); }
+    .remark.boarding  { color: var(--cyan);   background: rgba(56,189,248,.14); }
 
     .empty, .error {
       padding: 32px; text-align: center; color: var(--muted);
@@ -318,11 +323,15 @@
       border-radius: 0 0 var(--radius) var(--radius);
     }
     .error { color: var(--orange); }
+    /* Friendly empty-state bits (icon + emphasis + hint) */
+    .empty .empty-ico { font-size: 2rem; line-height: 1; margin-bottom: 8px; }
+    .empty strong { color: var(--ink); font-weight: 700; }
+    .empty .empty-hint { display: inline-block; margin-top: 6px; color: var(--muted); font-size: 0.85rem; }
 
     .count { margin: 0 0 12px; font-weight: 700; color: var(--muted); font-size: 0.85rem; }
 
     .badge {
-      display: inline-block; padding: 2px 9px; border-radius: 999px;
+      display: inline-block; vertical-align: middle; padding: 2px 9px; border-radius: 999px;
       font-size: 0.7rem; font-weight: 700;
     }
     .badge.direct { background: rgba(52,211,153,.14); color: var(--green); }
@@ -456,18 +465,20 @@
 
     /* ── Booking ledger ── */
     .type-badge {
-      display: inline-block; min-width: 48px; text-align: center;
+      display: inline-block; vertical-align: middle; min-width: 48px; text-align: center;
       padding: 3px 8px; border-radius: 5px;
       color: #fff; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.05em;
     }
     .type-badge.flight { background: var(--accent-2); }
     .type-badge.hotel  { background: var(--hotel); }
     .status-pill {
-      display: inline-block; padding: 3px 11px; border-radius: 999px;
+      display: inline-block; vertical-align: middle; padding: 3px 11px; border-radius: 999px;
       font-size: 0.73rem; font-weight: 700;
-      background: rgba(52,211,153,.13); color: var(--green);
+      background: rgba(52,211,153,.13); color: var(--green);  /* default: confirmed */
       text-transform: capitalize;
     }
+    .status-pill.st-cancelled { background: rgba(248,113,113,.14); color: var(--red); }
+    .status-pill.st-pending   { background: rgba(251,191,36,.14); color: var(--yellow); }
     .ref { font-variant-numeric: tabular-nums; font-size: 0.84rem; }
     table.fids.ledger td, table.fids.ledger th { white-space: normal; }
     table.fids.ledger .ref, table.fids.ledger .sta { white-space: nowrap; }

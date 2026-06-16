@@ -112,7 +112,7 @@
                 <span class="sub">{{ dest_airport.city ~ ", " ~ dest_airport.country if dest_airport else "—" }}</span>
               </td>
               <td>
-                <span class="airline">{{ flight.airline.code }}</span>
+                <span class="airline" style="background: {{ airline_colors.get(flight.airline.code, airline_color_default) }}">{{ flight.airline.code }}</span>
                 <span class="airline-name">{{ flight.airline.name }}</span>
               </td>
               <td class="flight"><a href="/dashboard/flights/{{ flight.id }}">{{ flight.flight_number }}</a></td>
@@ -131,9 +131,17 @@
       </table>
     </div>
   {% else %}
-    <p class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">No flights match this route, date, and filters.</p>
+    <div class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">
+      <div class="empty-ico">🛫</div>
+      <strong>No flights found</strong><br>
+      Nothing matches this route, date, and filters.
+    </div>
   {% endif %}
 {% else %}
-  <p class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">Pick an origin, destination, and date, then hit Search.</p>
+  <div class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">
+    <div class="empty-ico">🧭</div>
+    <strong>Search flights by route</strong><br>
+    Pick an origin, destination, and date, then hit Search.
+  </div>
 {% endif %}
 {% endblock %}
