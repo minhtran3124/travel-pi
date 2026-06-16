@@ -83,9 +83,16 @@
 
 {% if places %}
   <div class="place-grid">
+    {# Bento sizing: at most a few top picks become 2×2 heroes; an occasional
+       wide tile breaks the rhythm. Keeps real hierarchy regardless of how many
+       places are recommended. #}
+    {% set ns = namespace(feat=0) %}
     {% for place in places %}
       {% set rk = 'r-exc' if place.rating >= 4.5 else 'r-great' if place.rating >= 4.0 else 'r-ok' %}
-      <div class="place-card" role="button" tabindex="0"
+      {% set is_feat = place.is_recommended and ns.feat < 3 %}
+      {% if is_feat %}{% set ns.feat = ns.feat + 1 %}{% endif %}
+      {% set size = 'feat' if is_feat else ('wide' if loop.index0 % 6 == 5 else '') %}
+      <div class="place-card {{ size }}" role="button" tabindex="0"
            style="--c: {{ cat_colors.get(place.category, '#2dd4bf') }}"
            data-name="{{ place.name }}"
            data-city="{{ place.city }}"
@@ -105,35 +112,18 @@
            data-code="{{ place.short_code }}"
            data-lat="{{ place.latitude if place.latitude is not none else '' }}"
            data-lng="{{ place.longitude if place.longitude is not none else '' }}">
-        <div class="place-photo">
-          <img src="{{ place.image_url }}" alt="{{ place.name }}" loading="lazy">
-          <span class="place-cat cat-{{ place.category }}">{{ categories.get(place.category, place.category) }}</span>
-          {% if place.is_recommended %}
-            <span class="place-rec">★ Pick</span>
-          {% endif %}
-          <span class="place-price price-{{ place.price_level }}">
-            {{ "💰" * place.price_level }}
-          </span>
-        </div>
-        <div class="place-body">
+        <img class="pc-img" src="{{ place.image_url }}" alt="{{ place.name }}" loading="lazy">
+        <div class="pc-scrim"></div>
+        <span class="place-cat cat-{{ place.category }}">{{ categories.get(place.category, place.category) }}</span>
+        {% if place.is_recommended %}<span class="place-rec">★ Pick</span>{% endif %}
+        <div class="pc-body">
           <div class="place-name">{{ place.name }}</div>
-          <div class="place-loc">
-            <span class="place-city">{{ place.city }}</span> · {{ place.country }}
-          </div>
-          <div class="place-desc">{{ place.description[:120] }}{% if place.description | length > 120 %}…{% endif %}</div>
-          <div class="place-tags">
-            {% for tag in place.tags[:4] %}
-              <span class="chip">{{ tag }}</span>
-            {% endfor %}
-          </div>
-          <div class="place-foot">
-            <div class="place-rating {{ rk }}">
-              <span class="stars">★</span> {{ "%.1f" | format(place.rating) }}
-              <span class="rev-count">({{ "{:,}".format(place.review_count) }})</span>
-            </div>
-            {% if place.opening_hours %}
-              <div class="place-hours">🕐 {{ place.opening_hours }}</div>
-            {% endif %}
+          <div class="pc-loc"><span class="place-city">{{ place.city }}</span> · {{ place.country }}</div>
+          <div class="pc-meta">
+            <span class="place-rating {{ rk }}"><span class="stars">★</span> {{ "%.1f" | format(place.rating) }}</span>
+            <span class="pc-sep">·</span>
+            <span class="pc-price">{{ "💰" * place.price_level if place.price_level else "Free" }}</span>
+            {% if place.opening_hours %}<span class="pc-sep">·</span><span class="pc-hours">🕐 {{ place.opening_hours }}</span>{% endif %}
           </div>
         </div>
       </div>
@@ -196,39 +186,47 @@
   .city-dropdown li.active { background: var(--accent-glow); }
   .city-dropdown li.filtered { display: none; }
 
+  /* ── Bento mosaic: photo-fill tiles, recommended span 2×2 ── */
   .place-grid {
     display: grid; gap: 14px;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 168px; grid-auto-flow: dense;
     background: var(--panel);
     border: 1px solid var(--line); border-top: none;
     padding: 16px;
     border-radius: 0 0 var(--radius) var(--radius);
   }
   .place-card {
-    display: flex; flex-direction: column;
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; overflow: hidden; cursor: pointer;
+    position: relative; overflow: hidden; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 13px;
     box-shadow: var(--shadow);
-    transition: transform .16s, border-color .16s, box-shadow .16s;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
   }
+  .place-card.feat { grid-column: span 2; grid-row: span 2; }
+  .place-card.wide { grid-column: span 2; }
   .place-card:focus-visible { outline: 2px solid var(--c, var(--accent)); outline-offset: 2px; }
   .place-card:hover {
-    border-color: var(--c, var(--accent));
     transform: translateY(-3px);
+    border-color: var(--c, var(--accent));
     box-shadow: var(--shadow-lg),
-                0 0 0 1px color-mix(in srgb, var(--c, var(--accent)) 45%, transparent);
+                0 0 0 1px color-mix(in srgb, var(--c, var(--accent)) 50%, transparent);
   }
-  .place-photo { position: relative; aspect-ratio: 16/9; background: var(--photo-bg); overflow: hidden; }
-  .place-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
-  .place-card:hover .place-photo img { transform: scale(1.05); }
+  .pc-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; background: var(--photo-bg); transition: transform .5s;
+  }
+  .place-card:hover .pc-img { transform: scale(1.06); }
+  .pc-scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(8,11,10,.05) 28%, rgba(8,11,10,.52) 60%, rgba(8,11,10,.92));
+  }
 
-  /* frosted dark chip over the photo, bright colored text — readable on any image */
+  /* frosted category chip over the photo (colour from .cat-* below) */
   .place-cat {
-    position: absolute; top: 8px; left: 8px;
-    padding: 2px 9px; border-radius: 5px;
-    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
-    background: rgba(10,14,13,.6);
-    backdrop-filter: blur(4px);
+    position: absolute; top: 9px; left: 9px;
+    padding: 2px 9px; border-radius: 999px;
+    font-size: 0.66rem; font-weight: 800; letter-spacing: 0.03em;
+    background: rgba(10,14,13,.6); backdrop-filter: blur(4px);
   }
   .cat-attraction { color: var(--cyan); }
   .cat-restaurant { color: var(--orange); }
@@ -238,33 +236,25 @@
   .cat-shopping   { color: #c4b5fd; }
 
   .place-rec {
-    position: absolute; top: 8px; right: 8px;
+    position: absolute; top: 9px; right: 9px;
     background: var(--yellow); color: #2a1e05; border-radius: 999px;
-    padding: 2px 9px; font-size: 0.7rem; font-weight: 800;
-  }
-  .place-price {
-    position: absolute; bottom: 8px; right: 8px;
-    background: rgba(8,9,11,.72); backdrop-filter: blur(3px);
-    border-radius: 5px; padding: 2px 8px;
-    font-size: 0.75rem; color: #fff;
+    padding: 2px 9px; font-size: 0.68rem; font-weight: 800;
   }
 
-  .place-body { display: flex; flex-direction: column; gap: 8px; padding: 13px 14px 14px; flex: 1; }
-  .place-name { font-weight: 800; font-size: 0.93rem; line-height: 1.3; }
-  .place-loc { color: var(--muted); font-size: 0.77rem; }
-  .place-city { color: var(--accent-dim); font-weight: 700; }
-  .place-desc { color: #bcc5c3; font-size: 0.8rem; line-height: 1.5; }
-  .place-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-  .place-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 4px; }
-  .place-rating { font-size: 0.87rem; font-weight: 700; }
-  /* rating number tinted by score tier (stars stay gold) */
-  .place-rating.r-exc   { color: var(--green); }
+  .pc-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 14px; }
+  .place-name { font-weight: 800; font-size: 0.96rem; line-height: 1.25; text-shadow: 0 1px 8px rgba(0,0,0,.55); }
+  .feat .place-name { font-size: 1.4rem; }
+  .pc-loc { color: #d3dad9; font-size: 0.76rem; margin-top: 2px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+  .pc-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 8px; font-size: 0.82rem; font-weight: 700; }
+  .place-rating { font-variant-numeric: tabular-nums; }
+  .place-rating.r-exc   { color: #4ade80; }
   .place-rating.r-great { color: var(--accent-dim); }
   .place-rating.r-ok    { color: var(--yellow); }
   .place-rating .stars { color: var(--yellow); }
-  .place-rating .rev-count { color: var(--muted); }
-  .rev-count { color: var(--muted); font-size: 0.74rem; font-weight: 400; }
-  .place-hours { color: var(--muted); font-size: 0.73rem; }
+  .pc-sep, .pc-price, .pc-hours { color: #d3dad9; font-weight: 600; }
+  /* kept for the detail modal */
+  .place-city { color: var(--accent-dim); font-weight: 700; }
+  .rev-count { color: var(--muted); font-size: 0.78rem; font-weight: 400; }
 
   /* ── Detail modal ───────────────────────────────────────────────── */
   .place-modal {
@@ -330,14 +320,16 @@
   }
   .pm-map:hover { filter: brightness(1.1); }
 
-  @media (max-width: 640px) {
-    .place-grid {
-      grid-template-columns: 1fr;
-      padding: 12px; gap: 12px;
-    }
-  }
   @media (min-width: 641px) and (max-width: 900px) {
-    .place-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+    .place-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .place-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; padding: 12px; gap: 12px; }
+    .feat .place-name { font-size: 1.2rem; }
+  }
+  @media (max-width: 400px) {
+    .place-grid { grid-template-columns: 1fr; }
+    .place-card.feat { grid-column: span 1; grid-row: span 1; }
   }
 </style>
 
