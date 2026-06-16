@@ -168,17 +168,19 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // event delegation
+  function newTrip() { tpPrompt('New trip', 'My trip').then(function (n) { if (n) T.create(n); }); }
+
   tripsEl.addEventListener('click', function (e) {
     var sw = e.target.closest('[data-switch]'); if (sw) { T.setCurrent(sw.dataset.switch); return; }
-    if (e.target.closest('[data-new]')) { var n = prompt('Trip name:', 'My trip'); if (n) T.create(n); }
+    if (e.target.closest('[data-new]')) newTrip();
   });
   bodyEl.addEventListener('click', function (e) {
-    if (e.target.closest('[data-new]')) { var n = prompt('Trip name:', 'My trip'); if (n) T.create(n); return; }
+    if (e.target.closest('[data-new]')) { newTrip(); return; }
     var cur = T.current(); if (!cur) return;
     var d = e.target.closest('[data-done]'); if (d) { T.toggleDone(cur.id, d.dataset.done); return; }
     var rm = e.target.closest('[data-rm]'); if (rm) { T.removeItem(cur.id, rm.dataset.rm); return; }
-    var rn = e.target.closest('[data-rename]'); if (rn) { var nm = prompt('Rename trip:', cur.name); if (nm) T.rename(cur.id, nm); return; }
-    var del = e.target.closest('[data-del]'); if (del) { if (confirm('Delete “' + cur.name + '” and its saved places?')) T.remove(cur.id); return; }
+    var rn = e.target.closest('[data-rename]'); if (rn) { tpPrompt('Rename trip', cur.name).then(function (nm) { if (nm) T.rename(cur.id, nm); }); return; }
+    var del = e.target.closest('[data-del]'); if (del) { tpConfirm('Delete trip?', 'This removes “' + cur.name + '” and its saved places.', 'Delete').then(function (ok) { if (ok) T.remove(cur.id); }); return; }
   });
 
   render();

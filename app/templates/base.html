@@ -191,6 +191,25 @@
     .cmdk-foot { display: flex; gap: 16px; padding: 8px 14px; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: .72rem; }
     .cmdk-foot kbd { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font: inherit; font-size: .68rem; }
 
+    /* ── Themed prompt/confirm dialog (replaces native prompt/confirm) ── */
+    .tp-dialog { position: fixed; inset: 0; z-index: var(--z-modal); display: none; align-items: center; justify-content: center; padding: 20px; }
+    .tp-dialog.show { display: flex; }
+    .tp-dialog-back { position: absolute; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(3px); }
+    .tp-dialog-panel { position: relative; z-index: 1; width: min(400px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 20px; animation: tp-pop .16s ease-out; }
+    @keyframes tp-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+    .tp-dialog-title { margin: 0 0 4px; font-size: 1.05rem; font-weight: 800; }
+    .tp-dialog-msg { margin: 0 0 14px; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    .tp-dialog-input { width: 100%; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px; font: 1rem inherit; }
+    .tp-dialog-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+    .tp-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .tp-btn { border: none; border-radius: var(--radius-sm); padding: 9px 18px; font: 700 .9rem inherit; cursor: pointer; }
+    .tp-btn-cancel { background: var(--panel-2); border: 1px solid var(--line); color: var(--ink); }
+    .tp-btn-cancel:hover { border-color: var(--accent); }
+    .tp-btn-ok { background: var(--accent); color: var(--on-accent); }
+    .tp-btn-ok:hover { filter: brightness(1.08); }
+    .tp-btn-ok.danger { background: var(--red); color: #2a0a0a; }
+    @media (prefers-reduced-motion: reduce) { .tp-dialog-panel { animation: none; } }
+
     .wrap { max-width: 1140px; margin: 0 auto; padding: 28px 20px 64px; }
 
     /* ── Page header (section title strip) ── */
@@ -823,6 +842,47 @@
       };
       return API;
     })();
+
+    /* ── Themed prompt/confirm: returns a Promise (string|null for prompt,
+       bool for confirm). Replaces the ugly native dialogs. ── */
+    window.tpDialog = function (opts) {
+      opts = opts || {};
+      var hasInput = opts.input !== false;
+      return new Promise(function (resolve) {
+        var el = document.getElementById('tp-dialog');
+        var titleEl = document.getElementById('tp-dialog-title');
+        var msgEl = document.getElementById('tp-dialog-msg');
+        var input = document.getElementById('tp-dialog-input');
+        var ok = document.getElementById('tp-dialog-ok');
+        titleEl.textContent = opts.title || '';
+        msgEl.textContent = opts.message || '';
+        msgEl.style.display = opts.message ? '' : 'none';
+        input.style.display = hasInput ? '' : 'none';
+        input.value = opts.value || '';
+        ok.textContent = opts.okLabel || 'OK';
+        ok.classList.toggle('danger', !!opts.danger);
+        el.classList.add('show'); el.setAttribute('aria-hidden', 'false');
+        if (hasInput) { input.focus(); input.select(); } else { ok.focus(); }
+
+        function cleanup() {
+          ok.removeEventListener('click', onOk);
+          el.querySelectorAll('[data-tp-cancel]').forEach(function (b) { b.removeEventListener('click', onCancel); });
+          document.removeEventListener('keydown', onKey, true);
+        }
+        function done(val) { el.classList.remove('show'); el.setAttribute('aria-hidden', 'true'); cleanup(); resolve(val); }
+        function onOk() { done(hasInput ? input.value.trim() : true); }
+        function onCancel() { done(hasInput ? null : false); }
+        function onKey(e) {
+          if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+          else if (e.key === 'Enter') { e.preventDefault(); onOk(); }
+        }
+        ok.addEventListener('click', onOk);
+        el.querySelectorAll('[data-tp-cancel]').forEach(function (b) { b.addEventListener('click', onCancel); });
+        document.addEventListener('keydown', onKey, true);
+      });
+    };
+    window.tpPrompt = function (title, value) { return window.tpDialog({ title: title, value: value, input: true }); };
+    window.tpConfirm = function (title, message, okLabel) { return window.tpDialog({ title: title, message: message, input: false, okLabel: okLabel || 'OK', danger: true }); };
   </script>
 </head>
 <body>
@@ -869,6 +929,20 @@
         <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
         <span><kbd>↵</kbd> open</span>
         <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Themed prompt/confirm dialog -->
+  <div id="tp-dialog" class="tp-dialog" aria-hidden="true">
+    <div class="tp-dialog-back" data-tp-cancel></div>
+    <div class="tp-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="tp-dialog-title">
+      <h2 class="tp-dialog-title" id="tp-dialog-title"></h2>
+      <p class="tp-dialog-msg" id="tp-dialog-msg"></p>
+      <input class="tp-dialog-input" id="tp-dialog-input" type="text" autocomplete="off" spellcheck="false">
+      <div class="tp-dialog-actions">
+        <button class="tp-btn tp-btn-cancel" type="button" data-tp-cancel>Cancel</button>
+        <button class="tp-btn tp-btn-ok" type="button" id="tp-dialog-ok">OK</button>
       </div>
     </div>
   </div>
