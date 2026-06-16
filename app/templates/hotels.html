@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_explore.html" import explore %}
 {% block title %}Hotels{% if selected_city %} · {{ selected_city }}{% endif %}{% endblock %}
 
 {% block content %}
@@ -128,6 +129,8 @@
   {% endfor %}
 </div>
 {% endif %}
+
+{% if selected_city %}{{ explore(selected_city, 'hotels') }}{% endif %}
 
 <!-- Hotel detail modal — populated client-side from the clicked card. -->
 <div id="hotel-modal" class="hotel-modal" aria-hidden="true">

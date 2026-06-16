@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_explore.html" import explore %}
 {% block title %}Weather{% endblock %}
 
 {#
@@ -120,6 +121,8 @@
     Enter a city above to see current conditions and the forecast.
   </div>
 {% endif %}
+
+{% if weather %}{{ explore(weather.location.name, 'weather') }}{% endif %}
 
 <style>
   /* ── Condition palettes ───────────────────────────────────────────────

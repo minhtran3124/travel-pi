@@ -47,7 +47,34 @@
       /* z-index scale — semantic, no magic numbers */
       --z-sticky:   100;
       --z-progress: 200;
+      --z-modal:    2000;
+      /* scrollbar (tokenised so themes can override) */
+      --scroll-thumb: #3a4644;
+      --scroll-thumb-hover: #4a5755;
     }
+
+    /* ── Alternate theme: Nightfall (cool teal) — toggled via data-theme ──
+       Both Sunset and Nightfall are dark and share the bright status/topic
+       palette, so the colour-coding stays AA in either. */
+    html[data-theme="nightfall"] {
+      --bg:       #141b1a;
+      --panel:    #1b2424;
+      --panel-2:  #243030;
+      --line:     #33403e;
+      --line-soft:#2a3534;
+      --accent:   #2dd4bf;
+      --accent-2: #0f766e;
+      --accent-dim: #5eead4;
+      --accent-glow: rgba(45, 212, 191, 0.16);
+      --on-accent: #08201d;
+      --ink:      #e7eceb;
+      --muted:    #93a1a0;
+      --photo-bg: #1a2224;
+      --ring:     0 0 0 3px rgba(45,212,191,.30);
+      --scroll-thumb: #2b3433;
+      --scroll-thumb-hover: #3b4544;
+    }
+    html { color-scheme: dark; }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -61,8 +88,8 @@
 
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #3a4644; border-radius: 999px; border: 2px solid var(--bg); }
-    ::-webkit-scrollbar-thumb:hover { background: #4a5755; }
+    ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
 
     /* ── Top nav bar ── */
     .topbar {
@@ -113,6 +140,50 @@
     .tabs .spacer { flex: 1; }
     .tab-ext { color: var(--accent-dim); }
     .tab-ext:hover { color: var(--ink); background: transparent; }
+
+    /* ── Topbar buttons (theme switch + palette trigger) ── */
+    .theme-btn {
+      display: inline-flex; align-items: center; gap: 6px; margin-left: 6px;
+      height: 30px; padding: 0 11px; border-radius: var(--radius-sm);
+      background: var(--panel-2); border: 1px solid var(--line);
+      color: var(--muted); font: 600 0.8rem inherit; cursor: pointer;
+      white-space: nowrap; transition: color .15s, border-color .15s;
+    }
+    .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
+    .theme-btn:focus-visible { outline: none; box-shadow: var(--ring); }
+    .theme-dot {
+      width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+    @media (max-width: 640px) { .theme-name { display: none; } }
+
+    /* ── Command palette (⌘K) ── */
+    .cmdk { position: fixed; inset: 0; z-index: var(--z-modal); display: none; }
+    .cmdk.show { display: block; }
+    .cmdk-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(2px); }
+    .cmdk-panel {
+      position: relative; z-index: 1; width: min(560px, 92vw); margin: 12vh auto 0;
+      background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); overflow: hidden;
+    }
+    .cmdk-input {
+      width: 100%; border: none; outline: none; background: transparent; color: var(--ink);
+      font: 1.05rem inherit; padding: 16px 18px; border-bottom: 1px solid var(--line-soft);
+    }
+    .cmdk-input::placeholder { color: var(--muted); }
+    .cmdk-list { max-height: 56vh; overflow-y: auto; padding: 6px; }
+    .cmdk-empty { padding: 22px; text-align: center; color: var(--muted); font-size: .9rem; }
+    .cmdk-group { padding: 9px 12px 4px; font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .cmdk-item {
+      display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: var(--radius-sm);
+      cursor: pointer; color: var(--ink); text-decoration: none;
+    }
+    .cmdk-item .ic { width: 22px; text-align: center; font-size: 1rem; flex: 0 0 auto; }
+    .cmdk-item .lbl { flex: 1; font-size: .92rem; font-weight: 600; }
+    .cmdk-item .sub { color: var(--muted); font-size: .8rem; font-weight: 400; margin-left: 6px; }
+    .cmdk-item.active, .cmdk-item:hover { background: var(--accent-glow); }
+    .cmdk-foot { display: flex; gap: 16px; padding: 8px 14px; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: .72rem; }
+    .cmdk-foot kbd { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font: inherit; font-size: .68rem; }
 
     .wrap { max-width: 1140px; margin: 0 auto; padding: 28px 20px 64px; }
 
@@ -483,6 +554,23 @@
     table.fids.ledger td, table.fids.ledger th { white-space: normal; }
     table.fids.ledger .ref, table.fids.ledger .sta { white-space: nowrap; }
 
+    /* ── "Explore {city}" cross-link strip ── */
+    .explore {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      margin-top: 16px; padding: 12px 16px;
+      background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+      font-size: 0.85rem;
+    }
+    .explore-lbl { font-weight: 700; color: var(--muted); margin-right: 2px; }
+    .explore a {
+      display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+      padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line);
+      color: var(--ink); font-weight: 600;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .explore a:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .explore a[aria-current] { color: var(--muted); border-style: dashed; pointer-events: none; }
+
     footer {
       max-width: 1140px; margin: 0 auto;
       padding: 18px 20px 0; color: var(--muted); font-size: 0.78rem;
@@ -647,11 +735,20 @@
       .fb-btn:active, form.search button:active { transform: none; }
     }
   </style>
+  <script>
+    /* Apply saved theme before paint to avoid a flash (Sunset is the default). */
+    (function () {
+      try {
+        if (localStorage.getItem('tp-theme') === 'nightfall')
+          document.documentElement.dataset.theme = 'nightfall';
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <div id="nav-progress" aria-hidden="true"></div>
   <nav class="topbar">
-    <a class="topbar-brand" href="/dashboard/flights">
+    <a class="topbar-brand" href="/dashboard">
       <span class="icon">✈</span><span class="brand-label">Travel Mock</span>
     </a>
     {% set path = request.url.path %}
@@ -663,6 +760,12 @@
       <a href="/dashboard/weather" class="tab {{ 'on' if path.startswith('/dashboard/weather') else '' }}">Weather</a>
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
       <span class="spacer"></span>
+      <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
+        <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
+      </button>
+      <button type="button" id="theme-btn" class="theme-btn" title="Switch theme" aria-label="Switch theme">
+        <span class="theme-dot" aria-hidden="true"></span><span class="theme-name">Sunset</span>
+      </button>
       <a href="/docs" class="tab tab-ext">API Docs ↗</a>
     </div>
   </nav>
@@ -673,6 +776,136 @@
     Mock data · flights are generated, bookings stored locally ·
     <a href="/docs">API docs</a>
   </footer>
+
+  <!-- Command palette -->
+  <div id="cmdk" class="cmdk" aria-hidden="true">
+    <div class="cmdk-backdrop" data-cmdk-close></div>
+    <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Search and jump">
+      <input id="cmdk-input" class="cmdk-input" type="text" autocomplete="off" spellcheck="false"
+             placeholder="Jump to a page, city, or airport…" aria-label="Search">
+      <div id="cmdk-list" class="cmdk-list" role="listbox"></div>
+      <div class="cmdk-foot">
+        <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+        <span><kbd>↵</kbd> open</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Theme switch (Sunset ⇄ Nightfall) ── */
+    (function () {
+      var btn = document.getElementById('theme-btn');
+      if (!btn) return;
+      var name = btn.querySelector('.theme-name');
+      function label() {
+        name.textContent = document.documentElement.dataset.theme === 'nightfall' ? 'Nightfall' : 'Sunset';
+      }
+      label();
+      btn.addEventListener('click', function () {
+        var next = document.documentElement.dataset.theme === 'nightfall' ? 'sunset' : 'nightfall';
+        if (next === 'sunset') delete document.documentElement.dataset.theme;
+        else document.documentElement.dataset.theme = 'nightfall';
+        try { localStorage.setItem('tp-theme', next); } catch (e) {}
+        label();
+      });
+    })();
+
+    /* ── Command palette (⌘K) ── */
+    (function () {
+      var modal = document.getElementById('cmdk');
+      var input = document.getElementById('cmdk-input');
+      var list = document.getElementById('cmdk-list');
+      if (!modal) return;
+      var enc = encodeURIComponent;
+      var PAGES = [
+        { ic: '🛫', lbl: 'Flights', sub: 'Arrivals & departures board', url: '/dashboard/flights', kw: 'flights board fids' },
+        { ic: '🧭', lbl: 'Search flights by route', sub: '', url: '/dashboard/flights/search', kw: 'route search' },
+        { ic: '🏨', lbl: 'Hotels', sub: '', url: '/dashboard/hotels', kw: 'hotels stay' },
+        { ic: '🗺️', lbl: 'Places', sub: 'Attractions & things to do', url: '/dashboard/places', kw: 'places attractions' },
+        { ic: '💡', lbl: 'Local Tips', sub: '', url: '/dashboard/tips', kw: 'tips advice' },
+        { ic: '🌦️', lbl: 'Weather', sub: '', url: '/dashboard/weather', kw: 'weather forecast' },
+        { ic: '🎫', lbl: 'Bookings', sub: '', url: '/dashboard/bookings', kw: 'bookings reservations' },
+        { ic: '📚', lbl: 'API Docs', sub: '', url: '/docs', kw: 'api docs swagger' }
+      ];
+      var dynamic = null;      // built after fetch: city actions + airports
+      var items = [], active = 0;
+
+      function build(data) {
+        var out = [];
+        (data.cities || []).forEach(function (c) {
+          var kw = (c.name + ' ' + (c.country || '')).toLowerCase();
+          out.push({ ic: '🌦️', lbl: 'Weather', sub: c.name, url: '/dashboard/weather?city=' + enc(c.name), kw: kw, grp: c.name });
+          out.push({ ic: '🏨', lbl: 'Hotels', sub: c.name, url: '/dashboard/hotels?city=' + enc(c.name), kw: kw, grp: c.name });
+          out.push({ ic: '🗺️', lbl: 'Places', sub: c.name, url: '/dashboard/places?city=' + enc(c.name), kw: kw, grp: c.name });
+          out.push({ ic: '💡', lbl: 'Tips', sub: c.name, url: '/dashboard/tips?city=' + enc(c.name), kw: kw, grp: c.name });
+        });
+        (data.airports || []).forEach(function (a) {
+          out.push({ ic: '🛫', lbl: a.code + ' — ' + a.city, sub: 'Flight board', url: '/dashboard/flights?airport=' + enc(a.code), kw: (a.code + ' ' + a.city).toLowerCase(), grp: 'Airports' });
+        });
+        return out;
+      }
+
+      function render(q) {
+        q = q.trim().toLowerCase();
+        var rows = [];
+        // Pages: always; filter by query if present.
+        PAGES.forEach(function (p) {
+          if (!q || (p.lbl + ' ' + p.kw).toLowerCase().indexOf(q) !== -1) rows.push(Object.assign({ grp: 'Pages' }, p));
+        });
+        // Dynamic (cities/airports): only when there's a query.
+        if (q && dynamic) {
+          dynamic.forEach(function (d) { if (d.kw.indexOf(q) !== -1) rows.push(d); });
+        }
+        rows = rows.slice(0, 24);
+        items = rows;
+        active = 0;
+        if (!rows.length) { list.innerHTML = '<div class="cmdk-empty">No matches.</div>'; return; }
+        var html = '', lastGrp = null;
+        rows.forEach(function (r, i) {
+          if (r.grp !== lastGrp) { html += '<div class="cmdk-group">' + r.grp + '</div>'; lastGrp = r.grp; }
+          html += '<a class="cmdk-item' + (i === 0 ? ' active' : '') + '" role="option" data-i="' + i + '" href="' + r.url + '">' +
+                  '<span class="ic">' + r.ic + '</span><span class="lbl">' + r.lbl +
+                  (r.sub ? '<span class="sub">' + r.sub + '</span>' : '') + '</span></a>';
+        });
+        list.innerHTML = html;
+      }
+
+      function setActive(i) {
+        var els = list.querySelectorAll('.cmdk-item');
+        if (!els.length) return;
+        active = (i + els.length) % els.length;
+        els.forEach(function (e, k) { e.classList.toggle('active', k === active); });
+        els[active].scrollIntoView({ block: 'nearest' });
+      }
+
+      function open() {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        input.value = ''; render('');
+        input.focus();
+        if (!dynamic) {
+          fetch('/dashboard/_search.json').then(function (r) { return r.json(); })
+            .then(function (d) { dynamic = build(d); }).catch(function () { dynamic = []; });
+        }
+      }
+      function close() { modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true'); }
+
+      var trigger = document.getElementById('palette-btn');
+      if (trigger) trigger.addEventListener('click', open);
+
+      document.addEventListener('keydown', function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); modal.classList.contains('show') ? close() : open(); return; }
+        if (!modal.classList.contains('show')) return;
+        if (e.key === 'Escape') { close(); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (items[active]) location.href = items[active].url; }
+      });
+      input.addEventListener('input', function () { render(input.value); });
+      modal.querySelectorAll('[data-cmdk-close]').forEach(function (el) { el.addEventListener('click', close); });
+    })();
+  </script>
   <script>
     (function () {
       var bar = document.getElementById('nav-progress');

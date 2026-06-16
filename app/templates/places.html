@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Places & Attractions{% endblock %}
 
+{% from "_explore.html" import explore %}
 {% block content %}
 {# category → signature colour, mirrors the .cat-* text colours below #}
 {% set cat_colors = {
@@ -136,6 +137,8 @@
     <a class="empty-hint" href="/dashboard/places">Clear all filters →</a>
   </div>
 {% endif %}
+
+{% if selected_city %}{{ explore(selected_city, 'places') }}{% endif %}
 
 <!-- Place detail modal — populated client-side from the clicked card. -->
 <div id="place-modal" class="place-modal" aria-hidden="true">

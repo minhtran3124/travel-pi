@@ -20,7 +20,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Query, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from app.core.params import parse_optional_number
@@ -53,11 +53,33 @@ _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:0
 _DEFAULT_AIRPORT = "SGN"
 
 
-@router.get("", include_in_schema=False)
-@router.get("/", include_in_schema=False)
-def dashboard_index() -> RedirectResponse:
-    """Redirect the bare /dashboard path to the default flights board."""
-    return RedirectResponse(url="/dashboard/flights")
+@router.get("", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/", response_class=HTMLResponse, include_in_schema=False)
+def dashboard_index(request: Request) -> HTMLResponse:
+    """Render the dashboard landing page.
+
+    A standalone intro to the Travel Planner that walks through the itinerary
+    flow — Flights → Hotels → Places → Local Tips → Weather — as an animated
+    sequence, with each step linking to its section. Replaces the old redirect
+    straight to the flights board.
+    """
+    return _TEMPLATES.TemplateResponse(request=request, name="index.html")
+
+
+@router.get("/_search.json", include_in_schema=False)
+def palette_index() -> JSONResponse:
+    """Lightweight index for the command palette (cities + airports).
+
+    Fetched once, client-side, the first time the palette opens.
+    """
+    cities = sorted({(c["name"], c["country"]) for c in _CITY_DATA})
+    airports = airport_service.list_airports()
+    return JSONResponse(
+        {
+            "cities": [{"name": n, "country": ct} for n, ct in cities],
+            "airports": [{"code": a.code, "city": a.city} for a in airports],
+        }
+    )
 
 
 @router.get("/flights", response_class=HTMLResponse)
