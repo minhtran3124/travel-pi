@@ -14,6 +14,7 @@ Base URL: `http://localhost:8000`
 | GET | `/airports` | All supported airports |
 | GET | `/cities` | All cities that have hotel data |
 | GET | `/cities/route` | Route between two cities — distance, time, best travel mode |
+| GET | `/cities/{city_name}` | Get one city by name (case-insensitive) |
 | GET | `/flights/search` | Search flights (one-way or round-trip) |
 | GET | `/flights/{flight_id}` | Get one flight by UUID |
 | POST | `/flights/book` | Book a flight |
@@ -24,6 +25,8 @@ Base URL: `http://localhost:8000`
 | POST | `/hotels/book` | Book a hotel (availability-checked) |
 | GET | `/places` | List all places / attractions |
 | GET | `/places/search` | Search places by city + filters |
+| GET | `/places/cities` | List all cities that have places |
+| GET | `/places/categories` | List all place categories |
 | GET | `/places/nearby` | Find places near another place |
 | GET | `/places/route` | Route between two places — distance, time, best travel mode |
 | GET | `/places/{place_id}` | Get one place by ID |
@@ -32,6 +35,34 @@ Base URL: `http://localhost:8000`
 | GET | `/bookings` | List bookings (search / filter / sort) |
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
+
+---
+
+## Pagination
+
+Every **list** endpoint shares one `limit`/`offset` paging contract and wraps
+its rows in the same envelope:
+
+| Param | Default | Notes |
+|-------|---------|-------|
+| `limit` | `20` | Page size, 1–500 |
+| `offset` | `0` | Number of items to skip |
+
+```json
+{
+  "total": 51,          // full match count, before paging
+  "limit": 20,
+  "offset": 0,
+  "results": [ ... ]    // the current page
+}
+```
+
+`total` is always the count of *all* matches; `results` is just the current
+page. Applies to: `/airports`, `/cities`, `/hotels`, `/hotels/search`,
+`/hotels/availability`, `/places`, `/places/search`, and `/bookings`. The
+search endpoints add their `search`/echo fields alongside these. Non-list
+responses (`/flights/search`, `/places/nearby`, `/tips`, the `/*/route`
+endpoints) use their own `count`-based shapes and are **not** paginated.
 
 ---
 
@@ -74,14 +105,18 @@ hotel / place UUIDs, IATA codes) stay **exact** — they are machine
 identifiers, not names.
 
 ```json
-[
-  { "name": "Bali",           "country": "Indonesia", "hotel_count": 5 },
-  { "name": "Bangkok",        "country": "Thailand",  "hotel_count": 5 },
-  { "name": "Cebu",           "country": "Philippines","hotel_count": 1 },
-  { "name": "Chiang Mai",     "country": "Thailand",  "hotel_count": 3 },
-  { "name": "Da Nang",        "country": "Vietnam",   "hotel_count": 4 },
-  ...
-]
+{
+  "total": 12,
+  "limit": 20,
+  "offset": 0,
+  "results": [
+    { "name": "Bali",       "country": "Indonesia",   "hotel_count": 5, "airport_codes": ["DPS"], "latitude": -8.41, "longitude": 115.19 },
+    { "name": "Bangkok",    "country": "Thailand",    "hotel_count": 5, "airport_codes": ["BKK", "DMK"], "latitude": 13.76, "longitude": 100.50 },
+    { "name": "Cebu",       "country": "Philippines", "hotel_count": 1, "airport_codes": ["CEB"], "latitude": 10.32, "longitude": 123.89 },
+    { "name": "Chiang Mai", "country": "Thailand",    "hotel_count": 3, "airport_codes": ["CNX"], "latitude": 18.79, "longitude": 98.99 },
+    { "name": "Da Nang",    "country": "Vietnam",     "hotel_count": 4, "airport_codes": ["DAD"], "latitude": 16.05, "longitude": 108.20 }
+  ]
+}
 ```
 
 ---
@@ -175,7 +210,10 @@ Returns the flight object, or **404** if the UUID is unknown.
 curl -X POST http://localhost:8000/flights/book \
   -H "Content-Type: application/json" \
   -d '{
-    "flight_id": "<uuid from /flights/search>",
+    "flight_number": "VN123",
+    "origin": "DAD",
+    "destination": "SGN",
+    "departure_date": "2026-06-01",
     "passenger_name": "Minh Tran",
     "passenger_email": "minh@example.com",
     "passenger_phone": "+84 901 234 567",
@@ -185,11 +223,19 @@ curl -X POST http://localhost:8000/flights/book \
 
 | Field | Required | Notes |
 |-------|----------|-------|
-| `flight_id` | ✓ | UUID from `/flights/search` — **404** if invalid |
+| `flight_number` | ✓ | Carrier code + number, case-insensitive (`VN123` or `VN 123`) — from `/flights/search` |
+| `origin` | ✓ | 3-letter IATA origin code, case-insensitive |
+| `destination` | ✓ | 3-letter IATA destination code, case-insensitive |
+| `departure_date` | ✓ | YYYY-MM-DD |
 | `passenger_name` | ✓ | Full name as printed on the passenger's ID/passport |
 | `passenger_email` | ✓ | Contact email for the itinerary / e-ticket |
 | `passenger_phone` | ✓ | Contact phone for airline notifications (delays, gate) |
 | `notes` | — | Free-text context the agent/user wants to attach |
+
+A flight number alone isn't unique (the same code is reused across dates and
+routes), so the booking is identified by `flight_number` **plus** the route
+and date — together they pin a single flight from the search results. An
+unmatched combination returns **404**.
 
 The fare is **not** sent by the client — `total_price` on the resulting
 booking is taken server-side from the selected flight (`flight.price`), so it
@@ -253,6 +299,8 @@ curl "http://localhost:8000/hotels/search?city=Bangkok&min_stars=5&amenities=Poo
 ```json
 {
   "total": 2,
+  "limit": 20,
+  "offset": 0,
   "search": { "city": "Bangkok", "min_stars": 5, "max_price": null, "amenities": ["Pool", "Spa"] },
   "results": [ ... ]
 }
@@ -296,6 +344,8 @@ curl "http://localhost:8000/hotels/availability\
 ```json
 {
   "total": 4,
+  "limit": 20,
+  "offset": 0,
   "search": {
     "city": "Da Nang", "check_in": "2026-06-01", "check_out": "2026-06-03",
     "nights": 2, "rooms": 1, "adults": 2, "children": 0,
@@ -552,6 +602,28 @@ curl "http://localhost:8000/tips?city=Bali&essential_only=true"
 
 Each tip's `scope` is `"country"` or `"city"`. Use `is_essential` to surface
 the must-know tips first in a compact itinerary.
+
+---
+
+## `GET /weather` — current conditions + short forecast
+
+Resolves a city name to coordinates and returns live current weather plus a
+short forecast from [Open-Meteo](https://open-meteo.com/) (free, no API key).
+This is one of the few endpoints that makes a real outbound call.
+
+### Params
+
+| Param | Required | Default | Notes |
+|-------|----------|---------|-------|
+| `city` | ✓ | — | City name to look up, e.g. `Da Nang`. |
+| `days` | — | `3` | Number of forecast days, 1–16. Out of range → **422**. |
+
+Returns **404** if the city name cannot be geocoded, and **502** if the
+upstream Open-Meteo service is unreachable.
+
+```bash
+curl "http://localhost:8000/weather?city=Da%20Nang&days=5"
+```
 
 ---
 
