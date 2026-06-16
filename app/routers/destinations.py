@@ -1,13 +1,14 @@
-"""Destination endpoints: city overview aggregate."""
+"""Destination endpoints: city overview aggregate and climate normals."""
 
 from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
 from app.enums import OverviewSection
+from app.schemas.climate import ClimateResponse
 from app.schemas.destination import DestinationOverviewResponse
 from app.schemas.error import error_responses
-from app.services import destination_service
+from app.services import climate_service, destination_service
 
 router = APIRouter(prefix="/destinations", tags=["destinations"])
 
@@ -60,3 +61,43 @@ async def get_destination_overview(
         place_limit=place_limit,
         tip_limit=tip_limit,
     )
+
+
+@router.get(
+    "/climate",
+    response_model=ClimateResponse,
+    summary="Get monthly climate normals for a destination city",
+    responses=error_responses(404, 422, 502),
+)
+async def get_destination_climate(
+    city: Annotated[
+        str,
+        Query(
+            description="City name — fuzzy (typo/case tolerant)", examples=["Da Nang"]
+        ),
+    ],
+    month: Annotated[
+        int | None,
+        Query(
+            ge=1,
+            le=12,
+            description="Optional 1–12 to return just that month (omits best_months).",
+        ),
+    ] = None,
+) -> ClimateResponse:
+    """Return monthly climate normals for a destination city.
+
+    Provides average temperature (max/min), precipitation, rainy-day count, and
+    a comfort label for each calendar month, derived from ~3 years of Open-Meteo
+    historical archive data. Also includes ``best_months`` (the most comfortable
+    months to visit) and a prose ``summary`` of the destination's climate.
+
+    Pass ``month`` (1–12) to receive data for a single month only; ``best_months``
+    is omitted from single-month responses. Omit ``month`` to receive all twelve
+    months with full best-time guidance.
+
+    Unknown cities raise 404. An invalid ``month`` value is rejected with 422
+    before the service is called. If the Open-Meteo Archive API is unavailable
+    or returns malformed data, the endpoint raises 502.
+    """
+    return await climate_service.get_climate(city, month=month)
