@@ -20,6 +20,7 @@ from app.routers import (
     meta,
     places,
     tips,
+    visa,
     weather,
 )
 
@@ -35,6 +36,7 @@ router.include_router(places.router)
 router.include_router(tips.router)
 router.include_router(destinations.router)
 router.include_router(currency.router)
+router.include_router(visa.router)
 router.include_router(weather.router)
 router.include_router(air_quality.router)
 router.include_router(bookings.router)
