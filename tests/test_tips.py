@@ -154,19 +154,27 @@ def test_dashboard_tips_no_filter_returns_200(client: TestClient) -> None:
 
 
 def test_dashboard_tips_no_filter_renders_tip_cards(client: TestClient) -> None:
-    """Default view shows the every-destination tip list, not the picker."""
+    """Default view is the friendly destination picker."""
     html = client.get("/dashboard/tips").text
-    assert "tip-card" in html
-    # Each card carries its location chip in the all-tips view.
-    assert "loc-badge" in html
+    assert 'class="dest"' in html          # destination tiles
+    assert "Where are you headed" in html
+
+
+def test_dashboard_tips_browse_all_renders_entries(client: TestClient) -> None:
+    """browse=all shows every tip as field-guide entries, with location meta."""
+    html = client.get("/dashboard/tips", params={"browse": "all"}).text
+    assert 'class="entry' in html
+    assert "entry-meta" in html
 
 
 def test_dashboard_tips_category_filter_narrows_results(client: TestClient) -> None:
-    """A category filter applied to the all-tips view yields fewer cards."""
-    all_count = client.get("/dashboard/tips").text.count("tip-card")
+    """A category filter narrows the browse-all view to fewer entries."""
+    all_count = client.get(
+        "/dashboard/tips", params={"browse": "all"}
+    ).text.count('class="entry')
     money_count = client.get(
-        "/dashboard/tips", params={"category": "money"}
-    ).text.count("tip-card")
+        "/dashboard/tips", params={"browse": "all", "category": "money"}
+    ).text.count('class="entry')
     assert 0 < money_count < all_count
 
 
