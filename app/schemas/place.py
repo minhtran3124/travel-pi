@@ -108,8 +108,12 @@ class PlaceSearchResponse(PagedResponse[Place]):
 
     city: str | None = Field(default=None, description="City filter applied.")
     category: str | None = Field(default=None, description="Category filter applied.")
-    min_rating: float | None = Field(default=None, description="Min-rating filter applied.")
-    price_level: int | None = Field(default=None, description="Price-level filter applied.")
+    min_rating: float | None = Field(
+        default=None, description="Min-rating filter applied."
+    )
+    price_level: int | None = Field(
+        default=None, description="Price-level filter applied."
+    )
     recommended_only: bool = Field(
         default=False, description="True if only `is_recommended` places were returned."
     )
@@ -119,4 +123,52 @@ class PlaceSearchResponse(PagedResponse[Place]):
             "Sort key applied. One of: 'rating_desc', 'rating_asc', "
             "'name', 'price_asc', 'price_desc', 'reviews_desc'."
         ),
+    )
+
+
+class ParsedQuery(AppBaseModel):
+    """How the server interpreted a natural-language places query."""
+
+    city: str | None = Field(
+        default=None,
+        description="City resolved from the query (canonical name), or null.",
+        examples=["Hanoi"],
+    )
+    category: str | None = Field(
+        default=None,
+        description="Place category inferred from keywords, or null.",
+        examples=["restaurant"],
+    )
+    min_rating: float | None = Field(
+        default=None,
+        description="Minimum rating inferred (e.g. '4 star', 'best'), or null.",
+        examples=[4.5],
+    )
+    price_level: int | None = Field(
+        default=None,
+        description=(
+            "Price band 1–4 inferred from a budget ('under $40') or adjective "
+            "('cheap'), applied as a ceiling (results are <= this band). "
+            "Null if none found."
+        ),
+        examples=[2],
+    )
+
+
+class PlaceNLSearchRequest(AppBaseModel):
+    """Request body for ``POST /places/search/nl``."""
+
+    query: str = Field(
+        min_length=1,
+        description="Free-text request to interpret.",
+        examples=["romantic dinner in Hanoi under $40"],
+    )
+
+
+class PlaceNLSearchResponse(PagedResponse[Place]):
+    """Response body for ``POST /places/search/nl``."""
+
+    query: str = Field(description="The original query, echoed back.")
+    parsed: ParsedQuery = Field(
+        description="Structured filters the server extracted from the query."
     )

@@ -43,3 +43,7 @@ node_modules/
 .impeccable/
 .opencode/
 .turbo/
+
+# Derived plan-render artifacts (visual-planner)
+specs/**/PLAN.html
+specs/**/.plan-review.json

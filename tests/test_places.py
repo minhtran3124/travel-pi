@@ -1,8 +1,11 @@
 """Tests for the /places endpoints."""
 
+import pytest
+from app.services import place_service
 from fastapi.testclient import TestClient
 
 # ── List all (paginated) ──────────────────────────────────────────────────────
+
 
 def test_list_places_status(client: TestClient) -> None:
     assert client.get("/places").status_code == 200
@@ -18,9 +21,21 @@ def test_list_places_returns_paginated_envelope(client: TestClient) -> None:
 
 def test_list_places_fields(client: TestClient) -> None:
     place = client.get("/places").json()["results"][0]
-    for field in ("id", "name", "city", "country", "category", "description",
-                  "address", "rating", "review_count", "price_level",
-                  "image_url", "tags", "is_recommended"):
+    for field in (
+        "id",
+        "name",
+        "city",
+        "country",
+        "category",
+        "description",
+        "address",
+        "rating",
+        "review_count",
+        "price_level",
+        "image_url",
+        "tags",
+        "is_recommended",
+    ):
         assert field in place, f"missing field: {field}"
 
 
@@ -54,7 +69,9 @@ def test_list_places_custom_limit(client: TestClient) -> None:
 
 
 def test_list_places_offset_shifts_page(client: TestClient) -> None:
-    all_ids = [p["id"] for p in client.get("/places", params={"limit": 100}).json()["results"]]
+    all_ids = [
+        p["id"] for p in client.get("/places", params={"limit": 100}).json()["results"]
+    ]
     page1 = client.get("/places", params={"limit": 3, "offset": 0}).json()["results"]
     page2 = client.get("/places", params={"limit": 3, "offset": 3}).json()["results"]
     assert [p["id"] for p in page1] == all_ids[:3]
@@ -78,6 +95,7 @@ def test_list_places_offset_validation(client: TestClient) -> None:
 
 # ── Cities endpoint ───────────────────────────────────────────────────────────
 
+
 def test_cities_status(client: TestClient) -> None:
     assert client.get("/places/cities").status_code == 200
 
@@ -94,6 +112,7 @@ def test_cities_non_empty(client: TestClient) -> None:
 
 # ── Categories endpoint ───────────────────────────────────────────────────────
 
+
 def test_categories_status(client: TestClient) -> None:
     assert client.get("/places/categories").status_code == 200
 
@@ -105,6 +124,7 @@ def test_categories_is_sorted_list(client: TestClient) -> None:
 
 
 # ── Search (paginated) ────────────────────────────────────────────────────────
+
 
 def test_search_status(client: TestClient) -> None:
     assert client.get("/places/search").status_code == 200
@@ -140,14 +160,19 @@ def test_search_unknown_city_returns_empty(client: TestClient) -> None:
 
 
 def test_search_by_category(client: TestClient) -> None:
-    data = client.get("/places/search", params={"category": "restaurant", "limit": 100}).json()
+    data = client.get(
+        "/places/search", params={"category": "restaurant", "limit": 100}
+    ).json()
     assert data["total"] > 0
     for place in data["results"]:
         assert place["category"] == "restaurant"
 
 
 def test_search_invalid_category_422(client: TestClient) -> None:
-    assert client.get("/places/search", params={"category": "invalid_cat"}).status_code == 422
+    assert (
+        client.get("/places/search", params={"category": "invalid_cat"}).status_code
+        == 422
+    )
 
 
 def test_search_by_min_rating(client: TestClient) -> None:
@@ -165,15 +190,19 @@ def test_search_by_price_level(client: TestClient) -> None:
 
 
 def test_search_recommended_only(client: TestClient) -> None:
-    data = client.get("/places/search", params={"recommended": True, "limit": 100}).json()
+    data = client.get(
+        "/places/search", params={"recommended": True, "limit": 100}
+    ).json()
     assert data["total"] > 0
     for place in data["results"]:
         assert place["is_recommended"] is True
 
 
 def test_search_combined_filters(client: TestClient) -> None:
-    data = client.get("/places/search",
-                      params={"city": "Da Nang", "category": "attraction", "limit": 100}).json()
+    data = client.get(
+        "/places/search",
+        params={"city": "Da Nang", "category": "attraction", "limit": 100},
+    ).json()
     assert data["total"] > 0
     for place in data["results"]:
         assert place["city"] == "Da Nang"
@@ -181,19 +210,25 @@ def test_search_combined_filters(client: TestClient) -> None:
 
 
 def test_search_echoes_params(client: TestClient) -> None:
-    data = client.get("/places/search", params={"city": "Hanoi", "category": "cafe"}).json()
+    data = client.get(
+        "/places/search", params={"city": "Hanoi", "category": "cafe"}
+    ).json()
     assert data["city"] == "Hanoi"
     assert data["category"] == "cafe"
 
 
 def test_search_sort_rating_desc(client: TestClient) -> None:
-    results = client.get("/places/search", params={"sort": "rating_desc"}).json()["results"]
+    results = client.get("/places/search", params={"sort": "rating_desc"}).json()[
+        "results"
+    ]
     ratings = [p["rating"] for p in results]
     assert ratings == sorted(ratings, reverse=True)
 
 
 def test_search_sort_rating_asc(client: TestClient) -> None:
-    results = client.get("/places/search", params={"sort": "rating_asc"}).json()["results"]
+    results = client.get("/places/search", params={"sort": "rating_asc"}).json()[
+        "results"
+    ]
     ratings = [p["rating"] for p in results]
     assert ratings == sorted(ratings)
 
@@ -205,7 +240,9 @@ def test_search_sort_name(client: TestClient) -> None:
 
 
 def test_search_sort_price_asc(client: TestClient) -> None:
-    results = client.get("/places/search", params={"sort": "price_asc"}).json()["results"]
+    results = client.get("/places/search", params={"sort": "price_asc"}).json()[
+        "results"
+    ]
     levels = [p["price_level"] for p in results]
     assert levels == sorted(levels)
 
@@ -217,13 +254,17 @@ def test_search_invalid_sort_returns_422(client: TestClient) -> None:
     assert resp.status_code == 422
 
 
-def test_search_empty_string_min_rating_treated_as_no_filter(client: TestClient) -> None:
+def test_search_empty_string_min_rating_treated_as_no_filter(
+    client: TestClient,
+) -> None:
     resp = client.get("/places/search", params={"min_rating": ""})
     assert resp.status_code == 200
     assert resp.json()["min_rating"] is None
 
 
-def test_search_empty_string_price_level_treated_as_no_filter(client: TestClient) -> None:
+def test_search_empty_string_price_level_treated_as_no_filter(
+    client: TestClient,
+) -> None:
     resp = client.get("/places/search", params={"price_level": ""})
     assert resp.status_code == 200
     assert resp.json()["price_level"] is None
@@ -233,9 +274,9 @@ def test_search_all_empty_strings(client: TestClient) -> None:
     """Empty strings on the free-text + numeric params are treated as no filter.
     ``category`` is now a strict enum, so it is excluded from this test —
     sending ``category=""`` correctly 422s (covered separately)."""
-    resp = client.get("/places/search", params={
-        "city": "", "min_rating": "", "price_level": ""
-    })
+    resp = client.get(
+        "/places/search", params={"city": "", "min_rating": "", "price_level": ""}
+    )
     assert resp.status_code == 200
     assert resp.json()["total"] > 0
 
@@ -248,16 +289,19 @@ def test_search_empty_string_category_returns_422(client: TestClient) -> None:
 def test_search_pagination(client: TestClient) -> None:
     total = client.get("/places/search", params={"city": "Da Nang"}).json()["total"]
     if total > 1:
-        p1 = client.get("/places/search",
-                        params={"city": "Da Nang", "limit": 1, "offset": 0}).json()
-        p2 = client.get("/places/search",
-                        params={"city": "Da Nang", "limit": 1, "offset": 1}).json()
+        p1 = client.get(
+            "/places/search", params={"city": "Da Nang", "limit": 1, "offset": 0}
+        ).json()
+        p2 = client.get(
+            "/places/search", params={"city": "Da Nang", "limit": 1, "offset": 1}
+        ).json()
         assert p1["total"] == total
         assert p2["total"] == total
         assert p1["results"][0]["id"] != p2["results"][0]["id"]
 
 
 # ── Detail ────────────────────────────────────────────────────────────────────
+
 
 def _first_place_id(client: TestClient) -> str:
     return client.get("/places").json()["results"][0]["id"]
@@ -432,3 +476,108 @@ def test_nearby_accepts_short_code(client: TestClient) -> None:
     short_code = client.get(f"/places/{_DRAGON_BRIDGE}").json()["short_code"]
     resp = client.get("/places/nearby", params={"place_id": short_code})
     assert resp.status_code == 200
+
+
+# ── NL query parsing (service-level) ──────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "query, field, expected",
+    [
+        ("romantic dinner in Hanoi under $40", "city", "Hanoi"),
+        ("romantic dinner in Hanoi under $40", "category", "restaurant"),
+        ("romantic dinner in Hanoi under $40", "price_level", 2),
+        ("cheap coffee in Da Nang", "category", "cafe"),
+        ("cheap coffee in Da Nang", "price_level", 1),
+        ("cheap coffee in Da Nang", "city", "Da Nang"),
+        ("best museums to visit", "category", "attraction"),
+        ("best museums to visit", "min_rating", 4.5),
+        ("4 star hotels", "min_rating", 4.0),
+        ("10 star hotels", "min_rating", 5.0),  # multi-digit captured whole, clamped
+        ("luxury shopping", "price_level", 4),
+        ("luxury shopping", "category", "shopping"),
+        ("nothing useful here", "city", None),
+        ("nothing useful here", "category", None),
+        ("nothing useful here", "price_level", None),
+        ("nothing useful here", "min_rating", None),
+    ],
+)
+def test_parse_nl_query(query, field, expected) -> None:
+    parsed = place_service.parse_nl_query(query)
+    assert getattr(parsed, field) == expected
+
+
+# ── NL search endpoint (HTTP) ─────────────────────────────────────────────────
+
+
+def test_nl_search_status(client: TestClient) -> None:
+    resp = client.post("/places/search/nl", json={"query": "dinner in Hanoi"})
+    assert resp.status_code == 200
+
+
+def test_nl_search_echoes_parsed_filters(client: TestClient) -> None:
+    body = client.post(
+        "/places/search/nl",
+        json={"query": "romantic dinner in Hanoi under $40"},
+    ).json()
+    assert body["query"] == "romantic dinner in Hanoi under $40"
+    assert body["parsed"] == {
+        "city": "Hanoi",
+        "category": "restaurant",
+        "min_rating": None,
+        "price_level": 2,
+    }
+
+
+def test_nl_search_results_match_parsed_filters(client: TestClient) -> None:
+    body = client.post(
+        "/places/search/nl",
+        json={"query": "romantic dinner in Hanoi under $40"},
+    ).json()
+    assert body["total"] >= 1
+    for place in body["results"]:
+        assert place["city"] == "Hanoi"
+        assert place["category"] == "restaurant"
+        # price_level is a ceiling: "under $40" → band 2 includes bands 1 and 2.
+        assert place["price_level"] <= 2
+
+
+def test_nl_search_price_level_is_a_ceiling(client: TestClient) -> None:
+    # Hanoi has restaurants at price_level 1 and 2; the band-2 budget must
+    # include the cheaper band-1 place, not just exact band-2 matches.
+    body = client.post(
+        "/places/search/nl",
+        json={"query": "dinner in Hanoi under $40"},
+    ).json()
+    assert body["parsed"]["price_level"] == 2
+    levels = {p["price_level"] for p in body["results"]}
+    assert levels <= {1, 2}
+    assert 1 in levels  # the cheaper place is included by the ceiling
+
+
+def test_nl_search_empty_query_422(client: TestClient) -> None:
+    assert client.post("/places/search/nl", json={"query": ""}).status_code == 422
+
+
+def test_nl_search_missing_query_422(client: TestClient) -> None:
+    assert client.post("/places/search/nl", json={}).status_code == 422
+
+
+def test_nl_search_no_signal_returns_all_with_null_parsed(client: TestClient) -> None:
+    body = client.post("/places/search/nl", json={"query": "show me stuff"}).json()
+    assert body["parsed"] == {
+        "city": None,
+        "category": None,
+        "min_rating": None,
+        "price_level": None,
+    }
+    assert body["total"] > 0
+
+
+def test_nl_search_pagination(client: TestClient) -> None:
+    body = client.post(
+        "/places/search/nl?limit=2",
+        json={"query": "show me stuff"},
+    ).json()
+    assert body["limit"] == 2
+    assert len(body["results"]) <= 2

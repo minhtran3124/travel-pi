@@ -13,6 +13,8 @@ from app.schemas.place import (
     Place,
     PlaceListResponse,
     PlaceNearbyResponse,
+    PlaceNLSearchRequest,
+    PlaceNLSearchResponse,
     PlaceSearchResponse,
 )
 from app.schemas.route import RouteResponse
@@ -133,6 +135,43 @@ def search_places(
     )
 
 
+@router.post(
+    "/search/nl",
+    response_model=PlaceNLSearchResponse,
+    summary="Natural-language place search",
+    responses=error_responses(422),
+)
+def search_places_nl(
+    body: PlaceNLSearchRequest,
+    pagination: PaginationDep,
+) -> PlaceNLSearchResponse:
+    """Parse a free-text query into structured filters, then search.
+
+    The parsed filters are echoed back in ``parsed`` so the caller can see
+    how the query was interpreted. Budget phrases ('under $40') and price
+    adjectives ('cheap') map to a ``price_level`` band applied as a ceiling
+    (``<=``), so "under $40" includes everything at or below that band.
+    Unrecognised words are ignored. Pagination uses the standard
+    ``limit`` / ``offset`` query params.
+    """
+    parsed = place_service.parse_nl_query(body.query)
+    all_results = place_service.search_places(
+        city=parsed.city,
+        category=parsed.category,
+        min_rating=parsed.min_rating,
+        price_level_max=parsed.price_level,
+    )
+    page, total = pagination.page_of(all_results)
+    return PlaceNLSearchResponse(
+        total=total,
+        limit=pagination.limit,
+        offset=pagination.offset,
+        query=body.query,
+        parsed=parsed,
+        results=page,
+    )
+
+
 @router.get(
     "/cities",
     response_model=list[str],
@@ -171,8 +210,8 @@ def nearby_places(
     radius_km: Annotated[
         float,
         Query(
-            gt=0, le=50, description="Search radius in kilometres (0–50)", examples=[5
-        ]),
+            gt=0, le=50, description="Search radius in kilometres (0–50)", examples=[5]
+        ),
     ] = 5.0,
     limit: Annotated[
         int,
