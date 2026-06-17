@@ -63,8 +63,24 @@ class TripService:
         """Return every trip, newest first."""
         return self._repo.list_trips()
 
-    def create_trip(self, request: TripCreate) -> Trip:
-        """Create a trip (plus any initial items) and return it."""
+    def create_trip(
+        self, request: TripCreate, idempotency_key: str | None = None
+    ) -> Trip:
+        """Create a trip (plus any initial items) and return it.
+
+        When ``idempotency_key`` matches an earlier request, the original trip
+        is returned and nothing new is stored.
+        """
+        if idempotency_key:
+            existing = self._repo.get_trip_by_idempotency_key(idempotency_key)
+            if existing is not None:
+                logger.info(
+                    "Idempotency-Key %s replayed trip %s",
+                    idempotency_key,
+                    existing.id,
+                )
+                return existing
+
         trip_id = _new_id()
         items = [
             TripItem(id=_new_id(), trip_id=trip_id, **item.model_dump())
@@ -81,9 +97,9 @@ class TripService:
             created_at=datetime.now(timezone.utc),
             items=items,
         )
-        self._repo.create_trip(trip)
-        logger.info("Created trip %s with %d item(s)", trip_id, len(items))
-        return self._repo.get_trip(trip_id)
+        stored = self._repo.create_trip(trip, idempotency_key=idempotency_key)
+        logger.info("Created trip %s with %d item(s)", stored.id, len(items))
+        return self._repo.get_trip(stored.id)
 
     def update_trip(self, trip_id: str, request: TripUpdate) -> Trip:
         """Replace a trip's top-level fields. 404 if it does not exist."""
@@ -108,13 +124,31 @@ class TripService:
         self._repo.delete_trip(trip_id)
         logger.info("Deleted trip %s", trip_id)
 
-    def add_item(self, trip_id: str, request: TripItemCreate) -> TripItem:
-        """Append an item to a trip. 404 if the trip does not exist."""
+    def add_item(
+        self,
+        trip_id: str,
+        request: TripItemCreate,
+        idempotency_key: str | None = None,
+    ) -> TripItem:
+        """Append an item to a trip. 404 if the trip does not exist.
+
+        When ``idempotency_key`` matches an earlier request, the original item
+        is returned and nothing new is stored.
+        """
         self.get_trip(trip_id)
+        if idempotency_key:
+            existing = self._repo.get_item_by_idempotency_key(idempotency_key)
+            if existing is not None:
+                logger.info(
+                    "Idempotency-Key %s replayed item %s",
+                    idempotency_key,
+                    existing.id,
+                )
+                return existing
         item = TripItem(id=_new_id(), trip_id=trip_id, **request.model_dump())
-        self._repo.add_item(item)
-        logger.info("Added item %s to trip %s", item.id, trip_id)
-        return item
+        stored = self._repo.add_item(item, idempotency_key=idempotency_key)
+        logger.info("Added item %s to trip %s", stored.id, trip_id)
+        return stored
 
     def update_item(
         self, trip_id: str, item_id: str, request: TripItemUpdate

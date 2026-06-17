@@ -456,3 +456,22 @@ def test_post_estimate_bad_enum_returns_422(client):
 def test_post_estimate_zero_nights_returns_422(client):
     resp = client.post("/trips/estimate", json={"nights": 0, "travelers": 1})
     assert resp.status_code == 422
+
+
+def test_create_trip_idempotent(client):
+    payload = {"title": "Idem Trip", "travelers": 2}
+    h = {"Idempotency-Key": "trip-key-1"}
+    first = client.post("/trips", json=payload, headers=h).json()
+    second = client.post("/trips", json=payload, headers=h).json()
+    assert first["id"] == second["id"]
+    ids = [t["id"] for t in client.get("/trips").json()["results"]]
+    assert ids.count(first["id"]) == 1
+
+
+def test_add_item_idempotent(client):
+    trip = client.post("/trips", json={"title": "T", "travelers": 1}).json()
+    item = {"day": 1, "kind": "note", "title": "X"}
+    h = {"Idempotency-Key": "item-key-1"}
+    first = client.post(f"/trips/{trip['id']}/items", json=item, headers=h).json()
+    second = client.post(f"/trips/{trip['id']}/items", json=item, headers=h).json()
+    assert first["id"] == second["id"]
