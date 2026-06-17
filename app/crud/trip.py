@@ -274,10 +274,17 @@ class TripRepository:
             return cursor.rowcount > 0
 
     def delete_trip(self, trip_id: str, *, when: str) -> bool:
-        """Soft-delete: stamp deleted_at, keep the row. True if it existed and was live."""
+        """Soft-delete: stamp deleted_at, keep the row. True if it existed and was live.
+
+        The idempotency_key is cleared on tombstoning: it is only meaningful for
+        replaying *live* trips, and the UNIQUE key index spans all rows — leaving
+        it would make a later create that reuses the key collide with the dead
+        row (which the deleted_at-filtered replay lookup can't recover).
+        """
         with self._connect() as conn:
             cursor = conn.execute(
-                "UPDATE trips SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL",
+                "UPDATE trips SET deleted_at = ?, idempotency_key = NULL "
+                "WHERE id = ? AND deleted_at IS NULL",
                 (when, trip_id),
             )
             return cursor.rowcount > 0

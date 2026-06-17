@@ -500,3 +500,16 @@ def test_delete_trip_is_soft(client):
     assert trip["id"] not in ids
     # idempotent: already-deleted → 404, not 500
     assert client.delete(f"/trips/{trip['id']}").status_code == 404
+
+
+def test_idempotency_key_reusable_after_soft_delete(client):
+    # Create with a key, soft-delete the trip, then reuse the same key:
+    # the tombstoned row's key is cleared, so the re-create must succeed (not 500).
+    h = {"Idempotency-Key": "recycle-key"}
+    first = client.post(
+        "/trips", json={"title": "One", "travelers": 1}, headers=h
+    ).json()
+    assert client.delete(f"/trips/{first['id']}").status_code == 204
+    resp = client.post("/trips", json={"title": "Two", "travelers": 1}, headers=h)
+    assert resp.status_code == 201
+    assert resp.json()["id"] != first["id"]

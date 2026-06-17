@@ -36,7 +36,10 @@ def readyz(bookings: BookingsDep) -> ReadyResponse:
     separate, non-fatal upstream — routing degrades to an offline estimate
     without an ORS key, so a missing key is "fallback", not "not ready".
     """
-    database = "ok" if bookings.ping() else "error"
+    try:
+        database = "ok" if bookings.ping() else "error"
+    except Exception:  # DB unreachable — degrade gracefully, don't 500 the probe
+        database = "error"
     routing = "live" if get_settings().routing_provider_enabled else "fallback"
     return ReadyResponse(
         status="ready" if database == "ok" else "not_ready",
