@@ -40,6 +40,14 @@ Base URL: `http://localhost:8000`
 | GET | `/bookings` | List bookings (search / filter / sort) |
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
+| POST | `/trips` | Create a trip itinerary (with optional items) |
+| GET | `/trips` | List trips (paginated) |
+| GET | `/trips/{trip_id}` | Get one trip + its day-by-day items |
+| PUT | `/trips/{trip_id}` | Replace a trip's top-level fields |
+| DELETE | `/trips/{trip_id}` | Delete a trip and its items |
+| POST | `/trips/{trip_id}/items` | Add an item to a trip |
+| PUT | `/trips/{trip_id}/items/{item_id}` | Replace an item |
+| DELETE | `/trips/{trip_id}/items/{item_id}` | Delete an item |
 
 ---
 
@@ -1017,6 +1025,52 @@ already-cancelled booking is a no-op. **404** if no booking matches.
 
 ```bash
 curl -X POST http://localhost:8000/bookings/HDEAX4/cancel
+```
+
+---
+
+## `/trips` — itinerary planner (CRUD)
+
+A **trip** is a freeform, day-by-day itinerary you can save and edit. It is the
+second piece of mutable state in the API (alongside bookings), persisted to the
+same SQLite file. A trip holds a list of **items** — one per planned thing —
+each tagged with a `kind` (`place` \| `activity` \| `meal` \| `transport` \|
+`note`) and a `day` number. Items are standalone planning notes: `place_id` is
+an optional free-text hint and is **not** validated against the place catalog,
+and trips carry **no** prices or booking links.
+
+Trips and items are addressed by their exact **UUID** (no fuzzy matching).
+Items are returned sorted by `(day, sort_order)`.
+
+| Endpoint | Notes |
+|----------|-------|
+| `POST /trips` | Create a trip. Body: `title` (required), optional `city`, `start_date`, `end_date` (YYYY-MM-DD; `end_date` ≥ `start_date`), `travelers` (1–50, default 1), `notes`, and an optional `items` array. → **201** |
+| `GET /trips` | List trips, newest first, in the shared `limit`/`offset` envelope |
+| `GET /trips/{trip_id}` | One trip with its items. **404** if unknown |
+| `PUT /trips/{trip_id}` | Replace the trip's top-level fields (items unchanged). Omitted optional fields reset to defaults. **404** if unknown |
+| `DELETE /trips/{trip_id}` | Delete the trip and all its items. → **204**, **404** if unknown |
+| `POST /trips/{trip_id}/items` | Add one item. Body: `day` (≥1), `kind`, `title`, optional `sort_order`, `place_id`, `start_time`, `notes`. → **201**, **404** if the trip is unknown |
+| `PUT /trips/{trip_id}/items/{item_id}` | Replace an item. **404** if the trip or item does not match |
+| `DELETE /trips/{trip_id}/items/{item_id}` | Delete one item. → **204**, **404** if the trip or item does not match |
+
+```bash
+# Create a trip with two day-1 items
+curl -X POST http://localhost:8000/trips \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "title": "Da Nang long weekend",
+        "city": "Da Nang",
+        "travelers": 2,
+        "items": [
+          {"day": 1, "kind": "place", "title": "Dragon Bridge", "start_time": "19:00"},
+          {"day": 1, "kind": "meal", "title": "Bánh xèo dinner", "sort_order": 1}
+        ]
+      }'
+
+# Add an item to an existing trip
+curl -X POST http://localhost:8000/trips/<trip_id>/items \
+  -H 'Content-Type: application/json' \
+  -d '{"day": 2, "kind": "activity", "title": "Marble Mountains hike"}'
 ```
 
 ---

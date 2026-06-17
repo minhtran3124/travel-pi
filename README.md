@@ -35,7 +35,7 @@ When you see `Application startup complete`, it's running at
   per-flight detail page. HTML for humans, not the API client.
 - **Try endpoints in the browser:** open **http://localhost:8000/docs** — an
   interactive page to call every endpoint and see the responses.
-- **Full endpoint reference:** see **[APIS.md](./APIS.md)**. Highlights: `/flights/search`, `/hotels/availability`, `/places/search`, `/tips`, `/weather`, `GET /air-quality` (live US-AQI + pollutants + short forecast via Open-Meteo, also at `/dashboard/air-quality`), `GET /destinations/climate` (monthly climate normals + best-time guidance), `GET /destinations/{city}/overview` (one-call city briefing: weather + places + tips + hotel summary), `GET /currency/convert` (mock-FX currency conversion), and `GET /visa` (general visa / entry requirements for a city or country).
+- **Full endpoint reference:** see **[APIS.md](./APIS.md)**. Highlights: `/flights/search`, `/hotels/availability`, `/places/search`, `/tips`, `/weather`, `GET /air-quality` (live US-AQI + pollutants + short forecast via Open-Meteo, also at `/dashboard/air-quality`), `GET /destinations/climate` (monthly climate normals + best-time guidance), `GET /destinations/{city}/overview` (one-call city briefing: weather + places + tips + hotel summary), `GET /currency/convert` (mock-FX currency conversion), `GET /visa` (general visa / entry requirements for a city or country), and `/trips` (save & edit a freeform day-by-day itinerary — full CRUD with per-item endpoints).
 - **Generate TypeScript types** (re-run whenever the API changes):
 
   ```bash
@@ -48,8 +48,10 @@ When you see `Application startup complete`, it's running at
   always returns the **same 5 flights**, so you can show a flight, leave, and
   fetch it again by ID. A different date gives different flights.
 - **Hotels are a fixed list** of 51 hotels across 18 cities in Southeast Asia.
-- **Bookings are saved** to a local SQLite file (`travel.db`, created
-  automatically), so they survive server restarts.
+- **Bookings and trips are saved** to a local SQLite file (`travel.db`, created
+  automatically), so they survive server restarts. These are the only mutable
+  state — a **trip** (`/trips`) is a freeform, day-by-day itinerary with full
+  CRUD plus per-item endpoints.
 - **CORS is fully open**, so you can call the API from `localhost:3000` (or
   anywhere) without errors.
 - **The `/docs` page is for local use.** It stays on in development; setting
