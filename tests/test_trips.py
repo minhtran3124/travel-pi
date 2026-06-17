@@ -112,3 +112,66 @@ def test_repo_add_update_delete_item(repo):
     assert updated.day == 2 and updated.title == "Dive"
     assert repo.delete_item("x1") is True
     assert repo.get_item("x1") is None
+
+
+# --------------------------------------------------------------------------- #
+# Service layer (direct TripService against a temp DB)
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture()
+def svc(tmp_path):
+    from app.services.trip_service import TripService
+
+    s = TripService(str(tmp_path / "svc.db"))
+    s.init_db()
+    return s
+
+
+def test_service_create_returns_trip_with_ids(svc):
+    from app.schemas.trip import TripCreate, TripItemCreate
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="DN", items=[TripItemCreate(day=1, kind="place", title="Bridge")]
+        )
+    )
+    assert trip.id
+    assert trip.items[0].id and trip.items[0].trip_id == trip.id
+
+
+def test_service_get_missing_raises_not_found(svc):
+    from app.exceptions import NotFoundError
+
+    with pytest.raises(NotFoundError):
+        svc.get_trip("missing")
+
+
+def test_service_update_trip(svc):
+    from app.schemas.trip import TripCreate, TripUpdate
+
+    trip = svc.create_trip(TripCreate(title="Old"))
+    updated = svc.update_trip(trip.id, TripUpdate(title="New", travelers=3))
+    assert updated.title == "New" and updated.travelers == 3
+
+
+def test_service_delete_trip(svc):
+    from app.exceptions import NotFoundError
+    from app.schemas.trip import TripCreate
+
+    trip = svc.create_trip(TripCreate(title="Bye"))
+    svc.delete_trip(trip.id)
+    with pytest.raises(NotFoundError):
+        svc.get_trip(trip.id)
+
+
+def test_service_item_wrong_trip_raises(svc):
+    from app.exceptions import NotFoundError
+    from app.schemas.trip import TripCreate, TripItemCreate, TripItemUpdate
+
+    a = svc.create_trip(TripCreate(title="A"))
+    b = svc.create_trip(TripCreate(title="B"))
+    item = svc.add_item(a.id, TripItemCreate(day=1, kind="meal", title="Lunch"))
+    # item belongs to A, not B -> 404 when addressed via B
+    with pytest.raises(NotFoundError):
+        svc.update_item(b.id, item.id, TripItemUpdate(day=1, kind="meal", title="x"))
