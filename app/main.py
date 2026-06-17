@@ -155,6 +155,10 @@ def create_app() -> FastAPI:
     ) -> Response:
         start = time.perf_counter()
         response = await call_next(request)
+        limit = settings.rate_limit_nominal
+        response.headers["X-RateLimit-Limit"] = str(limit)
+        response.headers["X-RateLimit-Remaining"] = str(limit)
+        response.headers["X-RateLimit-Reset"] = str(int(time.time()) + 60)
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.info(
             "%s %s → %d (%.1fms)",

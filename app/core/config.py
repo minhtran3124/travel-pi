@@ -98,6 +98,10 @@ class Settings(BaseSettings):
     cors_headers: list[str] = ["*"]
     cors_allow_credentials: bool = True
 
+    # Informational only — NOT enforced (see CLAUDE.md "no rate limiting").
+    # Advertised so agents can self-throttle.
+    rate_limit_nominal: int = 1000
+
     @property
     def is_production(self) -> bool:
         """True when running in a production deployment."""
