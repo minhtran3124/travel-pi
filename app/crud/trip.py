@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS trips (
     travelers       INTEGER NOT NULL,
     notes           TEXT,
     created_at      TEXT NOT NULL,
-    idempotency_key TEXT
+    idempotency_key TEXT,
+    deleted_at      TEXT
 )
 """
 
@@ -186,6 +187,10 @@ class TripRepository:
                     f"CREATE UNIQUE INDEX IF NOT EXISTS ix_{table}_idempotency_key "
                     f"ON {table} (idempotency_key) WHERE idempotency_key IS NOT NULL"
                 )
+            # Add deleted_at to legacy trips tables (soft-delete tombstone).
+            trip_cols = {row[1] for row in conn.execute("PRAGMA table_info(trips)")}
+            if "deleted_at" not in trip_cols:
+                conn.execute("ALTER TABLE trips ADD COLUMN deleted_at TEXT")
 
     def _insert_item(
         self,
@@ -229,7 +234,7 @@ class TripRepository:
     def get_trip(self, trip_id: str) -> Trip | None:
         with self._connect() as conn:
             row = conn.execute(
-                "SELECT * FROM trips WHERE id = ?", (trip_id,)
+                "SELECT * FROM trips WHERE id = ? AND deleted_at IS NULL", (trip_id,)
             ).fetchone()
             if row is None:
                 return None
@@ -242,7 +247,7 @@ class TripRepository:
         """Return every trip (newest first) with its items attached."""
         with self._connect() as conn:
             trip_rows = conn.execute(
-                "SELECT * FROM trips ORDER BY created_at DESC"
+                "SELECT * FROM trips WHERE deleted_at IS NULL ORDER BY created_at DESC"
             ).fetchall()
             item_rows = conn.execute("SELECT * FROM trip_items").fetchall()
         by_trip: dict[str, list[sqlite3.Row]] = {}
@@ -268,11 +273,13 @@ class TripRepository:
             )
             return cursor.rowcount > 0
 
-    def delete_trip(self, trip_id: str) -> bool:
-        """Delete a trip and its items. Returns True if the trip existed."""
+    def delete_trip(self, trip_id: str, *, when: str) -> bool:
+        """Soft-delete: stamp deleted_at, keep the row. True if it existed and was live."""
         with self._connect() as conn:
-            conn.execute("DELETE FROM trip_items WHERE trip_id = ?", (trip_id,))
-            cursor = conn.execute("DELETE FROM trips WHERE id = ?", (trip_id,))
+            cursor = conn.execute(
+                "UPDATE trips SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL",
+                (when, trip_id),
+            )
             return cursor.rowcount > 0
 
     def add_item(self, item: TripItem, idempotency_key: str | None = None) -> TripItem:
@@ -297,7 +304,8 @@ class TripRepository:
     def get_trip_by_idempotency_key(self, key: str) -> Trip | None:
         with self._connect() as conn:
             row = conn.execute(
-                "SELECT * FROM trips WHERE idempotency_key = ?", (key,)
+                "SELECT * FROM trips WHERE idempotency_key = ? AND deleted_at IS NULL",
+                (key,),
             ).fetchone()
             if row is None:
                 return None

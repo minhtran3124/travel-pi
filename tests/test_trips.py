@@ -92,11 +92,13 @@ def test_repo_get_missing_returns_none(repo):
     assert repo.get_trip("nope") is None
 
 
-def test_repo_delete_trip_cascades_items(repo):
+def test_repo_soft_delete_trip(repo):
     repo.create_trip(_make_trip(items=[(1, 0, "place", "Bridge")]))
-    assert repo.delete_trip("t1") is True
+    assert repo.delete_trip("t1", when="2026-06-17T00:00:00+00:00") is True
+    # trip is filtered out of reads...
     assert repo.get_trip("t1") is None
-    assert repo.get_item("i0") is None
+    # ...but its items are retained (data not destroyed).
+    assert repo.get_item("i0") is not None
 
 
 def test_repo_add_update_delete_item(repo):
@@ -488,3 +490,13 @@ def test_add_item_idempotency_key_reuse_across_trips_conflicts(client):
     # Same key against a different trip is a conflict, not a wrong-item replay.
     resp = client.post(f"/trips/{b['id']}/items", json=item, headers=h)
     assert resp.status_code == 409
+
+
+def test_delete_trip_is_soft(client):
+    trip = client.post("/trips", json={"title": "Doomed", "travelers": 1}).json()
+    assert client.delete(f"/trips/{trip['id']}").status_code == 204
+    assert client.get(f"/trips/{trip['id']}").status_code == 404
+    ids = [t["id"] for t in client.get("/trips").json()["results"]]
+    assert trip["id"] not in ids
+    # idempotent: already-deleted → 404, not 500
+    assert client.delete(f"/trips/{trip['id']}").status_code == 404

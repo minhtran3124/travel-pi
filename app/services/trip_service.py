@@ -119,10 +119,12 @@ class TripService:
         return self._repo.get_trip(trip_id)
 
     def delete_trip(self, trip_id: str) -> None:
-        """Delete a trip and its items. 404 if it does not exist."""
+        """Soft-delete a trip (stamp deleted_at, keep the row). 404 if missing
+        or already deleted — get_trip filters tombstoned rows, so a repeat
+        delete raises NotFoundError (idempotent 404 at the API)."""
         self.get_trip(trip_id)
-        self._repo.delete_trip(trip_id)
-        logger.info("Deleted trip %s", trip_id)
+        self._repo.delete_trip(trip_id, when=datetime.now(timezone.utc).isoformat())
+        logger.info("Soft-deleted trip %s", trip_id)
 
     def add_item(
         self,
