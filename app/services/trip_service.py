@@ -8,17 +8,20 @@ the booking service.
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
 
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
-from app.enums import ActivityLevel, MealStyle
-from app.exceptions import NotFoundError
+from app.enums import ActivityLevel, BookingStatus, BookingType, MealStyle
+from app.exceptions import ConflictError, NotFoundError
 from app.schemas.trip import (
+    DayPlanItem,
+    DayPlanResponse,
     EstimateBreakdown,
     Trip,
     TripCreate,
+    TripDetail,
     TripEstimateRequest,
     TripEstimateResponse,
     TripItem,
@@ -26,6 +29,8 @@ from app.schemas.trip import (
     TripItemUpdate,
     TripUpdate,
 )
+from app.services import place_service, routing_service
+from app.services.booking_service import get_booking_service
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +142,139 @@ class TripService:
             )
         self._repo.delete_item(item_id)
         logger.info("Deleted item %s from trip %s", item_id, trip_id)
+
+    def get_trip_detail(self, trip_id: str) -> TripDetail:
+        """Return a trip enriched with spend rollup and coverage gaps.
+
+        ``total_spent`` sums the ``total_price`` of every non-cancelled
+        booking linked by items. ``gaps`` lists days that are missing
+        accommodation or have no items at all.  Both fields are computed
+        fresh on each call — nothing extra is stored.
+        """
+        trip = self.get_trip(trip_id)
+        booking_svc = get_booking_service()
+
+        # Resolve all booking_ids once to avoid redundant DB lookups in the
+        # gaps pass that follows.
+        resolved: dict[str, object] = {}
+        for item in trip.items:
+            if item.booking_id is None or item.booking_id in resolved:
+                continue
+            try:
+                resolved[item.booking_id] = booking_svc.get(item.booking_id)
+            except NotFoundError:
+                logger.info(
+                    "Booking %r not found for item %s — skipping spend",
+                    item.booking_id,
+                    item.id,
+                )
+                resolved[item.booking_id] = None
+
+        # Spend rollup: sum confirmed bookings only.
+        total = 0.0
+        for item in trip.items:
+            if item.booking_id is None:
+                continue
+            booking = resolved.get(item.booking_id)
+            if booking is None or booking.status == BookingStatus.CANCELLED:
+                continue
+            total += booking.total_price
+        total_spent = _money(total)
+
+        # Gap detection: iterate day range when dates are known.
+        gaps: list[str] = []
+        if trip.start_date is not None and trip.end_date is not None:
+            num_days = (trip.end_date - trip.start_date).days + 1
+            for day_num in range(1, num_days + 1):
+                day_items = [i for i in trip.items if i.day == day_num]
+                if not day_items:
+                    gaps.append(f"Day {day_num} has no planned items.")
+                    continue
+                has_hotel = any(
+                    resolved.get(i.booking_id) is not None
+                    and resolved[i.booking_id].type == BookingType.HOTEL
+                    and resolved[i.booking_id].status != BookingStatus.CANCELLED
+                    for i in day_items
+                    if i.booking_id is not None
+                )
+                if not has_hotel:
+                    gaps.append(f"Day {day_num} has no accommodation booked.")
+
+        return TripDetail(**trip.model_dump(), total_spent=total_spent, gaps=gaps)
+
+    async def get_day_plan(self, trip_id: str, target_date: date) -> DayPlanResponse:
+        """Return an ordered day plan with optional travel-time annotations.
+
+        Raises :class:`ConflictError` (409) when the trip has no
+        ``start_date`` — the day number cannot be computed without it.
+        Travel times between consecutive items are fetched from
+        ``routing_service`` when both items have resolvable, geo-located
+        place IDs; any routing error is silently swallowed (fields stay
+        ``None``) so a missing API key never breaks the day plan.
+        """
+        trip = self.get_trip(trip_id)
+        if trip.start_date is None:
+            raise ConflictError(
+                "This trip has no start_date set.",
+                hint=(
+                    "This trip has no start_date; set it via PUT /trips/{trip_id}, "
+                    "then retry the day-plan."
+                ),
+            )
+
+        day = (target_date - trip.start_date).days + 1
+        day_items = sorted(
+            [i for i in trip.items if i.day == day],
+            key=lambda i: i.sort_order,
+        )
+
+        plan_items: list[DayPlanItem] = []
+        for idx, item in enumerate(day_items):
+            travel_minutes: float | None = None
+            travel_mode: str | None = None
+
+            is_last = idx == len(day_items) - 1
+            if not is_last:
+                next_item = day_items[idx + 1]
+                if item.place_id and next_item.place_id:
+                    place_a = place_service.get_place(item.place_id)
+                    place_b = place_service.get_place(next_item.place_id)
+                    if (
+                        place_a is not None
+                        and place_a.latitude is not None
+                        and place_a.longitude is not None
+                        and place_b is not None
+                        and place_b.latitude is not None
+                        and place_b.longitude is not None
+                    ):
+                        try:
+                            route = await routing_service.get_place_route(
+                                item.place_id, next_item.place_id
+                            )
+                            rec_mode = route.recommended_mode
+                            leg = next(
+                                leg for leg in route.legs if leg.mode == rec_mode
+                            )
+                            travel_minutes = leg.duration_minutes
+                            travel_mode = rec_mode
+                        except Exception:
+                            logger.warning(
+                                "Routing %s → %s failed — travel fields null",
+                                item.place_id,
+                                next_item.place_id,
+                            )
+
+            plan_items.append(
+                DayPlanItem(
+                    item=item,
+                    travel_to_next_minutes=travel_minutes,
+                    travel_to_next_mode=travel_mode,
+                )
+            )
+
+        return DayPlanResponse(
+            trip_id=trip_id, date=target_date, day=day, items=plan_items
+        )
 
 
 # Shared singleton — constructed at import time (cheap: stores the path only).
