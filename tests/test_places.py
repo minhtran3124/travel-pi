@@ -493,6 +493,7 @@ def test_nearby_accepts_short_code(client: TestClient) -> None:
         ("best museums to visit", "category", "attraction"),
         ("best museums to visit", "min_rating", 4.5),
         ("4 star hotels", "min_rating", 4.0),
+        ("10 star hotels", "min_rating", 5.0),  # multi-digit captured whole, clamped
         ("luxury shopping", "price_level", 4),
         ("luxury shopping", "category", "shopping"),
         ("nothing useful here", "city", None),

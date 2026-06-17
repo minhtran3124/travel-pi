@@ -206,8 +206,10 @@ _NL_PRICE_KEYWORDS: list[tuple[int, tuple[str, ...]]] = [
 
 # "under $40", "$40", "under 40" → capture the dollar amount.
 _NL_BUDGET_RE = re.compile(r"\$\s*(\d+(?:\.\d+)?)|under\s+(\d+(?:\.\d+)?)")
-# "4 star", "4.5 stars", "4+ star" → capture the rating.
-_NL_STAR_RE = re.compile(r"(\d(?:\.\d)?)\s*\+?\s*stars?")
+# "4 star", "4.5 stars", "4+ star" → capture the rating. Multi-digit values
+# (e.g. "10 star") are captured whole and clamped to 5.0 by _nl_min_rating,
+# rather than mis-parsing the trailing single digit.
+_NL_STAR_RE = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*stars?")
 _NL_TOP_RATED = ("highly rated", "top-rated", "top rated", "highest rated", "best")
 
 
