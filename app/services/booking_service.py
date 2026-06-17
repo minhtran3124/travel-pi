@@ -46,6 +46,10 @@ class BookingService:
         """Create the backing table. Called once on application startup."""
         self._repo.init_db()
 
+    def ping(self) -> bool:
+        """Return True if the booking store is reachable. Used by /readyz."""
+        return self._repo.ping()
+
     def get(self, booking_id: str) -> Booking:
         """Return a booking by UUID *or* confirmation code.
 
