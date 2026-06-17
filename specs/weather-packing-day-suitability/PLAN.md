@@ -1,6 +1,6 @@
 ---
 slug: weather-packing-day-suitability
-status: proposed
+status: shipped
 owner: Minh Tran
 created: 2026-06-17
 ---
@@ -123,6 +123,8 @@ new persistent state.
 
 - 2026-06-17 — Plan drafted (proposed). Worktree `weather-packing-day-suitability` off `v2`,
   baseline 515 tests green.
+- 2026-06-17 — All 3 waves green; correctness review (no bugs; 1 low defect fixed); 536 tests pass.
+- 2026-06-17 — shipped via `weather-packing-day-suitability` (PR #2, base `v2`).
 
 ## Wave map
 
