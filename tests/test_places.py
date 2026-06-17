@@ -504,3 +504,65 @@ def test_nearby_accepts_short_code(client: TestClient) -> None:
 def test_parse_nl_query(query, field, expected) -> None:
     parsed = place_service.parse_nl_query(query)
     assert getattr(parsed, field) == expected
+
+
+# ── NL search endpoint (HTTP) ─────────────────────────────────────────────────
+
+
+def test_nl_search_status(client: TestClient) -> None:
+    resp = client.post("/places/search/nl", json={"query": "dinner in Hanoi"})
+    assert resp.status_code == 200
+
+
+def test_nl_search_echoes_parsed_filters(client: TestClient) -> None:
+    body = client.post(
+        "/places/search/nl",
+        json={"query": "romantic dinner in Hanoi under $40"},
+    ).json()
+    assert body["query"] == "romantic dinner in Hanoi under $40"
+    assert body["parsed"] == {
+        "city": "Hanoi",
+        "category": "restaurant",
+        "min_rating": None,
+        "price_level": 2,
+    }
+
+
+def test_nl_search_results_match_parsed_filters(client: TestClient) -> None:
+    body = client.post(
+        "/places/search/nl",
+        json={"query": "romantic dinner in Hanoi under $40"},
+    ).json()
+    assert body["total"] >= 1
+    for place in body["results"]:
+        assert place["city"] == "Hanoi"
+        assert place["category"] == "restaurant"
+        assert place["price_level"] == 2
+
+
+def test_nl_search_empty_query_422(client: TestClient) -> None:
+    assert client.post("/places/search/nl", json={"query": ""}).status_code == 422
+
+
+def test_nl_search_missing_query_422(client: TestClient) -> None:
+    assert client.post("/places/search/nl", json={}).status_code == 422
+
+
+def test_nl_search_no_signal_returns_all_with_null_parsed(client: TestClient) -> None:
+    body = client.post("/places/search/nl", json={"query": "show me stuff"}).json()
+    assert body["parsed"] == {
+        "city": None,
+        "category": None,
+        "min_rating": None,
+        "price_level": None,
+    }
+    assert body["total"] > 0
+
+
+def test_nl_search_pagination(client: TestClient) -> None:
+    body = client.post(
+        "/places/search/nl?limit=2",
+        json={"query": "show me stuff"},
+    ).json()
+    assert body["limit"] == 2
+    assert len(body["results"]) <= 2
