@@ -475,3 +475,16 @@ def test_add_item_idempotent(client):
     first = client.post(f"/trips/{trip['id']}/items", json=item, headers=h).json()
     second = client.post(f"/trips/{trip['id']}/items", json=item, headers=h).json()
     assert first["id"] == second["id"]
+
+
+def test_add_item_idempotency_key_reuse_across_trips_conflicts(client):
+    a = client.post("/trips", json={"title": "A", "travelers": 1}).json()
+    b = client.post("/trips", json={"title": "B", "travelers": 1}).json()
+    item = {"day": 1, "kind": "note", "title": "X"}
+    h = {"Idempotency-Key": "shared-key"}
+    assert (
+        client.post(f"/trips/{a['id']}/items", json=item, headers=h).status_code == 201
+    )
+    # Same key against a different trip is a conflict, not a wrong-item replay.
+    resp = client.post(f"/trips/{b['id']}/items", json=item, headers=h)
+    assert resp.status_code == 409

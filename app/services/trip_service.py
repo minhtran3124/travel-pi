@@ -139,6 +139,15 @@ class TripService:
         if idempotency_key:
             existing = self._repo.get_item_by_idempotency_key(idempotency_key)
             if existing is not None:
+                # Keys are globally unique; reusing one against a different
+                # trip is a client error, not a silent replay of the wrong item.
+                if existing.trip_id != trip_id:
+                    raise ConflictError(
+                        f"Idempotency-Key {idempotency_key!r} was already used "
+                        f"for a different trip.",
+                        hint="Use a fresh Idempotency-Key per item, or POST to the "
+                        "trip the key was first used on.",
+                    )
                 logger.info(
                     "Idempotency-Key %s replayed item %s",
                     idempotency_key,
