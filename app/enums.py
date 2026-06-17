@@ -94,3 +94,13 @@ class OverviewSection(str, Enum):
     PLACES = "places"
     TIPS = "tips"
     HOTELS = "hotels"
+
+
+class TripItemKind(str, Enum):
+    """The kind of entry in a trip itinerary's day plan."""
+
+    PLACE = "place"
+    ACTIVITY = "activity"
+    MEAL = "meal"
+    TRANSPORT = "transport"
+    NOTE = "note"
