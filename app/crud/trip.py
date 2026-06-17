@@ -148,7 +148,12 @@ class TripRepository:
             conn.close()
 
     def init_db(self) -> None:
-        """Create the trips/trip_items tables and item index if absent."""
+        """Create the trips/trip_items tables and item index if absent.
+
+        Also idempotently migrates legacy trip_items tables that pre-date the
+        booking_id column (ALTER TABLE is safe to skip when the column already
+        exists — guarded by the PRAGMA check).
+        """
         with self._connect() as conn:
             conn.execute(_TRIPS_SCHEMA)
             conn.execute(_ITEMS_SCHEMA)
@@ -156,6 +161,12 @@ class TripRepository:
                 "CREATE INDEX IF NOT EXISTS ix_trip_items_trip_id "
                 "ON trip_items (trip_id)"
             )
+            # Add booking_id to legacy tables that were created before this column.
+            existing_cols = {
+                row[1] for row in conn.execute("PRAGMA table_info(trip_items)")
+            }
+            if "booking_id" not in existing_cols:
+                conn.execute("ALTER TABLE trip_items ADD COLUMN booking_id TEXT")
 
     def _insert_item(self, conn: sqlite3.Connection, item: TripItem) -> None:
         placeholders = ", ".join("?" for _ in _ITEM_COLUMNS)

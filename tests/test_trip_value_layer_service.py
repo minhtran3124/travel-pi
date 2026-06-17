@@ -363,6 +363,28 @@ def test_day_plan_missing_trip_raises_not_found(svc):
         asyncio.run(svc.get_day_plan("does-not-exist", date(2026, 7, 1)))
 
 
+def test_day_plan_date_before_start_date_raises_conflict_error(svc):
+    """A date before the trip's start_date raises ConflictError (409)."""
+    trip = svc.create_trip(
+        TripCreate(
+            title="Future trip",
+            start_date=date(2026, 8, 1),
+            end_date=date(2026, 8, 5),
+            items=[
+                TripItemCreate(day=1, kind="place", title="Day 1 activity"),
+            ],
+        )
+    )
+    # Request a date 30 days before the trip starts — day would be -29.
+    with pytest.raises(ConflictError) as exc_info:
+        asyncio.run(svc.get_day_plan(trip.id, date(2026, 7, 1)))
+
+    assert exc_info.value.status_code == 409
+    assert (
+        "before" in exc_info.value.detail.lower() or "start_date" in exc_info.value.hint
+    )
+
+
 # --------------------------------------------------------------------------- #
 # get_day_plan — routing SUCCESS path (monkeypatched, offline)
 # --------------------------------------------------------------------------- #
@@ -455,3 +477,72 @@ def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch
     last = result.items[-1]
     assert last.travel_to_next_minutes is None
     assert last.travel_to_next_mode is None
+
+
+# --------------------------------------------------------------------------- #
+# init_db — legacy schema migration (booking_id column back-fill)
+# --------------------------------------------------------------------------- #
+
+
+def test_init_db_adds_booking_id_column_to_legacy_table(tmp_path):
+    """init_db idempotently adds booking_id to a pre-existing trip_items table.
+
+    Simulates a database that was created before the booking_id column was
+    introduced: creates the table without that column, inserts a row using the
+    old schema, then calls init_db() and verifies the row is readable with
+    booking_id returning None (no KeyError / IndexError).
+    """
+    import sqlite3
+
+    from app.crud.trip import TripRepository
+
+    db_path = str(tmp_path / "legacy.db")
+
+    # Build the "old" schema — trip_items without booking_id.
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE trips (
+                id         TEXT PRIMARY KEY,
+                title      TEXT NOT NULL,
+                city       TEXT,
+                start_date TEXT,
+                end_date   TEXT,
+                travelers  INTEGER NOT NULL,
+                notes      TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE trip_items (
+                id         TEXT PRIMARY KEY,
+                trip_id    TEXT NOT NULL,
+                day        INTEGER NOT NULL,
+                sort_order INTEGER NOT NULL,
+                kind       TEXT NOT NULL,
+                title      TEXT NOT NULL,
+                place_id   TEXT,
+                start_time TEXT,
+                notes      TEXT
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO trip_items "
+            "(id, trip_id, day, sort_order, kind, title, place_id, start_time, notes) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("item-1", "trip-1", 1, 0, "place", "Old Museum", None, None, None),
+        )
+        conn.commit()
+
+    # init_db should detect the missing column and ALTER TABLE.
+    repo = TripRepository(db_path)
+    repo.init_db()  # must not raise
+
+    # Reading back the legacy row must work and return booking_id=None.
+    item = repo.get_item("item-1")
+    assert item is not None
+    assert item.title == "Old Museum"
+    assert item.booking_id is None

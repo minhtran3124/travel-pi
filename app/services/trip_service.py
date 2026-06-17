@@ -223,6 +223,12 @@ class TripService:
             )
 
         day = (target_date - trip.start_date).days + 1
+        if day < 1:
+            raise ConflictError(
+                f"Requested date {target_date} is before the trip's start_date"
+                f" {trip.start_date}.",
+                hint="Pass a date on or after the trip's start_date.",
+            )
         day_items = sorted(
             [i for i in trip.items if i.day == day],
             key=lambda i: i.sort_order,
