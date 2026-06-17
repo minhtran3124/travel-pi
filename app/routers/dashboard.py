@@ -29,6 +29,7 @@ from app.data.airlines import AIRLINE_COLOR_DEFAULT, AIRLINE_COLORS
 from app.data.cities import CITIES as _CITY_DATA
 from app.data.countries import COUNTRIES as _COUNTRIES
 from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
+from app.data.visa import COUNTRY_VISA as _COUNTRY_VISA
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
     air_quality_service,
@@ -38,6 +39,7 @@ from app.services import (
     hotel_service,
     place_service,
     tip_service,
+    visa_service,
     weather_service,
 )
 from app.services.booking_service import BOOKING_SORTS, get_booking_service
@@ -509,6 +511,78 @@ def tips_page(
             "result": result,
             "destinations": destinations,
             "total_tips": sum(d["count"] for d in destinations),
+        },
+    )
+
+
+def _visa_destinations() -> list[dict]:
+    """Country tiles for the visa picker — flag, region, and at-a-glance facts.
+
+    Walks ``countries.py`` (the canonical, region-ordered list) and pulls each
+    country's entry guidance from ``COUNTRY_VISA``; countries without seeded
+    visa data are skipped so a tile always links to a populated page.
+    """
+    out: list[dict] = []
+    for c in _COUNTRIES:
+        visa = _COUNTRY_VISA.get(c["name"])
+        if not visa:
+            continue
+        out.append(
+            {
+                "name": c["name"],
+                "flag": _flag_emoji(c.get("code", "")),
+                "region": c.get("region", "Other"),
+                "visa_free_days": visa["visa_free_days"],
+                "visa_on_arrival": visa["visa_on_arrival"],
+                "e_visa": visa["e_visa"],
+            }
+        )
+    return out
+
+
+@router.get("/visa", response_class=HTMLResponse)
+def visa_page(
+    request: Request,
+    country: str | None = Query(None, description="Filter by country"),
+    city: str | None = Query(None, description="Filter by city — resolves its country"),
+) -> HTMLResponse:
+    """Render the Visa & Entry page — general entry-requirement guidance.
+
+    Two views, chosen by what's selected:
+    - **picker** (default, nothing selected): country tiles grouped by region.
+    - **destination** (``country`` or ``city``): that country's entry card. A
+      city wins and resolves its own country, mirroring the JSON ``/visa`` API.
+
+    Guidance is general and nationality-dependent — every entry card carries
+    the API's ``disclaimer``.
+    """
+    selected_country = country or None
+    selected_city = city or None
+    # Visa guidance is country-level, so a city (from a cross-link or the
+    # palette) just resolves to its country's card — there's no city filter.
+    if selected_city:
+        selected_country = _CITY_COUNTRY.get(selected_city, selected_country)
+
+    view = "picker"
+    result = None
+    flag = ""
+    if selected_city or selected_country:
+        view = "destination"
+        result = visa_service.get_visa(city=selected_city, country=selected_country)
+        code = next((c["code"] for c in _COUNTRIES if c["name"] == result.country), "")
+        flag = _flag_emoji(code)
+
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="visa.html",
+        context={
+            "view": view,
+            "countries": sorted(_COUNTRY_VISA),
+            "selected_country": selected_country,
+            "selected_city": selected_city,
+            "result": result,
+            "flag": flag,
+            "destinations": _visa_destinations(),
         },
     )
 

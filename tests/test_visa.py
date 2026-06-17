@@ -62,3 +62,40 @@ def test_visa_visa_required_country_still_found(client: TestClient) -> None:
 
 def test_visa_requires_a_param(client: TestClient) -> None:
     assert client.get("/visa").status_code == 422
+
+
+# ── Dashboard /dashboard/visa ─────────────────────────────────────────────────
+
+
+def test_dashboard_visa_no_filter_returns_200(client: TestClient) -> None:
+    """Landing on /dashboard/visa with no params renders the picker, not a 422."""
+    assert client.get("/dashboard/visa").status_code == 200
+
+
+def test_dashboard_visa_no_filter_renders_picker(client: TestClient) -> None:
+    """Default view is the friendly country picker."""
+    html = client.get("/dashboard/visa").text
+    assert 'class="vtile"' in html
+    assert "Where are you headed" in html
+
+
+def test_dashboard_visa_country_renders_entry_card(client: TestClient) -> None:
+    """A selected country shows its entry card with the quotable summary."""
+    html = client.get("/dashboard/visa", params={"country": "Vietnam"}).text
+    assert 'class="vcard"' in html
+    assert COUNTRY_VISA["Vietnam"]["summary"] in html
+    assert "Visa-free stay" in html
+
+
+def test_dashboard_visa_city_resolves_country(client: TestClient) -> None:
+    """A city resolves to its country's card (and offers the explore strip)."""
+    html = client.get("/dashboard/visa", params={"city": "Da Nang"}).text
+    assert 'class="vcard"' in html
+    assert "Vietnam" in html
+
+
+def test_dashboard_visa_unknown_country_shows_empty_state(client: TestClient) -> None:
+    """An unrecognised destination renders the friendly empty state, not a 500."""
+    resp = client.get("/dashboard/visa", params={"country": "Xanadu"})
+    assert resp.status_code == 200
+    assert "No entry guidance" in resp.text

@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% from "_explore.html" import explore %}
+{% block title %}Visa & Entry{% endblock %}
+
+{% block content %}
+<div class="board-head">
+  <h1 class="board-title"><span class="plane">🛂</span> Visa &amp; Entry</h1>
+  <span class="page-meta">
+    {% if view == 'picker' %}
+      {{ destinations | length }} destinations
+    {% elif result and result.found %}
+      {% if result.city %}{{ result.city }} · {% endif %}{{ result.country }}
+    {% else %}
+      No guidance
+    {% endif %}
+  </span>
+</div>
+
+<form method="get" action="/dashboard/visa" class="filter-bar">
+  <div class="fg">
+    <span class="fl">Country</span>
+    <select name="country" onchange="this.form.submit()">
+      <option value="">All countries</option>
+      {% for c in countries %}
+        <option value="{{ c }}" {% if selected_country == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if selected_country or selected_city %}
+    <a href="/dashboard/visa" class="fb-link">✕ Clear</a>
+  {% endif %}
+</form>
+
+
+{# ════════════════════ PICKER ════════════════════ #}
+{% if view == 'picker' %}
+  {% set regions = [] %}
+  {% for d in destinations %}{% if d.region not in regions %}{{ regions.append(d.region) or '' }}{% endif %}{% endfor %}
+
+  <div class="picker">
+    <header class="picker-lead">
+      <h2 class="picker-h">Where are you headed?</h2>
+      <p class="picker-sub">General entry-requirement guidance — visa-free allowances,
+        visa-on-arrival and e-visa options, and passport validity, for
+        {{ destinations | length }} destinations across Asia.</p>
+    </header>
+
+    {% for region in regions %}
+      <section class="picker-region">
+        <h3 class="picker-region-h">{{ region }}</h3>
+        <div class="dest-grid">
+          {% for d in destinations if d.region == region %}
+            <a class="vtile" href="/dashboard/visa?country={{ d.name | urlencode }}">
+              <span class="vtile-flag" aria-hidden="true">{{ d.flag }}</span>
+              <span class="vtile-body">
+                <span class="vtile-name">{{ d.name }}</span>
+                <span class="vtile-days">
+                  {% if d.visa_free_days %}
+                    <strong>{{ d.visa_free_days }}</strong> days visa-free
+                  {% else %}
+                    Visa required
+                  {% endif %}
+                </span>
+                <span class="vtile-tags">
+                  {% if d.visa_on_arrival %}<span class="vtag voa">VoA</span>{% endif %}
+                  {% if d.e_visa %}<span class="vtag evisa">e-Visa</span>{% endif %}
+                </span>
+              </span>
+              <span class="vtile-go" aria-hidden="true">→</span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+
+
+{# ════════════════════ ENTRY CARD (destination) ════════════════════ #}
+{% elif result and result.found %}
+  {% set e = result.entry %}
+  <div class="vcard">
+    <a class="guide-back" href="/dashboard/visa">← All destinations</a>
+
+    <header class="vhero">
+      <span class="vhero-flag" aria-hidden="true">{{ flag }}</span>
+      <div class="vhero-body">
+        <p class="vhero-dest">{% if result.city %}{{ result.city }} · {% endif %}{{ result.country }}</p>
+        <p class="vhero-summary">{{ e.summary }}</p>
+      </div>
+    </header>
+
+    <div class="vstats">
+      <div class="vstat {{ 'good' if e.visa_free_days else 'bad' }}">
+        <span class="vstat-label">Visa-free stay</span>
+        <span class="vstat-value">
+          {% if e.visa_free_days %}{{ e.visa_free_days }}<span class="vstat-unit">days</span>
+          {% else %}—{% endif %}
+        </span>
+        <span class="vstat-note">{{ "for many nationalities" if e.visa_free_days else "a visa is generally required" }}</span>
+      </div>
+
+      <div class="vstat {{ 'good' if e.visa_on_arrival else 'muted' }}">
+        <span class="vstat-label">Visa on arrival</span>
+        <span class="vstat-value">{{ "✓" if e.visa_on_arrival else "✕" }}<span class="vstat-unit">{{ "available" if e.visa_on_arrival else "not offered" }}</span></span>
+        <span class="vstat-note">obtained at the border on entry</span>
+      </div>
+
+      <div class="vstat {{ 'good' if e.e_visa else 'muted' }}">
+        <span class="vstat-label">e-Visa</span>
+        <span class="vstat-value">{{ "✓" if e.e_visa else "✕" }}<span class="vstat-unit">{{ "available" if e.e_visa else "not offered" }}</span></span>
+        <span class="vstat-note">applied for online before you travel</span>
+      </div>
+
+      <div class="vstat neutral">
+        <span class="vstat-label">Passport validity</span>
+        <span class="vstat-value">
+          {% if e.passport_validity_months %}{{ e.passport_validity_months }}<span class="vstat-unit">months</span>
+          {% else %}<span class="vstat-unit big">duration of stay</span>{% endif %}
+        </span>
+        <span class="vstat-note">{{ "required beyond your entry date" if e.passport_validity_months else "must stay valid through your trip" }}</span>
+      </div>
+    </div>
+
+    <p class="vdisclaimer"><span aria-hidden="true">⚠️</span> {{ result.disclaimer }}</p>
+
+    {% if result.city %}
+      {{ explore(result.city, 'visa') }}
+    {% else %}
+      <div class="explore">
+        <span class="explore-lbl">More on {{ result.country }}</span>
+        <a href="/dashboard/tips?country={{ result.country | urlencode }}">💡 Local Tips</a>
+      </div>
+    {% endif %}
+  </div>
+
+
+{# ════════════════════ NOT FOUND ════════════════════ #}
+{% else %}
+  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
+    <div class="empty-ico" aria-hidden="true">🛂</div>
+    No entry guidance for <strong>{{ result.country if result else (selected_city or selected_country) }}</strong> yet.
+    <span class="empty-hint">Try another destination, or
+      <a href="/dashboard/visa" style="color: var(--accent-dim);">browse all destinations</a>.</span>
+  </div>
+{% endif %}
+
+<style>
+  /* ════════ Picker ════════ */
+  .picker {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 30px 30px 34px;
+  }
+  .picker-lead { max-width: 60ch; margin-bottom: 26px; }
+  .picker-h { margin: 0 0 8px; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+  .picker-sub { margin: 0; font-size: 1rem; line-height: 1.6; color: color-mix(in srgb, var(--ink) 72%, var(--muted)); text-wrap: pretty; }
+
+  .picker-region { margin-top: 24px; }
+  .picker-region-h {
+    margin: 0 0 12px; font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-dim);
+  }
+  .dest-grid {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  }
+
+  /* Country tile */
+  .vtile {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; text-decoration: none;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: transform .14s, border-color .14s, box-shadow .14s, background .14s;
+  }
+  .vtile:hover {
+    transform: translateY(-2px); border-color: var(--accent);
+    box-shadow: var(--shadow-lg); background: var(--accent-glow);
+  }
+  .vtile:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+  .vtile-flag { font-size: 1.9rem; line-height: 1; flex: 0 0 auto; }
+  .vtile-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+  .vtile-name { font-size: 1rem; font-weight: 700; color: var(--ink); }
+  .vtile-days { font-size: 0.82rem; color: var(--muted); }
+  .vtile-days strong {
+    color: var(--accent-dim); font-size: 1rem; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .vtile-tags { display: flex; gap: 5px; margin-top: 1px; }
+  .vtag {
+    font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em;
+    padding: 2px 7px; border-radius: 999px; text-transform: uppercase;
+  }
+  .vtag.voa   { color: var(--green); background: rgba(52,211,153,.13); }
+  .vtag.evisa { color: var(--cyan);  background: rgba(56,189,248,.13); }
+  .vtile-go { color: var(--muted); font-size: 1.1rem; transition: transform .14s, color .14s; }
+  .vtile:hover .vtile-go { color: var(--accent); transform: translateX(3px); }
+
+  /* ════════ Entry card ════════ */
+  .vcard {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 24px 30px 30px;
+  }
+  .guide-back {
+    display: inline-block; margin-bottom: 16px;
+    font-size: 0.82rem; font-weight: 600; color: var(--accent-dim); text-decoration: none;
+  }
+  .guide-back:hover { color: var(--accent); }
+
+  .vhero {
+    display: flex; align-items: center; gap: 18px;
+    padding-bottom: 22px; margin-bottom: 22px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .vhero-flag {
+    font-size: 3rem; line-height: 1; flex: 0 0 auto;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
+  }
+  .vhero-body { min-width: 0; }
+  .vhero-dest {
+    margin: 0 0 6px; font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent-dim);
+  }
+  .vhero-summary {
+    margin: 0; max-width: 66ch;
+    font-size: 1.12rem; line-height: 1.55; font-weight: 500; color: var(--ink);
+    text-wrap: pretty;
+  }
+
+  /* Fact tiles */
+  .vstats {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 22px;
+  }
+  .vstat {
+    --c: var(--muted);
+    display: flex; flex-direction: column; gap: 7px;
+    padding: 16px 16px 15px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+  .vstat.good    { --c: var(--green); }
+  .vstat.bad     { --c: var(--red); }
+  .vstat.neutral { --c: var(--accent); }
+  .vstat.muted   { --c: var(--line); }
+  .vstat-label {
+    font-size: 0.64rem; font-weight: 800; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .vstat-value {
+    display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+    font-size: 1.9rem; font-weight: 800; line-height: 1;
+    color: var(--c); font-variant-numeric: tabular-nums;
+  }
+  .vstat.muted .vstat-value, .vstat.neutral .vstat-value { color: var(--ink); }
+  .vstat-unit {
+    font-size: 0.78rem; font-weight: 700; color: var(--muted);
+    text-transform: none; letter-spacing: 0;
+  }
+  .vstat-unit.big { font-size: 1rem; color: var(--ink); }
+  .vstat-note { font-size: 0.74rem; line-height: 1.4; color: var(--muted); }
+
+  /* Disclaimer */
+  .vdisclaimer {
+    margin: 0 0 4px; padding: 13px 16px;
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.28);
+    border-radius: var(--radius-sm);
+    font-size: 0.83rem; line-height: 1.55; color: color-mix(in srgb, var(--yellow) 32%, var(--ink));
+  }
+  .vcard .explore { margin-top: 16px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .vstats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .picker { padding: 20px 14px 24px; }
+    .picker-h { font-size: 1.3rem; }
+    .dest-grid { grid-template-columns: 1fr; }
+    .vcard { padding: 18px 14px 22px; }
+    .vhero { gap: 14px; }
+    .vhero-flag { font-size: 2.4rem; }
+    .vhero-summary { font-size: 1rem; }
+    .vstats { grid-template-columns: 1fr; }
+    .vstat-value { font-size: 1.6rem; }
+  }
+</style>
+{% endblock %}
