@@ -148,7 +148,8 @@ class ParsedQuery(AppBaseModel):
         default=None,
         description=(
             "Price band 1–4 inferred from a budget ('under $40') or adjective "
-            "('cheap'). Matched exactly (not a ceiling). Null if none found."
+            "('cheap'), applied as a ceiling (results are <= this band). "
+            "Null if none found."
         ),
         examples=[2],
     )

@@ -149,8 +149,9 @@ def search_places_nl(
 
     The parsed filters are echoed back in ``parsed`` so the caller can see
     how the query was interpreted. Budget phrases ('under $40') and price
-    adjectives ('cheap') map to a single ``price_level`` band, matched
-    exactly; unrecognised words are ignored. Pagination uses the standard
+    adjectives ('cheap') map to a ``price_level`` band applied as a ceiling
+    (``<=``), so "under $40" includes everything at or below that band.
+    Unrecognised words are ignored. Pagination uses the standard
     ``limit`` / ``offset`` query params.
     """
     parsed = place_service.parse_nl_query(body.query)
@@ -158,7 +159,7 @@ def search_places_nl(
         city=parsed.city,
         category=parsed.category,
         min_rating=parsed.min_rating,
-        price_level=parsed.price_level,
+        price_level_max=parsed.price_level,
     )
     page, total = pagination.page_of(all_results)
     return PlaceNLSearchResponse(

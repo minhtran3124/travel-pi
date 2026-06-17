@@ -55,9 +55,17 @@ def search_places(
     category: str | None = None,
     min_rating: float | None = None,
     price_level: int | None = None,
+    price_level_max: int | None = None,
     recommended_only: bool = False,
     sort: str = DEFAULT_SORT,
 ) -> list[Place]:
+    """Filter and sort places.
+
+    ``price_level`` matches a band exactly; ``price_level_max`` is a ceiling
+    (``<=``) used by the NL search shim so a budget like "under $40" includes
+    everything at or below that band. They may be combined but normally only
+    one is supplied.
+    """
     results = list(_PLACES)
 
     if city:
@@ -71,6 +79,8 @@ def search_places(
         results = [p for p in results if p.rating >= min_rating]
     if price_level is not None:
         results = [p for p in results if p.price_level == price_level]
+    if price_level_max is not None:
+        results = [p for p in results if p.price_level <= price_level_max]
     if recommended_only:
         results = [p for p in results if p.is_recommended]
 

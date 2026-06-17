@@ -538,7 +538,21 @@ def test_nl_search_results_match_parsed_filters(client: TestClient) -> None:
     for place in body["results"]:
         assert place["city"] == "Hanoi"
         assert place["category"] == "restaurant"
-        assert place["price_level"] == 2
+        # price_level is a ceiling: "under $40" → band 2 includes bands 1 and 2.
+        assert place["price_level"] <= 2
+
+
+def test_nl_search_price_level_is_a_ceiling(client: TestClient) -> None:
+    # Hanoi has restaurants at price_level 1 and 2; the band-2 budget must
+    # include the cheaper band-1 place, not just exact band-2 matches.
+    body = client.post(
+        "/places/search/nl",
+        json={"query": "dinner in Hanoi under $40"},
+    ).json()
+    assert body["parsed"]["price_level"] == 2
+    levels = {p["price_level"] for p in body["results"]}
+    assert levels <= {1, 2}
+    assert 1 in levels  # the cheaper place is included by the ceiling
 
 
 def test_nl_search_empty_query_422(client: TestClient) -> None:
