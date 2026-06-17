@@ -1,11 +1,11 @@
 """Shared fixtures for all endpoint tests."""
 
-
 import pytest
 from app.crud.flight import FlightIndexRepository
 from app.main import create_app
 from app.services import flight_service
 from app.services.booking_service import BookingService, get_booking_service
+from app.services.trip_service import TripService, get_trip_service
 from fastapi.testclient import TestClient
 
 
@@ -26,8 +26,12 @@ def client(tmp_db):
     # isolated from the real travel.db.
     flight_service.set_index_repo(FlightIndexRepository(tmp_db))
 
+    trip_svc = TripService(tmp_db)
+    trip_svc.init_db()
+
     app = create_app()
     app.dependency_overrides[get_booking_service] = lambda: svc
+    app.dependency_overrides[get_trip_service] = lambda: trip_svc
 
     with TestClient(app) as c:
         yield c

@@ -20,6 +20,7 @@ from app.routers import (
     meta,
     places,
     tips,
+    trips,
     visa,
     weather,
 )
@@ -40,5 +41,6 @@ router.include_router(visa.router)
 router.include_router(weather.router)
 router.include_router(air_quality.router)
 router.include_router(bookings.router)
+router.include_router(trips.router)
 # Server-rendered HTML dashboard — excluded from the OpenAPI schema.
 router.include_router(dashboard.router)

@@ -175,3 +175,106 @@ def test_service_item_wrong_trip_raises(svc):
     # item belongs to A, not B -> 404 when addressed via B
     with pytest.raises(NotFoundError):
         svc.update_item(b.id, item.id, TripItemUpdate(day=1, kind="meal", title="x"))
+
+
+# --------------------------------------------------------------------------- #
+# Endpoints (full stack via TestClient)
+# --------------------------------------------------------------------------- #
+
+
+def _create_trip(client, **over):
+    body = {"title": "Da Nang weekend", "city": "Da Nang", "travelers": 2}
+    body.update(over)
+    return client.post("/trips", json=body)
+
+
+def test_post_trip_returns_201_with_id(client):
+    resp = _create_trip(client)
+    assert resp.status_code == 201
+    body = resp.json()
+    assert body["id"] and body["title"] == "Da Nang weekend"
+    assert body["items"] == []
+
+
+def test_post_trip_with_items(client):
+    resp = _create_trip(
+        client,
+        items=[
+            {"day": 2, "kind": "meal", "title": "Dinner"},
+            {"day": 1, "kind": "place", "title": "Dragon Bridge"},
+        ],
+    )
+    assert resp.status_code == 201
+    titles = [i["title"] for i in resp.json()["items"]]
+    assert titles == ["Dragon Bridge", "Dinner"]  # sorted by (day, sort_order)
+
+
+def test_post_trip_invalid_body_422(client):
+    assert _create_trip(client, travelers=0).status_code == 422
+    assert _create_trip(client, title="").status_code == 422
+    assert (
+        _create_trip(client, start_date="2026-06-05", end_date="2026-06-01").status_code
+        == 422
+    )
+
+
+def test_get_trip_roundtrip(client):
+    trip_id = _create_trip(client).json()["id"]
+    got = client.get(f"/trips/{trip_id}")
+    assert got.status_code == 200 and got.json()["id"] == trip_id
+
+
+def test_get_missing_trip_404(client):
+    assert client.get("/trips/does-not-exist").status_code == 404
+
+
+def test_list_trips_paginated_envelope(client):
+    _create_trip(client)
+    body = client.get("/trips").json()
+    for field in ("total", "limit", "offset", "results"):
+        assert field in body
+
+
+def test_put_trip_replaces_fields(client):
+    trip_id = _create_trip(client).json()["id"]
+    resp = client.put(f"/trips/{trip_id}", json={"title": "Renamed", "travelers": 4})
+    assert resp.status_code == 200
+    assert resp.json()["title"] == "Renamed" and resp.json()["travelers"] == 4
+
+
+def test_delete_trip_204_then_404(client):
+    trip_id = _create_trip(client).json()["id"]
+    assert client.delete(f"/trips/{trip_id}").status_code == 204
+    assert client.get(f"/trips/{trip_id}").status_code == 404
+
+
+def test_item_crud_via_endpoints(client):
+    trip_id = _create_trip(client).json()["id"]
+    add = client.post(
+        f"/trips/{trip_id}/items", json={"day": 1, "kind": "activity", "title": "Surf"}
+    )
+    assert add.status_code == 201
+    item_id = add.json()["id"]
+    upd = client.put(
+        f"/trips/{trip_id}/items/{item_id}",
+        json={"day": 2, "kind": "activity", "title": "Dive"},
+    )
+    assert upd.status_code == 200 and upd.json()["title"] == "Dive"
+    assert client.get(f"/trips/{trip_id}").json()["items"][0]["title"] == "Dive"
+    assert client.delete(f"/trips/{trip_id}/items/{item_id}").status_code == 204
+    assert client.get(f"/trips/{trip_id}").json()["items"] == []
+
+
+def test_add_item_to_missing_trip_404(client):
+    resp = client.post(
+        "/trips/missing/items", json={"day": 1, "kind": "note", "title": "x"}
+    )
+    assert resp.status_code == 404
+
+
+def test_item_bad_kind_422(client):
+    trip_id = _create_trip(client).json()["id"]
+    resp = client.post(
+        f"/trips/{trip_id}/items", json={"day": 1, "kind": "bogus", "title": "x"}
+    )
+    assert resp.status_code == 422
