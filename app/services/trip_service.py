@@ -253,15 +253,18 @@ class TripService:
                             )
                             rec_mode = route.recommended_mode
                             leg = next(
-                                leg for leg in route.legs if leg.mode == rec_mode
+                                (lg for lg in route.legs if lg.mode == rec_mode),
+                                None,
                             )
-                            travel_minutes = leg.duration_minutes
-                            travel_mode = rec_mode
-                        except Exception:
+                            if leg is not None:
+                                travel_minutes = leg.duration_minutes
+                                travel_mode = rec_mode
+                        except Exception as exc:
                             logger.warning(
-                                "Routing %s → %s failed — travel fields null",
+                                "day-plan routing failed for %s->%s: %s",
                                 item.place_id,
                                 next_item.place_id,
+                                exc,
                             )
 
             plan_items.append(

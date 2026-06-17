@@ -361,3 +361,97 @@ def test_day_plan_missing_trip_raises_not_found(svc):
     """Unknown trip_id propagates NotFoundError (404) from get_trip."""
     with pytest.raises(NotFoundError):
         asyncio.run(svc.get_day_plan("does-not-exist", date(2026, 7, 1)))
+
+
+# --------------------------------------------------------------------------- #
+# get_day_plan — routing SUCCESS path (monkeypatched, offline)
+# --------------------------------------------------------------------------- #
+
+
+def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch):
+    """When both items have geo-located place_ids and routing returns a matching
+    leg, travel_to_next_minutes and travel_to_next_mode are populated on the
+    first item; the last item still has null travel fields.
+    """
+    from unittest.mock import AsyncMock
+
+    from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
+    from app.services import place_service as _place_svc
+    from app.services import routing_service as _routing_svc
+
+    # Fake places with coordinates — no DB or catalog needed.
+    place_a = MagicMock()
+    place_a.id = "place-a"
+    place_a.latitude = 16.0544
+    place_a.longitude = 108.2022
+
+    place_b = MagicMock()
+    place_b.id = "place-b"
+    place_b.latitude = 16.0678
+    place_b.longitude = 108.2208
+
+    # Fake route: recommended_mode "car", leg with 12.5 minutes.
+
+    fake_leg = RouteLeg(
+        mode="car", profile="driving-car", distance_km=5.0, duration_minutes=12.5
+    )
+    fake_origin = RouteEndpoint(
+        kind="place", id="place-a", name="Museum", latitude=16.0544, longitude=108.2022
+    )
+    fake_dest = RouteEndpoint(
+        kind="place", id="place-b", name="Market", latitude=16.0678, longitude=108.2208
+    )
+    fake_route = RouteResponse(
+        origin=fake_origin,
+        destination=fake_dest,
+        straight_line_km=4.8,
+        recommended_mode="car",
+        legs=[fake_leg],
+        source="estimate",
+        attribution="test",
+    )
+
+    monkeypatch.setattr(
+        _place_svc,
+        "get_place",
+        lambda pid: place_a if pid == "place-a" else place_b,
+    )
+    monkeypatch.setattr(
+        _routing_svc,
+        "get_place_route",
+        AsyncMock(return_value=fake_route),
+    )
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="Test",
+            start_date=date(2026, 7, 1),
+            end_date=date(2026, 7, 1),
+            items=[
+                TripItemCreate(
+                    day=1,
+                    sort_order=0,
+                    kind="place",
+                    title="Museum",
+                    place_id="place-a",
+                ),
+                TripItemCreate(
+                    day=1,
+                    sort_order=1,
+                    kind="place",
+                    title="Market",
+                    place_id="place-b",
+                ),
+            ],
+        )
+    )
+    result = asyncio.run(svc.get_day_plan(trip.id, date(2026, 7, 1)))
+
+    assert len(result.items) == 2
+    first = result.items[0]
+    assert first.travel_to_next_minutes == 12.5
+    assert first.travel_to_next_mode == "car"
+
+    last = result.items[-1]
+    assert last.travel_to_next_minutes is None
+    assert last.travel_to_next_mode is None
