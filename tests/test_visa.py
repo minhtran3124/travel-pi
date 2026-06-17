@@ -73,24 +73,24 @@ def test_dashboard_visa_no_filter_returns_200(client: TestClient) -> None:
 
 
 def test_dashboard_visa_no_filter_renders_picker(client: TestClient) -> None:
-    """Default view is the friendly country picker."""
+    """Default view is the country picker — a grid of passport-page tiles."""
     html = client.get("/dashboard/visa").text
-    assert 'class="vtile"' in html
-    assert "Where are you headed" in html
+    assert 'class="page' in html
+    assert "Pick a destination" in html
 
 
 def test_dashboard_visa_country_renders_entry_card(client: TestClient) -> None:
-    """A selected country shows its entry card with the quotable summary."""
+    """A selected country shows its entry record with the quotable summary."""
     html = client.get("/dashboard/visa", params={"country": "Vietnam"}).text
-    assert 'class="vcard"' in html
+    assert 'class="record"' in html
     assert COUNTRY_VISA["Vietnam"]["summary"] in html
-    assert "Visa-free stay" in html
+    assert "Entry record" in html
 
 
 def test_dashboard_visa_city_resolves_country(client: TestClient) -> None:
-    """A city resolves to its country's card (and offers the explore strip)."""
+    """A city resolves to its country's record (and offers the explore strip)."""
     html = client.get("/dashboard/visa", params={"city": "Da Nang"}).text
-    assert 'class="vcard"' in html
+    assert 'class="record"' in html
     assert "Vietnam" in html
 
 

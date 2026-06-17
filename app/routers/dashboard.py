@@ -530,6 +530,7 @@ def _visa_destinations() -> list[dict]:
         out.append(
             {
                 "name": c["name"],
+                "code": c.get("code", ""),
                 "flag": _flag_emoji(c.get("code", "")),
                 "region": c.get("region", "Other"),
                 "visa_free_days": visa["visa_free_days"],
@@ -566,11 +567,14 @@ def visa_page(
     view = "picker"
     result = None
     flag = ""
+    country_code = ""
     if selected_city or selected_country:
         view = "destination"
         result = visa_service.get_visa(city=selected_city, country=selected_country)
-        code = next((c["code"] for c in _COUNTRIES if c["name"] == result.country), "")
-        flag = _flag_emoji(code)
+        country_code = next(
+            (c["code"] for c in _COUNTRIES if c["name"] == result.country), ""
+        )
+        flag = _flag_emoji(country_code)
 
     return _TEMPLATES.TemplateResponse(
         request=request,
@@ -582,6 +586,7 @@ def visa_page(
             "selected_city": selected_city,
             "result": result,
             "flag": flag,
+            "country_code": country_code,
             "destinations": _visa_destinations(),
         },
     )
