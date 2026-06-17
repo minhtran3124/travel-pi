@@ -1,14 +1,17 @@
 """Trip itinerary endpoints: CRUD over trips and their day-plan items."""
 
+from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, Path, Query, status
 
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.trip import (
+    DayPlanResponse,
     Trip,
     TripCreate,
+    TripDetail,
     TripEstimateRequest,
     TripEstimateResponse,
     TripItem,
@@ -66,13 +69,39 @@ def list_trips(trips: TripsDep, pagination: PaginationDep) -> TripListResponse:
 
 @router.get(
     "/{trip_id}",
-    response_model=Trip,
-    summary="Retrieve one trip by UUID",
+    response_model=TripDetail,
+    summary="Retrieve one trip by UUID (includes computed total_spent and gaps)",
     responses=error_responses(404, 422),
 )
-def get_trip(trips: TripsDep, trip_id: _TRIP_ID) -> Trip:
-    """Return a trip and its items. 404 if the UUID is unknown."""
-    return trips.get_trip(trip_id)
+def get_trip(trips: TripsDep, trip_id: _TRIP_ID) -> TripDetail:
+    """Return a trip and its items enriched with total_spent and coverage gaps.
+
+    ``total_spent`` sums linked non-cancelled booking prices (USD).
+    ``gaps`` lists days missing accommodation or with no planned items.
+    404 if the UUID is unknown.
+    """
+    return trips.get_trip_detail(trip_id)
+
+
+@router.get(
+    "/{trip_id}/day-plan",
+    response_model=DayPlanResponse,
+    summary="Day-by-day plan for a date, with travel time between stops",
+    responses=error_responses(404, 409),
+)
+async def get_day_plan(
+    trips: TripsDep,
+    trip_id: _TRIP_ID,
+    date: Annotated[
+        date, Query(description="Calendar date within the trip (YYYY-MM-DD).")
+    ],
+) -> DayPlanResponse:
+    """Return the ordered day plan for a single date, with travel-time annotations.
+
+    409 if the trip has no start_date set (day number cannot be derived).
+    404 if the trip UUID is unknown.
+    """
+    return await trips.get_day_plan(trip_id, date)
 
 
 @router.put(
