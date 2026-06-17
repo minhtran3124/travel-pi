@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS trip_items (
     kind        TEXT NOT NULL,
     title       TEXT NOT NULL,
     place_id    TEXT,
+    booking_id  TEXT,
     start_time  TEXT,
     notes       TEXT
 )
@@ -59,6 +60,7 @@ _ITEM_COLUMNS = (
     "kind",
     "title",
     "place_id",
+    "booking_id",
     "start_time",
     "notes",
 )
@@ -78,6 +80,7 @@ def _row_to_item(row: sqlite3.Row) -> TripItem:
         kind=row["kind"],
         title=row["title"],
         place_id=row["place_id"],
+        booking_id=row["booking_id"],
         start_time=row["start_time"],
         notes=row["notes"],
     )
@@ -122,6 +125,7 @@ def _item_values(item: TripItem) -> tuple:
         item.kind.value,
         item.title,
         item.place_id,
+        item.booking_id,
         item.start_time,
         item.notes,
     )
@@ -239,13 +243,14 @@ class TripRepository:
         with self._connect() as conn:
             cursor = conn.execute(
                 "UPDATE trip_items SET day = ?, sort_order = ?, kind = ?, "
-                "title = ?, place_id = ?, start_time = ?, notes = ? WHERE id = ?",
+                "title = ?, place_id = ?, booking_id = ?, start_time = ?, notes = ? WHERE id = ?",
                 (
                     item.day,
                     item.sort_order,
                     item.kind.value,
                     item.title,
                     item.place_id,
+                    item.booking_id,
                     item.start_time,
                     item.notes,
                     item.id,

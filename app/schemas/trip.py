@@ -7,6 +7,7 @@ and notes. This is standalone planning storage — items are freeform and are
 """
 
 from datetime import date, datetime
+from typing import Annotated
 
 from pydantic import Field, model_validator
 
@@ -33,6 +34,14 @@ class TripItemCreate(AppBaseModel):
     place_id: str | None = Field(
         default=None,
         description="Optional free-text reference to a place. Not validated against the catalog.",
+    )
+    booking_id: str | None = Field(
+        default=None,
+        description=(
+            "Optional link to a booking (/bookings UUID or confirmation_code) whose "
+            "price rolls up into the trip's total_spent. Not validated at write time."
+        ),
+        examples=["BK-ABCD1234"],
     )
     start_time: str | None = Field(
         default=None, description="Optional local start time, e.g. '09:00'."
@@ -121,6 +130,43 @@ class Trip(AppBaseModel):
     notes: str | None = None
     created_at: datetime = Field(description="When the trip was created (UTC).")
     items: list[TripItem] = Field(default_factory=list)
+
+
+class TripDetail(Trip):
+    """A trip with computed value-layer fields (returned by detail / day-plan endpoints)."""
+
+    total_spent: float = Field(
+        description="Sum of linked, non-cancelled booking prices (USD)."
+    )
+    gaps: list[str] = Field(
+        default_factory=list,
+        description="Human-readable coverage gaps, e.g. 'Day 3 has no accommodation'.",
+    )
+
+
+class DayPlanItem(AppBaseModel):
+    """One itinerary item plus optional travel info to the next item."""
+
+    item: TripItem
+    travel_to_next_minutes: float | None = Field(
+        default=None,
+        description="Estimated travel time to the next item in minutes.",
+    )
+    travel_to_next_mode: str | None = Field(
+        default=None,
+        description="Travel mode to the next item, e.g. 'driving', 'walking'.",
+    )
+
+
+class DayPlanResponse(AppBaseModel):
+    """Response body for a single day's itinerary."""
+
+    trip_id: str = Field(description="Owning trip UUID.")
+    date: Annotated[date, Field(description="Calendar date for this day (YYYY-MM-DD).")]
+    day: int = Field(description="1-based day number within the trip.")
+    items: list[DayPlanItem] = Field(
+        default_factory=list, description="Ordered list of items for this day."
+    )
 
 
 class TripListResponse(PagedResponse[Trip]):
