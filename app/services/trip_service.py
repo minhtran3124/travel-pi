@@ -9,13 +9,18 @@ the booking service.
 import logging
 import uuid
 from datetime import datetime, timezone
+from decimal import ROUND_HALF_UP, Decimal
 
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
+from app.enums import ActivityLevel, MealStyle
 from app.exceptions import NotFoundError
 from app.schemas.trip import (
+    EstimateBreakdown,
     Trip,
     TripCreate,
+    TripEstimateRequest,
+    TripEstimateResponse,
     TripItem,
     TripItemCreate,
     TripItemUpdate,
@@ -143,3 +148,84 @@ _trip_service = TripService(get_settings().database_path)
 def get_trip_service() -> TripService:
     """FastAPI dependency returning the shared trip store."""
     return _trip_service
+
+
+# --------------------------------------------------------------------------- #
+# Budget estimate — a stateless calculator (no DB, no network).
+# Rates are USD per person per day, where "day" = one night (see SUMMARY.md /
+# PLAN.md: the spec's worked example balances on `nights`, not `nights + 1`).
+# --------------------------------------------------------------------------- #
+
+_MEAL_RATES: dict[MealStyle, int] = {
+    MealStyle.BUDGET: 15,
+    MealStyle.MID: 30,
+    MealStyle.FINE: 70,
+}
+_ACTIVITY_RATES: dict[ActivityLevel, int] = {
+    ActivityLevel.NONE: 0,
+    ActivityLevel.SOME: 20,
+    ActivityLevel.LOTS: 50,
+}
+_LOCAL_TRANSPORT_PER_DAY = 15  # USD per day, per trip (not per traveler)
+_BUFFER_PCT = 10
+
+
+def _money(value: float, places: int = 2) -> float:
+    """Round half-up to ``places`` decimals (avoids round()'s banker's rounding)."""
+    quant = Decimal(10) ** -places
+    return float(Decimal(str(value)).quantize(quant, rounding=ROUND_HALF_UP))
+
+
+def estimate_trip(request: TripEstimateRequest) -> TripEstimateResponse:
+    """Compute a line-item budget estimate. Pure function; nothing is stored."""
+    nights = request.nights
+    travelers = request.travelers
+    meal_rate = _MEAL_RATES[request.meal_style]
+    activity_rate = _ACTIVITY_RATES[request.activity_level]
+
+    flights = _money(request.flight_total_usd or 0.0)
+    accommodation = _money((request.hotel_price_per_night_usd or 0.0) * nights)
+    meals = _money(meal_rate * travelers * nights)
+    activities = _money(activity_rate * travelers * nights)
+    local_transport = _money(_LOCAL_TRANSPORT_PER_DAY * nights)
+
+    breakdown = EstimateBreakdown(
+        flights=flights,
+        accommodation=accommodation,
+        meals=meals,
+        activities=activities,
+        local_transport=local_transport,
+    )
+    subtotal = _money(flights + accommodation + meals + activities + local_transport)
+    total_estimate = _money(subtotal * (1 + _BUFFER_PCT / 100), places=0)
+    per_person = _money(total_estimate / travelers)
+
+    assumptions = [
+        f"Meals at '{request.meal_style.value}' = ${meal_rate}/person/day, "
+        f"over {nights} night(s) for {travelers} traveler(s).",
+        f"Activities at '{request.activity_level.value}' = ${activity_rate}/person/day.",
+        f"Local transport = ${_LOCAL_TRANSPORT_PER_DAY}/day (per trip).",
+        f"{_BUFFER_PCT}% buffer added for incidentals.",
+    ]
+    if request.flight_total_usd is None:
+        assumptions.append(
+            "Flights not provided — excluded. Pass flight_total_usd to include them."
+        )
+    if request.hotel_price_per_night_usd is None:
+        assumptions.append(
+            "Accommodation not provided — excluded. Pass hotel_price_per_night_usd "
+            "to include it."
+        )
+
+    return TripEstimateResponse(
+        city=request.city,
+        nights=nights,
+        travelers=travelers,
+        breakdown=breakdown,
+        subtotal=subtotal,
+        buffer_pct=_BUFFER_PCT,
+        total_estimate=total_estimate,
+        per_person=per_person,
+        assumptions=assumptions,
+        notes="Estimate only — excludes visas, shopping, and tips.",
+    )

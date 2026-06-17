@@ -9,13 +9,15 @@ from app.schemas.pagination import PaginationDep
 from app.schemas.trip import (
     Trip,
     TripCreate,
+    TripEstimateRequest,
+    TripEstimateResponse,
     TripItem,
     TripItemCreate,
     TripItemUpdate,
     TripListResponse,
     TripUpdate,
 )
-from app.services.trip_service import TripService, get_trip_service
+from app.services.trip_service import TripService, estimate_trip, get_trip_service
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 
@@ -35,6 +37,17 @@ _ITEM_ID = Annotated[str, Path(description="Item UUID", examples=["a2b4c6d8-..."
 def create_trip(trips: TripsDep, body: TripCreate) -> Trip:
     """Create a trip and return it, including any items sorted by day."""
     return trips.create_trip(body)
+
+
+@router.post(
+    "/estimate",
+    response_model=TripEstimateResponse,
+    summary="Estimate a trip's budget (calculation only — nothing is stored)",
+    responses=error_responses(422),
+)
+def estimate_trip_budget(body: TripEstimateRequest) -> TripEstimateResponse:
+    """Compute a line-item budget estimate. Pure calculation; no DB, no state."""
+    return estimate_trip(body)
 
 
 @router.get(

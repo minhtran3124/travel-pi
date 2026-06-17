@@ -41,6 +41,7 @@ Base URL: `http://localhost:8000`
 | GET | `/bookings/{booking_id}` | Look up a booking by UUID or confirmation code |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
 | POST | `/trips` | Create a trip itinerary (with optional items) |
+| POST | `/trips/estimate` | Estimate a trip budget (calculation only; no state) |
 | GET | `/trips` | List trips (paginated) |
 | GET | `/trips/{trip_id}` | Get one trip + its day-by-day items |
 | PUT | `/trips/{trip_id}` | Replace a trip's top-level fields |
@@ -1071,6 +1072,47 @@ curl -X POST http://localhost:8000/trips \
 curl -X POST http://localhost:8000/trips/<trip_id>/items \
   -H 'Content-Type: application/json' \
   -d '{"day": 2, "kind": "activity", "title": "Marble Mountains hike"}'
+```
+
+### `POST /trips/estimate` — budget estimator
+
+A **stateless calculator**: given a trip's shape (and any costs you already
+know) it returns a line-item budget breakdown, a buffered total, and a
+per-person figure. It **persists nothing** — no SQLite, no booking — so it does
+not touch the "bookings are the only mutable state" rule.
+
+**Request body**
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `nights` | yes | Integer ≥ 1 |
+| `travelers` | yes | Integer 1–50 |
+| `city` | no | Free text; informational only (does not affect the math) |
+| `flight_total_usd` | no | Known total flight cost (≥ 0). Omit to exclude flights |
+| `hotel_price_per_night_usd` | no | Known room price/night (≥ 0). Omit to exclude lodging |
+| `meal_style` | no | `budget` \| `mid` \| `fine` (default `mid`) |
+| `activity_level` | no | `none` \| `some` \| `lots` (default `some`) |
+
+Bad enum values or `nights`/`travelers` below their minimums → **422**. Omitting
+`flight_total_usd` / `hotel_price_per_night_usd` zeroes that line and records an
+entry in `assumptions` (still **200**).
+
+**Rates** (USD per person per day, where "day" = one night): meals
+`budget`=$15 / `mid`=$30 / `fine`=$70; activities `none`=$0 / `some`=$20 /
+`lots`=$50; local transport $15/day (per trip); plus a 10% incidentals buffer.
+`total_estimate` is rounded to whole dollars; `assumptions` spells out every
+rate used so an agent can explain the number.
+
+```bash
+curl -X POST http://localhost:8000/trips/estimate \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "city": "Da Nang", "nights": 3, "travelers": 2,
+        "flight_total_usd": 240, "hotel_price_per_night_usd": 90,
+        "meal_style": "mid", "activity_level": "some"
+      }'
+# → breakdown {flights 240, accommodation 270, meals 180, activities 120,
+#   local_transport 45}, subtotal 855, total_estimate 941, per_person 470.5
 ```
 
 ---

@@ -278,3 +278,181 @@ def test_item_bad_kind_422(client):
         f"/trips/{trip_id}/items", json={"day": 1, "kind": "bogus", "title": "x"}
     )
     assert resp.status_code == 422
+
+
+# --------------------------------------------------------------------------- #
+# Budget estimate — schema validation
+# --------------------------------------------------------------------------- #
+
+
+def test_estimate_request_minimal_defaults():
+    from app.schemas.trip import TripEstimateRequest
+
+    req = TripEstimateRequest(nights=2, travelers=1)
+    assert req.meal_style == "mid"
+    assert req.activity_level == "some"
+    assert req.flight_total_usd is None
+    assert req.hotel_price_per_night_usd is None
+
+
+def test_estimate_request_rejects_zero_nights():
+    import pytest
+    from app.schemas.trip import TripEstimateRequest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        TripEstimateRequest(nights=0, travelers=1)
+
+
+def test_estimate_request_rejects_zero_travelers():
+    import pytest
+    from app.schemas.trip import TripEstimateRequest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        TripEstimateRequest(nights=1, travelers=0)
+
+
+def test_estimate_request_rejects_bad_meal_style():
+    import pytest
+    from app.schemas.trip import TripEstimateRequest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        TripEstimateRequest(nights=1, travelers=1, meal_style="lavish")
+
+
+def test_estimate_request_rejects_bad_activity_level():
+    import pytest
+    from app.schemas.trip import TripEstimateRequest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        TripEstimateRequest(nights=1, travelers=1, activity_level="extreme")
+
+
+def test_estimate_request_rejects_negative_costs():
+    import pytest
+    from app.schemas.trip import TripEstimateRequest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        TripEstimateRequest(nights=1, travelers=1, flight_total_usd=-5)
+    with pytest.raises(ValidationError):
+        TripEstimateRequest(nights=1, travelers=1, hotel_price_per_night_usd=-1)
+
+
+# --------------------------------------------------------------------------- #
+# Budget estimate — pure calculator
+# --------------------------------------------------------------------------- #
+
+
+def test_estimate_worked_example_matches_spec():
+    from app.schemas.trip import TripEstimateRequest
+    from app.services.trip_service import estimate_trip
+
+    res = estimate_trip(
+        TripEstimateRequest(
+            city="Da Nang",
+            nights=3,
+            travelers=2,
+            flight_total_usd=240,
+            hotel_price_per_night_usd=90,
+            meal_style="mid",
+            activity_level="some",
+        )
+    )
+    assert res.breakdown.flights == 240
+    assert res.breakdown.accommodation == 270
+    assert res.breakdown.meals == 180
+    assert res.breakdown.activities == 120
+    assert res.breakdown.local_transport == 45
+    assert res.subtotal == 855
+    assert res.buffer_pct == 10
+    assert res.total_estimate == 941
+    assert res.per_person == 470.5
+    assert res.currency == "USD"
+    assert res.city == "Da Nang"
+
+
+def test_estimate_missing_flight_zeroes_line_and_notes_assumption():
+    from app.schemas.trip import TripEstimateRequest
+    from app.services.trip_service import estimate_trip
+
+    res = estimate_trip(
+        TripEstimateRequest(nights=2, travelers=1, hotel_price_per_night_usd=50)
+    )
+    assert res.breakdown.flights == 0
+    assert any("flight" in a.lower() for a in res.assumptions)
+
+
+def test_estimate_missing_hotel_zeroes_line_and_notes_assumption():
+    from app.schemas.trip import TripEstimateRequest
+    from app.services.trip_service import estimate_trip
+
+    res = estimate_trip(
+        TripEstimateRequest(nights=2, travelers=1, flight_total_usd=100)
+    )
+    assert res.breakdown.accommodation == 0
+    assert any("accommodation" in a.lower() for a in res.assumptions)
+
+
+def test_estimate_rounds_total_half_up_to_whole_dollars():
+    # nights=1, travelers=1, hotel=49 -> accommodation 49, meals mid 30,
+    # activities some 20, local 15 => subtotal 114; *1.1 = 125.4 -> 125.
+    from app.schemas.trip import TripEstimateRequest
+    from app.services.trip_service import estimate_trip
+
+    res = estimate_trip(
+        TripEstimateRequest(nights=1, travelers=1, hotel_price_per_night_usd=49)
+    )
+    assert res.subtotal == 114
+    assert res.total_estimate == 125  # 125.4 rounds down; not a .5 boundary
+    assert res.per_person == 125
+
+
+# --------------------------------------------------------------------------- #
+# Budget estimate — endpoint (full stack via TestClient)
+# --------------------------------------------------------------------------- #
+
+
+def test_post_estimate_happy_path(client):
+    resp = client.post(
+        "/trips/estimate",
+        json={
+            "city": "Da Nang",
+            "nights": 3,
+            "travelers": 2,
+            "flight_total_usd": 240,
+            "hotel_price_per_night_usd": 90,
+            "meal_style": "mid",
+            "activity_level": "some",
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["breakdown"]["accommodation"] == 270
+    assert body["subtotal"] == 855
+    assert body["total_estimate"] == 941
+    assert body["per_person"] == 470.5
+    assert isinstance(body["assumptions"], list) and body["assumptions"]
+
+
+def test_post_estimate_minimal_body_ok(client):
+    # only required fields -> defaults applied, still 200
+    resp = client.post("/trips/estimate", json={"nights": 2, "travelers": 1})
+    assert resp.status_code == 200
+    assert resp.json()["breakdown"]["flights"] == 0
+
+
+def test_post_estimate_bad_enum_returns_422(client):
+    resp = client.post(
+        "/trips/estimate",
+        json={"nights": 1, "travelers": 1, "meal_style": "lavish"},
+    )
+    assert resp.status_code == 422
+
+
+def test_post_estimate_zero_nights_returns_422(client):
+    resp = client.post("/trips/estimate", json={"nights": 0, "travelers": 1})
+    assert resp.status_code == 422

@@ -10,7 +10,7 @@ from datetime import date, datetime
 
 from pydantic import Field, model_validator
 
-from app.enums import TripItemKind
+from app.enums import ActivityLevel, MealStyle, TripItemKind
 from app.schemas.base import AppBaseModel
 from app.schemas.pagination import PagedResponse
 
@@ -125,3 +125,63 @@ class Trip(AppBaseModel):
 
 class TripListResponse(PagedResponse[Trip]):
     """Response body for ``GET /trips``."""
+
+
+class TripEstimateRequest(AppBaseModel):
+    """Request body for ``POST /trips/estimate`` — pure calculation, no state."""
+
+    city: str | None = Field(
+        default=None,
+        max_length=120,
+        description="Destination city (free text). Informational; does not affect the math.",
+    )
+    nights: int = Field(ge=1, description="Number of nights.", examples=[3])
+    travelers: int = Field(
+        ge=1, le=50, description="Number of travelers.", examples=[2]
+    )
+    flight_total_usd: float | None = Field(
+        default=None,
+        ge=0,
+        description="Known total flight cost in USD (e.g. from /flights/search). Omit to exclude.",
+    )
+    hotel_price_per_night_usd: float | None = Field(
+        default=None,
+        ge=0,
+        description="Known room price per night in USD (e.g. from /hotels/availability). Omit to exclude.",
+    )
+    meal_style: MealStyle = Field(default=MealStyle.MID, description="Meal-spend tier.")
+    activity_level: ActivityLevel = Field(
+        default=ActivityLevel.SOME, description="Activity-spend tier."
+    )
+
+
+class EstimateBreakdown(AppBaseModel):
+    """Per-category USD figures that sum to the subtotal."""
+
+    flights: float
+    accommodation: float
+    meals: float
+    activities: float
+    local_transport: float
+
+
+class TripEstimateResponse(AppBaseModel):
+    """Response body for ``POST /trips/estimate``."""
+
+    currency: str = Field(default="USD", description="Always USD in this mock.")
+    city: str | None = Field(
+        default=None, description="Echo of the request city, if given."
+    )
+    nights: int
+    travelers: int
+    breakdown: EstimateBreakdown
+    subtotal: float = Field(description="Sum of the breakdown lines (USD).")
+    buffer_pct: int = Field(description="Incidentals buffer applied, as a percent.")
+    total_estimate: float = Field(
+        description="Subtotal + buffer, rounded to whole USD."
+    )
+    per_person: float = Field(description="total_estimate / travelers (USD, 2 dp).")
+    assumptions: list[str] = Field(
+        description="Plain-language statement of every rate and choice used."
+    )
+    notes: str = Field(description="Scope caveat for the estimate.")

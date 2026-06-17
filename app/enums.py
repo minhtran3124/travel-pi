@@ -104,3 +104,19 @@ class TripItemKind(str, Enum):
     MEAL = "meal"
     TRANSPORT = "transport"
     NOTE = "note"
+
+
+class MealStyle(str, Enum):
+    """Meal-spend tier for a trip budget estimate."""
+
+    BUDGET = "budget"
+    MID = "mid"
+    FINE = "fine"
+
+
+class ActivityLevel(str, Enum):
+    """Activity-spend tier for a trip budget estimate."""
+
+    NONE = "none"
+    SOME = "some"
+    LOTS = "lots"
