@@ -1,6 +1,6 @@
 ---
 slug: places-nl-search
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-17
 ---
@@ -440,6 +440,8 @@ Expected: exit 0, "All checks passed".
   - Task 3 (route + 7 HTTP tests) — `eece7d9`
   - Correctness-review fix (multi-digit star rating) — `bb2bd87`
   - Final correctness ✅ (1 bug fixed) + intent ✅ (report-only: exact-match price_level). 559 tests pass.
+- 2026-06-17 — Post-review: made NL `price_level` a ceiling (`c046278`), marked AGENT_IMPROVEMENTS #10 done (`60cad93`), untracked derived `PLAN.html` (`chore`). 560 tests pass.
+- 2026-06-17 — shipped via `feat/places-nl-search` (PR #3, base `v2`).
 
 ## 7. Wave / execution notes
 
