@@ -143,3 +143,37 @@ def test_describe_code_known_and_unknown():
     assert weather_service.describe_code(0) == "Clear sky"
     assert weather_service.describe_code(95) == "Thunderstorm"
     assert weather_service.describe_code(123456) == "Unknown"
+
+
+# --- /weather/packing -----------------------------------------------------------
+
+
+def test_packing_returns_200(client, mock_open_meteo):
+    resp = client.get("/weather/packing", params={"city": "Hanoi", "days": 7})
+    assert resp.status_code == 200
+
+
+def test_packing_body_has_suggestions_and_rainy_days(client, mock_open_meteo):
+    body = client.get("/weather/packing", params={"city": "Hanoi", "days": 7}).json()
+    assert isinstance(body["rainy_days"], int)
+    assert len(body["suggestions"]) > 0
+
+
+def test_packing_days_zero_returns_422(client):
+    resp = client.get("/weather/packing", params={"city": "Hanoi", "days": 0})
+    assert resp.status_code == 422
+
+
+def test_packing_unknown_city_returns_404(client, monkeypatch):
+    monkeypatch.setattr(weather_service, "_fetch_json", _fake_fetch(_GEOCODE_MISS))
+    resp = client.get("/weather/packing", params={"city": "Nowhereville"})
+    assert resp.status_code == 404
+
+
+def test_packing_upstream_failure_returns_502(client, monkeypatch):
+    async def _boom(url, params):
+        raise WeatherUnavailableError("connection timed out")
+
+    monkeypatch.setattr(weather_service, "_fetch_json", _boom)
+    resp = client.get("/weather/packing", params={"city": "Hanoi"})
+    assert resp.status_code == 502

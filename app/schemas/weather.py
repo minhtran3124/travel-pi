@@ -13,7 +13,8 @@ class WeatherLocation(AppBaseModel):
     latitude: float = Field(description="Latitude, decimal degrees.")
     longitude: float = Field(description="Longitude, decimal degrees.")
     timezone: str = Field(
-        description="IANA timezone name for the location.", examples=["Asia/Ho_Chi_Minh"]
+        description="IANA timezone name for the location.",
+        examples=["Asia/Ho_Chi_Minh"],
     )
 
 
@@ -51,6 +52,50 @@ class WeatherResponse(AppBaseModel):
     current: CurrentWeather
     daily: list[DailyForecast] = Field(
         description="Daily forecast, in date order (typically 7 days)."
+    )
+    attribution: str = Field(
+        default="Weather data by Open-Meteo.com (CC BY 4.0)",
+        description="Open-Meteo requires attribution when displaying its data.",
+    )
+
+
+class PackingSuggestion(AppBaseModel):
+    """A categorized clothing or gear suggestion based on forecast conditions."""
+
+    category: str = Field(
+        description="Grouping for the suggestion, e.g. 'Rain gear' or 'Warm layers'.",
+        examples=["Rain gear"],
+    )
+    reason: str = Field(
+        description="Why this is suggested, tied to the forecast.",
+        examples=["Rain likely on 3 of 7 days."],
+    )
+    items: list[str] = Field(
+        description="Concrete things to pack.",
+        examples=[["umbrella", "waterproof jacket"]],
+    )
+
+
+class PackingResponse(AppBaseModel):
+    """Response body for the packing suggestions endpoint."""
+
+    location: WeatherLocation
+    days: int = Field(
+        description="Number of forecast days the suggestions are based on.",
+        examples=[7],
+    )
+    overall_low_c: float = Field(
+        description="Lowest daily minimum across the window, °C.",
+    )
+    overall_high_c: float = Field(
+        description="Highest daily maximum across the window, °C.",
+    )
+    rainy_days: int = Field(
+        description="Count of days with likely precipitation in the window.",
+        examples=[3],
+    )
+    suggestions: list[PackingSuggestion] = Field(
+        description="Categorized clothing/gear suggestions.",
     )
     attribution: str = Field(
         default="Weather data by Open-Meteo.com (CC BY 4.0)",

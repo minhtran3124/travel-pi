@@ -22,6 +22,8 @@ from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.schemas.weather import (
     CurrentWeather,
     DailyForecast,
+    PackingResponse,
+    PackingSuggestion,
     WeatherLocation,
     WeatherResponse,
 )
@@ -228,3 +230,174 @@ async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
         raise WeatherUnavailableError(
             "Open-Meteo returned an unexpected response shape"
         ) from exc
+
+
+_CODE_SEVERITY: dict[int, float] = {
+    0: 0.0,
+    1: 0.0,
+    2: 0.1,
+    3: 0.2,
+    45: 0.4,
+    48: 0.4,
+    51: 0.4,
+    53: 0.4,
+    55: 0.4,
+    56: 0.4,
+    57: 0.4,
+    61: 0.5,
+    63: 0.5,
+    80: 0.5,
+    81: 0.5,
+    65: 0.7,
+    82: 0.7,
+    66: 0.8,
+    67: 0.8,
+    71: 0.7,
+    73: 0.7,
+    75: 0.7,
+    77: 0.7,
+    85: 0.7,
+    86: 0.7,
+    95: 1.0,
+    96: 1.0,
+    99: 1.0,
+}
+
+_PRECIP_CODES = {
+    51,
+    53,
+    55,
+    56,
+    57,
+    61,
+    63,
+    65,
+    66,
+    67,
+    71,
+    73,
+    75,
+    77,
+    80,
+    81,
+    82,
+    85,
+    86,
+    95,
+    96,
+    99,
+}
+
+
+def _code_severity(code: int) -> float:
+    """Return WMO code severity in [0.0, 1.0]."""
+    return _CODE_SEVERITY.get(code, 0.5)
+
+
+def compute_weather_score(day: DailyForecast) -> float:
+    """Return a suitability score in [0.0, 1.0] for a single forecast day."""
+    mean_temp = (day.temp_min_c + day.temp_max_c) / 2
+    if 18 <= mean_temp <= 26:
+        comfort = 1.0
+    elif mean_temp < 18:
+        comfort = max(0.0, 1 - (18 - mean_temp) / 12)
+    else:
+        comfort = max(0.0, 1 - (mean_temp - 26) / 12)
+
+    precip_penalty = (day.precipitation_probability_max or 0) / 100
+    severity = _code_severity(day.weather_code)
+    score = 0.5 * comfort + 0.3 * (1 - precip_penalty) + 0.2 * (1 - severity)
+    return round(min(1.0, max(0.0, score)), 2)
+
+
+def _is_rainy(day: DailyForecast) -> bool:
+    """True if a day has likely precipitation."""
+    return (
+        day.precipitation_probability_max or 0
+    ) >= 40 or day.weather_code in _PRECIP_CODES
+
+
+async def get_packing(city: str, days: int | None = None) -> PackingResponse:
+    """Return packing suggestions for ``city`` based on the weather forecast."""
+    resp = await get_weather(city, days=days)
+    daily = resp.daily
+
+    if not daily:
+        return PackingResponse(
+            location=resp.location,
+            days=0,
+            overall_low_c=0.0,
+            overall_high_c=0.0,
+            rainy_days=0,
+            suggestions=[],
+            attribution=resp.attribution,
+        )
+
+    overall_low = min(d.temp_min_c for d in daily)
+    overall_high = max(d.temp_max_c for d in daily)
+    rainy_days = sum(1 for d in daily if _is_rainy(d))
+
+    suggestions: list[PackingSuggestion] = []
+
+    suggestions.append(
+        PackingSuggestion(
+            category="Essentials",
+            items=["passport/ID", "phone charger", "reusable water bottle"],
+            reason="Basics for any trip.",
+        )
+    )
+
+    # Hot and cold are independent: a destination can be hot by day and cold at
+    # night (deserts, high altitude), so both kinds of clothing may be needed.
+    if overall_high >= 27:
+        suggestions.append(
+            PackingSuggestion(
+                category="Hot-weather clothing",
+                items=["light breathable shirts", "shorts", "sunglasses", "sunscreen"],
+                reason=f"Highs reach {overall_high:.0f}°C.",
+            )
+        )
+    if overall_low <= 12:
+        suggestions.append(
+            PackingSuggestion(
+                category="Warm layers",
+                items=["insulating jacket", "sweater", "long trousers"],
+                reason=f"Lows drop to {overall_low:.0f}°C.",
+            )
+        )
+    if overall_high < 27 and overall_low > 12:
+        suggestions.append(
+            PackingSuggestion(
+                category="Mild-weather clothing",
+                items=["light jacket", "long-sleeve shirts"],
+                reason="Comfortable temperatures expected.",
+            )
+        )
+
+    if rainy_days > 0:
+        suggestions.append(
+            PackingSuggestion(
+                category="Rain gear",
+                items=["umbrella", "waterproof jacket"],
+                reason=f"Rain likely on {rainy_days} of {len(daily)} days.",
+            )
+        )
+
+    if overall_high >= 24 and any(d.weather_code in (0, 1) for d in daily):
+        suggestions.append(
+            PackingSuggestion(
+                category="Sun protection",
+                items=["hat", "SPF 30+ sunscreen"],
+                reason="Clear, sunny spells expected.",
+            )
+        )
+
+    return PackingResponse(
+        location=resp.location,
+        days=len(daily),
+        overall_low_c=overall_low,
+        overall_high_c=overall_high,
+        rainy_days=rainy_days,
+        suggestions=suggestions,
+        attribution=resp.attribution,
+    )

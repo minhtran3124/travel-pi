@@ -29,7 +29,7 @@ from app.schemas.trip import (
     TripItemUpdate,
     TripUpdate,
 )
-from app.services import place_service, routing_service
+from app.services import place_service, routing_service, weather_service
 from app.services.booking_service import get_booking_service
 
 logger = logging.getLogger(__name__)
@@ -281,8 +281,25 @@ class TripService:
                 )
             )
 
+        weather_score: float | None = None
+        if trip.city:
+            try:
+                forecast = await weather_service.get_weather(trip.city, days=16)
+                iso = target_date.isoformat()
+                day_fc = next((d for d in forecast.daily if d.date == iso), None)
+                if day_fc is not None:
+                    weather_score = weather_service.compute_weather_score(day_fc)
+            except Exception as exc:
+                logger.warning(
+                    "day-plan weather lookup failed for %s: %s", trip.city, exc
+                )
+
         return DayPlanResponse(
-            trip_id=trip_id, date=target_date, day=day, items=plan_items
+            trip_id=trip_id,
+            date=target_date,
+            day=day,
+            items=plan_items,
+            weather_score=weather_score,
         )
 
 
