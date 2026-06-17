@@ -480,6 +480,151 @@ def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch
 
 
 # --------------------------------------------------------------------------- #
+# get_day_plan — weather_score population
+# --------------------------------------------------------------------------- #
+
+
+def _fake_weather_response(date_iso: str, weather_code: int = 0):
+    """Build a minimal WeatherResponse with one DailyForecast for date_iso."""
+    from app.schemas.weather import (
+        CurrentWeather,
+        DailyForecast,
+        WeatherLocation,
+        WeatherResponse,
+    )
+
+    location = WeatherLocation(
+        name="Test City",
+        latitude=0.0,
+        longitude=0.0,
+        timezone="UTC",
+    )
+    current = CurrentWeather(
+        time="2026-07-01T12:00",
+        temperature_c=28.0,
+        apparent_temperature_c=30.0,
+        relative_humidity=60,
+        wind_speed_kmh=10.0,
+        weather_code=weather_code,
+        description="Clear sky",
+    )
+    daily = [
+        DailyForecast(
+            date=date_iso,
+            temp_min_c=22.0,
+            temp_max_c=32.0,
+            precipitation_probability_max=5,
+            weather_code=weather_code,
+            description="Clear sky",
+        )
+    ]
+    return WeatherResponse(location=location, current=current, daily=daily)
+
+
+def test_day_plan_weather_score_populated_when_city_set(svc, monkeypatch):
+    """When the trip has a city, weather_score is a float returned by compute_weather_score."""
+    from unittest.mock import AsyncMock
+
+    from app.services import weather_service as _weather_svc
+
+    target = date(2026, 7, 1)
+    fake_response = _fake_weather_response(target.isoformat(), weather_code=0)
+
+    monkeypatch.setattr(
+        _weather_svc, "get_weather", AsyncMock(return_value=fake_response)
+    )
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="Test",
+            city="Da Nang",
+            start_date=target,
+            end_date=target,
+        )
+    )
+    result = asyncio.run(svc.get_day_plan(trip.id, target))
+
+    expected_score = _weather_svc.compute_weather_score(fake_response.daily[0])
+    assert result.weather_score is not None
+    assert isinstance(result.weather_score, float)
+    assert 0.0 <= result.weather_score <= 1.0
+    assert result.weather_score == expected_score
+
+
+def test_day_plan_weather_score_none_when_no_city(svc, monkeypatch):
+    """Trip with no city → weather_score is None; get_weather is not called."""
+    from unittest.mock import AsyncMock
+
+    from app.services import weather_service as _weather_svc
+
+    mock_get = AsyncMock()
+    monkeypatch.setattr(_weather_svc, "get_weather", mock_get)
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="No city",
+            start_date=date(2026, 7, 1),
+            end_date=date(2026, 7, 1),
+        )
+    )
+    result = asyncio.run(svc.get_day_plan(trip.id, date(2026, 7, 1)))
+
+    assert result.weather_score is None
+    mock_get.assert_not_called()
+
+
+def test_day_plan_weather_score_none_when_date_outside_forecast(svc, monkeypatch):
+    """When no DailyForecast matches target_date, weather_score is None."""
+    from unittest.mock import AsyncMock
+
+    from app.services import weather_service as _weather_svc
+
+    # Forecast for a different date than the one we'll query.
+    fake_response = _fake_weather_response("2026-08-15")
+    monkeypatch.setattr(
+        _weather_svc, "get_weather", AsyncMock(return_value=fake_response)
+    )
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="Test",
+            city="Da Nang",
+            start_date=date(2026, 7, 1),
+            end_date=date(2026, 7, 1),
+        )
+    )
+    result = asyncio.run(svc.get_day_plan(trip.id, date(2026, 7, 1)))
+
+    assert result.weather_score is None
+
+
+def test_day_plan_weather_score_none_on_upstream_error(svc, monkeypatch):
+    """get_weather raising an exception → weather_score is None; day plan still returns."""
+    from unittest.mock import AsyncMock
+
+    from app.services import weather_service as _weather_svc
+
+    monkeypatch.setattr(
+        _weather_svc,
+        "get_weather",
+        AsyncMock(side_effect=RuntimeError("network down")),
+    )
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="Test",
+            city="Da Nang",
+            start_date=date(2026, 7, 1),
+            end_date=date(2026, 7, 1),
+        )
+    )
+    result = asyncio.run(svc.get_day_plan(trip.id, date(2026, 7, 1)))
+
+    assert result.weather_score is None
+    assert result.trip_id == trip.id  # day plan still returned normally
+
+
+# --------------------------------------------------------------------------- #
 # init_db — legacy schema migration (booking_id column back-fill)
 # --------------------------------------------------------------------------- #
 

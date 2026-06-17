@@ -13,7 +13,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from app.schemas.error import error_responses
-from app.schemas.weather import WeatherResponse
+from app.schemas.weather import PackingResponse, WeatherResponse
 from app.services import weather_service
 
 router = APIRouter(prefix="/weather", tags=["weather"])
@@ -50,3 +50,35 @@ async def get_weather(
     Open-Meteo service is unreachable.
     """
     return await weather_service.get_weather(city, days=days)
+
+
+@router.get(
+    "/packing",
+    response_model=PackingResponse,
+    summary="Packing & gear suggestions derived from a city's forecast",
+    responses=error_responses(404, 422, 502),
+)
+async def get_packing(
+    city: Annotated[
+        str,
+        Query(
+            description="City name to look up, e.g. 'Da Nang' or 'Bangkok'",
+            examples=["Da Nang"],
+            min_length=1,
+        ),
+    ],
+    days: Annotated[
+        int,
+        Query(
+            description="Number of forecast days (1–16)",
+            ge=1,
+            le=16,
+            examples=[7],
+        ),
+    ] = 3,
+) -> PackingResponse:
+    """Resolve ``city`` and return clothing/gear suggestions from the forecast.
+
+    Returns 404 if the city cannot be geocoded, 502 if Open-Meteo is unreachable.
+    """
+    return await weather_service.get_packing(city, days=days)

@@ -167,6 +167,16 @@ class DayPlanResponse(AppBaseModel):
     items: list[DayPlanItem] = Field(
         default_factory=list, description="Ordered list of items for this day."
     )
+    weather_score: float | None = Field(
+        default=None,
+        ge=0,
+        le=1,
+        description=(
+            "Day suitability 0–1 derived from the forecast (higher = better for "
+            "outdoor activities). None when the trip has no city, the date is "
+            "outside the forecast window, or weather is unavailable."
+        ),
+    )
 
 
 class TripListResponse(PagedResponse[Trip]):
