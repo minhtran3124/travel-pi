@@ -18,7 +18,14 @@ from app.schemas.place import (
     PlaceSearchResponse,
 )
 from app.schemas.route import RouteResponse
+from app.schemas.saved_place import (
+    SavedPlace,
+    SavedPlaceCreate,
+    SavedPlaceFlag,
+    SavedPlaceListResponse,
+)
 from app.services import place_service, routing_service
+from app.services.saved_place_service import SavedPlaceDep
 
 router = APIRouter(prefix="/places", tags=["places"])
 
@@ -190,6 +197,109 @@ def list_place_cities() -> list[str]:
 def list_categories() -> list[str]:
     """Return the sorted list of available place categories."""
     return place_service.CATEGORIES
+
+
+# --------------------------------------------------------------------------- #
+# Saved places (the mutable POI overlay). Declared BEFORE the "/{place_id}"
+# capture route so e.g. GET /places/saved is not matched as place_id="saved".
+# --------------------------------------------------------------------------- #
+
+_SAVED_ID = Annotated[
+    str,
+    Path(description="Saved-place UUID or SPL- short code", examples=["SPL-AB23XY"]),
+]
+
+
+@router.post(
+    "/saved",
+    response_model=SavedPlace,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a saved place (POI overlay)",
+    responses=error_responses(409, 422),
+)
+def create_saved_place(body: SavedPlaceCreate, service: SavedPlaceDep) -> SavedPlace:
+    """Create a user/agent-saved POI.
+
+    Dedup: a non-deleted saved place with the same case-insensitive name that
+    is within ~50 m (when both have coords) or in the same city (when coords
+    are missing) is a duplicate → 409 with the existing id in ``hint``.
+    """
+    return service.create(body)
+
+
+@router.get(
+    "/saved",
+    response_model=SavedPlaceListResponse,
+    summary="List saved places (paginated, filterable)",
+    responses=error_responses(422),
+)
+def list_saved_places(
+    pagination: PaginationDep,
+    service: SavedPlaceDep,
+    city: Annotated[str | None, Query(description="Exact city filter.")] = None,
+    category: Annotated[str | None, Query(description="Exact category filter.")] = None,
+    favorite: Annotated[
+        bool | None, Query(description="Filter by favorite flag.")
+    ] = None,
+    visited: Annotated[
+        bool | None, Query(description="Filter by visited flag.")
+    ] = None,
+) -> SavedPlaceListResponse:
+    """Return saved places, newest first, with optional filters and pagination."""
+    page, total = pagination.page_of(
+        service.list(city=city, category=category, favorite=favorite, visited=visited)
+    )
+    return SavedPlaceListResponse(
+        total=total, limit=pagination.limit, offset=pagination.offset, results=page
+    )
+
+
+@router.get(
+    "/saved/{saved_id}",
+    response_model=SavedPlace,
+    summary="Get a saved place by ID or SPL- code",
+    responses=error_responses(404),
+)
+def get_saved_place(saved_id: _SAVED_ID, service: SavedPlaceDep) -> SavedPlace:
+    """Return one saved place (UUID or SPL- code); 404 if missing/soft-deleted."""
+    return service.get(saved_id)
+
+
+@router.delete(
+    "/saved/{saved_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Soft-delete a saved place",
+    responses=error_responses(404),
+)
+def delete_saved_place(saved_id: _SAVED_ID, service: SavedPlaceDep) -> None:
+    """Soft-delete a saved place (404 if missing/already-deleted)."""
+    service.delete(saved_id)
+
+
+@router.post(
+    "/saved/{saved_id}/favorite",
+    response_model=SavedPlace,
+    summary="Set the favorite flag (idempotent)",
+    responses=error_responses(404, 422),
+)
+def set_saved_place_favorite(
+    saved_id: _SAVED_ID, body: SavedPlaceFlag, service: SavedPlaceDep
+) -> SavedPlace:
+    """Idempotently SET the ``favorite`` flag to ``body.value``."""
+    return service.set_flag(saved_id, "favorite", body.value)
+
+
+@router.post(
+    "/saved/{saved_id}/visited",
+    response_model=SavedPlace,
+    summary="Set the visited flag (idempotent)",
+    responses=error_responses(404, 422),
+)
+def set_saved_place_visited(
+    saved_id: _SAVED_ID, body: SavedPlaceFlag, service: SavedPlaceDep
+) -> SavedPlace:
+    """Idempotently SET the ``visited`` flag to ``body.value``."""
+    return service.set_flag(saved_id, "visited", body.value)
 
 
 # Note: declare "/nearby" before "/{place_id}" so it is not captured as an ID.
