@@ -11,6 +11,11 @@ PLAN → TDD → review (spec + quality + correctness + intent) → PR vào `v2`
 
 Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 
+**Tiến độ (2026-06-18):**
+`Phase A:` **A0 ✅ · A1 ✅** · A2 ⬜ A3 ⬜ A4 ⬜ A5 ⬜ A6 ⬜ A7 ⬜ A8 ⬜ A9 ⬜
+`Phase B:` toàn bộ ⬜ (mở cổng khi **A1 + A3** xong — còn **A3**).
+→ **Tiếp theo: A3 (status enum)** để mở cổng sang Phase B.
+
 ---
 
 ## PHASE A — Chuẩn hóa & làm giàu dữ liệu (LÀM TRƯỚC)
@@ -174,7 +179,7 @@ MCP/agent layer phụ thuộc nhiều nhất.
 
 ## Thứ tự đề xuất (rút gọn)
 
-1. **A0 → A1 → A3** (nền + POI library + status) — mở khóa cổng chuyển phase.
+1. ~~**A0 → A1**~~ ✅ xong → **A3** (status enum) — nốt mục cuối để mở cổng chuyển phase.
 2. A4, A6, A8 (nhanh, giá trị tốt) song song/sau A1.
 3. A2, A5, A7, A9 (làm giàu thêm; A9 refactor làm khi rảnh).
 4. **🚩 Cổng:** A1+A3 merged → sang Phase B.
@@ -185,3 +190,5 @@ MCP/agent layer phụ thuộc nhiều nhất.
 
 ## Status Log
 - 2026-06-18 — Checklist khởi tạo từ deep-review TREK + trip. Tất cả mục: ⬜ chưa làm.
+- 2026-06-18 — **A0 ✅** shipped (PR #5, `feat/migration-helper`) — shared migration helper.
+- 2026-06-18 — **A1 ✅** shipped (PR #6, `feat/poi-library`) — saved_places + trip_place_link M2M; 594 tests. Còn lại để mở cổng Phase B: **A3**.
