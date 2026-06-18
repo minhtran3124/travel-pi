@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS trip_items (
     booking_id      TEXT,
     start_time      TEXT,
     notes           TEXT,
-    idempotency_key TEXT
+    idempotency_key TEXT,
+    status          TEXT NOT NULL DEFAULT 'pending'
 )
 """
 
@@ -79,6 +80,7 @@ _ITEM_COLUMNS = (
     "start_time",
     "notes",
     "idempotency_key",
+    "status",
 )
 
 
@@ -99,6 +101,7 @@ def _row_to_item(row: sqlite3.Row) -> TripItem:
         booking_id=row["booking_id"],
         start_time=row["start_time"],
         notes=row["notes"],
+        status=row["status"],
     )
 
 
@@ -146,6 +149,7 @@ def _item_values(item: TripItem, idempotency_key: str | None) -> tuple:
         item.start_time,
         item.notes,
         idempotency_key,
+        item.status.value,
     )
 
 
@@ -168,9 +172,10 @@ class TripRepository:
     def init_db(self) -> None:
         """Create the trips/trip_items tables and item index if absent.
 
-        Also idempotently migrates legacy trip_items tables that pre-date the
-        booking_id column (ALTER TABLE is safe to skip when the column already
-        exists — guarded by the PRAGMA check).
+        Also idempotently migrates legacy trip_items/trips tables that pre-date
+        later columns (booking_id, idempotency_key, deleted_at, status) — each
+        ALTER is safe to skip when the column already exists (guarded by the
+        PRAGMA check); the status add backfills existing rows to 'pending'.
         """
         with self._connect() as conn:
             conn.execute(_TRIPS_SCHEMA)
@@ -199,6 +204,11 @@ class TripRepository:
                 ensure_unique_partial_index(conn, table, "idempotency_key")
             # Add deleted_at to legacy trips tables (soft-delete tombstone).
             ensure_column(conn, "trips", "deleted_at")
+            # Add status to legacy trip_items tables (A3). NOT NULL + default
+            # backfills pre-existing rows to 'pending'.
+            ensure_column(
+                conn, "trip_items", "status", "TEXT NOT NULL DEFAULT 'pending'"
+            )
 
     def _insert_item(
         self,
@@ -347,7 +357,8 @@ class TripRepository:
         with self._connect() as conn:
             cursor = conn.execute(
                 "UPDATE trip_items SET day = ?, sort_order = ?, kind = ?, "
-                "title = ?, place_id = ?, booking_id = ?, start_time = ?, notes = ? WHERE id = ?",
+                "title = ?, place_id = ?, booking_id = ?, start_time = ?, "
+                "notes = ?, status = ? WHERE id = ?",
                 (
                     item.day,
                     item.sort_order,
@@ -357,6 +368,7 @@ class TripRepository:
                     item.booking_id,
                     item.start_time,
                     item.notes,
+                    item.status.value,
                     item.id,
                 ),
             )

@@ -14,7 +14,13 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
-from app.enums import ActivityLevel, BookingStatus, BookingType, MealStyle
+from app.enums import (
+    ActivityLevel,
+    BookingStatus,
+    BookingType,
+    MealStyle,
+    TripItemStatus,
+)
 from app.exceptions import ConflictError, DomainValidationError, NotFoundError
 from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
@@ -302,7 +308,14 @@ class TripService:
         if trip.start_date is not None and trip.end_date is not None:
             num_days = (trip.end_date - trip.start_date).days + 1
             for day_num in range(1, num_days + 1):
-                day_items = [i for i in trip.items if i.day == day_num]
+                # Optional items are "nice-to-have" — they don't count as
+                # planning a day, so a day with only optional items still
+                # reports the no-items gap.
+                day_items = [
+                    i
+                    for i in trip.items
+                    if i.day == day_num and i.status != TripItemStatus.OPTIONAL
+                ]
                 if not day_items:
                     gaps.append(f"Day {day_num} has no planned items.")
                     continue

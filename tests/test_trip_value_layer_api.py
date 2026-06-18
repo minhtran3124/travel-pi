@@ -96,6 +96,19 @@ def test_day_plan_returns_200_with_correct_day(client):
     assert body["items"][1]["item"]["title"] == "Lunch"
 
 
+def test_day_plan_includes_item_status(client):
+    """status rides through the day-plan via the embedded TripItem."""
+    trip = _create_trip(client, start_date="2026-07-10", end_date="2026-07-12")
+    _add_item(
+        client, trip["id"], day=1, kind="place", title="Fixed tour", status="constraint"
+    )
+
+    resp = client.get(f"/trips/{trip['id']}/day-plan", params={"date": "2026-07-10"})
+    assert resp.status_code == 200
+    items = resp.json()["items"]
+    assert any(pi["item"]["status"] == "constraint" for pi in items)
+
+
 def test_day_plan_empty_items_for_date_with_no_stops(client):
     """day-plan for a valid date that has no items returns empty items list."""
     trip = _create_trip(client, start_date="2026-07-01", end_date="2026-07-03")

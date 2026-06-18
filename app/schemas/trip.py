@@ -11,7 +11,7 @@ from typing import Annotated
 
 from pydantic import Field, model_validator
 
-from app.enums import ActivityLevel, MealStyle, TripItemKind
+from app.enums import ActivityLevel, MealStyle, TripItemKind, TripItemStatus
 from app.schemas.base import AppBaseModel
 from app.schemas.pagination import PagedResponse
 from app.schemas.saved_place import ShortlistEntry
@@ -24,6 +24,14 @@ class TripItemCreate(AppBaseModel):
         ge=1, description="1-based day number within the trip.", examples=[1]
     )
     kind: TripItemKind = Field(description="Item kind.", examples=["place"])
+    status: TripItemStatus = Field(
+        default=TripItemStatus.PENDING,
+        description=(
+            "Planning state: pending (default), booked, constraint, or optional. "
+            "Optional items are excluded from itinerary gap-detection."
+        ),
+        examples=["pending"],
+    )
     title: str = Field(
         min_length=1,
         max_length=200,
