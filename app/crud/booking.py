@@ -10,6 +10,7 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 
+from app.crud._migrations import ensure_column, ensure_unique_partial_index
 from app.schemas.booking import Booking, confirmation_code_for
 
 # One row per booking. The type-specific payload is kept as JSON text in
@@ -109,14 +110,8 @@ class BookingRepository:
         """
         with self._connect() as conn:
             conn.execute(_SCHEMA)
-            existing = {
-                row["name"]
-                for row in conn.execute("PRAGMA table_info(bookings)").fetchall()
-            }
-            if "idempotency_key" not in existing:
-                conn.execute("ALTER TABLE bookings ADD COLUMN idempotency_key TEXT")
-            if "confirmation_code" not in existing:
-                conn.execute("ALTER TABLE bookings ADD COLUMN confirmation_code TEXT")
+            ensure_column(conn, "bookings", "idempotency_key")
+            if ensure_column(conn, "bookings", "confirmation_code"):
                 # Backfill the new column for rows that pre-date it. The code
                 # is deterministic from the UUID, so this is a one-shot
                 # idempotent migration — re-running init_db is a no-op.
@@ -134,10 +129,7 @@ class BookingRepository:
             # so the constraint lives in this index instead. Partial (`WHERE
             # ... IS NOT NULL`) so the many keyless bookings aren't forced
             # unique on NULL.
-            conn.execute(
-                "CREATE UNIQUE INDEX IF NOT EXISTS ix_bookings_idempotency_key "
-                "ON bookings (idempotency_key) WHERE idempotency_key IS NOT NULL"
-            )
+            ensure_unique_partial_index(conn, "bookings", "idempotency_key")
             # Plain (non-unique) index on confirmation_code — the alphabet is
             # 31 chars × 6 positions ≈ 887M codes; collisions are extremely
             # unlikely but a UNIQUE index would crash on the off chance.
