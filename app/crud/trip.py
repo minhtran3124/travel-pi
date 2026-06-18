@@ -11,6 +11,7 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 
+from app.crud._migrations import ensure_column, ensure_unique_partial_index
 from app.schemas.trip import Trip, TripItem
 
 _TRIPS_SCHEMA = """
@@ -169,28 +170,17 @@ class TripRepository:
                 "ON trip_items (trip_id)"
             )
             # Add booking_id to legacy tables that were created before this column.
-            existing_cols = {
-                row[1] for row in conn.execute("PRAGMA table_info(trip_items)")
-            }
-            if "booking_id" not in existing_cols:
-                conn.execute("ALTER TABLE trip_items ADD COLUMN booking_id TEXT")
+            ensure_column(conn, "trip_items", "booking_id")
             # Add idempotency_key to legacy trips/trip_items tables, then a
             # UNIQUE partial index per table — the constraint makes concurrent
             # same-key POSTs collide so only one row wins (mirrors bookings).
             # Partial (WHERE ... IS NOT NULL) so keyless rows aren't forced
             # unique on NULL.
             for table in ("trips", "trip_items"):
-                cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
-                if "idempotency_key" not in cols:
-                    conn.execute(f"ALTER TABLE {table} ADD COLUMN idempotency_key TEXT")
-                conn.execute(
-                    f"CREATE UNIQUE INDEX IF NOT EXISTS ix_{table}_idempotency_key "
-                    f"ON {table} (idempotency_key) WHERE idempotency_key IS NOT NULL"
-                )
+                ensure_column(conn, table, "idempotency_key")
+                ensure_unique_partial_index(conn, table, "idempotency_key")
             # Add deleted_at to legacy trips tables (soft-delete tombstone).
-            trip_cols = {row[1] for row in conn.execute("PRAGMA table_info(trips)")}
-            if "deleted_at" not in trip_cols:
-                conn.execute("ALTER TABLE trips ADD COLUMN deleted_at TEXT")
+            ensure_column(conn, "trips", "deleted_at")
 
     def _insert_item(
         self,
