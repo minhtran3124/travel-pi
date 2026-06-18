@@ -7,6 +7,7 @@ from app.core.text import best_match
 from app.data.places import PLACES
 from app.exceptions import NotFoundError
 from app.schemas.place import NearbyPlace, ParsedQuery, Place
+from app.schemas.saved_place import SavedPlace
 
 _PLACES: list[Place] = [Place(**record) for record in PLACES]
 
@@ -112,6 +113,21 @@ def get_place(place_id: str) -> Place | None:
     if normalised.upper().startswith("PLC-"):
         return _PLACES_BY_SHORT_CODE.get(normalised.upper())
     return next((p for p in _PLACES if p.id == normalised), None)
+
+
+def resolve(place_id: str, source: str) -> Place | SavedPlace | None:
+    """Resolve a shortlisted place to its body. ``source``: 'catalog' | 'saved'.
+
+    Returns ``None`` when the place is unknown (catalog miss, or a missing /
+    soft-deleted saved place). The ``saved`` branch imports the saved-place
+    service lazily to avoid a circular import (place_service ↔
+    saved_place_service).
+    """
+    if source == "saved":
+        from app.services.saved_place_service import get_saved_place_service
+
+        return get_saved_place_service()._repo.get(place_id)
+    return get_place(place_id)
 
 
 def nearby_places(
