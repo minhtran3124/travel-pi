@@ -172,9 +172,10 @@ class TripRepository:
     def init_db(self) -> None:
         """Create the trips/trip_items tables and item index if absent.
 
-        Also idempotently migrates legacy trip_items tables that pre-date the
-        booking_id column (ALTER TABLE is safe to skip when the column already
-        exists — guarded by the PRAGMA check).
+        Also idempotently migrates legacy trip_items/trips tables that pre-date
+        later columns (booking_id, idempotency_key, deleted_at, status) — each
+        ALTER is safe to skip when the column already exists (guarded by the
+        PRAGMA check); the status add backfills existing rows to 'pending'.
         """
         with self._connect() as conn:
             conn.execute(_TRIPS_SCHEMA)
