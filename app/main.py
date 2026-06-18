@@ -15,6 +15,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.routing import APIRoute
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import Settings, get_settings
@@ -24,6 +25,11 @@ from app.exceptions import AppError
 from app.routers.main import router as api_router
 
 logger = logging.getLogger(__name__)
+
+
+def _operation_id(route: APIRoute) -> str:
+    """Stable operationId = the handler function name (survives refactors)."""
+    return route.name
 
 
 def create_app() -> FastAPI:
@@ -44,6 +50,7 @@ def create_app() -> FastAPI:
         description=settings.app_description,
         version=settings.app_version,
         lifespan=lifespan,
+        generate_unique_id_function=_operation_id,
         **docs_kwargs,
     )
 
@@ -113,9 +120,7 @@ def create_app() -> FastAPI:
         label = _HTTP_ERROR_LABELS.get(exc.status_code, "HTTPException")
         return JSONResponse(
             status_code=exc.status_code,
-            content=_error_body(
-                label, str(exc.detail), exc.status_code, request
-            ),
+            content=_error_body(label, str(exc.detail), exc.status_code, request),
         )
 
     # Pydantic request-validation failures (422) — keep the per-field detail
@@ -150,6 +155,10 @@ def create_app() -> FastAPI:
     ) -> Response:
         start = time.perf_counter()
         response = await call_next(request)
+        limit = settings.rate_limit_nominal
+        response.headers["X-RateLimit-Limit"] = str(limit)
+        response.headers["X-RateLimit-Remaining"] = str(limit)
+        response.headers["X-RateLimit-Reset"] = str(int(time.time()) + 60)
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.info(
             "%s %s → %d (%.1fms)",

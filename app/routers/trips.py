@@ -3,7 +3,7 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Header, Path, Query, status
 
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
@@ -37,9 +37,25 @@ _ITEM_ID = Annotated[str, Path(description="Item UUID", examples=["a2b4c6d8-..."
     summary="Create a trip itinerary (with optional initial items)",
     responses=error_responses(422),
 )
-def create_trip(trips: TripsDep, body: TripCreate) -> Trip:
+def create_trip(
+    trips: TripsDep,
+    body: TripCreate,
+    idempotency_key: Annotated[
+        str | None,
+        Header(
+            alias="Idempotency-Key",
+            description=(
+                "Optional client-supplied key that makes this POST "
+                "replay-safe: repeating the request with the same key "
+                "returns the original trip instead of creating a "
+                "duplicate."
+            ),
+            examples=["trip-2026-06-01-abc123"],
+        ),
+    ] = None,
+) -> Trip:
     """Create a trip and return it, including any items sorted by day."""
-    return trips.create_trip(body)
+    return trips.create_trip(body, idempotency_key=idempotency_key)
 
 
 @router.post(
@@ -133,9 +149,26 @@ def delete_trip(trips: TripsDep, trip_id: _TRIP_ID) -> None:
     summary="Add an item to a trip",
     responses=error_responses(404, 422),
 )
-def add_item(trips: TripsDep, trip_id: _TRIP_ID, body: TripItemCreate) -> TripItem:
+def add_item(
+    trips: TripsDep,
+    trip_id: _TRIP_ID,
+    body: TripItemCreate,
+    idempotency_key: Annotated[
+        str | None,
+        Header(
+            alias="Idempotency-Key",
+            description=(
+                "Optional client-supplied key that makes this POST "
+                "replay-safe: repeating the request with the same key "
+                "returns the original item instead of creating a "
+                "duplicate."
+            ),
+            examples=["item-2026-06-01-abc123"],
+        ),
+    ] = None,
+) -> TripItem:
     """Append a day-plan item to the trip. 404 if the trip is unknown."""
-    return trips.add_item(trip_id, body)
+    return trips.add_item(trip_id, body, idempotency_key=idempotency_key)
 
 
 @router.put(

@@ -16,6 +16,7 @@ from app.routers import (
     dashboard,
     destinations,
     flights,
+    health,
     hotels,
     meta,
     places,
@@ -28,6 +29,7 @@ from app.routers import (
 router = APIRouter()
 
 # Order is cosmetic — it sets the Swagger tag order.
+router.include_router(health.router)
 router.include_router(meta.router)
 router.include_router(airports.router)
 router.include_router(cities.router)

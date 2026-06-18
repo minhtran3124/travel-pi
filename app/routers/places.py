@@ -177,7 +177,7 @@ def search_places_nl(
     response_model=list[str],
     summary="List all cities that have places",
 )
-def list_cities() -> list[str]:
+def list_place_cities() -> list[str]:
     """Return the sorted list of city names that have at least one place."""
     return place_service.CITIES
 

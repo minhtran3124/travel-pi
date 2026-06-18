@@ -15,29 +15,32 @@ from app.schemas.trip import Trip, TripItem
 
 _TRIPS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS trips (
-    id          TEXT PRIMARY KEY,
-    title       TEXT NOT NULL,
-    city        TEXT,
-    start_date  TEXT,
-    end_date    TEXT,
-    travelers   INTEGER NOT NULL,
-    notes       TEXT,
-    created_at  TEXT NOT NULL
+    id              TEXT PRIMARY KEY,
+    title           TEXT NOT NULL,
+    city            TEXT,
+    start_date      TEXT,
+    end_date        TEXT,
+    travelers       INTEGER NOT NULL,
+    notes           TEXT,
+    created_at      TEXT NOT NULL,
+    idempotency_key TEXT,
+    deleted_at      TEXT
 )
 """
 
 _ITEMS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS trip_items (
-    id          TEXT PRIMARY KEY,
-    trip_id     TEXT NOT NULL,
-    day         INTEGER NOT NULL,
-    sort_order  INTEGER NOT NULL,
-    kind        TEXT NOT NULL,
-    title       TEXT NOT NULL,
-    place_id    TEXT,
-    booking_id  TEXT,
-    start_time  TEXT,
-    notes       TEXT
+    id              TEXT PRIMARY KEY,
+    trip_id         TEXT NOT NULL,
+    day             INTEGER NOT NULL,
+    sort_order      INTEGER NOT NULL,
+    kind            TEXT NOT NULL,
+    title           TEXT NOT NULL,
+    place_id        TEXT,
+    booking_id      TEXT,
+    start_time      TEXT,
+    notes           TEXT,
+    idempotency_key TEXT
 )
 """
 
@@ -50,6 +53,7 @@ _TRIP_COLUMNS = (
     "travelers",
     "notes",
     "created_at",
+    "idempotency_key",
 )
 
 _ITEM_COLUMNS = (
@@ -63,6 +67,7 @@ _ITEM_COLUMNS = (
     "booking_id",
     "start_time",
     "notes",
+    "idempotency_key",
 )
 
 
@@ -103,7 +108,7 @@ def _row_to_trip(row: sqlite3.Row, item_rows: list[sqlite3.Row]) -> Trip:
     )
 
 
-def _trip_values(trip: Trip) -> tuple:
+def _trip_values(trip: Trip, idempotency_key: str | None) -> tuple:
     return (
         trip.id,
         trip.title,
@@ -113,10 +118,11 @@ def _trip_values(trip: Trip) -> tuple:
         trip.travelers,
         trip.notes,
         _iso(trip.created_at),
+        idempotency_key,
     )
 
 
-def _item_values(item: TripItem) -> tuple:
+def _item_values(item: TripItem, idempotency_key: str | None) -> tuple:
     return (
         item.id,
         item.trip_id,
@@ -128,6 +134,7 @@ def _item_values(item: TripItem) -> tuple:
         item.booking_id,
         item.start_time,
         item.notes,
+        idempotency_key,
     )
 
 
@@ -167,32 +174,67 @@ class TripRepository:
             }
             if "booking_id" not in existing_cols:
                 conn.execute("ALTER TABLE trip_items ADD COLUMN booking_id TEXT")
+            # Add idempotency_key to legacy trips/trip_items tables, then a
+            # UNIQUE partial index per table — the constraint makes concurrent
+            # same-key POSTs collide so only one row wins (mirrors bookings).
+            # Partial (WHERE ... IS NOT NULL) so keyless rows aren't forced
+            # unique on NULL.
+            for table in ("trips", "trip_items"):
+                cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+                if "idempotency_key" not in cols:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN idempotency_key TEXT")
+                conn.execute(
+                    f"CREATE UNIQUE INDEX IF NOT EXISTS ix_{table}_idempotency_key "
+                    f"ON {table} (idempotency_key) WHERE idempotency_key IS NOT NULL"
+                )
+            # Add deleted_at to legacy trips tables (soft-delete tombstone).
+            trip_cols = {row[1] for row in conn.execute("PRAGMA table_info(trips)")}
+            if "deleted_at" not in trip_cols:
+                conn.execute("ALTER TABLE trips ADD COLUMN deleted_at TEXT")
 
-    def _insert_item(self, conn: sqlite3.Connection, item: TripItem) -> None:
+    def _insert_item(
+        self,
+        conn: sqlite3.Connection,
+        item: TripItem,
+        idempotency_key: str | None = None,
+    ) -> None:
         placeholders = ", ".join("?" for _ in _ITEM_COLUMNS)
         conn.execute(
             f"INSERT INTO trip_items ({', '.join(_ITEM_COLUMNS)}) "
             f"VALUES ({placeholders})",
-            _item_values(item),
+            _item_values(item, idempotency_key),
         )
 
-    def create_trip(self, trip: Trip) -> Trip:
-        """Insert a trip and all of its items in one transaction."""
+    def create_trip(self, trip: Trip, idempotency_key: str | None = None) -> Trip:
+        """Insert a trip and all of its items in one transaction.
+
+        ``idempotency_key`` is stored on the trip row so a repeat request can
+        be detected via :meth:`get_trip_by_idempotency_key`. If a concurrent
+        request already inserted a trip under the same key, the UNIQUE index
+        makes this INSERT fail; we return the winner's trip instead of raising.
+        """
         trip_placeholders = ", ".join("?" for _ in _TRIP_COLUMNS)
-        with self._connect() as conn:
-            conn.execute(
-                f"INSERT INTO trips ({', '.join(_TRIP_COLUMNS)}) "
-                f"VALUES ({trip_placeholders})",
-                _trip_values(trip),
-            )
-            for item in trip.items:
-                self._insert_item(conn, item)
+        try:
+            with self._connect() as conn:
+                conn.execute(
+                    f"INSERT INTO trips ({', '.join(_TRIP_COLUMNS)}) "
+                    f"VALUES ({trip_placeholders})",
+                    _trip_values(trip, idempotency_key),
+                )
+                for item in trip.items:
+                    self._insert_item(conn, item)
+        except sqlite3.IntegrityError:
+            if idempotency_key is not None:
+                existing = self.get_trip_by_idempotency_key(idempotency_key)
+                if existing is not None:
+                    return existing
+            raise
         return trip
 
     def get_trip(self, trip_id: str) -> Trip | None:
         with self._connect() as conn:
             row = conn.execute(
-                "SELECT * FROM trips WHERE id = ?", (trip_id,)
+                "SELECT * FROM trips WHERE id = ? AND deleted_at IS NULL", (trip_id,)
             ).fetchone()
             if row is None:
                 return None
@@ -205,7 +247,7 @@ class TripRepository:
         """Return every trip (newest first) with its items attached."""
         with self._connect() as conn:
             trip_rows = conn.execute(
-                "SELECT * FROM trips ORDER BY created_at DESC"
+                "SELECT * FROM trips WHERE deleted_at IS NULL ORDER BY created_at DESC"
             ).fetchall()
             item_rows = conn.execute("SELECT * FROM trip_items").fetchall()
         by_trip: dict[str, list[sqlite3.Row]] = {}
@@ -231,17 +273,60 @@ class TripRepository:
             )
             return cursor.rowcount > 0
 
-    def delete_trip(self, trip_id: str) -> bool:
-        """Delete a trip and its items. Returns True if the trip existed."""
+    def delete_trip(self, trip_id: str, *, when: str) -> bool:
+        """Soft-delete: stamp deleted_at, keep the row. True if it existed and was live.
+
+        The idempotency_key is cleared on tombstoning: it is only meaningful for
+        replaying *live* trips, and the UNIQUE key index spans all rows — leaving
+        it would make a later create that reuses the key collide with the dead
+        row (which the deleted_at-filtered replay lookup can't recover).
+        """
         with self._connect() as conn:
-            conn.execute("DELETE FROM trip_items WHERE trip_id = ?", (trip_id,))
-            cursor = conn.execute("DELETE FROM trips WHERE id = ?", (trip_id,))
+            cursor = conn.execute(
+                "UPDATE trips SET deleted_at = ?, idempotency_key = NULL "
+                "WHERE id = ? AND deleted_at IS NULL",
+                (when, trip_id),
+            )
             return cursor.rowcount > 0
 
-    def add_item(self, item: TripItem) -> TripItem:
-        with self._connect() as conn:
-            self._insert_item(conn, item)
+    def add_item(self, item: TripItem, idempotency_key: str | None = None) -> TripItem:
+        """Insert an item and return it.
+
+        ``idempotency_key`` is stored on the row so a repeat request can be
+        detected via :meth:`get_item_by_idempotency_key`. If a concurrent
+        request already inserted an item under the same key, the UNIQUE index
+        makes this INSERT fail; we return the winner's item instead of raising.
+        """
+        try:
+            with self._connect() as conn:
+                self._insert_item(conn, item, idempotency_key)
+        except sqlite3.IntegrityError:
+            if idempotency_key is not None:
+                existing = self.get_item_by_idempotency_key(idempotency_key)
+                if existing is not None:
+                    return existing
+            raise
         return item
+
+    def get_trip_by_idempotency_key(self, key: str) -> Trip | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM trips WHERE idempotency_key = ? AND deleted_at IS NULL",
+                (key,),
+            ).fetchone()
+            if row is None:
+                return None
+            items = conn.execute(
+                "SELECT * FROM trip_items WHERE trip_id = ?", (row["id"],)
+            ).fetchall()
+        return _row_to_trip(row, items)
+
+    def get_item_by_idempotency_key(self, key: str) -> TripItem | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM trip_items WHERE idempotency_key = ?", (key,)
+            ).fetchone()
+        return _row_to_item(row) if row is not None else None
 
     def get_item(self, item_id: str) -> TripItem | None:
         with self._connect() as conn:

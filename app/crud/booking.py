@@ -146,6 +146,12 @@ class BookingRepository:
                 "ON bookings (confirmation_code)"
             )
 
+    def ping(self) -> bool:
+        """Return True if the database is reachable (cheap SELECT 1)."""
+        with self._connect() as conn:
+            conn.execute("SELECT 1")
+        return True
+
     def get(self, booking_id: str) -> Booking | None:
         """Return a booking by ID, or ``None`` if there is no such row."""
         with self._connect() as conn:
