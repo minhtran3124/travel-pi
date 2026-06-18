@@ -31,12 +31,12 @@ Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 > Option A: catalog giữ nguyên + `saved_places` (mutable, soft-delete) + `trip_place_link` M2M. Saved CRUD + favorite/visited SET idempotent + dedup-by-distance + shortlist add/list/remove + `TripDetail.places`. Specs: `specs/poi-library/`. 594 tests.
 > Ý tưởng cốt lõi từ `trip`: place tồn tại độc lập, được link vào nhiều trip qua bảng join,
 > thay vì nhúng cứng trong `trip_items`.
-- [ ] Quyết định mô hình: giữ `data/places.py` (seed tĩnh) làm catalog gốc, thêm bảng `saved_places`
+- [x] Quyết định mô hình: giữ `data/places.py` (seed tĩnh) làm catalog gốc, thêm bảng `saved_places`
       (place do user/agent lưu) — hoặc hợp nhất. Ghi quyết định vào SUMMARY (Rationale/Alternatives).
-- [ ] Bảng join `trip_place_link` (trip_id, place_id, …) — M2M.
-- [ ] `trip_items` tham chiếu `place_id` (đã có) → cho phép 1 place xuất hiện ở nhiều trip/ngày.
-- [ ] CRUD + service: `link_place_to_trip`, `list_trip_places`, `unlink`.
-- [ ] Trường POI giàu hơn cho saved place: `favorite`, `visited`, `links: list[str]`, `duration`.
+- [x] Bảng join `trip_place_link` (trip_id, place_id, …) — M2M.
+- [x] `trip_items` tham chiếu `place_id` (đã có) → cho phép 1 place xuất hiện ở nhiều trip/ngày.
+- [x] CRUD + service: `link_place_to_trip`, `list_trip_places`, `unlink`.
+- [x] Trường POI giàu hơn cho saved place: `favorite`, `visited`, `links: list[str]`, `duration`.
 - *Phụ thuộc:* A0. *Công sức:* Trung bình (schema + trips service). *Giá trị:* Cao nhất (nền cho `/agent/plan`).
 
 ### A2. ⬜ Place categories có màu/icon (phân loại do người dùng định nghĩa)
@@ -84,7 +84,11 @@ Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 
 ### A8. ⬜ Trường free-text: `notes` (trip + per-day) và `archival_review` (retro sau chuyến)
 > Bề mặt "trí nhớ"/tổng kết cho agent.
-- [ ] Thêm `notes` cho trip (nếu chưa) và cho từng day; `archival_review` cho trip.
+> ℹ️ **Đã có sẵn (pre-A8):** `notes` cấp **trip** (`schemas/trip.py` TripCreate, cột `trips.notes`)
+> và cấp **item** (`TripItemCreate`, cột `trip_items.notes`). Phần còn lại của A8 = `notes` theo **từng day** + `archival_review` cho trip.
+- [x] ~~`notes` cho trip~~ — đã có sẵn (trip + item level).
+- [ ] `notes` cho **từng day** (day-level chưa có).
+- [ ] `archival_review` cho trip (chưa có).
 - [ ] Migration + serializer + test.
 - *Phụ thuộc:* A0. *Công sức:* Thấp.
 
