@@ -1,6 +1,6 @@
 ---
 slug: itinerary-item-status
-status: active
+status: shipped
 base_branch: v2
 feature_branch: feat/itinerary-item-status
 ---
@@ -517,6 +517,10 @@ Run: `ruff check app tests && ruff format --check app tests`
 Expected: clean on touched files. (`flight.py` has known pre-existing drift — do not "fix" unrelated files.)
 
 - [ ] **Manual contract sanity (optional):** start `uvicorn app.main:app --port 8000` and confirm `/docs` shows `status` on `TripItemCreate`/`TripItem` with enum `pending|booked|constraint|optional`.
+
+## Status Log
+
+- 2026-06-18 — shipped via `feat/itinerary-item-status` (PR #7 → v2). All review gates ✅; full suite 604 passed.
 
 ## Downstream (NOT in this plan)
 
