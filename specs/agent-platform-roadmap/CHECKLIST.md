@@ -12,9 +12,9 @@ PLAN → TDD → review (spec + quality + correctness + intent) → PR vào `v2`
 Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 
 **Tiến độ (2026-06-18):**
-`Phase A:` **A0 ✅ · A1 ✅** · A2 ⬜ A3 ⬜ A4 ⬜ A5 ⬜ A6 ⬜ A7 ⬜ A8 ⬜ A9 ⬜
-`Phase B:` toàn bộ ⬜ (mở cổng khi **A1 + A3** xong — còn **A3**).
-→ **Tiếp theo: A3 (status enum)** để mở cổng sang Phase B.
+`Phase A:` **A0 ✅ · A1 ✅ · A3 ✅** · A2 ⬜ A4 ⬜ A5 ⬜ A6 ⬜ A7 ⬜ A8 ⬜ A9 ⬜
+`Phase B:` 🟢 **cổng MỞ** — A1 + A3 đã merge vào `v2`; Phase B có thể bắt đầu.
+→ **Tiếp theo: B1 → B2 → B3** (annotations + summary + /agent/plan) — hoặc các quick-win A4/A6/A8.
 
 ---
 
@@ -45,13 +45,13 @@ Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 - [ ] Endpoint `GET /places/categories` (đã có) → trả thêm color/icon.
 - *Phụ thuộc:* A1 (nếu gắn vào saved place). *Công sức:* Thấp-TB.
 
-### A3. ⬜ Enum `status` cho itinerary item (`pending | booked | constraint | optional`) [#1]
+### A3. ✅ Enum `status` cho itinerary item (`pending | booked | constraint | optional`) [#1] — DONE (`feat/itinerary-item-status`, PR #7)
 > Một trường — agent diễn đạt được phần kế hoạch mềm vs cứng và ràng buộc bắt buộc.
-- [ ] Thêm `TripItemStatus` enum vào `app/enums.py`.
-- [ ] Thêm field `status` vào `TripItem` schema + cột `status` + migration.
-- [ ] Cập nhật day-plan: hiển thị status; gap-detection có thể bỏ qua `optional`.
-- [ ] Test: tạo item với từng status, default = `pending`.
-- *Phụ thuộc:* A0. *Công sức:* Thấp. *Giá trị:* Cao (ngữ nghĩa lập kế hoạch cho agent).
+- [x] Thêm `TripItemStatus` enum vào `app/enums.py`.
+- [x] Thêm field `status` vào `TripItem` schema (default `pending`) + cột `status` + migration `ensure_column` (legacy backfill → `pending`).
+- [x] Cập nhật day-plan: status hiển thị qua `DayPlanItem.item`; gap-detection bỏ qua `optional` (ngày chỉ có optional vẫn báo gap).
+- [x] Test: tạo item với từng status, default = `pending` + legacy-DB ALTER test. 604 tests.
+- *Phụ thuộc:* A0. *Spec:* `specs/itinerary-item-status/`. *Lane:* normal + migration waiver.
 
 ### A4. ⬜ Ngày "trôi nổi"/chưa lên lịch (date của day cho phép null, sort `nulls_last`)
 > Cho phép draft itinerary trước khi chốt ngày.
@@ -95,8 +95,8 @@ Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 - [ ] Không đổi contract API; chỉ refactor — test hiện có phải xanh.
 - *Phụ thuộc:* không (độc lập). *Công sức:* TB. *Lưu ý:* refactor → review kỹ, không phá behavior.
 
-**🚩 Cổng chuyển phase:** chỉ bắt đầu Phase B khi A1 + A3 (tối thiểu) đã merge — đây là 2 thứ
-MCP/agent layer phụ thuộc nhiều nhất.
+**🟢 Cổng chuyển phase — ĐÃ MỞ (2026-06-18):** A1 + A3 đã merge vào `v2` — 2 thứ MCP/agent layer
+phụ thuộc nhiều nhất đã xong. Phase B có thể bắt đầu (gợi ý: B1 → B2 → B3).
 
 ---
 
@@ -179,7 +179,7 @@ MCP/agent layer phụ thuộc nhiều nhất.
 
 ## Thứ tự đề xuất (rút gọn)
 
-1. ~~**A0 → A1**~~ ✅ xong → **A3** (status enum) — nốt mục cuối để mở cổng chuyển phase.
+1. ~~**A0 → A1 → A3**~~ ✅ xong → **cổng Phase B đã mở**.
 2. A4, A6, A8 (nhanh, giá trị tốt) song song/sau A1.
 3. A2, A5, A7, A9 (làm giàu thêm; A9 refactor làm khi rảnh).
 4. **🚩 Cổng:** A1+A3 merged → sang Phase B.
@@ -192,3 +192,4 @@ MCP/agent layer phụ thuộc nhiều nhất.
 - 2026-06-18 — Checklist khởi tạo từ deep-review TREK + trip. Tất cả mục: ⬜ chưa làm.
 - 2026-06-18 — **A0 ✅** shipped (PR #5, `feat/migration-helper`) — shared migration helper.
 - 2026-06-18 — **A1 ✅** shipped (PR #6, `feat/poi-library`) — saved_places + trip_place_link M2M; 594 tests. Còn lại để mở cổng Phase B: **A3**.
+- 2026-06-18 — **A3 ✅** shipped (PR #7, `feat/itinerary-item-status`) — `TripItemStatus` enum + `trip_items.status` column (ensure_column migration) + gap-detection bỏ qua `optional`; 604 tests. **🟢 Cổng Phase B MỞ** (A1 + A3 đã merge).
