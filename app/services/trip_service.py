@@ -15,7 +15,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
 from app.enums import ActivityLevel, BookingStatus, BookingType, MealStyle
-from app.exceptions import ConflictError, NotFoundError, ValidationError
+from app.exceptions import ConflictError, DomainValidationError, NotFoundError
 from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
     DayPlanItem,
@@ -204,7 +204,7 @@ class TripService:
         (trip, place, source) hits the UNIQUE index → 409.
         """
         if source not in _VALID_SOURCES:
-            raise ValidationError(
+            raise DomainValidationError(
                 f"Invalid source {source!r}.",
                 hint="source must be 'catalog' or 'saved'.",
             )

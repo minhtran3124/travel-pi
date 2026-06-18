@@ -41,7 +41,7 @@ class ConflictError(AppError):
     default_detail = "Request conflicts with the current state"
 
 
-class ValidationError(AppError):
+class DomainValidationError(AppError):
     """A request is well-formed but semantically invalid (HTTP 422).
 
     For value-level checks the service layer makes that Pydantic cannot express
