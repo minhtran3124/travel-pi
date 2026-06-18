@@ -69,11 +69,22 @@ One field, four states (`pending | booked | constraint | optional`), lets the ag
 - gap-detection ("Day N has no planned items") will **exclude `optional` items** when deciding emptiness (checklist "có thể bỏ qua" → treated as yes; it is the feature's value).
 - Enum value `booked` is the itinerary-item planning state, independent of `BookingStatus` / `booking_id` (which remain the transactional booking lifecycle).
 
-### Verify (to be filled at DONE)
+### Verify (DONE)
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| New per-status + default tests | `.venv/bin/python -m pytest tests/ -k trip -q` | | each status creatable; default `pending` |
-| Legacy-DB ALTER path (Phase A convention) | `.venv/bin/python -m pytest tests/ -k "migration or legacy" -q` | | `status` added to a pre-existing `trip_items` |
-| Full suite | `.venv/bin/python -m pytest tests/ -q` | | no regressions |
-| Lint | `ruff check app && ruff format --check app` | | clean |
+| Trip suite (per-status, default, gap, day-plan) | `.venv/bin/python -m pytest tests/test_trips.py tests/test_trip_value_layer_api.py -q` | 0 | 65 passed; each status creatable, default `pending`, gap-detection both polarities |
+| Legacy-DB ALTER path (Phase A convention) | `.venv/bin/python -m pytest tests/test_trips.py::test_init_db_adds_status_to_legacy_trip_items -q` | 0 | `status` added to a pre-existing `trip_items`, old rows backfill to `pending` |
+| Full suite | `.venv/bin/python -m pytest tests/ -q` | 0 | **604 passed** (was 594; +10) |
+| Lint (touched) | `ruff check app tests` | 0 | clean (pre-existing `flight.py` drift untouched) |
+
+### Review gates
+
+- Per-task **spec review** (oracle: PLAN) ✅ — all 4 A3 sub-tasks present, no scope creep, `status` survives create/update via `model_dump()`.
+- Per-task **quality review** (maintainability) ✅ — one P3 docstring nit fixed in `7f42faa`; `_ITEM_COLUMNS`/`_item_values` append-only invariant preserved.
+- Final **`/correctness-review`** (sonnet, blind to plan) ✅ — zero runtime bugs; traced enum coercion, `NOT NULL DEFAULT` legacy ALTER backfill, 12-col positional alignment, idempotency replay, nested-enum serialization.
+- Final **`/intent-review`** (sonnet, blind to plan; oracle: this `### Intent`) ✅ — no gap / drift / behavioral excess; every A3 clause delivered.
+
+### Deviations
+
+- Rule 1 — Added `created_at=datetime.now(timezone.utc)` to the two test `Trip(...)` constructions (the plan's snippet omitted the required field; matches the existing `_make_trip` helper). Test-only; implementation untouched. `tests/test_trips.py`. Commit `bf06237`.
