@@ -79,3 +79,14 @@ def test_deleted_saved_place_dropped_from_shortlist(client):
     # Soft-delete the saved place; the shortlist entry no longer resolves.
     assert client.delete(f"/places/saved/{sid}").status_code == 204
     assert client.get(f"/trips/{tid}/places").json() == []
+
+
+def test_same_place_reusable_across_two_trips(client):
+    # The core of the feature: one place links into MANY trips (M2M).
+    a, b = _trip(client), _trip(client)
+    pid = client.get("/places", params={"limit": 1}).json()["results"][0]["id"]
+    body = {"place_id": pid, "source": "catalog"}
+    assert client.post(f"/trips/{a}/places", json=body).status_code == 201
+    assert client.post(f"/trips/{b}/places", json=body).status_code == 201  # not a 409
+    assert client.get(f"/trips/{a}/places").json()[0]["place"]["id"] == pid
+    assert client.get(f"/trips/{b}/places").json()[0]["place"]["id"] == pid
