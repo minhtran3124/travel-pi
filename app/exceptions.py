@@ -41,6 +41,18 @@ class ConflictError(AppError):
     default_detail = "Request conflicts with the current state"
 
 
+class ValidationError(AppError):
+    """A request is well-formed but semantically invalid (HTTP 422).
+
+    For value-level checks the service layer makes that Pydantic cannot express
+    on the request schema alone (e.g. an enum-like field constrained to a small
+    set). Renders in the same envelope as request-validation 422s.
+    """
+
+    status_code = 422
+    default_detail = "Request validation failed"
+
+
 class UpstreamError(AppError):
     """A call to an upstream service failed (HTTP 502)."""
 

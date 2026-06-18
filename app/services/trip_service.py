@@ -7,6 +7,7 @@ the booking service.
 """
 
 import logging
+import sqlite3
 import uuid
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
@@ -14,7 +15,8 @@ from decimal import ROUND_HALF_UP, Decimal
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
 from app.enums import ActivityLevel, BookingStatus, BookingType, MealStyle
-from app.exceptions import ConflictError, NotFoundError
+from app.exceptions import ConflictError, NotFoundError, ValidationError
+from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
     DayPlanItem,
     DayPlanResponse,
@@ -33,6 +35,8 @@ from app.services import place_service, routing_service, weather_service
 from app.services.booking_service import get_booking_service
 
 logger = logging.getLogger(__name__)
+
+_VALID_SOURCES = {"catalog", "saved"}
 
 
 def _new_id() -> str:
@@ -188,6 +192,73 @@ class TripService:
         self._repo.delete_item(item_id)
         logger.info("Deleted item %s from trip %s", item_id, trip_id)
 
+    # --- shortlist (trip_place_link) ------------------------------------- #
+
+    def add_place_to_trip(
+        self, trip_id: str, place_id: str, source: str = "catalog"
+    ) -> ShortlistEntry:
+        """Shortlist a catalog or saved place onto a trip.
+
+        Validates ``source`` (422) before any DB work, then checks the trip
+        exists (404) and the place resolves (404). A repeat of the same
+        (trip, place, source) hits the UNIQUE index → 409.
+        """
+        if source not in _VALID_SOURCES:
+            raise ValidationError(
+                f"Invalid source {source!r}.",
+                hint="source must be 'catalog' or 'saved'.",
+            )
+        self.get_trip(trip_id)
+        resolved = place_service.resolve(place_id, source)
+        if resolved is None:
+            raise NotFoundError(
+                f"Place {place_id!r} not found in source {source!r}.",
+                hint=(
+                    "For source='catalog' use GET /places to find an id; "
+                    "for source='saved' use GET /places/saved."
+                ),
+            )
+        link_id = _new_id()
+        try:
+            self._repo.add_trip_place(
+                link_id,
+                trip_id,
+                place_id,
+                source,
+                datetime.now(timezone.utc).isoformat(),
+            )
+        except sqlite3.IntegrityError:
+            raise ConflictError(
+                f"Place {place_id!r} is already shortlisted on this trip.",
+                hint="It is already on the shortlist; GET /trips/{trip_id}/places.",
+            ) from None
+        logger.info("Shortlisted %s (%s) onto trip %s", place_id, source, trip_id)
+        return ShortlistEntry(link_id=link_id, source=source, place=resolved)
+
+    def list_trip_places(self, trip_id: str) -> list[ShortlistEntry]:
+        """Return the trip's shortlist, each entry resolved. Entries whose
+        place no longer resolves (e.g. a soft-deleted saved place) are dropped."""
+        self.get_trip(trip_id)
+        entries: list[ShortlistEntry] = []
+        for row in self._repo.list_trip_places(trip_id):
+            resolved = place_service.resolve(row["place_id"], row["source"])
+            if resolved is None:
+                continue
+            entries.append(
+                ShortlistEntry(link_id=row["id"], source=row["source"], place=resolved)
+            )
+        return entries
+
+    def remove_trip_place(self, trip_id: str, link_id: str) -> None:
+        """Remove a shortlist entry. 404 if the trip or link does not match."""
+        self.get_trip(trip_id)
+        if not self._repo.delete_trip_place(trip_id, link_id):
+            raise NotFoundError(
+                f"Shortlist entry {link_id!r} not found on trip {trip_id!r}.",
+                hint="Use GET /trips/{trip_id}/places to list link ids.",
+            )
+        logger.info("Removed shortlist entry %s from trip %s", link_id, trip_id)
+
     def get_trip_detail(self, trip_id: str) -> TripDetail:
         """Return a trip enriched with spend rollup and coverage gaps.
 
@@ -245,7 +316,12 @@ class TripService:
                 if not has_hotel:
                     gaps.append(f"Day {day_num} has no accommodation booked.")
 
-        return TripDetail(**trip.model_dump(), total_spent=total_spent, gaps=gaps)
+        return TripDetail(
+            **trip.model_dump(),
+            total_spent=total_spent,
+            gaps=gaps,
+            places=self.list_trip_places(trip_id),
+        )
 
     async def get_day_plan(self, trip_id: str, target_date: date) -> DayPlanResponse:
         """Return an ordered day plan with optional travel-time annotations.

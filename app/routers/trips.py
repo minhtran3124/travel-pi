@@ -7,7 +7,9 @@ from fastapi import APIRouter, Depends, Header, Path, Query, status
 
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
+from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
+    AddTripPlaceRequest,
     DayPlanResponse,
     Trip,
     TripCreate,
@@ -193,3 +195,46 @@ def update_item(
 def delete_item(trips: TripsDep, trip_id: _TRIP_ID, item_id: _ITEM_ID) -> None:
     """Delete one item. 404 if the trip or item does not match."""
     trips.delete_item(trip_id, item_id)
+
+
+_LINK_ID = Annotated[
+    str,
+    Path(description="Shortlist link id (trip_place_link.id)", examples=["a2b4..."]),
+]
+
+
+@router.post(
+    "/{trip_id}/places",
+    response_model=ShortlistEntry,
+    status_code=status.HTTP_201_CREATED,
+    summary="Shortlist a place (catalog or saved) onto a trip",
+    responses=error_responses(404, 409, 422),
+)
+def add_trip_place(
+    trips: TripsDep, trip_id: _TRIP_ID, body: AddTripPlaceRequest
+) -> ShortlistEntry:
+    """Add a place to the trip's shortlist. 404 if the trip or place is unknown,
+    409 if it is already shortlisted."""
+    return trips.add_place_to_trip(trip_id, body.place_id, body.source)
+
+
+@router.get(
+    "/{trip_id}/places",
+    response_model=list[ShortlistEntry],
+    summary="List a trip's shortlisted places",
+    responses=error_responses(404),
+)
+def list_trip_places(trips: TripsDep, trip_id: _TRIP_ID) -> list[ShortlistEntry]:
+    """Return the trip's shortlist, each entry resolved to its place body."""
+    return trips.list_trip_places(trip_id)
+
+
+@router.delete(
+    "/{trip_id}/places/{link_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remove a place from a trip's shortlist",
+    responses=error_responses(404),
+)
+def remove_trip_place(trips: TripsDep, trip_id: _TRIP_ID, link_id: _LINK_ID) -> None:
+    """Remove a shortlist entry. 404 if the trip or link does not match."""
+    trips.remove_trip_place(trip_id, link_id)

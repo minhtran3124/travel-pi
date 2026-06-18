@@ -3,7 +3,7 @@
 import pytest
 from app.crud.flight import FlightIndexRepository
 from app.main import create_app
-from app.services import flight_service
+from app.services import flight_service, saved_place_service
 from app.services.booking_service import BookingService, get_booking_service
 from app.services.saved_place_service import SavedPlaceService, get_saved_place_service
 from app.services.trip_service import TripService, get_trip_service
@@ -32,6 +32,10 @@ def client(tmp_db):
 
     sp_svc = SavedPlaceService(tmp_db)
     sp_svc.init_db()
+    # place_service.resolve() reaches the saved store via the module singleton
+    # (a direct factory call, not FastAPI DI), so point that singleton at the
+    # temp DB too — otherwise shortlisting a saved place can't resolve it.
+    saved_place_service._saved_place_service = sp_svc
 
     app = create_app()
     app.dependency_overrides[get_booking_service] = lambda: svc

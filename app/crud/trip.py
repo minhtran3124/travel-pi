@@ -45,6 +45,16 @@ CREATE TABLE IF NOT EXISTS trip_items (
 )
 """
 
+_LINKS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS trip_place_link (
+    id        TEXT PRIMARY KEY,
+    trip_id   TEXT NOT NULL,
+    place_id  TEXT NOT NULL,
+    source    TEXT NOT NULL,
+    added_at  TEXT NOT NULL
+)
+"""
+
 _TRIP_COLUMNS = (
     "id",
     "title",
@@ -165,9 +175,17 @@ class TripRepository:
         with self._connect() as conn:
             conn.execute(_TRIPS_SCHEMA)
             conn.execute(_ITEMS_SCHEMA)
+            conn.execute(_LINKS_SCHEMA)
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS ix_trip_items_trip_id "
                 "ON trip_items (trip_id)"
+            )
+            # One shortlist entry per (trip, place, source). A plain composite
+            # UNIQUE index (not the single-column partial helper) — all three
+            # columns are NOT NULL, so no partial WHERE is needed.
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_trip_place_link_unique "
+                "ON trip_place_link (trip_id, place_id, source)"
             )
             # Add booking_id to legacy tables that were created before this column.
             ensure_column(conn, "trip_items", "booking_id")
@@ -347,4 +365,41 @@ class TripRepository:
     def delete_item(self, item_id: str) -> bool:
         with self._connect() as conn:
             cursor = conn.execute("DELETE FROM trip_items WHERE id = ?", (item_id,))
+            return cursor.rowcount > 0
+
+    # --- trip_place_link (shortlist) ------------------------------------- #
+
+    def add_trip_place(
+        self, link_id: str, trip_id: str, place_id: str, source: str, added_at: str
+    ) -> None:
+        """Insert a shortlist link. Re-raises sqlite3.IntegrityError on the
+        (trip_id, place_id, source) UNIQUE collision — the service maps it
+        to a 409."""
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO trip_place_link (id, trip_id, place_id, source, added_at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (link_id, trip_id, place_id, source, added_at),
+            )
+
+    def list_trip_places(self, trip_id: str) -> list[sqlite3.Row]:
+        with self._connect() as conn:
+            return conn.execute(
+                "SELECT * FROM trip_place_link WHERE trip_id = ? ORDER BY added_at",
+                (trip_id,),
+            ).fetchall()
+
+    def get_trip_place(self, link_id: str) -> sqlite3.Row | None:
+        with self._connect() as conn:
+            return conn.execute(
+                "SELECT * FROM trip_place_link WHERE id = ?", (link_id,)
+            ).fetchone()
+
+    def delete_trip_place(self, trip_id: str, link_id: str) -> bool:
+        """Delete a shortlist link scoped to its trip. True if a row was removed."""
+        with self._connect() as conn:
+            cursor = conn.execute(
+                "DELETE FROM trip_place_link WHERE id = ? AND trip_id = ?",
+                (link_id, trip_id),
+            )
             return cursor.rowcount > 0

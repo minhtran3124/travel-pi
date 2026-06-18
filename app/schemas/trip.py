@@ -14,6 +14,7 @@ from pydantic import Field, model_validator
 from app.enums import ActivityLevel, MealStyle, TripItemKind
 from app.schemas.base import AppBaseModel
 from app.schemas.pagination import PagedResponse
+from app.schemas.saved_place import ShortlistEntry
 
 
 class TripItemCreate(AppBaseModel):
@@ -141,6 +142,24 @@ class TripDetail(Trip):
     gaps: list[str] = Field(
         default_factory=list,
         description="Human-readable coverage gaps, e.g. 'Day 3 has no accommodation'.",
+    )
+    places: list[ShortlistEntry] = Field(
+        default_factory=list,
+        description="The trip's shortlisted places (catalog or saved), each resolved.",
+    )
+
+
+class AddTripPlaceRequest(AppBaseModel):
+    """Request body for shortlisting a place onto a trip."""
+
+    place_id: str = Field(
+        description="Catalog place id (UUID/PLC-) or saved_places id.",
+        examples=["PLC-AB23XY"],
+    )
+    source: str = Field(
+        default="catalog",
+        description="'catalog' (seed) or 'saved' (the saved-places store).",
+        examples=["catalog"],
     )
 
 
