@@ -1,6 +1,6 @@
 ---
 slug: tier4-robustness-ops
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-17
 ---
@@ -501,3 +501,5 @@ Since `get_trip` now filters `deleted_at IS NULL`, a second delete raises `NotFo
 - 2026-06-17 — Executed via subagent-driven-development on `feat/tier4-robustness-ops` (off v2). Per-story spec+quality reviews ✅.
   - S1 health `68927ca` · S2 operationId `00fde46` · S3 idempotency `375c115` (+ cross-trip fix `1ff0fea`) · S4 rate-limit `5607c76` · S5 soft-delete `f8b2a64`
   - Final correctness review found 2 cross-story bugs (idempotency+soft-delete 500; /readyz 500-on-DB-down) → fixed `2c89787`. Intent review ✅. 570 tests pass.
+
+- 2026-06-17 — shipped via `feat/tier4-robustness-ops` (PR #4, base `v2`).

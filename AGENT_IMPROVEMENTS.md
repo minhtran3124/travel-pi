@@ -145,13 +145,23 @@ Right now places are discoverable, not bookable. Add `POST /places/{id}/book` wi
 
 ---
 
-## Tier 4 — Robustness & ops (less glamorous, real-world correctness)
+## Tier 4 — Robustness & ops (less glamorous, real-world correctness) — ✅ DONE (PR #4)
 
-- ⬜ **Idempotency on every mutating endpoint**, not just `/flights/book` and `/hotels/book` — `cancel`, trip mutations, future `book` endpoints, batch.
-- ⬜ **Rate-limit headers** in responses (`X-RateLimit-*`) — even if not enforced, agents read these and self-throttle.
-- ⬜ **`/healthz` / `/readyz`** — separates app health from upstream (ORS) availability; useful for agent retry logic.
-- ⬜ **OpenAPI `operationId`** — pin stable operation IDs on every route so MCP/codegen names stay stable across refactors. (None set today.)
-- 🔶 **Soft-delete for everything that matters** — bookings already do this; trips should too (`DELETE /trips/{id}` exists — confirm it's soft, not hard).
+All five shipped on `feat/tier4-robustness-ops`; specs in `specs/tier4-robustness-ops/`.
+
+- ✅ **Idempotency on mutating endpoints** — `Idempotency-Key` replay added to `POST /trips`
+  and `POST /trips/{id}/items` (the non-idempotent creates), mirroring the booking pattern.
+  PUT/DELETE/`cancel` are already idempotent by semantics; no `batch` endpoint exists.
+- ✅ **Rate-limit headers** — informational, **unenforced** `X-RateLimit-Limit/Remaining/Reset`
+  on every response (`app/main.py`; `rate_limit_nominal` setting). Deliberate waiver of the
+  "no rate limiting" scope note — no 429s/counters.
+- ✅ **`/healthz` / `/readyz`** — `app/routers/health.py`. `/readyz` checks the DB and reports
+  the ORS routing provider as a separate non-fatal upstream (`live`/`fallback`); degrades to
+  `not_ready` instead of 500 when the DB is down.
+- ✅ **OpenAPI `operationId`** — pinned to handler names via one `generate_unique_id_function`
+  in `app/main.py` (renamed the `list_cities` collision → `list_place_cities`).
+- ✅ **Soft-delete for trips** — `DELETE /trips/{id}` now stamps `deleted_at` and keeps the
+  row + items; all trip reads filter `deleted_at IS NULL`. (Was confirmed hard-delete before.)
 
 ---
 
@@ -207,7 +217,7 @@ Right now places are discoverable, not bookable. Add `POST /places/{id}/book` wi
 5. No MCP wrapper; agent must consume raw HTTP
 6. No `/agent/manifest` discovery / enum endpoints
 7. No budget / transit helpers; activities discoverable but not bookable (packing helper now ships, #14)
-8. Tier-4 ops gaps: no `operationId`s, no `/healthz`, idempotency limited to two book endpoints
+8. ~~Tier-4 ops gaps: no `operationId`s, no `/healthz`, idempotency limited to two book endpoints~~ ✅ closed (PR #4); remaining Tier-4 idea: rate-limit *enforcement* (only informational headers ship)
 9. No multi-leg flights or round-trip-as-unit
 
 > **Resolved since the original draft:** trip grouping primitive, error `hint` field,
