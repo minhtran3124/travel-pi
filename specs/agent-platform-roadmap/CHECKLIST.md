@@ -22,7 +22,8 @@ Legend: ⬜ chưa làm · 🔶 đang làm · ✅ xong · ⏸ tạm hoãn
 - [ ] (Quy ước tiếp theo) Mỗi mục Phase A sau PHẢI dùng `ensure_column` + thêm test legacy-DB.
 - *Spec:* `specs/migration-helper/`. *Lane:* normal + migration waiver.
 
-### A1. ⬜ Thư viện POI tái sử dụng — places là entity hạng-nhất (M2M với trips) [#1]
+### A1. ✅ Thư viện POI tái sử dụng — places là entity hạng-nhất (M2M với trips) [#1] — DONE (`feat/poi-library`)
+> Option A: catalog giữ nguyên + `saved_places` (mutable, soft-delete) + `trip_place_link` M2M. Saved CRUD + favorite/visited SET idempotent + dedup-by-distance + shortlist add/list/remove + `TripDetail.places`. Specs: `specs/poi-library/`. 594 tests.
 > Ý tưởng cốt lõi từ `trip`: place tồn tại độc lập, được link vào nhiều trip qua bảng join,
 > thay vì nhúng cứng trong `trip_items`.
 - [ ] Quyết định mô hình: giữ `data/places.py` (seed tĩnh) làm catalog gốc, thêm bảng `saved_places`
