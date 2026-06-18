@@ -131,3 +131,15 @@ def test_soft_delete_saved(client):
     sid = client.post("/places/saved", json={"name": "Y"}).json()["id"]
     assert client.delete(f"/places/saved/{sid}").status_code == 204
     assert client.get(f"/places/saved/{sid}").status_code == 404
+
+
+def test_flag_and_delete_by_short_code(client):
+    # SPL- short code must work for set-flag and delete, not just the UUID.
+    created = client.post("/places/saved", json={"name": "ByCode"}).json()
+    code = created["short_code"]
+    r = client.post(f"/places/saved/{code}/favorite", json={"value": True})
+    assert r.status_code == 200 and r.json()["favorite"] is True
+    # the change actually persisted (re-fetch by UUID)
+    assert client.get(f"/places/saved/{created['id']}").json()["favorite"] is True
+    assert client.delete(f"/places/saved/{code}").status_code == 204
+    assert client.get(f"/places/saved/{created['id']}").status_code == 404

@@ -59,13 +59,15 @@ class SavedPlaceService:
         return self._repo.list(**filters)
 
     def delete(self, id_: str) -> None:
-        self.get(id_)  # 404 if missing/already-deleted
-        self._repo.soft_delete(id_, when=datetime.now(timezone.utc).isoformat())
+        # Resolve to the canonical UUID first: id_ may be an SPL- short code,
+        # but the repo writes match on `id` (UUIDs only).
+        sp = self.get(id_)  # 404 if missing/already-deleted
+        self._repo.soft_delete(sp.id, when=datetime.now(timezone.utc).isoformat())
 
     def set_flag(self, id_: str, field: str, value: bool) -> SavedPlace:
-        self.get(id_)
-        self._repo.set_flag(id_, field, value)
-        return self.get(id_)
+        sp = self.get(id_)  # resolves SPL- short code → UUID
+        self._repo.set_flag(sp.id, field, value)
+        return self.get(sp.id)
 
 
 # Shared singleton — constructed at import time (cheap: stores the path only).
