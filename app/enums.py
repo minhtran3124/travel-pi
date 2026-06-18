@@ -106,6 +106,22 @@ class TripItemKind(str, Enum):
     NOTE = "note"
 
 
+class TripItemStatus(str, Enum):
+    """Planning state of a trip itinerary item.
+
+    Lets an agent express soft vs. hard plan and hard constraints:
+    ``pending`` (default, not yet decided), ``booked`` (locked in — note this
+    is the *planning* state and is independent of ``BookingStatus`` /
+    ``booking_id``), ``constraint`` (a fixed must-happen anchor), and
+    ``optional`` (nice-to-have; excluded from gap-detection).
+    """
+
+    PENDING = "pending"
+    BOOKED = "booked"
+    CONSTRAINT = "constraint"
+    OPTIONAL = "optional"
+
+
 class MealStyle(str, Enum):
     """Meal-spend tier for a trip budget estimate."""
 

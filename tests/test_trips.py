@@ -45,6 +45,37 @@ def test_trip_item_create_rejects_day_below_one():
         TripItemCreate(day=0, kind="place", title="x")
 
 
+def test_trip_item_status_enum_values():
+    from app.enums import TripItemStatus
+
+    assert {s.value for s in TripItemStatus} == {
+        "pending",
+        "booked",
+        "constraint",
+        "optional",
+    }
+    # str-Enum: compares equal to the raw string (JSON/query/store parity)
+    assert TripItemStatus.PENDING == "pending"
+
+
+def test_trip_item_create_default_status_is_pending():
+    item = TripItemCreate(day=1, kind="place", title="Marble Mountains")
+    from app.enums import TripItemStatus
+
+    assert item.status == TripItemStatus.PENDING
+
+
+def test_trip_item_create_accepts_each_status():
+    for value in ("pending", "booked", "constraint", "optional"):
+        item = TripItemCreate(day=1, kind="place", title="x", status=value)
+        assert item.status == value
+
+
+def test_trip_item_create_rejects_bad_status():
+    with pytest.raises(ValidationError):
+        TripItemCreate(day=1, kind="place", title="x", status="maybe")
+
+
 # --------------------------------------------------------------------------- #
 # CRUD layer (direct TripRepository against a temp DB)
 # --------------------------------------------------------------------------- #
@@ -116,6 +147,95 @@ def test_repo_add_update_delete_item(repo):
     assert repo.get_item("x1") is None
 
 
+def test_repo_persists_item_status_roundtrip(repo):
+    from datetime import datetime, timezone
+
+    from app.enums import TripItemStatus
+    from app.schemas.trip import Trip, TripItem
+
+    trip = Trip(
+        id="t-status",
+        title="Status trip",
+        travelers=1,
+        created_at=datetime.now(timezone.utc),
+    )
+    item = TripItem(
+        id="i-1",
+        trip_id="t-status",
+        day=1,
+        sort_order=0,
+        kind="place",
+        title="Anchor",
+        status=TripItemStatus.CONSTRAINT,
+    )
+    repo.create_trip(trip)
+    repo.add_item(item)
+
+    got = repo.get_item("i-1")
+    assert got.status == TripItemStatus.CONSTRAINT
+
+    got.status = TripItemStatus.OPTIONAL
+    assert repo.update_item(got) is True
+    assert repo.get_item("i-1").status == TripItemStatus.OPTIONAL
+
+
+def test_repo_item_defaults_status_pending_when_unset(repo):
+    from datetime import datetime, timezone
+
+    from app.enums import TripItemStatus
+    from app.schemas.trip import Trip, TripItem
+
+    trip = Trip(
+        id="t-def",
+        title="Default trip",
+        travelers=1,
+        created_at=datetime.now(timezone.utc),
+    )
+    repo.create_trip(trip)
+    repo.add_item(
+        TripItem(id="i-2", trip_id="t-def", day=1, sort_order=0, kind="note", title="x")
+    )
+    assert repo.get_item("i-2").status == TripItemStatus.PENDING
+
+
+def test_init_db_adds_status_to_legacy_trip_items(tmp_path):
+    """A trip_items table predating the status column gains it, old rows = pending."""
+    import sqlite3
+
+    from app.crud.trip import TripRepository
+    from app.enums import TripItemStatus
+
+    db = str(tmp_path / "legacy.db")
+    conn = sqlite3.connect(db)
+    # Legacy schema: trip_items WITHOUT the status column, one existing row.
+    conn.execute(
+        "CREATE TABLE trip_items ("
+        " id TEXT PRIMARY KEY, trip_id TEXT NOT NULL, day INTEGER NOT NULL,"
+        " sort_order INTEGER NOT NULL, kind TEXT NOT NULL, title TEXT NOT NULL,"
+        " place_id TEXT, booking_id TEXT, start_time TEXT, notes TEXT,"
+        " idempotency_key TEXT)"
+    )
+    conn.execute(
+        "INSERT INTO trip_items (id, trip_id, day, sort_order, kind, title)"
+        " VALUES ('old-1', 't-old', 1, 0, 'place', 'Pre-existing')"
+    )
+    conn.commit()
+    conn.close()
+
+    # Migration runs here.
+    TripRepository(db).init_db()
+
+    repo = TripRepository(db)
+    migrated = repo.get_item("old-1")
+    assert migrated.status == TripItemStatus.PENDING
+
+    cols = set()
+    conn = sqlite3.connect(db)
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(trip_items)")}
+    conn.close()
+    assert "status" in cols
+
+
 # --------------------------------------------------------------------------- #
 # Service layer (direct TripService against a temp DB)
 # --------------------------------------------------------------------------- #
@@ -177,6 +297,46 @@ def test_service_item_wrong_trip_raises(svc):
     # item belongs to A, not B -> 404 when addressed via B
     with pytest.raises(NotFoundError):
         svc.update_item(b.id, item.id, TripItemUpdate(day=1, kind="meal", title="x"))
+
+
+def test_gap_detection_treats_optional_as_unplanned(svc):
+    """A day whose only item is optional is still flagged 'no planned items'."""
+    from app.enums import TripItemStatus
+    from app.schemas.trip import TripCreate, TripItemCreate
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="Gap trip",
+            start_date="2026-07-01",
+            end_date="2026-07-01",  # single day
+            items=[
+                TripItemCreate(
+                    day=1,
+                    kind="place",
+                    title="Maybe-museum",
+                    status=TripItemStatus.OPTIONAL,
+                )
+            ],
+        )
+    )
+    detail = svc.get_trip_detail(trip.id)
+    assert any("Day 1 has no planned items" in g for g in detail.gaps)
+
+
+def test_gap_detection_counts_non_optional_item(svc):
+    """A day with a pending item is NOT flagged 'no planned items'."""
+    from app.schemas.trip import TripCreate, TripItemCreate
+
+    trip = svc.create_trip(
+        TripCreate(
+            title="Planned trip",
+            start_date="2026-07-01",
+            end_date="2026-07-01",
+            items=[TripItemCreate(day=1, kind="place", title="Confirmed stop")],
+        )
+    )
+    detail = svc.get_trip_detail(trip.id)
+    assert not any("Day 1 has no planned items" in g for g in detail.gaps)
 
 
 # --------------------------------------------------------------------------- #
