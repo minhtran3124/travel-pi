@@ -59,9 +59,11 @@ class Settings(BaseSettings):
     def _normalize_environment(cls, value: object) -> object:
         return value.strip().lower() if isinstance(value, str) else value
 
-    # Storage — bookings are persisted to this SQLite file (created on first
-    # run). Relative paths are resolved from the working directory.
-    database_path: str = "travel.db"
+    # Storage — SQLAlchemy connection URL. SQLite (a file) is the zero-config
+    # default for local dev and the test suite; Docker injects a Postgres URL
+    # (e.g. postgresql+psycopg://travel:travel@db:5432/travel). The engine is
+    # selected entirely from this value — see app/db/engine.py.
+    database_url: str = "sqlite:///travel.db"
 
     # Weather — the one feature that makes a real outbound call. Open-Meteo is
     # free and needs no API key; these knobs only exist for tuning/testing.
