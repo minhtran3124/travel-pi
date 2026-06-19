@@ -46,6 +46,8 @@ Base URL: `http://localhost:8000`
 | GET | `/trips/{trip_id}` | Get one trip + its day-by-day items |
 | PUT | `/trips/{trip_id}` | Replace a trip's top-level fields |
 | DELETE | `/trips/{trip_id}` | Delete a trip and its items |
+| GET | `/trips/{trip_id}/budget` | Get per-category budget caps vs booked spend |
+| POST | `/trips/{trip_id}/budget` | Set per-category budget caps (replace) |
 | POST | `/trips/{trip_id}/items` | Add an item to a trip |
 | PUT | `/trips/{trip_id}/items/{item_id}` | Replace an item |
 | DELETE | `/trips/{trip_id}/items/{item_id}` | Delete an item |
@@ -1050,7 +1052,9 @@ Items are returned sorted by `(day, sort_order)`.
 | `GET /trips/{trip_id}` | One trip with its items. **404** if unknown |
 | `PUT /trips/{trip_id}` | Replace the trip's top-level fields (items unchanged). Omitted optional fields reset to defaults. **404** if unknown |
 | `DELETE /trips/{trip_id}` | Delete the trip and all its items. → **204**, **404** if unknown |
-| `POST /trips/{trip_id}/items` | Add one item. Body: `day` (≥1), `kind`, `title`, optional `sort_order`, `place_id`, `start_time`, `notes`. → **201**, **404** if the trip is unknown |
+| `GET /trips/{trip_id}/budget` | Per-category caps (planned) vs booked spend. **404** if unknown |
+| `POST /trips/{trip_id}/budget` | Replace the trip's per-category caps; returns the budget. **404** if unknown |
+| `POST /trips/{trip_id}/items` | Add one item. Body: `day` (≥1), `kind`, `title`, optional `sort_order`, `place_id`, `start_time`, `notes`. → **201**, **404** if the trip is unknown, **409** if a linked booking pushes a category over its cap |
 | `PUT /trips/{trip_id}/items/{item_id}` | Replace an item. **404** if the trip or item does not match |
 | `DELETE /trips/{trip_id}/items/{item_id}` | Delete one item. → **204**, **404** if the trip or item does not match |
 
@@ -1113,6 +1117,39 @@ curl -X POST http://localhost:8000/trips/estimate \
       }'
 # → breakdown {flights 240, accommodation 270, meals 180, activities 120,
 #   local_transport 45}, subtotal 855, total_estimate 941, per_person 470.5
+```
+
+### `/trips/{trip_id}/budget` — caps vs spend
+
+Unlike the stateless estimator, a trip's **budget** is saved state: per-category
+USD **caps** (the planned target) tracked against **spent** (the booked rollup).
+The four categories are `flights`, `hotels`, `activities`, and `buffer`; each is
+a `cap` / `spent` / `remaining` triple (`remaining` is `cap - spent`, negative
+when over, `null` when no cap is set). `spent` is summed from the trip's
+**linked, non-cancelled bookings** by type (flight bookings → `flights`, hotel
+bookings → `hotels`); `activities` and `buffer` have no booking source yet, so
+they stay at `0`.
+
+`GET /trips/{trip_id}/budget` returns the current caps vs spend plus rolled-up
+`total_cap` / `total_spent` / `total_remaining` and an `over_budget` flag (true
+when any capped category's spend is strictly above its cap). **404** if the trip
+is unknown.
+
+`POST /trips/{trip_id}/budget` **replaces** the caps — every POST is the full
+set, so any category you omit (or send as `null`) becomes uncapped. Caps are
+`≥ 0`. It returns the same budget shape. **404** if the trip is unknown.
+
+Once caps are set, `POST /trips/{trip_id}/items` returns **409** when the new
+item carries a linked booking whose spend would push that category over its cap.
+
+```bash
+# Set caps (replace) — flights $700, hotels $500
+curl -X POST http://localhost:8000/trips/<trip_id>/budget \
+  -H 'Content-Type: application/json' \
+  -d '{"flights": 700, "hotels": 500}'
+
+# Read caps vs booked spend
+curl http://localhost:8000/trips/<trip_id>/budget
 ```
 
 ---
