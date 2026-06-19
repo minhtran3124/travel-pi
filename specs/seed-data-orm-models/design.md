@@ -72,7 +72,7 @@ unaffected. Moving the classes into the package is otherwise import-only churn.
 ### 2. New ORM tables (columns mirror the seed dicts; FKs encode current guards)
 
 - **Country** — `code` PK, `name`, `region`, `latitude`, `longitude`.
-- **Airline** — `code` PK, `name`, `color` (nullable; from `AIRLINE_COLORS`, default applied in serialization).
+- **Airline** — `code` PK, `name`, **`position` int** (preserves the `AIRLINES` seed-list order — **load-bearing for determinism**: `flight_service.generate_flights` does `rng.choice(AIRLINES)` over a seeded RNG, so the repo MUST `ORDER BY position` to reproduce the same airline picks byte-for-byte), `color` (nullable; from `AIRLINE_COLORS`, default `AIRLINE_COLOR_DEFAULT` applied in serialization).
 - **Airport** — `iata` PK, `name`, `city`, `country`, `country_code` FK→`country.code`.
 - **City** — surrogate `id` PK, `name`, `country` (the country **name** string, exactly as `cities.py` stores it), `country_code` (denormalized from `countries.py` for convenience, nullable), `airport_codes` JSON, `latitude`, `longitude`. Unique `(name, country)`. The country link is by **name** (matching the current code, which resolves a city's country by name); a FK is enforced against `Country.name` (add a unique index on `country.name`) — *not* against `code`. Seeding note: `City.country` ← the dict's `country` field (name); `country_code` ← reverse-looked-up from `countries.py`.
 - **Hotel** — `id` UUID PK (seeded verbatim), `code`, `name`, `city`, `country`, `address`, `star_rating`, `price_per_night`, `currency`, `amenities` JSON, + remaining fields.
@@ -87,7 +87,8 @@ unaffected. Moving the classes into the package is otherwise import-only churn.
   ID-building logic moves into the seeder; the repo reads rows back ordered by `position`.
 - **CountrySummary** — `country` PK, `summary` (from `COUNTRY_SUMMARIES`).
 - **Visa** — `country` PK, `visa_free_days`, `visa_on_arrival`, `e_visa`, `passport_validity_months`, `summary`.
-- **Fx** — `FxRate` (`code` PK, `rate`), `CountryCurrency` (`country` PK, `code`), `FxMeta` (`last_updated`).
+- **Fx** — `FxRate` (`code` PK, `rate`, `name` ← from `CURRENCY_NAMES`), `CountryCurrency` (`country` PK, `code`), `FxMeta` (`last_updated`).
+- **Hotel.country (seed-fill):** `hotels.py` records carry only `city`; `country` is derived at runtime today and asserted by tests. The **seeder must populate `Hotel.country`** via the city→country lookup at seed time (same source as the current runtime derivation).
 
 All JSON columns use the portable `JSON` type (matches the docker-postgres decision — no JSONB).
 
