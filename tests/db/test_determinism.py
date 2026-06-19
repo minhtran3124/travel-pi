@@ -101,3 +101,51 @@ def test_flight_airline_codes_follow_repo_position_order(client):
     # distinct codes must all be valid positions — primary guard is the golden
     # byte-equality above; this asserts the repo is the source of truth.
     assert all(p in repo_pos.values() for p in positions)
+
+
+def test_airport_list_order_matches_data_insertion_order(client):
+    """``airport_service.list_airports()`` returns codes in the SAME order as
+    ``AIRPORTS`` dict insertion order.
+
+    board_service builds its route candidates from ``list_airports()`` and feeds
+    them to ``Random(seed).sample(...)`` — an order-sensitive call. The
+    pre-migration code sampled from ``AIRPORTS`` dict insertion order, so locking
+    the repo to that order is what preserves board parity. Before the
+    ``position`` fix the repo did ``ORDER BY iata`` (a *different* order), which
+    silently changed which routes the board showed.
+    """
+    from app.data.airports import AIRPORTS
+    from app.services import airport_service
+
+    served = [a.code for a in airport_service.list_airports()]
+    expected = list(AIRPORTS.keys())
+    assert served == expected, (served, expected)
+
+
+def test_hotels_pagination_pages_are_disjoint_and_stable(client):
+    """``GET /hotels`` offset/limit pages are disjoint AND stable across calls.
+
+    Without an explicit ``ORDER BY`` on the hotel repo, Postgres makes no
+    row-order guarantee, so two unordered SELECTs (page 0 then page 1) can dupe
+    or skip rows. The ``position`` order makes paging deterministic.
+    """
+
+    def ids(offset: int, limit: int = 5) -> list[str]:
+        resp = client.get(f"/hotels?limit={limit}&offset={offset}")
+        assert resp.status_code == 200, resp.text
+        body = resp.json()
+        items = body["results"] if isinstance(body, dict) else body
+        return [h["id"] for h in items]
+
+    page0_a = ids(0)
+    page0_b = ids(0)
+    page1_a = ids(5)
+    page1_b = ids(5)
+
+    # Each page is stable across repeated identical calls.
+    assert page0_a == page0_b
+    assert page1_a == page1_b
+    # The two pages are disjoint (no row served on both pages).
+    assert set(page0_a).isdisjoint(set(page1_a)), (page0_a, page1_a)
+    # And both pages actually returned rows (guards an empty-DB false pass).
+    assert page0_a and page1_a

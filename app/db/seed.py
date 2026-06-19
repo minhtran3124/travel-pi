@@ -84,7 +84,9 @@ def _seed_airlines(session) -> None:
 
 def _seed_airports(session) -> None:
     # ``country_code`` is already filled on each value by airports.py at import.
-    for iata, info in AIRPORTS.items():
+    # ``position`` records the AIRPORTS dict insertion order (the order
+    # board_service originally sampled from) so the repo can ORDER BY it.
+    for i, (iata, info) in enumerate(AIRPORTS.items()):
         session.merge(
             models.Airport(
                 iata=iata,
@@ -92,6 +94,7 @@ def _seed_airports(session) -> None:
                 city=info["city"],
                 country=info["country"],
                 country_code=info["country_code"],
+                position=i,
             )
         )
 
@@ -129,10 +132,11 @@ def _seed_cities(session) -> None:
 def _seed_hotels(session) -> None:
     # ``country`` is already on each record (hotels.py fills it at import) — map
     # it straight, do NOT re-derive.
-    for h in HOTELS:
+    for i, h in enumerate(HOTELS):
         session.merge(
             models.Hotel(
                 id=h["id"],
+                position=i,
                 code=h["code"],
                 name=h["name"],
                 city=h["city"],
@@ -158,10 +162,11 @@ def _seed_hotels(session) -> None:
 
 
 def _seed_places(session) -> None:
-    for p in PLACES:
+    for i, p in enumerate(PLACES):
         session.merge(
             models.Place(
                 id=p["id"],
+                position=i,
                 name=p["name"],
                 city=p["city"],
                 country=p["country"],

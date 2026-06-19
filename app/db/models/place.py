@@ -15,6 +15,9 @@ class Place(Base):
     __tablename__ = "places"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)  # UUID string, verbatim
+    # PLACES list seed order so place_repo.all()/search() can ORDER BY it — the
+    # deterministic base/tiebreaker order under place_service's stable sort.
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str] = mapped_column(String, nullable=False)
     country: Mapped[str] = mapped_column(String, nullable=False)

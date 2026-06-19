@@ -28,9 +28,14 @@ class HotelRepository:
         self._sf = session_factory
 
     def all(self) -> list[Hotel]:
-        """Return every seeded hotel."""
+        """Return every seeded hotel in stable ``position`` (seed) order.
+
+        Explicit ``ORDER BY position`` so ``/hotels`` offset/limit pagination
+        is stable across engines (Postgres makes no row-order guarantee).
+        """
         with self._sf() as s:
-            return [_row_to_hotel(r) for r in s.scalars(select(models.Hotel)).all()]
+            stmt = select(models.Hotel).order_by(models.Hotel.position)
+            return [_row_to_hotel(r) for r in s.scalars(stmt).all()]
 
     def get(self, hotel_id: str) -> Hotel | None:
         """Return the hotel by raw UUID ``id``, or ``None``."""
@@ -67,7 +72,7 @@ class HotelRepository:
         all-contains refinement done in Python over the fetched rows
         (case-insensitive), mirroring ``hotel_service.search_hotels``.
         """
-        stmt = select(models.Hotel)
+        stmt = select(models.Hotel).order_by(models.Hotel.position)
         if city is not None:
             stmt = stmt.where(models.Hotel.city == city)
         if min_stars is not None:

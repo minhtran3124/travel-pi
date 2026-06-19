@@ -29,11 +29,15 @@ class AirportRepository:
     def list(self) -> list[Airport]:
         """Return every supported airport as an ``Airport`` schema.
 
-        Ordered by ``iata`` so the dashboard board listing is stable across
-        engines (SQLite and Postgres make no row-order guarantee otherwise).
+        Ordered by ``position`` (the ``AIRPORTS`` dict insertion order) so the
+        listing is stable across engines AND matches the pre-migration order
+        board_service samples its routes from (SQLite and Postgres make no
+        row-order guarantee otherwise).
         """
         with self._sf() as s:
-            rows = s.scalars(select(models.Airport).order_by(models.Airport.iata)).all()
+            rows = s.scalars(
+                select(models.Airport).order_by(models.Airport.position)
+            ).all()
             return [_row_to_airport(r) for r in rows]
 
     def get(self, code: str) -> Airport | None:

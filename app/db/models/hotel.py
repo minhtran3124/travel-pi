@@ -16,6 +16,9 @@ class Hotel(Base):
     __tablename__ = "hotels"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)  # UUID string, verbatim
+    # HOTELS list seed order so hotel_repo.all()/search() can ORDER BY it —
+    # gives /hotels pagination a stable base order across engines.
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
     code: Mapped[str] = mapped_column(String, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str] = mapped_column(String, nullable=False)

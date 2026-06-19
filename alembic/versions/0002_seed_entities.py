@@ -70,6 +70,7 @@ def upgrade() -> None:
     op.create_table(
         "hotels",
         sa.Column("id", sa.String(), nullable=False),
+        sa.Column("position", sa.Integer(), nullable=False),
         sa.Column("code", sa.String(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("city", sa.String(), nullable=False),
@@ -95,6 +96,7 @@ def upgrade() -> None:
     op.create_table(
         "places",
         sa.Column("id", sa.String(), nullable=False),
+        sa.Column("position", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("city", sa.String(), nullable=False),
         sa.Column("country", sa.String(), nullable=False),
@@ -148,6 +150,7 @@ def upgrade() -> None:
         sa.Column("city", sa.String(), nullable=False),
         sa.Column("country", sa.String(), nullable=False),
         sa.Column("country_code", sa.String(), nullable=False),
+        sa.Column("position", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["country_code"],
             ["countries.code"],
