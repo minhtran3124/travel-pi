@@ -136,3 +136,16 @@ class ActivityLevel(str, Enum):
     NONE = "none"
     SOME = "some"
     LOTS = "lots"
+
+
+class BudgetCategory(str, Enum):
+    """Spend buckets a per-trip budget cap can target.
+
+    flights/hotels map 1:1 to BookingType; activities/buffer have no booking
+    source yet (activity booking is unshipped, #15) so their spent is always 0.
+    """
+
+    FLIGHTS = "flights"
+    HOTELS = "hotels"
+    ACTIVITIES = "activities"
+    BUFFER = "buffer"

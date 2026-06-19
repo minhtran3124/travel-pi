@@ -46,6 +46,8 @@ Base URL: `http://localhost:8000`
 | GET | `/trips/{trip_id}` | Get one trip + its day-by-day items |
 | PUT | `/trips/{trip_id}` | Replace a trip's top-level fields |
 | DELETE | `/trips/{trip_id}` | Delete a trip and its items |
+| GET | `/trips/{trip_id}/budget` | Get per-category budget caps vs booked spend |
+| POST | `/trips/{trip_id}/budget` | Set per-category budget caps (replace) |
 | POST | `/trips/{trip_id}/items` | Add an item to a trip |
 | PUT | `/trips/{trip_id}/items/{item_id}` | Replace an item |
 | DELETE | `/trips/{trip_id}/items/{item_id}` | Delete an item |
