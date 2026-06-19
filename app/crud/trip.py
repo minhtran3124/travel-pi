@@ -7,6 +7,7 @@ connection per call (threadpool-safe for sync endpoints), idempotent
 ``init_db``.
 """
 
+import json
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -25,7 +26,8 @@ CREATE TABLE IF NOT EXISTS trips (
     notes           TEXT,
     created_at      TEXT NOT NULL,
     idempotency_key TEXT,
-    deleted_at      TEXT
+    deleted_at      TEXT,
+    budget_caps     TEXT
 )
 """
 
@@ -173,7 +175,8 @@ class TripRepository:
         """Create the trips/trip_items tables and item index if absent.
 
         Also idempotently migrates legacy trip_items/trips tables that pre-date
-        later columns (booking_id, idempotency_key, deleted_at, status) — each
+        later columns (booking_id, idempotency_key, deleted_at, status,
+        budget_caps) — each
         ALTER is safe to skip when the column already exists (guarded by the
         PRAGMA check); the status add backfills existing rows to 'pending'.
         """
@@ -209,6 +212,9 @@ class TripRepository:
             ensure_column(
                 conn, "trip_items", "status", "TEXT NOT NULL DEFAULT 'pending'"
             )
+            # Add budget_caps to legacy trips tables (per-category caps, JSON).
+            # Nullable; absent/NULL reads back as no caps set.
+            ensure_column(conn, "trips", "budget_caps")
 
     def _insert_item(
         self,
@@ -306,6 +312,35 @@ class TripRepository:
                 (when, trip_id),
             )
             return cursor.rowcount > 0
+
+    def get_budget_caps(self, trip_id: str) -> dict[str, float]:
+        """Return the trip's per-category caps as a dict (empty if unset).
+
+        No existence check here — the service has already 404'd a missing trip.
+        A tombstoned/unknown trip simply yields {}.
+        """
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT budget_caps FROM trips WHERE id = ? AND deleted_at IS NULL",
+                (trip_id,),
+            ).fetchone()
+        if row is None or row["budget_caps"] is None:
+            return {}
+        return json.loads(row["budget_caps"])
+
+    def set_budget_caps(self, trip_id: str, caps: dict[str, float]) -> None:
+        """Persist the trip's caps (replace). Stores JSON; {} clears all caps.
+
+        Expects the service-filtered, float-only caps dict (None/uncapped
+        categories are dropped by the service before calling). No existence
+        check here — the service has already 404'd a missing trip; a
+        tombstoned/unknown trip is a silent 0-row no-op.
+        """
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE trips SET budget_caps = ? WHERE id = ? AND deleted_at IS NULL",
+                (json.dumps(caps), trip_id),
+            )
 
     def add_item(self, item: TripItem, idempotency_key: str | None = None) -> TripItem:
         """Insert an item and return it.

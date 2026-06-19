@@ -12,6 +12,8 @@ from app.schemas.trip import (
     AddTripPlaceRequest,
     DayPlanResponse,
     Trip,
+    TripBudget,
+    TripBudgetSet,
     TripCreate,
     TripDetail,
     TripEstimateRequest,
@@ -122,6 +124,39 @@ async def get_day_plan(
     return await trips.get_day_plan(trip_id, date)
 
 
+@router.get(
+    "/{trip_id}/budget",
+    response_model=TripBudget,
+    summary="Per-category budget: caps (planned) vs booked spend",
+    responses=error_responses(404, 422),
+)
+def get_trip_budget(trips: TripsDep, trip_id: _TRIP_ID) -> TripBudget:
+    """Return flights/hotels/activities/buffer caps vs spent vs remaining.
+
+    'spent' rolls up linked, non-cancelled bookings by type (activities/buffer
+    have no booking source yet, so 0). 404 if the trip UUID is unknown.
+    """
+    return trips.get_trip_budget(trip_id)
+
+
+@router.post(
+    "/{trip_id}/budget",
+    response_model=TripBudget,
+    summary="Set a trip's per-category budget caps (replace)",
+    responses=error_responses(404, 422),
+)
+def set_trip_budget(
+    trips: TripsDep, trip_id: _TRIP_ID, body: TripBudgetSet
+) -> TripBudget:
+    """Replace the trip's caps and return the budget. Every POST fully replaces
+    the caps — omitted categories become uncapped. 404 if the trip is unknown.
+
+    Once set, POST /trips/{id}/items returns 409 when a linked booking would
+    push that category's spend over its cap.
+    """
+    return trips.set_trip_budget(trip_id, body)
+
+
 @router.put(
     "/{trip_id}",
     response_model=Trip,
@@ -149,7 +184,7 @@ def delete_trip(trips: TripsDep, trip_id: _TRIP_ID) -> None:
     response_model=TripItem,
     status_code=status.HTTP_201_CREATED,
     summary="Add an item to a trip",
-    responses=error_responses(404, 422),
+    responses=error_responses(404, 409, 422),  # 409 = over budget
 )
 def add_item(
     trips: TripsDep,
@@ -169,7 +204,10 @@ def add_item(
         ),
     ] = None,
 ) -> TripItem:
-    """Append a day-plan item to the trip. 404 if the trip is unknown."""
+    """Append a day-plan item to the trip. 404 if the trip is unknown.
+
+    409 if a linked booking would exceed a budget cap.
+    """
     return trips.add_item(trip_id, body, idempotency_key=idempotency_key)
 
 
