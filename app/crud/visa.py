@@ -1,0 +1,32 @@
+"""Data-access for visa / entry requirements — SQLAlchemy ORM reads.
+
+``get`` returns the ``EntryRequirements`` Pydantic schema (the visa table's
+columns are a superset: it also stores the ``country`` PK, which the schema
+does not carry), so the repo constructs the schema explicitly. Returning
+``None`` for an unknown country mirrors ``COUNTRY_VISA.get(...)`` — the service
+keeps deciding what an absent record means.
+"""
+
+from app.db import models
+from app.schemas.visa import EntryRequirements
+
+
+class VisaRepository:
+    """Read-only store of visa rows behind a ``session_factory``."""
+
+    def __init__(self, session_factory) -> None:
+        self._sf = session_factory
+
+    def get(self, country: str) -> EntryRequirements | None:
+        """Return entry requirements for a resolved ``country``, or ``None``."""
+        with self._sf() as s:
+            row = s.get(models.Visa, country)
+            if row is None:
+                return None
+            return EntryRequirements(
+                visa_free_days=row.visa_free_days,
+                visa_on_arrival=row.visa_on_arrival,
+                e_visa=row.e_visa,
+                passport_validity_months=row.passport_validity_months,
+                summary=row.summary,
+            )
