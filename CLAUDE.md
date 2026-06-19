@@ -22,11 +22,20 @@ contract (now stale on layout).
 
 ## Run it
 
+Persistence is dual-engine: SQLite by default (local/tests), Postgres in Docker,
+selected by `DATABASE_URL`. See `README.md` for the full three-path run guide.
+
 ```bash
+# Local, on SQLite (zero-config)
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000          # Swagger at /docs
-.venv/bin/python -m pytest tests/ -v               # 336 tests
+make dev                                            # uvicorn, Swagger at /docs
+make test                                           # 617 tests on SQLite
+
+# Docker + Postgres (migrations run automatically via the entrypoint)
+make up                                             # app at :8000, Postgres in a container
+make test-docker                                    # 617 tests on isolated Postgres (cross-engine parity)
+
 ruff check app scripts && ruff format app scripts
 ```
 
@@ -39,7 +48,7 @@ app/
   core/          # config, logging, lifespan, geo (haversine), text (fuzzy match)
   routers/       # one file per endpoint group (dashboard.py = HTML, not API)
   services/      # business logic
-  crud/          # raw SQLite data access, no logic
+  crud/          # SQLAlchemy ORM data access (SQLite or Postgres), no logic
   schemas/       # Pydantic v2 models (extend AppBaseModel)
   data/          # read-only seed data (airports, cities, hotels, places, tips, countries)
 tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
@@ -53,10 +62,15 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   `RequestValidationError` into one JSON envelope
   (`{error, message, status_code, path, [errors]}`). Routes declare codes via
   `responses=error_responses(...)`.
-- **Bookings are the only mutable state** (SQLite `travel.db`); table created on
-  startup in `core/lifespan.py`. `total_price` is always computed server-side —
-  requests never carry a price. `GET /bookings/{id}` accepts the UUID or the
-  derived `confirmation_code`; `cancel` is a soft, idempotent state change.
+- **Persistence is SQLAlchemy 2.0 ORM (sync) over SQLite-or-Postgres**, chosen
+  by `DATABASE_URL` (default `sqlite:///travel.db` for local/tests; Docker
+  injects `postgresql+psycopg://...`). Schema is versioned by **Alembic**
+  (`alembic upgrade head`, run automatically by the Docker entrypoint). The ORM
+  is confined to `app/crud/` — services/schemas/routers stay ORM-free.
+- **Bookings are the canonical mutable state**; `total_price` is always computed
+  server-side — requests never carry a price. `GET /bookings/{id}` accepts the
+  UUID or the derived `confirmation_code`; `cancel` is a soft, idempotent state
+  change. Trips, saved_places, and the flight_index also persist (same ORM).
 - **Deterministic generation, never stored:** flights and hotel availability are
   generated from an MD5 seed (flights: `origin-dest-date`; rooms:
   `hotel.id-check_in-check_out`), so the same query always returns the same
@@ -79,8 +93,12 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
 - **Fuzzy name resolution everywhere** free-text city/country is accepted, via
   `core/text.py` (`best_match` / `fuzzy_filter`). Resource IDs (UUIDs, IATA)
   stay exact. An unrecognised city/country returns `count: 0`, not 404.
-- Keep it minimal — no auth, ORM, pagination, or rate limiting (see
+- Keep it minimal — no auth, pagination, or rate limiting (see
   `mock-api-spec.md` §1). Console logging is in scope; anything heavier is not.
+  Persistence uses **SQLAlchemy 2.0 ORM (sync)**, engine selected by
+  `DATABASE_URL` (SQLite default for local/tests, Postgres in Docker), schema
+  versioned by **Alembic**; **the ORM is confined to `app/crud/`** —
+  services/schemas/routers stay ORM-free. (See `docs/decisions/0001-orm-and-postgres.md`.)
 
 ## Design Context
 

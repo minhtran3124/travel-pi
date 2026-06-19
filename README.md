@@ -8,6 +8,12 @@ You don't need to know Python. Just follow the steps below.
 
 ## Start the server
 
+There are three ways to run the project. **(a)** is the simplest (no Docker);
+**(b)** runs the same app against a real Postgres database in Docker; **(c)**
+runs the test suite against isolated Postgres for cross-engine parity.
+
+### (a) Local, on SQLite (zero-config)
+
 You need **Python 3.10 or newer** and **[uv](https://docs.astral.sh/uv/)**
 (a fast Python package manager). To install uv:
 
@@ -15,17 +21,68 @@ You need **Python 3.10 or newer** and **[uv](https://docs.astral.sh/uv/)**
 curl -LsSf https://astral.sh/uv/install.sh | sh   # Windows: see the uv docs
 ```
 
-Then, from the project folder, run these commands one by one:
+Then, from the project folder:
 
 ```bash
-uv venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-uv pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+make install        # uv venv && uv pip install -r requirements.txt
+make dev            # uvicorn app.main:app --reload --port 8000
 ```
 
+(If you prefer not to use `make`, run the underlying commands shown in the
+comments above, activating the venv with `source .venv/bin/activate` first.)
+
 When you see `Application startup complete`, it's running at
-**http://localhost:8000**. Keep this terminal open. Press `Ctrl+C` to stop.
+**http://localhost:8000** (Swagger at **/docs**). Keep this terminal open.
+Press `Ctrl+C` to stop. Data is stored in a local `travel.db` SQLite file,
+created automatically.
+
+Run the test suite (**617 tests**, on SQLite):
+
+```bash
+make test           # .venv/bin/python -m pytest tests/ -q
+```
+
+### (b) Docker + Postgres
+
+Runs the app and a Postgres database in containers:
+
+```bash
+make up             # docker compose up --build -d
+make logs           # tail the container logs
+make down           # stop the stack
+```
+
+The app is at **http://localhost:8000** (Swagger at **/docs**); Postgres runs
+in its own container. **Migrations run automatically** on container start —
+the entrypoint runs `alembic upgrade head` before the app boots, so the schema
+is always up to date.
+
+### (c) Tests on isolated Postgres
+
+Run the full suite against a throwaway Postgres database (cross-engine parity —
+the same **617 tests** pass on both SQLite and Postgres):
+
+```bash
+make test-docker
+```
+
+### Database configuration
+
+The persistence backend is selected by the **`DATABASE_URL`** environment
+variable:
+
+- **Default** (local and tests): `sqlite:///travel.db`
+- **Docker**: the compose files inject
+  `postgresql+psycopg://travel:travel@db:5432/travel`
+
+Schema is owned by **Alembic** on Postgres. Apply migrations against whatever
+`DATABASE_URL` points at with:
+
+```bash
+make migrate        # .venv/bin/alembic upgrade head
+```
+
+In Docker this runs automatically via the entrypoint (see above).
 
 ## Use it
 
@@ -48,10 +105,11 @@ When you see `Application startup complete`, it's running at
   always returns the **same 5 flights**, so you can show a flight, leave, and
   fetch it again by ID. A different date gives different flights.
 - **Hotels are a fixed list** of 51 hotels across 18 cities in Southeast Asia.
-- **Bookings and trips are saved** to a local SQLite file (`travel.db`, created
-  automatically), so they survive server restarts. These are the only mutable
-  state — a **trip** (`/trips`) is a freeform, day-by-day itinerary with full
-  CRUD plus per-item endpoints.
+- **Bookings and trips are saved** to a database, so they survive server
+  restarts. Locally that's a SQLite file (`travel.db`, created automatically);
+  in Docker it's Postgres — the backend is chosen by `DATABASE_URL` (see above).
+  These are the mutable state — a **trip** (`/trips`) is a freeform, day-by-day
+  itinerary with full CRUD plus per-item endpoints.
 - **CORS is fully open**, so you can call the API from `localhost:3000` (or
   anywhere) without errors.
 - **The `/docs` page is for local use.** It stays on in development; setting
@@ -66,7 +124,7 @@ travel-pi/
 │   ├── core/              # Settings + startup/shutdown hooks
 │   ├── routers/           # One file per endpoint group (+ dashboard.py = HTML pages)
 │   ├── services/          # Business logic (flight gen, bookings, ...)
-│   ├── crud/              # Data-access layer (SQLite persistence)
+│   ├── crud/              # Data-access layer (SQLAlchemy ORM; SQLite or Postgres)
 │   ├── schemas/           # Request/response shapes
 │   ├── templates/         # Jinja2 HTML templates for the web pages
 │   └── data/              # Seed data (airlines, airports, hotels)
