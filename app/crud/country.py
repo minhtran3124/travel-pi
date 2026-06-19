@@ -6,6 +6,11 @@ builds country tiles from it) and as a set of distinct country *names* (the
 fuzzy-resolution target in cities/tips/visa). The repo exposes both shapes.
 """
 
+# Defer annotation evaluation: this class defines a ``list`` method, which would
+# otherwise shadow the ``list[...]`` builtin in later method annotations under
+# eager-annotation Python (3.12 in the test container; 3.14 evaluates lazily).
+from __future__ import annotations
+
 from sqlalchemy import select
 
 from app.db import models
@@ -30,13 +35,14 @@ class CountryRepository:
     def list(self) -> list[dict]:
         """Return every country as a ``{name, code, region, lat, long}`` dict.
 
-        Ordering is *not* guaranteed by the DB (``Country`` has no position
-        column). Consumers that need the region-ordered list from
-        ``countries.py`` must sort/order it themselves — see the Chunk E
-        notes for the dashboard.
+        Ordered by ``position`` (the curated ``COUNTRIES`` seed order), so the
+        dashboard region tiles keep their hand-curated ordering — symmetric
+        with how ``AirlineRepository.list`` preserves airline order.
         """
         with self._sf() as s:
-            rows = s.scalars(select(models.Country)).all()
+            rows = s.scalars(
+                select(models.Country).order_by(models.Country.position)
+            ).all()
             return [_row_to_dict(r) for r in rows]
 
     def get(self, code: str) -> dict | None:

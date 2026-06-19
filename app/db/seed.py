@@ -53,12 +53,15 @@ def _slug(text: str) -> str:
 
 
 def _seed_countries(session) -> None:
-    for c in COUNTRIES:
+    # Store the curated COUNTRIES order as ``position`` so the repo can
+    # ORDER BY it (the dashboard region tiles depend on this order).
+    for i, c in enumerate(COUNTRIES):
         session.merge(
             models.Country(
                 code=c["code"],
                 name=c["name"],
                 region=c["region"],
+                position=i,
                 latitude=c["latitude"],
                 longitude=c["longitude"],
             )

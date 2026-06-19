@@ -99,6 +99,9 @@ def test_country_list_and_get(sf):
     repo = CountryRepository(sf)
     listed = repo.list()
     assert len(listed) == len(COUNTRIES)
+    # list() preserves the curated COUNTRIES seed order (ORDER BY position) —
+    # the dashboard region tiles rely on it.
+    assert [c["code"] for c in listed] == [c["code"] for c in COUNTRIES]
     by_code = {c["code"]: c for c in listed}
     for c in COUNTRIES:
         got = by_code[c["code"]]
