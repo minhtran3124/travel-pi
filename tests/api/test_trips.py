@@ -84,8 +84,9 @@ def test_trip_item_create_rejects_bad_status():
 @pytest.fixture()
 def repo(tmp_path):
     from app.crud.trip import TripRepository
+    from app.db.engine import get_session_factory
 
-    r = TripRepository(str(tmp_path / "trips_test.db"))
+    r = TripRepository(get_session_factory(f"sqlite:///{tmp_path / 'trips_test.db'}"))
     r.init_db()
     return r
 
@@ -198,74 +199,6 @@ def test_repo_item_defaults_status_pending_when_unset(repo):
     assert repo.get_item("i-2").status == TripItemStatus.PENDING
 
 
-def test_init_db_adds_status_to_legacy_trip_items(tmp_path):
-    """A trip_items table predating the status column gains it, old rows = pending."""
-    import sqlite3
-
-    from app.crud.trip import TripRepository
-    from app.enums import TripItemStatus
-
-    db = str(tmp_path / "legacy.db")
-    conn = sqlite3.connect(db)
-    # Legacy schema: trip_items WITHOUT the status column, one existing row.
-    conn.execute(
-        "CREATE TABLE trip_items ("
-        " id TEXT PRIMARY KEY, trip_id TEXT NOT NULL, day INTEGER NOT NULL,"
-        " sort_order INTEGER NOT NULL, kind TEXT NOT NULL, title TEXT NOT NULL,"
-        " place_id TEXT, booking_id TEXT, start_time TEXT, notes TEXT,"
-        " idempotency_key TEXT)"
-    )
-    conn.execute(
-        "INSERT INTO trip_items (id, trip_id, day, sort_order, kind, title)"
-        " VALUES ('old-1', 't-old', 1, 0, 'place', 'Pre-existing')"
-    )
-    conn.commit()
-    conn.close()
-
-    # Migration runs here.
-    TripRepository(db).init_db()
-
-    repo = TripRepository(db)
-    migrated = repo.get_item("old-1")
-    assert migrated.status == TripItemStatus.PENDING
-
-    cols = set()
-    conn = sqlite3.connect(db)
-    cols = {r[1] for r in conn.execute("PRAGMA table_info(trip_items)")}
-    conn.close()
-    assert "status" in cols
-
-
-def test_init_db_adds_budget_caps_to_legacy_trips(tmp_path):
-    """A trips table created before budget_caps gets the column on init_db,
-    and pre-existing rows read back with empty caps (NULL)."""
-    import sqlite3
-
-    from app.crud.trip import TripRepository
-
-    db = str(tmp_path / "legacy.db")
-    # Legacy trips table WITHOUT budget_caps.
-    conn = sqlite3.connect(db)
-    conn.execute(
-        "CREATE TABLE trips (id TEXT PRIMARY KEY, title TEXT NOT NULL, "
-        "city TEXT, start_date TEXT, end_date TEXT, travelers INTEGER NOT NULL, "
-        "notes TEXT, created_at TEXT NOT NULL)"
-    )
-    conn.execute(
-        "INSERT INTO trips (id, title, travelers, created_at) "
-        "VALUES ('old1', 'Legacy', 1, '2026-01-01T00:00:00+00:00')"
-    )
-    conn.commit()
-    conn.close()
-
-    repo = TripRepository(db)
-    repo.init_db()  # must ALTER, not crash
-
-    cols = {row[1] for row in sqlite3.connect(db).execute("PRAGMA table_info(trips)")}
-    assert "budget_caps" in cols
-    assert repo.get_budget_caps("old1") == {}
-
-
 # --------------------------------------------------------------------------- #
 # Service layer (direct TripService against a temp DB)
 # --------------------------------------------------------------------------- #
@@ -275,7 +208,7 @@ def test_init_db_adds_budget_caps_to_legacy_trips(tmp_path):
 def svc(tmp_path):
     from app.services.trip_service import TripService
 
-    s = TripService(str(tmp_path / "svc.db"))
+    s = TripService(f"sqlite:///{tmp_path / 'svc.db'}")
     s.init_db()
     return s
 

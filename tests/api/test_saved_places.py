@@ -23,8 +23,9 @@ def _make_sp(**over) -> SavedPlace:
 @pytest.fixture()
 def repo(tmp_path):
     from app.crud.saved_place import SavedPlaceRepository
+    from app.db.engine import get_session_factory
 
-    r = SavedPlaceRepository(str(tmp_path / "sp.db"))
+    r = SavedPlaceRepository(get_session_factory(f"sqlite:///{tmp_path / 'sp.db'}"))
     r.init_db()
     return r
 

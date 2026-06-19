@@ -168,8 +168,16 @@ def test_list_bookings_booking_has_required_fields(client):
     assert len(bookings) > 0
     booking = bookings[0]
     for field in (
-        "id", "type", "reference_id", "customer_name", "customer_email",
-        "total_price", "currency", "status", "created_at", "details",
+        "id",
+        "type",
+        "reference_id",
+        "customer_name",
+        "customer_email",
+        "total_price",
+        "currency",
+        "status",
+        "created_at",
+        "details",
     ):
         assert field in booking
 
@@ -211,7 +219,9 @@ def test_get_booking_returns_correct_data(client):
 
 
 def test_get_booking_nonexistent_returns_404(client):
-    assert client.get("/bookings/00000000-0000-0000-0000-000000000000").status_code == 404
+    assert (
+        client.get("/bookings/00000000-0000-0000-0000-000000000000").status_code == 404
+    )
 
 
 def test_get_hotel_booking_by_id(client):
@@ -307,9 +317,7 @@ def test_cancel_booking_is_idempotent(client):
 
 def test_cancel_unknown_booking_returns_404(client):
     assert (
-        client.post(
-            "/bookings/00000000-0000-0000-0000-000000000000/cancel"
-        ).status_code
+        client.post("/bookings/00000000-0000-0000-0000-000000000000/cancel").status_code
         == 404
     )
 
@@ -350,11 +358,14 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
     """A second add() under an already-used idempotency key must not create a
     duplicate row — it returns the booking the first add() created."""
     from app.crud.booking import BookingRepository
+    from app.db.engine import get_session_factory
 
-    repo = BookingRepository(tmp_db)
+    repo = BookingRepository(get_session_factory(tmp_db))
     repo.init_db()
 
-    first = repo.add(_sample_booking("11111111-1111-1111-1111-111111111111"), "race-key")
+    first = repo.add(
+        _sample_booking("11111111-1111-1111-1111-111111111111"), "race-key"
+    )
     second = repo.add(
         _sample_booking("22222222-2222-2222-2222-222222222222"), "race-key"
     )
@@ -371,11 +382,12 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
 
 def test_repo_get_by_confirmation_code_resolves(tmp_db):
     """The new indexed lookup returns the same booking the original add stored."""
-    import sqlite3
-
     from app.crud.booking import BookingRepository
+    from app.db.engine import get_engine, get_session_factory
+    from sqlalchemy import inspect
 
-    repo = BookingRepository(tmp_db + "_codes")
+    url = tmp_db + "_codes"
+    repo = BookingRepository(get_session_factory(url))
     repo.init_db()
     booking = repo.add(_sample_booking("33333333-3333-3333-3333-333333333333"))
 
@@ -387,44 +399,5 @@ def test_repo_get_by_confirmation_code_resolves(tmp_db):
         == booking.id
     )
     # The index actually exists on disk.
-    with sqlite3.connect(tmp_db + "_codes") as conn:
-        names = {r[1] for r in conn.execute("PRAGMA index_list(bookings)")}
+    names = {i["name"] for i in inspect(get_engine(url)).get_indexes("bookings")}
     assert "ix_bookings_confirmation_code" in names
-
-
-def test_repo_init_db_backfills_confirmation_code(tmp_db):
-    """A row written before the new column existed gets its code filled in."""
-    import sqlite3
-
-    from app.crud.booking import BookingRepository
-    from app.schemas.booking import confirmation_code_for
-
-    path = tmp_db + "_legacy"
-    # Simulate an older DB: the table without the confirmation_code column.
-    with sqlite3.connect(path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE bookings (
-                id TEXT PRIMARY KEY, type TEXT NOT NULL, reference_id TEXT NOT NULL,
-                customer_name TEXT NOT NULL, customer_email TEXT NOT NULL,
-                total_price REAL NOT NULL, currency TEXT NOT NULL,
-                status TEXT NOT NULL, created_at TEXT NOT NULL,
-                details TEXT NOT NULL, notes TEXT
-            )
-            """
-        )
-        conn.execute(
-            "INSERT INTO bookings VALUES (?, 'flight', 'r', 'n', 'e@x.com', 1.0, "
-            "'USD', 'confirmed', '2026-01-01T00:00:00Z', '{}', NULL)",
-            ("44444444-4444-4444-4444-444444444444",),
-        )
-        conn.commit()
-
-    BookingRepository(path).init_db()
-
-    with sqlite3.connect(path) as conn:
-        row = conn.execute(
-            "SELECT confirmation_code FROM bookings WHERE id = ?",
-            ("44444444-4444-4444-4444-444444444444",),
-        ).fetchone()
-    assert row[0] == confirmation_code_for("44444444-4444-4444-4444-444444444444")

@@ -7,12 +7,13 @@ created here (on startup) rather than at import time.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 
 from app.core.config import get_settings
 from app.core.invariants import check_city_coverage
+from app.db.base import Base
+from app.db.engine import get_engine
 from app.services.booking_service import get_booking_service
 from app.services.flight_service import init_flight_index
 from app.services.saved_place_service import get_saved_place_service
@@ -24,27 +25,29 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Run startup tasks, yield while the app serves, then shut down."""
-    # Resolve the configured DB path to an absolute one and log it. The
-    # default is CWD-relative — logging the resolved path turns the next
-    # "where did my bookings go?" debugging session into a one-line answer.
-    db_path = Path(get_settings().database_path).resolve()
-    logger.info("SQLite database resolved to %s", db_path)
+    settings = get_settings()
+    logger.info("Database URL: %s", settings.database_url)
+    engine = get_engine(settings.database_url)
+    # SQLite (local/dev/test) self-creates its schema; Postgres schema is
+    # managed by Alembic (alembic upgrade head, run by the container entrypoint).
+    if engine.dialect.name == "sqlite":
+        Base.metadata.create_all(engine, checkfirst=True)
 
     # Enforce the "every city has ≥3 hotels and ≥3 places" promise from
     # CLAUDE.md — a typo in seed data would otherwise only surface when a
     # user searched the affected city.
     check_city_coverage()
 
-    # Wrap init so a write/permission failure surfaces with the path that
-    # caused it, instead of an opaque ``sqlite3.OperationalError`` traceback
-    # at boot.
+    # The per-service init_db() calls (also create_all, idempotent) keep each
+    # service constructable/initable independently in tests; on Postgres they
+    # are no-ops after Alembic has run (checkfirst=True).
     try:
         get_booking_service().init_db()
         get_trip_service().init_db()
         get_saved_place_service().init_db()
         init_flight_index()
     except Exception:
-        logger.exception("Could not initialise SQLite database at %s", db_path)
+        logger.exception("Could not initialise database at %s", settings.database_url)
         raise
 
     logger.info("Startup complete — bookings, trips, and flight-index tables ready")

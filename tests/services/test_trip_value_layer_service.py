@@ -26,7 +26,7 @@ from app.schemas.trip import TripCreate, TripItemCreate
 def svc(tmp_path):
     from app.services.trip_service import TripService
 
-    s = TripService(str(tmp_path / "value_layer.db"))
+    s = TripService(f"sqlite:///{tmp_path / 'value_layer.db'}")
     s.init_db()
     return s
 
@@ -622,72 +622,3 @@ def test_day_plan_weather_score_none_on_upstream_error(svc, monkeypatch):
 
     assert result.weather_score is None
     assert result.trip_id == trip.id  # day plan still returned normally
-
-
-# --------------------------------------------------------------------------- #
-# init_db — legacy schema migration (booking_id column back-fill)
-# --------------------------------------------------------------------------- #
-
-
-def test_init_db_adds_booking_id_column_to_legacy_table(tmp_path):
-    """init_db idempotently adds booking_id to a pre-existing trip_items table.
-
-    Simulates a database that was created before the booking_id column was
-    introduced: creates the table without that column, inserts a row using the
-    old schema, then calls init_db() and verifies the row is readable with
-    booking_id returning None (no KeyError / IndexError).
-    """
-    import sqlite3
-
-    from app.crud.trip import TripRepository
-
-    db_path = str(tmp_path / "legacy.db")
-
-    # Build the "old" schema — trip_items without booking_id.
-    with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE trips (
-                id         TEXT PRIMARY KEY,
-                title      TEXT NOT NULL,
-                city       TEXT,
-                start_date TEXT,
-                end_date   TEXT,
-                travelers  INTEGER NOT NULL,
-                notes      TEXT,
-                created_at TEXT NOT NULL
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE trip_items (
-                id         TEXT PRIMARY KEY,
-                trip_id    TEXT NOT NULL,
-                day        INTEGER NOT NULL,
-                sort_order INTEGER NOT NULL,
-                kind       TEXT NOT NULL,
-                title      TEXT NOT NULL,
-                place_id   TEXT,
-                start_time TEXT,
-                notes      TEXT
-            )
-            """
-        )
-        conn.execute(
-            "INSERT INTO trip_items "
-            "(id, trip_id, day, sort_order, kind, title, place_id, start_time, notes) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            ("item-1", "trip-1", 1, 0, "place", "Old Museum", None, None, None),
-        )
-        conn.commit()
-
-    # init_db should detect the missing column and ALTER TABLE.
-    repo = TripRepository(db_path)
-    repo.init_db()  # must not raise
-
-    # Reading back the legacy row must work and return booking_id=None.
-    item = repo.get_item("item-1")
-    assert item is not None
-    assert item.title == "Old Museum"
-    assert item.booking_id is None
