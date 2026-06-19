@@ -1,4 +1,4 @@
-.PHONY: help install dev up down logs migrate test test-docker fmt lint
+.PHONY: help install dev up down logs migrate seed test test-docker fmt lint
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -21,6 +21,9 @@ logs:           ## Tail Docker logs
 
 migrate:        ## Run Alembic migrations against the configured DATABASE_URL
 	.venv/bin/alembic upgrade head
+
+seed:           ## Seed the configured DATABASE_URL from app/data
+	.venv/bin/python -c "from app.db.engine import get_session_factory; from app.core.config import get_settings; from app.db.seed import seed_all; seed_all(get_session_factory(get_settings().database_url))"
 
 test:           ## Run the suite locally on SQLite
 	.venv/bin/python -m pytest tests/ -q

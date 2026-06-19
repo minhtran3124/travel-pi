@@ -13,7 +13,8 @@ from fastapi import FastAPI
 from app.core.config import get_settings
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
-from app.db.engine import get_engine
+from app.db.engine import get_engine, get_session_factory
+from app.db.seed import seed_all
 from app.services.booking_service import get_booking_service
 from app.services.flight_service import init_flight_index
 from app.services.saved_place_service import get_saved_place_service
@@ -32,6 +33,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # managed by Alembic (alembic upgrade head, run by the container entrypoint).
     if engine.dialect.name == "sqlite":
         Base.metadata.create_all(engine, checkfirst=True)
+
+    # Seed the read-only reference entities from app/data BEFORE any check that
+    # reads them. Idempotent (merge + City natural-key upsert), so re-runs are
+    # safe. On Postgres the schema is already created by Alembic; seeding here
+    # populates a fresh DB so the later (Chunk E) DB-backed coverage check has
+    # data to read.
+    seed_all(get_session_factory(settings.database_url))
 
     # Enforce the "every city has ≥3 hotels and ≥3 places" promise from
     # CLAUDE.md — a typo in seed data would otherwise only surface when a

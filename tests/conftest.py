@@ -5,6 +5,7 @@ import os
 import pytest
 from app.crud.flight import FlightIndexRepository
 from app.db.engine import get_session_factory
+from app.db.seed import seed_all
 from app.main import create_app
 from app.services import flight_service, saved_place_service
 from app.services.booking_service import BookingService, get_booking_service
@@ -50,6 +51,11 @@ def client(tmp_db):
     # (a direct factory call, not FastAPI DI), so point that singleton at the
     # temp DB too — otherwise shortlisting a saved place can't resolve it.
     saved_place_service._saved_place_service = sp_svc
+
+    # The service init_db() calls above (create_all) have built the schema on
+    # the temp DB; seed the read-only reference entities so DB-backed reads have
+    # data. Idempotent, so safe even on the Postgres TEST_DATABASE_URL path.
+    seed_all(get_session_factory(tmp_db))
 
     app = create_app()
     app.dependency_overrides[get_booking_service] = lambda: svc
