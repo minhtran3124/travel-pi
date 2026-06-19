@@ -88,7 +88,7 @@ unaffected. Moving the classes into the package is otherwise import-only churn.
 - **CountrySummary** — `country` PK, `summary` (from `COUNTRY_SUMMARIES`).
 - **Visa** — `country` PK, `visa_free_days`, `visa_on_arrival`, `e_visa`, `passport_validity_months`, `summary`.
 - **Fx** — `FxRate` (`code` PK, `rate`, `name` ← from `CURRENCY_NAMES`), `CountryCurrency` (`country` PK, `code`), `FxMeta` (`last_updated`).
-- **Hotel.country (seed-fill):** `hotels.py` records carry only `city`; `country` is derived at runtime today and asserted by tests. The **seeder must populate `Hotel.country`** via the city→country lookup at seed time (same source as the current runtime derivation).
+- **Hotel.country:** already filled on every `HOTELS` record at *import* time (`hotels.py` mutates `_hotel["country"] = _COUNTRY_BY_CITY[city]`), so the seeder maps `country` straight from the record. Tests assert it's present + matches the city → preserved automatically.
 
 All JSON columns use the portable `JSON` type (matches the docker-postgres decision — no JSONB).
 

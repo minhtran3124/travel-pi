@@ -33,10 +33,11 @@
    model needs a `position` column and the repo MUST `ORDER BY position`** so `airlines_repo.list()`
    reproduces the seed-list order byte-for-byte. (Same discipline as Tip's positional IDs.) This is
    the single highest-risk item in the migration.
-2. **`hotel.country` is derived at runtime, not stored.** `hotels.py` records carry only `city`;
-   `country` is filled by a city→country lookup, and tests assert it
-   (`test_hotels.py:54 test_list_hotels_country_matches_city`, `:49 country_is_non_empty`). **The
-   seeder must populate `hotel.country`** from the city lookup at seed time (same source as today).
+2. **`hotel.country` is filled at import, not in the literal dicts.** `hotels.py` mutates each record
+   at import (`_hotel["country"] = _COUNTRY_BY_CITY[city]`), so by read time every `HOTELS` record
+   *has* `country` (that's why `Hotel(**record)` works today). Tests assert it
+   (`test_hotels.py:54 country_matches_city`, `:49 country_is_non_empty`). **The seeder maps `country`
+   straight from the record** — no separate lookup needed.
    `hotel.id-check_in-check_out` MD5 (`available_rooms`) and `flight.id` MD5 (`board_service._hash`)
    use stable IDs — fine as long as UUIDs are stored/serialized as identical strings.
 
