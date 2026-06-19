@@ -11,13 +11,13 @@ from sqlalchemy import func, select
 
 from app.core.geo import haversine_km
 from app.db.base import Base
-from app.db.models import SavedPlaceRow
+from app.db import models
 from app.schemas.saved_place import SavedPlace
 
 _SET_FLAG_FIELDS = {"favorite", "visited"}
 
 
-def _row_to_saved_place(row: SavedPlaceRow) -> SavedPlace:
+def _row_to_saved_place(row: models.SavedPlace) -> SavedPlace:
     return SavedPlace(
         id=row.id,
         name=row.name,
@@ -47,7 +47,7 @@ class SavedPlaceRepository:
         Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
 
     def add(self, sp: SavedPlace) -> SavedPlace:
-        row = SavedPlaceRow(
+        row = models.SavedPlace(
             id=sp.id,
             name=sp.name,
             city=sp.city,
@@ -77,14 +77,14 @@ class SavedPlaceRepository:
         """
         with self._sf() as s:
             row = s.scalars(
-                select(SavedPlaceRow).where(
-                    SavedPlaceRow.id == id_, SavedPlaceRow.deleted_at.is_(None)
+                select(models.SavedPlace).where(
+                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
                 )
             ).first()
             if row is not None:
                 return _row_to_saved_place(row)
             rows = s.scalars(
-                select(SavedPlaceRow).where(SavedPlaceRow.deleted_at.is_(None))
+                select(models.SavedPlace).where(models.SavedPlace.deleted_at.is_(None))
             ).all()
             wanted = id_.upper()
             for r in rows:
@@ -101,18 +101,18 @@ class SavedPlaceRepository:
         favorite: bool | None = None,
         visited: bool | None = None,
     ) -> list[SavedPlace]:
-        stmt = select(SavedPlaceRow).where(SavedPlaceRow.deleted_at.is_(None))
+        stmt = select(models.SavedPlace).where(models.SavedPlace.deleted_at.is_(None))
         if city is not None:
-            stmt = stmt.where(func.lower(SavedPlaceRow.city) == func.lower(city))
+            stmt = stmt.where(func.lower(models.SavedPlace.city) == func.lower(city))
         if category is not None:
             stmt = stmt.where(
-                func.lower(SavedPlaceRow.category) == func.lower(category)
+                func.lower(models.SavedPlace.category) == func.lower(category)
             )
         if favorite is not None:
-            stmt = stmt.where(SavedPlaceRow.favorite == bool(favorite))
+            stmt = stmt.where(models.SavedPlace.favorite == bool(favorite))
         if visited is not None:
-            stmt = stmt.where(SavedPlaceRow.visited == bool(visited))
-        stmt = stmt.order_by(SavedPlaceRow.created_at.desc(), SavedPlaceRow.id.desc())
+            stmt = stmt.where(models.SavedPlace.visited == bool(visited))
+        stmt = stmt.order_by(models.SavedPlace.created_at.desc(), models.SavedPlace.id.desc())
         with self._sf() as s:
             return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 
@@ -120,8 +120,8 @@ class SavedPlaceRepository:
         """Stamp deleted_at; True if a live row existed and was tombstoned."""
         with self._sf() as s:
             row = s.scalars(
-                select(SavedPlaceRow).where(
-                    SavedPlaceRow.id == id_, SavedPlaceRow.deleted_at.is_(None)
+                select(models.SavedPlace).where(
+                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
                 )
             ).first()
             if row is None:
@@ -136,8 +136,8 @@ class SavedPlaceRepository:
             raise ValueError(f"Unsupported flag field: {field!r}")
         with self._sf() as s:
             row = s.scalars(
-                select(SavedPlaceRow).where(
-                    SavedPlaceRow.id == id_, SavedPlaceRow.deleted_at.is_(None)
+                select(models.SavedPlace).where(
+                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
                 )
             ).first()
             if row is None:
@@ -167,9 +167,9 @@ class SavedPlaceRepository:
             cands = [
                 _row_to_saved_place(r)
                 for r in s.scalars(
-                    select(SavedPlaceRow).where(
-                        SavedPlaceRow.deleted_at.is_(None),
-                        func.lower(SavedPlaceRow.name) == func.lower(name),
+                    select(models.SavedPlace).where(
+                        models.SavedPlace.deleted_at.is_(None),
+                        func.lower(models.SavedPlace.name) == func.lower(name),
                     )
                 ).all()
             ]
