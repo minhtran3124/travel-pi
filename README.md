@@ -36,7 +36,7 @@ When you see `Application startup complete`, it's running at
 Press `Ctrl+C` to stop. Data is stored in a local `travel.db` SQLite file,
 created automatically.
 
-Run the test suite (**621 tests**, on SQLite):
+Run the test suite (**663 tests**, on SQLite):
 
 ```bash
 make test           # .venv/bin/python -m pytest tests/ -q
@@ -60,7 +60,7 @@ is always up to date.
 ### (c) Tests on isolated Postgres
 
 Run the full suite against a throwaway Postgres database (cross-engine parity —
-the same **621 tests** pass on both SQLite and Postgres):
+the same **663 tests** pass on both SQLite and Postgres):
 
 ```bash
 make test-docker
@@ -83,6 +83,15 @@ make migrate        # .venv/bin/alembic upgrade head
 ```
 
 In Docker this runs automatically via the entrypoint (see above).
+
+The read-only reference data (countries, airlines, airports, cities, hotels,
+places, tips, visa, FX) is **seeded automatically on startup** — the server
+populates it from `app/data` into whatever `DATABASE_URL` points at. To re-seed
+manually (idempotent — safe to re-run, never duplicates):
+
+```bash
+make seed           # seed the configured DATABASE_URL from app/data
+```
 
 ## Use it
 
