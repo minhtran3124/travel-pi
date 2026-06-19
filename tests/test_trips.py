@@ -236,6 +236,36 @@ def test_init_db_adds_status_to_legacy_trip_items(tmp_path):
     assert "status" in cols
 
 
+def test_init_db_adds_budget_caps_to_legacy_trips(tmp_path):
+    """A trips table created before budget_caps gets the column on init_db,
+    and pre-existing rows read back with empty caps (NULL)."""
+    import sqlite3
+
+    from app.crud.trip import TripRepository
+
+    db = str(tmp_path / "legacy.db")
+    # Legacy trips table WITHOUT budget_caps.
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "CREATE TABLE trips (id TEXT PRIMARY KEY, title TEXT NOT NULL, "
+        "city TEXT, start_date TEXT, end_date TEXT, travelers INTEGER NOT NULL, "
+        "notes TEXT, created_at TEXT NOT NULL)"
+    )
+    conn.execute(
+        "INSERT INTO trips (id, title, travelers, created_at) "
+        "VALUES ('old1', 'Legacy', 1, '2026-01-01T00:00:00+00:00')"
+    )
+    conn.commit()
+    conn.close()
+
+    repo = TripRepository(db)
+    repo.init_db()  # must ALTER, not crash
+
+    cols = {row[1] for row in sqlite3.connect(db).execute("PRAGMA table_info(trips)")}
+    assert "budget_caps" in cols
+    assert repo.get_budget_caps("old1") == {}
+
+
 # --------------------------------------------------------------------------- #
 # Service layer (direct TripService against a temp DB)
 # --------------------------------------------------------------------------- #

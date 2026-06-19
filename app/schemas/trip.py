@@ -268,3 +268,65 @@ class TripEstimateResponse(AppBaseModel):
         description="Plain-language statement of every rate and choice used."
     )
     notes: str = Field(description="Scope caveat for the estimate.")
+
+
+class CategoryBudget(AppBaseModel):
+    """Cap (the planned target) vs spent (booked rollup) for one category."""
+
+    cap: float | None = Field(
+        default=None,
+        description="The budget cap for this category in USD, or null if unset.",
+        examples=[700.0],
+    )
+    spent: float = Field(
+        description="Booked spend in this category (USD): linked, non-cancelled "
+        "bookings of the matching type. 0 for categories with no booking source.",
+        examples=[600.0],
+    )
+    remaining: float | None = Field(
+        default=None,
+        description="cap - spent (USD); negative when over. null when no cap is set.",
+        examples=[100.0],
+    )
+
+
+class BudgetCategories(AppBaseModel):
+    """The four canonical spend buckets, each a cap/spent/remaining triple."""
+
+    flights: CategoryBudget
+    hotels: CategoryBudget
+    activities: CategoryBudget
+    buffer: CategoryBudget
+
+
+class TripBudget(AppBaseModel):
+    """Response for GET/POST /trips/{id}/budget — per-category caps vs spend."""
+
+    trip_id: str = Field(description="Owning trip UUID.")
+    categories: BudgetCategories = Field(
+        description="Per-category cap vs spent vs remaining."
+    )
+    total_cap: float | None = Field(
+        default=None,
+        description="Sum of set caps (USD), or null if no cap is set anywhere.",
+    )
+    total_spent: float = Field(description="Sum of category spend (USD).")
+    total_remaining: float | None = Field(
+        default=None,
+        description="total_cap - total_spent (USD); null when no cap is set.",
+    )
+    over_budget: bool = Field(
+        description="True if any category with a cap has spent strictly above it."
+    )
+
+
+class TripBudgetSet(AppBaseModel):
+    """Request body for POST /trips/{id}/budget. Replace semantics: every POST
+    fully replaces the trip's caps — omitted/None categories become uncapped."""
+
+    flights: float | None = Field(default=None, ge=0, description="Flights cap (USD).")
+    hotels: float | None = Field(default=None, ge=0, description="Hotels cap (USD).")
+    activities: float | None = Field(
+        default=None, ge=0, description="Activities cap (USD)."
+    )
+    buffer: float | None = Field(default=None, ge=0, description="Buffer cap (USD).")
