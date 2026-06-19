@@ -11,8 +11,8 @@ service can read them by key (``row["col"]``) exactly as before.
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from app.db import models
 from app.db.base import Base
-from app.db.models import TripItemRow, TripPlaceLinkRow, TripRow
 from app.schemas.trip import Trip, TripItem
 
 
@@ -21,7 +21,7 @@ def _iso(value) -> str | None:
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
-def _row_to_item(row: TripItemRow) -> TripItem:
+def _row_to_item(row: models.TripItem) -> TripItem:
     return TripItem(
         id=row.id,
         trip_id=row.trip_id,
@@ -37,7 +37,7 @@ def _row_to_item(row: TripItemRow) -> TripItem:
     )
 
 
-def _row_to_trip(row: TripRow, item_rows: list[TripItemRow]) -> Trip:
+def _row_to_trip(row: models.Trip, item_rows: list[models.TripItem]) -> Trip:
     items = sorted(
         (_row_to_item(r) for r in item_rows), key=lambda i: (i.day, i.sort_order)
     )
@@ -54,7 +54,7 @@ def _row_to_trip(row: TripRow, item_rows: list[TripItemRow]) -> Trip:
     )
 
 
-def _link_to_dict(row: TripPlaceLinkRow) -> dict:
+def _link_to_dict(row: models.TripPlaceLink) -> dict:
     return {
         "id": row.id,
         "trip_id": row.trip_id,
@@ -64,8 +64,8 @@ def _link_to_dict(row: TripPlaceLinkRow) -> dict:
     }
 
 
-def _new_trip_row(trip: Trip, idempotency_key: str | None) -> TripRow:
-    return TripRow(
+def _new_trip_row(trip: Trip, idempotency_key: str | None) -> models.Trip:
+    return models.Trip(
         id=trip.id,
         title=trip.title,
         city=trip.city,
@@ -78,8 +78,8 @@ def _new_trip_row(trip: Trip, idempotency_key: str | None) -> TripRow:
     )
 
 
-def _new_item_row(item: TripItem, idempotency_key: str | None) -> TripItemRow:
-    return TripItemRow(
+def _new_item_row(item: TripItem, idempotency_key: str | None) -> models.TripItem:
+    return models.TripItem(
         id=item.id,
         trip_id=item.trip_id,
         day=item.day,
@@ -128,14 +128,14 @@ class TripRepository:
     def get_trip(self, trip_id: str) -> Trip | None:
         with self._sf() as s:
             row = s.scalars(
-                select(TripRow).where(
-                    TripRow.id == trip_id, TripRow.deleted_at.is_(None)
+                select(models.Trip).where(
+                    models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
                 )
             ).first()
             if row is None:
                 return None
             item_rows = s.scalars(
-                select(TripItemRow).where(TripItemRow.trip_id == trip_id)
+                select(models.TripItem).where(models.TripItem.trip_id == trip_id)
             ).all()
             return _row_to_trip(row, item_rows)
 
@@ -143,12 +143,12 @@ class TripRepository:
         """Return every trip (newest first) with its items attached."""
         with self._sf() as s:
             trip_rows = s.scalars(
-                select(TripRow)
-                .where(TripRow.deleted_at.is_(None))
-                .order_by(TripRow.created_at.desc())
+                select(models.Trip)
+                .where(models.Trip.deleted_at.is_(None))
+                .order_by(models.Trip.created_at.desc())
             ).all()
-            item_rows = s.scalars(select(TripItemRow)).all()
-            by_trip: dict[str, list[TripItemRow]] = {}
+            item_rows = s.scalars(select(models.TripItem)).all()
+            by_trip: dict[str, list[models.TripItem]] = {}
             for r in item_rows:
                 by_trip.setdefault(r.trip_id, []).append(r)
             return [_row_to_trip(t, by_trip.get(t.id, [])) for t in trip_rows]
@@ -156,7 +156,7 @@ class TripRepository:
     def update_trip(self, trip: Trip) -> bool:
         """Replace a trip's top-level columns. Returns True if a row changed."""
         with self._sf() as s:
-            row = s.get(TripRow, trip.id)
+            row = s.get(models.Trip, trip.id)
             if row is None:
                 return False
             row.title = trip.title
@@ -180,8 +180,8 @@ class TripRepository:
         """
         with self._sf() as s:
             row = s.scalars(
-                select(TripRow).where(
-                    TripRow.id == trip_id, TripRow.deleted_at.is_(None)
+                select(models.Trip).where(
+                    models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
                 )
             ).first()
             if row is None:
@@ -199,8 +199,8 @@ class TripRepository:
         """
         with self._sf() as s:
             row = s.scalars(
-                select(TripRow).where(
-                    TripRow.id == trip_id, TripRow.deleted_at.is_(None)
+                select(models.Trip).where(
+                    models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
                 )
             ).first()
             if row is None or row.budget_caps is None:
@@ -217,8 +217,8 @@ class TripRepository:
         """
         with self._sf() as s:
             row = s.scalars(
-                select(TripRow).where(
-                    TripRow.id == trip_id, TripRow.deleted_at.is_(None)
+                select(models.Trip).where(
+                    models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
                 )
             ).first()
             if row is None:
@@ -249,32 +249,32 @@ class TripRepository:
     def get_trip_by_idempotency_key(self, key: str) -> Trip | None:
         with self._sf() as s:
             row = s.scalars(
-                select(TripRow).where(
-                    TripRow.idempotency_key == key, TripRow.deleted_at.is_(None)
+                select(models.Trip).where(
+                    models.Trip.idempotency_key == key, models.Trip.deleted_at.is_(None)
                 )
             ).first()
             if row is None:
                 return None
             items = s.scalars(
-                select(TripItemRow).where(TripItemRow.trip_id == row.id)
+                select(models.TripItem).where(models.TripItem.trip_id == row.id)
             ).all()
             return _row_to_trip(row, items)
 
     def get_item_by_idempotency_key(self, key: str) -> TripItem | None:
         with self._sf() as s:
             row = s.scalars(
-                select(TripItemRow).where(TripItemRow.idempotency_key == key)
+                select(models.TripItem).where(models.TripItem.idempotency_key == key)
             ).first()
             return _row_to_item(row) if row is not None else None
 
     def get_item(self, item_id: str) -> TripItem | None:
         with self._sf() as s:
-            row = s.get(TripItemRow, item_id)
+            row = s.get(models.TripItem, item_id)
             return _row_to_item(row) if row is not None else None
 
     def update_item(self, item: TripItem) -> bool:
         with self._sf() as s:
-            row = s.get(TripItemRow, item.id)
+            row = s.get(models.TripItem, item.id)
             if row is None:
                 return False
             row.day = item.day
@@ -291,7 +291,7 @@ class TripRepository:
 
     def delete_item(self, item_id: str) -> bool:
         with self._sf() as s:
-            row = s.get(TripItemRow, item_id)
+            row = s.get(models.TripItem, item_id)
             if row is None:
                 return False
             s.delete(row)
@@ -308,7 +308,7 @@ class TripRepository:
         to a 409."""
         with self._sf() as s:
             s.add(
-                TripPlaceLinkRow(
+                models.TripPlaceLink(
                     id=link_id,
                     trip_id=trip_id,
                     place_id=place_id,
@@ -321,15 +321,15 @@ class TripRepository:
     def list_trip_places(self, trip_id: str) -> list[dict]:
         with self._sf() as s:
             rows = s.scalars(
-                select(TripPlaceLinkRow)
-                .where(TripPlaceLinkRow.trip_id == trip_id)
-                .order_by(TripPlaceLinkRow.added_at)
+                select(models.TripPlaceLink)
+                .where(models.TripPlaceLink.trip_id == trip_id)
+                .order_by(models.TripPlaceLink.added_at)
             ).all()
             return [_link_to_dict(r) for r in rows]
 
     def get_trip_place(self, link_id: str) -> dict | None:
         with self._sf() as s:
-            row = s.get(TripPlaceLinkRow, link_id)
+            row = s.get(models.TripPlaceLink, link_id)
             return _link_to_dict(row) if row is not None else None
 
     def delete_trip_place(self, trip_id: str, link_id: str) -> bool:
@@ -337,9 +337,9 @@ class TripRepository:
         removed."""
         with self._sf() as s:
             row = s.scalars(
-                select(TripPlaceLinkRow).where(
-                    TripPlaceLinkRow.id == link_id,
-                    TripPlaceLinkRow.trip_id == trip_id,
+                select(models.TripPlaceLink).where(
+                    models.TripPlaceLink.id == link_id,
+                    models.TripPlaceLink.trip_id == trip_id,
                 )
             ).first()
             if row is None:

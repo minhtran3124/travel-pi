@@ -24,12 +24,14 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
+from app.core.config import get_settings
 from app.core.params import parse_optional_number
-from app.data.airlines import AIRLINE_COLOR_DEFAULT, AIRLINE_COLORS
-from app.data.cities import CITIES as _CITY_DATA
-from app.data.countries import COUNTRIES as _COUNTRIES
-from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
-from app.data.visa import COUNTRY_VISA as _COUNTRY_VISA
+from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
+from app.crud.city import CityRepository
+from app.crud.country import CountryRepository
+from app.crud.tip import TipRepository
+from app.crud.visa import VisaRepository
+from app.db.engine import get_session_factory
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
     air_quality_service,
@@ -55,6 +57,39 @@ _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:0
 
 # The board defaults to this airport when none is given (busiest hub).
 _DEFAULT_AIRPORT = "SGN"
+
+# Reference-data repos for the dashboard pages. Built from the configured DB at
+# import time; NOT FastAPI dependencies, so tests repoint them via the setters
+# after seeding the temp DB (see tests/conftest.py).
+_db_url = get_settings().database_url
+_airline_repo = AirlineRepository(get_session_factory(_db_url))
+_country_repo = CountryRepository(get_session_factory(_db_url))
+_city_repo = CityRepository(get_session_factory(_db_url))
+_visa_repo = VisaRepository(get_session_factory(_db_url))
+_tip_repo = TipRepository(get_session_factory(_db_url))
+
+
+def set_repos(
+    *,
+    airline: AirlineRepository | None = None,
+    country: CountryRepository | None = None,
+    city: CityRepository | None = None,
+    visa: VisaRepository | None = None,
+    tip: TipRepository | None = None,
+) -> None:
+    """Point the dashboard's reference-data repos at a different store — used by
+    tests to read the seeded temporary database instead of the real travel.db."""
+    global _airline_repo, _country_repo, _city_repo, _visa_repo, _tip_repo
+    if airline is not None:
+        _airline_repo = airline
+    if country is not None:
+        _country_repo = country
+    if city is not None:
+        _city_repo = city
+    if visa is not None:
+        _visa_repo = visa
+    if tip is not None:
+        _tip_repo = tip
 
 
 @router.get("", response_class=HTMLResponse, include_in_schema=False)
@@ -86,7 +121,9 @@ def palette_index() -> JSONResponse:
 
     Fetched once, client-side, the first time the palette opens.
     """
-    cities = sorted({(c["name"], c["country"]) for c in _CITY_DATA})
+    cities = sorted(
+        {(city.name, city.country) for city in _city_repo.list_with_counts()}
+    )
     airports = airport_service.list_airports()
     return JSONResponse(
         {
@@ -203,7 +240,7 @@ def flight_search(
             "airports": airports,
             "airports_by_code": {a.code: a for a in airports},
             "airlines": flight_service.list_airlines(),
-            "airline_colors": AIRLINE_COLORS,
+            "airline_colors": _airline_repo.colors(),
             "airline_color_default": AIRLINE_COLOR_DEFAULT,
             "sort_options": flight_service.sort_options(),
             "search": search,
@@ -230,7 +267,7 @@ def flight_detail_page(request: Request, flight_id: str) -> HTMLResponse:
             "flight": flight,
             "flight_id": flight_id,
             "airports_by_code": {a.code: a for a in airports},
-            "airline_colors": AIRLINE_COLORS,
+            "airline_colors": _airline_repo.colors(),
             "airline_color_default": AIRLINE_COLOR_DEFAULT,
         },
     )
@@ -347,7 +384,7 @@ def places_page(
     error: str | None = err_rating or err_price
 
     all_places = place_service.list_places()
-    cities = place_service.CITIES
+    cities = place_service.cities()
 
     # Skip the search on bad input so the page renders the error and the
     # picker, not a misleading "everything" list.
@@ -385,8 +422,13 @@ def places_page(
     )
 
 
-# City → country map, used to link the Local Tips country/city dropdowns.
-_CITY_COUNTRY: dict[str, str] = {c["name"]: c["country"] for c in _CITY_DATA}
+def _city_country_map() -> dict[str, str]:
+    """City → country map, used to link the Local Tips / Visa dropdowns.
+
+    Built per call from the DB-backed city repo (cheap; the dataset is small).
+    """
+    return {city.name: city.country for city in _city_repo.list_with_counts()}
+
 
 # Tip categories — key (as stored in the seed data) → display label.
 _TIP_CATEGORIES = {
@@ -418,8 +460,8 @@ def _tip_destinations() -> list[dict]:
     shows), so the tile number matches the page you land on.
     """
     out: list[dict] = []
-    for c in _COUNTRIES:
-        tips = _COUNTRY_TIPS.get(c["name"], [])
+    for c in _country_repo.list():
+        tips = _tip_repo.for_location("country", c["name"])
         if not tips:
             continue
         out.append(
@@ -428,7 +470,7 @@ def _tip_destinations() -> list[dict]:
                 "flag": _flag_emoji(c.get("code", "")),
                 "region": c.get("region", "Other"),
                 "count": len(tips),
-                "essential": sum(1 for t in tips if t.get("is_essential")),
+                "essential": sum(1 for t in tips if t.is_essential),
             }
         )
     return out
@@ -454,22 +496,27 @@ def tips_page(
 
     Country and city options come from the same seed data as the JSON API.
     """
-    countries = sorted(_COUNTRY_TIPS)
+    # Country tiles (name/flag/region/counts) for the picker; the country
+    # dropdown lists the same countries (those that have country-level tips),
+    # alphabetically — mirrors the old ``sorted(COUNTRY_TIPS)``.
+    destinations = _tip_destinations()
+    countries = sorted(d["name"] for d in destinations)
 
     selected_country = country or None
     selected_city = city or None
     # Reverse linkage: a chosen city drives the country dropdown — the
     # country follows the city, regardless of what country was submitted.
     if selected_city:
-        selected_country = _CITY_COUNTRY.get(selected_city, selected_country)
+        selected_country = _city_country_map().get(selected_city, selected_country)
     # Forward linkage: with a country chosen, the city dropdown lists only
     # that country's cities; otherwise it lists every city.
+    all_cities = _city_repo.list_with_counts()
     if selected_country:
         cities = sorted(
-            c["name"] for c in _CITY_DATA if c["country"] == selected_country
+            city.name for city in all_cities if city.country == selected_country
         )
     else:
-        cities = sorted(c["name"] for c in _CITY_DATA)
+        cities = sorted(city.name for city in all_cities)
 
     # Coerce an unknown category to "no filter" rather than erroring.
     selected_category = category if category in _TIP_CATEGORIES else None
@@ -493,8 +540,6 @@ def tips_page(
         # Nothing chosen → invite the user to pick a destination.
         view = "picker"
         result = None
-
-    destinations = _tip_destinations()
 
     return _TEMPLATES.TemplateResponse(
         request=request,
@@ -523,9 +568,9 @@ def _visa_destinations() -> list[dict]:
     visa data are skipped so a tile always links to a populated page.
     """
     out: list[dict] = []
-    for c in _COUNTRIES:
-        visa = _COUNTRY_VISA.get(c["name"])
-        if not visa:
+    for c in _country_repo.list():
+        visa = _visa_repo.get(c["name"])
+        if visa is None:
             continue
         out.append(
             {
@@ -533,9 +578,9 @@ def _visa_destinations() -> list[dict]:
                 "code": c.get("code", ""),
                 "flag": _flag_emoji(c.get("code", "")),
                 "region": c.get("region", "Other"),
-                "visa_free_days": visa["visa_free_days"],
-                "visa_on_arrival": visa["visa_on_arrival"],
-                "e_visa": visa["e_visa"],
+                "visa_free_days": visa.visa_free_days,
+                "visa_on_arrival": visa.visa_on_arrival,
+                "e_visa": visa.e_visa,
             }
         )
     return out
@@ -562,7 +607,7 @@ def visa_page(
     # Visa guidance is country-level, so a city (from a cross-link or the
     # palette) just resolves to its country's card — there's no city filter.
     if selected_city:
-        selected_country = _CITY_COUNTRY.get(selected_city, selected_country)
+        selected_country = _city_country_map().get(selected_city, selected_country)
 
     view = "picker"
     result = None
@@ -572,7 +617,8 @@ def visa_page(
         view = "destination"
         result = visa_service.get_visa(city=selected_city, country=selected_country)
         country_code = next(
-            (c["code"] for c in _COUNTRIES if c["name"] == result.country), ""
+            (c["code"] for c in _country_repo.list() if c["name"] == result.country),
+            "",
         )
         flag = _flag_emoji(country_code)
 
@@ -581,7 +627,7 @@ def visa_page(
         name="visa.html",
         context={
             "view": view,
-            "countries": sorted(_COUNTRY_VISA),
+            "countries": _visa_repo.countries(),
             "selected_country": selected_country,
             "selected_city": selected_city,
             "result": result,
@@ -612,7 +658,7 @@ async def weather_page(
     """
     # Suggested cities for the input's autocomplete — sourced from the same
     # canonical city list that backs the /cities API (app/data/cities.py).
-    suggestions = sorted(c["name"] for c in _CITY_DATA)
+    suggestions = sorted(city.name for city in _city_repo.list_with_counts())
 
     query_city = (city or "").strip()
     weather = None
@@ -653,7 +699,7 @@ async def air_quality_page(
     inline message (the page itself still returns HTTP 200).
     """
     # Same canonical city list the /cities API uses — drives the dropdown.
-    suggestions = sorted(c["name"] for c in _CITY_DATA)
+    suggestions = sorted(city.name for city in _city_repo.list_with_counts())
 
     query_city = (city or "").strip()
     air_quality = None

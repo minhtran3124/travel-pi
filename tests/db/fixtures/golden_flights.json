@@ -1,0 +1,103 @@
+{
+  "count": 5,
+  "search": {
+    "origin": "SGN",
+    "destination": "HAN",
+    "departure_date": "2026-09-01",
+    "adults": 1,
+    "return_date": null,
+    "airline": null,
+    "max_price": null,
+    "max_stops": null,
+    "sort": "departure_asc"
+  },
+  "results": [
+    {
+      "id": "cb41f14a-a81a-531a-8aae-b1045fbc5931",
+      "airline": {
+        "code": "OZ",
+        "name": "Asiana Airlines"
+      },
+      "flight_number": "OZ564",
+      "origin": "SGN",
+      "destination": "HAN",
+      "departure_time": "2026-09-01T09:30:00",
+      "arrival_time": "2026-09-01T11:08:00",
+      "duration_minutes": 98,
+      "price": 194.31,
+      "currency": "USD",
+      "seats_available": 27,
+      "stops": 0
+    },
+    {
+      "id": "92d5f7aa-a073-5f9d-8c68-30fddc048666",
+      "airline": {
+        "code": "SQ",
+        "name": "Singapore Airlines"
+      },
+      "flight_number": "SQ386",
+      "origin": "SGN",
+      "destination": "HAN",
+      "departure_time": "2026-09-01T09:45:00",
+      "arrival_time": "2026-09-01T12:24:00",
+      "duration_minutes": 159,
+      "price": 589.3,
+      "currency": "USD",
+      "seats_available": 48,
+      "stops": 0
+    },
+    {
+      "id": "3a71d2e0-7f6b-5430-841b-940ed7a97b65",
+      "airline": {
+        "code": "VN",
+        "name": "Vietnam Airlines"
+      },
+      "flight_number": "VN473",
+      "origin": "SGN",
+      "destination": "HAN",
+      "departure_time": "2026-09-01T13:15:00",
+      "arrival_time": "2026-09-01T17:06:00",
+      "duration_minutes": 231,
+      "price": 529.22,
+      "currency": "USD",
+      "seats_available": 50,
+      "stops": 0
+    },
+    {
+      "id": "2c646665-3095-52b2-baaa-e96fcdc315ac",
+      "airline": {
+        "code": "OZ",
+        "name": "Asiana Airlines"
+      },
+      "flight_number": "OZ323",
+      "origin": "SGN",
+      "destination": "HAN",
+      "departure_time": "2026-09-01T18:45:00",
+      "arrival_time": "2026-09-01T21:39:00",
+      "duration_minutes": 174,
+      "price": 114.68,
+      "currency": "USD",
+      "seats_available": 32,
+      "stops": 1
+    },
+    {
+      "id": "b3aaf29c-4388-58ae-a72d-447e1b6560e6",
+      "airline": {
+        "code": "OZ",
+        "name": "Asiana Airlines"
+      },
+      "flight_number": "OZ603",
+      "origin": "SGN",
+      "destination": "HAN",
+      "departure_time": "2026-09-01T22:00:00",
+      "arrival_time": "2026-09-02T02:51:00",
+      "duration_minutes": 291,
+      "price": 786.25,
+      "currency": "USD",
+      "seats_available": 26,
+      "stops": 1
+    }
+  ],
+  "return_count": null,
+  "return_results": null
+}

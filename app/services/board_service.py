@@ -20,8 +20,9 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from random import Random
 
-from app.data.airlines import AIRLINE_COLOR_DEFAULT, AIRLINE_COLORS
-from app.data.airports import AIRPORTS
+from app.core.config import get_settings
+from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
+from app.db.engine import get_session_factory
 from app.schemas.airport import Airport
 from app.schemas.flight import Flight
 from app.services import airport_service, flight_service
@@ -37,6 +38,17 @@ BOARDING_WINDOW = timedelta(minutes=40)
 ARRIVALS = "arrivals"
 DEPARTURES = "departures"
 _VALID_MODES = (ARRIVALS, DEPARTURES)
+
+# Airlines are DB-backed; the board uses ``airline_repo.color(code)`` for the
+# badge tint, falling back to AIRLINE_COLOR_DEFAULT. Not a FastAPI dependency,
+# so tests repoint it via ``set_airline_repo``.
+_airline_repo = AirlineRepository(get_session_factory(get_settings().database_url))
+
+
+def set_airline_repo(repo: AirlineRepository) -> None:
+    """Point airline-colour reads at a different store — used by tests."""
+    global _airline_repo
+    _airline_repo = repo
 
 
 @dataclass
@@ -119,7 +131,7 @@ def _make_row(flight: Flight, mode: str, now: datetime) -> BoardRow:
         airport_code=other_code,
         airline_code=airline_code,
         airline_name=flight.airline.name,
-        airline_color=AIRLINE_COLORS.get(airline_code, AIRLINE_COLOR_DEFAULT),
+        airline_color=_airline_repo.color(airline_code) or AIRLINE_COLOR_DEFAULT,
         flight_number=flight_number,
         flight_id=flight.id,
         status=status,
@@ -151,7 +163,7 @@ def build_board(
 
     # Stable subset of routes for this board.
     seed = _hash(f"{airport_code}-{date_str}-{mode}") % (2**32)
-    others = [code for code in AIRPORTS if code != airport_code]
+    others = [a.code for a in airport_service.list_airports() if a.code != airport_code]
     picked = Random(seed).sample(others, min(ROUTES_PER_BOARD, len(others)))
 
     rows: list[BoardRow] = []

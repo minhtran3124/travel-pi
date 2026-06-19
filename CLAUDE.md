@@ -30,11 +30,13 @@ selected by `DATABASE_URL`. See `README.md` for the full three-path run guide.
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt
 make dev                                            # uvicorn, Swagger at /docs
-make test                                           # 621 tests on SQLite
+make test                                           # 663 tests on SQLite
+
+make seed                                           # re-seed app/data into DATABASE_URL (idempotent; auto-runs on startup)
 
 # Docker + Postgres (migrations run automatically via the entrypoint)
 make up                                             # app at :8000, Postgres in a container
-make test-docker                                    # 621 tests on isolated Postgres (cross-engine parity)
+make test-docker                                    # 663 tests on isolated Postgres (cross-engine parity)
 
 ruff check app scripts && ruff format app scripts
 ```
@@ -48,9 +50,10 @@ app/
   core/          # config, logging, lifespan, geo (haversine), text (fuzzy match)
   routers/       # one file per endpoint group (dashboard.py = HTML, not API)
   services/      # business logic
-  crud/          # SQLAlchemy ORM data access (SQLite or Postgres), no logic
+  crud/          # SQLAlchemy ORM data access (per-entity repos), no logic
+  db/models/     # ORM models package (plain class names, used via `models.` namespace)
   schemas/       # Pydantic v2 models (extend AppBaseModel)
-  data/          # read-only seed data (airports, cities, hotels, places, tips, countries)
+  data/          # seed source of truth + import-time guards (countries, airlines, …)
 tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
 ```
 
@@ -66,7 +69,11 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   by `DATABASE_URL` (default `sqlite:///travel.db` for local/tests; Docker
   injects `postgresql+psycopg://...`). Schema is versioned by **Alembic**
   (`alembic upgrade head`, run automatically by the Docker entrypoint). The ORM
-  is confined to `app/crud/` — services/schemas/routers stay ORM-free.
+  is confined to `app/crud/` — services/schemas/routers stay ORM-free. ORM models
+  live in the **`app/db/models/` package** (one file per entity, plain class
+  names like `Hotel`/`City`), referenced via the **`models.` namespace**
+  (`from app.db import models` → `models.Hotel`) to avoid colliding with the
+  identically-named Pydantic response models in `app/schemas/`.
 - **Bookings are the canonical mutable state**; `total_price` is always computed
   server-side — requests never carry a price. `GET /bookings/{id}` accepts the
   UUID or the derived `confirmation_code`; `cancel` is a soft, idempotent state
@@ -80,9 +87,19 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   (and their `httpx.AsyncClient`) are async; everything else is sync. Routing
   degrades to an offline haversine estimate with no `ORS_API_KEY` (`source` field
   says which); results are cached in-process.
-- **Seed data:** `data/countries.py` is the source of truth for countries; other
-  data files validate against it at import (typos fail loudly on startup). Tips
-  are positional-ID'd — **append only, never reorder**.
+- **Seed data is DB-backed.** The 9 reference entity groups (countries, airlines,
+  airports, cities, hotels, places, tips, visa, fx) live in the database and are
+  **read through per-entity repos in `app/crud/` per request**. `app/data/`
+  REMAINS the guarded source of truth — `data/countries.py` is canonical for
+  countries and the other data files validate against it; those **import-time
+  consistency guards now run at seed time**, so typos still fail loudly on
+  startup. `app/db/seed.py` seeds the DB **idempotently** from `app/data` via
+  `session.merge()` (City uses a natural-key upsert); seeding runs automatically
+  on startup and via `make seed` (seeds the configured `DATABASE_URL`). `from
+  app.data` should appear only in `app/db/seed.py`. Determinism: `Airline.position`
+  / `Country.position` preserve seed order (airline order is load-bearing for
+  seeded flight generation), and tips are positional-ID'd — **append only, never
+  reorder** the `app/data` lists.
 - Routes return typed `response_model`s so the FE can codegen TS types.
 
 ## Conventions

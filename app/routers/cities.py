@@ -4,9 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
+from app.core.config import get_settings
 from app.core.text import best_match, fuzzy_filter
-from app.data.cities import CITIES
-from app.data.hotels import HOTELS
+from app.crud.city import CityRepository
+from app.db.engine import get_session_factory
 from app.exceptions import NotFoundError
 from app.schemas.city import City, CityListResponse
 from app.schemas.error import error_responses
@@ -16,29 +17,25 @@ from app.services import routing_service
 
 router = APIRouter(prefix="/cities", tags=["cities"])
 
-# Pre-compute hotel counts per city once at startup.
-_HOTEL_COUNTS: dict[str, int] = {}
-for _h in HOTELS:
-    _HOTEL_COUNTS[_h["city"]] = _HOTEL_COUNTS.get(_h["city"], 0) + 1
+# City data is DB-backed. ``list_with_counts()`` reproduces the old
+# ``_ALL_CITIES`` build (City incl. hotel_count, in seed order); ``get`` is the
+# case-insensitive exact-name lookup. The repo is built from the configured DB
+# at import time; it is NOT a FastAPI dependency, so tests repoint it via
+# ``set_city_repo`` after seeding the temp DB (see tests/conftest.py).
+_city_repo = CityRepository(get_session_factory(get_settings().database_url))
 
-# Build the full city list once.
-_ALL_CITIES: list[City] = [
-    City(
-        name=c["name"],
-        country=c["country"],
-        airport_codes=c["airport_codes"],
-        hotel_count=_HOTEL_COUNTS.get(c["name"], 0),
-        latitude=c.get("latitude"),
-        longitude=c.get("longitude"),
-    )
-    for c in CITIES
-]
 
-# Index by lowercased name for fast, case-insensitive single-city lookup.
-_BY_NAME: dict[str, City] = {c.name.lower(): c for c in _ALL_CITIES}
+def set_city_repo(repo: CityRepository) -> None:
+    """Point city reads at a different store — used by tests to read the seeded
+    temporary database instead of the real travel.db."""
+    global _city_repo
+    _city_repo = repo
 
-# Distinct country names — the fuzzy-resolution target for the ?country= filter.
-_COUNTRIES: list[str] = sorted({c.country for c in _ALL_CITIES})
+
+def _distinct_countries() -> list[str]:
+    """Distinct country names over the seeded cities — the fuzzy-resolution
+    target for the ``?country=`` filter (mirrors ``sorted({c.country ...})``)."""
+    return sorted({c.country for c in _city_repo.list_with_counts()})
 
 
 @router.get(
@@ -76,10 +73,10 @@ def list_cities(
     ``q`` is given, results are fuzzy-matched and ranked by relevance instead
     of left in seed order.
     """
-    results: list[City] = list(_ALL_CITIES)
+    results: list[City] = _city_repo.list_with_counts()
     if country:
         # Fuzzy-resolve the country name; an unrecognised one matches nothing.
-        resolved_country = best_match(country, _COUNTRIES, [lambda c: c])
+        resolved_country = best_match(country, _distinct_countries(), [lambda c: c])
         results = (
             [c for c in results if c.country == resolved_country]
             if resolved_country
@@ -144,7 +141,7 @@ def get_city(
     ``city_name`` is matched case-insensitively (it is still an exact-name
     lookup — for typo-tolerant search use ``GET /cities?q=``).
     """
-    city = _BY_NAME.get(city_name.strip().lower())
+    city = _city_repo.get(city_name)
     if city is None:
         raise NotFoundError(
             f"City '{city_name}' not found",

@@ -18,8 +18,8 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 
 from app.core.config import get_settings
+from app.crud.airline import AirlineRepository
 from app.crud.flight import FlightIndexRepository
-from app.data.airlines import AIRLINES
 from app.db.engine import get_session_factory
 from app.schemas.flight import Airline, Flight
 
@@ -33,6 +33,19 @@ _FLIGHT_NS = uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
 # search of a route already seen this process.
 _flight_index: dict[str, tuple[str, str, str]] = {}
 _index_repo = FlightIndexRepository(get_session_factory(get_settings().database_url))
+
+# Airlines are DB-backed. ``airline_repo.list()`` returns ``{code, name}`` dicts
+# in seed order (ORDER BY position) — that order is load-bearing for flight
+# determinism (``rng.choice`` over a *seeded* RNG), so the repo MUST preserve it.
+# Not a FastAPI dependency, so tests repoint it via ``set_airline_repo``.
+_airline_repo = AirlineRepository(get_session_factory(get_settings().database_url))
+
+
+def set_airline_repo(repo: AirlineRepository) -> None:
+    """Point airline reads at a different store — used by tests to read the
+    seeded temporary database instead of the real travel.db."""
+    global _airline_repo
+    _airline_repo = repo
 
 
 def init_flight_index() -> None:
@@ -96,10 +109,15 @@ def generate_flights(
     rng = random.Random(_seed_for(origin, destination, departure_date))
     base_date = datetime.strptime(departure_date, "%Y-%m-%d")
 
+    # Determinism invariant: this list MUST be in seed (``position``) order so
+    # ``rng.choice`` picks the same airline it always has. The repo guarantees
+    # ``ORDER BY position`` — do not sort/reorder here.
+    airlines = _airline_repo.list()
+
     flights: list[Flight] = []
     new_rows: list[tuple[str, str, str, str]] = []
     for index in range(count):
-        airline = rng.choice(AIRLINES)
+        airline = rng.choice(airlines)
         departure = base_date.replace(
             hour=rng.randint(5, 22),
             minute=rng.choice(_DEPARTURE_MINUTES),
@@ -219,7 +237,7 @@ def find_flight_by_id(flight_id: str) -> Flight | None:
 
 def list_airlines() -> list[Airline]:
     """Return the airlines available as a flight-search filter option."""
-    return [Airline(**airline) for airline in AIRLINES]
+    return [Airline(**airline) for airline in _airline_repo.list()]
 
 
 def sort_options() -> list[tuple[str, str]]:

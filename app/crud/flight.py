@@ -9,8 +9,8 @@ re-running the deterministic generator for those params.
 
 from sqlalchemy.exc import IntegrityError
 
+from app.db import models
 from app.db.base import Base
-from app.db.models import FlightIndexRow
 
 
 class FlightIndexRepository:
@@ -49,14 +49,14 @@ class FlightIndexRepository:
             if dialect == "postgresql":
                 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-                stmt = pg_insert(FlightIndexRow).values(values)
+                stmt = pg_insert(models.FlightIndex).values(values)
                 stmt = stmt.on_conflict_do_nothing(index_elements=["flight_id"])
                 s.execute(stmt)
                 s.commit()
             elif dialect == "sqlite":
                 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
-                stmt = sqlite_insert(FlightIndexRow).values(values)
+                stmt = sqlite_insert(models.FlightIndex).values(values)
                 stmt = stmt.on_conflict_do_nothing(index_elements=["flight_id"])
                 s.execute(stmt)
                 s.commit()
@@ -67,14 +67,16 @@ class FlightIndexRepository:
                 for value in values:
                     try:
                         with s.begin_nested():
-                            s.execute(FlightIndexRow.__table__.insert().values(value))
+                            s.execute(
+                                models.FlightIndex.__table__.insert().values(value)
+                            )
                     except IntegrityError:
                         pass
                 s.commit()
 
     def lookup(self, flight_id: str) -> tuple[str, str, str] | None:
         with self._sf() as s:
-            row = s.get(FlightIndexRow, flight_id)
+            row = s.get(models.FlightIndex, flight_id)
             if row is None:
                 return None
             return (row.origin, row.destination, row.departure_date)

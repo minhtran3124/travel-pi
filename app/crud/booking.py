@@ -1,18 +1,18 @@
 """Data-access layer for bookings — SQLAlchemy ORM persistence, nothing else.
 
-Business rules live in services/booking_service.py. This tier maps BookingRow
+Business rules live in services/booking_service.py. This tier maps Booking
 ORM rows to/from the Booking Pydantic model and nothing more.
 """
 
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
+from app.db import models
 from app.db.base import Base
-from app.db.models import BookingRow
 from app.schemas.booking import Booking
 
 
-def _row_to_booking(row: BookingRow) -> Booking:
+def _row_to_booking(row: models.Booking) -> Booking:
     details = dict(row.details) if isinstance(row.details, dict) else row.details
     if isinstance(details, dict) and "kind" not in details:
         details["kind"] = row.type
@@ -49,21 +49,21 @@ class BookingRepository:
 
     def get(self, booking_id: str) -> Booking | None:
         with self._sf() as s:
-            row = s.get(BookingRow, booking_id)
+            row = s.get(models.Booking, booking_id)
             return _row_to_booking(row) if row is not None else None
 
     def get_by_idempotency_key(self, key: str) -> Booking | None:
         with self._sf() as s:
             row = s.scalars(
-                select(BookingRow).where(BookingRow.idempotency_key == key)
+                select(models.Booking).where(models.Booking.idempotency_key == key)
             ).first()
             return _row_to_booking(row) if row is not None else None
 
     def get_by_confirmation_code(self, code: str) -> Booking | None:
         with self._sf() as s:
             row = s.scalars(
-                select(BookingRow).where(
-                    BookingRow.confirmation_code == code.strip().upper()
+                select(models.Booking).where(
+                    models.Booking.confirmation_code == code.strip().upper()
                 )
             ).first()
             return _row_to_booking(row) if row is not None else None
@@ -71,13 +71,13 @@ class BookingRepository:
     def list_all(self) -> list[Booking]:
         with self._sf() as s:
             rows = s.scalars(
-                select(BookingRow).order_by(BookingRow.created_at.desc())
+                select(models.Booking).order_by(models.Booking.created_at.desc())
             ).all()
             return [_row_to_booking(r) for r in rows]
 
     def update_status(self, booking_id: str, status: str) -> bool:
         with self._sf() as s:
-            row = s.get(BookingRow, booking_id)
+            row = s.get(models.Booking, booking_id)
             if row is None:
                 return False
             row.status = status
@@ -85,7 +85,7 @@ class BookingRepository:
             return True
 
     def add(self, booking: Booking, idempotency_key: str | None = None) -> Booking:
-        row = BookingRow(
+        row = models.Booking(
             id=booking.id,
             type=booking.type.value,
             reference_id=booking.reference_id,
