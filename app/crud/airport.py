@@ -27,9 +27,13 @@ class AirportRepository:
         self._sf = session_factory
 
     def list(self) -> list[Airport]:
-        """Return every supported airport as an ``Airport`` schema."""
+        """Return every supported airport as an ``Airport`` schema.
+
+        Ordered by ``iata`` so the dashboard board listing is stable across
+        engines (SQLite and Postgres make no row-order guarantee otherwise).
+        """
         with self._sf() as s:
-            rows = s.scalars(select(models.Airport)).all()
+            rows = s.scalars(select(models.Airport).order_by(models.Airport.iata)).all()
             return [_row_to_airport(r) for r in rows]
 
     def get(self, code: str) -> Airport | None:
