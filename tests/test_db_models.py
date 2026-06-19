@@ -10,6 +10,18 @@ def test_all_tables_registered():
         "trip_place_link",
         "saved_places",
         "flight_index",
+        "countries",
+        "airlines",
+        "airports",
+        "cities",
+        "hotels",
+        "places",
+        "tips",
+        "country_summaries",
+        "visa",
+        "fx_rates",
+        "country_currency",
+        "fx_meta",
     }
 
 
