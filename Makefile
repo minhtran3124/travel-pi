@@ -1,4 +1,4 @@
-.PHONY: help install dev up down logs migrate seed test test-docker fmt lint
+.PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -11,13 +11,19 @@ dev:            ## Run the app locally on SQLite (no Docker)
 	.venv/bin/uvicorn app.main:app --reload --port 8000
 
 up:             ## Build + start app + Postgres in Docker
-	docker compose up --build -d
+	docker compose up
 
 down:           ## Stop the Docker stack
 	docker compose down
 
 logs:           ## Tail Docker logs
 	docker compose logs -f
+
+exec-api:       ## Open a shell in the running api container
+	docker compose exec api sh
+
+exec-db:        ## Open psql in the running db container
+	docker compose exec db psql -U travel travel
 
 migrate:        ## Run Alembic migrations against the configured DATABASE_URL
 	.venv/bin/alembic upgrade head

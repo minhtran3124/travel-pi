@@ -1,153 +1,107 @@
 # Travel Planner Mock API
 
-A fake travel-booking backend — flight search, hotel search, and booking
-endpoints — so the frontend can build against a real API during development.
-**No API keys, no payments, no real data.**
+A fake travel-booking backend — flights, hotels, and bookings — for frontend development. No API keys, no payments, no real data.
 
-You don't need to know Python. Just follow the steps below.
+## Run
 
-## Start the server
+### Local (SQLite)
 
-There are three ways to run the project. **(a)** is the simplest (no Docker);
-**(b)** runs the same app against a real Postgres database in Docker; **(c)**
-runs the test suite against isolated Postgres for cross-engine parity.
-
-### (a) Local, on SQLite (zero-config)
-
-You need **Python 3.10 or newer** and **[uv](https://docs.astral.sh/uv/)**
-(a fast Python package manager). To install uv:
+Requires **Python 3.10+** and **[uv](https://docs.astral.sh/uv/)**:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh   # Windows: see the uv docs
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Then, from the project folder:
-
 ```bash
-make install        # uv venv && uv pip install -r requirements.txt
-make dev            # uvicorn app.main:app --reload --port 8000
+make install    # create venv + install deps
+make dev        # start at http://localhost:8000
+make test       # 663 tests on SQLite
 ```
 
-(If you prefer not to use `make`, run the underlying commands shown in the
-comments above, activating the venv with `source .venv/bin/activate` first.)
-
-When you see `Application startup complete`, it's running at
-**http://localhost:8000** (Swagger at **/docs**). Keep this terminal open.
-Press `Ctrl+C` to stop. Data is stored in a local `travel.db` SQLite file,
-created automatically.
-
-Run the test suite (**663 tests**, on SQLite):
+### Docker + Postgres
 
 ```bash
-make test           # .venv/bin/python -m pytest tests/ -q
+make up         # build + start api and db containers
+make logs       # tail logs
+make down       # stop
 ```
 
-### (b) Docker + Postgres
+On startup: Postgres health check → `alembic upgrade head` → seed all reference data. Everything runs automatically.
 
-Runs the app and a Postgres database in containers:
+Shell into a running container:
 
 ```bash
-make up             # docker compose up --build -d
-make logs           # tail the container logs
-make down           # stop the stack
+make exec-api   # sh in the api container
+make exec-db    # psql in the db container
 ```
 
-The app is at **http://localhost:8000** (Swagger at **/docs**); Postgres runs
-in its own container. **Migrations run automatically** on container start —
-the entrypoint runs `alembic upgrade head` before the app boots, so the schema
-is always up to date.
-
-### (c) Tests on isolated Postgres
-
-Run the full suite against a throwaway Postgres database (cross-engine parity —
-the same **663 tests** pass on both SQLite and Postgres):
+### Tests on isolated Postgres
 
 ```bash
-make test-docker
+make test-docker    # 663 tests against a throwaway Postgres DB
 ```
 
-### Database configuration
+## Database
 
-The persistence backend is selected by the **`DATABASE_URL`** environment
-variable:
+| Context | `DATABASE_URL` |
+|---------|----------------|
+| Local / tests | `sqlite:///travel.db` (default) |
+| Docker | `postgresql+psycopg://travel:travel@db:5432/travel` |
+| Docker tests | `postgresql+psycopg://test:test@test-db:5432/test` (ephemeral) |
 
-- **Default** (local and tests): `sqlite:///travel.db`
-- **Docker**: the compose files inject
-  `postgresql+psycopg://travel:travel@db:5432/travel`
-
-Schema is owned by **Alembic** on Postgres. Apply migrations against whatever
-`DATABASE_URL` points at with:
+**Migrations** run automatically in Docker via `docker/entrypoint.sh`. To run manually:
 
 ```bash
-make migrate        # .venv/bin/alembic upgrade head
+make migrate
 ```
 
-In Docker this runs automatically via the entrypoint (see above).
-
-The read-only reference data (countries, airlines, airports, cities, hotels,
-places, tips, visa, FX) is **seeded automatically on startup** — the server
-populates it from `app/data` into whatever `DATABASE_URL` points at. To re-seed
-manually (idempotent — safe to re-run, never duplicates):
+**Seed data** (countries, airlines, airports, cities, hotels, places, tips, visa, FX) loads from `app/data/` on every startup — idempotent, never duplicates. To re-seed manually:
 
 ```bash
-make seed           # seed the configured DATABASE_URL from app/data
+make seed                       # local
+docker compose restart api      # Docker (re-seeds on restart)
 ```
 
 ## Use it
 
-- **Flight board:** open **http://localhost:8000/dashboard/flights** — an
-  airport-style arrivals/departures board (pick airport, date, and
-  arrivals/departures). There's also a "search by route" page and a
-  per-flight detail page. HTML for humans, not the API client.
-- **Try endpoints in the browser:** open **http://localhost:8000/docs** — an
-  interactive page to call every endpoint and see the responses.
-- **Full endpoint reference:** see **[APIS.md](./APIS.md)**. Highlights: `/flights/search`, `/hotels/availability`, `/places/search`, `/tips`, `/weather`, `GET /air-quality` (live US-AQI + pollutants + short forecast via Open-Meteo, also at `/dashboard/air-quality`), `GET /destinations/climate` (monthly climate normals + best-time guidance), `GET /destinations/{city}/overview` (one-call city briefing: weather + places + tips + hotel summary), `GET /currency/convert` (mock-FX currency conversion), `GET /visa` (general visa / entry requirements for a city or country), `/trips` (save & edit a freeform day-by-day itinerary — full CRUD with per-item endpoints), and `POST /trips/estimate` (server-side trip budget breakdown + per-person total; calculation only, nothing stored).
-- **Generate TypeScript types** (re-run whenever the API changes):
+- **Swagger UI:** http://localhost:8000/docs
+- **Flight board:** http://localhost:8000/dashboard/flights
+- **Air quality:** http://localhost:8000/dashboard/air-quality
+- **Full API reference:** [APIS.md](./APIS.md)
 
-  ```bash
-  npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
-  ```
+Generate TypeScript types:
 
-## Good to know
+```bash
+npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
+```
 
-- **Flights are generated on the fly.** The same `origin + destination + date`
-  always returns the **same 5 flights**, so you can show a flight, leave, and
-  fetch it again by ID. A different date gives different flights.
-- **Hotels are a fixed list** of 51 hotels across 18 cities in Southeast Asia.
-- **Bookings and trips are saved** to a database, so they survive server
-  restarts. Locally that's a SQLite file (`travel.db`, created automatically);
-  in Docker it's Postgres — the backend is chosen by `DATABASE_URL` (see above).
-  These are the mutable state — a **trip** (`/trips`) is a freeform, day-by-day
-  itinerary with full CRUD plus per-item endpoints.
-- **CORS is fully open**, so you can call the API from `localhost:3000` (or
-  anywhere) without errors.
-- **The `/docs` page is for local use.** It stays on in development; setting
-  `ENVIRONMENT=production` in `.env` turns it (and `/openapi.json`) off.
+## Notes
+
+- **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.
+- **Hotels** are a fixed list of 51 across 18 Southeast Asian cities.
+- **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
+- **CORS** is fully open.
+- `/docs` is disabled when `ENVIRONMENT=production`.
 
 ## Project layout
 
 ```
-travel-pi/
-├── app/
-│   ├── main.py            # App setup + CORS + error handling
-│   ├── core/              # Settings + startup/shutdown hooks
-│   ├── routers/           # One file per endpoint group (+ dashboard.py = HTML pages)
-│   ├── services/          # Business logic (flight gen, bookings, ...)
-│   ├── crud/              # Data-access layer (SQLAlchemy ORM; SQLite or Postgres)
-│   ├── schemas/           # Request/response shapes
-│   ├── templates/         # Jinja2 HTML templates for the web pages
-│   └── data/              # Seed data (airlines, airports, hotels)
-├── tests/                 # pytest suite covering all API endpoints
-├── scripts/generate_data.py   # Generate more mock hotels
-├── requirements.txt
-└── .env.example           # Optional config — copy to .env to override
+app/
+├── main.py        # app factory, CORS, error handling
+├── core/          # config, logging, lifespan
+├── routers/       # one file per endpoint group
+├── services/      # business logic
+├── crud/          # SQLAlchemy ORM data access
+├── schemas/       # Pydantic v2 models
+├── templates/     # Jinja2 HTML pages
+└── data/          # seed source of truth
+tests/             # pytest suite
+scripts/           # data generators
 ```
 
-### Adding more mock hotels
+Add mock hotels:
 
 ```bash
 python scripts/generate_data.py hotels --city "Da Nang" --count 3
+# prints records — copy into app/data/hotels.py
 ```
-
-It prints ready-to-paste records — copy them into `app/data/hotels.py`.
-Run `python scripts/generate_data.py hotels --help` for all options.
