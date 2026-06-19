@@ -7,6 +7,8 @@ does not carry), so the repo constructs the schema explicitly. Returning
 keeps deciding what an absent record means.
 """
 
+from sqlalchemy import select
+
 from app.db import models
 from app.schemas.visa import EntryRequirements
 
@@ -16,6 +18,14 @@ class VisaRepository:
 
     def __init__(self, session_factory) -> None:
         self._sf = session_factory
+
+    def countries(self) -> list[str]:
+        """Return every country that has a visa record, sorted.
+
+        Mirrors ``sorted(COUNTRY_VISA)`` — the dashboard's visa picker list.
+        """
+        with self._sf() as s:
+            return sorted(s.scalars(select(models.Visa.country)).all())
 
     def get(self, country: str) -> EntryRequirements | None:
         """Return entry requirements for a resolved ``country``, or ``None``."""

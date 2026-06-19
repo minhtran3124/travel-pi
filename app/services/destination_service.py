@@ -10,8 +10,10 @@ I/O; all other helpers are sync in-memory lookups.
 
 import logging
 
+from app.core.config import get_settings
 from app.core.text import best_match
-from app.data.cities import CITIES
+from app.crud.city import CityRepository
+from app.db.engine import get_session_factory
 from app.exceptions import NotFoundError
 from app.schemas.destination import (
     DestinationOverviewResponse,
@@ -24,6 +26,16 @@ from app.services import hotel_service, place_service, tip_service, weather_serv
 logger = logging.getLogger(__name__)
 
 _ATTRIBUTION = "Weather data by Open-Meteo.com (CC BY 4.0)"
+
+# City data is DB-backed; fuzzy resolution stays here (over the repo's distinct
+# names). Not a FastAPI dependency, so tests repoint it via ``set_city_repo``.
+_city_repo = CityRepository(get_session_factory(get_settings().database_url))
+
+
+def set_city_repo(repo: CityRepository) -> None:
+    """Point city reads at a different store — used by tests."""
+    global _city_repo
+    _city_repo = repo
 
 
 async def get_overview(
@@ -53,17 +65,19 @@ async def get_overview(
     NotFoundError
         When *city* cannot be resolved to a known city (HTTP 404).
     """
-    # 1. Resolve city locally — no network.
-    record = best_match(city, CITIES, [lambda c: c["name"]])
+    # 1. Resolve city locally — no network. Fuzzy-match over the distinct city
+    #    names, then fetch the exact record for its coordinates / country.
+    matched = best_match(city, _city_repo.distinct_names(), [lambda c: c])
+    record = _city_repo.get(matched) if matched is not None else None
     if record is None:
         raise NotFoundError(
             f"City '{city}' not found",
             hint="Call GET /cities to list available cities.",
         )
-    name: str = record["name"]
-    country: str = record["country"]
-    latitude: float = record["latitude"]
-    longitude: float = record["longitude"]
+    name: str = record.name
+    country: str = record.country
+    latitude: float = record.latitude
+    longitude: float = record.longitude
 
     # 2. Places — sync, in-memory.
     places = []

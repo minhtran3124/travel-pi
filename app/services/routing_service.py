@@ -23,12 +23,24 @@ import httpx
 from app.core.config import get_settings
 from app.core.geo import haversine_km
 from app.core.text import best_match
-from app.data.cities import CITIES as _CITY_DATA
+from app.crud.city import CityRepository
+from app.db.engine import get_session_factory
 from app.exceptions import NotFoundError, RoutingUnavailableError
 from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
 from app.services import place_service
 
 logger = logging.getLogger(__name__)
+
+# City data is DB-backed; fuzzy resolution stays here (over the repo's distinct
+# names). Not a FastAPI dependency, so tests repoint it via ``set_city_repo``.
+_city_repo = CityRepository(get_session_factory(get_settings().database_url))
+
+
+def set_city_repo(repo: CityRepository) -> None:
+    """Point city reads at a different store — used by tests."""
+    global _city_repo
+    _city_repo = repo
+
 
 # Friendly mode label -> (ORS routing profile, fallback speed in km/h).
 # The fallback speeds are rough city-travel averages, used only when no ORS
@@ -138,7 +150,8 @@ def _city_endpoint(city_name: str, label: str) -> RouteEndpoint:
     :class:`NotFoundError` if nothing matches or the matched city has no
     coordinates in the seed data.
     """
-    record = best_match(city_name, _CITY_DATA, [lambda c: c["name"]])
+    matched = best_match(city_name, _city_repo.distinct_names(), [lambda c: c])
+    record = _city_repo.get(matched) if matched is not None else None
     if record is None:
         raise NotFoundError(
             f"{label} city '{city_name}' not found",
@@ -147,9 +160,9 @@ def _city_endpoint(city_name: str, label: str) -> RouteEndpoint:
                 "city name (the lookup is fuzzy / typo-tolerant)."
             ),
         )
-    if record.get("latitude") is None or record.get("longitude") is None:
+    if record.latitude is None or record.longitude is None:
         raise NotFoundError(
-            f"{label} city '{record['name']}' has no coordinates",
+            f"{label} city '{record.name}' has no coordinates",
             hint=(
                 "This city is missing latitude/longitude in the seed data "
                 "and cannot take part in a route."
@@ -157,10 +170,10 @@ def _city_endpoint(city_name: str, label: str) -> RouteEndpoint:
         )
     return RouteEndpoint(
         kind="city",
-        id=record["name"],
-        name=record["name"],
-        latitude=record["latitude"],
-        longitude=record["longitude"],
+        id=record.name,
+        name=record.name,
+        latitude=record.latitude,
+        longitude=record.longitude,
     )
 
 
@@ -258,7 +271,9 @@ async def get_route_between(
         legs = []
         any_ors = False
         any_fallback = False
-        for (mode, (profile, speed)), result in zip(_MODES.items(), results, strict=True):
+        for (mode, (profile, speed)), result in zip(
+            _MODES.items(), results, strict=True
+        ):
             if isinstance(result, BaseException):
                 logger.warning(
                     "ORS leg %s failed (%s) — falling back to offline estimate",

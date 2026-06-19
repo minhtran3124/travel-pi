@@ -10,7 +10,7 @@ sort. Fuzzy city resolution and the result ordering stay in ``place_service``
 (Chunk E); the repo's ``search`` takes an already-resolved exact city.
 """
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.db import models
 from app.schemas.place import Place
@@ -65,6 +65,12 @@ class PlaceRepository:
         """Return the distinct place categories, sorted — mirrors ``CATEGORIES``."""
         with self._sf() as s:
             return sorted(set(s.scalars(select(models.Place.category)).all()))
+
+    def count_by_city(self) -> dict[str, int]:
+        """Return ``{city: place_count}`` — feeds the startup coverage check."""
+        stmt = select(models.Place.city, func.count()).group_by(models.Place.city)
+        with self._sf() as s:
+            return dict(s.execute(stmt).all())
 
     def search(
         self,

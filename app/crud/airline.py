@@ -9,6 +9,11 @@ from sqlalchemy import select
 
 from app.db import models
 
+# Fallback colour for any airline code without an explicit brand colour.
+# Presentation only (moved here from app/data/airlines.py so the colour lookup
+# has a single home now that airlines are DB-backed).
+AIRLINE_COLOR_DEFAULT = "#444b55"
+
 
 class AirlineRepository:
     """Read-only store of airline rows behind a ``session_factory``."""
@@ -33,3 +38,13 @@ class AirlineRepository:
         with self._sf() as s:
             row = s.get(models.Airline, code)
             return row.color if row is not None else None
+
+    def colors(self) -> dict[str, str]:
+        """Return ``{code: color}`` for airlines with a brand colour.
+
+        Mirrors the ``AIRLINE_COLORS`` dict the dashboard templates do
+        ``.get(code, default)`` against.
+        """
+        with self._sf() as s:
+            rows = s.scalars(select(models.Airline)).all()
+            return {r.code: r.color for r in rows if r.color is not None}
