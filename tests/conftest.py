@@ -2,6 +2,7 @@
 
 import pytest
 from app.crud.flight import FlightIndexRepository
+from app.db.engine import get_session_factory
 from app.main import create_app
 from app.services import flight_service, saved_place_service
 from app.services.booking_service import BookingService, get_booking_service
@@ -12,9 +13,9 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="session")
 def tmp_db(tmp_path_factory):
-    """Return a path to a temporary SQLite file, unique per test session."""
+    """Return a SQLite URL for an isolated per-session test database."""
     db_file = tmp_path_factory.mktemp("data") / "test_travel.db"
-    return str(db_file)
+    return f"sqlite:///{db_file}"
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +26,7 @@ def client(tmp_db):
 
     # Point flight-ID persistence at the temp DB too, so flight lookups stay
     # isolated from the real travel.db.
-    flight_service.set_index_repo(FlightIndexRepository(tmp_db))
+    flight_service.set_index_repo(FlightIndexRepository(get_session_factory(tmp_db)))
 
     trip_svc = TripService(tmp_db)
     trip_svc.init_db()
