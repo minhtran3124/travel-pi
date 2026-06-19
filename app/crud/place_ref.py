@@ -27,9 +27,15 @@ class PlaceRepository:
         self._sf = session_factory
 
     def all(self) -> list[Place]:
-        """Return every seeded place."""
+        """Return every seeded place in stable id order.
+
+        Explicit ``ORDER BY id`` (the seed insertion order == id order) so the
+        output never relies on insertion-order coincidence. Also fixes the
+        ordering of ``nearby_places``, which sources its candidates from here.
+        """
         with self._sf() as s:
-            return [_row_to_place(r) for r in s.scalars(select(models.Place)).all()]
+            rows = s.scalars(select(models.Place).order_by(models.Place.id)).all()
+            return [_row_to_place(r) for r in rows]
 
     def get(self, place_id: str) -> Place | None:
         """Return the place by raw UUID ``id``, or ``None``."""

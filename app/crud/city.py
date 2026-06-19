@@ -59,5 +59,5 @@ class CityRepository:
         """
         counts = self._hotels.count_by_city()
         with self._sf() as s:
-            rows = s.scalars(select(models.City)).all()
+            rows = s.scalars(select(models.City).order_by(models.City.id)).all()
             return [self._build(r, counts.get(r.name, 0)) for r in rows]
