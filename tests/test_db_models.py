@@ -1,0 +1,37 @@
+from app.db import models  # noqa: F401  (registers models on Base)
+from app.db.base import Base
+
+
+def test_all_tables_registered():
+    assert set(Base.metadata.tables) == {
+        "bookings",
+        "trips",
+        "trip_items",
+        "trip_place_link",
+        "saved_places",
+        "flight_index",
+    }
+
+
+def test_booking_columns():
+    cols = {c.name for c in Base.metadata.tables["bookings"].columns}
+    assert cols == {
+        "id",
+        "type",
+        "reference_id",
+        "customer_name",
+        "customer_email",
+        "total_price",
+        "currency",
+        "status",
+        "created_at",
+        "details",
+        "notes",
+        "idempotency_key",
+        "confirmation_code",
+    }
+
+
+def test_partial_unique_index_on_idempotency():
+    idx = {i.name for i in Base.metadata.tables["bookings"].indexes}
+    assert "ix_bookings_idempotency_key" in idx

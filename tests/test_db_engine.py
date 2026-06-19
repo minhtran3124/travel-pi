@@ -1,8 +1,7 @@
 """Engine/session-factory behavior: dual-URL selection + isolation."""
 
-import pytest
-from sqlalchemy import text
 from app.db.engine import get_engine, get_session_factory
+from sqlalchemy import text
 
 
 def test_sqlite_url_builds_sqlite_engine(tmp_path):
