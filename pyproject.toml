@@ -22,6 +22,9 @@ target-version = "py310"
 # Lint/format the application code; tests follow the same style but are not
 # gated. Run: `ruff check app scripts` and `ruff format app scripts`.
 src = ["app", "scripts"]
+# Alembic owns env.py + the generated migrations; their style (Union hints,
+# template scaffolding) is Alembic's, not ours — keep them out of our lint gate.
+extend-exclude = ["alembic"]
 
 [tool.ruff.lint]
 # E/W: pycodestyle, F: pyflakes, I: isort, B: bugbear,
