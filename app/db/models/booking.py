@@ -1,8 +1,9 @@
 """Booking ORM model."""
 
-from app.db.base import Base
 from sqlalchemy import JSON, Float, Index, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.db.base import Base
 
 
 class Booking(Base):

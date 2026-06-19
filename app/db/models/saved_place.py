@@ -1,8 +1,9 @@
 """SavedPlace ORM model."""
 
-from app.db.base import Base
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.db.base import Base
 
 
 class SavedPlace(Base):

@@ -9,8 +9,8 @@ re-running the deterministic generator for those params.
 
 from sqlalchemy.exc import IntegrityError
 
-from app.db.base import Base
 from app.db import models
+from app.db.base import Base
 
 
 class FlightIndexRepository:
@@ -67,7 +67,9 @@ class FlightIndexRepository:
                 for value in values:
                     try:
                         with s.begin_nested():
-                            s.execute(models.FlightIndex.__table__.insert().values(value))
+                            s.execute(
+                                models.FlightIndex.__table__.insert().values(value)
+                            )
                     except IntegrityError:
                         pass
                 s.commit()

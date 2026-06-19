@@ -1,8 +1,9 @@
 """Trip, TripItem, and TripPlaceLink ORM models."""
 
-from app.db.base import Base
 from sqlalchemy import JSON, Index, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.db.base import Base
 
 
 class Trip(Base):

@@ -10,8 +10,8 @@ The ``links`` column is a native JSON column (no manual json.dumps/loads).
 from sqlalchemy import func, select
 
 from app.core.geo import haversine_km
-from app.db.base import Base
 from app.db import models
+from app.db.base import Base
 from app.schemas.saved_place import SavedPlace
 
 _SET_FLAG_FIELDS = {"favorite", "visited"}
@@ -112,7 +112,9 @@ class SavedPlaceRepository:
             stmt = stmt.where(models.SavedPlace.favorite == bool(favorite))
         if visited is not None:
             stmt = stmt.where(models.SavedPlace.visited == bool(visited))
-        stmt = stmt.order_by(models.SavedPlace.created_at.desc(), models.SavedPlace.id.desc())
+        stmt = stmt.order_by(
+            models.SavedPlace.created_at.desc(), models.SavedPlace.id.desc()
+        )
         with self._sf() as s:
             return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 

@@ -11,8 +11,8 @@ service can read them by key (``row["col"]``) exactly as before.
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from app.db.base import Base
 from app.db import models
+from app.db.base import Base
 from app.schemas.trip import Trip, TripItem
 
 
