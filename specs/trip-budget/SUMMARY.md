@@ -89,3 +89,42 @@ largely **compose existing parts** rather than introduce new computation. The fo
 3. **Enforcement:** **hard 409** in `add_trip_item` when a linked, booked item would push that
    **category's** spent past that category's cap; envelope carries a `hint` naming the category,
    the overage, and the cap. Categories with no cap set are unconstrained.
+
+### Implementation (shipped on `feat/trip-budget`)
+
+Storage chose the **single JSON `budget_caps` column** option (additive `ensure_column`), as the
+decision-1 lean predicted. Three commits off `v2` (`77dc281`):
+
+- `af6362e` — `BudgetCategory` enum + `CategoryBudget`/`BudgetCategories`/`TripBudget`/`TripBudgetSet`
+  schemas + `budget_caps` column + `get_budget_caps`/`set_budget_caps` + legacy-DB ALTER test.
+- `afff1b3` — `_resolve_bookings` (extracted, behavior-preserving) + `_spend_by_category` +
+  `get_trip_budget`/`set_trip_budget`/`_build_budget` + `_enforce_budget` (409) wired into
+  `add_item`; `GET`/`POST /trips/{id}/budget` routes; `add_item` route `→ error_responses(404,409,422)`.
+- `922c2ef` — `APIS.md` documentation.
+
+### Verify (DONE)
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Budget suite | `.venv/bin/python -m pytest tests/test_trip_budget.py -q` | 14 passed (enum/schema/no-cap/set/replace/422/404/spend/409 boundary + no-cap/no-booking) |
+| Trip regression (refactor safety) | `pytest tests/test_trips.py tests/test_trip_value_layer_api.py tests/test_trip_value_layer_service.py` | green — `total_spent`/gaps unchanged |
+| Legacy-DB ALTER (A0 obligation) | `tests/test_trips.py::test_init_db_adds_budget_caps_to_legacy_trips` | passed — `budget_caps` added, old rows read `{}` |
+| Full suite | `.venv/bin/python -m pytest tests/ -q` | **615 passed**, 2 pre-existing baseline failures only (`test_meta::test_root_endpoints_is_list`, `test_operation_ids` — Starlette 1.2 route-introspection drift, unrelated) |
+| Lint | `ruff check app tests` | clean on touched files |
+
+### Review gates
+
+- Per-chunk **spec review** (oracle: PLAN) ✅ ×2 — all Task 1–6 requirements present, no scope creep.
+- Per-chunk **quality review** (maintainability) ✅ ×2 — fixed: `init_db` docstring migration
+  inventory; test-isolation teardown for the booking singleton (yield-fixture restore).
+- Final **`/correctness-review`** (blind to plan, capable model) ✅ — zero runtime bugs; traced
+  JSON NULL→`{}`, replay-before-enforce ordering, strict `>` boundary, `cap=0` enforced (not
+  falsy), `_resolve_bookings` extraction preserving `total_spent`/gaps, all-4-categories contract.
+- Final **`/intent-review`** (blind to plan; oracle: this `### Intent` + Resolved decisions) ✅ —
+  no gap/drift/excess; both endpoint bullets + all four decisions delivered, 409 hint populated.
+
+### Deviations
+
+- Rule 1 — `{c: 0.0 for c in BudgetCategory}` → `dict.fromkeys(BudgetCategory, 0.0)` (ruff `C420`; behaviour-identical). `app/services/trip_service.py`. Commit `afff1b3`.
+- Rule 2 — Test infra: `_flight_booking` fixture repoints the module-level `_booking_service` singleton at the client's isolated store (the trip service resolves bookings via the singleton, not FastAPI DI, so a conftest-overridden booking was invisible). Yield-fixture restores the original in `finally`. `tests/test_trip_budget.py`. Commit `afff1b3`.
+- Rule 3 — ruff `I001` import reorder in the new test file. `tests/test_trip_budget.py`. Commit `afff1b3`.
