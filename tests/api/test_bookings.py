@@ -386,7 +386,11 @@ def test_repo_get_by_confirmation_code_resolves(tmp_db):
     from app.db.engine import get_engine, get_session_factory
     from sqlalchemy import inspect
 
-    url = tmp_db + "_codes"
+    # Use the shared per-session test DB URL directly. (Don't fabricate a
+    # sibling URL by string-appending — that yields a valid distinct SQLite
+    # file but an invalid/non-existent Postgres database name, which breaks the
+    # docker-compose.test.yml Postgres parity run.)
+    url = tmp_db
     repo = BookingRepository(get_session_factory(url))
     repo.init_db()
     booking = repo.add(_sample_booking("33333333-3333-3333-3333-333333333333"))

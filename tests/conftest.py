@@ -1,5 +1,7 @@
 """Shared fixtures for all endpoint tests."""
 
+import os
+
 import pytest
 from app.crud.flight import FlightIndexRepository
 from app.db.engine import get_session_factory
@@ -13,7 +15,18 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="session")
 def tmp_db(tmp_path_factory):
-    """Return a SQLite URL for an isolated per-session test database."""
+    """Return the DB URL the test suite should run against.
+
+    Defaults to a per-session temp **SQLite** file (zero-config, what local +
+    CI runs use). When ``TEST_DATABASE_URL`` is set — the docker-compose.test.yml
+    path — return that instead, so the suite genuinely exercises Postgres and
+    proves cross-engine parity. The repos' ``init_db()`` (called by the service
+    fixtures below) runs ``create_all`` on whichever engine this URL selects, so
+    the schema exists either way.
+    """
+    override = os.environ.get("TEST_DATABASE_URL")
+    if override:
+        return override
     db_file = tmp_path_factory.mktemp("data") / "test_travel.db"
     return f"sqlite:///{db_file}"
 
