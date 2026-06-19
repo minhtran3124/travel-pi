@@ -18,16 +18,21 @@ from app.enums import (
     ActivityLevel,
     BookingStatus,
     BookingType,
+    BudgetCategory,
     MealStyle,
     TripItemStatus,
 )
 from app.exceptions import ConflictError, DomainValidationError, NotFoundError
 from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
+    BudgetCategories,
+    CategoryBudget,
     DayPlanItem,
     DayPlanResponse,
     EstimateBreakdown,
     Trip,
+    TripBudget,
+    TripBudgetSet,
     TripCreate,
     TripDetail,
     TripEstimateRequest,
@@ -43,6 +48,13 @@ from app.services.booking_service import get_booking_service
 logger = logging.getLogger(__name__)
 
 _VALID_SOURCES = {"catalog", "saved"}
+
+# Which budget category a booking's spend lands in. Activities/buffer have no
+# booking source yet (activity booking is unshipped, #15).
+_BOOKING_TYPE_TO_CATEGORY: dict[BookingType, BudgetCategory] = {
+    BookingType.FLIGHT: BudgetCategory.FLIGHTS,
+    BookingType.HOTEL: BudgetCategory.HOTELS,
+}
 
 
 def _new_id() -> str:
@@ -147,7 +159,7 @@ class TripService:
         When ``idempotency_key`` matches an earlier request, the original item
         is returned and nothing new is stored.
         """
-        self.get_trip(trip_id)
+        trip = self.get_trip(trip_id)
         if idempotency_key:
             existing = self._repo.get_item_by_idempotency_key(idempotency_key)
             if existing is not None:
@@ -166,6 +178,9 @@ class TripService:
                     existing.id,
                 )
                 return existing
+        # Budget guard runs after the replay check (a replay is not a new
+        # charge) and before the insert.
+        self._enforce_budget(trip, request)
         item = TripItem(id=_new_id(), trip_id=trip_id, **request.model_dump())
         stored = self._repo.add_item(item, idempotency_key=idempotency_key)
         logger.info("Added item %s to trip %s", stored.id, trip_id)
@@ -265,19 +280,9 @@ class TripService:
             )
         logger.info("Removed shortlist entry %s from trip %s", link_id, trip_id)
 
-    def get_trip_detail(self, trip_id: str) -> TripDetail:
-        """Return a trip enriched with spend rollup and coverage gaps.
-
-        ``total_spent`` sums the ``total_price`` of every non-cancelled
-        booking linked by items. ``gaps`` lists days that are missing
-        accommodation or have no items at all.  Both fields are computed
-        fresh on each call — nothing extra is stored.
-        """
-        trip = self.get_trip(trip_id)
+    def _resolve_bookings(self, trip: Trip) -> dict[str, object]:
+        """Resolve every distinct linked booking_id once. Missing → None."""
         booking_svc = get_booking_service()
-
-        # Resolve all booking_ids once to avoid redundant DB lookups in the
-        # gaps pass that follows.
         resolved: dict[str, object] = {}
         for item in trip.items:
             if item.booking_id is None or item.booking_id in resolved:
@@ -291,6 +296,123 @@ class TripService:
                     item.id,
                 )
                 resolved[item.booking_id] = None
+        return resolved
+
+    def _spend_by_category(self, trip: Trip) -> dict[BudgetCategory, float]:
+        """Sum booked spend per category. Per-item (matches total_spent)."""
+        resolved = self._resolve_bookings(trip)
+        spend: dict[BudgetCategory, float] = dict.fromkeys(BudgetCategory, 0.0)
+        for item in trip.items:
+            if item.booking_id is None:
+                continue
+            booking = resolved.get(item.booking_id)
+            if booking is None or booking.status == BookingStatus.CANCELLED:
+                continue
+            category = _BOOKING_TYPE_TO_CATEGORY.get(booking.type)
+            if category is None:
+                continue
+            spend[category] += booking.total_price
+        return {c: _money(v) for c, v in spend.items()}
+
+    def get_trip_budget(self, trip_id: str) -> TripBudget:
+        """Return per-category caps vs spend for a trip. 404 if unknown."""
+        trip = self.get_trip(trip_id)
+        caps = self._repo.get_budget_caps(trip_id)
+        spend = self._spend_by_category(trip)
+        return self._build_budget(trip_id, caps, spend)
+
+    def set_trip_budget(self, trip_id: str, request: TripBudgetSet) -> TripBudget:
+        """Replace the trip's caps and return the resulting budget. 404 if unknown."""
+        self.get_trip(trip_id)
+        caps = {
+            c.value: getattr(request, c.value)
+            for c in BudgetCategory
+            if getattr(request, c.value) is not None
+        }
+        self._repo.set_budget_caps(trip_id, caps)
+        logger.info("Set budget on trip %s: %s", trip_id, caps)
+        return self.get_trip_budget(trip_id)
+
+    @staticmethod
+    def _build_budget(
+        trip_id: str, caps: dict[str, float], spend: dict[BudgetCategory, float]
+    ) -> TripBudget:
+        cat_models: dict[str, CategoryBudget] = {}
+        total_cap = 0.0
+        any_cap = False
+        over = False
+        for c in BudgetCategory:
+            cap = caps.get(c.value)
+            spent = spend[c]
+            remaining = _money(cap - spent) if cap is not None else None
+            if cap is not None:
+                any_cap = True
+                total_cap += cap
+                if spent > cap:
+                    over = True
+            cat_models[c.value] = CategoryBudget(
+                cap=cap, spent=spent, remaining=remaining
+            )
+        total_spent = _money(sum(spend.values()))
+        return TripBudget(
+            trip_id=trip_id,
+            categories=BudgetCategories(**cat_models),
+            total_cap=_money(total_cap) if any_cap else None,
+            total_spent=total_spent,
+            total_remaining=_money(total_cap - total_spent) if any_cap else None,
+            over_budget=over,
+        )
+
+    def _enforce_budget(self, trip: Trip, request: TripItemCreate) -> None:
+        """Reject (409) when a linked booking would push its category over cap.
+
+        No-ops unless the new item links a resolvable, non-cancelled booking
+        whose category has a cap set. Boundary is strict: spent == cap is OK.
+        """
+        if request.booking_id is None:
+            return
+        caps = self._repo.get_budget_caps(trip.id)
+        if not caps:
+            return
+        try:
+            booking = get_booking_service().get(request.booking_id)
+        except NotFoundError:
+            return  # unpriceable link — consistent with total_spent skipping it
+        if booking.status == BookingStatus.CANCELLED:
+            return
+        category = _BOOKING_TYPE_TO_CATEGORY.get(booking.type)
+        if category is None:
+            return
+        cap = caps.get(category.value)
+        if cap is None:
+            return
+        current = self._spend_by_category(trip)[category]
+        projected = _money(current + booking.total_price)
+        if projected > cap:
+            over_by = _money(projected - cap)
+            raise ConflictError(
+                f"Adding this ${booking.total_price:.2f} {category.value} booking "
+                f"would push {category.value} spend to ${projected:.2f}, over the "
+                f"${cap:.2f} budget by ${over_by:.2f}.",
+                hint=(
+                    f"Raise the {category.value} cap via POST /trips/{trip.id}/budget, "
+                    "or link a cheaper booking."
+                ),
+            )
+
+    def get_trip_detail(self, trip_id: str) -> TripDetail:
+        """Return a trip enriched with spend rollup and coverage gaps.
+
+        ``total_spent`` sums the ``total_price`` of every non-cancelled
+        booking linked by items. ``gaps`` lists days that are missing
+        accommodation or have no items at all.  Both fields are computed
+        fresh on each call — nothing extra is stored.
+        """
+        trip = self.get_trip(trip_id)
+
+        # Resolve all booking_ids once to avoid redundant DB lookups in the
+        # gaps pass that follows.
+        resolved = self._resolve_bookings(trip)
 
         # Spend rollup: sum confirmed bookings only.
         total = 0.0
