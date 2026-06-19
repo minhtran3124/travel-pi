@@ -1,6 +1,6 @@
 ---
 slug: trip-budget
-status: active
+status: shipped
 lane: normal
 base: v2
 branch: feat/trip-budget
@@ -758,3 +758,7 @@ Expected: clean on touched files. Run `ruff format app tests` if needed.
 - Per-item planned-cost field.
 - Enforcing budget at `/flights/book` · `/hotels/book` (they don't know the trip).
 - Fixing the 2 pre-existing meta-introspection test failures (separate dependency-pin concern).
+
+## Status Log
+
+- 2026-06-19 — shipped via `feat/trip-budget` (PR #8), base `v2`. Both final gates passed (`/correctness-review`: 0 bugs; `/intent-review`: no divergence). Full suite 615 passed + 2 pre-existing baselines.
