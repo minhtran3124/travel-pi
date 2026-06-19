@@ -1,57 +1,47 @@
-"""Hotel lookup + deterministic availability over the in-memory seed data.
+"""Hotel lookup + deterministic availability over the DB-backed seed data.
 
-Availability is *generated*, never stored — same pattern as
-``flight_service``: a query (hotel + date range) is hashed into an RNG seed,
-so the same query always yields the same answer. No availability calendar,
-no mutable state. ``total_rooms`` is fixed per hotel; ``available_rooms``
-varies per date range (and can be 0 — a fully-booked hotel).
+Hotel records are read through ``hotel_repo`` (``app.crud.hotel_ref``) per
+request; ``app/data/hotels.py`` remains the guarded seed source. Availability
+is *generated*, never stored — same pattern as ``flight_service``: a query
+(hotel + date range) is hashed into an RNG seed, so the same query always
+yields the same answer. No availability calendar, no mutable state.
+``total_rooms`` is fixed per hotel; ``available_rooms`` varies per date range
+(and can be 0 — a fully-booked hotel).
+
+The short-code collision guard now lives in the seeder (``app/db/seed.py``),
+which fails fast at seed time; ``hotel_repo.by_short_code`` provides the
+``HTL-XXXXXX`` lookup here.
 """
 
 import hashlib
 from datetime import datetime
 from random import Random
 
+from app.core.config import get_settings
 from app.core.text import best_match
-from app.data.hotels import HOTELS
+from app.crud.hotel_ref import HotelRepository
+from app.db.engine import get_session_factory
 from app.schemas.hotel import Hotel, HotelAvailability
 
-# Validate the seed data once at import time.
-_HOTELS: list[Hotel] = [Hotel(**record) for record in HOTELS]
-
-# Distinct city names that actually have hotels — the targets for the
-# fuzzy city resolver.
-_HOTEL_CITIES: list[str] = sorted({hotel.city for hotel in _HOTELS})
+# Hotels are DB-backed. The repo is built from the configured DB at import time;
+# it is NOT a FastAPI dependency, so tests repoint it via ``set_hotel_repo``
+# after seeding the temp DB (see tests/conftest.py).
+_hotel_repo = HotelRepository(get_session_factory(get_settings().database_url))
 
 
-def _build_short_code_index(hotels: list[Hotel]) -> dict[str, Hotel]:
-    """Build a ``short_code -> Hotel`` map, failing fast on any collision.
+def set_hotel_repo(repo: HotelRepository) -> None:
+    """Point hotel reads at a different store — used by tests to read the seeded
+    temporary database instead of the real travel.db."""
+    global _hotel_repo
+    _hotel_repo = repo
 
-    The codes are hash-derived (see :mod:`app.core.codes`) so two hotels
-    could in principle map to the same code. With 154 hotels and 31^6
-    possible codes the odds are ~3e-7, but checking at import time turns a
-    theoretical bug into a loud startup error rather than a silent wrong
-    lookup later.
-    """
-    index: dict[str, Hotel] = {}
-    for hotel in hotels:
-        existing = index.get(hotel.short_code)
-        if existing is not None:
-            raise RuntimeError(
-                f"Hotel short-code collision: {hotel.short_code} maps to "
-                f"both {existing.id!r} and {hotel.id!r}"
-            )
-        index[hotel.short_code] = hotel
-    return index
-
-
-_HOTELS_BY_SHORT_CODE: dict[str, Hotel] = _build_short_code_index(_HOTELS)
 
 _DATE_FORMAT = "%Y-%m-%d"
 
 
 def list_hotels() -> list[Hotel]:
     """Return every seeded hotel."""
-    return _HOTELS
+    return _hotel_repo.all()
 
 
 def count_nights(check_in: str, check_out: str) -> int:
@@ -68,9 +58,7 @@ def count_nights(check_in: str, check_out: str) -> int:
         - datetime.strptime(check_in, _DATE_FORMAT)
     ).days
     if nights < 1:
-        raise ValueError(
-            f"check_out ({check_out}) must be after check_in ({check_in})"
-        )
+        raise ValueError(f"check_out ({check_out}) must be after check_in ({check_in})")
     return nights
 
 
@@ -100,7 +88,7 @@ def resolve_city(name: str | None) -> str | None:
     Typo/spacing/case tolerant (e.g. "danang" → "Da Nang"), using the same
     matcher as ``GET /cities?q=``. Returns ``None`` if nothing matches.
     """
-    return best_match(name, _HOTEL_CITIES, [lambda c: c])
+    return best_match(name, _hotel_repo.distinct_cities(), [lambda c: c])
 
 
 def search_hotels(
@@ -118,21 +106,14 @@ def search_hotels(
     unrecognised city returns an empty list (not a 404).
     """
     resolved = resolve_city(city)
-    results = [hotel for hotel in _HOTELS if hotel.city == resolved] if resolved else []
-
-    if min_stars is not None:
-        results = [h for h in results if h.star_rating >= min_stars]
-    if max_price is not None:
-        results = [h for h in results if h.price_per_night <= max_price]
-    if amenities:
-        required = [a.strip().lower() for a in amenities]
-        results = [
-            h
-            for h in results
-            if all(req in [a.lower() for a in h.amenities] for req in required)
-        ]
-
-    return results
+    if not resolved:
+        return []
+    return _hotel_repo.search(
+        city=resolved,
+        min_stars=min_stars,
+        max_price=max_price,
+        amenities=amenities,
+    )
 
 
 def get_hotel(hotel_id: str) -> Hotel | None:
@@ -145,8 +126,8 @@ def get_hotel(hotel_id: str) -> Hotel | None:
         return None
     normalised = hotel_id.strip()
     if normalised.upper().startswith("HTL-"):
-        return _HOTELS_BY_SHORT_CODE.get(normalised.upper())
-    return next((hotel for hotel in _HOTELS if hotel.id == normalised), None)
+        return _hotel_repo.by_short_code(normalised)
+    return _hotel_repo.get(normalised)
 
 
 def is_available(

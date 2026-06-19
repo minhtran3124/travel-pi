@@ -9,6 +9,7 @@ from app.crud.city import CityRepository
 from app.crud.country import CountryRepository
 from app.crud.flight import FlightIndexRepository
 from app.crud.fx import FxRepository
+from app.crud.hotel_ref import HotelRepository
 from app.crud.visa import VisaRepository
 from app.db.engine import get_session_factory
 from app.db.seed import seed_all
@@ -21,6 +22,7 @@ from app.services import (
     currency_service,
     destination_service,
     flight_service,
+    hotel_service,
     routing_service,
     saved_place_service,
     visa_service,
@@ -87,6 +89,7 @@ def client(tmp_db):
     visa_service.set_visa_repo(VisaRepository(sf))
     visa_service.set_city_repo(CityRepository(sf))
     visa_service.set_country_repo(CountryRepository(sf))
+    hotel_service.set_hotel_repo(HotelRepository(sf))
     dashboard_router.set_repos(
         airline=AirlineRepository(sf),
         country=CountryRepository(sf),
