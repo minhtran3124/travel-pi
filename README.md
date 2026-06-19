@@ -36,7 +36,7 @@ When you see `Application startup complete`, it's running at
 Press `Ctrl+C` to stop. Data is stored in a local `travel.db` SQLite file,
 created automatically.
 
-Run the test suite (**617 tests**, on SQLite):
+Run the test suite (**621 tests**, on SQLite):
 
 ```bash
 make test           # .venv/bin/python -m pytest tests/ -q
@@ -60,7 +60,7 @@ is always up to date.
 ### (c) Tests on isolated Postgres
 
 Run the full suite against a throwaway Postgres database (cross-engine parity —
-the same **617 tests** pass on both SQLite and Postgres):
+the same **621 tests** pass on both SQLite and Postgres):
 
 ```bash
 make test-docker

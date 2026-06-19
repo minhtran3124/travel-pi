@@ -30,11 +30,11 @@ selected by `DATABASE_URL`. See `README.md` for the full three-path run guide.
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt
 make dev                                            # uvicorn, Swagger at /docs
-make test                                           # 617 tests on SQLite
+make test                                           # 621 tests on SQLite
 
 # Docker + Postgres (migrations run automatically via the entrypoint)
 make up                                             # app at :8000, Postgres in a container
-make test-docker                                    # 617 tests on isolated Postgres (cross-engine parity)
+make test-docker                                    # 621 tests on isolated Postgres (cross-engine parity)
 
 ruff check app scripts && ruff format app scripts
 ```
