@@ -1,6 +1,6 @@
 ---
 slug: seed-data-orm-models
-status: active
+status: shipped
 lane: high-risk
 ---
 
@@ -535,3 +535,4 @@ class PlaceRepository:
 
 ## Status Log
 - 2026-06-19 — plan written (proposed).
+- 2026-06-19 — executed via subagent-driven-development; shipped via `feat/seed-data-orm-models` (PR #12, stacked on #11). 665 tests green on SQLite + Postgres.
