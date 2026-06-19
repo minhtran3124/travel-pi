@@ -31,34 +31,53 @@ all classes so `Base.metadata` (Alembic autogenerate + `create_all`) sees them u
 
 ```
 app/db/models/
-  __init__.py          # re-exports every *Row class
-  booking.py           # BookingRow            (moved from models.py)
-  trip.py              # TripRow, TripItemRow, TripPlaceLinkRow (moved)
-  saved_place.py       # SavedPlaceRow         (moved)
-  flight_index.py      # FlightIndexRow        (moved)
-  country.py           # CountryRow            (new — source of truth)
-  airline.py           # AirlineRow            (new)
-  airport.py           # AirportRow            (new)
-  city.py              # CityRow               (new)
-  hotel.py             # HotelRow              (new)
-  place.py             # PlaceRow              (new)
-  tip.py               # TipRow                (new)
-  visa.py              # VisaRow               (new)
-  fx.py                # FxRateRow, CountryCurrencyRow, FxMetaRow (new)
+  __init__.py          # re-exports every model class
+  booking.py           # Booking            (moved from models.py)
+  trip.py              # Trip, TripItem, TripPlaceLink (moved)
+  saved_place.py       # SavedPlace         (moved)
+  flight_index.py      # FlightIndex        (moved)
+  country.py           # Country            (new — source of truth)
+  airline.py           # Airline            (new)
+  airport.py           # Airport            (new)
+  city.py              # City               (new)
+  hotel.py             # Hotel              (new)
+  place.py             # Place              (new)
+  tip.py               # Tip                (new)
+  visa.py              # Visa               (new)
+  fx.py                # FxRate, CountryCurrency, FxMeta (new)
 ```
 
-Moving the 4 existing classes is import-only churn (no schema change) — Alembic `alembic check`
-must still report no-drift afterward.
+**Naming & the ORM-vs-Pydantic collision (per user request: no `Row` suffix).** ORM model classes
+are named plainly — `Booking`, `Hotel`, `Place`, `City`, `Airport`, `Tip`, `Country`, … — which
+**collide by name** with the existing Pydantic response schemas in `app/schemas/` (`Hotel`, `Place`,
+`City`, …). Resolve the collision by **namespace, not by suffix**:
+
+- **ORM models** are always referenced through the package namespace:
+  `from app.db import models` → `models.Hotel`, `models.Booking`, `session.get(models.Hotel, id)`.
+- **Pydantic schemas** are imported directly: `from app.schemas.hotel import Hotel`.
+- In a repo file (`app/crud/hotel.py`) that needs both, the ORM side reads `models.Hotel` and the
+  API side reads `Hotel` — visually unambiguous, no aliases. (If a file ever finds a direct ORM
+  import clearer, alias it `from app.db.models.hotel import Hotel as HotelModel` — never reintroduce
+  a `Row`/`ORM` suffix on the class definition itself.)
+- The `__init__.py` re-exports the plain class names so `models.Hotel` resolves.
+
+**This renames the 6 already-shipped ORM classes** from the docker-postgres work
+(`BookingRow→Booking`, `TripRow→Trip`, `TripItemRow→TripItem`, `TripPlaceLinkRow→TripPlaceLink`,
+`SavedPlaceRow→SavedPlace`, `FlightIndexRow→FlightIndex`) and updates their references in
+`app/crud/{booking,trip,saved_place,flight}.py`, `tests/conftest.py`, `tests/test_db_models.py`, and
+`alembic/env.py`. It is a **class-rename only** — `__tablename__` values and all column definitions
+are unchanged, so the DB schema, the `0001_initial` migration, and `alembic check` (no-drift) are
+unaffected. Moving the classes into the package is otherwise import-only churn.
 
 ### 2. New ORM tables (columns mirror the seed dicts; FKs encode current guards)
 
-- **CountryRow** — `code` PK, `name`, `region`, `latitude`, `longitude`.
-- **AirlineRow** — `code` PK, `name`, `color` (nullable; from `AIRLINE_COLORS`, default applied in serialization).
-- **AirportRow** — `iata` PK, `name`, `city`, `country`, `country_code` FK→`country.code`.
-- **CityRow** — surrogate `id` PK, `name`, `country` (the country **name** string, exactly as `cities.py` stores it), `country_code` (denormalized from `countries.py` for convenience, nullable), `airport_codes` JSON, `latitude`, `longitude`. Unique `(name, country)`. The country link is by **name** (matching the current code, which resolves a city's country by name); a FK is enforced against `CountryRow.name` (add a unique index on `country.name`) — *not* against `code`. Seeding note: `CityRow.country` ← the dict's `country` field (name); `country_code` ← reverse-looked-up from `countries.py`.
-- **HotelRow** — `id` UUID PK (seeded verbatim), `code`, `name`, `city`, `country`, `address`, `star_rating`, `price_per_night`, `currency`, `amenities` JSON, + remaining fields.
-- **PlaceRow** — `id` UUID PK (seeded verbatim), `name`, `city`, `country`, `category`, `description`, `address`, `rating`, `review_count`, `price_level`, `opening_hours`, `image_url`, + remaining fields.
-- **TipRow** — one row per tip (normalized, not JSON lists). `id` PK = the positional id
+- **Country** — `code` PK, `name`, `region`, `latitude`, `longitude`.
+- **Airline** — `code` PK, `name`, `color` (nullable; from `AIRLINE_COLORS`, default applied in serialization).
+- **Airport** — `iata` PK, `name`, `city`, `country`, `country_code` FK→`country.code`.
+- **City** — surrogate `id` PK, `name`, `country` (the country **name** string, exactly as `cities.py` stores it), `country_code` (denormalized from `countries.py` for convenience, nullable), `airport_codes` JSON, `latitude`, `longitude`. Unique `(name, country)`. The country link is by **name** (matching the current code, which resolves a city's country by name); a FK is enforced against `Country.name` (add a unique index on `country.name`) — *not* against `code`. Seeding note: `City.country` ← the dict's `country` field (name); `country_code` ← reverse-looked-up from `countries.py`.
+- **Hotel** — `id` UUID PK (seeded verbatim), `code`, `name`, `city`, `country`, `address`, `star_rating`, `price_per_night`, `currency`, `amenities` JSON, + remaining fields.
+- **Place** — `id` UUID PK (seeded verbatim), `name`, `city`, `country`, `category`, `description`, `address`, `rating`, `review_count`, `price_level`, `opening_hours`, `image_url`, + remaining fields.
+- **Tip** — one row per tip (normalized, not JSON lists). `id` PK = the positional id
   `tip_{scope}_{prefix}_{NN}` exactly as `tip_service._build_tips()` derives it today; `scope`
   (`country`|`city`), `key` (country **or** city name, from `COUNTRY_TIPS`/`CITY_TIPS` keys),
   `position` int, `category`, `title`, `content`, `is_essential`. Unique `(scope, key, position)`.
@@ -66,9 +85,9 @@ must still report no-drift afterward.
   `COUNTRY_TIPS[key]` / `CITY_TIPS[key]` so `position` (and thus the derived `id`) matches the
   current runtime IDs — honoring the `tips.py` "append only, never reorder" rule. The `tip_service`
   ID-building logic moves into the seeder; the repo reads rows back ordered by `position`.
-- **CountrySummaryRow** — `country` PK, `summary` (from `COUNTRY_SUMMARIES`).
-- **VisaRow** — `country` PK, `visa_free_days`, `visa_on_arrival`, `e_visa`, `passport_validity_months`, `summary`.
-- **Fx** — `FxRateRow` (`code` PK, `rate`), `CountryCurrencyRow` (`country` PK, `code`), `FxMetaRow` (`last_updated`).
+- **CountrySummary** — `country` PK, `summary` (from `COUNTRY_SUMMARIES`).
+- **Visa** — `country` PK, `visa_free_days`, `visa_on_arrival`, `e_visa`, `passport_validity_months`, `summary`.
+- **Fx** — `FxRate` (`code` PK, `rate`), `CountryCurrency` (`country` PK, `code`), `FxMeta` (`last_updated`).
 
 All JSON columns use the portable `JSON` type (matches the docker-postgres decision — no JSONB).
 
