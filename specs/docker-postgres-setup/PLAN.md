@@ -1,8 +1,12 @@
 ---
 slug: docker-postgres-setup
-status: active
+status: shipped
 lane: high-risk
 ---
+
+## Status Log
+
+- 2026-06-19 — shipped via `feat/docker-postgres-setup` (PR #11)
 
 # Docker + Postgres + SQLAlchemy ORM Implementation Plan
 
