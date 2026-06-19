@@ -13,6 +13,7 @@ from fastapi import Depends
 
 from app.core.config import get_settings
 from app.crud.saved_place import SavedPlaceRepository
+from app.db.engine import get_session_factory
 from app.exceptions import ConflictError, NotFoundError
 from app.schemas.saved_place import SavedPlace, SavedPlaceCreate
 
@@ -20,8 +21,8 @@ _DEDUP_RADIUS_KM = 0.05  # ~50 m
 
 
 class SavedPlaceService:
-    def __init__(self, db_path: str) -> None:
-        self._repo = SavedPlaceRepository(db_path)
+    def __init__(self, database_url: str) -> None:
+        self._repo = SavedPlaceRepository(get_session_factory(database_url))
 
     def init_db(self) -> None:
         self._repo.init_db()
@@ -70,9 +71,9 @@ class SavedPlaceService:
         return self.get(sp.id)
 
 
-# Shared singleton — constructed at import time (cheap: stores the path only).
-# Tables are created later from the app's lifespan handler.
-_saved_place_service = SavedPlaceService(get_settings().database_path)
+# Shared singleton — constructed at import time (cheap: builds a session
+# factory). Tables are created later from the app's lifespan handler.
+_saved_place_service = SavedPlaceService(get_settings().database_url)
 
 
 def get_saved_place_service() -> SavedPlaceService:

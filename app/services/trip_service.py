@@ -7,13 +7,15 @@ the booking service.
 """
 
 import logging
-import sqlite3
 import uuid
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
 
+from sqlalchemy.exc import IntegrityError
+
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
+from app.db.engine import get_session_factory
 from app.enums import (
     ActivityLevel,
     BookingStatus,
@@ -64,8 +66,8 @@ def _new_id() -> str:
 class TripService:
     """Business logic over the trip store."""
 
-    def __init__(self, db_path: str) -> None:
-        self._repo = TripRepository(db_path)
+    def __init__(self, database_url: str) -> None:
+        self._repo = TripRepository(get_session_factory(database_url))
 
     def init_db(self) -> None:
         """Create the backing tables. Called once on application startup."""
@@ -248,7 +250,7 @@ class TripService:
                 source,
                 datetime.now(timezone.utc).isoformat(),
             )
-        except sqlite3.IntegrityError:
+        except IntegrityError:
             raise ConflictError(
                 f"Place {place_id!r} is already shortlisted on this trip.",
                 hint="It is already on the shortlist; GET /trips/{trip_id}/places.",
@@ -559,10 +561,10 @@ class TripService:
         )
 
 
-# Shared singleton — constructed at import time (cheap: stores the path only).
-# The tables are created later from the app's lifespan handler, so importing
-# this module has no side effects.
-_trip_service = TripService(get_settings().database_path)
+# Shared singleton — constructed at import time (cheap: builds a session
+# factory). The tables are created later from the app's lifespan handler, so
+# importing this module has no side effects.
+_trip_service = TripService(get_settings().database_url)
 
 
 def get_trip_service() -> TripService:

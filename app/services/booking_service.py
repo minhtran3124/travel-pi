@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 
 from app.core.config import get_settings
 from app.crud.booking import BookingRepository
+from app.db.engine import get_session_factory
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
 from app.schemas.booking import Booking, FlightBookingDetails, HotelBookingDetails
@@ -39,8 +40,8 @@ def _new_booking_id() -> str:
 class BookingService:
     """Business logic over the booking store."""
 
-    def __init__(self, db_path: str) -> None:
-        self._repo = BookingRepository(db_path)
+    def __init__(self, database_url: str) -> None:
+        self._repo = BookingRepository(get_session_factory(database_url))
 
     def init_db(self) -> None:
         """Create the backing table. Called once on application startup."""
@@ -286,10 +287,10 @@ class BookingService:
         return booking
 
 
-# Shared singleton — constructed at import time (cheap: it only stores the
-# configured path). The backing table is created later, from the app's
+# Shared singleton — constructed at import time (cheap: it only builds a
+# session factory). The backing table is created later, from the app's
 # lifespan handler, so importing this module has no side effects.
-_booking_service = BookingService(get_settings().database_path)
+_booking_service = BookingService(get_settings().database_url)
 
 
 def get_booking_service() -> BookingService:

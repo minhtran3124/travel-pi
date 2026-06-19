@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 from app.core.config import get_settings
 from app.crud.flight import FlightIndexRepository
 from app.data.airlines import AIRLINES
+from app.db.engine import get_session_factory
 from app.schemas.flight import Airline, Flight
 
 # Fixed namespace for deterministic flight UUIDs (UUID5).
@@ -31,7 +32,7 @@ _FLIGHT_NS = uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
 # this in-process dict as a write-through cache to skip the DB on a repeat
 # search of a route already seen this process.
 _flight_index: dict[str, tuple[str, str, str]] = {}
-_index_repo = FlightIndexRepository(get_settings().database_path)
+_index_repo = FlightIndexRepository(get_session_factory(get_settings().database_url))
 
 
 def init_flight_index() -> None:
@@ -45,6 +46,7 @@ def set_index_repo(repo: FlightIndexRepository) -> None:
     global _index_repo
     _index_repo = repo
     _flight_index.clear()
+
 
 FLIGHTS_PER_SEARCH = 5
 _DEPARTURE_MINUTES = (0, 15, 30, 45)
