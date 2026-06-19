@@ -1,133 +1,72 @@
-"""Data-access layer for saved places — SQLite persistence, nothing else.
+"""Data-access layer for saved places — SQLAlchemy ORM persistence only.
 
 The ``crud`` tier reads/writes ``saved_places`` rows; business rules (ID
 generation, existence checks, 404/409s, dedup policy) live in
-``services/saved_place_service.py``. Mirrors ``crud/trip.py``: a fresh
-connection per call (threadpool-safe for sync endpoints), idempotent
-``init_db``, soft-delete filtered from reads. The ``links`` column is stored
-as JSON text (like ``crud/booking.py`` stores ``details``).
+``services/saved_place_service.py``. A fresh session per call (threadpool-safe
+for sync endpoints), idempotent ``init_db``, soft-delete filtered from reads.
+The ``links`` column is a native JSON column (no manual json.dumps/loads).
 """
 
-import json
-import sqlite3
-from collections.abc import Iterator
-from contextlib import contextmanager
+from sqlalchemy import func, select
 
 from app.core.geo import haversine_km
+from app.db.base import Base
+from app.db.models import SavedPlaceRow
 from app.schemas.saved_place import SavedPlace
-
-_SCHEMA = """
-CREATE TABLE IF NOT EXISTS saved_places (
-    id           TEXT PRIMARY KEY,
-    name         TEXT NOT NULL,
-    city         TEXT,
-    country      TEXT,
-    category     TEXT,
-    address      TEXT,
-    latitude     REAL,
-    longitude    REAL,
-    price_level  INTEGER,
-    notes        TEXT,
-    favorite     INTEGER NOT NULL DEFAULT 0,
-    visited      INTEGER NOT NULL DEFAULT 0,
-    links        TEXT,
-    duration     INTEGER,
-    created_at   TEXT NOT NULL,
-    deleted_at   TEXT
-)
-"""
-
-_COLUMNS = (
-    "id",
-    "name",
-    "city",
-    "country",
-    "category",
-    "address",
-    "latitude",
-    "longitude",
-    "price_level",
-    "notes",
-    "favorite",
-    "visited",
-    "links",
-    "duration",
-    "created_at",
-)
 
 _SET_FLAG_FIELDS = {"favorite", "visited"}
 
 
-def _row_to_saved_place(row: sqlite3.Row) -> SavedPlace:
-    links_raw = row["links"]
+def _row_to_saved_place(row: SavedPlaceRow) -> SavedPlace:
     return SavedPlace(
-        id=row["id"],
-        name=row["name"],
-        city=row["city"],
-        country=row["country"],
-        category=row["category"],
-        address=row["address"],
-        latitude=row["latitude"],
-        longitude=row["longitude"],
-        price_level=row["price_level"],
-        notes=row["notes"],
-        favorite=bool(row["favorite"]),
-        visited=bool(row["visited"]),
-        links=json.loads(links_raw) if links_raw else None,
-        duration=row["duration"],
-        created_at=row["created_at"],
-    )
-
-
-def _values(sp: SavedPlace) -> tuple:
-    return (
-        sp.id,
-        sp.name,
-        sp.city,
-        sp.country,
-        sp.category,
-        sp.address,
-        sp.latitude,
-        sp.longitude,
-        sp.price_level,
-        sp.notes,
-        int(sp.favorite),
-        int(sp.visited),
-        json.dumps(sp.links) if sp.links is not None else None,
-        sp.duration,
-        sp.created_at,
+        id=row.id,
+        name=row.name,
+        city=row.city,
+        country=row.country,
+        category=row.category,
+        address=row.address,
+        latitude=row.latitude,
+        longitude=row.longitude,
+        price_level=row.price_level,
+        notes=row.notes,
+        favorite=bool(row.favorite),
+        visited=bool(row.visited),
+        links=row.links,
+        duration=row.duration,
+        created_at=row.created_at,
     )
 
 
 class SavedPlaceRepository:
-    """SQLite-backed store of saved_places rows."""
+    """ORM-backed store of saved_places rows."""
 
-    def __init__(self, db_path: str) -> None:
-        self._db_path = db_path
-
-    @contextmanager
-    def _connect(self) -> Iterator[sqlite3.Connection]:
-        conn = sqlite3.connect(self._db_path)
-        conn.row_factory = sqlite3.Row
-        try:
-            yield conn
-            conn.commit()
-        finally:
-            conn.close()
+    def __init__(self, session_factory) -> None:
+        self._sf = session_factory
 
     def init_db(self) -> None:
-        """Create the saved_places table if absent (idempotent)."""
-        with self._connect() as conn:
-            conn.execute(_SCHEMA)
+        Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
 
     def add(self, sp: SavedPlace) -> SavedPlace:
-        placeholders = ", ".join("?" for _ in _COLUMNS)
-        with self._connect() as conn:
-            conn.execute(
-                f"INSERT INTO saved_places ({', '.join(_COLUMNS)}) "
-                f"VALUES ({placeholders})",
-                _values(sp),
-            )
+        row = SavedPlaceRow(
+            id=sp.id,
+            name=sp.name,
+            city=sp.city,
+            country=sp.country,
+            category=sp.category,
+            address=sp.address,
+            latitude=sp.latitude,
+            longitude=sp.longitude,
+            price_level=sp.price_level,
+            notes=sp.notes,
+            favorite=bool(sp.favorite),
+            visited=bool(sp.visited),
+            links=sp.links,
+            duration=sp.duration,
+            created_at=sp.created_at,
+        )
+        with self._sf() as s:
+            s.add(row)
+            s.commit()
         return sp
 
     def get(self, id_: str) -> SavedPlace | None:
@@ -136,21 +75,22 @@ class SavedPlaceRepository:
         The short code is derived (not stored), so a code lookup scans the
         live rows and matches on the computed ``short_code`` in Python.
         """
-        with self._connect() as conn:
-            row = conn.execute(
-                "SELECT * FROM saved_places WHERE id = ? AND deleted_at IS NULL",
-                (id_,),
-            ).fetchone()
+        with self._sf() as s:
+            row = s.scalars(
+                select(SavedPlaceRow).where(
+                    SavedPlaceRow.id == id_, SavedPlaceRow.deleted_at.is_(None)
+                )
+            ).first()
             if row is not None:
                 return _row_to_saved_place(row)
-            rows = conn.execute(
-                "SELECT * FROM saved_places WHERE deleted_at IS NULL"
-            ).fetchall()
-        wanted = id_.upper()
-        for r in rows:
-            sp = _row_to_saved_place(r)
-            if sp.short_code.upper() == wanted:
-                return sp
+            rows = s.scalars(
+                select(SavedPlaceRow).where(SavedPlaceRow.deleted_at.is_(None))
+            ).all()
+            wanted = id_.upper()
+            for r in rows:
+                sp = _row_to_saved_place(r)
+                if sp.short_code.upper() == wanted:
+                    return sp
         return None
 
     def list(
@@ -161,50 +101,50 @@ class SavedPlaceRepository:
         favorite: bool | None = None,
         visited: bool | None = None,
     ) -> list[SavedPlace]:
-        clauses = ["deleted_at IS NULL"]
-        params: list = []
+        stmt = select(SavedPlaceRow).where(SavedPlaceRow.deleted_at.is_(None))
         if city is not None:
-            clauses.append("LOWER(city) = LOWER(?)")
-            params.append(city)
+            stmt = stmt.where(func.lower(SavedPlaceRow.city) == func.lower(city))
         if category is not None:
-            clauses.append("LOWER(category) = LOWER(?)")
-            params.append(category)
+            stmt = stmt.where(
+                func.lower(SavedPlaceRow.category) == func.lower(category)
+            )
         if favorite is not None:
-            clauses.append("favorite = ?")
-            params.append(int(favorite))
+            stmt = stmt.where(SavedPlaceRow.favorite == bool(favorite))
         if visited is not None:
-            clauses.append("visited = ?")
-            params.append(int(visited))
-        where = " AND ".join(clauses)
-        with self._connect() as conn:
-            rows = conn.execute(
-                f"SELECT * FROM saved_places WHERE {where} "
-                "ORDER BY created_at DESC, id DESC",
-                params,
-            ).fetchall()
-        return [_row_to_saved_place(r) for r in rows]
+            stmt = stmt.where(SavedPlaceRow.visited == bool(visited))
+        stmt = stmt.order_by(SavedPlaceRow.created_at.desc(), SavedPlaceRow.id.desc())
+        with self._sf() as s:
+            return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 
     def soft_delete(self, id_: str, *, when: str) -> bool:
         """Stamp deleted_at; True if a live row existed and was tombstoned."""
-        with self._connect() as conn:
-            cursor = conn.execute(
-                "UPDATE saved_places SET deleted_at = ? "
-                "WHERE id = ? AND deleted_at IS NULL",
-                (when, id_),
-            )
-            return cursor.rowcount > 0
+        with self._sf() as s:
+            row = s.scalars(
+                select(SavedPlaceRow).where(
+                    SavedPlaceRow.id == id_, SavedPlaceRow.deleted_at.is_(None)
+                )
+            ).first()
+            if row is None:
+                return False
+            row.deleted_at = when
+            s.commit()
+            return True
 
     def set_flag(self, id_: str, field: str, value: bool) -> bool:
         """SET favorite/visited on a live row. True if a row changed."""
         if field not in _SET_FLAG_FIELDS:
             raise ValueError(f"Unsupported flag field: {field!r}")
-        with self._connect() as conn:
-            cursor = conn.execute(
-                f"UPDATE saved_places SET {field} = ? "
-                "WHERE id = ? AND deleted_at IS NULL",
-                (int(value), id_),
-            )
-            return cursor.rowcount > 0
+        with self._sf() as s:
+            row = s.scalars(
+                select(SavedPlaceRow).where(
+                    SavedPlaceRow.id == id_, SavedPlaceRow.deleted_at.is_(None)
+                )
+            ).first()
+            if row is None:
+                return False
+            setattr(row, field, bool(value))
+            s.commit()
+            return True
 
     def find_duplicate(
         self,
@@ -219,24 +159,28 @@ class SavedPlaceRepository:
 
         Same case-insensitive name AND either: both records have coordinates
         and are within ``radius_km`` (haversine), or coordinates are missing
-        on either side and ``city`` matches. ``haversine_km`` is never called
-        with a NULL coordinate (guarded below).
+        on either side and ``city`` matches.
         """
-        with self._connect() as conn:
-            rows = conn.execute(
-                "SELECT * FROM saved_places "
-                "WHERE deleted_at IS NULL AND LOWER(name) = LOWER(?)",
-                (name,),
-            ).fetchall()
-        for r in rows:
-            cand = _row_to_saved_place(r)
-            both_have_coords = (
+        with self._sf() as s:
+            # Materialize to Pydantic INSIDE the session — never iterate ORM
+            # rows after the block closes (detached-instance hazard).
+            cands = [
+                _row_to_saved_place(r)
+                for r in s.scalars(
+                    select(SavedPlaceRow).where(
+                        SavedPlaceRow.deleted_at.is_(None),
+                        func.lower(SavedPlaceRow.name) == func.lower(name),
+                    )
+                ).all()
+            ]
+        for cand in cands:
+            both = (
                 lat is not None
                 and lng is not None
                 and cand.latitude is not None
                 and cand.longitude is not None
             )
-            if both_have_coords:
+            if both:
                 if haversine_km(lat, lng, cand.latitude, cand.longitude) <= radius_km:
                     return cand
             elif cand.city == city:

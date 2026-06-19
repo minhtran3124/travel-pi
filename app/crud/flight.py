@@ -1,4 +1,4 @@
-"""Data-access layer for the flight lookup index — SQLite persistence only.
+"""Data-access layer for the flight lookup index — SQLAlchemy ORM only.
 
 Flights themselves are never stored (see ``services/flight_service.py``), but
 the *search parameters* behind each issued flight ID are. Persisting that map
@@ -7,77 +7,51 @@ handed out — even after a restart or on a different worker process — by
 re-running the deterministic generator for those params.
 """
 
-import sqlite3
-from collections.abc import Iterator
-from contextlib import contextmanager
+from sqlalchemy import select
 
-# One row per flight ID ever generated. The columns are exactly what
-# `generate_flights` needs to deterministically reproduce the flight.
-_SCHEMA = """
-CREATE TABLE IF NOT EXISTS flight_index (
-    flight_id       TEXT PRIMARY KEY,
-    origin          TEXT NOT NULL,
-    destination     TEXT NOT NULL,
-    departure_date  TEXT NOT NULL
-)
-"""
-
-_INSERT = (
-    "INSERT OR IGNORE INTO flight_index "
-    "(flight_id, origin, destination, departure_date) VALUES (?, ?, ?, ?)"
-)
+from app.db.base import Base
+from app.db.models import FlightIndexRow
 
 
 class FlightIndexRepository:
-    """SQLite-backed map of flight ID → the search params that generated it."""
+    """ORM-backed map of flight ID -> the search params that generated it."""
 
-    def __init__(self, db_path: str) -> None:
-        self._db_path = db_path
-
-    @contextmanager
-    def _connect(self) -> Iterator[sqlite3.Connection]:
-        """Open a connection, commit on success, and always close it.
-
-        A fresh connection per call keeps this safe across FastAPI's
-        threadpool — the same pattern as ``BookingRepository``.
-        """
-        conn = sqlite3.connect(self._db_path)
-        conn.row_factory = sqlite3.Row
-        try:
-            yield conn
-            conn.commit()
-        finally:
-            conn.close()
+    def __init__(self, session_factory) -> None:
+        self._sf = session_factory
 
     def init_db(self) -> None:
-        """Create the flight_index table if it does not exist. Called on startup."""
-        with self._connect() as conn:
-            conn.execute(_SCHEMA)
+        Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
 
-    def remember_many(
-        self, rows: list[tuple[str, str, str, str]]
-    ) -> None:
-        """Record ``(flight_id, origin, destination, departure_date)`` rows.
+    def remember_many(self, rows: list[tuple[str, str, str, str]]) -> None:
+        """Idempotently record (flight_id, origin, destination, departure_date).
 
-        ``INSERT OR IGNORE`` makes this idempotent — re-recording a flight ID
-        already on file is a no-op, so callers need not check first.
+        Portable insert-or-ignore: skip IDs already present, insert the rest.
         """
         if not rows:
             return
-        with self._connect() as conn:
-            conn.executemany(_INSERT, rows)
+        ids = [r[0] for r in rows]
+        with self._sf() as s:
+            existing = set(
+                s.scalars(
+                    select(FlightIndexRow.flight_id).where(
+                        FlightIndexRow.flight_id.in_(ids)
+                    )
+                ).all()
+            )
+            new_rows = [
+                FlightIndexRow(
+                    flight_id=fid, origin=o, destination=d, departure_date=dep
+                )
+                for (fid, o, d, dep) in rows
+                if fid not in existing
+            ]
+            if new_rows:
+                s.add_all(new_rows)
+                s.commit()
 
     def lookup(self, flight_id: str) -> tuple[str, str, str] | None:
-        """Return ``(origin, destination, departure_date)`` for a flight ID.
-
-        Returns ``None`` if the ID was never issued by this deployment.
-        """
-        with self._connect() as conn:
-            row = conn.execute(
-                "SELECT origin, destination, departure_date "
-                "FROM flight_index WHERE flight_id = ?",
-                (flight_id,),
-            ).fetchone()
-        if row is None:
-            return None
-        return (row["origin"], row["destination"], row["departure_date"])
+        with self._sf() as s:
+            row = s.get(FlightIndexRow, flight_id)
+            if row is None:
+                return None
+            return (row.origin, row.destination, row.departure_date)
