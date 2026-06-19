@@ -1,6 +1,6 @@
 ---
 slug: seed-data-orm-models
-status: proposed
+status: active
 lane: high-risk
 ---
 
