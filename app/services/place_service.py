@@ -1,35 +1,39 @@
-"""Place / attraction lookup over in-memory seed data."""
+"""Place / attraction lookup over the DB-backed seed data.
+
+Place records are read through ``place_repo`` (``app.crud.place_ref``) per
+request; ``app/data/places.py`` remains the guarded seed source. The repo does
+exact/range SQL filters only — the fuzzy city resolution and the result sort
+stay HERE in the service. ``CATEGORIES``/``CITIES`` are now derived per call
+from ``place_repo`` distinct queries (kept as module-level helpers for the
+NL-parsing code and the dashboard).
+
+The short-code collision guard now lives in the seeder (``app/db/seed.py``);
+``place_repo.by_short_code`` provides the ``PLC-XXXXXX`` lookup here.
+"""
 
 import re
 
+from app.core.config import get_settings
 from app.core.geo import haversine_km
 from app.core.text import best_match
-from app.data.places import PLACES
+from app.crud.place_ref import PlaceRepository
+from app.db.engine import get_session_factory
 from app.exceptions import NotFoundError
 from app.schemas.place import NearbyPlace, ParsedQuery, Place
 from app.schemas.saved_place import SavedPlace
 
-_PLACES: list[Place] = [Place(**record) for record in PLACES]
-
-CATEGORIES = sorted({p.category for p in _PLACES})
-CITIES = sorted({p.city for p in _PLACES})
-
-
-def _build_short_code_index(places: list[Place]) -> dict[str, Place]:
-    """Map ``short_code -> Place``, failing fast on collisions (see hotel_service)."""
-    index: dict[str, Place] = {}
-    for place in places:
-        existing = index.get(place.short_code)
-        if existing is not None:
-            raise RuntimeError(
-                f"Place short-code collision: {place.short_code} maps to "
-                f"both {existing.id!r} and {place.id!r}"
-            )
-        index[place.short_code] = place
-    return index
+# Places are DB-backed. The repo is built from the configured DB at import time;
+# it is NOT a FastAPI dependency, so tests repoint it via ``set_place_repo``
+# after seeding the temp DB (see tests/conftest.py).
+_place_repo = PlaceRepository(get_session_factory(get_settings().database_url))
 
 
-_PLACES_BY_SHORT_CODE: dict[str, Place] = _build_short_code_index(_PLACES)
+def set_place_repo(repo: PlaceRepository) -> None:
+    """Point place reads at a different store — used by tests to read the seeded
+    temporary database instead of the real travel.db."""
+    global _place_repo
+    _place_repo = repo
+
 
 # Valid sort keys live in ``app.enums.PlaceSort`` (the JSON router validates
 # against the enum). The actual sort dispatch happens via the if/elif chain
@@ -37,8 +41,18 @@ _PLACES_BY_SHORT_CODE: dict[str, Place] = _build_short_code_index(_PLACES)
 DEFAULT_SORT = "rating_desc"
 
 
+def categories() -> list[str]:
+    """Distinct place categories, sorted (mirrors the old ``CATEGORIES`` list)."""
+    return _place_repo.distinct_categories()
+
+
+def cities() -> list[str]:
+    """Distinct place cities, sorted (mirrors the old ``CITIES`` list)."""
+    return _place_repo.distinct_cities()
+
+
 def list_places() -> list[Place]:
-    return list(_PLACES)
+    return _place_repo.all()
 
 
 def resolve_city(name: str | None) -> str | None:
@@ -47,7 +61,7 @@ def resolve_city(name: str | None) -> str | None:
     Typo/spacing/case tolerant (e.g. "danang" → "Da Nang"), using the same
     matcher as ``GET /cities?q=``. Returns ``None`` if nothing matches.
     """
-    return best_match(name, CITIES, [lambda c: c])
+    return best_match(name, _place_repo.distinct_cities(), [lambda c: c])
 
 
 def search_places(
@@ -67,23 +81,22 @@ def search_places(
     everything at or below that band. They may be combined but normally only
     one is supplied.
     """
-    results = list(_PLACES)
-
     if city:
         # A given-but-unrecognised city yields no results (not all places).
         resolved = resolve_city(city)
-        results = [p for p in results if p.city == resolved] if resolved else []
-    if category:
-        cat = category.strip().lower()
-        results = [p for p in results if p.category.lower() == cat]
-    if min_rating is not None:
-        results = [p for p in results if p.rating >= min_rating]
-    if price_level is not None:
-        results = [p for p in results if p.price_level == price_level]
-    if price_level_max is not None:
-        results = [p for p in results if p.price_level <= price_level_max]
-    if recommended_only:
-        results = [p for p in results if p.is_recommended]
+        if not resolved:
+            return []
+    else:
+        resolved = None
+
+    results = _place_repo.search(
+        city=resolved,
+        category=category,
+        min_rating=min_rating,
+        price_level=price_level,
+        price_level_max=price_level_max,
+        recommended=recommended_only or None,
+    )
 
     if sort == "rating_asc":
         results.sort(key=lambda p: p.rating)
@@ -111,8 +124,8 @@ def get_place(place_id: str) -> Place | None:
         return None
     normalised = place_id.strip()
     if normalised.upper().startswith("PLC-"):
-        return _PLACES_BY_SHORT_CODE.get(normalised.upper())
-    return next((p for p in _PLACES if p.id == normalised), None)
+        return _place_repo.by_short_code(normalised)
+    return _place_repo.get(normalised)
 
 
 def resolve(place_id: str, source: str) -> Place | SavedPlace | None:
@@ -164,7 +177,7 @@ def nearby_places(
 
     wanted = category.strip().lower() if category else None
     found: list[NearbyPlace] = []
-    for place in _PLACES:
+    for place in _place_repo.all():
         if place.id == origin.id or place.latitude is None or place.longitude is None:
             continue
         if wanted and place.category.lower() != wanted:
@@ -256,7 +269,7 @@ def _nl_has_word(query: str, word: str) -> bool:
 
 def _nl_city(query: str) -> str | None:
     """Longest canonical city name appearing in the query (case-insensitive)."""
-    hits = [c for c in CITIES if c.lower() in query]
+    hits = [c for c in cities() if c.lower() in query]
     return max(hits, key=len) if hits else None
 
 

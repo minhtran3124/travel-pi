@@ -186,7 +186,7 @@ def search_places_nl(
 )
 def list_place_cities() -> list[str]:
     """Return the sorted list of city names that have at least one place."""
-    return place_service.CITIES
+    return place_service.cities()
 
 
 @router.get(
@@ -196,7 +196,7 @@ def list_place_cities() -> list[str]:
 )
 def list_categories() -> list[str]:
     """Return the sorted list of available place categories."""
-    return place_service.CATEGORIES
+    return place_service.categories()
 
 
 # --------------------------------------------------------------------------- #

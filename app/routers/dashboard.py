@@ -29,8 +29,8 @@ from app.core.params import parse_optional_number
 from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.crud.city import CityRepository
 from app.crud.country import CountryRepository
+from app.crud.tip import TipRepository
 from app.crud.visa import VisaRepository
-from app.data.tips import COUNTRY_TIPS as _COUNTRY_TIPS
 from app.db.engine import get_session_factory
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
@@ -66,6 +66,7 @@ _airline_repo = AirlineRepository(get_session_factory(_db_url))
 _country_repo = CountryRepository(get_session_factory(_db_url))
 _city_repo = CityRepository(get_session_factory(_db_url))
 _visa_repo = VisaRepository(get_session_factory(_db_url))
+_tip_repo = TipRepository(get_session_factory(_db_url))
 
 
 def set_repos(
@@ -74,10 +75,11 @@ def set_repos(
     country: CountryRepository | None = None,
     city: CityRepository | None = None,
     visa: VisaRepository | None = None,
+    tip: TipRepository | None = None,
 ) -> None:
     """Point the dashboard's reference-data repos at a different store — used by
     tests to read the seeded temporary database instead of the real travel.db."""
-    global _airline_repo, _country_repo, _city_repo, _visa_repo
+    global _airline_repo, _country_repo, _city_repo, _visa_repo, _tip_repo
     if airline is not None:
         _airline_repo = airline
     if country is not None:
@@ -86,6 +88,8 @@ def set_repos(
         _city_repo = city
     if visa is not None:
         _visa_repo = visa
+    if tip is not None:
+        _tip_repo = tip
 
 
 @router.get("", response_class=HTMLResponse, include_in_schema=False)
@@ -380,7 +384,7 @@ def places_page(
     error: str | None = err_rating or err_price
 
     all_places = place_service.list_places()
-    cities = place_service.CITIES
+    cities = place_service.cities()
 
     # Skip the search on bad input so the page renders the error and the
     # picker, not a misleading "everything" list.
@@ -457,7 +461,7 @@ def _tip_destinations() -> list[dict]:
     """
     out: list[dict] = []
     for c in _country_repo.list():
-        tips = _COUNTRY_TIPS.get(c["name"], [])
+        tips = _tip_repo.for_location("country", c["name"])
         if not tips:
             continue
         out.append(
@@ -466,7 +470,7 @@ def _tip_destinations() -> list[dict]:
                 "flag": _flag_emoji(c.get("code", "")),
                 "region": c.get("region", "Other"),
                 "count": len(tips),
-                "essential": sum(1 for t in tips if t.get("is_essential")),
+                "essential": sum(1 for t in tips if t.is_essential),
             }
         )
     return out
@@ -492,7 +496,11 @@ def tips_page(
 
     Country and city options come from the same seed data as the JSON API.
     """
-    countries = sorted(_COUNTRY_TIPS)
+    # Country tiles (name/flag/region/counts) for the picker; the country
+    # dropdown lists the same countries (those that have country-level tips),
+    # alphabetically — mirrors the old ``sorted(COUNTRY_TIPS)``.
+    destinations = _tip_destinations()
+    countries = sorted(d["name"] for d in destinations)
 
     selected_country = country or None
     selected_city = city or None
@@ -532,8 +540,6 @@ def tips_page(
         # Nothing chosen → invite the user to pick a destination.
         view = "picker"
         result = None
-
-    destinations = _tip_destinations()
 
     return _TEMPLATES.TemplateResponse(
         request=request,

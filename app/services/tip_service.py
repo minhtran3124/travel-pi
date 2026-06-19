@@ -1,13 +1,25 @@
-"""Local-tips lookup over in-memory seed data.
+"""Local-tips lookup over the DB-backed seed data.
 
-Country tips are inherited by every city in that country; city tips are
-merged on top when a ``city`` is queried. Unknown locations return an empty
-tip list (``count: 0``), never a 404 — consistent with hotels/places.
+Tip records are read through ``tip_repo`` (``app.crud.tip``) per request;
+``app/data/tips.py`` remains the guarded seed source. Country tips are
+inherited by every city in that country; city tips are merged on top when a
+``city`` is queried. Unknown locations return an empty tip list
+(``count: 0``), never a 404 — consistent with hotels/places.
+
+Positional tip ids (``tip_{scope}_{prefix}_{NN}``) are produced by the seeder
+and ordered by ``position`` in the repo, so they are reproduced verbatim.
+``get_all_tips`` keeps assembling the merged list HERE (iterating the same
+country/city key order as before and attaching the presentation ``location``
+label) — the repo's ``all_tips`` is NOT used (its order is inverted and it
+carries no ``location``).
 """
 
+from app.core.config import get_settings
 from app.core.text import best_match
-from app.data.cities import CITIES
-from app.data.tips import CITY_TIPS, COUNTRY_SUMMARIES, COUNTRY_TIPS
+from app.crud.city import CityRepository
+from app.crud.country import CountryRepository
+from app.crud.tip import TipRepository
+from app.db.engine import get_session_factory
 from app.schemas.tip import Tip, TipsResponse
 
 VALID_CATEGORIES = {
@@ -23,45 +35,47 @@ VALID_CATEGORIES = {
     "language",
 }
 
-# Resolution targets, built once at import: every city record, and the
-# distinct country names. Both ``city`` and ``country`` query params are
-# matched fuzzily against these (typo/spacing/case tolerant).
-_ALL_CITIES: list[dict] = list(CITIES)
-_ALL_COUNTRIES: list[str] = sorted({c["country"] for c in CITIES})
+# Tips / cities / countries are DB-backed. The repos are built from the
+# configured DB at import time; they are NOT FastAPI dependencies, so tests
+# repoint them via the setters after seeding the temp DB (see tests/conftest.py).
+_db_url = get_settings().database_url
+_tip_repo = TipRepository(get_session_factory(_db_url))
+_city_repo = CityRepository(get_session_factory(_db_url))
+_country_repo = CountryRepository(get_session_factory(_db_url))
 
 
-def _slug(text: str) -> str:
-    return "".join(ch if ch.isalnum() else "_" for ch in text.lower())
+def set_tip_repo(repo: TipRepository) -> None:
+    """Point tip reads at a different store — used by tests to read the seeded
+    temporary database instead of the real travel.db."""
+    global _tip_repo
+    _tip_repo = repo
 
 
-def _build_tips(
-    records: list[dict],
-    scope: str,
-    location: str,
-    *,
-    location_label: str | None = None,
+def set_city_repo(repo: CityRepository) -> None:
+    """Point city reads at a different store (city resolution + iteration)."""
+    global _city_repo
+    _city_repo = repo
+
+
+def set_country_repo(repo: CountryRepository) -> None:
+    """Point country reads at a different store (country-name resolution)."""
+    global _country_repo
+    _country_repo = repo
+
+
+def _resolve_tips(
+    scope: str, key: str, *, location_label: str | None = None
 ) -> list[Tip]:
-    """Turn raw seed dicts into ``Tip`` objects with stable, positional IDs.
+    """Fetch tips for one ``(scope, key)`` and attach the presentation label.
 
-    ``location_label`` is the human-friendly "where" attached to each tip
-    (e.g. ``"Hanoi · Vietnam"``). It is only set by callers that mix tips
-    from many destinations into one list (the dashboard's "all" view); the
-    standard per-destination lookup leaves it ``None`` since the caller
-    already named the location.
+    The repo returns tips ordered by ``position`` with stable ids; this sets the
+    optional ``location`` field used by the dashboard's mixed-destination view.
     """
-    prefix = _slug(location)
-    return [
-        Tip(
-            id=f"tip_{scope}_{prefix}_{i:02d}",
-            scope=scope,
-            category=r["category"],
-            title=r["title"],
-            content=r["content"],
-            is_essential=r.get("is_essential", False),
-            location=location_label,
-        )
-        for i, r in enumerate(records)
-    ]
+    tips = _tip_repo.for_location(scope, key)
+    if location_label is not None:
+        for t in tips:
+            t.location = location_label
+    return tips
 
 
 def get_tips(
@@ -82,19 +96,20 @@ def get_tips(
     resolved_city: str | None = None
     tips: list[Tip] = []
 
+    all_cities = _city_repo.list_with_counts()
+
     if city:
-        record = best_match(city, _ALL_CITIES, [lambda c: c["name"]])
+        record = best_match(city, all_cities, [lambda c: c.name])
         if record is not None:
-            resolved_city = record["name"]
-            resolved_country = record["country"]
-            tips += _build_tips(CITY_TIPS.get(resolved_city, []), "city", resolved_city)
+            resolved_city = record.name
+            resolved_country = record.country
+            tips += _resolve_tips("city", resolved_city)
     elif country:
-        resolved_country = best_match(country, _ALL_COUNTRIES, [lambda c: c])
+        countries = sorted({c.country for c in all_cities})
+        resolved_country = best_match(country, countries, [lambda c: c])
 
     if resolved_country is not None:
-        tips += _build_tips(
-            COUNTRY_TIPS.get(resolved_country, []), "country", resolved_country
-        )
+        tips += _resolve_tips("country", resolved_country)
 
     if category:
         cat = category.strip().lower()
@@ -103,7 +118,7 @@ def get_tips(
         tips = [t for t in tips if t.is_essential]
 
     summary = (
-        COUNTRY_SUMMARIES.get(resolved_country, "")
+        _tip_repo.country_summary(resolved_country)
         if resolved_country is not None
         else ""
     )
@@ -129,27 +144,26 @@ def get_all_tips(
     into one flat list. Each tip carries its ``location`` (``"Hanoi · Vietnam"``
     for city scope, ``"Vietnam"`` for country scope) so the UI can label cards
     when destinations are mixed.
+
+    The assembly stays in the service (not ``tip_repo.all_tips``) so the merge
+    order — every country first (alphabetical by name), then every city in seed
+    order — and the ``location`` labels match the previous behaviour exactly.
     """
     tips: list[Tip] = []
 
-    for country_name in _ALL_COUNTRIES:
-        tips += _build_tips(
-            COUNTRY_TIPS.get(country_name, []),
-            "country",
-            country_name,
-            location_label=country_name,
-        )
+    all_cities = _city_repo.list_with_counts()
+    all_countries = sorted({c.country for c in all_cities})
 
-    for city in _ALL_CITIES:
-        city_records = CITY_TIPS.get(city["name"], [])
-        if not city_records:
-            continue
-        tips += _build_tips(
-            city_records,
+    for country_name in all_countries:
+        tips += _resolve_tips("country", country_name, location_label=country_name)
+
+    for city in all_cities:
+        city_tips = _resolve_tips(
             "city",
-            city["name"],
-            location_label=f"{city['name']} · {city['country']}",
+            city.name,
+            location_label=f"{city.name} · {city.country}",
         )
+        tips += city_tips
 
     if category:
         cat = category.strip().lower()
