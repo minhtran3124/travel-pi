@@ -13,6 +13,7 @@ stays in the service (Chunk E); ``search`` takes an already-resolved exact city.
 
 from sqlalchemy import func, select
 
+from app.crud.base import Repo
 from app.db import models
 from app.schemas.hotel import Hotel
 
@@ -21,11 +22,9 @@ def _row_to_hotel(row: models.Hotel) -> Hotel:
     return Hotel.model_validate(row, from_attributes=True)
 
 
-class HotelRepository:
+class HotelRepository(Repo):
     """Read-only store of hotel rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def all(self) -> list[Hotel]:
         """Return every seeded hotel in stable ``position`` (seed) order.
@@ -33,13 +32,13 @@ class HotelRepository:
         Explicit ``ORDER BY position`` so ``/hotels`` offset/limit pagination
         is stable across engines (Postgres makes no row-order guarantee).
         """
-        with self._sf() as s:
+        with self._session() as s:
             stmt = select(models.Hotel).order_by(models.Hotel.position)
             return [_row_to_hotel(r) for r in s.scalars(stmt).all()]
 
     def get(self, hotel_id: str) -> Hotel | None:
         """Return the hotel by raw UUID ``id``, or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.Hotel, hotel_id)
             return _row_to_hotel(row) if row is not None else None
 
@@ -51,7 +50,7 @@ class HotelRepository:
         matching ``hotel_service.get_hotel``'s ``HTL-...`` branch.
         """
         needle = code.strip().upper()
-        with self._sf() as s:
+        with self._session() as s:
             for row in s.scalars(select(models.Hotel)):
                 hotel = _row_to_hotel(row)
                 if hotel.short_code.upper() == needle:
@@ -80,7 +79,7 @@ class HotelRepository:
         if max_price is not None:
             stmt = stmt.where(models.Hotel.price_per_night <= max_price)
 
-        with self._sf() as s:
+        with self._session() as s:
             hotels = [_row_to_hotel(r) for r in s.scalars(stmt).all()]
 
         if amenities:
@@ -95,7 +94,7 @@ class HotelRepository:
     def count_by_city(self) -> dict[str, int]:
         """Return ``{city: hotel_count}`` — feeds ``City.hotel_count``."""
         stmt = select(models.Hotel.city, func.count()).group_by(models.Hotel.city)
-        with self._sf() as s:
+        with self._session() as s:
             return dict(s.execute(stmt).all())
 
     def distinct_cities(self) -> list[str]:
@@ -103,5 +102,5 @@ class HotelRepository:
 
         The fuzzy-resolution target for ``hotel_service.resolve_city``.
         """
-        with self._sf() as s:
+        with self._session() as s:
             return sorted(set(s.scalars(select(models.Hotel.city)).all()))

@@ -7,6 +7,7 @@ because ``flight_service.generate_flights`` does ``rng.choice(AIRLINES)`` over a
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.db import models
 
 # Fallback colour for any airline code without an explicit brand colour.
@@ -15,11 +16,9 @@ from app.db import models
 AIRLINE_COLOR_DEFAULT = "#444b55"
 
 
-class AirlineRepository:
+class AirlineRepository(Repo):
     """Read-only store of airline rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def list(self) -> list[dict]:
         """Return airlines as ``{code, name}`` dicts in seed order.
@@ -27,7 +26,7 @@ class AirlineRepository:
         Determinism-critical: ``ORDER BY position`` reproduces ``AIRLINES``
         order so seeded ``rng.choice`` selections are unchanged.
         """
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(
                 select(models.Airline).order_by(models.Airline.position)
             ).all()
@@ -35,7 +34,7 @@ class AirlineRepository:
 
     def color(self, code: str) -> str | None:
         """Return the brand colour for an airline ``code``, or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Airline).where(models.Airline.code == code)
             ).first()
@@ -47,6 +46,6 @@ class AirlineRepository:
         Mirrors the ``AIRLINE_COLORS`` dict the dashboard templates do
         ``.get(code, default)`` against.
         """
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(select(models.Airline)).all()
             return {r.code: r.color for r in rows if r.color is not None}

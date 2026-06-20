@@ -7,6 +7,7 @@ ORM rows to/from the Booking Pydantic model and nothing more.
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
+from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base
 from app.schemas.booking import Booking
@@ -31,36 +32,34 @@ def _row_to_booking(row: models.Booking) -> Booking:
     )
 
 
-class BookingRepository:
+class BookingRepository(Repo):
     """SQLAlchemy-backed store of booking rows."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def init_db(self) -> None:
-        Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
+        Base.metadata.create_all(self._bind(), checkfirst=True)
 
     def ping(self) -> bool:
         # Cheap reachability check that does NOT require the table to exist
         # (parity with the old bare "SELECT 1").
-        with self._sf() as s:
+        with self._session() as s:
             s.execute(text("SELECT 1"))
         return True
 
     def get(self, booking_id: str) -> Booking | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.Booking, booking_id)
             return _row_to_booking(row) if row is not None else None
 
     def get_by_idempotency_key(self, key: str) -> Booking | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Booking).where(models.Booking.idempotency_key == key)
             ).first()
             return _row_to_booking(row) if row is not None else None
 
     def get_by_confirmation_code(self, code: str) -> Booking | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Booking).where(
                     models.Booking.confirmation_code == code.strip().upper()
@@ -69,19 +68,19 @@ class BookingRepository:
             return _row_to_booking(row) if row is not None else None
 
     def list_all(self) -> list[Booking]:
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(
                 select(models.Booking).order_by(models.Booking.created_at.desc())
             ).all()
             return [_row_to_booking(r) for r in rows]
 
     def update_status(self, booking_id: str, status: str) -> bool:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.Booking, booking_id)
             if row is None:
                 return False
             row.status = status
-            s.commit()
+            self._commit(s)
             return True
 
     def add(self, booking: Booking, idempotency_key: str | None = None) -> Booking:
@@ -101,9 +100,9 @@ class BookingRepository:
             confirmation_code=booking.confirmation_code,
         )
         try:
-            with self._sf() as s:
+            with self._session() as s:
                 s.add(row)
-                s.commit()
+                self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:
                 existing = self.get_by_idempotency_key(idempotency_key)

@@ -10,6 +10,7 @@ The ``links`` column is a native JSON column (no manual json.dumps/loads).
 from sqlalchemy import func, select
 
 from app.core.geo import haversine_km
+from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base
 from app.schemas.saved_place import SavedPlace
@@ -37,14 +38,12 @@ def _row_to_saved_place(row: models.SavedPlace) -> SavedPlace:
     )
 
 
-class SavedPlaceRepository:
+class SavedPlaceRepository(Repo):
     """ORM-backed store of saved_places rows."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def init_db(self) -> None:
-        Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
+        Base.metadata.create_all(self._bind(), checkfirst=True)
 
     def add(self, sp: SavedPlace) -> SavedPlace:
         row = models.SavedPlace(
@@ -64,9 +63,9 @@ class SavedPlaceRepository:
             duration=sp.duration,
             created_at=sp.created_at,
         )
-        with self._sf() as s:
+        with self._session() as s:
             s.add(row)
-            s.commit()
+            self._commit(s)
         return sp
 
     def get(self, id_: str) -> SavedPlace | None:
@@ -75,7 +74,7 @@ class SavedPlaceRepository:
         The short code is derived (not stored), so a code lookup scans the
         live rows and matches on the computed ``short_code`` in Python.
         """
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
                     models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
@@ -115,12 +114,12 @@ class SavedPlaceRepository:
         stmt = stmt.order_by(
             models.SavedPlace.created_at.desc(), models.SavedPlace.id.desc()
         )
-        with self._sf() as s:
+        with self._session() as s:
             return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 
     def soft_delete(self, id_: str, *, when: str) -> bool:
         """Stamp deleted_at; True if a live row existed and was tombstoned."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
                     models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
@@ -129,14 +128,14 @@ class SavedPlaceRepository:
             if row is None:
                 return False
             row.deleted_at = when
-            s.commit()
+            self._commit(s)
             return True
 
     def set_flag(self, id_: str, field: str, value: bool) -> bool:
         """SET favorite/visited on a live row. True if a row changed."""
         if field not in _SET_FLAG_FIELDS:
             raise ValueError(f"Unsupported flag field: {field!r}")
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
                     models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
@@ -145,7 +144,7 @@ class SavedPlaceRepository:
             if row is None:
                 return False
             setattr(row, field, bool(value))
-            s.commit()
+            self._commit(s)
             return True
 
     def find_duplicate(
@@ -163,7 +162,7 @@ class SavedPlaceRepository:
         and are within ``radius_km`` (haversine), or coordinates are missing
         on either side and ``city`` matches.
         """
-        with self._sf() as s:
+        with self._session() as s:
             # Materialize to Pydantic INSIDE the session — never iterate ORM
             # rows after the block closes (detached-instance hazard).
             cands = [
