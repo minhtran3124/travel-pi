@@ -14,12 +14,13 @@ from app.schemas.flight import (
     FlightSearchInfo,
     FlightSearchResponse,
 )
-from app.services import flight_service
 from app.services.booking_service import BookingService, get_booking_service
+from app.services.flight_service import FlightService, get_flight_service
 
 router = APIRouter(prefix="/flights", tags=["flights"])
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
+FlightDep = Annotated[FlightService, Depends(get_flight_service)]
 
 
 # Note: declare "/search" before "/{flight_id}" so it is not captured as an ID.
@@ -30,6 +31,7 @@ BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
     responses=error_responses(422),
 )
 def search_flights(
+    flights_svc: FlightDep,
     origin: Annotated[
         str,
         Query(description="IATA 3-letter code, case-insensitive", examples=["DAD"]),
@@ -98,7 +100,7 @@ def search_flights(
     airline_upper = airline.upper() if airline else None
 
     try:
-        flights = flight_service.search_flights(
+        flights = flights_svc.search_flights(
             origin,
             destination,
             departure_date,
@@ -116,7 +118,7 @@ def search_flights(
     return_flights: list | None = None
     if return_date is not None:
         try:
-            return_flights = flight_service.search_flights(
+            return_flights = flights_svc.search_flights(
                 destination,
                 origin,
                 return_date,
@@ -157,6 +159,7 @@ def search_flights(
     responses=error_responses(404, 422),
 )
 def get_flight(
+    flights_svc: FlightDep,
     flight_id: Annotated[
         str,
         Path(
@@ -166,7 +169,7 @@ def get_flight(
     ],
 ) -> Flight:
     """Return a single flight, or 404 if the ID does not resolve."""
-    flight = flight_service.find_flight_by_id(flight_id)
+    flight = flights_svc.find_flight_by_id(flight_id)
     if flight is None:
         raise NotFoundError(
             f"Flight {flight_id!r} not found",

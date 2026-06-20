@@ -3,12 +3,21 @@
 from fastapi.testclient import TestClient
 
 VALID_CATEGORIES = {
-    "transport", "money", "safety", "culture", "food",
-    "connectivity", "health", "etiquette", "best_time", "language",
+    "transport",
+    "money",
+    "safety",
+    "culture",
+    "food",
+    "connectivity",
+    "health",
+    "etiquette",
+    "best_time",
+    "language",
 }
 
 
 # ── Basic shape ───────────────────────────────────────────────────────────────
+
 
 def test_tips_by_country_status(client: TestClient) -> None:
     resp = client.get("/tips", params={"country": "Vietnam"})
@@ -43,6 +52,7 @@ def test_country_tips_all_country_scope(client: TestClient) -> None:
 
 # ── Resolving country from city ───────────────────────────────────────────────
 
+
 def test_tips_by_city_resolves_country(client: TestClient) -> None:
     data = client.get("/tips", params={"city": "Hanoi"}).json()
     assert data["city"] == "Hanoi"
@@ -76,6 +86,7 @@ def test_tips_country_case_insensitive(client: TestClient) -> None:
 
 # ── Unknown locations ─────────────────────────────────────────────────────────
 
+
 def test_tips_unknown_city_returns_empty(client: TestClient) -> None:
     resp = client.get("/tips", params={"city": "Atlantis"})
     data = resp.json()
@@ -94,8 +105,11 @@ def test_tips_unknown_country_returns_empty(client: TestClient) -> None:
 
 # ── Filters ───────────────────────────────────────────────────────────────────
 
+
 def test_tips_filter_by_category(client: TestClient) -> None:
-    data = client.get("/tips", params={"country": "Vietnam", "category": "money"}).json()
+    data = client.get(
+        "/tips", params={"country": "Vietnam", "category": "money"}
+    ).json()
     assert data["count"] > 0
     assert all(t["category"] == "money" for t in data["tips"])
 
@@ -106,12 +120,15 @@ def test_tips_invalid_category_422(client: TestClient) -> None:
 
 
 def test_tips_essential_only(client: TestClient) -> None:
-    data = client.get("/tips", params={"country": "Vietnam", "essential_only": True}).json()
+    data = client.get(
+        "/tips", params={"country": "Vietnam", "essential_only": True}
+    ).json()
     assert data["count"] > 0
     assert all(t["is_essential"] is True for t in data["tips"])
 
 
 # ── Required params ───────────────────────────────────────────────────────────
+
 
 def test_tips_no_params_is_422(client: TestClient) -> None:
     """Must provide city or country — the response carries a single country."""
@@ -126,6 +143,7 @@ def test_tips_empty_strings_treated_as_missing(client: TestClient) -> None:
 
 
 # ── Fuzzy city / country matching ─────────────────────────────────────────────
+
 
 def test_tips_city_is_fuzzy(client: TestClient) -> None:
     data = client.get("/tips", params={"city": "danang"}).json()
@@ -156,7 +174,7 @@ def test_dashboard_tips_no_filter_returns_200(client: TestClient) -> None:
 def test_dashboard_tips_no_filter_renders_tip_cards(client: TestClient) -> None:
     """Default view is the friendly destination picker."""
     html = client.get("/dashboard/tips").text
-    assert 'class="dest"' in html          # destination tiles
+    assert 'class="dest"' in html  # destination tiles
     assert "Where are you headed" in html
 
 
@@ -169,9 +187,9 @@ def test_dashboard_tips_browse_all_renders_entries(client: TestClient) -> None:
 
 def test_dashboard_tips_category_filter_narrows_results(client: TestClient) -> None:
     """A category filter narrows the browse-all view to fewer entries."""
-    all_count = client.get(
-        "/dashboard/tips", params={"browse": "all"}
-    ).text.count('class="entry')
+    all_count = client.get("/dashboard/tips", params={"browse": "all"}).text.count(
+        'class="entry'
+    )
     money_count = client.get(
         "/dashboard/tips", params={"browse": "all", "category": "money"}
     ).text.count('class="entry')
@@ -181,19 +199,19 @@ def test_dashboard_tips_category_filter_narrows_results(client: TestClient) -> N
 # ── tip_service.get_all_tips: unit-level coverage ─────────────────────────────
 
 
-def test_get_all_tips_includes_country_and_city_scopes(client: TestClient) -> None:
-    from app.services import tip_service
+def test_get_all_tips_includes_country_and_city_scopes(seeded_session) -> None:
+    from app.services.tip_service import TipService
 
-    result = tip_service.get_all_tips()
+    result = TipService(seeded_session).get_all_tips()
     scopes = {t.scope for t in result.tips}
     assert scopes == {"country", "city"}
     # Every tip in the all view carries a location, so the UI can label it.
     assert all(t.location for t in result.tips)
 
 
-def test_get_all_tips_essential_only_filter(client: TestClient) -> None:
-    from app.services import tip_service
+def test_get_all_tips_essential_only_filter(seeded_session) -> None:
+    from app.services.tip_service import TipService
 
-    essential = tip_service.get_all_tips(essential_only=True)
+    essential = TipService(seeded_session).get_all_tips(essential_only=True)
     assert essential.count > 0
     assert all(t.is_essential for t in essential.tips)

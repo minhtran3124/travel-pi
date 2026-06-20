@@ -11,6 +11,7 @@ service can read them by key (``row["col"]``) exactly as before.
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base
 from app.schemas.trip import Trip, TripItem
@@ -95,14 +96,11 @@ def _new_item_row(item: TripItem, idempotency_key: str | None) -> models.TripIte
     )
 
 
-class TripRepository:
+class TripRepository(Repo):
     """ORM-backed store of trip + trip_item + trip_place_link rows."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
-
     def init_db(self) -> None:
-        Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
+        Base.metadata.create_all(self._bind(), checkfirst=True)
 
     def create_trip(self, trip: Trip, idempotency_key: str | None = None) -> Trip:
         """Insert a trip and all of its items in one transaction.
@@ -113,10 +111,11 @@ class TripRepository:
         makes this INSERT fail; we return the winner's trip instead of raising.
         """
         try:
-            with self._sf() as s:
-                s.add(_new_trip_row(trip, idempotency_key))
-                s.add_all([_new_item_row(item, None) for item in trip.items])
-                s.commit()
+            with self._session() as s:
+                with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
+                    s.add(_new_trip_row(trip, idempotency_key))
+                    s.add_all([_new_item_row(item, None) for item in trip.items])
+                self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:
                 existing = self.get_trip_by_idempotency_key(idempotency_key)
@@ -126,7 +125,7 @@ class TripRepository:
         return trip
 
     def get_trip(self, trip_id: str) -> Trip | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
                     models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
@@ -141,7 +140,7 @@ class TripRepository:
 
     def list_trips(self) -> list[Trip]:
         """Return every trip (newest first) with its items attached."""
-        with self._sf() as s:
+        with self._session() as s:
             trip_rows = s.scalars(
                 select(models.Trip)
                 .where(models.Trip.deleted_at.is_(None))
@@ -155,7 +154,7 @@ class TripRepository:
 
     def update_trip(self, trip: Trip) -> bool:
         """Replace a trip's top-level columns. Returns True if a row changed."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.Trip, trip.id)
             if row is None:
                 return False
@@ -165,7 +164,7 @@ class TripRepository:
             row.end_date = _iso(trip.end_date)
             row.travelers = trip.travelers
             row.notes = trip.notes
-            s.commit()
+            self._commit(s)
             return True
 
     def delete_trip(self, trip_id: str, *, when: str) -> bool:
@@ -178,7 +177,7 @@ class TripRepository:
         the dead row (which the deleted_at-filtered replay lookup can't
         recover).
         """
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
                     models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
@@ -188,7 +187,7 @@ class TripRepository:
                 return False
             row.deleted_at = when
             row.idempotency_key = None
-            s.commit()
+            self._commit(s)
             return True
 
     def get_budget_caps(self, trip_id: str) -> dict[str, float]:
@@ -197,7 +196,7 @@ class TripRepository:
         No existence check here — the service has already 404'd a missing trip.
         A tombstoned/unknown trip simply yields {}.
         """
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
                     models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
@@ -215,7 +214,7 @@ class TripRepository:
         check here — the service has already 404'd a missing trip; a
         tombstoned/unknown trip is a silent no-op.
         """
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
                     models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
@@ -224,7 +223,7 @@ class TripRepository:
             if row is None:
                 return
             row.budget_caps = caps
-            s.commit()
+            self._commit(s)
 
     def add_item(self, item: TripItem, idempotency_key: str | None = None) -> TripItem:
         """Insert an item and return it.
@@ -235,9 +234,10 @@ class TripRepository:
         makes this INSERT fail; we return the winner's item instead of raising.
         """
         try:
-            with self._sf() as s:
-                s.add(_new_item_row(item, idempotency_key))
-                s.commit()
+            with self._session() as s:
+                with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
+                    s.add(_new_item_row(item, idempotency_key))
+                self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:
                 existing = self.get_item_by_idempotency_key(idempotency_key)
@@ -247,7 +247,7 @@ class TripRepository:
         return item
 
     def get_trip_by_idempotency_key(self, key: str) -> Trip | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
                     models.Trip.idempotency_key == key, models.Trip.deleted_at.is_(None)
@@ -261,19 +261,19 @@ class TripRepository:
             return _row_to_trip(row, items)
 
     def get_item_by_idempotency_key(self, key: str) -> TripItem | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.TripItem).where(models.TripItem.idempotency_key == key)
             ).first()
             return _row_to_item(row) if row is not None else None
 
     def get_item(self, item_id: str) -> TripItem | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.TripItem, item_id)
             return _row_to_item(row) if row is not None else None
 
     def update_item(self, item: TripItem) -> bool:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.TripItem, item.id)
             if row is None:
                 return False
@@ -286,16 +286,16 @@ class TripRepository:
             row.start_time = item.start_time
             row.notes = item.notes
             row.status = item.status.value
-            s.commit()
+            self._commit(s)
             return True
 
     def delete_item(self, item_id: str) -> bool:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.TripItem, item_id)
             if row is None:
                 return False
             s.delete(row)
-            s.commit()
+            self._commit(s)
             return True
 
     # --- trip_place_link (shortlist) ------------------------------------- #
@@ -306,7 +306,7 @@ class TripRepository:
         """Insert a shortlist link. Re-raises sqlalchemy IntegrityError on the
         (trip_id, place_id, source) UNIQUE collision — the service maps it
         to a 409."""
-        with self._sf() as s:
+        with self._session() as s:
             s.add(
                 models.TripPlaceLink(
                     id=link_id,
@@ -316,10 +316,10 @@ class TripRepository:
                     added_at=added_at,
                 )
             )
-            s.commit()
+            self._commit(s)
 
     def list_trip_places(self, trip_id: str) -> list[dict]:
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(
                 select(models.TripPlaceLink)
                 .where(models.TripPlaceLink.trip_id == trip_id)
@@ -328,14 +328,14 @@ class TripRepository:
             return [_link_to_dict(r) for r in rows]
 
     def get_trip_place(self, link_id: str) -> dict | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.get(models.TripPlaceLink, link_id)
             return _link_to_dict(row) if row is not None else None
 
     def delete_trip_place(self, trip_id: str, link_id: str) -> bool:
         """Delete a shortlist link scoped to its trip. True if a row was
         removed."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.TripPlaceLink).where(
                     models.TripPlaceLink.id == link_id,
@@ -345,5 +345,5 @@ class TripRepository:
             if row is None:
                 return False
             s.delete(row)
-            s.commit()
+            self._commit(s)
             return True

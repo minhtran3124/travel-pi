@@ -12,21 +12,22 @@ Fuzzy name resolution stays in the consumer (Chunk E); ``get`` is an exact
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.crud.hotel_ref import HotelRepository
 from app.db import models
 from app.schemas.city import City
 
 
-class CityRepository:
+class CityRepository(Repo):
     """Read-only store of city rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
-        self._hotels = HotelRepository(session_factory)
+    def __init__(self, session_or_factory) -> None:
+        super().__init__(session_or_factory)
+        self._hotels = HotelRepository(session_or_factory)
 
     def distinct_names(self) -> list[str]:
         """Return every city name (the fuzzy-resolution target)."""
-        with self._sf() as s:
+        with self._session() as s:
             return list(s.scalars(select(models.City.name)).all())
 
     def _build(self, row: models.City, hotel_count: int) -> City:
@@ -46,7 +47,7 @@ class CityRepository:
         """
         target = name.strip().lower()
         counts = self._hotels.count_by_city()
-        with self._sf() as s:
+        with self._session() as s:
             for row in s.scalars(select(models.City)):
                 if row.name.lower() == target:
                     return self._build(row, counts.get(row.name, 0))
@@ -58,6 +59,6 @@ class CityRepository:
         Reproduces the cities router's ``_ALL_CITIES`` build (in seed order).
         """
         counts = self._hotels.count_by_city()
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(select(models.City).order_by(models.City.id)).all()
             return [self._build(r, counts.get(r.name, 0)) for r in rows]

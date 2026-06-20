@@ -12,18 +12,17 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base, new_uuid
 
 
-class FlightIndexRepository:
+class FlightIndexRepository(Repo):
     """ORM-backed map of flight ID -> the search params that generated it."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def init_db(self) -> None:
-        Base.metadata.create_all(self._sf().get_bind(), checkfirst=True)
+        Base.metadata.create_all(self._bind(), checkfirst=True)
 
     def remember_many(self, rows: list[tuple[str, str, str, str]]) -> None:
         """Idempotently record (flight_id, origin, destination, departure_date).
@@ -51,7 +50,7 @@ class FlightIndexRepository:
             }
             for (fid, o, d, dep) in rows
         ]
-        with self._sf() as s:
+        with self._session() as s:
             dialect = s.get_bind().dialect.name
             if dialect == "postgresql":
                 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -59,14 +58,14 @@ class FlightIndexRepository:
                 stmt = pg_insert(models.FlightIndex).values(values)
                 stmt = stmt.on_conflict_do_nothing(index_elements=["flight_id"])
                 s.execute(stmt)
-                s.commit()
+                self._commit(s)
             elif dialect == "sqlite":
                 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
                 stmt = sqlite_insert(models.FlightIndex).values(values)
                 stmt = stmt.on_conflict_do_nothing(index_elements=["flight_id"])
                 s.execute(stmt)
-                s.commit()
+                self._commit(s)
             else:
                 # Other dialects: no portable Core ON CONFLICT. Insert each row
                 # on its own and swallow duplicates so the result is still an
@@ -79,10 +78,10 @@ class FlightIndexRepository:
                             )
                     except IntegrityError:
                         pass
-                s.commit()
+                self._commit(s)
 
     def lookup(self, flight_id: str) -> tuple[str, str, str] | None:
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.FlightIndex).where(
                     models.FlightIndex.flight_id == flight_id

@@ -2,40 +2,41 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
+from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
 from app.core.text import best_match, fuzzy_filter
 from app.crud.city import CityRepository
-from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.exceptions import NotFoundError
 from app.schemas.city import City, CityListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.route import RouteResponse
-from app.services import routing_service
+from app.services.routing_service import RoutingService, get_routing_service
 
 router = APIRouter(prefix="/cities", tags=["cities"])
 
-# City data is DB-backed. ``list_with_counts()`` reproduces the old
-# ``_ALL_CITIES`` build (City incl. hotel_count, in seed order); ``get`` is the
-# case-insensitive exact-name lookup. The repo is built from the configured DB
-# at import time; it is NOT a FastAPI dependency, so tests repoint it via
-# ``set_city_repo`` after seeding the temp DB (see tests/conftest.py).
-_city_repo = CityRepository(get_session_factory(get_settings().database_url))
+
+def get_city_repo(
+    session: Annotated[Session, Depends(get_session)],
+) -> CityRepository:
+    """FastAPI dependency: a city repository bound to the request session.
+
+    ``list_with_counts()`` reproduces the old ``_ALL_CITIES`` build (City incl.
+    hotel_count, in seed order); ``get`` is the case-insensitive exact-name
+    lookup."""
+    return CityRepository(session)
 
 
-def set_city_repo(repo: CityRepository) -> None:
-    """Point city reads at a different store — used by tests to read the seeded
-    temporary database instead of the real travel.db."""
-    global _city_repo
-    _city_repo = repo
+CityRepoDep = Annotated[CityRepository, Depends(get_city_repo)]
+RoutingDep = Annotated[RoutingService, Depends(get_routing_service)]
 
 
-def _distinct_countries() -> list[str]:
+def _distinct_countries(city_repo: CityRepository) -> list[str]:
     """Distinct country names over the seeded cities — the fuzzy-resolution
     target for the ``?country=`` filter (mirrors ``sorted({c.country ...})``)."""
-    return sorted({c.country for c in _city_repo.list_with_counts()})
+    return sorted({c.country for c in city_repo.list_with_counts()})
 
 
 @router.get(
@@ -45,6 +46,7 @@ def _distinct_countries() -> list[str]:
     responses=error_responses(422),
 )
 def list_cities(
+    city_repo: CityRepoDep,
     pagination: PaginationDep,
     q: str | None = Query(
         None,
@@ -73,10 +75,12 @@ def list_cities(
     ``q`` is given, results are fuzzy-matched and ranked by relevance instead
     of left in seed order.
     """
-    results: list[City] = _city_repo.list_with_counts()
+    results: list[City] = city_repo.list_with_counts()
     if country:
         # Fuzzy-resolve the country name; an unrecognised one matches nothing.
-        resolved_country = best_match(country, _distinct_countries(), [lambda c: c])
+        resolved_country = best_match(
+            country, _distinct_countries(city_repo), [lambda c: c]
+        )
         results = (
             [c for c in results if c.country == resolved_country]
             if resolved_country
@@ -103,6 +107,7 @@ def list_cities(
     responses=error_responses(404, 422, 502),
 )
 async def route_between_cities(
+    routing: RoutingDep,
     origin: Annotated[
         str,
         Query(description="City name to start from", examples=["Da Nang"]),
@@ -121,7 +126,7 @@ async def route_between_cities(
     if either city name is unknown, and 502 if a configured routing provider
     is unreachable.
     """
-    return await routing_service.get_city_route(origin, destination)
+    return await routing.get_city_route(origin, destination)
 
 
 @router.get(
@@ -131,6 +136,7 @@ async def route_between_cities(
     responses=error_responses(404, 422),
 )
 def get_city(
+    city_repo: CityRepoDep,
     city_name: Annotated[
         str,
         Path(description="City name (case-insensitive)", examples=["Da Nang"]),
@@ -141,7 +147,7 @@ def get_city(
     ``city_name`` is matched case-insensitively (it is still an exact-name
     lookup — for typo-tolerant search use ``GET /cities?q=``).
     """
-    city = _city_repo.get(city_name)
+    city = city_repo.get(city_name)
     if city is None:
         raise NotFoundError(
             f"City '{city_name}' not found",

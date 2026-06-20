@@ -19,13 +19,17 @@ import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from random import Random
+from typing import Annotated
 
-from app.core.config import get_settings
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
-from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.schemas.airport import Airport
 from app.schemas.flight import Flight
-from app.services import airport_service, flight_service
+from app.services.airport_service import AirportService
+from app.services.flight_service import FlightService
 
 # How many other airports to pull flights from, and how many flights to take
 # from each route. 10 x 2 = ~20 rows, a realistic board length.
@@ -38,17 +42,6 @@ BOARDING_WINDOW = timedelta(minutes=40)
 ARRIVALS = "arrivals"
 DEPARTURES = "departures"
 _VALID_MODES = (ARRIVALS, DEPARTURES)
-
-# Airlines are DB-backed; the board uses ``airline_repo.color(code)`` for the
-# badge tint, falling back to AIRLINE_COLOR_DEFAULT. Not a FastAPI dependency,
-# so tests repoint it via ``set_airline_repo``.
-_airline_repo = AirlineRepository(get_session_factory(get_settings().database_url))
-
-
-def set_airline_repo(repo: AirlineRepository) -> None:
-    """Point airline-colour reads at a different store — used by tests."""
-    global _airline_repo
-    _airline_repo = repo
 
 
 @dataclass
@@ -104,79 +97,103 @@ def _status_for(mode: str, offset: int, actual: datetime, now: datetime):
     return "ontime", "On time"
 
 
-def _make_row(flight: Flight, mode: str, now: datetime) -> BoardRow:
-    """Turn a generated ``Flight`` into a board row for the given mode."""
-    digest = _hash(flight.id)
-    offset = _punctuality_offset(digest)
+class BoardService:
+    """Flight information board (FIDS) builder."""
 
-    # Arrivals are sorted/shown by arrival time; departures by departure time.
-    scheduled = flight.arrival_time if mode == ARRIVALS else flight.departure_time
-    # The expected real time, after applying the (deterministic) punctuality.
-    actual = scheduled + timedelta(minutes=offset)
+    def __init__(self, session: Session) -> None:
+        self._session = session
+        # Airlines are DB-backed; the board uses ``airline.color(code)`` for the
+        # badge tint, falling back to AIRLINE_COLOR_DEFAULT.
+        self._airline = AirlineRepository(session)
 
-    kind, status = _status_for(mode, offset, actual, now)
-    # The yellow "Estimated" column only shows a time when it actually changed.
-    estimated = actual if offset != 0 else None
+    def _make_row(self, flight: Flight, mode: str, now: datetime) -> BoardRow:
+        """Turn a generated ``Flight`` into a board row for the given mode."""
+        digest = _hash(flight.id)
+        offset = _punctuality_offset(digest)
 
-    # The "other" airport: where the flight came from / is going to.
-    other_code = flight.origin if mode == ARRIVALS else flight.destination
-    airline_code = flight.airline.code
-    # "VN523" -> "VN 523"
-    flight_number = f"{airline_code} {flight.flight_number.removeprefix(airline_code)}"
+        # Arrivals are sorted/shown by arrival time; departures by departure time.
+        scheduled = flight.arrival_time if mode == ARRIVALS else flight.departure_time
+        # The expected real time, after applying the (deterministic) punctuality.
+        actual = scheduled + timedelta(minutes=offset)
 
-    return BoardRow(
-        scheduled=scheduled,
-        estimated=estimated,
-        airport=airport_service.get_airport(other_code),
-        airport_code=other_code,
-        airline_code=airline_code,
-        airline_name=flight.airline.name,
-        airline_color=_airline_repo.color(airline_code) or AIRLINE_COLOR_DEFAULT,
-        flight_number=flight_number,
-        flight_id=flight.id,
-        status=status,
-        status_kind=kind,
-    )
+        kind, status = _status_for(mode, offset, actual, now)
+        # The yellow "Estimated" column only shows a time when it actually changed.
+        estimated = actual if offset != 0 else None
 
-
-def build_board(
-    airport_code: str,
-    date_str: str,
-    mode: str,
-    now: datetime | None = None,
-) -> list[BoardRow]:
-    """Build a sorted arrivals/departures board for one airport and date.
-
-    Picks a deterministic subset of other airports, generates flights on each
-    of those routes (reusing the deterministic flight generator), keeps a few
-    per route, and sorts the result by scheduled time.
-
-    ``now`` is the reference time used to compute each row's status; it
-    defaults to the current time and is injectable for testing.
-
-    Raises ``ValueError`` if ``date_str`` is not a valid YYYY-MM-DD date.
-    """
-    if mode not in _VALID_MODES:
-        mode = ARRIVALS
-    airport_code = airport_code.upper()
-    now = now or datetime.now()
-
-    # Stable subset of routes for this board.
-    seed = _hash(f"{airport_code}-{date_str}-{mode}") % (2**32)
-    others = [a.code for a in airport_service.list_airports() if a.code != airport_code]
-    picked = Random(seed).sample(others, min(ROUTES_PER_BOARD, len(others)))
-
-    rows: list[BoardRow] = []
-    for other_code in picked:
-        # Arrivals: other -> board airport. Departures: board airport -> other.
-        if mode == ARRIVALS:
-            origin, destination = other_code, airport_code
-        else:
-            origin, destination = airport_code, other_code
-        flights = flight_service.generate_flights(origin, destination, date_str)
-        rows.extend(
-            _make_row(flight, mode, now) for flight in flights[:FLIGHTS_PER_ROUTE]
+        # The "other" airport: where the flight came from / is going to.
+        other_code = flight.origin if mode == ARRIVALS else flight.destination
+        airline_code = flight.airline.code
+        # "VN523" -> "VN 523"
+        flight_number = (
+            f"{airline_code} {flight.flight_number.removeprefix(airline_code)}"
         )
 
-    rows.sort(key=lambda row: row.scheduled)
-    return rows
+        return BoardRow(
+            scheduled=scheduled,
+            estimated=estimated,
+            airport=AirportService(self._session).get_airport(other_code),
+            airport_code=other_code,
+            airline_code=airline_code,
+            airline_name=flight.airline.name,
+            airline_color=self._airline.color(airline_code) or AIRLINE_COLOR_DEFAULT,
+            flight_number=flight_number,
+            flight_id=flight.id,
+            status=status,
+            status_kind=kind,
+        )
+
+    def build_board(
+        self,
+        airport_code: str,
+        date_str: str,
+        mode: str,
+        now: datetime | None = None,
+    ) -> list[BoardRow]:
+        """Build a sorted arrivals/departures board for one airport and date.
+
+        Picks a deterministic subset of other airports, generates flights on each
+        of those routes (reusing the deterministic flight generator), keeps a few
+        per route, and sorts the result by scheduled time.
+
+        ``now`` is the reference time used to compute each row's status; it
+        defaults to the current time and is injectable for testing.
+
+        Raises ``ValueError`` if ``date_str`` is not a valid YYYY-MM-DD date.
+        """
+        if mode not in _VALID_MODES:
+            mode = ARRIVALS
+        airport_code = airport_code.upper()
+        now = now or datetime.now()
+
+        airport_service = AirportService(self._session)
+        flight_service = FlightService(self._session)
+
+        # Stable subset of routes for this board.
+        seed = _hash(f"{airport_code}-{date_str}-{mode}") % (2**32)
+        others = [
+            a.code for a in airport_service.list_airports() if a.code != airport_code
+        ]
+        picked = Random(seed).sample(others, min(ROUTES_PER_BOARD, len(others)))
+
+        rows: list[BoardRow] = []
+        for other_code in picked:
+            # Arrivals: other -> board airport. Departures: board airport -> other.
+            if mode == ARRIVALS:
+                origin, destination = other_code, airport_code
+            else:
+                origin, destination = airport_code, other_code
+            flights = flight_service.generate_flights(origin, destination, date_str)
+            rows.extend(
+                self._make_row(flight, mode, now)
+                for flight in flights[:FLIGHTS_PER_ROUTE]
+            )
+
+        rows.sort(key=lambda row: row.scheduled)
+        return rows
+
+
+def get_board_service(
+    session: Annotated[Session, Depends(get_session)],
+) -> BoardService:
+    """FastAPI dependency: a board service bound to the request session."""
+    return BoardService(session)

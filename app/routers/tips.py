@@ -2,14 +2,16 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.enums import TipCategory
 from app.schemas.error import error_responses
 from app.schemas.tip import TipsResponse
-from app.services import tip_service
+from app.services.tip_service import TipService, get_tip_service
 
 router = APIRouter(prefix="/tips", tags=["tips"])
+
+TipDep = Annotated[TipService, Depends(get_tip_service)]
 
 
 @router.get(
@@ -19,6 +21,7 @@ router = APIRouter(prefix="/tips", tags=["tips"])
     responses=error_responses(422),
 )
 def get_tips(
+    tips: TipDep,
     city: Annotated[
         str | None,
         Query(
@@ -66,7 +69,7 @@ def get_tips(
             detail="Provide either 'city' or 'country'.",
         )
 
-    return tip_service.get_tips(
+    return tips.get_tips(
         city=city,
         country=country,
         category=category.value if category else None,

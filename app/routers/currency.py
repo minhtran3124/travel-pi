@@ -2,13 +2,15 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from app.schemas.currency import CurrencyConvertResponse
 from app.schemas.error import error_responses
-from app.services import currency_service
+from app.services.currency_service import CurrencyService, get_currency_service
 
 router = APIRouter(prefix="/currency", tags=["currency"])
+
+CurrencyDep = Annotated[CurrencyService, Depends(get_currency_service)]
 
 
 @router.get(
@@ -18,6 +20,7 @@ router = APIRouter(prefix="/currency", tags=["currency"])
     responses=error_responses(404, 422),
 )
 def convert_currency(
+    currency: CurrencyDep,
     to: Annotated[
         str,
         Query(
@@ -54,7 +57,7 @@ def convert_currency(
     identifiers — an unknown `from`/`to` returns 404. An unrecognised `country`
     is ignored (no `local_currency`), not an error.
     """
-    return currency_service.convert(
+    return currency.convert(
         from_code=from_currency,
         to_code=to,
         amount=amount,

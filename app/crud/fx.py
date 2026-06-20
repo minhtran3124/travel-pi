@@ -9,18 +9,17 @@ return ``None`` for an unknown code and the *service* keeps raising
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.db import models
 
 
-class FxRepository:
+class FxRepository(Repo):
     """Read-only store of FX rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def rate(self, code: str) -> float | None:
         """Return the units-per-USD rate for ``code`` (exact), or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.FxRate).where(models.FxRate.code == code)
             ).first()
@@ -28,7 +27,7 @@ class FxRepository:
 
     def name(self, code: str) -> str | None:
         """Return the human currency name for ``code`` (exact), or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.FxRate).where(models.FxRate.code == code)
             ).first()
@@ -36,7 +35,7 @@ class FxRepository:
 
     def country_currency(self, country: str) -> str | None:
         """Return the ISO 4217 code for a resolved ``country``, or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.CountryCurrency).where(
                     models.CountryCurrency.country == country
@@ -46,13 +45,13 @@ class FxRepository:
 
     def last_updated(self) -> str | None:
         """Return the snapshot date for the FX table (singleton row)."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(select(models.FxMeta)).first()
             return row.last_updated if row is not None else None
 
     def valid_codes(self) -> list[str]:
         """Return every supported currency code, sorted — mirrors ``sorted(RATES)``."""
-        with self._sf() as s:
+        with self._session() as s:
             return sorted(s.scalars(select(models.FxRate.code)).all())
 
     def country_names(self) -> list[str]:
@@ -61,5 +60,5 @@ class FxRepository:
         Mirrors ``sorted(COUNTRY_CURRENCY)`` — the fuzzy-resolution target for
         the ``country`` param in ``currency_service``.
         """
-        with self._sf() as s:
+        with self._session() as s:
             return sorted(s.scalars(select(models.CountryCurrency.country)).all())

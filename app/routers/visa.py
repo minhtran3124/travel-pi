@@ -2,13 +2,15 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.schemas.error import error_responses
 from app.schemas.visa import VisaResponse
-from app.services import visa_service
+from app.services.visa_service import VisaService, get_visa_service
 
 router = APIRouter(prefix="/visa", tags=["visa"])
+
+VisaDep = Annotated[VisaService, Depends(get_visa_service)]
 
 
 @router.get(
@@ -18,6 +20,7 @@ router = APIRouter(prefix="/visa", tags=["visa"])
     responses=error_responses(422),
 )
 def get_visa(
+    visa: VisaDep,
     city: Annotated[
         str | None,
         Query(
@@ -49,4 +52,4 @@ def get_visa(
             detail="Provide either 'city' or 'country'.",
         )
 
-    return visa_service.get_visa(city=city, country=country)
+    return visa.get_visa(city=city, country=country)

@@ -206,11 +206,14 @@ def test_repo_item_defaults_status_pending_when_unset(repo):
 
 @pytest.fixture()
 def svc(tmp_path):
+    from app.db.base import Base
+    from app.db.engine import get_engine, get_session_factory
     from app.services.trip_service import TripService
 
-    s = TripService(f"sqlite:///{tmp_path / 'svc.db'}")
-    s.init_db()
-    return s
+    url = f"sqlite:///{tmp_path / 'svc.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    with get_session_factory(url)() as session:
+        yield TripService(session)
 
 
 def test_service_create_returns_trip_with_ids(svc):

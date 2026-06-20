@@ -3,37 +3,12 @@
 import os
 
 import pytest
-from app.crud.airline import AirlineRepository
-from app.crud.airport import AirportRepository
-from app.crud.city import CityRepository
-from app.crud.country import CountryRepository
-from app.crud.flight import FlightIndexRepository
-from app.crud.fx import FxRepository
-from app.crud.hotel_ref import HotelRepository
-from app.crud.place_ref import PlaceRepository
-from app.crud.tip import TipRepository
-from app.crud.visa import VisaRepository
-from app.db.engine import get_session_factory
+from app.db.base import Base
+from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
+from app.db.session import get_session
 from app.main import create_app
-from app.routers import cities as cities_router
-from app.routers import dashboard as dashboard_router
-from app.services import (
-    airport_service,
-    board_service,
-    currency_service,
-    destination_service,
-    flight_service,
-    hotel_service,
-    place_service,
-    routing_service,
-    saved_place_service,
-    tip_service,
-    visa_service,
-)
-from app.services.booking_service import BookingService, get_booking_service
-from app.services.saved_place_service import SavedPlaceService, get_saved_place_service
-from app.services.trip_service import TripService, get_trip_service
+from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
 
 
@@ -57,62 +32,34 @@ def tmp_db(tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def client(tmp_db):
-    """TestClient that uses an isolated booking store."""
-    svc = BookingService(tmp_db)
-    svc.init_db()
+    """TestClient bound to an isolated temp DB via a get_session override."""
+    # create_all builds every table on the temp DB — the write stores
+    # (bookings/trips/saved_places/flight_index) and the reference tables alike.
+    Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
 
-    # Point flight-ID persistence at the temp DB too, so flight lookups stay
-    # isolated from the real travel.db.
-    flight_service.set_index_repo(FlightIndexRepository(get_session_factory(tmp_db)))
-
-    trip_svc = TripService(tmp_db)
-    trip_svc.init_db()
-
-    sp_svc = SavedPlaceService(tmp_db)
-    sp_svc.init_db()
-    # place_service.resolve() reaches the saved store via the module singleton
-    # (a direct factory call, not FastAPI DI), so point that singleton at the
-    # temp DB too — otherwise shortlisting a saved place can't resolve it.
-    saved_place_service._saved_place_service = sp_svc
-
-    # The service init_db() calls above (create_all) have built the schema on
-    # the temp DB; seed the read-only reference entities so DB-backed reads have
-    # data. Idempotent, so safe even on the Postgres TEST_DATABASE_URL path.
+    # Schema exists; seed the read-only reference entities so DB-backed reads
+    # have data. Idempotent, so safe even on the Postgres TEST_DATABASE_URL path.
+    # Every service/router now resolves its repos from the request session, so
+    # the get_session override below is the single seam — no per-service repointing.
     seed_all(get_session_factory(tmp_db))
 
-    # Reference-data services hold module-level repo singletons built from the
-    # real DATABASE_URL at import time. They are NOT FastAPI dependencies, so
-    # dependency_overrides can't reach them — repoint each one at the seeded
-    # temp DB (mirrors flight_service.set_index_repo above). Enumerate every
-    # migrated service here as the migration progresses.
-    sf = get_session_factory(tmp_db)
-    flight_service.set_airline_repo(AirlineRepository(sf))
-    airport_service.set_airport_repo(AirportRepository(sf))
-    board_service.set_airline_repo(AirlineRepository(sf))
-    currency_service.set_fx_repo(FxRepository(sf))
-    visa_service.set_visa_repo(VisaRepository(sf))
-    visa_service.set_city_repo(CityRepository(sf))
-    visa_service.set_country_repo(CountryRepository(sf))
-    hotel_service.set_hotel_repo(HotelRepository(sf))
-    place_service.set_place_repo(PlaceRepository(sf))
-    tip_service.set_tip_repo(TipRepository(sf))
-    tip_service.set_city_repo(CityRepository(sf))
-    tip_service.set_country_repo(CountryRepository(sf))
-    dashboard_router.set_repos(
-        airline=AirlineRepository(sf),
-        country=CountryRepository(sf),
-        city=CityRepository(sf),
-        visa=VisaRepository(sf),
-        tip=TipRepository(sf),
-    )
-    cities_router.set_city_repo(CityRepository(sf))
-    destination_service.set_city_repo(CityRepository(sf))
-    routing_service.set_city_repo(CityRepository(sf))
-
     app = create_app()
-    app.dependency_overrides[get_booking_service] = lambda: svc
-    app.dependency_overrides[get_trip_service] = lambda: trip_svc
-    app.dependency_overrides[get_saved_place_service] = lambda: sp_svc
+
+    # One override replaces the per-service repointing the write stores used to
+    # need: every service/router that Depends(get_session) now resolves to a
+    # request-scoped session on the temp DB (shared transaction per request).
+    def _override_get_session():
+        session = get_session_factory(tmp_db)()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    app.dependency_overrides[get_session] = _override_get_session
 
     with TestClient(app) as c:
         yield c
@@ -120,10 +67,20 @@ def client(tmp_db):
 
 @pytest.fixture()
 def booking_service(tmp_db):
-    """Return the same BookingService used by the session-scoped client."""
-    svc = BookingService(tmp_db)
-    svc.init_db()
-    return svc
+    """A BookingService bound to a fresh session on the temp DB."""
+    Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
+    with get_session_factory(tmp_db)() as session:
+        yield BookingService(session)
+
+
+@pytest.fixture()
+def seeded_session(tmp_db):
+    """A Session on the seeded temp DB — for unit tests that call read services
+    (now request-scoped classes) directly instead of through the HTTP client."""
+    Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
+    seed_all(get_session_factory(tmp_db))
+    with get_session_factory(tmp_db)() as session:
+        yield session
 
 
 # ---------------------------------------------------------------------------

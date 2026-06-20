@@ -7,6 +7,7 @@ field ``code`` — the repo constructs ``Airport`` explicitly (no
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.db import models
 from app.schemas.airport import Airport
 
@@ -20,11 +21,9 @@ def _row_to_airport(row: models.Airport) -> Airport:
     )
 
 
-class AirportRepository:
+class AirportRepository(Repo):
     """Read-only store of airport rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def list(self) -> list[Airport]:
         """Return every supported airport as an ``Airport`` schema.
@@ -34,7 +33,7 @@ class AirportRepository:
         board_service samples its routes from (SQLite and Postgres make no
         row-order guarantee otherwise).
         """
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(
                 select(models.Airport).order_by(models.Airport.position)
             ).all()
@@ -46,7 +45,7 @@ class AirportRepository:
         Matches ``airport_service.get_airport`` — the lookup upper-cases the
         input so ``"dad"`` resolves the same as ``"DAD"``.
         """
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Airport).where(models.Airport.iata == code.upper())
             ).first()

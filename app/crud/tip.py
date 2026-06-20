@@ -11,6 +11,7 @@ The schema field ``scope`` maps from the column ``scope``; the schema has no
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.db import models
 from app.schemas.tip import Tip
 
@@ -26,11 +27,9 @@ def _row_to_tip(row: models.Tip) -> Tip:
     )
 
 
-class TipRepository:
+class TipRepository(Repo):
     """Read-only store of tip rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def for_location(self, scope: str, key: str) -> list[Tip]:
         """Return tips for one ``(scope, key)``, ordered by ``position``.
@@ -43,7 +42,7 @@ class TipRepository:
             .where(models.Tip.scope == scope, models.Tip.key == key)
             .order_by(models.Tip.position)
         )
-        with self._sf() as s:
+        with self._session() as s:
             return [_row_to_tip(r) for r in s.scalars(stmt).all()]
 
     def all_tips(self) -> list[Tip]:
@@ -57,7 +56,7 @@ class TipRepository:
         stmt = select(models.Tip).order_by(
             models.Tip.scope, models.Tip.key, models.Tip.position
         )
-        with self._sf() as s:
+        with self._session() as s:
             return [_row_to_tip(r) for r in s.scalars(stmt).all()]
 
     def country_summary(self, country: str) -> str:
@@ -65,7 +64,7 @@ class TipRepository:
 
         Mirrors ``COUNTRY_SUMMARIES.get(country, "")``.
         """
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.CountrySummary).where(
                     models.CountrySummary.country == country

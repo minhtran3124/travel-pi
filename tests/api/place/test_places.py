@@ -1,7 +1,7 @@
 """Tests for the /places endpoints."""
 
 import pytest
-from app.services import place_service
+from app.services.place_service import PlaceService
 from fastapi.testclient import TestClient
 
 # ── List all (paginated) ──────────────────────────────────────────────────────
@@ -502,8 +502,8 @@ def test_nearby_accepts_short_code(client: TestClient) -> None:
         ("nothing useful here", "min_rating", None),
     ],
 )
-def test_parse_nl_query(query, field, expected) -> None:
-    parsed = place_service.parse_nl_query(query)
+def test_parse_nl_query(seeded_session, query, field, expected) -> None:
+    parsed = PlaceService(seeded_session).parse_nl_query(query)
     assert getattr(parsed, field) == expected
 
 

@@ -10,10 +10,12 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.crud.saved_place import SavedPlaceRepository
 from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.exceptions import ConflictError, NotFoundError
 from app.schemas.saved_place import SavedPlace, SavedPlaceCreate
 
@@ -21,11 +23,8 @@ _DEDUP_RADIUS_KM = 0.05  # ~50 m
 
 
 class SavedPlaceService:
-    def __init__(self, database_url: str) -> None:
-        self._repo = SavedPlaceRepository(get_session_factory(database_url))
-
-    def init_db(self) -> None:
-        self._repo.init_db()
+    def __init__(self, session: Session) -> None:
+        self._repo = SavedPlaceRepository(session)
 
     def create(self, request: SavedPlaceCreate) -> SavedPlace:
         dup = self._repo.find_duplicate(
@@ -71,14 +70,16 @@ class SavedPlaceService:
         return self.get(sp.id)
 
 
-# Shared singleton — constructed at import time (cheap: builds a session
-# factory). Tables are created later from the app's lifespan handler.
-_saved_place_service = SavedPlaceService(get_settings().database_url)
+def init_db() -> None:
+    """Create the saved_places table (startup; no request context)."""
+    SavedPlaceRepository(get_session_factory(get_settings().database_url)).init_db()
 
 
-def get_saved_place_service() -> SavedPlaceService:
-    """FastAPI dependency returning the shared saved-place store."""
-    return _saved_place_service
+def get_saved_place_service(
+    session: Annotated[Session, Depends(get_session)],
+) -> SavedPlaceService:
+    """FastAPI dependency: a saved-place store bound to the request session."""
+    return SavedPlaceService(session)
 
 
 SavedPlaceDep = Annotated[SavedPlaceService, Depends(get_saved_place_service)]

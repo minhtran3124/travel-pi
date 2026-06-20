@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.db import models
 
 
@@ -26,11 +27,9 @@ def _row_to_dict(row: models.Country) -> dict:
     }
 
 
-class CountryRepository:
+class CountryRepository(Repo):
     """Read-only store of country rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def list(self) -> list[dict]:
         """Return every country as a ``{name, code, region, lat, long}`` dict.
@@ -39,7 +38,7 @@ class CountryRepository:
         dashboard region tiles keep their hand-curated ordering — symmetric
         with how ``AirlineRepository.list`` preserves airline order.
         """
-        with self._sf() as s:
+        with self._session() as s:
             rows = s.scalars(
                 select(models.Country).order_by(models.Country.position)
             ).all()
@@ -47,7 +46,7 @@ class CountryRepository:
 
     def get(self, code: str) -> dict | None:
         """Return the country for an ISO 3166-1 alpha-2 ``code``, or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Country).where(models.Country.code == code)
             ).first()
@@ -55,7 +54,7 @@ class CountryRepository:
 
     def get_by_name(self, name: str) -> dict | None:
         """Return the country with display ``name`` (exact), or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Country).where(models.Country.name == name)
             ).first()
@@ -68,6 +67,6 @@ class CountryRepository:
         target used by cities/tips/visa. Derived from the ``cities`` table so it
         matches today's behaviour exactly (countries with no cities are excluded).
         """
-        with self._sf() as s:
+        with self._session() as s:
             names = s.scalars(select(models.City.country).distinct()).all()
             return sorted(set(names))

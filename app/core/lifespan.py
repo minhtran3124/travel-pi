@@ -15,10 +15,8 @@ from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
-from app.services.booking_service import get_booking_service
+from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
-from app.services.saved_place_service import get_saved_place_service
-from app.services.trip_service import get_trip_service
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +48,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # service constructable/initable independently in tests; on Postgres they
     # are no-ops after Alembic has run (checkfirst=True).
     try:
-        get_booking_service().init_db()
-        get_trip_service().init_db()
-        get_saved_place_service().init_db()
+        booking_service.init_db()
+        trip_service.init_db()
+        saved_place_service.init_db()
         init_flight_index()
     except Exception:
         logger.exception("Could not initialise database at %s", settings.database_url)

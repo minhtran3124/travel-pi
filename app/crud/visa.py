@@ -9,27 +9,26 @@ keeps deciding what an absent record means.
 
 from sqlalchemy import select
 
+from app.crud.base import Repo
 from app.db import models
 from app.schemas.visa import EntryRequirements
 
 
-class VisaRepository:
+class VisaRepository(Repo):
     """Read-only store of visa rows behind a ``session_factory``."""
 
-    def __init__(self, session_factory) -> None:
-        self._sf = session_factory
 
     def countries(self) -> list[str]:
         """Return every country that has a visa record, sorted.
 
         Mirrors ``sorted(COUNTRY_VISA)`` — the dashboard's visa picker list.
         """
-        with self._sf() as s:
+        with self._session() as s:
             return sorted(s.scalars(select(models.Visa.country)).all())
 
     def get(self, country: str) -> EntryRequirements | None:
         """Return entry requirements for a resolved ``country``, or ``None``."""
-        with self._sf() as s:
+        with self._session() as s:
             row = s.scalars(
                 select(models.Visa).where(models.Visa.country == country)
             ).first()
