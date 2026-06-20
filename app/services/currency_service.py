@@ -16,9 +16,9 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
-from app.crud.fx import FxRepository
 from app.db.session import get_session
 from app.exceptions import NotFoundError
+from app.repositories.fx import FxRepository
 from app.schemas.currency import CurrencyConvertResponse, LocalCurrency
 
 

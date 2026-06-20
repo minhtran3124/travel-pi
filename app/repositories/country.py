@@ -13,8 +13,8 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 
 
 def _row_to_dict(row: models.Country) -> dict:
@@ -29,7 +29,6 @@ def _row_to_dict(row: models.Country) -> dict:
 
 class CountryRepository(Repo):
     """Read-only store of country rows behind a ``session_factory``."""
-
 
     def list(self) -> list[dict]:
         """Return every country as a ``{name, code, region, lat, long}`` dict.

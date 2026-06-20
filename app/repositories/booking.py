@@ -7,9 +7,9 @@ ORM rows to/from the Booking Pydantic model and nothing more.
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
-from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base
+from app.repositories.base import Repo
 from app.schemas.booking import Booking
 
 

@@ -13,10 +13,10 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.crud.saved_place import SavedPlaceRepository
 from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.exceptions import ConflictError, NotFoundError
+from app.repositories.saved_place import SavedPlaceRepository
 from app.schemas.saved_place import SavedPlace, SavedPlaceCreate
 
 _DEDUP_RADIUS_KM = 0.05  # ~50 m

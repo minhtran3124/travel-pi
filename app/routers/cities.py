@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match, fuzzy_filter
-from app.crud.city import CityRepository
 from app.db.session import get_session
 from app.exceptions import NotFoundError
+from app.repositories.city import CityRepository
 from app.schemas.city import City, CityListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep

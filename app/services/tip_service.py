@@ -1,6 +1,6 @@
 """Local-tips lookup over the DB-backed seed data.
 
-Tip records are read through ``TipRepository`` (``app.crud.tip``) per request;
+Tip records are read through ``TipRepository`` (``app.repositories.tip``) per request;
 ``app/data/tips.py`` remains the guarded seed source. Country tips are
 inherited by every city in that country; city tips are merged on top when a
 ``city`` is queried. Unknown locations return an empty tip list
@@ -21,10 +21,10 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
-from app.crud.city import CityRepository
-from app.crud.country import CountryRepository
-from app.crud.tip import TipRepository
 from app.db.session import get_session
+from app.repositories.city import CityRepository
+from app.repositories.country import CountryRepository
+from app.repositories.tip import TipRepository
 from app.schemas.tip import Tip, TipsResponse
 
 VALID_CATEGORIES = {

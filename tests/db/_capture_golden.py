@@ -21,9 +21,9 @@ import os
 import tempfile
 from pathlib import Path
 
-from app.crud.flight import FlightIndexRepository
 from app.db.engine import get_session_factory
 from app.main import create_app
+from app.repositories.flight import FlightIndexRepository
 from app.services import flight_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient

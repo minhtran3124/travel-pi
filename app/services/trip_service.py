@@ -1,7 +1,7 @@
 """Trip itinerary business logic: CRUD over trips and their items.
 
 Service tier — owns ID generation, existence checks, and the 404s; delegates
-all persistence to :class:`~app.crud.trip.TripRepository`. Trips are the
+all persistence to :class:`~app.repositories.trip.TripRepository`. Trips are the
 second mutable state in the API (alongside bookings). Sync + raw SQLite, like
 the booking service.
 """
@@ -17,7 +17,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.crud.trip import TripRepository
 from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.enums import (
@@ -29,6 +28,7 @@ from app.enums import (
     TripItemStatus,
 )
 from app.exceptions import ConflictError, DomainValidationError, NotFoundError
+from app.repositories.trip import TripRepository
 from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
     BudgetCategories,

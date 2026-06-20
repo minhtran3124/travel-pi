@@ -13,8 +13,8 @@ stays in the service (Chunk E); ``search`` takes an already-resolved exact city.
 
 from sqlalchemy import func, select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 from app.schemas.hotel import Hotel
 
 
@@ -24,7 +24,6 @@ def _row_to_hotel(row: models.Hotel) -> Hotel:
 
 class HotelRepository(Repo):
     """Read-only store of hotel rows behind a ``session_factory``."""
-
 
     def all(self) -> list[Hotel]:
         """Return every seeded hotel in stable ``position`` (seed) order.

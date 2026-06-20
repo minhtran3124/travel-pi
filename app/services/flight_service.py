@@ -22,10 +22,10 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.crud.airline import AirlineRepository
-from app.crud.flight import FlightIndexRepository
 from app.db.engine import get_session_factory
 from app.db.session import get_session
+from app.repositories.airline import AirlineRepository
+from app.repositories.flight import FlightIndexRepository
 from app.schemas.flight import Airline, Flight
 
 # Fixed namespace for deterministic flight UUIDs (UUID5).

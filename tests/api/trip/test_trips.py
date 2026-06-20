@@ -83,8 +83,8 @@ def test_trip_item_create_rejects_bad_status():
 
 @pytest.fixture()
 def repo(tmp_path):
-    from app.crud.trip import TripRepository
     from app.db.engine import get_session_factory
+    from app.repositories.trip import TripRepository
 
     r = TripRepository(get_session_factory(f"sqlite:///{tmp_path / 'trips_test.db'}"))
     r.init_db()

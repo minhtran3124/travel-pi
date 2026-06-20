@@ -357,8 +357,8 @@ def _sample_booking(booking_id):
 def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
     """A second add() under an already-used idempotency key must not create a
     duplicate row — it returns the booking the first add() created."""
-    from app.crud.booking import BookingRepository
     from app.db.engine import get_session_factory
+    from app.repositories.booking import BookingRepository
 
     repo = BookingRepository(get_session_factory(tmp_db))
     repo.init_db()
@@ -382,8 +382,8 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
 
 def test_repo_get_by_confirmation_code_resolves(tmp_db):
     """The new indexed lookup returns the same booking the original add stored."""
-    from app.crud.booking import BookingRepository
     from app.db.engine import get_engine, get_session_factory
+    from app.repositories.booking import BookingRepository
     from sqlalchemy import inspect
 
     # Use the shared per-session test DB URL directly. (Don't fabricate a

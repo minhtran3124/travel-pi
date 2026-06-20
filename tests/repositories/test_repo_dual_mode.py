@@ -5,8 +5,8 @@ A repo built from a live ``Session`` only flushes — the commit is deferred to 
 request boundary (unit-of-work), so the caller can still roll the whole thing back.
 """
 
-from app.crud.base import Repo
 from app.db.engine import get_session_factory
+from app.repositories.base import Repo
 from sqlalchemy import text
 
 

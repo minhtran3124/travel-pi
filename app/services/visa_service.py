@@ -18,10 +18,10 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
-from app.crud.city import CityRepository
-from app.crud.country import CountryRepository
-from app.crud.visa import VisaRepository
 from app.db.session import get_session
+from app.repositories.city import CityRepository
+from app.repositories.country import CountryRepository
+from app.repositories.visa import VisaRepository
 from app.schemas.visa import VisaResponse
 
 DISCLAIMER = (

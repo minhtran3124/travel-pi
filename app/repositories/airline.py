@@ -7,8 +7,8 @@ because ``flight_service.generate_flights`` does ``rng.choice(AIRLINES)`` over a
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 
 # Fallback colour for any airline code without an explicit brand colour.
 # Presentation only (moved here from app/data/airlines.py so the colour lookup
@@ -18,7 +18,6 @@ AIRLINE_COLOR_DEFAULT = "#444b55"
 
 class AirlineRepository(Repo):
     """Read-only store of airline rows behind a ``session_factory``."""
-
 
     def list(self) -> list[dict]:
         """Return airlines as ``{code, name}`` dicts in seed order.

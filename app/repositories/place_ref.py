@@ -12,8 +12,8 @@ sort. Fuzzy city resolution and the result ordering stay in ``place_service``
 
 from sqlalchemy import func, select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 from app.schemas.place import Place
 
 
@@ -23,7 +23,6 @@ def _row_to_place(row: models.Place) -> Place:
 
 class PlaceRepository(Repo):
     """Read-only store of place rows behind a ``session_factory``."""
-
 
     def all(self) -> list[Place]:
         """Return every seeded place in stable ``position`` (seed) order.

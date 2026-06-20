@@ -9,13 +9,12 @@ return ``None`` for an unknown code and the *service* keeps raising
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 
 
 class FxRepository(Repo):
     """Read-only store of FX rows behind a ``session_factory``."""
-
 
     def rate(self, code: str) -> float | None:
         """Return the units-per-USD rate for ``code`` (exact), or ``None``."""

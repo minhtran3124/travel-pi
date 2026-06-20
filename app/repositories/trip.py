@@ -1,6 +1,6 @@
 """Data-access layer for trips — SQLAlchemy ORM persistence, nothing else.
 
-The ``crud`` tier reads/writes trip, trip_item, and trip_place_link rows;
+The ``repositories`` tier reads/writes trip, trip_item, and trip_place_link rows;
 business rules (ID generation, existence checks, 404s) live in
 ``services/trip_service.py``. A fresh session per call (threadpool-safe for
 sync endpoints), idempotent ``init_db``. JSON columns (``budget_caps``) are
@@ -11,9 +11,9 @@ service can read them by key (``row["col"]``) exactly as before.
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base
+from app.repositories.base import Repo
 from app.schemas.trip import Trip, TripItem
 
 

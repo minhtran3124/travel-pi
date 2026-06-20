@@ -1,6 +1,6 @@
 """Data-access layer for saved places — SQLAlchemy ORM persistence only.
 
-The ``crud`` tier reads/writes ``saved_places`` rows; business rules (ID
+The ``repositories`` tier reads/writes ``saved_places`` rows; business rules (ID
 generation, existence checks, 404/409s, dedup policy) live in
 ``services/saved_place_service.py``. A fresh session per call (threadpool-safe
 for sync endpoints), idempotent ``init_db``, soft-delete filtered from reads.
@@ -10,9 +10,9 @@ The ``links`` column is a native JSON column (no manual json.dumps/loads).
 from sqlalchemy import func, select
 
 from app.core.geo import haversine_km
-from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base
+from app.repositories.base import Repo
 from app.schemas.saved_place import SavedPlace
 
 _SET_FLAG_FIELDS = {"favorite", "visited"}
@@ -40,7 +40,6 @@ def _row_to_saved_place(row: models.SavedPlace) -> SavedPlace:
 
 class SavedPlaceRepository(Repo):
     """ORM-backed store of saved_places rows."""
-
 
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
