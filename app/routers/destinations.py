@@ -2,15 +2,18 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 
 from app.enums import OverviewSection
 from app.schemas.climate import ClimateResponse
 from app.schemas.destination import DestinationOverviewResponse
 from app.schemas.error import error_responses
-from app.services import climate_service, destination_service
+from app.services import climate_service
+from app.services.destination_service import DestinationService, get_destination_service
 
 router = APIRouter(prefix="/destinations", tags=["destinations"])
+
+DestinationDep = Annotated[DestinationService, Depends(get_destination_service)]
 
 
 @router.get(
@@ -20,6 +23,7 @@ router = APIRouter(prefix="/destinations", tags=["destinations"])
     responses=error_responses(404, 422),
 )
 async def get_destination_overview(
+    destination: DestinationDep,
     city: Annotated[
         str,
         Path(
@@ -55,7 +59,7 @@ async def get_destination_overview(
     sections = (
         {s.value for s in include} if include else {s.value for s in OverviewSection}
     )
-    return await destination_service.get_overview(
+    return await destination.get_overview(
         city,
         include=sections,
         place_limit=place_limit,

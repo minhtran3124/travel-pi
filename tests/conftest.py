@@ -22,7 +22,6 @@ from app.routers import dashboard as dashboard_router
 from app.services import (
     airport_service,
     board_service,
-    destination_service,
     flight_service,
     hotel_service,
     place_service,
@@ -92,7 +91,6 @@ def client(tmp_db):
         tip=TipRepository(sf),
     )
     cities_router.set_city_repo(CityRepository(sf))
-    destination_service.set_city_repo(CityRepository(sf))
     routing_service.set_city_repo(CityRepository(sf))
 
     app = create_app()
