@@ -188,6 +188,25 @@ task leave its conftest lines and do the single conftest collapse in 5.1. **Reco
 (b)** to preserve wave-4 parallelism; adjust 4.x `<files>` to drop `tests/conftest.py`
 if taking that route.
 
+## 5b. Wave 4 progress & revised approach
+
+On execution, wave 4's "5 independent parallel groups" proved optimistic: the read
+services form a **deep call graph** (destination→hotel/tip/place/weather,
+trip→place/routing, board→airport/flight, visa→tip), so they migrate **caller-before-
+callee**, not as independent groups. Each service still migrates with the same recipe —
+convert to `class(Session)` + `get_X_service` DI provider, inject in its router, drop its
+`set_*_repo` + conftest line — and its calls to *still-global* services keep working until
+those migrate (then the caller's call site is updated to `XService(self._session)`).
+
+Done & committed (each green, 680 passing):
+- `c6c885e` currency (leaf)
+- `7b78590` destination (caller; its place/tip/hotel/weather calls remain global)
+
+Remaining: board(+dashboard `set_repos`), visa, routing(async), hotel, tip, place,
+airport, flight, weather(async), cities router. Then wave 5 (remove dual-mode shim,
+no-singletons guard, `make test-docker`). `dashboard.py` (759 lines, multiple endpoints +
+`set_repos`) and the async weather/routing pair are the largest remaining pieces.
+
 ## 6. Risks
 
 - **Cross-service session threading** (highest): a write service calling a read service
