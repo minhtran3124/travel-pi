@@ -3,10 +3,10 @@
 from sqlalchemy import Float, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class FxRate(UUIDMixin, TimestampMixin, Base):
+class FxRate(UUIDBase):
     __tablename__ = "fx_rates"
 
     code: Mapped[str] = mapped_column(String, nullable=False, unique=True)  # ISO 4217
@@ -14,14 +14,14 @@ class FxRate(UUIDMixin, TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String, nullable=False)  # from CURRENCY_NAMES
 
 
-class CountryCurrency(UUIDMixin, TimestampMixin, Base):
+class CountryCurrency(UUIDBase):
     __tablename__ = "country_currency"
 
     country: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     code: Mapped[str] = mapped_column(String, nullable=False)
 
 
-class FxMeta(UUIDMixin, TimestampMixin, Base):
+class FxMeta(UUIDBase):
     __tablename__ = "fx_meta"
 
     # Singleton row — seeded with a fixed deterministic id.

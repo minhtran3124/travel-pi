@@ -8,10 +8,10 @@ UUID string stored verbatim; ``short_code`` is a computed Pydantic property.
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Place(UUIDMixin, TimestampMixin, Base):
+class Place(UUIDBase):
     __tablename__ = "places"
 
     # PLACES list seed order so place_repo.all()/search() can ORDER BY it — the

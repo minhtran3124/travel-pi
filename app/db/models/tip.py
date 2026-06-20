@@ -8,10 +8,10 @@ order, enforced unique per (scope, key).
 from sqlalchemy import Boolean, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Tip(UUIDMixin, TimestampMixin, Base):
+class Tip(UUIDBase):
     __tablename__ = "tips"
 
     scope: Mapped[str] = mapped_column(String, nullable=False)  # "country" | "city"
@@ -29,7 +29,7 @@ class Tip(UUIDMixin, TimestampMixin, Base):
     )
 
 
-class CountrySummary(UUIDMixin, TimestampMixin, Base):
+class CountrySummary(UUIDBase):
     __tablename__ = "country_summaries"
 
     country: Mapped[str] = mapped_column(String, nullable=False, unique=True)

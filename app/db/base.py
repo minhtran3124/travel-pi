@@ -62,3 +62,16 @@ class TimestampMixin:
     updated_at: Mapped[str] = mapped_column(
         String, nullable=False, default=_utc_now_iso, onupdate=_utc_now_iso
     )
+
+
+class UUIDBase(UUIDMixin, TimestampMixin, Base):
+    """Standard model base: UUID string PK + ISO-8601 timestamps.
+
+    Every current model wants this exact trio, so they inherit ``UUIDBase``
+    instead of repeating ``(UUIDMixin, TimestampMixin, Base)``. The mixins stay
+    independently importable for any future table that needs to opt out of one
+    of them. ``__abstract__`` keeps SQLAlchemy from mapping this to a table; the
+    declarative registry/metadata still lives on ``Base``.
+    """
+
+    __abstract__ = True

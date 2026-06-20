@@ -3,10 +3,10 @@
 from sqlalchemy import JSON, Float, Index, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Booking(UUIDMixin, TimestampMixin, Base):
+class Booking(UUIDBase):
     __tablename__ = "bookings"
 
     type: Mapped[str] = mapped_column(String, nullable=False)

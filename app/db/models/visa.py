@@ -3,10 +3,10 @@
 from sqlalchemy import Boolean, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Visa(UUIDMixin, TimestampMixin, Base):
+class Visa(UUIDBase):
     __tablename__ = "visa"
 
     country: Mapped[str] = mapped_column(String, nullable=False, unique=True)

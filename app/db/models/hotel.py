@@ -9,10 +9,10 @@ column — it is a computed Pydantic property derived from ``id``.
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Hotel(UUIDMixin, TimestampMixin, Base):
+class Hotel(UUIDBase):
     __tablename__ = "hotels"
 
     # HOTELS list seed order so hotel_repo.all()/search() can ORDER BY it —

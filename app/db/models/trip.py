@@ -3,10 +3,10 @@
 from sqlalchemy import JSON, Index, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Trip(UUIDMixin, TimestampMixin, Base):
+class Trip(UUIDBase):
     __tablename__ = "trips"
 
     title: Mapped[str] = mapped_column(String, nullable=False)
@@ -30,7 +30,7 @@ class Trip(UUIDMixin, TimestampMixin, Base):
     )
 
 
-class TripItem(UUIDMixin, TimestampMixin, Base):
+class TripItem(UUIDBase):
     __tablename__ = "trip_items"
 
     trip_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
@@ -58,7 +58,7 @@ class TripItem(UUIDMixin, TimestampMixin, Base):
     )
 
 
-class TripPlaceLink(UUIDMixin, TimestampMixin, Base):
+class TripPlaceLink(UUIDBase):
     __tablename__ = "trip_place_link"
 
     trip_id: Mapped[str] = mapped_column(String, nullable=False)

@@ -9,10 +9,10 @@ The ``position`` column is load-bearing for flight determinism:
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class Airline(UUIDMixin, TimestampMixin, Base):
+class Airline(UUIDBase):
     __tablename__ = "airlines"
 
     code: Mapped[str] = mapped_column(String, nullable=False, unique=True)

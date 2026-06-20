@@ -8,10 +8,10 @@ denormalized convenience column filled by the seeder.
 from sqlalchemy import JSON, Float, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class City(UUIDMixin, TimestampMixin, Base):
+class City(UUIDBase):
     __tablename__ = "cities"
 
     name: Mapped[str] = mapped_column(String, nullable=False)

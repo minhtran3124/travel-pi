@@ -3,10 +3,10 @@
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TimestampMixin, UUIDMixin
+from app.db.base import UUIDBase
 
 
-class SavedPlace(UUIDMixin, TimestampMixin, Base):
+class SavedPlace(UUIDBase):
     __tablename__ = "saved_places"
 
     name: Mapped[str] = mapped_column(String, nullable=False)
