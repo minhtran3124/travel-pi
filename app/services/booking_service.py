@@ -188,23 +188,35 @@ class BookingService:
         if replayed is not None:
             return replayed
 
-        flight = flight_service.find_flight_by_number(
-            request.flight_number,
-            request.origin.upper(),
-            request.destination.upper(),
-            request.departure_date,
-        )
-        if flight is None:
-            raise NotFoundError(
-                f"No flight {request.flight_number!r} on "
-                f"{request.origin.upper()}→{request.destination.upper()} "
-                f"on {request.departure_date}",
-                hint=(
-                    "Run GET /flights/search with the same origin, "
-                    "destination, and departure_date to see the available "
-                    "flight_numbers for that route and date."
-                ),
+        if request.flight_id:
+            flight = flight_service.find_flight_by_id(request.flight_id)
+            if flight is None:
+                raise NotFoundError(
+                    f"Flight {request.flight_id!r} not found",
+                    hint=(
+                        "Use the `id` from a GET /flights/search result. If the "
+                        "id was issued earlier and no longer resolves, re-run "
+                        "the search to get a fresh one."
+                    ),
+                )
+        else:
+            flight = flight_service.find_flight_by_number(
+                request.flight_number,
+                request.origin.upper(),
+                request.destination.upper(),
+                request.departure_date,
             )
+            if flight is None:
+                raise NotFoundError(
+                    f"No flight {request.flight_number!r} on "
+                    f"{request.origin.upper()}→{request.destination.upper()} "
+                    f"on {request.departure_date}",
+                    hint=(
+                        "Run GET /flights/search with the same origin, "
+                        "destination, and departure_date to see the available "
+                        "flight_numbers for that route and date."
+                    ),
+                )
 
         booking = Booking(
             id=self._mint_booking_id(),
