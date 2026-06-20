@@ -42,9 +42,11 @@ The import-time binding is the root of the documented testing friction
 
 | Check | Command | Exit | Notes |
 |---|---|---|---|
-| Full suite (SQLite) | `pytest -q` | 0 | 680 passed after waves 1–3 (was 672 baseline + 8 new) |
-| Cross-engine (Postgres) | `make test-docker` | _pending_ | final gate (wave 5) |
-| Lint | `ruff check app tests` | 0 | clean after waves 1–3 |
+| Full suite (SQLite) | `pytest -q` | 0 | 680 passed after all 5 waves (672 baseline + new tests) |
+| Cross-engine (Postgres) | `make test-docker` | 0 | **682 passed** on Postgres — cross-engine parity holds |
+| Lint | `ruff check app tests` | 0 | clean; `ruff --select F821` also 0 |
+| No-singletons guard | `pytest tests/architecture` | 0 | asserts zero `set_*_repo`/singletons remain |
+| Contract parity | `git diff v3 -- app/routers` | 0 | no route/`response_model` changes |
 
 ### Deviations
 

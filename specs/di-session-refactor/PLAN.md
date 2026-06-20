@@ -1,6 +1,6 @@
 ---
 slug: di-session-refactor
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-20
 ---
@@ -255,3 +255,15 @@ passed**, ruff + F821 clean. Read-service unit tests now use a `seeded_session` 
   `pytest -q` → **680 passed**, ruff clean; new `tests/services/test_uow_atomicity.py`
   proves rollback-on-failure / commit-on-success. See SUMMARY.md Deviations (3 read-side
   edges folded forward from wave 4; savepoints beyond task 3.1 files).
+- 2026-06-20 — Branch surgery: the wave-1 `git checkout -b` had silently not taken, so
+  commits had landed on `v3`; moved all commits onto `refactor/di-session` and reset `v3`
+  clean to `github/v3`.
+- 2026-06-20 — ✓ Wave 4 complete (`9d38cd4`) — all read services on request-session DI,
+  done via 4 parallel subagents (disjoint files) + orchestrator integration of shared
+  callers. Zero singletons/setters remain.
+- 2026-06-20 — ✓ Wave 5 complete (`ef37e23`) — no-singletons guard test (`tests/architecture`).
+  Revised: the repo dual-mode bridge is KEPT — startup `init_db()`/`seed_all` use the factory
+  path, requests use a `Session`; both are live. Cross-engine gate `make test-docker` →
+  **682 passed** on Postgres. Contract parity: no route/`response_model` diff vs `v3`.
+  **DI/session refactor SHIPPED** — all success criteria met. Branch `refactor/di-session`
+  (off `v3`), not yet pushed.
