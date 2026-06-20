@@ -405,3 +405,59 @@ def test_repo_get_by_confirmation_code_resolves(tmp_db):
     # The index actually exists on disk.
     names = {i["name"] for i in inspect(get_engine(url)).get_indexes("bookings")}
     assert "ix_bookings_confirmation_code" in names
+
+
+# ---------------------------------------------------------------------------
+# Confirmation-code uniqueness (collision-safe minting + UNIQUE index)
+# ---------------------------------------------------------------------------
+
+
+def test_mint_booking_id_retries_past_confirmation_code_collision(
+    client, booking_service, monkeypatch
+):
+    """A minted UUID whose derived confirmation_code already exists is regenerated.
+
+    Force the first candidate ID to collide with an existing booking's code; the
+    minter must skip it and return the next, collision-free candidate.
+    """
+    from app.services import booking_service as booking_module
+
+    existing = _create_flight_booking(client, "Collide", "collide@example.com")
+    fresh_id = "0a111111-2222-3333-4444-555555555555"
+    candidates = iter([existing["id"], fresh_id])  # first collides, second is free
+    monkeypatch.setattr(booking_module, "_new_booking_id", lambda: next(candidates))
+
+    assert booking_service._mint_booking_id() == fresh_id
+
+
+def test_duplicate_confirmation_code_rejected_by_unique_index(booking_service, tmp_db):
+    """The DB-level UNIQUE index rejects a second row with the same code.
+
+    Uses flush + rollback so nothing is committed to the shared session DB.
+    """
+    from app.db import models
+    from app.db.engine import get_session_factory
+    from sqlalchemy.exc import IntegrityError
+
+    def _row(booking_id):
+        return models.Booking(
+            id=booking_id,
+            type="flight",
+            reference_id="ref",
+            customer_name="Dup",
+            customer_email="dup@example.com",
+            total_price=1.0,
+            currency="USD",
+            status="confirmed",
+            details={},
+            confirmation_code="ZZTEST",
+        )
+
+    sf = get_session_factory(tmp_db)
+    with sf() as s:
+        s.add(_row("dup-id-1"))
+        s.flush()
+        s.add(_row("dup-id-2"))
+        with pytest.raises(IntegrityError):
+            s.flush()
+        s.rollback()

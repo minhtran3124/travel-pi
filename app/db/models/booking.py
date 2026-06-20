@@ -29,5 +29,11 @@ class Booking(UUIDMixin, TimestampMixin, Base):
             sqlite_where=text("idempotency_key IS NOT NULL"),
             postgresql_where=text("idempotency_key IS NOT NULL"),
         ),
-        Index("ix_bookings_confirmation_code", "confirmation_code"),
+        Index(
+            "ix_bookings_confirmation_code",
+            "confirmation_code",
+            unique=True,
+            sqlite_where=text("confirmation_code IS NOT NULL"),
+            postgresql_where=text("confirmation_code IS NOT NULL"),
+        ),
     )

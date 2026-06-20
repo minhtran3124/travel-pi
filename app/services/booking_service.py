@@ -16,7 +16,12 @@ from app.crud.booking import BookingRepository
 from app.db.engine import get_session_factory
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
-from app.schemas.booking import Booking, FlightBookingDetails, HotelBookingDetails
+from app.schemas.booking import (
+    Booking,
+    FlightBookingDetails,
+    HotelBookingDetails,
+    confirmation_code_for,
+)
 from app.schemas.flight import FlightBookingRequest
 from app.schemas.hotel import HotelBookingRequest
 from app.services import flight_service, hotel_service
@@ -37,11 +42,36 @@ def _new_booking_id() -> str:
     return str(uuid.uuid4())
 
 
+# Bound on confirmation-code collision retries when minting a booking ID. The
+# code is a 6-char hash over a 31-char alphabet (31**6 ≈ 887M), so a collision
+# is astronomically rare; the loop just guards the unique
+# ``ix_bookings_confirmation_code`` index so a collision regenerates the UUID
+# instead of failing the insert.
+_MAX_ID_ATTEMPTS = 8
+
+
 class BookingService:
     """Business logic over the booking store."""
 
     def __init__(self, database_url: str) -> None:
         self._repo = BookingRepository(get_session_factory(database_url))
+
+    def _mint_booking_id(self) -> str:
+        """Return a fresh UUID whose derived confirmation_code is unused.
+
+        ``confirmation_code`` is unique (``ix_bookings_confirmation_code``) and
+        derived deterministically from the ID, so on the rare hash collision we
+        regenerate the UUID rather than let the insert fail.
+        """
+        for _ in range(_MAX_ID_ATTEMPTS):
+            booking_id = _new_booking_id()
+            code = confirmation_code_for(booking_id)
+            if self._repo.get_by_confirmation_code(code) is None:
+                return booking_id
+        raise RuntimeError(
+            "Could not mint a collision-free booking confirmation_code "
+            f"after {_MAX_ID_ATTEMPTS} attempts"
+        )
 
     def init_db(self) -> None:
         """Create the backing table. Called once on application startup."""
@@ -177,7 +207,7 @@ class BookingService:
             )
 
         booking = Booking(
-            id=_new_booking_id(),
+            id=self._mint_booking_id(),
             type=BookingType.FLIGHT,
             reference_id=flight.id,
             customer_name=request.passenger_name,
@@ -253,7 +283,7 @@ class BookingService:
 
         nights = hotel_service.count_nights(request.check_in, request.check_out)
         booking = Booking(
-            id=_new_booking_id(),
+            id=self._mint_booking_id(),
             type=BookingType.HOTEL,
             reference_id=hotel.id,
             customer_name=request.guest_name,
