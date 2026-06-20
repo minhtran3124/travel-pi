@@ -30,7 +30,9 @@ class VisaRepository:
     def get(self, country: str) -> EntryRequirements | None:
         """Return entry requirements for a resolved ``country``, or ``None``."""
         with self._sf() as s:
-            row = s.get(models.Visa, country)
+            row = s.scalars(
+                select(models.Visa).where(models.Visa.country == country)
+            ).first()
             if row is None:
                 return None
             return EntryRequirements(

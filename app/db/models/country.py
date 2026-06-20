@@ -3,13 +3,13 @@
 from sqlalchemy import Float, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class Country(Base):
+class Country(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "countries"
 
-    code: Mapped[str] = mapped_column(String, primary_key=True)  # "VN"
+    code: Mapped[str] = mapped_column(String, nullable=False, unique=True)  # "VN"
     name: Mapped[str] = mapped_column(String, nullable=False)
     region: Mapped[str] = mapped_column(String, nullable=False)
     # Curated COUNTRIES seed order (symmetric with Airline.position) so

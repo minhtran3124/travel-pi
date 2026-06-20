@@ -27,7 +27,7 @@ from app.data.places import PLACES
 from app.data.tips import CITY_TIPS, COUNTRY_SUMMARIES, COUNTRY_TIPS
 from app.data.visa import COUNTRY_VISA
 from app.db import models
-from app.db.base import Base
+from app.db.base import Base, deterministic_uuid
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.schemas.airport import Airport
@@ -328,10 +328,9 @@ def test_tip_for_location_country_ordering_and_ids(sf):
     assert all(isinstance(t, Tip) for t in tips)
     raw = COUNTRY_TIPS[country]
     assert len(tips) == len(raw)
-    # ordered by position, ids positional, titles match seed order
-    slug = "".join(ch if ch.isalnum() else "_" for ch in country.lower())
+    # ordered by position, ids are deterministic UUID5 over (scope, key, pos)
     for i, (t, r) in enumerate(zip(tips, raw, strict=True)):
-        assert t.id == f"tip_country_{slug}_{i:02d}"
+        assert t.id == deterministic_uuid("tip", "country", country, str(i))
         assert t.scope == "country"
         assert t.title == r["title"]
         assert t.content == r["content"]
@@ -341,7 +340,7 @@ def test_tip_for_location_country_ordering_and_ids(sf):
 def test_tip_known_id_stable(sf):
     repo = TipRepository(sf)
     tips = repo.for_location("country", "Vietnam")
-    assert tips[0].id == "tip_country_vietnam_00"
+    assert tips[0].id == deterministic_uuid("tip", "country", "Vietnam", "0")
 
 
 def test_tip_for_location_city(sf):

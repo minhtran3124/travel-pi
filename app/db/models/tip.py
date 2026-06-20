@@ -1,21 +1,19 @@
 """Tip + CountrySummary ORM models.
 
-Tip IDs are positional (``tip_{scope}_{prefix}_{NN}``) — the ``position``
-column preserves the seed list order, enforced unique per (scope, key).
+Tip ``id`` is a deterministic UUID5 derived from ``(scope, key, position)`` at
+seed time — opaque and stable. The ``position`` column preserves the seed list
+order, enforced unique per (scope, key).
 """
 
 from sqlalchemy import Boolean, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class Tip(Base):
+class Tip(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "tips"
 
-    id: Mapped[str] = mapped_column(
-        String, primary_key=True
-    )  # tip_{scope}_{prefix}_{NN}
     scope: Mapped[str] = mapped_column(String, nullable=False)  # "country" | "city"
     key: Mapped[str] = mapped_column(String, nullable=False)  # country or city name
     position: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -31,8 +29,8 @@ class Tip(Base):
     )
 
 
-class CountrySummary(Base):
+class CountrySummary(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "country_summaries"
 
-    country: Mapped[str] = mapped_column(String, primary_key=True)
+    country: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     summary: Mapped[str] = mapped_column(Text, nullable=False)

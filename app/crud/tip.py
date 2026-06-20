@@ -66,5 +66,9 @@ class TipRepository:
         Mirrors ``COUNTRY_SUMMARIES.get(country, "")``.
         """
         with self._sf() as s:
-            row = s.get(models.CountrySummary, country)
+            row = s.scalars(
+                select(models.CountrySummary).where(
+                    models.CountrySummary.country == country
+                )
+            ).first()
             return row.summary if row is not None else ""

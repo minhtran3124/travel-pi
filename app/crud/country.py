@@ -48,7 +48,9 @@ class CountryRepository:
     def get(self, code: str) -> dict | None:
         """Return the country for an ISO 3166-1 alpha-2 ``code``, or ``None``."""
         with self._sf() as s:
-            row = s.get(models.Country, code)
+            row = s.scalars(
+                select(models.Country).where(models.Country.code == code)
+            ).first()
             return _row_to_dict(row) if row is not None else None
 
     def get_by_name(self, name: str) -> dict | None:

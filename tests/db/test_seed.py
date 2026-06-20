@@ -1,13 +1,13 @@
 """Idempotency + correctness tests for the seeder (``app.db.seed.seed_all``).
 
 The seeder must be runnable repeatedly (lifespan + ``make seed`` both call it
-on every startup) with identical results — ``session.merge()`` for natural-PK
-entities and a natural-key upsert for ``City`` (whose PK is autoincrement int)
-guarantee that.
+on every startup) with identical results — ``session.merge()`` keyed on a
+deterministic UUID5 id for reference entities and a natural-key upsert for
+``City`` guarantee that.
 """
 
 from app.db import models
-from app.db.base import Base
+from app.db.base import Base, deterministic_uuid
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from sqlalchemy import func, select
@@ -65,9 +65,9 @@ def test_seed_preserves_tip_ids(tmp_path):
         ids = s.scalars(
             select(models.Tip.id).where(models.Tip.scope == "country")
         ).all()
-    assert any(i.startswith("tip_country_") for i in ids)
-    # The well-known first Vietnam country tip must be stable.
-    assert "tip_country_vietnam_00" in ids
+    # Tip ids are deterministic UUID5 over (scope, key, position) — stable
+    # across re-seeds. The well-known first Vietnam country tip must be present.
+    assert deterministic_uuid("tip", "country", "Vietnam", "0") in ids
 
 
 def test_seed_fills_hotel_country(tmp_path):
@@ -82,6 +82,6 @@ def test_seed_known_counts(tmp_path):
     seed_all(sf)
     with sf() as s:
         airlines = s.scalar(select(func.count()).select_from(models.Airline))
-        fx_meta = s.get(models.FxMeta, 1)
+        fx_meta = s.scalars(select(models.FxMeta)).first()
     assert airlines == 7
     assert fx_meta is not None and fx_meta.last_updated

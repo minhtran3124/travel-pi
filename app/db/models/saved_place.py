@@ -3,13 +3,12 @@
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class SavedPlace(Base):
+class SavedPlace(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "saved_places"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str | None] = mapped_column(String, nullable=True)
     country: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -27,5 +26,4 @@ class SavedPlace(Base):
     )
     links: Mapped[list | None] = mapped_column(JSON, nullable=True)
     duration: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    created_at: Mapped[str] = mapped_column(String, nullable=False)
     deleted_at: Mapped[str | None] = mapped_column(String, nullable=True)

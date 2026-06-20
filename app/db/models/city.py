@@ -5,16 +5,15 @@
 denormalized convenience column filled by the seeder.
 """
 
-from sqlalchemy import JSON, Float, ForeignKey, Index, Integer, String
+from sqlalchemy import JSON, Float, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class City(Base):
+class City(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "cities"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     country: Mapped[str] = mapped_column(
         ForeignKey("countries.name"), nullable=False

@@ -41,15 +41,11 @@ from app.data.places import PLACES
 from app.data.tips import CITY_TIPS, COUNTRY_SUMMARIES, COUNTRY_TIPS
 from app.data.visa import COUNTRY_VISA
 from app.db import models
+from app.db.base import deterministic_uuid
 from app.schemas.hotel import Hotel as HotelSchema
 from app.schemas.place import Place as PlaceSchema
 
 logger = logging.getLogger(__name__)
-
-
-def _slug(text: str) -> str:
-    """Port of ``tip_service._slug`` — used to derive the tip-id prefix."""
-    return "".join(ch if ch.isalnum() else "_" for ch in text.lower())
 
 
 def _seed_countries(session) -> None:
@@ -58,6 +54,7 @@ def _seed_countries(session) -> None:
     for i, c in enumerate(COUNTRIES):
         session.merge(
             models.Country(
+                id=deterministic_uuid("country", c["code"]),
                 code=c["code"],
                 name=c["name"],
                 region=c["region"],
@@ -74,6 +71,7 @@ def _seed_airlines(session) -> None:
     for i, a in enumerate(AIRLINES):
         session.merge(
             models.Airline(
+                id=deterministic_uuid("airline", a["code"]),
                 code=a["code"],
                 name=a["name"],
                 position=i,
@@ -89,6 +87,7 @@ def _seed_airports(session) -> None:
     for i, (iata, info) in enumerate(AIRPORTS.items()):
         session.merge(
             models.Airport(
+                id=deterministic_uuid("airport", iata),
                 iata=iata,
                 name=info["name"],
                 city=info["city"],
@@ -119,6 +118,7 @@ def _seed_cities(session) -> None:
         else:
             session.add(
                 models.City(
+                    id=deterministic_uuid("city", c["name"], c["country"]),
                     name=c["name"],
                     country=c["country"],
                     country_code=country_code,
@@ -190,11 +190,10 @@ def _seed_tips(session) -> None:
     # Replicate tip_service._build_tips exactly: positional ids in list order,
     # scope/key from the dict key. Iterate COUNTRY_TIPS then CITY_TIPS.
     def _emit(records: list[dict], scope: str, location: str) -> None:
-        prefix = _slug(location)
         for i, r in enumerate(records):
             session.merge(
                 models.Tip(
-                    id=f"tip_{scope}_{prefix}_{i:02d}",
+                    id=deterministic_uuid("tip", scope, location, str(i)),
                     scope=scope,
                     key=location,
                     position=i,
@@ -211,13 +210,20 @@ def _seed_tips(session) -> None:
         _emit(records, "city", city)
 
     for country, summary in COUNTRY_SUMMARIES.items():
-        session.merge(models.CountrySummary(country=country, summary=summary))
+        session.merge(
+            models.CountrySummary(
+                id=deterministic_uuid("country_summary", country),
+                country=country,
+                summary=summary,
+            )
+        )
 
 
 def _seed_visa(session) -> None:
     for country, v in COUNTRY_VISA.items():
         session.merge(
             models.Visa(
+                id=deterministic_uuid("visa", country),
                 country=country,
                 visa_free_days=v["visa_free_days"],
                 visa_on_arrival=v["visa_on_arrival"],
@@ -231,11 +237,27 @@ def _seed_visa(session) -> None:
 def _seed_fx(session) -> None:
     for code, rate in RATES.items():
         session.merge(
-            models.FxRate(code=code, rate=rate, name=CURRENCY_NAMES.get(code, code))
+            models.FxRate(
+                id=deterministic_uuid("fxrate", code),
+                code=code,
+                rate=rate,
+                name=CURRENCY_NAMES.get(code, code),
+            )
         )
     for country, code in COUNTRY_CURRENCY.items():
-        session.merge(models.CountryCurrency(country=country, code=code))
-    session.merge(models.FxMeta(id=1, last_updated=LAST_UPDATED))
+        session.merge(
+            models.CountryCurrency(
+                id=deterministic_uuid("country_currency", country),
+                country=country,
+                code=code,
+            )
+        )
+    session.merge(
+        models.FxMeta(
+            id=deterministic_uuid("fx_meta", "singleton"),
+            last_updated=LAST_UPDATED,
+        )
+    )
 
 
 def _check_short_code_collisions(session) -> None:

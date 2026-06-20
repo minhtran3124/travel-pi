@@ -47,5 +47,7 @@ class AirportRepository:
         input so ``"dad"`` resolves the same as ``"DAD"``.
         """
         with self._sf() as s:
-            row = s.get(models.Airport, code.upper())
+            row = s.scalars(
+                select(models.Airport).where(models.Airport.iata == code.upper())
+            ).first()
             return _row_to_airport(row) if row is not None else None

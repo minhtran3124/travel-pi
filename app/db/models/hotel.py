@@ -9,13 +9,12 @@ column — it is a computed Pydantic property derived from ``id``.
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class Hotel(Base):
+class Hotel(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "hotels"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)  # UUID string, verbatim
     # HOTELS list seed order so hotel_repo.all()/search() can ORDER BY it —
     # gives /hotels pagination a stable base order across engines.
     position: Mapped[int] = mapped_column(Integer, nullable=False)

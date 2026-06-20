@@ -3,13 +3,12 @@
 from sqlalchemy import JSON, Float, Index, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class Booking(Base):
+class Booking(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "bookings"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)
     type: Mapped[str] = mapped_column(String, nullable=False)
     reference_id: Mapped[str] = mapped_column(String, nullable=False)
     customer_name: Mapped[str] = mapped_column(String, nullable=False)
@@ -17,7 +16,6 @@ class Booking(Base):
     total_price: Mapped[float] = mapped_column(Float, nullable=False)
     currency: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[str] = mapped_column(String, nullable=False)  # ISO text
     details: Mapped[dict] = mapped_column(JSON, nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     idempotency_key: Mapped[str | None] = mapped_column(String, nullable=True)

@@ -37,6 +37,7 @@ def test_booking_columns():
         "currency",
         "status",
         "created_at",
+        "updated_at",
         "details",
         "notes",
         "idempotency_key",

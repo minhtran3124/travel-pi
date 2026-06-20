@@ -36,7 +36,9 @@ class AirlineRepository:
     def color(self, code: str) -> str | None:
         """Return the brand colour for an airline ``code``, or ``None``."""
         with self._sf() as s:
-            row = s.get(models.Airline, code)
+            row = s.scalars(
+                select(models.Airline).where(models.Airline.code == code)
+            ).first()
             return row.color if row is not None else None
 
     def colors(self) -> dict[str, str]:

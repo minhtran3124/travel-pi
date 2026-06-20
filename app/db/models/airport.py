@@ -3,13 +3,13 @@
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, TimestampMixin, UUIDMixin
 
 
-class Airport(Base):
+class Airport(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "airports"
 
-    iata: Mapped[str] = mapped_column(String, primary_key=True)
+    iata: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str] = mapped_column(String, nullable=False)
     country: Mapped[str] = mapped_column(String, nullable=False)

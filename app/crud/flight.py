@@ -7,10 +7,13 @@ handed out — even after a restart or on a different worker process — by
 re-running the deterministic generator for those params.
 """
 
+from datetime import datetime, timezone
+
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import models
-from app.db.base import Base
+from app.db.base import Base, new_uuid
 
 
 class FlightIndexRepository:
@@ -35,12 +38,16 @@ class FlightIndexRepository:
         """
         if not rows:
             return
+        now = datetime.now(timezone.utc).isoformat()
         values = [
             {
+                "id": new_uuid(),
                 "flight_id": fid,
                 "origin": o,
                 "destination": d,
                 "departure_date": dep,
+                "created_at": now,
+                "updated_at": now,
             }
             for (fid, o, d, dep) in rows
         ]
@@ -76,7 +83,11 @@ class FlightIndexRepository:
 
     def lookup(self, flight_id: str) -> tuple[str, str, str] | None:
         with self._sf() as s:
-            row = s.get(models.FlightIndex, flight_id)
+            row = s.scalars(
+                select(models.FlightIndex).where(
+                    models.FlightIndex.flight_id == flight_id
+                )
+            ).first()
             if row is None:
                 return None
             return (row.origin, row.destination, row.departure_date)
