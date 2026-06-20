@@ -1,6 +1,5 @@
 """Tests for flight endpoints: search, detail, and booking."""
 
-
 from tests.conftest import (
     VALID_DATE,
     VALID_DESTINATION,
@@ -359,7 +358,6 @@ def test_book_flight_type_is_flight(client):
 def test_book_flight_id_is_uuid(client):
     import uuid as _uuid
 
-
     body = client.post(
         "/flights/book",
         json={
@@ -424,6 +422,100 @@ def test_book_flight_missing_fields_returns_422(client):
         json={"flight_number": "VN123"},
     )
     assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# POST /flights/book — by flight_id (symmetric with hotels' hotel_id)
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_by_id_returns_200(client):
+    flight_id = get_first_flight_id(client)
+    body = client.post(
+        "/flights/book",
+        json={
+            "flight_id": flight_id,
+            "passenger_name": "Ivy Chen",
+            "passenger_email": "ivy@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    )
+    assert body.status_code == 200
+    payload = body.json()
+    assert payload["type"] == "flight"
+    assert payload["reference_id"] == flight_id
+
+
+def test_book_flight_by_id_matches_quad_path(client):
+    """Booking by flight_id resolves the same flight as the legacy quad."""
+    flight_id = get_first_flight_id(client)
+    by_id = client.post(
+        "/flights/book",
+        json={
+            "flight_id": flight_id,
+            "passenger_name": "Same Person",
+            "passenger_email": "same@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    ).json()
+    by_quad = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Same Person",
+            "passenger_email": "same@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    ).json()
+    assert by_id["reference_id"] == by_quad["reference_id"] == flight_id
+    assert by_id["total_price"] == by_quad["total_price"]
+
+
+def test_book_flight_both_identifiers_returns_422(client):
+    """flight_id together with the route quad is ambiguous → 422."""
+    resp = client.post(
+        "/flights/book",
+        json={
+            "flight_id": get_first_flight_id(client),
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Both Modes",
+            "passenger_email": "both@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 422
+
+
+def test_book_flight_unknown_id_returns_404(client):
+    """A well-formed but never-issued flight_id → 404."""
+    resp = client.post(
+        "/flights/book",
+        json={
+            "flight_id": "00000000-0000-0000-0000-000000000000",
+            "passenger_name": "Ghost User",
+            "passenger_email": "ghost@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    )
+    assert resp.status_code == 404
+
+
+def test_book_flight_blank_identifiers_returns_422(client):
+    """Blank strings are not a valid identifier → 422, not a 404."""
+    for ident in (
+        {"flight_id": ""},
+        {"flight_number": "", "origin": "", "destination": "", "departure_date": ""},
+    ):
+        resp = client.post(
+            "/flights/book",
+            json={
+                **ident,
+                "passenger_name": "Blank User",
+                "passenger_email": "blank@example.com",
+                "passenger_phone": "+84 901 234 567",
+            },
+        )
+        assert resp.status_code == 422, ident
 
 
 # ---------------------------------------------------------------------------

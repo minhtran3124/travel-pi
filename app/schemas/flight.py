@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import ConfigDict, EmailStr, Field, field_validator
+from pydantic import ConfigDict, EmailStr, Field, field_validator, model_validator
 
 from app.schemas.base import AppBaseModel
 
@@ -79,7 +79,9 @@ class Flight(AppBaseModel):
 class FlightSearchInfo(AppBaseModel):
     """Echo of the flight search query, returned alongside the results."""
 
-    origin: str = Field(description="IATA origin code that was queried.", examples=["DAD"])
+    origin: str = Field(
+        description="IATA origin code that was queried.", examples=["DAD"]
+    )
     destination: str = Field(
         description="IATA destination code that was queried.", examples=["SGN"]
     )
@@ -136,27 +138,48 @@ class FlightBookingRequest(AppBaseModel):
 
     Mirrors what an airline actually collects to issue a ticket: the chosen
     flight plus the passenger's name (as on their ID) and contact details.
-    The flight is identified the way an agent or human reads it back from
-    search results — the **flight number** (e.g. ``"VN123"``) plus the
-    **route and date** that pin which leg it is (the same flight number is
-    reused on other days and routes). The fare is *not* sent by the client —
-    it is taken server-side from the selected flight, so the price can't be
-    tampered with.
+
+    The flight may be identified **either way**:
+
+    - by **``flight_id``** — the ``id`` from a ``/flights/search`` result, so an
+      agent can ``search → pick id → book`` without unpacking it; or
+    - by **``flight_number`` + ``origin`` + ``destination`` + ``departure_date``**
+      — how a human reads it back (the same flight number is reused on other
+      days and routes, so the route+date pin which leg it is).
+
+    Provide exactly one of the two — both, or an incomplete set, is a 422. The
+    fare is *not* sent by the client — it is taken server-side from the selected
+    flight, so the price can't be tampered with.
     """
 
-    flight_number: str = Field(
+    flight_id: str | None = Field(
+        default=None,
         description=(
-            "Carrier code + number, case-insensitive. 'VN123' and 'VN 123' "
-            "both work."
+            "The `id` of a flight from a /flights/search result. Provide this "
+            "OR the flight_number + origin + destination + departure_date set, "
+            "not both."
+        ),
+        examples=["c0a8011e-5b2e-5f7a-9c3d-1f2e3a4b5c6d"],
+    )
+    flight_number: str | None = Field(
+        default=None,
+        description=(
+            "Carrier code + number, case-insensitive. 'VN123' and 'VN 123' both "
+            "work. Required (with origin/destination/departure_date) when "
+            "flight_id is not given."
         ),
         examples=["VN123"],
     )
-    origin: str = Field(description="3-letter IATA origin code.", examples=["DAD"])
-    destination: str = Field(
-        description="3-letter IATA destination code.", examples=["SGN"]
+    origin: str | None = Field(
+        default=None, description="3-letter IATA origin code.", examples=["DAD"]
     )
-    departure_date: str = Field(
-        description="Departure date in YYYY-MM-DD.", examples=["2026-06-01"]
+    destination: str | None = Field(
+        default=None, description="3-letter IATA destination code.", examples=["SGN"]
+    )
+    departure_date: str | None = Field(
+        default=None,
+        description="Departure date in YYYY-MM-DD.",
+        examples=["2026-06-01"],
     )
     passenger_name: str = Field(
         description="Full name as printed on the passenger's ID/passport.",
@@ -181,30 +204,66 @@ class FlightBookingRequest(AppBaseModel):
 
     @field_validator("departure_date")
     @classmethod
-    def _valid_departure_date(cls, value: str) -> str:
+    def _valid_departure_date(cls, value: str | None) -> str | None:
         """Reject a malformed date at the schema boundary → 422.
 
         Without this, a bad date slips through to the flight lookup, which
         can't resolve it and returns a misleading 404 instead of a clear
-        "fix your date" validation error.
+        "fix your date" validation error. ``None`` is left for the
+        identifier-mode check below to handle.
         """
+        if value is None:
+            return value
         try:
             datetime.strptime(value, "%Y-%m-%d")
         except ValueError as exc:
             raise ValueError("expected date in YYYY-MM-DD format") from exc
         return value
 
+    @model_validator(mode="after")
+    def _exactly_one_identifier(self) -> "FlightBookingRequest":
+        """Require exactly one flight-identifier mode → 422 otherwise.
+
+        Either ``flight_id`` alone, or the complete
+        ``flight_number + origin + destination + departure_date`` quad. Both
+        modes together is ambiguous; a partial quad can't pin a flight.
+        """
+        has_id = bool(self.flight_id)
+        quad = (self.flight_number, self.origin, self.destination, self.departure_date)
+        has_full_quad = all(quad)
+
+        if has_id and any(quad):
+            raise ValueError(
+                "provide flight_id OR flight_number+origin+destination+"
+                "departure_date, not both"
+            )
+        if not has_id and not has_full_quad:
+            raise ValueError(
+                "identify the flight with flight_id, or with flight_number + "
+                "origin + destination + departure_date"
+            )
+        return self
+
     model_config = ConfigDict(
         json_schema_extra={
-            "example": {
-                "flight_number": "VN123",
-                "origin": "DAD",
-                "destination": "SGN",
-                "departure_date": "2026-06-01",
-                "passenger_name": "Nguyen Van A",
-                "passenger_email": "nguyen.a@example.com",
-                "passenger_phone": "+84 901 234 567",
-                "notes": "Window seat preferred",
-            }
+            "examples": [
+                {
+                    "flight_id": "c0a8011e-5b2e-5f7a-9c3d-1f2e3a4b5c6d",
+                    "passenger_name": "Nguyen Van A",
+                    "passenger_email": "nguyen.a@example.com",
+                    "passenger_phone": "+84 901 234 567",
+                    "notes": "Window seat preferred",
+                },
+                {
+                    "flight_number": "VN123",
+                    "origin": "DAD",
+                    "destination": "SGN",
+                    "departure_date": "2026-06-01",
+                    "passenger_name": "Nguyen Van A",
+                    "passenger_email": "nguyen.a@example.com",
+                    "passenger_phone": "+84 901 234 567",
+                    "notes": "Window seat preferred",
+                },
+            ]
         }
     )
