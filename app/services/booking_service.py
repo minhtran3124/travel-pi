@@ -2,7 +2,7 @@
 
 This is the service tier — it owns the rules (pricing a hotel stay,
 resolving the referenced flight/hotel, searching and sorting the ledger)
-and delegates all persistence to :class:`~app.crud.booking.BookingRepository`.
+and delegates all persistence to :class:`~app.repositories.booking.BookingRepository`.
 Bookings are the only mutable state in the API; everything else is
 in-memory / read-only.
 """
@@ -16,11 +16,11 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.crud.booking import BookingRepository
 from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
+from app.repositories.booking import BookingRepository
 from app.schemas.booking import (
     Booking,
     FlightBookingDetails,

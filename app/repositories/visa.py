@@ -9,14 +9,13 @@ keeps deciding what an absent record means.
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 from app.schemas.visa import EntryRequirements
 
 
 class VisaRepository(Repo):
     """Read-only store of visa rows behind a ``session_factory``."""
-
 
     def countries(self) -> list[str]:
         """Return every country that has a visa record, sorted.

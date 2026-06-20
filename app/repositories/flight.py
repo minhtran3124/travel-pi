@@ -12,14 +12,13 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from app.crud.base import Repo
 from app.db import models
 from app.db.base import Base, new_uuid
+from app.repositories.base import Repo
 
 
 class FlightIndexRepository(Repo):
     """ORM-backed map of flight ID -> the search params that generated it."""
-
 
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)

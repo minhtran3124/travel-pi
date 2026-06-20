@@ -1,6 +1,6 @@
 """Hotel lookup + deterministic availability over the DB-backed seed data.
 
-Hotel records are read through ``HotelRepository`` (``app.crud.hotel_ref``) per
+Hotel records are read through ``HotelRepository`` (``app.repositories.hotel_ref``) per
 request; ``app/data/hotels.py`` remains the guarded seed source. Availability
 is *generated*, never stored — same pattern as ``flight_service``: a query
 (hotel + date range) is hashed into an RNG seed, so the same query always
@@ -23,8 +23,8 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
-from app.crud.hotel_ref import HotelRepository
 from app.db.session import get_session
+from app.repositories.hotel_ref import HotelRepository
 from app.schemas.hotel import Hotel, HotelAvailability
 
 _DATE_FORMAT = "%Y-%m-%d"

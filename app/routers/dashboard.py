@@ -27,13 +27,13 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.core.params import parse_optional_number
-from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
-from app.crud.city import CityRepository
-from app.crud.country import CountryRepository
-from app.crud.tip import TipRepository
-from app.crud.visa import VisaRepository
 from app.db.session import get_session
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
+from app.repositories.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
+from app.repositories.city import CityRepository
+from app.repositories.country import CountryRepository
+from app.repositories.tip import TipRepository
+from app.repositories.visa import VisaRepository
 from app.services import (
     air_quality_service,
     board_service,

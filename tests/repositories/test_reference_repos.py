@@ -8,15 +8,6 @@ freshly-seeded temp-SQLite session factory.
 """
 
 import pytest
-from app.crud.airline import AirlineRepository
-from app.crud.airport import AirportRepository
-from app.crud.city import CityRepository
-from app.crud.country import CountryRepository
-from app.crud.fx import FxRepository
-from app.crud.hotel_ref import HotelRepository
-from app.crud.place_ref import PlaceRepository
-from app.crud.tip import TipRepository
-from app.crud.visa import VisaRepository
 from app.data.airlines import AIRLINE_COLORS, AIRLINES
 from app.data.airports import AIRPORTS
 from app.data.cities import CITIES
@@ -30,6 +21,15 @@ from app.db import models
 from app.db.base import Base, deterministic_uuid
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
+from app.repositories.airline import AirlineRepository
+from app.repositories.airport import AirportRepository
+from app.repositories.city import CityRepository
+from app.repositories.country import CountryRepository
+from app.repositories.fx import FxRepository
+from app.repositories.hotel_ref import HotelRepository
+from app.repositories.place_ref import PlaceRepository
+from app.repositories.tip import TipRepository
+from app.repositories.visa import VisaRepository
 from app.schemas.airport import Airport
 from app.schemas.city import City
 from app.schemas.hotel import Hotel

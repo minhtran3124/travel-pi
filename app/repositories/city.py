@@ -12,9 +12,9 @@ Fuzzy name resolution stays in the consumer (Chunk E); ``get`` is an exact
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
-from app.crud.hotel_ref import HotelRepository
 from app.db import models
+from app.repositories.base import Repo
+from app.repositories.hotel_ref import HotelRepository
 from app.schemas.city import City
 
 

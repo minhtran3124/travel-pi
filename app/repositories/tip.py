@@ -11,8 +11,8 @@ The schema field ``scope`` maps from the column ``scope``; the schema has no
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 from app.schemas.tip import Tip
 
 
@@ -29,7 +29,6 @@ def _row_to_tip(row: models.Tip) -> Tip:
 
 class TipRepository(Repo):
     """Read-only store of tip rows behind a ``session_factory``."""
-
 
     def for_location(self, scope: str, key: str) -> list[Tip]:
         """Return tips for one ``(scope, key)``, ordered by ``position``.

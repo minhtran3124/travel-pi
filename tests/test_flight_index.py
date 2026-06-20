@@ -14,8 +14,8 @@ the fix. The remaining tests assert the idempotent contract.
 
 import threading
 
-from app.crud.flight import FlightIndexRepository
 from app.db.engine import get_session_factory
+from app.repositories.flight import FlightIndexRepository
 from sqlalchemy import text
 
 

@@ -12,10 +12,10 @@ it reads the seeded reference tables through the repos rather than the
 """
 
 from app.core.config import get_settings
-from app.crud.city import CityRepository
-from app.crud.hotel_ref import HotelRepository
-from app.crud.place_ref import PlaceRepository
 from app.db.engine import get_session_factory
+from app.repositories.city import CityRepository
+from app.repositories.hotel_ref import HotelRepository
+from app.repositories.place_ref import PlaceRepository
 
 _MIN_PER_CITY = 3
 

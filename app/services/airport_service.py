@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.crud.airport import AirportRepository
 from app.db.session import get_session
+from app.repositories.airport import AirportRepository
 from app.schemas.airport import Airport
 
 

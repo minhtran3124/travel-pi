@@ -24,8 +24,8 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.db.session import get_session
+from app.repositories.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.schemas.airport import Airport
 from app.schemas.flight import Flight
 from app.services.airport_service import AirportService

@@ -17,10 +17,10 @@ from sqlalchemy.orm import Session
 
 from app.core.geo import haversine_km
 from app.core.text import best_match
-from app.crud.place_ref import PlaceRepository
-from app.crud.saved_place import SavedPlaceRepository
 from app.db.session import get_session
 from app.exceptions import NotFoundError
+from app.repositories.place_ref import PlaceRepository
+from app.repositories.saved_place import SavedPlaceRepository
 from app.schemas.place import NearbyPlace, ParsedQuery, Place
 from app.schemas.saved_place import SavedPlace
 

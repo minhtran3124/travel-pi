@@ -50,7 +50,7 @@ app/
   core/          # config, logging, lifespan, geo (haversine), text (fuzzy match)
   routers/       # one file per endpoint group (dashboard.py = HTML, not API)
   services/      # business logic
-  crud/          # SQLAlchemy ORM data access (per-entity repos), no logic
+  repositories/  # SQLAlchemy ORM data access (per-entity repos), no logic
   db/models/     # ORM models package (plain class names, used via `models.` namespace)
   schemas/       # Pydantic v2 models (extend AppBaseModel)
   data/          # seed source of truth + import-time guards (countries, airlines, …)
@@ -59,7 +59,7 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
 
 ## Architecture rules
 
-- **Layering:** routers → services (rules) → crud (SQL). Services raise domain
+- **Layering:** routers → services (rules) → repositories (SQL). Services raise domain
   exceptions (`NotFoundError`→404, `ConflictError`→409, `UpstreamError`→502) and
   never import `HTTPException`. `main.py` turns `AppError`, `HTTPException`, and
   `RequestValidationError` into one JSON envelope
@@ -69,7 +69,7 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   by `DATABASE_URL` (default `sqlite:///travel.db` for local/tests; Docker
   injects `postgresql+psycopg://...`). Schema is versioned by **Alembic**
   (`alembic upgrade head`, run automatically by the Docker entrypoint). The ORM
-  is confined to `app/crud/` — services/schemas/routers stay ORM-free. ORM models
+  is confined to `app/repositories/` — services/schemas/routers stay ORM-free. ORM models
   live in the **`app/db/models/` package** (one file per entity, plain class
   names like `Hotel`/`City`), referenced via the **`models.` namespace**
   (`from app.db import models` → `models.Hotel`) to avoid colliding with the
@@ -89,7 +89,7 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   says which); results are cached in-process.
 - **Seed data is DB-backed.** The 9 reference entity groups (countries, airlines,
   airports, cities, hotels, places, tips, visa, fx) live in the database and are
-  **read through per-entity repos in `app/crud/` per request**. `app/data/`
+  **read through per-entity repos in `app/repositories/` per request**. `app/data/`
   REMAINS the guarded source of truth — `data/countries.py` is canonical for
   countries and the other data files validate against it; those **import-time
   consistency guards now run at seed time**, so typos still fail loudly on
@@ -114,7 +114,7 @@ tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
   `mock-api-spec.md` §1). Console logging is in scope; anything heavier is not.
   Persistence uses **SQLAlchemy 2.0 ORM (sync)**, engine selected by
   `DATABASE_URL` (SQLite default for local/tests, Postgres in Docker), schema
-  versioned by **Alembic**; **the ORM is confined to `app/crud/`** —
+  versioned by **Alembic**; **the ORM is confined to `app/repositories/`** —
   services/schemas/routers stay ORM-free. (See `docs/decisions/0001-orm-and-postgres.md`.)
 
 ## Design Context

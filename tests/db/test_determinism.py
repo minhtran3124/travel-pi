@@ -73,7 +73,7 @@ def test_flight_airline_codes_follow_repo_position_order(client, seeded_session)
     relative order of distinct codes as they first appear must be a
     subsequence of the repo's position order.
     """
-    from app.crud.airline import AirlineRepository
+    from app.repositories.airline import AirlineRepository
 
     # Read the airline repo on the same seeded temp DB the client uses, so the
     # position order matches the data the flight generator drew from.

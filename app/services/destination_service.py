@@ -15,9 +15,9 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
-from app.crud.city import CityRepository
 from app.db.session import get_session
 from app.exceptions import NotFoundError
+from app.repositories.city import CityRepository
 from app.schemas.destination import (
     DestinationOverviewResponse,
     HotelSummary,

@@ -91,7 +91,7 @@ app/
 ├── core/          # config, logging, lifespan
 ├── routers/       # one file per endpoint group
 ├── services/      # business logic
-├── crud/          # SQLAlchemy ORM data access
+├── repositories/  # SQLAlchemy ORM data access
 ├── schemas/       # Pydantic v2 models
 ├── templates/     # Jinja2 HTML pages
 └── data/          # seed source of truth

@@ -7,8 +7,8 @@ field ``code`` — the repo constructs ``Airport`` explicitly (no
 
 from sqlalchemy import select
 
-from app.crud.base import Repo
 from app.db import models
+from app.repositories.base import Repo
 from app.schemas.airport import Airport
 
 
@@ -23,7 +23,6 @@ def _row_to_airport(row: models.Airport) -> Airport:
 
 class AirportRepository(Repo):
     """Read-only store of airport rows behind a ``session_factory``."""
-
 
     def list(self) -> list[Airport]:
         """Return every supported airport as an ``Airport`` schema.
