@@ -218,7 +218,12 @@ if taking that route.
   live-session mode flushes + defers commit. Added `tests/crud/test_repo_dual_mode.py`
   (3 tests). Verify: full suite `pytest -q` → **678 passed**, ruff clean. Backward-
   compatible (no live-session caller yet).
-- 2026-06-20 — ⏸ Checkpoint before Wave 3 (write-service UoW migration). Two items
-  for the user: (a) **branch** — work is on `feat/symmetric-booking-inputs` which has
-  unrelated staged changes; recommend a dedicated `refactor/di-session` branch.
-  (b) **commit cadence** — waves not yet committed (awaiting go-ahead).
+- 2026-06-20 — Branch `refactor/di-session` created off `v3`; waves 1–2 committed `df8795f`.
+- 2026-06-20 — ✓ Wave 3 (task 3.1 + folded-in edges) complete. Booking/Trip/SavedPlace
+  services take a `Session` (built per request via `Depends(get_session)`); singletons +
+  per-service `init_db` methods replaced by module `init_db()` (lifespan calls them).
+  trip→booking and trip→place(saved) now share the request session. Savepoints added for
+  idempotency under UoW. conftest collapsed to one `get_session` override. Verify:
+  `pytest -q` → **680 passed**, ruff clean; new `tests/services/test_uow_atomicity.py`
+  proves rollback-on-failure / commit-on-success. See SUMMARY.md Deviations (3 read-side
+  edges folded forward from wave 4; savepoints beyond task 3.1 files).

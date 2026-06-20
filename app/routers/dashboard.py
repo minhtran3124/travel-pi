@@ -19,10 +19,12 @@ Pages:
 
 from datetime import date, datetime
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.params import parse_optional_number
@@ -32,6 +34,7 @@ from app.crud.country import CountryRepository
 from app.crud.tip import TipRepository
 from app.crud.visa import VisaRepository
 from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
     air_quality_service,
@@ -44,7 +47,7 @@ from app.services import (
     visa_service,
     weather_service,
 )
-from app.services.booking_service import BOOKING_SORTS, get_booking_service
+from app.services.booking_service import BOOKING_SORTS, BookingService
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"], include_in_schema=False)
 
@@ -729,6 +732,7 @@ async def air_quality_page(
 @router.get("/bookings", response_class=HTMLResponse)
 def bookings_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     q: str | None = Query(None, description="Search booking ID, customer name, email"),
     booking_type: str | None = Query(None, alias="type", description="Filter by type"),
     sort: str = Query("created_desc", description="Sort order; see BOOKING_SORTS keys"),
@@ -738,7 +742,7 @@ def bookings_page(
     Bookings are the only persisted state (SQLite). This page is read-only;
     ``q``, ``type``, and ``sort`` search, filter, and reorder the ledger.
     """
-    service = get_booking_service()
+    service = BookingService(session)
     bookings = service.query(q=q, booking_type=booking_type, sort=sort)
     selected_type = booking_type if booking_type in ("flight", "hotel") else None
     return _TEMPLATES.TemplateResponse(

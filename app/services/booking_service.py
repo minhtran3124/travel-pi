@@ -10,10 +10,15 @@ in-memory / read-only.
 import logging
 import uuid
 from datetime import datetime, timezone
+from typing import Annotated
+
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.crud.booking import BookingRepository
 from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
 from app.schemas.booking import (
@@ -53,8 +58,8 @@ _MAX_ID_ATTEMPTS = 8
 class BookingService:
     """Business logic over the booking store."""
 
-    def __init__(self, database_url: str) -> None:
-        self._repo = BookingRepository(get_session_factory(database_url))
+    def __init__(self, session: Session) -> None:
+        self._repo = BookingRepository(session)
 
     def _mint_booking_id(self) -> str:
         """Return a fresh UUID whose derived confirmation_code is unused.
@@ -72,10 +77,6 @@ class BookingService:
             "Could not mint a collision-free booking confirmation_code "
             f"after {_MAX_ID_ATTEMPTS} attempts"
         )
-
-    def init_db(self) -> None:
-        """Create the backing table. Called once on application startup."""
-        self._repo.init_db()
 
     def ping(self) -> bool:
         """Return True if the booking store is reachable. Used by /readyz."""
@@ -329,12 +330,13 @@ class BookingService:
         return booking
 
 
-# Shared singleton — constructed at import time (cheap: it only builds a
-# session factory). The backing table is created later, from the app's
-# lifespan handler, so importing this module has no side effects.
-_booking_service = BookingService(get_settings().database_url)
+def init_db() -> None:
+    """Create the bookings table (startup; no request context, uses the factory)."""
+    BookingRepository(get_session_factory(get_settings().database_url)).init_db()
 
 
-def get_booking_service() -> BookingService:
-    """FastAPI dependency returning the shared booking store."""
-    return _booking_service
+def get_booking_service(
+    session: Annotated[Session, Depends(get_session)],
+) -> BookingService:
+    """FastAPI dependency: a booking store bound to the request session."""
+    return BookingService(session)

@@ -10,12 +10,16 @@ import logging
 import uuid
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.crud.trip import TripRepository
 from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.enums import (
     ActivityLevel,
     BookingStatus,
@@ -45,7 +49,7 @@ from app.schemas.trip import (
     TripUpdate,
 )
 from app.services import place_service, routing_service, weather_service
-from app.services.booking_service import get_booking_service
+from app.services.booking_service import BookingService
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +70,13 @@ def _new_id() -> str:
 class TripService:
     """Business logic over the trip store."""
 
-    def __init__(self, database_url: str) -> None:
-        self._repo = TripRepository(get_session_factory(database_url))
+    def __init__(self, session: Session) -> None:
+        self._session = session
+        self._repo = TripRepository(session)
 
-    def init_db(self) -> None:
-        """Create the backing tables. Called once on application startup."""
-        self._repo.init_db()
+    def _bookings(self) -> BookingService:
+        """Booking store bound to this trip's request session (shared txn)."""
+        return BookingService(self._session)
 
     def get_trip(self, trip_id: str) -> Trip:
         """Return a trip by UUID, or raise :class:`NotFoundError`."""
@@ -232,7 +237,7 @@ class TripService:
                 hint="source must be 'catalog' or 'saved'.",
             )
         self.get_trip(trip_id)
-        resolved = place_service.resolve(place_id, source)
+        resolved = place_service.resolve(place_id, source, self._session)
         if resolved is None:
             raise NotFoundError(
                 f"Place {place_id!r} not found in source {source!r}.",
@@ -264,7 +269,9 @@ class TripService:
         self.get_trip(trip_id)
         entries: list[ShortlistEntry] = []
         for row in self._repo.list_trip_places(trip_id):
-            resolved = place_service.resolve(row["place_id"], row["source"])
+            resolved = place_service.resolve(
+                row["place_id"], row["source"], self._session
+            )
             if resolved is None:
                 continue
             entries.append(
@@ -284,7 +291,7 @@ class TripService:
 
     def _resolve_bookings(self, trip: Trip) -> dict[str, object]:
         """Resolve every distinct linked booking_id once. Missing → None."""
-        booking_svc = get_booking_service()
+        booking_svc = self._bookings()
         resolved: dict[str, object] = {}
         for item in trip.items:
             if item.booking_id is None or item.booking_id in resolved:
@@ -377,7 +384,7 @@ class TripService:
         if not caps:
             return
         try:
-            booking = get_booking_service().get(request.booking_id)
+            booking = self._bookings().get(request.booking_id)
         except NotFoundError:
             return  # unpriceable link — consistent with total_spent skipping it
         if booking.status == BookingStatus.CANCELLED:
@@ -561,15 +568,14 @@ class TripService:
         )
 
 
-# Shared singleton — constructed at import time (cheap: builds a session
-# factory). The tables are created later from the app's lifespan handler, so
-# importing this module has no side effects.
-_trip_service = TripService(get_settings().database_url)
+def init_db() -> None:
+    """Create the trips tables (startup; no request context, uses the factory)."""
+    TripRepository(get_session_factory(get_settings().database_url)).init_db()
 
 
-def get_trip_service() -> TripService:
-    """FastAPI dependency returning the shared trip store."""
-    return _trip_service
+def get_trip_service(session: Annotated[Session, Depends(get_session)]) -> TripService:
+    """FastAPI dependency: a trip store bound to the request session."""
+    return TripService(session)
 
 
 # --------------------------------------------------------------------------- #

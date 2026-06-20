@@ -42,9 +42,30 @@ The import-time binding is the root of the documented testing friction
 
 | Check | Command | Exit | Notes |
 |---|---|---|---|
-| Full suite (SQLite) | `make test` | _pending_ | run at each phase boundary |
-| Cross-engine (Postgres) | `make test-docker` | _pending_ | final gate |
-| Lint | `ruff check app scripts` | _pending_ | |
+| Full suite (SQLite) | `pytest -q` | 0 | 680 passed after waves 1–3 (was 672 baseline + 8 new) |
+| Cross-engine (Postgres) | `make test-docker` | _pending_ | final gate (wave 5) |
+| Lint | `ruff check app tests` | 0 | clean after waves 1–3 |
+
+### Deviations
+
+- **Rule 1 (UoW correctness)** — added `begin_nested()` savepoints to `crud/booking.py`
+  `add()` and `crud/trip.py` `create_trip`/`add_item`. Their catch-IntegrityError-then-
+  requery dedup pattern needs the shared session left usable after a failed flush. Beyond
+  task 3.1's listed `<files>` but required for the dual-mode bridge to be UoW-safe.
+- **PLAN gap (wave boundary)** — removing the write-service singletons broke two read-side
+  callers that reach them outside DI: `place_service.resolve()` (called only by trip_service →
+  now takes `session`) and `dashboard.py` `bookings_page` (now `Depends(get_session)`). Tests
+  can only override DI, so both had to migrate in wave 3, not wave 4. Folded in.
+- **Rule 3 (test migration)** — `test_trip_value_layer_service.py` patch target
+  `trip_service.get_booking_service` → `trip_service.BookingService`; `test_trip_budget.py`
+  dropped the now-unnecessary `_booking_service` singleton repoint (trip + booking share the
+  request session); `svc`/`booking_service` fixtures + conftest rewired to one `get_session`
+  override.
+- **Harness friction** — the `ruff-on-edit` hook runs `ruff check --fix` and stripped imports
+  added *before* their usage existed (masked by no import-time error). Had to re-add. For
+  waves 4–5: add import + usage in a single edit, and run `ruff check --select F821` before tests.
+- **Follow-up** — `tests/db/_capture_golden.py` (uncollected helper) still uses the old
+  `BookingService(url)` signature; not in the suite, fix when next touched.
 
 ### Rollback
 

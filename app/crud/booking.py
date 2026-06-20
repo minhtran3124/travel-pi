@@ -35,7 +35,6 @@ def _row_to_booking(row: models.Booking) -> Booking:
 class BookingRepository(Repo):
     """SQLAlchemy-backed store of booking rows."""
 
-
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
@@ -101,7 +100,8 @@ class BookingRepository(Repo):
         )
         try:
             with self._session() as s:
-                s.add(row)
+                with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
+                    s.add(row)
                 self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:

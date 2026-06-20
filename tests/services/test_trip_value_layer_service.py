@@ -24,11 +24,14 @@ from app.schemas.trip import TripCreate, TripItemCreate
 
 @pytest.fixture()
 def svc(tmp_path):
+    from app.db.base import Base
+    from app.db.engine import get_engine, get_session_factory
     from app.services.trip_service import TripService
 
-    s = TripService(f"sqlite:///{tmp_path / 'value_layer.db'}")
-    s.init_db()
-    return s
+    url = f"sqlite:///{tmp_path / 'value_layer.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    with get_session_factory(url)() as session:
+        yield TripService(session)
 
 
 def _hotel_booking(
@@ -87,7 +90,7 @@ def test_total_spent_sums_two_confirmed_bookings(svc):
         {"b1": _hotel_booking("b1", 100.0), "b2": _hotel_booking("b2", 150.0)}
     )
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert detail.total_spent == 250.0
@@ -117,7 +120,7 @@ def test_total_spent_excludes_cancelled_booking(svc):
         }
     )
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert detail.total_spent == 80.0
@@ -143,7 +146,7 @@ def test_total_spent_skips_unresolvable_booking_no_raise(svc):
     # "ghost" is not in the dict → NotFoundError will be raised and swallowed.
     mock_svc = _mock_booking_svc({"b2": _hotel_booking("b2", 50.0)})
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)  # must not raise
 
     assert detail.total_spent == 50.0
@@ -165,7 +168,7 @@ def test_total_spent_flight_booking_counts(svc):
     )
     mock_svc = _mock_booking_svc({"f1": _flight_booking("f1", 300.0)})
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert detail.total_spent == 300.0
@@ -193,7 +196,7 @@ def test_gaps_day_with_no_items_emits_no_planned_items(svc):
         {"b1": _hotel_booking("b1", 100.0), "b2": _hotel_booking("b2", 50.0)}
     )
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert any("Day 2" in g and "no planned items" in g for g in detail.gaps)
@@ -214,7 +217,7 @@ def test_gaps_day_without_hotel_booking_emits_accommodation_message(svc):
     # booking service never called (no booking_id on item), so empty dict is fine
     mock_svc = _mock_booking_svc({})
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert any("Day 1" in g and "accommodation" in g for g in detail.gaps)
@@ -237,7 +240,7 @@ def test_gaps_all_days_covered_no_accommodation_gap(svc):
         {"b1": _hotel_booking("b1", 100.0), "b2": _hotel_booking("b2", 100.0)}
     )
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert all("accommodation" not in g for g in detail.gaps)
@@ -248,7 +251,7 @@ def test_gaps_empty_when_trip_has_no_dates(svc):
     trip = svc.create_trip(TripCreate(title="Undated"))
     mock_svc = _mock_booking_svc({})
 
-    with patch("app.services.trip_service.get_booking_service", return_value=mock_svc):
+    with patch("app.services.trip_service.BookingService", return_value=mock_svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert detail.gaps == []

@@ -13,10 +13,13 @@ The short-code collision guard now lives in the seeder (``app/db/seed.py``);
 
 import re
 
+from sqlalchemy.orm import Session
+
 from app.core.config import get_settings
 from app.core.geo import haversine_km
 from app.core.text import best_match
 from app.crud.place_ref import PlaceRepository
+from app.crud.saved_place import SavedPlaceRepository
 from app.db.engine import get_session_factory
 from app.exceptions import NotFoundError
 from app.schemas.place import NearbyPlace, ParsedQuery, Place
@@ -128,18 +131,16 @@ def get_place(place_id: str) -> Place | None:
     return _place_repo.get(normalised)
 
 
-def resolve(place_id: str, source: str) -> Place | SavedPlace | None:
+def resolve(place_id: str, source: str, session: Session) -> Place | SavedPlace | None:
     """Resolve a shortlisted place to its body. ``source``: 'catalog' | 'saved'.
 
     Returns ``None`` when the place is unknown (catalog miss, or a missing /
-    soft-deleted saved place). The ``saved`` branch imports the saved-place
-    service lazily to avoid a circular import (place_service ↔
-    saved_place_service).
+    soft-deleted saved place). The ``saved`` branch reads the saved store on the
+    caller's request ``session`` (shared unit-of-work), so it is only invoked
+    from the trip service, which owns that session.
     """
     if source == "saved":
-        from app.services.saved_place_service import get_saved_place_service
-
-        return get_saved_place_service()._repo.get(place_id)
+        return SavedPlaceRepository(session).get(place_id)
     return get_place(place_id)
 
 

@@ -99,7 +99,6 @@ def _new_item_row(item: TripItem, idempotency_key: str | None) -> models.TripIte
 class TripRepository(Repo):
     """ORM-backed store of trip + trip_item + trip_place_link rows."""
 
-
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
@@ -113,8 +112,9 @@ class TripRepository(Repo):
         """
         try:
             with self._session() as s:
-                s.add(_new_trip_row(trip, idempotency_key))
-                s.add_all([_new_item_row(item, None) for item in trip.items])
+                with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
+                    s.add(_new_trip_row(trip, idempotency_key))
+                    s.add_all([_new_item_row(item, None) for item in trip.items])
                 self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:
@@ -235,7 +235,8 @@ class TripRepository(Repo):
         """
         try:
             with self._session() as s:
-                s.add(_new_item_row(item, idempotency_key))
+                with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
+                    s.add(_new_item_row(item, idempotency_key))
                 self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:

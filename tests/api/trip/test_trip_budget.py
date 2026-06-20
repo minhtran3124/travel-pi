@@ -113,37 +113,24 @@ def test_budget_unknown_trip_404(client):
 def _flight_booking(client):
     """Create a real flight booking; return (booking_id, total_price).
 
-    The trip service resolves linked bookings via the *module-level*
-    ``get_booking_service()`` singleton (a direct factory call, not FastAPI
-    DI), so the conftest's dependency override alone isn't enough — point the
-    singleton at the same isolated store the client uses, mirroring how
-    conftest wires ``saved_place_service``.
+    Trip-budget rollup now resolves linked bookings on the same request-scoped
+    session the client commits to (the get_session override → temp DB), so the
+    old ``_booking_service`` singleton repointing is no longer needed.
     """
-    from app.services import booking_service as booking_service_module
-    from app.services.booking_service import get_booking_service
-
-    # Save and restore the singleton so the repoint doesn't leak past this test.
-    orig = booking_service_module._booking_service
-    booking_service_module._booking_service = client.app.dependency_overrides[
-        get_booking_service
-    ]()
-    try:
-        resp = client.post(
-            "/flights/book",
-            json={
-                **get_first_flight_booking_fields(client),
-                "passenger_name": "Test User",
-                "passenger_email": "test@example.com",
-                "passenger_phone": "+84 901 234 567",
-            },
-        )
-        # NB: /flights/book returns 200 (not 201) — it sets no status_code, so
-        # FastAPI's POST default applies (see test_flights.py::test_book_flight_returns_200).
-        assert resp.status_code == 200, resp.text
-        b = resp.json()
-        yield b["id"], b["total_price"]
-    finally:
-        booking_service_module._booking_service = orig
+    resp = client.post(
+        "/flights/book",
+        json={
+            **get_first_flight_booking_fields(client),
+            "passenger_name": "Test User",
+            "passenger_email": "test@example.com",
+            "passenger_phone": "+84 901 234 567",
+        },
+    )
+    # NB: /flights/book returns 200 (not 201) — it sets no status_code, so
+    # FastAPI's POST default applies (see test_flights.py::test_book_flight_returns_200).
+    assert resp.status_code == 200, resp.text
+    b = resp.json()
+    return b["id"], b["total_price"]
 
 
 def _add_item(client, trip_id, **overrides):
