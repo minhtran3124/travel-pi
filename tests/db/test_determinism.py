@@ -63,7 +63,7 @@ def test_hotel_availability_stable_within_run(client):
     assert first.json() == second.json()
 
 
-def test_flight_airline_codes_follow_repo_position_order(client):
+def test_flight_airline_codes_follow_repo_position_order(client, seeded_session):
     """Every flight's airline code is one the repo serves, and the codes that
     appear do so consistently with ``airline_repo.list()`` position order.
 
@@ -74,12 +74,10 @@ def test_flight_airline_codes_follow_repo_position_order(client):
     subsequence of the repo's position order.
     """
     from app.crud.airline import AirlineRepository
-    from app.services import flight_service
 
-    # The conftest client repoints flight_service's airline repo at the seeded
-    # temp DB; reuse that same session factory so we read the identical data.
-    repo: AirlineRepository = flight_service._airline_repo
-    assert repo is not None
+    # Read the airline repo on the same seeded temp DB the client uses, so the
+    # position order matches the data the flight generator drew from.
+    repo = AirlineRepository(seeded_session)
     repo_codes = [a["code"] for a in repo.list()]
     repo_pos = {code: i for i, code in enumerate(repo_codes)}
 
@@ -103,7 +101,7 @@ def test_flight_airline_codes_follow_repo_position_order(client):
     assert all(p in repo_pos.values() for p in positions)
 
 
-def test_airport_list_order_matches_data_insertion_order(client):
+def test_airport_list_order_matches_data_insertion_order(seeded_session):
     """``airport_service.list_airports()`` returns codes in the SAME order as
     ``AIRPORTS`` dict insertion order.
 
@@ -115,9 +113,9 @@ def test_airport_list_order_matches_data_insertion_order(client):
     silently changed which routes the board showed.
     """
     from app.data.airports import AIRPORTS
-    from app.services import airport_service
+    from app.services.airport_service import AirportService
 
-    served = [a.code for a in airport_service.list_airports()]
+    served = [a.code for a in AirportService(seeded_session).list_airports()]
     expected = list(AIRPORTS.keys())
     assert served == expected, (served, expected)
 

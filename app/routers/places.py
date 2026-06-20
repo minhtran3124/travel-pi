@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from app.core.params import parse_optional_number
 from app.enums import PlaceCategory, PlaceSort
@@ -24,10 +24,14 @@ from app.schemas.saved_place import (
     SavedPlaceFlag,
     SavedPlaceListResponse,
 )
-from app.services import place_service, routing_service
+from app.services.place_service import PlaceService, get_place_service
+from app.services.routing_service import RoutingService, get_routing_service
 from app.services.saved_place_service import SavedPlaceDep
 
 router = APIRouter(prefix="/places", tags=["places"])
+
+PlaceDep = Annotated[PlaceService, Depends(get_place_service)]
+RoutingDep = Annotated[RoutingService, Depends(get_routing_service)]
 
 # Valid sets retained for the dashboard's lenient HTML path; the JSON API
 # now relies on the ``PlaceCategory`` / ``PlaceSort`` enums for validation.
@@ -41,12 +45,12 @@ VALID_SORTS = {s.value for s in PlaceSort}
     summary="List all places (paginated)",
     responses=error_responses(422),
 )
-def list_places(pagination: PaginationDep) -> PlaceListResponse:
+def list_places(places: PlaceDep, pagination: PaginationDep) -> PlaceListResponse:
     """Return all seeded places with pagination.
 
     ``total`` is the full count; use ``limit`` and ``offset`` to page.
     """
-    page, total = pagination.page_of(place_service.list_places())
+    page, total = pagination.page_of(places.list_places())
     return PlaceListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page
     )
@@ -59,6 +63,7 @@ def list_places(pagination: PaginationDep) -> PlaceListResponse:
     responses=error_responses(422),
 )
 def search_places(
+    places: PlaceDep,
     pagination: PaginationDep,
     city: Annotated[
         str | None,
@@ -117,7 +122,7 @@ def search_places(
     if err:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=err)
 
-    all_results = place_service.search_places(
+    all_results = places.search_places(
         city=city,
         category=category.value if category else None,
         min_rating=min_rating_val,
@@ -127,7 +132,7 @@ def search_places(
     )
     page, total = pagination.page_of(all_results)
     # Echo the canonical city name when the fuzzy lookup resolved it.
-    echoed_city = (place_service.resolve_city(city) or city) if city else None
+    echoed_city = (places.resolve_city(city) or city) if city else None
     return PlaceSearchResponse(
         total=total,
         limit=pagination.limit,
@@ -150,6 +155,7 @@ def search_places(
 )
 def search_places_nl(
     body: PlaceNLSearchRequest,
+    places: PlaceDep,
     pagination: PaginationDep,
 ) -> PlaceNLSearchResponse:
     """Parse a free-text query into structured filters, then search.
@@ -161,8 +167,8 @@ def search_places_nl(
     Unrecognised words are ignored. Pagination uses the standard
     ``limit`` / ``offset`` query params.
     """
-    parsed = place_service.parse_nl_query(body.query)
-    all_results = place_service.search_places(
+    parsed = places.parse_nl_query(body.query)
+    all_results = places.search_places(
         city=parsed.city,
         category=parsed.category,
         min_rating=parsed.min_rating,
@@ -184,9 +190,9 @@ def search_places_nl(
     response_model=list[str],
     summary="List all cities that have places",
 )
-def list_place_cities() -> list[str]:
+def list_place_cities(places: PlaceDep) -> list[str]:
     """Return the sorted list of city names that have at least one place."""
-    return place_service.cities()
+    return places.cities()
 
 
 @router.get(
@@ -194,9 +200,9 @@ def list_place_cities() -> list[str]:
     response_model=list[str],
     summary="List all place categories",
 )
-def list_categories() -> list[str]:
+def list_categories(places: PlaceDep) -> list[str]:
     """Return the sorted list of available place categories."""
-    return place_service.categories()
+    return places.categories()
 
 
 # --------------------------------------------------------------------------- #
@@ -310,6 +316,7 @@ def set_saved_place_visited(
     responses=error_responses(404, 422),
 )
 def nearby_places(
+    places: PlaceDep,
     place_id: Annotated[
         str,
         Query(
@@ -342,7 +349,7 @@ def nearby_places(
     no coordinates; an empty ``results`` list (not a 404) when nothing is in
     range.
     """
-    origin, results = place_service.nearby_places(
+    origin, results = places.nearby_places(
         place_id,
         radius_km=radius_km,
         limit=limit,
@@ -364,6 +371,7 @@ def nearby_places(
     responses=error_responses(404, 422, 502),
 )
 async def route_between_places(
+    routing: RoutingDep,
     origin: Annotated[
         str,
         Query(
@@ -388,7 +396,7 @@ async def route_between_places(
     has no coordinates, and 502 if a configured routing provider is
     unreachable.
     """
-    return await routing_service.get_place_route(origin, destination)
+    return await routing.get_place_route(origin, destination)
 
 
 @router.get(
@@ -398,6 +406,7 @@ async def route_between_places(
     responses=error_responses(404, 422),
 )
 def get_place(
+    places: PlaceDep,
     place_id: Annotated[
         str,
         Path(
@@ -407,7 +416,7 @@ def get_place(
     ],
 ) -> Place:
     """Return a single place, or 404 if the ID does not exist."""
-    place = place_service.get_place(place_id)
+    place = places.get_place(place_id)
     if place is None:
         raise NotFoundError(
             f"Place {place_id!r} not found",

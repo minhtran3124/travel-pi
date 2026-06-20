@@ -8,6 +8,7 @@ available / fully-booked branches deterministically.
 
 import pytest
 from app.services import hotel_service
+from app.services.hotel_service import HotelService
 
 from tests.conftest import VALID_CHECK_IN, VALID_CHECK_OUT, get_first_hotel_id
 
@@ -59,9 +60,7 @@ def test_availability_total_price_is_per_stay_and_rooms(client):
     """total_price = price_per_night × nights × rooms."""
     body = _availability(client, rooms=3).json()
     for hotel in body["results"]:
-        assert hotel["total_price"] == pytest.approx(
-            hotel["price_per_night"] * 2 * 3
-        )
+        assert hotel["total_price"] == pytest.approx(hotel["price_per_night"] * 2 * 3)
 
 
 def test_availability_bad_date_returns_422(client):
@@ -120,22 +119,22 @@ def test_availability_only_filter(client, monkeypatch):
 # --- Deterministic availability model (units) ---------------------------------
 
 
-def test_total_rooms_is_deterministic_and_in_range():
-    hotel = hotel_service.list_hotels()[0]
+def test_total_rooms_is_deterministic_and_in_range(seeded_session):
+    hotel = HotelService(seeded_session).list_hotels()[0]
     first = hotel_service.total_rooms(hotel)
     assert first == hotel_service.total_rooms(hotel)  # stable
     assert 20 <= first <= 200
 
 
-def test_max_occupancy_scales_with_stars():
-    for hotel in hotel_service.list_hotels():
+def test_max_occupancy_scales_with_stars(seeded_session):
+    for hotel in HotelService(seeded_session).list_hotels():
         occ = hotel_service.max_occupancy(hotel)
         assert occ == 2 + hotel.star_rating // 3
         assert 2 <= occ <= 3
 
 
-def test_available_rooms_is_deterministic_and_bounded():
-    hotel = hotel_service.list_hotels()[0]
+def test_available_rooms_is_deterministic_and_bounded(seeded_session):
+    hotel = HotelService(seeded_session).list_hotels()[0]
     first = hotel_service.available_rooms(hotel, VALID_CHECK_IN, VALID_CHECK_OUT)
     assert first == hotel_service.available_rooms(
         hotel, VALID_CHECK_IN, VALID_CHECK_OUT
@@ -143,12 +142,12 @@ def test_available_rooms_is_deterministic_and_bounded():
     assert 0 <= first <= hotel_service.total_rooms(hotel)
 
 
-def test_some_hotel_date_combos_are_fully_booked():
+def test_some_hotel_date_combos_are_fully_booked(seeded_session):
     """available_rooms can legitimately be 0 — at least one combo proves it."""
     fully_booked = any(
         hotel_service.available_rooms(h, VALID_CHECK_IN, VALID_CHECK_OUT) == 0
         or hotel_service.available_rooms(h, "2026-07-01", "2026-07-05") == 0
-        for h in hotel_service.list_hotels()
+        for h in HotelService(seeded_session).list_hotels()
     )
     assert fully_booked
 

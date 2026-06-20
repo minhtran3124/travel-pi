@@ -26,28 +26,28 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
 from app.core.params import parse_optional_number
 from app.crud.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.crud.city import CityRepository
 from app.crud.country import CountryRepository
 from app.crud.tip import TipRepository
 from app.crud.visa import VisaRepository
-from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.exceptions import CityNotFoundError, WeatherUnavailableError
 from app.services import (
     air_quality_service,
-    airport_service,
     board_service,
     flight_service,
-    hotel_service,
-    place_service,
-    tip_service,
-    visa_service,
     weather_service,
 )
+from app.services.airport_service import AirportService
+from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
+from app.services.flight_service import FlightService
+from app.services.hotel_service import HotelService
+from app.services.place_service import PlaceService
+from app.services.tip_service import TipService
+from app.services.visa_service import VisaService
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"], include_in_schema=False)
 
@@ -60,39 +60,6 @@ _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:0
 
 # The board defaults to this airport when none is given (busiest hub).
 _DEFAULT_AIRPORT = "SGN"
-
-# Reference-data repos for the dashboard pages. Built from the configured DB at
-# import time; NOT FastAPI dependencies, so tests repoint them via the setters
-# after seeding the temp DB (see tests/conftest.py).
-_db_url = get_settings().database_url
-_airline_repo = AirlineRepository(get_session_factory(_db_url))
-_country_repo = CountryRepository(get_session_factory(_db_url))
-_city_repo = CityRepository(get_session_factory(_db_url))
-_visa_repo = VisaRepository(get_session_factory(_db_url))
-_tip_repo = TipRepository(get_session_factory(_db_url))
-
-
-def set_repos(
-    *,
-    airline: AirlineRepository | None = None,
-    country: CountryRepository | None = None,
-    city: CityRepository | None = None,
-    visa: VisaRepository | None = None,
-    tip: TipRepository | None = None,
-) -> None:
-    """Point the dashboard's reference-data repos at a different store — used by
-    tests to read the seeded temporary database instead of the real travel.db."""
-    global _airline_repo, _country_repo, _city_repo, _visa_repo, _tip_repo
-    if airline is not None:
-        _airline_repo = airline
-    if country is not None:
-        _country_repo = country
-    if city is not None:
-        _city_repo = city
-    if visa is not None:
-        _visa_repo = visa
-    if tip is not None:
-        _tip_repo = tip
 
 
 @router.get("", response_class=HTMLResponse, include_in_schema=False)
@@ -119,15 +86,18 @@ def checklist_page(request: Request) -> HTMLResponse:
 
 
 @router.get("/_search.json", include_in_schema=False)
-def palette_index() -> JSONResponse:
+def palette_index(
+    session: Annotated[Session, Depends(get_session)],
+) -> JSONResponse:
     """Lightweight index for the command palette (cities + airports).
 
     Fetched once, client-side, the first time the palette opens.
     """
+    city_repo = CityRepository(session)
     cities = sorted(
-        {(city.name, city.country) for city in _city_repo.list_with_counts()}
+        {(city.name, city.country) for city in city_repo.list_with_counts()}
     )
-    airports = airport_service.list_airports()
+    airports = AirportService(session).list_airports()
     return JSONResponse(
         {
             "cities": [{"name": n, "country": ct} for n, ct in cities],
@@ -139,6 +109,7 @@ def palette_index() -> JSONResponse:
 @router.get("/flights", response_class=HTMLResponse)
 def flight_board(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     airport: str | None = Query(None, description="IATA code of the board's airport"),
     date: str | None = Query(None, description="Board date, YYYY-MM-DD"),
     mode: str = Query("arrivals", description="'arrivals' or 'departures'"),
@@ -149,18 +120,19 @@ def flight_board(
     ``date``, and ``mode`` are an optional filter; with no params it shows
     today's arrivals for the default hub.
     """
+    airports_svc = AirportService(session)
     if mode not in (board_service.ARRIVALS, board_service.DEPARTURES):
         mode = board_service.ARRIVALS
     # Resolve the board's airport, falling back to the default for unknown codes.
-    board_airport = airport_service.get_airport(
+    board_airport = airports_svc.get_airport(
         airport or _DEFAULT_AIRPORT
-    ) or airport_service.get_airport(_DEFAULT_AIRPORT)
+    ) or airports_svc.get_airport(_DEFAULT_AIRPORT)
     board_date = date or _today()
 
     rows: list = []
     error: str | None = None
     try:
-        rows = board_service.build_board(board_airport.code, board_date, mode)
+        rows = BoardService(session).build_board(board_airport.code, board_date, mode)
     except ValueError:
         error = "Invalid date — please use the date picker."
 
@@ -168,7 +140,7 @@ def flight_board(
         request=request,
         name="board.html",
         context={
-            "airports": airport_service.list_airports(),
+            "airports": airports_svc.list_airports(),
             "airport": board_airport,
             "date": board_date,
             "mode": mode,
@@ -182,6 +154,7 @@ def flight_board(
 @router.get("/flights/search", response_class=HTMLResponse)
 def flight_search(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     origin: str | None = Query(None),
     destination: str | None = Query(None),
     departure_date: str | None = Query(None),
@@ -200,7 +173,9 @@ def flight_search(
     empty fields as ``""`` — those are treated as "not filtered", and a
     non-numeric value shows a friendly error rather than a 422.
     """
-    airports = airport_service.list_airports()
+    flight_svc = FlightService(session)
+    airline_repo = AirlineRepository(session)
+    airports = AirportService(session).list_airports()
 
     max_price_val, err_price = parse_optional_number(
         max_price, label="Max price", kind=float, minimum=0
@@ -224,7 +199,7 @@ def flight_search(
     flights: list = []
     if searched and error is None:
         try:
-            flights = flight_service.search_flights(
+            flights = flight_svc.search_flights(
                 search["origin"],
                 search["destination"],
                 search["departure_date"],
@@ -242,10 +217,10 @@ def flight_search(
         context={
             "airports": airports,
             "airports_by_code": {a.code: a for a in airports},
-            "airlines": flight_service.list_airlines(),
-            "airline_colors": _airline_repo.colors(),
+            "airlines": flight_svc.list_airlines(),
+            "airline_colors": airline_repo.colors(),
             "airline_color_default": AIRLINE_COLOR_DEFAULT,
-            "sort_options": flight_service.sort_options(),
+            "sort_options": flight_svc.sort_options(),
             "search": search,
             "searched": searched,
             "flights": flights,
@@ -255,14 +230,18 @@ def flight_search(
 
 
 @router.get("/flights/{flight_id}", response_class=HTMLResponse)
-def flight_detail_page(request: Request, flight_id: str) -> HTMLResponse:
+def flight_detail_page(
+    request: Request,
+    flight_id: str,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
     """Render the detail page for a single flight.
 
     If the ID does not resolve, the template shows a friendly "not found"
     message (the page itself still returns HTTP 200 — it is a valid page).
     """
-    flight = flight_service.find_flight_by_id(flight_id)
-    airports = airport_service.list_airports()
+    flight = FlightService(session).find_flight_by_id(flight_id)
+    airports = AirportService(session).list_airports()
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="flight_detail.html",
@@ -270,7 +249,7 @@ def flight_detail_page(request: Request, flight_id: str) -> HTMLResponse:
             "flight": flight,
             "flight_id": flight_id,
             "airports_by_code": {a.code: a for a in airports},
-            "airline_colors": _airline_repo.colors(),
+            "airline_colors": AirlineRepository(session).colors(),
             "airline_color_default": AIRLINE_COLOR_DEFAULT,
         },
     )
@@ -290,6 +269,7 @@ _HOTEL_SORTS = {
 @router.get("/hotels", response_class=HTMLResponse)
 def hotel_list_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     city: str | None = Query(None, description="Filter the grid to one city"),
     q: str | None = Query(None, description="Case-insensitive hotel name search"),
     sort: str = Query("featured", description="Sort order; see _HOTEL_SORTS keys"),
@@ -302,14 +282,13 @@ def hotel_list_page(
     match nothing yield an empty grid rather than an error, mirroring the
     JSON API's behaviour.
     """
-    all_hotels = hotel_service.list_hotels()
+    hotel_svc = HotelService(session)
+    all_hotels = hotel_svc.list_hotels()
     cities = sorted({hotel.city for hotel in all_hotels})
 
     selected_city = city or None
     hotels = (
-        hotel_service.search_hotels(selected_city)
-        if selected_city
-        else list(all_hotels)
+        hotel_svc.search_hotels(selected_city) if selected_city else list(all_hotels)
     )
 
     query = (q or "").strip()
@@ -361,6 +340,7 @@ _PRICE_LABELS = {1: "Free / Cheap", 2: "Moderate", 3: "Expensive", 4: "Luxury"}
 @router.get("/places", response_class=HTMLResponse)
 def places_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     city: str | None = Query(None, description="Filter by city"),
     category: str | None = Query(None, description="Filter by category"),
     min_rating: str | None = Query(None, description="Minimum rating"),
@@ -386,15 +366,16 @@ def places_page(
     )
     error: str | None = err_rating or err_price
 
-    all_places = place_service.list_places()
-    cities = place_service.cities()
+    place_svc = PlaceService(session)
+    all_places = place_svc.list_places()
+    cities = place_svc.cities()
 
     # Skip the search on bad input so the page renders the error and the
     # picker, not a misleading "everything" list.
     results = (
         []
         if error
-        else place_service.search_places(
+        else place_svc.search_places(
             city=city or None,
             category=category or None,
             min_rating=min_rating_val,
@@ -425,12 +406,14 @@ def places_page(
     )
 
 
-def _city_country_map() -> dict[str, str]:
+def _city_country_map(session: Session) -> dict[str, str]:
     """City → country map, used to link the Local Tips / Visa dropdowns.
 
     Built per call from the DB-backed city repo (cheap; the dataset is small).
     """
-    return {city.name: city.country for city in _city_repo.list_with_counts()}
+    return {
+        city.name: city.country for city in CityRepository(session).list_with_counts()
+    }
 
 
 # Tip categories — key (as stored in the seed data) → display label.
@@ -456,15 +439,17 @@ def _flag_emoji(code: str) -> str:
     return "".join(chr(0x1F1E6 + ord(ch) - ord("A")) for ch in code)
 
 
-def _tip_destinations() -> list[dict]:
+def _tip_destinations(session: Session) -> list[dict]:
     """Country tiles for the picker — name, flag, region, and tip counts.
 
     Counts come straight from the country-level seed (what a country view
     shows), so the tile number matches the page you land on.
     """
+    country_repo = CountryRepository(session)
+    tip_repo = TipRepository(session)
     out: list[dict] = []
-    for c in _country_repo.list():
-        tips = _tip_repo.for_location("country", c["name"])
+    for c in country_repo.list():
+        tips = tip_repo.for_location("country", c["name"])
         if not tips:
             continue
         out.append(
@@ -482,6 +467,7 @@ def _tip_destinations() -> list[dict]:
 @router.get("/tips", response_class=HTMLResponse)
 def tips_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     country: str | None = Query(None, description="Filter tips by country"),
     city: str | None = Query(None, description="Filter tips by city"),
     category: str | None = Query(None, description="Filter tips by category"),
@@ -502,7 +488,7 @@ def tips_page(
     # Country tiles (name/flag/region/counts) for the picker; the country
     # dropdown lists the same countries (those that have country-level tips),
     # alphabetically — mirrors the old ``sorted(COUNTRY_TIPS)``.
-    destinations = _tip_destinations()
+    destinations = _tip_destinations(session)
     countries = sorted(d["name"] for d in destinations)
 
     selected_country = country or None
@@ -510,10 +496,12 @@ def tips_page(
     # Reverse linkage: a chosen city drives the country dropdown — the
     # country follows the city, regardless of what country was submitted.
     if selected_city:
-        selected_country = _city_country_map().get(selected_city, selected_country)
+        selected_country = _city_country_map(session).get(
+            selected_city, selected_country
+        )
     # Forward linkage: with a country chosen, the city dropdown lists only
     # that country's cities; otherwise it lists every city.
-    all_cities = _city_repo.list_with_counts()
+    all_cities = CityRepository(session).list_with_counts()
     if selected_country:
         cities = sorted(
             city.name for city in all_cities if city.country == selected_country
@@ -526,7 +514,7 @@ def tips_page(
 
     if selected_city or selected_country:
         view = "destination"
-        result = tip_service.get_tips(
+        result = TipService(session).get_tips(
             city=selected_city,
             country=selected_country,
             category=selected_category,
@@ -535,7 +523,7 @@ def tips_page(
     elif browse == "all" or selected_category or essential_only:
         # Explicit "browse everything", or a filter applied without a place.
         view = "browse"
-        result = tip_service.get_all_tips(
+        result = TipService(session).get_all_tips(
             category=selected_category,
             essential_only=essential_only,
         )
@@ -563,16 +551,18 @@ def tips_page(
     )
 
 
-def _visa_destinations() -> list[dict]:
+def _visa_destinations(session: Session) -> list[dict]:
     """Country tiles for the visa picker — flag, region, and at-a-glance facts.
 
     Walks ``countries.py`` (the canonical, region-ordered list) and pulls each
     country's entry guidance from ``COUNTRY_VISA``; countries without seeded
     visa data are skipped so a tile always links to a populated page.
     """
+    country_repo = CountryRepository(session)
+    visa_repo = VisaRepository(session)
     out: list[dict] = []
-    for c in _country_repo.list():
-        visa = _visa_repo.get(c["name"])
+    for c in country_repo.list():
+        visa = visa_repo.get(c["name"])
         if visa is None:
             continue
         out.append(
@@ -592,6 +582,7 @@ def _visa_destinations() -> list[dict]:
 @router.get("/visa", response_class=HTMLResponse)
 def visa_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     country: str | None = Query(None, description="Filter by country"),
     city: str | None = Query(None, description="Filter by city — resolves its country"),
 ) -> HTMLResponse:
@@ -610,7 +601,9 @@ def visa_page(
     # Visa guidance is country-level, so a city (from a cross-link or the
     # palette) just resolves to its country's card — there's no city filter.
     if selected_city:
-        selected_country = _city_country_map().get(selected_city, selected_country)
+        selected_country = _city_country_map(session).get(
+            selected_city, selected_country
+        )
 
     view = "picker"
     result = None
@@ -618,9 +611,15 @@ def visa_page(
     country_code = ""
     if selected_city or selected_country:
         view = "destination"
-        result = visa_service.get_visa(city=selected_city, country=selected_country)
+        result = VisaService(session).get_visa(
+            city=selected_city, country=selected_country
+        )
         country_code = next(
-            (c["code"] for c in _country_repo.list() if c["name"] == result.country),
+            (
+                c["code"]
+                for c in CountryRepository(session).list()
+                if c["name"] == result.country
+            ),
             "",
         )
         flag = _flag_emoji(country_code)
@@ -630,13 +629,13 @@ def visa_page(
         name="visa.html",
         context={
             "view": view,
-            "countries": _visa_repo.countries(),
+            "countries": VisaRepository(session).countries(),
             "selected_country": selected_country,
             "selected_city": selected_city,
             "result": result,
             "flag": flag,
             "country_code": country_code,
-            "destinations": _visa_destinations(),
+            "destinations": _visa_destinations(session),
         },
     )
 
@@ -649,6 +648,7 @@ _WEATHER_DAYS = [1, 3, 5, 7, 10, 14]
 @router.get("/weather", response_class=HTMLResponse)
 async def weather_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     city: str | None = Query(None, description="City name to look up"),
     days: int = Query(3, ge=1, le=16, description="Forecast length in days"),
 ) -> HTMLResponse:
@@ -661,7 +661,9 @@ async def weather_page(
     """
     # Suggested cities for the input's autocomplete — sourced from the same
     # canonical city list that backs the /cities API (app/data/cities.py).
-    suggestions = sorted(city.name for city in _city_repo.list_with_counts())
+    suggestions = sorted(
+        city.name for city in CityRepository(session).list_with_counts()
+    )
 
     query_city = (city or "").strip()
     weather = None
@@ -692,6 +694,7 @@ async def weather_page(
 @router.get("/air-quality", response_class=HTMLResponse)
 async def air_quality_page(
     request: Request,
+    session: Annotated[Session, Depends(get_session)],
     city: str | None = Query(None, description="City name to look up"),
 ) -> HTMLResponse:
     """Render the live air-quality page — a city lookup backed by Open-Meteo.
@@ -702,7 +705,9 @@ async def air_quality_page(
     inline message (the page itself still returns HTTP 200).
     """
     # Same canonical city list the /cities API uses — drives the dropdown.
-    suggestions = sorted(city.name for city in _city_repo.list_with_counts())
+    suggestions = sorted(
+        city.name for city in CityRepository(session).list_with_counts()
+    )
 
     query_city = (city or "").strip()
     air_quality = None

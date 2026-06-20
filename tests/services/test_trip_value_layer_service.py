@@ -401,8 +401,6 @@ def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch
     from unittest.mock import AsyncMock
 
     from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
-    from app.services import place_service as _place_svc
-    from app.services import routing_service as _routing_svc
 
     # Fake places with coordinates — no DB or catalog needed.
     place_a = MagicMock()
@@ -436,15 +434,15 @@ def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch
         attribution="test",
     )
 
+    mock_place_svc = MagicMock()
+    mock_place_svc.get_place = lambda pid: place_a if pid == "place-a" else place_b
+    mock_routing_svc = MagicMock()
+    mock_routing_svc.get_place_route = AsyncMock(return_value=fake_route)
     monkeypatch.setattr(
-        _place_svc,
-        "get_place",
-        lambda pid: place_a if pid == "place-a" else place_b,
+        "app.services.trip_service.PlaceService", lambda session: mock_place_svc
     )
     monkeypatch.setattr(
-        _routing_svc,
-        "get_place_route",
-        AsyncMock(return_value=fake_route),
+        "app.services.trip_service.RoutingService", lambda session: mock_routing_svc
     )
 
     trip = svc.create_trip(

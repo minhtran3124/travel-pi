@@ -1,6 +1,6 @@
 ---
 slug: di-session-refactor
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-06-20
 ---
@@ -206,6 +206,15 @@ Remaining: board(+dashboard `set_repos`), visa, routing(async), hotel, tip, plac
 airport, flight, weather(async), cities router. Then wave 5 (remove dual-mode shim,
 no-singletons guard, `make test-docker`). `dashboard.py` (759 lines, multiple endpoints +
 `set_repos`) and the async weather/routing pair are the largest remaining pieces.
+
+**Wave 4 COMPLETE** — finished via 4 parallel subagents (flight/board/airport;
+hotel/tip/visa; place/routing/cities; dashboard) on disjoint files, then orchestrator
+integration of the shared callers (booking/trip/destination/dashboard) + conftest collapse
++ test fixups. weather_service left as-is (no DB repo). Result: **zero `set_*_repo`/`set_repos`
+and zero module-level repo/service singletons remain** in `app/services` + `app/routers`
+(verified by grep); 15 `get_*` DI providers; `tests/conftest.py` repointing block fully
+removed — a single `get_session` override is the only seam. Verify: `pytest -q` → **680
+passed**, ruff + F821 clean. Read-service unit tests now use a `seeded_session` fixture.
 
 ## 6. Risks
 

@@ -1,14 +1,18 @@
 """Airport endpoints."""
 
-from fastapi import APIRouter, Query
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query
 
 from app.core.text import fuzzy_filter
 from app.schemas.airport import AirportListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
-from app.services import airport_service
+from app.services.airport_service import AirportService, get_airport_service
 
 router = APIRouter(prefix="/airports", tags=["airports"])
+
+AirportDep = Annotated[AirportService, Depends(get_airport_service)]
 
 
 @router.get(
@@ -18,6 +22,7 @@ router = APIRouter(prefix="/airports", tags=["airports"])
     responses=error_responses(422),
 )
 def list_airports(
+    airports_svc: AirportDep,
     pagination: PaginationDep,
     q: str | None = Query(
         None,
@@ -35,7 +40,7 @@ def list_airports(
     ``q`` is given, results are fuzzy-matched and ranked by relevance instead
     of left in seed order.
     """
-    results = airport_service.list_airports()
+    results = airports_svc.list_airports()
     if q:
         results = fuzzy_filter(
             q,

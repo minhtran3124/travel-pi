@@ -12,35 +12,29 @@ fixed, so a route never changes — which keeps the suite offline and protects
 the ORS free-tier quota (2000 requests/day).
 
 The outbound call is fully async (``httpx.AsyncClient``) so the routes can be
-``async def``. Tests monkeypatch ``_fetch_json`` to avoid the network.
+``async def``. Tests monkeypatch ``_fetch_json`` to avoid the network. City
+data is read through a ``CityRepository`` bound to the request session, and
+place resolution goes through a ``PlaceService`` on the same session.
 """
 
 import asyncio
 import logging
+from typing import Annotated
 
 import httpx
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.geo import haversine_km
 from app.core.text import best_match
 from app.crud.city import CityRepository
-from app.db.engine import get_session_factory
+from app.db.session import get_session
 from app.exceptions import NotFoundError, RoutingUnavailableError
 from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
-from app.services import place_service
+from app.services.place_service import PlaceService
 
 logger = logging.getLogger(__name__)
-
-# City data is DB-backed; fuzzy resolution stays here (over the repo's distinct
-# names). Not a FastAPI dependency, so tests repoint it via ``set_city_repo``.
-_city_repo = CityRepository(get_session_factory(get_settings().database_url))
-
-
-def set_city_repo(repo: CityRepository) -> None:
-    """Point city reads at a different store — used by tests."""
-    global _city_repo
-    _city_repo = repo
-
 
 # Friendly mode label -> (ORS routing profile, fallback speed in km/h).
 # The fallback speeds are rough city-travel averages, used only when no ORS
@@ -108,75 +102,6 @@ async def _fetch_json(url: str, params: dict) -> dict:
         raise RoutingUnavailableError(str(exc)) from exc
 
 
-def _place_endpoint(place_id: str, label: str) -> RouteEndpoint:
-    """Resolve a place ID to a :class:`RouteEndpoint`.
-
-    Raises :class:`NotFoundError` if the ID is unknown or the place has no
-    coordinates (so it cannot take part in a route).
-    """
-    place = place_service.get_place(place_id)
-    if place is None:
-        raise NotFoundError(
-            f"{label} place '{place_id}' not found",
-            hint=(
-                "Use GET /places/search?city=<city> to find a valid place_id "
-                "(or pass the short PLC-XXXX code)."
-            ),
-        )
-    if place.latitude is None or place.longitude is None:
-        raise NotFoundError(
-            f"{label} place '{place_id}' has no coordinates",
-            hint=(
-                "This place is missing latitude/longitude in the seed data "
-                "and cannot take part in a route. Pick another place from "
-                "GET /places/search."
-            ),
-        )
-    return RouteEndpoint(
-        kind="place",
-        id=place.id,
-        name=place.name,
-        latitude=place.latitude,
-        longitude=place.longitude,
-    )
-
-
-def _city_endpoint(city_name: str, label: str) -> RouteEndpoint:
-    """Resolve a city name to a :class:`RouteEndpoint`, fuzzily.
-
-    The lookup is forgiving — case-insensitive and typo/spacing tolerant
-    (e.g. "danang" → "Da Nang") — using the same fuzzy matcher as
-    ``GET /cities?q=``, so callers need not know the exact spelling. Raises
-    :class:`NotFoundError` if nothing matches or the matched city has no
-    coordinates in the seed data.
-    """
-    matched = best_match(city_name, _city_repo.distinct_names(), [lambda c: c])
-    record = _city_repo.get(matched) if matched is not None else None
-    if record is None:
-        raise NotFoundError(
-            f"{label} city '{city_name}' not found",
-            hint=(
-                "Use GET /cities?q=<partial-name> to find the canonical "
-                "city name (the lookup is fuzzy / typo-tolerant)."
-            ),
-        )
-    if record.latitude is None or record.longitude is None:
-        raise NotFoundError(
-            f"{label} city '{record.name}' has no coordinates",
-            hint=(
-                "This city is missing latitude/longitude in the seed data "
-                "and cannot take part in a route."
-            ),
-        )
-    return RouteEndpoint(
-        kind="city",
-        id=record.name,
-        name=record.name,
-        latitude=record.latitude,
-        longitude=record.longitude,
-    )
-
-
 async def _ors_leg(
     mode: str, profile: str, origin: RouteEndpoint, destination: RouteEndpoint
 ) -> RouteLeg:
@@ -222,112 +147,196 @@ def _estimate_leg(
     )
 
 
-async def get_route_between(
-    origin: RouteEndpoint, destination: RouteEndpoint
-) -> RouteResponse:
-    """Return distance/time per travel mode between two resolved endpoints.
+class RoutingService:
+    """Routing between two places or cities, bound to the request session."""
 
-    Calls OpenRouteService for real road routing when ``ORS_API_KEY`` is set,
-    otherwise falls back to an offline straight-line estimate. Results are
-    cached per endpoint pair. Raises :class:`RoutingUnavailableError` if a
-    configured ORS provider is unreachable.
-    """
-    settings = get_settings()
-    provider_enabled = settings.routing_provider_enabled
-    cache_key = (
-        origin.kind,
-        origin.id,
-        destination.kind,
-        destination.id,
-        provider_enabled,
-    )
-    cached = _route_cache.get(cache_key)
-    if cached is not None:
-        return cached
+    def __init__(self, session: Session) -> None:
+        self._session = session
+        self._city = CityRepository(session)
+        self._places = PlaceService(session)
 
-    straight_line_km = round(
-        haversine_km(
-            origin.latitude,
-            origin.longitude,
-            destination.latitude,
-            destination.longitude,
-        ),
-        2,
-    )
+    def _place_endpoint(self, place_id: str, label: str) -> RouteEndpoint:
+        """Resolve a place ID to a :class:`RouteEndpoint`.
 
-    if provider_enabled:
-        # Fetch every travel mode concurrently — one round-trip's latency
-        # instead of three back to back. ``return_exceptions=True`` so a
-        # single failing leg (rare — all three call the same ORS host)
-        # falls back to the offline estimate for that mode instead of
-        # taking the whole response down with it.
-        results = await asyncio.gather(
-            *(
-                _ors_leg(mode, profile, origin, destination)
-                for mode, (profile, _speed) in _MODES.items()
-            ),
-            return_exceptions=True,
-        )
-        legs = []
-        any_ors = False
-        any_fallback = False
-        for (mode, (profile, speed)), result in zip(
-            _MODES.items(), results, strict=True
-        ):
-            if isinstance(result, BaseException):
-                logger.warning(
-                    "ORS leg %s failed (%s) — falling back to offline estimate",
-                    mode,
-                    result,
-                )
-                legs.append(_estimate_leg(mode, profile, speed, straight_line_km))
-                any_fallback = True
-            else:
-                legs.append(result)
-                any_ors = True
-        # If at least one leg came from ORS, keep ``source="openrouteservice"``
-        # so the response still flags real routing as the primary source; if
-        # every leg fell back, surface that honestly to the caller.
-        if any_ors:
-            source = "openrouteservice"
-            attribution = (
-                _ATTRIBUTION_ORS
-                if not any_fallback
-                else _ATTRIBUTION_ORS + " (some modes estimated offline)"
+        Raises :class:`NotFoundError` if the ID is unknown or the place has no
+        coordinates (so it cannot take part in a route).
+        """
+        place = self._places.get_place(place_id)
+        if place is None:
+            raise NotFoundError(
+                f"{label} place '{place_id}' not found",
+                hint=(
+                    "Use GET /places/search?city=<city> to find a valid place_id "
+                    "(or pass the short PLC-XXXX code)."
+                ),
             )
+        if place.latitude is None or place.longitude is None:
+            raise NotFoundError(
+                f"{label} place '{place_id}' has no coordinates",
+                hint=(
+                    "This place is missing latitude/longitude in the seed data "
+                    "and cannot take part in a route. Pick another place from "
+                    "GET /places/search."
+                ),
+            )
+        return RouteEndpoint(
+            kind="place",
+            id=place.id,
+            name=place.name,
+            latitude=place.latitude,
+            longitude=place.longitude,
+        )
+
+    def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
+        """Resolve a city name to a :class:`RouteEndpoint`, fuzzily.
+
+        The lookup is forgiving — case-insensitive and typo/spacing tolerant
+        (e.g. "danang" → "Da Nang") — using the same fuzzy matcher as
+        ``GET /cities?q=``, so callers need not know the exact spelling. Raises
+        :class:`NotFoundError` if nothing matches or the matched city has no
+        coordinates in the seed data.
+        """
+        matched = best_match(city_name, self._city.distinct_names(), [lambda c: c])
+        record = self._city.get(matched) if matched is not None else None
+        if record is None:
+            raise NotFoundError(
+                f"{label} city '{city_name}' not found",
+                hint=(
+                    "Use GET /cities?q=<partial-name> to find the canonical "
+                    "city name (the lookup is fuzzy / typo-tolerant)."
+                ),
+            )
+        if record.latitude is None or record.longitude is None:
+            raise NotFoundError(
+                f"{label} city '{record.name}' has no coordinates",
+                hint=(
+                    "This city is missing latitude/longitude in the seed data "
+                    "and cannot take part in a route."
+                ),
+            )
+        return RouteEndpoint(
+            kind="city",
+            id=record.name,
+            name=record.name,
+            latitude=record.latitude,
+            longitude=record.longitude,
+        )
+
+    async def get_route_between(
+        self, origin: RouteEndpoint, destination: RouteEndpoint
+    ) -> RouteResponse:
+        """Return distance/time per travel mode between two resolved endpoints.
+
+        Calls OpenRouteService for real road routing when ``ORS_API_KEY`` is set,
+        otherwise falls back to an offline straight-line estimate. Results are
+        cached per endpoint pair. Raises :class:`RoutingUnavailableError` if a
+        configured ORS provider is unreachable.
+        """
+        settings = get_settings()
+        provider_enabled = settings.routing_provider_enabled
+        cache_key = (
+            origin.kind,
+            origin.id,
+            destination.kind,
+            destination.id,
+            provider_enabled,
+        )
+        cached = _route_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        straight_line_km = round(
+            haversine_km(
+                origin.latitude,
+                origin.longitude,
+                destination.latitude,
+                destination.longitude,
+            ),
+            2,
+        )
+
+        if provider_enabled:
+            # Fetch every travel mode concurrently — one round-trip's latency
+            # instead of three back to back. ``return_exceptions=True`` so a
+            # single failing leg (rare — all three call the same ORS host)
+            # falls back to the offline estimate for that mode instead of
+            # taking the whole response down with it.
+            results = await asyncio.gather(
+                *(
+                    _ors_leg(mode, profile, origin, destination)
+                    for mode, (profile, _speed) in _MODES.items()
+                ),
+                return_exceptions=True,
+            )
+            legs = []
+            any_ors = False
+            any_fallback = False
+            for (mode, (profile, speed)), result in zip(
+                _MODES.items(), results, strict=True
+            ):
+                if isinstance(result, BaseException):
+                    logger.warning(
+                        "ORS leg %s failed (%s) — falling back to offline estimate",
+                        mode,
+                        result,
+                    )
+                    legs.append(_estimate_leg(mode, profile, speed, straight_line_km))
+                    any_fallback = True
+                else:
+                    legs.append(result)
+                    any_ors = True
+            # If at least one leg came from ORS, keep ``source="openrouteservice"``
+            # so the response still flags real routing as the primary source; if
+            # every leg fell back, surface that honestly to the caller.
+            if any_ors:
+                source = "openrouteservice"
+                attribution = (
+                    _ATTRIBUTION_ORS
+                    if not any_fallback
+                    else _ATTRIBUTION_ORS + " (some modes estimated offline)"
+                )
+            else:
+                source = "estimate"
+                attribution = _ATTRIBUTION_ESTIMATE
         else:
+            legs = [
+                _estimate_leg(mode, profile, speed, straight_line_km)
+                for mode, (profile, speed) in _MODES.items()
+            ]
             source = "estimate"
             attribution = _ATTRIBUTION_ESTIMATE
-    else:
-        legs = [
-            _estimate_leg(mode, profile, speed, straight_line_km)
-            for mode, (profile, speed) in _MODES.items()
-        ]
-        source = "estimate"
-        attribution = _ATTRIBUTION_ESTIMATE
 
-    response = RouteResponse(
-        origin=origin,
-        destination=destination,
-        straight_line_km=straight_line_km,
-        recommended_mode=recommend_mode(straight_line_km),
-        legs=legs,
-        source=source,
-        attribution=attribution,
-    )
-    _route_cache[cache_key] = response
-    return response
+        response = RouteResponse(
+            origin=origin,
+            destination=destination,
+            straight_line_km=straight_line_km,
+            recommended_mode=recommend_mode(straight_line_km),
+            legs=legs,
+            source=source,
+            attribution=attribution,
+        )
+        _route_cache[cache_key] = response
+        return response
+
+    async def get_place_route(
+        self, origin_id: str, destination_id: str
+    ) -> RouteResponse:
+        """Route between two places, by place ID (404 if unknown / no coords)."""
+        origin = self._place_endpoint(origin_id, "Origin")
+        destination = self._place_endpoint(destination_id, "Destination")
+        return await self.get_route_between(origin, destination)
+
+    async def get_city_route(
+        self, origin_name: str, destination_name: str
+    ) -> RouteResponse:
+        """Route between two cities, by city name (404 if unknown / no coords)."""
+        origin = self._city_endpoint(origin_name, "Origin")
+        destination = self._city_endpoint(destination_name, "Destination")
+        return await self.get_route_between(origin, destination)
 
 
-async def get_place_route(origin_id: str, destination_id: str) -> RouteResponse:
-    """Route between two places, by place ID (404 if unknown / no coords)."""
-    origin = _place_endpoint(origin_id, "Origin")
-    destination = _place_endpoint(destination_id, "Destination")
-    return await get_route_between(origin, destination)
-
-
-async def get_city_route(origin_name: str, destination_name: str) -> RouteResponse:
-    """Route between two cities, by city name (404 if unknown / no coords)."""
-    origin = _city_endpoint(origin_name, "Origin")
-    destination = _city_endpoint(destination_name, "Destination")
-    return await get_route_between(origin, destination)
+def get_routing_service(
+    session: Annotated[Session, Depends(get_session)],
+) -> RoutingService:
+    """FastAPI dependency: a routing service bound to the request session."""
+    return RoutingService(session)

@@ -24,7 +24,10 @@ from app.schemas.destination import (
     PriceRange,
     StarRange,
 )
-from app.services import hotel_service, place_service, tip_service, weather_service
+from app.services import weather_service
+from app.services.hotel_service import HotelService
+from app.services.place_service import PlaceService
+from app.services.tip_service import TipService
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +38,7 @@ class DestinationService:
     """Aggregates a city overview from city data + place/tip/hotel/weather."""
 
     def __init__(self, session: Session) -> None:
+        self._session = session
         self._city = CityRepository(session)
 
     async def get_overview(
@@ -68,7 +72,9 @@ class DestinationService:
         # 2. Places — sync, in-memory.
         places = []
         if "places" in include:
-            results = place_service.search_places(city=name, sort="rating_desc")
+            results = PlaceService(self._session).search_places(
+                city=name, sort="rating_desc"
+            )
             # Recommended places first, then by rating (search already sorted by
             # rating, so the tuple key keeps that order within each group).
             results.sort(key=lambda p: (not p.is_recommended, -p.rating))
@@ -77,13 +83,15 @@ class DestinationService:
         # 3. Tips — sync, in-memory.
         tips = []
         if "tips" in include:
-            tips_response = tip_service.get_tips(city=name, essential_only=True)
+            tips_response = TipService(self._session).get_tips(
+                city=name, essential_only=True
+            )
             tips = tips_response.tips[:tip_limit]
 
         # 4. Hotels — sync, in-memory.
         hotel_summary: HotelSummary | None = None
         if "hotels" in include:
-            hotels = hotel_service.search_hotels(name)
+            hotels = HotelService(self._session).search_hotels(name)
             if hotels:
                 price_range = PriceRange(
                     min=min(h.price_per_night for h in hotels),

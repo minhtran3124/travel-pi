@@ -29,7 +29,9 @@ from app.schemas.booking import (
 )
 from app.schemas.flight import FlightBookingRequest
 from app.schemas.hotel import HotelBookingRequest
-from app.services import flight_service, hotel_service
+from app.services import hotel_service
+from app.services.flight_service import FlightService
+from app.services.hotel_service import HotelService
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +62,7 @@ class BookingService:
 
     def __init__(self, session: Session) -> None:
         self._repo = BookingRepository(session)
+        self._session = session
 
     def _mint_booking_id(self) -> str:
         """Return a fresh UUID whose derived confirmation_code is unused.
@@ -190,7 +193,7 @@ class BookingService:
             return replayed
 
         if request.flight_id:
-            flight = flight_service.find_flight_by_id(request.flight_id)
+            flight = FlightService(self._session).find_flight_by_id(request.flight_id)
             if flight is None:
                 raise NotFoundError(
                     f"Flight {request.flight_id!r} not found",
@@ -201,7 +204,7 @@ class BookingService:
                     ),
                 )
         else:
-            flight = flight_service.find_flight_by_number(
+            flight = FlightService(self._session).find_flight_by_number(
                 request.flight_number,
                 request.origin.upper(),
                 request.destination.upper(),
@@ -261,7 +264,7 @@ class BookingService:
         if replayed is not None:
             return replayed
 
-        hotel = hotel_service.get_hotel(request.hotel_id)
+        hotel = HotelService(self._session).get_hotel(request.hotel_id)
         if hotel is None:
             raise NotFoundError(
                 f"Hotel {request.hotel_id!r} not found",

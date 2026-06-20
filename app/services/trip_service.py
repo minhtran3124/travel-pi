@@ -48,8 +48,10 @@ from app.schemas.trip import (
     TripItemUpdate,
     TripUpdate,
 )
-from app.services import place_service, routing_service, weather_service
+from app.services import weather_service
 from app.services.booking_service import BookingService
+from app.services.place_service import PlaceService
+from app.services.routing_service import RoutingService
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +239,7 @@ class TripService:
                 hint="source must be 'catalog' or 'saved'.",
             )
         self.get_trip(trip_id)
-        resolved = place_service.resolve(place_id, source, self._session)
+        resolved = PlaceService(self._session).resolve(place_id, source)
         if resolved is None:
             raise NotFoundError(
                 f"Place {place_id!r} not found in source {source!r}.",
@@ -269,8 +271,8 @@ class TripService:
         self.get_trip(trip_id)
         entries: list[ShortlistEntry] = []
         for row in self._repo.list_trip_places(trip_id):
-            resolved = place_service.resolve(
-                row["place_id"], row["source"], self._session
+            resolved = PlaceService(self._session).resolve(
+                row["place_id"], row["source"]
             )
             if resolved is None:
                 continue
@@ -508,8 +510,9 @@ class TripService:
             if not is_last:
                 next_item = day_items[idx + 1]
                 if item.place_id and next_item.place_id:
-                    place_a = place_service.get_place(item.place_id)
-                    place_b = place_service.get_place(next_item.place_id)
+                    _places = PlaceService(self._session)
+                    place_a = _places.get_place(item.place_id)
+                    place_b = _places.get_place(next_item.place_id)
                     if (
                         place_a is not None
                         and place_a.latitude is not None
@@ -519,7 +522,7 @@ class TripService:
                         and place_b.longitude is not None
                     ):
                         try:
-                            route = await routing_service.get_place_route(
+                            route = await RoutingService(self._session).get_place_route(
                                 item.place_id, next_item.place_id
                             )
                             rec_mode = route.recommended_mode

@@ -17,12 +17,13 @@ from app.schemas.hotel import (
     HotelSearchResponse,
 )
 from app.schemas.pagination import PaginationDep
-from app.services import hotel_service
 from app.services.booking_service import BookingService, get_booking_service
+from app.services.hotel_service import HotelService, get_hotel_service
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
+HotelDep = Annotated[HotelService, Depends(get_hotel_service)]
 
 
 @router.get(
@@ -31,12 +32,12 @@ BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
     summary="List all hotels (paginated)",
     responses=error_responses(422),
 )
-def list_hotels(pagination: PaginationDep) -> HotelListResponse:
+def list_hotels(pagination: PaginationDep, hotels: HotelDep) -> HotelListResponse:
     """Return all seeded hotels with pagination.
 
     ``total`` is the full count; use ``limit`` and ``offset`` to page.
     """
-    page, total = pagination.page_of(hotel_service.list_hotels())
+    page, total = pagination.page_of(hotels.list_hotels())
     return HotelListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page
     )
@@ -62,6 +63,7 @@ _AMENITIES_QUERY = Query(
 )
 def search_hotels(
     pagination: PaginationDep,
+    hotels: HotelDep,
     city: Annotated[
         str,
         Query(
@@ -75,9 +77,7 @@ def search_hotels(
     ] = None,
     max_price: Annotated[
         float | None,
-        Query(
-            ge=0, description="Maximum price per night (USD)", examples=[150
-        ]),
+        Query(ge=0, description="Maximum price per night (USD)", examples=[150]),
     ] = None,
     amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelSearchResponse:
@@ -88,12 +88,12 @@ def search_hotels(
     for specific dates, use ``GET /hotels/availability``. Unknown cities
     return ``total: 0`` (not a 404).
     """
-    all_results = hotel_service.search_hotels(
+    all_results = hotels.search_hotels(
         city, min_stars=min_stars, max_price=max_price, amenities=amenities
     )
     page, total = pagination.page_of(all_results)
     # Echo the canonical city name when the fuzzy lookup resolved it.
-    echoed_city = hotel_service.resolve_city(city) or city
+    echoed_city = hotels.resolve_city(city) or city
     return HotelSearchResponse(
         total=total,
         limit=pagination.limit,
@@ -117,6 +117,7 @@ def search_hotels(
 )
 def hotel_availability(
     pagination: PaginationDep,
+    hotels: HotelDep,
     city: Annotated[
         str,
         Query(
@@ -152,9 +153,7 @@ def hotel_availability(
     ] = None,
     max_price: Annotated[
         float | None,
-        Query(
-            ge=0, description="Maximum price per night (USD)", examples=[150
-        ]),
+        Query(ge=0, description="Maximum price per night (USD)", examples=[150]),
     ] = None,
     amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelAvailabilityResponse:
@@ -167,7 +166,7 @@ def hotel_availability(
     cities return ``total: 0``; a bad date is **422**.
     """
     try:
-        nights, results = hotel_service.check_availability(
+        nights, results = hotels.check_availability(
             city,
             check_in,
             check_out,
@@ -188,7 +187,7 @@ def hotel_availability(
         results = [r for r in results if r.available]
 
     page, total = pagination.page_of(results)
-    echoed_city = hotel_service.resolve_city(city) or city
+    echoed_city = hotels.resolve_city(city) or city
     return HotelAvailabilityResponse(
         total=total,
         limit=pagination.limit,
@@ -216,6 +215,7 @@ def hotel_availability(
     responses=error_responses(404, 422),
 )
 def get_hotel(
+    hotels: HotelDep,
     hotel_id: Annotated[
         str,
         Path(
@@ -225,7 +225,7 @@ def get_hotel(
     ],
 ) -> Hotel:
     """Return a single hotel, or 404 if the ID does not exist."""
-    hotel = hotel_service.get_hotel(hotel_id)
+    hotel = hotels.get_hotel(hotel_id)
     if hotel is None:
         raise NotFoundError(
             f"Hotel {hotel_id!r} not found",
