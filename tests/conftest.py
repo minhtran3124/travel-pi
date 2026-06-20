@@ -8,7 +8,6 @@ from app.crud.airport import AirportRepository
 from app.crud.city import CityRepository
 from app.crud.country import CountryRepository
 from app.crud.flight import FlightIndexRepository
-from app.crud.fx import FxRepository
 from app.crud.hotel_ref import HotelRepository
 from app.crud.place_ref import PlaceRepository
 from app.crud.tip import TipRepository
@@ -23,7 +22,6 @@ from app.routers import dashboard as dashboard_router
 from app.services import (
     airport_service,
     board_service,
-    currency_service,
     destination_service,
     flight_service,
     hotel_service,
@@ -78,7 +76,6 @@ def client(tmp_db):
     flight_service.set_airline_repo(AirlineRepository(sf))
     airport_service.set_airport_repo(AirportRepository(sf))
     board_service.set_airline_repo(AirlineRepository(sf))
-    currency_service.set_fx_repo(FxRepository(sf))
     visa_service.set_visa_repo(VisaRepository(sf))
     visa_service.set_city_repo(CityRepository(sf))
     visa_service.set_country_repo(CountryRepository(sf))
