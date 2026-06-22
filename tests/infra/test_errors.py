@@ -124,3 +124,71 @@ def test_route_not_found_has_no_hint(client):
     """Unmatched-route 404s come from Starlette and don't carry a domain hint."""
     body = client.get("/this/route/does/not/exist").json()
     assert "hint" not in body or body.get("hint") is None
+
+
+# --- Unhandled (non-AppError) exceptions — the verified 500 bug --------------
+
+
+def test_unhandled_exception_uses_envelope():
+    from app.main import create_app
+    from fastapi.testclient import TestClient
+
+    app = create_app()
+
+    @app.get("/__boom")
+    def _boom():
+        raise ValueError("kaboom")
+
+    # No `with` → lifespan/DB startup is skipped; the route raises before any DB use.
+    c = TestClient(app, raise_server_exceptions=False)
+    resp = c.get("/__boom")
+    assert resp.status_code == 500
+    assert resp.headers["content-type"].startswith("application/json")
+    body = resp.json()
+    _assert_envelope(body, 500, "/__boom")
+    assert body["error"] == "InternalServerError"
+
+
+def test_unhandled_exception_hides_detail_in_production(monkeypatch):
+    from app.core import config
+    from app.main import create_app
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv("CORS_ORIGINS", '["https://app.example.com"]')
+    config.get_settings.cache_clear()
+    try:
+        app = create_app()
+
+        @app.get("/__boom")
+        def _boom():
+            raise ValueError("secret-trace")
+
+        c = TestClient(app, raise_server_exceptions=False)
+        body = c.get("/__boom").json()
+        assert body["message"] == "Internal server error"
+        assert "secret-trace" not in body["message"]
+    finally:
+        config.get_settings.cache_clear()
+
+
+def test_unhandled_exception_is_access_logged(caplog):
+    import logging
+
+    from app.main import create_app
+    from fastapi.testclient import TestClient
+
+    app = create_app()
+
+    @app.get("/__boom")
+    def _boom():
+        raise ValueError("kaboom")
+
+    c = TestClient(app, raise_server_exceptions=False)
+    # create_app() ran configure_logging() (dictConfig), which replaces the
+    # root logger's handlers — including caplog's. Re-attach caplog's handler
+    # so the access line emitted on failure is captured.
+    logging.getLogger().addHandler(caplog.handler)
+    with caplog.at_level(logging.ERROR, logger="app.core.middleware"):
+        c.get("/__boom")
+    assert any("→ 500" in r.message for r in caplog.records)
