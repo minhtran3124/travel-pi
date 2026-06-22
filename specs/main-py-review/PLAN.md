@@ -459,4 +459,5 @@ from pydantic import model_validator
   - Wave 3 / Task 3.1 — `9212c81` feat(middleware): gzip + request-ID (P3)
   - Wave 3 / Task 3.2 — `9b78f8e` feat(config): reject wildcard CORS + credentials in prod (P6; scope widened to 2 prod-test files)
   - Wave 3 / Task 3.3 — `bb16b61` feat(main): fail startup on duplicate operationIds (P5; guard filtered to include_in_schema)
+- 2026-06-22 — shipped via `feat/main-py-review` (PR #16 → base `v3`): https://github.com/minhtran3124/travel-pi/pull/16
 - 2026-06-22 — Harness-Deltas for `/compound`: (1) PLAN caplog recipe must re-attach handler after in-test `create_app()`; (2) Task 3.2 `<files>`/"691" target was self-inconsistent (validator breaks unlisted prod tests); (3) Task 3.3 guard code must mirror the test-time `include_in_schema` filter; (4) the commit hook aborts `git add && git commit` chains — stage and commit as separate commands.
