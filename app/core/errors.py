@@ -91,6 +91,23 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
             content=_error_body(label, str(exc.detail), exc.status_code, request),
         )
 
+    # Catch-all for any non-AppError exception that escapes a route. Without
+    # this, Starlette's ServerErrorMiddleware returns a plaintext
+    # "Internal Server Error", breaking the JSON-envelope contract. In
+    # production the exception detail is hidden to avoid leaking internals.
+    @app.exception_handler(Exception)
+    async def _handle_unexpected(request: Request, exc: Exception) -> JSONResponse:
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+        message = (
+            "Internal server error"
+            if settings.is_production
+            else f"{type(exc).__name__}: {exc}"
+        )
+        return JSONResponse(
+            status_code=500,
+            content=_error_body("InternalServerError", message, 500, request),
+        )
+
     # Pydantic request-validation failures (422) — keep the per-field detail
     # under ``errors`` so callers can pinpoint what to fix.
     @app.exception_handler(RequestValidationError)

@@ -30,7 +30,20 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
         start = time.perf_counter()
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            # The catch-all Exception handler is bound to the outermost
+            # ServerErrorMiddleware (above this one), so the failed request
+            # never reaches the access line below — log it here and re-raise.
+            elapsed_ms = (time.perf_counter() - start) * 1000
+            logger.exception(
+                "%s %s → 500 (%.1fms)",
+                request.method,
+                request.url.path,
+                elapsed_ms,
+            )
+            raise
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.info(
             "%s %s → %d (%.1fms)",
