@@ -2,10 +2,12 @@
 
 import logging
 import time
+import uuid
 from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from app.core.config import Settings
 
@@ -13,12 +15,14 @@ logger = logging.getLogger(__name__)
 
 
 def register_middleware(app: FastAPI, settings: Settings) -> None:
-    """Register the request-logging, rate-limit-header, and CORS middleware.
+    """Register request-ID, logging, rate-limit-header, GZip, and CORS middleware.
 
     ``@app.middleware`` prepends (last-declared runs outermost), and
-    ``add_middleware(CORS)`` runs after both — so declaring ``_log_requests``
-    before ``_rate_limit_headers`` keeps the net inbound order
-    CORS → rate-limit → logging → route, matching the original ``create_app``.
+    ``add_middleware`` runs after all of them — so declaring ``_log_requests``
+    before ``_rate_limit_headers`` before ``_request_id`` keeps the net inbound
+    order CORS → GZip → request-ID → rate-limit → logging → route. ``_request_id``
+    is declared last so it runs earliest inbound, setting
+    ``request.state.request_id`` before ``_log_requests`` reads it.
     """
 
     # Log one line per request: method, path, status, and how long it took.
@@ -46,11 +50,12 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
             raise
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.info(
-            "%s %s → %d (%.1fms)",
+            "%s %s → %d (%.1fms) [rid=%s]",
             request.method,
             request.url.path,
             response.status_code,
             elapsed_ms,
+            getattr(request.state, "request_id", "-"),
         )
         return response
 
@@ -66,6 +71,23 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
         response.headers["X-RateLimit-Remaining"] = str(limit)
         response.headers["X-RateLimit-Reset"] = str(int(time.time()) + 60)
         return response
+
+    # Correlate logs and error envelopes across a request. Declared last so it
+    # runs earliest inbound and sets request.state.request_id before
+    # _log_requests reads it; echoes a caller-supplied id or generates one.
+    @app.middleware("http")
+    async def _request_id(
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        rid = request.headers.get("X-Request-ID") or uuid.uuid4().hex
+        request.state.request_id = rid
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = rid
+        return response
+
+    # Compress responses over 1KB; small payloads stay uncompressed.
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     # CORS — wide open for local dev so the FE/agent can call from anywhere.
     app.add_middleware(

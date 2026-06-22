@@ -48,13 +48,16 @@ def _error_body(
     request: Request,
     **extra: object,
 ) -> dict:
-    return {
+    body: dict = {
         "error": error,
         "message": message,
         "status_code": status_code,
         "path": request.url.path,
-        **extra,
     }
+    rid = getattr(request.state, "request_id", None)
+    if rid:
+        body["request_id"] = rid
+    return {**body, **extra}
 
 
 def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
