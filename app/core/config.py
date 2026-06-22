@@ -8,7 +8,7 @@ for local development. See ``.env.example`` for the available knobs.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -108,6 +108,19 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         """True when running in a production deployment."""
         return self.environment == "production"
+
+    @model_validator(mode="after")
+    def _guard_prod_cors(self) -> "Settings":
+        if (
+            self.is_production
+            and self.cors_allow_credentials
+            and "*" in self.cors_origins
+        ):
+            raise ValueError(
+                "Refusing to run in production with cors_allow_credentials=True and a "
+                "wildcard origin ('*'): set explicit CORS_ORIGINS."
+            )
+        return self
 
 
 @lru_cache

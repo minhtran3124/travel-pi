@@ -39,7 +39,10 @@ def test_docs_exposed_in_development(client):
 
 def test_docs_hidden_in_production(monkeypatch):
     monkeypatch.setattr(
-        "app.main.get_settings", lambda: Settings(environment="production")
+        "app.main.get_settings",
+        lambda: Settings(
+            environment="production", cors_origins=["https://app.example.com"]
+        ),
     )
     with TestClient(create_app()) as prod_client:
         assert prod_client.get("/docs").status_code == 404

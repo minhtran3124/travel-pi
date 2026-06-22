@@ -155,6 +155,7 @@ def test_unhandled_exception_hides_detail_in_production(monkeypatch):
     from fastapi.testclient import TestClient
 
     monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv("CORS_ORIGINS", '["https://app.example.com"]')
     config.get_settings.cache_clear()
     try:
         app = create_app()
