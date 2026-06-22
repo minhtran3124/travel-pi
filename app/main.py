@@ -52,6 +52,21 @@ def create_app() -> FastAPI:
     register_middleware(app, settings)
     app.include_router(api_router)
 
+    # Fail fast on duplicate operationIds — a duplicate handler name silently
+    # breaks TS codegen, so surface it at startup rather than only in CI. Only
+    # schema-visible routes reach codegen; include_in_schema=False routes (e.g.
+    # the dashboard page served at both "" and "/") are intentionally exempt.
+    ids = [
+        r.operation_id or r.name
+        for r in app.routes
+        if isinstance(r, APIRoute) and r.include_in_schema
+    ]
+    dupes = {i for i in ids if ids.count(i) > 1}
+    if dupes:
+        raise RuntimeError(
+            f"Duplicate operationIds (breaks TS codegen): {sorted(dupes)}"
+        )
+
     return app
 
 
