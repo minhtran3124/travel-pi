@@ -17,14 +17,15 @@ from app.schemas.error import error_responses
 from app.schemas.weather import PackingResponse, WeatherResponse
 from app.services import weather_service
 
-router = APIRouter(prefix="/weather", tags=[Tags.weather])
+router = APIRouter(
+    prefix="/weather", tags=[Tags.weather], responses=error_responses(404, 422, 502)
+)
 
 
 @router.get(
     "",
     response_model=WeatherResponse,
     summary="Get current weather and a short forecast for a city",
-    responses=error_responses(404, 422, 502),
 )
 async def get_weather(
     city: Annotated[
@@ -57,7 +58,6 @@ async def get_weather(
     "/packing",
     response_model=PackingResponse,
     summary="Packing & gear suggestions derived from a city's forecast",
-    responses=error_responses(404, 422, 502),
 )
 async def get_packing(
     city: Annotated[

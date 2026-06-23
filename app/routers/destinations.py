@@ -12,7 +12,11 @@ from app.schemas.error import error_responses
 from app.services import climate_service
 from app.services.destination_service import DestinationService, get_destination_service
 
-router = APIRouter(prefix="/destinations", tags=[Tags.destinations])
+router = APIRouter(
+    prefix="/destinations",
+    tags=[Tags.destinations],
+    responses=error_responses(404, 422),
+)
 
 DestinationDep = Annotated[DestinationService, Depends(get_destination_service)]
 
@@ -21,7 +25,6 @@ DestinationDep = Annotated[DestinationService, Depends(get_destination_service)]
     "/{city}/overview",
     response_model=DestinationOverviewResponse,
     summary="Get a destination overview for a city",
-    responses=error_responses(404, 422),
 )
 async def get_destination_overview(
     destination: DestinationDep,
@@ -72,7 +75,7 @@ async def get_destination_overview(
     "/climate",
     response_model=ClimateResponse,
     summary="Get monthly climate normals for a destination city",
-    responses=error_responses(404, 422, 502),
+    responses=error_responses(502),
 )
 async def get_destination_climate(
     city: Annotated[

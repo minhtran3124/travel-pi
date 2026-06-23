@@ -41,10 +41,15 @@ comparison against FastAPI `bigger-applications` docs):
 
 ## What changed
 
-(To be filled at completion.) Planned: add `app/routers/tags.py` (`Tags` enum, values =
-current tag strings) and replace `tags=[...]` in 16 group routers (P2, byte-identical
-OpenAPI); then lift each router's all-routes-common error codes into the `APIRouter(...)`
-constructor, leaving only route-specific extras on decorators (P1, superset-or-equal).
+P2: added `app/routers/tags.py` (`Tags(str, Enum)`, values = current tag strings) and
+replaced `tags=[...]` across all 16 group routers — OpenAPI byte-identical.
+
+P1: lifted each multi-route router's all-routes-common error codes into the `APIRouter(...)`
+constructor (bookings/cities/flights/hotels/trips → `422`; destinations → `404,422`;
+weather → `404,422,502`), leaving only route-specific extras on each decorator. Per-op error
+**code sets are unchanged** (no op lost or gained a code). One beneficial side effect: 3 trips
+routes whose 422 was the stale auto-generated `HTTPValidationError` now document the real
+`ErrorResponse` envelope (which is what the runtime already returns).
 
 ### Rationale
 
@@ -62,7 +67,19 @@ fenced by a superset-or-equal acceptance check and 663 passing tests.
 
 ### Deviations
 
-- none
+- Scope (judgment, per behavior.md simplicity) — P1 lifted only **multi-route** routers where
+  it removes real duplication. Single-route routers (airports, currency, tips, visa,
+  air-quality, meta, health) were left unchanged: lifting there is pure indirection with no
+  dedup. `places` was left unchanged because its routes share **no** common error code (empty
+  intersection) — matches PLAN §4 ("unchanged if the intersection is empty").
+- Side effect (beneficial, flagged) — lifting `422` to the `trips` router normalized 3 routes'
+  422 OpenAPI model from the stale `HTTPValidationError` to `ErrorResponse`. Runtime behavior
+  unchanged (the 422 handler in `main.py` already returns `ErrorResponse`); only the docs were
+  stale. Code set per op unchanged; the 2 still-stale 422s live in the untouched `places` router.
+- Rule 3 — local-only `.git/info/exclude` entry for `.claude/` to unblock `check-untracked-py.sh`,
+  whose `.claude` exclusion misses root-level paths (leading-slash pattern bug). No tracked file
+  or hook modified; matches the hook's clear intent. Reversible: remove the line from
+  `.git/info/exclude`.
 
 ### Verify
 
@@ -71,9 +88,10 @@ fenced by a superset-or-equal acceptance check and 663 passing tests.
 | Full suite (P2) | `make test` | 0 | 682 passed (suite grew past plan's 663) |
 | OpenAPI identical (P2) | `app.openapi()` tags+responses diff vs baseline | 0 | tag set + all 55 ops byte-identical; 0 changed ops |
 | Lint clean (P2) | `ruff check app/routers/` | 0 | imports hoisted by isort; no F821 |
-| Full suite (P1) | `make test` | _pending_ | — |
-| Error-code superset (P1) | per-op `responses` diff vs baseline | _pending_ | each op ≥ prior set |
-| Docker py3.12 parity | `make test-docker` | _pending_ | `Tags(str, Enum)` for 3.10+ compat |
+| Full suite (P1) | `make test` | 0 | 682 passed |
+| Error-code superset (P1) | per-op error-code diff vs baseline | 0 | 0 ops lost a code; 0 ops gained a spurious code |
+| 422 model normalized (P1) | per-op 422 `$ref` check | 0 | 3 trips routes: stale HTTPValidationError → ErrorResponse (matches runtime) |
+| Docker py3.12 parity | `make test-docker` | 0 | 682 passed; `Tags(str, Enum)` OK on 3.12 |
 
 ### Rollback
 

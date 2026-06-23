@@ -18,7 +18,9 @@ from app.schemas.flight import (
 from app.services.booking_service import BookingService, get_booking_service
 from app.services.flight_service import FlightService, get_flight_service
 
-router = APIRouter(prefix="/flights", tags=[Tags.flights])
+router = APIRouter(
+    prefix="/flights", tags=[Tags.flights], responses=error_responses(422)
+)
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 FlightDep = Annotated[FlightService, Depends(get_flight_service)]
@@ -29,7 +31,6 @@ FlightDep = Annotated[FlightService, Depends(get_flight_service)]
     "/search",
     response_model=FlightSearchResponse,
     summary="Search flights for a route, with optional round-trip, filters, and sort",
-    responses=error_responses(422),
 )
 def search_flights(
     flights_svc: FlightDep,
@@ -157,7 +158,7 @@ def search_flights(
     "/{flight_id}",
     response_model=Flight,
     summary="Get a single flight by ID",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def get_flight(
     flights_svc: FlightDep,
@@ -188,7 +189,7 @@ def get_flight(
     "/book",
     response_model=Booking,
     summary="Create a flight booking",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def book_flight(
     request: FlightBookingRequest,
