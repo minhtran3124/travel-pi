@@ -3,9 +3,10 @@
 from fastapi import APIRouter, Request
 from fastapi.routing import APIRoute
 
+from app.routers.tags import Tags
 from app.schemas.meta import ServiceInfo
 
-router = APIRouter(tags=["meta"])
+router = APIRouter(tags=[Tags.meta])
 
 
 def _list_endpoints(request: Request) -> list[str]:

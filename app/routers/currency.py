@@ -4,11 +4,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from app.routers.tags import Tags
 from app.schemas.currency import CurrencyConvertResponse
 from app.schemas.error import error_responses
 from app.services.currency_service import CurrencyService, get_currency_service
 
-router = APIRouter(prefix="/currency", tags=["currency"])
+router = APIRouter(prefix="/currency", tags=[Tags.currency])
 
 CurrencyDep = Annotated[CurrencyService, Depends(get_currency_service)]
 

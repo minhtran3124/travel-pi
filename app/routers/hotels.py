@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
 from app.exceptions import NotFoundError
+from app.routers.tags import Tags
 from app.schemas.booking import Booking
 from app.schemas.error import error_responses
 from app.schemas.hotel import (
@@ -20,7 +21,7 @@ from app.schemas.pagination import PaginationDep
 from app.services.booking_service import BookingService, get_booking_service
 from app.services.hotel_service import HotelService, get_hotel_service
 
-router = APIRouter(prefix="/hotels", tags=["hotels"])
+router = APIRouter(prefix="/hotels", tags=[Tags.hotels], responses=error_responses(422))
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 HotelDep = Annotated[HotelService, Depends(get_hotel_service)]
@@ -30,7 +31,6 @@ HotelDep = Annotated[HotelService, Depends(get_hotel_service)]
     "",
     response_model=HotelListResponse,
     summary="List all hotels (paginated)",
-    responses=error_responses(422),
 )
 def list_hotels(pagination: PaginationDep, hotels: HotelDep) -> HotelListResponse:
     """Return all seeded hotels with pagination.
@@ -59,7 +59,6 @@ _AMENITIES_QUERY = Query(
     "/search",
     response_model=HotelSearchResponse,
     summary="Browse hotels in a city (no dates — discovery)",
-    responses=error_responses(422),
 )
 def search_hotels(
     pagination: PaginationDep,
@@ -113,7 +112,6 @@ def search_hotels(
     "/availability",
     response_model=HotelAvailabilityResponse,
     summary="Check room availability for specific dates and party size",
-    responses=error_responses(422),
 )
 def hotel_availability(
     pagination: PaginationDep,
@@ -212,7 +210,7 @@ def hotel_availability(
     "/{hotel_id}",
     response_model=Hotel,
     summary="Get a single hotel by ID",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def get_hotel(
     hotels: HotelDep,
@@ -241,7 +239,7 @@ def get_hotel(
     "/book",
     response_model=Booking,
     summary="Create a hotel booking",
-    responses=error_responses(404, 409, 422),
+    responses=error_responses(404, 409),
 )
 def book_hotel(
     request: HotelBookingRequest,

@@ -5,12 +5,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 
 from app.core.text import fuzzy_filter
+from app.routers.tags import Tags
 from app.schemas.airport import AirportListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.services.airport_service import AirportService, get_airport_service
 
-router = APIRouter(prefix="/airports", tags=["airports"])
+router = APIRouter(prefix="/airports", tags=[Tags.airports])
 
 AirportDep = Annotated[AirportService, Depends(get_airport_service)]
 

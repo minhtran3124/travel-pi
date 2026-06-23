@@ -34,6 +34,7 @@ from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
 from app.repositories.tip import TipRepository
 from app.repositories.visa import VisaRepository
+from app.routers.tags import Tags
 from app.services import (
     air_quality_service,
     board_service,
@@ -49,7 +50,7 @@ from app.services.place_service import PlaceService
 from app.services.tip_service import TipService
 from app.services.visa_service import VisaService
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"], include_in_schema=False)
+router = APIRouter(prefix="/dashboard", tags=[Tags.dashboard], include_in_schema=False)
 
 # Templates live in app/templates/ — resolve the path relative to this file
 # so it works regardless of the current working directory.

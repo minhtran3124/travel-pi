@@ -5,11 +5,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.enums import TipCategory
+from app.routers.tags import Tags
 from app.schemas.error import error_responses
 from app.schemas.tip import TipsResponse
 from app.services.tip_service import TipService, get_tip_service
 
-router = APIRouter(prefix="/tips", tags=["tips"])
+router = APIRouter(prefix="/tips", tags=[Tags.tips])
 
 TipDep = Annotated[TipService, Depends(get_tip_service)]
 

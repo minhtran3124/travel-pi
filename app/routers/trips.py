@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, Path, Query, status
 
+from app.routers.tags import Tags
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.saved_place import ShortlistEntry
@@ -26,7 +27,7 @@ from app.schemas.trip import (
 )
 from app.services.trip_service import TripService, estimate_trip, get_trip_service
 
-router = APIRouter(prefix="/trips", tags=["trips"])
+router = APIRouter(prefix="/trips", tags=[Tags.trips], responses=error_responses(422))
 
 TripsDep = Annotated[TripService, Depends(get_trip_service)]
 
@@ -39,7 +40,6 @@ _ITEM_ID = Annotated[str, Path(description="Item UUID", examples=["a2b4c6d8-..."
     response_model=Trip,
     status_code=status.HTTP_201_CREATED,
     summary="Create a trip itinerary (with optional initial items)",
-    responses=error_responses(422),
 )
 def create_trip(
     trips: TripsDep,
@@ -66,7 +66,6 @@ def create_trip(
     "/estimate",
     response_model=TripEstimateResponse,
     summary="Estimate a trip's budget (calculation only — nothing is stored)",
-    responses=error_responses(422),
 )
 def estimate_trip_budget(body: TripEstimateRequest) -> TripEstimateResponse:
     """Compute a line-item budget estimate. Pure calculation; no DB, no state."""
@@ -77,7 +76,6 @@ def estimate_trip_budget(body: TripEstimateRequest) -> TripEstimateResponse:
     "",
     response_model=TripListResponse,
     summary="List trips (paginated, newest first)",
-    responses=error_responses(422),
 )
 def list_trips(trips: TripsDep, pagination: PaginationDep) -> TripListResponse:
     """Return trips with the shared limit/offset pagination envelope."""
@@ -91,7 +89,7 @@ def list_trips(trips: TripsDep, pagination: PaginationDep) -> TripListResponse:
     "/{trip_id}",
     response_model=TripDetail,
     summary="Retrieve one trip by UUID (includes computed total_spent and gaps)",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def get_trip(trips: TripsDep, trip_id: _TRIP_ID) -> TripDetail:
     """Return a trip and its items enriched with total_spent and coverage gaps.
@@ -128,7 +126,7 @@ async def get_day_plan(
     "/{trip_id}/budget",
     response_model=TripBudget,
     summary="Per-category budget: caps (planned) vs booked spend",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def get_trip_budget(trips: TripsDep, trip_id: _TRIP_ID) -> TripBudget:
     """Return flights/hotels/activities/buffer caps vs spent vs remaining.
@@ -143,7 +141,7 @@ def get_trip_budget(trips: TripsDep, trip_id: _TRIP_ID) -> TripBudget:
     "/{trip_id}/budget",
     response_model=TripBudget,
     summary="Set a trip's per-category budget caps (replace)",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def set_trip_budget(
     trips: TripsDep, trip_id: _TRIP_ID, body: TripBudgetSet
@@ -161,7 +159,7 @@ def set_trip_budget(
     "/{trip_id}",
     response_model=Trip,
     summary="Replace a trip's top-level fields",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def update_trip(trips: TripsDep, trip_id: _TRIP_ID, body: TripUpdate) -> Trip:
     """Replace the trip's title/city/dates/travelers/notes. Items unchanged."""
@@ -172,7 +170,7 @@ def update_trip(trips: TripsDep, trip_id: _TRIP_ID, body: TripUpdate) -> Trip:
     "/{trip_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a trip and its items",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def delete_trip(trips: TripsDep, trip_id: _TRIP_ID) -> None:
     """Hard-delete a trip and all of its items. 404 if unknown."""
@@ -184,7 +182,7 @@ def delete_trip(trips: TripsDep, trip_id: _TRIP_ID) -> None:
     response_model=TripItem,
     status_code=status.HTTP_201_CREATED,
     summary="Add an item to a trip",
-    responses=error_responses(404, 409, 422),  # 409 = over budget
+    responses=error_responses(404, 409),  # 409 = over budget
 )
 def add_item(
     trips: TripsDep,
@@ -215,7 +213,7 @@ def add_item(
     "/{trip_id}/items/{item_id}",
     response_model=TripItem,
     summary="Replace an item on a trip",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def update_item(
     trips: TripsDep, trip_id: _TRIP_ID, item_id: _ITEM_ID, body: TripItemUpdate
@@ -228,7 +226,7 @@ def update_item(
     "/{trip_id}/items/{item_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete an item from a trip",
-    responses=error_responses(404, 422),
+    responses=error_responses(404),
 )
 def delete_item(trips: TripsDep, trip_id: _TRIP_ID, item_id: _ITEM_ID) -> None:
     """Delete one item. 404 if the trip or item does not match."""
@@ -246,7 +244,7 @@ _LINK_ID = Annotated[
     response_model=ShortlistEntry,
     status_code=status.HTTP_201_CREATED,
     summary="Shortlist a place (catalog or saved) onto a trip",
-    responses=error_responses(404, 409, 422),
+    responses=error_responses(404, 409),
 )
 def add_trip_place(
     trips: TripsDep, trip_id: _TRIP_ID, body: AddTripPlaceRequest
