@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from app.core.params import parse_optional_number
 from app.enums import PlaceCategory, PlaceSort
 from app.exceptions import NotFoundError
+from app.routers.tags import Tags
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.place import (
@@ -28,7 +29,7 @@ from app.services.place_service import PlaceService, get_place_service
 from app.services.routing_service import RoutingService, get_routing_service
 from app.services.saved_place_service import SavedPlaceDep
 
-router = APIRouter(prefix="/places", tags=["places"])
+router = APIRouter(prefix="/places", tags=[Tags.places])
 
 PlaceDep = Annotated[PlaceService, Depends(get_place_service)]
 RoutingDep = Annotated[RoutingService, Depends(get_routing_service)]

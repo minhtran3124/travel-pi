@@ -4,11 +4,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.routers.tags import Tags
 from app.schemas.error import error_responses
 from app.schemas.visa import VisaResponse
 from app.services.visa_service import VisaService, get_visa_service
 
-router = APIRouter(prefix="/visa", tags=["visa"])
+router = APIRouter(prefix="/visa", tags=[Tags.visa])
 
 VisaDep = Annotated[VisaService, Depends(get_visa_service)]
 

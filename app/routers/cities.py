@@ -9,13 +9,14 @@ from app.core.text import best_match, fuzzy_filter
 from app.db.session import get_session
 from app.exceptions import NotFoundError
 from app.repositories.city import CityRepository
+from app.routers.tags import Tags
 from app.schemas.city import City, CityListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.route import RouteResponse
 from app.services.routing_service import RoutingService, get_routing_service
 
-router = APIRouter(prefix="/cities", tags=["cities"])
+router = APIRouter(prefix="/cities", tags=[Tags.cities])
 
 
 def get_city_repo(

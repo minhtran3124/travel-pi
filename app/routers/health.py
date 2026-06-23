@@ -5,10 +5,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.core.config import get_settings
+from app.routers.tags import Tags
 from app.schemas.base import AppBaseModel
 from app.services.booking_service import BookingService, get_booking_service
 
-router = APIRouter(tags=["health"])
+router = APIRouter(tags=[Tags.health])
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 

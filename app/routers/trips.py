@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, Path, Query, status
 
+from app.routers.tags import Tags
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.saved_place import ShortlistEntry
@@ -26,7 +27,7 @@ from app.schemas.trip import (
 )
 from app.services.trip_service import TripService, estimate_trip, get_trip_service
 
-router = APIRouter(prefix="/trips", tags=["trips"])
+router = APIRouter(prefix="/trips", tags=[Tags.trips])
 
 TripsDep = Annotated[TripService, Depends(get_trip_service)]
 

@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
 from app.exceptions import NotFoundError
+from app.routers.tags import Tags
 from app.schemas.booking import Booking
 from app.schemas.error import error_responses
 from app.schemas.hotel import (
@@ -20,7 +21,7 @@ from app.schemas.pagination import PaginationDep
 from app.services.booking_service import BookingService, get_booking_service
 from app.services.hotel_service import HotelService, get_hotel_service
 
-router = APIRouter(prefix="/hotels", tags=["hotels"])
+router = APIRouter(prefix="/hotels", tags=[Tags.hotels])
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 HotelDep = Annotated[HotelService, Depends(get_hotel_service)]

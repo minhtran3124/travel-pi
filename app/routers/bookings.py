@@ -5,12 +5,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query
 
 from app.enums import BookingSort, BookingType
+from app.routers.tags import Tags
 from app.schemas.booking import Booking, BookingListResponse
 from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.services.booking_service import BookingService, get_booking_service
 
-router = APIRouter(prefix="/bookings", tags=["bookings"])
+router = APIRouter(prefix="/bookings", tags=[Tags.bookings])
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 

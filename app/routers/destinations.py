@@ -5,13 +5,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query
 
 from app.enums import OverviewSection
+from app.routers.tags import Tags
 from app.schemas.climate import ClimateResponse
 from app.schemas.destination import DestinationOverviewResponse
 from app.schemas.error import error_responses
 from app.services import climate_service
 from app.services.destination_service import DestinationService, get_destination_service
 
-router = APIRouter(prefix="/destinations", tags=["destinations"])
+router = APIRouter(prefix="/destinations", tags=[Tags.destinations])
 
 DestinationDep = Annotated[DestinationService, Depends(get_destination_service)]
 

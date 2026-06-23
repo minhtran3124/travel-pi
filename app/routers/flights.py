@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, stat
 
 from app.enums import FlightSort
 from app.exceptions import NotFoundError
+from app.routers.tags import Tags
 from app.schemas.booking import Booking
 from app.schemas.error import error_responses
 from app.schemas.flight import (
@@ -17,7 +18,7 @@ from app.schemas.flight import (
 from app.services.booking_service import BookingService, get_booking_service
 from app.services.flight_service import FlightService, get_flight_service
 
-router = APIRouter(prefix="/flights", tags=["flights"])
+router = APIRouter(prefix="/flights", tags=[Tags.flights])
 
 BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 FlightDep = Annotated[FlightService, Depends(get_flight_service)]

@@ -12,11 +12,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
+from app.routers.tags import Tags
 from app.schemas.error import error_responses
 from app.schemas.weather import PackingResponse, WeatherResponse
 from app.services import weather_service
 
-router = APIRouter(prefix="/weather", tags=["weather"])
+router = APIRouter(prefix="/weather", tags=[Tags.weather])
 
 
 @router.get(
