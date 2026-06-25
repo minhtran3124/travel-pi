@@ -15,6 +15,7 @@ from app.routers import (
     currency,
     dashboard,
     destinations,
+    expenses,
     flights,
     health,
     hotels,
@@ -44,5 +45,6 @@ router.include_router(weather.router)
 router.include_router(air_quality.router)
 router.include_router(bookings.router)
 router.include_router(trips.router)
+router.include_router(expenses.router)
 # Server-rendered HTML dashboard — excluded from the OpenAPI schema.
 router.include_router(dashboard.router)

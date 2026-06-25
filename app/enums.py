@@ -138,6 +138,19 @@ class ActivityLevel(str, Enum):
     LOTS = "lots"
 
 
+class ExpenseCategory(str, Enum):
+    """Categories for on-trip expense ledger entries."""
+
+    FOOD = "food"
+    TRANSPORT = "transport"
+    ACCOMMODATION = "accommodation"
+    ACTIVITIES = "activities"
+    SHOPPING = "shopping"
+    ENTERTAINMENT = "entertainment"
+    HEALTH = "health"
+    OTHER = "other"
+
+
 class BudgetCategory(str, Enum):
     """Spend buckets a per-trip budget cap can target.
 
