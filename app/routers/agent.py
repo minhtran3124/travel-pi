@@ -51,10 +51,14 @@ def _thread_id(req: ChatRequest, conversation_id: str) -> str:
     return f"user_{req.user_id}_trip_{req.trip_id or 'none'}_conv_{conversation_id}"
 
 
-def _config(thread_id: str) -> dict:
+def _config(thread_id: str, req: ChatRequest) -> dict:
+    from app.agents.observability import callbacks, trace_metadata
+
     return {
         "configurable": {"thread_id": thread_id},
         "recursion_limit": get_settings().agent_recursion_limit,
+        "callbacks": callbacks(),
+        "metadata": trace_metadata(req.user_id, req.trip_id),
     }
 
 
@@ -77,7 +81,7 @@ async def agent_chat(
             "user_id": body.user_id,
             "trip_id": body.trip_id,
         },
-        _config(_thread_id(body, conversation_id)),
+        _config(_thread_id(body, conversation_id), body),
     )
     reply = result["messages"][-1].content if result["messages"] else ""
     repo.append_message(
@@ -101,7 +105,7 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
                 "user_id": body.user_id,
                 "trip_id": body.trip_id,
             },
-            _config(_thread_id(body, conversation_id)),
+            _config(_thread_id(body, conversation_id), body),
             stream_mode="messages",
         ):
             content = getattr(chunk, "content", "")
