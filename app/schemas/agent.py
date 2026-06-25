@@ -5,8 +5,45 @@ Entity schemas the repository returns so the ORM stays confined to
 response schemas for the ``/agent`` endpoints are added in Phase 6.
 """
 
+from pydantic import Field
+
 from app.enums import JobStatus, MessageRole
 from app.schemas.base import AppBaseModel
+
+
+class ChatRequest(AppBaseModel):
+    """A turn of input to the agent."""
+
+    message: str = Field(min_length=1, description="The traveller's message.")
+    user_id: str = Field(description="Caller identity (no auth enforced).")
+    trip_id: str | None = Field(
+        default=None, description="Optional trip context for the agent."
+    )
+    conversation_id: str | None = Field(
+        default=None, description="Existing conversation to continue; None starts one."
+    )
+
+
+class ChatResponse(AppBaseModel):
+    """The agent's reply for one turn."""
+
+    conversation_id: str
+    reply: str
+    current_flow: str | None = None
+
+
+class ToolManifestEntry(AppBaseModel):
+    name: str
+    description: str
+    read_only: bool
+    destructive: bool
+
+
+class AgentManifest(AppBaseModel):
+    """Agent capability manifest for clients (roadmap B4)."""
+
+    subagents: list[str]
+    tools: list[ToolManifestEntry]
 
 
 class Message(AppBaseModel):

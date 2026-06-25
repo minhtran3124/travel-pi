@@ -29,3 +29,4 @@ class Tags(str, Enum):
     health = "health"
     meta = "meta"
     dashboard = "dashboard"
+    agent = "agent"
