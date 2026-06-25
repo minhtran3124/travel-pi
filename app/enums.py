@@ -162,3 +162,21 @@ class BudgetCategory(str, Enum):
     HOTELS = "hotels"
     ACTIVITIES = "activities"
     BUFFER = "buffer"
+
+
+class MessageRole(str, Enum):
+    """Author role of a stored conversation message (specs/travel-agent)."""
+
+    USER = "user"
+    ASSISTANT = "assistant"
+    SYSTEM = "system"
+    TOOL = "tool"
+
+
+class JobStatus(str, Enum):
+    """Lifecycle of a long-running agent job (specs/travel-agent)."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"

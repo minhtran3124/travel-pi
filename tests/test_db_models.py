@@ -23,6 +23,9 @@ def test_all_tables_registered():
         "fx_rates",
         "country_currency",
         "fx_meta",
+        "conversations",
+        "messages",
+        "jobs",
     }
 
 
