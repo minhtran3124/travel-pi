@@ -56,6 +56,21 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.exception("Could not initialise database at %s", settings.database_url)
         raise
 
+    # Agent checkpointer — makes the agent stateful across turns/sessions.
+    # Built once and shared; degrades to an in-memory saver if the backend
+    # can't initialise so a missing Postgres never blocks startup.
+    try:
+        from app.agents.checkpointer import get_checkpointer
+
+        app.state.agent_checkpointer = get_checkpointer(settings.database_url)
+        logger.info(
+            "Agent checkpointer ready: %s",
+            type(app.state.agent_checkpointer).__name__,
+        )
+    except Exception:
+        logger.exception("Could not initialise agent checkpointer")
+        app.state.agent_checkpointer = None
+
     logger.info("Startup complete — bookings, trips, and flight-index tables ready")
     yield
     logger.info("Shutting down")

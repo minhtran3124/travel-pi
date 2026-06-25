@@ -18,8 +18,10 @@ langchain-openai>=0.3,<1.0
 langchain-anthropic>=1.0,<2.0
 
 # Checkpointers — SQLite local/test, Postgres in docker/prod.
-langgraph-checkpoint-sqlite>=2.0,<3.0
-langgraph-checkpoint-postgres>=2.0,<4.0
+# Pin >=3.0 to match langgraph-checkpoint 4.x core serializer (2.x calls a
+# removed JsonPlusSerializer.dumps and breaks at runtime).
+langgraph-checkpoint-sqlite>=3.0,<4.0
+langgraph-checkpoint-postgres>=3.0,<4.0
 
 # RAG — pgvector via langchain-postgres.
 langchain-postgres>=0.0.12
