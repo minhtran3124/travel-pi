@@ -436,6 +436,11 @@ class TripService:
             total += booking.total_price
         total_spent = _money(total)
 
+        # Remaining budget rollup: total of set caps minus total_spent. Null when
+        # no cap is set anywhere — mirrors TripBudget.total_remaining (#12).
+        caps = self._repo.get_budget_caps(trip_id)
+        remaining_budget = _money(sum(caps.values()) - total_spent) if caps else None
+
         # Gap detection: iterate day range when dates are known.
         gaps: list[str] = []
         if trip.start_date is not None and trip.end_date is not None:
@@ -465,6 +470,7 @@ class TripService:
         return TripDetail(
             **trip.model_dump(),
             total_spent=total_spent,
+            remaining_budget=remaining_budget,
             gaps=gaps,
             places=self.list_trip_places(trip_id),
         )

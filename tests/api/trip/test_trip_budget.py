@@ -181,3 +181,36 @@ def test_item_add_without_booking_never_blocked(client):
     trip = _create_trip(client)
     client.post(f"/trips/{trip['id']}/budget", json={"flights": 1})
     assert _add_item(client, trip["id"]).status_code == 201  # no booking_id
+
+
+# --------------------------------------------------------------------------- #
+# remaining_budget rollup on TripDetail (#1 — depends on #12 budget caps)
+# --------------------------------------------------------------------------- #
+
+
+def test_trip_detail_remaining_budget_null_without_caps(client):
+    trip = _create_trip(client)
+    body = client.get(f"/trips/{trip['id']}").json()
+    assert body["remaining_budget"] is None
+
+
+def test_trip_detail_remaining_budget_equals_total_cap_unspent(client):
+    trip = _create_trip(client)
+    client.post(f"/trips/{trip['id']}/budget", json={"flights": 700, "hotels": 600})
+    body = client.get(f"/trips/{trip['id']}").json()
+    # Nothing spent yet → remaining is the full summed cap.
+    assert body["remaining_budget"] == 1300.0
+    assert body["total_spent"] == 0.0
+
+
+def test_trip_detail_remaining_budget_nets_linked_spend(client, _flight_booking):
+    booking_id, price = _flight_booking
+    trip = _create_trip(client)
+    client.post(f"/trips/{trip['id']}/budget", json={"flights": price + 1000})
+    assert _add_item(client, trip["id"], booking_id=booking_id).status_code == 201
+    body = client.get(f"/trips/{trip['id']}").json()
+    # remaining == total_cap - total_spent, and stays consistent with /budget.
+    assert body["total_spent"] == price
+    assert body["remaining_budget"] == price + 1000 - price
+    budget = client.get(f"/trips/{trip['id']}/budget").json()
+    assert body["remaining_budget"] == budget["total_remaining"]
