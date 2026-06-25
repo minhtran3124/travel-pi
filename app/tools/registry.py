@@ -15,14 +15,14 @@ from app.tools.flight_tools import FLIGHT_TOOLS
 from app.tools.hotel_tools import HOTEL_TOOLS
 from app.tools.memory_tools import MEMORY_TOOLS
 from app.tools.place_tools import PLACE_TOOLS
+from app.tools.rag_tools import RAG_TOOLS
 from app.tools.trip_tools import TRIP_TOOLS
 from app.tools.weather_tools import WEATHER_TOOLS
 
-# Tools grouped by the sub-agent that should bind them. The concierge also gets
-# a RAG retriever tool appended at graph-build time (Phase 5) once RAG exists.
+# Tools grouped by the sub-agent that should bind them.
 TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
     "planner": TRIP_TOOLS + PLACE_TOOLS + FLIGHT_TOOLS + HOTEL_TOOLS + WEATHER_TOOLS,
-    "concierge": PLACE_TOOLS + WEATHER_TOOLS,
+    "concierge": PLACE_TOOLS + WEATHER_TOOLS + RAG_TOOLS,
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
     "booking": FLIGHT_TOOLS + HOTEL_TOOLS,
     "budget": EXPENSE_TOOLS + [t for t in TRIP_TOOLS if t.name == "get_trip_budget"],
