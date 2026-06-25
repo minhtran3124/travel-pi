@@ -12,6 +12,7 @@
 # Core graph + framework.
 langgraph>=1.0,<2.0
 langchain>=1.0,<2.0
+langchain-text-splitters>=0.3,<1.0  # RAG chunking (not pulled transitively by langchain 1.x)
 
 # Provider integrations (provider-agnostic via init_chat_model()).
 langchain-openai>=0.3,<1.0
