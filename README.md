@@ -15,7 +15,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 make install    # create venv + install deps
 make dev        # start at http://localhost:8000
-make test       # 663 tests on SQLite
+make test       # 685 tests on SQLite
 ```
 
 ### Docker + Postgres
@@ -38,7 +38,7 @@ make exec-db    # psql in the db container
 ### Tests on isolated Postgres
 
 ```bash
-make test-docker    # 663 tests against a throwaway Postgres DB
+make test-docker    # 685 tests against a throwaway Postgres DB
 ```
 
 ## Database
@@ -78,7 +78,7 @@ npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 ## Notes
 
 - **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.
-- **Hotels** are a fixed list of 51 across 18 Southeast Asian cities.
+- **Hotels** are a fixed list of 154 across 49 cities in 14 Asian countries (Southeast & East Asia).
 - **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
 - **CORS** is fully open.
 - `/docs` is disabled when `ENVIRONMENT=production`.

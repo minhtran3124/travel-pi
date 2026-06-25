@@ -16,7 +16,10 @@ wrong one.
 
 A FastAPI mock backend for a Travel Planner agent: flights, hotels, bookings,
 places, tips, weather, cities. Everything is faked (no keys/payments/external
-calls) **except** `/weather` (Open-Meteo) and `/*/route` (OpenRouteService).
+calls) **except** the keyless Open-Meteo calls — `/weather` (Forecast +
+Geocoding), `/air-quality` (Air-Quality API), and `/destinations/{city}/climate`
+(ERA5 Archive) — and `/*/route` (OpenRouteService, offline haversine fallback).
+The three Open-Meteo services share `weather_service._fetch_json`/`geocode_city`.
 Current endpoint list lives in `APIS.md`; `mock-api-spec.md` is the original
 contract (now stale on layout).
 
@@ -30,13 +33,13 @@ selected by `DATABASE_URL`. See `README.md` for the full three-path run guide.
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt
 make dev                                            # uvicorn, Swagger at /docs
-make test                                           # 663 tests on SQLite
+make test                                           # 685 tests on SQLite
 
 make seed                                           # re-seed app/data into DATABASE_URL (idempotent; auto-runs on startup)
 
 # Docker + Postgres (migrations run automatically via the entrypoint)
 make up                                             # app at :8000, Postgres in a container
-make test-docker                                    # 663 tests on isolated Postgres (cross-engine parity)
+make test-docker                                    # 685 tests on isolated Postgres (cross-engine parity)
 
 ruff check app scripts && ruff format app scripts
 ```
