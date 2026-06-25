@@ -30,3 +30,6 @@ pgvector>=0.3,<1.0
 
 # Observability.
 langfuse>=3.0,<5.0
+
+# MCP server — expose agent tools to external clients (Phase 9 / roadmap B11).
+mcp>=1.2,<2.0
