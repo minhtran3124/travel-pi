@@ -2,10 +2,12 @@
 
 A deep analysis of where the codebase is and where it could go to better support an LLM agent doing tool-calling. Grouped by impact.
 
-> **Status refresh (2026-06-17):** This doc was originally written against an earlier
+> **Status refresh (2026-06-25):** This doc was originally written against an earlier
 > snapshot. Since then a wave of work landed (`trips`, `visa`, `currency`, `destinations`,
-> `air-quality` routers; error `hint` field; short codes; field descriptions). Items below
-> are tagged so an agent doesn't re-implement what already ships.
+> `air-quality` routers; error `hint` field; short codes; field descriptions). Since the
+> 2026-06-17 refresh, **budget endpoints (#12, PR #8)** and **symmetric flight booking
+> inputs (#9)** shipped, and field descriptions on the newer schemas (#6) are now complete.
+> Items below are tagged so an agent doesn't re-implement what already ships.
 >
 > **Legend:** ✅ Done · 🔶 Partial (primitive shipped, value-layer open) · ⬜ Not started
 
@@ -13,31 +15,33 @@ A deep analysis of where the codebase is and where it could go to better support
 
 Solid mock REST API with deterministic generation, clean layering, typed schemas. The
 UI-vs-agent gap has **narrowed** — a trip grouping primitive, recovery hints, human-friendly
-codes, and rich field descriptions are all in. What remains is the **agent-orchestration
-layer**: quote-then-book, composite `/agent/*` endpoints, an MCP wrapper, and the
-*value computations* on top of trips (budget, gaps, day-plan).
+codes, rich field descriptions, the trip value-layer (`total_spent` / `gaps` / day-plan),
+and per-category **budget** caps (#12) are all in. What remains is the **agent-orchestration
+layer**: quote-then-book, composite `/agent/*` endpoints, an MCP wrapper, and the last small
+trip rollup (`remaining_budget`, #1 — now unblocked by #12).
 
 ---
 
 ## Tier 1 — High leverage for tool-calling (biggest impact, lowest cost)
 
-### 1. 🔶 Trip / Itinerary value-layer (most of the value-layer now shipped)
+### 1. ✅ Trip / Itinerary value-layer — DONE
 
-The grouping primitive ships and **most of the computed value-layer has landed**
+The grouping primitive ships and **the computed value-layer is now complete**
 (`app/routers/trips.py`, `app/services/trip_service.py`, `app/schemas/trip.py`):
 
 - ✅ `GET /trips/{id}` returns computed `total_spent` (`TripDetail.total_spent`,
-  `app/schemas/trip.py:138`) and `gaps` (`app/schemas/trip.py:141`, e.g. "Day 3 has no
-  accommodation"). **Remaining:** no `remaining_budget` field yet (no per-trip budget target
-  is stored — see #12; `POST /trips/estimate` exists as a stateless estimator).
+  `app/schemas/trip.py:138`), `gaps` (`app/schemas/trip.py:141`, e.g. "Day 3 has no
+  accommodation"), and now **`remaining_budget`** (summed budget caps − `total_spent`, null
+  when uncapped; `app/services/trip_service.py` `get_trip_detail`) — reuses the #12 caps so
+  budget headroom is available in one call. Spec `specs/trip-remaining-budget/`.
 - ✅ Trip items link to a `booking_id` (`TripItemCreate.booking_id`, `app/schemas/trip.py:38`),
   so booked spend rolls into `total_spent`.
 - ✅ `GET /trips/{id}/day-plan?date=YYYY-MM-DD` ships (`app/routers/trips.py:86`) — ordered
   items with travel time between them (`travel_to_next_minutes` / `travel_to_next_mode` via
   `routing_service`, `app/services/trip_service.py:205`) plus a `weather_score` per day (#14).
 
-What's left here is small: the `remaining_budget` rollup, which depends on a stored budget
-target (#12).
+Nothing left here — the `remaining_budget` rollup on `TripDetail` shipped once #12 provided
+the stored caps it depended on.
 
 ### 2. ⬜ Quote / Hold before confirm
 
@@ -75,9 +79,9 @@ The natural form factor for a tool-calling agent is **MCP**, not raw HTTP. Add a
 ### 6. ✅ Rich field descriptions everywhere — DONE
 
 Most Pydantic fields now carry `Field(..., description="…", examples=[…])` across
-`place`, `flight`, `hotel`, `weather` schemas (~80%+ coverage). **Remaining:** sweep the
-newer schemas (`trip`, `visa`, `currency`, `destinations`, `air_quality`) and any bare
-fields for parity.
+`place`, `flight`, `hotel`, `weather` schemas (~80%+ coverage). The newer schemas
+(`trip`, `visa`, `currency`, `destinations`, `air_quality`) now carry `Field(description=…)`
+too — the parity sweep this item flagged is closed.
 
 ### 7. ✅ Structured error hints — DONE
 
@@ -92,9 +96,12 @@ Hotels expose a `short_code` (`HTL-…`), places a `short_code` (`PLC-…`), and
 `confirmation_code`; flight IDs remain human-readable (`FL_HAN_BKK_20260601_03`). The raw-UUID
 gap this item flagged is closed.
 
-### 9. ⬜ Symmetric booking inputs
+### 9. ✅ Symmetric booking inputs — DONE
 
-`POST /flights/book` still takes flight_number + route + date; `POST /hotels/book` takes hotel_id. Make `flight_id` accepted as an alternative on flight booking so an agent can do `search → pick id → book` without unpacking the ID. (`FlightBookingRequest` in `app/schemas/flight.py` has no `flight_id` field today.)
+`FlightBookingRequest` now accepts a `flight_id` as an alternative to flight_number + route +
+date (`app/schemas/flight.py:155`), so an agent can do `search → pick id → book` without
+unpacking the ID — mirroring the hotel_id flow. Shipped on `feat/symmetric-booking-inputs`
+(spec `specs/symmetric-booking-inputs/`, delivered 2026-06-20).
 
 ---
 
@@ -115,10 +122,20 @@ gap this item flagged is closed.
 
 - `GET /trips/{id}/transit?from_item=…&to_item=…` — uses item start/end times to suggest mode and warn about tight connections ("only 20 min between activities, but routing says 35 min by car")
 
-### 12. ⬜ Budget endpoints
+### 12. ✅ Budget endpoints — DONE
 
-- `GET /trips/{id}/budget` — by category (flights/hotels/activities/buffer), planned vs. spent
-- `POST /trips/{id}/budget` — set a target; bookings that would exceed it return a 409 with a `hint`
+Shipped in **PR #8** (spec `specs/trip-budget/`, 2026-06-19; commits `afff1b3` / `af6362e` /
+`63f5e75`):
+
+- ✅ `GET /trips/{id}/budget` (`app/routers/trips.py:128`) — per-category caps (flights /
+  hotels / activities / buffer) vs. booked spend, with `total_remaining` and an `over_budget`
+  flag (`TripBudget`, `app/schemas/trip.py:302`).
+- ✅ `POST /trips/{id}/budget` (`app/routers/trips.py:142`) — replace-semantics setter for the
+  caps, stored in the `budget_caps` JSON column (`app/db/models/trip.py:20`).
+- ✅ Over-cap enforcement: adding a trip item whose linked booking would push a category past
+  its cap returns **409** (`_enforce_budget`, `app/services/trip_service.py:377`). Enforced at
+  `POST /trips/{id}/items` (the only trip↔booking link point), not at the trip-unaware book
+  endpoints. Covered by `tests/api/trip/test_trip_budget.py` (12 tests).
 
 ### 13. 🔶 Visa / docs / currency helpers — currency & visa DONE, entry-requirements shape differs
 
@@ -169,12 +186,14 @@ All five shipped on `feat/tier4-robustness-ops`; specs in `specs/tier4-robustnes
 
 1. ~~Finish what's staged (typed `BookingDetails`, invariants) — commit it.~~ ✅ Done.
 2. ~~**Trip value-layer** — `total_spent` / `gaps` on `GET /trips/{id}`, booking↔trip linkage,
-   `/trips/{id}/day-plan`.~~ ✅ Mostly done (#1); only `remaining_budget` (needs #12) remains.
+   `/trips/{id}/day-plan`, `remaining_budget` rollup.~~ ✅ Done (#1, complete).
 3. **`/agent/plan` + `/agent/manifest`** — single PR, biggest remaining agent-UX jump.
-4. **Quote-then-book** for flights & hotels (+ `flight_id` symmetry, #9).
-5. Polish: hint text at raise sites, field descriptions on newer schemas, `operationId`s, `/healthz`.
+4. **Quote-then-book** for flights & hotels (#2). ~~+ `flight_id` symmetry, #9~~ ✅ symmetry done.
+5. Polish: hint text at raise sites (#7). ~~field descriptions on newer schemas, `operationId`s,
+   `/healthz`~~ ✅ those shipped (#6 / PR #4).
 6. **MCP server wrapper** — exposes the above to Claude directly.
-7. Then: budget, transit, activity booking, packing helpers as separate small PRs.
+7. Then: ~~budget~~ ✅ (#12), transit (#11), activity booking (#15) as separate small PRs.
+   ~~packing helpers~~ ✅ (#14).
 
 ---
 
@@ -210,18 +229,20 @@ All five shipped on `feat/tier4-robustness-ops`; specs in `specs/tier4-robustnes
 
 ### Key friction points for agents (remaining only)
 
-1. Trip value-layer mostly shipped — `total_spent` / `gaps` / day-plan / booking linkage all in; only `remaining_budget` (needs a stored budget target, #12) remains
+1. ~~Trip value-layer~~ ✅ complete (#1) — `total_spent` / `gaps` / day-plan / booking linkage / per-category budget caps (#12) / `remaining_budget` rollup all in
 2. No quote-before-book
 3. No batch / composite (`/agent/plan`) endpoints
-4. Asymmetric booking inputs (flight uses number+route+date; no `flight_id` accepted)
+4. ~~Asymmetric booking inputs~~ ✅ closed (#9): `flight_id` now accepted on flight booking
 5. No MCP wrapper; agent must consume raw HTTP
 6. No `/agent/manifest` discovery / enum endpoints
-7. No budget / transit helpers; activities discoverable but not bookable (packing helper now ships, #14)
+7. No transit helper (#11); activities discoverable but not bookable (#15). Budget (#12) and packing (#14) helpers now ship
 8. ~~Tier-4 ops gaps: no `operationId`s, no `/healthz`, idempotency limited to two book endpoints~~ ✅ closed (PR #4); remaining Tier-4 idea: rate-limit *enforcement* (only informational headers ship)
 9. No multi-leg flights or round-trip-as-unit
 
 > **Resolved since the original draft:** trip grouping primitive, error `hint` field,
 > human-friendly short codes (hotels/places) + booking confirmation codes, rich field
-> descriptions on core schemas, currency conversion, visa guidance, trip value-layer
-> (`total_spent` / `gaps` / booking linkage / day-plan), weather-aware packing +
-> per-day `weather_score`, and the natural-language search shim (`POST /places/search/nl`).
+> descriptions on core *and* newer schemas (#6), currency conversion, visa guidance, trip
+> value-layer (`total_spent` / `gaps` / booking linkage / day-plan), weather-aware packing +
+> per-day `weather_score`, the natural-language search shim (`POST /places/search/nl`),
+> symmetric flight booking inputs (#9, `flight_id`), and per-category trip **budget**
+> endpoints (#12, `GET`/`POST /trips/{id}/budget` + over-cap 409).

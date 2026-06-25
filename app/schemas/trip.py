@@ -147,6 +147,14 @@ class TripDetail(Trip):
     total_spent: float = Field(
         description="Sum of linked, non-cancelled booking prices (USD)."
     )
+    remaining_budget: float | None = Field(
+        default=None,
+        description="Total budget cap minus total_spent (USD); negative when over "
+        "budget, null when no per-category cap is set. Same value as "
+        "GET /trips/{id}/budget's total_remaining, surfaced here so the rollup is "
+        "available in one call.",
+        examples=[400.0],
+    )
     gaps: list[str] = Field(
         default_factory=list,
         description="Human-readable coverage gaps, e.g. 'Day 3 has no accommodation'.",
