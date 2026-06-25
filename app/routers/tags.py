@@ -25,6 +25,7 @@ class Tags(str, Enum):
     air_quality = "air-quality"
     bookings = "bookings"
     trips = "trips"
+    expenses = "expenses"
     health = "health"
     meta = "meta"
     dashboard = "dashboard"

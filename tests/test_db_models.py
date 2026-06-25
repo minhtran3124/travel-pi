@@ -5,6 +5,7 @@ from app.db.base import Base
 def test_all_tables_registered():
     assert set(Base.metadata.tables) == {
         "bookings",
+        "expenses",
         "trips",
         "trip_items",
         "trip_place_link",
