@@ -21,13 +21,28 @@ from app.db.session import get_session
 from app.exceptions import NotFoundError
 from app.repositories.place_ref import PlaceRepository
 from app.repositories.saved_place import SavedPlaceRepository
-from app.schemas.place import NearbyPlace, ParsedQuery, Place
+from app.schemas.place import NearbyPlace, ParsedQuery, Place, PlaceCategoryInfo
 from app.schemas.saved_place import SavedPlace
 
 # Valid sort keys live in ``app.enums.PlaceSort`` (the JSON router validates
 # against the enum). The actual sort dispatch happens via the if/elif chain
 # in ``search_places`` below.
 DEFAULT_SORT = "rating_desc"
+
+# Static display metadata per place category: (color, icon). Colors mirror the
+# dashboard "Sunset" palette in ``app/templates/places.html`` (``cat_colors``) so
+# the dashboard, this API, and any FE codegen share one source of truth; icon
+# keys are short lucide-style strings the FE maps to its own icon set. A category
+# with no entry falls back to ``_FALLBACK`` (neutral) rather than erroring.
+CATEGORY_META: dict[str, tuple[str, str]] = {
+    "attraction": ("#38bdf8", "camera"),
+    "restaurant": ("#fb923c", "utensils"),
+    "cafe": ("#fbbf24", "coffee"),
+    "activity": ("#34d399", "ticket"),
+    "nightlife": ("#f87171", "wine"),
+    "shopping": ("#c4b5fd", "shopping-bag"),
+}
+_FALLBACK: tuple[str, str] = ("#94a3b8", "map-pin")
 
 
 class PlaceService:
@@ -37,9 +52,22 @@ class PlaceService:
         self._session = session
         self._place = PlaceRepository(session)
 
-    def categories(self) -> list[str]:
-        """Distinct place categories, sorted (mirrors the old ``CATEGORIES`` list)."""
-        return self._place.distinct_categories()
+    def categories(self) -> list[PlaceCategoryInfo]:
+        """Distinct place categories with display metadata, sorted by name.
+
+        Each category is enriched with its ``color``/``icon`` from
+        ``CATEGORY_META`` (falling back to ``_FALLBACK`` for any unmapped value,
+        so a newly-seeded category never errors). Order mirrors the old
+        sorted ``list[str]``.
+        """
+        return [
+            PlaceCategoryInfo(
+                name=name,
+                color=CATEGORY_META.get(name, _FALLBACK)[0],
+                icon=CATEGORY_META.get(name, _FALLBACK)[1],
+            )
+            for name in self._place.distinct_categories()
+        ]
 
     def cities(self) -> list[str]:
         """Distinct place cities, sorted (mirrors the old ``CITIES`` list)."""
