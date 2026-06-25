@@ -4,7 +4,8 @@ ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
 
 # psycopg[binary] ships its own libpq, so no apt postgresql-client needed.
-COPY requirements.txt .
+# requirements.txt pulls in requirements-ai.txt (the LangChain/LangGraph stack).
+COPY requirements.txt requirements-ai.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .

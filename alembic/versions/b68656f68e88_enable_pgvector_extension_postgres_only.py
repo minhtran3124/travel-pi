@@ -26,8 +26,24 @@ def upgrade() -> None:
     guarantees the ``vector`` type exists.
     """
     bind = op.get_bind()
-    if bind.dialect.name == "postgresql":
+    if bind.dialect.name != "postgresql":
+        return
+    # Tolerant: a stock Postgres image may not ship the pgvector extension. RAG
+    # is opt-in, so a missing extension must not fail the migration chain (which
+    # would break the cross-engine test image). Probe availability first so we
+    # never run a statement that would poison the transaction.
+    available = bind.exec_driver_sql(
+        "SELECT 1 FROM pg_available_extensions WHERE name = 'vector'"
+    ).first()
+    if available:
         op.execute("CREATE EXTENSION IF NOT EXISTS vector")
+    else:
+        import logging
+
+        logging.getLogger("alembic").warning(
+            "pgvector not available on this server; RAG vector store disabled "
+            "until the extension is installed."
+        )
 
 
 def downgrade() -> None:

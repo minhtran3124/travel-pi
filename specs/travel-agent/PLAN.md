@@ -426,3 +426,8 @@ Phase 6+7 (1 PR API+trace), Phase 8 (1 PR eval), Phase 9 (PR riêng, sau).
 - 2026-06-25 — Plan khởi tạo từ deep-review travel-pi + 2 codebase tham khảo (chat-agents, mizumi) +
   research best-practice (LangGraph 1.x, pgvector RAG, Langfuse, RAGAS). Quyết định nền chốt với owner.
   Tất cả task: ⬜ proposed.
+- 2026-06-25 — **Phases 0–9 ✅ shipped** on branch `feat/travel-agent-foundation` (off v3), one commit
+  per phase. Full SQLite suite 843 passed; alembic no drift; ruff clean. Cross-engine (Postgres/py3.12)
+  via `make test-docker`. See SUMMARY.md `### Verify`. Notable: langgraph-checkpoint-sqlite/postgres
+  bumped to 3.x (2.x runtime break); langchain-text-splitters + mcp added; pgvector migration probes
+  availability (no-op on stock Postgres). RAG/Postgres-store are Postgres-only; tests use in-memory fakes.
