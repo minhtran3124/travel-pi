@@ -10,6 +10,23 @@ from app.schemas.pagination import PagedResponse
 PLACE_CODE_PREFIX = "PLC"
 
 
+class PlaceCategoryInfo(AppBaseModel):
+    """A place category with its display metadata (color + icon).
+
+    Returned by ``GET /places/categories``. ``color`` is a ``#rrggbb`` hex string
+    aligned with the dashboard "Sunset" palette; ``icon`` is a short string key
+    the frontend maps to its own icon set.
+    """
+
+    name: str = Field(description="Category key.", examples=["restaurant"])
+    color: str = Field(
+        description="Signature hex color (#rrggbb).", examples=["#fb923c"]
+    )
+    icon: str = Field(
+        description="Short icon key for the FE icon set.", examples=["utensils"]
+    )
+
+
 class Place(AppBaseModel):
     """A point of interest — attraction, restaurant, café, activity, etc."""
 

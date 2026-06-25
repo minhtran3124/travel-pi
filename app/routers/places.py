@@ -12,6 +12,7 @@ from app.schemas.error import error_responses
 from app.schemas.pagination import PaginationDep
 from app.schemas.place import (
     Place,
+    PlaceCategoryInfo,
     PlaceListResponse,
     PlaceNearbyResponse,
     PlaceNLSearchRequest,
@@ -198,11 +199,15 @@ def list_place_cities(places: PlaceDep) -> list[str]:
 
 @router.get(
     "/categories",
-    response_model=list[str],
+    response_model=list[PlaceCategoryInfo],
     summary="List all place categories",
 )
-def list_categories(places: PlaceDep) -> list[str]:
-    """Return the sorted list of available place categories."""
+def list_categories(places: PlaceDep) -> list[PlaceCategoryInfo]:
+    """Return the available place categories, each with a color + icon.
+
+    Sorted by ``name``. ``color`` is a ``#rrggbb`` hex aligned with the dashboard
+    palette; ``icon`` is a short key for the frontend icon set.
+    """
     return places.categories()
 
 

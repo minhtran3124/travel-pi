@@ -120,7 +120,8 @@ def test_categories_status(client: TestClient) -> None:
 def test_categories_is_sorted_list(client: TestClient) -> None:
     cats = client.get("/places/categories").json()
     assert isinstance(cats, list)
-    assert cats == sorted(cats)
+    names = [c["name"] for c in cats]
+    assert names == sorted(names)
 
 
 # ── Search (paginated) ────────────────────────────────────────────────────────
