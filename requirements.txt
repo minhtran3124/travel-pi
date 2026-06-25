@@ -17,6 +17,9 @@ sqlalchemy>=2.0.0,<2.1.0
 psycopg[binary]>=3.1.0,<4.0.0   # psycopg 3 driver: postgresql+psycopg://
 alembic>=1.13.0,<2.0.0
 
+# AI / Agent layer — see requirements-ai.txt (LangChain/LangGraph stack).
+-r requirements-ai.txt
+
 # dev / test
 pytest>=9.0.0,<10.0.0
 ruff>=0.15.0,<1.0.0

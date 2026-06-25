@@ -104,6 +104,33 @@ class Settings(BaseSettings):
     # Advertised so agents can self-throttle.
     rate_limit_nominal: int = 1000
 
+    # --- AI / Agent layer (specs/travel-agent) ---
+    # Provider-agnostic: the agent layer builds models via init_chat_model(),
+    # so switching provider is an env change, not a code change. Every value
+    # has a safe default and NO key is required — the suite runs with FakeLLM
+    # and never touches the network, so zero-config local dev still works.
+    llm_provider: Literal["openai", "anthropic", "google"] = "openai"
+    llm_model: str = "gpt-4.1"
+    fast_llm_model: str = "gpt-4.1-mini"  # cheap model for sub-agents / summarize
+    embedding_model: str = "text-embedding-3-small"
+
+    # API keys — optional; only needed when a real model is wired in. Left
+    # unset for local dev and CI (tests inject a fake client).
+    openai_api_key: str | None = None
+    anthropic_api_key: str | None = None
+    google_api_key: str | None = None
+
+    # Langfuse observability — disabled by default so test/CI never emit traces
+    # or require keys. Enable + set keys in a real deployment.
+    langfuse_enabled: bool = False
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
+    langfuse_host: str = "https://cloud.langfuse.com"
+
+    # Agent runtime knobs.
+    agent_recursion_limit: int = 25  # LangGraph recursion guard per invocation
+    summarize_threshold: int = 20  # compress history once messages exceed this
+
     @property
     def is_production(self) -> bool:
         """True when running in a production deployment."""
