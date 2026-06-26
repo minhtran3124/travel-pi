@@ -1,0 +1,12 @@
+{
+  "name": "@travel/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "FastAPI backend (Python). Thin package so Turborepo can orchestrate it.",
+  "scripts": {
+    "dev": "make dev",
+    "test": "make test",
+    "lint": "make lint",
+    "build": "echo \"no build step for the python api\""
+  }
+}
