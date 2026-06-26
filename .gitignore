@@ -32,6 +32,11 @@ scripts/
 
 node_modules/
 
+# Next.js / frontend build output
+.next/
+out/
+next-env.d.ts
+
 # Claude Code — personal, machine-local settings (shared settings.json IS tracked)
 .claude/settings.local.json
 .claude/skills/
@@ -43,6 +48,7 @@ node_modules/
 .impeccable/
 .opencode/
 .turbo/
+.playwright-mcp/
 
 # Derived plan-render artifacts (visual-planner)
 specs/**/PLAN.html

@@ -1,0 +1,35 @@
+# AI / Agent layer dependencies (specs/travel-agent).
+#
+# Split out from requirements.txt because the LangChain 1.x / LangGraph 1.x
+# stack pulls a large transitive tree that must resolve together. Kept separate
+# so the core mock-API install stays lean and any AI-dep conflict is isolated
+# here. Pinned to current majors; loosen as we validate.
+#
+# NOTE: must NOT force an upgrade of fastapi/starlette/pydantic beyond the caps
+# in requirements.txt (fastapi<0.137, starlette<1.3) — if a transitive dep
+# demands a newer one, stop and escalate rather than nudging those caps.
+
+# Core graph + framework.
+langgraph>=1.0,<2.0
+langchain>=1.0,<2.0
+langchain-text-splitters>=0.3,<1.0  # RAG chunking (not pulled transitively by langchain 1.x)
+
+# Provider integrations (provider-agnostic via init_chat_model()).
+langchain-openai>=0.3,<1.0
+langchain-anthropic>=1.0,<2.0
+
+# Checkpointers — SQLite local/test, Postgres in docker/prod.
+# Pin >=3.0 to match langgraph-checkpoint 4.x core serializer (2.x calls a
+# removed JsonPlusSerializer.dumps and breaks at runtime).
+langgraph-checkpoint-sqlite>=3.0,<4.0
+langgraph-checkpoint-postgres>=3.0,<4.0
+
+# RAG — pgvector via langchain-postgres.
+langchain-postgres>=0.0.12
+pgvector>=0.3,<1.0
+
+# Observability.
+langfuse>=3.0,<5.0
+
+# MCP server — expose agent tools to external clients (Phase 9 / roadmap B11).
+mcp>=1.2,<2.0

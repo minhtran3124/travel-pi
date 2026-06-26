@@ -1,0 +1,107 @@
+# Travel Planner Mock API
+
+A fake travel-booking backend — flights, hotels, and bookings — for frontend development. No API keys, no payments, no real data.
+
+## Run
+
+### Local (SQLite)
+
+Requires **Python 3.10+** and **[uv](https://docs.astral.sh/uv/)**:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+```bash
+make install    # create venv + install deps
+make dev        # start at http://localhost:8000
+make test       # 685 tests on SQLite
+```
+
+### Docker + Postgres
+
+```bash
+make up         # build + start api and db containers
+make logs       # tail logs
+make down       # stop
+```
+
+On startup: Postgres health check → `alembic upgrade head` → seed all reference data. Everything runs automatically.
+
+Shell into a running container:
+
+```bash
+make exec-api   # sh in the api container
+make exec-db    # psql in the db container
+```
+
+### Tests on isolated Postgres
+
+```bash
+make test-docker    # 685 tests against a throwaway Postgres DB
+```
+
+## Database
+
+| Context | `DATABASE_URL` |
+|---------|----------------|
+| Local / tests | `sqlite:///travel.db` (default) |
+| Docker | `postgresql+psycopg://travel:travel@db:5432/travel` |
+| Docker tests | `postgresql+psycopg://test:test@test-db:5432/test` (ephemeral) |
+
+**Migrations** run automatically in Docker via `docker/entrypoint.sh`. To run manually:
+
+```bash
+make migrate
+```
+
+**Seed data** (countries, airlines, airports, cities, hotels, places, tips, visa, FX) loads from `app/data/` on every startup — idempotent, never duplicates. To re-seed manually:
+
+```bash
+make seed                       # local
+docker compose restart api      # Docker (re-seeds on restart)
+```
+
+## Use it
+
+- **Swagger UI:** http://localhost:8000/docs
+- **Flight board:** http://localhost:8000/dashboard/flights
+- **Air quality:** http://localhost:8000/dashboard/air-quality
+- **Full API reference:** [APIS.md](./APIS.md)
+
+Generate TypeScript types:
+
+```bash
+npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
+```
+
+## Notes
+
+- **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.
+- **Hotels** are a fixed list of 154 across 49 cities in 14 Asian countries (Southeast & East Asia).
+- **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
+- **CORS** is fully open.
+- `/docs` is disabled when `ENVIRONMENT=production`.
+
+## Project layout
+
+```
+app/
+├── main.py        # app factory, CORS, error handling
+├── core/          # config, logging, lifespan
+├── routers/       # one file per endpoint group
+├── services/      # business logic
+├── repositories/  # SQLAlchemy ORM data access
+├── schemas/       # Pydantic v2 models
+├── templates/     # Jinja2 HTML pages
+└── data/          # seed source of truth
+tests/             # pytest suite
+scripts/           # data generators
+```
+
+Add mock hotels:
+
+```bash
+python scripts/generate_data.py hotels --city "Da Nang" --count 3
+# prints records — copy into app/data/hotels.py
+```

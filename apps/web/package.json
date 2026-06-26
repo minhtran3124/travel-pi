@@ -1,0 +1,45 @@
+{
+  "name": "@travel/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "gen:api": "openapi-typescript http://localhost:8000/openapi.json -o ./src/lib/api/schema.d.ts",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
+    "@tanstack/react-query": "^5.101",
+    "next": "16.2.9",
+    "next-intl": "^4.13.0",
+    "npm": "^11.17.0",
+    "npx": "^10.2.2",
+    "openapi-fetch": "^0.17",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.6",
+    "@testing-library/react": "^16.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "jsdom": "^25",
+    "msw": "^2.7",
+    "openapi-typescript": "^7.13",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^2.1"
+  }
+}

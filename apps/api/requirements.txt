@@ -1,0 +1,31 @@
+# Pin upper bounds to the current major so a fresh install can't pull a
+# breaking new release (e.g. Pydantic v3, FastAPI 1.0). Loosen as we test.
+# Cap below FastAPI 0.137: that release requires Starlette >= 1.3, whose
+# route-introspection changes break our operation-id / route-enumeration tests
+# (app.routes + openapi operationIds resolve empty). FastAPI 0.136.x pulls
+# Starlette 1.2.x — the version the SQLite baseline (617 passed) was validated
+# on — so we hold the container and any fresh venv there for cross-engine parity.
+fastapi>=0.110.0,<0.137.0
+starlette>=0.40.0,<1.3.0
+uvicorn[standard]>=0.27.0,<1.0.0
+pydantic>=2.6.0,<3.0.0
+pydantic-settings>=2.2.0,<3.0.0
+email-validator>=2.0.0,<3.0.0  # backs pydantic EmailStr on booking requests
+jinja2>=3.1.0,<4.0.0
+httpx>=0.28.0,<1.0.0
+sqlalchemy>=2.0.0,<2.1.0
+psycopg[binary]>=3.1.0,<4.0.0   # psycopg 3 driver: postgresql+psycopg://
+alembic>=1.13.0,<2.0.0
+
+# Supabase JWT verification (specs/supabase-auth) — verify incoming Supabase
+# access tokens against the project's JWKS endpoint. PyJWKClient (in PyJWT)
+# fetches the keys; cryptography backs RS256/ES256 signature verification.
+pyjwt>=2.8.0,<3.0.0
+cryptography>=42.0.0,<50.0.0
+
+# AI / Agent layer — see requirements-ai.txt (LangChain/LangGraph stack).
+-r requirements-ai.txt
+
+# dev / test
+pytest>=9.0.0,<10.0.0
+ruff>=0.15.0,<1.0.0

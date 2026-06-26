@@ -6,79 +6,80 @@ product
 
 ## Users
 
-Developers building and testing against the Travel Planner **mock API** — the
-engineers wiring up the travel-agent frontend and the agent itself. Their
-context is a dev workflow: they hit the mock endpoints (flights, hotels,
-places, tips, weather, bookings) and need to *see* what came back without
-reaching for `curl` or reading raw JSON in Swagger. The dashboard is the
-human-readable window onto the same data the TypeScript client consumes. It's
-glanced at on a second monitor mid-task, not lived in.
-
-The job to be done: "Did the endpoint return what I expected, and does it look
-right?" — answered in seconds, repeatedly, across a working session.
+Frequent, confident travelers managing more than one trip at a time. They come to
+the app to research destinations, build and adjust itineraries, and keep bookings,
+budget, and logistics in one place — often returning across the lifecycle of a trip
+(planning → in-transit → recap). They value speed, density of useful information at
+a glance, and an AI agent that can do real work (plan, book, answer) rather than
+just chat. The primary job on any screen: *make the next decision about a trip and
+move on* — shortlist a place, lock a booking, check a budget, ask the agent.
 
 ## Product Purpose
 
-A server-rendered dashboard (`/dashboard/*`, Jinja2) that visualizes
-everything the mock Travel Planner API returns: an airport-style FIDS board
-for flights, a card grid for hotels and places, local tips by region, live
-weather, and a ledger of bookings. It exists so developers can verify mock
-behavior visually and so the mock reads as a *credible* stand-in for a real
-travel product — useful both as a debugging surface and as a reference of
-what the real thing should feel like.
-
-Success looks like three things at once:
-1. **Scannable** — dense travel data (routes, times, prices, status) is
-   readable at a glance; the FIDS-board metaphor taken seriously.
-2. **Credible** — it feels like a real travel product, so the mock is
-   convincing as a reference implementation.
-3. **Fast** — moving between flights / hotels / places / bookings is
-   frictionless for repetitive checking.
+A travel planner built around an AI agent. Users plan trips, explore places, manage
+bookings, and track budget; a streaming, human-in-the-loop chat agent (planner /
+concierge / journal / booking / budget sub-agents) does the heavy lifting alongside
+the manual UI. Success is the user trusting the agent enough to hand off real tasks,
+and the surrounding UI being fast and legible enough that they never feel managed —
+they feel in control. Everything the agent can do, the user can also do directly, and
+vice-versa.
 
 ## Brand Personality
 
-Polished SaaS product — a notch warmer and more approachable than a raw ops
-terminal, but still unmistakably data-first. Confident, clear, modern. The
-voice is precise and plain: real labels, no marketing copy, no exclamation
-points. Three words: **clear, credible, efficient.** The emotional goal is
-quiet trust — the user should believe the data and never fight the interface
-to read it.
+**Energetic, playful, friendly.** Three words: *lively, warm, capable.* The voice is a
+well-traveled friend who happens to be great at logistics — encouraging, never stiff,
+never corporate. Delight comes from momentum and small moments (a confident accent, a
+satisfying confirmation, motion that feels alive), not from mascots or confetti. The
+agent should read as an enthusiastic guide that's genuinely good at the job.
+
+**Reference qualities (the *specific* thing to borrow, not the whole app):**
+- **Airbnb** — friendly, photo-forward warmth; rounded, approachable surfaces that
+  stay grown-up.
+- **Hopper** — playful color and lively motion; the agent-as-guide energy where the
+  product feels like it's actively helping.
+- **Duolingo** — high personality and the craft of *delight as a system* (earned
+  micro-moments) — borrow the polish of its delight, **not** its mascot/gamification.
+
+> **Direction note (live tension):** the shipped visual system today is *calm and
+> restrained* (clean white panels, near-black ink, a single chartreuse accent). The
+> desired personality is *more energetic and playful than that.* The path forward is
+> to keep the clean, fast, legible base and inject energy through accent use, motion,
+> photography/illustration, and copy — **not** by abandoning restraint for noise. Bias
+> future work toward closing this gap deliberately.
 
 ## Anti-references
 
-- **Generic AI-SaaS slop.** No cream/sand/parchment backgrounds, no tiny
-  uppercase tracked eyebrows above every section, no endless identical
-  icon+heading+text card grids, no gradient text, no big-number "hero metric"
-  template.
-- **Heavy enterprise/admin.** Not Bootstrap/AdminLTE clutter — no boxy gray
-  panels stacked wall-to-wall, no colored side-stripe alert borders, no
-  config-panel overload.
-- **Over-designed marketing.** No landing-page flourishes bolted onto a data
-  tool — glassmorphism everywhere, decorative gradients, or motion that
-  fights legibility are all wrong here. Effects must earn their place by
-  helping read the data.
+- **Generic SaaS dashboard** — card-grid sea, gray-on-white, the hero-metric template,
+  identical icon+heading+text tiles. The AI-slop default; avoid entirely.
+- **Corporate OTA (Expedia / Booking)** — dense, ad-heavy, banner clutter, fake-urgency
+  badges ("2 left at this price!"). Cheap-feeling; the opposite of trustworthy.
+- **Childish / over-gamified** — confetti everywhere, cartoon mascots, juvenile. Playful
+  must stay grown-up.
+- **Cold enterprise tool** — sterile dense data tables, zero warmth, no personality.
 
 ## Design Principles
 
-- **Data first, chrome second.** Every pixel should help read the data. If a
-  decoration doesn't aid scanning, it's cut.
-- **Scannable by structure.** Lean on the FIDS metaphor: tabular numerics,
-  consistent column rhythm, and status carried by color coding the eye can
-  learn (on-time / delayed / landed / boarding).
-- **Credible realism.** Mimic the conventions of real travel products
-  (boards, cards, ledgers) so the mock is convincing — never cartoonish, never
-  obviously fake.
-- **Polished, not precious.** SaaS-clean and a touch warm, but plain-spoken;
-  resist marketing flourish and visual noise alike.
-- **Frictionless traversal.** Section-to-section navigation is fast and
-  predictable; the dashboard rewards repeated, habitual use.
+1. **Capable, not corporate.** Personality and warmth are features, not decoration —
+   but every playful choice must also make the user faster or more confident. Delight
+   that costs clarity is cut.
+2. **Energy through motion and accent, not noise.** Carry the lively feel with
+   intentional motion, photography, and the chartreuse accent used decisively — never
+   by adding more color, more borders, or more cards.
+3. **Agent-native parity.** Anything the user can do in the UI, the agent can do, and
+   anything the agent does is visible and reversible in the UI. Neither path is a
+   second-class citizen.
+4. **In control, never managed.** The interface keeps the user oriented and in charge
+   even as the agent acts — clear state, human-in-the-loop checkpoints, nothing
+   happening behind their back.
+5. **Earned delight.** Small, systematic moments (confirmations, transitions, the agent
+   landing a result) — Duolingo's craft of delight without its mascots. One memorable
+   touch beats ten decorative ones.
 
 ## Accessibility & Inclusion
 
-Target **WCAG AA**. On the dark theme this means body text ≥4.5:1 against its
-panel background and large/bold text ≥3:1 — watch muted gray (`--muted`) on
-panels, which is the likeliest failure. Keep visible focus rings (the existing
-`--ring` token) on every interactive control. Honor
-`prefers-reduced-motion`: the nav progress bar, hover lifts, and any future
-transitions need a reduced/instant alternative. Don't encode meaning in color
-alone — status remarks should carry a label, not just a hue.
+Target **WCAG 2.1 AA.** Body text ≥4.5:1, large text ≥3:1 against its surface; the
+status palette is already AA-tuned on light surfaces. Full keyboard navigation,
+visible focus rings (already present), and a `prefers-reduced-motion` alternative for
+every animation (the energetic motion direction makes this non-negotiable, not
+optional). Don't encode meaning in color alone — pair status/topic color with text or
+icon.
