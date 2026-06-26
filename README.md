@@ -12,7 +12,7 @@ packages/  shared libraries (none yet)
 
 ## Prerequisites
 
-- **Node ≥ 20** and **pnpm** (`corepack enable pnpm`)
+- **Node ≥ 22.13** and **pnpm** (`corepack enable pnpm`) — pnpm 11 requires Node ≥ 22.13
 - **Python 3.10+** and **[uv](https://docs.astral.sh/uv/)** (for the backend)
 
 ## Setup
