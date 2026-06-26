@@ -18,7 +18,7 @@ from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from app.agents.state import TravelAgentState
+from app.agents.state import TravelAgentState, system_with_summary
 
 
 def build_subagent(
@@ -32,7 +32,9 @@ def build_subagent(
     system = SystemMessage(content=prompt)
 
     def assistant(state: TravelAgentState) -> dict:
-        response = bound.invoke([system, *state["messages"]])
+        response = bound.invoke(
+            [system_with_summary(state, system), *state["messages"]]
+        )
         return {"messages": [response]}
 
     builder = StateGraph(TravelAgentState)

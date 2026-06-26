@@ -15,7 +15,7 @@ from langgraph.graph import END
 from langgraph.types import Command
 from pydantic import BaseModel, Field
 
-from app.agents.state import TravelAgentState
+from app.agents.state import TravelAgentState, system_with_summary
 from app.prompts.registry import registry
 
 SUBAGENTS = ("planner", "concierge", "journal", "booking", "budget")
@@ -35,7 +35,7 @@ def make_supervisor(llm: BaseChatModel):
     system = SystemMessage(content=registry.get("supervisor"))
 
     def supervisor(state: TravelAgentState) -> Command:
-        intent = router.invoke([system, *state["messages"]])
+        intent = router.invoke([system_with_summary(state, system), *state["messages"]])
         target = getattr(intent, "target_agent", None)
         if target not in SUBAGENTS:
             return Command(

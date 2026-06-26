@@ -49,3 +49,43 @@ def test_subagent_without_tools_answers_directly():
     agent = build_subagent("plain", [], llm, "you answer")
     out = agent.invoke({"messages": [HumanMessage(content="hello")]})
     assert out["messages"][-1].content == "a direct answer"
+
+
+def test_system_with_summary_folds_summary_into_prompt():
+    """REVIEW.md C2: the rolling summary must be re-injected, not silently dropped."""
+    from app.agents.state import system_with_summary
+    from langchain_core.messages import SystemMessage
+
+    base = SystemMessage(content="BASE PROMPT")
+    # No summary -> base returned unchanged (same object).
+    assert system_with_summary({"summary": ""}, base) is base
+    assert system_with_summary({}, base) is base
+    # Summary present -> one SystemMessage carrying both base + summary.
+    combined = system_with_summary({"summary": "traveller is vegetarian"}, base)
+    assert isinstance(combined, SystemMessage)
+    assert "BASE PROMPT" in combined.content
+    assert "vegetarian" in combined.content
+
+
+def test_subagent_receives_summary_in_system_prompt():
+    """The summary actually reaches the model on a real sub-agent invocation."""
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+
+    captured: dict = {}
+
+    class CapturingLLM(FakeLLM):
+        def _generate(self, messages, *args, **kwargs):
+            captured["messages"] = messages
+            return super()._generate(messages, *args, **kwargs)
+
+    agent = build_subagent("plain", [], CapturingLLM(responses=["ok"]), "base system")
+    agent.invoke(
+        {
+            "messages": [HumanMessage(content="and the food?")],
+            "summary": "trip to Tokyo; traveller is vegetarian",
+        }
+    )
+    system_msg = captured["messages"][0]
+    assert "base system" in system_msg.content
+    assert "vegetarian" in system_msg.content
