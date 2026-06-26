@@ -37,8 +37,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     className={cn(
                       "text-sm font-bold transition",
                       active
-                        ? "text-coral-bright"
-                        : "text-muted hover:text-coral-soft",
+                        ? "text-ink"
+                        : "text-muted hover:text-ink",
                     )}
                   >
                     {label}

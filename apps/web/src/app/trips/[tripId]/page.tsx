@@ -40,7 +40,7 @@ export default function TripDetailPage() {
         <p className="text-sm font-bold text-status-cancelled">
           Could not load this trip.
         </p>
-        <Link href="/trips" className="text-sm font-bold text-coral-soft">
+        <Link href="/trips" className="text-sm font-bold text-muted">
           ← Back to trips
         </Link>
       </div>

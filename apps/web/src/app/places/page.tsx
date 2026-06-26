@@ -145,7 +145,7 @@ export default function PlacesPage() {
           className={[
             "rounded-sm px-md py-sm text-sm font-semibold",
             notice.tone === "error"
-              ? "bg-panel-raised text-coral-soft"
+              ? "bg-panel-raised text-muted"
               : "bg-panel-raised text-ink",
           ].join(" ")}
         >

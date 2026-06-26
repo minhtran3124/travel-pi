@@ -17,7 +17,7 @@ export function TripCard({ trip }: { trip: Trip }) {
       <Card className="flex h-full flex-col gap-sm">
         <h3 className="text-[1.05rem] font-extrabold text-ink">{trip.title}</h3>
         {trip.city ? (
-          <p className="text-sm font-bold text-coral-soft">{trip.city}</p>
+          <p className="text-sm font-bold text-muted">{trip.city}</p>
         ) : null}
         <div className="mt-auto flex flex-col gap-xs pt-sm text-sm text-muted">
           {range ? <span>{range}</span> : null}

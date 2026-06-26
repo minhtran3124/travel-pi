@@ -16,13 +16,13 @@ describe("Button", () => {
 
   it("applies the primary variant class by default", () => {
     render(<Button>Primary</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-coral-deep");
+    expect(screen.getByRole("button")).toHaveClass("bg-ink");
   });
 
   it("applies the ghost variant class", () => {
     render(<Button variant="ghost">Ghost</Button>);
     const btn = screen.getByRole("button");
-    expect(btn).not.toHaveClass("bg-coral-deep");
+    expect(btn).not.toHaveClass("bg-ink");
     expect(btn).toHaveClass("border");
   });
 

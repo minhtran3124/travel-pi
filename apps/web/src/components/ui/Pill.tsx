@@ -34,11 +34,12 @@ function colorVar(variant: "status" | "topic", tone: string): string {
 
 export function Pill({ variant, tone, label, className, ...props }: PillProps) {
   const accent = colorVar(variant, tone);
-  // Color is always paired with the text label; text is lightened over the
-  // tinted background to hold AA contrast on the dark surface.
+  // On light surfaces the label DARKENS against a pale tint of its own hue to
+  // hold AA contrast (the inverse of the old dark-surface treatment).
   const style: CSSProperties = {
-    backgroundColor: `color-mix(in srgb, ${accent} 16%, transparent)`,
-    color: `color-mix(in srgb, ${accent} 72%, white)`,
+    backgroundColor: `color-mix(in srgb, ${accent} 16%, white)`,
+    color: `color-mix(in srgb, ${accent} 70%, black)`,
+    boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${accent} 28%, white)`,
   };
   return (
     <span

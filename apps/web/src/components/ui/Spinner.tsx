@@ -9,7 +9,7 @@ export function Spinner({ label = "Loading", className }: SpinnerProps) {
       role="status"
       aria-label={label}
       className={[
-        "inline-block size-4 animate-spin rounded-pill border-2 border-line border-t-coral-bright",
+        "inline-block size-4 animate-spin rounded-pill border-2 border-line border-t-ink",
         className,
       ]
         .filter(Boolean)

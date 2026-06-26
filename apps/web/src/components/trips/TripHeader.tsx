@@ -36,7 +36,7 @@ export function TripHeader({ trip }: { trip: TripDetail }) {
         <h1 className="text-2xl font-extrabold text-ink">{trip.title}</h1>
         <div className="flex flex-wrap items-center gap-md text-sm text-muted">
           {trip.city ? (
-            <span className="font-bold text-coral-soft">{trip.city}</span>
+            <span className="font-bold text-muted">{trip.city}</span>
           ) : null}
           {range ? <span>{range}</span> : null}
           <span>

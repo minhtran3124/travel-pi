@@ -13,7 +13,7 @@ export function ChatLauncher({ open, onToggle }: ChatLauncherProps) {
       aria-label={open ? "Close travel assistant" : "Open travel assistant"}
       aria-expanded={open}
       onClick={onToggle}
-      className="flex h-14 w-14 items-center justify-center rounded-pill bg-lime text-void shadow-lift transition hover:brightness-110 active:translate-y-px"
+      className="flex h-14 w-14 items-center justify-center rounded-pill bg-lime text-ink shadow-lift transition hover:brightness-105 active:translate-y-px"
     >
       {open ? (
         <svg

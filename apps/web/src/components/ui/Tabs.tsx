@@ -24,7 +24,7 @@ export function Tabs({ tabs, active, onChange }: TabsProps) {
             className={[
               "-mb-px border-b-2 px-xs pb-sm text-sm font-bold transition",
               isActive
-                ? "border-coral-bright text-ink"
+                ? "border-lime text-ink"
                 : "border-transparent text-muted hover:text-ink",
             ].join(" ")}
           >

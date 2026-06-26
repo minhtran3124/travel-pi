@@ -34,7 +34,7 @@ export interface ItemRowProps {
 }
 
 function iconButtonClass(): string {
-  return "inline-flex size-7 items-center justify-center rounded-sm border border-line bg-transparent text-sm text-muted transition hover:border-coral-bright hover:text-coral-soft disabled:cursor-not-allowed disabled:opacity-40";
+  return "inline-flex size-7 items-center justify-center rounded-sm border border-line bg-transparent text-sm text-muted transition hover:border-ink hover:text-muted disabled:cursor-not-allowed disabled:opacity-40";
 }
 
 export function ItemRow({

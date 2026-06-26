@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 export type CardProps = HTMLAttributes<HTMLDivElement>;
 
 const base =
-  "rounded-md bg-panel p-lg shadow-card transition hover:-translate-y-0.5 hover:shadow-lift";
+  "rounded-md border border-line bg-panel p-lg shadow-card transition hover:-translate-y-0.5 hover:border-[#e0e0e0] hover:shadow-lift";
 
 export function Card({ className, ...props }: CardProps) {
   return <div className={cn(base, className)} {...props} />;
