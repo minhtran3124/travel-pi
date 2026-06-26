@@ -16,7 +16,8 @@ from langchain_core.vectorstores import InMemoryVectorStore, VectorStore
 from app.core.config import get_settings
 
 DEFAULT_COLLECTION = "travel_pois"
-_FAKE_EMBED_DIM = 1536  # match text-embedding-3-small so dims are stable across modes
+EMBED_DIM = 1536  # text-embedding-3-small dim; shared by RAG + the memory-store index
+_FAKE_EMBED_DIM = EMBED_DIM  # the fake matches so dims are stable across modes
 
 
 def get_embeddings() -> Embeddings:
