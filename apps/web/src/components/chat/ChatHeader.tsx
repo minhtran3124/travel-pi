@@ -1,7 +1,7 @@
 "use client";
 
 const iconButtonClass =
-  "rounded-sm p-1 text-muted transition hover:text-lime";
+  "flex h-9 w-9 items-center justify-center rounded-[12px] border border-[#ececec] bg-white text-[#1c1c1c] transition hover:bg-[#f4f4f2]";
 
 const svgProps = {
   width: 18,
@@ -28,10 +28,19 @@ export function ChatHeader({
   onClose,
 }: ChatHeaderProps) {
   return (
-    <header className="flex items-center justify-between border-b border-line bg-panel px-lg py-md">
+    <header className="flex items-center justify-between border-b border-[#ececec] bg-white px-lg py-md">
       <div className="flex items-center gap-sm">
-        <span className="h-2 w-2 rounded-pill bg-lime" aria-hidden="true" />
-        <h2 className="text-sm font-bold tracking-tight text-ink">
+        <svg
+          {...svgProps}
+          width={18}
+          height={18}
+          className="text-lime"
+          fill="currentColor"
+          stroke="none"
+        >
+          <path d="M12 2l1.9 5.1L19 9l-5.1 1.9L12 16l-1.9-5.1L5 9l5.1-1.9L12 2zM18 14l.9 2.4L21.3 17l-2.4.9L18 20.3l-.9-2.4L14.7 17l2.4-.9L18 14z" />
+        </svg>
+        <h2 className="text-sm font-bold tracking-tight text-[#1c1c1c]">
           Travel Assistant
         </h2>
       </div>

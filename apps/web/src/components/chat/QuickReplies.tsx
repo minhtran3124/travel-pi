@@ -31,7 +31,7 @@ export function QuickReplies({ onPick, disabled }: QuickRepliesProps) {
           disabled={disabled}
           title={tool.description}
           onClick={() => onPick(tool.name.replace(/_/g, " "))}
-          className="rounded-pill border border-lime/40 bg-transparent px-md py-xs text-xs font-medium text-lime transition hover:bg-lime/10 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-pill border border-[#ececec] bg-white px-md py-xs text-xs font-medium text-[#1c1c1c] transition hover:bg-[#f4f4f2] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {tool.name.replace(/_/g, " ")}
         </button>

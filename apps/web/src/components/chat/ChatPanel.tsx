@@ -34,7 +34,7 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       role="dialog"
       aria-label="Travel Assistant"
       className={cn(
-        "flex flex-col overflow-hidden rounded-md border border-lime/30 bg-void text-ink shadow-lift",
+        "flex flex-col overflow-hidden rounded-[20px] border border-[#ececec] bg-white text-[#1c1c1c] shadow-lift",
         fullscreen
           ? "h-[80vh] w-[min(92vw,640px)]"
           : "h-[min(70vh,560px)] w-[min(92vw,400px)]",
@@ -49,7 +49,7 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       {error ? (
         <p
           role="status"
-          className="border-b border-amber-400/30 bg-amber-400/10 px-lg py-sm text-xs font-medium text-amber-300"
+          className="border-b border-amber-200 bg-amber-50 px-lg py-sm text-xs font-medium text-amber-700"
         >
           {error}
         </p>
@@ -57,7 +57,7 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
 
       {messages.length === 0 ? (
         <div className="px-lg py-md">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-[#6b6b6b]">
             Hi! I&apos;m your travel co-pilot. Ask me to plan a trip, find places,
             or check the weather.
           </p>

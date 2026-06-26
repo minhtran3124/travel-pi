@@ -17,22 +17,22 @@ export function InterruptPrompt({
     <div
       role="status"
       aria-live="polite"
-      className="border-t border-line bg-panel px-lg py-md"
+      className="border-t border-[#ececec] bg-white px-lg py-md"
     >
-      <p className="mb-sm text-xs font-medium text-muted">Ready to book:</p>
-      <p className="mb-md text-sm text-ink">{draft}</p>
+      <p className="mb-sm text-xs font-medium text-[#6b6b6b]">Ready to book:</p>
+      <p className="mb-md text-sm text-[#1c1c1c]">{draft}</p>
       <div className="flex gap-sm">
         <button
           type="button"
           onClick={onApprove}
-          className="flex-1 rounded-sm bg-lime px-md py-sm text-sm font-bold text-void transition hover:brightness-110"
+          className="flex-1 rounded-pill bg-[#1c1c1c] px-md py-sm text-sm font-bold text-white transition hover:brightness-125"
         >
           Approve
         </button>
         <button
           type="button"
           onClick={onReject}
-          className="flex-1 rounded-sm border border-line bg-panel-raised px-md py-sm text-sm font-medium text-muted transition hover:text-ink"
+          className="flex-1 rounded-pill border border-[#ececec] bg-white px-md py-sm text-sm font-medium text-[#6b6b6b] transition hover:bg-[#f4f4f2] hover:text-[#1c1c1c]"
         >
           Reject
         </button>

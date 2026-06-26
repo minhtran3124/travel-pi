@@ -32,10 +32,10 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
           >
             <div
               className={cn(
-                "max-w-[80%] whitespace-pre-wrap rounded-md px-md py-sm text-sm",
+                "max-w-[80%] whitespace-pre-wrap rounded-[16px] px-md py-sm text-sm",
                 isUser
-                  ? "bg-lime text-void font-medium"
-                  : "bg-panel-raised text-ink",
+                  ? "bg-[#1c1c1c] font-medium text-white"
+                  : "bg-[#f4f4f2] text-[#1c1c1c]",
               )}
             >
               {streamingEmpty ? <Spinner label="Assistant is typing" /> : m.content}
