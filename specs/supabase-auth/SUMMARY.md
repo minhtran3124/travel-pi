@@ -26,15 +26,19 @@ Session context preceding this intake (foundation already laid, not yet wired):
 
 ## What changed
 
-<!-- Filled at completion — nothing implemented yet; intake + escalation only. -->
+Phase 1 shipped on branch `feat/supabase-auth` (8 commits):
+- **apps/web**: root `middleware.ts` refreshes the Supabase session (redirect-on-unauth
+  removed — no route gating this slice); auth server actions (email+password sign-in/up,
+  magic link, sign-out, deferred-guarded OAuth); `/auth/callback` (code exchange),
+  `/auth/confirm` (OTP verify), error page; login + sign-up pages; sign-out button; OAuth
+  buttons rendered disabled (deferred).
+- **apps/api**: `app/core/auth.py` `get_current_user` verifies Supabase access tokens via the
+  project JWKS endpoint (RS256/ES256) → `AuthUser` or `AuthError` (401); Supabase settings +
+  derived JWKS/issuer; `AuthError` domain exception; `pyjwt`+`cryptography` deps. Not yet
+  attached to existing routers (contained blast radius). 9 offline unit tests.
 
-Not started. Intake classified the work as high-risk and escalated for scope confirmation
-(see ESCALATIONS.md, now decided). Confirmed scope + phasing:
-- Phase 1 (this slice): apps/web email+password + magic link; apps/api Supabase-JWT
-  verification via JWKS (asymmetric). No route protection, no profiles table.
-- OAuth (Google/GitHub): code scaffolded but DEFERRED — blocked on Supabase dashboard
-  provider config the user will do later. Ship email+magic-link first.
-Next: research (xia2-lite) → writing-plans → using-git-worktrees → subagent-driven-development.
+Deferred per scope: OAuth (needs Supabase dashboard provider config); route protection;
+profiles table. Backend auth is built+tested but the API's Supabase env is not yet configured.
 
 ### Rationale
 
@@ -43,21 +47,36 @@ two engineers would build materially different things, so a human must narrow sc
 
 ### Alternatives considered
 
-- none yet (pending scope confirmation)
+- python-jose vs PyJWT for JWKS verification → chose **PyJWT** (`PyJWKClient`): better
+  maintained, built-in key caching, already aligns with the cryptography backend.
+- Gate routes in middleware now vs later → **later** (scope: no protection this slice).
 
 ### Deviations
 
-- none
+- Rule 1 — Removed the generated redirect-to-`/auth/login` block from `updateSession`
+  (`apps/web/src/lib/supabase/middleware.ts`); it gated the whole app, contradicting the
+  confirmed "no route protection" scope. Commit `970d030`.
+- Rule 3 — Added `pyjwt` + `cryptography` to `apps/api/requirements.txt` (needed for JWKS
+  verification). Commit `2d36d7d`.
+- Rule 3 — Relaxed the `cryptography` cap to `<50` after an initial `<46` wrongly downgraded
+  the already-installed 49.0.0; restored to 49.0.0.
 
 ### Verify
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| (pending implementation) | — | — | — |
+| Web typecheck | `cd apps/web && pnpm exec tsc --noEmit` | 0 | clean |
+| Web prod build | `cd apps/web && pnpm build` | 0 | all 5 /auth routes + middleware registered |
+| API auth tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/auth -q` | 0 | 9 passed (offline, monkeypatched JWKS) |
+| API lint | `cd apps/api && ../../.venv/bin/ruff check app/core/auth.py app/core/config.py app/exceptions.py` | 0 | clean |
+| Full API suite (zero-config, `.env` aside) | `mv apps/api/.env aside; pytest …; restore` | 0 | previously-failing 14 are env-only (`OPENAI_API_KEY=test` in dev `.env`), green without it |
 
 ### Rollback
 
-- `git revert <sha>` (per commit once implementation begins)
+- Revert the feature branch commits: `git revert 199a272 39bd73a 5d02b0b 2d36d7d 970d030`
+  (and `872dedc` for the spec docs), or delete the branch `feat/supabase-auth`.
+- Uninstall added deps: `uv pip uninstall pyjwt cryptography` (cryptography is also a
+  transitive dep elsewhere — leave it).
 
 ### Harness-Delta
 

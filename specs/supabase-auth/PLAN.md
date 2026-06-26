@@ -1,6 +1,6 @@
 ---
 slug: supabase-auth
-status: proposed
+status: shipped
 owner: Minh Tran
 created: 2026-06-26
 ---
@@ -109,4 +109,8 @@ generated, env vars set in `.env.local`.
 ## 6. Status Log
 
 - 2026-06-26 — Intake: high-risk (Auth hard gate ×2: web + api), confidence high after scope
-  confirmation. Plan drafted. Pending: visual review + branch + execution.
+  confirmation. Plan drafted, visual-reviewed.
+- 2026-06-26 — Executed all 3 waves on `feat/supabase-auth`. ✓ Task 1.1 `970d030`, 1.2
+  `2d36d7d`, 2.1 `5d02b0b`, 2.2 `39bd73a`, 3.1 `199a272` (+ spec `872dedc`). Verify: web
+  tsc+build green; api auth tests 9/9; full suite green minus pre-existing `.env`
+  OPENAI_API_KEY=test failures. Status: shipped (Phase 1), OAuth deferred.
