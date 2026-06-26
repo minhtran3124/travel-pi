@@ -1,3 +1,8 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Native deps Next.js pulls in; allow their install/build scripts to run.
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
