@@ -7,6 +7,8 @@ import { type ReactNode, useState } from "react";
 
 import { cn } from "@/lib/cn";
 
+import { UserMenu } from "@/components/auth/UserMenu";
+
 import { LocaleSwitcher } from "./LocaleSwitcher";
 
 const NAV_LINKS = [
@@ -74,6 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="hidden sm:block">
               <LocaleSwitcher />
             </div>
+            <UserMenu />
             {/* Mobile hamburger */}
             <button
               type="button"
