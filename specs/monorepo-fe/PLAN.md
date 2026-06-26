@@ -149,3 +149,23 @@ the user OKs the hook edit. **Rollback:** `git checkout .claude/hooks/commit-qua
 ## 8. Status Log
 
 - 2026-06-26 — Plan drafted. Awaiting user OK on Task 4.2 (hook hard gate) before execution.
+- 2026-06-26 — **Wave 1 DONE** (commit `5f9dcad`). BE relocated to `apps/api/` as renames-only
+  (312 paths) + `apps/api/Makefile` `VENV` var. All 848 tests pass from `apps/api`. CLAUDE.md
+  updated to reflect the new layout.
+  - Task 4.2 **pulled forward** into wave 1: the relocation broke the commit-quality gate's
+    `tests/`/`app/`/`scripts/` path globs (blocked the commit). Fixed all path prefixes to
+    `apps/api/*` and made the secrets scan **added-lines-only** (it was matching rename-deletion
+    artifacts). NOTE: `.claude/` is **gitignored** here — hook edits are local-only, not committed.
+  - **PAUSED before waves 2–4.** Blocker: local Node is **v18.0.0**, below pnpm (≥18.12),
+    Next.js 15 (≥18.18), and Turborepo 2.x (≥18.12). FE toolchain cannot run/verify until Node
+    is upgraded (≥20 LTS recommended). User chose to ship wave 1 standalone and resume later.
+
+### Resume checklist (waves 2–4)
+
+1. Upgrade Node to ≥20 LTS (`nvm install 20 && nvm use 20`); install pnpm.
+2. Wave 2 — root `package.json` + `pnpm-workspace.yaml` + `turbo.json` (turbo 2.x `tasks`) +
+   `apps/api/package.json` (`@travel/api`, scripts shell to its Makefile) + delegating root
+   Makefile + `.gitignore` (`node_modules/`, `.next/` — `.turbo/` already ignored).
+3. Wave 3 — scaffold `apps/web` (Next.js, TS, Tailwind) + proxy rewrite + one real BE fetch.
+4. Wave 4 — CI working-directory `apps/api` (+ optional FE job); README monorepo overview.
+   (4.2 harness hooks already done; 4.3 CLAUDE.md already done.)
