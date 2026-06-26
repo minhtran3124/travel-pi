@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
@@ -14,10 +16,6 @@ export interface SavedPlaceCardProps {
   onDelete: () => void;
   /** Disables the action buttons while a mutation is in flight. */
   busy?: boolean;
-}
-
-function metaLine(place: SavedPlace): string {
-  return [place.city, place.category].filter(Boolean).join(" · ");
 }
 
 /** Up to two initials from the place name, for the avatar tile. */
@@ -89,7 +87,15 @@ export function SavedPlaceCard({
   onDelete,
   busy = false,
 }: SavedPlaceCardProps) {
-  const meta = metaLine(place);
+  const t = useTranslations("Places");
+  const meta = [
+    place.city,
+    place.category && t.has(`categories.${place.category}`)
+      ? t(`categories.${place.category}`)
+      : place.category,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <Card className="flex flex-col gap-sm">
       <div className="flex items-start gap-sm">
@@ -129,7 +135,7 @@ export function SavedPlaceCard({
           disabled={busy}
           onClick={() => onSetFavorite(!place.favorite)}
         >
-          {place.favorite ? "★ Favorite" : "☆ Favorite"}
+          {place.favorite ? t("card.favoriteOn") : t("card.favoriteOff")}
         </Button>
         <Button
           variant={place.visited ? "primary" : "ghost"}
@@ -137,14 +143,14 @@ export function SavedPlaceCard({
           disabled={busy}
           onClick={() => onSetVisited(!place.visited)}
         >
-          {place.visited ? "✓ Visited" : "Visited"}
+          {place.visited ? t("card.visitedOn") : t("card.visitedOff")}
         </Button>
         <Button
           variant="ghost"
           size="icon"
           disabled={busy}
-          aria-label={`Remove ${place.name}`}
-          title="Remove"
+          aria-label={t("card.removeAria", { name: place.name })}
+          title={t("card.removeTitle")}
           className="ml-auto text-muted hover:text-status-cancelled"
           onClick={onDelete}
         >

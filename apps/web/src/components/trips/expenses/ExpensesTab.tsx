@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -30,34 +31,40 @@ const CATEGORIES: ExpenseCategory[] = [
   "other",
 ];
 
-function usd(value: number): string {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+type Formatter = ReturnType<typeof useFormatter>;
+
+function usd(format: Formatter, value: number): string {
+  return format.number(value, "usd");
 }
 
-function money(amount: number, currency: string): string {
+function money(format: Formatter, amount: number, currency: string): string {
   try {
-    return amount.toLocaleString("en-US", { style: "currency", currency });
+    return format.number(amount, { style: "currency", currency });
   } catch {
     return `${amount.toFixed(2)} ${currency}`;
   }
 }
 
 function CategoryPill({ category }: { category: ExpenseCategory }) {
+  const t = useTranslations("Expenses");
   return (
     <span className="inline-flex items-center rounded-pill bg-panel-raised px-sm py-px text-xs font-bold capitalize text-muted">
-      {category}
+      {t(`categories.${category}`)}
     </span>
   );
 }
 
 function SummaryPanel({ tripId }: { tripId: string }) {
+  const t = useTranslations("Expenses");
+  const tCommon = useTranslations("Common");
+  const format = useFormatter();
   const { data, isPending } = useExpenseSummary(tripId);
 
   if (isPending) {
     return (
       <Card className="flex items-center gap-sm text-sm text-muted">
-        <Spinner label="Loading summary" />
-        <span>Loading summary…</span>
+        <Spinner label={t("summary.loadingLabel")} />
+        <span>{t("summary.loading")}</span>
       </Card>
     );
   }
@@ -68,19 +75,19 @@ function SummaryPanel({ tripId }: { tripId: string }) {
   return (
     <Card className="flex flex-col gap-md">
       <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-extrabold text-ink">Summary</h3>
+        <h3 className="text-sm font-extrabold text-ink">{t("summary.title")}</h3>
         <span className="text-sm tabular-nums text-muted">
-          {data.expense_count} {data.expense_count === 1 ? "entry" : "entries"} ·{" "}
-          {usd(data.total_usd)}
+          {t("summary.entryCount", { count: data.expense_count })} ·{" "}
+          {usd(format, data.total_usd)}
         </span>
       </div>
 
       <div className="flex flex-col gap-xs">
         <p className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-          By category
+          {t("summary.byCategory")}
         </p>
         {data.by_category.length === 0 ? (
-          <p className="text-sm text-muted">No spend yet.</p>
+          <p className="text-sm text-muted">{t("summary.noSpend")}</p>
         ) : (
           data.by_category.map((c) => (
             <div
@@ -89,7 +96,7 @@ function SummaryPanel({ tripId }: { tripId: string }) {
             >
               <CategoryPill category={c.category} />
               <span className="tabular-nums text-ink">
-                {usd(c.total_usd)}{" "}
+                {usd(format, c.total_usd)}{" "}
                 <span className="text-muted">({c.count})</span>
               </span>
             </div>
@@ -99,10 +106,10 @@ function SummaryPanel({ tripId }: { tripId: string }) {
 
       <div className="flex flex-col gap-xs">
         <p className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-          By currency
+          {t("summary.byCurrency")}
         </p>
         {data.by_currency.length === 0 ? (
-          <p className="text-sm text-muted">No spend yet.</p>
+          <p className="text-sm text-muted">{t("summary.noSpend")}</p>
         ) : (
           data.by_currency.map((c) => (
             <div
@@ -111,7 +118,7 @@ function SummaryPanel({ tripId }: { tripId: string }) {
             >
               <span className="font-bold text-ink">{c.currency}</span>
               <span className="tabular-nums text-muted">
-                {money(c.total_original, c.currency)} → {usd(c.total_usd)}
+                {money(format, c.total_original, c.currency)} → {usd(format, c.total_usd)}
               </span>
             </div>
           ))
@@ -120,42 +127,42 @@ function SummaryPanel({ tripId }: { tripId: string }) {
 
       <div className="flex flex-col gap-xs border-t border-line pt-sm">
         <p className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-          Budget actuals
+          {t("summary.budgetActuals")}
         </p>
         <div className="flex justify-between text-sm">
-          <span className="text-muted">Booked</span>
+          <span className="text-muted">{t("summary.booked")}</span>
           <span className="tabular-nums text-ink">
-            {usd(budget.booked_spent)}
+            {usd(format, budget.booked_spent)}
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-muted">Expenses</span>
+          <span className="text-muted">{t("summary.expenses")}</span>
           <span className="tabular-nums text-ink">
-            {usd(budget.expense_spent)}
+            {usd(format, budget.expense_spent)}
           </span>
         </div>
         <div className="flex justify-between text-sm font-bold">
-          <span className="text-ink">Total spent</span>
+          <span className="text-ink">{t("summary.totalSpent")}</span>
           <span className="tabular-nums text-ink">
-            {usd(budget.total_spent)}
+            {usd(format, budget.total_spent)}
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-muted">Cap</span>
+          <span className="text-muted">{t("summary.cap")}</span>
           <span className="tabular-nums text-muted">
-            {budget.total_cap == null ? "—" : usd(budget.total_cap)}
+            {budget.total_cap == null ? tCommon("notAvailable") : usd(format, budget.total_cap)}
           </span>
         </div>
         <div className="flex justify-between text-sm font-bold">
-          <span className="text-ink">Remaining</span>
+          <span className="text-ink">{t("summary.remaining")}</span>
           <span
             className={`tabular-nums ${
               budget.over_budget ? "text-status-cancelled" : "text-ink"
             }`}
           >
             {budget.total_remaining == null
-              ? "—"
-              : usd(budget.total_remaining)}
+              ? tCommon("notAvailable")
+              : usd(format, budget.total_remaining)}
           </span>
         </div>
         {budget.total_cap != null ? (
@@ -166,7 +173,7 @@ function SummaryPanel({ tripId }: { tripId: string }) {
             role="alert"
             className="text-sm font-bold text-status-cancelled"
           >
-            Over budget.
+            {t("summary.overBudget")}
           </p>
         ) : null}
       </div>
@@ -185,6 +192,8 @@ function LedgerRow({
   onDelete: () => void;
   deleting: boolean;
 }) {
+  const t = useTranslations("Expenses");
+  const format = useFormatter();
   return (
     <div className="flex items-center justify-between gap-md border-b border-line py-sm last:border-b-0">
       <div className="flex min-w-0 flex-col gap-xs">
@@ -203,18 +212,18 @@ function LedgerRow({
       <div className="flex items-center gap-md">
         <div className="text-right">
           <div className="text-sm tabular-nums text-ink">
-            {money(expense.amount, expense.currency)}
+            {money(format, expense.amount, expense.currency)}
           </div>
           <div className="text-xs tabular-nums text-muted">
-            {usd(expense.amount_usd)}
+            {usd(format, expense.amount_usd)}
           </div>
         </div>
         <div className="flex gap-xs">
           <Button variant="ghost" onClick={onEdit}>
-            Edit
+            {t("edit")}
           </Button>
           <Button variant="ghost" onClick={onDelete} disabled={deleting}>
-            {deleting ? "…" : "Delete"}
+            {deleting ? t("deleting") : t("delete")}
           </Button>
         </div>
       </div>
@@ -223,6 +232,7 @@ function LedgerRow({
 }
 
 export function ExpensesTab({ tripId }: { tripId: string }) {
+  const t = useTranslations("Expenses");
   const [filters, setFilters] = useState<ExpenseFilters>({});
   const { data, isPending, isError } = useExpenses(
     tripId,
@@ -246,8 +256,8 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
   return (
     <section className="flex flex-col gap-md">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-extrabold text-ink">Expenses</h2>
-        <Button onClick={() => setFormState("new")}>Add expense</Button>
+        <h2 className="text-lg font-extrabold text-ink">{t("title")}</h2>
+        <Button onClick={() => setFormState("new")}>{t("addExpense")}</Button>
       </div>
 
       <div className="flex flex-wrap items-end gap-sm">
@@ -256,7 +266,7 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
             htmlFor="expense-filter-category"
             className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
           >
-            Category
+            {t("filterCategory")}
           </label>
           <select
             id="expense-filter-category"
@@ -264,10 +274,10 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
             onChange={(e) => setFilter("category", e.target.value)}
             className="h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink"
           >
-            <option value="">All</option>
+            <option value="">{t("filterAll")}</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(`categories.${c}`)}
               </option>
             ))}
           </select>
@@ -277,7 +287,7 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
             htmlFor="expense-filter-from"
             className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
           >
-            From
+            {t("filterFrom")}
           </label>
           <input
             id="expense-filter-from"
@@ -292,7 +302,7 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
             htmlFor="expense-filter-to"
             className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
           >
-            To
+            {t("filterTo")}
           </label>
           <input
             id="expense-filter-to"
@@ -308,23 +318,23 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
         <Card className="flex flex-col">
           {isPending ? (
             <div className="flex items-center gap-sm text-sm text-muted">
-              <Spinner label="Loading expenses" />
-              <span>Loading expenses…</span>
+              <Spinner label={t("loadingLabel")} />
+              <span>{t("loading")}</span>
             </div>
           ) : isError || !data ? (
             <EmptyState
               icon="💸"
-              title="Couldn't load expenses"
-              hint="Something went wrong fetching this trip's expenses."
+              title={t("errorTitle")}
+              hint={t("errorHint")}
             />
           ) : data.results.length === 0 ? (
             <EmptyState
               icon="🧾"
-              title="No expenses yet"
-              hint="Log what you spend to track it against your budget."
+              title={t("emptyTitle")}
+              hint={t("emptyHint")}
               action={
                 <Button onClick={() => setFormState("new")}>
-                  Add expense
+                  {t("addExpense")}
                 </Button>
               }
             />
@@ -350,7 +360,7 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
       <Modal
         open={formState !== null}
         onClose={() => setFormState(null)}
-        title={formState === "new" ? "Add expense" : "Edit expense"}
+        title={formState === "new" ? t("modalAddTitle") : t("modalEditTitle")}
       >
         {formState !== null ? (
           <ExpenseForm

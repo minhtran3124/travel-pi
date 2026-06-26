@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
@@ -53,6 +54,7 @@ export function ItemForm({
   onSubmit,
   onClose,
 }: ItemFormProps) {
+  const t = useTranslations("Itinerary");
   const [day, setDay] = useState(String(initial?.day ?? 1));
   const [kind, setKind] = useState<TripItemKind>(initial?.kind ?? "place");
   const [status, setStatus] = useState<TripItemStatus>(
@@ -81,7 +83,7 @@ export function ItemForm({
       <form className="flex flex-col gap-md" onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-md">
           <Field
-            label="Day"
+            label={t("form.day")}
             type="number"
             min={1}
             value={day}
@@ -89,8 +91,8 @@ export function ItemForm({
             required
           />
           <Field
-            label="Start time"
-            placeholder="09:00"
+            label={t("form.startTime")}
+            placeholder={t("form.startTimePlaceholder")}
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
           />
@@ -98,31 +100,31 @@ export function ItemForm({
 
         <div className="grid grid-cols-2 gap-md">
           <Select
-            label="Kind"
+            label={t("form.kind")}
             value={kind}
             onChange={(e) => setKind(e.target.value as TripItemKind)}
           >
             {KINDS.map((k) => (
               <option key={k} value={k}>
-                {k}
+                {t(`kinds.${k}`)}
               </option>
             ))}
           </Select>
           <Select
-            label="Status"
+            label={t("form.status")}
             value={status}
             onChange={(e) => setStatus(e.target.value as TripItemStatus)}
           >
             {STATUSES.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {t(`statuses.${s}`)}
               </option>
             ))}
           </Select>
         </div>
 
         <Field
-          label="Title"
+          label={t("form.title")}
           value={titleValue}
           onChange={(e) => setTitleValue(e.target.value)}
           maxLength={200}
@@ -130,13 +132,13 @@ export function ItemForm({
         />
 
         <Field
-          label="Place ID (optional)"
+          label={t("form.placeId")}
           value={placeId}
           onChange={(e) => setPlaceId(e.target.value)}
         />
 
         <Textarea
-          label="Notes"
+          label={t("form.notes")}
           value={notes}
           maxLength={1000}
           onChange={(e) => setNotes(e.target.value)}
@@ -150,13 +152,13 @@ export function ItemForm({
 
         <div className="mt-sm flex justify-end gap-sm">
           <Button variant="ghost" onClick={onClose} disabled={submitting}>
-            Cancel
+            {t("form.cancel")}
           </Button>
           <Button
             type="submit"
             disabled={submitting || titleValue.trim().length === 0}
           >
-            {submitting ? "Saving…" : "Save"}
+            {submitting ? t("form.saving") : t("form.save")}
           </Button>
         </div>
       </form>

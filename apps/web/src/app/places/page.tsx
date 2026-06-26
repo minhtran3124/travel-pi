@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BrowseDrawer } from "@/components/places/BrowseDrawer";
@@ -41,6 +42,7 @@ function placeToCreate(place: Place): SavedPlaceCreate {
 }
 
 export default function PlacesPage() {
+  const t = useTranslations("Places");
   const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [visitedOnly, setVisitedOnly] = useState(false);
   const [browseOpen, setBrowseOpen] = useState(false);
@@ -69,12 +71,12 @@ export default function PlacesPage() {
       setNotice({
         tone: "info",
         message: err.hint
-          ? `Already in your saved places (${err.hint}).`
-          : "This place is already in your saved places.",
+          ? t("duplicateWithHint", { hint: err.hint })
+          : t("duplicate"),
       });
       return;
     }
-    setNotice({ tone: "error", message: "Could not save the place. Try again." });
+    setNotice({ tone: "error", message: t("saveError") });
   }
 
   async function handleAdd(e: React.FormEvent) {
@@ -90,7 +92,7 @@ export default function PlacesPage() {
       });
       setName("");
       setCity("");
-      setNotice({ tone: "info", message: "Place saved." });
+      setNotice({ tone: "info", message: t("saved") });
     } catch (err) {
       reportCreateError(err);
     }
@@ -101,7 +103,7 @@ export default function PlacesPage() {
     try {
       await createPlace.mutateAsync(placeToCreate(place));
       setBrowseOpen(false);
-      setNotice({ tone: "info", message: `Saved "${place.name}".` });
+      setNotice({ tone: "info", message: t("savedNamed", { name: place.name }) });
     } catch (err) {
       reportCreateError(err);
     }
@@ -112,8 +114,8 @@ export default function PlacesPage() {
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-lg px-xl py-lg">
       <header className="flex flex-wrap items-center justify-between gap-sm">
-        <h1 className="text-2xl font-extrabold text-ink">Saved places</h1>
-        <Button onClick={() => setBrowseOpen(true)}>Browse catalog</Button>
+        <h1 className="text-2xl font-extrabold text-ink">{t("title")}</h1>
+        <Button onClick={() => setBrowseOpen(true)}>{t("browseCatalog")}</Button>
       </header>
 
       <form
@@ -121,8 +123,8 @@ export default function PlacesPage() {
         className="flex flex-wrap items-end gap-sm rounded-md border border-line bg-panel p-md"
       >
         <Field
-          label="Name"
-          placeholder="Secret rooftop bar"
+          label={t("nameLabel")}
+          placeholder={t("namePlaceholder")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoComplete="off"
@@ -131,8 +133,8 @@ export default function PlacesPage() {
           wrapperClassName="min-w-[12rem] flex-[2]"
         />
         <Field
-          label="City"
-          placeholder="Hanoi"
+          label={t("cityLabel")}
+          placeholder={t("cityPlaceholder")}
           value={city}
           onChange={(e) => setCity(e.target.value)}
           autoComplete="off"
@@ -145,7 +147,7 @@ export default function PlacesPage() {
           disabled={createPlace.isPending || !name.trim()}
           className="shrink-0"
         >
-          {createPlace.isPending ? "Adding…" : "Add place"}
+          {createPlace.isPending ? t("adding") : t("addPlace")}
         </Button>
       </form>
 
@@ -169,35 +171,33 @@ export default function PlacesPage() {
           aria-pressed={favoriteOnly}
           onClick={() => setFavoriteOnly((v) => !v)}
         >
-          ★ Favorites
+          {t("favorites")}
         </Button>
         <Button
           variant={visitedOnly ? "primary" : "ghost"}
           aria-pressed={visitedOnly}
           onClick={() => setVisitedOnly((v) => !v)}
         >
-          ✓ Visited
+          {t("visitedFilter")}
         </Button>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center py-xl">
-          <Spinner label="Loading saved places" />
+          <Spinner label={t("loadingLabel")} />
         </div>
       ) : isError ? (
         <EmptyState
           icon="⚠️"
-          title="Could not load saved places"
-          hint="Something went wrong reaching the server."
+          title={t("errorTitle")}
+          hint={t("errorHint")}
         />
       ) : places.length === 0 ? (
         <EmptyState
           icon="📍"
-          title="No saved places yet"
+          title={t("emptyTitle")}
           hint={
-            hasFilters
-              ? "No places match these filters."
-              : "Add one above or browse the catalog to get started."
+            hasFilters ? t("emptyHintFiltered") : t("emptyHintDefault")
           }
         />
       ) : (

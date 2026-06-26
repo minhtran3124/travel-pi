@@ -1,7 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
+import { cn } from "@/lib/cn";
+import { AgentAvatar } from "./AgentAvatar";
+
 const iconButtonClass =
-  "flex h-9 w-9 items-center justify-center rounded-[12px] border border-[#ececec] bg-white text-[#1c1c1c] transition hover:bg-[#f4f4f2]";
+  "flex h-9 w-9 items-center justify-center rounded-[12px] border border-line bg-white text-ink transition duration-150 hover:bg-panel-raised active:translate-y-px";
 
 const svgProps = {
   width: 18,
@@ -15,39 +20,64 @@ const svgProps = {
   "aria-hidden": true,
 };
 
+export type AgentStatus = "ready" | "working" | "waiting";
+
+const STATUS_KEY: Record<AgentStatus, string> = {
+  ready: "statusReady",
+  working: "statusWorking",
+  waiting: "statusWaiting",
+};
+
+const STATUS_DOT: Record<AgentStatus, string> = {
+  ready: "bg-status-confirmed",
+  working: "bg-lime",
+  waiting: "bg-status-estimated",
+};
+
 export interface ChatHeaderProps {
+  status: AgentStatus;
   fullscreen: boolean;
   onToggleFullscreen: () => void;
   onClose: () => void;
 }
 
-/** Chat panel title bar: status dot, title, expand/shrink + close controls. */
+/** Chat panel title bar: agent identity, live status, expand/shrink + close. */
 export function ChatHeader({
+  status,
   fullscreen,
   onToggleFullscreen,
   onClose,
 }: ChatHeaderProps) {
+  const t = useTranslations("Chat");
   return (
-    <header className="flex items-center justify-between border-b border-[#ececec] bg-white px-lg py-md">
+    <header className="flex items-center justify-between border-b border-line bg-gradient-to-r from-lime-soft/55 via-white to-white px-lg py-md">
       <div className="flex items-center gap-sm">
-        <svg
-          {...svgProps}
-          width={18}
-          height={18}
-          className="text-lime"
-          fill="currentColor"
-          stroke="none"
-        >
-          <path d="M12 2l1.9 5.1L19 9l-5.1 1.9L12 16l-1.9-5.1L5 9l5.1-1.9L12 2zM18 14l.9 2.4L21.3 17l-2.4.9L18 20.3l-.9-2.4L14.7 17l2.4-.9L18 14z" />
-        </svg>
-        <h2 className="text-sm font-bold tracking-tight text-[#1c1c1c]">
-          Travel Assistant
-        </h2>
+        <AgentAvatar size="sm" />
+        <div className="leading-tight">
+          <h2 className="text-sm font-bold tracking-tight text-ink">
+            {t("headerTitle")}
+          </h2>
+          <p
+            role="status"
+            aria-live="polite"
+            className="flex items-center gap-1.5 text-xs text-muted"
+          >
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-1.5 w-1.5 rounded-pill",
+                STATUS_DOT[status],
+                status === "working" && "tp-typing-dot",
+              )}
+            />
+            {t(STATUS_KEY[status])}
+          </p>
+        </div>
       </div>
       <div className="flex items-center gap-xs">
         <button
           type="button"
-          aria-label={fullscreen ? "Shrink panel" : "Expand panel"}
+          aria-label={fullscreen ? t("shrinkPanel") : t("expandPanel")}
           aria-pressed={fullscreen}
           onClick={onToggleFullscreen}
           className={iconButtonClass}
@@ -62,7 +92,7 @@ export function ChatHeader({
         </button>
         <button
           type="button"
-          aria-label="Close travel assistant"
+          aria-label={t("closeAssistant")}
           onClick={onClose}
           className={iconButtonClass}
         >

@@ -1,18 +1,21 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations("Errors");
+
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <EmptyState
         icon="🧭"
-        title="Page not found"
-        hint="The page you were looking for doesn't exist or has moved."
+        title={t("notFoundTitle")}
+        hint={t("notFoundHint")}
         action={
           <Link href="/trips">
-            <Button>Back to Trips</Button>
+            <Button>{t("backToTrips")}</Button>
           </Link>
         }
       />

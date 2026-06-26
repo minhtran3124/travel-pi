@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Pill } from "@/components/ui/Pill";
 import { cn } from "@/lib/cn";
 import type { TripItem, TripItemKind, TripItemStatus } from "@/lib/query/items";
@@ -51,6 +53,7 @@ export function ItemRow({
   onEdit,
   onDelete,
 }: ItemRowProps) {
+  const t = useTranslations("Itinerary");
   return (
     <li className="relative flex gap-md">
       {/* Timeline node — the kind glyph doubles as the marker on the day rail. */}
@@ -78,7 +81,7 @@ export function ItemRow({
             <Pill
               variant="status"
               tone={STATUS_TONE[item.status]}
-              label={item.status}
+              label={t(`statuses.${item.status}`)}
             />
           </div>
           {item.notes ? (
@@ -91,7 +94,7 @@ export function ItemRow({
             type="button"
             className={iconButtonClass()}
             disabled={!canMoveUp || busy}
-            aria-label="Move up"
+            aria-label={t("moveUp")}
             onClick={onMoveUp}
           >
             ↑
@@ -100,7 +103,7 @@ export function ItemRow({
             type="button"
             className={iconButtonClass()}
             disabled={!canMoveDown || busy}
-            aria-label="Move down"
+            aria-label={t("moveDown")}
             onClick={onMoveDown}
           >
             ↓
@@ -109,7 +112,7 @@ export function ItemRow({
             type="button"
             className={iconButtonClass()}
             disabled={busy}
-            aria-label="Edit item"
+            aria-label={t("editItem")}
             onClick={onEdit}
           >
             ✎
@@ -118,7 +121,7 @@ export function ItemRow({
             type="button"
             className={iconButtonClass()}
             disabled={busy}
-            aria-label="Delete item"
+            aria-label={t("deleteItem")}
             onClick={onDelete}
           >
             ✕

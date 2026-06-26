@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { BookingDetailModal } from "@/components/bookings/BookingDetailModal";
@@ -21,6 +22,7 @@ const SELECT_CLASS =
   "h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink";
 
 export default function BookingsPage() {
+  const t = useTranslations("Bookings");
   const { data, isLoading, isError } = useBookings();
   const cancel = useCancelBooking();
 
@@ -70,88 +72,86 @@ export default function BookingsPage() {
   return (
     <div className="flex flex-col gap-lg">
       <div className="flex items-baseline justify-between gap-md">
-        <h1 className="text-[1.35rem] font-extrabold text-ink">Bookings</h1>
+        <h1 className="text-[1.35rem] font-extrabold text-ink">{t("title")}</h1>
         {data ? (
           <span className="text-sm text-muted tabular-nums">
-            {visible.length} of {all.length}
+            {t("countSummary", { visible: visible.length, all: all.length })}
           </span>
         ) : null}
       </div>
 
       <div className="flex flex-wrap items-end gap-md">
         <Field
-          label="Search"
-          placeholder="Code, name, email…"
+          label={t("searchLabel")}
+          placeholder={t("searchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="min-w-[14rem]"
         />
         <label className="flex flex-col gap-xs">
           <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            Type
+            {t("typeLabel")}
           </span>
           <select
-            aria-label="Type"
+            aria-label={t("typeLabel")}
             className={SELECT_CLASS}
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
           >
-            <option value="all">All</option>
-            <option value="flight">Flight</option>
-            <option value="hotel">Hotel</option>
+            <option value="all">{t("typeAll")}</option>
+            <option value="flight">{t("typeFlight")}</option>
+            <option value="hotel">{t("typeHotel")}</option>
           </select>
         </label>
         <label className="flex flex-col gap-xs">
           <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            Status
+            {t("statusLabel")}
           </span>
           <select
-            aria-label="Status"
+            aria-label={t("statusLabel")}
             className={SELECT_CLASS}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           >
-            <option value="all">All</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="all">{t("statusAll")}</option>
+            <option value="confirmed">{t("statusConfirmed")}</option>
+            <option value="cancelled">{t("statusCancelled")}</option>
           </select>
         </label>
         <label className="flex flex-col gap-xs">
           <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            Sort
+            {t("sortLabel")}
           </span>
           <select
-            aria-label="Sort"
+            aria-label={t("sortLabel")}
             className={SELECT_CLASS}
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
           >
-            <option value="created_desc">Newest first</option>
-            <option value="created_asc">Oldest first</option>
-            <option value="price_desc">Price: high to low</option>
-            <option value="price_asc">Price: low to high</option>
+            <option value="created_desc">{t("sortNewest")}</option>
+            <option value="created_asc">{t("sortOldest")}</option>
+            <option value="price_desc">{t("sortPriceDesc")}</option>
+            <option value="price_asc">{t("sortPriceAsc")}</option>
           </select>
         </label>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center py-xl">
-          <Spinner label="Loading bookings" />
+          <Spinner label={t("loadingLabel")} />
         </div>
       ) : isError ? (
         <EmptyState
           icon="⚠️"
-          title="Couldn't load bookings"
-          hint="Something went wrong fetching your bookings. Try again."
+          title={t("errorTitle")}
+          hint={t("errorHint")}
         />
       ) : visible.length === 0 ? (
         <EmptyState
           icon="🧳"
-          title={all.length === 0 ? "No bookings yet" : "No matching bookings"}
+          title={all.length === 0 ? t("emptyTitleNone") : t("emptyTitleNoMatch")}
           hint={
-            all.length === 0
-              ? "Flights and hotels you book will appear here."
-              : "Try adjusting your search or filters."
+            all.length === 0 ? t("emptyHintNone") : t("emptyHintNoMatch")
           }
         />
       ) : (

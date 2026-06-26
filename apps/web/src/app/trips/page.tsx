@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,19 +11,26 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useTrips, type Trip } from "@/lib/query/trips";
 
 /** A "well-traveled friend" momentum line for the welcome strip. */
-function momentum(trips: Trip[]): string {
+function momentum(
+  trips: Trip[],
+  t: ReturnType<typeof useTranslations>,
+): string {
   if (trips.length === 0) {
-    return "Plan your first trip and start mapping it out — I'll help.";
+    return t("momentum.firstTrip");
   }
   const today = new Date().toISOString().slice(0, 10);
 
   const now = trips.find(
-    (t) => t.start_date && t.end_date && t.start_date <= today && today <= t.end_date,
+    (trip) =>
+      trip.start_date &&
+      trip.end_date &&
+      trip.start_date <= today &&
+      today <= trip.end_date,
   );
-  if (now) return `${now.city || now.title} is happening right now — have a great trip.`;
+  if (now) return t("momentum.happeningNow", { name: now.city || now.title });
 
   const next = trips
-    .filter((t) => t.start_date && t.start_date >= today)
+    .filter((trip) => trip.start_date && trip.start_date >= today)
     .sort((a, b) => (a.start_date! < b.start_date! ? -1 : 1))[0];
   if (next) {
     const days = Math.round(
@@ -31,15 +39,21 @@ function momentum(trips: Trip[]): string {
         86_400_000,
     );
     const when =
-      days <= 0 ? "today" : days === 1 ? "tomorrow" : days < 14 ? `in ${days} days` : `in ${Math.round(days / 7)} weeks`;
-    return `${next.city || next.title} is up next — ${when}.`;
+      days <= 0
+        ? t("momentum.when.today")
+        : days === 1
+          ? t("momentum.when.tomorrow")
+          : days < 14
+            ? t("momentum.when.inDays", { days })
+            : t("momentum.when.inWeeks", { weeks: Math.round(days / 7) });
+    return t("momentum.upNext", { name: next.city || next.title, when });
   }
 
-  const n = trips.length;
-  return `${n} ${n === 1 ? "trip" : "trips"} in the books. Where to next?`;
+  return t("momentum.inTheBooks", { count: trips.length });
 }
 
 export default function TripsPage() {
+  const t = useTranslations("Trips");
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const { data, isPending, isError, refetch } = useTrips();
@@ -75,15 +89,15 @@ export default function TripsPage() {
         <div className="relative flex flex-wrap items-end justify-between gap-md">
           <div className="flex flex-col gap-xs">
             <h1 className="text-[1.7rem] font-extrabold leading-tight tracking-tight text-ink">
-              Where to next?
+              {t("whereToNext")}
             </h1>
             <p className="max-w-[48ch] text-sm font-medium text-ink/70">
-              {isPending ? "Loading your trips…" : momentum(trips)}
+              {isPending ? t("loadingTrips") : momentum(trips, t)}
             </p>
           </div>
           <Button onClick={() => setModalOpen(true)} className="gap-xs">
             <PlusIcon />
-            New trip
+            {t("newTrip")}
           </Button>
         </div>
       </section>
@@ -91,7 +105,7 @@ export default function TripsPage() {
       {isPending ? (
         <>
           <span role="status" className="sr-only">
-            Loading your trips
+            {t("loadingTripsStatus")}
           </span>
           <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -102,19 +116,19 @@ export default function TripsPage() {
       ) : isError ? (
         <EmptyState
           icon="⚠️"
-          title="We couldn't load your trips"
-          hint="Check your connection and try again."
-          action={<Button onClick={() => refetch()}>Try again</Button>}
+          title={t("errorTitle")}
+          hint={t("errorHint")}
+          action={<Button onClick={() => refetch()}>{t("tryAgain")}</Button>}
         />
       ) : trips.length === 0 ? (
         <EmptyState
           icon="🧳"
-          title="Your next adventure starts here"
-          hint="Create a trip and we'll help you build the itinerary, find places, and track the budget."
+          title={t("emptyTitle")}
+          hint={t("emptyHint")}
           action={
             <Button onClick={() => setModalOpen(true)} className="gap-xs">
               <PlusIcon />
-              Plan a trip
+              {t("planATrip")}
             </Button>
           }
         />

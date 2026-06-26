@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -38,6 +39,7 @@ export function ExpenseForm({
   expense?: Expense;
   onDone: () => void;
 }) {
+  const t = useTranslations("Expenses");
   const add = useAddExpense(tripId);
   const update = useUpdateExpense(tripId);
   const isEdit = expense !== undefined;
@@ -97,20 +99,20 @@ export function ExpenseForm({
   return (
     <div className="flex flex-col gap-md">
       <Select
-        label="Category"
+        label={t("form.category")}
         value={category}
         onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
       >
         {CATEGORIES.map((c) => (
           <option key={c} value={c}>
-            {c}
+            {t(`categories.${c}`)}
           </option>
         ))}
       </Select>
 
       <div className="grid grid-cols-2 gap-sm">
         <Field
-          label="Amount"
+          label={t("form.amount")}
           type="number"
           min={0}
           step="0.01"
@@ -119,7 +121,7 @@ export function ExpenseForm({
           onChange={(e) => setAmount(e.target.value)}
         />
         <Field
-          label="Currency"
+          label={t("form.currency")}
           value={currency}
           maxLength={3}
           onChange={(e) => setCurrency(e.target.value)}
@@ -127,14 +129,14 @@ export function ExpenseForm({
       </div>
 
       <Field
-        label="Description"
+        label={t("form.description")}
         value={description}
-        placeholder="Optional"
+        placeholder={t("form.descriptionPlaceholder")}
         onChange={(e) => setDescription(e.target.value)}
       />
 
       <Field
-        label="Date"
+        label={t("form.date")}
         type="date"
         value={occurredAt}
         onChange={(e) => setOccurredAt(e.target.value)}
@@ -142,16 +144,16 @@ export function ExpenseForm({
 
       {errored ? (
         <p className="text-sm text-status-cancelled">
-          Couldn&apos;t save the expense. Try again.
+          {t("form.saveError")}
         </p>
       ) : null}
 
       <div className="flex justify-end gap-sm">
         <Button variant="ghost" onClick={onDone}>
-          Cancel
+          {t("form.cancel")}
         </Button>
         <Button onClick={submit} disabled={!valid || pending}>
-          {pending ? "Saving…" : isEdit ? "Save changes" : "Add expense"}
+          {pending ? t("form.saving") : isEdit ? t("form.saveChanges") : t("form.add")}
         </Button>
       </div>
     </div>

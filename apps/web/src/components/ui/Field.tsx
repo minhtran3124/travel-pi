@@ -28,6 +28,16 @@ export function Field({
       <input
         id={inputId}
         className={cn(controlClass, "h-[34px] w-full px-sm", className)}
+        // Suppress password-manager / autofill overlays. These inject an inline
+        // button into the field (e.g. on "Name"-labelled inputs) that inflates
+        // its height and breaks row alignment. No Field here is a credential
+        // input, so suppression is always safe. Caller props below can override.
+        autoComplete="off"
+        data-1p-ignore=""
+        data-lpignore="true"
+        data-bwignore="true"
+        data-form-type="other"
+        data-protonpass-ignore="true"
         {...props}
       />
     </div>

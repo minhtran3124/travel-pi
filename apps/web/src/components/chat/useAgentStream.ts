@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { streamBaseUrl } from "@/lib/api/client";
@@ -70,6 +71,7 @@ function newId(): string {
 export function useAgentStream(
   options: UseAgentStreamOptions = {},
 ): UseAgentStream {
+  const t = useTranslations("Chat");
   const { onTurnComplete } = options;
   const tripIdRef = useRef(options.tripId);
   useEffect(() => {
@@ -109,7 +111,7 @@ export function useAgentStream(
       const message = text.trim();
       if (message.length === 0 || isStreaming || interrupt !== null) return;
       if (!userId) {
-        setError("Identity not ready yet. Please try again in a moment.");
+        setError(t("errorIdentityNotReady"));
         return;
       }
 
@@ -184,22 +186,15 @@ export function useAgentStream(
           // NOTHING was received — otherwise keep the partial text and surface
           // the interruption.
           if (received) {
-            setError(
-              "The connection dropped mid-reply. The response above may be incomplete.",
-            );
+            setError(t("errorConnectionDropped"));
           } else {
             try {
               const reply = await chatFallback(body);
               conversationIdRef.current = reply.conversation_id;
               setAssistant(assistantId, reply.reply);
             } catch {
-              setError(
-                "The travel assistant is unavailable right now. Please try again later.",
-              );
-              setAssistant(
-                assistantId,
-                "Sorry — I could not reach the travel assistant.",
-              );
+              setError(t("errorUnavailable"));
+              setAssistant(assistantId, t("fallbackCouldNotReach"));
             }
           }
         } finally {
@@ -214,7 +209,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, isStreaming, onTurnComplete, setAssistant, userId],
+    [appendToAssistant, interrupt, isStreaming, onTurnComplete, setAssistant, t, userId],
   );
 
   const resume = useCallback(
@@ -258,9 +253,7 @@ export function useAgentStream(
           }
         } catch {
           if (controller.signal.aborted) return;
-          setError(
-            "Resume failed. The connection dropped — please try again.",
-          );
+          setError(t("errorResumeFailed"));
         } finally {
           if (!controller.signal.aborted) {
             setIsStreaming(false);
@@ -270,7 +263,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, onTurnComplete, userId],
+    [appendToAssistant, interrupt, onTurnComplete, t, userId],
   );
 
   return { messages, send, isStreaming, error, interrupt, resume };

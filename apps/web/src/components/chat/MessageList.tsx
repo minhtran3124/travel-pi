@@ -1,14 +1,31 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/cn";
-import { Spinner } from "@/components/ui/Spinner";
+import { AgentAvatar } from "./AgentAvatar";
 import type { ChatMessage } from "./useAgentStream";
 
 export interface MessageListProps {
   messages: ChatMessage[];
   isStreaming: boolean;
+}
+
+/** Three bouncing dots — the agent "thinking" before its first token lands. */
+function TypingDots() {
+  const t = useTranslations("Chat");
+  return (
+    <span className="flex items-center gap-1 py-0.5" aria-label={t("typingAria")}>
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="tp-typing-dot h-1.5 w-1.5 rounded-pill bg-muted"
+          style={{ animationDelay: `${i * 160}ms` }}
+        />
+      ))}
+    </span>
+  );
 }
 
 /** Scrollable transcript of user/assistant bubbles; assistant streams in. */
@@ -28,17 +45,21 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
         return (
           <div
             key={m.id}
-            className={isUser ? "flex justify-end" : "flex justify-start"}
+            className={cn(
+              "tp-msg-in flex items-end gap-sm",
+              isUser ? "justify-end" : "justify-start",
+            )}
           >
+            {!isUser ? <AgentAvatar size="sm" className="mb-0.5" /> : null}
             <div
               className={cn(
-                "max-w-[80%] whitespace-pre-wrap rounded-[16px] px-md py-sm text-sm",
+                "max-w-[78%] whitespace-pre-wrap px-md py-sm text-sm leading-relaxed",
                 isUser
-                  ? "bg-[#1c1c1c] font-medium text-white"
-                  : "bg-[#f4f4f2] text-[#1c1c1c]",
+                  ? "rounded-[16px] rounded-br-[5px] bg-ink font-medium text-white"
+                  : "rounded-[16px] rounded-bl-[5px] border border-line bg-white text-ink shadow-card",
               )}
             >
-              {streamingEmpty ? <Spinner label="Assistant is typing" /> : m.content}
+              {streamingEmpty ? <TypingDots /> : m.content}
             </div>
           </div>
         );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BrowseDrawer } from "@/components/places/BrowseDrawer";
@@ -23,6 +24,7 @@ function entryMeta(entry: ShortlistEntry): string {
 }
 
 export function ShortlistTab({ tripId }: { tripId: string }) {
+  const t = useTranslations("Shortlist");
   const [browseOpen, setBrowseOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -41,9 +43,9 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
       {
         onError: (err) => {
           if (err instanceof AlreadyShortlistedError) {
-            setNotice(`${name} is already on this trip's shortlist.`);
+            setNotice(t("alreadyShortlisted", { name }));
           } else {
-            setNotice(`Could not add ${name}. Please try again.`);
+            setNotice(t("addError", { name }));
           }
         },
       },
@@ -58,15 +60,15 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
   return (
     <section className="flex flex-col gap-md">
       <div className="flex flex-wrap items-center justify-between gap-sm">
-        <h2 className="text-lg font-extrabold text-ink">Shortlist</h2>
+        <h2 className="text-lg font-extrabold text-ink">{t("title")}</h2>
         <div className="flex gap-xs">
-          <Button onClick={() => setBrowseOpen(true)}>Add from catalog</Button>
+          <Button onClick={() => setBrowseOpen(true)}>{t("addFromCatalog")}</Button>
           <Button
             variant="ghost"
             onClick={() => setSavedOpen((v) => !v)}
             aria-pressed={savedOpen}
           >
-            Add from saved
+            {t("addFromSaved")}
           </Button>
         </div>
       </div>
@@ -83,12 +85,12 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
       {savedOpen ? (
         <Card className="flex flex-col gap-sm">
           <h3 className="text-sm font-bold uppercase tracking-[0.08em] text-muted">
-            Saved places
+            {t("savedPlaces")}
           </h3>
           {saved.isLoading ? (
-            <Spinner label="Loading saved places" />
+            <Spinner label={t("loadingSavedLabel")} />
           ) : !saved.data || saved.data.results.length === 0 ? (
-            <p className="text-sm text-muted">No saved places yet.</p>
+            <p className="text-sm text-muted">{t("noSavedYet")}</p>
           ) : (
             <ul className="flex flex-col gap-xs">
               {saved.data.results.map((p) => (
@@ -102,7 +104,7 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
                     disabled={busy}
                     onClick={() => handleAdd(p.id, "saved", p.name)}
                   >
-                    Add
+                    {t("add")}
                   </Button>
                 </li>
               ))}
@@ -113,19 +115,19 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
 
       {isLoading ? (
         <div className="flex justify-center py-xl">
-          <Spinner label="Loading shortlist" />
+          <Spinner label={t("loadingLabel")} />
         </div>
       ) : isError ? (
         <EmptyState
           icon="⚠️"
-          title="Could not load shortlist"
-          hint="Try reloading the page."
+          title={t("errorTitle")}
+          hint={t("errorHint")}
         />
       ) : !entries || entries.length === 0 ? (
         <EmptyState
           icon="📍"
-          title="No places shortlisted yet"
-          hint="Add places from the catalog or your saved list."
+          title={t("emptyTitle")}
+          hint={t("emptyHint")}
         />
       ) : (
         <ul className="flex flex-col gap-sm">
@@ -151,10 +153,10 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
                     variant="ghost"
                     className="shrink-0"
                     disabled={busy}
-                    aria-label={`Remove ${entry.place.name}`}
+                    aria-label={t("removeAria", { name: entry.place.name })}
                     onClick={() => remove.mutate(entry.link_id)}
                   >
-                    Remove
+                    {t("remove")}
                   </Button>
                 </Card>
               </li>

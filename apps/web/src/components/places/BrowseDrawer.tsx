@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -44,6 +45,7 @@ export function BrowseDrawer({
   onPick,
   mode = "save",
 }: BrowseDrawerProps) {
+  const t = useTranslations("Places");
   const [city, setCity] = useState("");
   const [category, setCategory] = useState<PlaceCategory | "">("");
 
@@ -55,30 +57,31 @@ export function BrowseDrawer({
 
   const { data, isFetching, isError } = usePlaceSearch(filters, open && hasQuery);
   const results = data?.results ?? [];
-  const actionLabel = mode === "shortlist" ? "Add" : "Save";
+  const actionLabel =
+    mode === "shortlist" ? t("browse.add") : t("browse.save");
 
   return (
-    <Modal open={open} onClose={onClose} title="Browse catalog">
+    <Modal open={open} onClose={onClose} title={t("browse.title")}>
       <div className="flex flex-col gap-md">
         <div className="flex flex-wrap items-end gap-sm">
           <Field
-            label="City"
-            placeholder="e.g. Da Nang"
+            label={t("browse.cityLabel")}
+            placeholder={t("browse.cityPlaceholder")}
             value={city}
             onChange={(e) => setCity(e.target.value)}
             wrapperClassName="min-w-[10rem] flex-1"
           />
           <Select
-            label="Category"
+            label={t("browse.categoryLabel")}
             id="browse-category"
             value={category}
             onChange={(e) => setCategory(e.target.value as PlaceCategory | "")}
             wrapperClassName="min-w-[9rem] flex-1"
           >
-            <option value="">Any</option>
+            <option value="">{t("browse.categoryAny")}</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c} className="capitalize">
-                {c}
+                {t(`categories.${c}`)}
               </option>
             ))}
           </Select>
@@ -88,24 +91,24 @@ export function BrowseDrawer({
           {!hasQuery ? (
             <EmptyState
               icon="🔎"
-              title="Search the catalog"
-              hint="Enter a city or pick a category to find places."
+              title={t("browse.searchTitle")}
+              hint={t("browse.searchHint")}
             />
           ) : isFetching ? (
             <div className="flex justify-center py-xl">
-              <Spinner label="Searching places" />
+              <Spinner label={t("browse.searchingLabel")} />
             </div>
           ) : isError ? (
             <EmptyState
               icon="⚠️"
-              title="Search failed"
-              hint="Could not reach the catalog. Try again."
+              title={t("browse.searchFailedTitle")}
+              hint={t("browse.searchFailedHint")}
             />
           ) : results.length === 0 ? (
             <EmptyState
               icon="🗺️"
-              title="No places found"
-              hint="Try a different city or category."
+              title={t("browse.noResultsTitle")}
+              hint={t("browse.noResultsHint")}
             />
           ) : (
             <ul className="flex flex-col gap-xs">
@@ -117,7 +120,14 @@ export function BrowseDrawer({
                   <div className="min-w-0">
                     <p className="truncate font-bold text-ink">{place.name}</p>
                     <p className="truncate text-xs text-muted">
-                      {[place.city, place.category].filter(Boolean).join(" · ")}
+                      {[
+                        place.city,
+                        place.category && t.has(`categories.${place.category}`)
+                          ? t(`categories.${place.category}`)
+                          : place.category,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
                       {" · "}
                       <span className="tabular-nums">
                         ★ {place.rating.toFixed(1)}

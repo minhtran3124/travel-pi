@@ -6,23 +6,35 @@
 // click-through from a postcard into its trip stays visually continuous and
 // the seed algorithm has a single source of truth.
 
+import type { useFormatter, useTranslations } from "next-intl";
+
 import { cn } from "@/lib/cn";
 
 const DAY = 86_400_000;
 
+// Locale-aware formatter + the `Trips` translator, threaded in from the calling
+// client component (these helpers run outside React, so they can't call hooks).
+type Formatter = ReturnType<typeof useFormatter>;
+type Translator = ReturnType<typeof useTranslations>;
+// next-intl's own date-options type (narrower `timeZoneName` than Intl's).
+type DateOpts = NonNullable<Parameters<Formatter["dateTime"]>[2]>;
+
 // API dates are timezone-less ISO (YYYY-MM-DD); pin formatting to UTC so the
 // calendar day never shifts backwards in negative-offset timezones.
-function fmt(iso: string, opts: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
+function fmt(format: Formatter, iso: string, opts: DateOpts): string {
+  return format.dateTime(new Date(`${iso}T00:00:00Z`), {
+    ...opts,
+    timeZone: "UTC",
+  });
 }
 
 export function dateRange(
+  format: Formatter,
+  t: Translator,
   start?: string | null,
   end?: string | null,
 ): string | null {
-  const full: Intl.DateTimeFormatOptions = {
+  const full: DateOpts = {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -30,19 +42,20 @@ export function dateRange(
   if (start && end) {
     const sameYear = start.slice(0, 4) === end.slice(0, 4);
     const sameMonth = sameYear && start.slice(0, 7) === end.slice(0, 7);
+    const sep = t("dateRange.separator");
     if (sameMonth) {
       // Jun 26 – 30, 2026
-      return `${fmt(start, { month: "short", day: "numeric" })} – ${fmt(end, { day: "numeric" })}, ${start.slice(0, 4)}`;
+      return `${fmt(format, start, { month: "short", day: "numeric" })} ${sep} ${fmt(format, end, { day: "numeric" })}, ${start.slice(0, 4)}`;
     }
     if (sameYear) {
       // Jun 26 – Jul 2, 2026
-      return `${fmt(start, { month: "short", day: "numeric" })} – ${fmt(end, { month: "short", day: "numeric" })}, ${start.slice(0, 4)}`;
+      return `${fmt(format, start, { month: "short", day: "numeric" })} ${sep} ${fmt(format, end, { month: "short", day: "numeric" })}, ${start.slice(0, 4)}`;
     }
     // Dec 30, 2025 – Jan 2, 2026
-    return `${fmt(start, full)} – ${fmt(end, full)}`;
+    return `${fmt(format, start, full)} ${sep} ${fmt(format, end, full)}`;
   }
-  if (start) return `From ${fmt(start, full)}`;
-  if (end) return `Until ${fmt(end, full)}`;
+  if (start) return t("dateRange.from", { date: fmt(format, start, full) });
+  if (end) return t("dateRange.until", { date: fmt(format, end, full) });
   return null;
 }
 
@@ -76,21 +89,22 @@ function todayUTC(): number {
   return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
 }
 
-function futureLabel(d: number): string {
-  if (d <= 1) return "Tomorrow";
-  if (d < 14) return `in ${d} days`;
-  if (d < 60) return `in ${Math.round(d / 7)} weeks`;
-  return `in ${Math.round(d / 30)} months`;
+function futureLabel(t: Translator, d: number): string {
+  if (d <= 1) return t("status.tomorrow");
+  if (d < 14) return t("status.inDays", { count: d });
+  if (d < 60) return t("status.inWeeks", { count: Math.round(d / 7) });
+  return t("status.inMonths", { count: Math.round(d / 30) });
 }
 
-function pastLabel(d: number): string {
-  if (d <= 1) return "Yesterday";
-  if (d < 14) return `${d} days ago`;
-  if (d < 60) return `${Math.round(d / 7)} weeks ago`;
-  return `${Math.round(d / 30)} months ago`;
+function pastLabel(t: Translator, d: number): string {
+  if (d <= 1) return t("status.yesterday");
+  if (d < 14) return t("status.daysAgo", { count: d });
+  if (d < 60) return t("status.weeksAgo", { count: Math.round(d / 7) });
+  return t("status.monthsAgo", { count: Math.round(d / 30) });
 }
 
 export function tripStatus(
+  t: Translator,
   start?: string | null,
   end?: string | null,
 ): TripStatus | null {
@@ -98,9 +112,9 @@ export function tripStatus(
   const s = utcDay((start ?? end) as string);
   const e = utcDay((end ?? start) as string);
   const today = todayUTC();
-  if (today < s) return { phase: "upcoming", label: futureLabel((s - today) / DAY) };
-  if (today > e) return { phase: "past", label: pastLabel((today - e) / DAY) };
-  return { phase: "now", label: "Happening now" };
+  if (today < s) return { phase: "upcoming", label: futureLabel(t, (s - today) / DAY) };
+  if (today > e) return { phase: "past", label: pastLabel(t, (today - e) / DAY) };
+  return { phase: "now", label: t("status.happeningNow") };
 }
 
 /** One or two initials from the city (preferred) or trip name, for the tile. */

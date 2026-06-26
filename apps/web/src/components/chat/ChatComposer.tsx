@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useLayoutEffect, useRef, useState } from "react";
 
 export interface ChatComposerProps {
   /** Blocks input while a turn is streaming or an interrupt is pending. */
@@ -8,53 +9,60 @@ export interface ChatComposerProps {
   onSend: (text: string) => void;
 }
 
-/** Message input + send button. Owns its own draft state. */
+const MAX_TEXTAREA_HEIGHT = 120; // ~5 lines, then it scrolls
+
+/** Auto-growing message input + send button. Owns its own draft state. */
 export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
+  const t = useTranslations("Chat");
   const [draft, setDraft] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Grow the textarea with its content, capped, then scroll.
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT)}px`;
+  }, [draft]);
+
+  const canSend = draft.trim().length > 0 && !disabled;
 
   const submit = () => {
-    const text = draft.trim();
-    if (text.length === 0 || disabled) return;
-    onSend(text);
+    if (!canSend) return;
+    onSend(draft.trim());
     setDraft("");
   };
 
   return (
     <form
-      className="border-t border-[#ececec] bg-white px-lg py-md"
+      className="border-t border-line bg-white px-lg py-md"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
-      <div className="flex items-center gap-sm rounded-pill border border-[#ececec] bg-[#f7f7f5] py-1 pl-md pr-1">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0 text-[#9a9a9a]"
-          aria-hidden="true"
-        >
-          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-        </svg>
-        <input
-          type="text"
+      <div className="flex items-end gap-sm rounded-[18px] border border-line bg-void p-1.5 pl-md transition focus-within:border-[#d6d6d6] focus-within:shadow-card">
+        <textarea
+          ref={textareaRef}
+          rows={1}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Message the travel assistant…"
-          aria-label="Message"
-          className="min-w-0 flex-1 bg-transparent text-sm text-[#1c1c1c] placeholder:text-[#9a9a9a] focus:outline-none"
+          onKeyDown={(e) => {
+            // Enter sends; Shift+Enter inserts a newline.
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              submit();
+            }
+          }}
+          placeholder={t("composerPlaceholder")}
+          aria-label={t("composerAriaLabel")}
+          className="min-w-0 flex-1 resize-none self-center bg-transparent py-1.5 text-sm leading-relaxed text-ink placeholder:text-muted focus:outline-none focus-visible:shadow-none"
         />
         <button
           type="submit"
-          aria-label="Send message"
-          disabled={disabled || draft.trim().length === 0}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-[#1c1c1c] text-white transition hover:brightness-125 disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label={t("sendMessage")}
+          disabled={!canSend}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-ink text-white transition duration-150 hover:bg-[#2e2e2e] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink"
         >
           <svg
             width="16"

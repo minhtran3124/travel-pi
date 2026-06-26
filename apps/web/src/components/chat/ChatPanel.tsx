@@ -1,13 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { ChatComposer } from "./ChatComposer";
-import { ChatHeader } from "./ChatHeader";
+import { ChatEmptyState } from "./ChatEmptyState";
+import { ChatHeader, type AgentStatus } from "./ChatHeader";
 import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
-import { QuickReplies } from "./QuickReplies";
 import type { UseAgentStream } from "./useAgentStream";
 
 export interface ChatPanelProps {
@@ -16,31 +17,36 @@ export interface ChatPanelProps {
 }
 
 /**
- * Dark Kith-style overlay: lime-accented surface with a header, greeting,
- * quick-reply chips, the streaming transcript, and a composer. Surfaces an
- * amber notice when the agent has degraded/failed.
+ * The agent's surface: a floating white panel that springs out of the launcher,
+ * carrying the agent's identity + live status, a teaching empty state, the
+ * streaming transcript, and a composer. Surfaces an amber notice when the agent
+ * has degraded/failed.
  *
  * When the agent emits an interrupt event (HITL plan approval), an inline
- * approve/reject prompt replaces the composer until the user decides.
+ * approve/reject checkpoint replaces the composer until the user decides.
  */
 export function ChatPanel({ stream, onClose }: ChatPanelProps) {
+  const t = useTranslations("Chat");
   const { messages, send, isStreaming, error, interrupt, resume } = stream;
   const [fullscreen, setFullscreen] = useState(false);
 
   const inputBlocked = isStreaming || interrupt !== null;
+  const status: AgentStatus =
+    interrupt !== null ? "waiting" : isStreaming ? "working" : "ready";
 
   return (
     <section
       role="dialog"
-      aria-label="Travel Assistant"
+      aria-label={t("dialogLabel")}
       className={cn(
-        "flex flex-col overflow-hidden rounded-[20px] border border-[#ececec] bg-white text-[#1c1c1c] shadow-lift",
+        "tp-chat-in flex flex-col overflow-hidden rounded-[20px] border border-line bg-white text-ink shadow-lift",
         fullscreen
           ? "h-[80vh] w-[min(92vw,640px)]"
           : "h-[min(70vh,560px)] w-[min(92vw,400px)]",
       )}
     >
       <ChatHeader
+        status={status}
         fullscreen={fullscreen}
         onToggleFullscreen={() => setFullscreen((v) => !v)}
         onClose={onClose}
@@ -56,19 +62,10 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       ) : null}
 
       {messages.length === 0 ? (
-        <div className="px-lg py-md">
-          <p className="text-sm text-[#6b6b6b]">
-            Hi! I&apos;m your travel co-pilot. Ask me to plan a trip, find places,
-            or check the weather.
-          </p>
-        </div>
-      ) : null}
-
-      <MessageList messages={messages} isStreaming={isStreaming} />
-
-      {messages.length === 0 ? (
-        <QuickReplies onPick={send} disabled={inputBlocked} />
-      ) : null}
+        <ChatEmptyState onPick={send} disabled={inputBlocked} />
+      ) : (
+        <MessageList messages={messages} isStreaming={isStreaming} />
+      )}
 
       {interrupt !== null ? (
         <InterruptPrompt

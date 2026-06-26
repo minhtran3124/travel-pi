@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -25,6 +26,7 @@ const EMPTY = {
 };
 
 export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
+  const t = useTranslations("Trips.newTripModal");
   const [form, setForm] = useState(EMPTY);
   const createTrip = useCreateTrip();
 
@@ -40,7 +42,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
   // comparison correctly orders the two dates.
   const dateError =
     form.start_date && form.end_date && form.end_date < form.start_date
-      ? "End date can't be before the start date."
+      ? t("dateError")
       : null;
 
   function close() {
@@ -52,7 +54,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
   // Guard the destructive close paths (backdrop click, Esc, Cancel) so a stray
   // click doesn't silently wipe a half-filled form.
   function requestClose() {
-    if (isDirty && !window.confirm("Discard this trip? Your changes won't be saved.")) {
+    if (isDirty && !window.confirm(t("discardConfirm"))) {
       return;
     }
     close();
@@ -80,26 +82,24 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
   }
 
   return (
-    <Modal open={open} onClose={requestClose} title="New trip">
-      <p className="-mt-xs mb-md text-sm text-muted">
-        Give it a name and a few details — you can fine-tune everything later.
-      </p>
+    <Modal open={open} onClose={requestClose} title={t("title")}>
+      <p className="-mt-xs mb-md text-sm text-muted">{t("intro")}</p>
       <form onSubmit={onSubmit} className="flex flex-col gap-md">
         <Field
-          label="Trip name"
+          label={t("tripNameLabel")}
           required
           value={form.title}
           onChange={(e) => set("title", e.target.value)}
-          placeholder="Da Nang long weekend"
+          placeholder={t("tripNamePlaceholder")}
           autoComplete="off"
           data-1p-ignore
           data-lpignore="true"
         />
         <Field
-          label="City"
+          label={t("cityLabel")}
           value={form.city}
           onChange={(e) => set("city", e.target.value)}
-          placeholder="Da Nang"
+          placeholder={t("cityPlaceholder")}
           autoComplete="off"
           data-1p-ignore
           data-lpignore="true"
@@ -107,7 +107,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
         <div className="flex flex-col gap-xs">
           <div className="flex gap-md">
             <Field
-              label="Start date"
+              label={t("startDateLabel")}
               type="date"
               wrapperClassName="flex-1"
               value={form.start_date}
@@ -115,7 +115,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
               onChange={(e) => set("start_date", e.target.value)}
             />
             <Field
-              label="End date"
+              label={t("endDateLabel")}
               type="date"
               wrapperClassName="flex-1"
               value={form.end_date}
@@ -130,7 +130,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
           ) : null}
         </div>
         <Field
-          label="Travelers"
+          label={t("travelersLabel")}
           type="number"
           min={1}
           max={50}
@@ -138,7 +138,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
           onChange={(e) => set("travelers", e.target.value)}
         />
         <Textarea
-          label="Notes"
+          label={t("notesLabel")}
           rows={3}
           value={form.notes}
           onChange={(e) => set("notes", e.target.value)}
@@ -146,13 +146,13 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
 
         {createTrip.isError ? (
           <p role="alert" className="text-sm font-bold text-status-cancelled">
-            We couldn&apos;t create your trip. Please try again.
+            {t("createError")}
           </p>
         ) : null}
 
         <div className="mt-sm flex justify-end gap-sm">
           <Button type="button" variant="ghost" onClick={requestClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -162,7 +162,7 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
               dateError !== null
             }
           >
-            {createTrip.isPending ? <Spinner label="Creating trip" /> : "Create trip"}
+            {createTrip.isPending ? <Spinner label={t("creating")} /> : t("create")}
           </Button>
         </div>
       </form>

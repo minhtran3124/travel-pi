@@ -1,19 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
+import { LocaleSwitcher } from "./LocaleSwitcher";
+
 const NAV_LINKS = [
-  { href: "/trips", label: "Trips" },
-  { href: "/places", label: "Places" },
-  { href: "/bookings", label: "Bookings" },
+  { href: "/trips", key: "trips" },
+  { href: "/places", key: "places" },
+  { href: "/bookings", key: "bookings" },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const t = useTranslations("Nav");
 
   return (
     <div className="flex min-h-full flex-col">
@@ -29,10 +33,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <PlaneMark />
             </span>
-            Travel Planner
+            {t("appName")}
           </Link>
           <ul className="flex items-center gap-lg">
-            {NAV_LINKS.map(({ href, label }) => {
+            {NAV_LINKS.map(({ href, key }) => {
               const active =
                 pathname === href || pathname.startsWith(`${href}/`);
               return (
@@ -45,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       active ? "text-ink" : "text-muted hover:text-ink",
                     )}
                   >
-                    {label}
+                    {t(key)}
                     {active ? (
                       <span
                         aria-hidden="true"
@@ -57,6 +61,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               );
             })}
           </ul>
+          <div className="ml-auto">
+            <LocaleSwitcher />
+          </div>
         </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-xl py-xl">

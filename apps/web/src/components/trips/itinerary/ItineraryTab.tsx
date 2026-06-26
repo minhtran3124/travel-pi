@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -23,16 +24,20 @@ type Editing = { mode: "add" } | { mode: "edit"; item: TripItem };
 
 // Day N maps onto a real calendar date (start_date + N-1), pinned to UTC so the
 // day never shifts in negative-offset timezones — same convention as the header.
-function dayDate(start: string | null | undefined, day: number): string | null {
+function dayDate(
+  format: ReturnType<typeof useFormatter>,
+  start: string | null | undefined,
+  day: number,
+): string | null {
   if (!start) return null;
   const d = new Date(`${start}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + (day - 1));
-  return new Intl.DateTimeFormat("en-US", {
+  return format.dateTime(d, {
     weekday: "short",
     month: "short",
     day: "numeric",
     timeZone: "UTC",
-  }).format(d);
+  });
 }
 
 // Which day number (start_date + N-1) is today, or null if today is outside the
@@ -62,6 +67,8 @@ function byDay(items: TripItem[]): [number, TripItem[]][] {
 }
 
 export function ItineraryTab({ tripId }: { tripId: string }) {
+  const t = useTranslations("Itinerary");
+  const format = useFormatter();
   const { data: trip, isLoading } = useTrip(tripId);
   const addItem = useAddItem(tripId);
   const updateItem = useUpdateItem(tripId);
@@ -120,20 +127,20 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
       if (err instanceof OverBudgetError) {
         setNotice(
           err.hint
-            ? `Over budget — ${err.message} (${err.hint})`
-            : `Over budget — ${err.message}`,
+            ? t("overBudgetWithHint", { message: err.message, hint: err.hint })
+            : t("overBudget", { message: err.message }),
         );
         return;
       }
-      setNotice("Could not save the item. Please try again.");
+      setNotice(t("saveError"));
     }
   }
 
   if (isLoading) {
     return (
       <section className="flex items-center gap-sm text-sm text-muted">
-        <Spinner label="Loading itinerary" />
-        <span>Loading itinerary…</span>
+        <Spinner label={t("loadingLabel")} />
+        <span>{t("loading")}</span>
       </section>
     );
   }
@@ -141,30 +148,30 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
   return (
     <section className="flex flex-col gap-md">
       <header className="flex items-center justify-between">
-        <h2 className="text-lg font-extrabold text-ink">Itinerary</h2>
-        <Button onClick={() => setEditing({ mode: "add" })}>Add item</Button>
+        <h2 className="text-lg font-extrabold text-ink">{t("title")}</h2>
+        <Button onClick={() => setEditing({ mode: "add" })}>{t("addItem")}</Button>
       </header>
 
       {groups.length === 0 ? (
         <EmptyState
           icon="🗺️"
-          title="No itinerary items yet"
-          hint="Plan your days — add a place, meal, or transport leg."
+          title={t("emptyTitle")}
+          hint={t("emptyHint")}
           action={
             <Button onClick={() => setEditing({ mode: "add" })}>
-              Add item
+              {t("addItem")}
             </Button>
           }
         />
       ) : (
         <div className="flex flex-col gap-lg">
           {groups.map(([day, dayItems]) => {
-            const date = dayDate(trip?.start_date, day);
+            const date = dayDate(format, trip?.start_date, day);
             const isToday = day === todayNum;
             return (
             <div key={day} className="flex flex-col gap-sm">
               <div className="flex items-baseline gap-sm">
-                <h3 className="text-sm font-extrabold text-ink">Day {day}</h3>
+                <h3 className="text-sm font-extrabold text-ink">{t("dayHeading", { day })}</h3>
                 {date ? (
                   <span className="text-sm text-muted">· {date}</span>
                 ) : null}
@@ -174,12 +181,11 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
                       aria-hidden="true"
                       className="size-1.5 animate-pulse rounded-pill bg-on-accent"
                     />
-                    Today
+                    {t("today")}
                   </span>
                 ) : null}
                 <span className="ml-auto text-xs font-bold text-muted tabular-nums">
-                  {dayItems.length}{" "}
-                  {dayItems.length === 1 ? "item" : "items"}
+                  {t("itemCount", { count: dayItems.length })}
                 </span>
               </div>
               {/* The vertical rail threads the day's timeline nodes; the nodes
@@ -227,7 +233,7 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
       {editing ? (
         <ItemForm
           open
-          title={editing.mode === "edit" ? "Edit item" : "Add item"}
+          title={editing.mode === "edit" ? t("form.editTitle") : t("form.addTitle")}
           initial={editing.mode === "edit" ? editing.item : undefined}
           submitting={mutating}
           notice={notice}

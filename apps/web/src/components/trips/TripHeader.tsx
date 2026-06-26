@@ -1,3 +1,4 @@
+import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
@@ -15,8 +16,11 @@ import {
   tripStatus,
 } from "./tripVisuals";
 
-function money(value: number): string {
-  return value.toLocaleString("en-US", {
+function money(
+  format: ReturnType<typeof useFormatter>,
+  value: number,
+): string {
+  return format.number(value, {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -72,33 +76,33 @@ function GapsSummary({
     other.length === 0 &&
     stays.length === 0 &&
     empties.length >= totalDays;
+  const t = useTranslations("TripDetail");
 
   return (
     <div className="flex flex-col gap-sm rounded-md bg-panel-raised px-md py-md">
       <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-        Still to plan
+        {t("gaps.stillToPlan")}
       </span>
 
       {allOpen ? (
         <p className="text-sm text-muted">
-          Blank canvas — all {totalDays} days are open. Add your first stop in
-          the <span className="font-bold text-ink">Itinerary</span> tab to start
-          mapping it out.
+          {t("gaps.blankCanvas", {
+            totalDays: totalDays!,
+            itinerary: t("gaps.itinerary"),
+          })}
         </p>
       ) : (
         <div className="flex flex-col gap-sm">
           {empties.length > 0 ? (
             <>
               <p className="text-sm text-muted">
-                <span className="font-bold text-ink">{empties.length}</span>{" "}
-                {empties.length === 1 ? "day still needs" : "days still need"} a
-                plan
+                {t("gaps.daysNeedPlan", { count: empties.length })}
               </p>
               <ul className="flex flex-wrap gap-xs">
                 {empties.map((d) => (
                   <li key={d}>
                     <span className="inline-flex rounded-pill bg-panel px-sm py-px text-xs font-bold text-muted ring-1 ring-line">
-                      Day {d}
+                      {t("gaps.dayChip", { day: d })}
                     </span>
                   </li>
                 ))}
@@ -107,9 +111,7 @@ function GapsSummary({
           ) : null}
           {stays.length > 0 ? (
             <p className="text-sm text-muted">
-              <span className="font-bold text-ink">{stays.length}</span>{" "}
-              {stays.length === 1 ? "day still needs" : "days still need"} a place
-              to stay
+              {t("gaps.noStay", { count: stays.length })}
             </p>
           ) : null}
           {other.length > 0 ? (
@@ -126,8 +128,12 @@ function GapsSummary({
 }
 
 export function TripHeader({ trip }: { trip: TripDetail }) {
-  const range = dateRange(trip.start_date, trip.end_date);
-  const status = tripStatus(trip.start_date, trip.end_date);
+  const t = useTranslations("TripDetail");
+  const tCommon = useTranslations("Common");
+  const tTrips = useTranslations("Trips");
+  const format = useFormatter();
+  const range = dateRange(format, tTrips, trip.start_date, trip.end_date);
+  const status = tripStatus(tTrips, trip.start_date, trip.end_date);
   const now = status?.phase === "now";
   const cover = coverForTrip(trip.city || trip.title, now);
   const days = tripDays(trip.start_date, trip.end_date);
@@ -140,7 +146,7 @@ export function TripHeader({ trip }: { trip: TripDetail }) {
         className="inline-flex w-fit items-center gap-xs text-sm font-bold text-muted transition hover:text-ink"
       >
         <BackArrow />
-        All trips
+        {t("allTrips")}
       </Link>
 
       {/* The trip's own postcard, opened up — same deterministic cover the card
@@ -194,19 +200,29 @@ export function TripHeader({ trip }: { trip: TripDetail }) {
 
           {/* Hairline meta rail — gap-px over a line bg draws the 1px grid. */}
           <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md bg-line ring-1 ring-line sm:grid-cols-4">
-            <Stat label="Trip length" value={days === null ? "—" : `${days} ${days === 1 ? "day" : "days"}`} />
             <Stat
-              label="Travelers"
+              label={t("stats.tripLength")}
+              value={
+                days === null
+                  ? tCommon("notAvailable")
+                  : t("tripLengthDays", { count: days })
+              }
+            />
+            <Stat
+              label={t("stats.travelers")}
               value={String(trip.travelers)}
             />
-            <Stat label="Total spent" value={money(trip.total_spent)} />
             <Stat
-              label="Remaining"
+              label={t("stats.totalSpent")}
+              value={money(format, trip.total_spent)}
+            />
+            <Stat
+              label={t("stats.remaining")}
               value={
                 trip.remaining_budget === null ||
                 trip.remaining_budget === undefined
-                  ? "No cap"
-                  : money(trip.remaining_budget)
+                  ? t("noCap")
+                  : money(format, trip.remaining_budget)
               }
             />
           </dl>

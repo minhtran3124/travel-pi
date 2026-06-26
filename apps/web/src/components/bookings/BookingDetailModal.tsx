@@ -1,5 +1,7 @@
 "use client";
 
+import { useFormatter, useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Pill } from "@/components/ui/Pill";
@@ -18,35 +20,57 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function FlightDetails({ booking }: { booking: Booking }) {
+  const t = useTranslations("Bookings");
   const d = booking.details;
   if (d.kind !== "flight") return null;
   return (
     <div className="flex flex-col">
-      <Row label="Flight" value={`${d.airline} ${d.flight_number}`} />
-      <Row label="Route" value={`${d.origin} → ${d.destination}`} />
-      <Row label="Departs" value={d.departure_time} />
-      <Row label="Arrives" value={d.arrival_time} />
-      <Row label="Passenger" value={d.passenger_name} />
+      <Row
+        label={t("detail.flight")}
+        value={t("detail.flightValue", {
+          airline: d.airline,
+          flightNumber: d.flight_number,
+        })}
+      />
+      <Row
+        label={t("detail.route")}
+        value={t("detail.routeValue", {
+          origin: d.origin,
+          destination: d.destination,
+        })}
+      />
+      <Row label={t("detail.departs")} value={d.departure_time} />
+      <Row label={t("detail.arrives")} value={d.arrival_time} />
+      <Row label={t("detail.passenger")} value={d.passenger_name} />
       {d.passenger_phone ? (
-        <Row label="Phone" value={d.passenger_phone} />
+        <Row label={t("detail.phone")} value={d.passenger_phone} />
       ) : null}
     </div>
   );
 }
 
 function HotelDetails({ booking }: { booking: Booking }) {
+  const t = useTranslations("Bookings");
   const d = booking.details;
   if (d.kind !== "hotel") return null;
   return (
     <div className="flex flex-col">
-      <Row label="Hotel" value={d.hotel_name} />
-      <Row label="City" value={d.city} />
-      <Row label="Check-in" value={d.check_in} />
-      <Row label="Check-out" value={d.check_out} />
-      <Row label="Nights" value={String(d.nights)} />
-      <Row label="Rooms" value={String(d.rooms)} />
-      <Row label="Guests" value={`${d.adults} adults, ${d.children} children`} />
-      {d.guest_phone ? <Row label="Phone" value={d.guest_phone} /> : null}
+      <Row label={t("detail.hotel")} value={d.hotel_name} />
+      <Row label={t("detail.city")} value={d.city} />
+      <Row label={t("detail.checkIn")} value={d.check_in} />
+      <Row label={t("detail.checkOut")} value={d.check_out} />
+      <Row label={t("detail.nights")} value={String(d.nights)} />
+      <Row label={t("detail.rooms")} value={String(d.rooms)} />
+      <Row
+        label={t("detail.guests")}
+        value={t("detail.guestsValue", {
+          adults: d.adults,
+          children: d.children,
+        })}
+      />
+      {d.guest_phone ? (
+        <Row label={t("detail.phone")} value={d.guest_phone} />
+      ) : null}
     </div>
   );
 }
@@ -66,10 +90,12 @@ export function BookingDetailModal({
   onCancel,
   cancelling = false,
 }: BookingDetailModalProps) {
+  const t = useTranslations("Bookings");
+  const format = useFormatter();
   if (!booking) return null;
 
   const isCancelled = booking.status === "cancelled";
-  const price = booking.total_price.toLocaleString(undefined, {
+  const price = format.number(booking.total_price, {
     style: "currency",
     currency: booking.currency,
   });
@@ -81,18 +107,18 @@ export function BookingDetailModal({
           <Pill
             variant={booking.type === "hotel" ? "status" : "topic"}
             tone={booking.type === "hotel" ? "hotel" : "transport"}
-            label={booking.type === "hotel" ? "Hotel" : "Flight"}
+            label={booking.type === "hotel" ? t("pillHotel") : t("pillFlight")}
           />
           <Pill
             variant="status"
             tone={isCancelled ? "cancelled" : "confirmed"}
-            label={isCancelled ? "Cancelled" : "Confirmed"}
+            label={isCancelled ? t("pillCancelled") : t("pillConfirmed")}
           />
         </div>
 
         <div className="flex items-baseline justify-between gap-md">
           <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            Confirmation
+            {t("detail.confirmation")}
           </span>
           <span className="font-mono text-sm text-ink">
             {booking.confirmation_code}
@@ -108,11 +134,11 @@ export function BookingDetailModal({
         </div>
 
         <div className="flex flex-col">
-          <Row label="Customer" value={booking.customer_name} />
-          <Row label="Email" value={booking.customer_email} />
+          <Row label={t("detail.customer")} value={booking.customer_name} />
+          <Row label={t("detail.email")} value={booking.customer_email} />
           <div className="flex items-baseline justify-between gap-md py-xs">
             <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-              Total
+              {t("detail.total")}
             </span>
             <span className="text-right text-sm font-bold text-ink tabular-nums">
               {price}
@@ -122,7 +148,7 @@ export function BookingDetailModal({
 
         <div className="flex justify-end gap-sm">
           <Button variant="ghost" onClick={onClose}>
-            Close
+            {t("detail.close")}
           </Button>
           {!isCancelled ? (
             <Button
@@ -130,7 +156,11 @@ export function BookingDetailModal({
               onClick={() => onCancel(booking.id)}
               disabled={cancelling}
             >
-              {cancelling ? <Spinner label="Cancelling" /> : "Cancel booking"}
+              {cancelling ? (
+                <Spinner label={t("detail.cancellingLabel")} />
+              ) : (
+                t("detail.cancelBooking")
+              )}
             </Button>
           ) : null}
         </div>

@@ -1,3 +1,4 @@
+import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
@@ -16,8 +17,10 @@ import {
 } from "./tripVisuals";
 
 export function TripCard({ trip }: { trip: Trip }) {
-  const range = dateRange(trip.start_date, trip.end_date);
-  const status = tripStatus(trip.start_date, trip.end_date);
+  const t = useTranslations("Trips");
+  const format = useFormatter();
+  const range = dateRange(format, t, trip.start_date, trip.end_date);
+  const status = tripStatus(t, trip.start_date, trip.end_date);
   const now = status?.phase === "now";
   const cover = coverForTrip(trip.city || trip.title, now);
 
@@ -63,11 +66,11 @@ export function TripCard({ trip }: { trip: Trip }) {
           <div className="mt-auto flex flex-wrap items-center gap-x-lg gap-y-xs border-t border-line-soft pt-md text-sm text-muted">
             <span className="flex items-center gap-xs">
               <CalendarIcon />
-              {range ?? "No dates yet"}
+              {range ?? t("card.noDatesYet")}
             </span>
             <span className="flex items-center gap-xs">
               <UsersIcon />
-              {trip.travelers} {trip.travelers === 1 ? "traveler" : "travelers"}
+              {t("card.travelers", { count: trip.travelers })}
             </span>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -20,17 +21,6 @@ import {
 const CATEGORIES = ["flights", "hotels", "activities", "buffer"] as const;
 type CategoryKey = (typeof CATEGORIES)[number];
 
-const LABELS: Record<CategoryKey, string> = {
-  flights: "Flights",
-  hotels: "Hotels",
-  activities: "Activities",
-  buffer: "Buffer",
-};
-
-function usd(value: number): string {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
-
 function CategoryRow({
   label,
   cat,
@@ -38,6 +28,9 @@ function CategoryRow({
   label: string;
   cat: CategoryBudget;
 }) {
+  const t = useTranslations("Common");
+  const format = useFormatter();
+  const usd = (value: number) => format.number(value, "usd");
   const over = cat.remaining !== null && cat.remaining !== undefined && cat.remaining < 0;
   const capped = cat.cap !== null && cat.cap !== undefined;
   return (
@@ -46,7 +39,7 @@ function CategoryRow({
         <span className="text-sm font-bold text-ink">{label}</span>
         <div className="flex items-center gap-lg text-sm tabular-nums">
           <span className="w-16 text-right text-muted">
-            {capped ? usd(cat.cap as number) : "—"}
+            {capped ? usd(cat.cap as number) : t("notAvailable")}
           </span>
           <span className="w-16 text-right text-ink">{usd(cat.spent)}</span>
           <span
@@ -56,7 +49,7 @@ function CategoryRow({
             )}
           >
             {cat.remaining === null || cat.remaining === undefined
-              ? "—"
+              ? t("notAvailable")
               : usd(cat.remaining)}
           </span>
         </div>
@@ -75,6 +68,7 @@ function EditCapsForm({
   initial: TripBudgetSet;
   onDone: () => void;
 }) {
+  const t = useTranslations("Budget");
   const setBudget = useSetBudget(tripId);
   const [values, setValues] = useState<Record<CategoryKey, string>>({
     flights: initial.flights != null ? String(initial.flights) : "",
@@ -94,14 +88,11 @@ function EditCapsForm({
 
   return (
     <div className="flex flex-col gap-md">
-      <p className="text-sm text-muted">
-        Set a cap per category, in USD. Leave a field blank to leave it uncapped.
-        Saving replaces all caps.
-      </p>
+      <p className="text-sm text-muted">{t("editForm.intro")}</p>
       {CATEGORIES.map((key) => (
         <Field
           key={key}
-          label={`${LABELS[key]} cap (USD)`}
+          label={t("editForm.capLabel", { category: t(`categories.${key}`) })}
           type="number"
           min={0}
           step="0.01"
@@ -114,15 +105,15 @@ function EditCapsForm({
       ))}
       {setBudget.isError ? (
         <p className="text-sm text-status-cancelled">
-          Couldn&apos;t save the budget. Try again.
+          {t("editForm.saveError")}
         </p>
       ) : null}
       <div className="flex justify-end gap-sm">
         <Button variant="ghost" onClick={onDone}>
-          Cancel
+          {t("editForm.cancel")}
         </Button>
         <Button onClick={submit} disabled={setBudget.isPending}>
-          {setBudget.isPending ? "Saving…" : "Save caps"}
+          {setBudget.isPending ? t("editForm.saving") : t("editForm.save")}
         </Button>
       </div>
     </div>
@@ -130,14 +121,18 @@ function EditCapsForm({
 }
 
 export function BudgetTab({ tripId }: { tripId: string }) {
+  const t = useTranslations("Budget");
+  const tCommon = useTranslations("Common");
+  const format = useFormatter();
+  const usd = (value: number) => format.number(value, "usd");
   const { data, isPending, isError } = useBudget(tripId);
   const [editing, setEditing] = useState(false);
 
   if (isPending) {
     return (
       <section className="flex items-center gap-sm text-sm text-muted">
-        <Spinner label="Loading budget" />
-        <span>Loading budget…</span>
+        <Spinner label={t("loadingLabel")} />
+        <span>{t("loading")}</span>
       </section>
     );
   }
@@ -147,8 +142,8 @@ export function BudgetTab({ tripId }: { tripId: string }) {
       <section>
         <EmptyState
           icon="💸"
-          title="Couldn't load the budget"
-          hint="Something went wrong fetching this trip's budget."
+          title={t("errorTitle")}
+          hint={t("errorHint")}
         />
       </section>
     );
@@ -164,9 +159,9 @@ export function BudgetTab({ tripId }: { tripId: string }) {
   return (
     <section className="flex flex-col gap-md">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-extrabold text-ink">Budget</h2>
+        <h2 className="text-lg font-extrabold text-ink">{t("title")}</h2>
         <Button variant="ghost" onClick={() => setEditing(true)}>
-          Edit caps
+          {t("editCaps")}
         </Button>
       </div>
 
@@ -175,32 +170,32 @@ export function BudgetTab({ tripId }: { tripId: string }) {
           role="alert"
           className="rounded-sm border border-status-cancelled bg-status-cancelled/10 px-md py-sm text-sm font-bold text-status-cancelled"
         >
-          Over budget — spend exceeds a category cap.
+          {t("overBudgetAlert")}
         </div>
       ) : null}
 
       <Card className="flex flex-col">
         <div className="flex items-center justify-between pb-xs text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-          <span>Category</span>
+          <span>{t("tableCategory")}</span>
           <div className="flex items-center gap-lg">
-            <span className="w-16 text-right">Cap</span>
-            <span className="w-16 text-right">Spent</span>
-            <span className="w-16 text-right">Left</span>
+            <span className="w-16 text-right">{t("tableCap")}</span>
+            <span className="w-16 text-right">{t("tableSpent")}</span>
+            <span className="w-16 text-right">{t("tableLeft")}</span>
           </div>
         </div>
         {CATEGORIES.map((key) => (
           <CategoryRow
             key={key}
-            label={LABELS[key]}
+            label={t(`categories.${key}`)}
             cat={data.categories[key]}
           />
         ))}
         <div className="flex flex-col gap-xs pt-sm">
           <div className="flex items-center justify-between text-sm font-extrabold text-ink">
-            <span>Total</span>
+            <span>{t("total")}</span>
             <div className="flex items-center gap-lg tabular-nums">
               <span className="w-16 text-right text-muted">
-                {data.total_cap == null ? "—" : usd(data.total_cap)}
+                {data.total_cap == null ? tCommon("notAvailable") : usd(data.total_cap)}
               </span>
               <span className="w-16 text-right">{usd(data.total_spent)}</span>
               <span
@@ -211,7 +206,7 @@ export function BudgetTab({ tripId }: { tripId: string }) {
                     : "",
                 )}
               >
-                {data.total_remaining == null ? "—" : usd(data.total_remaining)}
+                {data.total_remaining == null ? tCommon("notAvailable") : usd(data.total_remaining)}
               </span>
             </div>
           </div>
@@ -224,7 +219,7 @@ export function BudgetTab({ tripId }: { tripId: string }) {
       <Modal
         open={editing}
         onClose={() => setEditing(false)}
-        title="Edit budget caps"
+        title={t("editForm.modalTitle")}
       >
         <EditCapsForm
           tripId={tripId}

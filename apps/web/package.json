@@ -13,8 +13,13 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "@tanstack/react-query": "^5.101",
     "next": "16.2.9",
+    "next-intl": "^4.13.0",
+    "npm": "^11.17.0",
+    "npx": "^10.2.2",
     "openapi-fetch": "^0.17",
     "react": "19.2.4",
     "react-dom": "19.2.4"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -12,6 +13,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("Errors");
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -20,9 +23,9 @@ export default function Error({
     <div className="flex min-h-[60vh] items-center justify-center">
       <EmptyState
         icon="⚠️"
-        title="Something went wrong"
-        hint="An unexpected error interrupted this page. You can try again."
-        action={<Button onClick={() => reset()}>Try again</Button>}
+        title={t("somethingWentWrongTitle")}
+        hint={t("somethingWentWrongHint")}
+        action={<Button onClick={() => reset()}>{t("tryAgain")}</Button>}
       />
     </div>
   );
