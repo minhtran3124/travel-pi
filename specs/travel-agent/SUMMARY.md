@@ -38,7 +38,8 @@ and CI need no API key.
   retriever (RRF), pgvector extension migration (probes availability).
 - **5 Graph**: TravelAgentState, build_subagent ReAct factory, 5 specialists,
   supervisor (Command routing), nodes (load_context/summarize/reflection/plan HITL),
-  build_graph.
+  build_graph. **Note**: `plan_node` was defined but not wired — fixed in
+  `fix/agent-m1-hitl-plan-wire` (REVIEW.md M1).
 - **6 API**: /agent/chat, /agent/stream (SSE), /agent/manifest + persistence.
 - **7 Observability**: Langfuse callbacks (opt-in, off by default).
 - **8 Eval**: routing + retrieval datasets, metrics, run_eval gate, CI smoke test.
@@ -62,6 +63,12 @@ and CI need no API key.
 - Note — `ragas` is an optional extra (lazy-imported in `eval/metrics.py`); not
   pinned to keep the dep tree lean. RAG + Postgres checkpointer/store + pgvector
   are Postgres-only; SQLite/tests use the in-memory equivalents.
+- **M1 fix (REVIEW.md)** — `plan_node` was dead code: defined in `nodes.py` but
+  never added to the graph. Wired as a real HITL interrupt gate: supervisor routes
+  booking intent to `plan` first; `interrupt()` pauses for approval; `Command(resume=
+  {"approved": True|False})` resumes to booking or ends gracefully. `ChatRequest`
+  gains `resume` field; `ChatResponse` gains `interrupt_pending` + `interrupt_payload`.
+  eval `run_routing_eval` fixed to use `current_flow` (semantic intent) not `goto`.
 
 ## Notes
 
@@ -73,7 +80,8 @@ and CI need no API key.
 
 | Check | Command | Exit | Notes |
 |---|---|---|---|
-| Full suite (SQLite) | `pytest -q` | 0 | 843 passed |
+| Full suite (SQLite) | `pytest -q` | 0 | 852 passed (M1 adds 4 HITL tests) |
+| HITL plan interrupt | `pytest tests/agents/test_hitl_plan.py -v` | 0 | 4 passed |
 | Alembic drift | `alembic upgrade head && alembic check` | 0 | no drift |
 | Lint | `ruff check app scripts eval` | 0 | clean |
 | Cross-engine (Postgres, py3.12) | `make test-docker` | 0 | see Status Log |

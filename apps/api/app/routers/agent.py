@@ -12,6 +12,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
 from langchain_core.messages import HumanMessage
+from langgraph.types import Command
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -74,26 +75,42 @@ async def agent_chat(
         body.conversation_id
         or repo.create_conversation(user_id=body.user_id, trip_id=body.trip_id).id
     )
-    repo.append_message(
-        conversation_id=conversation_id, role="user", content=body.message
-    )
+    cfg = _config(_thread_id(body, conversation_id), body)
 
-    result = await graph.ainvoke(
-        {
-            "messages": [HumanMessage(content=body.message)],
-            "user_id": body.user_id,
-            "trip_id": body.trip_id,
-        },
-        _config(_thread_id(body, conversation_id), body),
-    )
-    reply = result["messages"][-1].content if result["messages"] else ""
-    repo.append_message(
-        conversation_id=conversation_id, role="assistant", content=reply
-    )
+    if body.resume is not None:
+        # Resume a graph paused at a plan-approval interrupt.
+        result = await graph.ainvoke(Command(resume=body.resume), cfg)
+    else:
+        repo.append_message(
+            conversation_id=conversation_id, role="user", content=body.message
+        )
+        result = await graph.ainvoke(
+            {
+                "messages": [HumanMessage(content=body.message)],
+                "user_id": body.user_id,
+                "trip_id": body.trip_id,
+            },
+            cfg,
+        )
+
+    interrupts = result.get("__interrupt__", [])
+    interrupt_pending = bool(interrupts)
+    interrupt_payload = interrupts[0].value if interrupts else None
+
+    if interrupt_pending:
+        reply = ""
+    else:
+        reply = result["messages"][-1].content if result["messages"] else ""
+        repo.append_message(
+            conversation_id=conversation_id, role="assistant", content=reply
+        )
+
     return ChatResponse(
         conversation_id=conversation_id,
         reply=reply,
         current_flow=result.get("current_flow"),
+        interrupt_pending=interrupt_pending,
+        interrupt_payload=interrupt_payload,
     )
 
 

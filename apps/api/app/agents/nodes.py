@@ -89,12 +89,24 @@ def make_reflection_node(llm: BaseChatModel, max_revisions: int = _MAX_REVISIONS
     return reflection
 
 
-def plan_node(state: TravelAgentState) -> dict:
-    """Human-in-the-loop: surface a draft plan and wait for approval.
+def plan_node(state: TravelAgentState) -> Command:
+    """Human-in-the-loop: surface a draft booking plan and wait for approval.
 
-    ``interrupt`` pauses the graph and returns the value the caller resumes with
-    (``Command(resume=...)``). Used before committing an itinerary or a booking.
+    ``interrupt`` pauses the graph; the caller resumes with
+    ``Command(resume={"approved": True|False})``.  On approval the graph
+    continues to the ``booking`` sub-agent; on rejection it ends gracefully.
     """
     draft = state["messages"][-1].content if state["messages"] else ""
     decision = interrupt({"type": "plan_approval", "draft": draft})
-    return {"messages": [AIMessage(content=f"Plan decision received: {decision}")]}
+    approved = not (isinstance(decision, dict) and not decision.get("approved", True))
+    if not approved:
+        return Command(
+            update={"messages": [AIMessage(content="Booking cancelled as requested.")]},
+            goto=END,
+        )
+    return Command(
+        update={
+            "messages": [AIMessage(content="Plan approved. Proceeding with booking.")]
+        },
+        goto="booking",
+    )
