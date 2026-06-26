@@ -38,6 +38,11 @@ export function ChatWidget() {
 
   const stream = useAgentStream({ tripId, onTurnComplete });
 
+  // The agent co-pilot is part of the app shell, not the auth surfaces.
+  if (pathname?.startsWith("/auth")) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-md">
       {open ? (
