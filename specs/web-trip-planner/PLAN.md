@@ -275,6 +275,9 @@ apps/web/
 ## Status Log
 
 - 2026-06-26 — Plan drafted from approved design + xia2 brief.
+- 2026-06-26 — **Wave 1 DONE**: Task 1.1 commit `94fa016` (deps + gen:api → committed schema.d.ts + vitest/MSW harness). Spec review ✅.
+- 2026-06-26 — **Wave 2 DONE**: 1.2 `41df5fb` (typed client+keys), 1.4 `a370d69` (@theme + 8 ui primitives), 1.3 `ccb0e37` (identity). Review ✅ (10 tests pass, tsc clean, barrier build ✓).
+- 2026-06-26 — **Wave 3 DONE**: 1.5 `98d4c74` (QueryProvider+IdentityProvider+AppShell+Inter+redirect+error/not-found+ChatWidget FAB stub). Barrier build ✓ — app builds & renders. **Foundation complete (Waves 1–3).** Remaining: Wave 4 (trips/bookings/places) · 5 (tabs) · 6 (chat widget) · 7 (tests/e2e/CI + correctness + intent).
 - 2026-06-26 — Plan-review round 1: 2 blocking issues fixed (test harness moved to Task 1.1;
   `cd`-backgrounding bug in 1.1/3.2 verifies → subshell + readiness poll + `$!` PID). Advisories
   applied: per-task `tsc --noEmit` + wave-barrier builds; Inter-only via next/font; ChatWidget in
