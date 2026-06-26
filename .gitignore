@@ -48,6 +48,7 @@ next-env.d.ts
 .impeccable/
 .opencode/
 .turbo/
+.playwright-mcp/
 
 # Derived plan-render artifacts (visual-planner)
 specs/**/PLAN.html
