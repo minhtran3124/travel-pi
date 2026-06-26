@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  /* coral brand */
+  --color-coral-bright: #ff6f5e;
+  --color-coral-deep:   #c2410c;
+  --color-coral-soft:   #ffa99c;
+  --color-on-accent:    #3a0f08;
+
+  /* surfaces */
+  --color-void:          #1a1614;
+  --color-panel:         #221d1a;
+  --color-panel-raised:  #2e2723;
+  --color-line:          #3e342e;
+  --color-line-soft:     #2f2823;
+
+  /* text */
+  --color-ink:    #efe9e6;
+  --color-muted:  #a89c96;
+
+  /* status spectrum (closed) */
+  --color-status-confirmed: #34d399; /* green  */
+  --color-status-estimated: #fbbf24; /* yellow */
+  --color-status-delayed:   #fb923c; /* orange */
+  --color-status-boarding:  #38bdf8; /* cyan   */
+  --color-status-cancelled: #f87171; /* red    */
+  --color-status-hotel:     #2563eb; /* hotel  */
+
+  /* topic palette (incl. lime for the Kith chat accent) */
+  --color-topic-transport:    #fbbf24;
+  --color-topic-money:        #34d399;
+  --color-topic-safety:       #f87171;
+  --color-topic-culture:      #c084fc;
+  --color-topic-food:         #fb923c;
+  --color-topic-connectivity: #38bdf8;
+  --color-topic-health:       #fb7185;
+  --color-topic-etiquette:    #2dd4bf;
+  --color-lime:               #a3e635; /* best_time → chat accent */
+  --color-topic-language:     #818cf8;
+
+  /* typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Menlo", "Consolas", "SF Mono", monospace;
+
+  /* radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+
+  /* spacing (extends the default scale with named steps) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* elevation */
+  --shadow-card: 0 2px 12px rgba(0,0,0,.45);
+  --shadow-lift: 0 14px 32px -8px rgba(0,0,0,.60), 0 4px 10px -4px rgba(0,0,0,.40);
+}
+
+/* coral focus ring — outside @theme (it's a utility, not a token) */
+@layer base {
+  *:focus-visible { box-shadow: 0 0 0 3px rgba(255,111,94,.35); outline: none; }
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+@keyframes tp-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

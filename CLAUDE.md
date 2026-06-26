@@ -6,41 +6,44 @@ Guidance for Claude Code working in this repo.
 
 FastAPI mock backend for a Travel Planner agent. Everything is faked except keyless Open-Meteo calls (`/weather`, `/air-quality`, `/destinations/{city}/climate`) and `/*/route` (OpenRouteService, haversine fallback).
 
-Work in the **repo root** (`app/`, `tests/`, `scripts/`). Ignore `apps/` and `packages/` — stale, not buildable.
+**Monorepo** (pnpm workspaces + Turborepo). The BE lives in `apps/api/` (FastAPI) and the
+Next.js FE in `apps/web/`. Do BE work in `apps/api/`; the single Python venv stays at the
+repo root (`.venv`), referenced by `apps/api/Makefile` via `VENV ?= ../../.venv`. A root
+`Makefile` delegates to both apps: `make api | web | dev | test | lint | seed`.
+
+New here? Start with `AGENTS.md` (orientation), then `TECHSTACKS.md` (stack) and
+`WORKFLOW.md` (the AI agent architecture).
 
 ## Run & Test
 
 ```bash
-# Setup
-uv venv && source .venv/bin/activate && uv pip install -r requirements.txt
+# Setup (once, from repo root)
+uv venv && source .venv/bin/activate && uv pip install -r apps/api/requirements.txt
 
-# Dev
+# All BE commands run from apps/api/
+cd apps/api
 make dev          # uvicorn + hot-reload, Swagger at /docs
-make test         # 685 tests on SQLite (fast, zero-config)
+make test         # full suite on SQLite (fast, zero-config)
 make test-docker  # same tests on Postgres (cross-engine parity)
 make seed         # re-seed reference data into DATABASE_URL
 
-# Lint / format
+# Lint / format (from apps/api/)
 ruff check app scripts
 ruff format app scripts
 
-# Debug: run a single test file
-.venv/bin/pytest tests/api/trip/test_trip_budget.py -xvs
+# Debug: run a single test file (from apps/api/)
+../../.venv/bin/python -m pytest tests/api/trip/test_trip_budget.py -xvs
 
-# Debug: open SQLite shell
+# Debug: open SQLite shell, check alembic state (from apps/api/)
 sqlite3 travel.db
-
-# Debug: check alembic migration state
-.venv/bin/alembic current
-.venv/bin/alembic upgrade head
-
-# Debug: tail app logs
-make dev 2>&1 | grep -v "200 OK"
+../../.venv/bin/alembic current
+../../.venv/bin/alembic upgrade head
 ```
 
 ## Layout
 
 ```
+apps/api/        # FastAPI backend (relocated from repo root)
 app/
   main.py        # app factory, CORS, exception handlers, middleware
   exceptions.py  # domain exceptions (AppError subclasses), no FastAPI deps
@@ -48,6 +51,10 @@ app/
   routers/       # one file per endpoint group
   services/      # business logic
   repositories/  # SQLAlchemy ORM data access only — no logic
+  agents/        # LangGraph supervisor + 5 ReAct sub-agents, nodes, state, checkpointer
+  tools/         # agent tools grouped by domain (registry.py); also exposed via mcp/
+  clients/llm.py # provider-agnostic LLM client (init_chat_model; FakeLLM in tests)
+  memory/ rag/   # conversation memory (summarizer/store) + RAG retrieval (pgvector)
   db/models/     # ORM models (plain class names, used via `models.` namespace)
   schemas/       # Pydantic v2 models (extend AppBaseModel)
   data/          # seed source of truth
@@ -62,6 +69,7 @@ tests/           # pytest, isolated temp SQLite DB per run
 - **Deterministic generation:** flights and hotel availability seeded from MD5 hash; same query = same result. Don't change the seed algorithm.
 - **Async only for real I/O:** `weather_service`, `routing_service`. Everything else is sync.
 - **Seed data is DB-backed** — seeded idempotently from `app/data/` on startup. `from app.data` appears only in `app/db/seed.py`.
+- **AI agent (`specs/travel-agent/`):** LangGraph graph (supervisor → planner/concierge/journal/booking/budget → reflection), built once in `core/lifespan.py`, served at `/agent/*`. Provider-agnostic via `init_chat_model()`; tests run on `FakeLLM` (no network). Full detail in `WORKFLOW.md`.
 
 ## Conventions
 
