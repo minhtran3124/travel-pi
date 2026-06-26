@@ -86,3 +86,21 @@ Before touching `/dashboard/*` templates: read `PRODUCT.md` + `DESIGN.md`. Token
 Solved problems, patterns, and architectural decisions: `docs/solutions/`
 Browse the index: `docs/solutions/INDEX.md`
 Critical learnings (read at planning time): `docs/solutions/critical-patterns.md`
+
+## Shell & Git
+
+- **Stage and commit as SEPARATE commands.** A PreToolUse hook blocks compound
+  `git add … && git commit …` (the whole command is denied before the `add` runs).
+  Run `git add <paths>` first, then `git commit …` as its own command.
+- **Working directory after the monorepo move:** run BE commands from `apps/api/`
+  (or via the delegating root `Makefile`), FE commands from `apps/web/`. New
+  root-level docs belong at the repo root, not under `apps/`.
+- **Node:** use **v24** for any FE/pnpm work
+  (`export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`) — the `nvm`
+  default is still 18, and pnpm 11 requires Node ≥22.13. See
+  `docs/solutions/ci/pnpm-node-floor-mismatch.md`.
+- **Shell is zsh:** use literal file lists and quote variables in `git mv`/loops
+  (zsh word-splits; bash associative-array syntax breaks).
+- **Before opening a PR:** confirm head branch, base branch (feature PRs target the
+  latest integration branch, not `main`), and the active `gh` account
+  (`minhtran3124` for this repo).
