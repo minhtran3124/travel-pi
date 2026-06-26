@@ -71,6 +71,27 @@ describe("parseSSE", () => {
     expect(payloads).toEqual(["tail"]);
   });
 
+  it("reconstructs a multibyte char split across two byte chunks", async () => {
+    // "😀" (U+1F600) is 4 UTF-8 bytes. Frame it then split the bytes mid-char
+    // across two stream chunks; the decoder must flush its tail at stream end.
+    const bytes = new TextEncoder().encode("data: 😀\n\n");
+    // "data: " is 6 bytes; the emoji occupies bytes [6,10). Cut at 8 — inside
+    // the emoji — so the first chunk ends mid-codepoint.
+    const splitAt = 8;
+    const parts = [bytes.slice(0, splitAt), bytes.slice(splitAt)];
+    let i = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (i < parts.length) controller.enqueue(parts[i++]);
+        else controller.close();
+      },
+    });
+
+    const payloads = await collect(stream);
+
+    expect(payloads).toEqual(["😀"]);
+  });
+
   it("accepts an async iterable of strings (no network)", async () => {
     async function* gen() {
       yield "data: x";

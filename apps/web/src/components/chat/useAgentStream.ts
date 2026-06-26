@@ -117,6 +117,7 @@ export function useAgentStream(
       abortRef.current = controller;
 
       void (async () => {
+        let received = false;
         try {
           const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
             method: "POST",
@@ -129,7 +130,6 @@ export function useAgentStream(
             throw new Error(`stream failed: ${res.status}`);
           }
 
-          let received = false;
           for await (const chunk of parseSSE(res.body)) {
             received = true;
             appendToAssistant(assistantId, chunk);
@@ -137,22 +137,32 @@ export function useAgentStream(
           if (!received) {
             throw new Error("stream produced no tokens");
           }
-        } catch (streamErr) {
+        } catch {
           if (controller.signal.aborted) return;
-          // Fall back to the non-streaming sibling endpoint.
-          try {
-            const reply = await chatFallback(body);
-            conversationIdRef.current = reply.conversation_id;
-            setAssistant(assistantId, reply.reply);
-          } catch {
+
+          // If the stream already produced tokens the agent may have performed
+          // server-side writes; re-invoking the non-idempotent chat fallback on
+          // the same thread would risk duplicate mutations. Only fall back when
+          // NOTHING was received — otherwise keep the partial text and surface
+          // the interruption.
+          if (received) {
             setError(
-              "The travel assistant is unavailable right now. Please try again later.",
+              "The connection dropped mid-reply. The response above may be incomplete.",
             );
-            setAssistant(
-              assistantId,
-              "Sorry — I could not reach the travel assistant.",
-            );
-            void streamErr; // streaming error is superseded by the fallback failure
+          } else {
+            try {
+              const reply = await chatFallback(body);
+              conversationIdRef.current = reply.conversation_id;
+              setAssistant(assistantId, reply.reply);
+            } catch {
+              setError(
+                "The travel assistant is unavailable right now. Please try again later.",
+              );
+              setAssistant(
+                assistantId,
+                "Sorry — I could not reach the travel assistant.",
+              );
+            }
           }
         } finally {
           if (!controller.signal.aborted) {

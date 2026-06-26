@@ -35,6 +35,9 @@ async function* toTextChunks(
         if (done) break;
         if (value) yield decoder.decode(value, { stream: true });
       }
+      // Flush any bytes of a multibyte codepoint split across the final chunk.
+      const tail = decoder.decode();
+      if (tail) yield tail;
     } finally {
       reader.releaseLock();
     }
