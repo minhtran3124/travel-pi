@@ -15,18 +15,23 @@ export interface ChatPanelProps {
  * Dark Kith-style overlay: lime-accented surface with a header, greeting,
  * quick-reply chips, the streaming transcript, and a composer. Surfaces an
  * amber notice when the agent has degraded/failed.
+ *
+ * When the agent emits an interrupt event (HITL plan approval), an inline
+ * approve/reject prompt replaces the composer until the user decides.
  */
 export function ChatPanel({ stream, onClose }: ChatPanelProps) {
-  const { messages, send, isStreaming, error } = stream;
+  const { messages, send, isStreaming, error, interrupt, resume } = stream;
   const [draft, setDraft] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
 
   const submit = () => {
     const text = draft.trim();
-    if (text.length === 0 || isStreaming) return;
+    if (text.length === 0 || isStreaming || interrupt !== null) return;
     send(text);
     setDraft("");
   };
+
+  const inputBlocked = isStreaming || interrupt !== null;
 
   return (
     <section
@@ -116,33 +121,63 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       <MessageList messages={messages} isStreaming={isStreaming} />
 
       {messages.length === 0 ? (
-        <QuickReplies onPick={send} disabled={isStreaming} />
+        <QuickReplies onPick={send} disabled={inputBlocked} />
       ) : null}
 
-      <form
-        className="flex items-center gap-sm border-t border-line bg-panel px-lg py-md"
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit();
-        }}
-      >
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Message the travel assistant…"
-          aria-label="Message"
-          className="min-w-0 flex-1 rounded-sm border border-line bg-void px-md py-sm text-sm text-ink placeholder:text-muted focus:border-lime"
-        />
-        <button
-          type="submit"
-          aria-label="Send message"
-          disabled={isStreaming || draft.trim().length === 0}
-          className="flex h-9 items-center justify-center rounded-sm bg-lime px-md text-sm font-bold text-void transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+      {/* HITL approve / reject prompt */}
+      {interrupt !== null ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="border-t border-line bg-panel px-lg py-md"
         >
-          Send
-        </button>
-      </form>
+          <p className="mb-sm text-xs font-medium text-muted">
+            Ready to book:
+          </p>
+          <p className="mb-md text-sm text-ink">{interrupt.payload.draft}</p>
+          <div className="flex gap-sm">
+            <button
+              type="button"
+              onClick={() => resume(true)}
+              className="flex-1 rounded-sm bg-lime px-md py-sm text-sm font-bold text-void transition hover:brightness-110"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              onClick={() => resume(false)}
+              className="flex-1 rounded-sm border border-line bg-panel-raised px-md py-sm text-sm font-medium text-muted transition hover:text-ink"
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      ) : (
+        <form
+          className="flex items-center gap-sm border-t border-line bg-panel px-lg py-md"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+        >
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="Message the travel assistant…"
+            aria-label="Message"
+            className="min-w-0 flex-1 rounded-sm border border-line bg-void px-md py-sm text-sm text-ink placeholder:text-muted focus:border-lime"
+          />
+          <button
+            type="submit"
+            aria-label="Send message"
+            disabled={inputBlocked || draft.trim().length === 0}
+            className="flex h-9 items-center justify-center rounded-sm bg-lime px-md text-sm font-bold text-void transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Send
+          </button>
+        </form>
+      )}
     </section>
   );
 }

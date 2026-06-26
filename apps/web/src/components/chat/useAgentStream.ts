@@ -16,6 +16,12 @@ export interface ChatMessage {
   content: string;
 }
 
+/** Pending HITL interrupt from the agent — shown as an approve/reject prompt. */
+export interface InterruptState {
+  conversationId: string;
+  payload: { type: string; draft: string };
+}
+
 export interface UseAgentStreamOptions {
   tripId?: string;
   /** Called once an assistant turn finishes (stream end or fallback reply). */
@@ -32,6 +38,16 @@ export interface UseAgentStream {
    * this null.
    */
   error: string | null;
+  /**
+   * Non-null when the agent emitted an `interrupt` event and is waiting for a
+   * human decision (approve/reject) before continuing.
+   */
+  interrupt: InterruptState | null;
+  /**
+   * Resumes the agent after an interrupt. Sends `{resume:{approved}}` to
+   * `/agent/stream` and streams the continuation into the same message bubble.
+   */
+  resume: (approved: boolean) => void;
 }
 
 function newId(): string {
@@ -45,6 +61,11 @@ function newId(): string {
  * (bypassing the buffering Next proxy) and falls back to the non-streaming
  * `POST /agent/chat` on any fetch/stream error. Conversation id is persisted
  * across turns for continuity.
+ *
+ * HITL: when the agent emits `event: interrupt`, the hook surfaces an
+ * `interrupt` state and a `resume(approved)` action. The UI shows an
+ * approve/reject prompt; on decision the hook streams the continuation tokens
+ * into the same assistant message bubble and calls `onTurnComplete`.
  */
 export function useAgentStream(
   options: UseAgentStreamOptions = {},
@@ -59,9 +80,13 @@ export function useAgentStream(
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
 
   const conversationIdRef = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Tracks the assistant message id for the current turn so resume() can
+  // append continuation tokens into the same bubble.
+  const assistantIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -82,7 +107,7 @@ export function useAgentStream(
   const send = useCallback(
     (text: string) => {
       const message = text.trim();
-      if (message.length === 0 || isStreaming) return;
+      if (message.length === 0 || isStreaming || interrupt !== null) return;
       if (!userId) {
         setError("Identity not ready yet. Please try again in a moment.");
         return;
@@ -98,6 +123,7 @@ export function useAgentStream(
       }
 
       const assistantId = newId();
+      assistantIdRef.current = assistantId;
       setError(null);
       setMessages((prev) => [
         ...prev,
@@ -118,6 +144,7 @@ export function useAgentStream(
 
       void (async () => {
         let received = false;
+        let sawInterrupt = false;
         try {
           const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
             method: "POST",
@@ -130,10 +157,21 @@ export function useAgentStream(
             throw new Error(`stream failed: ${res.status}`);
           }
 
-          for await (const chunk of parseSSE(res.body)) {
+          for await (const event of parseSSE(res.body)) {
             received = true;
-            appendToAssistant(assistantId, chunk);
+            if (event.type === "token") {
+              appendToAssistant(assistantId, event.text);
+            } else if (event.type === "interrupt") {
+              sawInterrupt = true;
+              // Prefer the conversationId echoed in the interrupt event.
+              conversationIdRef.current = event.conversationId;
+              setInterrupt({
+                conversationId: event.conversationId,
+                payload: event.payload,
+              });
+            }
           }
+
           if (!received) {
             throw new Error("stream produced no tokens");
           }
@@ -167,14 +205,73 @@ export function useAgentStream(
         } finally {
           if (!controller.signal.aborted) {
             setIsStreaming(false);
+            // Delay onTurnComplete until after the user resolves the interrupt.
+            if (!sawInterrupt) {
+              onTurnComplete?.();
+            }
+          }
+          if (abortRef.current === controller) abortRef.current = null;
+        }
+      })();
+    },
+    [appendToAssistant, interrupt, isStreaming, onTurnComplete, setAssistant, userId],
+  );
+
+  const resume = useCallback(
+    (approved: boolean) => {
+      const assistantId = assistantIdRef.current;
+      const pendingInterrupt = interrupt;
+      if (!userId || !pendingInterrupt || !assistantId) return;
+
+      const body: ChatRequest = {
+        resume: { approved },
+        user_id: userId,
+        trip_id: tripIdRef.current ?? null,
+        conversation_id: pendingInterrupt.conversationId,
+      };
+
+      setInterrupt(null);
+      setIsStreaming(true);
+      setError(null);
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      void (async () => {
+        try {
+          const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+          });
+
+          if (!res.ok || !res.body) {
+            throw new Error(`resume failed: ${res.status}`);
+          }
+
+          for await (const event of parseSSE(res.body)) {
+            if (event.type === "token") {
+              appendToAssistant(assistantId, event.text);
+            }
+            // Nested interrupts are not expected; ignore if they appear.
+          }
+        } catch {
+          if (controller.signal.aborted) return;
+          setError(
+            "Resume failed. The connection dropped — please try again.",
+          );
+        } finally {
+          if (!controller.signal.aborted) {
+            setIsStreaming(false);
             onTurnComplete?.();
           }
           if (abortRef.current === controller) abortRef.current = null;
         }
       })();
     },
-    [appendToAssistant, isStreaming, onTurnComplete, setAssistant, userId],
+    [appendToAssistant, interrupt, onTurnComplete, userId],
   );
 
-  return { messages, send, isStreaming, error };
+  return { messages, send, isStreaming, error, interrupt, resume };
 }
