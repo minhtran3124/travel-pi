@@ -28,7 +28,13 @@ _MAX_REVISIONS = 1
 
 
 def load_context_node(state: TravelAgentState) -> dict:
-    """Best-effort: prepend a system message describing the active trip."""
+    """Best-effort: store the active trip snapshot in ``trip_context`` state field.
+
+    REVIEW.md M2: returning a SystemMessage via ``messages`` appends it *after* the
+    HumanMessage (``add_messages`` reducer).  Instead, carry the context in a plain
+    state field and let ``system_with_summary`` inject it at the *front* of every
+    model call — keeping the single leading SystemMessage intact for Anthropic.
+    """
     trip_id = state.get("trip_id")
     if not trip_id:
         return {}
@@ -39,7 +45,7 @@ def load_context_node(state: TravelAgentState) -> dict:
             f"Active trip: {detail.title} (city: {detail.city}). "
             f"Use the trip tools with trip_id={trip_id} for details."
         )
-        return {"messages": [SystemMessage(content=context)]}
+        return {"trip_context": context}
     except AppError:
         return {}
 

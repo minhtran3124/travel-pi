@@ -23,21 +23,28 @@ class TravelAgentState(MessagesState):
     current_flow: str  # which sub-agent the supervisor routed to
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
+    trip_context: str  # active-trip snapshot; injected at model call, not into messages
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
-    """Fold the rolling ``summary`` into the system prompt (REVIEW.md C2).
+    """Fold ``trip_context`` and ``summary`` into one leading system prompt.
 
-    The ``summarize`` node compresses old turns into ``state["summary"]`` and drops
-    them from ``messages``; without re-injecting that summary the model loses the
-    compressed context entirely. Returns ``base`` unchanged when no summary is set,
-    else one ``SystemMessage`` combining the base prompt and the summary (a single
-    system message keeps providers that reject mid-stream/multiple system messages
-    happy).
+    REVIEW.md C2: the rolling ``summary`` must be re-injected after compression.
+    REVIEW.md M2: the trip-context snapshot must appear *before* the HumanMessage,
+    not appended to ``messages`` via the ``add_messages`` reducer (which would place
+    it *after* the HumanMessage and upset Anthropic's single-system-message rule).
+
+    Returns ``base`` unchanged when neither field is set, else one ``SystemMessage``
+    combining base + trip_context + summary — a single leading system message keeps
+    providers that reject mid-stream/multiple system messages happy.
     """
+    trip_context = state.get("trip_context")
     summary = state.get("summary")
-    if not summary:
+    if not trip_context and not summary:
         return base
-    return SystemMessage(
-        content=f"{base.content}\n\nSummary of earlier conversation:\n{summary}"
-    )
+    parts = [base.content]
+    if trip_context:
+        parts.append(f"Current trip context:\n{trip_context}")
+    if summary:
+        parts.append(f"Summary of earlier conversation:\n{summary}")
+    return SystemMessage(content="\n\n".join(parts))
