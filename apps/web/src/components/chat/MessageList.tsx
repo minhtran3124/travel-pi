@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
+import { cn } from "@/lib/cn";
 import { Spinner } from "@/components/ui/Spinner";
 import type { ChatMessage } from "./useAgentStream";
 
@@ -30,12 +31,12 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
             className={isUser ? "flex justify-end" : "flex justify-start"}
           >
             <div
-              className={[
+              className={cn(
                 "max-w-[80%] whitespace-pre-wrap rounded-md px-md py-sm text-sm",
                 isUser
                   ? "bg-lime text-void font-medium"
                   : "bg-panel-raised text-ink",
-              ].join(" ")}
+              )}
             >
               {streamingEmpty ? <Spinner label="Assistant is typing" /> : m.content}
             </div>

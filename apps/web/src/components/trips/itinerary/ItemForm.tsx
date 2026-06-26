@@ -6,6 +6,8 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
 import type { TripItemKind, TripItemStatus } from "@/lib/query/items";
 
 const KINDS: TripItemKind[] = ["place", "activity", "meal", "transport", "note"];
@@ -36,9 +38,6 @@ export interface ItemFormProps {
   onSubmit: (values: ItemFormValues) => void;
   onClose: () => void;
 }
-
-const selectClass =
-  "h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink";
 
 function trimToNull(value: string): string | null {
   const trimmed = value.trim();
@@ -98,46 +97,28 @@ export function ItemForm({
         </div>
 
         <div className="grid grid-cols-2 gap-md">
-          <div className="flex flex-col gap-xs">
-            <label
-              htmlFor="item-kind"
-              className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-            >
-              Kind
-            </label>
-            <select
-              id="item-kind"
-              className={selectClass}
-              value={kind}
-              onChange={(e) => setKind(e.target.value as TripItemKind)}
-            >
-              {KINDS.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-xs">
-            <label
-              htmlFor="item-status"
-              className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-            >
-              Status
-            </label>
-            <select
-              id="item-status"
-              className={selectClass}
-              value={status}
-              onChange={(e) => setStatus(e.target.value as TripItemStatus)}
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            label="Kind"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as TripItemKind)}
+          >
+            {KINDS.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label="Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as TripItemStatus)}
+          >
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </Select>
         </div>
 
         <Field
@@ -154,21 +135,12 @@ export function ItemForm({
           onChange={(e) => setPlaceId(e.target.value)}
         />
 
-        <div className="flex flex-col gap-xs">
-          <label
-            htmlFor="item-notes"
-            className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-          >
-            Notes
-          </label>
-          <textarea
-            id="item-notes"
-            className="min-h-[64px] rounded-sm border border-line bg-panel-raised px-sm py-xs text-sm text-ink placeholder:text-muted"
-            value={notes}
-            maxLength={1000}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
+        <Textarea
+          label="Notes"
+          value={notes}
+          maxLength={1000}
+          onChange={(e) => setNotes(e.target.value)}
+        />
 
         {notice ? (
           <p className="rounded-sm border border-status-cancelled/40 bg-status-cancelled/10 px-sm py-xs text-sm text-status-cancelled">

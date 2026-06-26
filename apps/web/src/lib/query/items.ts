@@ -2,7 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { client } from "@/lib/api/client";
+import { client, unwrap } from "@/lib/api/client";
+import { OverBudgetError, throwOn409 } from "@/lib/api/errors";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
 
@@ -13,19 +14,8 @@ export type TripItemKind = components["schemas"]["TripItemKind"];
 export type TripItemStatus = components["schemas"]["TripItemStatus"];
 export type TripDetail = components["schemas"]["TripDetail"];
 
-/**
- * Raised by `useAddItem` when the BE rejects the item because a linked
- * `booking_id` would push the trip over a budget cap (409). Carries the BE
- * `hint` so the UI can surface a precise over-budget notice instead of crashing.
- */
-export class OverBudgetError extends Error {
-  readonly hint?: string;
-  constructor(message: string, hint?: string) {
-    super(message);
-    this.name = "OverBudgetError";
-    this.hint = hint;
-  }
-}
+// Re-exported so existing callers (ItineraryTab, tests) keep their import path.
+export { OverBudgetError };
 
 /**
  * Build a COMPLETE `TripItemUpdate` body from a stored item. PUT is a full
@@ -72,9 +62,7 @@ export function useAddItem(tripId: string) {
         { params: { path: { trip_id: tripId } }, body },
       );
       if (error) {
-        if (response.status === 409) {
-          throw new OverBudgetError(error.message, error.hint ?? undefined);
-        }
+        throwOn409(response, error, OverBudgetError);
         throw error;
       }
       return data;
@@ -91,21 +79,19 @@ export function useAddItem(tripId: string) {
 export function useUpdateItem(tripId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       item,
       changes,
     }: {
       item: TripItem;
       changes: Partial<TripItemUpdate>;
-    }) => {
-      const body: TripItemUpdate = { ...toUpdateBody(item), ...changes };
-      const { data, error } = await client.PUT(
-        "/trips/{trip_id}/items/{item_id}",
-        { params: { path: { trip_id: tripId, item_id: item.id } }, body },
-      );
-      if (error) throw error;
-      return data;
-    },
+    }) =>
+      unwrap(
+        client.PUT("/trips/{trip_id}/items/{item_id}", {
+          params: { path: { trip_id: tripId, item_id: item.id } },
+          body: { ...toUpdateBody(item), ...changes },
+        }),
+      ),
     onSuccess: () => invalidateItemQueries(queryClient, tripId),
   });
 }
@@ -114,13 +100,12 @@ export function useUpdateItem(tripId: string) {
 export function useDeleteItem(tripId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (itemId: string) => {
-      const { error } = await client.DELETE(
-        "/trips/{trip_id}/items/{item_id}",
-        { params: { path: { trip_id: tripId, item_id: itemId } } },
-      );
-      if (error) throw error;
-    },
+    mutationFn: (itemId: string) =>
+      unwrap(
+        client.DELETE("/trips/{trip_id}/items/{item_id}", {
+          params: { path: { trip_id: tripId, item_id: itemId } },
+        }),
+      ),
     onSuccess: () => invalidateItemQueries(queryClient, tripId),
   });
 }
@@ -138,30 +123,30 @@ interface ReorderContext {
  * Swap the `sort_order` of two adjacent items via two full-replace PUTs.
  * OPTIMISTIC: the swap is written to the cached TripDetail immediately and
  * rolled back if either PUT fails.
+ *
+ * NOTE: the two PUTs are NOT server-side atomic — if the first succeeds and the
+ * second fails, the BE is left with both items sharing one `sort_order`. The
+ * optimistic rollback below only restores the *client* cache; `onSettled`
+ * re-fetches to surface the true server state. A batch/transactional reorder
+ * endpoint would be the proper fix if this becomes user-visible.
  */
 export function useReorderItem(tripId: string) {
   const queryClient = useQueryClient();
   return useMutation<void, Error, ReorderVars, ReorderContext>({
     mutationFn: async ({ a, b }) => {
       // Full-replace bodies with sort_order swapped — never partial.
-      const aBody: TripItemUpdate = {
-        ...toUpdateBody(a),
-        sort_order: b.sort_order,
-      };
-      const bBody: TripItemUpdate = {
-        ...toUpdateBody(b),
-        sort_order: a.sort_order,
-      };
-      const r1 = await client.PUT("/trips/{trip_id}/items/{item_id}", {
-        params: { path: { trip_id: tripId, item_id: a.id } },
-        body: aBody,
-      });
-      if (r1.error) throw r1.error;
-      const r2 = await client.PUT("/trips/{trip_id}/items/{item_id}", {
-        params: { path: { trip_id: tripId, item_id: b.id } },
-        body: bBody,
-      });
-      if (r2.error) throw r2.error;
+      await unwrap(
+        client.PUT("/trips/{trip_id}/items/{item_id}", {
+          params: { path: { trip_id: tripId, item_id: a.id } },
+          body: { ...toUpdateBody(a), sort_order: b.sort_order },
+        }),
+      );
+      await unwrap(
+        client.PUT("/trips/{trip_id}/items/{item_id}", {
+          params: { path: { trip_id: tripId, item_id: b.id } },
+          body: { ...toUpdateBody(b), sort_order: a.sort_order },
+        }),
+      );
     },
     onMutate: async ({ a, b }) => {
       await queryClient.cancelQueries({ queryKey: qk.trip(tripId) });

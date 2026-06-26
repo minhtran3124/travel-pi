@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/cn";
+
 const NAV_LINKS = [
   { href: "/trips", label: "Trips" },
   { href: "/places", label: "Places" },
@@ -32,12 +34,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Link
                     href={href}
                     aria-current={active ? "page" : undefined}
-                    className={[
+                    className={cn(
                       "text-sm font-bold transition",
                       active
                         ? "text-coral-bright"
                         : "text-muted hover:text-coral-soft",
-                    ].join(" ")}
+                    )}
                   >
                     {label}
                   </Link>

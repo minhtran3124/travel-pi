@@ -1,5 +1,7 @@
 import type { ButtonHTMLAttributes } from "react";
 
+import { cn } from "@/lib/cn";
+
 type ButtonVariant = "primary" | "ghost";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -24,7 +26,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={[base, variants[variant], className].filter(Boolean).join(" ")}
+      className={cn(base, variants[variant], className)}
       {...props}
     />
   );

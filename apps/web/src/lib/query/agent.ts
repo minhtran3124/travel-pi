@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { client } from "@/lib/api/client";
+import { client, unwrap } from "@/lib/api/client";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
 
@@ -21,11 +21,7 @@ export function useManifest() {
     queryKey: qk.manifest(),
     retry: false,
     staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await client.GET("/agent/manifest");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(client.GET("/agent/manifest")),
   });
 }
 
@@ -33,8 +29,6 @@ export function useManifest() {
  * POST /agent/chat — the non-streaming sibling of `/agent/stream`. Used by the
  * widget as the SSE-error fallback: returns the full reply in one JSON body.
  */
-export async function chatFallback(body: ChatRequest): Promise<ChatResponse> {
-  const { data, error } = await client.POST("/agent/chat", { body });
-  if (error) throw error;
-  return data;
+export function chatFallback(body: ChatRequest): Promise<ChatResponse> {
+  return unwrap(client.POST("/agent/chat", { body }));
 }

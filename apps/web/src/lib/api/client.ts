@@ -4,10 +4,15 @@ import type { paths } from "./schema";
 
 // --- Identity seam -----------------------------------------------------------
 // The FE's own ownership marker for REST calls. The agent `user_id` travels in
-// the request BODY (set by callers); this is a separate `X-User-Id` header the
-// BE uses to scope REST resource ownership.
+// the request BODY (set by callers); this is a separate `X-User-Id` header that
+// is reserved for scoping REST resource ownership once real auth lands.
 //
-// Kept React-free on purpose: this is the only BE-aware layer. Task 1.3's
+// NOTE: the current mock BE ignores `X-User-Id` entirely (no auth), so the
+// known "first query may fire before IdentityProvider's mount effect sets the
+// id" race is a no-op today. When the BE starts scoping on this header, gate
+// identity-dependent queries on a non-null id (e.g. `enabled: !!userId`).
+//
+// Kept React-free on purpose: this is the only BE-aware layer. The
 // IdentityProvider imports `setUserId` and calls it on mount/identity change.
 let currentUserId: string | null = null;
 
@@ -45,6 +50,23 @@ const identityMiddleware: Middleware = {
 
 export const client = createClient<paths>({ baseUrl: "/api/be" });
 client.use(identityMiddleware);
+
+// --- Response unwrapping ------------------------------------------------------
+/**
+ * Await an openapi-fetch call, throw its `error` if present, and return `data`.
+ * Collapses the repeated `const { data, error } = await ...; if (error) throw
+ * error; return data;` block at every query/mutation call site.
+ *
+ * For DELETEs (or any call with no response body) the resolved value is
+ * `undefined`; callers that ignore the return value are unaffected.
+ */
+export async function unwrap<T>(
+  call: Promise<{ data?: T; error?: unknown }>,
+): Promise<T> {
+  const { data, error } = await call;
+  if (error) throw error;
+  return data as T;
+}
 
 // --- SSE base URL ------------------------------------------------------------
 // Direct-to-origin base for Server-Sent Events (used later by the chat widget),

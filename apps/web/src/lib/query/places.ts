@@ -7,7 +7,8 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 
-import { client } from "@/lib/api/client";
+import { client, unwrap } from "@/lib/api/client";
+import { DuplicatePlaceError, throwOn409 } from "@/lib/api/errors";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
 
@@ -19,6 +20,9 @@ export type Place = components["schemas"]["Place"];
 export type PlaceSearchResponse = components["schemas"]["PlaceSearchResponse"];
 export type PlaceCategory = components["schemas"]["PlaceCategory"];
 export type PlaceSort = components["schemas"]["PlaceSort"];
+
+// Re-exported so existing callers (SavedPlaceCard, tests) keep their import path.
+export { DuplicatePlaceError };
 
 /** Where a picked place came from — the shared vocabulary used by the shortlist. */
 export type PlaceSource = "catalog" | "saved";
@@ -32,60 +36,38 @@ export type SavedPlaceFilters = {
   visited?: boolean;
 };
 
-export interface PlaceSearchFilters {
+// A type alias (not an interface) so it carries an implicit index signature and
+// stays assignable to `qk.placeSearch`'s `Record<string, unknown>` parameter.
+export type PlaceSearchFilters = {
   city?: string;
   category?: PlaceCategory;
   min_rating?: string;
   price_level?: string;
   recommended?: boolean;
   sort?: PlaceSort;
-}
-
-/**
- * Raised by `useCreateSavedPlace` when the BE reports a duplicate (409). Carries
- * the `hint` (the existing place's `SPL-` short code) so the UI can point the
- * user at the place they already have instead of crashing.
- */
-export class DuplicatePlaceError extends Error {
-  readonly hint?: string;
-  constructor(message: string, hint?: string) {
-    super(message);
-    this.name = "DuplicatePlaceError";
-    this.hint = hint;
-  }
-}
+};
 
 // Prefix key matching every saved-places query regardless of its filter suffix
 // (`["savedPlaces"]` and `["savedPlaces", filters]`). Used to cancel/snapshot/
 // invalidate the whole family during optimistic flag writes.
-const SAVED_PLACES_PREFIX = ["savedPlaces"] as const;
+const savedPlacesPrefix = qk.savedPlaces();
 
 /** GET /places/saved — newest first, optionally filtered by city/category/flags. */
 export function useSavedPlaces(filters?: SavedPlaceFilters) {
   return useQuery({
     queryKey: filters ? qk.savedPlaces(filters) : qk.savedPlaces(),
-    queryFn: async () => {
-      const { data, error } = await client.GET("/places/saved", {
-        params: { query: filters },
-      });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () =>
+      unwrap(client.GET("/places/saved", { params: { query: filters } })),
   });
 }
 
 /** GET /places/search — catalog search; unknown city yields `total: 0`, not 404. */
 export function usePlaceSearch(filters: PlaceSearchFilters, enabled = true) {
   return useQuery({
-    queryKey: ["placeSearch", filters] as const,
+    queryKey: qk.placeSearch(filters),
     enabled,
-    queryFn: async () => {
-      const { data, error } = await client.GET("/places/search", {
-        params: { query: filters },
-      });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () =>
+      unwrap(client.GET("/places/search", { params: { query: filters } })),
   });
 }
 
@@ -101,15 +83,13 @@ export function useCreateSavedPlace() {
         body,
       });
       if (error) {
-        if (response.status === 409) {
-          throw new DuplicatePlaceError(error.message, error.hint ?? undefined);
-        }
+        throwOn409(response, error, DuplicatePlaceError);
         throw error;
       }
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SAVED_PLACES_PREFIX });
+      queryClient.invalidateQueries({ queryKey: savedPlacesPrefix });
     },
   });
 }
@@ -118,14 +98,14 @@ export function useCreateSavedPlace() {
 export function useDeleteSavedPlace() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await client.DELETE("/places/saved/{saved_id}", {
-        params: { path: { saved_id: id } },
-      });
-      if (error) throw error;
-    },
+    mutationFn: (id: string) =>
+      unwrap(
+        client.DELETE("/places/saved/{saved_id}", {
+          params: { path: { saved_id: id } },
+        }),
+      ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SAVED_PLACES_PREFIX });
+      queryClient.invalidateQueries({ queryKey: savedPlacesPrefix });
     },
   });
 }
@@ -148,9 +128,9 @@ async function applyOptimisticFlag(
   flag: "favorite" | "visited",
   { id, value }: FlagVars,
 ): Promise<SavedSnapshot> {
-  await queryClient.cancelQueries({ queryKey: SAVED_PLACES_PREFIX });
+  await queryClient.cancelQueries({ queryKey: savedPlacesPrefix });
   const snapshots = queryClient.getQueriesData<SavedPlaceListResponse>({
-    queryKey: SAVED_PLACES_PREFIX,
+    queryKey: savedPlacesPrefix,
   });
   for (const [key, prev] of snapshots) {
     if (!prev) continue;
@@ -176,18 +156,17 @@ function rollbackFlag(queryClient: QueryClient, snapshots?: SavedSnapshot): void
 export function useSetFavorite() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, value }: FlagVars) => {
-      const { data, error } = await client.POST(
-        "/places/saved/{saved_id}/favorite",
-        { params: { path: { saved_id: id } }, body: { value } },
-      );
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: ({ id, value }: FlagVars) =>
+      unwrap(
+        client.POST("/places/saved/{saved_id}/favorite", {
+          params: { path: { saved_id: id } },
+          body: { value },
+        }),
+      ),
     onMutate: (vars) => applyOptimisticFlag(queryClient, "favorite", vars),
     onError: (_err, _vars, snapshots) => rollbackFlag(queryClient, snapshots),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: SAVED_PLACES_PREFIX });
+      queryClient.invalidateQueries({ queryKey: savedPlacesPrefix });
     },
   });
 }
@@ -196,18 +175,17 @@ export function useSetFavorite() {
 export function useSetVisited() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, value }: FlagVars) => {
-      const { data, error } = await client.POST(
-        "/places/saved/{saved_id}/visited",
-        { params: { path: { saved_id: id } }, body: { value } },
-      );
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: ({ id, value }: FlagVars) =>
+      unwrap(
+        client.POST("/places/saved/{saved_id}/visited", {
+          params: { path: { saved_id: id } },
+          body: { value },
+        }),
+      ),
     onMutate: (vars) => applyOptimisticFlag(queryClient, "visited", vars),
     onError: (_err, _vars, snapshots) => rollbackFlag(queryClient, snapshots),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: SAVED_PLACES_PREFIX });
+      queryClient.invalidateQueries({ queryKey: savedPlacesPrefix });
     },
   });
 }

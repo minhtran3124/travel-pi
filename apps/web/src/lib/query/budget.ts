@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { client } from "@/lib/api/client";
+import { client, unwrap } from "@/lib/api/client";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
 
@@ -17,13 +17,12 @@ export type CategoryBudget = components["schemas"]["CategoryBudget"];
 export function useBudget(tripId: string) {
   return useQuery({
     queryKey: qk.budget(tripId),
-    queryFn: async () => {
-      const { data, error } = await client.GET("/trips/{trip_id}/budget", {
-        params: { path: { trip_id: tripId } },
-      });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () =>
+      unwrap(
+        client.GET("/trips/{trip_id}/budget", {
+          params: { path: { trip_id: tripId } },
+        }),
+      ),
   });
 }
 
@@ -35,14 +34,13 @@ export function useBudget(tripId: string) {
 export function useSetBudget(tripId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (body: TripBudgetSet) => {
-      const { data, error } = await client.POST("/trips/{trip_id}/budget", {
-        params: { path: { trip_id: tripId } },
-        body,
-      });
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (body: TripBudgetSet) =>
+      unwrap(
+        client.POST("/trips/{trip_id}/budget", {
+          params: { path: { trip_id: tripId } },
+          body,
+        }),
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qk.budget(tripId) });
       queryClient.invalidateQueries({ queryKey: qk.trip(tripId) });

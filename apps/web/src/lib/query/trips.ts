@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { client } from "@/lib/api/client";
+import { client, unwrap } from "@/lib/api/client";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
 
@@ -21,13 +21,7 @@ export type TripListParams = {
 export function useTrips(params?: TripListParams) {
   return useQuery({
     queryKey: params ? qk.trips(params) : qk.trips(),
-    queryFn: async () => {
-      const { data, error } = await client.GET("/trips", {
-        params: { query: params },
-      });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(client.GET("/trips", { params: { query: params } })),
   });
 }
 
@@ -36,13 +30,10 @@ export function useTrip(id: string) {
   return useQuery({
     queryKey: qk.trip(id),
     enabled: id.length > 0,
-    queryFn: async () => {
-      const { data, error } = await client.GET("/trips/{trip_id}", {
-        params: { path: { trip_id: id } },
-      });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () =>
+      unwrap(
+        client.GET("/trips/{trip_id}", { params: { path: { trip_id: id } } }),
+      ),
   });
 }
 
@@ -50,11 +41,7 @@ export function useTrip(id: string) {
 export function useCreateTrip() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (body: TripCreate) => {
-      const { data, error } = await client.POST("/trips", { body });
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (body: TripCreate) => unwrap(client.POST("/trips", { body })),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qk.trips() });
     },
@@ -65,14 +52,13 @@ export function useCreateTrip() {
 export function useUpdateTrip(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (body: TripUpdate) => {
-      const { data, error } = await client.PUT("/trips/{trip_id}", {
-        params: { path: { trip_id: id } },
-        body,
-      });
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (body: TripUpdate) =>
+      unwrap(
+        client.PUT("/trips/{trip_id}", {
+          params: { path: { trip_id: id } },
+          body,
+        }),
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qk.trips() });
       queryClient.invalidateQueries({ queryKey: qk.trip(id) });
@@ -84,12 +70,10 @@ export function useUpdateTrip(id: string) {
 export function useDeleteTrip() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await client.DELETE("/trips/{trip_id}", {
-        params: { path: { trip_id: id } },
-      });
-      if (error) throw error;
-    },
+    mutationFn: (id: string) =>
+      unwrap(
+        client.DELETE("/trips/{trip_id}", { params: { path: { trip_id: id } } }),
+      ),
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: qk.trips() });
       queryClient.invalidateQueries({ queryKey: qk.trip(id) });

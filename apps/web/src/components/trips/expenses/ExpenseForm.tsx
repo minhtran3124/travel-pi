@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Select";
 import {
   useAddExpense,
   useUpdateExpense,
@@ -95,26 +96,17 @@ export function ExpenseForm({
 
   return (
     <div className="flex flex-col gap-md">
-      <div className="flex flex-col gap-xs">
-        <label
-          htmlFor="expense-category"
-          className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-        >
-          Category
-        </label>
-        <select
-          id="expense-category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-          className="h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        label="Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
+      >
+        {CATEGORIES.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </Select>
 
       <div className="grid grid-cols-2 gap-sm">
         <Field

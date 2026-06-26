@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 
+import { cn } from "@/lib/cn";
+import { ChatComposer } from "./ChatComposer";
+import { ChatHeader } from "./ChatHeader";
+import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
 import { QuickReplies } from "./QuickReplies";
 import type { UseAgentStream } from "./useAgentStream";
@@ -21,15 +25,7 @@ export interface ChatPanelProps {
  */
 export function ChatPanel({ stream, onClose }: ChatPanelProps) {
   const { messages, send, isStreaming, error, interrupt, resume } = stream;
-  const [draft, setDraft] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
-
-  const submit = () => {
-    const text = draft.trim();
-    if (text.length === 0 || isStreaming || interrupt !== null) return;
-    send(text);
-    setDraft("");
-  };
 
   const inputBlocked = isStreaming || interrupt !== null;
 
@@ -37,68 +33,18 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
     <section
       role="dialog"
       aria-label="Travel Assistant"
-      className={[
+      className={cn(
         "flex flex-col overflow-hidden rounded-md border border-lime/30 bg-void text-ink shadow-lift",
         fullscreen
           ? "h-[80vh] w-[min(92vw,640px)]"
           : "h-[min(70vh,560px)] w-[min(92vw,400px)]",
-      ].join(" ")}
+      )}
     >
-      <header className="flex items-center justify-between border-b border-line bg-panel px-lg py-md">
-        <div className="flex items-center gap-sm">
-          <span className="h-2 w-2 rounded-pill bg-lime" aria-hidden="true" />
-          <h2 className="text-sm font-bold tracking-tight text-ink">
-            Travel Assistant
-          </h2>
-        </div>
-        <div className="flex items-center gap-xs">
-          <button
-            type="button"
-            aria-label={fullscreen ? "Shrink panel" : "Expand panel"}
-            aria-pressed={fullscreen}
-            onClick={() => setFullscreen((v) => !v)}
-            className="rounded-sm p-1 text-muted transition hover:text-lime"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              {fullscreen ? (
-                <path d="M9 9 4 4m0 0v4m0-4h4m6 5 5-5m0 0v4m0-4h-4M9 15l-5 5m0 0v-4m0 4h4m6-5 5 5m0 0v-4m0 4h-4" />
-              ) : (
-                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-              )}
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Close travel assistant"
-            onClick={onClose}
-            className="rounded-sm p-1 text-muted transition hover:text-lime"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </header>
+      <ChatHeader
+        fullscreen={fullscreen}
+        onToggleFullscreen={() => setFullscreen((v) => !v)}
+        onClose={onClose}
+      />
 
       {error ? (
         <p
@@ -124,59 +70,14 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
         <QuickReplies onPick={send} disabled={inputBlocked} />
       ) : null}
 
-      {/* HITL approve / reject prompt */}
       {interrupt !== null ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="border-t border-line bg-panel px-lg py-md"
-        >
-          <p className="mb-sm text-xs font-medium text-muted">
-            Ready to book:
-          </p>
-          <p className="mb-md text-sm text-ink">{interrupt.payload.draft}</p>
-          <div className="flex gap-sm">
-            <button
-              type="button"
-              onClick={() => resume(true)}
-              className="flex-1 rounded-sm bg-lime px-md py-sm text-sm font-bold text-void transition hover:brightness-110"
-            >
-              Approve
-            </button>
-            <button
-              type="button"
-              onClick={() => resume(false)}
-              className="flex-1 rounded-sm border border-line bg-panel-raised px-md py-sm text-sm font-medium text-muted transition hover:text-ink"
-            >
-              Reject
-            </button>
-          </div>
-        </div>
+        <InterruptPrompt
+          draft={interrupt.payload.draft}
+          onApprove={() => resume(true)}
+          onReject={() => resume(false)}
+        />
       ) : (
-        <form
-          className="flex items-center gap-sm border-t border-line bg-panel px-lg py-md"
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit();
-          }}
-        >
-          <input
-            type="text"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Message the travel assistant…"
-            aria-label="Message"
-            className="min-w-0 flex-1 rounded-sm border border-line bg-void px-md py-sm text-sm text-ink placeholder:text-muted focus:border-lime"
-          />
-          <button
-            type="submit"
-            aria-label="Send message"
-            disabled={inputBlocked || draft.trim().length === 0}
-            className="flex h-9 items-center justify-center rounded-sm bg-lime px-md text-sm font-bold text-void transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Send
-          </button>
-        </form>
+        <ChatComposer disabled={inputBlocked} onSend={send} />
       )}
     </section>
   );
