@@ -354,6 +354,10 @@
     "pillConfirmed": "Đã xác nhận",
     "pillCancelled": "Đã hủy",
     "viewBookingAria": "Xem đặt chỗ {code}",
+    "departsLabel": "Khởi hành {date}",
+    "nightsCount": "{count, plural, other {# đêm}}",
+    "roomsGuests": "{rooms, plural, other {# phòng}}, {guests, plural, other {# khách}}",
+    "confirmedTotal": "Tổng đã xác nhận",
     "detail": {
       "flight": "Chuyến bay",
       "route": "Hành trình",

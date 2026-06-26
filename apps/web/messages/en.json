@@ -354,6 +354,10 @@
     "pillConfirmed": "Confirmed",
     "pillCancelled": "Cancelled",
     "viewBookingAria": "View booking {code}",
+    "departsLabel": "Departs {date}",
+    "nightsCount": "{count, plural, one {# night} other {# nights}}",
+    "roomsGuests": "{rooms, plural, one {# room} other {# rooms}}, {guests, plural, one {# guest} other {# guests}}",
+    "confirmedTotal": "Confirmed total",
     "detail": {
       "flight": "Flight",
       "route": "Route",
