@@ -6,18 +6,25 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
+import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
 import { server } from "@/test/msw";
 
+import messages from "../../../messages/en.json";
+
 const TRIP_ID = "trip-123";
 
 function wrapper(queryClient: QueryClient) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <NextIntlClientProvider locale="en" timeZone="UTC" messages={messages}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </NextIntlClientProvider>
     );
   };
 }
