@@ -13,7 +13,7 @@ import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session
 
@@ -104,7 +104,11 @@ async def agent_chat(
     if interrupt_pending:
         reply = ""
     else:
-        reply = result["messages"][-1].content if result["messages"] else ""
+        # Pick the last *assistant* message, not result["messages"][-1] blindly: a
+        # ReAct sub-agent that exhausts the recursion limit can leave a ToolMessage
+        # (raw JSON) as the final entry, which must never surface as the reply.
+        ai_messages = [m for m in result["messages"] if isinstance(m, AIMessage)]
+        reply = ai_messages[-1].content if ai_messages else ""
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
@@ -141,15 +145,27 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
                 "trip_id": body.trip_id,
             }
 
-        async for chunk, meta in graph.astream(
+        async for ns, (chunk, _meta) in graph.astream(
             stream_input,
             cfg,
             stream_mode="messages",
+            subgraphs=True,
         ):
-            # Only stream the user-facing sub-agent answer; suppress internal-node
-            # output (supervisor routing, summarizer, reflection critic) that
-            # messages-mode would otherwise leak into the SSE feed (REVIEW.md C4).
-            if meta.get("langgraph_node") not in SUBAGENTS:
+            # Sub-agents are nested subgraphs, so their token deltas only surface
+            # with subgraphs=True — and they carry the *inner* node name
+            # ("assistant") under a "<subagent>:<id>" namespace, not the subagent
+            # node name. Filter on the namespace root to stream the user-facing
+            # sub-agent answer token-by-token while suppressing top-level internal
+            # nodes (supervisor routing, summarizer, reflection critic). Without
+            # subgraphs=True the parent only emits the sub-agent's final aggregated
+            # AIMessage as a single chunk — i.e. no word-by-word stream. (REVIEW.md C4)
+            if not ns or ns[0].split(":", 1)[0] not in SUBAGENTS:
+                continue
+            # Only the assistant's natural-language reply is user-facing. ToolNode
+            # output (e.g. the weather forecast dict) runs inside the same sub-agent
+            # subgraph, so without this type guard the raw JSON leaks into the SSE
+            # feed. AIMessageChunk subclasses AIMessage, so token streaming passes.
+            if not isinstance(chunk, AIMessage):
                 continue
             content = getattr(chunk, "content", "")
             if content:
