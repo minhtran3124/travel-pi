@@ -39,12 +39,15 @@ def test_all_tools_deduped():
     assert len(names) == len(set(names))  # no duplicates
 
 
-def test_memory_tool_hides_injected_store():
+def test_memory_tool_hides_injected_store_and_user_id():
     from app.tools.memory_tools import save_user_preference
 
-    # InjectedStore must NOT appear in the LLM-visible args schema.
+    # InjectedStore + InjectedState must NOT appear in the LLM-visible args schema
+    # (the model supplies only the semantic args; user_id comes from graph state — C3).
     assert "store" not in save_user_preference.args
-    assert "user_id" in save_user_preference.args
+    assert "user_id" not in save_user_preference.args
+    assert "key" in save_user_preference.args
+    assert "text" in save_user_preference.args
 
 
 def test_weather_tool_maps_upstream_error(monkeypatch):
