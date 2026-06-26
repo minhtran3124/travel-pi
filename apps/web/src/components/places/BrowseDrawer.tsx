@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import {
   usePlaceSearch,
@@ -65,31 +66,22 @@ export function BrowseDrawer({
             placeholder="e.g. Da Nang"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="min-w-[10rem] flex-1"
+            wrapperClassName="min-w-[10rem] flex-1"
           />
-          <div className="flex flex-col gap-xs">
-            <label
-              htmlFor="browse-category"
-              className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-            >
-              Category
-            </label>
-            <select
-              id="browse-category"
-              value={category}
-              onChange={(e) =>
-                setCategory(e.target.value as PlaceCategory | "")
-              }
-              className="h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink"
-            >
-              <option value="">Any</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            label="Category"
+            id="browse-category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value as PlaceCategory | "")}
+            wrapperClassName="min-w-[9rem] flex-1"
+          >
+            <option value="">Any</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c} className="capitalize">
+                {c}
+              </option>
+            ))}
+          </Select>
         </div>
 
         <div className="max-h-[50vh] overflow-y-auto">

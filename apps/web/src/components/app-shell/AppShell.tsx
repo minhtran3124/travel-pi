@@ -21,8 +21,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="mx-auto flex h-14 max-w-5xl items-center gap-xl px-xl">
           <Link
             href="/trips"
-            className="text-base font-extrabold tracking-tight text-ink"
+            className="flex items-center gap-sm text-base font-extrabold tracking-tight text-ink"
           >
+            <span
+              aria-hidden="true"
+              className="grid size-7 place-items-center rounded-md bg-lime text-on-accent shadow-sm"
+            >
+              <PlaneMark />
+            </span>
             Travel Planner
           </Link>
           <ul className="flex items-center gap-lg">
@@ -35,13 +41,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "text-sm font-bold transition",
-                      active
-                        ? "text-ink"
-                        : "text-muted hover:text-ink",
+                      "relative text-sm font-bold transition",
+                      active ? "text-ink" : "text-muted hover:text-ink",
                     )}
                   >
                     {label}
+                    {active ? (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-0 -bottom-1.5 h-[2px] rounded-pill bg-lime"
+                      />
+                    ) : null}
                   </Link>
                 </li>
               );
@@ -53,5 +63,25 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </main>
     </div>
+  );
+}
+
+/** Brand mark: a small paper plane, ink-on-lime in the wordmark badge. */
+function PlaneMark() {
+  return (
+    <svg
+      width={15}
+      height={15}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M21 3 3 10.5l6.5 2.5L12 20l9-17Z" />
+      <path d="M9.5 13 21 3" />
+    </svg>
   );
 }

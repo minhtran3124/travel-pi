@@ -125,16 +125,26 @@ export default function PlacesPage() {
           placeholder="Secret rooftop bar"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="min-w-[12rem] flex-1"
+          autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
+          wrapperClassName="min-w-[12rem] flex-[2]"
         />
         <Field
           label="City"
           placeholder="Hanoi"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="min-w-[8rem]"
+          autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
+          wrapperClassName="min-w-[8rem] flex-1"
         />
-        <Button type="submit" disabled={createPlace.isPending || !name.trim()}>
+        <Button
+          type="submit"
+          disabled={createPlace.isPending || !name.trim()}
+          className="shrink-0"
+        >
           {createPlace.isPending ? "Adding…" : "Add place"}
         </Button>
       </form>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { Textarea } from "@/components/ui/Textarea";
 import { useCreateTrip, type TripCreate } from "@/lib/query/trips";
 
 interface NewTripModalProps {
@@ -31,18 +32,40 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  const isDirty = (Object.keys(EMPTY) as (keyof typeof EMPTY)[]).some(
+    (k) => form[k] !== EMPTY[k],
+  );
+
+  // ISO date strings (YYYY-MM-DD) compare lexicographically, so a plain string
+  // comparison correctly orders the two dates.
+  const dateError =
+    form.start_date && form.end_date && form.end_date < form.start_date
+      ? "End date can't be before the start date."
+      : null;
+
   function close() {
     setForm(EMPTY);
     createTrip.reset();
     onClose();
   }
 
+  // Guard the destructive close paths (backdrop click, Esc, Cancel) so a stray
+  // click doesn't silently wipe a half-filled form.
+  function requestClose() {
+    if (isDirty && !window.confirm("Discard this trip? Your changes won't be saved.")) {
+      return;
+    }
+    close();
+  }
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const travelers = Number.parseInt(form.travelers, 10);
+    if (dateError) return;
+    const parsed = Number.parseInt(form.travelers, 10);
+    const travelers = Number.isNaN(parsed) ? 1 : Math.min(50, Math.max(1, parsed));
     const body: TripCreate = {
       title: form.title.trim(),
-      travelers: Number.isNaN(travelers) ? 1 : travelers,
+      travelers,
       city: form.city.trim() || null,
       start_date: form.start_date || null,
       end_date: form.end_date || null,
@@ -57,36 +80,54 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
   }
 
   return (
-    <Modal open={open} onClose={close} title="New trip">
+    <Modal open={open} onClose={requestClose} title="New trip">
+      <p className="-mt-xs mb-md text-sm text-muted">
+        Give it a name and a few details — you can fine-tune everything later.
+      </p>
       <form onSubmit={onSubmit} className="flex flex-col gap-md">
         <Field
-          label="Title"
+          label="Trip name"
           required
           value={form.title}
           onChange={(e) => set("title", e.target.value)}
           placeholder="Da Nang long weekend"
+          autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
         />
         <Field
           label="City"
           value={form.city}
           onChange={(e) => set("city", e.target.value)}
           placeholder="Da Nang"
+          autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
         />
-        <div className="flex gap-md">
-          <Field
-            label="Start date"
-            type="date"
-            className="w-full"
-            value={form.start_date}
-            onChange={(e) => set("start_date", e.target.value)}
-          />
-          <Field
-            label="End date"
-            type="date"
-            className="w-full"
-            value={form.end_date}
-            onChange={(e) => set("end_date", e.target.value)}
-          />
+        <div className="flex flex-col gap-xs">
+          <div className="flex gap-md">
+            <Field
+              label="Start date"
+              type="date"
+              wrapperClassName="flex-1"
+              value={form.start_date}
+              aria-invalid={dateError ? true : undefined}
+              onChange={(e) => set("start_date", e.target.value)}
+            />
+            <Field
+              label="End date"
+              type="date"
+              wrapperClassName="flex-1"
+              value={form.end_date}
+              aria-invalid={dateError ? true : undefined}
+              onChange={(e) => set("end_date", e.target.value)}
+            />
+          </div>
+          {dateError ? (
+            <p role="alert" className="text-xs font-bold text-status-cancelled">
+              {dateError}
+            </p>
+          ) : null}
         </div>
         <Field
           label="Travelers"
@@ -96,35 +137,30 @@ export function NewTripModal({ open, onClose, onCreated }: NewTripModalProps) {
           value={form.travelers}
           onChange={(e) => set("travelers", e.target.value)}
         />
-        <div className="flex flex-col gap-xs">
-          <label
-            htmlFor="new-trip-notes"
-            className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-          >
-            Notes
-          </label>
-          <textarea
-            id="new-trip-notes"
-            rows={3}
-            value={form.notes}
-            onChange={(e) => set("notes", e.target.value)}
-            className="rounded-sm border border-line bg-panel-raised px-sm py-xs text-sm text-ink placeholder:text-muted"
-          />
-        </div>
+        <Textarea
+          label="Notes"
+          rows={3}
+          value={form.notes}
+          onChange={(e) => set("notes", e.target.value)}
+        />
 
         {createTrip.isError ? (
-          <p className="text-sm font-bold text-status-cancelled">
-            Could not create the trip. Please try again.
+          <p role="alert" className="text-sm font-bold text-status-cancelled">
+            We couldn&apos;t create your trip. Please try again.
           </p>
         ) : null}
 
         <div className="mt-sm flex justify-end gap-sm">
-          <Button type="button" variant="ghost" onClick={close}>
+          <Button type="button" variant="ghost" onClick={requestClose}>
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={createTrip.isPending || form.title.trim() === ""}
+            disabled={
+              createTrip.isPending ||
+              form.title.trim() === "" ||
+              dateError !== null
+            }
           >
             {createTrip.isPending ? <Spinner label="Creating trip" /> : "Create trip"}
           </Button>

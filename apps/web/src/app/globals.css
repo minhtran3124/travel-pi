@@ -13,6 +13,13 @@
   --color-lime:       #cbf24a;
   --color-lime-soft:  #e6f8a8;
 
+  /* warm secondary accent — decorative warmth only (covers, icons, welcome
+   * strip). Never the primary action (that stays ink) and never the "active"
+   * signal (that stays lime). Use the -ink shade for any coral *text*. */
+  --color-coral:      #fb7755;
+  --color-coral-soft: #ffe9e2;
+  --color-coral-ink:  #c2410c;
+
   /* primary action = ink; on-accent text sits on lime/ink fills */
   --color-on-accent:  #1c1c1c;
 
@@ -87,6 +94,24 @@ body {
   from { opacity: 0; transform: translateY(8px) scale(.98); }
   to   { opacity: 1; transform: none; }
 }
+
+/* Staggered card entrance for the trips grid. Pure CSS keyframe on mount —
+ * not class/observer-gated — so it always resolves to the visible end state
+ * (and collapses to instant under prefers-reduced-motion below). */
+@keyframes tp-deal {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-deal {
+  opacity: 0;
+  animation: tp-deal 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* The little plane drifts a touch further along its dotted arc on card hover. */
+.tp-plane { transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1); }
+.group:hover .tp-plane { transform: translate(5px, -4px); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .tp-deal { opacity: 1; }
 }
