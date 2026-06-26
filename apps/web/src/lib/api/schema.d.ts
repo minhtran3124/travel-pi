@@ -1586,9 +1586,16 @@ export interface components {
         ChatRequest: {
             /**
              * Message
-             * @description The traveller's message.
+             * @description The traveller's message. Optional when `resume` is set.
              */
-            message: string;
+            message?: string;
+            /**
+             * Resume
+             * @description HITL resume payload — omit for a normal turn. When set,
+             *     `message` is not required; the backend resumes from the interrupt
+             *     checkpoint using the approved/rejected decision.
+             */
+            resume?: { approved: boolean } | null;
             /**
              * User Id
              * @description Caller identity (no auth enforced).
