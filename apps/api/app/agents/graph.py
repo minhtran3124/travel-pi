@@ -25,6 +25,7 @@ from app.agents.nodes import (
     load_context_node,
     make_reflection_node,
     make_summarize_node,
+    plan_node,
 )
 from app.agents.state import TravelAgentState
 from app.agents.subagents.booking import build_booking
@@ -51,8 +52,10 @@ def build_graph(
     builder.add_node("load_context", load_context_node)
     builder.add_node("summarize", make_summarize_node(fast_llm))
     builder.add_node(
-        "supervisor", make_supervisor(llm), destinations=(*SUBAGENTS, "__end__")
+        "supervisor", make_supervisor(llm), destinations=(*SUBAGENTS, "plan", "__end__")
     )
+    # HITL plan-approval gate: fires before booking commits anything destructive.
+    builder.add_node("plan", plan_node, destinations=("booking", "__end__"))
     builder.add_node("planner", build_planner(llm))
     builder.add_node("concierge", build_concierge(llm))
     builder.add_node("journal", build_journal(fast_llm))
@@ -67,9 +70,10 @@ def build_graph(
     builder.add_edge(START, "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
-    # supervisor -> sub-agent is a Command(goto=...) handoff (no static edge).
+    # supervisor -> sub-agent (or plan) is a Command(goto=...) handoff (no static edge).
     for name in SUBAGENTS:
         builder.add_edge(name, "reflection")
+    # plan -> booking | END is a Command(goto=...) after interrupt resumes.
     # reflection -> sub-agent | END is a Command(goto=...).
 
     return builder.compile(checkpointer=checkpointer, store=store)

@@ -46,6 +46,8 @@ def make_supervisor(llm: BaseChatModel):
                 },
                 goto=END,
             )
-        return Command(update={"current_flow": target}, goto=target)
+        # Route booking through the HITL plan-approval node first.
+        next_node = "plan" if target == "booking" else target
+        return Command(update={"current_flow": target}, goto=next_node)
 
     return supervisor

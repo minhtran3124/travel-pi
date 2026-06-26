@@ -36,7 +36,11 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
     results = []
     for item in dataset:
         cmd = supervisor({"messages": [HumanMessage(content=item["input"])]})
-        predicted = "none" if cmd.goto == END else cmd.goto
+        # Use current_flow (the semantic intent) rather than goto: booking now
+        # routes through plan_node first, so goto="plan" but current_flow="booking".
+        predicted = (cmd.update or {}).get("current_flow") or (
+            "none" if cmd.goto == END else cmd.goto
+        )
         results.append(
             {
                 "input": item["input"],

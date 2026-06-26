@@ -81,3 +81,8 @@ tests/           # pytest, isolated temp SQLite DB per run
 ## Design (dashboard only)
 
 Before touching `/dashboard/*` templates: read `PRODUCT.md` + `DESIGN.md`. Tokens live in `app/templates/base.html` `:root`. Use `/impeccable` for design tasks.
+
+## Knowledge Base
+Solved problems, patterns, and architectural decisions: `docs/solutions/`
+Browse the index: `docs/solutions/INDEX.md`
+Critical learnings (read at planning time): `docs/solutions/critical-patterns.md`
