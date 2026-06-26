@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: travel
       POSTGRES_PASSWORD: travel
@@ -17,7 +17,10 @@ services:
 
   api:
     build: .
+    env_file:
+      - .env
     environment:
+      # Override .env so the container reaches the db service, not localhost.
       DATABASE_URL: postgresql+psycopg://travel:travel@db:5432/travel
       ENVIRONMENT: development
     ports:
