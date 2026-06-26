@@ -10,14 +10,14 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from langchain_core.messages import HumanMessage
 from sqlalchemy.orm import Session
 
-from app.agents.graph import build_graph
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
+from app.exceptions import UpstreamError
 from app.repositories.conversation import ConversationRepository
 from app.routers.tags import Tags
 from app.schemas.agent import (
@@ -32,15 +32,18 @@ from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 router = APIRouter(prefix="/agent", tags=[Tags.agent], responses=error_responses(422))
 
 
-def get_travel_graph() -> Any:
-    """Build the production graph (real LLM + checkpointer + store).
+def get_travel_graph(request: Request) -> Any:
+    """Return the shared compiled graph built once in ``lifespan`` (REVIEW.md C1).
 
-    Overridden in tests to inject a FakeLLM-backed graph.
+    The graph + checkpointer + store are constructed a single time at startup and
+    held on ``app.state``; resolving them here per request used to rebuild the whole
+    graph and leak a DB connection each call. Overridden in tests to inject a
+    FakeLLM-backed graph.
     """
-    from app.agents.checkpointer import get_checkpointer
-    from app.memory.store import get_store
-
-    return build_graph(checkpointer=get_checkpointer(), store=get_store())
+    graph = getattr(request.app.state, "travel_graph", None)
+    if graph is None:
+        raise UpstreamError("Agent graph is not available")
+    return graph
 
 
 GraphDep = Annotated[Any, Depends(get_travel_graph)]

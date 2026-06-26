@@ -56,21 +56,31 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.exception("Could not initialise database at %s", settings.database_url)
         raise
 
-    # Agent checkpointer — makes the agent stateful across turns/sessions.
-    # Built once and shared; degrades to an in-memory saver if the backend
-    # can't initialise so a missing Postgres never blocks startup.
-    try:
-        from app.agents.checkpointer import get_checkpointer
+    # Agent graph — built ONCE here and shared via app.state (REVIEW.md C1: the
+    # router used to rebuild the graph + checkpointer + store on every request,
+    # leaking a connection each call). The checkpointer/store context managers are
+    # held open for the process lifetime and closed on shutdown. Both degrade to
+    # in-memory if their backend can't initialise, so a missing Postgres never
+    # blocks startup. Lazy imports keep module import side-effect-free.
+    from app.agents.checkpointer import open_checkpointer
+    from app.agents.graph import build_graph
+    from app.memory.store import open_store
 
-        app.state.agent_checkpointer = get_checkpointer(settings.database_url)
-        logger.info(
-            "Agent checkpointer ready: %s",
-            type(app.state.agent_checkpointer).__name__,
-        )
-    except Exception:
-        logger.exception("Could not initialise agent checkpointer")
-        app.state.agent_checkpointer = None
+    async with (
+        open_checkpointer(settings.database_url) as checkpointer,
+        open_store(settings.database_url) as store,
+    ):
+        try:
+            app.state.travel_graph = build_graph(checkpointer=checkpointer, store=store)
+            logger.info(
+                "Agent graph ready: checkpointer=%s store=%s",
+                type(checkpointer).__name__,
+                type(store).__name__,
+            )
+        except Exception:
+            logger.exception("Agent graph build failed; agent endpoints disabled")
+            app.state.travel_graph = None
 
-    logger.info("Startup complete — bookings, trips, and flight-index tables ready")
-    yield
+        logger.info("Startup complete — bookings, trips, and flight-index tables ready")
+        yield
     logger.info("Shutting down")
