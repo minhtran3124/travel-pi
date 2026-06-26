@@ -1,6 +1,6 @@
 ---
 slug: web-trip-planner
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-06-26
 initiative: monorepo-fe (Phase 1)
