@@ -42,9 +42,14 @@ def place_to_document(place) -> Document:
 
 
 def ingest_places(store: VectorStore, session: Session) -> int:
-    """Embed every catalog place into the store. Returns the document count."""
+    """Embed every catalog place into the store. Returns the document count.
+
+    Passes stable ``ids`` derived from ``place.id`` so that re-ingesting the
+    same catalog upserts existing entries instead of appending duplicates.
+    """
     places = PlaceService(session).list_places()
     docs = [place_to_document(p) for p in places]
     if docs:
-        store.add_documents(docs)
+        ids = [f"place-{p.id}" for p in places]
+        store.add_documents(docs, ids=ids)
     return len(docs)
