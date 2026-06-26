@@ -16,8 +16,6 @@ Checkpointer + store make it stateful across turns/sessions.
 
 from __future__ import annotations
 
-from functools import lru_cache
-
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import START, StateGraph
@@ -75,12 +73,3 @@ def build_graph(
     # reflection -> sub-agent | END is a Command(goto=...).
 
     return builder.compile(checkpointer=checkpointer, store=store)
-
-
-@lru_cache(maxsize=1)
-def get_compiled_graph():
-    """Cached production graph (real LLM + configured checkpointer/store)."""
-    from app.agents.checkpointer import get_checkpointer
-    from app.memory.store import get_store
-
-    return build_graph(checkpointer=get_checkpointer(), store=get_store())
