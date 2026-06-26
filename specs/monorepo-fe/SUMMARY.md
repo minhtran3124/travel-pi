@@ -36,8 +36,8 @@ Convert the BE-only FastAPI repo into a Next.js + FastAPI monorepo. Two concerns
 
 ## Status
 
-**Phase 0 Wave 1 shipped** (commit `5f9dcad`); waves 2–4 paused on a Node-version blocker.
-See `PLAN.md` §8 Status Log + Resume checklist.
+**Phase 0 COMPLETE** — all 4 waves shipped on `feat/monorepo-fe` (commits `5f9dcad..4baa6b7`).
+Node upgraded to v24.17.0 mid-session unblocked waves 2–4. See `PLAN.md` §8.
 
 ### Verify
 
@@ -46,6 +46,10 @@ See `PLAN.md` §8 Status Log + Resume checklist.
 | BE suite from new location | `cd apps/api && ../../.venv/bin/python -m pytest tests/ -q` | 0 | 848 passed |
 | Renames-only move | `git diff --cached --name-status -M` (at commit) | 0 | 311×R100 + Makefile R067 + 2 new spec files |
 | Hook still parses | `bash -n .claude/hooks/commit-quality-gate.sh` | 0 | path globs → apps/api/* |
+| Root make delegation | `make test` | 0 | 848 passed via apps/api |
+| Turbo workspace graph | `pnpm turbo run build --dry-run=json` | 0 | {@travel/api, @travel/web} |
+| FE build | `pnpm --filter @travel/web build` | 0 | Next 16, route / dynamic |
+| FE↔BE wiring | `curl localhost:8000/weather?city=Da%20Nang` | 0 | HTTP 200, real weather JSON |
 
 ### Deviations
 
@@ -61,7 +65,8 @@ See `PLAN.md` §8 Status Log + Resume checklist.
 - Harness hook edits are uncommitted local changes under gitignored `.claude/` — restore from
   backup/upstream if needed (not under version control in this repo).
 
-### Blocker (resume gate)
+### Blocker (resolved)
 
-Local Node **v18.0.0** < pnpm 18.12 / Next 15 18.18 / Turborepo 18.12. Upgrade to Node ≥20 LTS
-before waves 2–4.
+Was: local Node v18.0.0 < toolchain minimums. Resolved — user switched to **Node v24.17.0**
+(nvm; pnpm 11.9.0 via corepack). Activate with
+`export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"` (nvm default is still 18).

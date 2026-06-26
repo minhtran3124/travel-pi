@@ -156,16 +156,19 @@ the user OKs the hook edit. **Rollback:** `git checkout .claude/hooks/commit-qua
     `tests/`/`app/`/`scripts/` path globs (blocked the commit). Fixed all path prefixes to
     `apps/api/*` and made the secrets scan **added-lines-only** (it was matching rename-deletion
     artifacts). NOTE: `.claude/` is **gitignored** here — hook edits are local-only, not committed.
-  - **PAUSED before waves 2–4.** Blocker: local Node is **v18.0.0**, below pnpm (≥18.12),
-    Next.js 15 (≥18.18), and Turborepo 2.x (≥18.12). FE toolchain cannot run/verify until Node
-    is upgraded (≥20 LTS recommended). User chose to ship wave 1 standalone and resume later.
-
-### Resume checklist (waves 2–4)
-
-1. Upgrade Node to ≥20 LTS (`nvm install 20 && nvm use 20`); install pnpm.
-2. Wave 2 — root `package.json` + `pnpm-workspace.yaml` + `turbo.json` (turbo 2.x `tasks`) +
-   `apps/api/package.json` (`@travel/api`, scripts shell to its Makefile) + delegating root
-   Makefile + `.gitignore` (`node_modules/`, `.next/` — `.turbo/` already ignored).
-3. Wave 3 — scaffold `apps/web` (Next.js, TS, Tailwind) + proxy rewrite + one real BE fetch.
-4. Wave 4 — CI working-directory `apps/api` (+ optional FE job); README monorepo overview.
-   (4.2 harness hooks already done; 4.3 CLAUDE.md already done.)
+  - Paused before waves 2–4 on a Node v18.0.0 blocker; user then upgraded to **Node v24.17.0**
+    (nvm) and resumed same session.
+- 2026-06-26 — **Wave 2 DONE** (commit `41d7027`). Root `package.json` + `pnpm-workspace.yaml`
+  + `turbo.json` (turbo 2.10, `tasks`) + `apps/api/package.json` (`@travel/api` → Makefile) +
+  delegating root Makefile + `.gitignore`. Verified: pnpm resolves 2 workspaces; turbo dry-run
+  lists `@travel/api`; root `make test` delegates → 848 passed.
+- 2026-06-26 — **Wave 3 DONE** (commit `16bbe80`). `apps/web` = Next.js 16 (`@travel/web`),
+  `/api/be/*` proxy rewrite, `turbopack.root` pinned, dynamic server-component home page
+  fetching `GET /weather`. Verified: lint clean, `next build` ok, BE returns HTTP 200 weather
+  JSON from the page's endpoint. Removed nested pnpm-workspace + boilerplate docs; approved
+  sharp/unrs-resolver builds.
+- 2026-06-26 — **Wave 4 DONE** (commit `4baa6b7`). CI `api` job → `working-directory: apps/api`;
+  added `web` job (pnpm lint+build). BE README → `apps/api/README.md`; new monorepo root README.
+- 2026-06-26 — **PHASE 0 COMPLETE.** Final: BE 848 passed via root delegation, FE builds, turbo
+  graph = {@travel/api, @travel/web}. 5 commits `5f9dcad..4baa6b7` on `feat/monorepo-fe`.
+  Next initiative: `/brainstorming` to scope the full FE app (Phase 1+).
