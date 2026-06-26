@@ -27,6 +27,67 @@ def test_handler_built_when_enabled(monkeypatch):
     get_settings.cache_clear()
 
 
+def test_handler_built_once_not_per_call(monkeypatch):
+    """Langfuse client + handler are constructed exactly once, not per callbacks() call (M4)."""
+    from unittest.mock import MagicMock, patch
+
+    monkeypatch.setenv("LANGFUSE_ENABLED", "true")
+    monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-once")
+    monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-once")
+
+    from app.agents import observability
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    observability._build_handler.cache_clear()
+
+    fake_handler = MagicMock(name="fake_langfuse_handler")
+    with (
+        patch("langfuse.Langfuse") as mock_client,
+        patch(
+            "langfuse.langchain.CallbackHandler", return_value=fake_handler
+        ) as mock_handler_cls,
+    ):
+        r1 = observability.callbacks()
+        r2 = observability.callbacks()
+        r3 = observability.callbacks()
+
+        assert mock_client.call_count == 1, "Langfuse client must be constructed once"
+        assert mock_handler_cls.call_count == 1, (
+            "CallbackHandler must be constructed once"
+        )
+        assert r1 == r2 == r3 == [fake_handler], (
+            "Same handler instance returned each call"
+        )
+
+    get_settings.cache_clear()
+    observability._build_handler.cache_clear()
+
+
+def test_disabled_no_client_constructed(monkeypatch):
+    """When Langfuse is disabled, no client or handler constructor is called."""
+    from unittest.mock import patch
+
+    from app.agents import observability
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    observability._build_handler.cache_clear()
+
+    with (
+        patch("langfuse.Langfuse") as mock_client,
+        patch("langfuse.langchain.CallbackHandler") as mock_handler_cls,
+    ):
+        result = observability.callbacks()
+
+        assert result == []
+        assert mock_client.call_count == 0, "No client constructed when disabled"
+        assert mock_handler_cls.call_count == 0, "No handler constructed when disabled"
+
+    get_settings.cache_clear()
+    observability._build_handler.cache_clear()
+
+
 def test_trace_metadata_groups_by_user_and_trip():
     from app.agents.observability import trace_metadata
 
