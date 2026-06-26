@@ -8,6 +8,8 @@ owns the live thread state).
 
 from __future__ import annotations
 
+import json
+import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
@@ -16,7 +18,7 @@ from langgraph.types import Command
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.streaming import sse_response
+from app.core.streaming import TypedSSEEvent, sse_response
 from app.db.session import get_session
 from app.exceptions import UpstreamError
 from app.repositories.conversation import ConversationRepository
@@ -29,6 +31,8 @@ from app.schemas.agent import (
 )
 from app.schemas.error import error_responses
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agent", tags=[Tags.agent], responses=error_responses(422))
 
@@ -120,18 +124,26 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
 
     from app.agents.supervisor import SUBAGENTS
 
-    # A unique thread per anonymous stream — otherwise every conversation_id-less
-    # stream shares one checkpoint thread and their state collides (REVIEW.md C4).
+    # Must use caller-supplied conversation_id for resume so the checkpoint thread
+    # matches; fallback to a generated id only for fresh (non-resume) turns.
     conversation_id = body.conversation_id or f"stream-{uuid4().hex[:12]}"
+    cfg = _config(_thread_id(body, conversation_id), body)
 
     async def tokens():
-        async for chunk, meta in graph.astream(
-            {
+        if body.resume is not None:
+            # Resume a graph paused at a plan-approval interrupt; the same cfg
+            # (thread_id) addresses the checkpoint created during the initial turn.
+            stream_input = Command(resume=body.resume)
+        else:
+            stream_input = {
                 "messages": [HumanMessage(content=body.message)],
                 "user_id": body.user_id,
                 "trip_id": body.trip_id,
-            },
-            _config(_thread_id(body, conversation_id), body),
+            }
+
+        async for chunk, meta in graph.astream(
+            stream_input,
+            cfg,
             stream_mode="messages",
         ):
             # Only stream the user-facing sub-agent answer; suppress internal-node
@@ -142,6 +154,22 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
             content = getattr(chunk, "content", "")
             if content:
                 yield content
+
+        # Detect a pending HITL interrupt after the stream ends.
+        # StateSnapshot.interrupts (not .values) holds pending Interrupt objects;
+        # .values only contains the graph-state fields (messages, current_flow, …).
+        state = await graph.aget_state(cfg)
+        interrupts = state.interrupts  # tuple[Interrupt, ...]
+        if interrupts:
+            payload = interrupts[0].value
+            event_data = json.dumps(
+                {"conversation_id": conversation_id, "payload": payload},
+                separators=(",", ":"),
+            )
+            logger.debug(
+                "[agent_stream] interrupt pending for conv=%s", conversation_id
+            )
+            yield TypedSSEEvent(event="interrupt", data=event_data)
 
     return sse_response(tokens())
 
