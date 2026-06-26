@@ -6,8 +6,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Field } from "@/components/ui/Field";
 import { Meter } from "@/components/ui/Meter";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import {
   useDeleteExpense,
@@ -261,57 +263,33 @@ export function ExpensesTab({ tripId }: { tripId: string }) {
       </div>
 
       <div className="flex flex-wrap items-end gap-sm">
-        <div className="flex flex-col gap-xs">
-          <label
-            htmlFor="expense-filter-category"
-            className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-          >
-            {t("filterCategory")}
-          </label>
-          <select
-            id="expense-filter-category"
-            value={filters.category ?? ""}
-            onChange={(e) => setFilter("category", e.target.value)}
-            className="h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink"
-          >
-            <option value="">{t("filterAll")}</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {t(`categories.${c}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-xs">
-          <label
-            htmlFor="expense-filter-from"
-            className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-          >
-            {t("filterFrom")}
-          </label>
-          <input
-            id="expense-filter-from"
-            type="date"
-            value={filters.date_from ?? ""}
-            onChange={(e) => setFilter("date_from", e.target.value)}
-            className="h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink"
-          />
-        </div>
-        <div className="flex flex-col gap-xs">
-          <label
-            htmlFor="expense-filter-to"
-            className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted"
-          >
-            {t("filterTo")}
-          </label>
-          <input
-            id="expense-filter-to"
-            type="date"
-            value={filters.date_to ?? ""}
-            onChange={(e) => setFilter("date_to", e.target.value)}
-            className="h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink"
-          />
-        </div>
+        <Select
+          id="expense-filter-category"
+          label={t("filterCategory")}
+          value={filters.category ?? ""}
+          onChange={(e) => setFilter("category", e.target.value)}
+        >
+          <option value="">{t("filterAll")}</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {t(`categories.${c}`)}
+            </option>
+          ))}
+        </Select>
+        <Field
+          id="expense-filter-from"
+          label={t("filterFrom")}
+          type="date"
+          value={filters.date_from ?? ""}
+          onChange={(e) => setFilter("date_from", e.target.value)}
+        />
+        <Field
+          id="expense-filter-to"
+          label={t("filterTo")}
+          type="date"
+          value={filters.date_to ?? ""}
+          onChange={(e) => setFilter("date_to", e.target.value)}
+        />
       </div>
 
       <div className="grid gap-md md:grid-cols-[2fr_1fr]">

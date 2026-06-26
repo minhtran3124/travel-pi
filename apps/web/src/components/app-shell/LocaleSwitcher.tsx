@@ -39,7 +39,8 @@ export function LocaleSwitcher() {
           "appearance-none rounded-pill border border-line bg-panel-raised",
           "py-1.5 pl-7 pr-7 text-xs font-bold uppercase tracking-wide text-ink",
           "cursor-pointer transition-colors hover:border-ink hover:bg-panel",
-          "focus:outline-none focus:ring-2 focus:ring-lime",
+          // Focus uses the global neutral ring (globals.css `*:focus-visible`);
+          // the lime accent is never the focus color (DESIGN.md §Inputs).
           isPending && "cursor-wait opacity-60",
         )}
       >

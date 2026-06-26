@@ -84,6 +84,49 @@
   }
 }
 
+/* Native form controls — strip the OS (macOS) default chrome so our own
+ * hairline design shows through instead. Selects render a custom chevron
+ * (see ui/Select.tsx); date/number/search lose their native spinners and
+ * recolor their indicators to match the muted token. */
+@layer base {
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Recolor the date/time picker glyph toward `muted`; brighten on hover. */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="month"]::-webkit-calendar-picker-indicator,
+  input[type="week"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 150ms ease;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+  input[type="month"]::-webkit-calendar-picker-indicator:hover,
+  input[type="week"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  /* Drop the number spinners and the search field's native cancel puck. */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+}
+
 body {
   background: var(--color-void);
   color: var(--color-ink);

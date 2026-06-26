@@ -7,6 +7,7 @@ import { BookingDetailModal } from "@/components/bookings/BookingDetailModal";
 import { BookingTable } from "@/components/bookings/BookingTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import {
   useBookings,
@@ -17,9 +18,6 @@ import {
 type TypeFilter = "all" | "flight" | "hotel";
 type StatusFilter = "all" | "confirmed" | "cancelled";
 type SortKey = "created_desc" | "created_asc" | "price_desc" | "price_asc";
-
-const SELECT_CLASS =
-  "h-[34px] rounded-sm border border-line bg-panel-raised px-sm text-sm text-ink";
 
 export default function BookingsPage() {
   const t = useTranslations("Bookings");
@@ -88,52 +86,34 @@ export default function BookingsPage() {
           onChange={(e) => setQuery(e.target.value)}
           className="min-w-[14rem]"
         />
-        <label className="flex flex-col gap-xs">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            {t("typeLabel")}
-          </span>
-          <select
-            aria-label={t("typeLabel")}
-            className={SELECT_CLASS}
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-          >
-            <option value="all">{t("typeAll")}</option>
-            <option value="flight">{t("typeFlight")}</option>
-            <option value="hotel">{t("typeHotel")}</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-xs">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            {t("statusLabel")}
-          </span>
-          <select
-            aria-label={t("statusLabel")}
-            className={SELECT_CLASS}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          >
-            <option value="all">{t("statusAll")}</option>
-            <option value="confirmed">{t("statusConfirmed")}</option>
-            <option value="cancelled">{t("statusCancelled")}</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-xs">
-          <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-            {t("sortLabel")}
-          </span>
-          <select
-            aria-label={t("sortLabel")}
-            className={SELECT_CLASS}
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
-          >
-            <option value="created_desc">{t("sortNewest")}</option>
-            <option value="created_asc">{t("sortOldest")}</option>
-            <option value="price_desc">{t("sortPriceDesc")}</option>
-            <option value="price_asc">{t("sortPriceAsc")}</option>
-          </select>
-        </label>
+        <Select
+          label={t("typeLabel")}
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+        >
+          <option value="all">{t("typeAll")}</option>
+          <option value="flight">{t("typeFlight")}</option>
+          <option value="hotel">{t("typeHotel")}</option>
+        </Select>
+        <Select
+          label={t("statusLabel")}
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+        >
+          <option value="all">{t("statusAll")}</option>
+          <option value="confirmed">{t("statusConfirmed")}</option>
+          <option value="cancelled">{t("statusCancelled")}</option>
+        </Select>
+        <Select
+          label={t("sortLabel")}
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+        >
+          <option value="created_desc">{t("sortNewest")}</option>
+          <option value="created_asc">{t("sortOldest")}</option>
+          <option value="price_desc">{t("sortPriceDesc")}</option>
+          <option value="price_asc">{t("sortPriceAsc")}</option>
+        </Select>
       </div>
 
       {isLoading ? (

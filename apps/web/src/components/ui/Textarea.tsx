@@ -20,7 +20,9 @@ export function Textarea({ label, id, className, ...props }: TextareaProps) {
       </label>
       <textarea
         id={textareaId}
-        className={cn(controlClass, "min-h-[64px] px-sm py-xs", className)}
+        // resize-y keeps the macOS corner grip from dragging the field
+        // sideways and breaking the column layout — vertical growth only.
+        className={cn(controlClass, "min-h-[64px] resize-y px-sm py-xs", className)}
         {...props}
       />
     </div>

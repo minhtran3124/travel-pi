@@ -27,13 +27,39 @@ export function Select({
       <label htmlFor={selectId} className={labelClass}>
         {label}
       </label>
-      <select
-        id={selectId}
-        className={cn(controlClass, "h-[34px] w-full px-sm", className)}
-        {...props}
-      >
-        {children}
-      </select>
+      {/* The select's native OS arrow is stripped in globals.css; this relative
+       * wrapper hangs our own hairline chevron in the reserved right padding. */}
+      <div className="relative">
+        <select
+          id={selectId}
+          className={cn(
+            controlClass,
+            "h-[34px] w-full cursor-pointer appearance-none pl-sm pr-8",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted" />
+      </div>
     </div>
+  );
+}
+
+function ChevronDown({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   );
 }
