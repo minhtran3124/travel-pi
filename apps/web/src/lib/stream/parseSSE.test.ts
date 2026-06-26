@@ -63,6 +63,14 @@ describe("parseSSE", () => {
     expect(payloads).toEqual(["line1\nline2", "plain"]);
   });
 
+  it("flushes a final segment that lacks a trailing \\n\\n", async () => {
+    const stream = streamFromChunks(["data: tail"]);
+
+    const payloads = await collect(stream);
+
+    expect(payloads).toEqual(["tail"]);
+  });
+
   it("accepts an async iterable of strings (no network)", async () => {
     async function* gen() {
       yield "data: x";

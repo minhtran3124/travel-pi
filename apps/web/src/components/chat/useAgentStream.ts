@@ -26,7 +26,11 @@ export interface UseAgentStream {
   messages: ChatMessage[];
   send: (text: string) => void;
   isStreaming: boolean;
-  /** True after a turn degraded to (or failed at) the non-streaming fallback. */
+  /**
+   * Set only when a turn fails outright — i.e. BOTH the stream and the
+   * non-streaming fallback failed. A silent stream→fallback recovery leaves
+   * this null.
+   */
   error: string | null;
 }
 
@@ -82,6 +86,15 @@ export function useAgentStream(
       if (!userId) {
         setError("Identity not ready yet. Please try again in a moment.");
         return;
+      }
+
+      // The streaming endpoint returns plain text (no conversation_id), and the
+      // BE mints a fresh thread whenever conversation_id is null. To keep
+      // multi-turn memory we pin a client-generated id on the first turn and
+      // reuse it for every subsequent turn (the BE accepts a client-supplied id
+      // and keys the thread on it).
+      if (conversationIdRef.current === null) {
+        conversationIdRef.current = newId();
       }
 
       const assistantId = newId();
