@@ -82,6 +82,10 @@ def test_stream_emits_sse_events(client):
     text = resp.text
     assert "data:" in text
     assert "[DONE]" in text
+    # The concierge answer streams; the reflection critic's verdict ("OK", scripted
+    # in the fixture's fast LLM) must NOT leak into the SSE feed (REVIEW.md C4).
+    assert "Visit Tokyo Tower" in text
+    assert "OK" not in text
 
 
 def test_manifest_lists_tools_and_subagents(client):
