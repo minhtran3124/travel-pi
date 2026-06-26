@@ -6,7 +6,6 @@ import { BrowseDrawer } from "@/components/places/BrowseDrawer";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Pill } from "@/components/ui/Pill";
 import { Spinner } from "@/components/ui/Spinner";
 import type { Place, PlaceSource } from "@/lib/query/places";
 import { useSavedPlaces } from "@/lib/query/places";
@@ -140,11 +139,9 @@ export function ShortlistTab({ tripId }: { tripId: string }) {
                       <h3 className="truncate font-extrabold text-ink">
                         {entry.place.name}
                       </h3>
-                      <Pill
-                        variant="topic"
-                        tone="best_time"
-                        label={entry.source}
-                      />
+                      <span className="inline-flex shrink-0 items-center rounded-pill bg-panel-raised px-sm py-px text-xs font-bold capitalize text-muted ring-1 ring-line">
+                        {entry.source}
+                      </span>
                     </div>
                     {meta ? (
                       <p className="truncate text-sm text-muted">{meta}</p>

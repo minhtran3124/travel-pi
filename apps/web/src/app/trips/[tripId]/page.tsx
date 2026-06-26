@@ -8,8 +8,7 @@ import { BudgetTab } from "@/components/trips/budget/BudgetTab";
 import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
 import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
-import { TripHeader } from "@/components/trips/TripHeader";
-import { Spinner } from "@/components/ui/Spinner";
+import { TripHeader, TripHeaderSkeleton } from "@/components/trips/TripHeader";
 import { Tabs, type Tab } from "@/components/ui/Tabs";
 import { useTrip } from "@/lib/query/trips";
 
@@ -27,21 +26,24 @@ export default function TripDetailPage() {
   const { data: trip, isPending, isError } = useTrip(tripId);
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-xl">
-        <Spinner label="Loading trip" />
-      </div>
-    );
+    return <TripHeaderSkeleton />;
   }
 
   if (isError || !trip) {
     return (
-      <div className="flex flex-col gap-md py-xl">
-        <p className="text-sm font-bold text-status-cancelled">
-          Could not load this trip.
+      <div className="flex flex-col items-start gap-md rounded-lg border border-line bg-panel px-xl py-xl shadow-card">
+        <h1 className="text-lg font-extrabold text-ink">
+          We couldn&apos;t load this trip
+        </h1>
+        <p className="max-w-[48ch] text-sm text-muted">
+          The trip may have been removed, or the connection dropped. Head back
+          and pick another, or try again in a moment.
         </p>
-        <Link href="/trips" className="text-sm font-bold text-muted">
-          ← Back to trips
+        <Link
+          href="/trips"
+          className="inline-flex h-[34px] items-center rounded-sm bg-ink px-[18px] text-sm font-bold text-white transition hover:bg-[#2e2e2e] active:translate-y-px"
+        >
+          Back to all trips
         </Link>
       </div>
     );

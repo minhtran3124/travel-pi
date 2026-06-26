@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
+import { Meter } from "@/components/ui/Meter";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { cn } from "@/lib/cn";
 import {
   useBudget,
   useSetBudget,
@@ -37,20 +39,29 @@ function CategoryRow({
   cat: CategoryBudget;
 }) {
   const over = cat.remaining !== null && cat.remaining !== undefined && cat.remaining < 0;
+  const capped = cat.cap !== null && cat.cap !== undefined;
   return (
-    <div className="flex items-center justify-between border-b border-line py-sm last:border-b-0">
-      <span className="text-sm font-bold text-ink">{label}</span>
-      <div className="flex items-center gap-lg text-sm tabular-nums">
-        <span className="text-muted">
-          {cat.cap === null || cat.cap === undefined ? "—" : usd(cat.cap)}
-        </span>
-        <span className="text-ink">{usd(cat.spent)}</span>
-        <span className={over ? "font-bold text-status-cancelled" : "text-muted"}>
-          {cat.remaining === null || cat.remaining === undefined
-            ? "—"
-            : usd(cat.remaining)}
-        </span>
+    <div className="flex flex-col gap-xs border-b border-line py-sm last:border-b-0">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-bold text-ink">{label}</span>
+        <div className="flex items-center gap-lg text-sm tabular-nums">
+          <span className="w-16 text-right text-muted">
+            {capped ? usd(cat.cap as number) : "—"}
+          </span>
+          <span className="w-16 text-right text-ink">{usd(cat.spent)}</span>
+          <span
+            className={cn(
+              "w-16 text-right",
+              over ? "font-bold text-status-cancelled" : "text-muted",
+            )}
+          >
+            {cat.remaining === null || cat.remaining === undefined
+              ? "—"
+              : usd(cat.remaining)}
+          </span>
+        </div>
       </div>
+      {capped ? <Meter value={cat.spent} max={cat.cap} /> : null}
     </div>
   );
 }
@@ -184,23 +195,29 @@ export function BudgetTab({ tripId }: { tripId: string }) {
             cat={data.categories[key]}
           />
         ))}
-        <div className="flex items-center justify-between pt-sm text-sm font-extrabold text-ink">
-          <span>Total</span>
-          <div className="flex items-center gap-lg tabular-nums">
-            <span className="text-muted">
-              {data.total_cap == null ? "—" : usd(data.total_cap)}
-            </span>
-            <span>{usd(data.total_spent)}</span>
-            <span
-              className={
-                data.total_remaining != null && data.total_remaining < 0
-                  ? "text-status-cancelled"
-                  : ""
-              }
-            >
-              {data.total_remaining == null ? "—" : usd(data.total_remaining)}
-            </span>
+        <div className="flex flex-col gap-xs pt-sm">
+          <div className="flex items-center justify-between text-sm font-extrabold text-ink">
+            <span>Total</span>
+            <div className="flex items-center gap-lg tabular-nums">
+              <span className="w-16 text-right text-muted">
+                {data.total_cap == null ? "—" : usd(data.total_cap)}
+              </span>
+              <span className="w-16 text-right">{usd(data.total_spent)}</span>
+              <span
+                className={cn(
+                  "w-16 text-right",
+                  data.total_remaining != null && data.total_remaining < 0
+                    ? "text-status-cancelled"
+                    : "",
+                )}
+              >
+                {data.total_remaining == null ? "—" : usd(data.total_remaining)}
+              </span>
+            </div>
           </div>
+          {data.total_cap != null ? (
+            <Meter value={data.total_spent} max={data.total_cap} />
+          ) : null}
         </div>
       </Card>
 

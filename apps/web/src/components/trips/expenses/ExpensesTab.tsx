@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Meter } from "@/components/ui/Meter";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import {
@@ -157,6 +158,9 @@ function SummaryPanel({ tripId }: { tripId: string }) {
               : usd(budget.total_remaining)}
           </span>
         </div>
+        {budget.total_cap != null ? (
+          <Meter value={budget.total_spent} max={budget.total_cap} className="mt-xs" />
+        ) : null}
         {budget.over_budget ? (
           <p
             role="alert"

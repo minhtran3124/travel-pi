@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Spinner } from "@/components/ui/Spinner";
+import { cn } from "@/lib/cn";
 import { useTrip } from "@/lib/query/trips";
 import {
   OverBudgetError,
@@ -19,6 +20,31 @@ import { ItemForm, type ItemFormValues } from "./ItemForm";
 import { ItemRow } from "./ItemRow";
 
 type Editing = { mode: "add" } | { mode: "edit"; item: TripItem };
+
+// Day N maps onto a real calendar date (start_date + N-1), pinned to UTC so the
+// day never shifts in negative-offset timezones — same convention as the header.
+function dayDate(start: string | null | undefined, day: number): string | null {
+  if (!start) return null;
+  const d = new Date(`${start}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + (day - 1));
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(d);
+}
+
+// Which day number (start_date + N-1) is today, or null if today is outside the
+// trip window. UTC-pinned to match dayDate so the "Today" marker never drifts.
+function todayDayNumber(start: string | null | undefined): number | null {
+  if (!start) return null;
+  const startMs = Date.parse(`${start}T00:00:00Z`);
+  const now = new Date();
+  const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.round((todayMs - startMs) / 86_400_000);
+  return diff >= 0 ? diff + 1 : null;
+}
 
 function byDay(items: TripItem[]): [number, TripItem[]][] {
   const groups = new Map<number, TripItem[]>();
@@ -47,6 +73,7 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
 
   const items = trip?.items ?? [];
   const groups = byDay(items);
+  const todayNum = todayDayNumber(trip?.start_date);
   const mutating = addItem.isPending || updateItem.isPending;
 
   function closeForm() {
@@ -131,12 +158,41 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
         />
       ) : (
         <div className="flex flex-col gap-lg">
-          {groups.map(([day, dayItems]) => (
+          {groups.map(([day, dayItems]) => {
+            const date = dayDate(trip?.start_date, day);
+            const isToday = day === todayNum;
+            return (
             <div key={day} className="flex flex-col gap-sm">
-              <h3 className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-muted">
-                Day {day}
-              </h3>
-              <ul className="flex flex-col gap-sm">
+              <div className="flex items-baseline gap-sm">
+                <h3 className="text-sm font-extrabold text-ink">Day {day}</h3>
+                {date ? (
+                  <span className="text-sm text-muted">· {date}</span>
+                ) : null}
+                {isToday ? (
+                  <span className="inline-flex items-center gap-xs rounded-pill bg-lime px-sm py-px text-xs font-bold text-on-accent">
+                    <span
+                      aria-hidden="true"
+                      className="size-1.5 animate-pulse rounded-pill bg-on-accent"
+                    />
+                    Today
+                  </span>
+                ) : null}
+                <span className="ml-auto text-xs font-bold text-muted tabular-nums">
+                  {dayItems.length}{" "}
+                  {dayItems.length === 1 ? "item" : "items"}
+                </span>
+              </div>
+              {/* The vertical rail threads the day's timeline nodes; the nodes
+                  (z-10) sit over it so it reads as a connected route. Today's
+                  rail carries the active lime signal. */}
+              <ul className="relative flex flex-col gap-sm">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute bottom-6 left-4 top-5 w-px",
+                    isToday ? "bg-lime" : "bg-line",
+                  )}
+                />
                 {dayItems.map((item, index) => (
                   <ItemRow
                     key={item.id}
@@ -144,6 +200,7 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
                     canMoveUp={index > 0}
                     canMoveDown={index < dayItems.length - 1}
                     busy={reorderItem.isPending}
+                    highlight={isToday}
                     onMoveUp={() =>
                       reorderItem.mutate({
                         a: item,
@@ -162,7 +219,8 @@ export function ItineraryTab({ tripId }: { tripId: string }) {
                 ))}
               </ul>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
