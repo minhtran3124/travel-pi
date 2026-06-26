@@ -50,16 +50,28 @@ function GapsSummary({
   gaps: string[];
   totalDays: number | null;
 }) {
-  const dayNums: number[] = [];
+  // The backend emits one gap per day, and it is *either* "no planned items"
+  // (the day is empty) *or* "no accommodation booked" (the day has items but no
+  // stay) — never both. Bucket them apart so a fully-planned trip that just
+  // lacks a hotel reads as a calm stay nudge, not "blank canvas / needs a plan".
+  const emptyDays: number[] = [];
+  const stayDays: number[] = [];
   const other: string[] = [];
   for (const gap of gaps) {
     const match = gap.match(/day\s+(\d+)/i);
-    if (match) dayNums.push(Number(match[1]));
-    else other.push(gap);
+    const day = match ? Number(match[1]) : null;
+    if (day === null) other.push(gap);
+    else if (/accommodation|no stay/i.test(gap)) stayDays.push(day);
+    else emptyDays.push(day);
   }
-  const days = [...new Set(dayNums)].sort((a, b) => a - b);
+  const empties = [...new Set(emptyDays)].sort((a, b) => a - b);
+  const stays = [...new Set(stayDays)].sort((a, b) => a - b);
+  // "Blank canvas" only when the whole trip is genuinely empty (every day).
   const allOpen =
-    totalDays !== null && other.length === 0 && days.length >= totalDays;
+    totalDays !== null &&
+    other.length === 0 &&
+    stays.length === 0 &&
+    empties.length >= totalDays;
 
   return (
     <div className="flex flex-col gap-sm rounded-md bg-panel-raised px-md py-md">
@@ -75,14 +87,15 @@ function GapsSummary({
         </p>
       ) : (
         <div className="flex flex-col gap-sm">
-          {days.length > 0 ? (
+          {empties.length > 0 ? (
             <>
               <p className="text-sm text-muted">
-                <span className="font-bold text-ink">{days.length}</span>{" "}
-                {days.length === 1 ? "day still needs" : "days still need"} a plan
+                <span className="font-bold text-ink">{empties.length}</span>{" "}
+                {empties.length === 1 ? "day still needs" : "days still need"} a
+                plan
               </p>
               <ul className="flex flex-wrap gap-xs">
-                {days.map((d) => (
+                {empties.map((d) => (
                   <li key={d}>
                     <span className="inline-flex rounded-pill bg-panel px-sm py-px text-xs font-bold text-muted ring-1 ring-line">
                       Day {d}
@@ -91,6 +104,13 @@ function GapsSummary({
                 ))}
               </ul>
             </>
+          ) : null}
+          {stays.length > 0 ? (
+            <p className="text-sm text-muted">
+              <span className="font-bold text-ink">{stays.length}</span>{" "}
+              {stays.length === 1 ? "day still needs" : "days still need"} a place
+              to stay
+            </p>
           ) : null}
           {other.length > 0 ? (
             <ul className="flex flex-col gap-xs text-sm text-muted">
