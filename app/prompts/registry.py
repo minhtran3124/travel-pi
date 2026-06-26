@@ -1,6 +1,14 @@
 """File-backed, versioned prompt registry (specs/travel-agent Task 1.2).
 
-Prompts live as flat markdown files named ``<name>.v<N>.md`` under this package.
+Prompts live in a per-name subdirectory holding one markdown file per version::
+
+    prompts/
+      planner/
+        v1.md
+        v2.md
+      booking/
+        v1.md
+
 ``active.yaml`` declares which version is the production default per name. The
 registry walks the directory once at import, loads every version into memory,
 and ``get(name)`` returns the active version's text (override with ``version=``).
@@ -18,7 +26,7 @@ import yaml
 
 _PROMPTS_DIR = Path(__file__).resolve().parent
 _ACTIVE_FILE = _PROMPTS_DIR / "active.yaml"
-_FILENAME_RE = re.compile(r"^(?P<name>.+)\.v(?P<version>\d+)\.md$")
+_FILENAME_RE = re.compile(r"^v(?P<version>\d+)\.md$")
 
 
 class PromptRegistry:
@@ -33,11 +41,11 @@ class PromptRegistry:
     def reload(self) -> None:
         """Re-scan the directory and re-read ``active.yaml`` from disk."""
         self._prompts = {}
-        for path in sorted(self._dir.glob("*.md")):
+        for path in sorted(self._dir.glob("*/v*.md")):
             m = _FILENAME_RE.match(path.name)
             if not m:
                 continue
-            name = m.group("name")
+            name = path.parent.name
             version = int(m.group("version"))
             self._prompts.setdefault(name, {})[version] = path.read_text(
                 encoding="utf-8"

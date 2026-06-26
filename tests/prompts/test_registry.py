@@ -42,12 +42,13 @@ def test_names_lists_seeded_prompts():
 def test_reload_picks_up_new_file(tmp_path):
     from app.prompts.registry import PromptRegistry
 
-    (tmp_path / "greeting.v1.md").write_text("hello v1", encoding="utf-8")
+    (tmp_path / "greeting").mkdir()
+    (tmp_path / "greeting" / "v1.md").write_text("hello v1", encoding="utf-8")
     (tmp_path / "active.yaml").write_text("greeting: 1\n", encoding="utf-8")
     reg = PromptRegistry(prompts_dir=tmp_path)
     assert reg.get("greeting") == "hello v1"
 
-    (tmp_path / "greeting.v2.md").write_text("hello v2", encoding="utf-8")
+    (tmp_path / "greeting" / "v2.md").write_text("hello v2", encoding="utf-8")
     (tmp_path / "active.yaml").write_text("greeting: 2\n", encoding="utf-8")
     reg.reload()
     assert reg.get("greeting") == "hello v2"
