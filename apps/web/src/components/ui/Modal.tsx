@@ -31,7 +31,10 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-md rounded-md bg-panel-raised p-lg shadow-lift [animation:tp-pop_0.16s_ease-out]"
+        // NOTE: `max-w-md` is unusable here — this project's `@theme` defines
+        // `--spacing-md`, which Tailwind v4 resolves ahead of the container scale
+        // for `max-w-*`, collapsing `max-w-md` to 12px. Use the explicit width.
+        className="w-full max-w-[28rem] rounded-md bg-panel-raised p-lg shadow-lift [animation:tp-pop_0.16s_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
         {title ? (
