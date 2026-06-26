@@ -24,6 +24,17 @@ class AppError(Exception):
         super().__init__(self.detail)
 
 
+class AuthError(AppError):
+    """Authentication failed — missing or invalid credentials (HTTP 401).
+
+    Raised when a Supabase access token is absent, malformed, or fails
+    signature/issuer/audience/expiry verification. See ``app.core.auth``.
+    """
+
+    status_code = 401
+    default_detail = "Authentication required"
+
+
 class NotFoundError(AppError):
     """A requested resource does not exist (HTTP 404)."""
 

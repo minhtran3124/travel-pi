@@ -131,6 +131,42 @@ class Settings(BaseSettings):
     agent_recursion_limit: int = 25  # LangGraph recursion guard per invocation
     summarize_threshold: int = 20  # compress history once messages exceed this
 
+    # --- Supabase auth (specs/supabase-auth) ---
+    # Verify incoming Supabase access tokens (asymmetric RS256/ES256) against
+    # the project's JWKS endpoint. Disabled by default so local dev and the test
+    # suite need no Supabase project. The JWKS URL and issuer derive from the
+    # project ref (or full URL); explicit overrides cover self-hosted setups.
+    supabase_url: str | None = None
+    supabase_project_ref: str | None = None
+    supabase_jwt_audience: str = "authenticated"
+    supabase_jwks_url: str | None = None  # explicit override; else derived
+    supabase_jwt_issuer: str | None = None  # explicit override; else derived
+
+    @property
+    def _supabase_auth_base_url(self) -> str | None:
+        """Base Supabase URL (no trailing slash), from full URL or project ref."""
+        if self.supabase_url:
+            return self.supabase_url.rstrip("/")
+        if self.supabase_project_ref:
+            return f"https://{self.supabase_project_ref}.supabase.co"
+        return None
+
+    @property
+    def resolved_jwks_url(self) -> str | None:
+        """The JWKS endpoint to verify token signatures against, or None."""
+        if self.supabase_jwks_url:
+            return self.supabase_jwks_url
+        base = self._supabase_auth_base_url
+        return f"{base}/auth/v1/.well-known/jwks.json" if base else None
+
+    @property
+    def resolved_jwt_issuer(self) -> str | None:
+        """The expected ``iss`` claim, or None to skip the issuer check."""
+        if self.supabase_jwt_issuer:
+            return self.supabase_jwt_issuer
+        base = self._supabase_auth_base_url
+        return f"{base}/auth/v1" if base else None
+
     @property
     def is_production(self) -> bool:
         """True when running in a production deployment."""
