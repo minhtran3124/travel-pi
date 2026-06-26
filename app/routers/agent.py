@@ -99,10 +99,16 @@ async def agent_chat(
 
 @router.post("/stream", summary="Stream the agent's reply as Server-Sent Events")
 async def agent_stream(body: ChatRequest, graph: GraphDep):
-    conversation_id = body.conversation_id or "stream"
+    from uuid import uuid4
+
+    from app.agents.supervisor import SUBAGENTS
+
+    # A unique thread per anonymous stream — otherwise every conversation_id-less
+    # stream shares one checkpoint thread and their state collides (REVIEW.md C4).
+    conversation_id = body.conversation_id or f"stream-{uuid4().hex[:12]}"
 
     async def tokens():
-        async for chunk, _meta in graph.astream(
+        async for chunk, meta in graph.astream(
             {
                 "messages": [HumanMessage(content=body.message)],
                 "user_id": body.user_id,
@@ -111,6 +117,11 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
             _config(_thread_id(body, conversation_id), body),
             stream_mode="messages",
         ):
+            # Only stream the user-facing sub-agent answer; suppress internal-node
+            # output (supervisor routing, summarizer, reflection critic) that
+            # messages-mode would otherwise leak into the SSE feed (REVIEW.md C4).
+            if meta.get("langgraph_node") not in SUBAGENTS:
+                continue
             content = getattr(chunk, "content", "")
             if content:
                 yield content
