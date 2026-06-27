@@ -21,6 +21,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import START, StateGraph
 from langgraph.store.base import BaseStore
 
+from app.agents.context import AgentContext
 from app.agents.nodes import (
     load_context_node,
     make_reflection_node,
@@ -57,7 +58,7 @@ def build_graph(
             return fast_llm if fast_llm is not None else get_agent_llm(name)
         return llm if llm is not None else get_agent_llm(name)
 
-    builder = StateGraph(TravelAgentState)
+    builder = StateGraph(TravelAgentState, context_schema=AgentContext)
     builder.add_node("load_context", load_context_node)
     builder.add_node("summarize", make_summarize_node(pick("summarize")))
     builder.add_node(

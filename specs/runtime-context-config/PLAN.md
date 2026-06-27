@@ -1,6 +1,6 @@
 ---
 slug: runtime-context-config
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-06-27
 ---
