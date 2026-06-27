@@ -8,16 +8,25 @@ self-correct) and control returns to the assistant; otherwise the loop ends.
 Compiled subgraphs are added as nodes to the supervisor graph (Task 5.4); the
 parent's checkpointer and store propagate into these nested nodes at runtime, so
 tools using ``InjectedStore`` work without per-sub-agent wiring.
+
+C.1 (specs/runtime-context-config): ``build_subagent`` now accepts a
+``resolve_model`` callable instead of a fixed ``llm``. The ``assistant`` node
+resolves + binds the model **per request** from ``runtime.context.model``, so the
+sub-agent's chat model can be selected at invoke time from ``AgentContext``.
 """
 
 from __future__ import annotations
+
+from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.runtime import Runtime
 
+from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.prompts.registry import registry
 
@@ -43,20 +52,28 @@ def _tool_error_to_message(exc: Exception) -> str:
 def build_subagent(
     name: str,
     tools: list[BaseTool],
-    llm: BaseChatModel,
+    resolve_model: Callable[[str | None], BaseChatModel],
     prompt: str,
 ):
     """Compile a ReAct subgraph for one specialist domain.
+
+    ``resolve_model`` is called per-request inside the ``assistant`` node with
+    the ``AgentContext.model`` hint from the current invocation, so the chat
+    model is selected at runtime rather than at build time (D1 deferred binding).
+    When the runtime context carries no model hint (``None``) the resolver falls
+    back to the per-agent default — preserving today's behavior.
 
     The shared ``communication_style`` guideline is prepended to every domain
     prompt so all user-facing replies stay warm, concise, and travel-focused —
     translating raw tool data into useful guidance rather than dumping it.
     """
-    bound = llm.bind_tools(tools) if tools else llm
     style = registry.get("communication_style")
     system = SystemMessage(content=f"{style}\n\n{prompt}")
 
-    def assistant(state: TravelAgentState) -> dict:
+    def assistant(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
+        ctx_model = runtime.context.model if runtime.context is not None else None
+        model = resolve_model(ctx_model)
+        bound = model.bind_tools(tools) if tools else model
         response = bound.invoke(
             [system_with_summary(state, system), *state["messages"]]
         )

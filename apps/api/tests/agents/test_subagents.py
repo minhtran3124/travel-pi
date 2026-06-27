@@ -24,7 +24,9 @@ def test_subagents_build_and_answer(builder_name):
     mod = importlib.import_module(f"app.agents.subagents.{domain}")
     builder = getattr(mod, builder_name)
 
-    agent = builder(FakeLLM(responses=["here is my answer"]))
+    # C.1: builders now accept a resolver callable, not a fixed LLM.
+    fake = FakeLLM(responses=["here is my answer"])
+    agent = builder(lambda _: fake)
     out = agent.invoke({"messages": [HumanMessage(content="hi")]})
     assert out["messages"][-1].content == "here is my answer"
 

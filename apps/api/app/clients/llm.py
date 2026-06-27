@@ -79,23 +79,37 @@ def get_fast_llm(model: str | None = None) -> BaseChatModel:
     return get_llm(model, fast=True)
 
 
-def get_agent_llm(agent_name: str) -> BaseChatModel:
+def get_agent_llm(agent_name: str, model: str | None = None) -> BaseChatModel:
     """Build the chat model for a specific graph node.
 
     Resolves ``settings.agent_llm_configs[agent_name]`` with fallback: provider
     defaults to the global ``llm_provider``, model to the node's tier default
     (fast vs main), and any extra config key passes through to the model. A node
     with no override behaves exactly like ``get_llm()`` / ``get_fast_llm()``.
+
+    ``model`` is a semantic hint from ``AgentContext.model`` (per-request):
+    ``None``   → today's per-agent default (respects ``FAST_AGENTS``).
+    ``"fast"`` → force the fast-tier model regardless of agent name.
+    ``"deep"`` → force the main (non-fast) model. A dedicated
+                 ``STRONG_LLM_MODEL`` setting can be introduced later when a
+                 third premium model is configured.
     """
     s = get_settings()
     fast = agent_name in FAST_AGENTS
+
+    # Apply semantic model hint from runtime context when provided.
+    if model == "fast":
+        fast = True
+    elif model == "deep":
+        fast = False  # No dedicated strong model yet; fall through to main model.
+
     cfg = s.agent_llm_configs.get(agent_name)
     if cfg is None:
         return get_llm(fast=fast)
     provider = cfg.provider or s.llm_provider
-    model = cfg.model or (s.fast_llm_model if fast else s.llm_model)
+    resolved_model = cfg.model or (s.fast_llm_model if fast else s.llm_model)
     return _build_chat_model(
-        provider, model, temperature=cfg.temperature, **(cfg.model_extra or {})
+        provider, resolved_model, temperature=cfg.temperature, **(cfg.model_extra or {})
     )
 
 

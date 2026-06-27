@@ -16,6 +16,8 @@ Checkpointer + store make it stateful across turns/sessions.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import START, StateGraph
@@ -51,12 +53,36 @@ def build_graph(
     can be tuned per agent (``settings.agent_llm_configs``). When tests inject
     ``llm`` / ``fast_llm``, those override the whole main / fast tier — the node
     keeps using the injected fake exactly as before.
+
+    C.1: Sub-agent nodes receive a ``resolver_for(name)`` callable instead of a
+    fixed model. When a fake is injected it is returned regardless of the
+    per-request ``ctx_model`` hint, so all existing tests stay green.
     """
 
     def pick(name: str) -> BaseChatModel:
+        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection)."""
         if name in FAST_AGENTS:
             return fast_llm if fast_llm is not None else get_agent_llm(name)
         return llm if llm is not None else get_agent_llm(name)
+
+    def resolver_for(name: str) -> Callable[[str | None], BaseChatModel]:
+        """Deferred resolver for sub-agent nodes — called per request (D1).
+
+        When a fake is injected (tests), it is returned regardless of
+        ``ctx_model`` → all existing tests stay green. In prod,
+        ``get_agent_llm(name, model=ctx_model)`` does per-request selection.
+        """
+
+        def resolve(ctx_model: str | None) -> BaseChatModel:
+            if name in FAST_AGENTS:
+                return (
+                    fast_llm
+                    if fast_llm is not None
+                    else get_agent_llm(name, model=ctx_model)
+                )
+            return llm if llm is not None else get_agent_llm(name, model=ctx_model)
+
+        return resolve
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
     builder.add_node("load_context", load_context_node)
@@ -68,11 +94,11 @@ def build_graph(
     )
     # HITL plan-approval gate: fires before booking commits anything destructive.
     builder.add_node("plan", plan_node, destinations=("booking", "__end__"))
-    builder.add_node("planner", build_planner(pick("planner")))
-    builder.add_node("concierge", build_concierge(pick("concierge")))
-    builder.add_node("journal", build_journal(pick("journal")))
-    builder.add_node("booking", build_booking(pick("booking")))
-    builder.add_node("budget", build_budget(pick("budget")))
+    builder.add_node("planner", build_planner(resolver_for("planner")))
+    builder.add_node("concierge", build_concierge(resolver_for("concierge")))
+    builder.add_node("journal", build_journal(resolver_for("journal")))
+    builder.add_node("booking", build_booking(resolver_for("booking")))
+    builder.add_node("budget", build_budget(resolver_for("budget")))
     builder.add_node(
         "reflection",
         make_reflection_node(pick("reflection")),
