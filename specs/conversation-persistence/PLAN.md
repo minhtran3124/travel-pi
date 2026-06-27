@@ -153,6 +153,21 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
   fetchers; Task 4.1 (`8897a8b`) FE localStorage persist + hydrate-on-mount. Verify: BE
   `tests/api/agent/` + checkpointer = **32 passed**; FE `tsc --noEmit` exit 0. All success
   criteria met. Ready for manual UI check + PR against `v3`.
+- 2026-06-27 — Real-browser e2e verified (production build of apps/web on :3001 → BE on :8001
+  → real OpenAI LLM + sqlite). Full happy path PASS: send turn → assistant replies → BE
+  persists user+assistant → reload → conversationId stable in localStorage → history hydrated →
+  both messages re-render. (Dev-mode headless run failed to hydrate due to a Turbopack-dev HMR
+  websocket issue in Chrome-for-Testing — tooling, not code; production build hydrates fine.
+  Also note: the `localhost:8000` Docker compose stack `api-api-1` shadows a local uvicorn over
+  IPv6 — test against an explicit `127.0.0.1` port to avoid stale-code 404s.)
+- 2026-06-27 — **Known limitation found during e2e:** if the user reloads *mid-turn* (while the
+  agent still shows "Working on it…", i.e. before the SSE stream completes), the assistant
+  message is NOT persisted — the client disconnect cancels the stream generator so the
+  append-on-completion in `persist_assistant_turn` never runs. The user message IS saved (it is
+  written before streaming). So a reload during generation restores the question but no answer.
+  Acceptable for v1 (an interrupted turn has no complete answer), but a candidate follow-up:
+  persist server-side independent of the client connection (e.g. append in a `finally`/on-cancel
+  path, or a background task), so partial/al­most-complete answers survive a mid-turn reload.
 
 ## Waves
 
