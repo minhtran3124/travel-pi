@@ -14,13 +14,12 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
 from app.core.config import get_settings
 from app.core.streaming import sse_response
-from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.exceptions import UpstreamError
 from app.repositories.conversation import ConversationRepository
@@ -88,6 +87,18 @@ def _config(thread_id: str, req: ChatRequest) -> dict:
         "callbacks": callbacks(),
         "metadata": trace_metadata(req.user_id, req.trip_id),
     }
+
+
+def _isolated_factory(session: Session) -> sessionmaker[Session]:
+    """Sessionmaker bound to ``session``'s engine, for use after the request ends.
+
+    The agent SSE generator outlives the request-scoped session, so it persists
+    the assistant turn through its own session. Binding to the request session's
+    *engine* (rather than a stringified URL — ``str(URL)`` masks the password as
+    ``***`` and breaks Postgres auth) reuses the same pool/credentials, and keeps
+    test ``get_session`` overrides flowing through to the generator.
+    """
+    return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
@@ -192,10 +203,11 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     # The dependency's cleanup commit is a no-op after an explicit commit here.
     session.commit()
 
-    # Derive the factory from the request session's engine so test overrides
-    # (which swap the URL via get_session) propagate into the stream generator.
-    db_url = str(session.get_bind().url)
-    factory = get_session_factory(db_url)
+    # Bind an isolated sessionmaker to the request session's *engine* (not a
+    # stringified URL — str(URL) masks the password as "***", which breaks
+    # Postgres auth in the stream generator). Reuses the same engine/pool the
+    # request used, so test overrides via get_session still propagate.
+    factory = _isolated_factory(session)
 
     return sse_response(
         persist_assistant_turn(
