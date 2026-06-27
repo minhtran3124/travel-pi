@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Streamdown ships its own Tailwind classes in its dist bundle; this lets the
+ * Tailwind v4 scanner pick them up so streamed assistant markdown is styled. */
+@source "../../node_modules/streamdown/dist/*.js";
+
 /*
  * Travel Planner — light theme.
  *
