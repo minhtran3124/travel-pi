@@ -17,6 +17,7 @@ langchain-text-splitters>=0.3,<1.0  # RAG chunking (not pulled transitively by l
 # Provider integrations (provider-agnostic via init_chat_model()).
 langchain-openai>=0.3,<1.0
 langchain-anthropic>=1.0,<2.0
+langchain-google-genai>=4.0,<5.0  # provider="google_genai" (Gemini / AI Studio)
 
 # Checkpointers — SQLite local/test, Postgres in docker/prod.
 # Pin >=3.0 to match langgraph-checkpoint 4.x core serializer (2.x calls a
