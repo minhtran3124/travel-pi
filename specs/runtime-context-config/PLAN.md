@@ -211,3 +211,11 @@ the gating it depends on.)*
 - 2026-06-27 — Decisions D1/D2/D4 resolved (deferred binding · add users table · quota in-plan).
   Plan finalized; ready to execute after `specs/conversation-persistence/` ships. No remaining
   design blockers; B.1 still passes through the migration hard gate at commit time.
+- 2026-06-27 — Phase A + B executed. A.1 (AgentContext + resolver + context_schema), A.2 (router
+  resolves+passes context=, `mode` in ChatRequest, tier BE-resolved), B.1 (users table + tier +
+  migration `a1f3e2c9b7d5` + UserRepository, wired). Verify: migration applies + 47 tests pass on
+  SQLite. **Branch note:** concurrent theme work (the user's light/dark feature) crossed the
+  branches — A.1/A.2/B.1 first landed on `feat/light-dark-mode` and a theme commit sits on
+  `feat/runtime-context-config`. Per user decision the three commits were cherry-picked onto a
+  clean **`feat/agent-mode-tier`** (off v3, no theme work); the theme branches were left
+  untouched. Phase C/D/E continue on `feat/agent-mode-tier`.
