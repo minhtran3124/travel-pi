@@ -31,6 +31,42 @@ def test_get_llm_builds_configured_provider(monkeypatch):
     get_settings.cache_clear()
 
 
+def test_get_agent_llm_falls_back_to_tier_defaults(monkeypatch):
+    # No per-agent config: a "main" node uses llm_model, a "fast" node uses
+    # fast_llm_model — identical to the two-tier behaviour.
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    from app.clients.llm import get_agent_llm
+
+    assert get_agent_llm("supervisor").model_name == "gpt-4.1"
+    assert get_agent_llm("journal").model_name == "gpt-4.1-mini"
+    get_settings.cache_clear()
+
+
+def test_get_agent_llm_applies_per_agent_override(monkeypatch):
+    # Override one node onto a different provider + model + temperature; other
+    # nodes are untouched and keep the global defaults.
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv(
+        "AGENT_LLM_CONFIGS",
+        '{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6",'
+        '"temperature":0.1}}',
+    )
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    from app.clients.llm import get_agent_llm
+
+    concierge = get_agent_llm("concierge")
+    assert concierge.model == "claude-sonnet-4-6"
+    # Untouched node still resolves to the global OpenAI default.
+    assert get_agent_llm("planner").model_name == "gpt-4.1"
+    get_settings.cache_clear()
+
+
 def test_fake_llm_scripts_text():
     from app.clients.llm import FakeLLM
 

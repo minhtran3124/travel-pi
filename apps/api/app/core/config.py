@@ -8,11 +8,28 @@ for local development. See ``.env.example`` for the available knobs.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
+LLMProvider = Literal["openai", "anthropic", "google"]
+
+
+class AgentLLMConfig(BaseModel):
+    """Per-agent LLM override (see ``app.clients.llm.get_agent_llm``).
+
+    Lets each graph node run on its own provider/model/knobs. Every field is
+    optional: ``provider`` falls back to the global ``llm_provider`` and
+    ``model`` to the node's tier default (fast vs main). Any extra key (e.g.
+    ``max_tokens``) passes straight through to the chat model.
+    """
+
+    model_config = ConfigDict(extra="allow", protected_namespaces=())
+
+    provider: LLMProvider | None = None
+    model: str | None = None
+    temperature: float | None = None
 
 
 class Settings(BaseSettings):
@@ -109,10 +126,17 @@ class Settings(BaseSettings):
     # so switching provider is an env change, not a code change. Every value
     # has a safe default and NO key is required — the suite runs with FakeLLM
     # and never touches the network, so zero-config local dev still works.
-    llm_provider: Literal["openai", "anthropic", "google"] = "openai"
+    llm_provider: LLMProvider = "openai"
     llm_model: str = "gpt-4.1"
     fast_llm_model: str = "gpt-4.1-mini"  # cheap model for sub-agents / summarize
     embedding_model: str = "text-embedding-3-small"
+
+    # Per-agent LLM overrides — keyed by graph node name (supervisor, planner,
+    # concierge, journal, booking, budget, summarize, reflection). Each entry is
+    # an AgentLLMConfig; absent nodes use the global provider + tier model. Set
+    # via the AGENT_LLM_CONFIGS env var as JSON, e.g.
+    #   AGENT_LLM_CONFIGS='{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6"},"supervisor":{"temperature":0.1}}'
+    agent_llm_configs: dict[str, AgentLLMConfig] = {}
 
     # API keys — optional; only needed when a real model is wired in. Left
     # unset for local dev and CI (tests inject a fake client).
