@@ -9,6 +9,7 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
+from uuid import uuid4
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
@@ -29,7 +30,10 @@ from app.schemas.agent import (
     ToolManifestEntry,
 )
 from app.schemas.error import error_responses
+from app.agents.supervisor import SUBAGENTS
+from app.agents.observability import callbacks, trace_metadata
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
+from app.streaming.mapper import stream_agent_events
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +51,7 @@ def get_travel_graph(request: Request) -> Any:
     graph = getattr(request.app.state, "travel_graph", None)
     if graph is None:
         raise UpstreamError("Agent graph is not available")
+
     return graph
 
 
@@ -55,11 +60,24 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def _thread_id(req: ChatRequest, conversation_id: str) -> str:
+    """
+    Build the thread id for the conversation.
+
+    The thread id is a unique identifier for the conversation. It is used to
+    identify the conversation in the database and to identify the conversation in
+    the LangGraph checkpointer.
+    """
     return f"user_{req.user_id}_trip_{req.trip_id or 'none'}_conv_{conversation_id}"
 
 
 def _config(thread_id: str, req: ChatRequest) -> dict:
-    from app.agents.observability import callbacks, trace_metadata
+    """
+    Build the configuration for the agent.
+
+    :param thread_id: The thread id for the conversation.
+    :param req: The request object.
+    :return: The configuration for the agent.
+    """
 
     return {
         "configurable": {"thread_id": thread_id},
@@ -70,9 +88,15 @@ def _config(thread_id: str, req: ChatRequest) -> dict:
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
-async def agent_chat(
-    body: ChatRequest, graph: GraphDep, session: SessionDep
-) -> ChatResponse:
+async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) -> ChatResponse:
+    """
+    Send a chat request to the agent.
+
+    :param body: The request body.
+    :param graph: The graph.
+    :param session: The session.
+    :return: The response.
+    """
     repo = ConversationRepository(session)
     conversation_id = (
         body.conversation_id
@@ -123,10 +147,13 @@ async def agent_chat(
 
 @router.post("/stream", summary="Stream the agent's reply as Server-Sent Events")
 async def agent_stream(body: ChatRequest, graph: GraphDep):
-    from uuid import uuid4
+    """
+    Stream the agent's reply as Server-Sent Events.
 
-    from app.streaming.mapper import stream_agent_events
-
+    :param body: The request body.
+    :param graph: The graph.
+    :return: The response.
+    """
     # Must use caller-supplied conversation_id for resume so the checkpoint thread
     # matches; fallback to a generated id only for fresh (non-resume) turns.
     conversation_id = body.conversation_id or f"stream-{uuid4().hex[:12]}"
@@ -150,12 +177,11 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
     )
 
 
-@router.get(
-    "/manifest", response_model=AgentManifest, summary="Agent capability manifest"
-)
+@router.get("/manifest", response_model=AgentManifest, summary="Agent capability manifest")
 def agent_manifest() -> AgentManifest:
-    from app.agents.supervisor import SUBAGENTS
-
+    """
+    Get the agent capability manifest.
+    """
     tools = [
         ToolManifestEntry(
             name=t.name,
