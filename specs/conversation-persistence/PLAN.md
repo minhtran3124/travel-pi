@@ -190,6 +190,17 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
   turns no longer orphan.) Also: local `apps/api/.env` `DATABASE_URL` repointed to the Docker
   Postgres (`127.0.0.1:5433`) so `make dev` shares the durable DB — `.env` is gitignored
   (local-only, holds secrets), so that change is not committed.
+- 2026-06-27 — **Mid-turn-reload limitation resolved via Retry** (`b2525e3`), per user
+  decision (don't persist partial answers — support retry instead, simpler UX). Behavior
+  unchanged on the persist side (interrupted turn saves only the question). New: FE detects the
+  dangling user turn (`canRetry`) and shows a **Retry** button; `retry()` re-answers via
+  `/agent/stream` with `retry: true`, so the BE skips re-appending the question (no duplicate
+  user row). Added `retry` to `ChatRequest` (BE schema + regenerated FE `schema.d.ts`), i18n
+  (en/vi), a BE regression test (no-duplicate), and the Retry UI. Verified e2e in the browser
+  against Postgres: dangling question hydrates → Retry shows → click answers → DB has exactly
+  1 user + 1 assistant. (Risk-gate false-positive: regenerated schema.d.ts trips
+  auth/authorization on the substrings "no auth enforced" + "Author role" — benign; committed
+  with `RISK_WARN_CATEGORIES`.)
 
 ## Waves
 
