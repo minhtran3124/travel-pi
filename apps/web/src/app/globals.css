@@ -95,6 +95,8 @@
 
 /* LIGHT palette — the canonical Travel Planner theme (values unchanged). */
 :root {
+  color-scheme: light;
+
   /* accent */
   --lime:       #cbf24a;
   --lime-soft:  #e6f8a8;
@@ -139,7 +141,8 @@
   --topic-etiquette:    #0f766e;
   --topic-language:     #4338ca;
 
-  /* elevation — soft, light-theme shadows */
+  /* elevation — soft, light-theme shadows.
+   * -v suffix avoids name collision with the @theme inline tokens --shadow-card / --shadow-lift */
   --shadow-card-v: 0 1px 2px rgba(17, 17, 17, 0.04), 0 6px 20px -8px rgba(17, 17, 17, 0.10);
   --shadow-lift-v: 0 16px 40px -12px rgba(17, 17, 17, 0.18), 0 4px 12px -6px rgba(17, 17, 17, 0.10);
 
@@ -149,19 +152,57 @@
 
 /* DARK palette — hand-tuned for dark surfaces (brighter accents, AA on dark). */
 .dark {
-  --void: #0e0f12; --panel: #17191e; --panel-raised: #1f2228;
-  --line: #2a2d33; --line-soft: #232529;
-  --ink: #f2f2f0; --muted: #9aa0a8; --faint: #6b7079;
-  --on-accent: #15161a; --ink-hover: #d8d8d4;
-  --lime: #cbf24a; --lime-soft: #2e3a12;
-  --coral: #fb7755; --coral-soft: #3a201a; --coral-ink: #fb9a7e;
-  --status-confirmed: #4ade80; --status-estimated: #fbbf24; --status-delayed: #fb923c;
-  --status-boarding: #38bdf8; --status-cancelled: #f87171; --status-hotel: #60a5fa;
-  --topic-transport: #fbbf24; --topic-money: #4ade80; --topic-safety: #f87171;
-  --topic-culture: #c4b5fd; --topic-food: #fb923c; --topic-connectivity: #38bdf8;
-  --topic-health: #fb7185; --topic-etiquette: #2dd4bf; --topic-language: #a5b4fc;
+  color-scheme: dark;
+
+  /* accent */
+  --lime:       #cbf24a;
+  --lime-soft:  #2e3a12;
+
+  /* warm secondary accent */
+  --coral:      #fb7755;
+  --coral-soft: #3a201a;
+  --coral-ink:  #fb9a7e;
+
+  /* primary action */
+  --on-accent:  #15161a;
+
+  /* surfaces */
+  --void:          #0e0f12;
+  --panel:         #17191e;
+  --panel-raised:  #1f2228;
+  --line:          #2a2d33;
+  --line-soft:     #232529;
+
+  /* text */
+  --ink:        #f2f2f0;
+  --ink-hover:  #d8d8d4;
+  --muted:      #9aa0a8;
+  --faint:      #6b7079;
+
+  /* status spectrum (brightened for AA on dark surfaces) */
+  --status-confirmed: #4ade80;
+  --status-estimated: #fbbf24;
+  --status-delayed:   #fb923c;
+  --status-boarding:  #38bdf8;
+  --status-cancelled: #f87171;
+  --status-hotel:     #60a5fa;
+
+  /* topic palette */
+  --topic-transport:    #fbbf24;
+  --topic-money:        #4ade80;
+  --topic-safety:       #f87171;
+  --topic-culture:      #c4b5fd;
+  --topic-food:         #fb923c;
+  --topic-connectivity: #38bdf8;
+  --topic-health:       #fb7185;
+  --topic-etiquette:    #2dd4bf;
+  --topic-language:     #a5b4fc;
+
+  /* elevation — deeper shadows for dark surfaces */
   --shadow-card-v: 0 1px 2px rgba(0,0,0,0.40), 0 6px 20px -8px rgba(0,0,0,0.55);
   --shadow-lift-v: 0 16px 40px -12px rgba(0,0,0,0.65), 0 4px 12px -6px rgba(0,0,0,0.45);
+
+  /* neutral focus ring */
   --focus-ring: rgba(242, 242, 240, 0.22);
 }
 
