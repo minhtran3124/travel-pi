@@ -147,7 +147,7 @@ def test_stream_emits_sse_events(client):
     assert resp.headers["content-type"].startswith("text/event-stream")
     text = resp.text
     assert "data:" in text
-    assert "[DONE]" in text
+    assert "event: done" in text
     # The concierge answer streams; the reflection critic's verdict ("OK", scripted
     # in the fixture's fast LLM) must NOT leak into the SSE feed (REVIEW.md C4).
     assert "Visit Tokyo Tower" in text
@@ -285,7 +285,7 @@ def test_stream_booking_emits_interrupt_event(booking_client):
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("text/event-stream")
     text = resp.text
-    assert "[DONE]" in text
+    assert "event: done" in text
     assert "event: interrupt" in text
 
     events = _parse_sse(text)
@@ -320,7 +320,7 @@ def test_stream_booking_resume_approved(booking_client):
     )
     assert resp2.status_code == 200
     text = resp2.text
-    assert "[DONE]" in text
+    assert "event: done" in text
     assert "event: interrupt" not in text, "no second interrupt after approval"
     assert "Hotel booked" in text
 
@@ -347,6 +347,6 @@ def test_stream_booking_resume_rejected(booking_client):
     )
     assert resp2.status_code == 200
     text = resp2.text
-    assert "[DONE]" in text
+    assert "event: done" in text
     assert "event: interrupt" not in text
     assert "Hotel booked" not in text
