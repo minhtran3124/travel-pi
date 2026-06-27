@@ -1,6 +1,6 @@
 ---
 slug: conversation-persistence
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-06-27
 ---
@@ -141,6 +141,13 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
 ## 6. Status Log
 
 - 2026-06-27 — Plan drafted from BE+FE investigation. Proposed; awaiting approval to execute.
+- 2026-06-27 — Wave 1 complete on `feat/conversation-persistence`. Task 1.1 (`77c8a4d`) stream
+  persistence + Task 1.2 (`99d0abb`) Postgres checkpointer test/docs. Verify: 6/6 targeted
+  tests pass; full `tests/api/agent/`+`tests/agents/` green except 3 pre-existing
+  `test_memory.py` failures (real OpenAI embeddings call — memory
+  `env-openai-key-test-breaks-llm-tests`, unrelated to this diff). Note: the two tasks ran in
+  parallel on one working tree → commit history is cross-contaminated (1.1's new files landed in
+  1.2's commit); HEAD content is correct. Remaining waves are single-task (no parallel risk).
 
 ## Waves
 
