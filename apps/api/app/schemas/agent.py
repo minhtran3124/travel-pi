@@ -26,6 +26,12 @@ class ChatRequest(AppBaseModel):
     conversation_id: str | None = Field(
         default=None, description="Existing conversation to continue; None starts one."
     )
+    retry: bool = Field(
+        default=False,
+        description="Re-answer the last (unanswered) user turn without re-saving "
+        "it — used when a previous turn was interrupted before the assistant "
+        "reply was persisted. Requires conversation_id + message.",
+    )
     resume: Any = Field(
         default=None,
         description="Resume value for a HITL plan-approval interrupt. "

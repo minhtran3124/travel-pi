@@ -174,6 +174,41 @@ def test_stream_uses_existing_conversation_id(tmp_path):
     assert len(messages) == 4
 
 
+def test_stream_retry_does_not_duplicate_user_message(tmp_path):
+    """Retry (body.retry=True) re-answers a dangling user turn without saving a
+    second copy of the question — it adds only the assistant reply.
+    """
+    app, url = _make_app(tmp_path, answer="The retried answer.")
+
+    # Simulate an interrupted turn: a conversation with a user message but no
+    # assistant reply (the previous stream was abandoned before persisting).
+    factory = get_session_factory(url)
+    repo = ConversationRepository(factory)
+    conv = repo.create_conversation(user_id="user-55")
+    repo.append_message(
+        conversation_id=conv.id, role="user", content="Where to eat in Hue?"
+    )
+
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/stream",
+            json={
+                "message": "Where to eat in Hue?",
+                "user_id": "user-55",
+                "conversation_id": conv.id,
+                "retry": True,
+            },
+        )
+    assert resp.status_code == 200
+
+    messages = repo.list_messages(conv.id)
+    user_msgs = [m for m in messages if m.role == "user"]
+    assistant_msgs = [m for m in messages if m.role == "assistant"]
+    assert len(user_msgs) == 1, "retry must not add a second user message"
+    assert len(assistant_msgs) == 1, "retry must persist the assistant reply"
+    assert "retried answer" in assistant_msgs[0].content
+
+
 def test_stream_resume_does_not_append_user_message(tmp_path):
     """Resume turns (body.resume is not None) must NOT append a second user message."""
 

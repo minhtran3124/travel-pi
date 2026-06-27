@@ -190,10 +190,14 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
         stream_input = Command(resume=body.resume)
     else:
         # Persist the user turn before returning the StreamingResponse so the
-        # message row exists even if the stream is abandoned mid-flight.
-        repo.append_message(
-            conversation_id=conversation_id, role="user", content=body.message
-        )
+        # message row exists even if the stream is abandoned mid-flight. On a
+        # retry the user message is already saved (the previous turn was
+        # interrupted before the assistant reply persisted), so skip re-appending
+        # it to avoid a duplicate question bubble.
+        if not body.retry:
+            repo.append_message(
+                conversation_id=conversation_id, role="user", content=body.message
+            )
         stream_input = {
             "messages": [HumanMessage(content=body.message)],
             "user_id": body.user_id,
