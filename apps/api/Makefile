@@ -14,7 +14,7 @@ dev:            ## Run the app locally on SQLite (no Docker)
 	$(VENV)/bin/uvicorn app.main:app --reload --port 8000
 
 up:             ## Build + start app + Postgres in Docker
-	docker compose up
+	docker compose up --build
 
 down:           ## Stop the Docker stack
 	docker compose down

@@ -24,11 +24,3 @@ export function useManifest() {
     queryFn: () => unwrap(client.GET("/agent/manifest")),
   });
 }
-
-/**
- * POST /agent/chat — the non-streaming sibling of `/agent/stream`. Used by the
- * widget as the SSE-error fallback: returns the full reply in one JSON body.
- */
-export function chatFallback(body: ChatRequest): Promise<ChatResponse> {
-  return unwrap(client.POST("/agent/chat", { body }));
-}

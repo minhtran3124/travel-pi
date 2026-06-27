@@ -23,6 +23,11 @@ async function collect(stream: ReadableStream<Uint8Array>): Promise<SSEEvent[]> 
   return out;
 }
 
+/** Serialise a typed event the way the backend does (compact JSON `data`). */
+function sse(event: string, data: Record<string, unknown>): string {
+  return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
 /** Convenience: extract only text from token events. */
 function tokens(events: SSEEvent[]): string[] {
   return events
@@ -30,59 +35,35 @@ function tokens(events: SSEEvent[]): string[] {
     .map((e) => e.text);
 }
 
-describe("parseSSE", () => {
-  it("assembles a multi-chunk stream into the correct concatenated text", async () => {
+describe("parseSSE — typed protocol", () => {
+  it("parses token events from {content} JSON", async () => {
     const stream = streamFromChunks([
-      "data: Hel",
-      "lo\n\ndata:  wor",
-      "ld\n\n",
-      "data: !\n\n",
+      sse("token", { content: "Hello" }),
+      sse("token", { content: " world" }),
     ]);
-
     const events = await collect(stream);
-
-    expect(tokens(events)).toEqual(["Hello", " world", "!"]);
-    expect(tokens(events).join("")).toBe("Hello world!");
+    expect(tokens(events)).toEqual(["Hello", " world"]);
   });
 
-  it("yields SSETokenEvent objects with type='token'", async () => {
-    const stream = streamFromChunks(["data: hello\n\n"]);
-    const events = await collect(stream);
-
-    expect(events).toHaveLength(1);
-    expect(events[0]).toEqual({ type: "token", text: "hello" });
-  });
-
-  it("stops emission at the [DONE] terminal event", async () => {
+  it("reassembles a token JSON split across byte chunks", async () => {
     const stream = streamFromChunks([
-      "data: a\n\n",
-      "data: b\n\n",
-      "data: [DONE]\n\n",
-      "data: c\n\n", // must never be emitted
+      'event: token\ndata: {"con',
+      'tent":"split"}\n\n',
     ]);
-
     const events = await collect(stream);
-
-    expect(tokens(events)).toEqual(["a", "b"]);
+    expect(tokens(events)).toEqual(["split"]);
   });
 
-  it("tolerates a newline-containing token / a data:-less continuation line", async () => {
-    const stream = streamFromChunks(["data: line1\nline2\n\nplain\n\n"]);
+  it("preserves newlines inside token content (JSON-escaped, single data line)", async () => {
+    const stream = streamFromChunks([sse("token", { content: "a\n\nb" })]);
     const events = await collect(stream);
-
-    expect(tokens(events)).toEqual(["line1\nline2", "plain"]);
-  });
-
-  it("flushes a final segment that lacks a trailing \\n\\n", async () => {
-    const stream = streamFromChunks(["data: tail"]);
-    const events = await collect(stream);
-
-    expect(tokens(events)).toEqual(["tail"]);
+    expect(tokens(events)).toEqual(["a\n\nb"]);
   });
 
   it("reconstructs a multibyte char split across two byte chunks", async () => {
-    const bytes = new TextEncoder().encode("data: 😀\n\n");
-    const splitAt = 8;
+    const bytes = new TextEncoder().encode(sse("token", { content: "😀" }));
+    // Split inside the 4-byte 😀 (its bytes span indices 31–34).
+    const splitAt = 33;
     const parts = [bytes.slice(0, splitAt), bytes.slice(splitAt)];
     let i = 0;
     const stream = new ReadableStream<Uint8Array>({
@@ -91,122 +72,158 @@ describe("parseSSE", () => {
         else controller.close();
       },
     });
-
     const events = await collect(stream);
-
     expect(tokens(events)).toEqual(["😀"]);
   });
 
-  it("accepts an async iterable of strings (no network)", async () => {
-    async function* gen() {
-      yield "data: x";
-      yield "y\n\n";
-      yield "data: [DONE]\n\n";
-    }
-
-    const out: SSEEvent[] = [];
-    for await (const e of parseSSE(gen())) out.push(e);
-
-    expect(tokens(out)).toEqual(["xy"]);
+  it("parses start with conversationId", async () => {
+    const events = await collect(
+      streamFromChunks([sse("start", { conversation_id: "c1" })]),
+    );
+    expect(events[0]).toEqual({ type: "start", conversationId: "c1" });
   });
 
-  // ── Interrupt event ─────────────────────────────────────────────────────────
+  it("parses subagent handoff", async () => {
+    const events = await collect(
+      streamFromChunks([sse("subagent", { name: "planner" })]),
+    );
+    expect(events[0]).toEqual({ type: "subagent", name: "planner" });
+  });
 
-  it("yields SSEInterruptEvent for event:interrupt segments", async () => {
-    const payload = JSON.stringify({
-      conversation_id: "conv-abc",
-      payload: { type: "plan_approval", draft: "Book flight VN123?" },
+  it("parses tool_call with camelCased argsPreview + null subagent", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("tool_call", {
+          id: "t1",
+          name: "search_flights",
+          args_preview: '{"city":"Paris"}',
+          subagent: null,
+        }),
+      ]),
+    );
+    expect(events[0]).toEqual({
+      type: "tool_call",
+      id: "t1",
+      name: "search_flights",
+      argsPreview: '{"city":"Paris"}',
+      subagent: null,
     });
-    const stream = streamFromChunks([
-      "data: thinking…\n\n",
-      `event: interrupt\ndata: ${payload}\n\n`,
-      "data: [DONE]\n\n",
+  });
+
+  it("parses tool_result and maps status", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("tool_result", { id: "t1", status: "ok" }),
+        sse("tool_result", { id: "t2", status: "error" }),
+      ]),
+    );
+    expect(events).toEqual([
+      { type: "tool_result", id: "t1", status: "ok" },
+      { type: "tool_result", id: "t2", status: "error" },
     ]);
+  });
 
-    const events = await collect(stream);
-
-    expect(events).toHaveLength(2);
-    expect(events[0]).toEqual({ type: "token", text: "thinking…" });
-    expect(events[1]).toEqual({
+  it("parses interrupt with conversationId + payload", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("interrupt", {
+          conversation_id: "conv-abc",
+          payload: { type: "plan_approval", draft: "Book flight VN123?" },
+        }),
+      ]),
+    );
+    expect(events[0]).toEqual({
       type: "interrupt",
       conversationId: "conv-abc",
       payload: { type: "plan_approval", draft: "Book flight VN123?" },
     });
   });
 
-  it("does NOT yield a token event for an interrupt segment", async () => {
-    const payload = JSON.stringify({
-      conversation_id: "conv-xyz",
-      payload: { type: "plan_approval", draft: "Book hotel?" },
+  it("parses done with currentFlow (terminal)", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("token", { content: "hi" }),
+        sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+      ]),
+    );
+    expect(events.at(-1)).toEqual({
+      type: "done",
+      conversationId: "c1",
+      currentFlow: "concierge",
     });
-    const stream = streamFromChunks([
-      `event: interrupt\ndata: ${payload}\n\n`,
-    ]);
-
-    const events = await collect(stream);
-
-    // Exactly one event — and it must be an interrupt, not a token
-    expect(events).toHaveLength(1);
-    expect(events[0].type).toBe("interrupt");
-    expect(tokens(events)).toEqual([]);
   });
 
-  it("includes the parsed conversationId and payload from the interrupt JSON", async () => {
-    const raw = {
-      conversation_id: "thread-999",
-      payload: { type: "plan_approval", draft: "Confirm booking for 2 nights?" },
-    };
-    const stream = streamFromChunks([
-      `event: interrupt\ndata: ${JSON.stringify(raw)}\n\n`,
-      "data: [DONE]\n\n",
-    ]);
-
-    const events = await collect(stream);
-
-    const interrupt = events[0];
-    if (interrupt.type !== "interrupt") throw new Error("expected interrupt");
-    expect(interrupt.conversationId).toBe("thread-999");
-    expect(interrupt.payload.draft).toBe("Confirm booking for 2 nights?");
-    expect(interrupt.payload.type).toBe("plan_approval");
+  it("parses error events", async () => {
+    const events = await collect(
+      streamFromChunks([sse("error", { code: "internal", message: "boom" })]),
+    );
+    expect(events[0]).toEqual({
+      type: "error",
+      code: "internal",
+      message: "boom",
+    });
   });
 
-  it("treats a malformed interrupt JSON as a plain token (graceful fallback)", async () => {
-    const stream = streamFromChunks([
-      "event: interrupt\ndata: not-json\n\n",
+  it("emits a reset between draft and final answer", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("subagent", { name: "concierge" }),
+        sse("token", { content: "draft" }),
+        sse("reset", {}),
+        sse("token", { content: "final" }),
+        sse("done", { conversation_id: "c1", current_flow: null }),
+      ]),
+    );
+    expect(events.map((e) => e.type)).toEqual([
+      "subagent",
+      "token",
+      "reset",
+      "token",
+      "done",
     ]);
-
-    const events = await collect(stream);
-
-    expect(events).toHaveLength(1);
-    expect(events[0]).toEqual({ type: "token", text: "not-json" });
-  });
-
-  it("handles an interrupt-only stream (no preceding tokens)", async () => {
-    const raw = {
-      conversation_id: "conv-solo",
-      payload: { type: "plan_approval", draft: "Book it?" },
-    };
-    const stream = streamFromChunks([
-      `event: interrupt\ndata: ${JSON.stringify(raw)}\n\n`,
-    ]);
-
-    const events = await collect(stream);
-
-    expect(events).toHaveLength(1);
-    expect(events[0].type).toBe("interrupt");
-  });
-
-  it("yields a reset event for event:reset segments (revised answer)", async () => {
-    const stream = streamFromChunks([
-      "data: draft\n\n",
-      "event: reset\ndata: \n\n",
-      "data: final\n\n",
-      "data: [DONE]\n\n",
-    ]);
-
-    const events = await collect(stream);
-
-    expect(events.map((e) => e.type)).toEqual(["token", "reset", "token"]);
     expect(tokens(events)).toEqual(["draft", "final"]);
+  });
+
+  it("skips an unknown event type forward-compatibly", async () => {
+    const events = await collect(
+      streamFromChunks([
+        "event: future_thing\ndata: {}\n\n",
+        sse("token", { content: "ok" }),
+      ]),
+    );
+    expect(events).toHaveLength(1);
+    expect(tokens(events)).toEqual(["ok"]);
+  });
+
+  it("skips a segment with malformed JSON instead of crashing", async () => {
+    const events = await collect(
+      streamFromChunks([
+        "event: token\ndata: not-json\n\n",
+        sse("token", { content: "after" }),
+      ]),
+    );
+    expect(tokens(events)).toEqual(["after"]);
+  });
+
+  it("ignores a bare data: line with no event (legacy frame)", async () => {
+    const events = await collect(streamFromChunks(["data: orphan\n\n"]));
+    expect(events).toEqual([]);
+  });
+
+  it("flushes a final segment lacking a trailing \\n\\n", async () => {
+    const events = await collect(
+      streamFromChunks([`event: token\ndata: ${JSON.stringify({ content: "tail" })}`]),
+    );
+    expect(tokens(events)).toEqual(["tail"]);
+  });
+
+  it("accepts an async iterable of strings (no network)", async () => {
+    async function* gen() {
+      yield 'event: token\ndata: {"con';
+      yield 'tent":"xy"}\n\n';
+    }
+    const out: SSEEvent[] = [];
+    for await (const e of parseSSE(gen())) out.push(e);
+    expect(tokens(out)).toEqual(["xy"]);
   });
 });
