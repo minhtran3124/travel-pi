@@ -26,6 +26,12 @@ class ChatRequest(AppBaseModel):
     conversation_id: str | None = Field(
         default=None, description="Existing conversation to continue; None starts one."
     )
+    mode: str | None = Field(
+        default=None,
+        description="User-selected response mode: 'fast' | 'balanced' | 'deep' "
+        "(unknown/None -> 'balanced'). NOTE: tier is resolved server-side and is "
+        "intentionally NOT accepted from the client.",
+    )
     retry: bool = Field(
         default=False,
         description="Re-answer the last (unanswered) user turn without re-saving "

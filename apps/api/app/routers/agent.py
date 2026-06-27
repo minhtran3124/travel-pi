@@ -16,6 +16,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
 from app.core.config import get_settings
@@ -101,6 +102,18 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
     return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
 
+def _resolve_context(body: ChatRequest) -> AgentContext:
+    """Resolve the per-run AgentContext (mode from the client, tier from the BE).
+
+    Security: ``tier`` is resolved server-side and never read from the request
+    body. Phase B looks it up from the users table; until then everyone is the
+    ``free`` default. ``mode`` is the user-selected depth lever (normalized by
+    ``resolve_agent_context``).
+    """
+    tier = "free"  # Phase B: UserRepository.get_tier(body.user_id)
+    return resolve_agent_context(tier=tier, mode=body.mode)
+
+
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
 async def agent_chat(
     body: ChatRequest, graph: GraphDep, session: SessionDep
@@ -120,10 +133,11 @@ async def agent_chat(
         trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
+    ctx = _resolve_context(body)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt.
-        result = await graph.ainvoke(Command(resume=body.resume), cfg)
+        result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
     else:
         repo.append_message(
             conversation_id=conversation_id, role="user", content=body.message
@@ -135,6 +149,7 @@ async def agent_chat(
                 "trip_id": body.trip_id,
             },
             cfg,
+            context=ctx,
         )
 
     interrupts = result.get("__interrupt__", [])
@@ -183,6 +198,7 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
         trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
+    ctx = _resolve_context(body)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt; the same cfg
@@ -219,7 +235,11 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     return sse_response(
         persist_assistant_turn(
             stream_agent_events(
-                graph, stream_input, cfg=cfg, conversation_id=conversation_id
+                graph,
+                stream_input,
+                cfg=cfg,
+                conversation_id=conversation_id,
+                context=ctx,
             ),
             conversation_id=conversation_id,
             session_factory=factory,
