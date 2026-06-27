@@ -5,8 +5,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { streamBaseUrl } from "@/lib/api/client";
 import { useUserId } from "@/lib/identity/useUserId";
-import type { ChatRequest } from "@/lib/query/agent";
+import { fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
 import { parseSSE } from "@/lib/stream/parseSSE";
+
+const CONVERSATION_STORAGE_KEY = "travel.conversationId";
+
+function readStoredConversationId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(CONVERSATION_STORAGE_KEY);
+}
+
+function writeStoredConversationId(id: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(CONVERSATION_STORAGE_KEY, id);
+}
+
+function clearStoredConversationId(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(CONVERSATION_STORAGE_KEY);
+}
 
 export type ChatRole = "user" | "assistant";
 
@@ -45,6 +62,11 @@ export interface UseAgentStream {
    * `/agent/stream` and streams the continuation into the same message bubble.
    */
   resume: (approved: boolean) => void;
+  /**
+   * Clears the current conversation and starts fresh: resets conversationId,
+   * clears persisted storage, and empties the message list.
+   */
+  newConversation: () => void;
 }
 
 function newId(): string {
@@ -81,6 +103,8 @@ export function useAgentStream(
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
 
   const conversationIdRef = useRef<string | null>(null);
+  // Prevents double-hydration when userId effect re-runs (e.g. strict-mode double-invoke).
+  const hydratedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   // Tracks the assistant message id for the current turn so resume() can
   // append continuation tokens into the same bubble.
@@ -94,6 +118,34 @@ export function useAgentStream(
   useEffect(() => {
     return () => abortRef.current?.abort();
   }, []);
+
+  // On mount (once userId is ready): read persisted conversationId from storage,
+  // then fetch + hydrate prior messages. Fails silently so new chats are never blocked.
+  useEffect(() => {
+    if (!userId || hydratedRef.current) return;
+
+    const storedId = readStoredConversationId();
+    if (!storedId) return;
+
+    hydratedRef.current = true;
+    conversationIdRef.current = storedId;
+
+    fetchConversationMessages(storedId)
+      .then((msgs) => {
+        if (msgs.length > 0) {
+          setMessages(
+            msgs.map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+            })),
+          );
+        }
+      })
+      .catch(() => {
+        // Fail silently — start empty and let the user send a new message.
+      });
+  }, [userId]);
 
   const appendToAssistant = useCallback((id: string, chunk: string) => {
     setMessages((prev) =>
@@ -129,7 +181,9 @@ export function useAgentStream(
       // subsequent turn (the BE accepts a client-supplied id and keys the thread
       // on it).
       if (conversationIdRef.current === null) {
-        conversationIdRef.current = newId();
+        const minted = newId();
+        conversationIdRef.current = minted;
+        writeStoredConversationId(minted);
       }
 
       const assistantId = newId();
@@ -172,6 +226,7 @@ export function useAgentStream(
               case "start":
                 // Pin the server's conversation id for turn continuity.
                 conversationIdRef.current = event.conversationId;
+                writeStoredConversationId(event.conversationId);
                 break;
               case "token":
                 received = true;
@@ -187,6 +242,7 @@ export function useAgentStream(
                 sawInterrupt = true;
                 // Prefer the conversationId echoed in the interrupt event.
                 conversationIdRef.current = event.conversationId;
+                writeStoredConversationId(event.conversationId);
                 setInterrupt({
                   conversationId: event.conversationId,
                   payload: event.payload,
@@ -297,5 +353,14 @@ export function useAgentStream(
     [appendToAssistant, interrupt, onTurnComplete, setAssistant, t, userId],
   );
 
-  return { messages, send, isStreaming, error, interrupt, resume };
+  const newConversation = useCallback(() => {
+    clearStoredConversationId();
+    conversationIdRef.current = null;
+    hydratedRef.current = false;
+    setMessages([]);
+    setError(null);
+    setInterrupt(null);
+  }, []);
+
+  return { messages, send, isStreaming, error, interrupt, resume, newConversation };
 }
