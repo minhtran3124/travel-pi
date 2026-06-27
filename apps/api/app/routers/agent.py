@@ -9,7 +9,6 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
-from uuid import uuid4
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
@@ -17,8 +16,11 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session
 
+from app.agents.observability import callbacks, trace_metadata
+from app.agents.supervisor import SUBAGENTS
 from app.core.config import get_settings
 from app.core.streaming import sse_response
+from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.exceptions import UpstreamError
 from app.repositories.conversation import ConversationRepository
@@ -30,10 +32,9 @@ from app.schemas.agent import (
     ToolManifestEntry,
 )
 from app.schemas.error import error_responses
-from app.agents.supervisor import SUBAGENTS
-from app.agents.observability import callbacks, trace_metadata
-from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 from app.streaming.mapper import stream_agent_events
+from app.streaming.persistence import persist_assistant_turn
+from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,9 @@ def _config(thread_id: str, req: ChatRequest) -> dict:
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
-async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) -> ChatResponse:
+async def agent_chat(
+    body: ChatRequest, graph: GraphDep, session: SessionDep
+) -> ChatResponse:
     """
     Send a chat request to the agent.
 
@@ -146,17 +149,23 @@ async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) ->
 
 
 @router.post("/stream", summary="Stream the agent's reply as Server-Sent Events")
-async def agent_stream(body: ChatRequest, graph: GraphDep):
+async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     """
     Stream the agent's reply as Server-Sent Events.
 
     :param body: The request body.
     :param graph: The graph.
+    :param session: The request-scoped DB session (used to create/look up the
+        conversation and append the user message before streaming begins).
     :return: The response.
     """
-    # Must use caller-supplied conversation_id for resume so the checkpoint thread
-    # matches; fallback to a generated id only for fresh (non-resume) turns.
-    conversation_id = body.conversation_id or f"stream-{uuid4().hex[:12]}"
+    repo = ConversationRepository(session)
+    # Resolve or create the conversation row before streaming so the FK is valid
+    # and thread_id is stable. Drop the old `stream-{uuid4}` throwaway fallback.
+    conversation_id = (
+        body.conversation_id
+        or repo.create_conversation(user_id=body.user_id, trip_id=body.trip_id).id
+    )
     cfg = _config(_thread_id(body, conversation_id), body)
 
     if body.resume is not None:
@@ -164,20 +173,42 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
         # (thread_id) addresses the checkpoint created during the initial turn.
         stream_input = Command(resume=body.resume)
     else:
+        # Persist the user turn before returning the StreamingResponse so the
+        # message row exists even if the stream is abandoned mid-flight.
+        repo.append_message(
+            conversation_id=conversation_id, role="user", content=body.message
+        )
         stream_input = {
             "messages": [HumanMessage(content=body.message)],
             "user_id": body.user_id,
             "trip_id": body.trip_id,
         }
 
+    # Commit (and release the SQLite write lock) before streaming begins so
+    # the isolated factory session inside persist_assistant_turn can write.
+    # For Postgres this is harmless; for SQLite it prevents "database is locked".
+    # The dependency's cleanup commit is a no-op after an explicit commit here.
+    session.commit()
+
+    # Derive the factory from the request session's engine so test overrides
+    # (which swap the URL via get_session) propagate into the stream generator.
+    db_url = str(session.get_bind().url)
+    factory = get_session_factory(db_url)
+
     return sse_response(
-        stream_agent_events(
-            graph, stream_input, cfg=cfg, conversation_id=conversation_id
+        persist_assistant_turn(
+            stream_agent_events(
+                graph, stream_input, cfg=cfg, conversation_id=conversation_id
+            ),
+            conversation_id=conversation_id,
+            session_factory=factory,
         )
     )
 
 
-@router.get("/manifest", response_model=AgentManifest, summary="Agent capability manifest")
+@router.get(
+    "/manifest", response_model=AgentManifest, summary="Agent capability manifest"
+)
 def agent_manifest() -> AgentManifest:
     """
     Get the agent capability manifest.

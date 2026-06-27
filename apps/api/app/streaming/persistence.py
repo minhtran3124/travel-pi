@@ -5,6 +5,11 @@ events and write it to the DB once the stream finishes. Uses an **isolated**
 sessionmaker-backed session (not the request-scoped Depends session, which may
 be torn down before or during streaming) — see rules/guidelines.md Data Access.
 
+The caller passes a ``session_factory`` so the same DB engine used for the
+request-scoped session is reused. This lets tests override ``get_session`` once
+and have the propagation flow through automatically (instead of reading
+``get_settings()`` here and hitting the real DB in tests).
+
 On ``reset`` events (reflection revision) the accumulator is cleared so only
 the *final* answer is persisted, mirroring the FE's reset semantics in
 ``streaming/mapper.py``.
@@ -16,9 +21,9 @@ import json
 import logging
 from collections.abc import AsyncIterator
 
-from app.core.config import get_settings
+from sqlalchemy.orm import Session, sessionmaker
+
 from app.core.streaming import TypedSSEEvent
-from app.db.engine import get_session_factory
 from app.repositories.conversation import ConversationRepository
 
 logger = logging.getLogger(__name__)
@@ -28,12 +33,14 @@ async def persist_assistant_turn(
     events_iter: AsyncIterator[TypedSSEEvent],
     *,
     conversation_id: str,
+    session_factory: sessionmaker[Session],
 ) -> AsyncIterator[TypedSSEEvent]:
     """Pass every SSE event through unchanged while persisting the assistant reply.
 
     After the inner iterator is exhausted the accumulated assistant text (from all
     ``token`` events since the last ``reset``) is written to the DB as an
-    ``assistant`` message.  An empty accumulated text is silently skipped (Rule 2).
+    ``assistant`` message via ``session_factory`` (an isolated session — not the
+    request-scoped one).  An empty accumulated text is silently skipped (Rule 2).
     """
     accumulated: list[str] = []
 
@@ -54,8 +61,7 @@ async def persist_assistant_turn(
         return
 
     try:
-        factory = get_session_factory(get_settings().database_url)
-        repo = ConversationRepository(factory)
+        repo = ConversationRepository(session_factory)
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=text
         )
