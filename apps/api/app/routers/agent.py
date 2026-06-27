@@ -114,9 +114,10 @@ async def agent_chat(
     :return: The response.
     """
     repo = ConversationRepository(session)
-    conversation_id = (
-        body.conversation_id
-        or repo.create_conversation(user_id=body.user_id, trip_id=body.trip_id).id
+    conversation_id = repo.ensure_conversation(
+        conversation_id=body.conversation_id,
+        user_id=body.user_id,
+        trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
 
@@ -173,11 +174,13 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     :return: The response.
     """
     repo = ConversationRepository(session)
-    # Resolve or create the conversation row before streaming so the FK is valid
-    # and thread_id is stable. Drop the old `stream-{uuid4}` throwaway fallback.
-    conversation_id = (
-        body.conversation_id
-        or repo.create_conversation(user_id=body.user_id, trip_id=body.trip_id).id
+    # Resolve or create the conversation row before streaming so the row always
+    # exists (no orphaned messages) and thread_id is stable. get-or-create also
+    # handles client-minted ids and ids restored across reloads.
+    conversation_id = repo.ensure_conversation(
+        conversation_id=body.conversation_id,
+        user_id=body.user_id,
+        trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
 
