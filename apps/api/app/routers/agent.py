@@ -24,6 +24,7 @@ from app.core.streaming import sse_response
 from app.db.session import get_session
 from app.exceptions import UpstreamError
 from app.repositories.conversation import ConversationRepository
+from app.repositories.user import UserRepository
 from app.routers.tags import Tags
 from app.schemas.agent import (
     AgentManifest,
@@ -102,15 +103,14 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
     return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
 
-def _resolve_context(body: ChatRequest) -> AgentContext:
+def _resolve_context(body: ChatRequest, session: Session) -> AgentContext:
     """Resolve the per-run AgentContext (mode from the client, tier from the BE).
 
-    Security: ``tier`` is resolved server-side and never read from the request
-    body. Phase B looks it up from the users table; until then everyone is the
-    ``free`` default. ``mode`` is the user-selected depth lever (normalized by
-    ``resolve_agent_context``).
+    Security: ``tier`` is resolved server-side from the users table and is never
+    read from the request body. ``mode`` is the user-selected depth lever
+    (normalized by ``resolve_agent_context``).
     """
-    tier = "free"  # Phase B: UserRepository.get_tier(body.user_id)
+    tier = UserRepository(session).get_tier(body.user_id)
     return resolve_agent_context(tier=tier, mode=body.mode)
 
 
@@ -133,7 +133,7 @@ async def agent_chat(
         trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
-    ctx = _resolve_context(body)
+    ctx = _resolve_context(body, session)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt.
@@ -198,7 +198,7 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
         trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
-    ctx = _resolve_context(body)
+    ctx = _resolve_context(body, session)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt; the same cfg
