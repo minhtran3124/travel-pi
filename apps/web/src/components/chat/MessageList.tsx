@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/cn";
 import { AgentAvatar } from "./AgentAvatar";
+import { AssistantMarkdown } from "./AssistantMarkdown";
 import type { ChatMessage } from "./useAgentStream";
 
 export interface MessageListProps {
@@ -53,13 +54,19 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
             {!isUser ? <AgentAvatar size="sm" className="mb-0.5" /> : null}
             <div
               className={cn(
-                "max-w-[78%] whitespace-pre-wrap px-md py-sm text-sm leading-relaxed",
+                "max-w-[78%] px-md py-sm text-sm leading-relaxed",
                 isUser
-                  ? "rounded-[16px] rounded-br-[5px] bg-ink font-medium text-white"
+                  ? "whitespace-pre-wrap rounded-[16px] rounded-br-[5px] bg-ink font-medium text-white"
                   : "rounded-[16px] rounded-bl-[5px] border border-line bg-white text-ink shadow-card",
               )}
             >
-              {streamingEmpty ? <TypingDots /> : m.content}
+              {isUser ? (
+                m.content
+              ) : streamingEmpty ? (
+                <TypingDots />
+              ) : (
+                <AssistantMarkdown content={m.content} isStreaming={isStreaming} />
+              )}
             </div>
           </div>
         );

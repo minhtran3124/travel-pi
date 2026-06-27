@@ -48,7 +48,9 @@ def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
     key = getattr(s, _PROVIDER_KEY_FIELD[s.llm_provider], None)
     if key:
         kwargs["api_key"] = key
-    return init_chat_model(name, model_provider=s.llm_provider, **kwargs)
+    return init_chat_model(
+        name, model_provider=s.llm_provider, streaming=True, **kwargs
+    )
 
 
 def get_fast_llm(model: str | None = None) -> BaseChatModel:

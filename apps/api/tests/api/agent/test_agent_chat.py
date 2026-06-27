@@ -18,6 +18,7 @@ from app.db.session import get_session
 from app.main import create_app
 from app.routers.agent import get_travel_graph
 from fastapi.testclient import TestClient
+from langchain_core.messages import AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 
@@ -26,7 +27,7 @@ from langgraph.store.memory import InMemoryStore
 # ---------------------------------------------------------------------------
 
 
-def _make_app(tmp_path, intent_target: str, answer: str):
+def _make_app(tmp_path, intent_target: str, answer: str, *, responses=None):
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -49,7 +50,7 @@ def _make_app(tmp_path, intent_target: str, answer: str):
     # interrupt checkpoint, so plan_node fires again instead of resuming).
     main = FakeLLM(
         structured_responses=[SupervisorIntent(target_agent=intent_target)] * 6,
-        responses=[answer] * 6,
+        responses=responses if responses is not None else [answer] * 6,
     )
     fast = FakeLLM(responses=["OK"] * 6)
     _graph = build_graph(
@@ -149,6 +150,83 @@ def test_stream_emits_sse_events(client):
     assert "OK" not in text
     # Non-booking flow must NOT emit an interrupt event.
     assert "event: interrupt" not in text
+
+
+def test_stream_drops_tool_json_output(tmp_path, monkeypatch):
+    """Raw tool output (a weather dict) must not leak into the SSE feed.
+
+    Regression for the "chatbot shows json/dict" bug: a sub-agent's ToolNode runs
+    inside the same `langgraph_node` as its assistant, so the tool's JSON result
+    rode through the node filter into the stream. Only the natural-language reply
+    is user-facing, and it must appear exactly once (no per-loop duplication).
+    """
+    from app.services import weather_service
+
+    marker = "WEATHER_JSON_LEAK_MARKER"
+
+    async def _fake_get_weather(city, days=None):
+        return {"location": {"name": city}, "marker": marker}
+
+    monkeypatch.setattr(weather_service, "get_weather", _fake_get_weather)
+
+    tool_call = AIMessage(
+        content="",
+        tool_calls=[{"name": "get_weather", "args": {"city": "Bali"}, "id": "c1"}],
+    )
+    app = _make_app(
+        tmp_path,
+        "concierge",
+        answer="",
+        responses=[tool_call, "Sunny and warm in Bali."],
+    )
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/stream",
+            json={"message": "weather in Bali?", "user_id": "u1"},
+        )
+
+    assert resp.status_code == 200
+    text = resp.text
+    assert marker not in text  # raw tool JSON must NOT reach the user
+    assert text.count("Sunny and warm in Bali.") == 1  # answer once, not duplicated
+
+
+def test_stream_survives_tool_upstream_failure(tmp_path, monkeypatch):
+    """A tool's upstream outage must not 500 the stream.
+
+    Regression: langgraph's default tool-error handler re-raises our ToolException
+    (raised when e.g. Open-Meteo times out), which propagated out of `astream` and
+    crashed `/agent/stream`. The sub-agent now turns tool errors into a ToolMessage
+    so the model can answer gracefully.
+    """
+    from app.exceptions import WeatherUnavailableError
+    from app.services import weather_service
+
+    async def _boom(city, days=None):
+        raise WeatherUnavailableError("Upstream service unavailable")
+
+    monkeypatch.setattr(weather_service, "get_weather", _boom)
+
+    tool_call = AIMessage(
+        content="",
+        tool_calls=[{"name": "get_weather", "args": {"city": "Bali"}, "id": "c1"}],
+    )
+    app = _make_app(
+        tmp_path,
+        "concierge",
+        answer="",
+        responses=[tool_call, "Sorry, the weather service is unavailable right now."],
+    )
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/stream",
+            json={"message": "weather in Bali?", "user_id": "u1"},
+        )
+
+    assert resp.status_code == 200
+    text = resp.text
+    assert "Sorry, the weather service is unavailable right now." in text
+    assert "Traceback" not in text  # no crash leaked into the stream
 
 
 def test_manifest_lists_tools_and_subagents(client):

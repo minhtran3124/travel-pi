@@ -41,7 +41,11 @@ def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingRespons
             if isinstance(chunk, TypedSSEEvent):
                 yield f"event: {chunk.event}\ndata: {chunk.data}\n\n"
             else:
-                yield f"data: {chunk}\n\n"
+                # SSE forbids raw newlines inside a `data:` value — a chunk that
+                # contains them (markdown paragraph breaks, list separators) must
+                # be emitted as one `data:` line per physical line. The client
+                # rejoins them with `\n`, preserving the markdown structure.
+                yield "".join(f"data: {line}\n" for line in chunk.split("\n")) + "\n"
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(

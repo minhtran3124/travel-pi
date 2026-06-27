@@ -21,6 +21,24 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from app.agents.state import TravelAgentState, system_with_summary
 
 
+def _tool_error_to_message(exc: Exception) -> str:
+    """Render any tool failure as a ``ToolMessage`` the model can relay, instead
+    of letting it crash the run.
+
+    langgraph's default handler only catches arg-validation
+    (``ToolInvocationError``) and re-raises everything else — so the
+    ``ToolException`` our tools raise on an upstream outage (e.g. Open-Meteo
+    timing out) would otherwise propagate out of ``astream`` and 500 the whole
+    ``/agent/stream`` request. Annotating ``exc: Exception`` tells ToolNode's
+    ``_infer_handled_types`` to catch every tool error.
+    """
+    return (
+        f"Tool call failed: {exc}. This is a temporary upstream problem, not a "
+        "bad request — do not retry the tool; tell the user the information is "
+        "currently unavailable and to try again shortly."
+    )
+
+
 def build_subagent(
     name: str,
     tools: list[BaseTool],
@@ -42,7 +60,9 @@ def build_subagent(
     builder.add_edge(START, "assistant")
 
     if tools:
-        builder.add_node("tools", ToolNode(tools))
+        builder.add_node(
+            "tools", ToolNode(tools, handle_tool_errors=_tool_error_to_message)
+        )
         # tools_condition -> "tools" when the last message has tool calls, else END.
         builder.add_conditional_edges("assistant", tools_condition)
         builder.add_edge("tools", "assistant")
