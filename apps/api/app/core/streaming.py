@@ -8,7 +8,10 @@ Wire contract
 -------------
 * Token chunks (plain ``str``): ``data: <text>\\n\\n``
 * Named events (``TypedSSEEvent``): ``event: <name>\\ndata: <json>\\n\\n``
-* Terminal: ``data: [DONE]\\n\\n``
+
+The agent stream is fully typed (see ``app.streaming.events``); the terminal is
+an explicit ``event: done`` emitted by the producer, not a ``[DONE]`` sentinel
+appended here.
 """
 
 from __future__ import annotations
@@ -32,8 +35,8 @@ def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingRespons
 
     Plain-string chunks are emitted as default SSE events
     (``data: <chunk>``).  ``TypedSSEEvent`` instances are emitted as named
-    events (``event: <name>\\ndata: <data>``).  A terminal ``[DONE]`` event
-    always closes the stream.
+    events (``event: <name>\\ndata: <data>``). The producer is responsible for
+    emitting its own terminal event (the agent stream uses ``event: done``).
     """
 
     async def event_stream() -> AsyncIterator[str]:
@@ -46,7 +49,6 @@ def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingRespons
                 # be emitted as one `data:` line per physical line. The client
                 # rejoins them with `\n`, preserving the markdown structure.
                 yield "".join(f"data: {line}\n" for line in chunk.split("\n")) + "\n"
-        yield "data: [DONE]\n\n"
 
     return StreamingResponse(
         event_stream(),

@@ -8,8 +8,8 @@ owns the live thread state).
 
 from __future__ import annotations
 
-import json
 import logging
+from uuid import uuid4
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
@@ -18,7 +18,7 @@ from langgraph.types import Command
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.streaming import TypedSSEEvent, sse_response
+from app.core.streaming import sse_response
 from app.db.session import get_session
 from app.exceptions import UpstreamError
 from app.repositories.conversation import ConversationRepository
@@ -30,7 +30,10 @@ from app.schemas.agent import (
     ToolManifestEntry,
 )
 from app.schemas.error import error_responses
+from app.agents.supervisor import SUBAGENTS
+from app.agents.observability import callbacks, trace_metadata
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
+from app.streaming.mapper import stream_agent_events
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +51,7 @@ def get_travel_graph(request: Request) -> Any:
     graph = getattr(request.app.state, "travel_graph", None)
     if graph is None:
         raise UpstreamError("Agent graph is not available")
+
     return graph
 
 
@@ -56,11 +60,24 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def _thread_id(req: ChatRequest, conversation_id: str) -> str:
+    """
+    Build the thread id for the conversation.
+
+    The thread id is a unique identifier for the conversation. It is used to
+    identify the conversation in the database and to identify the conversation in
+    the LangGraph checkpointer.
+    """
     return f"user_{req.user_id}_trip_{req.trip_id or 'none'}_conv_{conversation_id}"
 
 
 def _config(thread_id: str, req: ChatRequest) -> dict:
-    from app.agents.observability import callbacks, trace_metadata
+    """
+    Build the configuration for the agent.
+
+    :param thread_id: The thread id for the conversation.
+    :param req: The request object.
+    :return: The configuration for the agent.
+    """
 
     return {
         "configurable": {"thread_id": thread_id},
@@ -71,9 +88,15 @@ def _config(thread_id: str, req: ChatRequest) -> dict:
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
-async def agent_chat(
-    body: ChatRequest, graph: GraphDep, session: SessionDep
-) -> ChatResponse:
+async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) -> ChatResponse:
+    """
+    Send a chat request to the agent.
+
+    :param body: The request body.
+    :param graph: The graph.
+    :param session: The session.
+    :return: The response.
+    """
     repo = ConversationRepository(session)
     conversation_id = (
         body.conversation_id
@@ -124,91 +147,41 @@ async def agent_chat(
 
 @router.post("/stream", summary="Stream the agent's reply as Server-Sent Events")
 async def agent_stream(body: ChatRequest, graph: GraphDep):
-    from uuid import uuid4
+    """
+    Stream the agent's reply as Server-Sent Events.
 
-    from app.agents.supervisor import SUBAGENTS
-
+    :param body: The request body.
+    :param graph: The graph.
+    :return: The response.
+    """
     # Must use caller-supplied conversation_id for resume so the checkpoint thread
     # matches; fallback to a generated id only for fresh (non-resume) turns.
     conversation_id = body.conversation_id or f"stream-{uuid4().hex[:12]}"
     cfg = _config(_thread_id(body, conversation_id), body)
 
-    async def tokens():
-        # Track the streaming AIMessage id so a fresh sub-agent answer (e.g. the
-        # reflection node revising once and re-running the sub-agent) is flagged
-        # to the client. Without this, the draft and the revision both stream into
-        # the same bubble and the user sees the answer duplicated.
-        last_msg_id: str | None = None
+    if body.resume is not None:
+        # Resume a graph paused at a plan-approval interrupt; the same cfg
+        # (thread_id) addresses the checkpoint created during the initial turn.
+        stream_input = Command(resume=body.resume)
+    else:
+        stream_input = {
+            "messages": [HumanMessage(content=body.message)],
+            "user_id": body.user_id,
+            "trip_id": body.trip_id,
+        }
 
-        if body.resume is not None:
-            # Resume a graph paused at a plan-approval interrupt; the same cfg
-            # (thread_id) addresses the checkpoint created during the initial turn.
-            stream_input = Command(resume=body.resume)
-        else:
-            stream_input = {
-                "messages": [HumanMessage(content=body.message)],
-                "user_id": body.user_id,
-                "trip_id": body.trip_id,
-            }
-
-        async for ns, (chunk, _meta) in graph.astream(
-            stream_input,
-            cfg,
-            stream_mode="messages",
-            subgraphs=True,
-        ):
-            # Sub-agents are nested subgraphs, so their token deltas only surface
-            # with subgraphs=True — and they carry the *inner* node name
-            # ("assistant") under a "<subagent>:<id>" namespace, not the subagent
-            # node name. Filter on the namespace root to stream the user-facing
-            # sub-agent answer token-by-token while suppressing top-level internal
-            # nodes (supervisor routing, summarizer, reflection critic). Without
-            # subgraphs=True the parent only emits the sub-agent's final aggregated
-            # AIMessage as a single chunk — i.e. no word-by-word stream. (REVIEW.md C4)
-            if not ns or ns[0].split(":", 1)[0] not in SUBAGENTS:
-                continue
-            # Only the assistant's natural-language reply is user-facing. ToolNode
-            # output (e.g. the weather forecast dict) runs inside the same sub-agent
-            # subgraph, so without this type guard the raw JSON leaks into the SSE
-            # feed. AIMessageChunk subclasses AIMessage, so token streaming passes.
-            if not isinstance(chunk, AIMessage):
-                continue
-            content = getattr(chunk, "content", "")
-            if not content:
-                continue
-            msg_id = getattr(chunk, "id", None)
-            if last_msg_id is not None and msg_id is not None and msg_id != last_msg_id:
-                # A new assistant message started (reflection revision) — tell the
-                # client to discard the superseded draft and keep only this answer.
-                yield TypedSSEEvent(event="reset", data="")
-            last_msg_id = msg_id
-            yield content
-
-        # Detect a pending HITL interrupt after the stream ends.
-        # StateSnapshot.interrupts (not .values) holds pending Interrupt objects;
-        # .values only contains the graph-state fields (messages, current_flow, …).
-        state = await graph.aget_state(cfg)
-        interrupts = state.interrupts  # tuple[Interrupt, ...]
-        if interrupts:
-            payload = interrupts[0].value
-            event_data = json.dumps(
-                {"conversation_id": conversation_id, "payload": payload},
-                separators=(",", ":"),
-            )
-            logger.debug(
-                "[agent_stream] interrupt pending for conv=%s", conversation_id
-            )
-            yield TypedSSEEvent(event="interrupt", data=event_data)
-
-    return sse_response(tokens())
+    return sse_response(
+        stream_agent_events(
+            graph, stream_input, cfg=cfg, conversation_id=conversation_id
+        )
+    )
 
 
-@router.get(
-    "/manifest", response_model=AgentManifest, summary="Agent capability manifest"
-)
+@router.get("/manifest", response_model=AgentManifest, summary="Agent capability manifest")
 def agent_manifest() -> AgentManifest:
-    from app.agents.supervisor import SUBAGENTS
-
+    """
+    Get the agent capability manifest.
+    """
     tools = [
         ToolManifestEntry(
             name=t.name,

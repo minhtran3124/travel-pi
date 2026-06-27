@@ -1,23 +1,69 @@
 // Bespoke SSE parser for the agent `/agent/stream` endpoint.
 //
-// Wire contract (authoritative, see specs/web-trip-planner/research-brief.md §"Area 2"):
-//   Token event  — no `event:` field:  data: <chunk>\n\n
-//   Reset        — named event:        event: reset\ndata: \n\n
-//   Interrupt    — named event:        event: interrupt\ndata: {...}\n\n
-//   Terminal     — (unchanged):        data: [DONE]\n\n
+// Wire contract — fully-typed protocol (see apps/api/app/streaming/events.py and
+// specs/typed-agent-stream/PLAN.md). EVERY segment is a named event whose `data`
+// is a compact JSON object:
+//   event: start        data: {"conversation_id"}
+//   event: token        data: {"content"}
+//   event: reset        data: {}
+//   event: subagent     data: {"name"}
+//   event: tool_call    data: {"id","name","args_preview","subagent"}
+//   event: tool_result  data: {"id","status"}            status ∈ ok|error
+//   event: interrupt    data: {"conversation_id","payload"}
+//   event: done         data: {"conversation_id","current_flow"}   (terminal)
+//   event: error        data: {"code","message"}                   (terminal)
+//
+// There is no bare-`data:` token frame and no `[DONE]` sentinel any more — the
+// terminal is an explicit `event: done` (or `event: error`); the connection then
+// closes and the generator ends naturally.
 //
 // This parser is network-free and unit-testable: feed it any ReadableStream of
 // bytes OR an async iterable of strings.
 
 const DATA_PREFIX = "data: ";
 const EVENT_PREFIX = "event: ";
-const DONE = "[DONE]";
 
 // ── Exported event types ──────────────────────────────────────────────────────
+
+export interface SSEStartEvent {
+  type: "start";
+  conversationId: string;
+}
 
 export interface SSETokenEvent {
   type: "token";
   text: string;
+}
+
+/**
+ * Emitted when the agent starts a fresh assistant message mid-stream (e.g. the
+ * reflection node revised its answer and re-ran the sub-agent). The consumer
+ * should clear the current bubble so only the final answer remains.
+ */
+export interface SSEResetEvent {
+  type: "reset";
+}
+
+/** Active specialist (sub-agent) changed — e.g. supervisor handed off to booking. */
+export interface SSESubagentEvent {
+  type: "subagent";
+  name: string;
+}
+
+/** A tool invocation started inside a sub-agent. */
+export interface SSEToolCallEvent {
+  type: "tool_call";
+  id: string;
+  name: string;
+  argsPreview: string;
+  subagent: string | null;
+}
+
+/** A tool invocation finished. */
+export interface SSEToolResultEvent {
+  type: "tool_result";
+  id: string;
+  status: "ok" | "error";
 }
 
 export interface SSEInterruptPayload {
@@ -31,16 +77,30 @@ export interface SSEInterruptEvent {
   payload: SSEInterruptPayload;
 }
 
-/**
- * Emitted when the agent starts a fresh assistant message mid-stream (e.g. the
- * reflection node revised its answer and re-ran the sub-agent). The consumer
- * should clear the current bubble so only the final answer remains.
- */
-export interface SSEResetEvent {
-  type: "reset";
+/** Terminal success event. */
+export interface SSEDoneEvent {
+  type: "done";
+  conversationId: string;
+  currentFlow: string | null;
 }
 
-export type SSEEvent = SSETokenEvent | SSEInterruptEvent | SSEResetEvent;
+/** Terminal failure event surfaced in-band by the backend. */
+export interface SSEErrorEvent {
+  type: "error";
+  code: string;
+  message: string;
+}
+
+export type SSEEvent =
+  | SSEStartEvent
+  | SSETokenEvent
+  | SSEResetEvent
+  | SSESubagentEvent
+  | SSEToolCallEvent
+  | SSEToolResultEvent
+  | SSEInterruptEvent
+  | SSEDoneEvent
+  | SSEErrorEvent;
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -55,9 +115,7 @@ function hasGetReader(
 }
 
 /** Normalises any supported source into an async iterable of decoded strings. */
-async function* toTextChunks(
-  source: ByteOrTextSource,
-): AsyncGenerator<string> {
+async function* toTextChunks(source: ByteOrTextSource): AsyncGenerator<string> {
   const decoder = new TextDecoder();
 
   if (hasGetReader(source)) {
@@ -86,8 +144,8 @@ async function* toTextChunks(
 
 /**
  * Reduce one complete SSE segment (the text between `\n\n` delimiters) to a
- * structured event. Reads the optional `event:` field and all `data:` lines.
- * Returns `null` when the segment is the `[DONE]` terminal (caller must stop).
+ * structured event. Returns `null` when the segment carries no event we model
+ * or its JSON is malformed — the caller skips it (never crashes the stream).
  */
 function parseSegment(segment: string): SSEEvent | null {
   const lines = segment.split("\n");
@@ -96,52 +154,79 @@ function parseSegment(segment: string): SSEEvent | null {
 
   for (const line of lines) {
     if (line.startsWith(EVENT_PREFIX)) {
-      eventType = line.slice(EVENT_PREFIX.length);
+      eventType = line.slice(EVENT_PREFIX.length).trim();
     } else if (line.startsWith(DATA_PREFIX)) {
       dataLines.push(line.slice(DATA_PREFIX.length));
-    } else if (line.length > 0) {
-      // Continuation line (e.g. a token that itself contained a newline) —
-      // kept verbatim so multi-line tokens are reconstructed intact.
-      dataLines.push(line);
+    } else if (line.startsWith("data:")) {
+      // `data:` with no trailing space (e.g. an empty payload line).
+      dataLines.push(line.slice("data:".length));
     }
   }
 
-  const text = dataLines.join("\n");
+  if (eventType === null) return null;
 
-  if (text === DONE) return null;
-
-  if (eventType === "reset") {
-    return { type: "reset" };
+  const raw = dataLines.join("\n");
+  let data: Record<string, unknown> = {};
+  if (raw.length > 0) {
+    try {
+      data = JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      return null; // malformed JSON — skip rather than crash
+    }
   }
 
-  if (eventType === "interrupt") {
-    try {
-      const parsed = JSON.parse(text) as {
-        conversation_id: string;
-        payload: SSEInterruptPayload;
+  switch (eventType) {
+    case "start":
+      return { type: "start", conversationId: String(data.conversation_id ?? "") };
+    case "token":
+      return { type: "token", text: String(data.content ?? "") };
+    case "reset":
+      return { type: "reset" };
+    case "subagent":
+      return { type: "subagent", name: String(data.name ?? "") };
+    case "tool_call":
+      return {
+        type: "tool_call",
+        id: String(data.id ?? ""),
+        name: String(data.name ?? ""),
+        argsPreview: String(data.args_preview ?? ""),
+        subagent: data.subagent == null ? null : String(data.subagent),
       };
+    case "tool_result":
+      return {
+        type: "tool_result",
+        id: String(data.id ?? ""),
+        status: data.status === "error" ? "error" : "ok",
+      };
+    case "interrupt":
       return {
         type: "interrupt",
-        conversationId: parsed.conversation_id,
-        payload: parsed.payload,
+        conversationId: String(data.conversation_id ?? ""),
+        payload: (data.payload ?? { type: "", draft: "" }) as SSEInterruptPayload,
       };
-    } catch {
-      // Malformed interrupt JSON — surface as a plain token rather than crash.
-      return { type: "token", text };
-    }
+    case "done":
+      return {
+        type: "done",
+        conversationId: String(data.conversation_id ?? ""),
+        currentFlow: data.current_flow == null ? null : String(data.current_flow),
+      };
+    case "error":
+      return {
+        type: "error",
+        code: String(data.code ?? "internal"),
+        message: String(data.message ?? ""),
+      };
+    default:
+      return null; // unknown event — ignore forward-compatibly
   }
-
-  return { type: "token", text };
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
- * Async generator yielding each SSE event as a structured `SSEEvent`. Stops
- * (without emitting) when the `[DONE]` terminal event is seen.
- *
- * Token events carry `{type:'token', text}` — exactly as before, just wrapped.
- * Interrupt events carry `{type:'interrupt', conversationId, payload}`.
+ * Async generator yielding each SSE event as a structured `SSEEvent`. Unknown or
+ * malformed segments are skipped. The backend closes the connection after the
+ * terminal `done`/`error` event, so the generator ends on its own.
  */
 export async function* parseSSE(
   source: ByteOrTextSource,
@@ -158,14 +243,12 @@ export async function* parseSSE(
     for (const segment of segments) {
       if (segment.length === 0) continue;
       const event = parseSegment(segment);
-      if (event === null) return; // DONE — stop the generator
-      yield event;
+      if (event !== null) yield event;
     }
   }
 
   // Flush any trailing complete-but-undelimited segment at stream end.
-  const tail = buffer.trim();
-  if (tail.length > 0) {
+  if (buffer.trim().length > 0) {
     const event = parseSegment(buffer);
     if (event !== null) yield event;
   }

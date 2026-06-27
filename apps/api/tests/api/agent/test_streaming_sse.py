@@ -53,12 +53,12 @@ def test_client_reconstructs_original_markdown():
     wire = _collect([chunk])
     reconstructed = _client_reconstruct(wire)
     assert reconstructed[0] == chunk  # round-trips exactly
-    assert reconstructed[-1] == "[DONE]"
 
 
 def test_plain_chunk_unchanged():
+    # No [DONE] sentinel: the producer emits its own terminal (event: done).
     wire = _collect(["hello"])
-    assert wire == "data: hello\n\ndata: [DONE]\n\n"
+    assert wire == "data: hello\n\n"
 
 
 def test_typed_event_unchanged():

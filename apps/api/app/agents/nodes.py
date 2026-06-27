@@ -19,6 +19,7 @@ from langgraph.types import Command, interrupt
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
 from app.memory.summarizer import should_summarize, summarize_conversation
+from app.prompts.registry import registry
 from app.services.trip_service import TripService
 from app.tools._base import session_scope
 
@@ -66,13 +67,7 @@ def make_summarize_node(llm: BaseChatModel):
 def make_reflection_node(llm: BaseChatModel, max_revisions: int = _MAX_REVISIONS):
     """Return a bounded reflection node that can loop back once for a revision."""
 
-    system = SystemMessage(
-        content=(
-            "You are a strict reviewer. If the assistant's last answer is wrong, "
-            "incomplete, or unhelpful, reply with exactly 'REVISE'. Otherwise reply "
-            "with exactly 'OK'."
-        )
-    )
+    system = SystemMessage(content=registry.get("reflection"))
 
     def reflection(state: TravelAgentState) -> Command:
         revisions = state.get("revisions", 0)
