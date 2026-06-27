@@ -19,6 +19,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from app.agents.state import TravelAgentState, system_with_summary
+from app.prompts.registry import registry
 
 
 def _tool_error_to_message(exc: Exception) -> str:
@@ -45,9 +46,15 @@ def build_subagent(
     llm: BaseChatModel,
     prompt: str,
 ):
-    """Compile a ReAct subgraph for one specialist domain."""
+    """Compile a ReAct subgraph for one specialist domain.
+
+    The shared ``communication_style`` guideline is prepended to every domain
+    prompt so all user-facing replies stay warm, concise, and travel-focused —
+    translating raw tool data into useful guidance rather than dumping it.
+    """
     bound = llm.bind_tools(tools) if tools else llm
-    system = SystemMessage(content=prompt)
+    style = registry.get("communication_style")
+    system = SystemMessage(content=f"{style}\n\n{prompt}")
 
     def assistant(state: TravelAgentState) -> dict:
         response = bound.invoke(
