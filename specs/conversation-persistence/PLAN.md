@@ -148,6 +148,11 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
   `env-openai-key-test-breaks-llm-tests`, unrelated to this diff). Note: the two tasks ran in
   parallel on one working tree → commit history is cross-contaminated (1.1's new files landed in
   1.2's commit); HEAD content is correct. Remaining waves are single-task (no parallel risk).
+- 2026-06-27 — Waves 2–4 complete. Task 2.1 (`d6cfc7d`) history GET endpoints
+  (public-contract gate cleared with `RISK_WARN_CATEGORIES`); Task 3.1 (`c270727`) FE history
+  fetchers; Task 4.1 (`8897a8b`) FE localStorage persist + hydrate-on-mount. Verify: BE
+  `tests/api/agent/` + checkpointer = **32 passed**; FE `tsc --noEmit` exit 0. All success
+  criteria met. Ready for manual UI check + PR against `v3`.
 
 ## Waves
 
