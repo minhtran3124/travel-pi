@@ -168,6 +168,16 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
   Acceptable for v1 (an interrupted turn has no complete answer), but a candidate follow-up:
   persist server-side independent of the client connection (e.g. append in a `finally`/on-cancel
   path, or a background task), so partial/al­most-complete answers survive a mid-turn reload.
+- 2026-06-27 — **Postgres-only bug found + fixed** (`2e48b19`). On the Docker Postgres stack the
+  assistant message failed to persist: `[persist_assistant_turn] ... password authentication
+  failed for user "travel"`. Cause: the router built the isolated sessionmaker from
+  `str(session.get_bind().url)`, and SQLAlchemy masks the password as `***` in a stringified
+  URL → the reconstructed engine authenticated with literal `***`. SQLite has no password, so
+  Task 1.1's tests (SQLite-only) missed it. Fix: bind the isolated sessionmaker to the request
+  session's *engine* directly (`_isolated_factory`), no URL round-trip. Verified end-to-end
+  against Docker Postgres (user+assistant persist, no auth error) + DB-agnostic regression tests
+  (`tests/api/agent/test_persist_factory.py`). Lesson: cross-engine parity — run
+  `make test-docker` for DB-touching changes (SQLite-green ≠ Postgres-green).
 
 ## Waves
 
