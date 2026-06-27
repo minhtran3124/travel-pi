@@ -4,6 +4,9 @@
  * Tailwind v4 scanner pick them up so streamed assistant markdown is styled. */
 @source "../../node_modules/streamdown/dist/*.js";
 
+/* Class-based dark variant (Tailwind v4) — `dark:` utilities apply under `.dark`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * Travel Planner — light theme.
  *
@@ -12,52 +15,66 @@
  * Modeled on the reference travel-app UI: hairline borders, soft shadows,
  * generous radii. Primary = ink (#1c1c1c); accent = lime (#cbf24a).
  */
-@theme {
+/*
+ * COLOR + SHADOW tokens flip between themes via `@theme inline` indirection:
+ * each Tailwind token points at a bare CSS var resolved under `:root` (light)
+ * or `.dark` (dark). Radii / spacing / typography do NOT flip — see the plain
+ * `@theme` block below.
+ */
+@theme inline {
   /* accent — the one brand color; use sparingly (active state, highlights) */
-  --color-lime:       #cbf24a;
-  --color-lime-soft:  #e6f8a8;
+  --color-lime:       var(--lime);
+  --color-lime-soft:  var(--lime-soft);
 
   /* warm secondary accent — decorative warmth only (covers, icons, welcome
    * strip). Never the primary action (that stays ink) and never the "active"
    * signal (that stays lime). Use the -ink shade for any coral *text*. */
-  --color-coral:      #fb7755;
-  --color-coral-soft: #ffe9e2;
-  --color-coral-ink:  #c2410c;
+  --color-coral:      var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-coral-ink:  var(--coral-ink);
 
   /* primary action = ink; on-accent text sits on lime/ink fills */
-  --color-on-accent:  #1c1c1c;
+  --color-on-accent:  var(--on-accent);
 
   /* surfaces */
-  --color-void:          #f7f7f5; /* page background */
-  --color-panel:         #ffffff; /* cards, header, panels */
-  --color-panel-raised:  #f4f4f2; /* inputs, secondary fills */
-  --color-line:          #ececec; /* hairline borders */
-  --color-line-soft:     #f1f0ee; /* faint dividers */
+  --color-void:          var(--void);          /* page background */
+  --color-panel:         var(--panel);         /* cards, header, panels */
+  --color-panel-raised:  var(--panel-raised);  /* inputs, secondary fills */
+  --color-line:          var(--line);          /* hairline borders */
+  --color-line-soft:     var(--line-soft);     /* faint dividers */
 
   /* text */
-  --color-ink:    #1c1c1c; /* primary text + primary action bg */
-  --color-muted:  #6b6b6b; /* secondary text */
-  --color-faint:  #9a9a9a; /* placeholders, tertiary */
+  --color-ink:        var(--ink);        /* primary text + primary action bg */
+  --color-ink-hover:  var(--ink-hover);  /* hover state for ink fills */
+  --color-muted:      var(--muted);      /* secondary text */
+  --color-faint:      var(--faint);      /* placeholders, tertiary */
 
-  /* status spectrum (tuned for AA on light surfaces) */
-  --color-status-confirmed: #16a34a; /* green  */
-  --color-status-estimated: #ca8a04; /* amber  */
-  --color-status-delayed:   #ea580c; /* orange */
-  --color-status-boarding:  #0284c7; /* cyan   */
-  --color-status-cancelled: #dc2626; /* red    */
-  --color-status-hotel:     #2563eb; /* hotel  */
+  /* status spectrum */
+  --color-status-confirmed: var(--status-confirmed);
+  --color-status-estimated: var(--status-estimated);
+  --color-status-delayed:   var(--status-delayed);
+  --color-status-boarding:  var(--status-boarding);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-status-hotel:     var(--status-hotel);
 
-  /* topic palette (darkened for light surfaces; Pill darkens text further) */
-  --color-topic-transport:    #b45309;
-  --color-topic-money:        #15803d;
-  --color-topic-safety:       #b91c1c;
-  --color-topic-culture:      #7c3aed;
-  --color-topic-food:         #c2410c;
-  --color-topic-connectivity: #0369a1;
-  --color-topic-health:       #be123c;
-  --color-topic-etiquette:    #0f766e;
-  --color-topic-language:     #4338ca;
+  /* topic palette */
+  --color-topic-transport:    var(--topic-transport);
+  --color-topic-money:        var(--topic-money);
+  --color-topic-safety:       var(--topic-safety);
+  --color-topic-culture:      var(--topic-culture);
+  --color-topic-food:         var(--topic-food);
+  --color-topic-connectivity: var(--topic-connectivity);
+  --color-topic-health:       var(--topic-health);
+  --color-topic-etiquette:    var(--topic-etiquette);
+  --color-topic-language:     var(--topic-language);
 
+  /* elevation */
+  --shadow-card: var(--shadow-card-v);
+  --shadow-lift: var(--shadow-lift-v);
+}
+
+/* Non-flipping design tokens — identical in both themes. */
+@theme {
   /* typography */
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "Menlo", "Consolas", "SF Mono", monospace;
@@ -74,16 +91,84 @@
   --spacing-md: 12px;
   --spacing-lg: 16px;
   --spacing-xl: 24px;
+}
+
+/* LIGHT palette — the canonical Travel Planner theme (values unchanged). */
+:root {
+  /* accent */
+  --lime:       #cbf24a;
+  --lime-soft:  #e6f8a8;
+
+  /* warm secondary accent */
+  --coral:      #fb7755;
+  --coral-soft: #ffe9e2;
+  --coral-ink:  #c2410c;
+
+  /* primary action */
+  --on-accent:  #1c1c1c;
+
+  /* surfaces */
+  --void:          #f7f7f5;
+  --panel:         #ffffff;
+  --panel-raised:  #f4f4f2;
+  --line:          #ececec;
+  --line-soft:     #f1f0ee;
+
+  /* text */
+  --ink:        #1c1c1c;
+  --ink-hover:  #2e2e2e;
+  --muted:      #6b6b6b;
+  --faint:      #9a9a9a;
+
+  /* status spectrum (tuned for AA on light surfaces) */
+  --status-confirmed: #16a34a;
+  --status-estimated: #ca8a04;
+  --status-delayed:   #ea580c;
+  --status-boarding:  #0284c7;
+  --status-cancelled: #dc2626;
+  --status-hotel:     #2563eb;
+
+  /* topic palette (darkened for light surfaces; Pill darkens text further) */
+  --topic-transport:    #b45309;
+  --topic-money:        #15803d;
+  --topic-safety:       #b91c1c;
+  --topic-culture:      #7c3aed;
+  --topic-food:         #c2410c;
+  --topic-connectivity: #0369a1;
+  --topic-health:       #be123c;
+  --topic-etiquette:    #0f766e;
+  --topic-language:     #4338ca;
 
   /* elevation — soft, light-theme shadows */
-  --shadow-card: 0 1px 2px rgba(17, 17, 17, 0.04), 0 6px 20px -8px rgba(17, 17, 17, 0.10);
-  --shadow-lift: 0 16px 40px -12px rgba(17, 17, 17, 0.18), 0 4px 12px -6px rgba(17, 17, 17, 0.10);
+  --shadow-card-v: 0 1px 2px rgba(17, 17, 17, 0.04), 0 6px 20px -8px rgba(17, 17, 17, 0.10);
+  --shadow-lift-v: 0 16px 40px -12px rgba(17, 17, 17, 0.18), 0 4px 12px -6px rgba(17, 17, 17, 0.10);
+
+  /* neutral focus ring (utility in @layer base, below) */
+  --focus-ring: rgba(28, 28, 28, 0.16);
+}
+
+/* DARK palette — hand-tuned for dark surfaces (brighter accents, AA on dark). */
+.dark {
+  --void: #0e0f12; --panel: #17191e; --panel-raised: #1f2228;
+  --line: #2a2d33; --line-soft: #232529;
+  --ink: #f2f2f0; --muted: #9aa0a8; --faint: #6b7079;
+  --on-accent: #15161a; --ink-hover: #d8d8d4;
+  --lime: #cbf24a; --lime-soft: #2e3a12;
+  --coral: #fb7755; --coral-soft: #3a201a; --coral-ink: #fb9a7e;
+  --status-confirmed: #4ade80; --status-estimated: #fbbf24; --status-delayed: #fb923c;
+  --status-boarding: #38bdf8; --status-cancelled: #f87171; --status-hotel: #60a5fa;
+  --topic-transport: #fbbf24; --topic-money: #4ade80; --topic-safety: #f87171;
+  --topic-culture: #c4b5fd; --topic-food: #fb923c; --topic-connectivity: #38bdf8;
+  --topic-health: #fb7185; --topic-etiquette: #2dd4bf; --topic-language: #a5b4fc;
+  --shadow-card-v: 0 1px 2px rgba(0,0,0,0.40), 0 6px 20px -8px rgba(0,0,0,0.55);
+  --shadow-lift-v: 0 16px 40px -12px rgba(0,0,0,0.65), 0 4px 12px -6px rgba(0,0,0,0.45);
+  --focus-ring: rgba(242, 242, 240, 0.22);
 }
 
 /* neutral focus ring — outside @theme (it's a utility, not a token) */
 @layer base {
   *:focus-visible {
-    box-shadow: 0 0 0 3px rgba(28, 28, 28, 0.16);
+    box-shadow: 0 0 0 3px var(--focus-ring);
     outline: none;
   }
 }
