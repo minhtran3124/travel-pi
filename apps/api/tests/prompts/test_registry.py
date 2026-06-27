@@ -14,7 +14,7 @@ def test_get_returns_active_version():
 def test_explicit_version():
     from app.prompts.registry import registry
 
-    assert registry.get("supervisor", version=2) == registry.get("supervisor")
+    assert registry.get("supervisor", version=3) == registry.get("supervisor")
 
 
 def test_unknown_name_raises():
