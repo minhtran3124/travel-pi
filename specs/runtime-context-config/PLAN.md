@@ -219,3 +219,11 @@ the gating it depends on.)*
   `feat/runtime-context-config`. Per user decision the three commits were cherry-picked onto a
   clean **`feat/agent-mode-tier`** (off v3, no theme work); the theme branches were left
   untouched. Phase C/D/E continue on `feat/agent-mode-tier`.
+- 2026-06-27 — C.1 done (`9f83cf0`): deferred model binding. `get_agent_llm(name, model=...)`
+  hint; `build_subagent` takes a `resolve_model` callable and binds tools per-request from
+  `runtime.context.model`; `build_graph.resolver_for` returns injected FakeLLMs in tests
+  (preserved) and per-request models in prod. Verify: 99 passed (3 pre-existing memory/OpenAI
+  failures unrelated). Rule-2: touched graph.py + 5 sub-agent builders + 2 test files beyond
+  C.1's `<files>` — widen the C.1 file set (backlog). Remaining: C.2 (depth toggles), D.1 (tier
+  gating — needs product sign-off on what `free` loses), D.2 (quota — needs limit values), E.1
+  (FE mode selector).
