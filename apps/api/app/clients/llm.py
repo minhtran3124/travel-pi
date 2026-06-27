@@ -29,7 +29,7 @@ from app.core.config import get_settings
 _PROVIDER_KEY_FIELD = {
     "openai": "openai_api_key",
     "anthropic": "anthropic_api_key",
-    "google": "google_api_key",
+    "google_genai": "google_api_key",
 }
 
 # Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent

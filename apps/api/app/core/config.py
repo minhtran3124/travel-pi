@@ -13,7 +13,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
-LLMProvider = Literal["openai", "anthropic", "google"]
+# Provider strings accepted by LangChain's init_chat_model(model_provider=...).
+# Note: Google's canonical key is "google_genai" (AI Studio / Gemini API) — a
+# bare "google" is rejected by init_chat_model.
+LLMProvider = Literal["openai", "anthropic", "google_genai"]
 
 
 class AgentLLMConfig(BaseModel):
