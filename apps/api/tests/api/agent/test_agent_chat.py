@@ -27,7 +27,9 @@ from langgraph.store.memory import InMemoryStore
 # ---------------------------------------------------------------------------
 
 
-def _make_app(tmp_path, intent_target: str, answer: str, *, responses=None):
+def _make_app(
+    tmp_path, intent_target: str, answer: str, *, responses=None, fast_responses=None
+):
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -52,7 +54,9 @@ def _make_app(tmp_path, intent_target: str, answer: str, *, responses=None):
         structured_responses=[SupervisorIntent(target_agent=intent_target)] * 6,
         responses=responses if responses is not None else [answer] * 6,
     )
-    fast = FakeLLM(responses=["OK"] * 6)
+    fast = FakeLLM(
+        responses=fast_responses if fast_responses is not None else ["OK"] * 6
+    )
     _graph = build_graph(
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
     )
@@ -150,6 +154,33 @@ def test_stream_emits_sse_events(client):
     assert "OK" not in text
     # Non-booking flow must NOT emit an interrupt event.
     assert "event: interrupt" not in text
+
+
+def test_stream_emits_reset_on_revised_answer(tmp_path):
+    """When reflection revises (re-runs the sub-agent), a `reset` event must
+    separate the superseded draft from the final answer so the FE can drop it.
+
+    fast LLM says REVISE once (then OK), so the concierge answers twice with two
+    distinct message ids; the stream must carry exactly one `event: reset`.
+    """
+    app = _make_app(
+        tmp_path,
+        "concierge",
+        "unused",
+        responses=[
+            AIMessage(content="DRAFT answer", id="m1"),
+            AIMessage(content="FINAL answer", id="m2"),
+        ],
+        fast_responses=["REVISE", "OK"],
+    )
+    with TestClient(app) as c:
+        resp = c.post("/agent/stream", json={"message": "weather?", "user_id": "u1"})
+    text = resp.text
+    assert "DRAFT answer" in text
+    assert "FINAL answer" in text
+    assert text.count("event: reset") == 1
+    # The reset must come between the draft and the final answer.
+    assert text.index("DRAFT") < text.index("event: reset") < text.index("FINAL")
 
 
 def test_stream_drops_tool_json_output(tmp_path, monkeypatch):

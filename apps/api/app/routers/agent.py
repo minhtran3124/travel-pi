@@ -134,6 +134,12 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
     cfg = _config(_thread_id(body, conversation_id), body)
 
     async def tokens():
+        # Track the streaming AIMessage id so a fresh sub-agent answer (e.g. the
+        # reflection node revising once and re-running the sub-agent) is flagged
+        # to the client. Without this, the draft and the revision both stream into
+        # the same bubble and the user sees the answer duplicated.
+        last_msg_id: str | None = None
+
         if body.resume is not None:
             # Resume a graph paused at a plan-approval interrupt; the same cfg
             # (thread_id) addresses the checkpoint created during the initial turn.
@@ -168,8 +174,15 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
             if not isinstance(chunk, AIMessage):
                 continue
             content = getattr(chunk, "content", "")
-            if content:
-                yield content
+            if not content:
+                continue
+            msg_id = getattr(chunk, "id", None)
+            if last_msg_id is not None and msg_id is not None and msg_id != last_msg_id:
+                # A new assistant message started (reflection revision) — tell the
+                # client to discard the superseded draft and keep only this answer.
+                yield TypedSSEEvent(event="reset", data="")
+            last_msg_id = msg_id
+            yield content
 
         # Detect a pending HITL interrupt after the stream ends.
         # StateSnapshot.interrupts (not .values) holds pending Interrupt objects;

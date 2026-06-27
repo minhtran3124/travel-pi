@@ -2,6 +2,7 @@
 //
 // Wire contract (authoritative, see specs/web-trip-planner/research-brief.md §"Area 2"):
 //   Token event  — no `event:` field:  data: <chunk>\n\n
+//   Reset        — named event:        event: reset\ndata: \n\n
 //   Interrupt    — named event:        event: interrupt\ndata: {...}\n\n
 //   Terminal     — (unchanged):        data: [DONE]\n\n
 //
@@ -30,7 +31,16 @@ export interface SSEInterruptEvent {
   payload: SSEInterruptPayload;
 }
 
-export type SSEEvent = SSETokenEvent | SSEInterruptEvent;
+/**
+ * Emitted when the agent starts a fresh assistant message mid-stream (e.g. the
+ * reflection node revised its answer and re-ran the sub-agent). The consumer
+ * should clear the current bubble so only the final answer remains.
+ */
+export interface SSEResetEvent {
+  type: "reset";
+}
+
+export type SSEEvent = SSETokenEvent | SSEInterruptEvent | SSEResetEvent;
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -99,6 +109,10 @@ function parseSegment(segment: string): SSEEvent | null {
   const text = dataLines.join("\n");
 
   if (text === DONE) return null;
+
+  if (eventType === "reset") {
+    return { type: "reset" };
+  }
 
   if (eventType === "interrupt") {
     try {
