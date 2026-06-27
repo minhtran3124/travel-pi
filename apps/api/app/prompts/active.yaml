@@ -1,5 +1,6 @@
 # Active prompt versions (specs/travel-agent). name -> version number.
 # get(name) returns this version unless an explicit version= is passed.
+communication_style: 1
 supervisor: 1
 concierge: 1
 planner: 1

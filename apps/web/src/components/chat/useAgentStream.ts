@@ -163,6 +163,10 @@ export function useAgentStream(
             received = true;
             if (event.type === "token") {
               appendToAssistant(assistantId, event.text);
+            } else if (event.type === "reset") {
+              // Agent revised its answer (reflection re-ran the sub-agent) —
+              // drop the superseded draft so only the final answer renders.
+              setAssistant(assistantId, "");
             } else if (event.type === "interrupt") {
               sawInterrupt = true;
               // Prefer the conversationId echoed in the interrupt event.
@@ -248,6 +252,8 @@ export function useAgentStream(
           for await (const event of parseSSE(res.body)) {
             if (event.type === "token") {
               appendToAssistant(assistantId, event.text);
+            } else if (event.type === "reset") {
+              setAssistant(assistantId, "");
             }
             // Nested interrupts are not expected; ignore if they appear.
           }
@@ -263,7 +269,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, onTurnComplete, t, userId],
+    [appendToAssistant, interrupt, onTurnComplete, setAssistant, t, userId],
   );
 
   return { messages, send, isStreaming, error, interrupt, resume };

@@ -195,4 +195,18 @@ describe("parseSSE", () => {
     expect(events).toHaveLength(1);
     expect(events[0].type).toBe("interrupt");
   });
+
+  it("yields a reset event for event:reset segments (revised answer)", async () => {
+    const stream = streamFromChunks([
+      "data: draft\n\n",
+      "event: reset\ndata: \n\n",
+      "data: final\n\n",
+      "data: [DONE]\n\n",
+    ]);
+
+    const events = await collect(stream);
+
+    expect(events.map((e) => e.type)).toEqual(["token", "reset", "token"]);
+    expect(tokens(events)).toEqual(["draft", "final"]);
+  });
 });

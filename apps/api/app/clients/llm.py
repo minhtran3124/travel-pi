@@ -29,8 +29,35 @@ from app.core.config import get_settings
 _PROVIDER_KEY_FIELD = {
     "openai": "openai_api_key",
     "anthropic": "anthropic_api_key",
-    "google": "google_api_key",
+    "google_genai": "google_api_key",
 }
+
+# Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
+# config omits ``model``. Everything else defaults to the main ``llm_model``.
+# Kept here as the single source of truth for the tier mapping — the graph
+# assembly imports it so injection and fallback never drift.
+FAST_AGENTS = frozenset({"summarize", "journal", "budget", "reflection"})
+
+
+def _build_chat_model(
+    provider: str,
+    model: str,
+    *,
+    temperature: float | None = None,
+    **extra: Any,
+) -> BaseChatModel:
+    """Construct a chat model via ``init_chat_model``, injecting the provider's
+    API key from settings when present. ``temperature`` and ``extra`` knobs are
+    only forwarded when set, so reasoning models that reject ``temperature``
+    keep working with the defaults."""
+    s = get_settings()
+    kwargs: dict[str, Any] = dict(extra)
+    key = getattr(s, _PROVIDER_KEY_FIELD[provider], None)
+    if key:
+        kwargs["api_key"] = key
+    if temperature is not None:
+        kwargs["temperature"] = temperature
+    return init_chat_model(model, model_provider=provider, streaming=True, **kwargs)
 
 
 def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
@@ -44,18 +71,32 @@ def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
     """
     s = get_settings()
     name = model or (s.fast_llm_model if fast else s.llm_model)
-    kwargs: dict[str, Any] = {}
-    key = getattr(s, _PROVIDER_KEY_FIELD[s.llm_provider], None)
-    if key:
-        kwargs["api_key"] = key
-    return init_chat_model(
-        name, model_provider=s.llm_provider, streaming=True, **kwargs
-    )
+    return _build_chat_model(s.llm_provider, name)
 
 
 def get_fast_llm(model: str | None = None) -> BaseChatModel:
     """Build the cheap/fast chat model (sub-agents, summarisation, routing)."""
     return get_llm(model, fast=True)
+
+
+def get_agent_llm(agent_name: str) -> BaseChatModel:
+    """Build the chat model for a specific graph node.
+
+    Resolves ``settings.agent_llm_configs[agent_name]`` with fallback: provider
+    defaults to the global ``llm_provider``, model to the node's tier default
+    (fast vs main), and any extra config key passes through to the model. A node
+    with no override behaves exactly like ``get_llm()`` / ``get_fast_llm()``.
+    """
+    s = get_settings()
+    fast = agent_name in FAST_AGENTS
+    cfg = s.agent_llm_configs.get(agent_name)
+    if cfg is None:
+        return get_llm(fast=fast)
+    provider = cfg.provider or s.llm_provider
+    model = cfg.model or (s.fast_llm_model if fast else s.llm_model)
+    return _build_chat_model(
+        provider, model, temperature=cfg.temperature, **(cfg.model_extra or {})
+    )
 
 
 class FakeLLM(BaseChatModel):

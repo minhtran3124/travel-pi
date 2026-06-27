@@ -31,7 +31,10 @@ class SupervisorIntent(BaseModel):
 
 def make_supervisor(llm: BaseChatModel):
     """Return the supervisor node bound to a routing LLM."""
-    router = llm.with_structured_output(SupervisorIntent)
+    # method="function_calling" avoids OpenAI's native json_schema parse path,
+    # whose ParsedChatCompletion.parsed field trips a benign Pydantic serializer
+    # warning when langchain-openai model_dump()s the response.
+    router = llm.with_structured_output(SupervisorIntent, method="function_calling")
     system = SystemMessage(content=registry.get("supervisor"))
 
     def supervisor(state: TravelAgentState) -> Command:

@@ -42,6 +42,6 @@ def test_provider_literal_rejects_unknown():
         Settings(llm_provider="bedrock")
 
 
-@pytest.mark.parametrize("provider", ["openai", "anthropic", "google"])
+@pytest.mark.parametrize("provider", ["openai", "anthropic", "google_genai"])
 def test_provider_literal_accepts_known(provider):
     assert Settings(llm_provider=provider).llm_provider == provider
