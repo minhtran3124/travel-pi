@@ -397,6 +397,8 @@
     "composerPlaceholder": "Message the travel assistant…",
     "composerAriaLabel": "Message the travel assistant",
     "sendMessage": "Send message",
+    "retry": "Retry",
+    "retryHint": "The previous answer didn't finish.",
     "greetingTitle": "Hi! I'm your travel co-pilot",
     "greetingBody": "Tell me where you're headed and I'll plan, find, and book — or just ask me anything.",
     "tryAsking": "Try asking",

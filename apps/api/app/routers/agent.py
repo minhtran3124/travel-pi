@@ -9,14 +9,15 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
-from uuid import uuid4
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
+from app.agents.observability import callbacks, trace_metadata
+from app.agents.supervisor import SUBAGENTS
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
@@ -27,13 +28,14 @@ from app.schemas.agent import (
     AgentManifest,
     ChatRequest,
     ChatResponse,
+    Conversation,
+    Message,
     ToolManifestEntry,
 )
 from app.schemas.error import error_responses
-from app.agents.supervisor import SUBAGENTS
-from app.agents.observability import callbacks, trace_metadata
-from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 from app.streaming.mapper import stream_agent_events
+from app.streaming.persistence import persist_assistant_turn
+from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 
 logger = logging.getLogger(__name__)
 
@@ -87,8 +89,22 @@ def _config(thread_id: str, req: ChatRequest) -> dict:
     }
 
 
+def _isolated_factory(session: Session) -> sessionmaker[Session]:
+    """Sessionmaker bound to ``session``'s engine, for use after the request ends.
+
+    The agent SSE generator outlives the request-scoped session, so it persists
+    the assistant turn through its own session. Binding to the request session's
+    *engine* (rather than a stringified URL — ``str(URL)`` masks the password as
+    ``***`` and breaks Postgres auth) reuses the same pool/credentials, and keeps
+    test ``get_session`` overrides flowing through to the generator.
+    """
+    return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
+
+
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
-async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) -> ChatResponse:
+async def agent_chat(
+    body: ChatRequest, graph: GraphDep, session: SessionDep
+) -> ChatResponse:
     """
     Send a chat request to the agent.
 
@@ -98,9 +114,10 @@ async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) ->
     :return: The response.
     """
     repo = ConversationRepository(session)
-    conversation_id = (
-        body.conversation_id
-        or repo.create_conversation(user_id=body.user_id, trip_id=body.trip_id).id
+    conversation_id = repo.ensure_conversation(
+        conversation_id=body.conversation_id,
+        user_id=body.user_id,
+        trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
 
@@ -146,17 +163,25 @@ async def agent_chat(body: ChatRequest, graph: GraphDep, session: SessionDep) ->
 
 
 @router.post("/stream", summary="Stream the agent's reply as Server-Sent Events")
-async def agent_stream(body: ChatRequest, graph: GraphDep):
+async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     """
     Stream the agent's reply as Server-Sent Events.
 
     :param body: The request body.
     :param graph: The graph.
+    :param session: The request-scoped DB session (used to create/look up the
+        conversation and append the user message before streaming begins).
     :return: The response.
     """
-    # Must use caller-supplied conversation_id for resume so the checkpoint thread
-    # matches; fallback to a generated id only for fresh (non-resume) turns.
-    conversation_id = body.conversation_id or f"stream-{uuid4().hex[:12]}"
+    repo = ConversationRepository(session)
+    # Resolve or create the conversation row before streaming so the row always
+    # exists (no orphaned messages) and thread_id is stable. get-or-create also
+    # handles client-minted ids and ids restored across reloads.
+    conversation_id = repo.ensure_conversation(
+        conversation_id=body.conversation_id,
+        user_id=body.user_id,
+        trip_id=body.trip_id,
+    )
     cfg = _config(_thread_id(body, conversation_id), body)
 
     if body.resume is not None:
@@ -164,20 +189,77 @@ async def agent_stream(body: ChatRequest, graph: GraphDep):
         # (thread_id) addresses the checkpoint created during the initial turn.
         stream_input = Command(resume=body.resume)
     else:
+        # Persist the user turn before returning the StreamingResponse so the
+        # message row exists even if the stream is abandoned mid-flight. On a
+        # retry the user message is already saved (the previous turn was
+        # interrupted before the assistant reply persisted), so skip re-appending
+        # it to avoid a duplicate question bubble.
+        if not body.retry:
+            repo.append_message(
+                conversation_id=conversation_id, role="user", content=body.message
+            )
         stream_input = {
             "messages": [HumanMessage(content=body.message)],
             "user_id": body.user_id,
             "trip_id": body.trip_id,
         }
 
+    # Commit (and release the SQLite write lock) before streaming begins so
+    # the isolated factory session inside persist_assistant_turn can write.
+    # For Postgres this is harmless; for SQLite it prevents "database is locked".
+    # The dependency's cleanup commit is a no-op after an explicit commit here.
+    session.commit()
+
+    # Bind an isolated sessionmaker to the request session's *engine* (not a
+    # stringified URL — str(URL) masks the password as "***", which breaks
+    # Postgres auth in the stream generator). Reuses the same engine/pool the
+    # request used, so test overrides via get_session still propagate.
+    factory = _isolated_factory(session)
+
     return sse_response(
-        stream_agent_events(
-            graph, stream_input, cfg=cfg, conversation_id=conversation_id
+        persist_assistant_turn(
+            stream_agent_events(
+                graph, stream_input, cfg=cfg, conversation_id=conversation_id
+            ),
+            conversation_id=conversation_id,
+            session_factory=factory,
         )
     )
 
 
-@router.get("/manifest", response_model=AgentManifest, summary="Agent capability manifest")
+@router.get(
+    "/conversations",
+    response_model=list[Conversation],
+    summary="List conversations for a user",
+)
+def list_conversations(user_id: str, session: SessionDep) -> list[Conversation]:
+    """Return all conversations for the given user, newest first.
+
+    Returns an empty list for an unknown user_id (matches the repo contract).
+    """
+    repo = ConversationRepository(session)
+    return repo.list_for_user(user_id)
+
+
+@router.get(
+    "/conversations/{conversation_id}/messages",
+    response_model=list[Message],
+    summary="List messages for a conversation",
+)
+def list_conversation_messages(
+    conversation_id: str, session: SessionDep
+) -> list[Message]:
+    """Return all messages for the given conversation, oldest first.
+
+    Returns an empty list for an unknown conversation_id (matches the repo contract).
+    """
+    repo = ConversationRepository(session)
+    return repo.list_messages(conversation_id)
+
+
+@router.get(
+    "/manifest", response_model=AgentManifest, summary="Agent capability manifest"
+)
 def agent_manifest() -> AgentManifest:
     """
     Get the agent capability manifest.

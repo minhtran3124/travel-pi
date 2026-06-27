@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Travel-Agent Foundation — LangChain/LangGraph 1.x Deep Review</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#2a313c;
+    --ink:#e6edf3; --muted:#9aa7b4; --faint:#6b7787;
+    --crit:#ff6b6b; --med:#ffb454; --low:#ffd966; --good:#56d364; --acc:#6cb6ff;
+    --code:#1b2330; --codeink:#cdd9e5;
+    --maxw:920px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:40px 22px 96px}
+  header.hero{
+    border:1px solid var(--border); border-radius:16px; padding:30px 30px 26px;
+    background:linear-gradient(160deg,#161b22 0%,#12161d 100%); margin-bottom:30px;
+  }
+  .eyebrow{color:var(--acc); font-weight:600; letter-spacing:.06em; text-transform:uppercase; font-size:12px; margin:0 0 10px}
+  h1{font-size:30px; line-height:1.2; margin:0 0 14px; letter-spacing:-.02em}
+  .meta{color:var(--muted); font-size:14px; display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:6px}
+  .meta b{color:var(--ink); font-weight:600}
+  .verdict{
+    margin-top:22px; padding:18px 20px; border-radius:12px;
+    background:var(--panel2); border:1px solid var(--border); color:var(--ink);
+  }
+  .verdict strong{color:var(--acc)}
+  .pills{display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 4px}
+  .pill{
+    border:1px solid var(--border); border-radius:999px; padding:6px 13px; font-size:13px;
+    color:var(--muted); background:var(--panel); display:flex; align-items:center; gap:7px;
+  }
+  .dot{width:9px;height:9px;border-radius:50%}
+  .dot.c{background:var(--crit)} .dot.m{background:var(--med)} .dot.l{background:var(--low)} .dot.g{background:var(--good)}
+
+  nav.toc{
+    border:1px solid var(--border); border-radius:14px; background:var(--panel);
+    padding:18px 22px; margin:28px 0 36px;
+  }
+  nav.toc h2{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint); margin:0 0 12px}
+  nav.toc ol{margin:0; padding-left:20px; columns:2; column-gap:34px}
+  nav.toc li{margin:5px 0; break-inside:avoid}
+  nav.toc a{color:var(--ink); text-decoration:none; font-size:14.5px}
+  nav.toc a:hover{color:var(--acc); text-decoration:underline}
+  .tag{font-size:11px; font-weight:700; padding:1px 6px; border-radius:5px; margin-right:6px; vertical-align:1px}
+  .tag.c{background:rgba(255,107,107,.16); color:var(--crit)}
+  .tag.m{background:rgba(255,180,84,.16); color:var(--med)}
+  .tag.l{background:rgba(255,217,102,.14); color:var(--low)}
+
+  section.group{margin:46px 0 0}
+  .group > h2{
+    font-size:21px; margin:0 0 6px; padding-bottom:10px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .group > p.sub{color:var(--muted); margin:8px 0 18px; font-size:14.5px}
+
+  .finding{
+    border:1px solid var(--border); border-left:4px solid var(--faint); border-radius:12px;
+    background:var(--panel); padding:20px 22px; margin:16px 0;
+  }
+  .finding.c{border-left-color:var(--crit)}
+  .finding.m{border-left-color:var(--med)}
+  .finding.l{border-left-color:var(--low)}
+  .finding h3{margin:0 0 12px; font-size:17.5px; line-height:1.35; letter-spacing:-.01em}
+  .finding h3 .id{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; font-weight:700;
+    padding:2px 8px; border-radius:6px; margin-right:10px; background:var(--panel2);
+  }
+  .finding.c h3 .id{color:var(--crit)} .finding.m h3 .id{color:var(--med)} .finding.l h3 .id{color:var(--low)}
+  .finding p{margin:9px 0}
+  .finding .k{color:var(--faint); font-weight:600; text-transform:uppercase; font-size:11.5px; letter-spacing:.05em}
+  .finding ul{margin:8px 0; padding-left:22px}
+  .finding li{margin:5px 0}
+  code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13.5px;
+    background:var(--code); color:var(--codeink); padding:1.5px 6px; border-radius:5px;
+    border:1px solid var(--border); white-space:nowrap;
+  }
+  .loc{color:var(--acc); font-weight:600}
+  a.ref{color:var(--acc); font-size:13px; text-decoration:none; word-break:break-all}
+  a.ref:hover{text-decoration:underline}
+  .refs{margin-top:10px; font-size:13px; color:var(--muted)}
+
+  .good-box{
+    border:1px solid var(--border); border-left:4px solid var(--good); border-radius:12px;
+    background:linear-gradient(160deg,#13211a 0%,#141b22 100%); padding:20px 22px; margin:16px 0;
+  }
+  ol.priority{counter-reset:p; list-style:none; padding:0; margin:14px 0}
+  ol.priority li{
+    border:1px solid var(--border); border-radius:10px; background:var(--panel);
+    padding:14px 18px 14px 56px; margin:10px 0; position:relative;
+  }
+  ol.priority li::before{
+    counter-increment:p; content:counter(p); position:absolute; left:16px; top:50%; transform:translateY(-50%);
+    width:26px;height:26px;border-radius:50%; background:var(--acc); color:#06223f; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+  .callout{border:1px solid var(--border); border-radius:10px; background:var(--panel2); padding:14px 18px; margin:18px 0; color:var(--muted); font-size:14px}
+  footer{margin-top:54px; padding-top:22px; border-top:1px solid var(--border); color:var(--faint); font-size:13px}
+  footer h2{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint)}
+  footer ul{padding-left:18px; columns:2; column-gap:30px}
+  footer li{margin:4px 0; break-inside:avoid}
+  @media (max-width:680px){ nav.toc ol{columns:1} footer ul{columns:1} h1{font-size:25px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">Deep Review · LangChain / LangGraph 1.x</p>
+    <h1>Travel-Agent Foundation — Best-Practice Review</h1>
+    <div class="meta">
+      <span><b>Branch</b> feat/travel-agent-foundation</span>
+      <span><b>Scope</b> agent layer · ~1,700 LOC</span>
+      <span><b>Date</b> 2026-06-26</span>
+    </div>
+    <div class="meta" style="margin-top:8px">
+      <span><b>Stack</b> LangGraph 1.2.6 · LangChain 1.3.11 · checkpoint 3.x · langchain-postgres+pgvector · Langfuse 4.12 · MCP 1.x</span>
+    </div>
+
+    <div class="verdict">
+      <strong>Verdict.</strong> Architecture and layering are genuinely good — provider-agnostic
+      <code>init_chat_model</code>, <code>@tool</code> + <code>ToolException</code> + <code>ToolNode</code>
+      self-correction, <code>Command(goto=)</code> handoffs with <code>destinations=</code>,
+      <code>RemoveMessage</code> trimming, MCP annotations, zero-network fakes. But there are
+      <strong>4 correctness/resource bugs that defeat features this PR claims to ship</strong>, plus a
+      cluster of 1.x-modernization gaps. All findings are grep-confirmed and cross-checked against
+      official docs.
+    </div>
+
+    <div class="pills">
+      <span class="pill"><span class="dot c"></span>4 Critical</span>
+      <span class="pill"><span class="dot m"></span>5 Medium</span>
+      <span class="pill"><span class="dot l"></span>7 Low / modernization</span>
+      <span class="pill"><span class="dot g"></span>Solid foundation</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>Findings</h2>
+    <ol>
+      <li><a href="#c1"><span class="tag c">C1</span>Per-request graph/checkpointer/store rebuild</a></li>
+      <li><a href="#c2"><span class="tag c">C2</span>Rolling summary computed but never used</a></li>
+      <li><a href="#c3"><span class="tag c">C3</span>Memory: dead semantic search + model-supplied user_id</a></li>
+      <li><a href="#c4"><span class="tag c">C4</span>Stream leaks internal node output</a></li>
+      <li><a href="#m1"><span class="tag m">M1</span>HITL plan_node is dead code</a></li>
+      <li><a href="#m2"><span class="tag m">M2</span>System message lands after the human turn</a></li>
+      <li><a href="#m3"><span class="tag m">M3</span>Sync savers under async + unclosed CMs</a></li>
+      <li><a href="#m4"><span class="tag m">M4</span>Langfuse per-request + invalid v4 kwarg</a></li>
+      <li><a href="#m5"><span class="tag m">M5</span>Legacy RAG class + non-hybrid retrieval</a></li>
+      <li><a href="#low"><span class="tag l">L1–L7</span>Polish &amp; modernization</a></li>
+    </ol>
+  </nav>
+
+  <!-- CRITICAL -->
+  <section class="group">
+    <h2><span class="dot c"></span>Critical — features wired wrong or resource leaks</h2>
+
+    <article class="finding c" id="c1">
+      <h3><span class="id">C1</span>Graph + checkpointer + store rebuilt on <em>every request</em> (the <code>lru_cache</code> is dead code)</h3>
+      <p><span class="k">Evidence</span> <span class="loc">app/routers/agent.py:35–43</span> — the
+      <code>get_travel_graph</code> dependency calls <code>build_graph(checkpointer=get_checkpointer(), store=get_store())</code>
+      <b>fresh per request</b>. <span class="loc">app/agents/graph.py:80–86</span> defines an
+      <code>@lru_cache</code>'d <code>get_compiled_graph()</code> that is <b>never called</b>;
+      <span class="loc">app/core/lifespan.py:65</span> builds <code>app.state.agent_checkpointer</code> once
+      that the router <b>also never uses</b>.</p>
+      <p><span class="k">Impact</span> Each <code>/agent/chat</code> &amp; <code>/agent/stream</code> re-compiles 6
+      subgraphs and opens a new <code>sqlite3.connect</code> / <code>PostgresSaver.from_conn_string(url).__enter__()</code>
+      + <code>.setup()</code> (DDL) and a new <code>PostgresStore.__enter__()</code> + <code>.setup()</code> — none ever
+      closed. Under load this exhausts Postgres connections / SQLite handles.</p>
+      <p><span class="k">Fix</span> Build graph + checkpointer + store <b>once</b> in <code>lifespan</code>, hold on
+      <code>app.state</code>, and return it from <code>get_travel_graph</code>. Delete the dead
+      <code>get_compiled_graph</code> or use it. <em>Highest impact, smallest diff.</em></p>
+      <p class="refs"><span class="k">Ref</span> <a class="ref" href="https://docs.langchain.com/oss/python/langgraph/persistence">langgraph/persistence</a></p>
+    </article>
+
+    <article class="finding c" id="c2">
+      <h3><span class="id">C2</span>Rolling summary is computed and old messages deleted — but the summary is never used</h3>
+      <p><span class="k">Evidence</span> <span class="loc">app/agents/nodes.py:50–55</span> writes
+      <code>{"summary": …, "messages": &lt;RemoveMessages&gt;}</code>, actively dropping older turns.
+      <b>Nothing reads <code>state["summary"]</code></b> (grep: only the writer + the field decl at
+      <span class="loc">state.py:23</span>). Supervisor and every sub-agent build prompts from
+      <code>state["messages"]</code> only.</p>
+      <p><span class="k">Impact</span> Summarization makes the agent <em>worse</em> than doing nothing — it
+      deletes history and throws the compression away (net context loss).</p>
+      <p><span class="k">Fix</span> Minimal: prepend <code>SystemMessage(f"Conversation so far: {state['summary']}")</code>
+      when set. Idiomatic: attach <code>SummarizationMiddleware(model=fast_llm, trigger=("tokens", N), keep=("messages", M))</code>
+      to <code>create_agent</code> (note new <code>trigger</code>/<code>keep</code> API;
+      <code>max_tokens_before_summary</code>/<code>messages_to_keep</code> are deprecated).</p>
+      <p class="refs"><span class="k">Ref</span> <a class="ref" href="https://reference.langchain.com/python/langchain/agents/middleware/summarization/SummarizationMiddleware">SummarizationMiddleware</a></p>
+    </article>
+
+    <article class="finding c" id="c3">
+      <h3><span class="id">C3</span>Long-term memory: semantic search is non-functional, and <code>user_id</code> is model-supplied</h3>
+      <p><span class="k">No index → query ignored</span> <span class="loc">app/memory/store.py:29,34</span> creates
+      <code>PostgresStore.from_conn_string(url)</code> and <code>InMemoryStore()</code> <b>without an
+      <code>index=</code> config</b>. <code>store.search(ns, query=…)</code> only ranks semantically when built with
+      <code>index={"dims": …, "embed": embeddings, "fields": […]}</code>. So
+      <code>get_user_preferences(query=…)</code> (<span class="loc">tools/memory_tools.py:33</span>) silently
+      returns by recency, ignoring the query.</p>
+      <p><span class="k">Model-supplied user_id</span> <code>save_user_preference(user_id, …)</code> /
+      <code>get_user_preferences(user_id, …)</code> (<span class="loc">tools/memory_tools.py:21,33</span>) make the
+      model pass <code>user_id</code> — it can cross-wire and read/write another traveller's memories
+      (the namespace <code>("users", user_id, "prefs")</code> <em>is</em> the isolation boundary). The real
+      <code>user_id</code> already lives in <code>TravelAgentState.user_id</code>.</p>
+      <p><span class="k">Fix</span> (1) construct the store with an <code>index=</code> config wired to
+      <code>get_embeddings()</code>. (2) Inject <code>user_id</code> from state via
+      <code>Annotated[str, InjectedState("user_id")]</code> (hidden from the schema), or the 1.x
+      <code>ToolRuntime</code> idiom (see L4).</p>
+      <p class="refs"><span class="k">Refs</span>
+        <a class="ref" href="https://docs.langchain.com/oss/python/langchain/long-term-memory">long-term-memory</a> ·
+        <a class="ref" href="https://blog.langchain.com/semantic-search-for-langgraph-memory/">semantic memory (blog)</a></p>
+    </article>
+
+    <article class="finding c" id="c4">
+      <h3><span class="id">C4</span><code>/agent/stream</code> leaks internal node output (router/summarizer/reflection) to the user</h3>
+      <p><span class="k">Evidence</span> <span class="loc">app/routers/agent.py:101–113</span> streams
+      <code>stream_mode="messages"</code> and yields <code>chunk.content</code> for <b>every</b> model call,
+      discarding metadata (<code>_meta</code>). Tokens from the supervisor router, the summarizer, and the
+      reflection critic stream too — so the SSE feed can contain the rolling <b>summary text</b> or the literal
+      <code>OK</code>/<code>REVISE</code> verdict (<span class="loc">nodes.py:76</span>) interleaved with the answer.</p>
+      <p><span class="k">Fix</span> <code>stream_mode="messages"</code> yields <code>(chunk, metadata)</code> — filter on
+      <code>metadata["langgraph_node"]</code> (or model <code>tags</code>) and only emit the user-facing node.
+      Also: anonymous streams collapse onto <code>conv_stream</code> (<span class="loc">agent.py:99</span>), colliding
+      all unnamed sessions on one <code>thread_id</code>.</p>
+      <p class="refs"><span class="k">Ref</span> <a class="ref" href="https://docs.langchain.com/oss/python/langgraph/streaming">langgraph/streaming</a></p>
+    </article>
+  </section>
+
+  <!-- MEDIUM -->
+  <section class="group">
+    <h2><span class="dot m"></span>Medium — correctness smells &amp; 1.x persistence/lifecycle</h2>
+
+    <article class="finding m" id="m1">
+      <h3><span class="id">M1</span>HITL <code>plan_node</code> is dead code, yet SUMMARY claims "plan HITL" shipped</h3>
+      <p><span class="loc">app/agents/nodes.py:92–100</span> defines the <code>interrupt()</code> approval node, but
+      it is <b>never added to any graph</b> and has <b>no test</b>; <code>SUMMARY.md:41</code> lists it as done.
+      Either wire it in (conditional edge before destructive booking, resumed via <code>Command(resume=…)</code>) or
+      remove it and correct the SUMMARY. 1.x prefers <code>HumanInTheLoopMiddleware(interrupt_on={"book_hotel": True})</code>.</p>
+    </article>
+
+    <article class="finding m" id="m2">
+      <h3><span class="id">M2</span><code>load_context_node</code> appends a <code>SystemMessage</code> via <code>add_messages</code> → lands after the human turn</h3>
+      <p><span class="loc">app/agents/nodes.py:42</span> returns <code>{"messages": [SystemMessage(…)]}</code>.
+      <code>add_messages</code> <b>appends</b>, so trip context ends up <em>after</em> the <code>HumanMessage</code>
+      → <code>[System, Human, System]</code>. A mid-conversation system message is ignored by some providers and
+      <b>rejected by Anthropic</b> (your stack supports <code>langchain-anthropic</code>).
+      <span class="k" style="margin-left:4px">Fix</span> carry trip context in a state field / render into the system
+      prompt — don't push it into <code>messages</code>.</p>
+    </article>
+
+    <article class="finding m" id="m3">
+      <h3><span class="id">M3</span>Sync savers/stores under an async graph + manual <code>__enter__()</code> lifecycle</h3>
+      <ul>
+        <li>Match saver to mode — use <code>AsyncSqliteSaver</code>/<code>AsyncPostgresSaver</code> for async graphs. The
+          single shared <code>sqlite3</code> connection (<code>check_same_thread=False</code>,
+          <span class="loc">checkpointer.py:46</span>) is unsafe for concurrent threadpool writes → "database is locked".</li>
+        <li><code>PostgresSaver.from_conn_string(url).__enter__()</code> (<span class="loc">checkpointer.py:54</span>) and
+          <code>PostgresStore…__enter__()</code> (<span class="loc">store.py:29</span>) enter a CM that is <b>never exited</b>
+          (the C1 leak).</li>
+      </ul>
+      <p><span class="k">Fix</span> <code>async with AsyncPostgresSaver.from_conn_string(dsn) as cp: await cp.setup()</code>
+      in <code>lifespan</code>; hold on <code>app.state</code>. (Checkpoint ≥3.0 is correct — patches CVE-2025-64439;
+      keep that floor.)</p>
+      <p class="refs"><span class="k">Refs</span>
+        <a class="ref" href="https://docs.langchain.com/oss/python/langgraph/persistence">persistence</a> ·
+        <a class="ref" href="https://github.com/langchain-ai/langgraph/security/advisories/GHSA-wwqv-p2pp-99h5">CVE-2025-64439</a></p>
+    </article>
+
+    <article class="finding m" id="m4">
+      <h3><span class="id">M4</span>Langfuse handler rebuilt per request + likely-invalid v4 kwarg</h3>
+      <p><span class="loc">app/agents/observability.py:29–43</span> — <code>callbacks()</code> runs per request and each
+      call builds a <b>new</b> <code>Langfuse(...)</code> client <b>and</b> <code>CallbackHandler(public_key=…)</code>. In
+      Langfuse <b>v3+/v4</b>, <code>CallbackHandler()</code> takes <b>no key kwargs</b> (reads the singleton
+      <code>get_client()</code>) — so <code>public_key=</code> is ignored / may raise. The <code>metadata</code> path is
+      correct. <span class="k" style="margin-left:4px">Fix</span> one cached client + handler at startup; verify the
+      constructor against installed 4.12 (untested — Langfuse off in CI).</p>
+      <p class="refs"><span class="k">Ref</span> <a class="ref" href="https://langfuse.com/docs/observability/sdk/upgrade-path/python-v2-to-v3">Langfuse v2→v3 upgrade</a></p>
+    </article>
+
+    <article class="finding m" id="m5">
+      <h3><span class="id">M5</span>RAG uses the legacy class and a hand-rolled hybrid that isn't truly hybrid</h3>
+      <ul>
+        <li><span class="loc">app/rag/embeddings.py:44</span> uses <code>PGVector</code>; langchain-postgres ≥0.0.12 ships
+          <b><code>PGVectorStore</code></b> (v2: <code>PGEngine</code>, async, HNSW, <code>postgresql+psycopg://</code>).</li>
+        <li><span class="loc">app/rag/retriever.py</span> re-ranks the <em>same</em> <code>similarity_search</code> candidate
+          set by lexical overlap — the lexical leg can never surface a keyword match dense search missed. v2 provides
+          <b>native</b> RRF via <code>HybridSearchConfig(fusion_function=reciprocal_rank_fusion)</code>.</li>
+        <li>Metadata <code>filters</code> applied <b>after</b> fetch/rank (<span class="loc">retriever.py:48</span>) can starve
+          results below <code>k</code>; push <code>filter=</code> into <code>similarity_search</code>.</li>
+        <li><span class="loc">app/rag/ingest.py:49</span> <code>add_documents(docs)</code> passes <b>no <code>ids=</code></b> →
+          re-ingest duplicates every doc. Derive stable ids from <code>place.id</code>.</li>
+      </ul>
+      <p class="refs"><span class="k">Refs</span>
+        <a class="ref" href="https://pypi.org/project/langchain-postgres/">langchain-postgres</a> ·
+        <a class="ref" href="https://reference.langchain.com/python/langchain-postgres/v2/hybrid_search_config/reciprocal_rank_fusion">reciprocal_rank_fusion</a></p>
+    </article>
+  </section>
+
+  <!-- LOW -->
+  <section class="group" id="low">
+    <h2><span class="dot l"></span>Low — polish &amp; modernization</h2>
+    <article class="finding l">
+      <ul>
+        <li><b>L1 — No <code>temperature=0</code>.</b> <span class="loc">clients/llm.py:51</span> passes no temperature;
+          the router (<code>with_structured_output</code>) and tool-calling sub-agents want deterministic decoding.</li>
+        <li><b>L2 — Reflection critic under-informed &amp; brittle.</b> <span class="loc">nodes.py:75–76</span> judges with
+          only <code>[system, last]</code> (no user question) and string-matches <code>"REVISE"</code>. Pass the user turn;
+          use <code>with_structured_output(Verdict)</code>.</li>
+        <li><b>L3 — Sync nodes for real I/O.</b> <code>subagents/_base.py:35</code>, <code>supervisor.py:38</code>,
+          <code>nodes.py</code> call <code>llm.invoke</code> in an async graph. Prefer <code>async def</code> + <code>await llm.ainvoke</code>.</li>
+        <li><b>L4 — Modernization: <code>create_agent</code> + middleware.</b> LangChain 1.0 makes the hand-rolled ReAct
+          subgraph, summarizer, and HITL node largely unnecessary: <code>create_agent</code> returns a compiled graph;
+          <code>SummarizationMiddleware</code> (fixes C2), <code>HumanInTheLoopMiddleware</code> (fixes M1),
+          <code>dynamic_prompt</code>, and <code>ToolRuntime</code> (replaces <code>InjectedStore</code>/<code>InjectedState</code>,
+          fixes C3 injection) are the supported seams. <code>langgraph-supervisor</code> can replace <code>make_supervisor</code>.
+          Optional — but deletes code and aligns with library direction. (<code>ToolNode</code>/<code>tools_condition</code> are
+          still current; only <code>create_react_agent</code> from <code>langgraph.prebuilt</code> is superseded — you don't use it.)</li>
+        <li><b>L5 — MCP annotations.</b> <span class="loc">mcp/server.py:39</span> sets <code>readOnlyHint</code>/<code>destructiveHint</code>;
+          add <code>idempotentHint</code> (reads) and <code>openWorldHint</code> (weather/route hit external APIs). Confirm no
+          <code>print()</code> in the tool path (stdout corrupts stdio JSON-RPC — log to stderr).</li>
+        <li><b>L6 — <code>_PROVIDER_KEY_FIELD</code> KeyError.</b> <span class="loc">clients/llm.py:48</span> indexes with
+          <code>s.llm_provider</code>; use <code>.get(...)</code> with a clear error if the enum widens.</li>
+        <li><b>L7 — Test gaps.</b> No tests exercise <code>/agent/stream</code>, the <code>interrupt</code>/HITL path,
+          summarize-then-recall, or multi-user memory isolation — each maps to a bug above (C4, M1, C2, C3).</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- GOOD -->
+  <section class="group">
+    <h2><span class="dot g"></span>What's genuinely well done</h2>
+    <div class="good-box">
+      Provider-agnostic <code>init_chat_model</code> factory + clean <code>FakeLLM</code> double ·
+      <code>@tool</code> + <code>ToolException</code> → <code>ToolMessage(status="error")</code> self-correction ·
+      <code>Command(goto=)</code> handoffs with <code>destinations=</code> hints (correct 1.x routing idiom) ·
+      <code>RemoveMessage</code> trimming (correct deletion sentinel) · per-domain tool binding to avoid sprawl ·
+      MCP server reusing the single tool registry · checkpoint floor ≥3.0 (CVE-patched) ·
+      graceful degrade-to-in-memory everywhere · zero-network test suite.
+    </div>
+  </section>
+
+  <!-- PRIORITY -->
+  <section class="group">
+    <h2><span class="dot" style="background:var(--acc)"></span>Priority order to fix</h2>
+    <ol class="priority">
+      <li><b>C1</b> — per-request rebuild/leak. Highest impact, smallest diff: build once in <code>lifespan</code>.</li>
+      <li><b>C2 + C3</b> — summary never used; memory search dead + <code>user_id</code> injection. Silently break two headline features.</li>
+      <li><b>C4</b> — stream leaks internal output. User-visible correctness.</li>
+      <li><b>M1–M5</b> cleanup pass; <b>M4/M5</b> verify against the <em>installed</em> 4.12 / langchain-postgres first.</li>
+      <li><b>L4</b> modernization as a follow-up branch once bugs are closed.</li>
+    </ol>
+    <div class="callout"><b>Version caveat.</b> Confirm the v3 streaming object (<code>stream_events(version="v3")</code>),
+      <code>durability</code> modes, and the exact Langfuse 4.12 <code>CallbackHandler</code> signature against your pins
+      before adopting — the <code>stream_mode</code> / <code>interrupt</code> / <code>Command(resume=)</code> APIs relied on
+      here are stable across all of 1.x.</div>
+  </section>
+
+  <footer>
+    <h2>Sources</h2>
+    <ul>
+      <li><a class="ref" href="https://www.langchain.com/blog/langchain-langgraph-1dot0">LangChain &amp; LangGraph 1.0 (blog)</a></li>
+      <li><a class="ref" href="https://docs.langchain.com/oss/python/langchain/agents">Agents / create_agent</a></li>
+      <li><a class="ref" href="https://blog.langchain.com/agent-middleware/">Agent middleware (blog)</a></li>
+      <li><a class="ref" href="https://docs.langchain.com/oss/python/langchain/tools">Tools / ToolRuntime</a></li>
+      <li><a class="ref" href="https://docs.langchain.com/oss/python/langgraph/persistence">Persistence (checkpointers &amp; store)</a></li>
+      <li><a class="ref" href="https://docs.langchain.com/oss/python/langgraph/streaming">Streaming</a></li>
+      <li><a class="ref" href="https://docs.langchain.com/oss/python/langgraph/interrupts">Interrupts (HITL)</a></li>
+      <li><a class="ref" href="https://docs.langchain.com/oss/python/langchain/long-term-memory">Long-term memory</a></li>
+      <li><a class="ref" href="https://pypi.org/project/langchain-postgres/">langchain-postgres / PGVectorStore</a></li>
+      <li><a class="ref" href="https://langfuse.com/docs/observability/sdk/upgrade-path/python-v2-to-v3">Langfuse v2→v3 upgrade</a></li>
+      <li><a class="ref" href="https://modelcontextprotocol.io/docs/develop/build-server">MCP build server</a></li>
+      <li><a class="ref" href="https://github.com/langchain-ai/langgraph/security/advisories/GHSA-wwqv-p2pp-99h5">CVE-2025-64439</a></li>
+    </ul>
+    <p style="margin-top:18px">Generated by a deep review (xhigh effort) · grep-confirmed against the branch · cross-checked against official LangChain/LangGraph 1.0 docs. Companion Markdown: <code>specs/travel-agent/REVIEW.md</code>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

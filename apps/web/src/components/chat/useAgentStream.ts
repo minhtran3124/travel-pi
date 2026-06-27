@@ -5,8 +5,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { streamBaseUrl } from "@/lib/api/client";
 import { useUserId } from "@/lib/identity/useUserId";
-import type { ChatRequest } from "@/lib/query/agent";
+import { fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
 import { parseSSE } from "@/lib/stream/parseSSE";
+
+const CONVERSATION_STORAGE_KEY = "travel.conversationId";
+
+function readStoredConversationId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(CONVERSATION_STORAGE_KEY);
+}
+
+function writeStoredConversationId(id: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(CONVERSATION_STORAGE_KEY, id);
+}
+
+function clearStoredConversationId(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(CONVERSATION_STORAGE_KEY);
+}
 
 export type ChatRole = "user" | "assistant";
 
@@ -45,6 +62,23 @@ export interface UseAgentStream {
    * `/agent/stream` and streams the continuation into the same message bubble.
    */
   resume: (approved: boolean) => void;
+  /**
+   * True when the last message is an unanswered user turn (e.g. the page was
+   * reloaded mid-stream, so the assistant reply was never persisted). The UI
+   * surfaces a "retry" affordance in this state.
+   */
+  canRetry: boolean;
+  /**
+   * Re-answers the dangling last user turn. Re-sends that message with
+   * `retry:true` (so the backend does not save a duplicate question) and streams
+   * the reply into a fresh assistant bubble.
+   */
+  retry: () => void;
+  /**
+   * Clears the current conversation and starts fresh: resets conversationId,
+   * clears persisted storage, and empties the message list.
+   */
+  newConversation: () => void;
 }
 
 function newId(): string {
@@ -81,6 +115,8 @@ export function useAgentStream(
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
 
   const conversationIdRef = useRef<string | null>(null);
+  // Prevents double-hydration when userId effect re-runs (e.g. strict-mode double-invoke).
+  const hydratedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   // Tracks the assistant message id for the current turn so resume() can
   // append continuation tokens into the same bubble.
@@ -94,6 +130,34 @@ export function useAgentStream(
   useEffect(() => {
     return () => abortRef.current?.abort();
   }, []);
+
+  // On mount (once userId is ready): read persisted conversationId from storage,
+  // then fetch + hydrate prior messages. Fails silently so new chats are never blocked.
+  useEffect(() => {
+    if (!userId || hydratedRef.current) return;
+
+    const storedId = readStoredConversationId();
+    if (!storedId) return;
+
+    hydratedRef.current = true;
+    conversationIdRef.current = storedId;
+
+    fetchConversationMessages(storedId)
+      .then((msgs) => {
+        if (msgs.length > 0) {
+          setMessages(
+            msgs.map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+            })),
+          );
+        }
+      })
+      .catch(() => {
+        // Fail silently — start empty and let the user send a new message.
+      });
+  }, [userId]);
 
   const appendToAssistant = useCallback((id: string, chunk: string) => {
     setMessages((prev) =>
@@ -129,7 +193,9 @@ export function useAgentStream(
       // subsequent turn (the BE accepts a client-supplied id and keys the thread
       // on it).
       if (conversationIdRef.current === null) {
-        conversationIdRef.current = newId();
+        const minted = newId();
+        conversationIdRef.current = minted;
+        writeStoredConversationId(minted);
       }
 
       const assistantId = newId();
@@ -147,6 +213,7 @@ export function useAgentStream(
         user_id: userId,
         trip_id: tripIdRef.current ?? null,
         conversation_id: conversationIdRef.current,
+        retry: false,
       };
 
       const controller = new AbortController();
@@ -172,6 +239,7 @@ export function useAgentStream(
               case "start":
                 // Pin the server's conversation id for turn continuity.
                 conversationIdRef.current = event.conversationId;
+                writeStoredConversationId(event.conversationId);
                 break;
               case "token":
                 received = true;
@@ -187,6 +255,7 @@ export function useAgentStream(
                 sawInterrupt = true;
                 // Prefer the conversationId echoed in the interrupt event.
                 conversationIdRef.current = event.conversationId;
+                writeStoredConversationId(event.conversationId);
                 setInterrupt({
                   conversationId: event.conversationId,
                   payload: event.payload,
@@ -243,6 +312,7 @@ export function useAgentStream(
         user_id: userId,
         trip_id: tripIdRef.current ?? null,
         conversation_id: pendingInterrupt.conversationId,
+        retry: false,
       };
 
       setInterrupt(null);
@@ -297,5 +367,135 @@ export function useAgentStream(
     [appendToAssistant, interrupt, onTurnComplete, setAssistant, t, userId],
   );
 
-  return { messages, send, isStreaming, error, interrupt, resume };
+  const retry = useCallback(() => {
+    if (inFlightRef.current || isStreaming || interrupt !== null) return;
+    if (!userId) {
+      setError(t("errorIdentityNotReady"));
+      return;
+    }
+    const last = messages[messages.length - 1];
+    const conversationId = conversationIdRef.current;
+    // Only meaningful for a dangling user turn on an existing conversation.
+    if (!last || last.role !== "user" || !conversationId) return;
+    inFlightRef.current = true;
+
+    const assistantId = newId();
+    assistantIdRef.current = assistantId;
+    setError(null);
+    // No new user bubble — the question is already on screen and in the DB.
+    setMessages((prev) => [
+      ...prev,
+      { id: assistantId, role: "assistant", content: "" },
+    ]);
+    setIsStreaming(true);
+
+    const body: ChatRequest = {
+      message: last.content,
+      user_id: userId,
+      trip_id: tripIdRef.current ?? null,
+      conversation_id: conversationId,
+      // Re-answer the existing user turn without re-saving the question.
+      retry: true,
+    };
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    void (async () => {
+      let received = false;
+      let sawInterrupt = false;
+      try {
+        const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+
+        if (!res.ok || !res.body) {
+          throw new Error(`retry failed: ${res.status}`);
+        }
+
+        for await (const event of parseSSE(res.body)) {
+          switch (event.type) {
+            case "start":
+              conversationIdRef.current = event.conversationId;
+              writeStoredConversationId(event.conversationId);
+              break;
+            case "token":
+              received = true;
+              appendToAssistant(assistantId, event.text);
+              break;
+            case "reset":
+              setAssistant(assistantId, "");
+              break;
+            case "interrupt":
+              received = true;
+              sawInterrupt = true;
+              conversationIdRef.current = event.conversationId;
+              writeStoredConversationId(event.conversationId);
+              setInterrupt({
+                conversationId: event.conversationId,
+                payload: event.payload,
+              });
+              break;
+            case "error":
+              throw new Error(`agent error: ${event.code}`);
+            default:
+              break;
+          }
+        }
+
+        if (!received) {
+          throw new Error("stream produced no tokens");
+        }
+      } catch {
+        if (controller.signal.aborted) return;
+        setError(received ? t("errorConnectionDropped") : t("errorUnavailable"));
+      } finally {
+        inFlightRef.current = false;
+        if (!controller.signal.aborted) {
+          setIsStreaming(false);
+          if (!sawInterrupt) {
+            onTurnComplete?.();
+          }
+        }
+        if (abortRef.current === controller) abortRef.current = null;
+      }
+    })();
+  }, [
+    appendToAssistant,
+    interrupt,
+    isStreaming,
+    messages,
+    onTurnComplete,
+    setAssistant,
+    t,
+    userId,
+  ]);
+
+  const newConversation = useCallback(() => {
+    clearStoredConversationId();
+    conversationIdRef.current = null;
+    hydratedRef.current = false;
+    setMessages([]);
+    setError(null);
+    setInterrupt(null);
+  }, []);
+
+  const lastMessage = messages[messages.length - 1];
+  const canRetry =
+    !isStreaming && interrupt === null && lastMessage?.role === "user";
+
+  return {
+    messages,
+    send,
+    isStreaming,
+    error,
+    interrupt,
+    resume,
+    canRetry,
+    retry,
+    newConversation,
+  };
 }

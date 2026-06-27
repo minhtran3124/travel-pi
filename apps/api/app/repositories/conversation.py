@@ -33,6 +33,34 @@ class ConversationRepository(Repo):
             s.refresh(row)
             return Conversation.model_validate(row)
 
+    def ensure_conversation(
+        self,
+        *,
+        conversation_id: str | None,
+        user_id: str,
+        trip_id: str | None = None,
+    ) -> str:
+        """Return a conversation id that is guaranteed to have a row.
+
+        Get-or-create: when ``conversation_id`` is None a fresh row is created;
+        when it is supplied (e.g. a client-minted id, or one restored from the
+        browser across reloads) the row is created with that explicit id if it
+        does not exist yet. This prevents orphaned messages — a message must
+        never reference a conversation that is absent from this table — and
+        self-heals ids minted before this guard existed.
+        """
+        if conversation_id is None:
+            return self.create_conversation(user_id=user_id, trip_id=trip_id).id
+        with self._session() as s:
+            if s.get(models.Conversation, conversation_id) is None:
+                s.add(
+                    models.Conversation(
+                        id=conversation_id, user_id=user_id, trip_id=trip_id
+                    )
+                )
+                self._commit(s)
+        return conversation_id
+
     def get(self, id_: str) -> Conversation | None:
         with self._session() as s:
             row = s.get(models.Conversation, id_)

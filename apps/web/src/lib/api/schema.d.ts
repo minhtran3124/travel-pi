@@ -1183,7 +1183,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Send a turn to the agent */
+        /**
+         * Send a turn to the agent
+         * @description Send a chat request to the agent.
+         *
+         *     :param body: The request body.
+         *     :param graph: The graph.
+         *     :param session: The session.
+         *     :return: The response.
+         */
         post: operations["agent_chat"];
         delete?: never;
         options?: never;
@@ -1200,8 +1208,61 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Stream the agent's reply as Server-Sent Events */
+        /**
+         * Stream the agent's reply as Server-Sent Events
+         * @description Stream the agent's reply as Server-Sent Events.
+         *
+         *     :param body: The request body.
+         *     :param graph: The graph.
+         *     :param session: The request-scoped DB session (used to create/look up the
+         *         conversation and append the user message before streaming begins).
+         *     :return: The response.
+         */
         post: operations["agent_stream"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agent/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List conversations for a user
+         * @description Return all conversations for the given user, newest first.
+         *
+         *     Returns an empty list for an unknown user_id (matches the repo contract).
+         */
+        get: operations["list_conversations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agent/conversations/{conversation_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List messages for a conversation
+         * @description Return all messages for the given conversation, oldest first.
+         *
+         *     Returns an empty list for an unknown conversation_id (matches the repo contract).
+         */
+        get: operations["list_conversation_messages"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1215,7 +1276,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Agent capability manifest */
+        /**
+         * Agent capability manifest
+         * @description Get the agent capability manifest.
+         */
         get: operations["agent_manifest"];
         put?: never;
         post?: never;
@@ -1586,16 +1650,9 @@ export interface components {
         ChatRequest: {
             /**
              * Message
-             * @description The traveller's message. Optional when `resume` is set.
+             * @description The traveller's message.
              */
-            message?: string;
-            /**
-             * Resume
-             * @description HITL resume payload — omit for a normal turn. When set,
-             *     `message` is not required; the backend resumes from the interrupt
-             *     checkpoint using the approved/rejected decision.
-             */
-            resume?: { approved: boolean } | null;
+            message?: string | null;
             /**
              * User Id
              * @description Caller identity (no auth enforced).
@@ -1611,6 +1668,17 @@ export interface components {
              * @description Existing conversation to continue; None starts one.
              */
             conversation_id?: string | null;
+            /**
+             * Retry
+             * @description Re-answer the last (unanswered) user turn without re-saving it — used when a previous turn was interrupted before the assistant reply was persisted. Requires conversation_id + message.
+             * @default false
+             */
+            retry: boolean;
+            /**
+             * Resume
+             * @description Resume value for a HITL plan-approval interrupt. Pass {'approved': true} to confirm or {'approved': false} to cancel. Requires conversation_id.
+             */
+            resume?: unknown;
         };
         /**
          * ChatResponse
@@ -1623,6 +1691,15 @@ export interface components {
             reply: string;
             /** Current Flow */
             current_flow?: string | null;
+            /**
+             * Interrupt Pending
+             * @default false
+             */
+            interrupt_pending: boolean;
+            /** Interrupt Payload */
+            interrupt_payload?: {
+                [key: string]: unknown;
+            } | null;
         };
         /**
          * City
@@ -1776,6 +1853,23 @@ export interface components {
              * @example Weather data by Open-Meteo.com (CC BY 4.0)
              */
             attribution: string;
+        };
+        /** Conversation */
+        Conversation: {
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Trip Id */
+            trip_id?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Domain */
+            domain?: string | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
         };
         /**
          * CurrencyConvertResponse
@@ -3203,6 +3297,26 @@ export interface components {
          * @enum {string}
          */
         MealStyle: "budget" | "mid" | "fine";
+        /** Message */
+        Message: {
+            /** Id */
+            id: string;
+            /** Conversation Id */
+            conversation_id: string;
+            role: components["schemas"]["MessageRole"];
+            /** Content */
+            content: string;
+            /** Tool Calls */
+            tool_calls?: unknown[] | null;
+            /** Created At */
+            created_at: string;
+        };
+        /**
+         * MessageRole
+         * @description Author role of a stored conversation message (specs/travel-agent).
+         * @enum {string}
+         */
+        MessageRole: "user" | "assistant" | "system" | "tool";
         /**
          * NearbyPlace
          * @description A place plus its straight-line distance from the query origin.
@@ -7341,6 +7455,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_conversations: {
+        parameters: {
+            query: {
+                user_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversation"][];
+                };
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_conversation_messages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"][];
                 };
             };
             /** @description Request validation failed */

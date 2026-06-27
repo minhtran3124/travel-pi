@@ -15,6 +15,7 @@ O(1) lookup of all entries in `docs/solutions/`. Read this first when searching 
 | [untracked-py-gate-root-claude](harness/untracked-py-gate-root-claude.md) | harness | harness/hooks | check-untracked-py, hook, claude-dir, path-pattern, grep | bug | high | 2026-06-23 |
 | [formatter-strips-unused-import](harness/formatter-strips-unused-import.md) | harness | harness/editing | postusetool-formatter, ruff, autoflake, fastapi, imports | failure | high | 2026-06-18 |
 | [commit-gate-bare-python](harness/commit-gate-bare-python.md) | harness | harness/hooks | commit-quality-gate, hook, python, path, venv | bug | high | 2026-06-18 |
+| [local-postgres-checkpointer](agent/local-postgres-checkpointer.md) | agent | agent/checkpointer | checkpointer, langgraph, postgres, memory-saver, conversation-persistence, uvicorn-reload | knowledge | high | 2026-06-27 |
 
 ## Critical Patterns
 

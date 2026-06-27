@@ -34,6 +34,32 @@ def test_list_for_user(repo):
     assert len(repo.list_for_user("u2")) == 1
 
 
+def test_ensure_conversation_creates_when_id_none(repo):
+    cid = repo.ensure_conversation(conversation_id=None, user_id="u1", trip_id="t1")
+    assert cid
+    assert repo.get(cid) is not None
+    assert repo.list_for_user("u1")[0].id == cid
+
+
+def test_ensure_conversation_creates_row_for_client_supplied_id(repo):
+    # Regression: the FE mints a client-side UUID and sends it. The row must be
+    # created with that id so messages are not orphaned (no convo in the table).
+    client_id = "client-generated-uuid-123"
+    cid = repo.ensure_conversation(
+        conversation_id=client_id, user_id="u1", trip_id=None
+    )
+    assert cid == client_id
+    assert repo.get(client_id) is not None
+    assert [c.id for c in repo.list_for_user("u1")] == [client_id]
+
+
+def test_ensure_conversation_is_idempotent(repo):
+    client_id = "reused-id"
+    repo.ensure_conversation(conversation_id=client_id, user_id="u1")
+    repo.ensure_conversation(conversation_id=client_id, user_id="u1")
+    assert len(repo.list_for_user("u1")) == 1
+
+
 def test_append_and_list_messages(repo):
     conv = repo.create_conversation(user_id="u1")
     repo.append_message(conversation_id=conv.id, role="user", content="hi")

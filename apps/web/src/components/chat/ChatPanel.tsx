@@ -27,7 +27,8 @@ export interface ChatPanelProps {
  */
 export function ChatPanel({ stream, onClose }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume } = stream;
+  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
+    stream;
   const [fullscreen, setFullscreen] = useState(false);
 
   const inputBlocked = isStreaming || interrupt !== null;
@@ -66,6 +67,19 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       ) : (
         <MessageList messages={messages} isStreaming={isStreaming} />
       )}
+
+      {canRetry ? (
+        <div className="flex items-center justify-between gap-sm border-t border-line bg-surface px-lg py-sm">
+          <span className="text-xs text-muted">{t("retryHint")}</span>
+          <button
+            type="button"
+            onClick={retry}
+            className="shrink-0 rounded-pill border border-line px-md py-1 text-xs font-medium text-ink transition hover:bg-line/40"
+          >
+            {t("retry")}
+          </button>
+        </div>
+      ) : null}
 
       {interrupt !== null ? (
         <InterruptPrompt
