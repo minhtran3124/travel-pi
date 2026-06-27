@@ -29,6 +29,8 @@ from app.schemas.agent import (
     AgentManifest,
     ChatRequest,
     ChatResponse,
+    Conversation,
+    Message,
     ToolManifestEntry,
 )
 from app.schemas.error import error_responses
@@ -204,6 +206,36 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
             session_factory=factory,
         )
     )
+
+
+@router.get(
+    "/conversations",
+    response_model=list[Conversation],
+    summary="List conversations for a user",
+)
+def list_conversations(user_id: str, session: SessionDep) -> list[Conversation]:
+    """Return all conversations for the given user, newest first.
+
+    Returns an empty list for an unknown user_id (matches the repo contract).
+    """
+    repo = ConversationRepository(session)
+    return repo.list_for_user(user_id)
+
+
+@router.get(
+    "/conversations/{conversation_id}/messages",
+    response_model=list[Message],
+    summary="List messages for a conversation",
+)
+def list_conversation_messages(
+    conversation_id: str, session: SessionDep
+) -> list[Message]:
+    """Return all messages for the given conversation, oldest first.
+
+    Returns an empty list for an unknown conversation_id (matches the repo contract).
+    """
+    repo = ConversationRepository(session)
+    return repo.list_messages(conversation_id)
 
 
 @router.get(
