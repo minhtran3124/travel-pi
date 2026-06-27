@@ -178,6 +178,18 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
   against Docker Postgres (user+assistant persist, no auth error) + DB-agnostic regression tests
   (`tests/api/agent/test_persist_factory.py`). Lesson: cross-engine parity — run
   `make test-docker` for DB-touching changes (SQLite-green ≠ Postgres-green).
+- 2026-06-27 — **Orphaned-messages bug found + fixed** (`16f37e9`). DB inspection (both engines)
+  showed messages whose `conversation_id` had no row in `conversations` (Message has no FK, so
+  orphans are silently allowed). Cause: the FE mints a client-side `conversation_id` and sends
+  it, but the router only created a row when the id was *absent* (`id or create_conversation`),
+  so client-supplied ids never produced a conversation row — they appear in
+  `.../{id}/messages` but never in `GET /agent/conversations`. Fix: `ConversationRepository.
+  ensure_conversation()` (get-or-create) used by `/chat` + `/stream`; creates a row for any
+  supplied id and self-heals ids restored across reloads. Verified e2e on Postgres + repo
+  regression tests. (Pre-existing orphan rows from earlier test runs are harmless cruft; new
+  turns no longer orphan.) Also: local `apps/api/.env` `DATABASE_URL` repointed to the Docker
+  Postgres (`127.0.0.1:5433`) so `make dev` shares the durable DB — `.env` is gitignored
+  (local-only, holds secrets), so that change is not committed.
 
 ## Waves
 
