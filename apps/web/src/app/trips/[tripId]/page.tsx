@@ -38,7 +38,7 @@ export default function TripDetailPage() {
         <p className="max-w-[48ch] text-sm text-muted">{t("errorHint")}</p>
         <Link
           href="/trips"
-          className="inline-flex h-[34px] items-center rounded-sm bg-ink px-[18px] text-sm font-bold text-white transition hover:bg-[#2e2e2e] active:translate-y-px"
+          className="inline-flex h-[34px] items-center rounded-sm bg-ink px-[18px] text-sm font-bold text-on-ink transition hover:bg-ink-hover active:translate-y-px"
         >
           {t("backToAllTrips")}
         </Link>

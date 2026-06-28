@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { AgentAvatar } from "./AgentAvatar";
 
 const iconButtonClass =
-  "flex h-9 w-9 items-center justify-center rounded-[12px] border border-line bg-white text-ink transition duration-150 hover:bg-panel-raised active:translate-y-px";
+  "flex h-9 w-9 items-center justify-center rounded-[12px] border border-line bg-panel text-ink transition duration-150 hover:bg-panel-raised active:translate-y-px";
 
 const svgProps = {
   width: 18,
@@ -50,7 +50,7 @@ export function ChatHeader({
 }: ChatHeaderProps) {
   const t = useTranslations("Chat");
   return (
-    <header className="flex items-center justify-between border-b border-line bg-gradient-to-r from-lime-soft/55 via-white to-white px-lg py-md">
+    <header className="flex items-center justify-between border-b border-line bg-gradient-to-r from-lime-soft/55 via-panel to-panel px-lg py-md">
       <div className="flex items-center gap-sm">
         <AgentAvatar size="sm" />
         <div className="leading-tight">

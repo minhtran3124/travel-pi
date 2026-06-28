@@ -42,7 +42,7 @@ export default function SignUpPage() {
           {state.message ? (
             <div
               role="status"
-              className="mt-xl flex flex-col gap-sm rounded-md border border-line bg-[#eaf7ee] p-lg"
+              className="mt-xl flex flex-col gap-sm rounded-md border border-line bg-status-confirmed/10 p-lg"
             >
               <span className="text-2xl" aria-hidden="true">
                 📬

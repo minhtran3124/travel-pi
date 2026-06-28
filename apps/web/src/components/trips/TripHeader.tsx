@@ -170,7 +170,7 @@ export function TripHeader({ trip }: { trip: TripDetail }) {
         <span
           aria-hidden="true"
           className={cn(
-            "absolute left-xl top-[132px] flex size-14 -translate-y-1/2 items-center justify-center rounded-md text-lg font-extrabold shadow-card ring-1 ring-black/5",
+            "absolute left-xl top-[132px] flex size-14 -translate-y-1/2 items-center justify-center rounded-md text-lg font-extrabold shadow-card ring-1 ring-line",
             now ? "bg-lime text-on-accent" : "bg-panel text-ink",
           )}
         >
@@ -242,7 +242,7 @@ export function TripHeaderSkeleton() {
       <div className="overflow-hidden rounded-lg border border-line bg-panel shadow-card">
         <div className="h-[132px] animate-pulse bg-panel-raised" />
         <div className="relative px-xl pb-lg pt-[42px]">
-          <div className="absolute left-xl top-[132px] size-14 -translate-y-1/2 rounded-md bg-line ring-1 ring-black/5" />
+          <div className="absolute left-xl top-[132px] size-14 -translate-y-1/2 rounded-md bg-line ring-1 ring-line" />
           <div className="flex flex-col gap-md">
             <div className="h-7 w-2/5 rounded-sm bg-panel-raised" />
             <div className="h-4 w-1/3 rounded-sm bg-panel-raised" />
