@@ -35,13 +35,13 @@ export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
 
   return (
     <form
-      className="border-t border-line bg-white px-lg py-md"
+      className="border-t border-line bg-panel px-lg py-md"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
-      <div className="flex items-end gap-sm rounded-[18px] border border-line bg-void p-1.5 pl-md transition focus-within:border-[#d6d6d6] focus-within:shadow-card">
+      <div className="flex items-end gap-sm rounded-[18px] border border-line bg-void p-1.5 pl-md transition focus-within:border-faint focus-within:shadow-card">
         <textarea
           ref={textareaRef}
           rows={1}
@@ -62,7 +62,7 @@ export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
           type="submit"
           aria-label={t("sendMessage")}
           disabled={!canSend}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-ink text-white transition duration-150 hover:bg-[#2e2e2e] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-ink text-on-ink transition duration-150 hover:bg-[var(--ink-hover)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink"
         >
           <svg
             width="16"

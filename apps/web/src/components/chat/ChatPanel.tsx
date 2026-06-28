@@ -40,7 +40,7 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       role="dialog"
       aria-label={t("dialogLabel")}
       className={cn(
-        "tp-chat-in flex flex-col overflow-hidden rounded-[20px] border border-line bg-white text-ink shadow-lift",
+        "tp-chat-in flex flex-col overflow-hidden rounded-[20px] border border-line bg-panel text-ink shadow-lift",
         fullscreen
           ? "h-[80vh] w-[min(92vw,640px)]"
           : "h-[min(70vh,560px)] w-[min(92vw,400px)]",
@@ -69,7 +69,7 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       )}
 
       {canRetry ? (
-        <div className="flex items-center justify-between gap-sm border-t border-line bg-surface px-lg py-sm">
+        <div className="flex items-center justify-between gap-sm border-t border-line bg-panel-raised px-lg py-sm">
           <span className="text-xs text-muted">{t("retryHint")}</span>
           <button
             type="button"
