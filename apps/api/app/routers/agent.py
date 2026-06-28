@@ -19,11 +19,11 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
-from app.core.auth import AuthUser, get_current_user_optional
+from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
-from app.exceptions import DomainValidationError, UpstreamError
+from app.exceptions import DomainValidationError, ForbiddenError, UpstreamError
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
@@ -31,6 +31,8 @@ from app.schemas.agent import (
     AgentManifest,
     ChatRequest,
     ChatResponse,
+    ClaimRequest,
+    ClaimResult,
     Conversation,
     Message,
     ToolManifestEntry,
@@ -345,3 +347,39 @@ def agent_manifest() -> AgentManifest:
         for t in ALL_TOOLS
     ]
     return AgentManifest(subagents=list(SUBAGENTS), tools=tools)
+
+
+@router.post(
+    "/conversations/claim",
+    response_model=ClaimResult,
+    summary="Claim anonymous conversation history on login",
+    responses=error_responses(401, 403),
+)
+def claim_conversations(
+    body: ClaimRequest,
+    session: SessionDep,
+    auth_user: CurrentUserDep,
+) -> ClaimResult:
+    """Reassign conversations from an anonymous id to the authenticated user's id.
+
+    Guards:
+    - Returns ``claimed=0`` (no-op) when ``anonymous_user_id`` equals the JWT sub.
+    - Returns 403 when ``anonymous_user_id`` has a ``users`` row — it is a
+      registered account, not an anonymous id; refusing prevents history theft.
+    """
+    sub = auth_user.id
+    anon = body.anonymous_user_id
+
+    if anon == sub:
+        return ClaimResult(claimed=0)
+
+    user_repo = UserRepository(session)
+    if user_repo.exists(anon):
+        raise ForbiddenError(
+            "The source id belongs to a registered account and cannot be claimed."
+        )
+
+    count = ConversationRepository(session).reassign_user(
+        from_user_id=anon, to_user_id=sub
+    )
+    return ClaimResult(claimed=count)

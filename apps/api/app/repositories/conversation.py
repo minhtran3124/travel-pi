@@ -4,7 +4,7 @@ ORM persistence only — business logic (graph orchestration) lives in the agent
 layer. Returns Pydantic schemas so the ORM stays confined to this tier.
 """
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 
 from app.db import models
 from app.enums import JobStatus
@@ -65,6 +65,22 @@ class ConversationRepository(Repo):
         with self._session() as s:
             row = s.get(models.Conversation, id_)
             return Conversation.model_validate(row) if row is not None else None
+
+    def reassign_user(self, *, from_user_id: str, to_user_id: str) -> int:
+        """Reassign all conversations from *from_user_id* to *to_user_id*.
+
+        Returns the number of rows updated.  Messages follow automatically
+        because they are keyed by ``conversation_id``, not ``user_id``.
+        """
+        stmt = (
+            update(models.Conversation)
+            .where(models.Conversation.user_id == from_user_id)
+            .values(user_id=to_user_id)
+        )
+        with self._session() as s:
+            result = s.execute(stmt)
+            self._commit(s)
+            return result.rowcount
 
     def list_for_user(self, user_id: str) -> list[Conversation]:
         stmt = (

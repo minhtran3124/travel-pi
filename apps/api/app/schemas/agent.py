@@ -95,6 +95,18 @@ class Conversation(AppBaseModel):
     updated_at: str
 
 
+class ClaimRequest(AppBaseModel):
+    """Request body for POST /agent/conversations/claim."""
+
+    anonymous_user_id: str
+
+
+class ClaimResult(AppBaseModel):
+    """Response for POST /agent/conversations/claim."""
+
+    claimed: int
+
+
 class Job(AppBaseModel):
     id: str
     kind: str

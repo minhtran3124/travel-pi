@@ -30,6 +30,11 @@ class UserRepository(Repo):
                 self._commit(s)
                 logger.info("[UserRepository] ensure_user created user_id=%s", user_id)
 
+    def exists(self, user_id: str) -> bool:
+        """Return ``True`` if a ``users`` row exists for *user_id*."""
+        with self._session() as s:
+            return s.get(models.User, user_id) is not None
+
     def upsert_tier(self, user_id: str, tier: str) -> None:
         """Insert or update the tier for *user_id*."""
         with self._session() as s:
