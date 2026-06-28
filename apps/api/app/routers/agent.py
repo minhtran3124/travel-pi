@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
+from app.core.auth import AuthUser, get_current_user_optional
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
@@ -62,9 +63,19 @@ def get_travel_graph(request: Request) -> Any:
 
 GraphDep = Annotated[Any, Depends(get_travel_graph)]
 SessionDep = Annotated[Session, Depends(get_session)]
+OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]
 
 
-def _thread_id(req: ChatRequest, conversation_id: str) -> str:
+def _effective_user_id(auth_user: AuthUser | None, fallback: str) -> str:
+    """Return the JWT subject when authenticated, else the anonymous fallback.
+
+    When a valid token is present the client-supplied ``body.user_id`` is
+    intentionally ignored to prevent user-id spoofing.
+    """
+    return auth_user.id if auth_user else fallback
+
+
+def _thread_id(user_id: str, trip_id: str | None, conversation_id: str) -> str:
     """
     Build the thread id for the conversation.
 
@@ -72,23 +83,23 @@ def _thread_id(req: ChatRequest, conversation_id: str) -> str:
     identify the conversation in the database and to identify the conversation in
     the LangGraph checkpointer.
     """
-    return f"user_{req.user_id}_trip_{req.trip_id or 'none'}_conv_{conversation_id}"
+    return f"user_{user_id}_trip_{trip_id or 'none'}_conv_{conversation_id}"
 
 
-def _config(thread_id: str, req: ChatRequest) -> dict:
+def _config(thread_id: str, user_id: str, trip_id: str | None) -> dict:
     """
     Build the configuration for the agent.
 
     :param thread_id: The thread id for the conversation.
-    :param req: The request object.
+    :param user_id: The effective user id (JWT sub or anonymous).
+    :param trip_id: The trip id, if any.
     :return: The configuration for the agent.
     """
-
     return {
         "configurable": {"thread_id": thread_id},
         "recursion_limit": get_settings().agent_recursion_limit,
         "callbacks": callbacks(),
-        "metadata": trace_metadata(req.user_id, req.trip_id),
+        "metadata": trace_metadata(user_id, trip_id),
     }
 
 
@@ -104,20 +115,33 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
     return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
 
-def _resolve_context(body: ChatRequest, session: Session) -> AgentContext:
+def _resolve_context(
+    effective_user_id: str,
+    authenticated: bool,
+    mode: str | None,
+    session: Session,
+) -> AgentContext:
     """Resolve the per-run AgentContext (mode from the client, tier from the BE).
 
     Security: ``tier`` is resolved server-side from the users table and is never
-    read from the request body. ``mode`` is the user-selected depth lever
-    (normalized by ``resolve_agent_context``).
+    read from the request body.  When authenticated the effective Supabase id is
+    used; anonymous callers are always ``free`` (no DB lookup needed).
     """
-    tier = UserRepository(session).get_tier(body.user_id)
-    return resolve_agent_context(tier=tier, mode=body.mode)
+    if authenticated:
+        user_repo = UserRepository(session)
+        user_repo.ensure_user(effective_user_id)
+        tier = user_repo.get_tier(effective_user_id)
+    else:
+        tier = "free"
+    return resolve_agent_context(tier=tier, mode=mode)
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
 async def agent_chat(
-    body: ChatRequest, graph: GraphDep, session: SessionDep
+    body: ChatRequest,
+    graph: GraphDep,
+    session: SessionDep,
+    auth_user: OptionalUserDep,
 ) -> ChatResponse:
     """
     Send a chat request to the agent.
@@ -125,19 +149,21 @@ async def agent_chat(
     :param body: The request body.
     :param graph: The graph.
     :param session: The session.
+    :param auth_user: The authenticated user, or None for anonymous callers.
     :return: The response.
     """
+    uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
-    ctx = _resolve_context(body, session)
+    ctx = _resolve_context(uid, auth_user is not None, body.mode, session)
     # Quota guard — raises QuotaExceededError (429) before any work begins.
-    check_quota(user_id=body.user_id, tier=ctx.tier, repo=repo)
+    check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
     conversation_id = repo.ensure_conversation(
         conversation_id=body.conversation_id,
-        user_id=body.user_id,
+        user_id=uid,
         trip_id=body.trip_id,
     )
-    cfg = _config(_thread_id(body, conversation_id), body)
+    cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt.
@@ -149,7 +175,7 @@ async def agent_chat(
         result = await graph.ainvoke(
             {
                 "messages": [HumanMessage(content=body.message)],
-                "user_id": body.user_id,
+                "user_id": uid,
                 "trip_id": body.trip_id,
             },
             cfg,
@@ -182,7 +208,12 @@ async def agent_chat(
 
 
 @router.post("/stream", summary="Stream the agent's reply as Server-Sent Events")
-async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
+async def agent_stream(
+    body: ChatRequest,
+    graph: GraphDep,
+    session: SessionDep,
+    auth_user: OptionalUserDep,
+):
     """
     Stream the agent's reply as Server-Sent Events.
 
@@ -190,22 +221,24 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     :param graph: The graph.
     :param session: The request-scoped DB session (used to create/look up the
         conversation and append the user message before streaming begins).
+    :param auth_user: The authenticated user, or None for anonymous callers.
     :return: The response.
     """
+    uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
-    ctx = _resolve_context(body, session)
+    ctx = _resolve_context(uid, auth_user is not None, body.mode, session)
     # Quota guard — raises QuotaExceededError (429) before streaming begins.
-    check_quota(user_id=body.user_id, tier=ctx.tier, repo=repo)
+    check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
     # Resolve or create the conversation row before streaming so the row always
     # exists (no orphaned messages) and thread_id is stable. get-or-create also
     # handles client-minted ids and ids restored across reloads.
     conversation_id = repo.ensure_conversation(
         conversation_id=body.conversation_id,
-        user_id=body.user_id,
+        user_id=uid,
         trip_id=body.trip_id,
     )
-    cfg = _config(_thread_id(body, conversation_id), body)
+    cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt; the same cfg
@@ -223,7 +256,7 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
             )
         stream_input = {
             "messages": [HumanMessage(content=body.message)],
-            "user_id": body.user_id,
+            "user_id": uid,
             "trip_id": body.trip_id,
         }
 
@@ -259,13 +292,20 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     response_model=list[Conversation],
     summary="List conversations for a user",
 )
-def list_conversations(user_id: str, session: SessionDep) -> list[Conversation]:
+def list_conversations(
+    user_id: str,
+    session: SessionDep,
+    auth_user: OptionalUserDep,
+) -> list[Conversation]:
     """Return all conversations for the given user, newest first.
 
+    When authenticated the JWT sub is used instead of the query param to
+    prevent enumeration of another user's conversations.
     Returns an empty list for an unknown user_id (matches the repo contract).
     """
+    uid = _effective_user_id(auth_user, user_id)
     repo = ConversationRepository(session)
-    return repo.list_for_user(user_id)
+    return repo.list_for_user(uid)
 
 
 @router.get(

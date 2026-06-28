@@ -22,6 +22,14 @@ class UserRepository(Repo):
             row = s.get(models.User, user_id)
             return row.tier if row is not None else "free"
 
+    def ensure_user(self, user_id: str, default_tier: str = "free") -> None:
+        """Insert a ``User`` row for *user_id* with *default_tier* if absent; no-op otherwise."""
+        with self._session() as s:
+            if s.get(models.User, user_id) is None:
+                s.add(models.User(user_id=user_id, tier=default_tier))
+                self._commit(s)
+                logger.info("[UserRepository] ensure_user created user_id=%s", user_id)
+
     def upsert_tier(self, user_id: str, tier: str) -> None:
         """Insert or update the tier for *user_id*."""
         with self._session() as s:

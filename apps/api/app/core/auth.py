@@ -63,17 +63,10 @@ def _extract_bearer_token(request: Request) -> str:
     return token
 
 
-def get_current_user(request: Request) -> AuthUser:
-    """Authenticate the request via its Supabase Bearer token.
-
-    Raises :class:`AuthError` (HTTP 401) when the token is missing, malformed,
-    or fails signature / issuer / audience / expiry verification.
-    """
-    settings = get_settings()
+def _verify_bearer_token(request: Request, settings) -> AuthUser:
+    """Verify a Bearer token and return the AuthUser. Raises AuthError on any failure."""
     jwks_url = settings.resolved_jwks_url
     if not jwks_url:
-        # Misconfiguration on our side, not the caller's — but auth cannot be
-        # established, so 401 (not 500) keeps the contract simple for clients.
         raise AuthError(
             "Supabase auth is not configured.",
             hint="Set SUPABASE_PROJECT_REF or SUPABASE_URL on the API.",
@@ -105,6 +98,30 @@ def get_current_user(request: Request) -> AuthUser:
     )
 
 
-# Routers depend on this; tests override ``get_current_user`` via
-# ``app.dependency_overrides`` to inject a fixed AuthUser.
+def get_current_user(request: Request) -> AuthUser:
+    """Authenticate the request via its Supabase Bearer token.
+
+    Raises :class:`AuthError` (HTTP 401) when the token is missing, malformed,
+    or fails signature / issuer / audience / expiry verification.
+    """
+    return _verify_bearer_token(request, get_settings())
+
+
+def get_current_user_optional(request: Request) -> AuthUser | None:
+    """Return an :class:`AuthUser` when a valid Bearer token is present, else ``None``.
+
+    Never raises or returns 401 — missing, malformed, or expired tokens all
+    yield ``None`` so callers can implement hybrid auth (authed vs anonymous).
+    """
+    if not request.headers.get("Authorization"):
+        return None
+    try:
+        return _verify_bearer_token(request, get_settings())
+    except Exception:
+        # Invalid / expired / misconfigured — treat as anonymous.
+        return None
+
+
+# Routers depend on these; tests override via ``app.dependency_overrides``.
 CurrentUserDep = Annotated[AuthUser, Depends(get_current_user)]
+OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]

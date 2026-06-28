@@ -12,6 +12,7 @@ import pytest
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
+from app.core.auth import AuthUser, get_current_user_optional
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
@@ -84,6 +85,15 @@ def _make_app(
 
     app.dependency_overrides[get_session] = _override_session
     app.dependency_overrides[get_travel_graph] = _override_graph
+
+    # Premium requires authentication (hybrid identity — anonymous is always free).
+    # Simulate being logged in as the first premium user so tier resolves correctly.
+    if premium_users:
+        _puid = premium_users[0]
+        app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+            id=_puid, email=None, role=None, claims={}
+        )
+
     return app
 
 
