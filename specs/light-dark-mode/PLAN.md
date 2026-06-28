@@ -220,4 +220,10 @@ Run the full verification sweep and record results in SUMMARY `### Verify`.
 
 ## 7. Status Log
 
-- 2026-06-27 — Plan drafted on `feat/light-dark-mode` (off `v3`). Status: active. Awaiting execution handoff.
+- 2026-06-27 — Plan drafted on `feat/light-dark-mode` (off `v3`). Status: active.
+- 2026-06-28 — Executed via subagent-driven-development. Commits scattered across branches by concurrent activity in the shared checkout; recovered by rebuilding a clean branch `feat/light-dark-mode-clean` off `v3` in an isolated worktree (`.claude/worktrees/light-dark-mode`) and cherry-picking. All tasks done + reviewed.
+  - Wave 1: `6a92f19` (1.1), `5da9aa3` (1.2), `8d3e4a3` (color-scheme review fix).
+  - Wave 2: `82be8f2` (on-ink token), `f510cd0` (2.1), `35ba0c0` (2.2), `e7a790f` (2.3), `da31d28` (lime-contrast + ink-hover review fixes).
+  - Wave 3: `d309d9a` (3.1 e2e).
+  - Final correctness + intent review → `3e51e50` (completed sweep on plan-omitted surfaces + hardened FOUC test).
+  - Verify: tsc 0, lint 0, theme e2e 5/5; unit 50/52 (2 pre-existing unrelated failures). Status: shipped (PR pending).
