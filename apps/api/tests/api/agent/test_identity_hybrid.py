@@ -239,3 +239,59 @@ def test_tier_resolves_from_authed_id(tmp_path):
     assert calls[-1]["tier"] == "premium", (
         "tier must come from the DB row for the JWT sub, not default free"
     )
+
+
+# ---------------------------------------------------------------------------
+# Cross-cutting: tier + quota by authenticated identity (Task 4.1)
+# ---------------------------------------------------------------------------
+
+
+def _seed_turns_today(url, user_id, n):
+    """Seed n user-role messages today for user_id (drives the daily quota)."""
+    from app.repositories.conversation import ConversationRepository
+
+    sf = get_session_factory(url)
+    repo = ConversationRepository(sf)
+    conv = repo.create_conversation(user_id=user_id)
+    for i in range(n):
+        repo.append_message(conversation_id=conv.id, role="user", content=f"t{i}")
+
+
+def test_authed_premium_bypasses_quota(tmp_path):
+    """A premium (logged-in) user over the free daily limit is NOT rate-limited."""
+    from app.core.config import get_settings
+
+    app, url = _make_app(tmp_path, db_name="premium_quota.db")
+    limit = get_settings().agent_free_daily_turn_limit
+    sf = get_session_factory(url)
+    with sf() as s:
+        UserRepository(s).upsert_tier(_SUPABASE_UID, "premium")
+        s.commit()
+    _seed_turns_today(url, _SUPABASE_UID, limit)  # at/over the free limit
+
+    fake_auth = AuthUser(id=_SUPABASE_UID, email="u@test.com", role=None, claims={})
+    app.dependency_overrides[get_current_user_optional] = _auth_override(fake_auth)
+
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/chat", json={"message": "again", "user_id": _ANON_UID}
+        )
+    assert resp.status_code == 200, "premium must bypass the daily quota"
+
+
+def test_authed_free_quota_enforced_by_jwt_sub(tmp_path):
+    """A free (logged-in) user over the daily limit gets 429, keyed by JWT sub."""
+    from app.core.config import get_settings
+
+    app, url = _make_app(tmp_path, db_name="free_quota.db")
+    limit = get_settings().agent_free_daily_turn_limit
+    _seed_turns_today(url, _SUPABASE_UID, limit)  # no premium row → free
+
+    fake_auth = AuthUser(id=_SUPABASE_UID, email="u@test.com", role=None, claims={})
+    app.dependency_overrides[get_current_user_optional] = _auth_override(fake_auth)
+
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/chat", json={"message": "again", "user_id": _ANON_UID}
+        )
+    assert resp.status_code == 429, "free user over the limit must be rate-limited"
