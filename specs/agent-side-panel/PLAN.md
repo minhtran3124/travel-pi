@@ -131,3 +131,13 @@ while keeping the model's context lean (summary only).
   routing service → new `tests/services/test_routing_service.py`. Flagged that `content_and_artifact`
   changes the tool invoke contract → Task 1.2 rewrites the existing dict-shape routing-tool tests.
   Status: active.
+- 2026-06-27 — **Wave 1 ✓** (commit `ee6ea6b`): Tasks 1.0/1.1/1.2 — ORS geometry kept, `panels.py`
+  RoutePanel projection, `panel_result` helper, routing tools → content_and_artifact. **Wave 2 ✓**
+  (same commit): Task 2.1 — mapper emits `panel` from `ToolMessage.artifact`; persistence passes it
+  through. BE: 41 tests green, ruff clean. **Wave 3 ✓** (commit `43b8da7`): Task 3.1 — FE `panel.ts`
+  types, parseSSE panel case, `useAgentStream` panels state (replace-by-kind). FE: parseSSE 19/19,
+  tsc + eslint clean. Note: 2 PRE-EXISTING failures in v3's `useAgentStream.stream.test.tsx`
+  (localStorage/mock isolation), unrelated to this work.
+- 2026-06-27 — **Wave 4 (Task 4.1) NOT STARTED** — the MapLibre+OSM drawer, per-kind renderers, and
+  ChatWidget layout. Held for an interactive session: it adds the `maplibre-gl` dependency and needs
+  browser/screenshot verification + two UX confirmations (drawer width split; map auto-fit/zoom feel).

@@ -33,7 +33,12 @@ deep-link honours the no-Google-key ethos while matching the reference screensho
 
 | Check | Command | Exit | Notes |
 |---|---|---|---|
-| _(filled per task as waves complete)_ | | | |
+| BE wave 1+2 | `pytest tests/tools/test_routing_tools.py tests/api/routes/test_routes.py tests/api/agent/test_stream_events.py tests/services/test_routing_service.py` | 0 | 41 passed |
+| BE lint | `ruff check app/... tests/...` | 0 | All checks passed |
+| FE parser | `pnpm vitest run src/lib/stream/parseSSE.test.ts` | 0 | 19 passed (incl. panel) |
+| FE typecheck | `npx tsc --noEmit` | 0 | clean |
+| FE lint | `pnpm lint` | 0 | clean |
+| Pre-existing | `pnpm vitest run src/components/chat/useAgentStream.stream.test.tsx` | 1 | 2 fail on clean v3 too — NOT this change |
 
 ### Rollback
 
@@ -42,4 +47,12 @@ deep-link honours the no-Google-key ethos while matching the reference screensho
 
 ### Deviations
 
-_(Rule 1–3 auto-fixes recorded here as they occur.)_
+- Scope-tighten — Built only the `RoutePanel` projection in `panels.py`, not `Places`/`Weather`
+  (the plan listed all three). Those land with their tool conversions; defining them now would be
+  speculative unused code (behavior.md §2). `panel.ts` keeps `kind`/`data` loose so they pass
+  through forward-compatibly. Commit `ee6ea6b` / `43b8da7`.
+- Rule 1 — Two test assertions fixed mid-run: mapper-panel test must include the always-emitted
+  `done`; `RoutePanel` import re-added after `ruff-on-edit` stripped it (added before first use).
+  Commit `ee6ea6b`.
+- Plan correction — `RouteResponse.geometry` promoted from "optional v2" to v1 (the reference look
+  needs the road line and ORS already returns it). Recorded in RESEARCH §4 / DESIGN. Commit `ee6ea6b`.
