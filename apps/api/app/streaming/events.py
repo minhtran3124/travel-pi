@@ -15,6 +15,8 @@ Taxonomy
 * ``subagent``    — active specialist changed: ``{name}``
 * ``tool_call``   — a tool invocation started: ``{id, name, args_preview, subagent}``
 * ``tool_result`` — a tool finished: ``{id, status}`` (``status`` ∈ ``ok|error``)
+* ``panel``       — structured side-panel payload from a tool's artifact:
+  ``{tool_call_id, kind, data}`` (``kind`` ∈ ``route|places|weather``)
 * ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
 * ``done``        — terminal success: ``{conversation_id, current_flow}``
 * ``error``       — terminal failure: ``{code, message}``
@@ -63,6 +65,10 @@ def tool_call(*, id: str, name: str, args: Any, subagent: str | None) -> TypedSS
 
 def tool_result(*, id: str, status: str) -> TypedSSEEvent:
     return _event("tool_result", {"id": id, "status": status})
+
+
+def panel(*, tool_call_id: str, kind: str, data: Any) -> TypedSSEEvent:
+    return _event("panel", {"tool_call_id": tool_call_id, "kind": kind, "data": data})
 
 
 def interrupt(*, conversation_id: str, payload: Any) -> TypedSSEEvent:

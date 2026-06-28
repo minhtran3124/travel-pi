@@ -10,8 +10,10 @@ import asyncio
 import json
 from types import SimpleNamespace
 
+from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
 from app.streaming import events
 from app.streaming.mapper import stream_agent_events
+from app.streaming.panels import RoutePanel
 from langchain_core.messages import AIMessageChunk, ToolMessage
 
 # --- event factories -------------------------------------------------------
@@ -162,3 +164,72 @@ def test_mapper_suppresses_non_subagent_tokens():
     ]
     out = _run(_FakeGraph(items))
     assert [n for n, _ in out] == ["start", "done"]
+
+
+# --- panels (specs/agent-side-panel) ---------------------------------------
+
+
+def _route_response() -> RouteResponse:
+    return RouteResponse(
+        origin=RouteEndpoint(
+            kind="place", id="A", name="Hotel", latitude=16.06, longitude=108.22
+        ),
+        destination=RouteEndpoint(
+            kind="place", id="B", name="Dragon Bridge", latitude=16.07, longitude=108.23
+        ),
+        straight_line_km=1.9,
+        recommended_mode="car",
+        legs=[
+            RouteLeg(
+                mode="car", profile="driving-car", distance_km=2.4, duration_minutes=7.0
+            )
+        ],
+        source="openrouteservice",
+        geometry=[[108.22, 16.06], [108.23, 16.07]],
+        attribution="© ORS",
+    )
+
+
+def test_panel_factory_shape():
+    ev = events.panel(tool_call_id="tc1", kind="route", data={"x": 1})
+    assert ev.event == "panel"
+    assert _payload(ev) == {"tool_call_id": "tc1", "kind": "route", "data": {"x": 1}}
+
+
+def test_route_panel_projection():
+    panel = RoutePanel.from_route_response(_route_response())
+    assert panel.origin.name == "Hotel"
+    assert panel.origin.lat == 16.06 and panel.origin.lng == 108.22
+    assert panel.recommended_mode == "car"
+    assert panel.geometry == [[108.22, 16.06], [108.23, 16.07]]
+    assert panel.gmaps_url == (
+        "https://www.google.com/maps/dir/?api=1"
+        "&origin=16.06,108.22&destination=16.07,108.23"
+    )
+
+
+def test_mapper_emits_panel_before_tool_result():
+    ns = ("concierge:1",)
+    tm = ToolMessage(
+        content="Hotel → Dragon Bridge: 2.4 km, ~7 min by car.",
+        tool_call_id="tc1",
+        status="success",
+        artifact={"kind": "route", "data": {"recommended_mode": "car"}},
+    )
+    items = [(ns, "updates", {"tools": {"messages": [tm]}})]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert names == ["start", "subagent", "panel", "tool_result", "done"]
+    assert out[2][1] == {
+        "tool_call_id": "tc1",
+        "kind": "route",
+        "data": {"recommended_mode": "car"},
+    }
+
+
+def test_mapper_no_panel_for_plain_tool():
+    ns = ("planner:1",)
+    tm = ToolMessage(content="ok", tool_call_id="tc9", status="success")
+    items = [(ns, "updates", {"tools": {"messages": [tm]}})]
+    out = _run(_FakeGraph(items))
+    assert "panel" not in [n for n, _ in out]

@@ -104,8 +104,14 @@ async def _fetch_json(url: str, params: dict) -> dict:
 
 async def _ors_leg(
     mode: str, profile: str, origin: RouteEndpoint, destination: RouteEndpoint
-) -> RouteLeg:
-    """Fetch one travel mode's distance/duration from OpenRouteService."""
+) -> tuple[RouteLeg, list[list[float]] | None]:
+    """Fetch one mode's distance/duration + road geometry from OpenRouteService.
+
+    Returns the leg plus the GeoJSON road-line coordinates (``[lng, lat]`` pairs)
+    ORS already includes in the same response — used to draw the real route on a
+    map. Geometry is best-effort: a malformed/absent geometry yields ``None``
+    (the leg's metrics still stand), never an error.
+    """
     settings = get_settings()
     url = f"{settings.ors_base_url}/v2/directions/{profile}"
     data = await _fetch_json(
@@ -125,12 +131,20 @@ async def _ors_leg(
         raise RoutingUnavailableError(
             f"Unexpected OpenRouteService response for profile '{profile}'"
         ) from exc
-    return RouteLeg(
+    geometry = None
+    try:
+        coords = data["features"][0]["geometry"]["coordinates"]
+        if isinstance(coords, list) and coords:
+            geometry = [[float(pt[0]), float(pt[1])] for pt in coords]
+    except (KeyError, IndexError, TypeError, ValueError):
+        geometry = None  # metrics still valid; just no map line for this mode
+    leg = RouteLeg(
         mode=mode,
         profile=profile,
         distance_km=round(distance_m / 1000, 2),
         duration_minutes=round(duration_s / 60, 1),
     )
+    return leg, geometry
 
 
 def _estimate_leg(
@@ -269,6 +283,7 @@ class RoutingService:
                 return_exceptions=True,
             )
             legs = []
+            geometries: dict[str, list[list[float]] | None] = {}
             any_ors = False
             any_fallback = False
             for (mode, (profile, speed)), result in zip(
@@ -283,7 +298,9 @@ class RoutingService:
                     legs.append(_estimate_leg(mode, profile, speed, straight_line_km))
                     any_fallback = True
                 else:
-                    legs.append(result)
+                    leg, geometry = result
+                    legs.append(leg)
+                    geometries[mode] = geometry
                     any_ors = True
             # If at least one leg came from ORS, keep ``source="openrouteservice"``
             # so the response still flags real routing as the primary source; if
@@ -303,16 +320,22 @@ class RoutingService:
                 _estimate_leg(mode, profile, speed, straight_line_km)
                 for mode, (profile, speed) in _MODES.items()
             ]
+            geometries = {}
             source = "estimate"
             attribution = _ATTRIBUTION_ESTIMATE
 
+        # Surface only the recommended mode's road line — clients draw one route,
+        # and carrying all three would triple the persisted payload. None in
+        # estimate mode (no geometry), where the client falls back to a straight line.
+        recommended = recommend_mode(straight_line_km)
         response = RouteResponse(
             origin=origin,
             destination=destination,
             straight_line_km=straight_line_km,
-            recommended_mode=recommend_mode(straight_line_km),
+            recommended_mode=recommended,
             legs=legs,
             source=source,
+            geometry=geometries.get(recommended),
             attribution=attribution,
         )
         _route_cache[cache_key] = response

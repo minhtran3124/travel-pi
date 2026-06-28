@@ -14,12 +14,29 @@ from __future__ import annotations
 from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
+from app.schemas.route import RouteResponse
 from app.services.routing_service import RoutingService
-from app.tools._base import dump, session_scope
+from app.streaming.panels import RoutePanel
+from app.tools._base import panel_result, session_scope
 
 
-@tool
-async def get_route(origin_place_id: str, destination_place_id: str) -> dict:
+def _route_panel(r: RouteResponse) -> tuple[str, dict]:
+    """One-line summary for the model + a route panel artifact for the drawer.
+
+    response_format="content_and_artifact": the model only needs the headline
+    distance/time; the full route (endpoints, geometry, all modes, gmaps link)
+    rides on the artifact to the side-panel, not into the model's context.
+    """
+    leg = next((leg for leg in r.legs if leg.mode == r.recommended_mode), r.legs[0])
+    summary = (
+        f"{r.origin.name} → {r.destination.name}: {leg.distance_km} km, "
+        f"~{leg.duration_minutes:.0f} min by {r.recommended_mode}."
+    )
+    return panel_result(summary, kind="route", data=RoutePanel.from_route_response(r))
+
+
+@tool(response_format="content_and_artifact")
+async def get_route(origin_place_id: str, destination_place_id: str):
     """Get distance and travel time between two places (by id or PLC-XXXX code).
 
     Returns distance + duration per travel mode (walk / bike / car), a
@@ -30,17 +47,16 @@ async def get_route(origin_place_id: str, destination_place_id: str) -> dict:
     """
     with session_scope() as s:
         try:
-            return dump(
-                await RoutingService(s).get_place_route(
-                    origin_place_id, destination_place_id
-                )
+            r = await RoutingService(s).get_place_route(
+                origin_place_id, destination_place_id
             )
         except AppError as e:
             raise ToolException(str(e)) from e
+    return _route_panel(r)
 
 
-@tool
-async def get_city_route(origin_city: str, destination_city: str) -> dict:
+@tool(response_format="content_and_artifact")
+async def get_city_route(origin_city: str, destination_city: str):
     """Get distance and travel time between two cities by name.
 
     Returns distance + duration per travel mode (walk / bike / car), a
@@ -50,11 +66,10 @@ async def get_city_route(origin_city: str, destination_city: str) -> dict:
     """
     with session_scope() as s:
         try:
-            return dump(
-                await RoutingService(s).get_city_route(origin_city, destination_city)
-            )
+            r = await RoutingService(s).get_city_route(origin_city, destination_city)
         except AppError as e:
             raise ToolException(str(e)) from e
+    return _route_panel(r)
 
 
 ROUTING_TOOLS = [get_route, get_city_route]

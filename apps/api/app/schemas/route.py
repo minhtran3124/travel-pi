@@ -74,4 +74,15 @@ class RouteResponse(AppBaseModel):
         ),
         examples=["estimate"],
     )
-    attribution: str = Field(description="Required attribution string for the data source.")
+    geometry: list[list[float]] | None = Field(
+        default=None,
+        description=(
+            "Road-path polyline for the recommended mode as GeoJSON [longitude, "
+            "latitude] coordinate pairs, when real ORS routing is used; null in "
+            "estimate mode (no ORS_API_KEY), where clients should draw a straight "
+            "line between the endpoints."
+        ),
+    )
+    attribution: str = Field(
+        description="Required attribution string for the data source."
+    )
