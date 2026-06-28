@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { streamBaseUrl } from "@/lib/api/client";
 import { useUserId } from "@/lib/identity/useUserId";
 import { fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
+import { authHeader } from "@/lib/supabase/authHeader";
 import { parseSSE } from "@/lib/stream/parseSSE";
 
 const CONVERSATION_STORAGE_KEY = "travel.conversationId";
@@ -253,7 +254,7 @@ export function useAgentStream(
         try {
           const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...(await authHeader()) },
             body: JSON.stringify(body),
             signal: controller.signal,
           });
@@ -361,7 +362,7 @@ export function useAgentStream(
         try {
           const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...(await authHeader()) },
             body: JSON.stringify(body),
             signal: controller.signal,
           });
@@ -443,7 +444,7 @@ export function useAgentStream(
       try {
         const res = await fetch(`${streamBaseUrl()}/agent/stream`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(await authHeader()) },
           body: JSON.stringify(body),
           signal: controller.signal,
         });

@@ -1,6 +1,6 @@
 ---
 slug: agent-identity-tier
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-06-28
 ---
@@ -88,7 +88,7 @@ created: 2026-06-28
 
 ```xml
 <task id="3.1" wave="3">
-  <files>apps/web/src/components/chat/useAgentStream.ts, apps/web/src/lib/api/client.ts, apps/web/src/lib/query/agent.ts</files>
+  <files>apps/web/src/components/chat/useAgentStream.ts, apps/web/src/lib/api/client.ts, apps/web/src/lib/query/agent.ts, apps/web/src/lib/supabase/authHeader.ts</files>
   <action>When a Supabase session exists (supabase client getSession), attach `Authorization: Bearer <access_token>` to the /agent/stream fetch and to the history fetchers (and the /api/be proxy calls). Keep sending body.user_id as the anonymous fallback (BE ignores it when a token is present). No token → unchanged anonymous behavior. Refresh the token per request (getSession) so it isn't stale.</action>
   <verify>cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" npx tsc --noEmit</verify>
   <done>Logged-in requests carry the bearer token; logged-out requests behave exactly as today.</done>

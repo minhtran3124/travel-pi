@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { client, unwrap } from "@/lib/api/client";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
+import { authHeader } from "@/lib/supabase/authHeader";
 
 export type AgentManifest = components["schemas"]["AgentManifest"];
 export type ToolManifestEntry = components["schemas"]["ToolManifestEntry"];
@@ -40,6 +41,7 @@ export async function fetchConversations(
 ): Promise<Conversation[]> {
   const res = await fetch(
     `/api/be/agent/conversations?user_id=${encodeURIComponent(userId)}`,
+    { headers: await authHeader() },
   );
   if (!res.ok) throw new Error(`fetchConversations: ${res.status}`);
   return res.json() as Promise<Conversation[]>;
@@ -51,6 +53,7 @@ export async function fetchConversationMessages(
 ): Promise<Message[]> {
   const res = await fetch(
     `/api/be/agent/conversations/${encodeURIComponent(conversationId)}/messages`,
+    { headers: await authHeader() },
   );
   if (!res.ok) throw new Error(`fetchConversationMessages: ${res.status}`);
   return res.json() as Promise<Message[]>;
