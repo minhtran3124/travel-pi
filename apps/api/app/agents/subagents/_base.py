@@ -30,6 +30,10 @@ from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.prompts.registry import registry
 
+# Name of the RAG retrieval tool (app/tools/rag_tools.py); used to gate it
+# when runtime.context.allow_rag is False (fast mode / free-tier constraint).
+RAG_TOOL_NAME = "search_destination_knowledge"
+
 
 def _tool_error_to_message(exc: Exception) -> str:
     """Render any tool failure as a ``ToolMessage`` the model can relay, instead
@@ -71,15 +75,33 @@ def build_subagent(
     system = SystemMessage(content=f"{style}\n\n{prompt}")
 
     def assistant(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
-        ctx_model = runtime.context.model if runtime.context is not None else None
+        ctx = runtime.context if runtime.context is not None else None
+        ctx_model = ctx.model if ctx is not None else None
+        allow_rag = ctx.allow_rag if ctx is not None else True
+        response_style = ctx.response_style if ctx is not None else "default"
+
         model = resolve_model(ctx_model)
-        bound = model.bind_tools(tools) if tools else model
+
+        # Filter the RAG retrieval tool when the context disables it (e.g. fast mode).
+        active_tools = [t for t in tools if allow_rag or t.name != RAG_TOOL_NAME]
+        bound = model.bind_tools(active_tools) if active_tools else model
+
+        # Inject a style directive into the system prompt based on response_style.
+        if response_style == "concise":
+            effective_system = SystemMessage(content=system.content + "\n\nBe brief.")
+        elif response_style == "detailed":
+            effective_system = SystemMessage(
+                content=system.content + "\n\nBe thorough."
+            )
+        else:
+            effective_system = system
+
         response = bound.invoke(
-            [system_with_summary(state, system), *state["messages"]]
+            [system_with_summary(state, effective_system), *state["messages"]]
         )
         return {"messages": [response]}
 
-    builder = StateGraph(TravelAgentState)
+    builder = StateGraph(TravelAgentState, context_schema=AgentContext)
     builder.add_node("assistant", assistant)
     builder.add_edge(START, "assistant")
 

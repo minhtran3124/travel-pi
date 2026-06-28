@@ -14,8 +14,10 @@ import logging
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph import END
+from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 
+from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
 from app.memory.summarizer import should_summarize, summarize_conversation
@@ -65,13 +67,22 @@ def make_summarize_node(llm: BaseChatModel):
 
 
 def make_reflection_node(llm: BaseChatModel, max_revisions: int = _MAX_REVISIONS):
-    """Return a bounded reflection node that can loop back once for a revision."""
+    """Return a bounded reflection node that can loop back once for a revision.
 
+    C.2 (specs/runtime-context-config): reads ``runtime.context.allow_reflection``
+    and ``runtime.context.max_revisions`` when available, replacing the
+    closed-over ``max_revisions`` fallback. Default context (allow_reflection=True,
+    max_revisions=1) preserves today's behavior.
+    """
     system = SystemMessage(content=registry.get("reflection"))
 
-    def reflection(state: TravelAgentState) -> Command:
+    def reflection(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
+        ctx = runtime.context if runtime.context is not None else None
+        allow_reflection = ctx.allow_reflection if ctx is not None else True
+        effective_max = ctx.max_revisions if ctx is not None else max_revisions
+
         revisions = state.get("revisions", 0)
-        if revisions >= max_revisions:
+        if not allow_reflection or revisions >= effective_max:
             return Command(goto=END)
         last = state["messages"][-1]
         verdict = llm.invoke([system, last]).content
