@@ -1,7 +1,15 @@
 """Supervisor + cross-cutting nodes (specs/travel-agent Task 5.3)."""
 
+from types import SimpleNamespace
+
+from app.agents.context import AgentContext
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import END
+
+
+def _runtime(ctx: AgentContext | None = None) -> SimpleNamespace:
+    """Minimal runtime stand-in matching the Runtime[AgentContext] interface."""
+    return SimpleNamespace(context=ctx if ctx is not None else AgentContext())
 
 
 def test_supervisor_routes_to_target():
@@ -10,7 +18,7 @@ def test_supervisor_routes_to_target():
 
     llm = FakeLLM(structured_responses=[SupervisorIntent(target_agent="planner")])
     supervisor = make_supervisor(llm)
-    cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]})
+    cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
     assert cmd.goto == "planner"
     assert cmd.update["current_flow"] == "planner"
 
@@ -25,7 +33,7 @@ def test_supervisor_unknown_intent_ends():
 
     llm = FakeLLM(structured_responses=[Weird()])
     supervisor = make_supervisor(llm)
-    cmd = supervisor({"messages": [HumanMessage(content="???")]})
+    cmd = supervisor({"messages": [HumanMessage(content="???")]}, _runtime())
     assert cmd.goto == END
 
 

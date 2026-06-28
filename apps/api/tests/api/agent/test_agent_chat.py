@@ -28,10 +28,28 @@ from langgraph.store.memory import InMemoryStore
 
 
 def _make_app(
-    tmp_path, intent_target: str, answer: str, *, responses=None, fast_responses=None
+    tmp_path,
+    intent_target: str,
+    answer: str,
+    *,
+    responses=None,
+    fast_responses=None,
+    premium_users: list[str] | None = None,
 ):
+    from app.repositories.user import UserRepository
+
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    # Seed any users that need premium tier before the app handles requests.
+    if premium_users:
+        s = get_session_factory(url)()
+        try:
+            for uid in premium_users:
+                UserRepository(s).upsert_tier(uid, "premium")
+            s.commit()
+        finally:
+            s.close()
 
     app = create_app()
 
@@ -78,7 +96,8 @@ def client(tmp_path):
 
 @pytest.fixture
 def booking_client(tmp_path):
-    app = _make_app(tmp_path, "booking", "Hotel booked!")
+    # D.1: booking is premium-only; seed "u1" as premium so HITL tests still pass.
+    app = _make_app(tmp_path, "booking", "Hotel booked!", premium_users=["u1"])
     with TestClient(app) as c:
         yield c
 

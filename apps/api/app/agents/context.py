@@ -27,6 +27,18 @@ TIERS = ("free", "premium")
 DEFAULT_MODE = "balanced"
 DEFAULT_TIER = "free"
 
+# Canonical sub-agent names — single source of truth (supervisor.py re-exports SUBAGENTS
+# from here so the two stay in sync without a circular import).
+ALL_SUBAGENTS: tuple[str, ...] = (
+    "planner",
+    "concierge",
+    "journal",
+    "booking",
+    "budget",
+)
+# Sub-agents unavailable on the free tier.
+PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
+
 
 @dataclass(frozen=True)
 class AgentContext:
@@ -72,34 +84,46 @@ _MODE_POLICY: dict[str, dict] = {
 
 
 def resolve_agent_context(*, tier: str | None, mode: str | None) -> AgentContext:
-    """Map (tier, mode) -> concrete ``AgentContext`` (the single policy function).
+    """Map (tier, mode) -> concrete ``AgentContext`` (the single policy function, D3).
 
     Unknown/None tier or mode fall back to the safe defaults (``free`` /
-    ``balanced``), which equal today's behavior. ``mode`` is the user-chosen
-    depth lever; ``tier`` is the BE-resolved ceiling. Pure + deterministic.
+    ``balanced``). ``mode`` is the user-chosen depth lever; ``tier`` is the
+    BE-resolved ceiling applied on top. Pure + deterministic.
 
-    Tier ceiling (proposed default — confirmed at D.1 before wiring): ``free``
-    cannot use the premium ``deep`` model (downgraded to the per-agent default);
-    the costlier ``deep`` mode is otherwise honored. Sub-agent/tool gating and
-    quota are layered on in D.1/D.2; this function stays the one place to change
-    the policy.
+    Tier ceilings (D.1 confirmed product decision):
+    - **free**: ``allow_rag=False`` always; ``allowed_subagents`` excludes all
+      premium-only sub-agents (currently: "booking"); model downgraded from
+      "deep" to the per-agent default.
+    - **premium**: ``allowed_subagents=None`` (all permitted); ``allow_rag``
+      follows the mode setting; model unrestricted.
     """
     tier = tier if tier in TIERS else DEFAULT_TIER
     mode = mode if mode in _MODE_POLICY else DEFAULT_MODE
     p = _MODE_POLICY[mode]
 
     model = p["model"]
-    if tier == "free" and model == "deep":
-        # Free tier may not select the premium (expensive) model.
-        model = None
+    allow_rag = p["allow_rag"]
+    allowed_subagents: frozenset[str] | None
+
+    if tier == "free":
+        # Free cannot use the expensive deep model.
+        if model == "deep":
+            model = None
+        # Free cannot use RAG regardless of mode.
+        allow_rag = False
+        # Free cannot reach premium-only sub-agents.
+        allowed_subagents = frozenset(ALL_SUBAGENTS) - PREMIUM_ONLY_SUBAGENTS
+    else:
+        # Premium: all sub-agents permitted; allow_rag follows mode.
+        allowed_subagents = None
 
     return AgentContext(
         tier=tier,
         mode=mode,
         model=model,
         allow_reflection=p["allow_reflection"],
-        allow_rag=p["allow_rag"],
+        allow_rag=allow_rag,
         response_style=p["response_style"],
-        allowed_subagents=None,
+        allowed_subagents=allowed_subagents,
         max_revisions=p["max_revisions"],
     )
