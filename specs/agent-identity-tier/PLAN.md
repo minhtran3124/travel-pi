@@ -1,6 +1,6 @@
 ---
 slug: agent-identity-tier
-status: active
+status: implemented
 owner: Minh Tran
 created: 2026-06-28
 ---
@@ -130,3 +130,16 @@ created: 2026-06-28
 - 2026-06-28 — Drafted after discovering the agent uses an anonymous UUID, not the Supabase id,
   making `runtime-context-config` tier inert. Decisions: hybrid auth, BE-owned tier via CLU+admin
   endpoint. Lands on `feat/agent-mode-tier` so PR #43 only merges once tier is functional.
+- 2026-06-28 — **All waves implemented** on `feat/agent-mode-tier`. 1.1 (`6280ca9`) hybrid
+  identity — `get_current_user_optional`, agent uses JWT `sub` (ignores forged body.user_id),
+  lazy-creates a users row, tier by authed id; anonymous → free unchanged. 2.1 (`8bbb8f8`) CLI
+  `python -m scripts.set_tier` (force-added — `scripts/` is gitignored). 2.2 (`0d93071`)
+  role-gated `PATCH /admin/users/{id}/tier` (admin→200, non-admin→403, unauth→401, bad tier→422).
+  3.1 (`0ca6eff`) FE attaches Supabase bearer token (logged-out unchanged). 4.1 (`3dc70d3`)
+  cross-cutting: premium bypasses quota / free quota enforced by JWT sub. Also fixed regressions
+  surfaced by the new users table + supervisor signature: `test_db_models` (`9405a22`) and the
+  routing eval harness (`b4d2e8c`). Verify: **full BE suite 980 passed** (`.env` aside; the
+  remaining failures with `.env` present are the known real-OPENAI/.env leak, not code). This
+  makes `runtime-context-config` tier functional → PR #43 ready to merge. **Security follow-up
+  (not blocking):** confirm `auth.py` JWT verification is production-correct (issuer/audience);
+  confirm how `admin` role is marked in Supabase.
