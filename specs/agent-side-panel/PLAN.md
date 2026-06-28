@@ -138,6 +138,12 @@ while keeping the model's context lean (summary only).
   types, parseSSE panel case, `useAgentStream` panels state (replace-by-kind). FE: parseSSE 19/19,
   tsc + eslint clean. Note: 2 PRE-EXISTING failures in v3's `useAgentStream.stream.test.tsx`
   (localStorage/mock isolation), unrelated to this work.
-- 2026-06-27 — **Wave 4 (Task 4.1) NOT STARTED** — the MapLibre+OSM drawer, per-kind renderers, and
-  ChatWidget layout. Held for an interactive session: it adds the `maplibre-gl` dependency and needs
-  browser/screenshot verification + two UX confirmations (drawer width split; map auto-fit/zoom feel).
+- 2026-06-27 — **Wave 4 ✓** (commit pending push): Task 4.1 — `SidePanel` drawer (left of chat, tab
+  per kind), `RoutePanel` (lazy MapLibre+OSM via `next/dynamic ssr:false`: ORS road line, dashed
+  straight-line fallback in estimate mode, origin/destination markers, recommended-mode badge,
+  per-mode chips, keyless "Open in Google Maps"), `registry` (route only; unknown kinds → nothing),
+  ChatWidget auto-opens the drawer + ChatPanel Hide/Show-map toggle. `maplibre-gl` added.
+  Verify: tsc clean, eslint clean, panel tests 4/4, production build OK. **All 5 tasks implemented.**
+  Remaining: a live visual QA pass (needs an LLM key to drive a route query end-to-end) and a PR
+  against v3. Deviations: only `route` renderer built (places/weather deferred to their tool
+  conversions); Hide/Show-map button uses literal strings (i18n keys are a polish follow-up).

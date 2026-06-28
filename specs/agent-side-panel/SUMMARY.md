@@ -39,6 +39,8 @@ deep-link honours the no-Google-key ethos while matching the reference screensho
 | FE typecheck | `npx tsc --noEmit` | 0 | clean |
 | FE lint | `pnpm lint` | 0 | clean |
 | Pre-existing | `pnpm vitest run src/components/chat/useAgentStream.stream.test.tsx` | 1 | 2 fail on clean v3 too — NOT this change |
+| FE panels (wave 4) | `pnpm vitest run panel` | 0 | 4 passed (RoutePanel + SidePanel) |
+| FE build | `pnpm build` | 0 | production build OK (lazy MapLibre + CSS) |
 
 ### Rollback
 
@@ -56,3 +58,9 @@ deep-link honours the no-Google-key ethos while matching the reference screensho
   Commit `ee6ea6b`.
 - Plan correction — `RouteResponse.geometry` promoted from "optional v2" to v1 (the reference look
   needs the road line and ORS already returns it). Recorded in RESEARCH §4 / DESIGN. Commit `ee6ea6b`.
+- Rule 3 — Added `maplibre-gl` dependency for the keyless in-drawer map (apps/web/package.json).
+  Wave 4 commit.
+- Scope-tighten — Built only the `route` renderer in Wave 4 (places/weather deferred to their tool
+  conversions; registry renders nothing for unknown kinds). Wave 4 commit.
+- Minor — Hide/Show-map toggle uses literal strings, not `t()` (avoids editing every locale file);
+  i18n keys are a polish follow-up. Wave 4 commit.
