@@ -85,9 +85,15 @@ test.describe("with a light OS preference", () => {
     await page.evaluate(() => localStorage.setItem("theme", "dark"));
 
     // Fresh navigation: next-themes' pre-paint inline script should set the
-    // `dark` class synchronously, so it's present immediately (no waiting for
-    // network idle / React hydration).
-    await page.goto("/trips", { waitUntil: "commit" });
-    await expect(html(page)).toHaveClass(/dark/);
+    // `dark` class during initial parse. Read classList ONCE at
+    // domcontentloaded (root exists, inline script has run, but the React
+    // bundle has NOT hydrated yet) with no retry window — a retrying matcher
+    // would also pass if the class were applied late, after hydration, masking
+    // a real flash. This fails hard unless the inline script set it pre-paint.
+    await page.goto("/trips", { waitUntil: "domcontentloaded" });
+    const darkBeforeHydration = await page.evaluate(() =>
+      document.documentElement.classList.contains("dark"),
+    );
+    expect(darkBeforeHydration).toBe(true);
   });
 });

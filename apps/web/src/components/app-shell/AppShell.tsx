@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((o) => !o)}
-              className="grid size-8 place-items-center rounded-md text-ink transition hover:bg-subtle sm:hidden"
+              className="grid size-8 place-items-center rounded-md text-ink transition hover:bg-panel-raised sm:hidden"
             >
               {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
             </button>
@@ -108,8 +108,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                       className={cn(
                         "block rounded-md px-sm py-xs text-sm font-bold transition",
                         active
-                          ? "bg-subtle text-ink"
-                          : "text-muted hover:bg-subtle hover:text-ink",
+                          ? "bg-panel-raised text-ink"
+                          : "text-muted hover:bg-panel-raised hover:text-ink",
                       )}
                     >
                       {t(key)}

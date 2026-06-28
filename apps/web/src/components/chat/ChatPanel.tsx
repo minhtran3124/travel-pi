@@ -56,7 +56,7 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
       {error ? (
         <p
           role="status"
-          className="border-b border-amber-200 bg-amber-50 px-lg py-sm text-xs font-medium text-amber-700"
+          className="border-b border-status-estimated/30 bg-status-estimated/10 px-lg py-sm text-xs font-medium text-status-estimated"
         >
           {error}
         </p>

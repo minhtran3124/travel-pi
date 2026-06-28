@@ -116,7 +116,7 @@ export default function LoginPage() {
             {state.message ? (
               <p
                 role="status"
-                className="rounded-sm bg-[#eaf7ee] px-md py-sm text-sm font-medium text-status-confirmed"
+                className="rounded-sm bg-status-confirmed/10 px-md py-sm text-sm font-medium text-status-confirmed"
               >
                 {state.message}
               </p>

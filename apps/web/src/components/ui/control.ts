@@ -14,4 +14,4 @@ export const labelClass =
  * state. The OS-native widget chrome is stripped in globals.css.
  */
 export const controlClass =
-  "rounded-sm border border-line bg-panel-raised text-sm text-ink placeholder:text-muted transition-colors hover:border-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-sm border border-line bg-panel-raised text-sm text-ink placeholder:text-muted transition-colors hover:border-faint disabled:cursor-not-allowed disabled:opacity-50";
