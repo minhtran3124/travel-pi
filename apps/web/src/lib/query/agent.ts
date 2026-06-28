@@ -59,6 +59,19 @@ export async function fetchConversationMessages(
   return res.json() as Promise<Message[]>;
 }
 
+/** POST /agent/conversations/claim — migrate anonymous conversations to the logged-in account */
+export async function fetchClaim(
+  anonymousUserId: string,
+): Promise<{ claimed: number }> {
+  const res = await fetch("/api/be/agent/conversations/claim", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await authHeader()) },
+    body: JSON.stringify({ anonymous_user_id: anonymousUserId }),
+  });
+  if (!res.ok) throw new Error(`fetchClaim: ${res.status}`);
+  return res.json() as Promise<{ claimed: number }>;
+}
+
 /**
  * GET /agent/manifest — the agent's advertised subagents + tools. Source for
  * the widget's quick-reply chips. Degrades silently (the widget hides chips on
