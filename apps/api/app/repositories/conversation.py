@@ -4,7 +4,7 @@ ORM persistence only — business logic (graph orchestration) lives in the agent
 layer. Returns Pydantic schemas so the ORM stays confined to this tier.
 """
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.db import models
 from app.enums import JobStatus
@@ -95,6 +95,27 @@ class ConversationRepository(Repo):
             self._commit(s)
             s.refresh(row)
             return Message.model_validate(row)
+
+    def count_user_turns_since(self, user_id: str, iso_cutoff: str) -> int:
+        """Count user-role messages for *user_id* on or after *iso_cutoff*.
+
+        Joins messages → conversations on conversation_id so no additional FK is
+        needed. ISO-8601 strings sort chronologically, so a ``>=`` string
+        comparison yields the correct day-boundary cutoff.
+        """
+        stmt = (
+            select(func.count())
+            .select_from(models.Message)
+            .join(
+                models.Conversation,
+                models.Message.conversation_id == models.Conversation.id,
+            )
+            .where(models.Conversation.user_id == user_id)
+            .where(models.Message.role == "user")
+            .where(models.Message.created_at >= iso_cutoff)
+        )
+        with self._session() as s:
+            return s.scalar(stmt) or 0
 
     def list_messages(self, conversation_id: str) -> list[Message]:
         stmt = (

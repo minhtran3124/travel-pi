@@ -35,6 +35,7 @@ from app.schemas.agent import (
     ToolManifestEntry,
 )
 from app.schemas.error import error_responses
+from app.services.quota_service import check_quota
 from app.streaming.mapper import stream_agent_events
 from app.streaming.persistence import persist_assistant_turn
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
@@ -127,13 +128,16 @@ async def agent_chat(
     :return: The response.
     """
     repo = ConversationRepository(session)
+    ctx = _resolve_context(body, session)
+    # Quota guard — raises QuotaExceededError (429) before any work begins.
+    check_quota(user_id=body.user_id, tier=ctx.tier, repo=repo)
+
     conversation_id = repo.ensure_conversation(
         conversation_id=body.conversation_id,
         user_id=body.user_id,
         trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
-    ctx = _resolve_context(body, session)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt.
@@ -189,6 +193,10 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
     :return: The response.
     """
     repo = ConversationRepository(session)
+    ctx = _resolve_context(body, session)
+    # Quota guard — raises QuotaExceededError (429) before streaming begins.
+    check_quota(user_id=body.user_id, tier=ctx.tier, repo=repo)
+
     # Resolve or create the conversation row before streaming so the row always
     # exists (no orphaned messages) and thread_id is stable. get-or-create also
     # handles client-minted ids and ids restored across reloads.
@@ -198,7 +206,6 @@ async def agent_stream(body: ChatRequest, graph: GraphDep, session: SessionDep):
         trip_id=body.trip_id,
     )
     cfg = _config(_thread_id(body, conversation_id), body)
-    ctx = _resolve_context(body, session)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt; the same cfg
