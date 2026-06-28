@@ -62,7 +62,7 @@ export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
           type="submit"
           aria-label={t("sendMessage")}
           disabled={!canSend}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-ink text-on-ink transition duration-150 hover:bg-[var(--ink-hover)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-ink text-on-ink transition duration-150 hover:bg-ink-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink"
         >
           <svg
             width="16"

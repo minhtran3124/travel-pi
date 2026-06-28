@@ -27,7 +27,7 @@ export function InterruptPrompt({
       className="tp-msg-in border-t border-line bg-lime-soft/40 px-lg py-md"
     >
       <div className="mb-sm flex items-center gap-sm">
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-lime text-ink">
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-lime text-on-accent">
           <svg
             width="14"
             height="14"
@@ -49,7 +49,7 @@ export function InterruptPrompt({
         <button
           type="button"
           onClick={onApprove}
-          className="flex-1 rounded-sm bg-ink px-md py-sm text-sm font-bold text-on-ink transition duration-150 hover:bg-[var(--ink-hover)] active:translate-y-px"
+          className="flex-1 rounded-sm bg-ink px-md py-sm text-sm font-bold text-on-ink transition duration-150 hover:bg-ink-hover active:translate-y-px"
         >
           {t("approve")}
         </button>
