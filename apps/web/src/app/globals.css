@@ -171,12 +171,15 @@
   --on-accent:  #15161a;
   --on-ink:     #15161a;
 
-  /* surfaces */
-  --void:          #0e0f12;
-  --panel:         #17191e;
-  --panel-raised:  #1f2228;
-  --line:          #2a2d33;
-  --line-soft:     #232529;
+  /* surfaces — softer charcoal (not near-black), with a clear page→card step
+   * and stronger borders. In dark mode the soft-black card shadow is nearly
+   * invisible, so borders carry the elevation; cards must not blend into the
+   * page. */
+  --void:          #1b1e24; /* page background — soft dark, not black */
+  --panel:         #242832; /* cards, header, chat panel — clearly above void */
+  --panel-raised:  #2e333e; /* inputs, secondary fills */
+  --line:          #3b414d; /* hairline borders — visibly define cards/items */
+  --line-soft:     #2f343f; /* faint dividers */
 
   /* text */
   --ink:        #f2f2f0;
