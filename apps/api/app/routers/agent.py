@@ -23,7 +23,7 @@ from app.core.auth import AuthUser, get_current_user_optional
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
-from app.exceptions import UpstreamError
+from app.exceptions import DomainValidationError, UpstreamError
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
@@ -66,11 +66,12 @@ SessionDep = Annotated[Session, Depends(get_session)]
 OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]
 
 
-def _effective_user_id(auth_user: AuthUser | None, fallback: str) -> str:
+def _effective_user_id(auth_user: AuthUser | None, fallback: str | None) -> str | None:
     """Return the JWT subject when authenticated, else the anonymous fallback.
 
-    When a valid token is present the client-supplied ``body.user_id`` is
-    intentionally ignored to prevent user-id spoofing.
+    When a valid token is present the client-supplied id (``body.user_id`` /
+    query ``user_id``) is intentionally ignored to prevent user-id spoofing.
+    Returns ``None`` only when anonymous *and* no fallback id was supplied.
     """
     return auth_user.id if auth_user else fallback
 
@@ -293,17 +294,20 @@ async def agent_stream(
     summary="List conversations for a user",
 )
 def list_conversations(
-    user_id: str,
     session: SessionDep,
     auth_user: OptionalUserDep,
+    user_id: str | None = None,
 ) -> list[Conversation]:
     """Return all conversations for the given user, newest first.
 
-    When authenticated the JWT sub is used instead of the query param to
-    prevent enumeration of another user's conversations.
-    Returns an empty list for an unknown user_id (matches the repo contract).
+    When authenticated the JWT sub is used and the ``user_id`` query param is
+    ignored (no enumeration of another user's conversations) and not required.
+    Anonymous callers must supply ``user_id``. Returns an empty list for an
+    unknown user (matches the repo contract).
     """
     uid = _effective_user_id(auth_user, user_id)
+    if uid is None:
+        raise DomainValidationError("user_id is required when not authenticated.")
     repo = ConversationRepository(session)
     return repo.list_for_user(uid)
 

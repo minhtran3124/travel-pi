@@ -257,6 +257,31 @@ def _seed_turns_today(url, user_id, n):
         repo.append_message(conversation_id=conv.id, role="user", content=f"t{i}")
 
 
+def test_authed_list_conversations_without_user_id(tmp_path):
+    """Authenticated GET /agent/conversations needs no user_id — uses the JWT sub."""
+    app, _ = _make_app(tmp_path, db_name="authed_list.db")
+    fake_auth = AuthUser(id=_SUPABASE_UID, email="u@test.com", role=None, claims={})
+    app.dependency_overrides[get_current_user_optional] = _auth_override(fake_auth)
+
+    with TestClient(app) as client:
+        post = client.post("/agent/chat", json={"message": "hi", "user_id": _ANON_UID})
+        assert post.status_code == 200
+        # No user_id query param — the token identifies the user.
+        resp = client.get("/agent/conversations")
+        assert resp.status_code == 200
+        convs = resp.json()
+        assert len(convs) == 1
+        assert convs[0]["user_id"] == _SUPABASE_UID
+
+
+def test_anonymous_list_without_user_id_is_422(tmp_path):
+    """Anonymous GET /agent/conversations without user_id → 422 (identity required)."""
+    app, _ = _make_app(tmp_path, db_name="anon_list_422.db")
+    with TestClient(app) as client:
+        resp = client.get("/agent/conversations")
+    assert resp.status_code == 422
+
+
 def test_authed_premium_bypasses_quota(tmp_path):
     """A premium (logged-in) user over the free daily limit is NOT rate-limited."""
     from app.core.config import get_settings
