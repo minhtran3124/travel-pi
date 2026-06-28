@@ -123,6 +123,24 @@ describe("parseSSE — typed protocol", () => {
     ]);
   });
 
+  it("parses a panel event into camelCased toolCallId + kind + data", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("panel", {
+          tool_call_id: "tc1",
+          kind: "route",
+          data: { recommended_mode: "car", geometry: null },
+        }),
+      ]),
+    );
+    expect(events[0]).toEqual({
+      type: "panel",
+      toolCallId: "tc1",
+      kind: "route",
+      data: { recommended_mode: "car", geometry: null },
+    });
+  });
+
   it("parses interrupt with conversationId + payload", async () => {
     const events = await collect(
       streamFromChunks([

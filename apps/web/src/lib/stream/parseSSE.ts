@@ -66,6 +66,14 @@ export interface SSEToolResultEvent {
   status: "ok" | "error";
 }
 
+/** Structured side-panel payload from a tool's artifact (drawer renders by `kind`). */
+export interface SSEPanelEvent {
+  type: "panel";
+  toolCallId: string;
+  kind: string;
+  data: unknown;
+}
+
 export interface SSEInterruptPayload {
   type: string;
   draft: string;
@@ -98,6 +106,7 @@ export type SSEEvent =
   | SSESubagentEvent
   | SSEToolCallEvent
   | SSEToolResultEvent
+  | SSEPanelEvent
   | SSEInterruptEvent
   | SSEDoneEvent
   | SSEErrorEvent;
@@ -197,6 +206,13 @@ function parseSegment(segment: string): SSEEvent | null {
         type: "tool_result",
         id: String(data.id ?? ""),
         status: data.status === "error" ? "error" : "ok",
+      };
+    case "panel":
+      return {
+        type: "panel",
+        toolCallId: String(data.tool_call_id ?? ""),
+        kind: String(data.kind ?? ""),
+        data: data.data,
       };
     case "interrupt":
       return {
