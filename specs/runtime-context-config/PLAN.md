@@ -1,6 +1,6 @@
 ---
 slug: runtime-context-config
-status: active
+status: implemented
 owner: Minh Tran
 created: 2026-06-27
 ---
@@ -227,3 +227,12 @@ the gating it depends on.)*
   C.1's `<files>` — widen the C.1 file set (backlog). Remaining: C.2 (depth toggles), D.1 (tier
   gating — needs product sign-off on what `free` loses), D.2 (quota — needs limit values), E.1
   (FE mode selector).
+- 2026-06-28 — **All phases complete** on `feat/agent-mode-tier`. C.2 (`cad9ef9`) mode depth
+  toggles (reflection/RAG/response-style read from context); D.1 (`5515ee0`) tier gating — free
+  blocks **booking** + **RAG**, premium unrestricted, HITL plan→booking bypass closed; D.2
+  (`a625214`) quota guard — free **20 turns/day** → 429 before invoke, premium unlimited
+  (`AGENT_FREE_DAILY_TURN_LIMIT`); E.1 (`eb10512`) FE mode selector (fast/balanced/deep) +
+  localStorage persist + sends `mode` (never tier) + 429 message; schema.d.ts hand-added the
+  `mode` field. Final verify: migration applies + **173 passed** on SQLite (3 pre-existing
+  `test_memory.py` OpenAI failures unrelated); FE `tsc`+eslint clean. status → implemented;
+  ready for PR to v3. Not pushed.
