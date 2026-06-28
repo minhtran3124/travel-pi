@@ -27,7 +27,7 @@ export function ChatLauncher({ open, onToggle }: ChatLauncherProps) {
         aria-label={open ? t("closeAssistant") : t("openAssistant")}
         aria-expanded={open}
         onClick={onToggle}
-        className="relative flex h-14 w-14 items-center justify-center rounded-pill bg-lime text-ink shadow-lift transition duration-150 hover:brightness-105 hover:scale-105 active:translate-y-px active:scale-100"
+        className="relative flex h-14 w-14 items-center justify-center rounded-pill bg-lime text-on-accent shadow-lift transition duration-150 hover:brightness-105 hover:scale-105 active:translate-y-px active:scale-100"
       >
         <span
           className="transition-transform duration-200 ease-out"

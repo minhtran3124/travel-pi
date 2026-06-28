@@ -83,7 +83,7 @@ export function ChatEmptyState({ onPick, disabled }: ChatEmptyStateProps) {
                 type="button"
                 disabled={disabled}
                 onClick={() => onPick(t(s.promptKey))}
-                className="group flex w-full items-center gap-md rounded-md border border-line bg-white px-md py-sm text-left text-sm font-medium text-ink shadow-card transition duration-150 hover:-translate-y-0.5 hover:border-[#e0e0e0] hover:shadow-lift active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-card"
+                className="group flex w-full items-center gap-md rounded-md border border-line bg-panel px-md py-sm text-left text-sm font-medium text-ink shadow-card transition duration-150 hover:-translate-y-0.5 hover:border-faint hover:shadow-lift active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-card"
               >
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-sm bg-panel-raised text-muted transition-colors duration-150 group-hover:bg-lime-soft group-hover:text-ink">
                   <svg

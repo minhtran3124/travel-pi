@@ -20,9 +20,9 @@ const sizes: Record<ButtonSize, string> = {
 };
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-ink text-white hover:bg-[#2e2e2e]",
+  primary: "bg-ink text-on-ink hover:bg-ink-hover",
   ghost:
-    "border border-line bg-white text-ink hover:bg-[#f4f4f2]",
+    "border border-line bg-panel text-ink hover:bg-panel-raised",
 };
 
 export function Button({

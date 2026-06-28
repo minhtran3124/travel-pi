@@ -6,7 +6,12 @@ vi.mock("next-intl", () => ({ useTranslations: () => (k: string) => k }));
 vi.mock("@/lib/identity/useUserId", () => ({ useUserId: () => "u1" }));
 vi.mock("@/lib/api/client", () => ({ streamBaseUrl: () => "" }));
 const chatFallback = vi.fn();
-vi.mock("@/lib/query/agent", () => ({ chatFallback: (b: unknown) => chatFallback(b) }));
+vi.mock("@/lib/query/agent", () => ({
+  chatFallback: (b: unknown) => chatFallback(b),
+  // Hydration-on-mount calls this; resolve empty so the live-stream assertions
+  // below run against a clean slate (no persisted history to replay).
+  fetchConversationMessages: async () => [],
+}));
 
 import { useAgentStream } from "./useAgentStream";
 

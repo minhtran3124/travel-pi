@@ -28,7 +28,7 @@ export function TripCard({ trip }: { trip: Trip }) {
     <Link href={`/trips/${trip.id}`} className="group block">
       <article
         className={cn(
-          "relative flex h-full flex-col overflow-hidden rounded-md border border-line bg-panel shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-[#e0e0e0] hover:shadow-lift",
+          "relative flex h-full flex-col overflow-hidden rounded-md border border-line bg-panel shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-faint hover:shadow-lift",
           now && "ring-2 ring-lime",
         )}
       >
@@ -44,7 +44,7 @@ export function TripCard({ trip }: { trip: Trip }) {
         <span
           aria-hidden="true"
           className={cn(
-            "absolute left-lg top-[108px] flex size-12 -translate-y-1/2 items-center justify-center rounded-md text-base font-extrabold shadow-card ring-1 ring-black/5",
+            "absolute left-lg top-[108px] flex size-12 -translate-y-1/2 items-center justify-center rounded-md text-base font-extrabold shadow-card ring-1 ring-line",
             now ? "bg-lime text-on-accent" : "bg-panel text-ink",
           )}
         >
@@ -87,7 +87,7 @@ export function TripCardSkeleton() {
       className="relative h-full animate-pulse overflow-hidden rounded-md border border-line bg-panel shadow-card"
     >
       <div className="h-[108px] bg-panel-raised" />
-      <div className="absolute left-lg top-[108px] size-12 -translate-y-1/2 rounded-md bg-line ring-1 ring-black/5" />
+      <div className="absolute left-lg top-[108px] size-12 -translate-y-1/2 rounded-md bg-line ring-1 ring-line" />
       <div className="flex flex-col gap-sm px-lg pb-lg pt-[34px]">
         <div className="h-5 w-3/4 rounded-sm bg-panel-raised" />
         <div className="h-3 w-1/2 rounded-sm bg-panel-raised" />

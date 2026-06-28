@@ -56,8 +56,8 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
               className={cn(
                 "max-w-[78%] px-md py-sm text-sm leading-relaxed",
                 isUser
-                  ? "whitespace-pre-wrap rounded-[16px] rounded-br-[5px] bg-ink font-medium text-white"
-                  : "rounded-[16px] rounded-bl-[5px] border border-line bg-white text-ink shadow-card",
+                  ? "whitespace-pre-wrap rounded-[16px] rounded-br-[5px] bg-ink font-medium text-on-ink"
+                  : "rounded-[16px] rounded-bl-[5px] border border-line bg-panel text-ink shadow-card",
               )}
             >
               {isUser ? (
