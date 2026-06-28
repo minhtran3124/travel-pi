@@ -26,7 +26,9 @@ class ErrorResponse(AppBaseModel):
         examples=["No flight 'VN123' on HAN→SGN on 2026-06-01"],
     )
     status_code: int = Field(description="HTTP status code.", examples=[404])
-    path: str = Field(description="The request path that failed.", examples=["/flights/book"])
+    path: str = Field(
+        description="The request path that failed.", examples=["/flights/book"]
+    )
     hint: str | None = Field(
         default=None,
         description=(
@@ -46,6 +48,8 @@ class ErrorResponse(AppBaseModel):
 
 # Human-readable description per status code, for the OpenAPI docs.
 _DESCRIPTIONS: dict[int, str] = {
+    401: "Authentication required",
+    403: "Forbidden",
     404: "Resource not found",
     409: "Request conflicts with the current state",
     422: "Request validation failed",

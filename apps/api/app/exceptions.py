@@ -83,6 +83,17 @@ class RoutingUnavailableError(UpstreamError):
     """The upstream OpenRouteService API call failed."""
 
 
+class ForbiddenError(AppError):
+    """The caller is authenticated but lacks the required role/permission (HTTP 403).
+
+    Raised when a valid token is present but the user does not hold the role
+    required to perform the action (e.g. ``role != "admin"``).
+    """
+
+    status_code = 403
+    default_detail = "Forbidden"
+
+
 class QuotaExceededError(AppError):
     """The user has exceeded their daily usage quota (HTTP 429).
 
