@@ -165,3 +165,10 @@ created: 2026-06-28
   makes `runtime-context-config` tier functional → PR #43 ready to merge. **Security follow-up
   (not blocking):** confirm `auth.py` JWT verification is production-correct (issuer/audience);
   confirm how `admin` role is marked in Supabase.
+- 2026-06-28 — Claim feature (5.1 `e9cf792`, 5.2 `8731285`). BE `POST /agent/conversations/claim`
+  reassigns anon conversations → JWT sub (idempotent; 403 if source is a registered account;
+  401 unauth). FE auto-claims once on login (localStorage `travel.claimed` guard) before
+  re-hydrating, fails silently, logged-out unchanged. Verify: tests/api/agent 55 passed + FE tsc.
+  Limitation: only displayed history (conversations+messages) migrates; agent checkpoint memory
+  for old threads is not (thread_id is uid-based) — a claimed convo's next turn starts a fresh
+  agent thread under the sub.
