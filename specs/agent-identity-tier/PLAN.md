@@ -106,6 +106,28 @@ created: 2026-06-28
 </task>
 ```
 
+### Task 5.1 — Claim anonymous history on login (BE)
+
+```xml
+<task id="5.1" wave="5">
+  <files>apps/api/app/repositories/conversation.py, apps/api/app/repositories/user.py, apps/api/app/routers/agent.py, apps/api/app/schemas/agent.py, apps/api/tests/api/agent/test_claim.py</files>
+  <action>POST /agent/conversations/claim {anonymous_user_id} — REQUIRES a valid JWT (CurrentUserDep, 401 if absent). Reassigns conversations whose user_id == anonymous_user_id to the JWT sub. Add ConversationRepository.reassign_user(from_user_id, to_user_id)->int (UPDATE conversations SET user_id; messages follow via conversation_id). Add UserRepository.exists(user_id)->bool. Guards: no-op (return claimed=0) if anonymous_user_id == sub; raise 403 (ForbiddenError) if anonymous_user_id has a users row (it's a registered account, not anonymous — prevents stealing another account's history). Return {claimed: <count>}.</action>
+  <verify>cd apps/api && DATABASE_URL="sqlite:///test_run.db" ../../.venv/bin/python -m pytest tests/api/agent/test_claim.py -x; rm -f apps/api/test_run.db</verify>
+  <done>Authed claim moves anon conversations to the sub; non-anon source refused (403); unauth 401; idempotent (second claim = 0).</done>
+</task>
+```
+
+### Task 5.2 — FE triggers claim on login (FE)
+
+```xml
+<task id="5.2" wave="6">
+  <files>apps/web/src/components/chat/useAgentStream.ts, apps/web/src/lib/query/agent.ts</files>
+  <action>Add fetchClaim(anonymousUserId) (POST /agent/conversations/claim with the bearer token). In useAgentStream, on mount when a Supabase session exists AND a stored anonymous travel.userId exists AND claim not yet done (localStorage flag e.g. travel.claimed) → call claim once, set the flag, then re-hydrate history (re-fetch messages/conversations). Fail silently. Never send tier. Note: only the displayed history is migrated; agent checkpoint memory for old threads is not (thread_id is uid-based).</action>
+  <verify>cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" npx tsc --noEmit</verify>
+  <done>First load after login claims anon history into the account and shows it; runs once; logged-out unchanged.</done>
+</task>
+```
+
 ## 6. Risks / hard gates
 
 - **Auth/authz hard gate** — adding identity-bearing auth to the agent + an admin tier endpoint.
