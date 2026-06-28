@@ -33,8 +33,11 @@
   --color-coral-soft: var(--coral-soft);
   --color-coral-ink:  var(--coral-ink);
 
-  /* primary action = ink; on-accent text sits on lime/ink fills */
+  /* on-accent: text on the lime accent fill (dark ink in both themes).
+   * on-ink: text on the ink ACTION fill — ink inverts between themes, so this
+   * must invert too (white in light, near-black in dark) to stay readable. */
   --color-on-accent:  var(--on-accent);
+  --color-on-ink:     var(--on-ink);
 
   /* surfaces */
   --color-void:          var(--void);          /* page background */
@@ -108,6 +111,7 @@
 
   /* primary action */
   --on-accent:  #1c1c1c;
+  --on-ink:     #ffffff;
 
   /* surfaces */
   --void:          #f7f7f5;
@@ -165,6 +169,7 @@
 
   /* primary action */
   --on-accent:  #15161a;
+  --on-ink:     #15161a;
 
   /* surfaces */
   --void:          #0e0f12;
