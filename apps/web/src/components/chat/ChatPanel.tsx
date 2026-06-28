@@ -9,7 +9,7 @@ import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatHeader, type AgentStatus } from "./ChatHeader";
 import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
-import type { UseAgentStream } from "./useAgentStream";
+import type { ChatMode, UseAgentStream } from "./useAgentStream";
 
 export interface ChatPanelProps {
   stream: UseAgentStream;
@@ -25,9 +25,11 @@ export interface ChatPanelProps {
  * When the agent emits an interrupt event (HITL plan approval), an inline
  * approve/reject checkpoint replaces the composer until the user decides.
  */
+const MODES: ChatMode[] = ["fast", "balanced", "deep"];
+
 export function ChatPanel({ stream, onClose }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
+  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry, mode, setMode } =
     stream;
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -88,7 +90,27 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
           onReject={() => resume(false)}
         />
       ) : (
-        <ChatComposer disabled={inputBlocked} onSend={send} />
+        <>
+          <div className="flex items-center gap-1 border-t border-line px-lg py-sm">
+            <span className="mr-1 text-xs text-muted">{t("modeLabel")}</span>
+            {MODES.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={cn(
+                  "rounded-pill border px-md py-0.5 text-xs font-medium transition",
+                  m === mode
+                    ? "border-ink bg-ink text-white"
+                    : "border-line text-muted hover:bg-line/40",
+                )}
+              >
+                {t(`mode${m.charAt(0).toUpperCase()}${m.slice(1)}` as "modeFast" | "modeBalanced" | "modeDeep")}
+              </button>
+            ))}
+          </div>
+          <ChatComposer disabled={inputBlocked} onSend={send} />
+        </>
       )}
     </section>
   );

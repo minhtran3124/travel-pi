@@ -9,6 +9,21 @@ import { fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
 import { parseSSE } from "@/lib/stream/parseSSE";
 
 const CONVERSATION_STORAGE_KEY = "travel.conversationId";
+const MODE_STORAGE_KEY = "travel.mode";
+
+type ChatMode = "fast" | "balanced" | "deep";
+
+function readStoredMode(): ChatMode {
+  if (typeof window === "undefined") return "balanced";
+  const v = localStorage.getItem(MODE_STORAGE_KEY);
+  if (v === "fast" || v === "balanced" || v === "deep") return v;
+  return "balanced";
+}
+
+function writeStoredMode(mode: ChatMode): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(MODE_STORAGE_KEY, mode);
+}
 
 function readStoredConversationId(): string | null {
   if (typeof window === "undefined") return null;
@@ -40,6 +55,8 @@ export interface InterruptState {
   payload: { type: string; draft: string };
 }
 
+export type { ChatMode };
+
 export interface UseAgentStreamOptions {
   tripId?: string;
   /** Called once an assistant turn finishes (stream end). */
@@ -52,6 +69,10 @@ export interface UseAgentStream {
   isStreaming: boolean;
   /** Set when the streaming turn fails (no /chat fallback). */
   error: string | null;
+  /** Current response mode selection; persisted to localStorage. */
+  mode: ChatMode;
+  /** Change the response mode; persisted immediately. */
+  setMode: (mode: ChatMode) => void;
   /**
    * Non-null when the agent emitted an `interrupt` event and is waiting for a
    * human decision (approve/reject) before continuing.
@@ -113,6 +134,12 @@ export function useAgentStream(
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
+  const [mode, setModeState] = useState<ChatMode>(readStoredMode);
+
+  const setMode = useCallback((m: ChatMode) => {
+    writeStoredMode(m);
+    setModeState(m);
+  }, []);
 
   const conversationIdRef = useRef<string | null>(null);
   // Prevents double-hydration when userId effect re-runs (e.g. strict-mode double-invoke).
@@ -214,6 +241,7 @@ export function useAgentStream(
         trip_id: tripIdRef.current ?? null,
         conversation_id: conversationIdRef.current,
         retry: false,
+        mode,
       };
 
       const controller = new AbortController();
@@ -230,6 +258,9 @@ export function useAgentStream(
             signal: controller.signal,
           });
 
+          if (res.status === 429) {
+            throw new Error("quota");
+          }
           if (!res.ok || !res.body) {
             throw new Error(`stream failed: ${res.status}`);
           }
@@ -274,15 +305,19 @@ export function useAgentStream(
           if (!received) {
             throw new Error("stream produced no tokens");
           }
-        } catch {
+        } catch (err) {
           if (controller.signal.aborted) return;
 
           // No /agent/chat fallback: surface the streaming failure directly so it
           // is visible instead of being masked by a silent non-streaming retry.
           // Keep any partial tokens already rendered.
-          setError(
-            received ? t("errorConnectionDropped") : t("errorUnavailable"),
-          );
+          if (err instanceof Error && err.message === "quota") {
+            setError(t("errorQuota"));
+          } else {
+            setError(
+              received ? t("errorConnectionDropped") : t("errorUnavailable"),
+            );
+          }
         } finally {
           inFlightRef.current = false;
           if (!controller.signal.aborted) {
@@ -296,7 +331,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, isStreaming, onTurnComplete, setAssistant, t, userId],
+    [appendToAssistant, interrupt, isStreaming, mode, onTurnComplete, setAssistant, t, userId],
   );
 
   const resume = useCallback(
@@ -396,6 +431,7 @@ export function useAgentStream(
       conversation_id: conversationId,
       // Re-answer the existing user turn without re-saving the question.
       retry: true,
+      mode,
     };
 
     const controller = new AbortController();
@@ -412,6 +448,9 @@ export function useAgentStream(
           signal: controller.signal,
         });
 
+        if (res.status === 429) {
+          throw new Error("quota");
+        }
         if (!res.ok || !res.body) {
           throw new Error(`retry failed: ${res.status}`);
         }
@@ -449,9 +488,13 @@ export function useAgentStream(
         if (!received) {
           throw new Error("stream produced no tokens");
         }
-      } catch {
+      } catch (err) {
         if (controller.signal.aborted) return;
-        setError(received ? t("errorConnectionDropped") : t("errorUnavailable"));
+        if (err instanceof Error && err.message === "quota") {
+          setError(t("errorQuota"));
+        } else {
+          setError(received ? t("errorConnectionDropped") : t("errorUnavailable"));
+        }
       } finally {
         inFlightRef.current = false;
         if (!controller.signal.aborted) {
@@ -468,6 +511,7 @@ export function useAgentStream(
     interrupt,
     isStreaming,
     messages,
+    mode,
     onTurnComplete,
     setAssistant,
     t,
@@ -492,6 +536,8 @@ export function useAgentStream(
     send,
     isStreaming,
     error,
+    mode,
+    setMode,
     interrupt,
     resume,
     canRetry,
