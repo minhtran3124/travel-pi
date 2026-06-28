@@ -8,6 +8,7 @@ import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/cn";
 
 import { UserMenu } from "@/components/auth/UserMenu";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 import { LocaleSwitcher } from "./LocaleSwitcher";
 
@@ -76,6 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="hidden sm:block">
               <LocaleSwitcher />
             </div>
+            <ThemeToggle />
             <UserMenu />
             {/* Mobile hamburger */}
             <button

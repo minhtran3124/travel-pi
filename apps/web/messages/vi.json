@@ -23,6 +23,11 @@
   "LocaleSwitcher": {
     "label": "Ngôn ngữ"
   },
+  "ThemeToggle": {
+    "toggle": "Đổi giao diện",
+    "light": "Sáng",
+    "dark": "Tối"
+  },
   "Trips": {
     "whereToNext": "Đi đâu tiếp nào?",
     "loadingTrips": "Đang tải chuyến đi của bạn…",
