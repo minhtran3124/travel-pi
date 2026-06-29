@@ -46,6 +46,11 @@ class AuthUser:
 
     id: str  # the Supabase user id (``sub`` claim)
     email: str | None
+    # App-level role sourced from ``app_metadata.role`` (admin-controlled, not
+    # user-editable), NOT the top-level ``role`` claim — which Supabase always
+    # sets to the Postgres role (``authenticated``/``anon``/``service_role``)
+    # and so can never identify an application admin. ``"admin"`` here gates
+    # privileged endpoints (e.g. PATCH /admin/users/{id}/tier).
     role: str | None
     claims: dict
 
@@ -90,10 +95,11 @@ def _verify_bearer_token(request: Request, settings) -> AuthUser:
     sub = claims.get("sub")
     if not sub:
         raise AuthError("Token missing subject (sub) claim.")
+    app_metadata = claims.get("app_metadata") or {}
     return AuthUser(
         id=sub,
         email=claims.get("email"),
-        role=claims.get("role"),
+        role=app_metadata.get("role"),
         claims=claims,
     )
 
