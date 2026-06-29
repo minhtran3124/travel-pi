@@ -23,6 +23,7 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable, RunnableLambda
 from pydantic import PrivateAttr
 
+from app.agents.constants import FAST_AGENTS
 from app.core.config import get_settings
 from app.enums import ModelHint
 
@@ -32,12 +33,6 @@ _PROVIDER_KEY_FIELD = {
     "anthropic": "anthropic_api_key",
     "google_genai": "google_api_key",
 }
-
-# Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
-# config omits ``model``. Everything else defaults to the main ``llm_model``.
-# Kept here as the single source of truth for the tier mapping — the graph
-# assembly imports it so injection and fallback never drift.
-FAST_AGENTS = frozenset({"summarize", "journal", "budget", "reflection"})
 
 
 def _build_chat_model(

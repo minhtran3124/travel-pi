@@ -17,6 +17,7 @@ from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 
+from app.agents.constants import DEFAULT_MAX_REVISIONS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
@@ -26,8 +27,6 @@ from app.services.trip_service import TripService
 from app.tools._base import session_scope
 
 logger = logging.getLogger(__name__)
-
-_MAX_REVISIONS = 1
 
 
 def load_context_node(state: TravelAgentState) -> dict:
@@ -66,7 +65,9 @@ def make_summarize_node(llm: BaseChatModel):
     return summarize
 
 
-def make_reflection_node(llm: BaseChatModel, max_revisions: int = _MAX_REVISIONS):
+def make_reflection_node(
+    llm: BaseChatModel, max_revisions: int = DEFAULT_MAX_REVISIONS
+):
     """Return a bounded reflection node that can loop back once for a revision.
 
     C.2 (specs/runtime-context-config): reads ``runtime.context.allow_reflection``

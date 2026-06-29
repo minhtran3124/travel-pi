@@ -26,14 +26,11 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.runtime import Runtime
 
+from app.agents.constants import RAG_TOOL_NAME
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.enums import ResponseStyle
 from app.prompts.registry import registry
-
-# Name of the RAG retrieval tool (app/tools/rag_tools.py); used to gate it
-# when runtime.context.allow_rag is False (fast mode / free-tier constraint).
-RAG_TOOL_NAME = "search_destination_knowledge"
 
 
 def _tool_error_to_message(exc: Exception) -> str:

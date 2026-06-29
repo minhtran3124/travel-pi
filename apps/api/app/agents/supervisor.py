@@ -16,7 +16,8 @@ from langgraph.runtime import Runtime
 from langgraph.types import Command
 from pydantic import BaseModel, Field
 
-from app.agents.context import ALL_SUBAGENTS, AgentContext
+from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG
+from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.prompts.registry import registry
 
@@ -24,8 +25,6 @@ from app.prompts.registry import registry
 # Single source of truth lives in context.py (avoids circular imports).
 SUBAGENTS = ALL_SUBAGENTS
 _Target = Literal["planner", "concierge", "journal", "booking", "budget"]
-
-_UPGRADE_MSG = "Booking is a premium feature. Please upgrade your plan to book trips."
 
 
 class SupervisorIntent(BaseModel):
@@ -66,7 +65,7 @@ def make_supervisor(llm: BaseChatModel):
         )
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
             return Command(
-                update={"messages": [AIMessage(content=_UPGRADE_MSG)]},
+                update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]},
                 goto=END,
             )
         # Route booking through the HITL plan-approval node first.

@@ -21,23 +21,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.enums import ChatMode, ModelHint, ResponseStyle, Tier
-
-# Safe defaults; unknown inputs fall back to these.
-DEFAULT_MODE = ChatMode.BALANCED
-DEFAULT_TIER = Tier.FREE
-
-# Canonical sub-agent names — single source of truth (supervisor.py re-exports SUBAGENTS
-# from here so the two stay in sync without a circular import).
-ALL_SUBAGENTS: tuple[str, ...] = (
-    "planner",
-    "concierge",
-    "journal",
-    "booking",
-    "budget",
+from app.agents.constants import (
+    ALL_SUBAGENTS,
+    DEFAULT_MODE,
+    DEFAULT_TIER,
+    PREMIUM_ONLY_SUBAGENTS,
 )
-# Sub-agents unavailable on the free tier.
-PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
+from app.enums import ChatMode, ModelHint, ResponseStyle, Tier
 
 
 @dataclass(frozen=True)
