@@ -71,16 +71,24 @@ def build_graph(
         When a fake is injected (tests), it is returned regardless of
         ``ctx_model`` → all existing tests stay green. In prod,
         ``get_agent_llm(name, model=ctx_model)`` does per-request selection.
+
+        The ReAct ``assistant`` node re-runs on every tool round-trip, so this
+        resolver is hit many times per turn. Built models are memoized per
+        ``ctx_model`` for the life of this compiled graph (built once in
+        ``lifespan``), so ``init_chat_model`` runs at most once per distinct
+        hint instead of once per iteration. The cache lives in the closure, so
+        each ``build_graph`` call (e.g. per test) gets a fresh one and injected
+        fakes never populate it.
         """
+        cache: dict[str | None, BaseChatModel] = {}
 
         def resolve(ctx_model: str | None) -> BaseChatModel:
-            if name in FAST_AGENTS:
-                return (
-                    fast_llm
-                    if fast_llm is not None
-                    else get_agent_llm(name, model=ctx_model)
-                )
-            return llm if llm is not None else get_agent_llm(name, model=ctx_model)
+            fake = fast_llm if name in FAST_AGENTS else llm
+            if fake is not None:
+                return fake
+            if ctx_model not in cache:
+                cache[ctx_model] = get_agent_llm(name, model=ctx_model)
+            return cache[ctx_model]
 
         return resolve
 
