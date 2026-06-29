@@ -26,6 +26,8 @@ class ChatRequest(AppBaseModel):
     conversation_id: str | None = Field(
         default=None, description="Existing conversation to continue; None starts one."
     )
+    # Kept permissive (str, not ChatMode) so an unknown value falls back to
+    # BALANCED in resolve_agent_context instead of being rejected with 422.
     mode: str | None = Field(
         default=None,
         description="User-selected response mode: 'fast' | 'balanced' | 'deep' "

@@ -23,6 +23,7 @@ from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
+from app.enums import Tier
 from app.exceptions import DomainValidationError, ForbiddenError, UpstreamError
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
@@ -135,7 +136,7 @@ def _resolve_context(
         user_repo.ensure_user(effective_user_id)
         tier = user_repo.get_tier(effective_user_id)
     else:
-        tier = "free"
+        tier = Tier.FREE.value
     return resolve_agent_context(tier=tier, mode=mode)
 
 

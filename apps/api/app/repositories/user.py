@@ -8,21 +8,26 @@ a missing-user case for capability resolution.
 import logging
 
 from app.db import models
+from app.enums import Tier
 from app.repositories.base import Repo
 
 logger = logging.getLogger(__name__)
 
 
 class UserRepository(Repo):
-    """ORM-backed store for per-user profile data (currently: tier)."""
+    """ORM-backed store for per-user profile data (currently: tier).
+
+    Tier values are stored and returned as plain strings (matching the String
+    column); ``resolve_agent_context`` coerces them to :class:`Tier`.
+    """
 
     def get_tier(self, user_id: str) -> str:
         """Return the stored tier for *user_id*, or ``"free"`` if no row exists."""
         with self._session() as s:
             row = s.get(models.User, user_id)
-            return row.tier if row is not None else "free"
+            return row.tier if row is not None else Tier.FREE.value
 
-    def ensure_user(self, user_id: str, default_tier: str = "free") -> None:
+    def ensure_user(self, user_id: str, default_tier: str = Tier.FREE.value) -> None:
         """Insert a ``User`` row for *user_id* with *default_tier* if absent; no-op otherwise."""
         with self._session() as s:
             if s.get(models.User, user_id) is None:

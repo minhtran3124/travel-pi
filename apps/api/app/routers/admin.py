@@ -53,7 +53,9 @@ def set_user_tier(
         raise ForbiddenError("Admin role required.")
 
     repo = UserRepository(session)
-    repo.upsert_tier(user_id, body.tier)
+    # Store the raw string value (not the enum) so the String column never sees
+    # a "Tier.FREE"-style repr from str(enum).
+    repo.upsert_tier(user_id, body.tier.value)
     tier = repo.get_tier(user_id)
     logger.info(
         "[admin] set_user_tier user_id=%s tier=%s by=%s", user_id, tier, auth_user.id

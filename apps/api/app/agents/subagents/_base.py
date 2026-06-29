@@ -28,6 +28,7 @@ from langgraph.runtime import Runtime
 
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
+from app.enums import ResponseStyle
 from app.prompts.registry import registry
 
 # Name of the RAG retrieval tool (app/tools/rag_tools.py); used to gate it
@@ -78,7 +79,9 @@ def build_subagent(
         ctx = runtime.context if runtime.context is not None else None
         ctx_model = ctx.model if ctx is not None else None
         allow_rag = ctx.allow_rag if ctx is not None else True
-        response_style = ctx.response_style if ctx is not None else "default"
+        response_style = (
+            ctx.response_style if ctx is not None else ResponseStyle.DEFAULT
+        )
 
         model = resolve_model(ctx_model)
 
@@ -87,9 +90,9 @@ def build_subagent(
         bound = model.bind_tools(active_tools) if active_tools else model
 
         # Inject a style directive into the system prompt based on response_style.
-        if response_style == "concise":
+        if response_style == ResponseStyle.CONCISE:
             effective_system = SystemMessage(content=system.content + "\n\nBe brief.")
-        elif response_style == "detailed":
+        elif response_style == ResponseStyle.DETAILED:
             effective_system = SystemMessage(
                 content=system.content + "\n\nBe thorough."
             )

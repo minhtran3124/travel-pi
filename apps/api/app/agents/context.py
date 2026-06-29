@@ -21,11 +21,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-# Recognised values; anything else falls back to the safe default.
-MODES = ("fast", "balanced", "deep")
-TIERS = ("free", "premium")
-DEFAULT_MODE = "balanced"
-DEFAULT_TIER = "free"
+from app.enums import ChatMode, ModelHint, ResponseStyle, Tier
+
+# Safe defaults; unknown inputs fall back to these.
+DEFAULT_MODE = ChatMode.BALANCED
+DEFAULT_TIER = Tier.FREE
 
 # Canonical sub-agent names — single source of truth (supervisor.py re-exports SUBAGENTS
 # from here so the two stay in sync without a circular import).
@@ -44,46 +44,48 @@ PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 class AgentContext:
     """Resolved per-run capabilities. Defaults == today's behavior."""
 
-    tier: str = DEFAULT_TIER
-    mode: str = DEFAULT_MODE
+    tier: Tier = DEFAULT_TIER
+    mode: ChatMode = DEFAULT_MODE
     # Semantic model hint resolved to a concrete model in Phase C.1:
-    # None -> per-agent default (settings.agent_llm_configs); "fast"/"deep" tiers.
-    model: str | None = None
+    # None -> per-agent default (settings.agent_llm_configs); FAST/DEEP tiers.
+    model: ModelHint | None = None
     allow_reflection: bool = True
     allow_rag: bool = True
-    response_style: str = "default"
+    response_style: ResponseStyle = ResponseStyle.DEFAULT
     # None means "all sub-agents allowed"; a frozenset restricts routing (Phase D.1).
     allowed_subagents: frozenset[str] | None = None
     max_revisions: int = 1
 
 
 # mode -> the depth/model/style it requests (before any tier ceiling).
-_MODE_POLICY: dict[str, dict] = {
-    "fast": {
-        "model": "fast",
+_MODE_POLICY: dict[ChatMode, dict] = {
+    ChatMode.FAST: {
+        "model": ModelHint.FAST,
         "allow_reflection": False,
         "allow_rag": False,
-        "response_style": "concise",
+        "response_style": ResponseStyle.CONCISE,
         "max_revisions": 0,
     },
-    "balanced": {
+    ChatMode.BALANCED: {
         "model": None,
         "allow_reflection": True,
         "allow_rag": True,
-        "response_style": "default",
+        "response_style": ResponseStyle.DEFAULT,
         "max_revisions": 1,
     },
-    "deep": {
-        "model": "deep",
+    ChatMode.DEEP: {
+        "model": ModelHint.DEEP,
         "allow_reflection": True,
         "allow_rag": True,
-        "response_style": "detailed",
+        "response_style": ResponseStyle.DETAILED,
         "max_revisions": 2,
     },
 }
 
 
-def resolve_agent_context(*, tier: str | None, mode: str | None) -> AgentContext:
+def resolve_agent_context(
+    *, tier: Tier | str | None, mode: ChatMode | str | None
+) -> AgentContext:
     """Map (tier, mode) -> concrete ``AgentContext`` (the single policy function, D3).
 
     Unknown/None tier or mode fall back to the safe defaults (``free`` /
@@ -97,17 +99,25 @@ def resolve_agent_context(*, tier: str | None, mode: str | None) -> AgentContext
     - **premium**: ``allowed_subagents=None`` (all permitted); ``allow_rag``
       follows the mode setting; model unrestricted.
     """
-    tier = tier if tier in TIERS else DEFAULT_TIER
-    mode = mode if mode in _MODE_POLICY else DEFAULT_MODE
+    # Coerce raw strings (from the DB / client body) to enums; unknown or None
+    # values fall back to the safe defaults.
+    try:
+        tier = Tier(tier)
+    except ValueError:
+        tier = DEFAULT_TIER
+    try:
+        mode = ChatMode(mode)
+    except ValueError:
+        mode = DEFAULT_MODE
     p = _MODE_POLICY[mode]
 
     model = p["model"]
     allow_rag = p["allow_rag"]
     allowed_subagents: frozenset[str] | None
 
-    if tier == "free":
+    if tier == Tier.FREE:
         # Free cannot use the expensive deep model.
-        if model == "deep":
+        if model == ModelHint.DEEP:
             model = None
         # Free cannot use RAG regardless of mode.
         allow_rag = False

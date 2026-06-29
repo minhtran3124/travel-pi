@@ -13,6 +13,7 @@ import logging
 from datetime import datetime, timezone
 
 from app.core.config import get_settings
+from app.enums import Tier
 from app.exceptions import QuotaExceededError
 from app.repositories.conversation import ConversationRepository
 
@@ -22,16 +23,16 @@ logger = logging.getLogger(__name__)
 def check_quota(
     *,
     user_id: str,
-    tier: str,
+    tier: Tier,
     repo: ConversationRepository,
 ) -> None:
     """Raise ``QuotaExceededError`` (429) when a free user exceeds today's limit.
 
     :param user_id: The authenticated user's id.
-    :param tier: BE-resolved tier string (``"free"`` or ``"premium"``).
+    :param tier: BE-resolved tier (``Tier.FREE`` or ``Tier.PREMIUM``).
     :param repo: A ``ConversationRepository`` bound to the current session.
     """
-    if tier == "premium":
+    if tier == Tier.PREMIUM:
         return  # unlimited
 
     settings = get_settings()
