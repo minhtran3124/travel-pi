@@ -2,6 +2,14 @@ import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach } from "vitest";
 import { server } from "./msw";
 
+// Supabase's browser client (src/lib/supabase/client.ts) throws at construction
+// when these are unset, which crashes any test that mounts a component calling
+// createClient() (e.g. useAgentStream's claim/hydrate effect). The values are
+// never dialed — getSession() reads local storage and returns null with no
+// network — so dummy placeholders are enough to keep the client constructible.
+process.env.NEXT_PUBLIC_SUPABASE_URL ??= "https://test.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??= "test-publishable-key";
+
 // The API client uses a relative baseUrl ("/api/be") that the browser resolves
 // against the page origin. Two things break that in the Node test env, both
 // handled here:
