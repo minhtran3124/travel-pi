@@ -24,9 +24,23 @@ export function SidePanel({
     [panels],
   );
   const [activeKind, setActiveKind] = useState<string | null>(null);
+  const newest = renderable[renderable.length - 1];
+  const newestId = newest?.toolCallId ?? null;
+
+  // Surface a freshly-streamed panel: when a new panel arrives, drop any pinned
+  // tab so `active` falls back to the newest. Without this, a new panel (e.g.
+  // weather arriving while a route is shown) would only add a tab, never display.
+  // Render-phase adjust-on-change (no effect) — the React-recommended pattern.
+  const [seenNewestId, setSeenNewestId] = useState(newestId);
+  let resolvedKind = activeKind;
+  if (newestId !== seenNewestId) {
+    setSeenNewestId(newestId);
+    setActiveKind(null);
+    resolvedKind = null;
+  }
+
   const active =
-    renderable.find((p) => p.kind === activeKind) ??
-    renderable[renderable.length - 1];
+    renderable.find((p) => p.kind === resolvedKind) ?? newest;
 
   if (!active) return null;
   const Renderer = PANEL_RENDERERS[active.kind];

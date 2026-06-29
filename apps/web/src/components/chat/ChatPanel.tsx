@@ -102,7 +102,7 @@ export function ChatPanel({
             onClick={onToggleMap}
             className="rounded-pill border border-line px-md py-1 text-xs font-medium text-ink transition hover:bg-line/40"
           >
-            {mapHidden ? "Show map" : "Hide map"}
+            {mapHidden ? "Show panel" : "Hide panel"}
           </button>
         </div>
       ) : null}

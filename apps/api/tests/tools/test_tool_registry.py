@@ -66,20 +66,70 @@ def test_weather_tool_maps_upstream_error(monkeypatch):
         asyncio.run(get_weather.ainvoke({"city": "Tokyo"}))
 
 
-def test_weather_tool_returns_dump(monkeypatch):
+def test_weather_tool_returns_panel(monkeypatch):
+    """get_weather is panel-capable: a ToolCall yields a ToolMessage whose
+    ``.content`` is the model-facing summary and ``.artifact`` is the
+    ``{"kind":"weather","data":...}`` side-panel payload (specs/agent-side-panel).
+    """
     import asyncio
 
+    from app.schemas.weather import (
+        CurrentWeather,
+        DailyForecast,
+        WeatherLocation,
+        WeatherResponse,
+    )
     from app.services import weather_service
     from app.tools.weather_tools import get_weather
-    from pydantic import BaseModel
-
-    class FakeResp(BaseModel):
-        city: str
-        days: list
+    from langchain_core.messages import ToolMessage
 
     async def ok(city, days=None):
-        return FakeResp(city="Tokyo", days=[])
+        return WeatherResponse(
+            location=WeatherLocation(
+                name="Tokyo",
+                country="Japan",
+                latitude=35.6,
+                longitude=139.7,
+                timezone="Asia/Tokyo",
+            ),
+            current=CurrentWeather(
+                time="2026-06-30T00:00",
+                temperature_c=24.6,
+                apparent_temperature_c=25.1,
+                relative_humidity=70,
+                wind_speed_kmh=8.0,
+                weather_code=2,
+                description="Partly cloudy",
+            ),
+            daily=[
+                DailyForecast(
+                    date="2026-06-30",
+                    temp_min_c=20.0,
+                    temp_max_c=27.0,
+                    precipitation_probability_max=30,
+                    weather_code=2,
+                    description="Partly cloudy",
+                )
+            ],
+        )
 
     monkeypatch.setattr(weather_service, "get_weather", ok)
-    out = asyncio.run(get_weather.ainvoke({"city": "Tokyo"}))
-    assert out == {"city": "Tokyo", "days": []}
+    msg = asyncio.run(
+        get_weather.ainvoke(
+            {
+                "type": "tool_call",
+                "id": "t1",
+                "name": "get_weather",
+                "args": {"city": "Tokyo"},
+            }
+        )
+    )
+    assert isinstance(msg, ToolMessage)
+    # Model-facing summary: a short non-empty string carrying the forecast.
+    assert isinstance(msg.content, str) and "Tokyo" in msg.content
+    # Side-panel artifact carries the rich weather data.
+    assert msg.artifact["kind"] == "weather"
+    data = msg.artifact["data"]
+    assert data["location_name"] == "Tokyo"
+    assert data["current"]["emoji"] and data["current"]["condition"] == "partly"
+    assert data["daily"][0]["precipitation_probability_max"] == 30

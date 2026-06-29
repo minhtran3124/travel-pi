@@ -40,6 +40,16 @@ export function ChatWidget() {
 
   const stream = useAgentStream({ tripId, onTurnComplete });
 
+  // Re-surface the drawer when a new panel streams in: a prior "Hide" must not
+  // latch it shut against a freshly-produced panel (e.g. weather after a route).
+  // Render-phase adjust-on-change (no effect) — the React-recommended pattern.
+  const newestPanelId = stream.panels[stream.panels.length - 1]?.toolCallId ?? null;
+  const [seenPanelId, setSeenPanelId] = useState(newestPanelId);
+  if (newestPanelId !== seenPanelId) {
+    setSeenPanelId(newestPanelId);
+    if (newestPanelId) setMapHidden(false);
+  }
+
   // The agent co-pilot is part of the app shell, not the auth surfaces.
   if (pathname?.startsWith("/auth")) {
     return null;

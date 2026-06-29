@@ -213,19 +213,37 @@ def test_stream_emits_reset_on_revised_answer(tmp_path):
 
 
 def test_stream_drops_tool_json_output(tmp_path, monkeypatch):
-    """Raw tool output (a weather dict) must not leak into the SSE feed.
+    """Structured weather data must ride the `panel` channel, never the NL tokens.
 
     Regression for the "chatbot shows json/dict" bug: a sub-agent's ToolNode runs
     inside the same `langgraph_node` as its assistant, so the tool's JSON result
-    rode through the node filter into the stream. Only the natural-language reply
-    is user-facing, and it must appear exactly once (no per-loop duplication).
+    rode through the node filter into the stream. Now get_weather is panel-capable
+    (specs/agent-side-panel): its structured payload reaches the FE via an
+    `event: panel`, and the user-facing reply is the natural-language answer once.
+    The marker (carried in the weather data) must show up in a `panel` event but
+    never in a `token` event.
     """
+    from app.schemas.weather import CurrentWeather, WeatherLocation, WeatherResponse
     from app.services import weather_service
 
     marker = "WEATHER_JSON_LEAK_MARKER"
 
     async def _fake_get_weather(city, days=None):
-        return {"location": {"name": city}, "marker": marker}
+        return WeatherResponse(
+            location=WeatherLocation(
+                name=city, latitude=-8.4, longitude=115.2, timezone="Asia/Makassar"
+            ),
+            current=CurrentWeather(
+                time="2026-06-30T00:00",
+                temperature_c=30.0,
+                apparent_temperature_c=33.0,
+                relative_humidity=80,
+                wind_speed_kmh=6.0,
+                weather_code=0,
+                description=marker,
+            ),
+            daily=[],
+        )
 
     monkeypatch.setattr(weather_service, "get_weather", _fake_get_weather)
 
@@ -247,7 +265,11 @@ def test_stream_drops_tool_json_output(tmp_path, monkeypatch):
 
     assert resp.status_code == 200
     text = resp.text
-    assert marker not in text  # raw tool JSON must NOT reach the user
+    blocks = text.split("\n\n")
+    token_blocks = [b for b in blocks if "event: token" in b]
+    panel_blocks = [b for b in blocks if "event: panel" in b]
+    assert all(marker not in b for b in token_blocks)  # not in the NL answer tokens
+    assert any(marker in b for b in panel_blocks)  # rode the side-panel channel
     assert text.count("Sunny and warm in Bali.") == 1  # answer once, not duplicated
 
 
