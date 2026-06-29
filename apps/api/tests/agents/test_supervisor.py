@@ -1,7 +1,15 @@
 """Supervisor + cross-cutting nodes (specs/travel-agent Task 5.3)."""
 
+from types import SimpleNamespace
+
+from app.agents.context import AgentContext
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import END
+
+
+def _runtime(ctx: AgentContext | None = None) -> SimpleNamespace:
+    """Minimal runtime stand-in matching the Runtime[AgentContext] interface."""
+    return SimpleNamespace(context=ctx if ctx is not None else AgentContext())
 
 
 def test_supervisor_routes_to_target():
@@ -10,7 +18,7 @@ def test_supervisor_routes_to_target():
 
     llm = FakeLLM(structured_responses=[SupervisorIntent(target_agent="planner")])
     supervisor = make_supervisor(llm)
-    cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]})
+    cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
     assert cmd.goto == "planner"
     assert cmd.update["current_flow"] == "planner"
 
@@ -25,7 +33,7 @@ def test_supervisor_unknown_intent_ends():
 
     llm = FakeLLM(structured_responses=[Weird()])
     supervisor = make_supervisor(llm)
-    cmd = supervisor({"messages": [HumanMessage(content="???")]})
+    cmd = supervisor({"messages": [HumanMessage(content="???")]}, _runtime())
     assert cmd.goto == END
 
 
@@ -49,23 +57,34 @@ def test_summarize_node_noop_when_short():
 
 
 def test_reflection_ok_ends():
+    from types import SimpleNamespace
+
+    from app.agents.context import AgentContext
     from app.agents.nodes import make_reflection_node
     from app.clients.llm import FakeLLM
 
     node = make_reflection_node(FakeLLM(responses=["OK"]))
+    runtime = SimpleNamespace(context=AgentContext())
     cmd = node(
-        {"messages": [AIMessage(content="great answer")], "current_flow": "planner"}
+        {"messages": [AIMessage(content="great answer")], "current_flow": "planner"},
+        runtime,
     )
     assert cmd.goto == END
 
 
 def test_reflection_revise_loops_back_then_stops():
+    from types import SimpleNamespace
+
+    from app.agents.context import AgentContext
     from app.agents.nodes import make_reflection_node
     from app.clients.llm import FakeLLM
 
     node = make_reflection_node(FakeLLM(responses=["REVISE"]))
+    runtime = SimpleNamespace(context=AgentContext())
     # first pass: revisions 0 -> loops back to the active sub-agent
-    cmd = node({"messages": [AIMessage(content="bad")], "current_flow": "planner"})
+    cmd = node(
+        {"messages": [AIMessage(content="bad")], "current_flow": "planner"}, runtime
+    )
     assert cmd.goto == "planner"
     assert cmd.update["revisions"] == 1
     # second pass: already at max -> ends regardless of verdict
@@ -74,6 +93,7 @@ def test_reflection_revise_loops_back_then_stops():
             "messages": [AIMessage(content="bad")],
             "current_flow": "planner",
             "revisions": 1,
-        }
+        },
+        runtime,
     )
     assert cmd2.goto == END

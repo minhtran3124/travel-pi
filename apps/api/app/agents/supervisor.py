@@ -12,13 +12,18 @@ from typing import Literal
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, SystemMessage
 from langgraph.graph import END
+from langgraph.runtime import Runtime
 from langgraph.types import Command
 from pydantic import BaseModel, Field
 
+from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG
+from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.prompts.registry import registry
 
-SUBAGENTS = ("planner", "concierge", "journal", "booking", "budget")
+# Re-exported for callers that do `from app.agents.supervisor import SUBAGENTS`.
+# Single source of truth lives in context.py (avoids circular imports).
+SUBAGENTS = ALL_SUBAGENTS
 _Target = Literal["planner", "concierge", "journal", "booking", "budget"]
 
 
@@ -37,7 +42,7 @@ def make_supervisor(llm: BaseChatModel):
     router = llm.with_structured_output(SupervisorIntent, method="function_calling")
     system = SystemMessage(content=registry.get("supervisor"))
 
-    def supervisor(state: TravelAgentState) -> Command:
+    def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
         intent = router.invoke([system_with_summary(state, system), *state["messages"]])
         target = getattr(intent, "target_agent", None)
         if target not in SUBAGENTS:
@@ -47,6 +52,20 @@ def make_supervisor(llm: BaseChatModel):
                         AIMessage(content="I'm not sure how to help with that yet.")
                     ]
                 },
+                goto=END,
+            )
+        # Tier gate (D.1): if the resolved context restricts sub-agents and the
+        # chosen target is not in the allow-list, degrade gracefully instead of
+        # routing there.  This also blocks the plan->booking HITL path for free
+        # users because "plan" is only reachable via this branch.
+        ctx = (
+            runtime.context
+            if runtime is not None and runtime.context is not None
+            else AgentContext()
+        )
+        if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
+            return Command(
+                update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]},
                 goto=END,
             )
         # Route booking through the HITL plan-approval node first.

@@ -38,6 +38,7 @@ def _make_token(
     aud: str = AUDIENCE,
     iss: str = ISSUER,
     expires_in: int = 3600,
+    app_metadata: dict | None = None,
     signing_key: rsa.RSAPrivateKey = _PRIVATE_KEY,
 ) -> str:
     now = int(time.time())
@@ -50,6 +51,8 @@ def _make_token(
         "iat": now,
         "exp": now + expires_in,
     }
+    if app_metadata is not None:
+        payload["app_metadata"] = app_metadata
     return jwt.encode(payload, signing_key, algorithm="RS256")
 
 
@@ -92,11 +95,21 @@ def test_valid_token_authenticates(client: TestClient) -> None:
     resp = client.get("/whoami", headers=_auth(_make_token()))
     assert resp.status_code == 200
     body = resp.json()
+    # role is sourced from app_metadata.role, not the top-level (Postgres) role
+    # claim — a standard token without app_metadata yields role=None.
     assert body == {
         "id": "user-123",
         "email": "traveler@example.com",
-        "role": AUDIENCE,
+        "role": None,
     }
+
+
+def test_app_metadata_role_becomes_authuser_role(client: TestClient) -> None:
+    """An admin marked via app_metadata.role is exposed as AuthUser.role."""
+    token = _make_token(app_metadata={"role": "admin"})
+    resp = client.get("/whoami", headers=_auth(token))
+    assert resp.status_code == 200
+    assert resp.json()["role"] == "admin"
 
 
 def test_dependency_returns_authuser_directly() -> None:

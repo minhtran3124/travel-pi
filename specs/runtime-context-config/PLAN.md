@@ -1,6 +1,6 @@
 ---
 slug: runtime-context-config
-status: proposed
+status: implemented
 owner: Minh Tran
 created: 2026-06-27
 ---
@@ -211,3 +211,28 @@ the gating it depends on.)*
 - 2026-06-27 — Decisions D1/D2/D4 resolved (deferred binding · add users table · quota in-plan).
   Plan finalized; ready to execute after `specs/conversation-persistence/` ships. No remaining
   design blockers; B.1 still passes through the migration hard gate at commit time.
+- 2026-06-27 — Phase A + B executed. A.1 (AgentContext + resolver + context_schema), A.2 (router
+  resolves+passes context=, `mode` in ChatRequest, tier BE-resolved), B.1 (users table + tier +
+  migration `a1f3e2c9b7d5` + UserRepository, wired). Verify: migration applies + 47 tests pass on
+  SQLite. **Branch note:** concurrent theme work (the user's light/dark feature) crossed the
+  branches — A.1/A.2/B.1 first landed on `feat/light-dark-mode` and a theme commit sits on
+  `feat/runtime-context-config`. Per user decision the three commits were cherry-picked onto a
+  clean **`feat/agent-mode-tier`** (off v3, no theme work); the theme branches were left
+  untouched. Phase C/D/E continue on `feat/agent-mode-tier`.
+- 2026-06-27 — C.1 done (`9f83cf0`): deferred model binding. `get_agent_llm(name, model=...)`
+  hint; `build_subagent` takes a `resolve_model` callable and binds tools per-request from
+  `runtime.context.model`; `build_graph.resolver_for` returns injected FakeLLMs in tests
+  (preserved) and per-request models in prod. Verify: 99 passed (3 pre-existing memory/OpenAI
+  failures unrelated). Rule-2: touched graph.py + 5 sub-agent builders + 2 test files beyond
+  C.1's `<files>` — widen the C.1 file set (backlog). Remaining: C.2 (depth toggles), D.1 (tier
+  gating — needs product sign-off on what `free` loses), D.2 (quota — needs limit values), E.1
+  (FE mode selector).
+- 2026-06-28 — **All phases complete** on `feat/agent-mode-tier`. C.2 (`cad9ef9`) mode depth
+  toggles (reflection/RAG/response-style read from context); D.1 (`5515ee0`) tier gating — free
+  blocks **booking** + **RAG**, premium unrestricted, HITL plan→booking bypass closed; D.2
+  (`a625214`) quota guard — free **20 turns/day** → 429 before invoke, premium unlimited
+  (`AGENT_FREE_DAILY_TURN_LIMIT`); E.1 (`eb10512`) FE mode selector (fast/balanced/deep) +
+  localStorage persist + sends `mode` (never tier) + 429 message; schema.d.ts hand-added the
+  `mode` field. Final verify: migration applies + **173 passed** on SQLite (3 pre-existing
+  `test_memory.py` OpenAI failures unrelated); FE `tsc`+eslint clean. status → implemented;
+  ready for PR to v3. Not pushed.

@@ -16,11 +16,14 @@ Checkpointer + store make it stateful across turns/sessions.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import START, StateGraph
 from langgraph.store.base import BaseStore
 
+from app.agents.context import AgentContext
 from app.agents.nodes import (
     load_context_node,
     make_reflection_node,
@@ -50,14 +53,46 @@ def build_graph(
     can be tuned per agent (``settings.agent_llm_configs``). When tests inject
     ``llm`` / ``fast_llm``, those override the whole main / fast tier — the node
     keeps using the injected fake exactly as before.
+
+    C.1: Sub-agent nodes receive a ``resolver_for(name)`` callable instead of a
+    fixed model. When a fake is injected it is returned regardless of the
+    per-request ``ctx_model`` hint, so all existing tests stay green.
     """
 
     def pick(name: str) -> BaseChatModel:
+        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection)."""
         if name in FAST_AGENTS:
             return fast_llm if fast_llm is not None else get_agent_llm(name)
         return llm if llm is not None else get_agent_llm(name)
 
-    builder = StateGraph(TravelAgentState)
+    def resolver_for(name: str) -> Callable[[str | None], BaseChatModel]:
+        """Deferred resolver for sub-agent nodes — called per request (D1).
+
+        When a fake is injected (tests), it is returned regardless of
+        ``ctx_model`` → all existing tests stay green. In prod,
+        ``get_agent_llm(name, model=ctx_model)`` does per-request selection.
+
+        The ReAct ``assistant`` node re-runs on every tool round-trip, so this
+        resolver is hit many times per turn. Built models are memoized per
+        ``ctx_model`` for the life of this compiled graph (built once in
+        ``lifespan``), so ``init_chat_model`` runs at most once per distinct
+        hint instead of once per iteration. The cache lives in the closure, so
+        each ``build_graph`` call (e.g. per test) gets a fresh one and injected
+        fakes never populate it.
+        """
+        cache: dict[str | None, BaseChatModel] = {}
+
+        def resolve(ctx_model: str | None) -> BaseChatModel:
+            fake = fast_llm if name in FAST_AGENTS else llm
+            if fake is not None:
+                return fake
+            if ctx_model not in cache:
+                cache[ctx_model] = get_agent_llm(name, model=ctx_model)
+            return cache[ctx_model]
+
+        return resolve
+
+    builder = StateGraph(TravelAgentState, context_schema=AgentContext)
     builder.add_node("load_context", load_context_node)
     builder.add_node("summarize", make_summarize_node(pick("summarize")))
     builder.add_node(
@@ -67,11 +102,11 @@ def build_graph(
     )
     # HITL plan-approval gate: fires before booking commits anything destructive.
     builder.add_node("plan", plan_node, destinations=("booking", "__end__"))
-    builder.add_node("planner", build_planner(pick("planner")))
-    builder.add_node("concierge", build_concierge(pick("concierge")))
-    builder.add_node("journal", build_journal(pick("journal")))
-    builder.add_node("booking", build_booking(pick("booking")))
-    builder.add_node("budget", build_budget(pick("budget")))
+    builder.add_node("planner", build_planner(resolver_for("planner")))
+    builder.add_node("concierge", build_concierge(resolver_for("concierge")))
+    builder.add_node("journal", build_journal(resolver_for("journal")))
+    builder.add_node("booking", build_booking(resolver_for("booking")))
+    builder.add_node("budget", build_budget(resolver_for("budget")))
     builder.add_node(
         "reflection",
         make_reflection_node(pick("reflection")),

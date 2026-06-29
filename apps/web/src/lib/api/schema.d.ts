@@ -1679,6 +1679,11 @@ export interface components {
              * @description Resume value for a HITL plan-approval interrupt. Pass {'approved': true} to confirm or {'approved': false} to cancel. Requires conversation_id.
              */
             resume?: unknown;
+            /**
+             * Mode
+             * @description Response mode selected by the user: 'fast' | 'balanced' | 'deep'. Unknown values default to 'balanced' on the server.
+             */
+            mode?: string | null;
         };
         /**
          * ChatResponse

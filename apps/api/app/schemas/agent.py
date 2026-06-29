@@ -26,6 +26,14 @@ class ChatRequest(AppBaseModel):
     conversation_id: str | None = Field(
         default=None, description="Existing conversation to continue; None starts one."
     )
+    # Kept permissive (str, not ChatMode) so an unknown value falls back to
+    # BALANCED in resolve_agent_context instead of being rejected with 422.
+    mode: str | None = Field(
+        default=None,
+        description="User-selected response mode: 'fast' | 'balanced' | 'deep' "
+        "(unknown/None -> 'balanced'). NOTE: tier is resolved server-side and is "
+        "intentionally NOT accepted from the client.",
+    )
     retry: bool = Field(
         default=False,
         description="Re-answer the last (unanswered) user turn without re-saving "
@@ -87,6 +95,18 @@ class Conversation(AppBaseModel):
     domain: str | None = None
     created_at: str
     updated_at: str
+
+
+class ClaimRequest(AppBaseModel):
+    """Request body for POST /agent/conversations/claim."""
+
+    anonymous_user_id: str
+
+
+class ClaimResult(AppBaseModel):
+    """Response for POST /agent/conversations/claim."""
+
+    claimed: int
 
 
 class Job(AppBaseModel):

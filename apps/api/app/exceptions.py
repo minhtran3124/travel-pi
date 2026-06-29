@@ -81,3 +81,28 @@ class WeatherUnavailableError(UpstreamError):
 
 class RoutingUnavailableError(UpstreamError):
     """The upstream OpenRouteService API call failed."""
+
+
+class ForbiddenError(AppError):
+    """The caller is authenticated but lacks the required role/permission (HTTP 403).
+
+    Raised when a valid token is present but the user does not hold the role
+    required to perform the action (e.g. ``role != "admin"``).
+    """
+
+    status_code = 403
+    default_detail = "Forbidden"
+
+
+class QuotaExceededError(AppError):
+    """The user has exceeded their daily usage quota (HTTP 429).
+
+    Raised by ``app.services.quota_service`` when a free-tier user's turn count
+    for the current UTC day meets or exceeds the configured daily limit. The
+    ``AppError`` handler in ``app.core.errors`` maps this to 429 automatically.
+    """
+
+    status_code = 429
+    default_detail = (
+        "Daily message limit reached. Upgrade to premium for unlimited access."
+    )

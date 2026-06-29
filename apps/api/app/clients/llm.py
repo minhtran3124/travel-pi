@@ -23,7 +23,9 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable, RunnableLambda
 from pydantic import PrivateAttr
 
+from app.agents.constants import FAST_AGENTS
 from app.core.config import get_settings
+from app.enums import ModelHint
 
 # Maps provider -> the settings field holding its API key.
 _PROVIDER_KEY_FIELD = {
@@ -31,12 +33,6 @@ _PROVIDER_KEY_FIELD = {
     "anthropic": "anthropic_api_key",
     "google_genai": "google_api_key",
 }
-
-# Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
-# config omits ``model``. Everything else defaults to the main ``llm_model``.
-# Kept here as the single source of truth for the tier mapping — the graph
-# assembly imports it so injection and fallback never drift.
-FAST_AGENTS = frozenset({"summarize", "journal", "budget", "reflection"})
 
 
 def _build_chat_model(
@@ -79,23 +75,37 @@ def get_fast_llm(model: str | None = None) -> BaseChatModel:
     return get_llm(model, fast=True)
 
 
-def get_agent_llm(agent_name: str) -> BaseChatModel:
+def get_agent_llm(agent_name: str, model: ModelHint | None = None) -> BaseChatModel:
     """Build the chat model for a specific graph node.
 
     Resolves ``settings.agent_llm_configs[agent_name]`` with fallback: provider
     defaults to the global ``llm_provider``, model to the node's tier default
     (fast vs main), and any extra config key passes through to the model. A node
     with no override behaves exactly like ``get_llm()`` / ``get_fast_llm()``.
+
+    ``model`` is a semantic hint from ``AgentContext.model`` (per-request):
+    ``None``           → today's per-agent default (respects ``FAST_AGENTS``).
+    ``ModelHint.FAST`` → force the fast-tier model regardless of agent name.
+    ``ModelHint.DEEP`` → force the main (non-fast) model. A dedicated
+                         ``STRONG_LLM_MODEL`` setting can be introduced later
+                         when a third premium model is configured.
     """
     s = get_settings()
     fast = agent_name in FAST_AGENTS
+
+    # Apply semantic model hint from runtime context when provided.
+    if model == ModelHint.FAST:
+        fast = True
+    elif model == ModelHint.DEEP:
+        fast = False  # No dedicated strong model yet; fall through to main model.
+
     cfg = s.agent_llm_configs.get(agent_name)
     if cfg is None:
         return get_llm(fast=fast)
     provider = cfg.provider or s.llm_provider
-    model = cfg.model or (s.fast_llm_model if fast else s.llm_model)
+    resolved_model = cfg.model or (s.fast_llm_model if fast else s.llm_model)
     return _build_chat_model(
-        provider, model, temperature=cfg.temperature, **(cfg.model_extra or {})
+        provider, resolved_model, temperature=cfg.temperature, **(cfg.model_extra or {})
     )
 
 

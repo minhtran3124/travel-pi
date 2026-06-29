@@ -57,7 +57,7 @@ class _FakeGraph:
         self._interrupts = interrupts
         self._values = values or {}
 
-    async def astream(self, stream_input, cfg, *, stream_mode, subgraphs):
+    async def astream(self, stream_input, cfg, *, stream_mode, subgraphs, context=None):
         for item in self._items:
             yield item
 

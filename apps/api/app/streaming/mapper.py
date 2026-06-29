@@ -47,8 +47,13 @@ async def stream_agent_events(
     *,
     cfg: dict,
     conversation_id: str,
+    context: Any = None,
 ) -> AsyncIterator[TypedSSEEvent]:
-    """Yield typed SSE events for one agent turn (or interrupt resume)."""
+    """Yield typed SSE events for one agent turn (or interrupt resume).
+
+    ``context`` is the per-run ``AgentContext`` (mode/tier capabilities), forwarded
+    to ``astream`` so streaming nodes see the same context as the buffered path.
+    """
     yield events.start(conversation_id)
 
     current_subagent: str | None = None
@@ -59,6 +64,7 @@ async def stream_agent_events(
         async for ns, mode, data in graph.astream(
             stream_input,
             cfg,
+            context=context,
             stream_mode=["messages", "updates"],
             subgraphs=True,
         ):

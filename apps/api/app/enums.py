@@ -180,3 +180,41 @@ class JobStatus(str, Enum):
     RUNNING = "running"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
+
+
+class ChatMode(str, Enum):
+    """User-selectable response mode — the depth lever (specs/agent-mode-tier).
+
+    Maps to a concrete capability set in ``resolve_agent_context``; unknown
+    values fall back to ``BALANCED``.
+    """
+
+    FAST = "fast"
+    BALANCED = "balanced"
+    DEEP = "deep"
+
+
+class Tier(str, Enum):
+    """BE-resolved account tier — the capability ceiling (specs/agent-identity-tier)."""
+
+    FREE = "free"
+    PREMIUM = "premium"
+
+
+class ResponseStyle(str, Enum):
+    """How verbose a sub-agent reply should be — derived from the mode."""
+
+    DEFAULT = "default"
+    CONCISE = "concise"
+    DETAILED = "detailed"
+
+
+class ModelHint(str, Enum):
+    """Semantic model-tier hint carried by ``AgentContext.model``.
+
+    ``None`` (no hint) means the per-agent default; ``FAST``/``DEEP`` force a
+    tier in ``get_agent_llm``.
+    """
+
+    FAST = "fast"
+    DEEP = "deep"

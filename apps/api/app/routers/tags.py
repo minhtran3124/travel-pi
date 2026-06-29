@@ -30,3 +30,4 @@ class Tags(str, Enum):
     meta = "meta"
     dashboard = "dashboard"
     agent = "agent"
+    admin = "admin"
