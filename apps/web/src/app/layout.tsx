@@ -6,6 +6,7 @@ import "./globals.css";
 
 import { AppShell } from "@/components/app-shell/AppShell";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { IdentityProvider } from "@/lib/identity/provider";
 import { QueryProvider } from "@/lib/query/provider";
 
@@ -30,16 +31,22 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale} className={`${inter.variable} h-full antialiased`}>
+    <html
+      lang={locale}
+      className={`${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider>
-          <IdentityProvider>
-            <QueryProvider>
-              <AppShell>{children}</AppShell>
-              <ChatWidget />
-            </QueryProvider>
-          </IdentityProvider>
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider>
+            <IdentityProvider>
+              <QueryProvider>
+                <AppShell>{children}</AppShell>
+                <ChatWidget />
+              </QueryProvider>
+            </IdentityProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

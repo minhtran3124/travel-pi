@@ -19,6 +19,7 @@
     "maplibre-gl": "^5.24.0",
     "next": "16.2.9",
     "next-intl": "^4.13.0",
+    "next-themes": "^0.4.6",
     "npm": "^11.17.0",
     "npx": "^10.2.2",
     "openapi-fetch": "^0.17",

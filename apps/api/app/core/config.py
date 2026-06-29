@@ -157,6 +157,7 @@ class Settings(BaseSettings):
     # Agent runtime knobs.
     agent_recursion_limit: int = 25  # LangGraph recursion guard per invocation
     summarize_threshold: int = 20  # compress history once messages exceed this
+    agent_free_daily_turn_limit: int = 20  # max user turns per day for the free tier
 
     # --- Supabase auth (specs/supabase-auth) ---
     # Verify incoming Supabase access tokens (asymmetric RS256/ES256) against

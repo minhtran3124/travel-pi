@@ -20,6 +20,7 @@ from app.db.models.place import Place
 from app.db.models.saved_place import SavedPlace
 from app.db.models.tip import CountrySummary, Tip
 from app.db.models.trip import Trip, TripItem, TripPlaceLink
+from app.db.models.user import User
 from app.db.models.visa import Visa
 
 __all__ = [
@@ -45,4 +46,5 @@ __all__ = [
     "FxRate",
     "CountryCurrency",
     "FxMeta",
+    "User",
 ]

@@ -23,6 +23,11 @@
   "LocaleSwitcher": {
     "label": "Language"
   },
+  "ThemeToggle": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
   "Trips": {
     "whereToNext": "Where to next?",
     "loadingTrips": "Loading your trips…",
@@ -420,7 +425,12 @@
     "errorConnectionDropped": "The connection dropped mid-reply. The response above may be incomplete.",
     "errorUnavailable": "The travel assistant is unavailable right now. Please try again later.",
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
-    "errorResumeFailed": "Resume failed. The connection dropped — please try again."
+    "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
+    "errorQuota": "You've reached today's free message limit.",
+    "modeLabel": "Mode:",
+    "modeFast": "Fast",
+    "modeBalanced": "Balanced",
+    "modeDeep": "Deep"
   },
   "Errors": {
     "somethingWentWrongTitle": "Something went wrong",

@@ -26,6 +26,7 @@ def test_all_tables_registered():
         "conversations",
         "messages",
         "jobs",
+        "users",
     }
 
 

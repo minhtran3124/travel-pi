@@ -30,7 +30,7 @@ def test_subagent_react_loop_runs_tool():
             AIMessage(content="done"),
         ]
     )
-    agent = build_subagent("echoer", [echo], llm, "you echo")
+    agent = build_subagent("echoer", [echo], lambda _: llm, "you echo")
     out = agent.invoke({"messages": [HumanMessage(content="say hi")]})
 
     contents = [m.content for m in out["messages"]]
@@ -46,7 +46,7 @@ def test_subagent_without_tools_answers_directly():
     from app.clients.llm import FakeLLM
 
     llm = FakeLLM(responses=["a direct answer"])
-    agent = build_subagent("plain", [], llm, "you answer")
+    agent = build_subagent("plain", [], lambda _: llm, "you answer")
     out = agent.invoke({"messages": [HumanMessage(content="hello")]})
     assert out["messages"][-1].content == "a direct answer"
 
@@ -149,7 +149,8 @@ def test_subagent_receives_trip_context_as_leading_system_message():
             captured["messages"] = messages
             return super()._generate(messages, *args, **kwargs)
 
-    agent = build_subagent("plain", [], CapturingLLM(responses=["ok"]), "base system")
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
     agent.invoke(
         {
             "messages": [HumanMessage(content="where to eat?")],
@@ -180,7 +181,8 @@ def test_subagent_receives_summary_in_system_prompt():
             captured["messages"] = messages
             return super()._generate(messages, *args, **kwargs)
 
-    agent = build_subagent("plain", [], CapturingLLM(responses=["ok"]), "base system")
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
     agent.invoke(
         {
             "messages": [HumanMessage(content="and the food?")],

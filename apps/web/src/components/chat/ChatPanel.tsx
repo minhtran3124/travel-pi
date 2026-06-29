@@ -9,7 +9,7 @@ import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatHeader, type AgentStatus } from "./ChatHeader";
 import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
-import type { UseAgentStream } from "./useAgentStream";
+import type { ChatMode, UseAgentStream } from "./useAgentStream";
 
 export interface ChatPanelProps {
   stream: UseAgentStream;
@@ -31,6 +31,8 @@ export interface ChatPanelProps {
  * When the agent emits an interrupt event (HITL plan approval), an inline
  * approve/reject checkpoint replaces the composer until the user decides.
  */
+const MODES: ChatMode[] = ["fast", "balanced", "deep"];
+
 export function ChatPanel({
   stream,
   onClose,
@@ -39,7 +41,7 @@ export function ChatPanel({
   onToggleMap,
 }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
+  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry, mode, setMode } =
     stream;
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -52,7 +54,7 @@ export function ChatPanel({
       role="dialog"
       aria-label={t("dialogLabel")}
       className={cn(
-        "tp-chat-in flex flex-col overflow-hidden rounded-[20px] border border-line bg-white text-ink shadow-lift",
+        "tp-chat-in flex flex-col overflow-hidden rounded-[20px] border border-line bg-panel text-ink shadow-lift",
         fullscreen
           ? "h-[80vh] w-[min(92vw,640px)]"
           : "h-[min(70vh,560px)] w-[min(92vw,400px)]",
@@ -68,7 +70,7 @@ export function ChatPanel({
       {error ? (
         <p
           role="status"
-          className="border-b border-amber-200 bg-amber-50 px-lg py-sm text-xs font-medium text-amber-700"
+          className="border-b border-status-estimated/30 bg-status-estimated/10 px-lg py-sm text-xs font-medium text-status-estimated"
         >
           {error}
         </p>
@@ -81,7 +83,7 @@ export function ChatPanel({
       )}
 
       {canRetry ? (
-        <div className="flex items-center justify-between gap-sm border-t border-line bg-surface px-lg py-sm">
+        <div className="flex items-center justify-between gap-sm border-t border-line bg-panel-raised px-lg py-sm">
           <span className="text-xs text-muted">{t("retryHint")}</span>
           <button
             type="button"
@@ -112,7 +114,27 @@ export function ChatPanel({
           onReject={() => resume(false)}
         />
       ) : (
-        <ChatComposer disabled={inputBlocked} onSend={send} />
+        <>
+          <div className="flex items-center gap-1 border-t border-line px-lg py-sm">
+            <span className="mr-1 text-xs text-muted">{t("modeLabel")}</span>
+            {MODES.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={cn(
+                  "rounded-pill border px-md py-0.5 text-xs font-medium transition",
+                  m === mode
+                    ? "border-ink bg-ink text-white"
+                    : "border-line text-muted hover:bg-line/40",
+                )}
+              >
+                {t(`mode${m.charAt(0).toUpperCase()}${m.slice(1)}` as "modeFast" | "modeBalanced" | "modeDeep")}
+              </button>
+            ))}
+          </div>
+          <ChatComposer disabled={inputBlocked} onSend={send} />
+        </>
       )}
     </section>
   );

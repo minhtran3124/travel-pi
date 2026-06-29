@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { client, unwrap } from "@/lib/api/client";
 import { qk } from "@/lib/api/keys";
 import type { components } from "@/lib/api/schema";
+import { authHeader } from "@/lib/supabase/authHeader";
 
 export type AgentManifest = components["schemas"]["AgentManifest"];
 export type ToolManifestEntry = components["schemas"]["ToolManifestEntry"];
@@ -40,6 +41,7 @@ export async function fetchConversations(
 ): Promise<Conversation[]> {
   const res = await fetch(
     `/api/be/agent/conversations?user_id=${encodeURIComponent(userId)}`,
+    { headers: await authHeader() },
   );
   if (!res.ok) throw new Error(`fetchConversations: ${res.status}`);
   return res.json() as Promise<Conversation[]>;
@@ -48,12 +50,29 @@ export async function fetchConversations(
 /** GET /agent/conversations/{conversationId}/messages */
 export async function fetchConversationMessages(
   conversationId: string,
+  userId: string,
 ): Promise<Message[]> {
+  // Pass the anonymous userId so the owner check passes when logged out; when a
+  // bearer token is present the BE uses the JWT sub and ignores this param.
   const res = await fetch(
-    `/api/be/agent/conversations/${encodeURIComponent(conversationId)}/messages`,
+    `/api/be/agent/conversations/${encodeURIComponent(conversationId)}/messages?user_id=${encodeURIComponent(userId)}`,
+    { headers: await authHeader() },
   );
   if (!res.ok) throw new Error(`fetchConversationMessages: ${res.status}`);
   return res.json() as Promise<Message[]>;
+}
+
+/** POST /agent/conversations/claim — migrate anonymous conversations to the logged-in account */
+export async function fetchClaim(
+  anonymousUserId: string,
+): Promise<{ claimed: number }> {
+  const res = await fetch("/api/be/agent/conversations/claim", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await authHeader()) },
+    body: JSON.stringify({ anonymous_user_id: anonymousUserId }),
+  });
+  if (!res.ok) throw new Error(`fetchClaim: ${res.status}`);
+  return res.json() as Promise<{ claimed: number }>;
 }
 
 /**

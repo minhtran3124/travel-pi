@@ -132,7 +132,7 @@ function Avatar({
     <span
       aria-hidden="true"
       className={cn(
-        "grid shrink-0 place-items-center rounded-pill bg-ink font-bold text-white",
+        "grid shrink-0 place-items-center rounded-pill bg-ink font-bold text-on-ink",
         className,
       )}
     >

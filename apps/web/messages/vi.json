@@ -23,6 +23,11 @@
   "LocaleSwitcher": {
     "label": "Ngôn ngữ"
   },
+  "ThemeToggle": {
+    "toggle": "Đổi giao diện",
+    "light": "Sáng",
+    "dark": "Tối"
+  },
   "Trips": {
     "whereToNext": "Đi đâu tiếp nào?",
     "loadingTrips": "Đang tải chuyến đi của bạn…",
@@ -420,7 +425,12 @@
     "errorConnectionDropped": "Kết nối bị gián đoạn giữa chừng khi trả lời. Câu trả lời ở trên có thể chưa hoàn chỉnh.",
     "errorUnavailable": "Trợ lý du lịch hiện không khả dụng. Vui lòng thử lại sau.",
     "fallbackCouldNotReach": "Xin lỗi — tôi không thể kết nối tới trợ lý du lịch.",
-    "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại."
+    "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
+    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
+    "modeLabel": "Chế độ:",
+    "modeFast": "Nhanh",
+    "modeBalanced": "Cân bằng",
+    "modeDeep": "Sâu"
   },
   "Errors": {
     "somethingWentWrongTitle": "Đã xảy ra lỗi",

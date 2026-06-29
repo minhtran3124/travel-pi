@@ -12,7 +12,9 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
+from app.agents.context import AgentContext
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END
 
@@ -33,9 +35,11 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
     from app.agents.supervisor import make_supervisor
 
     supervisor = make_supervisor(llm)
+    # Default per-run context (no tier gating) — the supervisor now takes a Runtime.
+    runtime = SimpleNamespace(context=AgentContext())
     results = []
     for item in dataset:
-        cmd = supervisor({"messages": [HumanMessage(content=item["input"])]})
+        cmd = supervisor({"messages": [HumanMessage(content=item["input"])]}, runtime)
         # Use current_flow (the semantic intent) rather than goto: booking now
         # routes through plan_node first, so goto="plan" but current_flow="booking".
         predicted = (cmd.update or {}).get("current_flow") or (

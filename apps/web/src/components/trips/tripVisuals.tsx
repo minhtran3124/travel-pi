@@ -217,7 +217,7 @@ export function StatusChip({ status }: { status: TripStatus }) {
   return (
     <span
       className={cn(
-        "shrink-0 rounded-pill bg-white/80 px-sm py-px text-xs font-bold shadow-sm ring-1 ring-black/5 backdrop-blur-sm",
+        "shrink-0 rounded-pill bg-panel/80 px-sm py-px text-xs font-bold shadow-sm ring-1 ring-line backdrop-blur-sm",
         status.phase === "upcoming" ? "text-ink" : "text-muted",
       )}
     >

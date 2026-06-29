@@ -28,16 +28,24 @@ Sequenced **after** `specs/conversation-persistence/` per user decision.
 
 ## Rollback
 
-- Migration (B.1): `alembic downgrade -1`.
-- Code: `git revert <sha>` per task; all reversible.
+- Migration (B.1 — revision `a1f3e2c9b7d5`): `cd apps/api && ../../.venv/bin/alembic downgrade -1`
+- Code (B.1): `git revert <sha>` — reverts model, __init__, repository, migration file, router wire-up, and tests.
 
 ## Verify
 
 | Check | Command | Exit | Notes |
 |-------|---------|------|-------|
 | Context resolver | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_agent_context.py -x` | — | plan stage |
-| Migration + tier | `cd apps/api && ../../.venv/bin/alembic upgrade head && ../../.venv/bin/python -m pytest tests/api/user/test_user_repo.py -x` | — | plan stage |
+| Alembic upgrade | `cd apps/api && DATABASE_URL="sqlite:///test_run.db" ../../.venv/bin/alembic upgrade head` | 0 | B.1 executed |
+| Alembic round-trip | `cd apps/api && DATABASE_URL="sqlite:///test_run.db" ../../.venv/bin/alembic downgrade -1 && alembic upgrade head` | 0 | B.1 executed |
+| User repo + agent tests | `cd apps/api && DATABASE_URL="sqlite:///test_run.db" ../../.venv/bin/python -m pytest tests/api/user/test_user_repo.py tests/api/agent -x -q` | 0 | 39 passed |
+| Lint | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | B.1 executed |
 | FE typecheck | `cd apps/web && pnpm --filter web typecheck` (Node v24) | — | plan stage |
+
+## Deviations
+
+- Rule 3 — ruff-on-edit hook stripped `sqlite_insert` from `app/repositories/user.py` (added before use in a draft; final file is clean). Commit `TBD`.
+- Rule 3 — ruff-on-edit stripped `UserRepository` import from `app/routers/agent.py` on first edit pass; re-added together with its usage site in one atomic edit.
 
 ## Notes
 

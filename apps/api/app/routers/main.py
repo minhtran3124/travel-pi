@@ -8,6 +8,7 @@ factory.
 from fastapi import APIRouter
 
 from app.routers import (
+    admin,
     agent,
     air_quality,
     airports,
@@ -48,5 +49,6 @@ router.include_router(bookings.router)
 router.include_router(trips.router)
 router.include_router(expenses.router)
 router.include_router(agent.router)
+router.include_router(admin.router)
 # Server-rendered HTML dashboard — excluded from the OpenAPI schema.
 router.include_router(dashboard.router)

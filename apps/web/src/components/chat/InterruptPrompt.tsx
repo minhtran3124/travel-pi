@@ -27,7 +27,7 @@ export function InterruptPrompt({
       className="tp-msg-in border-t border-line bg-lime-soft/40 px-lg py-md"
     >
       <div className="mb-sm flex items-center gap-sm">
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-lime text-ink">
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-lime text-on-accent">
           <svg
             width="14"
             height="14"
@@ -49,14 +49,14 @@ export function InterruptPrompt({
         <button
           type="button"
           onClick={onApprove}
-          className="flex-1 rounded-sm bg-ink px-md py-sm text-sm font-bold text-white transition duration-150 hover:bg-[#2e2e2e] active:translate-y-px"
+          className="flex-1 rounded-sm bg-ink px-md py-sm text-sm font-bold text-on-ink transition duration-150 hover:bg-ink-hover active:translate-y-px"
         >
           {t("approve")}
         </button>
         <button
           type="button"
           onClick={onReject}
-          className="flex-1 rounded-sm border border-line bg-white px-md py-sm text-sm font-medium text-muted transition duration-150 hover:bg-panel-raised hover:text-ink active:translate-y-px"
+          className="flex-1 rounded-sm border border-line bg-panel px-md py-sm text-sm font-medium text-muted transition duration-150 hover:bg-panel-raised hover:text-ink active:translate-y-px"
         >
           {t("reject")}
         </button>
