@@ -122,6 +122,23 @@ def test_city_endpoint_falls_back_to_geocoder(monkeypatch):
     assert (ep.latitude, ep.longitude) == (21.0245, 105.8412)
 
 
+def test_city_endpoint_weak_seed_match_defers_to_geocoder(monkeypatch):
+    """A weak collision ("Phu Yen" ~0.62 vs seed "Phuket") must NOT win — it
+    defers to the geocoder instead of confidently routing to the wrong city."""
+
+    async def _geo(city):
+        assert city == "Phu Yen"
+        return {"name": "Phu Yen", "latitude": 13.0882, "longitude": 109.0929}
+
+    monkeypatch.setattr(rs, "geocode_city", _geo)
+    svc = _service_with_cities(["Phuket"], coords=(7.8804, 98.3923))
+
+    ep = asyncio.run(svc._city_endpoint("Phu Yen", "Destination"))
+
+    assert ep.name == "Phu Yen"
+    assert (ep.latitude, ep.longitude) == (13.0882, 109.0929)
+
+
 def test_city_endpoint_not_found_when_geocoder_empty(monkeypatch):
     """Neither seed nor geocoder resolves the name -> NotFoundError."""
 

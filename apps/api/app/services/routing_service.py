@@ -27,7 +27,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.geo import haversine_km
-from app.core.text import best_match
+from app.core.text import best_match, match_score
 from app.db.session import get_session
 from app.exceptions import NotFoundError, RoutingUnavailableError
 from app.repositories.city import CityRepository
@@ -36,6 +36,13 @@ from app.services.place_service import PlaceService
 from app.services.weather_service import geocode_city
 
 logger = logging.getLogger(__name__)
+
+# Only trust the offline seed fuzzy match when it is at least this strong;
+# weaker matches (short proper nouns collide — "Phu Yen" ~0.62 vs "Phuket")
+# defer to the geocoder rather than confidently routing to the wrong city.
+# Above the global city-search threshold (0.6) on purpose: routing must not
+# silently swap the destination. Exact/prefix/substring/strong-typo all clear it.
+_SEED_MATCH_CONFIDENT = 0.8
 
 # Friendly mode label -> (ORS routing profile, fallback speed in km/h).
 # The fallback speeds are rough city-travel averages, used only when no ORS
@@ -205,28 +212,33 @@ class RoutingService:
     async def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
         """Resolve a city name to a :class:`RouteEndpoint` — seed-first, then geocoder.
 
-        A fuzzy match against the seed catalogue (case-insensitive, typo/spacing
-        tolerant, e.g. "danang" → "Da Nang") resolves known cities offline and
-        deterministically. Anything the ASCII seed cannot place — a city outside
-        the catalogue, or a localised name like "Hà Nội" the seed does not fold —
-        falls back to Open-Meteo's keyless geocoder, so routing is
-        language-agnostic instead of 404-ing. Raises :class:`NotFoundError` only
-        when neither resolves the name.
+        A *confident* fuzzy match against the seed catalogue (case-insensitive,
+        typo/spacing tolerant, e.g. "danang" → "Da Nang") resolves known cities
+        offline and deterministically. A weak match does NOT win: short proper
+        nouns collide under difflib (e.g. "Phu Yen" scores 0.62 against "Phuket"),
+        so anything below ``_SEED_MATCH_CONFIDENT`` — plus localised names like
+        "Hà Nội" the ASCII seed cannot fold, and cities outside the catalogue —
+        falls back to Open-Meteo's keyless geocoder instead of confidently routing
+        to the wrong city. Raises :class:`NotFoundError` only when neither resolves.
         """
         matched = best_match(city_name, self._city.distinct_names(), [lambda c: c])
-        record = self._city.get(matched) if matched is not None else None
         if (
-            record is not None
-            and record.latitude is not None
-            and record.longitude is not None
+            matched is not None
+            and match_score(city_name, matched) >= _SEED_MATCH_CONFIDENT
         ):
-            return RouteEndpoint(
-                kind="city",
-                id=record.name,
-                name=record.name,
-                latitude=record.latitude,
-                longitude=record.longitude,
-            )
+            record = self._city.get(matched)
+            if (
+                record is not None
+                and record.latitude is not None
+                and record.longitude is not None
+            ):
+                return RouteEndpoint(
+                    kind="city",
+                    id=record.name,
+                    name=record.name,
+                    latitude=record.latitude,
+                    longitude=record.longitude,
+                )
 
         # Fallback: the same keyless Open-Meteo geocoder the weather feature uses
         # (handles diacritics / non-English names and cities not in the seed).
