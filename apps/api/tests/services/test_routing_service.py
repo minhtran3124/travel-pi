@@ -13,6 +13,8 @@ import asyncio
 from types import SimpleNamespace
 
 import app.services.routing_service as rs
+import pytest
+from app.exceptions import NotFoundError
 from app.schemas.route import RouteEndpoint
 
 _ORS_RESPONSE = {
@@ -71,3 +73,63 @@ def test_geometry_none_in_estimate_mode(monkeypatch):
 
     assert out.source == "estimate"
     assert out.geometry is None
+
+
+def _service_with_cities(names, *, coords=None):
+    """A RoutingService whose city repo is a stub (no DB)."""
+    svc = rs.RoutingService(None)
+    svc._city = SimpleNamespace(
+        distinct_names=lambda: names,
+        get=lambda n: (
+            SimpleNamespace(name=n, latitude=coords[0], longitude=coords[1])
+            if coords is not None
+            else None
+        ),
+    )
+    return svc
+
+
+def test_city_endpoint_prefers_seed_without_geocoding(monkeypatch):
+    """A seeded city resolves offline; the geocoder is never called."""
+    called = {"geo": False}
+
+    async def _geo(_city):
+        called["geo"] = True
+        return None
+
+    monkeypatch.setattr(rs, "geocode_city", _geo)
+    svc = _service_with_cities(["Da Nang"], coords=(16.07, 108.22))
+
+    ep = asyncio.run(svc._city_endpoint("danang", "Origin"))
+
+    assert (ep.name, ep.latitude, ep.longitude) == ("Da Nang", 16.07, 108.22)
+    assert called["geo"] is False
+
+
+def test_city_endpoint_falls_back_to_geocoder(monkeypatch):
+    """A name the ASCII seed cannot place (e.g. "Hà Nội") resolves via Open-Meteo."""
+
+    async def _geo(city):
+        assert city == "Hà Nội"
+        return {"name": "Hà Nội", "latitude": 21.0245, "longitude": 105.8412}
+
+    monkeypatch.setattr(rs, "geocode_city", _geo)
+    svc = _service_with_cities(["Da Nang"])  # seed miss -> geocode fallback
+
+    ep = asyncio.run(svc._city_endpoint("Hà Nội", "Origin"))
+
+    assert ep.name == "Hà Nội"
+    assert (ep.latitude, ep.longitude) == (21.0245, 105.8412)
+
+
+def test_city_endpoint_not_found_when_geocoder_empty(monkeypatch):
+    """Neither seed nor geocoder resolves the name -> NotFoundError."""
+
+    async def _geo(_city):
+        return None
+
+    monkeypatch.setattr(rs, "geocode_city", _geo)
+    svc = _service_with_cities(["Da Nang"])
+
+    with pytest.raises(NotFoundError):
+        asyncio.run(svc._city_endpoint("Nowhere-Xyzzy", "Origin"))

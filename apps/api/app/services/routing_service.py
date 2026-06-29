@@ -33,6 +33,7 @@ from app.exceptions import NotFoundError, RoutingUnavailableError
 from app.repositories.city import CityRepository
 from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
 from app.services.place_service import PlaceService
+from app.services.weather_service import geocode_city
 
 logger = logging.getLogger(__name__)
 
@@ -201,39 +202,50 @@ class RoutingService:
             longitude=place.longitude,
         )
 
-    def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
-        """Resolve a city name to a :class:`RouteEndpoint`, fuzzily.
+    async def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
+        """Resolve a city name to a :class:`RouteEndpoint` — seed-first, then geocoder.
 
-        The lookup is forgiving — case-insensitive and typo/spacing tolerant
-        (e.g. "danang" → "Da Nang") — using the same fuzzy matcher as
-        ``GET /cities?q=``, so callers need not know the exact spelling. Raises
-        :class:`NotFoundError` if nothing matches or the matched city has no
-        coordinates in the seed data.
+        A fuzzy match against the seed catalogue (case-insensitive, typo/spacing
+        tolerant, e.g. "danang" → "Da Nang") resolves known cities offline and
+        deterministically. Anything the ASCII seed cannot place — a city outside
+        the catalogue, or a localised name like "Hà Nội" the seed does not fold —
+        falls back to Open-Meteo's keyless geocoder, so routing is
+        language-agnostic instead of 404-ing. Raises :class:`NotFoundError` only
+        when neither resolves the name.
         """
         matched = best_match(city_name, self._city.distinct_names(), [lambda c: c])
         record = self._city.get(matched) if matched is not None else None
-        if record is None:
-            raise NotFoundError(
-                f"{label} city '{city_name}' not found",
-                hint=(
-                    "Use GET /cities?q=<partial-name> to find the canonical "
-                    "city name (the lookup is fuzzy / typo-tolerant)."
-                ),
+        if (
+            record is not None
+            and record.latitude is not None
+            and record.longitude is not None
+        ):
+            return RouteEndpoint(
+                kind="city",
+                id=record.name,
+                name=record.name,
+                latitude=record.latitude,
+                longitude=record.longitude,
             )
-        if record.latitude is None or record.longitude is None:
-            raise NotFoundError(
-                f"{label} city '{record.name}' has no coordinates",
-                hint=(
-                    "This city is missing latitude/longitude in the seed data "
-                    "and cannot take part in a route."
-                ),
+
+        # Fallback: the same keyless Open-Meteo geocoder the weather feature uses
+        # (handles diacritics / non-English names and cities not in the seed).
+        geo = await geocode_city(city_name)
+        if geo is not None:
+            return RouteEndpoint(
+                kind="city",
+                id=geo["name"],
+                name=geo["name"],
+                latitude=geo["latitude"],
+                longitude=geo["longitude"],
             )
-        return RouteEndpoint(
-            kind="city",
-            id=record.name,
-            name=record.name,
-            latitude=record.latitude,
-            longitude=record.longitude,
+
+        raise NotFoundError(
+            f"{label} city '{city_name}' not found",
+            hint=(
+                "Use GET /cities?q=<partial-name> to find a known city, or try a "
+                "more specific name — routing also geocodes via Open-Meteo."
+            ),
         )
 
     async def get_route_between(
@@ -353,8 +365,8 @@ class RoutingService:
         self, origin_name: str, destination_name: str
     ) -> RouteResponse:
         """Route between two cities, by city name (404 if unknown / no coords)."""
-        origin = self._city_endpoint(origin_name, "Origin")
-        destination = self._city_endpoint(destination_name, "Destination")
+        origin = await self._city_endpoint(origin_name, "Origin")
+        destination = await self._city_endpoint(destination_name, "Destination")
         return await self.get_route_between(origin, destination)
 
 
