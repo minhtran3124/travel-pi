@@ -92,7 +92,10 @@ def test_list_messages_returns_ordered_messages(tmp_path):
     )
 
     with TestClient(app) as client:
-        resp = client.get(f"/agent/conversations/{conv.id}/messages")
+        resp = client.get(
+            f"/agent/conversations/{conv.id}/messages",
+            params={"user_id": "user-msgs-1"},
+        )
 
     assert resp.status_code == 200
     msgs = resp.json()
@@ -108,8 +111,43 @@ def test_list_messages_unknown_conversation_returns_empty(tmp_path):
     app, _ = _make_app(tmp_path)
 
     with TestClient(app) as client:
-        resp = client.get("/agent/conversations/does-not-exist/messages")
+        resp = client.get(
+            "/agent/conversations/does-not-exist/messages",
+            params={"user_id": "anyone"},
+        )
 
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+def test_list_messages_requires_identity_when_anonymous(tmp_path):
+    """GET messages without a token and without user_id is rejected (422)."""
+    app, factory = _make_app(tmp_path)
+    repo = ConversationRepository(factory)
+    conv = repo.create_conversation(user_id="user-msgs-anon")
+    repo.append_message(conversation_id=conv.id, role="user", content="secret")
+
+    with TestClient(app) as client:
+        resp = client.get(f"/agent/conversations/{conv.id}/messages")
+
+    assert resp.status_code == 422
+
+
+def test_list_messages_scoped_to_owner(tmp_path):
+    """A non-owner cannot read another user's conversation messages (IDOR guard)."""
+    app, factory = _make_app(tmp_path)
+    repo = ConversationRepository(factory)
+
+    conv = repo.create_conversation(user_id="owner-1")
+    repo.append_message(conversation_id=conv.id, role="user", content="private note")
+
+    with TestClient(app) as client:
+        resp = client.get(
+            f"/agent/conversations/{conv.id}/messages",
+            params={"user_id": "attacker-2"},
+        )
+
+    # Empty (not 403) so existence of the conversation is not confirmed.
     assert resp.status_code == 200
     assert resp.json() == []
 

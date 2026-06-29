@@ -50,9 +50,12 @@ export async function fetchConversations(
 /** GET /agent/conversations/{conversationId}/messages */
 export async function fetchConversationMessages(
   conversationId: string,
+  userId: string,
 ): Promise<Message[]> {
+  // Pass the anonymous userId so the owner check passes when logged out; when a
+  // bearer token is present the BE uses the JWT sub and ignores this param.
   const res = await fetch(
-    `/api/be/agent/conversations/${encodeURIComponent(conversationId)}/messages`,
+    `/api/be/agent/conversations/${encodeURIComponent(conversationId)}/messages?user_id=${encodeURIComponent(userId)}`,
     { headers: await authHeader() },
   );
   if (!res.ok) throw new Error(`fetchConversationMessages: ${res.status}`);

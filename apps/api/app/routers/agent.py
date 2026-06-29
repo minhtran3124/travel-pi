@@ -320,13 +320,26 @@ def list_conversations(
     summary="List messages for a conversation",
 )
 def list_conversation_messages(
-    conversation_id: str, session: SessionDep
+    conversation_id: str,
+    session: SessionDep,
+    auth_user: OptionalUserDep,
+    user_id: str | None = None,
 ) -> list[Message]:
     """Return all messages for the given conversation, oldest first.
 
-    Returns an empty list for an unknown conversation_id (matches the repo contract).
+    Ownership-scoped: the caller must be the conversation's owner. When
+    authenticated the JWT sub is used and the ``user_id`` query param is ignored
+    (no spoofing); anonymous callers must supply their ``user_id``. Returns an
+    empty list for an unknown conversation or one owned by someone else — this
+    neither leaks message contents nor confirms a conversation's existence.
     """
+    uid = _effective_user_id(auth_user, user_id)
+    if uid is None:
+        raise DomainValidationError("user_id is required when not authenticated.")
     repo = ConversationRepository(session)
+    conversation = repo.get(conversation_id)
+    if conversation is None or conversation.user_id != uid:
+        return []
     return repo.list_messages(conversation_id)
 
 

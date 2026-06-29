@@ -194,7 +194,7 @@ export function useAgentStream(
       if (!storedId) return;
       conversationIdRef.current = storedId;
 
-      fetchConversationMessages(storedId)
+      fetchConversationMessages(storedId, userId)
         .then((msgs) => {
           if (msgs.length > 0) {
             setMessages(
@@ -370,6 +370,7 @@ export function useAgentStream(
         trip_id: tripIdRef.current ?? null,
         conversation_id: pendingInterrupt.conversationId,
         retry: false,
+        mode,
       };
 
       setInterrupt(null);
@@ -388,6 +389,9 @@ export function useAgentStream(
             signal: controller.signal,
           });
 
+          if (res.status === 429) {
+            throw new Error("quota");
+          }
           if (!res.ok || !res.body) {
             throw new Error(`resume failed: ${res.status}`);
           }
@@ -408,9 +412,13 @@ export function useAgentStream(
                 break;
             }
           }
-        } catch {
+        } catch (err) {
           if (controller.signal.aborted) return;
-          setError(t("errorResumeFailed"));
+          if (err instanceof Error && err.message === "quota") {
+            setError(t("errorQuota"));
+          } else {
+            setError(t("errorResumeFailed"));
+          }
         } finally {
           inFlightRef.current = false;
           if (!controller.signal.aborted) {
@@ -421,7 +429,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, onTurnComplete, setAssistant, t, userId],
+    [appendToAssistant, interrupt, mode, onTurnComplete, setAssistant, t, userId],
   );
 
   const retry = useCallback(() => {
