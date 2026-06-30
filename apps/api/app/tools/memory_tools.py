@@ -16,7 +16,7 @@ from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
 
-from app.memory.store import search_preferences, upsert_preference
+from app.memory.store import search_episodes, search_preferences, upsert_preference
 
 
 @tool
@@ -42,3 +42,18 @@ def get_user_preferences(
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
+
+
+@tool
+def recall_past_trips(
+    query: str,
+    user_id: Annotated[str, InjectedState("user_id")],
+    store: Annotated[BaseStore, InjectedStore],
+) -> list:
+    """Recall this traveller's past trip outcomes to personalise the plan (e.g.
+    pace, area, airline/hotel preferences they liked before)."""
+    return search_episodes(store, user_id, query=query)
+
+
+# Episodic-recall tool, bound to the planner (gated by AgentContext.allow_episodic).
+EPISODE_TOOLS = [recall_past_trips]

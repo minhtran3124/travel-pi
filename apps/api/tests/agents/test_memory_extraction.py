@@ -1,9 +1,8 @@
 """Task 2.1 — Background memory extraction node (specs/agent-memory-layers)."""
 
-from langchain_core.messages import AIMessage, HumanMessage
-
 from app.agents.context import AgentContext
 from app.enums import ChatMode, Tier
+from langchain_core.messages import AIMessage, HumanMessage
 
 
 def _build_memory_graph(
@@ -110,12 +109,11 @@ def test_extract_memory_writes_both_prefs_and_instructions():
 
 def test_fast_mode_writes_nothing():
     """When allow_memory_write=False (FAST mode), nothing is written."""
-    from app.memory.store import get_instructions, search_preferences
-
     # Build graph fresh with FAST context — the extractor should skip entirely.
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
+    from app.memory.store import get_instructions, search_preferences
     from langgraph.checkpoint.memory import MemorySaver
     from langgraph.store.memory import InMemoryStore
 
@@ -133,9 +131,7 @@ def test_fast_mode_writes_nothing():
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=store
     )
 
-    ctx = AgentContext(
-        tier=Tier.FREE, mode=ChatMode.FAST, allow_memory_write=False
-    )
+    ctx = AgentContext(tier=Tier.FREE, mode=ChatMode.FAST, allow_memory_write=False)
     graph.invoke(
         {
             "messages": [HumanMessage(content="I'm vegetarian")],
@@ -155,9 +151,9 @@ def test_extract_memory_empty_json_writes_nothing():
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
+    from app.memory.store import get_instructions, search_preferences
     from langgraph.checkpoint.memory import MemorySaver
     from langgraph.store.memory import InMemoryStore
-    from app.memory.store import get_instructions, search_preferences
 
     # Route to concierge (no save_user_preference tool) so only the extractor
     # could write anything — and it won't with empty JSON.
@@ -185,3 +181,137 @@ def test_extract_memory_empty_json_writes_nothing():
     )
     assert search_preferences(store, "u45") == []
     assert get_instructions(store, "u45") == []
+
+
+# --- P2: episode writes (Task 2.3 / 2.3b) ---
+
+
+def _build_episode_graph(extractor_json: str):
+    """Build a graph routing to concierge with a scripted extractor output."""
+    from app.agents.graph import build_graph
+    from app.agents.supervisor import SupervisorIntent
+    from app.clients.llm import FakeLLM
+    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.store.memory import InMemoryStore
+
+    main = FakeLLM(
+        structured_responses=[SupervisorIntent(target_agent="concierge")] * 4,
+        responses=["Concierge answer."] * 4,
+    )
+    fast = FakeLLM(
+        responses=[
+            "OK",  # reflection verdict
+            extractor_json,  # extractor output
+        ]
+    )
+    store = InMemoryStore()
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=store
+    )
+    return graph, store
+
+
+def test_extract_memory_writes_episode_with_rich_metadata():
+    """A non-FAST turn writes an episode with rich metadata to the store."""
+    from app.memory.store import search_episodes
+
+    json_str = (
+        '{"preferences": [], "instructions": [],'
+        ' "episodes": [{"key": "trip_abc", "text": "Da Nang slow beach trip",'
+        ' "city": "Da Nang", "outcome": "proposed"}]}'
+    )
+    graph, store = _build_episode_graph(json_str)
+
+    # No trip_id in state (avoids a Postgres call in load_context); the episode
+    # key comes from the extractor JSON, and trip_id metadata is None.
+    graph.invoke(
+        {
+            "messages": [HumanMessage(content="Plan a Da Nang trip")],
+            "user_id": "u_ep1",
+        },
+        {"configurable": {"thread_id": "t_ep1"}},
+    )
+    episodes = search_episodes(store, "u_ep1")
+    assert len(episodes) == 1
+    ep = episodes[0]
+    assert ep["text"] == "Da Nang slow beach trip"
+    assert ep["city"] == "Da Nang"
+    # The episode key comes from the extractor's "key" (no state trip_id).
+    assert ep["trip_id"] is None
+    # No HITL approval this turn → outcome stays "proposed".
+    assert ep["outcome"] == "proposed"
+
+
+def test_extract_memory_empty_episodes_writes_nothing():
+    """Empty episodes array → no episode persisted (prefs/instrs still work)."""
+    from app.memory.store import search_episodes, search_preferences
+
+    json_str = (
+        '{"preferences": [{"key": "diet", "text": "vegetarian"}],'
+        ' "instructions": [], "episodes": []}'
+    )
+    graph, store = _build_episode_graph(json_str)
+
+    graph.invoke(
+        {
+            "messages": [HumanMessage(content="I'm vegetarian")],
+            "user_id": "u_ep2",
+        },
+        {"configurable": {"thread_id": "t_ep2"}},
+    )
+    assert search_episodes(store, "u_ep2") == []
+    # P1 writes still happen.
+    assert any(p["text"] == "vegetarian" for p in search_preferences(store, "u_ep2"))
+
+
+def test_extract_memory_p1_json_no_episodes_writes_no_episode():
+    """P1-style JSON (no 'episodes' key) still writes prefs/instrs, no episode."""
+    from app.memory.store import search_episodes, search_preferences
+
+    json_str = '{"preferences": [{"key": "diet", "text": "vegan"}], "instructions": []}'
+    graph, store = _build_episode_graph(json_str)
+
+    graph.invoke(
+        {
+            "messages": [HumanMessage(content="I'm vegan")],
+            "user_id": "u_ep3",
+        },
+        {"configurable": {"thread_id": "t_ep3"}},
+    )
+    assert search_episodes(store, "u_ep3") == []
+    assert any(p["text"] == "vegan" for p in search_preferences(store, "u_ep3"))
+
+
+def test_fast_mode_writes_no_episode():
+    """FAST mode (allow_memory_write=False) writes no episode (incl. no prefs)."""
+    from app.agents.context import AgentContext
+    from app.agents.graph import build_graph
+    from app.agents.supervisor import SupervisorIntent
+    from app.clients.llm import FakeLLM
+    from app.enums import ChatMode, Tier
+    from app.memory.store import search_episodes, search_preferences
+    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.store.memory import InMemoryStore
+
+    main = FakeLLM(
+        structured_responses=[SupervisorIntent(target_agent="concierge")] * 4,
+        responses=["Concierge answer."] * 4,
+    )
+    fast = FakeLLM(responses=["OK"] * 10)
+    store = InMemoryStore()
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=store
+    )
+
+    ctx = AgentContext(tier=Tier.FREE, mode=ChatMode.FAST, allow_memory_write=False)
+    # The extractor is gated off in FAST (fast LLM only returns "OK"), so the store
+    # must stay empty — no episode and no preference written.
+    graph.invoke(
+        {
+            "messages": [HumanMessage(content="Plan a trip")],
+            "user_id": "u_ep_fast",
+        },
+        {"configurable": {"thread_id": "t_ep_fast"}, "context": ctx},
+    )
+    assert search_episodes(store, "u_ep_fast") == []
+    assert search_preferences(store, "u_ep_fast") == []

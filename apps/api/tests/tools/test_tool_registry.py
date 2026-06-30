@@ -24,6 +24,44 @@ def test_get_tools_for_groups():
     assert get_tools_for("nope") == []
 
 
+# --- P2: episodic recall tool (Task 2.4) ---
+
+
+def test_recall_past_trips_bound_to_planner():
+    """recall_past_trips is in the planner's tool group (P2)."""
+    from app.tools.registry import get_tools_for
+
+    planner = {t.name for t in get_tools_for("planner")}
+    assert "recall_past_trips" in planner
+
+
+def test_recall_past_trips_not_in_other_domains():
+    """recall_past_trips is bound to the planner only."""
+    from app.tools.registry import get_tools_for
+
+    for domain in ("concierge", "journal", "booking", "budget"):
+        assert "recall_past_trips" not in {t.name for t in get_tools_for(domain)}
+
+
+def test_recall_past_trips_hides_injected_store_and_user_id():
+    """InjectedStore + InjectedState must NOT appear in the LLM-visible schema (C3)."""
+    from app.tools.memory_tools import recall_past_trips
+
+    assert "store" not in recall_past_trips.args
+    assert "user_id" not in recall_past_trips.args
+    assert "query" in recall_past_trips.args
+
+
+def test_recall_past_trips_metadata_readonly():
+    """recall_past_trips is auto-annotated readOnly=True, destructive=False."""
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["recall_past_trips"] == {
+        "readOnly": True,
+        "destructive": False,
+    }
+
+
 def test_tool_metadata_annotations():
     from app.tools.registry import TOOL_METADATA
 

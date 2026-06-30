@@ -27,7 +27,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.runtime import Runtime
 
-from app.agents.constants import RAG_TOOL_NAME
+from app.agents.constants import EPISODIC_TOOL_NAME, RAG_TOOL_NAME
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.enums import ResponseStyle
@@ -80,14 +80,21 @@ def build_subagent(
         ctx = runtime.context if runtime.context is not None else None
         ctx_model = ctx.model if ctx is not None else None
         allow_rag = ctx.allow_rag if ctx is not None else True
+        allow_episodic = ctx.allow_episodic if ctx is not None else True
         response_style = (
             ctx.response_style if ctx is not None else ResponseStyle.DEFAULT
         )
 
         model = resolve_model(ctx_model)
 
-        # Filter the RAG retrieval tool when the context disables it (e.g. fast mode).
-        active_tools = [t for t in tools if allow_rag or t.name != RAG_TOOL_NAME]
+        # Filter the RAG + episodic-recall tools when the context disables them
+        # (e.g. fast mode / free-tier constraint for RAG).
+        active_tools = [
+            t
+            for t in tools
+            if (allow_rag or t.name != RAG_TOOL_NAME)
+            and (allow_episodic or t.name != EPISODIC_TOOL_NAME)
+        ]
         bound = model.bind_tools(active_tools) if active_tools else model
 
         # Inject a style directive into the system prompt based on response_style.

@@ -42,6 +42,10 @@ class AgentContext:
     allow_reflection: bool = True
     allow_rag: bool = True
     allow_memory_write: bool = True
+    # P2: episodic recall (planner's recall_past_trips). Default ON for everyone —
+    # mirrors P1's memory policy (not RAG); flipping free→False is a one-line
+    # _MODE_POLICY change. Filtered in subagents/_base.py like allow_rag.
+    allow_episodic: bool = True
     response_style: ResponseStyle = ResponseStyle.DEFAULT
     # None means "all sub-agents allowed"; a frozenset restricts routing (Phase D.1).
     allowed_subagents: frozenset[str] | None = None
@@ -55,6 +59,7 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "allow_reflection": False,
         "allow_rag": False,
         "allow_memory_write": False,
+        "allow_episodic": True,
         "response_style": ResponseStyle.CONCISE,
         "max_revisions": 0,
     },
@@ -63,6 +68,7 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "allow_reflection": True,
         "allow_rag": True,
         "allow_memory_write": True,
+        "allow_episodic": True,
         "response_style": ResponseStyle.DEFAULT,
         "max_revisions": 1,
     },
@@ -71,6 +77,7 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "allow_reflection": True,
         "allow_rag": True,
         "allow_memory_write": True,
+        "allow_episodic": True,
         "response_style": ResponseStyle.DETAILED,
         "max_revisions": 2,
     },
@@ -128,6 +135,7 @@ def resolve_agent_context(
         allow_reflection=p["allow_reflection"],
         allow_rag=allow_rag,
         allow_memory_write=p["allow_memory_write"],
+        allow_episodic=p["allow_episodic"],
         response_style=p["response_style"],
         allowed_subagents=allowed_subagents,
         max_revisions=p["max_revisions"],

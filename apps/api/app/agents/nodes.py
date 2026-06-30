@@ -24,7 +24,12 @@ from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
 from app.memory.extractor import extract_memories
-from app.memory.store import get_instructions, upsert_instruction, upsert_preference
+from app.memory.store import (
+    get_instructions,
+    upsert_episode,
+    upsert_instruction,
+    upsert_preference,
+)
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -63,12 +68,8 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         try:
             instrs = get_instructions(store, user_id)
             if instrs:
-                result["instructions"] = "\n".join(
-                    f"- {i['text']}" for i in instrs
-                )
-                logger.info(
-                    "[agent] node=load_context instructions=%d", len(instrs)
-                )
+                result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
+                logger.info("[agent] node=load_context instructions=%d", len(instrs))
         except Exception:
             logger.exception("[agent] load_context: instruction load failed")
     return result
@@ -155,7 +156,9 @@ def plan_node(state: TravelAgentState) -> Command:
     logger.info("[agent] plan → booking (approved)")
     return Command(
         update={
-            "messages": [AIMessage(content="Plan approved. Proceeding with booking.")]
+            "messages": [AIMessage(content="Plan approved. Proceeding with booking.")],
+            # P2: signal approval so extract_memory records outcome="approved".
+            "plan_approved": True,
         },
         goto="booking",
     )
@@ -169,13 +172,13 @@ def make_extract_memory_node(llm: BaseChatModel):
     breaks the turn.
     """
 
-    def extract_memory(
-        state: TravelAgentState, runtime: Runtime[AgentContext]
-    ) -> dict:
+    def extract_memory(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
         ctx = runtime.context if runtime.context is not None else None
         allow_write = ctx.allow_memory_write if ctx is not None else True
         if not allow_write:
-            logger.info("[agent] node=extract_memory (skipped — allow_memory_write=False)")
+            logger.info(
+                "[agent] node=extract_memory (skipped — allow_memory_write=False)"
+            )
             return {}
 
         user_id = state.get("user_id")
@@ -189,11 +192,33 @@ def make_extract_memory_node(llm: BaseChatModel):
             for pref in extracted.preferences:
                 upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
             for instr in extracted.instructions:
-                upsert_instruction(store, user_id, instr["key"], {"text": instr["text"]})
+                upsert_instruction(
+                    store, user_id, instr["key"], {"text": instr["text"]}
+                )
+            # P2: persist episodes with rich metadata. A turn that passed the HITL
+            # plan-approval gate (plan_approved=True) records outcome="approved";
+            # otherwise the extractor's default ("proposed") stands.
+            trip_id = state.get("trip_id")
+            plan_approved = state.get("plan_approved", False)
+            for ep in extracted.episodes:
+                key = ep.get("key") or trip_id or "episode"
+                outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
+                upsert_episode(
+                    store,
+                    user_id,
+                    key,
+                    {
+                        "text": ep["text"],
+                        "trip_id": trip_id,
+                        "city": ep.get("city"),
+                        "outcome": outcome,
+                    },
+                )
             logger.info(
-                "[agent] node=extract_memory preferences=%d instructions=%d",
+                "[agent] node=extract_memory preferences=%d instructions=%d episodes=%d",
                 len(extracted.preferences),
                 len(extracted.instructions),
+                len(extracted.episodes),
             )
         except Exception:
             logger.exception("[agent] node=extract_memory: write failed")

@@ -24,7 +24,10 @@ class TravelAgentState(MessagesState):
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
     trip_context: str  # active-trip snapshot; injected at model call, not into messages
-    instructions: str  # standing procedural instructions; folded into leading system message
+    instructions: (
+        str  # standing procedural instructions; folded into leading system message
+    )
+    plan_approved: bool  # P2: HITL plan-approval signal → episode outcome="approved"
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:

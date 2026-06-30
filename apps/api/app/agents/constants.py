@@ -42,6 +42,10 @@ FAST_AGENTS: frozenset[str] = frozenset(
 # ``AgentContext.allow_rag`` is False (fast mode / free-tier constraint).
 RAG_TOOL_NAME = "search_destination_knowledge"
 
+# Name of the episodic-recall tool (app/tools/memory_tools.py); gated off when
+# ``AgentContext.allow_episodic`` is False (mirrors the RAG filter in _base.py).
+EPISODIC_TOOL_NAME = "recall_past_trips"
+
 # --- reflection -----------------------------------------------------------
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
 DEFAULT_MAX_REVISIONS = 1

@@ -114,3 +114,20 @@ def get_instructions(
     """Return procedural instruction values for a user (semantic when a query is given)."""
     results = store.search(_namespace(user_id, "procedural"), query=query, limit=limit)
     return [item.value for item in results]
+
+
+def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> None:
+    """Store/overwrite a single episodic memory — a past-trip outcome (value is a
+    JSON dict whose ``text`` field is embedded by the semantic index; ``trip_id`` /
+    ``city`` / ``outcome`` are stored metadata). Key-addressed (overwrite, not
+    append); the natural key is ``trip_id`` so re-extracting a trip is idempotent.
+    """
+    store.put(_namespace(user_id, "episodes"), key, value)
+
+
+def search_episodes(
+    store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 3
+) -> list[dict]:
+    """Return episodic-memory values for a user (semantic when a query is given)."""
+    results = store.search(_namespace(user_id, "episodes"), query=query, limit=limit)
+    return [item.value for item in results]

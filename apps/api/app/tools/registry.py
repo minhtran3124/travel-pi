@@ -13,7 +13,7 @@ from langchain_core.tools import BaseTool
 from app.tools.expense_tools import EXPENSE_TOOLS
 from app.tools.flight_tools import FLIGHT_TOOLS
 from app.tools.hotel_tools import HOTEL_TOOLS
-from app.tools.memory_tools import MEMORY_TOOLS
+from app.tools.memory_tools import EPISODE_TOOLS, MEMORY_TOOLS
 from app.tools.place_tools import PLACE_TOOLS
 from app.tools.rag_tools import RAG_TOOLS
 from app.tools.routing_tools import ROUTING_TOOLS
@@ -30,6 +30,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + HOTEL_TOOLS
         + WEATHER_TOOLS
         + ROUTING_TOOLS
+        + EPISODE_TOOLS
     ),
     "concierge": PLACE_TOOLS + WEATHER_TOOLS + RAG_TOOLS + ROUTING_TOOLS + TIP_TOOLS,
     "journal": TRIP_TOOLS + MEMORY_TOOLS,

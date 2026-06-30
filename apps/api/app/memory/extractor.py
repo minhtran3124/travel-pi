@@ -26,6 +26,7 @@ class ExtractedMemories:
 
     preferences: list[dict] = field(default_factory=list)
     instructions: list[dict] = field(default_factory=list)
+    episodes: list[dict] = field(default_factory=list)
 
 
 def _last_exchange(messages: list[BaseMessage]) -> list[BaseMessage]:
@@ -59,6 +60,7 @@ def _parse_content(raw: str) -> ExtractedMemories:
 
     prefs: list[dict] = []
     instrs: list[dict] = []
+    episodes: list[dict] = []
 
     raw_prefs = obj.get("preferences")
     if isinstance(raw_prefs, list):
@@ -72,13 +74,28 @@ def _parse_content(raw: str) -> ExtractedMemories:
             if isinstance(item, dict) and "key" in item and "text" in item:
                 instrs.append({"key": item["key"], "text": item["text"]})
 
-    return ExtractedMemories(preferences=prefs, instructions=instrs)
+    # Episodes (P2): a missing top-level "episodes" key parses to an empty list,
+    # so P1-era extractor output (no episodes) stays backward-compatible.
+    raw_episodes = obj.get("episodes")
+    if isinstance(raw_episodes, list):
+        for item in raw_episodes:
+            if isinstance(item, dict) and "key" in item and "text" in item:
+                ep = {
+                    "key": item["key"],
+                    "text": item["text"],
+                    "city": item.get("city"),
+                    "outcome": item.get("outcome", "proposed"),
+                }
+                episodes.append(ep)
+
+    return ExtractedMemories(preferences=prefs, instructions=instrs, episodes=episodes)
 
 
 def extract_memories(
     messages: list[BaseMessage], llm: BaseChatModel
 ) -> ExtractedMemories:
-    """Extract durable preferences + standing instructions from a conversation.
+    """Extract durable preferences, standing instructions and trip episodes from a
+    conversation.
 
     Sends the prompt and the last user—assistant exchange to *llm*, then
     defensively parses the JSON reply.  Any error → empty ``ExtractedMemories``
@@ -86,7 +103,10 @@ def extract_memories(
     """
     prompt = registry.get("memory_extraction")
     exchange = _last_exchange(messages)
-    msgs: list = [SystemMessage(content=prompt), HumanMessage(content=_serialize(exchange))]
+    msgs: list = [
+        SystemMessage(content=prompt),
+        HumanMessage(content=_serialize(exchange)),
+    ]
     try:
         raw = llm.invoke(msgs).content
     except Exception:
