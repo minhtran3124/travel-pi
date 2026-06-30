@@ -25,6 +25,10 @@ services:
       ENVIRONMENT: development
     ports:
       - "8000:8000"
+    # Bind-mount source so host edits reach the container; --reload picks them up.
+    volumes:
+      - .:/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
       db:
         condition: service_healthy
