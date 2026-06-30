@@ -114,7 +114,11 @@ def make_reflection_node(
         last = state["messages"][-1]
         verdict = llm.invoke([system, last]).content
         if "REVISE" in str(verdict).upper():
-            target = state.get("current_flow") or END
+            # current_flow is always set by the supervisor before a sub-agent runs
+            # (so reflection is only reachable with one); the "extract_memory"
+            # fallback keeps every emission within the node's declared destinations
+            # and routes a no-flow edge case through the turn-completion path.
+            target = state.get("current_flow") or "extract_memory"
             logger.info("[agent] reflection → %s (revise)", target)
             return Command(
                 update={
