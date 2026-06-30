@@ -1,0 +1,183 @@
+# .clinerules — Travel Planner monorepo
+
+> Working agreement for Cline in this repo. Mirrors `AGENTS.md` + `.claude/rules/`.
+> These are enforced conventions, not suggestions. Full detail lives in the
+> referenced files — read them before touching code.
+
+---
+
+## 0. Orientation (read first)
+
+- **Monorepo:** `apps/api` (FastAPI mock backend + LangGraph agent) + `apps/web` (Next.js 16 + React 19 + TS).
+- **Everything is faked** except keyless Open-Meteo (`/weather`, `/air-quality`, climate) and `/*/route` (OpenRouteService + haversine fallback). No real money, auth, or inventory.
+- **Single Python venv** at the repo root: `.venv` (managed by `uv`). Never create a second venv.
+- **Single Node runtime:** use **Node v24** for any FE/pnpm work — the `nvm` default is still 18, and pnpm 11 requires Node >=22.13. `export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`.
+- Know the stack? Read `TECHSTACKS.md`. Working on the AI agent? Read `WORKFLOW.md` + `WORKFLOW_DIAGRAM.md`. Prior feature work? Browse `specs/<slug>/`.
+
+---
+
+## 1. Run & test (commands you should run)
+
+```bash
+# Backend — ALWAYS run BE commands from apps/api/
+cd apps/api
+make dev          # uvicorn + hot-reload, Swagger at /docs
+make test         # full suite on SQLite (fast, zero-config)
+make test-docker  # same tests on Postgres (cross-engine parity)
+make seed         # re-seed reference data into DATABASE_URL
+
+# Lint / format (from apps/api/)
+ruff check app scripts
+ruff format app scripts
+
+# Single test file
+../../.venv/bin/python -m pytest tests/api/trip/test_trip_budget.py -xvs
+
+# Frontend — from apps/web/
+pnpm dev          # dev server :3000, proxies /api/be/* -> :8000
+pnpm test         # vitest
+pnpm e2e          # playwright
+pnpm gen:api      # regenerate schema.d.ts from http://localhost:8000/openapi.json
+
+# Root Makefile delegates: make api | web | dev | test | lint | seed
+```
+
+Prereqs: Node >= 22.13 (use v24), pnpm 11, Python 3.10+ with `uv`.
+
+---
+
+## 2. Architecture — layers & boundaries
+
+```
+routers -> services -> repositories
+```
+
+- **Services raise domain exceptions** (`NotFoundError`->404, `ConflictError`->409, `UpstreamError`->502). **Never** raise `HTTPException` from a service — only routers map exceptions to HTTP.
+- **ORM is confined to `repositories/`.** No ORM queries in routers or services. ORM models live in `app/db/models/`, referenced as `models.Hotel` (the `models.` namespace avoids collision with Pydantic schemas).
+- **Persistence:** SQLite locally, Postgres in Docker — selected by `DATABASE_URL`. Schema versioned by Alembic.
+- **Deterministic generation:** flights + hotel availability are seeded from an MD5 hash; same query = same result. **Do not change the seed algorithm.**
+- **Async only for real I/O:** `weather_service`, `routing_service`. Everything else is sync.
+- **Seed data is DB-backed** — seeded idempotently from `app/data/` on startup. `from app.data` appears **only** in `app/db/seed.py`.
+- **AI agent** (`apps/api/app/agents/`): LangGraph graph (supervisor -> planner/concierge/journal/booking/budget -> reflection), built once in `core/lifespan.py`, served at `/agent/*`. Provider-agnostic via `init_chat_model()`; tests run on `FakeLLM` (no network). Full detail in `WORKFLOW.md`.
+
+---
+
+## 3. Code conventions (must follow)
+
+- Python 3.10+ type hints. **Pydantic v2.** Extend `AppBaseModel` for schemas.
+- `datetime.now(timezone.utc)` — **never** `datetime.now()` or `utcnow()`.
+- Fuzzy name resolution for free-text city/country (`core/text.py`). Unknown city -> `count: 0`, **not** 404.
+- `logging.getLogger(__name__)` — module-scoped logger per file. **Never `print()`.**
+- No auth, pagination, or rate limiting (this is a mock backend).
+- FE uses TypeScript (strict), Tailwind v4, TanStack Query, openapi-fetch (typed client). API types regenerated via `pnpm gen:api`.
+- **FastAPI/Starlette version caps are deliberate** (held below 0.137 / 1.3). Never bump them to satisfy a transitive AI dependency — escalate instead.
+
+---
+
+## 4. Behavior — how to approach the work
+
+**Think before coding**
+- State assumptions explicitly before implementing. If uncertain, **ask**.
+- If multiple interpretations exist, present them — don't pick silently.
+- `not_observed != absent` — a missing search result or unread file means *unknown*, not *absent*. State where you looked before claiming something doesn't exist.
+- If something is unclear, name what's confusing and stop. Don't guess.
+
+**Simplicity first**
+- Minimum code that solves the problem. Nothing speculative.
+- No abstractions for single-use code. No error handling for impossible scenarios.
+- No features, flexibility, or configurability that wasn't requested.
+- If you wrote 200 lines and it could be 50, rewrite it.
+
+**Surgical changes**
+- Don't improve adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, **mention it** — don't delete it.
+- Remove imports/variables/functions YOUR changes made unused; don't remove pre-existing dead code unless asked.
+- Every changed line should trace directly to the user's request.
+
+**Goal-driven execution**
+- Transform tasks into verifiable goals: "Fix the bug" -> "Write a test that reproduces it, then make it pass."
+- "Done" needs a re-runnable verify command, not a claim. Run the test, check the output, read the result.
+
+**Communicate clearly**
+- Surface blockers immediately — don't silently work around them.
+- When you change direction mid-task, say so and why.
+
+---
+
+## 5. Planning & ceremony — lanes scale the process
+
+Before multi-step work, classify the change:
+
+| Lane | When | Autonomy | Require a PLAN? |
+|---|---|---|---|
+| **tiny** | single-file fix, typo, config tweak | full auto, direct patch | no |
+| **normal** | spans >3 steps OR >2 files OR >1 layer | auto with proof gates | yes |
+| **high-risk** | schema/API contract/auth/high-blast files | gated execute | yes (full chain) |
+
+**Write a PLAN** (`specs/<slug>/PLAN.md`, XML task format — see `.claude/rules/plan-format.md`) when ANY of:
+- task spans >3 discrete implementation steps
+- task touches >2 files
+- ETA >30 min
+- feature spans >1 layer (router + service, service + repo + migration, etc.)
+
+Every task records a `SUMMARY.md` (audit record incl. `Rationale` / `Alternatives` / `### Verify` / `### Deviations`).
+
+---
+
+## 6. What you may auto-fix vs. MUST ask
+
+**Auto-fix (no ask):**
+- Obvious bugs: wrong query/filter, off-by-one, null-check miss, missing `await`, sync call in async context, test failure caused by your impl mistake.
+- Auto-add missing standard functionality: input validation at API boundary, error handling for documented failure modes (`NotFound`/`Conflict`/`BadRequest` via the error factory where a bare exception was used), missing imports/type hints/schema fields, token logging for AI paths, `logger.error(...)` where an exception was silently swallowed.
+
+**STOP + ask user — NEVER auto-apply:**
+- Schema changes (add/remove/rename DB table or column) not in the spec.
+- API contract changes (route path, method, request/response shape) not in spec.
+- Removing existing functionality, even if seemingly unused.
+- Introducing a new external service dependency (new broker, AI provider, webhook target).
+- Security-sensitive auth/authz changes (permission checks, JWT, CORS).
+- Session/transaction scope changes (request-scoped <-> isolated/background session).
+- Changes to high-blast-radius files: `.claude/settings.json`, any `hooks/*` script, or a core skill engine.
+- Replacing a service/pattern (e.g. swapping cache impl, replacing the shared data-access base).
+- Bumping the FastAPI/Starlette version caps.
+
+Record every auto-fix (Rule 1-3) under `### Deviations` in `SUMMARY.md`. For high-risk work that proceeds, record exact undo command(s) under `### Rollback` before considering it done.
+
+---
+
+## 7. Orchestration — delegate heavy work
+
+- Keep the main thread thin: heavy research/implementation goes to fresh-context sub-agents.
+- For multi-step implementation, spawn one sub-agent per task, all in **one** message (parallel tool calls), then collect summaries.
+- For codebase impact / callers / tests / flows, the **`code-review-graph` MCP is the FIRST choice** (per root `CLAUDE.md`).
+- Don't read a 2000-line file "for context" — spawn an Explore agent with a focused question and request a <=400-word summary.
+- A subagent summary target: 150-300 words, no raw file dumps — must be actionable without re-reading its work product. Include: commits made, files touched, lane, deviations, blockers, verify status.
+
+---
+
+## 8. Shell & git
+
+- **Stage and commit as SEPARATE commands.** `git add <paths>` first, then `git commit ...` as its own command (a hook blocks compound `git add ... && git commit ...`).
+- **Working directory:** BE commands from `apps/api/` (or via root `Makefile`), FE commands from `apps/web/`. New root-level docs belong at the repo root, not under `apps/`.
+- **Shell is zsh:** use literal file lists and quote variables in `git mv`/loops (zsh word-splits; bash associative-array syntax breaks).
+- **Before opening a PR:** confirm head branch, base branch (feature PRs target the latest integration branch, not `main`), and the active `gh` account (`minhtran3124`).
+- Use `git --no-pager` to avoid interactive pagers.
+
+---
+
+## 9. MCP tools available in this repo
+
+Project-level `.mcp.json` provides:
+- **`code-review-graph`** — call-graph / blast-radius / caller analysis. **FIRST choice** for codebase impact questions.
+- **`playwright`** — browser automation for FE testing / verification (complements the built-in Cline browser tool).
+
+---
+
+## 10. Knowledge base (read at planning time)
+
+- Solved problems + architectural decisions: `docs/solutions/`
+- Browse the index: `docs/solutions/INDEX.md`
+- Critical learnings: `docs/solutions/critical-patterns.md`
+- Dashboard design: read `PRODUCT.md` + `DESIGN.md` before touching `/dashboard/*` templates; tokens live in `app/templates/base.html` `:root`.
