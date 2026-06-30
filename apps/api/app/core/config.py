@@ -141,6 +141,12 @@ class Settings(BaseSettings):
     #   AGENT_LLM_CONFIGS='{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6"},"supervisor":{"temperature":0.1}}'
     agent_llm_configs: dict[str, AgentLLMConfig] = {}
 
+    # Optional base URL override — point the LLM client at an OpenAI-compatible
+    # gateway/proxy (e.g. clinepass) instead of the provider's default host.
+    # Passed straight through to init_chat_model() when set; leave unset to hit
+    # the provider directly. Pair it with the matching provider's API key below.
+    llm_base_url: str | None = None
+
     # API keys — optional; only needed when a real model is wired in. Left
     # unset for local dev and CI (tests inject a fake client).
     openai_api_key: str | None = None

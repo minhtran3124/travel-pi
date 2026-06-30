@@ -45,14 +45,27 @@ def _build_chat_model(
     """Construct a chat model via ``init_chat_model``, injecting the provider's
     API key from settings when present. ``temperature`` and ``extra`` knobs are
     only forwarded when set, so reasoning models that reject ``temperature``
-    keep working with the defaults."""
+    keep working with the defaults.
+
+    :param provider: The provider to use.
+    :param model: The model to use.
+    :param temperature: The temperature to use.
+    :param extra: Extra arguments to pass to the chat model.
+    :return: A chat model.
+    """
     s = get_settings()
     kwargs: dict[str, Any] = dict(extra)
     key = getattr(s, _PROVIDER_KEY_FIELD[provider], None)
+
     if key:
         kwargs["api_key"] = key
+
+    if s.llm_base_url:
+        kwargs["base_url"] = s.llm_base_url
+
     if temperature is not None:
         kwargs["temperature"] = temperature
+
     return init_chat_model(model, model_provider=provider, streaming=True, **kwargs)
 
 
