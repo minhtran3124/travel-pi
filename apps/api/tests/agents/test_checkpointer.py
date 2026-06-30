@@ -5,6 +5,7 @@ import asyncio
 import operator
 from typing import Annotated
 
+import pytest
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from typing_extensions import TypedDict
@@ -27,6 +28,43 @@ def test_open_checkpointer_degrades_to_memory_off_postgres():
             return cp
 
     assert isinstance(asyncio.run(_resolve()), MemorySaver)
+
+
+def test_open_checkpointer_degrades_with_warning_when_postgres_unreachable(caplog):
+    """A *configured* Postgres that can't connect degrades to MemorySaver in dev/test,
+    but loudly — the warning is what stops the swap from being silent (the trap that
+    made conversation history vanish on restart)."""
+    from app.agents.checkpointer import open_checkpointer
+
+    bad = "postgresql+psycopg://x:x@127.0.0.1:5999/none"
+
+    async def _resolve():
+        async with open_checkpointer(bad) as cp:
+            return cp
+
+    with caplog.at_level("WARNING"):
+        cp = asyncio.run(_resolve())
+    assert isinstance(cp, MemorySaver)
+    assert "EPHEMERAL" in caplog.text
+
+
+def test_open_checkpointer_fails_fast_in_production(monkeypatch):
+    """In production a configured-but-unreachable Postgres must raise, never degrade to
+    an ephemeral checkpointer that silently loses conversation history."""
+    import app.agents.checkpointer as cpmod
+
+    class _ProdSettings:
+        is_production = True
+
+    monkeypatch.setattr(cpmod, "get_settings", lambda: _ProdSettings())
+    bad = "postgresql+psycopg://x:x@127.0.0.1:5999/none"
+
+    async def _resolve():
+        async with cpmod.open_checkpointer(bad) as cp:
+            return cp
+
+    with pytest.raises(Exception):
+        asyncio.run(_resolve())
 
 
 def test_libpq_dsn_strips_sqlalchemy_driver():

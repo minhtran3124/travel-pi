@@ -10,7 +10,7 @@ help:           ## List targets
 install:        ## Create venv + install deps (local)
 	uv venv $(VENV) && uv pip install --python $(VENV)/bin/python -r requirements.txt
 
-dev:            ## Run the app locally on SQLite (no Docker)
+dev:            ## Run the app locally (uvicorn --reload) against $DATABASE_URL from .env
 	$(VENV)/bin/uvicorn app.main:app --reload --port 8000
 
 up:             ## Build + start app + Postgres in Docker
