@@ -10,6 +10,7 @@ import asyncio
 import json
 from types import SimpleNamespace
 
+from app.schemas.air_quality import AirQualityDay, AirQualityResponse
 from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
 from app.schemas.weather import (
     CurrentWeather,
@@ -19,7 +20,7 @@ from app.schemas.weather import (
 )
 from app.streaming import events
 from app.streaming.mapper import stream_agent_events
-from app.streaming.panels import RoutePanel, WeatherPanel
+from app.streaming.panels import AirQualityPanel, RoutePanel, WeatherPanel
 from langchain_core.messages import AIMessageChunk, ToolMessage
 
 # --- event factories -------------------------------------------------------
@@ -257,6 +258,56 @@ def test_weather_panel_projection():
     # daily: code 99 → storm, precip carried through
     assert panel.daily[0].condition == "storm"
     assert panel.daily[0].precipitation_probability_max == 92
+
+
+def _air_quality_response() -> AirQualityResponse:
+    return AirQualityResponse(
+        location=WeatherLocation(
+            name="Hanoi",
+            country="Vietnam",
+            latitude=21.03,
+            longitude=105.85,
+            timezone="Asia/Bangkok",
+        ),
+        time="2026-06-30T14:00",
+        us_aqi=120,
+        category="Unhealthy for Sensitive Groups",
+        pm2_5=42.3,
+        pm10=70.1,
+        ozone=None,
+        attribution="Air quality data by Open-Meteo.com (CC BY 4.0)",
+        forecast=[
+            AirQualityDay(
+                date="2026-06-30",
+                max_us_aqi=120,
+                category="Unhealthy for Sensitive Groups",
+            ),
+            AirQualityDay(date="2026-07-01", max_us_aqi=None, category="Unknown"),
+        ],
+    )
+
+
+def test_air_quality_panel_projection():
+    panel = AirQualityPanel.from_air_quality_response(_air_quality_response())
+    assert panel.location_name == "Hanoi"
+    assert panel.us_aqi == 120
+    # category → band + emoji + advice pre-computed on the BE
+    assert panel.band == "usg"
+    assert panel.emoji == "😷"
+    assert "Sensitive groups" in panel.advice
+    # all six pollutants projected, in order, nulls preserved
+    assert [p.label for p in panel.pollutants] == [
+        "PM2.5",
+        "PM10",
+        "Ozone",
+        "NO₂",
+        "SO₂",
+        "CO",
+    ]
+    assert panel.pollutants[2].value is None  # ozone unavailable
+    # forecast: unknown band falls back, null AQI carried through
+    assert panel.forecast[1].band == "unknown"
+    assert panel.forecast[1].max_us_aqi is None
 
 
 def test_mapper_emits_panel_before_tool_result():

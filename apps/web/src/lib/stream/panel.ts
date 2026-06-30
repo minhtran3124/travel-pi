@@ -6,7 +6,7 @@
 // `kind`/`data` loose so unknown kinds pass through forward-compatibly;
 // renderers narrow per kind.
 
-export type PanelKind = "route" | "places" | "weather";
+export type PanelKind = "route" | "places" | "weather" | "air_quality";
 
 /** Sky-mood bucket — drives the hero gradient + card tint. Mirror of `_condition`. */
 export type WeatherCondition =
@@ -44,6 +44,46 @@ export interface WeatherPanelData {
   timezone: string;
   current: WeatherPanelCurrent;
   daily: WeatherPanelDay[];
+  attribution: string;
+}
+
+/** US-AQI category band — drives the hero gradient + dial/glow. Mirror of `_AQI_BAND`. */
+export type AqiBand =
+  | "good"
+  | "moderate"
+  | "usg"
+  | "unhealthy"
+  | "vunhealthy"
+  | "hazardous"
+  | "unknown";
+
+export interface AirQualityPanelPollutant {
+  label: string;
+  value: number | null;
+  unit: string;
+  desc: string;
+}
+
+export interface AirQualityPanelDay {
+  date: string;
+  max_us_aqi: number | null;
+  category: string;
+  emoji: string;
+  band: AqiBand;
+}
+
+export interface AirQualityPanelData {
+  location_name: string;
+  country: string | null;
+  timezone: string;
+  time: string;
+  us_aqi: number | null;
+  category: string;
+  emoji: string;
+  band: AqiBand;
+  advice: string;
+  pollutants: AirQualityPanelPollutant[];
+  forecast: AirQualityPanelDay[];
   attribution: string;
 }
 

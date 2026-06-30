@@ -10,9 +10,10 @@ from __future__ import annotations
 from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
+from app.schemas.air_quality import AirQualityResponse
 from app.schemas.weather import WeatherResponse
 from app.services import air_quality_service, weather_service
-from app.streaming.panels import WeatherPanel
+from app.streaming.panels import AirQualityPanel, WeatherPanel
 from app.tools._base import dump, panel_result
 
 
@@ -69,13 +70,31 @@ async def get_packing(city: str, days: int | None = None) -> dict:
         raise ToolException(str(e)) from e
 
 
-@tool
-async def get_air_quality(city: str) -> dict:
+def _air_quality_summary(r: AirQualityResponse) -> str:
+    """Compact textual AQI reading the model reads (full data rides the panel)."""
+    where = r.location.name
+    if r.location.country:
+        where = f"{where}, {r.location.country}"
+    aqi = r.us_aqi if r.us_aqi is not None else "n/a"
+    lines = [f"{where}: US AQI {aqi} ({r.category}) at {r.time.replace('T', ' ')}."]
+    for d in r.forecast:
+        peak = d.max_us_aqi if d.max_us_aqi is not None else "n/a"
+        lines.append(f"{d.date}: peak AQI {peak} ({d.category}).")
+    return "\n".join(lines)
+
+
+@tool(response_format="content_and_artifact")
+async def get_air_quality(city: str):
     """Get the current air-quality forecast (US AQI + category) for a city."""
     try:
-        return dump(await air_quality_service.get_air_quality(city))
+        r = await air_quality_service.get_air_quality(city)
     except AppError as e:
         raise ToolException(str(e)) from e
+    return panel_result(
+        _air_quality_summary(r),
+        kind="air_quality",
+        data=AirQualityPanel.from_air_quality_response(r),
+    )
 
 
 WEATHER_TOOLS = [get_weather, get_packing, get_air_quality]
