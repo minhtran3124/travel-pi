@@ -1,10 +1,12 @@
 """Cross-cutting graph nodes (specs/travel-agent Task 5.3).
 
-- ``load_context_node``: injects the current trip snapshot as context.
+- ``load_context_node``: injects the current trip snapshot as context + procedural
+  instructions from the store.
 - ``make_summarize_node``: compresses long histories (sliding window).
 - ``make_reflection_node``: bounded self-correction — critiques the last answer
   and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
+- ``make_extract_memory_node``: post-turn background memory extraction (P1).
 """
 
 from __future__ import annotations
@@ -21,6 +23,8 @@ from app.agents.constants import DEFAULT_MAX_REVISIONS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
+from app.memory.extractor import extract_memories
+from app.memory.store import get_instructions, upsert_instruction, upsert_preference
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -29,28 +33,45 @@ from app.tools._base import session_scope
 logger = logging.getLogger(__name__)
 
 
-def load_context_node(state: TravelAgentState) -> dict:
-    """Best-effort: store the active trip snapshot in ``trip_context`` state field.
+def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
+    """Best-effort: store the active trip snapshot in ``trip_context`` state field,
+    and load procedural instructions from the long-term store.
 
     REVIEW.md M2: returning a SystemMessage via ``messages`` appends it *after* the
     HumanMessage (``add_messages`` reducer).  Instead, carry the context in a plain
     state field and let ``system_with_summary`` inject it at the *front* of every
     model call — keeping the single leading SystemMessage intact for Anthropic.
     """
+    result: dict = {}
     trip_id = state.get("trip_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
-    if not trip_id:
-        return {}
-    try:
-        with session_scope() as s:
-            detail = TripService(s).get_trip_detail(trip_id)
-        context = (
-            f"Active trip: {detail.title} (city: {detail.city}). "
-            f"Use the trip tools with trip_id={trip_id} for details."
-        )
-        return {"trip_context": context}
-    except AppError:
-        return {}
+    if trip_id:
+        try:
+            with session_scope() as s:
+                detail = TripService(s).get_trip_detail(trip_id)
+            result["trip_context"] = (
+                f"Active trip: {detail.title} (city: {detail.city}). "
+                f"Use the trip tools with trip_id={trip_id} for details."
+            )
+        except AppError:
+            pass
+
+    # Best-effort procedural: read standing instructions from the store.
+    user_id = state.get("user_id")
+    store = getattr(runtime, "store", None) if runtime is not None else None
+    if user_id and store is not None:
+        try:
+            instrs = get_instructions(store, user_id)
+            if instrs:
+                result["instructions"] = "\n".join(
+                    f"- {i['text']}" for i in instrs
+                )
+                logger.info(
+                    "[agent] node=load_context instructions=%d", len(instrs)
+                )
+        except Exception:
+            logger.exception("[agent] load_context: instruction load failed")
+    return result
 
 
 def make_summarize_node(llm: BaseChatModel):
@@ -88,8 +109,8 @@ def make_reflection_node(
         revisions = state.get("revisions", 0)
         logger.info("[agent] node=reflection revisions=%d", revisions)
         if not allow_reflection or revisions >= effective_max:
-            logger.info("[agent] reflection → END (no revision)")
-            return Command(goto=END)
+            logger.info("[agent] reflection → extract_memory (no revision)")
+            return Command(goto="extract_memory")
         last = state["messages"][-1]
         verdict = llm.invoke([system, last]).content
         if "REVISE" in str(verdict).upper():
@@ -104,8 +125,8 @@ def make_reflection_node(
                 },
                 goto=target,
             )
-        logger.info("[agent] reflection → END (answer accepted)")
-        return Command(goto=END)
+        logger.info("[agent] reflection → extract_memory (answer accepted)")
+        return Command(goto="extract_memory")
 
     return reflection
 
@@ -134,3 +155,44 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
+
+
+def make_extract_memory_node(llm: BaseChatModel):
+    """Return a post-turn background memory extraction node (P1).
+
+    Gated by ``runtime.context.allow_memory_write`` — skips entirely for FAST
+    mode.  Best-effort: any error is swallowed so a failed extraction never
+    breaks the turn.
+    """
+
+    def extract_memory(
+        state: TravelAgentState, runtime: Runtime[AgentContext]
+    ) -> dict:
+        ctx = runtime.context if runtime.context is not None else None
+        allow_write = ctx.allow_memory_write if ctx is not None else True
+        if not allow_write:
+            logger.info("[agent] node=extract_memory (skipped — allow_memory_write=False)")
+            return {}
+
+        user_id = state.get("user_id")
+        store = getattr(runtime, "store", None)
+        if not user_id or store is None:
+            logger.info("[agent] node=extract_memory (skipped — no user_id or store)")
+            return {}
+
+        try:
+            extracted = extract_memories(state["messages"], llm)
+            for pref in extracted.preferences:
+                upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            for instr in extracted.instructions:
+                upsert_instruction(store, user_id, instr["key"], {"text": instr["text"]})
+            logger.info(
+                "[agent] node=extract_memory preferences=%d instructions=%d",
+                len(extracted.preferences),
+                len(extracted.instructions),
+            )
+        except Exception:
+            logger.exception("[agent] node=extract_memory: write failed")
+        return {}
+
+    return extract_memory

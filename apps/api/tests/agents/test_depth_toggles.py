@@ -57,7 +57,7 @@ def _base_state(**overrides):
 
 
 def test_reflection_skips_when_allow_reflection_false():
-    """Reflection node goes straight to END when allow_reflection=False."""
+    """Reflection node goes to extract_memory when allow_reflection=False."""
     llm = FakeLLM(responses=["REVISE please"])  # would trigger a loop if reached
     reflect = make_reflection_node(llm)
 
@@ -65,11 +65,11 @@ def test_reflection_skips_when_allow_reflection_false():
     ctx = AgentContext(allow_reflection=False, max_revisions=1)
     result = reflect(state, _runtime(ctx))
 
-    assert result.goto == END
+    assert result.goto == "extract_memory"
 
 
 def test_reflection_skips_when_max_revisions_zero():
-    """Reflection node goes to END when max_revisions=0 (fast mode)."""
+    """Reflection node goes to extract_memory when max_revisions=0 (fast mode)."""
     llm = FakeLLM(responses=["REVISE please"])
     reflect = make_reflection_node(llm)
 
@@ -77,11 +77,11 @@ def test_reflection_skips_when_max_revisions_zero():
     ctx = AgentContext(allow_reflection=True, max_revisions=0)
     result = reflect(state, _runtime(ctx))
 
-    assert result.goto == END
+    assert result.goto == "extract_memory"
 
 
 def test_reflection_skips_when_revisions_reached():
-    """Reflection node exits when current revisions >= context max_revisions."""
+    """Reflection node exits to extract_memory when revisions >= max_revisions."""
     llm = FakeLLM(responses=["REVISE please"])
     reflect = make_reflection_node(llm)
 
@@ -89,11 +89,11 @@ def test_reflection_skips_when_revisions_reached():
     ctx = AgentContext(allow_reflection=True, max_revisions=2)
     result = reflect(state, _runtime(ctx))
 
-    assert result.goto == END
+    assert result.goto == "extract_memory"
 
 
 def test_reflection_runs_with_default_context():
-    """Reflection node invokes LLM and goes to END on LGTM verdict (default context)."""
+    """Reflection node invokes LLM and goes to extract_memory on LGTM verdict."""
     llm = FakeLLM(responses=["LGTM"])
     reflect = make_reflection_node(llm)
 
@@ -101,7 +101,7 @@ def test_reflection_runs_with_default_context():
     # default AgentContext: allow_reflection=True, max_revisions=1
     result = reflect(state, _runtime(AgentContext()))
 
-    assert result.goto == END
+    assert result.goto == "extract_memory"
 
 
 def test_reflection_loops_on_revise_verdict():

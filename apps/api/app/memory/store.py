@@ -81,8 +81,12 @@ def get_store(database_url: str | None = None) -> BaseStore:
     return InMemoryStore(index=_index_config())
 
 
+def _namespace(user_id: str, kind: str) -> tuple[str, str, str]:
+    return ("users", user_id, kind)
+
+
 def _prefs_namespace(user_id: str) -> tuple[str, str, str]:
-    return ("users", user_id, "prefs")
+    return _namespace(user_id, "prefs")
 
 
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
@@ -95,4 +99,18 @@ def search_preferences(
 ) -> list[dict]:
     """Return preference values for a user (semantic when a query is given)."""
     results = store.search(_prefs_namespace(user_id), query=query, limit=limit)
+    return [item.value for item in results]
+
+
+def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) -> None:
+    """Store/overwrite a single procedural instruction (value must be a JSON dict
+    with a ``text`` field so the semantic index works)."""
+    store.put(_namespace(user_id, "procedural"), key, value)
+
+
+def get_instructions(
+    store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 10
+) -> list[dict]:
+    """Return procedural instruction values for a user (semantic when a query is given)."""
+    results = store.search(_namespace(user_id, "procedural"), query=query, limit=limit)
     return [item.value for item in results]

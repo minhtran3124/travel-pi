@@ -41,6 +41,7 @@ class AgentContext:
     model: ModelHint | None = None
     allow_reflection: bool = True
     allow_rag: bool = True
+    allow_memory_write: bool = True
     response_style: ResponseStyle = ResponseStyle.DEFAULT
     # None means "all sub-agents allowed"; a frozenset restricts routing (Phase D.1).
     allowed_subagents: frozenset[str] | None = None
@@ -53,6 +54,7 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "model": ModelHint.FAST,
         "allow_reflection": False,
         "allow_rag": False,
+        "allow_memory_write": False,
         "response_style": ResponseStyle.CONCISE,
         "max_revisions": 0,
     },
@@ -60,6 +62,7 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "model": None,
         "allow_reflection": True,
         "allow_rag": True,
+        "allow_memory_write": True,
         "response_style": ResponseStyle.DEFAULT,
         "max_revisions": 1,
     },
@@ -67,6 +70,7 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "model": ModelHint.DEEP,
         "allow_reflection": True,
         "allow_rag": True,
+        "allow_memory_write": True,
         "response_style": ResponseStyle.DETAILED,
         "max_revisions": 2,
     },
@@ -123,6 +127,7 @@ def resolve_agent_context(
         model=model,
         allow_reflection=p["allow_reflection"],
         allow_rag=allow_rag,
+        allow_memory_write=p["allow_memory_write"],
         response_style=p["response_style"],
         allowed_subagents=allowed_subagents,
         max_revisions=p["max_revisions"],

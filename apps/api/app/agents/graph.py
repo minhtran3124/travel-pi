@@ -20,12 +20,13 @@ from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.checkpoint.base import BaseCheckpointSaver
-from langgraph.graph import START, StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
 from app.agents.context import AgentContext
 from app.agents.nodes import (
     load_context_node,
+    make_extract_memory_node,
     make_reflection_node,
     make_summarize_node,
     plan_node,
@@ -110,8 +111,9 @@ def build_graph(
     builder.add_node(
         "reflection",
         make_reflection_node(pick("reflection")),
-        destinations=(*SUBAGENTS, "__end__"),
+        destinations=(*SUBAGENTS, "extract_memory"),
     )
+    builder.add_node("extract_memory", make_extract_memory_node(pick("extract_memory")))
 
     builder.add_edge(START, "load_context")
     builder.add_edge("load_context", "summarize")
@@ -120,6 +122,7 @@ def build_graph(
     for name in SUBAGENTS:
         builder.add_edge(name, "reflection")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
-    # reflection -> sub-agent | END is a Command(goto=...).
+    # reflection -> sub-agent | extract_memory is a Command(goto=...).
+    builder.add_edge("extract_memory", END)
 
     return builder.compile(checkpointer=checkpointer, store=store)

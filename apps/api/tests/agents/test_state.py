@@ -100,6 +100,7 @@ def test_system_with_summary_folds_both_context_and_summary():
 
 def test_load_context_node_returns_trip_context_not_messages():
     """REVIEW.md M2: load_context_node must set state field, not append a SystemMessage."""
+    from types import SimpleNamespace
     from unittest.mock import MagicMock, patch
 
     from app.agents.nodes import load_context_node
@@ -118,7 +119,7 @@ def test_load_context_node_returns_trip_context_not_messages():
         mock_svc.return_value.get_trip_detail.return_value = detail
 
         state = {"messages": [HumanMessage(content="plan my trip")], "trip_id": "t1"}
-        result = load_context_node(state)
+        result = load_context_node(state, SimpleNamespace())
 
     # trip_context carries the info
     assert "trip_context" in result
@@ -130,10 +131,11 @@ def test_load_context_node_returns_trip_context_not_messages():
 
 def test_load_context_node_no_trip_id_returns_empty():
     """Best-effort: no trip_id -> empty dict, no state mutation."""
+    from types import SimpleNamespace
     from app.agents.nodes import load_context_node
 
-    assert load_context_node({"messages": [], "trip_id": None}) == {}
-    assert load_context_node({"messages": []}) == {}
+    assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {}
+    assert load_context_node({"messages": []}, SimpleNamespace()) == {}
 
 
 def test_subagent_receives_trip_context_as_leading_system_message():
