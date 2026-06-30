@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { streamBaseUrl } from "@/lib/api/client";
 import { useUserId } from "@/lib/identity/useUserId";
 import { fetchClaim, fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
+import type { PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { createClient } from "@/lib/supabase/client";
 import { parseSSE } from "@/lib/stream/parseSSE";
@@ -103,6 +104,20 @@ export interface UseAgentStream {
    * clears persisted storage, and empties the message list.
    */
   newConversation: () => void;
+  /**
+   * Structured side-panel payloads emitted by tools this conversation, latest
+   * per `kind` (a new route query replaces the prior route panel). The chat
+   * drawer renders these by `kind`.
+   */
+  panels: PanelArtifact[];
+}
+
+/** Replace any existing panel of the same kind — latest wins, newest last. */
+function upsertPanelByKind(
+  prev: PanelArtifact[],
+  next: PanelArtifact,
+): PanelArtifact[] {
+  return [...prev.filter((p) => p.kind !== next.kind), next];
 }
 
 function newId(): string {
@@ -137,6 +152,7 @@ export function useAgentStream(
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
+  const [panels, setPanels] = useState<PanelArtifact[]>([]);
   const [mode, setModeState] = useState<ChatMode>(readStoredMode);
 
   const setMode = useCallback((m: ChatMode) => {
@@ -303,6 +319,16 @@ export function useAgentStream(
                 // drop the superseded draft so only the final answer renders.
                 setAssistant(assistantId, "");
                 break;
+              case "panel":
+                received = true;
+                setPanels((prev) =>
+                  upsertPanelByKind(prev, {
+                    toolCallId: event.toolCallId,
+                    kind: event.kind,
+                    data: event.data,
+                  }),
+                );
+                break;
               case "interrupt":
                 received = true;
                 sawInterrupt = true;
@@ -404,6 +430,15 @@ export function useAgentStream(
               case "reset":
                 setAssistant(assistantId, "");
                 break;
+              case "panel":
+                setPanels((prev) =>
+                  upsertPanelByKind(prev, {
+                    toolCallId: event.toolCallId,
+                    kind: event.kind,
+                    data: event.data,
+                  }),
+                );
+                break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
               // Nested interrupts are not expected; start/done/subagent/tool
@@ -498,6 +533,16 @@ export function useAgentStream(
             case "reset":
               setAssistant(assistantId, "");
               break;
+            case "panel":
+              received = true;
+              setPanels((prev) =>
+                upsertPanelByKind(prev, {
+                  toolCallId: event.toolCallId,
+                  kind: event.kind,
+                  data: event.data,
+                }),
+              );
+              break;
             case "interrupt":
               received = true;
               sawInterrupt = true;
@@ -555,6 +600,7 @@ export function useAgentStream(
     setMessages([]);
     setError(null);
     setInterrupt(null);
+    setPanels([]);
   }, []);
 
   const lastMessage = messages[messages.length - 1];
@@ -573,5 +619,6 @@ export function useAgentStream(
     canRetry,
     retry,
     newConversation,
+    panels,
   };
 }

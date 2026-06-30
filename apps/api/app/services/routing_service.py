@@ -27,14 +27,22 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.geo import haversine_km
-from app.core.text import best_match
+from app.core.text import best_match, match_score
 from app.db.session import get_session
 from app.exceptions import NotFoundError, RoutingUnavailableError
 from app.repositories.city import CityRepository
 from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
 from app.services.place_service import PlaceService
+from app.services.weather_service import geocode_city
 
 logger = logging.getLogger(__name__)
+
+# Only trust the offline seed fuzzy match when it is at least this strong;
+# weaker matches (short proper nouns collide — "Phu Yen" ~0.62 vs "Phuket")
+# defer to the geocoder rather than confidently routing to the wrong city.
+# Above the global city-search threshold (0.6) on purpose: routing must not
+# silently swap the destination. Exact/prefix/substring/strong-typo all clear it.
+_SEED_MATCH_CONFIDENT = 0.8
 
 # Friendly mode label -> (ORS routing profile, fallback speed in km/h).
 # The fallback speeds are rough city-travel averages, used only when no ORS
@@ -104,8 +112,14 @@ async def _fetch_json(url: str, params: dict) -> dict:
 
 async def _ors_leg(
     mode: str, profile: str, origin: RouteEndpoint, destination: RouteEndpoint
-) -> RouteLeg:
-    """Fetch one travel mode's distance/duration from OpenRouteService."""
+) -> tuple[RouteLeg, list[list[float]] | None]:
+    """Fetch one mode's distance/duration + road geometry from OpenRouteService.
+
+    Returns the leg plus the GeoJSON road-line coordinates (``[lng, lat]`` pairs)
+    ORS already includes in the same response — used to draw the real route on a
+    map. Geometry is best-effort: a malformed/absent geometry yields ``None``
+    (the leg's metrics still stand), never an error.
+    """
     settings = get_settings()
     url = f"{settings.ors_base_url}/v2/directions/{profile}"
     data = await _fetch_json(
@@ -125,12 +139,20 @@ async def _ors_leg(
         raise RoutingUnavailableError(
             f"Unexpected OpenRouteService response for profile '{profile}'"
         ) from exc
-    return RouteLeg(
+    geometry = None
+    try:
+        coords = data["features"][0]["geometry"]["coordinates"]
+        if isinstance(coords, list) and coords:
+            geometry = [[float(pt[0]), float(pt[1])] for pt in coords]
+    except (KeyError, IndexError, TypeError, ValueError):
+        geometry = None  # metrics still valid; just no map line for this mode
+    leg = RouteLeg(
         mode=mode,
         profile=profile,
         distance_km=round(distance_m / 1000, 2),
         duration_minutes=round(duration_s / 60, 1),
     )
+    return leg, geometry
 
 
 def _estimate_leg(
@@ -187,39 +209,55 @@ class RoutingService:
             longitude=place.longitude,
         )
 
-    def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
-        """Resolve a city name to a :class:`RouteEndpoint`, fuzzily.
+    async def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
+        """Resolve a city name to a :class:`RouteEndpoint` — seed-first, then geocoder.
 
-        The lookup is forgiving — case-insensitive and typo/spacing tolerant
-        (e.g. "danang" → "Da Nang") — using the same fuzzy matcher as
-        ``GET /cities?q=``, so callers need not know the exact spelling. Raises
-        :class:`NotFoundError` if nothing matches or the matched city has no
-        coordinates in the seed data.
+        A *confident* fuzzy match against the seed catalogue (case-insensitive,
+        typo/spacing tolerant, e.g. "danang" → "Da Nang") resolves known cities
+        offline and deterministically. A weak match does NOT win: short proper
+        nouns collide under difflib (e.g. "Phu Yen" scores 0.62 against "Phuket"),
+        so anything below ``_SEED_MATCH_CONFIDENT`` — plus localised names like
+        "Hà Nội" the ASCII seed cannot fold, and cities outside the catalogue —
+        falls back to Open-Meteo's keyless geocoder instead of confidently routing
+        to the wrong city. Raises :class:`NotFoundError` only when neither resolves.
         """
         matched = best_match(city_name, self._city.distinct_names(), [lambda c: c])
-        record = self._city.get(matched) if matched is not None else None
-        if record is None:
-            raise NotFoundError(
-                f"{label} city '{city_name}' not found",
-                hint=(
-                    "Use GET /cities?q=<partial-name> to find the canonical "
-                    "city name (the lookup is fuzzy / typo-tolerant)."
-                ),
+        if (
+            matched is not None
+            and match_score(city_name, matched) >= _SEED_MATCH_CONFIDENT
+        ):
+            record = self._city.get(matched)
+            if (
+                record is not None
+                and record.latitude is not None
+                and record.longitude is not None
+            ):
+                return RouteEndpoint(
+                    kind="city",
+                    id=record.name,
+                    name=record.name,
+                    latitude=record.latitude,
+                    longitude=record.longitude,
+                )
+
+        # Fallback: the same keyless Open-Meteo geocoder the weather feature uses
+        # (handles diacritics / non-English names and cities not in the seed).
+        geo = await geocode_city(city_name)
+        if geo is not None:
+            return RouteEndpoint(
+                kind="city",
+                id=geo["name"],
+                name=geo["name"],
+                latitude=geo["latitude"],
+                longitude=geo["longitude"],
             )
-        if record.latitude is None or record.longitude is None:
-            raise NotFoundError(
-                f"{label} city '{record.name}' has no coordinates",
-                hint=(
-                    "This city is missing latitude/longitude in the seed data "
-                    "and cannot take part in a route."
-                ),
-            )
-        return RouteEndpoint(
-            kind="city",
-            id=record.name,
-            name=record.name,
-            latitude=record.latitude,
-            longitude=record.longitude,
+
+        raise NotFoundError(
+            f"{label} city '{city_name}' not found",
+            hint=(
+                "Use GET /cities?q=<partial-name> to find a known city, or try a "
+                "more specific name — routing also geocodes via Open-Meteo."
+            ),
         )
 
     async def get_route_between(
@@ -269,6 +307,7 @@ class RoutingService:
                 return_exceptions=True,
             )
             legs = []
+            geometries: dict[str, list[list[float]] | None] = {}
             any_ors = False
             any_fallback = False
             for (mode, (profile, speed)), result in zip(
@@ -283,7 +322,9 @@ class RoutingService:
                     legs.append(_estimate_leg(mode, profile, speed, straight_line_km))
                     any_fallback = True
                 else:
-                    legs.append(result)
+                    leg, geometry = result
+                    legs.append(leg)
+                    geometries[mode] = geometry
                     any_ors = True
             # If at least one leg came from ORS, keep ``source="openrouteservice"``
             # so the response still flags real routing as the primary source; if
@@ -303,16 +344,22 @@ class RoutingService:
                 _estimate_leg(mode, profile, speed, straight_line_km)
                 for mode, (profile, speed) in _MODES.items()
             ]
+            geometries = {}
             source = "estimate"
             attribution = _ATTRIBUTION_ESTIMATE
 
+        # Surface only the recommended mode's road line — clients draw one route,
+        # and carrying all three would triple the persisted payload. None in
+        # estimate mode (no geometry), where the client falls back to a straight line.
+        recommended = recommend_mode(straight_line_km)
         response = RouteResponse(
             origin=origin,
             destination=destination,
             straight_line_km=straight_line_km,
-            recommended_mode=recommend_mode(straight_line_km),
+            recommended_mode=recommended,
             legs=legs,
             source=source,
+            geometry=geometries.get(recommended),
             attribution=attribution,
         )
         _route_cache[cache_key] = response
@@ -330,8 +377,8 @@ class RoutingService:
         self, origin_name: str, destination_name: str
     ) -> RouteResponse:
         """Route between two cities, by city name (404 if unknown / no coords)."""
-        origin = self._city_endpoint(origin_name, "Origin")
-        destination = self._city_endpoint(destination_name, "Destination")
+        origin = await self._city_endpoint(origin_name, "Origin")
+        destination = await self._city_endpoint(destination_name, "Destination")
         return await self.get_route_between(origin, destination)
 
 

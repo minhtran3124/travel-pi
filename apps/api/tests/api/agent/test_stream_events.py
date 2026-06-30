@@ -10,8 +10,17 @@ import asyncio
 import json
 from types import SimpleNamespace
 
+from app.schemas.air_quality import AirQualityDay, AirQualityResponse
+from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
+from app.schemas.weather import (
+    CurrentWeather,
+    DailyForecast,
+    WeatherLocation,
+    WeatherResponse,
+)
 from app.streaming import events
 from app.streaming.mapper import stream_agent_events
+from app.streaming.panels import AirQualityPanel, RoutePanel, WeatherPanel
 from langchain_core.messages import AIMessageChunk, ToolMessage
 
 # --- event factories -------------------------------------------------------
@@ -162,3 +171,167 @@ def test_mapper_suppresses_non_subagent_tokens():
     ]
     out = _run(_FakeGraph(items))
     assert [n for n, _ in out] == ["start", "done"]
+
+
+# --- panels (specs/agent-side-panel) ---------------------------------------
+
+
+def _route_response() -> RouteResponse:
+    return RouteResponse(
+        origin=RouteEndpoint(
+            kind="place", id="A", name="Hotel", latitude=16.06, longitude=108.22
+        ),
+        destination=RouteEndpoint(
+            kind="place", id="B", name="Dragon Bridge", latitude=16.07, longitude=108.23
+        ),
+        straight_line_km=1.9,
+        recommended_mode="car",
+        legs=[
+            RouteLeg(
+                mode="car", profile="driving-car", distance_km=2.4, duration_minutes=7.0
+            )
+        ],
+        source="openrouteservice",
+        geometry=[[108.22, 16.06], [108.23, 16.07]],
+        attribution="© ORS",
+    )
+
+
+def test_panel_factory_shape():
+    ev = events.panel(tool_call_id="tc1", kind="route", data={"x": 1})
+    assert ev.event == "panel"
+    assert _payload(ev) == {"tool_call_id": "tc1", "kind": "route", "data": {"x": 1}}
+
+
+def test_route_panel_projection():
+    panel = RoutePanel.from_route_response(_route_response())
+    assert panel.origin.name == "Hotel"
+    assert panel.origin.lat == 16.06 and panel.origin.lng == 108.22
+    assert panel.recommended_mode == "car"
+    assert panel.geometry == [[108.22, 16.06], [108.23, 16.07]]
+    assert panel.gmaps_url == (
+        "https://www.google.com/maps/dir/?api=1"
+        "&origin=16.06,108.22&destination=16.07,108.23"
+    )
+
+
+def _weather_response() -> WeatherResponse:
+    return WeatherResponse(
+        location=WeatherLocation(
+            name="Da Nang",
+            country="Vietnam",
+            latitude=16.06,
+            longitude=108.22,
+            timezone="Asia/Ho_Chi_Minh",
+        ),
+        current=CurrentWeather(
+            time="2026-06-30T00:00",
+            temperature_c=28.4,
+            apparent_temperature_c=36.1,
+            relative_humidity=95,
+            wind_speed_kmh=5.2,
+            weather_code=95,
+            description="Thunderstorm",
+        ),
+        daily=[
+            DailyForecast(
+                date="2026-06-30",
+                temp_min_c=28.0,
+                temp_max_c=34.0,
+                precipitation_probability_max=92,
+                weather_code=99,
+                description="Thunderstorm with heavy hail",
+            )
+        ],
+    )
+
+
+def test_weather_panel_projection():
+    panel = WeatherPanel.from_weather_response(_weather_response())
+    assert panel.location_name == "Da Nang"
+    assert panel.country == "Vietnam"
+    assert panel.timezone == "Asia/Ho_Chi_Minh"
+    # current: emoji + sky-mood bucket derived from the WMO code (95 → storm)
+    assert panel.current.condition == "storm"
+    assert panel.current.emoji == "⛈️"
+    assert panel.current.apparent_temperature_c == 36.1
+    # daily: code 99 → storm, precip carried through
+    assert panel.daily[0].condition == "storm"
+    assert panel.daily[0].precipitation_probability_max == 92
+
+
+def _air_quality_response() -> AirQualityResponse:
+    return AirQualityResponse(
+        location=WeatherLocation(
+            name="Hanoi",
+            country="Vietnam",
+            latitude=21.03,
+            longitude=105.85,
+            timezone="Asia/Bangkok",
+        ),
+        time="2026-06-30T14:00",
+        us_aqi=120,
+        category="Unhealthy for Sensitive Groups",
+        pm2_5=42.3,
+        pm10=70.1,
+        ozone=None,
+        attribution="Air quality data by Open-Meteo.com (CC BY 4.0)",
+        forecast=[
+            AirQualityDay(
+                date="2026-06-30",
+                max_us_aqi=120,
+                category="Unhealthy for Sensitive Groups",
+            ),
+            AirQualityDay(date="2026-07-01", max_us_aqi=None, category="Unknown"),
+        ],
+    )
+
+
+def test_air_quality_panel_projection():
+    panel = AirQualityPanel.from_air_quality_response(_air_quality_response())
+    assert panel.location_name == "Hanoi"
+    assert panel.us_aqi == 120
+    # category → band + emoji + advice pre-computed on the BE
+    assert panel.band == "usg"
+    assert panel.emoji == "😷"
+    assert "Sensitive groups" in panel.advice
+    # all six pollutants projected, in order, nulls preserved
+    assert [p.label for p in panel.pollutants] == [
+        "PM2.5",
+        "PM10",
+        "Ozone",
+        "NO₂",
+        "SO₂",
+        "CO",
+    ]
+    assert panel.pollutants[2].value is None  # ozone unavailable
+    # forecast: unknown band falls back, null AQI carried through
+    assert panel.forecast[1].band == "unknown"
+    assert panel.forecast[1].max_us_aqi is None
+
+
+def test_mapper_emits_panel_before_tool_result():
+    ns = ("concierge:1",)
+    tm = ToolMessage(
+        content="Hotel → Dragon Bridge: 2.4 km, ~7 min by car.",
+        tool_call_id="tc1",
+        status="success",
+        artifact={"kind": "route", "data": {"recommended_mode": "car"}},
+    )
+    items = [(ns, "updates", {"tools": {"messages": [tm]}})]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert names == ["start", "subagent", "panel", "tool_result", "done"]
+    assert out[2][1] == {
+        "tool_call_id": "tc1",
+        "kind": "route",
+        "data": {"recommended_mode": "car"},
+    }
+
+
+def test_mapper_no_panel_for_plain_tool():
+    ns = ("planner:1",)
+    tm = ToolMessage(content="ok", tool_call_id="tc9", status="success")
+    items = [(ns, "updates", {"tools": {"messages": [tm]}})]
+    out = _run(_FakeGraph(items))
+    assert "panel" not in [n for n, _ in out]

@@ -14,6 +14,12 @@ import type { ChatMode, UseAgentStream } from "./useAgentStream";
 export interface ChatPanelProps {
   stream: UseAgentStream;
   onClose: () => void;
+  /** True when the agent has emitted at least one renderable side-panel. */
+  hasPanels?: boolean;
+  /** Whether the side-panel drawer is currently collapsed. */
+  mapHidden?: boolean;
+  /** Toggle the side-panel drawer open/closed. */
+  onToggleMap?: () => void;
 }
 
 /**
@@ -27,7 +33,13 @@ export interface ChatPanelProps {
  */
 const MODES: ChatMode[] = ["fast", "balanced", "deep"];
 
-export function ChatPanel({ stream, onClose }: ChatPanelProps) {
+export function ChatPanel({
+  stream,
+  onClose,
+  hasPanels = false,
+  mapHidden = false,
+  onToggleMap,
+}: ChatPanelProps) {
   const t = useTranslations("Chat");
   const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry, mode, setMode } =
     stream;
@@ -79,6 +91,18 @@ export function ChatPanel({ stream, onClose }: ChatPanelProps) {
             className="shrink-0 rounded-pill border border-line px-md py-1 text-xs font-medium text-ink transition hover:bg-line/40"
           >
             {t("retry")}
+          </button>
+        </div>
+      ) : null}
+
+      {hasPanels && onToggleMap ? (
+        <div className="flex justify-start border-t border-line bg-surface px-lg py-sm">
+          <button
+            type="button"
+            onClick={onToggleMap}
+            className="rounded-pill border border-line px-md py-1 text-xs font-medium text-ink transition hover:bg-line/40"
+          >
+            {mapHidden ? "Show panel" : "Hide panel"}
           </button>
         </div>
       ) : null}

@@ -118,6 +118,16 @@ async def stream_agent_events(
                                     subagent=subagent_name,
                                 )
                         elif isinstance(msg, ToolMessage):
+                            # Panel-capable tools (response_format=content_and_artifact)
+                            # carry a {"kind","data"} artifact for the side-panel drawer;
+                            # surface it before the status pill. Plain tools have none.
+                            artifact = getattr(msg, "artifact", None)
+                            if isinstance(artifact, dict) and "kind" in artifact:
+                                yield events.panel(
+                                    tool_call_id=msg.tool_call_id,
+                                    kind=artifact["kind"],
+                                    data=artifact.get("data"),
+                                )
                             status = "error" if msg.status == "error" else "ok"
                             yield events.tool_result(id=msg.tool_call_id, status=status)
 

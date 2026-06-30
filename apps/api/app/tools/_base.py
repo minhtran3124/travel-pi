@@ -47,3 +47,14 @@ def dump(obj: Any) -> Any:
     if isinstance(obj, list):
         return [dump(x) for x in obj]
     return obj
+
+
+def panel_result(summary: str, *, kind: str, data: Any) -> tuple[str, dict]:
+    """Return value for a ``@tool(response_format="content_and_artifact")`` panel tool.
+
+    ``summary`` is the concise text the model sees; the artifact
+    ``{"kind", "data"}`` is forwarded by the stream mapper as a ``panel`` SSE
+    event to the FE side-panel drawer (specs/agent-side-panel) and is *not* sent
+    to the model. ``data`` is JSON-normalised via :func:`dump`.
+    """
+    return summary, {"kind": kind, "data": dump(data)}
