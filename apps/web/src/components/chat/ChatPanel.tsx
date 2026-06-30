@@ -67,6 +67,43 @@ export function ChatPanel({
         onClose={onClose}
       />
 
+      <div className="flex items-center gap-sm border-b border-line bg-surface px-lg py-sm">
+        <label htmlFor="chat-mode" className="shrink-0 text-xs font-medium text-muted">
+          {t("modeLabel")}
+        </label>
+        <div className="relative inline-flex items-center">
+          <select
+            id="chat-mode"
+            value={mode}
+            onChange={(e) => setMode(e.target.value as ChatMode)}
+            aria-label={t("modeLabel")}
+            className={cn(
+              "appearance-none rounded-pill border border-line bg-panel-raised",
+              "py-1 pl-md pr-7 text-xs font-semibold text-ink",
+              "cursor-pointer transition-colors hover:border-ink hover:bg-panel",
+            )}
+          >
+            {MODES.map((m) => (
+              <option key={m} value={m}>
+                {t(`mode${m.charAt(0).toUpperCase()}${m.slice(1)}` as "modeFast" | "modeBalanced" | "modeDeep")}
+              </option>
+            ))}
+          </select>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="pointer-events-none absolute right-2.5 size-3 text-muted"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+      </div>
+
       {error ? (
         <p
           role="status"
@@ -114,27 +151,7 @@ export function ChatPanel({
           onReject={() => resume(false)}
         />
       ) : (
-        <>
-          <div className="flex items-center gap-1 border-t border-line px-lg py-sm">
-            <span className="mr-1 text-xs text-muted">{t("modeLabel")}</span>
-            {MODES.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                className={cn(
-                  "rounded-pill border px-md py-0.5 text-xs font-medium transition",
-                  m === mode
-                    ? "border-ink bg-ink text-white"
-                    : "border-line text-muted hover:bg-line/40",
-                )}
-              >
-                {t(`mode${m.charAt(0).toUpperCase()}${m.slice(1)}` as "modeFast" | "modeBalanced" | "modeDeep")}
-              </button>
-            ))}
-          </div>
-          <ChatComposer disabled={inputBlocked} onSend={send} />
-        </>
+        <ChatComposer disabled={inputBlocked} onSend={send} />
       )}
     </section>
   );
