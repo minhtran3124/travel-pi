@@ -59,16 +59,29 @@ def test_done_factory_shape():
 
 
 class _FakeGraph:
-    """A graph whose astream replays scripted (ns, mode, data) tuples."""
+    """A graph whose astream replays scripted (ns, mode, data) tuples.
 
-    def __init__(self, items, *, interrupts=(), values=None):
+    ``raise_after``/``exc`` simulate a crashed run: the graph yields the first
+    ``raise_after`` items, then raises ``exc`` (or raises immediately when
+    ``raise_after == 0``). Used to exercise the stream's fallback-message path.
+    """
+
+    def __init__(
+        self, items, *, interrupts=(), values=None, raise_after=None, exc=None
+    ):
         self._items = items
         self._interrupts = interrupts
         self._values = values or {}
+        self._raise_after = raise_after
+        self._exc = exc
 
     async def astream(self, stream_input, cfg, *, stream_mode, subgraphs, context=None):
-        for item in self._items:
+        if self._raise_after is not None and self._raise_after == 0:
+            raise self._exc
+        for i, item in enumerate(self._items):
             yield item
+            if self._raise_after is not None and i + 1 == self._raise_after:
+                raise self._exc
 
     async def aget_state(self, cfg):
         return SimpleNamespace(interrupts=self._interrupts, values=self._values)
@@ -335,3 +348,40 @@ def test_mapper_no_panel_for_plain_tool():
     items = [(ns, "updates", {"tools": {"messages": [tm]}})]
     out = _run(_FakeGraph(items))
     assert "panel" not in [n for n, _ in out]
+
+
+# --- fallback message on failure (tool/LLM/recursion errors) ---------------
+
+
+def test_mapper_emits_fallback_message_when_stream_fails_with_no_tokens():
+    """A crashed run that produced no assistant token must still return a
+    readable fallback message to the user, not just a bare error event.
+
+    Regression for "when the tool call failed, we can not return message to end
+    user": the stream now emits a friendly ``token`` before the terminal
+    ``error`` so the chat bubble is never empty and the turn is persisted.
+    """
+    from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+
+    graph = _FakeGraph([], raise_after=0, exc=RuntimeError("upstream blew up"))
+    out = _run(graph)
+    names = [n for n, _ in out]
+    assert names == ["start", "token", "error"]
+    assert out[1][1] == {"content": AGENT_ERROR_FALLBACK_MSG}
+    assert out[2][1]["code"] == "internal"
+
+
+def test_mapper_no_duplicate_fallback_when_tokens_already_streamed():
+    """If a partial answer was already streamed, don't append a second fallback
+    token — the user already has a message; just signal the terminal error."""
+    from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+
+    ns = ("planner:1",)
+    items = [(ns, "messages", (AIMessageChunk(content="partial answer", id="m1"), {}))]
+    graph = _FakeGraph(items, raise_after=1, exc=RuntimeError("kaboom"))
+    out = _run(graph)
+    names = [n for n, _ in out]
+    assert names == ["start", "subagent", "token", "error"]
+    assert out[2][1] == {"content": "partial answer"}
+    # The fallback must NOT have been emitted alongside the partial answer.
+    assert AGENT_ERROR_FALLBACK_MSG not in json.dumps([d for _, d in out])

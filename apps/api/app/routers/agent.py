@@ -16,6 +16,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
@@ -169,21 +170,39 @@ async def agent_chat(
     )
     cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
 
-    if body.resume is not None:
-        # Resume a graph paused at a plan-approval interrupt.
-        result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
-    else:
+    try:
+        if body.resume is not None:
+            # Resume a graph paused at a plan-approval interrupt.
+            result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
+        else:
+            repo.append_message(
+                conversation_id=conversation_id, role="user", content=body.message
+            )
+            result = await graph.ainvoke(
+                {
+                    "messages": [HumanMessage(content=body.message)],
+                    "user_id": uid,
+                    "trip_id": body.trip_id,
+                },
+                cfg,
+                context=ctx,
+            )
+    except Exception:
+        # The graph run itself failed (LLM outage, recursion-limit exhaustion on
+        # a tool-retry loop, …). Always return a readable message to the user
+        # instead of 500ing, and persist it so the conversation history stays
+        # consistent. See AGENT_ERROR_FALLBACK_MSG (app/agents/constants.py).
+        logger.exception("[agent_chat] graph run failed for conv=%s", conversation_id)
+        reply = AGENT_ERROR_FALLBACK_MSG
         repo.append_message(
-            conversation_id=conversation_id, role="user", content=body.message
+            conversation_id=conversation_id, role="assistant", content=reply
         )
-        result = await graph.ainvoke(
-            {
-                "messages": [HumanMessage(content=body.message)],
-                "user_id": uid,
-                "trip_id": body.trip_id,
-            },
-            cfg,
-            context=ctx,
+        return ChatResponse(
+            conversation_id=conversation_id,
+            reply=reply,
+            current_flow=None,
+            interrupt_pending=False,
+            interrupt_payload=None,
         )
 
     interrupts = result.get("__interrupt__", [])
@@ -198,6 +217,11 @@ async def agent_chat(
         # (raw JSON) as the final entry, which must never surface as the reply.
         ai_messages = [m for m in result["messages"] if isinstance(m, AIMessage)]
         reply = ai_messages[-1].content if ai_messages else ""
+        # Guarantee a user-facing reply even when the graph finished without an
+        # assistant message (e.g. a ReAct loop that exhausted the recursion limit
+        # on repeated tool errors). The user must always get a readable message.
+        if not reply:
+            reply = AGENT_ERROR_FALLBACK_MSG
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
