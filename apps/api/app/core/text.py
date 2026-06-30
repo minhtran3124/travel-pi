@@ -7,6 +7,7 @@ just the stdlib ``difflib``.
 """
 
 import difflib
+import unicodedata
 from collections.abc import Callable, Iterable
 from typing import TypeVar
 
@@ -17,8 +18,18 @@ _FUZZY_THRESHOLD = 0.6
 
 
 def _norm(text: str) -> str:
-    """Normalise for comparison: trim and lowercase."""
-    return text.strip().lower()
+    """Normalise for comparison: trim, lowercase, and fold diacritics.
+
+    Folding lets an accented free-text query ("Đà Nẵng") match an ASCII seed
+    name ("Da Nang") — without it, difflib scores the two below the match
+    threshold and the lookup wrongly returns nothing. ``đ`` (U+0111) has no
+    canonical NFD decomposition, so it is mapped explicitly; the remaining
+    Vietnamese/Latin accents (à, ẵ, ế, …) decompose to a base letter plus a
+    combining mark, which is then dropped.
+    """
+    lowered = text.strip().lower().replace("đ", "d")
+    decomposed = unicodedata.normalize("NFD", lowered)
+    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 
 def match_score(query: str, candidate: str) -> float:

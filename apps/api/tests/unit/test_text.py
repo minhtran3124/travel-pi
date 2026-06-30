@@ -31,6 +31,13 @@ def test_match_score_unrelated_is_zero():
     assert match_score("xyzzy", "Bangkok") == 0.0
 
 
+def test_match_score_folds_vietnamese_diacritics():
+    # An accented free-text query folds to the ASCII seed spelling (exact match).
+    assert match_score("Đà Nẵng", "Da Nang") == 1.0
+    assert match_score("Huế", "Hue") == 1.0
+    assert match_score("Cần Thơ", "Can Tho") == 1.0
+
+
 # --- fuzzy_filter ------------------------------------------------------------
 
 
@@ -71,3 +78,10 @@ def test_fuzzy_filter_matches_secondary_key():
 
 def test_fuzzy_filter_no_match_returns_empty():
     assert fuzzy_filter("zzzznowhere", _ITEMS, _KEYS) == []
+
+
+def test_fuzzy_filter_resolves_accented_query_to_ascii_seed():
+    # "Đà Nẵng" folds to "da nang" → exact match against the ASCII seed.
+    assert fuzzy_filter("Đà Nẵng", _ITEMS, _KEYS)[0].name == "Da Nang"
+    # "Hà Nội" folds to "ha noi" → strong fuzzy match against seed "Hanoi".
+    assert fuzzy_filter("Hà Nội", _ITEMS, _KEYS)[0].name == "Hanoi"
