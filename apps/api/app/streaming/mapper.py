@@ -20,6 +20,7 @@ from typing import Any
 
 from langchain_core.messages import AIMessage, ToolMessage
 
+from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.supervisor import SUBAGENTS
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
@@ -59,6 +60,7 @@ async def stream_agent_events(
     current_subagent: str | None = None
     last_msg_id: str | None = None
     emitted_tool_calls: set[str] = set()
+    emitted_token: bool = False
 
     try:
         async for ns, mode, data in graph.astream(
@@ -97,6 +99,7 @@ async def stream_agent_events(
                     # tell the client to drop the superseded draft.
                     yield events.reset()
                 last_msg_id = msg_id
+                emitted_token = True
                 yield events.token(content)
 
             elif mode == "updates":
@@ -154,4 +157,12 @@ async def stream_agent_events(
         logger.exception(
             "[stream_agent_events] stream failed for conv=%s", conversation_id
         )
+        # Always return a readable message to the user, even when the run failed
+        # before the assistant produced any reply (tool outage, LLM error, or a
+        # ReAct loop that exhausted the recursion limit on repeated tool errors).
+        # Emit a friendly fallback token so the chat bubble is never empty and the
+        # turn is persisted; the terminal error event still signals the failure
+        # downstream (e.g. the FE retry affordance).
+        if not emitted_token:
+            yield events.token(AGENT_ERROR_FALLBACK_MSG)
         yield events.error(code="internal", message=str(exc))

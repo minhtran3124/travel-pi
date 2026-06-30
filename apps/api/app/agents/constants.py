@@ -51,3 +51,12 @@ DEFAULT_MAX_REVISIONS = 1
 BOOKING_UPGRADE_MSG = (
     "Booking is a premium feature. Please upgrade your plan to book trips."
 )
+
+# Always-on safety net: returned to the user when the agent run fails before it
+# could produce any reply (tool outage, LLM error, or a ReAct loop that exhausted
+# the recursion limit on repeated tool errors). Guarantees the chat bubble is
+# never empty / the request never 500s without a readable message.
+AGENT_ERROR_FALLBACK_MSG = (
+    "I ran into a problem handling that request and couldn't finish my reply. "
+    "Please try again in a moment."
+)

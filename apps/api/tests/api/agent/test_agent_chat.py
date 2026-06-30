@@ -311,6 +311,63 @@ def test_stream_survives_tool_upstream_failure(tmp_path, monkeypatch):
     assert "Traceback" not in text  # no crash leaked into the stream
 
 
+def test_chat_returns_fallback_when_graph_raises(tmp_path):
+    """/agent/chat must always return a readable reply, even when the graph run
+    itself crashes (LLM outage, recursion-limit exhaustion on a tool-retry loop).
+
+    Regression for "we should always return messages for user even have any
+    error": the endpoint wraps ``graph.ainvoke`` so a failure degrades to the
+    fallback reply (persisted) instead of an empty 500.
+    """
+    from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+    from app.repositories.conversation import ConversationRepository
+
+    url = f"sqlite:///{tmp_path / 'agent_chat_fallback.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    class _CrashingGraph:
+        async def ainvoke(self, *args, **kwargs):
+            raise RuntimeError("model provider down")
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
+
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={"message": "plan a trip to Hanoi", "user_id": "u1"},
+        )
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["reply"] == AGENT_ERROR_FALLBACK_MSG
+    assert body["current_flow"] is None
+    assert body["interrupt_pending"] is False
+    assert body["interrupt_payload"] is None
+
+    # The fallback reply was persisted as an assistant message.
+    s = get_session_factory(url)()
+    try:
+        msgs = ConversationRepository(s).list_messages(body["conversation_id"])
+    finally:
+        s.close()
+    assistant_contents = [m.content for m in msgs if m.role == "assistant"]
+    assert AGENT_ERROR_FALLBACK_MSG in assistant_contents
+
+
 def test_manifest_lists_tools_and_subagents(client):
     resp = client.get("/agent/manifest")
     assert resp.status_code == 200
