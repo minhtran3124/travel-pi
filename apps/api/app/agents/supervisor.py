@@ -7,6 +7,7 @@ Unknown intent ends gracefully with a fallback message.
 
 from __future__ import annotations
 
+import logging
 from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -26,6 +27,8 @@ from app.prompts.registry import registry
 SUBAGENTS = ALL_SUBAGENTS
 _Target = Literal["planner", "concierge", "journal", "booking", "budget"]
 
+logger = logging.getLogger(__name__)
+
 
 class SupervisorIntent(BaseModel):
     """Structured routing decision."""
@@ -43,9 +46,11 @@ def make_supervisor(llm: BaseChatModel):
     system = SystemMessage(content=registry.get("supervisor"))
 
     def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
+        logger.info("[agent] node=supervisor")
         intent = router.invoke([system_with_summary(state, system), *state["messages"]])
         target = getattr(intent, "target_agent", None)
         if target not in SUBAGENTS:
+            logger.info("[agent] supervisor → END (unknown intent: %s)", target)
             return Command(
                 update={
                     "messages": [
@@ -64,12 +69,14 @@ def make_supervisor(llm: BaseChatModel):
             else AgentContext()
         )
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
+            logger.info("[agent] supervisor → END (tier-gated: %s)", target)
             return Command(
                 update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]},
                 goto=END,
             )
         # Route booking through the HITL plan-approval node first.
         next_node = "plan" if target == "booking" else target
+        logger.info("[agent] supervisor → %s (intent=%s)", next_node, target)
         return Command(update={"current_flow": target}, goto=next_node)
 
     return supervisor

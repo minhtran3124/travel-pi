@@ -38,6 +38,7 @@ def load_context_node(state: TravelAgentState) -> dict:
     model call — keeping the single leading SystemMessage intact for Anthropic.
     """
     trip_id = state.get("trip_id")
+    logger.info("[agent] node=load_context trip_id=%s", trip_id)
     if not trip_id:
         return {}
     try:
@@ -58,8 +59,10 @@ def make_summarize_node(llm: BaseChatModel):
     def summarize(state: TravelAgentState) -> dict:
         messages = state["messages"]
         if not should_summarize(messages):
+            logger.info("[agent] node=summarize (skipped — history short)")
             return {}
         summary, to_remove = summarize_conversation(messages, llm)
+        logger.info("[agent] node=summarize (compressed %d messages)", len(to_remove))
         return {"summary": summary, "messages": to_remove}
 
     return summarize
@@ -83,11 +86,15 @@ def make_reflection_node(
         effective_max = ctx.max_revisions if ctx is not None else max_revisions
 
         revisions = state.get("revisions", 0)
+        logger.info("[agent] node=reflection revisions=%d", revisions)
         if not allow_reflection or revisions >= effective_max:
+            logger.info("[agent] reflection → END (no revision)")
             return Command(goto=END)
         last = state["messages"][-1]
         verdict = llm.invoke([system, last]).content
         if "REVISE" in str(verdict).upper():
+            target = state.get("current_flow") or END
+            logger.info("[agent] reflection → %s (revise)", target)
             return Command(
                 update={
                     "revisions": revisions + 1,
@@ -95,8 +102,9 @@ def make_reflection_node(
                         HumanMessage(content="Please improve your previous answer.")
                     ],
                 },
-                goto=state.get("current_flow") or END,
+                goto=target,
             )
+        logger.info("[agent] reflection → END (answer accepted)")
         return Command(goto=END)
 
     return reflection
@@ -109,14 +117,17 @@ def plan_node(state: TravelAgentState) -> Command:
     ``Command(resume={"approved": True|False})``.  On approval the graph
     continues to the ``booking`` sub-agent; on rejection it ends gracefully.
     """
+    logger.info("[agent] node=plan (awaiting approval)")
     draft = state["messages"][-1].content if state["messages"] else ""
     decision = interrupt({"type": "plan_approval", "draft": draft})
     approved = not (isinstance(decision, dict) and not decision.get("approved", True))
     if not approved:
+        logger.info("[agent] plan → END (booking cancelled)")
         return Command(
             update={"messages": [AIMessage(content="Booking cancelled as requested.")]},
             goto=END,
         )
+    logger.info("[agent] plan → booking (approved)")
     return Command(
         update={
             "messages": [AIMessage(content="Plan approved. Proceeding with booking.")]

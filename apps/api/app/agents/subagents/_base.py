@@ -17,6 +17,7 @@ sub-agent's chat model can be selected at invoke time from ``AgentContext``.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -31,6 +32,8 @@ from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.enums import ResponseStyle
 from app.prompts.registry import registry
+
+logger = logging.getLogger(__name__)
 
 
 def _tool_error_to_message(exc: Exception) -> str:
@@ -73,6 +76,7 @@ def build_subagent(
     system = SystemMessage(content=f"{style}\n\n{prompt}")
 
     def assistant(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
+        logger.info("[agent] node=%s (assistant)", name)
         ctx = runtime.context if runtime.context is not None else None
         ctx_model = ctx.model if ctx is not None else None
         allow_rag = ctx.allow_rag if ctx is not None else True
@@ -99,6 +103,9 @@ def build_subagent(
         response = bound.invoke(
             [system_with_summary(state, effective_system), *state["messages"]]
         )
+        tool_calls = getattr(response, "tool_calls", None)
+        if tool_calls:
+            logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))
         return {"messages": [response]}
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
