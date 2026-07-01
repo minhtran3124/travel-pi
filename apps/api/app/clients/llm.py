@@ -77,6 +77,10 @@ def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
     key is passed explicitly from settings when present so we never depend on
     process-wide env leakage; when absent the underlying client raises on first
     use, not here.
+
+    :param model: Overrides the configured model name.
+    :param fast: When ``True``, selects the cheaper ``fast_llm_model``.
+    :return: A chat model.
     """
     s = get_settings()
     name = model or (s.fast_llm_model if fast else s.llm_model)
@@ -84,7 +88,11 @@ def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
 
 
 def get_fast_llm(model: str | None = None) -> BaseChatModel:
-    """Build the cheap/fast chat model (sub-agents, summarisation, routing)."""
+    """Build the cheap/fast chat model (sub-agents, summarisation, routing).
+
+    :param model: Overrides the configured fast model name.
+    :return: A chat model.
+    """
     return get_llm(model, fast=True)
 
 
@@ -102,6 +110,10 @@ def get_agent_llm(agent_name: str, model: ModelHint | None = None) -> BaseChatMo
     ``ModelHint.DEEP`` → force the main (non-fast) model. A dedicated
                          ``STRONG_LLM_MODEL`` setting can be introduced later
                          when a third premium model is configured.
+
+    :param agent_name: The graph node name to resolve config for.
+    :param model: Semantic hint overriding the per-agent default tier.
+    :return: A chat model.
     """
     s = get_settings()
     fast = agent_name in FAST_AGENTS

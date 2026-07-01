@@ -21,7 +21,7 @@ from app.schemas.weather import (
 from app.streaming import events
 from app.streaming.mapper import stream_agent_events
 from app.streaming.panels import AirQualityPanel, RoutePanel, WeatherPanel
-from langchain_core.messages import AIMessageChunk, ToolMessage
+from langchain_core.messages import AIMessage, AIMessageChunk, ToolMessage
 
 # --- event factories -------------------------------------------------------
 
@@ -184,6 +184,61 @@ def test_mapper_suppresses_non_subagent_tokens():
     ]
     out = _run(_FakeGraph(items))
     assert [n for n, _ in out] == ["start", "done"]
+
+
+# --- terminal supervisor/plan messages (specs/agent-flight-routing-stream-gate) ---
+
+
+def test_mapper_emits_token_for_terminal_supervisor_message():
+    """A tier-gate / unknown-intent turn ends at the main-graph ``supervisor``
+    node with a content AIMessage (no tool_calls). It never streams via the
+    ``messages`` mode (only sub-agent prose does), so the mapper must surface it
+    as a ``token`` so the chat bubble is never blank.
+    """
+    from app.agents.constants import BOOKING_UPGRADE_MSG
+
+    items = [
+        (
+            (),
+            "updates",
+            {"supervisor": {"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]}},
+        )
+    ]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert names == ["start", "token", "done"]
+    assert out[1][1] == {"content": BOOKING_UPGRADE_MSG}
+
+
+def test_mapper_emits_token_for_plan_node_message():
+    """A plan-node cancel/approve ends the turn at the main-graph ``plan`` node
+    with a content AIMessage; surface it as a token so the bubble isn't blank.
+    """
+    items = [
+        (
+            (),
+            "updates",
+            {"plan": {"messages": [AIMessage(content="Booking cancelled as requested.")]}},
+        )
+    ]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert names == ["start", "token", "done"]
+    assert out[1][1] == {"content": "Booking cancelled as requested."}
+
+
+def test_mapper_does_not_double_emit_subagent_updates_content():
+    """Sub-agent assistant prose already streams via the ``messages`` mode, so a
+    content AIMessage arriving on a sub-agent's ``agent`` node update must NOT be
+    re-emitted as a token — the terminal-text-node gate is keyed on the main-graph
+    node name (``supervisor``/``plan``), not the sub-agent's internal node names.
+    """
+    ns = ("planner:1",)
+    items = [
+        (ns, "updates", {"agent": {"messages": [AIMessage(content="planner reply")]}}),
+    ]
+    out = _run(_FakeGraph(items))
+    assert [n for n, _ in out] == ["start", "subagent", "done"]
 
 
 # --- panels (specs/agent-side-panel) ---------------------------------------

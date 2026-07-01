@@ -65,7 +65,11 @@ WMO_CODES: dict[int, str] = {
 
 
 def describe_code(code: int) -> str:
-    """Map a WMO weather code to a human-readable description."""
+    """Map a WMO weather code to a human-readable description.
+
+    :param code: The WMO weather interpretation code.
+    :return: The human-readable description, or ``"Unknown"``.
+    """
     return WMO_CODES.get(code, "Unknown")
 
 
@@ -103,7 +107,11 @@ _WMO_EMOJI: dict[int, str] = {
 
 
 def emoji_for_code(code: int) -> str:
-    """Map a WMO weather code to a representative emoji."""
+    """Map a WMO weather code to a representative emoji.
+
+    :param code: The WMO weather interpretation code.
+    :return: A representative emoji, or ``"🌡️"`` for unknown codes.
+    """
     return _WMO_EMOJI.get(code, "🌡️")
 
 
@@ -112,6 +120,10 @@ async def _fetch_json(url: str, params: dict) -> dict:
 
     Any transport/HTTP error is normalised to :class:`WeatherUnavailableError`
     so callers (and the router) never see raw ``httpx`` exceptions.
+
+    :param url: The URL to fetch.
+    :param params: The query parameters to send.
+    :return: The parsed JSON response body.
     """
     settings = get_settings()
     try:
@@ -127,7 +139,11 @@ async def _fetch_json(url: str, params: dict) -> dict:
 
 
 async def geocode_city(city: str) -> dict | None:
-    """Resolve a city name to its first geocoding match, or ``None``."""
+    """Resolve a city name to its first geocoding match, or ``None``.
+
+    :param city: The city name to geocode.
+    :return: The first geocoding match, or ``None`` when there is no match.
+    """
     settings = get_settings()
     data = await _fetch_json(
         settings.weather_geocoding_url,
@@ -145,6 +161,10 @@ async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
 
     Raises :class:`CityNotFoundError` if the name cannot be geocoded, and
     :class:`WeatherUnavailableError` if Open-Meteo is unreachable.
+
+    :param city: The city name to look up.
+    :param days: The number of forecast days; defaults to ``weather_forecast_days``.
+    :return: The current conditions and daily forecast.
     """
     settings = get_settings()
 
@@ -290,12 +310,20 @@ _PRECIP_CODES = {
 
 
 def _code_severity(code: int) -> float:
-    """Return WMO code severity in [0.0, 1.0]."""
+    """Return WMO code severity in [0.0, 1.0].
+
+    :param code: The WMO weather interpretation code.
+    :return: The severity in ``[0.0, 1.0]`` (``0.5`` for unknown codes).
+    """
     return _CODE_SEVERITY.get(code, 0.5)
 
 
 def compute_weather_score(day: DailyForecast) -> float:
-    """Return a suitability score in [0.0, 1.0] for a single forecast day."""
+    """Return a suitability score in [0.0, 1.0] for a single forecast day.
+
+    :param day: The forecast day to score.
+    :return: The suitability score in ``[0.0, 1.0]``.
+    """
     mean_temp = (day.temp_min_c + day.temp_max_c) / 2
     if 18 <= mean_temp <= 26:
         comfort = 1.0
@@ -311,14 +339,23 @@ def compute_weather_score(day: DailyForecast) -> float:
 
 
 def _is_rainy(day: DailyForecast) -> bool:
-    """True if a day has likely precipitation."""
+    """True if a day has likely precipitation.
+
+    :param day: The forecast day to check.
+    :return: ``True`` when precipitation is likely.
+    """
     return (
         day.precipitation_probability_max or 0
     ) >= 40 or day.weather_code in _PRECIP_CODES
 
 
 async def get_packing(city: str, days: int | None = None) -> PackingResponse:
-    """Return packing suggestions for ``city`` based on the weather forecast."""
+    """Return packing suggestions for ``city`` based on the weather forecast.
+
+    :param city: The city name to look up.
+    :param days: The number of forecast days; defaults to ``weather_forecast_days``.
+    :return: The packing suggestions for the forecast window.
+    """
     resp = await get_weather(city, days=days)
     daily = resp.daily
 

@@ -40,5 +40,8 @@ async def get_air_quality(
 
     Returns 404 if the city name cannot be geocoded, and 502 if the upstream
     Open-Meteo Air-Quality service is unreachable or returns a malformed body.
+
+    :param city: City name to look up.
+    :return: The current air quality and short forecast.
     """
     return await air_quality_service.get_air_quality(city)

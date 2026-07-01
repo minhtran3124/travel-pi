@@ -38,6 +38,10 @@ def count_nights(check_in: str, check_out: str) -> int:
     clamped to 1 night and silently booked a positive-priced stay — the
     routers wrap this exception into a 422 envelope, so callers now get a
     clear "fix your dates" failure instead of a surprise charge.
+
+    :param check_in: Check-in date (``YYYY-MM-DD``).
+    :param check_out: Check-out date (``YYYY-MM-DD``); must be after ``check_in``.
+    :return: The number of nights between the two dates.
     """
     nights = (
         datetime.strptime(check_out, _DATE_FORMAT)
@@ -49,12 +53,20 @@ def count_nights(check_in: str, check_out: str) -> int:
 
 
 def total_rooms(hotel: Hotel) -> int:
-    """Deterministic total room count for a hotel (20–200), fixed per hotel."""
+    """Deterministic total room count for a hotel (20–200), fixed per hotel.
+
+    :param hotel: The hotel to size.
+    :return: The hotel's total room count (20–200).
+    """
     return Random(hotel.id).randint(20, 200)
 
 
 def max_occupancy(hotel: Hotel) -> int:
-    """Max guests one room can hold — larger for higher-star hotels (2–3)."""
+    """Max guests one room can hold — larger for higher-star hotels (2–3).
+
+    :param hotel: The hotel whose room capacity to compute.
+    :return: The maximum guests per room (2–3).
+    """
     return 2 + hotel.star_rating // 3
 
 
@@ -63,6 +75,11 @@ def available_rooms(hotel: Hotel, check_in: str, check_out: str) -> int:
 
     A value of 0 means the hotel is fully booked for those dates. The same
     hotel + dates always returns the same number.
+
+    :param hotel: The hotel to check.
+    :param check_in: Check-in date (``YYYY-MM-DD``).
+    :param check_out: Check-out date (``YYYY-MM-DD``).
+    :return: The number of free rooms (0..``total_rooms``).
     """
     seed = hashlib.md5(f"{hotel.id}-{check_in}-{check_out}".encode()).hexdigest()
     return Random(seed).randint(0, total_rooms(hotel))
@@ -75,6 +92,13 @@ def is_available(
 
     True when enough rooms are free *and* the requested rooms can physically
     hold the party (``max_occupancy`` per room).
+
+    :param hotel: The hotel to check.
+    :param check_in: Check-in date (``YYYY-MM-DD``).
+    :param check_out: Check-out date (``YYYY-MM-DD``).
+    :param rooms: Number of rooms requested.
+    :param guests: Total number of guests in the party.
+    :return: ``True`` if the booking fits, otherwise ``False``.
     """
     free = available_rooms(hotel, check_in, check_out)
     return free >= rooms and max_occupancy(hotel) * rooms >= guests
@@ -87,7 +111,10 @@ class HotelService:
         self._hotel_repo = HotelRepository(session)
 
     def list_hotels(self) -> list[Hotel]:
-        """Return every seeded hotel."""
+        """Return every seeded hotel.
+
+        :return: All seeded hotels.
+        """
         return self._hotel_repo.all()
 
     def resolve_city(self, name: str | None) -> str | None:
@@ -95,6 +122,9 @@ class HotelService:
 
         Typo/spacing/case tolerant (e.g. "danang" → "Da Nang"), using the same
         matcher as ``GET /cities?q=``. Returns ``None`` if nothing matches.
+
+        :param name: The free-text city name to resolve (may be ``None``).
+        :return: The canonical city name, or ``None`` if nothing matches.
         """
         return best_match(name, self._hotel_repo.distinct_cities(), [lambda c: c])
 
@@ -112,6 +142,12 @@ class HotelService:
         partial name still finds the right city. ``amenities`` is a list of
         required amenity strings — all must be present (case-insensitive). An
         unrecognised city returns an empty list (not a 404).
+
+        :param city: The city to search (matched fuzzily).
+        :param min_stars: Minimum star rating to include when set.
+        :param max_price: Maximum price-per-night to include when set.
+        :param amenities: Required amenities; all must be present (case-insensitive).
+        :return: The matching hotels, or an empty list if the city is unrecognised.
         """
         resolved = self.resolve_city(city)
         if not resolved:
@@ -128,6 +164,9 @@ class HotelService:
 
         The short-code lookup is case-insensitive (``htl-ab23xy`` is the same as
         ``HTL-AB23XY``). Returns ``None`` if neither matches.
+
+        :param hotel_id: The raw hotel ID or an ``HTL-XXXXXX`` short code.
+        :return: The matching hotel, or ``None`` if neither form matches.
         """
         if not hotel_id:
             return None
@@ -157,6 +196,17 @@ class HotelService:
         (``price_per_night × nights × rooms``). ``nights`` is returned alongside
         so the caller can echo it even when no hotels match (empty ``results``).
         Raises ``ValueError`` if the dates are not valid ``YYYY-MM-DD``.
+
+        :param city: The city to search (matched fuzzily).
+        :param check_in: Check-in date (``YYYY-MM-DD``).
+        :param check_out: Check-out date (``YYYY-MM-DD``).
+        :param rooms: Number of rooms requested.
+        :param adults: Number of adults in the party.
+        :param children: Number of children in the party.
+        :param min_stars: Minimum star rating to include when set.
+        :param max_price: Maximum price-per-night to include when set.
+        :param amenities: Required amenities; all must be present (case-insensitive).
+        :return: ``(nights, results)`` — the night count and per-hotel availability.
         """
         nights = count_nights(check_in, check_out)
         guests = adults + children
@@ -183,5 +233,9 @@ class HotelService:
 def get_hotel_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> HotelService:
-    """FastAPI dependency: a hotel service bound to the request session."""
+    """FastAPI dependency: a hotel service bound to the request session.
+
+    :param session: The request-scoped SQLAlchemy session (injected).
+    :return: A ``HotelService`` bound to ``session``.
+    """
     return HotelService(session)

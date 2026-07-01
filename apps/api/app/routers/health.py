@@ -25,7 +25,10 @@ class ReadyResponse(AppBaseModel):
 
 @router.get("/healthz", response_model=HealthResponse, summary="Liveness probe")
 def healthz() -> HealthResponse:
-    """Liveness: the app process is up. Does not touch dependencies."""
+    """Liveness: the app process is up. Does not touch dependencies.
+
+    :return: The liveness status.
+    """
     return HealthResponse(status="ok")
 
 
@@ -36,6 +39,9 @@ def readyz(bookings: BookingsDep) -> ReadyResponse:
     Reports the database (must be reachable) and the routing provider as a
     separate, non-fatal upstream — routing degrades to an offline estimate
     without an ORS key, so a missing key is "fallback", not "not ready".
+
+    :param bookings: The booking service, used to ping the database.
+    :return: The readiness status and per-dependency checks.
     """
     try:
         database = "ok" if bookings.ping() else "error"

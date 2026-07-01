@@ -14,7 +14,7 @@ from app.schemas.air_quality import AirQualityResponse
 from app.schemas.weather import WeatherResponse
 from app.services import air_quality_service, weather_service
 from app.streaming.panels import AirQualityPanel, WeatherPanel
-from app.tools._base import dump, panel_result
+from app.tools._base import dump, log_tool_call, panel_result
 
 
 def _weather_summary(r: WeatherResponse) -> str:
@@ -23,6 +23,9 @@ def _weather_summary(r: WeatherResponse) -> str:
     Unlike the route tool — where the model only needs the headline — the agent
     often reasons over the forecast (will it rain on day 3?), so the summary
     keeps the per-day lines while the structured payload goes to the drawer.
+
+    :param r: The weather response to summarise.
+    :return: A multi-line textual forecast summary.
     """
     where = r.location.name
     if r.location.country:
@@ -49,7 +52,14 @@ def _weather_summary(r: WeatherResponse) -> str:
 
 @tool(response_format="content_and_artifact")
 async def get_weather(city: str, days: int | None = None):
-    """Get the multi-day weather forecast for a city (temps, conditions, score)."""
+    """Get the multi-day weather forecast for a city (temps, conditions, score).
+
+    :param city: The city to get the forecast for.
+    :param days: Number of forecast days (service default when omitted).
+    :return: A ``(summary, artifact)`` tuple in the LangChain
+        ``content_and_artifact`` shape.
+    """
+    log_tool_call("get_weather", locals())
     try:
         r = await weather_service.get_weather(city, days)
     except AppError as e:
@@ -63,7 +73,13 @@ async def get_weather(city: str, days: int | None = None):
 
 @tool
 async def get_packing(city: str, days: int | None = None) -> dict:
-    """Get a weather-driven packing suggestion for a city over the next days."""
+    """Get a weather-driven packing suggestion for a city over the next days.
+
+    :param city: The city to get the packing suggestion for.
+    :param days: Number of days to plan for (service default when omitted).
+    :return: The packing suggestion.
+    """
+    log_tool_call("get_packing", locals())
     try:
         return dump(await weather_service.get_packing(city, days))
     except AppError as e:
@@ -71,7 +87,11 @@ async def get_packing(city: str, days: int | None = None) -> dict:
 
 
 def _air_quality_summary(r: AirQualityResponse) -> str:
-    """Compact textual AQI reading the model reads (full data rides the panel)."""
+    """Compact textual AQI reading the model reads (full data rides the panel).
+
+    :param r: The air-quality response to summarise.
+    :return: A multi-line textual AQI summary.
+    """
     where = r.location.name
     if r.location.country:
         where = f"{where}, {r.location.country}"
@@ -85,7 +105,13 @@ def _air_quality_summary(r: AirQualityResponse) -> str:
 
 @tool(response_format="content_and_artifact")
 async def get_air_quality(city: str):
-    """Get the current air-quality forecast (US AQI + category) for a city."""
+    """Get the current air-quality forecast (US AQI + category) for a city.
+
+    :param city: The city to get the air-quality forecast for.
+    :return: A ``(summary, artifact)`` tuple in the LangChain
+        ``content_and_artifact`` shape.
+    """
+    log_tool_call("get_air_quality", locals())
     try:
         r = await air_quality_service.get_air_quality(city)
     except AppError as e:

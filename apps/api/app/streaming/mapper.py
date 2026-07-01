@@ -27,16 +27,31 @@ from app.streaming import events
 
 logger = logging.getLogger(__name__)
 
+#: Main-graph nodes that end a turn with a content-bearing AIMessage (tier gate,
+#: unknown intent, plan cancel/approve). Their message never streams via the
+#: ``messages`` mode (only sub-agent prose does), so the mapper surfaces it from
+#: the ``updates`` branch — gated on this node-name set so sub-agent content is
+#: never double-emitted.
+_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan"})
+
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
-    """Sub-agent name owning this stream item, or ``None`` at the top level."""
+    """Sub-agent name owning this stream item, or ``None`` at the top level.
+
+    :param ns: The stream item's namespace tuple.
+    :return: The owning sub-agent name, or ``None`` at the top level.
+    """
     if not ns:
         return None
     return ns[0].split(":", 1)[0]
 
 
 def _as_message_list(value: Any) -> list[Any]:
-    """Coerce a node's ``messages`` update to a list (it may be a single msg)."""
+    """Coerce a node's ``messages`` update to a list (it may be a single msg).
+
+    :param value: The ``messages`` update value.
+    :return: The value coerced to a list.
+    """
     if value is None:
         return []
     return list(value) if isinstance(value, (list, tuple)) else [value]
@@ -54,6 +69,12 @@ async def stream_agent_events(
 
     ``context`` is the per-run ``AgentContext`` (mode/tier capabilities), forwarded
     to ``astream`` so streaming nodes see the same context as the buffered path.
+
+    :param graph: The compiled LangGraph graph to stream from.
+    :param stream_input: The input passed to ``graph.astream``.
+    :param cfg: The run's LangGraph config (thread id, etc.).
+    :param conversation_id: The conversation this turn belongs to.
+    :param context: The per-run ``AgentContext``, forwarded to ``astream``.
     """
     yield events.start(conversation_id)
 
@@ -104,9 +125,19 @@ async def stream_agent_events(
 
             elif mode == "updates":
                 subagent_name = root if root in SUBAGENTS else None
-                for delta in (data or {}).values():
+                for node_name, delta in (data or {}).items():
                     if not isinstance(delta, dict):
                         continue
+                    # Cross-cutting terminal nodes (supervisor/plan) in the main
+                    # graph end the turn with a content-bearing AIMessage (tier
+                    # gate, unknown intent, plan cancel/approve). That message
+                    # never streams via the "messages" mode (only sub-agent prose
+                    # does), so surface it here as a token — gated on the
+                    # node-name key so sub-agent content (whose internal nodes are
+                    # "agent"/"tools") is never double-emitted.
+                    is_terminal_text_node = (
+                        node_name in _TERMINAL_TEXT_NODES and not subagent_name
+                    )
                     for msg in _as_message_list(delta.get("messages")):
                         if isinstance(msg, AIMessage) and msg.tool_calls:
                             for tc in msg.tool_calls:
@@ -133,6 +164,14 @@ async def stream_agent_events(
                                 )
                             status = "error" if msg.status == "error" else "ok"
                             yield events.tool_result(id=msg.tool_call_id, status=status)
+                        elif is_terminal_text_node and isinstance(msg, AIMessage):
+                            # Terminal supervisor/plan message — emit it as a
+                            # token so gated/unknown-intent/plan turns show their
+                            # explanation instead of a blank chat bubble.
+                            content = getattr(msg, "content", "")
+                            if content:
+                                emitted_token = True
+                                yield events.token(content)
 
         # Pending HITL interrupt is on the snapshot, not in the stream.
         state = await graph.aget_state(cfg)

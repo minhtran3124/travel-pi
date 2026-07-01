@@ -50,6 +50,10 @@ async def get_weather(
 
     Returns 404 if the city name cannot be geocoded, and 502 if the upstream
     Open-Meteo service is unreachable.
+
+    :param city: City name to look up.
+    :param days: Number of forecast days (1-16).
+    :return: The current weather and short forecast.
     """
     return await weather_service.get_weather(city, days=days)
 
@@ -81,5 +85,9 @@ async def get_packing(
     """Resolve ``city`` and return clothing/gear suggestions from the forecast.
 
     Returns 404 if the city cannot be geocoded, 502 if Open-Meteo is unreachable.
+
+    :param city: City name to look up.
+    :param days: Number of forecast days (1-16).
+    :return: The packing and gear suggestions.
     """
     return await weather_service.get_packing(city, days=days)

@@ -14,7 +14,7 @@ from app.exceptions import AppError
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -31,16 +31,21 @@ def search_hotels(
 ) -> list:
     """Search hotels in a city with room availability for specific dates.
 
-    city: free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
-    check_in / check_out: YYYY-MM-DD. check_out must be after check_in.
-    rooms: number of rooms needed (default 1).
-    adults / children: party size across all rooms (default 2 adults, 0 children).
-    min_stars: keep only hotels with this star rating or above.
-    max_price: keep only hotels at or below this nightly rate.
-    amenities: list of required tags, e.g. ['pool', 'wifi', 'breakfast'].
-    Returns hotels annotated with available (bool), available_rooms, nights,
-    and total_price. An unrecognised city returns an empty list, not an error.
+    An unrecognised city returns an empty list, not an error.
+
+    :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
+    :param check_in: Stay start date, YYYY-MM-DD.
+    :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``.
+    :param rooms: Number of rooms needed (default 1).
+    :param adults: Adult party size across all rooms (default 2).
+    :param children: Child party size across all rooms (default 0).
+    :param min_stars: Keep only hotels with this star rating or above.
+    :param max_price: Keep only hotels at or below this nightly rate.
+    :param amenities: List of required tags, e.g. ['pool', 'wifi', 'breakfast'].
+    :return: Hotels annotated with available (bool), available_rooms, nights,
+        and total_price.
     """
+    log_tool_call("search_hotels", locals())
     with session_scope() as s:
         try:
             _nights, results = HotelService(s).check_availability(
@@ -77,18 +82,22 @@ def book_hotel(
 ) -> dict:
     """Book a hotel room. You MUST pass confirm=True to create the reservation.
 
-    hotel_id: canonical hotel ID or short code (HTL-XXXXXX) from search_hotels.
-    check_in / check_out: YYYY-MM-DD stay dates.
-    guest_name: lead guest full name as on their ID/passport.
-    guest_email: contact email for the reservation.
-    guest_phone: contact phone for the hotel (late arrival, changes).
-    rooms: number of rooms to book (default 1).
-    adults / children: party size across all rooms.
-    notes: optional note for the hotel (arrival time, bed type preference).
-    confirm: set to True to proceed — prevents accidental bookings.
-    Returns the confirmed Booking with id, confirmation_code, and total_price.
-    Raises ToolException if the hotel is not found or has no rooms available.
+    Raises ``ToolException`` if the hotel is not found or has no rooms available.
+
+    :param hotel_id: Canonical hotel ID or short code (HTL-XXXXXX) from search_hotels.
+    :param check_in: Stay start date, YYYY-MM-DD.
+    :param check_out: Stay end date, YYYY-MM-DD.
+    :param guest_name: Lead guest full name as on their ID/passport.
+    :param guest_email: Contact email for the reservation.
+    :param guest_phone: Contact phone for the hotel (late arrival, changes).
+    :param rooms: Number of rooms to book (default 1).
+    :param adults: Adult party size across all rooms.
+    :param children: Child party size across all rooms.
+    :param notes: Optional note for the hotel (arrival time, bed type preference).
+    :param confirm: Set to True to proceed — prevents accidental bookings.
+    :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
+    log_tool_call("book_hotel", locals())
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"

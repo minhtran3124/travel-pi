@@ -12,7 +12,7 @@ from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
 from app.services.flight_service import DEFAULT_SORT, FlightService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -27,17 +27,22 @@ def search_flights(
 ) -> list:
     """Search flights for a route and date with optional filters and sort.
 
-    origin / destination: 3-letter IATA codes (e.g. 'HAN', 'SGN', 'NRT').
-    departure_date: ISO date YYYY-MM-DD.
-    airline: 2-letter IATA code to filter by carrier (e.g. 'VN').
-    max_price: keep only flights at or below this fare.
-    max_stops: 0 = nonstop only, 1 = up to one stop.
-    sort: departure_asc | departure_desc | price_asc | price_desc |
-          duration_asc | duration_desc. Defaults to departure_asc.
     Returns up to 5 deterministic flights — same query always returns the same
-    results. Each item has id, flight_number, airline, departure_time,
-    arrival_time, duration_minutes, price, seats_available, and stops.
+    results.
+
+    :param origin: 3-letter IATA code for the origin airport (e.g. 'HAN', 'SGN', 'NRT').
+    :param destination: 3-letter IATA code for the destination airport (e.g. 'HAN', 'SGN', 'NRT').
+    :param departure_date: ISO date YYYY-MM-DD.
+    :param airline: 2-letter IATA code to filter by carrier (e.g. 'VN').
+    :param max_price: Keep only flights at or below this fare.
+    :param max_stops: 0 = nonstop only, 1 = up to one stop.
+    :param sort: departure_asc | departure_desc | price_asc | price_desc |
+        duration_asc | duration_desc. Defaults to departure_asc.
+    :return: Up to 5 flights, each with id, flight_number, airline,
+        departure_time, arrival_time, duration_minutes, price,
+        seats_available, and stops.
     """
+    log_tool_call("search_flights", locals())
     with session_scope() as s:
         try:
             results = FlightService(s).search_flights(

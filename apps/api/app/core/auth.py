@@ -69,7 +69,15 @@ def _extract_bearer_token(request: Request) -> str:
 
 
 def _verify_bearer_token(request: Request, settings) -> AuthUser:
-    """Verify a Bearer token and return the AuthUser. Raises AuthError on any failure."""
+    """Verify a Bearer token and return the AuthUser.
+
+    Raises :class:`AuthError` on any failure (missing/malformed header, invalid
+    or expired token, missing subject claim).
+
+    :param request: The incoming request, used to read the Authorization header.
+    :param settings: Application settings, used to resolve the JWKS URL/issuer.
+    :return: The authenticated user.
+    """
     jwks_url = settings.resolved_jwks_url
     if not jwks_url:
         raise AuthError(
@@ -109,6 +117,9 @@ def get_current_user(request: Request) -> AuthUser:
 
     Raises :class:`AuthError` (HTTP 401) when the token is missing, malformed,
     or fails signature / issuer / audience / expiry verification.
+
+    :param request: The incoming request, used to read the Authorization header.
+    :return: The authenticated user.
     """
     return _verify_bearer_token(request, get_settings())
 
@@ -118,6 +129,9 @@ def get_current_user_optional(request: Request) -> AuthUser | None:
 
     Never raises or returns 401 — missing, malformed, or expired tokens all
     yield ``None`` so callers can implement hybrid auth (authed vs anonymous).
+
+    :param request: The incoming request, used to read the Authorization header.
+    :return: The authenticated user, or None for anonymous/invalid callers.
     """
     if not request.headers.get("Authorization"):
         return None

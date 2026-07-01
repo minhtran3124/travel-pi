@@ -19,12 +19,20 @@ _splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=50)
 
 
 def chunk_text(text: str) -> list[str]:
-    """Split prose into overlapping chunks (short text passes through as one)."""
+    """Split prose into overlapping chunks (short text passes through as one).
+
+    :param text: The text to split.
+    :return: The list of chunks.
+    """
     return _splitter.split_text(text)
 
 
 def place_to_document(place) -> Document:
-    """Serialise a place into a single embedding-friendly document."""
+    """Serialise a place into a single embedding-friendly document.
+
+    :param place: The place to serialise.
+    :return: The embedding-friendly document.
+    """
     parts = [f"{place.name} — {place.category} in {place.city}, {place.country}."]
     description = getattr(place, "description", None)
     if description:
@@ -42,10 +50,14 @@ def place_to_document(place) -> Document:
 
 
 def ingest_places(store: VectorStore, session: Session) -> int:
-    """Embed every catalog place into the store. Returns the document count.
+    """Embed every catalog place into the store.
 
     Passes stable ``ids`` derived from ``place.id`` so that re-ingesting the
     same catalog upserts existing entries instead of appending duplicates.
+
+    :param store: The vector store to embed into.
+    :param session: The DB session used to load the catalog.
+    :return: The document count.
     """
     places = PlaceService(session).list_places()
     docs = [place_to_document(p) for p in places]

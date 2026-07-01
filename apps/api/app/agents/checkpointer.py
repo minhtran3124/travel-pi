@@ -29,7 +29,11 @@ logger = logging.getLogger(__name__)
 
 
 def _libpq_dsn(url: str) -> str:
-    """Strip SQLAlchemy's ``+driver`` so psycopg/libpq accepts the DSN."""
+    """Strip SQLAlchemy's ``+driver`` so psycopg/libpq accepts the DSN.
+
+    :param url: A SQLAlchemy-style database URL.
+    :return: The URL with any ``+psycopg`` driver suffix stripped.
+    """
     return url.replace("postgresql+psycopg://", "postgresql://").replace(
         "postgres+psycopg://", "postgresql://"
     )
@@ -45,6 +49,9 @@ async def open_checkpointer(
     once with ``async with`` and closed on shutdown. A non-Postgres URL -> ``MemorySaver``.
     A configured Postgres that fails to initialise raises in production (refusing to start
     on an ephemeral checkpointer), else degrades to ``MemorySaver`` with a warning.
+
+    :param database_url: Database URL to select the backend; defaults to
+        ``settings.database_url``.
     """
     url = database_url or get_settings().database_url
     if url.startswith("postgres"):
@@ -84,5 +91,8 @@ def get_checkpointer(database_url: str | None = None) -> BaseCheckpointSaver:
     Production code builds the durable saver through :func:`open_checkpointer` so its
     connection is lifecycle-managed; this sync helper exists only for the ephemeral
     in-memory case.
+
+    :param database_url: Unused; kept for signature parity with :func:`open_checkpointer`.
+    :return: A fresh ``MemorySaver``.
     """
     return MemorySaver()

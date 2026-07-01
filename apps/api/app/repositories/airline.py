@@ -24,6 +24,8 @@ class AirlineRepository(Repo):
 
         Determinism-critical: ``ORDER BY position`` reproduces ``AIRLINES``
         order so seeded ``rng.choice`` selections are unchanged.
+
+        :return: Airlines as ``{code, name}`` dicts, ordered by ``position``.
         """
         with self._session() as s:
             rows = s.scalars(
@@ -32,7 +34,12 @@ class AirlineRepository(Repo):
             return [{"code": r.code, "name": r.name} for r in rows]
 
     def color(self, code: str) -> str | None:
-        """Return the brand colour for an airline ``code``, or ``None``."""
+        """Return the brand colour for an airline ``code``, or ``None``.
+
+        :param code: The airline code to look up.
+        :return: The airline's brand colour, or ``None`` if not set or the
+            airline is unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Airline).where(models.Airline.code == code)
@@ -44,6 +51,8 @@ class AirlineRepository(Repo):
 
         Mirrors the ``AIRLINE_COLORS`` dict the dashboard templates do
         ``.get(code, default)`` against.
+
+        :return: ``{code: color}`` for every airline that has a brand colour.
         """
         with self._session() as s:
             rows = s.scalars(select(models.Airline)).all()

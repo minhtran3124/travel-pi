@@ -24,25 +24,39 @@ class TravelAgentState(MessagesState):
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
     trip_context: str  # active-trip snapshot; injected at model call, not into messages
+    instructions: (
+        str  # standing procedural instructions; folded into leading system message
+    )
+    plan_approved: bool  # P2: HITL plan-approval signal → episode outcome="approved"
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
-    """Fold ``trip_context`` and ``summary`` into one leading system prompt.
+    """Fold ``instructions``, ``trip_context`` and ``summary`` into one leading system prompt.
 
     REVIEW.md C2: the rolling ``summary`` must be re-injected after compression.
     REVIEW.md M2: the trip-context snapshot must appear *before* the HumanMessage,
     not appended to ``messages`` via the ``add_messages`` reducer (which would place
     it *after* the HumanMessage and upset Anthropic's single-system-message rule).
 
-    Returns ``base`` unchanged when neither field is set, else one ``SystemMessage``
-    combining base + trip_context + summary — a single leading system message keeps
-    providers that reject mid-stream/multiple system messages happy.
+    Procedural instructions (per-user standing directives) are folded before the
+    summary so they carry the most weight.
+
+    :param state: The current graph state, read for ``instructions``,
+        ``trip_context`` and ``summary``.
+    :param base: The base system message to fold the extra context into.
+    :return: ``base`` unchanged when none of the three fields are set, else one
+        ``SystemMessage`` combining base + instructions + trip_context + summary — a
+        single leading system message keeps providers that reject mid-stream/multiple
+        system messages happy.
     """
     trip_context = state.get("trip_context")
     summary = state.get("summary")
-    if not trip_context and not summary:
+    instructions = state.get("instructions")
+    if not trip_context and not summary and not instructions:
         return base
     parts = [base.content]
+    if instructions:
+        parts.append(f"Standing traveller instructions:\n{instructions}")
     if trip_context:
         parts.append(f"Current trip context:\n{trip_context}")
     if summary:

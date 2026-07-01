@@ -57,6 +57,9 @@ def get_travel_graph(request: Request) -> Any:
     held on ``app.state``; resolving them here per request used to rebuild the whole
     graph and leak a DB connection each call. Overridden in tests to inject a
     FakeLLM-backed graph.
+
+    :param request: The incoming request, used to reach ``app.state``.
+    :return: The shared compiled LangGraph graph.
     """
     graph = getattr(request.app.state, "travel_graph", None)
     if graph is None:
@@ -76,24 +79,31 @@ def _effective_user_id(auth_user: AuthUser | None, fallback: str | None) -> str 
     When a valid token is present the client-supplied id (``body.user_id`` /
     query ``user_id``) is intentionally ignored to prevent user-id spoofing.
     Returns ``None`` only when anonymous *and* no fallback id was supplied.
+
+    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param fallback: The client-supplied id to use when unauthenticated.
+    :return: The effective user id, or None if anonymous with no fallback.
     """
     return auth_user.id if auth_user else fallback
 
 
 def _thread_id(user_id: str, trip_id: str | None, conversation_id: str) -> str:
-    """
-    Build the thread id for the conversation.
+    """Build the thread id for the conversation.
 
     The thread id is a unique identifier for the conversation. It is used to
     identify the conversation in the database and to identify the conversation in
     the LangGraph checkpointer.
+
+    :param user_id: The effective user id (JWT sub or anonymous).
+    :param trip_id: The trip id, if any.
+    :param conversation_id: The conversation id.
+    :return: The composed thread id.
     """
     return f"user_{user_id}_trip_{trip_id or 'none'}_conv_{conversation_id}"
 
 
 def _config(thread_id: str, user_id: str, trip_id: str | None) -> dict:
-    """
-    Build the configuration for the agent.
+    """Build the configuration for the agent.
 
     :param thread_id: The thread id for the conversation.
     :param user_id: The effective user id (JWT sub or anonymous).
@@ -116,6 +126,9 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
     *engine* (rather than a stringified URL — ``str(URL)`` masks the password as
     ``***`` and breaks Postgres auth) reuses the same pool/credentials, and keeps
     test ``get_session`` overrides flowing through to the generator.
+
+    :param session: The request-scoped session whose engine to bind to.
+    :return: A sessionmaker bound to the same engine/pool as ``session``.
     """
     return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
@@ -131,6 +144,12 @@ def _resolve_context(
     Security: ``tier`` is resolved server-side from the users table and is never
     read from the request body.  When authenticated the effective Supabase id is
     used; anonymous callers are always ``free`` (no DB lookup needed).
+
+    :param effective_user_id: The effective user id (JWT sub or anonymous).
+    :param authenticated: Whether the caller presented a valid JWT.
+    :param mode: The client-requested agent mode, if any.
+    :param session: The request-scoped DB session, used for the tier lookup.
+    :return: The resolved AgentContext.
     """
     if authenticated:
         user_repo = UserRepository(session)
@@ -148,14 +167,13 @@ async def agent_chat(
     session: SessionDep,
     auth_user: OptionalUserDep,
 ) -> ChatResponse:
-    """
-    Send a chat request to the agent.
+    """Send a chat request to the agent.
 
     :param body: The request body.
-    :param graph: The graph.
-    :param session: The session.
+    :param graph: The compiled LangGraph graph.
+    :param session: The request-scoped DB session.
     :param auth_user: The authenticated user, or None for anonymous callers.
-    :return: The response.
+    :return: The chat response.
     """
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
@@ -242,15 +260,14 @@ async def agent_stream(
     session: SessionDep,
     auth_user: OptionalUserDep,
 ):
-    """
-    Stream the agent's reply as Server-Sent Events.
+    """Stream the agent's reply as Server-Sent Events.
 
     :param body: The request body.
-    :param graph: The graph.
+    :param graph: The compiled LangGraph graph.
     :param session: The request-scoped DB session (used to create/look up the
         conversation and append the user message before streaming begins).
     :param auth_user: The authenticated user, or None for anonymous callers.
-    :return: The response.
+    :return: A streaming response of Server-Sent Events.
     """
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
@@ -331,6 +348,11 @@ def list_conversations(
     ignored (no enumeration of another user's conversations) and not required.
     Anonymous callers must supply ``user_id``. Returns an empty list for an
     unknown user (matches the repo contract).
+
+    :param session: The request-scoped DB session.
+    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param user_id: The user id to list conversations for (anonymous callers only).
+    :return: The user's conversations, newest first.
     """
     uid = _effective_user_id(auth_user, user_id)
     if uid is None:
@@ -357,6 +379,12 @@ def list_conversation_messages(
     (no spoofing); anonymous callers must supply their ``user_id``. Returns an
     empty list for an unknown conversation or one owned by someone else — this
     neither leaks message contents nor confirms a conversation's existence.
+
+    :param conversation_id: The conversation to list messages for.
+    :param session: The request-scoped DB session.
+    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param user_id: The user id claiming ownership (anonymous callers only).
+    :return: The conversation's messages, oldest first.
     """
     uid = _effective_user_id(auth_user, user_id)
     if uid is None:
@@ -372,8 +400,9 @@ def list_conversation_messages(
     "/manifest", response_model=AgentManifest, summary="Agent capability manifest"
 )
 def agent_manifest() -> AgentManifest:
-    """
-    Get the agent capability manifest.
+    """Get the agent capability manifest.
+
+    :return: The available subagents and tools.
     """
     tools = [
         ToolManifestEntry(
@@ -404,6 +433,11 @@ def claim_conversations(
     - Returns ``claimed=0`` (no-op) when ``anonymous_user_id`` equals the JWT sub.
     - Returns 403 when ``anonymous_user_id`` has a ``users`` row — it is a
       registered account, not an anonymous id; refusing prevents history theft.
+
+    :param body: The request body carrying the anonymous user id to claim.
+    :param session: The request-scoped DB session.
+    :param auth_user: The authenticated caller whose id becomes the new owner.
+    :return: The number of conversations claimed.
     """
     sub = auth_user.id
     anon = body.anonymous_user_id

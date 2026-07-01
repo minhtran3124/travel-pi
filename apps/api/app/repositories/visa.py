@@ -21,12 +21,18 @@ class VisaRepository(Repo):
         """Return every country that has a visa record, sorted.
 
         Mirrors ``sorted(COUNTRY_VISA)`` — the dashboard's visa picker list.
+
+        :return: Sorted country names that have a visa record.
         """
         with self._session() as s:
             return sorted(s.scalars(select(models.Visa.country)).all())
 
     def get(self, country: str) -> EntryRequirements | None:
-        """Return entry requirements for a resolved ``country``, or ``None``."""
+        """Return entry requirements for a resolved ``country``, or ``None``.
+
+        :param country: The resolved (exact) country name to look up.
+        :return: The entry requirements, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Visa).where(models.Visa.country == country)

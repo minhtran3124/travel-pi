@@ -72,6 +72,9 @@ class SavedPlaceRepository(Repo):
 
         The short code is derived (not stored), so a code lookup scans the
         live rows and matches on the computed ``short_code`` in Python.
+
+        :param id_: The raw UUID or ``SPL-...`` short code to look up.
+        :return: The matching live saved place, or ``None`` if none matches.
         """
         with self._session() as s:
             row = s.scalars(
@@ -117,7 +120,13 @@ class SavedPlaceRepository(Repo):
             return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 
     def soft_delete(self, id_: str, *, when: str) -> bool:
-        """Stamp deleted_at; True if a live row existed and was tombstoned."""
+        """Stamp ``deleted_at`` on a live saved place (soft delete).
+
+        :param id_: The saved place UUID to tombstone.
+        :param when: The timestamp to stamp as ``deleted_at``.
+        :return: ``True`` if a live row existed and was tombstoned, ``False``
+            otherwise.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
@@ -131,7 +140,15 @@ class SavedPlaceRepository(Repo):
             return True
 
     def set_flag(self, id_: str, field: str, value: bool) -> bool:
-        """SET favorite/visited on a live row. True if a row changed."""
+        """SET favorite/visited on a live row.
+
+        :param id_: The saved place UUID to update.
+        :param field: The flag field to set; must be ``"favorite"`` or
+            ``"visited"``.
+        :param value: The new value for ``field``.
+        :return: ``True`` if a live row was found and updated, ``False``
+            otherwise.
+        """
         if field not in _SET_FLAG_FIELDS:
             raise ValueError(f"Unsupported flag field: {field!r}")
         with self._session() as s:
@@ -160,6 +177,14 @@ class SavedPlaceRepository(Repo):
         Same case-insensitive name AND either: both records have coordinates
         and are within ``radius_km`` (haversine), or coordinates are missing
         on either side and ``city`` matches.
+
+        :param name: The candidate name, matched case-insensitively.
+        :param city: The candidate city, used when coordinates are missing.
+        :param lat: The candidate latitude, or ``None`` if unknown.
+        :param lng: The candidate longitude, or ``None`` if unknown.
+        :param radius_km: The haversine radius (km) within which two records
+            with coordinates are considered duplicates.
+        :return: The first matching duplicate, or ``None`` if none is found.
         """
         with self._session() as s:
             # Materialize to Pydantic INSIDE the session — never iterate ORM

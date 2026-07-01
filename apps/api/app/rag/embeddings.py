@@ -21,7 +21,10 @@ _FAKE_EMBED_DIM = EMBED_DIM  # the fake matches so dims are stable across modes
 
 
 def get_embeddings() -> Embeddings:
-    """Return the embedding model: OpenAI when keyed, deterministic fake otherwise."""
+    """Return the embedding model: OpenAI when keyed, deterministic fake otherwise.
+
+    :return: The embedding model.
+    """
     s = get_settings()
     if s.openai_api_key:
         from langchain_openai import OpenAIEmbeddings
@@ -36,7 +39,13 @@ def get_vector_store(
     collection: str = DEFAULT_COLLECTION,
     database_url: str | None = None,
 ) -> VectorStore:
-    """Return the vector store for the configured backend (pgvector / in-memory)."""
+    """Return the vector store for the configured backend (pgvector / in-memory).
+
+    :param embeddings: Embedding model to use; defaults to ``get_embeddings()``.
+    :param collection: Vector store collection/table name.
+    :param database_url: Database URL used to select the backend; defaults to settings.
+    :return: The vector store.
+    """
     emb = embeddings or get_embeddings()
     url = database_url or get_settings().database_url
     if url.startswith("postgres"):

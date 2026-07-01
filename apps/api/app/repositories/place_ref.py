@@ -31,13 +31,19 @@ class PlaceRepository(Repo):
         never relies on insertion-order coincidence and stays stable across
         engines. Also fixes the ordering of ``nearby_places``, which sources its
         candidates from here.
+
+        :return: All places, ordered by ``position``.
         """
         with self._session() as s:
             rows = s.scalars(select(models.Place).order_by(models.Place.position)).all()
             return [_row_to_place(r) for r in rows]
 
     def get(self, place_id: str) -> Place | None:
-        """Return the place by raw UUID ``id``, or ``None``."""
+        """Return the place by raw UUID ``id``, or ``None``.
+
+        :param place_id: The place's raw UUID.
+        :return: The matching place, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.get(models.Place, place_id)
             return _row_to_place(row) if row is not None else None
@@ -48,6 +54,9 @@ class PlaceRepository(Repo):
         Short codes derive from ``id`` (a computed field, not a column), so this
         builds the models and compares — case-insensitive, matching
         ``place_service.get_place``'s ``PLC-...`` branch.
+
+        :param code: The short code to match, compared case-insensitively.
+        :return: The matching place, or ``None`` if no place's short code matches.
         """
         needle = code.strip().upper()
         with self._session() as s:
@@ -62,17 +71,25 @@ class PlaceRepository(Repo):
 
         The fuzzy-resolution target for ``place_service.resolve_city`` — mirrors
         the module-level ``CITIES`` list.
+
+        :return: Sorted distinct city names that have at least one place.
         """
         with self._session() as s:
             return sorted(set(s.scalars(select(models.Place.city)).all()))
 
     def distinct_categories(self) -> list[str]:
-        """Return the distinct place categories, sorted — mirrors ``CATEGORIES``."""
+        """Return the distinct place categories, sorted — mirrors ``CATEGORIES``.
+
+        :return: Sorted distinct place categories.
+        """
         with self._session() as s:
             return sorted(set(s.scalars(select(models.Place.category)).all()))
 
     def count_by_city(self) -> dict[str, int]:
-        """Return ``{city: place_count}`` — feeds the startup coverage check."""
+        """Return ``{city: place_count}`` — feeds the startup coverage check.
+
+        :return: A mapping of city name to place count.
+        """
         stmt = select(models.Place.city, func.count()).group_by(models.Place.city)
         with self._session() as s:
             return dict(s.execute(stmt).all())
@@ -91,6 +108,14 @@ class PlaceRepository(Repo):
 
         ``city`` is an already-resolved exact name; ``category`` is matched
         case-insensitively (lower-cased) as in ``place_service.search_places``.
+
+        :param city: Already-resolved exact city name to filter by, or ``None``.
+        :param category: Category to filter by (case-insensitive), or ``None``.
+        :param min_rating: Minimum ``rating`` (inclusive), or ``None``.
+        :param price_level: Exact ``price_level`` to match, or ``None``.
+        :param price_level_max: Maximum ``price_level`` (inclusive), or ``None``.
+        :param recommended: When truthy, restrict to ``is_recommended`` places.
+        :return: Places matching every supplied filter, in ``position`` order.
         """
         stmt = select(models.Place).order_by(models.Place.position)
         if city is not None:

@@ -41,6 +41,11 @@ class AgentContext:
     model: ModelHint | None = None
     allow_reflection: bool = True
     allow_rag: bool = True
+    allow_memory_write: bool = True
+    # P2: episodic recall (planner's recall_past_trips). Default ON for everyone —
+    # mirrors P1's memory policy (not RAG); flipping free→False is a one-line
+    # _MODE_POLICY change. Filtered in subagents/_base.py like allow_rag.
+    allow_episodic: bool = True
     response_style: ResponseStyle = ResponseStyle.DEFAULT
     # None means "all sub-agents allowed"; a frozenset restricts routing (Phase D.1).
     allowed_subagents: frozenset[str] | None = None
@@ -53,6 +58,8 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "model": ModelHint.FAST,
         "allow_reflection": False,
         "allow_rag": False,
+        "allow_memory_write": False,
+        "allow_episodic": True,
         "response_style": ResponseStyle.CONCISE,
         "max_revisions": 0,
     },
@@ -60,6 +67,8 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "model": None,
         "allow_reflection": True,
         "allow_rag": True,
+        "allow_memory_write": True,
+        "allow_episodic": True,
         "response_style": ResponseStyle.DEFAULT,
         "max_revisions": 1,
     },
@@ -67,6 +76,8 @@ _MODE_POLICY: dict[ChatMode, dict] = {
         "model": ModelHint.DEEP,
         "allow_reflection": True,
         "allow_rag": True,
+        "allow_memory_write": True,
+        "allow_episodic": True,
         "response_style": ResponseStyle.DETAILED,
         "max_revisions": 2,
     },
@@ -88,6 +99,12 @@ def resolve_agent_context(
       "deep" to the per-agent default.
     - **premium**: ``allowed_subagents=None`` (all permitted); ``allow_rag``
       follows the mode setting; model unrestricted.
+
+    :param tier: BE-resolved tier (raw string, enum, or None); falls back to
+        ``DEFAULT_TIER`` when unknown/None.
+    :param mode: User-selected chat mode (raw string, enum, or None); falls back
+        to ``DEFAULT_MODE`` when unknown/None.
+    :return: The resolved ``AgentContext`` for this request.
     """
     # Coerce raw strings (from the DB / client body) to enums; unknown or None
     # values fall back to the safe defaults.
@@ -123,6 +140,8 @@ def resolve_agent_context(
         model=model,
         allow_reflection=p["allow_reflection"],
         allow_rag=allow_rag,
+        allow_memory_write=p["allow_memory_write"],
+        allow_episodic=p["allow_episodic"],
         response_style=p["response_style"],
         allowed_subagents=allowed_subagents,
         max_revisions=p["max_revisions"],

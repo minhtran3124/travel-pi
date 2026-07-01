@@ -21,7 +21,11 @@ CODE_LENGTH = 6
 
 
 def short_code_for(resource_id: str) -> str:
-    """Derive a stable 6-char code from any resource ID (UUID, slug, …)."""
+    """Derive a stable 6-char code from any resource ID (UUID, slug, …).
+
+    :param resource_id: The resource ID to derive a code from.
+    :return: A 6-char code from :data:`CODE_ALPHABET`.
+    """
     digest = hashlib.sha256(resource_id.encode()).digest()
     number = int.from_bytes(digest[:8], "big")
     chars = []
@@ -32,5 +36,10 @@ def short_code_for(resource_id: str) -> str:
 
 
 def prefixed_code(prefix: str, resource_id: str) -> str:
-    """Return ``<PREFIX>-XXXXXX`` for ``resource_id``, e.g. 'HTL-AB23XY'."""
+    """Return ``<PREFIX>-XXXXXX`` for ``resource_id``, e.g. 'HTL-AB23XY'.
+
+    :param prefix: The short prefix identifying the resource type (e.g. ``"HTL"``).
+    :param resource_id: The resource ID to derive a code from.
+    :return: The prefixed short code.
+    """
     return f"{prefix}-{short_code_for(resource_id)}"

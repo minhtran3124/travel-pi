@@ -72,6 +72,9 @@ def dashboard_index(request: Request) -> HTMLResponse:
     flow — Flights → Hotels → Places → Local Tips → Weather — as an animated
     sequence, with each step linking to its section. Replaces the old redirect
     straight to the flights board.
+
+    :param request: The incoming request.
+    :return: The rendered landing page.
     """
     return _TEMPLATES.TemplateResponse(request=request, name="index.html")
 
@@ -82,6 +85,9 @@ def checklist_page(request: Request) -> HTMLResponse:
 
     Pure client-side: trips and saved places live in the browser
     (localStorage), so there is no backend state or context to pass.
+
+    :param request: The incoming request.
+    :return: The rendered checklist page.
     """
     return _TEMPLATES.TemplateResponse(request=request, name="checklist.html")
 
@@ -93,6 +99,9 @@ def palette_index(
     """Lightweight index for the command palette (cities + airports).
 
     Fetched once, client-side, the first time the palette opens.
+
+    :param session: The request-scoped DB session.
+    :return: The cities and airports index as JSON.
     """
     city_repo = CityRepository(session)
     cities = sorted(
@@ -120,6 +129,13 @@ def flight_board(
     This is the primary page — an airport-style FIDS board. ``airport``,
     ``date``, and ``mode`` are an optional filter; with no params it shows
     today's arrivals for the default hub.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param airport: IATA code of the board's airport; defaults to the hub.
+    :param date: Board date, YYYY-MM-DD; defaults to today.
+    :param mode: 'arrivals' or 'departures'.
+    :return: The rendered flight board page.
     """
     airports_svc = AirportService(session)
     if mode not in (board_service.ARRIVALS, board_service.DEPARTURES):
@@ -173,6 +189,17 @@ def flight_search(
     The numeric filters arrive as raw strings because an HTML form submits
     empty fields as ``""`` — those are treated as "not filtered", and a
     non-numeric value shows a friendly error rather than a 422.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param origin: Origin IATA code.
+    :param destination: Destination IATA code.
+    :param departure_date: Departure date, YYYY-MM-DD.
+    :param airline: Optional filter by IATA airline code.
+    :param max_price: Optional max price, as a raw form string.
+    :param max_stops: Optional max stops, as a raw form string.
+    :param sort: Sort order.
+    :return: The rendered search page.
     """
     flight_svc = FlightService(session)
     airline_repo = AirlineRepository(session)
@@ -240,6 +267,11 @@ def flight_detail_page(
 
     If the ID does not resolve, the template shows a friendly "not found"
     message (the page itself still returns HTTP 200 — it is a valid page).
+
+    :param request: The incoming request.
+    :param flight_id: The flight id to look up.
+    :param session: The request-scoped DB session.
+    :return: The rendered flight detail page.
     """
     flight = FlightService(session).find_flight_by_id(flight_id)
     airports = AirportService(session).list_airports()
@@ -282,6 +314,13 @@ def hotel_list_page(
     name contains the query, and ``sort`` reorders the result. Filters that
     match nothing yield an empty grid rather than an error, mirroring the
     JSON API's behaviour.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param city: Optional filter to one city.
+    :param q: Optional case-insensitive hotel name search.
+    :param sort: Sort order; see ``_HOTEL_SORTS`` keys.
+    :return: The rendered hotel grid page.
     """
     hotel_svc = HotelService(session)
     all_hotels = hotel_svc.list_hotels()
@@ -354,6 +393,16 @@ def places_page(
     ``min_rating`` and ``price_level`` are accepted as strings so that an
     empty string from the HTML form (when "Any" is selected) maps cleanly to
     ``None`` rather than raising a 422 validation error.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param city: Optional filter by city.
+    :param category: Optional filter by category.
+    :param min_rating: Optional minimum rating, as a raw form string.
+    :param price_level: Optional price level 1-4, as a raw form string.
+    :param recommended: Whether to show recommended places only.
+    :param sort: Sort order.
+    :return: The rendered places grid page.
     """
     if sort not in _PLACE_SORTS:
         sort = "rating_desc"
@@ -411,6 +460,9 @@ def _city_country_map(session: Session) -> dict[str, str]:
     """City → country map, used to link the Local Tips / Visa dropdowns.
 
     Built per call from the DB-backed city repo (cheap; the dataset is small).
+
+    :param session: The request-scoped DB session.
+    :return: A mapping of city name to country name.
     """
     return {
         city.name: city.country for city in CityRepository(session).list_with_counts()
@@ -433,7 +485,11 @@ _TIP_CATEGORIES = {
 
 
 def _flag_emoji(code: str) -> str:
-    """Turn an ISO 3166-1 alpha-2 code into its flag emoji (VN → 🇻🇳)."""
+    """Turn an ISO 3166-1 alpha-2 code into its flag emoji (VN → 🇻🇳).
+
+    :param code: The ISO 3166-1 alpha-2 country code.
+    :return: The flag emoji, or a white flag if ``code`` is not a valid alpha-2 code.
+    """
     code = code.strip().upper()
     if len(code) != 2 or not code.isalpha():
         return "🏳️"
@@ -445,6 +501,9 @@ def _tip_destinations(session: Session) -> list[dict]:
 
     Counts come straight from the country-level seed (what a country view
     shows), so the tile number matches the page you land on.
+
+    :param session: The request-scoped DB session.
+    :return: The country tiles for countries that have tips.
     """
     country_repo = CountryRepository(session)
     tip_repo = TipRepository(session)
@@ -485,6 +544,15 @@ def tips_page(
       no destination): every tip merged, grouped by category.
 
     Country and city options come from the same seed data as the JSON API.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param country: Optional filter by country.
+    :param city: Optional filter by city.
+    :param category: Optional filter by tip category.
+    :param essential_only: Whether to show only must-know tips.
+    :param browse: Set to 'all' to browse every tip.
+    :return: The rendered Local Tips page.
     """
     # Country tiles (name/flag/region/counts) for the picker; the country
     # dropdown lists the same countries (those that have country-level tips),
@@ -558,6 +626,9 @@ def _visa_destinations(session: Session) -> list[dict]:
     Walks ``countries.py`` (the canonical, region-ordered list) and pulls each
     country's entry guidance from ``COUNTRY_VISA``; countries without seeded
     visa data are skipped so a tile always links to a populated page.
+
+    :param session: The request-scoped DB session.
+    :return: The country tiles for countries that have visa data.
     """
     country_repo = CountryRepository(session)
     visa_repo = VisaRepository(session)
@@ -596,6 +667,12 @@ def visa_page(
 
     Guidance is general and nationality-dependent — every entry card carries
     the API's ``disclaimer``.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param country: Optional filter by country.
+    :param city: Optional filter by city — resolves its country.
+    :return: The rendered Visa & Entry page.
     """
     selected_country = country or None
     selected_city = city or None
@@ -659,6 +736,12 @@ async def weather_page(
     fetches current conditions plus a ``days``-long forecast; an unknown city
     or an upstream failure is shown as a friendly inline message (the page
     itself still returns HTTP 200).
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param city: City name to look up.
+    :param days: Forecast length in days.
+    :return: The rendered weather page.
     """
     # Suggested cities for the input's autocomplete — sourced from the same
     # canonical city list that backs the /cities API (app/data/cities.py).
@@ -704,6 +787,11 @@ async def air_quality_page(
     fetches the current US-AQI, the six pollutants, and a short per-day max-AQI
     forecast; an unknown city or an upstream failure is shown as a friendly
     inline message (the page itself still returns HTTP 200).
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param city: City name to look up.
+    :return: The rendered air-quality page.
     """
     # Same canonical city list the /cities API uses — drives the dropdown.
     suggestions = sorted(
@@ -747,6 +835,13 @@ def bookings_page(
 
     Bookings are the only persisted state (SQLite). This page is read-only;
     ``q``, ``type``, and ``sort`` search, filter, and reorder the ledger.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :param q: Optional search on booking id, customer name, or email.
+    :param booking_type: Optional filter by booking type.
+    :param sort: Sort order; see ``BOOKING_SORTS`` keys.
+    :return: The rendered bookings ledger page.
     """
     service = BookingService(session)
     bookings = service.query(q=q, booking_type=booking_type, sort=sort)
@@ -765,5 +860,8 @@ def bookings_page(
 
 
 def _today() -> str:
-    """Today's date as a YYYY-MM-DD string (the board's default date)."""
+    """Today's date as a YYYY-MM-DD string (the board's default date).
+
+    :return: Today's date, formatted YYYY-MM-DD.
+    """
     return date.today().isoformat()

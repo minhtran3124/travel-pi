@@ -25,7 +25,11 @@ def _connect_args(url: str) -> dict:
 
 @lru_cache(maxsize=None)  # noqa: UP033 — process-wide engine cache, one per URL
 def get_engine(url: str) -> Engine:
-    """Return a process-wide Engine for ``url`` (one per distinct URL)."""
+    """Return a process-wide Engine for ``url`` (one per distinct URL).
+
+    :param url: The database connection URL.
+    :return: The cached ``Engine`` for this URL.
+    """
     return create_engine(
         url,
         connect_args=_connect_args(url),
@@ -36,5 +40,9 @@ def get_engine(url: str) -> Engine:
 
 @lru_cache(maxsize=None)  # noqa: UP033 — shares the cached engine for this URL
 def get_session_factory(url: str) -> sessionmaker[Session]:
-    """Return a sessionmaker bound to the (cached) engine for ``url``."""
+    """Return a sessionmaker bound to the (cached) engine for ``url``.
+
+    :param url: The database connection URL.
+    :return: The cached ``sessionmaker`` for this URL.
+    """
     return sessionmaker(bind=get_engine(url), expire_on_commit=False, future=True)

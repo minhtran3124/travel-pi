@@ -16,7 +16,8 @@ from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
 
-from app.memory.store import search_preferences, upsert_preference
+from app.memory.store import search_episodes, search_preferences, upsert_preference
+from app.tools._base import log_tool_call
 
 
 @tool
@@ -26,7 +27,16 @@ def save_user_preference(
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
 ) -> str:
-    """Remember a traveller preference for future trips (e.g. diet, airline, pace)."""
+    """Remember a traveller preference for future trips (e.g. diet, airline, pace).
+
+    :param key: Preference key/name to store under.
+    :param text: Free-text preference value.
+    :param user_id: The traveller's id, injected from graph state (not model-supplied).
+    :param store: The cross-session memory store, injected by LangGraph (not
+        model-supplied).
+    :return: Confirmation message.
+    """
+    log_tool_call("save_user_preference", {"key": key, "text": text, "user_id": user_id})
     upsert_preference(store, user_id, key, {"text": text})
     return f"Saved preference '{key}'."
 
@@ -37,8 +47,39 @@ def get_user_preferences(
     store: Annotated[BaseStore, InjectedStore],
     query: str | None = None,
 ) -> list:
-    """Recall the traveller's saved preferences (optionally filtered by a query)."""
+    """Recall the traveller's saved preferences (optionally filtered by a query).
+
+    :param user_id: The traveller's id, injected from graph state (not model-supplied).
+    :param store: The cross-session memory store, injected by LangGraph (not
+        model-supplied).
+    :param query: Optional free-text filter.
+    :return: Matching saved preferences.
+    """
+    log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
     return search_preferences(store, user_id, query=query)
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
+
+
+@tool
+def recall_past_trips(
+    query: str,
+    user_id: Annotated[str, InjectedState("user_id")],
+    store: Annotated[BaseStore, InjectedStore],
+) -> list:
+    """Recall this traveller's past trip outcomes to personalise the plan (e.g.
+    pace, area, airline/hotel preferences they liked before).
+
+    :param query: Free-text query to filter past trip episodes.
+    :param user_id: The traveller's id, injected from graph state (not model-supplied).
+    :param store: The cross-session memory store, injected by LangGraph (not
+        model-supplied).
+    :return: Matching past-trip episodes.
+    """
+    log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
+    return search_episodes(store, user_id, query=query)
+
+
+# Episodic-recall tool, bound to the planner (gated by AgentContext.allow_episodic).
+EPISODE_TOOLS = [recall_past_trips]

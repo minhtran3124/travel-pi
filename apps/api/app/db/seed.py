@@ -265,6 +265,8 @@ def _check_short_code_collisions(session) -> None:
 
     Ported from ``hotel_service._build_short_code_index`` and its place
     equivalent — the guard moves here so it runs over the seeded rows.
+
+    :param session: The active SQLAlchemy session to scan seeded rows from.
     """
     hotel_index: dict[str, str] = {}
     for row in session.scalars(select(models.Hotel)):
@@ -294,6 +296,8 @@ def seed_all(session_factory) -> None:
 
     Idempotent: ``merge`` makes re-runs no-ops for natural-PK entities and the
     City path upserts by natural key. Commits once at the end.
+
+    :param session_factory: Callable returning a new session (context manager).
     """
     with session_factory() as session:
         _seed_countries(session)

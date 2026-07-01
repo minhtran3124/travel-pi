@@ -58,7 +58,12 @@ class PromptRegistry:
         )
 
     def get(self, name: str, version: int | None = None) -> str:
-        """Return prompt text. Defaults to the active version for ``name``."""
+        """Return prompt text. Defaults to the active version for ``name``.
+
+        :param name: The prompt name to look up.
+        :param version: Specific version to return; defaults to the active version.
+        :return: The prompt text.
+        """
         if name not in self._prompts:
             raise KeyError(f"Unknown prompt: {name!r}")
         versions = self._prompts[name]

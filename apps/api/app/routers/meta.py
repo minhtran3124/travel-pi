@@ -16,6 +16,9 @@ def _list_endpoints(request: Request) -> list[str]:
     it can never drift from the actual API — adding a router automatically
     surfaces it here, and dashboard routes are filtered out via
     ``include_in_schema=False``.
+
+    :param request: The incoming request, used to reach the live route table.
+    :return: Sorted, deduplicated ``"METHOD /path"`` strings.
     """
     seen: set[str] = set()
     out: list[str] = []
@@ -40,6 +43,9 @@ def root(request: Request) -> ServiceInfo:
 
     ``endpoints`` is derived from the live route table at request time so it
     stays in sync with the API automatically.
+
+    :param request: The incoming request.
+    :return: The service info.
     """
     return ServiceInfo(
         name="Travel Planner Mock API",

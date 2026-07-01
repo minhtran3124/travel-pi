@@ -37,6 +37,8 @@ class Repo:
         Live-session mode: hand back the caller-owned session (do **not** close
         it — the request boundary does). Factory mode: open a fresh session and
         close it at block exit (legacy self-managed behavior).
+
+        :return: A usable ``Session`` for the duration of the ``with`` block.
         """
         if self._s is not None:
             yield self._s
@@ -50,6 +52,8 @@ class Repo:
         Factory mode: ``commit`` — the operation is standalone. Live-session
         mode: ``flush`` only, so integrity errors still surface here while the
         actual commit is deferred to the request boundary (atomic unit-of-work).
+
+        :param s: The session to persist.
         """
         if self._s is not None:
             s.flush()
@@ -57,7 +61,10 @@ class Repo:
             s.commit()
 
     def _bind(self):
-        """Return the engine bind for DDL (``create_all``)."""
+        """Return the engine bind for DDL (``create_all``).
+
+        :return: The SQLAlchemy engine bind.
+        """
         if self._s is not None:
             return self._s.get_bind()
         with self._sf() as s:

@@ -1,218 +1,174 @@
 # Travel Agent — Backend Chatbot Workflow
 
-> Review + reference doc for the current backend AI-agent workflow.
-> Scope: `apps/api/app/` as it exists on `feat/monorepo-fe`. Companion to
-> `WORKFLOW_DIAGRAM.md` (root) and `specs/travel-agent/PLAN.md` / `REVIEW.md`.
-> Last verified: 2026-06-26.
+> Reference for the backend AI-agent workflow. Scope: `apps/api/app/` on
+> `feat/agent-memory-layers`. Diagrams: `WORKFLOW_DIAGRAM.md` (`make diagram` → HTML).
+> Last verified: 2026-07-01.
 
-The backend is a **multi-agent LangGraph application**: a supervisor classifies intent and
-hands off to one of five specialist ReAct sub-agents, each bound to a focused tool group. The
-graph is stateful (checkpointer + long-term store), provider-agnostic (LLM swapped by config),
-and exposed over three HTTP endpoints plus an MCP server.
+A **multi-agent LangGraph app**: a supervisor routes intent to one of five ReAct sub-agents, each
+with a focused tool group. Stateful (checkpointer + long-term store), provider-agnostic (LLM by
+config), capability-aware (per-request **mode × tier**), with three memory layers (prefs /
+procedural / episodes) read on the way in and written in the background on the way out.
 
 ---
 
-## 1. Components at a glance
+## 1. Components
 
-| Layer | Module | Responsibility |
+| Module | Responsibility |
+|---|---|
+| `routers/agent.py` | Endpoints: `/agent/chat`, `/stream`, `/manifest`, `/conversations*`; persists turns |
+| `core/auth.py`, `services/quota_service.py` | Optional Supabase JWT (`user_id` = sub); per-tier quota (429) |
+| `agents/context.py`, `agents/constants.py`, `enums.py` | `AgentContext`: (tier, mode) → capability flags |
+| `agents/graph.py` | Wires nodes/edges; compiles with checkpointer + store |
+| `agents/supervisor.py` | Structured-intent routing; tier-gates targets |
+| `agents/nodes.py` | `load_context`, `summarize`, `reflection`, `plan_node` (HITL), `extract_memory` |
+| `agents/subagents/*.py` + `_base.py` | ReAct subgraphs; per-request model + tool gating |
+| `tools/registry.py` + `tools/*_tools.py` | Domain tool groups + MCP-style metadata |
+| `clients/llm.py` | `init_chat_model()`; per-node `get_agent_llm`; `FakeLLM` in tests |
+| `agents/state.py` | `TravelAgentState`, `system_with_summary()` |
+| `agents/checkpointer.py`, `memory/store.py` | Thread checkpoints + long-term semantic store |
+| `memory/extractor.py`, `memory/summarizer.py` | Background extraction + history compression |
+| `streaming/*.py`, `core/streaming.py` | Typed SSE events + isolated-session persistence |
+| `rag/*.py`, `mcp/server.py`, `agents/observability.py` | Retrieval · MCP tool surface · Langfuse |
+
+Graph + checkpointer + store are built **once** in `core/lifespan.py`, held on
+`app.state.travel_graph`, resolved per request by `get_travel_graph()` (tests inject a `FakeLLM` graph).
+
+---
+
+## 2. Request flow
+
+`POST /agent/chat`:
+
+1. **User** — JWT sub if authenticated, else client `user_id` (anonymous). Auth ignores body `user_id` (anti-spoof).
+2. **Context** — `resolve_agent_context(tier, mode)`: mode from client, tier server-side (anon ⇒ `free`).
+3. **Quota** — `check_quota()` → 429 if a free user is over the daily limit.
+4. **Conversation** — get-or-create row; thread id `user_{uid}_trip_{trip}_conv_{cid}` keys the checkpointer.
+5. **Invoke** — `graph.ainvoke({messages, user_id, trip_id}, cfg, context=ctx)`; user turn persisted first.
+6. **Reply** — last `AIMessage` (never a trailing `ToolMessage`); persist it. Graph failure → `AGENT_ERROR_FALLBACK_MSG`, not a 500.
+7. **Response** — `ChatResponse(conversation_id, reply, current_flow, interrupt_pending, interrupt_payload)`.
+
+- **HITL resume**: `body.resume` set → `graph.ainvoke(Command(resume=...), ...)` continues a graph paused at plan approval.
+- **`/agent/stream`**: same setup, then `stream_agent_events()` over `graph.astream`. Emits typed SSE — `start`, `subagent`, `token` (sub-agent reply only), `tool_call`, `tool_result`, `panel` (side-panel artifacts), `interrupt`. Persisted via an isolated sessionmaker (the generator outlives the request session).
+- **Other**: `GET /conversations`, `/conversations/{id}/messages` (ownership-scoped), `POST /conversations/claim` (anon → account), `GET /manifest`.
+
+---
+
+## 3. Graph topology (`agents/graph.py`)
+
+```
+START → load_context → summarize → supervisor ──Command(goto)──┐
+                                                                │
+    planner | concierge | journal | budget ◄───────────────────┤
+        │                                                       │
+        │   booking ◄── plan (HITL) ◄── target==booking ◄───────┤
+        │       └ rejected → END                unknown/gated → END
+        ▼ (static edge)
+   reflection ──Command(goto: current_flow=REVISE | extract_memory=OK)──→ extract_memory → END
+```
+
+**Per-run `AgentContext`** (frozen, not persisted; resolved from tier × mode):
+
+| Flag | FAST | BALANCED | DEEP | Free ceiling |
+|---|---|---|---|---|
+| `model` hint | FAST | default | DEEP | DEEP→default |
+| `allow_reflection` | ✗ | ✓ | ✓ | — |
+| `allow_rag` | ✗ | ✓ | ✓ | forced ✗ |
+| `allow_memory_write` | ✗ | ✓ | ✓ | — |
+| `allow_episodic` | ✓ | ✓ | ✓ | — |
+| `max_revisions` | 0 | 1 | 2 | — |
+| `allowed_subagents` | all | all | all | no `booking` |
+
+- **supervisor** — structured `SupervisorIntent` → `current_flow=target`. Unknown or tier-gated target → graceful `END` (`BOOKING_UPGRADE_MSG` for free+booking). Booking routes via `plan` first. `destinations=(*SUBAGENTS, "plan", "__end__")`.
+- **plan_node (HITL, wired)** — `interrupt()` before the one destructive tool (`book_hotel`). Resume `{approved}`: yes → `booking` + `plan_approved=True`; no → `END`.
+- **reflection** — reads `allow_reflection` / `max_revisions`. Disabled or cap reached → `extract_memory`; else judge `REVISE`/`OK`: `REVISE` loops to `current_flow`, `OK` → `extract_memory`. `destinations=(*SUBAGENTS, "extract_memory")`.
+- **extract_memory** — always on the accept path; **no-op when `allow_memory_write=False`** (FAST) or no user/store. → `END`.
+- Handoffs supervisor→sub-agent and reflection→next are dynamic `Command(goto)`; sub-agent→reflection is a static edge. `agent_recursion_limit=25` backstops cycles.
+
+**Sub-agent ReAct loop** (`subagents/_base.py`): `START → assistant ⇄ tools → END`. `assistant` resolves its model per request from `ctx.model`, `bind_tools` on domain tools **filtered by context** (drop RAG if `!allow_rag`, drop `recall_past_trips` if `!allow_episodic`), and prompts with `system_with_summary`. `ToolNode` maps `ToolException` → `ToolMessage(status="error")` for self-correction.
+
+---
+
+## 4. Sub-agents & tools
+
+Model tier: `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`, `extract_memory`) → `fast_llm_model`; rest → `llm_model`. Per-node overrides via `settings.agent_llm_configs`.
+
+| Sub-agent | Model | Tool groups |
 |---|---|---|
-| HTTP entry | `routers/agent.py` | `/agent/chat`, `/agent/stream`, `/agent/manifest`; persists conversation turns |
-| Graph assembly | `agents/graph.py` | Wires nodes + edges, compiles with checkpointer + store |
-| Routing | `agents/supervisor.py` | Structured-output intent → `Command(goto=<subagent>)` |
-| Cross-cutting nodes | `agents/nodes.py` | `load_context`, `summarize`, `reflection`, `plan_node` (HITL) |
-| Specialists | `agents/subagents/*.py` + `_base.py` | ReAct subgraphs (assistant ⇄ tools) |
-| Tools | `tools/registry.py` + `tools/*_tools.py` | Domain tool groups, MCP-style metadata |
-| LLM client | `clients/llm.py` | `init_chat_model()` provider-agnostic; `FakeLLM` for tests |
-| State | `agents/state.py` | `TravelAgentState`, `system_with_summary()` |
-| Persistence | `agents/checkpointer.py`, `memory/store.py` | Thread checkpoints + long-term semantic store |
-| Memory mgmt | `memory/summarizer.py` | Sliding-window history compression |
-| Retrieval | `rag/*.py` | Hybrid (vector + lexical) destination knowledge |
-| Convo record | `repositories/conversation.py` | ORM conversation/message rows |
-| Tool surface | `mcp/server.py` | Same tool registry re-exposed as an MCP server |
-| Observability | `agents/observability.py` | Optional Langfuse callbacks/metadata |
+| **planner** | full | trip, place, flight, hotel, weather, routing, episodes |
+| **concierge** | full | place, weather, routing, tip, rag |
+| **journal** | fast | trip, memory |
+| **booking** | full | flight, hotel (`book_hotel`† HITL-gated) |
+| **budget** | fast | expense, `get_trip_budget` |
 
-The compiled graph + checkpointer + store are built **once at startup** in
-`core/lifespan.py` and held on `app.state.travel_graph`; `get_travel_graph()`
-(`routers/agent.py:35`) resolves the shared instance per request (tests override it with a
-`FakeLLM`-backed graph).
+| Group | Tools |
+|---|---|
+| trip | `get_trip_summary`, `get_trip_budget`, `list_trip_places`, `add_place_to_trip`*, `add_itinerary_item`* |
+| place | `search_places`, `nearby_places`, `resolve_place`, `parse_nl_query`, `list_place_categories` |
+| flight / hotel | `search_flights` · `search_hotels`, `book_hotel`† |
+| weather | `get_weather`, `get_packing`, `get_air_quality` |
+| routing / tip | `get_route`, `get_city_route` · destination tips |
+| expense | `add_expense`*, `list_expenses`, `expense_summary` |
+| memory / episodes | `save_user_preference`*, `get_user_preferences` · `recall_past_trips` (gated `allow_episodic`) |
+| rag | `search_destination_knowledge` (gated `allow_rag`) |
 
----
-
-## 2. End-to-end request flow
-
-`POST /agent/chat` (`routers/agent.py:68`):
-
-1. **Resolve conversation** — reuse `conversation_id` or create one via
-   `ConversationRepository` (`:73`).
-2. **Persist user turn** — `repo.append_message(role="user")` (`:77`).
-3. **Build thread id** — `user_{user_id}_trip_{trip_id}_conv_{conversation_id}` (`:53`); this
-   keys the checkpointer so a conversation resumes its full state across turns.
-4. **Invoke graph** — `graph.ainvoke({messages, user_id, trip_id}, config)` (`:81`). `config`
-   carries `thread_id`, `recursion_limit`, Langfuse `callbacks`, and trace `metadata` (`:57`).
-5. **Extract reply** — last message content (`:89`), persist assistant turn (`:90`).
-6. **Respond** — `ChatResponse(conversation_id, reply, current_flow)`.
-
-`POST /agent/stream` (`:100`) is the same invocation via `graph.astream(..., stream_mode="messages")`,
-but filters tokens to **only sub-agent nodes** (`meta["langgraph_node"] in SUBAGENTS`, `:123`) so
-supervisor/summarizer/reflection internals never leak into the SSE feed. Anonymous streams get a
-unique `stream-<uuid>` thread to avoid checkpoint collisions (`:108`). Wrapped by
-`sse_response()` (`core/streaming.py`).
-
-`GET /agent/manifest` (`:132`) returns the sub-agent list + every tool with `read_only` /
-`destructive` flags from `TOOL_METADATA`.
+`*` write · `†` destructive. Flags in `TOOL_METADATA` → surface via `/manifest` + MCP. Each tool opens its own `session_scope()` and maps errors to `ToolException`.
 
 ---
 
-## 3. Graph topology
+## 5. LLM client (`clients/llm.py`)
 
-Assembled in `agents/graph.py:50-75`:
-
-```
-START
-  → load_context        # inject active-trip snapshot (best-effort)
-  → summarize           # compress old turns if history is long
-  → supervisor          # classify intent  ──Command(goto=subagent | END)──┐
-                                                                            │
-        ┌───────────────────────────────────────────────────────────────┘
-        ▼
-   [ planner | concierge | journal | booking | budget ]   # ReAct subgraph
-        │  (static edge)
-        ▼
-   reflection            # critique answer ──Command(goto=subagent | END)──→ END
-```
-
-Key mechanics:
-
-- **Supervisor** (`supervisor.py:37`) uses `llm.with_structured_output(SupervisorIntent)` to pick
-  `target_agent`; unknown intent → graceful fallback message + `goto=END` (`:41`). On success it
-  sets `current_flow=target` so reflection knows where to loop back.
-- **Sub-agent → reflection** is a static edge (`graph.py:71`); **supervisor → sub-agent** and
-  **reflection → sub-agent/END** are dynamic `Command(goto=...)` handoffs (no static edge), which
-  is why both nodes declare `destinations=(*SUBAGENTS, "__end__")`.
-- **Reflection** (`nodes.py:71`) is a bounded self-correction loop: `_MAX_REVISIONS = 1`. A fast
-  LLM judges the last answer `REVISE`/`OK`; on `REVISE` it appends "improve your previous answer",
-  bumps `revisions`, and loops back to `current_flow`; otherwise `goto=END`. The counter guarantees
-  the loop runs at most once.
-- **`agent_recursion_limit`** (default 25) is LangGraph's hard backstop against runaway cycles.
-- **`plan_node`** (`nodes.py:92`) is a human-in-the-loop `interrupt()` checkpoint for plan/booking
-  approval — defined but **not currently wired into the compiled graph**.
-
-### Sub-agent ReAct loop (`subagents/_base.py`)
-
-Each specialist is its own compiled `StateGraph`:
-
-```
-START → assistant ──tools_condition──→ tools → assistant → ... → END
-                         (no tool calls) ─────────────────────→ END
-```
-
-`assistant` (`_base.py:34`) invokes `llm.bind_tools(tools)` with the domain system prompt +
-rolling summary. `ToolNode` runs tool calls, mapping `ToolException` → `ToolMessage(status="error")`
-so the model self-corrects. The parent's checkpointer/store propagate into these nested nodes.
-
----
-
-## 4. Sub-agents and their tools
-
-Tool groups defined in `tools/registry.py:23-29`. Model tier per sub-agent set in `graph.py:56-60`
-(`llm` = full reasoning model, `fast_llm` = cheap model).
-
-| Sub-agent | Model | Tools | Purpose |
-|---|---|---|---|
-| **planner** | full | trip, place, flight, hotel, weather | End-to-end trip planning |
-| **concierge** | full | place, weather, **RAG** | Recommendations + destination knowledge |
-| **journal** | fast | trip, memory | Notes + user-preference capture/recall |
-| **booking** | full | flight, hotel | Quotes + guarded `book_hotel` (destructive) |
-| **budget** | fast | expense, `get_trip_budget` | Expense tracking / budget |
-
-**Tool inventory** (`tools/*_tools.py`):
-
-- **trip**: `get_trip_summary`, `get_trip_budget`, `list_trip_places`, `add_place_to_trip`*, `add_itinerary_item`*
-- **place**: `search_places`, `nearby_places`, `resolve_place`, `parse_nl_query`, `list_place_categories`
-- **flight**: `search_flights`
-- **hotel**: `search_hotels`, `book_hotel`†
-- **weather**: `get_weather`, `get_packing`, `get_air_quality`
-- **expense**: `add_expense`*, `list_expenses`, `expense_summary`
-- **memory**: `save_user_preference`*, `get_user_preferences`
-- **rag**: `search_destination_knowledge`
-
-`*` = write (`readOnly=False`), `†` = destructive (irreversible side effect). Flags live in
-`TOOL_METADATA` (`registry.py:38-55`) and surface through `/agent/manifest` and the MCP server.
-Each tool opens its own `session_scope()` for DB access and maps domain errors to `ToolException`.
-
----
-
-## 5. LLM client
-
-`clients/llm.py` — the agent layer never imports a provider SDK. `get_llm()` /
-`get_fast_llm()` call `init_chat_model(name, model_provider=settings.llm_provider, api_key=...)`,
-so switching provider is a settings change.
-
-- `llm_provider`: `openai` (default) | `anthropic` | `google`
-- `llm_model`: full reasoning model (default `gpt-4.1`) — supervisor, planner, concierge, booking
-- `fast_llm_model`: cheap model (default `gpt-4.1-mini`) — summarize, reflection, journal, budget
-- API key passed **explicitly from settings** (never env leakage); absent key → client raises on
-  first use, not at import.
-- `FakeLLM` (`:59`) scripts deterministic responses (incl. tool calls + structured output) so the
-  full graph runs in tests with zero network.
+- No provider SDK imported directly; models built via `init_chat_model()` → switching provider is a settings change. No import-time side effects.
+- `get_llm()` / `get_fast_llm()` — base builders. `get_agent_llm(name, model)` — per-node: resolves `agent_llm_configs[name]`, falls back to tier default (`FAST_AGENTS`); `model` = `ModelHint` (`FAST`/`DEEP`/`None`) from context.
+- `llm_provider`: `openai` (default) | `anthropic` | `google_genai`; optional `llm_base_url`. Defaults `gpt-4.1` / `gpt-4.1-mini`. Key passed explicitly from settings.
+- `FakeLLM` — deterministic (tool calls + structured output), zero network; injected fakes bypass `get_agent_llm`.
 
 ---
 
 ## 6. State & memory
 
-**`TravelAgentState`** (`agents/state.py`, extends `MessagesState`): `user_id`, `trip_id`,
-`current_flow`, `summary`, `revisions`, `messages`. `system_with_summary()` re-injects the rolling
-`summary` into each node's system prompt.
+**`TravelAgentState`** (extends `MessagesState`): `user_id`, `trip_id`, `current_flow`, `summary`, `revisions`, `trip_context`, `instructions`, `plan_approved`. `system_with_summary()` folds `instructions` + `trip_context` + `summary` into one leading system message.
 
-**Short-term (per-thread)** — `agents/checkpointer.py`: `AsyncPostgresSaver` in production,
-degrades to `MemorySaver`. Snapshots full state after each node, keyed by `thread_id` → enables
-multi-turn resume.
+- **Short-term** (`checkpointer.py`): `AsyncPostgresSaver` → `MemorySaver`. Snapshots state per node by `thread_id`; holds the pending HITL interrupt.
+- **Long-term** (`store.py`): `PostgresStore` + pgvector → `InMemoryStore`, semantic index on each value's `text`. Namespaced `("users", user_id, kind)`:
 
-**Long-term (cross-session)** — `memory/store.py`: `PostgresStore` + pgvector, degrades to
-`InMemoryStore` with fake embeddings. Holds user preferences / trip facts, addressable by
-`(namespace, key)`, semantically searchable. Both opened once in `core/lifespan.py`.
+| Kind | Written by | Read by | Recall |
+|---|---|---|---|
+| `prefs` | `save_user_preference` (hot) · `extract_memory` | `get_user_preferences` | 5 |
+| `procedural` | `extract_memory` | `load_context` → prompt | 10 |
+| `episodes` | `extract_memory` (`approved` if plan passed HITL, else `proposed`) | `recall_past_trips` | 3 |
 
-**History compression** — `memory/summarizer.py`: when `should_summarize()` (default threshold 20
-messages) the `summarize` node compresses old turns into `summary` and drops them from `messages`,
-keeping the last few turns.
-
----
-
-## 7. RAG, MCP, observability
-
-- **RAG** (`rag/*.py`): hybrid retrieval (vector similarity + lexical, Reciprocal Rank Fusion) over
-  destination knowledge; OpenAI embeddings + pgvector in prod, deterministic fakes + in-memory in
-  dev/test (1536 dims). Reached only through the concierge's `search_destination_knowledge` tool.
-- **MCP** (`mcp/server.py`): re-exposes the same tool registry as an MCP server with
-  readOnly/destructive annotations; filters out `InjectedStore`-dependent tools.
-- **Observability** (`agents/observability.py`): optional Langfuse `CallbackHandler` + trace
-  metadata grouped by `user_id`/`trip_id`; disabled by default (no network in CI).
+  Helpers: `upsert_*` / `search_*`, unified `search_memory[_typed]`, dataclasses `Preference`/`Instruction`/`Episode`.
+- **Extraction** — `extract_memory` runs post-turn when `allow_memory_write`; calls `extract_memories()`, upserts results. Best-effort (errors swallowed).
+- **Compression** — `summarize` node compresses old turns into `summary` once history > `summarize_threshold` (20).
 
 ---
 
-## 8. Configuration (`core/config.py`)
+## 7. RAG · MCP · observability
+
+- **RAG** (`rag/*.py`): hybrid vector + lexical (RRF) over destination knowledge; OpenAI embeddings + pgvector prod, fakes + in-memory dev/test (1536 dim). Only via concierge's `search_destination_knowledge`, gated by `allow_rag`.
+- **MCP** (`mcp/server.py`): same registry re-exposed with readOnly/destructive flags; drops `InjectedStore` tools.
+- **Observability** (`observability.py`): optional Langfuse callbacks + trace metadata by `user_id`/`trip_id`; off by default.
+
+---
+
+## 8. Config (`core/config.py`)
 
 | Setting | Default | Drives |
 |---|---|---|
-| `llm_provider` | `openai` | Which SDK `init_chat_model` builds |
-| `llm_model` | `gpt-4.1` | Full-reasoning sub-agents + supervisor |
-| `fast_llm_model` | `gpt-4.1-mini` | Routing-tier nodes + summarize/reflection |
-| `embedding_model` | `text-embedding-3-small` | RAG + long-term store index |
-| `openai/anthropic/google_api_key` | None | Provider auth; None ⇒ `FakeLLM` |
-| `agent_recursion_limit` | 25 | LangGraph cycle backstop |
-| `summarize_threshold` | 20 | History compression trigger |
+| `llm_provider` / `llm_model` / `fast_llm_model` | `openai` / `gpt-4.1` / `gpt-4.1-mini` | Provider + main/fast tiers |
+| `agent_llm_configs` / `llm_base_url` | `{}` / None | Per-node overrides · custom endpoint |
+| `embedding_model` | `text-embedding-3-small` | RAG + store index |
+| `*_api_key` | None | Provider auth (None ⇒ raises on first use) |
+| `agent_recursion_limit` / `summarize_threshold` | 25 / 20 | Cycle backstop · compression trigger |
 | `langfuse_enabled` + keys | off | Tracing |
+
+**mode** (`ChatMode`) and **tier** (`Tier`) are per-request, not settings → resolved into `AgentContext` (§3).
 
 ---
 
-## 9. Observations / gaps (for review)
+## 9. Gaps (for review)
 
-- **`plan_node` HITL is dead code** — defined in `nodes.py:92` but not added to the compiled graph;
-  there is no approval gate before `book_hotel` (the one destructive tool). If guarded booking is a
-  requirement, this is the missing wiring.
-- **Reflection critic is coarse** — a single `REVISE`/`OK` verdict from a fast model with no
-  rubric; bounded to 1 revision. Cheap but low-signal.
-- **No auth on `/agent/*`** — consistent with the mock-backend posture, but `user_id` is
-  caller-supplied and trusted for both checkpoint threads and the long-term memory namespace.
-- **Conversation persisted twice** — `ConversationRepository` rows *and* the checkpointer both
-  store turns; they can drift (e.g. a failed `ainvoke` leaves the user row without a reply).
+- **Coarse reflection** — single `REVISE`/`OK` from a fast model, no rubric.
+- **Anon `user_id` trust** — anonymous callers supply their own id, which keys the thread + memory namespace (the `claim` endpoint migrates it on login).
+- **Double persistence** — `ConversationRepository` rows + checkpointer can drift on failure.
+- **Unverified memory writes** — `extract_memory` persists parsed LLM output with no review, dedup only by key-overwrite.

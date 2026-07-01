@@ -17,7 +17,11 @@ class FxRepository(Repo):
     """Read-only store of FX rows behind a ``session_factory``."""
 
     def rate(self, code: str) -> float | None:
-        """Return the units-per-USD rate for ``code`` (exact), or ``None``."""
+        """Return the units-per-USD rate for ``code`` (exact), or ``None``.
+
+        :param code: The exact ISO 4217 currency code to look up.
+        :return: The units-per-USD rate, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.FxRate).where(models.FxRate.code == code)
@@ -25,7 +29,11 @@ class FxRepository(Repo):
             return row.rate if row is not None else None
 
     def name(self, code: str) -> str | None:
-        """Return the human currency name for ``code`` (exact), or ``None``."""
+        """Return the human currency name for ``code`` (exact), or ``None``.
+
+        :param code: The exact ISO 4217 currency code to look up.
+        :return: The human currency name, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.FxRate).where(models.FxRate.code == code)
@@ -33,7 +41,11 @@ class FxRepository(Repo):
             return row.name if row is not None else None
 
     def country_currency(self, country: str) -> str | None:
-        """Return the ISO 4217 code for a resolved ``country``, or ``None``."""
+        """Return the ISO 4217 code for a resolved ``country``, or ``None``.
+
+        :param country: The exact (already-resolved) country name to look up.
+        :return: The ISO 4217 currency code, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.CountryCurrency).where(
@@ -43,13 +55,19 @@ class FxRepository(Repo):
             return row.code if row is not None else None
 
     def last_updated(self) -> str | None:
-        """Return the snapshot date for the FX table (singleton row)."""
+        """Return the snapshot date for the FX table (singleton row).
+
+        :return: The snapshot date, or ``None`` if the ``fx_meta`` row is absent.
+        """
         with self._session() as s:
             row = s.scalars(select(models.FxMeta)).first()
             return row.last_updated if row is not None else None
 
     def valid_codes(self) -> list[str]:
-        """Return every supported currency code, sorted — mirrors ``sorted(RATES)``."""
+        """Return every supported currency code, sorted — mirrors ``sorted(RATES)``.
+
+        :return: All supported currency codes, sorted.
+        """
         with self._session() as s:
             return sorted(s.scalars(select(models.FxRate.code)).all())
 
@@ -58,6 +76,8 @@ class FxRepository(Repo):
 
         Mirrors ``sorted(COUNTRY_CURRENCY)`` — the fuzzy-resolution target for
         the ``country`` param in ``currency_service``.
+
+        :return: Sorted country names that have a known currency.
         """
         with self._session() as s:
             return sorted(s.scalars(select(models.CountryCurrency.country)).all())

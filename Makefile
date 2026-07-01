@@ -1,6 +1,6 @@
 # Monorepo root Makefile — delegates BE targets into apps/api, FE via pnpm/turbo.
 # BE (apps/api) keeps its own Makefile; this is a thin convenience layer.
-.PHONY: help install dev test test-docker lint seed api web build
+.PHONY: help install dev test test-docker lint seed api web build diagram
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -32,3 +32,6 @@ api:            ## Run only the BE dev server
 
 web:            ## Run only the FE dev server
 	pnpm --filter @travel/web dev
+
+diagram:        ## Render WORKFLOW_DIAGRAM.md → self-contained WORKFLOW_DIAGRAM.html
+	node scripts/render-workflow-diagram.mjs

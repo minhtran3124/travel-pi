@@ -61,7 +61,12 @@ def _error_body(
 
 
 def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
-    """Register the JSON-envelope exception handlers on the app."""
+    """Register the JSON-envelope exception handlers on the app.
+
+    :param app: The FastAPI app to register handlers on.
+    :param settings: Application settings, used to decide whether unexpected-error
+        details are hidden in production.
+    """
 
     # Turn any domain error raised by the service layer into an HTTP response,
     # so services stay free of FastAPI/HTTP concerns.

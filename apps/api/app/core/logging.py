@@ -20,6 +20,8 @@ def configure_logging(settings: Settings) -> None:
     - ``uvicorn.access`` is silenced on purpose: the request-logging
       middleware in ``app.main`` is the single source of per-request lines,
       so Uvicorn's access log would just be a duplicate.
+
+    :param settings: Application settings, used to set the root log level.
     """
     dictConfig(
         {

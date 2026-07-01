@@ -34,7 +34,11 @@ _AQI_VERY_UNHEALTHY = 300
 
 
 def _us_aqi_category(value: int | None) -> str:
-    """Map a US-AQI value to its category label; ``None`` → ``"Unknown"``."""
+    """Map a US-AQI value to its category label; ``None`` → ``"Unknown"``.
+
+    :param value: The US-AQI reading, or ``None`` if unavailable.
+    :return: The category label for the reading.
+    """
     if value is None:
         return "Unknown"
     if value <= _AQI_GOOD:
@@ -58,6 +62,10 @@ def _build_forecast(hourly: dict, max_days: int) -> list[AirQualityDay]:
     :class:`AirQualityDay` per date in chronological order, capped at
     ``max_days``. A day with no usable readings yields ``max_us_aqi=None``
     (``"Unknown"``) — ``max([])`` is guarded so an all-null day never raises.
+
+    :param hourly: Raw Open-Meteo ``hourly`` block with ``time``/``us_aqi`` arrays.
+    :param max_days: Maximum number of days to include in the forecast.
+    :return: One ``AirQualityDay`` per date, in chronological order.
     """
     htime: list = hourly.get("time") or []
     haqi: list = hourly.get("us_aqi") or []
@@ -93,6 +101,9 @@ async def get_air_quality(city: str) -> AirQualityResponse:
     Raises :class:`CityNotFoundError` (404) when the name cannot be geocoded,
     and :class:`WeatherUnavailableError` (502) when Open-Meteo is unreachable
     or returns a body we cannot parse.
+
+    :param city: Free-text city name to geocode and look up.
+    :return: Current air quality plus a short max-AQI forecast for the city.
     """
     settings = get_settings()
 

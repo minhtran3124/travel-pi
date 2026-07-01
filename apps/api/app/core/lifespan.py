@@ -23,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Run startup tasks, yield while the app serves, then shut down."""
+    """Run startup tasks, yield while the app serves, then shut down.
+
+    :param app: The FastAPI app whose startup/shutdown this manages.
+    """
     settings = get_settings()
     logger.info("Database URL: %s", settings.database_url)
     engine = get_engine(settings.database_url)

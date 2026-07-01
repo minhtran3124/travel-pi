@@ -51,6 +51,10 @@ def list_places(places: PlaceDep, pagination: PaginationDep) -> PlaceListRespons
     """Return all seeded places with pagination.
 
     ``total`` is the full count; use ``limit`` and ``offset`` to page.
+
+    :param places: The place service.
+    :param pagination: The pagination params (limit/offset).
+    :return: The seeded places, paginated.
     """
     page, total = pagination.page_of(places.list_places())
     return PlaceListResponse(
@@ -112,6 +116,16 @@ def search_places(
     Unknown cities return ``total: 0`` (not a 404). ``min_rating`` and
     ``price_level`` accept empty strings as "no filter".
     ``total`` reflects the full match count; ``results`` is the current page.
+
+    :param places: The place service.
+    :param pagination: The pagination params (limit/offset).
+    :param city: Optional city name — fuzzy (typo/case tolerant).
+    :param category: Optional category filter.
+    :param min_rating: Optional minimum rating (0-5), as a raw string.
+    :param price_level: Optional exact price level 1-4, as a raw string.
+    :param recommended: Whether to return only editor-recommended places.
+    :param sort: Sort order.
+    :return: The matching places, paginated.
     """
     min_rating_val, err = parse_optional_number(
         min_rating, label="min_rating", kind=float, minimum=0, maximum=5
@@ -168,6 +182,11 @@ def search_places_nl(
     (``<=``), so "under $40" includes everything at or below that band.
     Unrecognised words are ignored. Pagination uses the standard
     ``limit`` / ``offset`` query params.
+
+    :param body: The natural-language search request.
+    :param places: The place service.
+    :param pagination: The pagination params (limit/offset).
+    :return: The parsed filters and matching places, paginated.
     """
     parsed = places.parse_nl_query(body.query)
     all_results = places.search_places(
@@ -193,7 +212,11 @@ def search_places_nl(
     summary="List all cities that have places",
 )
 def list_place_cities(places: PlaceDep) -> list[str]:
-    """Return the sorted list of city names that have at least one place."""
+    """Return the sorted list of city names that have at least one place.
+
+    :param places: The place service.
+    :return: The sorted city names.
+    """
     return places.cities()
 
 
@@ -207,6 +230,9 @@ def list_categories(places: PlaceDep) -> list[PlaceCategoryInfo]:
 
     Sorted by ``name``. ``color`` is a ``#rrggbb`` hex aligned with the dashboard
     palette; ``icon`` is a short key for the frontend icon set.
+
+    :param places: The place service.
+    :return: The available place categories.
     """
     return places.categories()
 
@@ -235,6 +261,10 @@ def create_saved_place(body: SavedPlaceCreate, service: SavedPlaceDep) -> SavedP
     Dedup: a non-deleted saved place with the same case-insensitive name that
     is within ~50 m (when both have coords) or in the same city (when coords
     are missing) is a duplicate → 409 with the existing id in ``hint``.
+
+    :param body: The saved-place creation request.
+    :param service: The saved-place service.
+    :return: The created saved place.
     """
     return service.create(body)
 
@@ -257,7 +287,16 @@ def list_saved_places(
         bool | None, Query(description="Filter by visited flag.")
     ] = None,
 ) -> SavedPlaceListResponse:
-    """Return saved places, newest first, with optional filters and pagination."""
+    """Return saved places, newest first, with optional filters and pagination.
+
+    :param pagination: The pagination params (limit/offset).
+    :param service: The saved-place service.
+    :param city: Optional exact city filter.
+    :param category: Optional exact category filter.
+    :param favorite: Optional filter by favorite flag.
+    :param visited: Optional filter by visited flag.
+    :return: The matching saved places, paginated.
+    """
     page, total = pagination.page_of(
         service.list(city=city, category=category, favorite=favorite, visited=visited)
     )
@@ -273,7 +312,12 @@ def list_saved_places(
     responses=error_responses(404),
 )
 def get_saved_place(saved_id: _SAVED_ID, service: SavedPlaceDep) -> SavedPlace:
-    """Return one saved place (UUID or SPL- code); 404 if missing/soft-deleted."""
+    """Return one saved place (UUID or SPL- code); 404 if missing/soft-deleted.
+
+    :param saved_id: The saved-place UUID or SPL- short code.
+    :param service: The saved-place service.
+    :return: The matching saved place.
+    """
     return service.get(saved_id)
 
 
@@ -284,7 +328,11 @@ def get_saved_place(saved_id: _SAVED_ID, service: SavedPlaceDep) -> SavedPlace:
     responses=error_responses(404),
 )
 def delete_saved_place(saved_id: _SAVED_ID, service: SavedPlaceDep) -> None:
-    """Soft-delete a saved place (404 if missing/already-deleted)."""
+    """Soft-delete a saved place (404 if missing/already-deleted).
+
+    :param saved_id: The saved-place UUID or SPL- short code.
+    :param service: The saved-place service.
+    """
     service.delete(saved_id)
 
 
@@ -297,7 +345,13 @@ def delete_saved_place(saved_id: _SAVED_ID, service: SavedPlaceDep) -> None:
 def set_saved_place_favorite(
     saved_id: _SAVED_ID, body: SavedPlaceFlag, service: SavedPlaceDep
 ) -> SavedPlace:
-    """Idempotently SET the ``favorite`` flag to ``body.value``."""
+    """Idempotently SET the ``favorite`` flag to ``body.value``.
+
+    :param saved_id: The saved-place UUID or SPL- short code.
+    :param body: The desired flag value.
+    :param service: The saved-place service.
+    :return: The updated saved place.
+    """
     return service.set_flag(saved_id, "favorite", body.value)
 
 
@@ -310,7 +364,13 @@ def set_saved_place_favorite(
 def set_saved_place_visited(
     saved_id: _SAVED_ID, body: SavedPlaceFlag, service: SavedPlaceDep
 ) -> SavedPlace:
-    """Idempotently SET the ``visited`` flag to ``body.value``."""
+    """Idempotently SET the ``visited`` flag to ``body.value``.
+
+    :param saved_id: The saved-place UUID or SPL- short code.
+    :param body: The desired flag value.
+    :param service: The saved-place service.
+    :return: The updated saved place.
+    """
     return service.set_flag(saved_id, "visited", body.value)
 
 
@@ -354,6 +414,13 @@ def nearby_places(
     place itself is excluded. Returns 404 if ``place_id`` is unknown or has
     no coordinates; an empty ``results`` list (not a 404) when nothing is in
     range.
+
+    :param places: The place service.
+    :param place_id: The place to search around.
+    :param radius_km: Search radius in kilometres (0-50).
+    :param limit: Maximum number of results.
+    :param category: Optional category filter.
+    :return: The nearby places, nearest first.
     """
     origin, results = places.nearby_places(
         place_id,
@@ -401,6 +468,11 @@ async def route_between_places(
     (see the ``source`` field). Returns 404 if either place ID is unknown or
     has no coordinates, and 502 if a configured routing provider is
     unreachable.
+
+    :param routing: The routing service.
+    :param origin: Place ID to start from.
+    :param destination: Place ID to travel to.
+    :return: Distance/duration per travel mode plus the recommended mode.
     """
     return await routing.get_place_route(origin, destination)
 
@@ -421,7 +493,12 @@ def get_place(
         ),
     ],
 ) -> Place:
-    """Return a single place, or 404 if the ID does not exist."""
+    """Return a single place, or 404 if the ID does not exist.
+
+    :param places: The place service.
+    :param place_id: Place UUID from ``/places`` or ``/places/search``.
+    :return: The matching place.
+    """
     place = places.get_place(place_id)
     if place is None:
         raise NotFoundError(

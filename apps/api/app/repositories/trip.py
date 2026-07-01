@@ -18,7 +18,12 @@ from app.schemas.trip import Trip, TripItem
 
 
 def _iso(value) -> str | None:
-    """Serialise a date/datetime to ISO text, passing through None and str."""
+    """Serialise a date/datetime to ISO text, passing through None and str.
+
+    :param value: The value to serialise; passed through unchanged if it has
+        no ``isoformat`` method (already a ``str`` or ``None``).
+    :return: The ISO-formatted text, or ``value`` unchanged.
+    """
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
@@ -109,6 +114,11 @@ class TripRepository(Repo):
         be detected via :meth:`get_trip_by_idempotency_key`. If a concurrent
         request already inserted a trip under the same key, the UNIQUE index
         makes this INSERT fail; we return the winner's trip instead of raising.
+
+        :param trip: The trip (with items) to insert.
+        :param idempotency_key: Key stored on the trip row for replay detection.
+        :return: The inserted trip, or the winning trip from a concurrent
+            request that raced on the same ``idempotency_key``.
         """
         try:
             with self._session() as s:
@@ -139,7 +149,10 @@ class TripRepository(Repo):
             return _row_to_trip(row, item_rows)
 
     def list_trips(self) -> list[Trip]:
-        """Return every trip (newest first) with its items attached."""
+        """Return every trip (newest first) with its items attached.
+
+        :return: Live trips, ordered newest first, each with its items.
+        """
         with self._session() as s:
             trip_rows = s.scalars(
                 select(models.Trip)
@@ -153,7 +166,12 @@ class TripRepository(Repo):
             return [_row_to_trip(t, by_trip.get(t.id, [])) for t in trip_rows]
 
     def update_trip(self, trip: Trip) -> bool:
-        """Replace a trip's top-level columns. Returns True if a row changed."""
+        """Replace a trip's top-level columns.
+
+        :param trip: The trip whose columns (``title``, ``city``, ``start_date``,
+            ``end_date``, ``travelers``, ``notes``) replace the stored row.
+        :return: ``True`` if a row was found and updated, ``False`` otherwise.
+        """
         with self._session() as s:
             row = s.get(models.Trip, trip.id)
             if row is None:
@@ -168,14 +186,18 @@ class TripRepository(Repo):
             return True
 
     def delete_trip(self, trip_id: str, *, when: str) -> bool:
-        """Soft-delete: stamp deleted_at, keep the row. True if it existed and
-        was live.
+        """Soft-delete: stamp deleted_at, keep the row.
 
         The idempotency_key is cleared on tombstoning: it is only meaningful for
         replaying *live* trips, and the UNIQUE key index spans all rows —
         leaving it would make a later create that reuses the key collide with
         the dead row (which the deleted_at-filtered replay lookup can't
         recover).
+
+        :param trip_id: The trip id to tombstone.
+        :param when: The timestamp to stamp as ``deleted_at``.
+        :return: ``True`` if a live row existed and was tombstoned, ``False``
+            otherwise.
         """
         with self._session() as s:
             row = s.scalars(
@@ -195,6 +217,10 @@ class TripRepository(Repo):
 
         No existence check here — the service has already 404'd a missing trip.
         A tombstoned/unknown trip simply yields {}.
+
+        :param trip_id: The trip id to look up.
+        :return: The trip's per-category caps, or ``{}`` if unset or the trip
+            is missing/tombstoned.
         """
         with self._session() as s:
             row = s.scalars(
@@ -213,6 +239,9 @@ class TripRepository(Repo):
         categories are dropped by the service before calling). No existence
         check here — the service has already 404'd a missing trip; a
         tombstoned/unknown trip is a silent no-op.
+
+        :param trip_id: The trip id to update.
+        :param caps: The replacement per-category caps; ``{}`` clears all caps.
         """
         with self._session() as s:
             row = s.scalars(
@@ -232,6 +261,11 @@ class TripRepository(Repo):
         detected via :meth:`get_item_by_idempotency_key`. If a concurrent
         request already inserted an item under the same key, the UNIQUE index
         makes this INSERT fail; we return the winner's item instead of raising.
+
+        :param item: The trip item to insert.
+        :param idempotency_key: Key stored on the row for replay detection.
+        :return: The inserted item, or the winning item from a concurrent
+            request that raced on the same ``idempotency_key``.
         """
         try:
             with self._session() as s:
@@ -303,9 +337,17 @@ class TripRepository(Repo):
     def add_trip_place(
         self, link_id: str, trip_id: str, place_id: str, source: str, added_at: str
     ) -> None:
-        """Insert a shortlist link. Re-raises sqlalchemy IntegrityError on the
-        (trip_id, place_id, source) UNIQUE collision — the service maps it
-        to a 409."""
+        """Insert a shortlist link.
+
+        Re-raises sqlalchemy ``IntegrityError`` on the ``(trip_id, place_id,
+        source)`` UNIQUE collision — the service maps it to a 409.
+
+        :param link_id: The id to assign the new link row.
+        :param trip_id: The trip the place is shortlisted under.
+        :param place_id: The shortlisted place's id.
+        :param source: The origin of the shortlist entry.
+        :param added_at: The timestamp the link was added.
+        """
         with self._session() as s:
             s.add(
                 models.TripPlaceLink(
@@ -333,8 +375,13 @@ class TripRepository(Repo):
             return _link_to_dict(row) if row is not None else None
 
     def delete_trip_place(self, trip_id: str, link_id: str) -> bool:
-        """Delete a shortlist link scoped to its trip. True if a row was
-        removed."""
+        """Delete a shortlist link scoped to its trip.
+
+        :param trip_id: The trip the link must belong to.
+        :param link_id: The link id to delete.
+        :return: ``True`` if a matching row was found and removed, ``False``
+            otherwise.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.TripPlaceLink).where(

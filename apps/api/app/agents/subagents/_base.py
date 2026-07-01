@@ -27,7 +27,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.runtime import Runtime
 
-from app.agents.constants import RAG_TOOL_NAME
+from app.agents.constants import EPISODIC_TOOL_NAME, RAG_TOOL_NAME
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, system_with_summary
 from app.enums import ResponseStyle
@@ -46,6 +46,9 @@ def _tool_error_to_message(exc: Exception) -> str:
     timing out) would otherwise propagate out of ``astream`` and 500 the whole
     ``/agent/stream`` request. Annotating ``exc: Exception`` tells ToolNode's
     ``_infer_handled_types`` to catch every tool error.
+
+    :param exc: The exception raised by a tool call.
+    :return: A user-safe message describing the failure.
     """
     return (
         f"Tool call failed: {exc}. This is a temporary upstream problem, not a "
@@ -71,6 +74,15 @@ def build_subagent(
     The shared ``communication_style`` guideline is prepended to every domain
     prompt so all user-facing replies stay warm, concise, and travel-focused —
     translating raw tool data into useful guidance rather than dumping it.
+
+    :param name: The sub-agent's name, used as the compiled graph's node name.
+    :param tools: Domain tools bound to the ``assistant`` node (filtered by
+        context flags at invoke time).
+    :param resolve_model: Callable resolving an ``AgentContext.model`` hint to a
+        chat model, called per request inside ``assistant``.
+    :param prompt: The domain-specific system prompt appended to the shared
+        communication-style guideline.
+    :return: The compiled ReAct subgraph for this sub-agent.
     """
     style = registry.get("communication_style")
     system = SystemMessage(content=f"{style}\n\n{prompt}")
@@ -80,14 +92,21 @@ def build_subagent(
         ctx = runtime.context if runtime.context is not None else None
         ctx_model = ctx.model if ctx is not None else None
         allow_rag = ctx.allow_rag if ctx is not None else True
+        allow_episodic = ctx.allow_episodic if ctx is not None else True
         response_style = (
             ctx.response_style if ctx is not None else ResponseStyle.DEFAULT
         )
 
         model = resolve_model(ctx_model)
 
-        # Filter the RAG retrieval tool when the context disables it (e.g. fast mode).
-        active_tools = [t for t in tools if allow_rag or t.name != RAG_TOOL_NAME]
+        # Filter the RAG + episodic-recall tools when the context disables them
+        # (e.g. fast mode / free-tier constraint for RAG).
+        active_tools = [
+            t
+            for t in tools
+            if (allow_rag or t.name != RAG_TOOL_NAME)
+            and (allow_episodic or t.name != EPISODIC_TOOL_NAME)
+        ]
         bound = model.bind_tools(active_tools) if active_tools else model
 
         # Inject a style directive into the system prompt based on response_style.

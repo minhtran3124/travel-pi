@@ -27,7 +27,13 @@ _SUMMARY_SYSTEM = (
 
 
 def should_summarize(messages: list[BaseMessage], threshold: int | None = None) -> bool:
-    """True when the thread is long enough to compress."""
+    """True when the thread is long enough to compress.
+
+    :param messages: The current conversation history.
+    :param threshold: Override for the message-count threshold; defaults to
+        ``settings.summarize_threshold`` when omitted.
+    :return: True when ``messages`` exceeds the threshold.
+    """
     limit = threshold if threshold is not None else get_settings().summarize_threshold
     return len(messages) > limit
 
@@ -42,6 +48,11 @@ def summarize_conversation(
 
     The caller writes ``summary_text`` into state and applies the
     ``RemoveMessage`` list (LangGraph's deletion sentinel) to trim history.
+
+    :param messages: The full conversation history to compress.
+    :param llm: The chat model used to generate the summary.
+    :param keep_last: Number of trailing messages to keep verbatim (not removed).
+    :return: A tuple of the summary text and the messages to remove.
     """
     transcript = "\n".join(
         f"{m.type}: {m.content}" for m in messages if getattr(m, "content", None)

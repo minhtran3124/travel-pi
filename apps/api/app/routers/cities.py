@@ -26,7 +26,11 @@ def get_city_repo(
 
     ``list_with_counts()`` reproduces the old ``_ALL_CITIES`` build (City incl.
     hotel_count, in seed order); ``get`` is the case-insensitive exact-name
-    lookup."""
+    lookup.
+
+    :param session: The request-scoped DB session.
+    :return: A city repository bound to ``session``.
+    """
     return CityRepository(session)
 
 
@@ -36,7 +40,11 @@ RoutingDep = Annotated[RoutingService, Depends(get_routing_service)]
 
 def _distinct_countries(city_repo: CityRepository) -> list[str]:
     """Distinct country names over the seeded cities — the fuzzy-resolution
-    target for the ``?country=`` filter (mirrors ``sorted({c.country ...})``)."""
+    target for the ``?country=`` filter (mirrors ``sorted({c.country ...})``).
+
+    :param city_repo: The city repository.
+    :return: The sorted distinct country names.
+    """
     return sorted({c.country for c in city_repo.list_with_counts()})
 
 
@@ -74,6 +82,13 @@ def list_cities(
     count. ``total`` reflects the full match count before pagination. When
     ``q`` is given, results are fuzzy-matched and ranked by relevance instead
     of left in seed order.
+
+    :param city_repo: The city repository.
+    :param pagination: The pagination params (limit/offset).
+    :param q: Optional fuzzy search on city name / country.
+    :param country: Optional fuzzy filter by country name.
+    :param has_hotels: Optional filter for whether the city has hotel data.
+    :return: The matching cities, paginated.
     """
     results: list[City] = city_repo.list_with_counts()
     if country:
@@ -125,6 +140,11 @@ async def route_between_cities(
     an offline straight-line estimate (see the ``source`` field). Returns 404
     if either city name is unknown, and 502 if a configured routing provider
     is unreachable.
+
+    :param routing: The routing service.
+    :param origin: City name to start from.
+    :param destination: City name to travel to.
+    :return: Distance/duration per travel mode plus the recommended mode.
     """
     return await routing.get_city_route(origin, destination)
 
@@ -146,6 +166,10 @@ def get_city(
 
     ``city_name`` is matched case-insensitively (it is still an exact-name
     lookup — for typo-tolerant search use ``GET /cities?q=``).
+
+    :param city_repo: The city repository.
+    :param city_name: City name (case-insensitive).
+    :return: The matching city.
     """
     city = city_repo.get(city_name)
     if city is None:

@@ -13,7 +13,7 @@ from langchain_core.tools import BaseTool
 from app.tools.expense_tools import EXPENSE_TOOLS
 from app.tools.flight_tools import FLIGHT_TOOLS
 from app.tools.hotel_tools import HOTEL_TOOLS
-from app.tools.memory_tools import MEMORY_TOOLS
+from app.tools.memory_tools import EPISODE_TOOLS, MEMORY_TOOLS
 from app.tools.place_tools import PLACE_TOOLS
 from app.tools.rag_tools import RAG_TOOLS
 from app.tools.routing_tools import ROUTING_TOOLS
@@ -30,6 +30,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + HOTEL_TOOLS
         + WEATHER_TOOLS
         + ROUTING_TOOLS
+        + EPISODE_TOOLS
     ),
     "concierge": PLACE_TOOLS + WEATHER_TOOLS + RAG_TOOLS + ROUTING_TOOLS + TIP_TOOLS,
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
@@ -65,5 +66,9 @@ TOOL_METADATA: dict[str, dict[str, bool]] = {t.name: _meta(t.name) for t in ALL_
 
 
 def get_tools_for(domain: str) -> list[BaseTool]:
-    """Return the tool group for a sub-agent domain (empty list if unknown)."""
+    """Return the tool group for a sub-agent domain (empty list if unknown).
+
+    :param domain: The sub-agent domain name (e.g. 'planner', 'concierge').
+    :return: The tools bound to that domain.
+    """
     return TOOLS_BY_DOMAIN.get(domain, [])

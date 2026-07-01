@@ -49,7 +49,11 @@ class ExpenseRepository(Repo):
         return expense
 
     def get(self, id_: str) -> Expense | None:
-        """Fetch a live expense by UUID. Returns None if deleted or missing."""
+        """Fetch a live expense by UUID.
+
+        :param id_: The expense UUID to look up.
+        :return: The live expense, or ``None`` if deleted or missing.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Expense).where(
@@ -87,7 +91,12 @@ class ExpenseRepository(Repo):
             return [_row_to_expense(r) for r in s.scalars(stmt).all()]
 
     def update(self, id_: str, **fields) -> Expense | None:
-        """Update mutable fields on a live expense row. Returns updated Expense or None."""
+        """Update mutable fields on a live expense row.
+
+        :param id_: The expense UUID to update.
+        :param fields: Field name/value pairs applied to the row via ``setattr``.
+        :return: The updated expense, or ``None`` if no live row matches ``id_``.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Expense).where(
@@ -103,7 +112,13 @@ class ExpenseRepository(Repo):
             return _row_to_expense(row)
 
     def soft_delete(self, id_: str, *, when: str) -> bool:
-        """Stamp deleted_at; True if a live row existed and was tombstoned."""
+        """Stamp ``deleted_at`` on a live expense row (soft delete).
+
+        :param id_: The expense UUID to tombstone.
+        :param when: The timestamp to stamp as ``deleted_at``.
+        :return: ``True`` if a live row existed and was tombstoned, ``False``
+            otherwise.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Expense).where(

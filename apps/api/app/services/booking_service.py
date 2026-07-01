@@ -45,7 +45,10 @@ BOOKING_SORTS = {
 
 
 def _new_booking_id() -> str:
-    """Return a new random UUID4 booking ID."""
+    """Return a new random UUID4 booking ID.
+
+    :return: A new UUID4 string.
+    """
     return str(uuid.uuid4())
 
 
@@ -70,6 +73,8 @@ class BookingService:
         ``confirmation_code`` is unique (``ix_bookings_confirmation_code``) and
         derived deterministically from the ID, so on the rare hash collision we
         regenerate the UUID rather than let the insert fail.
+
+        :return: A UUID string whose derived ``confirmation_code`` is unused.
         """
         for _ in range(_MAX_ID_ATTEMPTS):
             booking_id = _new_booking_id()
@@ -82,7 +87,10 @@ class BookingService:
         )
 
     def ping(self) -> bool:
-        """Return True if the booking store is reachable. Used by /readyz."""
+        """Return True if the booking store is reachable. Used by /readyz.
+
+        :return: ``True`` if the booking store is reachable.
+        """
         return self._repo.ping()
 
     def get(self, booking_id: str) -> Booking:
@@ -93,6 +101,9 @@ class BookingService:
         code via the ``ix_bookings_confirmation_code`` index. Both paths are
         O(log n); no full-table scan. Raises :class:`NotFoundError` if
         neither matches.
+
+        :param booking_id: A booking UUID or 6-char confirmation code.
+        :return: The matching booking.
         """
         booking = self._repo.get(booking_id) or self._repo.get_by_confirmation_code(
             booking_id
@@ -109,7 +120,10 @@ class BookingService:
         return booking
 
     def list_all(self) -> list[Booking]:
-        """Return every booking, newest first. Used by the dashboard ledger."""
+        """Return every booking, newest first. Used by the dashboard ledger.
+
+        :return: Every booking, newest first.
+        """
         return self._repo.list_all()
 
     def cancel(self, booking_id: str) -> Booking:
@@ -119,6 +133,9 @@ class BookingService:
         ``cancelled``. Idempotent: cancelling an already-cancelled booking
         just returns it unchanged. Raises :class:`NotFoundError` if no
         booking matches.
+
+        :param booking_id: A booking UUID or confirmation code.
+        :return: The cancelled booking.
         """
         booking = self.get(booking_id)
         if booking.status == BookingStatus.CANCELLED:
@@ -140,6 +157,13 @@ class BookingService:
         confirmation code, customer name, and customer email. ``booking_type``
         keeps only ``"flight"`` or ``"hotel"`` rows (other values are
         ignored). Unknown ``sort`` values fall back to newest-first.
+
+        :param q: Case-insensitive substring filter over the booking ID,
+            confirmation code, customer name, and customer email.
+        :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows; other
+            values are ignored.
+        :param sort: Sort key; unknown values fall back to newest-first.
+        :return: The filtered, sorted bookings.
         """
         bookings = self._repo.list_all()
 
@@ -168,6 +192,9 @@ class BookingService:
         This is what makes booking POSTs replay-safe: an agent that retries
         after a timeout (or re-runs a plan) sends the same key and gets the
         original booking back instead of creating a duplicate.
+
+        :param idempotency_key: The client-supplied idempotency key, if any.
+        :return: The prior booking for the key, or ``None`` if none exists.
         """
         if not idempotency_key:
             return None
@@ -187,6 +214,11 @@ class BookingService:
 
         When ``idempotency_key`` matches an earlier request, the original
         booking is returned and nothing new is stored.
+
+        :param request: The flight booking request.
+        :param idempotency_key: Optional key that replays an earlier booking
+            instead of creating a duplicate.
+        :return: The created (or replayed) booking.
         """
         replayed = self._replay(idempotency_key)
         if replayed is not None:
@@ -259,6 +291,11 @@ class BookingService:
         as ``price_per_night × nights × rooms``. When ``idempotency_key``
         matches an earlier request, the original booking is returned
         unchanged.
+
+        :param request: The hotel booking request.
+        :param idempotency_key: Optional key that replays an earlier booking
+            instead of creating a duplicate.
+        :return: The created (or replayed) booking.
         """
         replayed = self._replay(idempotency_key)
         if replayed is not None:
@@ -341,5 +378,9 @@ def init_db() -> None:
 def get_booking_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> BookingService:
-    """FastAPI dependency: a booking store bound to the request session."""
+    """FastAPI dependency: a booking store bound to the request session.
+
+    :param session: The request-scoped SQLAlchemy session.
+    :return: A :class:`BookingService` bound to ``session``.
+    """
     return BookingService(session)

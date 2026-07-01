@@ -34,13 +34,17 @@ PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 # Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
 # config omits ``model``. Everything else defaults to the main ``llm_model``.
 FAST_AGENTS: frozenset[str] = frozenset(
-    {"summarize", "journal", "budget", "reflection"}
+    {"summarize", "journal", "budget", "reflection", "extract_memory"}
 )
 
 # --- tooling --------------------------------------------------------------
 # Name of the RAG retrieval tool (app/tools/rag_tools.py); gated off when
 # ``AgentContext.allow_rag`` is False (fast mode / free-tier constraint).
 RAG_TOOL_NAME = "search_destination_knowledge"
+
+# Name of the episodic-recall tool (app/tools/memory_tools.py); gated off when
+# ``AgentContext.allow_episodic`` is False (mirrors the RAG filter in _base.py).
+EPISODIC_TOOL_NAME = "recall_past_trips"
 
 # --- reflection -----------------------------------------------------------
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
