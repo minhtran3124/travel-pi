@@ -15,8 +15,9 @@ book, and keep a trip journal — through a natural conversation.
 Two halves, one monorepo:
 
 - **`apps/api`** — a **FastAPI mock backend**. Everything is faked *except* real keyless
-  weather/air-quality (Open-Meteo) and routing (OpenRouteService, with a haversine
-  fallback). It also hosts the **agentic brain**: a multi-agent LangGraph chatbot
+  weather/air-quality/climate (Open-Meteo), routing (OpenRouteService, with a haversine
+  fallback), and the agent's **LLM calls** (a real provider when keys are set; `FakeLLM`
+  in tests). It also hosts the **agentic brain**: a multi-agent LangGraph chatbot
   (supervisor → specialist sub-agents → tools).
 - **`apps/web`** — a **Next.js + TypeScript frontend** (in active build-out) that
   consumes the backend and surfaces the planner UI.
@@ -111,7 +112,7 @@ single root `.venv`.
 ## The 60-second orientation
 
 1. It's a **monorepo**: `apps/web` (UI) + `apps/api` (mock backend + AI agent).
-2. The backend is **faked on purpose** — only weather/air-quality/routing are real.
+2. The backend is **faked on purpose** — only weather/air-quality/climate, routing, and the agent's LLM calls are real.
 3. The interesting part is the **LangGraph agent** in `apps/api/app/agents/`.
 4. Features live in **`specs/<slug>/`** with a PLAN + SUMMARY; read the relevant one first.
 5. Read **`CLAUDE.md`** before touching backend code, and follow **`.claude/rules/`**.
