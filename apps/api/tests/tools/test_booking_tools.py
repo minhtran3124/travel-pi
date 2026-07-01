@@ -58,7 +58,7 @@ def test_search_hotels_returns_list(agent_db):
         assert "total_price" in result[0]
 
 
-def test_search_hotels_unknown_city_returns_empty(agent_db):
+def test_search_hotels_unknown_city_returns_reason(agent_db):
     from app.tools.hotel_tools import search_hotels
 
     result = search_hotels.invoke(
@@ -68,7 +68,73 @@ def test_search_hotels_unknown_city_returns_empty(agent_db):
             "check_out": "2027-04-14",
         }
     )
-    assert result == []
+    # Empty results now carry an explicit signal so the LLM can answer clearly.
+    assert isinstance(result, dict)
+    assert result["results"] == []
+    assert result["reason"] == "unknown_city"
+    assert result["message"]
+
+
+def test_search_hotels_no_match_returns_reason(agent_db):
+    from app.tools.hotel_tools import search_hotels
+
+    # City resolves, but an impossible filter (no 6-star hotels) empties the results.
+    result = search_hotels.invoke(
+        {
+            "city": "Da Nang",
+            "check_in": "2027-04-10",
+            "check_out": "2027-04-14",
+            "min_stars": 6,
+        }
+    )
+    assert isinstance(result, dict)
+    assert result["results"] == []
+    assert result["reason"] == "no_match"
+    assert result["message"]
+
+
+def test_search_hotels_bad_dates_raise(agent_db):
+    from app.tools.hotel_tools import search_hotels
+
+    with pytest.raises(ToolException):
+        search_hotels.invoke(
+            {
+                "city": "Da Nang",
+                "check_in": "2027-04-14",
+                "check_out": "2027-04-10",  # check_out before check_in
+            }
+        )
+
+
+def test_search_flights_no_match_returns_reason(agent_db):
+    from app.tools.flight_tools import search_flights
+
+    # An impossible price cap empties the deterministic 5-flight set.
+    result = search_flights.invoke(
+        {
+            "origin": "HAN",
+            "destination": "SGN",
+            "departure_date": "2027-03-15",
+            "max_price": 1,
+        }
+    )
+    assert isinstance(result, dict)
+    assert result["results"] == []
+    assert result["reason"] == "no_match"
+    assert "max_price" in result["message"]
+
+
+def test_search_flights_bad_date_raises(agent_db):
+    from app.tools.flight_tools import search_flights
+
+    with pytest.raises(ToolException):
+        search_flights.invoke(
+            {
+                "origin": "HAN",
+                "destination": "SGN",
+                "departure_date": "not-a-date",
+            }
+        )
 
 
 def test_book_hotel_guard_raises_without_confirm(agent_db):

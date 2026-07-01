@@ -40,7 +40,9 @@ def search_flights(
         duration_asc | duration_desc. Defaults to departure_asc.
     :return: Up to 5 flights, each with id, flight_number, airline,
         departure_time, arrival_time, duration_minutes, price,
-        seats_available, and stops.
+        seats_available, and stops. If no flights match, returns a dict
+        ``{"results": [], "reason": "no_match", "message": ...}`` instead —
+        tell the user none were found; never invent flights.
     """
     log_tool_call("search_flights", locals())
     with session_scope() as s:
@@ -54,6 +56,26 @@ def search_flights(
                 max_stops=max_stops,
                 sort=sort,
             )
+            if not results:
+                applied = []
+                if airline:
+                    applied.append(f"airline={airline}")
+                if max_price is not None:
+                    applied.append(f"max_price={max_price}")
+                if max_stops is not None:
+                    applied.append(f"max_stops={max_stops}")
+                suffix = (
+                    f" matching your filters ({', '.join(applied)})" if applied else ""
+                )
+                return {
+                    "results": [],
+                    "reason": "no_match",
+                    "message": (
+                        f"No flights from {origin} to {destination} on "
+                        f"{departure_date}{suffix}. Tell the user none were found and "
+                        "suggest relaxing the filters — do not invent flights."
+                    ),
+                }
             return dump(results)
         except AppError as e:
             raise ToolException(str(e)) from e

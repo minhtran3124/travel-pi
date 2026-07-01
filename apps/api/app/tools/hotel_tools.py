@@ -31,7 +31,11 @@ def search_hotels(
 ) -> list:
     """Search hotels in a city with room availability for specific dates.
 
-    An unrecognised city returns an empty list, not an error.
+    If no hotels match, returns a dict
+    ``{"results": [], "reason": "unknown_city" | "no_match", "message": ...}``
+    instead of a list — ``unknown_city`` means the city was not recognised,
+    ``no_match`` means the filters/dates left nothing. Tell the user; never
+    invent hotels. It is not an error.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param check_in: Stay start date, YYYY-MM-DD.
@@ -48,7 +52,8 @@ def search_hotels(
     log_tool_call("search_hotels", locals())
     with session_scope() as s:
         try:
-            _nights, results = HotelService(s).check_availability(
+            svc = HotelService(s)
+            _nights, results = svc.check_availability(
                 city,
                 check_in,
                 check_out,
@@ -59,6 +64,37 @@ def search_hotels(
                 max_price=max_price,
                 amenities=amenities,
             )
+            if not results:
+                resolved = svc.resolve_city(city)
+                if not resolved:
+                    return {
+                        "results": [],
+                        "reason": "unknown_city",
+                        "message": (
+                            f"City '{city}' was not recognized, so no hotels could be "
+                            "searched. Ask the user to confirm or correct the city — do "
+                            "not invent hotels."
+                        ),
+                    }
+                applied = []
+                if min_stars is not None:
+                    applied.append(f"min_stars={min_stars}")
+                if max_price is not None:
+                    applied.append(f"max_price={max_price}")
+                if amenities:
+                    applied.append(f"amenities={amenities}")
+                suffix = (
+                    f" matching your filters ({', '.join(applied)})" if applied else ""
+                )
+                return {
+                    "results": [],
+                    "reason": "no_match",
+                    "message": (
+                        f"No hotels in {resolved} for {check_in} to {check_out}"
+                        f"{suffix}. Tell the user none were found and suggest relaxing "
+                        "the filters — do not invent hotels."
+                    ),
+                }
             return dump(results)
         except AppError as e:
             raise ToolException(str(e)) from e
