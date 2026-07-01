@@ -10,13 +10,20 @@ other tools when retrieval is empty.
 from __future__ import annotations
 
 from langchain_core.tools import tool
+from pydantic import Field
 
 from app.rag.embeddings import get_vector_store
 from app.rag.retriever import hybrid_search
+from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
 
-@tool
+class SearchDestinationKnowledgeArgs(AppBaseModel):
+    query: str = Field(..., description="Free-text search query.")
+    city: str | None = Field(None, description="Optional city to filter results by.")
+
+
+@tool(args_schema=SearchDestinationKnowledgeArgs)
 def search_destination_knowledge(query: str, city: str | None = None) -> list:
     """Search the destination knowledge base for places/notes matching a query.
 

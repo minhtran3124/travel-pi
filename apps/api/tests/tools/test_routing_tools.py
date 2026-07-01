@@ -76,3 +76,21 @@ def test_get_route_unknown_place_raises(agent_db):
                 {"origin_place_id": "PLC-NOPE", "destination_place_id": "PLC-NOPE2"}
             )
         )
+
+
+def test_get_route_args_schema():
+    from app.tools.routing_tools import GetRouteArgs, get_route
+
+    assert get_route.args_schema is GetRouteArgs
+    assert GetRouteArgs.__module__.startswith("app.tools")
+    schema = get_route.get_input_schema().model_json_schema()
+    assert set(schema["required"]) == {"origin_place_id", "destination_place_id"}
+
+
+def test_get_city_route_args_schema():
+    from app.tools.routing_tools import GetCityRouteArgs, get_city_route
+
+    assert get_city_route.args_schema is GetCityRouteArgs
+    assert GetCityRouteArgs.__module__.startswith("app.tools")
+    schema = get_city_route.get_input_schema().model_json_schema()
+    assert set(schema["required"]) == {"origin_city", "destination_city"}
