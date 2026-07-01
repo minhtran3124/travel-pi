@@ -8,6 +8,8 @@ is working state the supervisor and sub-agents read and update.
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from langchain_core.messages import SystemMessage
 from langgraph.graph import MessagesState
 
@@ -62,3 +64,27 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     if summary:
         parts.append(f"Summary of earlier conversation:\n{summary}")
     return SystemMessage(content="\n\n".join(parts))
+
+
+def ground_current_date(base: SystemMessage) -> SystemMessage:
+    """Prepend today's date so the model resolves relative dates instead of guessing.
+
+    Without a concrete "today", the model has to invent a date when the traveller
+    says something like "hôm nay"/"today" or "next Friday", which then flows into
+    tool calls such as ``search_flights(departure_date=...)``. Grounding a real date
+    lets it resolve those expressions and forbids fabricating a date that was never
+    given. Computed per request — the graph is built once at startup, so a long-
+    running server would otherwise serve a date frozen at boot.
+
+    :param base: The base system message to fold the date grounding into.
+    :return: A ``SystemMessage`` with ``base`` followed by the date-grounding note.
+    """
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    note = (
+        f"CURRENT DATE: today is {today} (UTC). This is the only correct value for "
+        '"today". Resolve every relative date ("today", "tomorrow", "next Friday", '
+        '"this weekend") against it, and never pass a tool a date earlier than '
+        f"{today}. If the traveller has not given enough to derive a concrete date, "
+        "ask them — do not guess or invent one."
+    )
+    return SystemMessage(content=f"{note}\n\n{base.content}")

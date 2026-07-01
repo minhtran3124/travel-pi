@@ -99,12 +99,31 @@ def test_search_hotels_bad_dates_raise(agent_db):
         )
 
 
+def test_search_hotels_past_date_raises(agent_db):
+    """A check_in in the past is rejected so the model self-corrects."""
+    from app.tools.hotel_tools import search_hotels
+
+    with pytest.raises(ToolException, match="in the past"):
+        search_hotels.invoke(
+            {
+                "city": "Da Nang",
+                "check_in": "2023-10-07",
+                "check_out": "2023-10-11",
+            }
+        )
+
+
 def test_search_flights_no_match_returns_message_no_panel(agent_db):
     msg = _invoke_flight(
-        {"origin": "HAN", "destination": "SGN", "departure_date": "2027-03-15", "max_price": 1}
+        {
+            "origin": "HAN",
+            "destination": "SGN",
+            "departure_date": "2027-03-15",
+            "max_price": 1,
+        }
     )
     assert isinstance(msg, ToolMessage)
-    assert msg.artifact is None          # no panel on empty
+    assert msg.artifact is None  # no panel on empty
     assert "no flights" in msg.content.lower()
 
 
@@ -117,6 +136,20 @@ def test_search_flights_bad_date_raises(agent_db):
                 "origin": "HAN",
                 "destination": "SGN",
                 "departure_date": "not-a-date",
+            }
+        )
+
+
+def test_search_flights_past_date_raises(agent_db):
+    """A departure_date in the past is rejected so the model self-corrects."""
+    from app.tools.flight_tools import search_flights
+
+    with pytest.raises(ToolException, match="in the past"):
+        search_flights.invoke(
+            {
+                "origin": "HAN",
+                "destination": "SGN",
+                "departure_date": "2023-10-07",
             }
         )
 
