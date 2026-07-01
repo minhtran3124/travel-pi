@@ -6,7 +6,7 @@
 // `kind`/`data` loose so unknown kinds pass through forward-compatibly;
 // renderers narrow per kind.
 
-export type PanelKind = "route" | "places" | "weather" | "air_quality";
+export type PanelKind = "route" | "places" | "weather" | "air_quality" | "flights";
 
 /** Sky-mood bucket — drives the hero gradient + card tint. Mirror of `_condition`. */
 export type WeatherCondition =
@@ -109,6 +109,31 @@ export interface RoutePanelData {
   /** ORS road line as [lng, lat] pairs; null in estimate mode (draw a straight line). */
   geometry: [number, number][] | null;
   gmaps_url: string;
+}
+
+export interface FlightsPanelFlight {
+  id: string;
+  flight_number: string;
+  airline_name: string;
+  airline_code: string;
+  origin: string;
+  destination: string;
+  departure_time: string; // ISO (model_dump mode="json")
+  arrival_time: string;
+  duration_minutes: number;
+  stops: number;
+  seats_available: number;
+  price: number;
+  currency: string;
+}
+
+export interface FlightsPanelData {
+  origin: string;
+  destination: string;
+  departure_date: string;
+  results_count: number;
+  cheapest_price: number;
+  flights: FlightsPanelFlight[];
 }
 
 /** One side-panel payload, as accumulated by the stream hook. */

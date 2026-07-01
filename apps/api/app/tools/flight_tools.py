@@ -12,10 +12,11 @@ from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
 from app.services.flight_service import DEFAULT_SORT, FlightService
-from app.tools._base import dump, log_tool_call, session_scope
+from app.streaming.panels import FlightsPanel
+from app.tools._base import log_tool_call, panel_result, session_scope
 
 
-@tool
+@tool(response_format="content_and_artifact")
 def search_flights(
     origin: str,
     destination: str,
@@ -24,11 +25,13 @@ def search_flights(
     max_price: float | None = None,
     max_stops: int | None = None,
     sort: str = DEFAULT_SORT,
-) -> list:
+) -> tuple[str, dict | None]:
     """Search flights for a route and date with optional filters and sort.
 
     Returns up to 5 deterministic flights — same query always returns the same
-    results.
+    results. On success the model sees a short summary and the full comparison is
+    sent to the Flights side panel. If no flights match, returns a short message
+    and no panel; tell the user none were found and never invent flights.
 
     :param origin: 3-letter IATA code for the origin airport (e.g. 'HAN', 'SGN', 'NRT').
     :param destination: 3-letter IATA code for the destination airport (e.g. 'HAN', 'SGN', 'NRT').
@@ -38,11 +41,9 @@ def search_flights(
     :param max_stops: 0 = nonstop only, 1 = up to one stop.
     :param sort: departure_asc | departure_desc | price_asc | price_desc |
         duration_asc | duration_desc. Defaults to departure_asc.
-    :return: Up to 5 flights, each with id, flight_number, airline,
-        departure_time, arrival_time, duration_minutes, price,
-        seats_available, and stops. If no flights match, returns a dict
-        ``{"results": [], "reason": "no_match", "message": ...}`` instead —
-        tell the user none were found; never invent flights.
+    :return: A (summary, artifact) tuple. On matches the artifact is a
+        ``{"kind": "flights", "data": ...}`` side-panel payload; on no match the
+        artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_flights", locals())
     with session_scope() as s:
@@ -64,19 +65,26 @@ def search_flights(
                     applied.append(f"max_price={max_price}")
                 if max_stops is not None:
                     applied.append(f"max_stops={max_stops}")
-                suffix = (
-                    f" matching your filters ({', '.join(applied)})" if applied else ""
+                suffix = f" matching your filters ({', '.join(applied)})" if applied else ""
+                return (
+                    f"No flights from {origin} to {destination} on {departure_date}{suffix}. "
+                    "Tell the user none were found and suggest relaxing the filters — "
+                    "do not invent flights.",
+                    None,
                 )
-                return {
-                    "results": [],
-                    "reason": "no_match",
-                    "message": (
-                        f"No flights from {origin} to {destination} on "
-                        f"{departure_date}{suffix}. Tell the user none were found and "
-                        "suggest relaxing the filters — do not invent flights."
-                    ),
-                }
-            return dump(results)
+            cheapest = min(results, key=lambda f: f.price)
+            earliest = min(results, key=lambda f: f.departure_time)
+            summary = (
+                f"{len(results)} flights {origin}→{destination} on {departure_date}. "
+                f"Cheapest {cheapest.flight_number} ${cheapest.price:.0f}; "
+                f"earliest {earliest.flight_number} at {earliest.departure_time:%H:%M}. "
+                "The full comparison is in the Flights panel."
+            )
+            return panel_result(
+                summary,
+                kind="flights",
+                data=FlightsPanel.from_flights(origin, destination, departure_date, results),
+            )
         except AppError as e:
             raise ToolException(str(e)) from e
         except ValueError as e:
