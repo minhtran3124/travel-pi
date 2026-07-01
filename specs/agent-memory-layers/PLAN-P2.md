@@ -44,10 +44,14 @@ extension.
   plain planner turns and `"approved"` after the HITL plan-approval gate; the
   `"booked"` upgrade is a documented follow-up.
 
-**Scope note (closes research P2 row 2 — "structured namespaces"):** P1's
-generalised `_namespace(user_id, kind)` already delivers the structured
-`prefs`/`procedural`/`episodes` separation; P2 only adds the `"episodes"` kind.
-No data migration; prefs/procedural keep their existing namespaces.
+**Structured namespaces (research P2 row 2 — "structured namespaces")** are a
+deliberate deliverable, not just a side effect: Task 2.6 adds a `MemoryKind` enum,
+a unified `search_memory` dispatcher, and typed result dataclasses
+(`Preference`/`Instruction`/`Episode`), plus a test proving all three namespaces
+are mutually isolated for one user. P1's generalised `_namespace(user_id, kind)`
+already carries the separation; P2 makes it explicit and typed. No data migration;
+prefs/procedural keep their existing namespaces.
+
 
 ## 3. Success criteria
 
@@ -131,6 +135,17 @@ No data migration; prefs/procedural keep their existing namespaces.
   <action>Add `allow_episodic: bool = True` to `AgentContext`. In `_MODE_POLICY` set FAST→`True`, BALANCED→`True`, DEEP→`True` (DEFAULT ON for everyone in P2 v1 — mirrors P1 memory policy, NOT RAG). Thread it through `resolve_agent_context`. Product decision (resolved): episodic recall stays on for all tiers in v1; the flag exists so flipping free→`False` later is a one-line `_MODE_POLICY` change with no rewiring (e.g. tie to tier like `allow_rag`). Test: default `AgentContext()` is `True`; FAST/BALANCED/DEEP all resolve to `True`; free tier does NOT gate it (free BALANCED → `True`, unlike `allow_rag`).</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_context_episodic.py -x</verify>
   <done>`allow_episodic` flag present, default `True` for all modes/tiers; gate exists and is testable; P1 behavior unchanged.</done>
+</task>
+```
+
+### Task 2.6 — Structured namespaces: typed search abstraction
+
+```xml
+<task id="2.6" wave="1">
+  <files>apps/api/app/memory/store.py, apps/api/tests/memory/test_structured_namespaces.py</files>
+  <action>Add a `MemoryKind(str, Enum)` (`prefs`/`procedural`/`episodes`) as the single source of truth for the structured kinds. Add a unified `search_memory(store, user_id, kind, *, query=None, limit=None) -> list[dict]` dispatcher that validates `kind` via `MemoryKind(kind)`, resolves `("users", uid, kind.value)`, and applies per-kind default limits (prefs=5, procedural=10, episodes=3) when `limit` is None. Add typed result dataclasses `Preference`, `Instruction`, `Episode` (each with `key` + kind-specific fields; `Episode` carries `trip_id`/`city`/`outcome`) and a `from_item(item)` classmethod, plus `search_memory_typed(...)` returning those instances instead of raw dicts. Keep the existing per-kind helpers (`search_preferences`/`get_instructions`/`search_episodes`) unchanged. Test: all three namespaces mutually isolated for one user (one pref + one instruction + one episode, each kind's search returns only its own); per-user isolation; enum values; dispatcher routes per kind; unknown kind raises `ValueError`; typed results are the right dataclass with correct fields; per-kind default limits.</action>
+  <verify>cd apps/api && OPENAI_API_KEY="" ../../.venv/bin/python -m pytest tests/memory/test_structured_namespaces.py -x</verify>
+  <done>Three structured namespaces are explicit + typed (`MemoryKind` + `search_memory` + `Preference`/`Instruction`/`Episode`); mutual isolation proven; per-kind helpers unchanged.</done>
 </task>
 ```
 
@@ -226,11 +241,12 @@ call, not a second extractor and not an LLM-discretionary tool.
 
 | Wave | Tasks | Parallelism | Files disjoint? |
 |---|---|---|---|
-| 1 | 2.1 store, 2.2 extractor+prompt, 2.5 context flag | 3 parallel | store.py / extractor.py+prompts / context.py — yes |
+| 1 | 2.1 store, 2.2 extractor+prompt, 2.5 context flag, 2.6 structured-namespace typed search | 4 parallel | store.py (2.1+2.6 share it) / extractor.py+prompts / context.py — 2.1 & 2.6 both edit store.py, run sequentially within the wave |
 | 2 | 2.3 node upsert, 2.3b plan-approval flag | single (coupled) | both touch nodes.py + state.py — run together after wave 1 |
 | 3 | 2.4 tool + planner wiring + integration | single | tools/memory_tools.py + registry.py + _base.py + prompts/planner — depends on 2.1 helpers + 2.5 flag; integration test exercises the full path (benefits from 2.3/2.3b) |
 
 ## 8. Status Log
 
 - 2026-06-30 — P2 plan drafted (proposed). Builds on shipped P1 (`feat/agent-memory-layers`). Awaiting review before execution.
+- 2026-06-30 — P2 implemented (all waves). Episodic write/read path + planner recall tool + `allow_episodic` gate + structured-namespace typed search (Task 2.6). 176 tests pass (FakeLLM + InMemoryStore); P1 tests stay green. 5 pre-existing env failures (`test_routing_tools`/`test_llm`) unrelated — confirmed via `git stash`.
 

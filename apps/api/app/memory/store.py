@@ -22,11 +22,15 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from enum import Enum
 
 from langgraph.store.base import BaseStore
 from langgraph.store.memory import InMemoryStore
+from langgraph.store.postgres import PostgresStore
 
 from app.core.config import get_settings
+from app.rag.embeddings import EMBED_DIM, get_embeddings
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +44,11 @@ def _libpq_dsn(url: str) -> str:
 
 def _index_config() -> dict:
     """Semantic-search index for the store: embed the ``text`` field of each value."""
-    from app.rag.embeddings import EMBED_DIM, get_embeddings
-
-    return {"dims": EMBED_DIM, "embed": get_embeddings(), "fields": ["text"]}
+    return {
+        "dims": EMBED_DIM,
+        "embed": get_embeddings(),
+        "fields": ["text"],
+    }
 
 
 @asynccontextmanager
@@ -56,8 +62,6 @@ async def open_store(database_url: str | None = None) -> AsyncIterator[BaseStore
     url = database_url or get_settings().database_url
     if url.startswith("postgres"):
         try:
-            from langgraph.store.postgres import PostgresStore
-
             with PostgresStore.from_conn_string(
                 _libpq_dsn(url), index=_index_config()
             ) as store:
@@ -68,6 +72,7 @@ async def open_store(database_url: str | None = None) -> AsyncIterator[BaseStore
             logger.exception(
                 "PostgresStore init failed for %s; using InMemoryStore", url
             )
+
     yield InMemoryStore(index=_index_config())
 
 
@@ -90,7 +95,9 @@ def _prefs_namespace(user_id: str) -> tuple[str, str, str]:
 
 
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
-    """Store/overwrite a single user preference (value must be a JSON dict)."""
+    """
+    Store/overwrite a single user preference (value must be a JSON dict).
+    """
     store.put(_prefs_namespace(user_id), key, value)
 
 
@@ -131,3 +138,121 @@ def search_episodes(
     """Return episodic-memory values for a user (semantic when a query is given)."""
     results = store.search(_namespace(user_id, "episodes"), query=query, limit=limit)
     return [item.value for item in results]
+# --- Structured namespaces: typed search (research P2 row 2) -----------------
+# The three memory kinds are isolated under ("users", user_id, <kind>). This block
+# makes that structure explicit and typed: a MemoryKind enum (single source of
+# truth for the valid kinds), a unified search_memory dispatcher, and typed result
+# dataclasses (Preference / Instruction / Episode) so callers can opt into typed
+# access instead of raw dicts. The per-kind helpers above stay unchanged.
+
+
+class MemoryKind(str, Enum):
+    """The three structured long-term memory kinds (LangChain memory taxonomy)."""
+
+    PREFERENCES = "prefs"
+    PROCEDURAL = "procedural"
+    EPISODES = "episodes"
+
+
+# Per-kind default recall limits (mirror the per-kind helpers' defaults).
+_DEFAULT_SEARCH_LIMITS: dict[MemoryKind, int] = {
+    MemoryKind.PREFERENCES: 5,
+    MemoryKind.PROCEDURAL: 10,
+    MemoryKind.EPISODES: 3,
+}
+
+
+@dataclass
+class Preference:
+    """A typed traveller preference (semantic memory)."""
+
+    key: str
+    text: str
+
+    @classmethod
+    def from_item(cls, item) -> "Preference":
+        return cls(key=item.key, text=item.value.get("text", ""))
+
+
+@dataclass
+class Instruction:
+    """A typed standing instruction (procedural memory)."""
+
+    key: str
+    text: str
+
+    @classmethod
+    def from_item(cls, item) -> "Instruction":
+        return cls(key=item.key, text=item.value.get("text", ""))
+
+
+@dataclass
+class Episode:
+    """A typed past-trip outcome (episodic memory)."""
+
+    key: str
+    text: str
+    trip_id: str | None = None
+    city: str | None = None
+    outcome: str = "proposed"
+
+    @classmethod
+    def from_item(cls, item) -> "Episode":
+        v = item.value
+        return cls(
+            key=item.key,
+            text=v.get("text", ""),
+            trip_id=v.get("trip_id"),
+            city=v.get("city"),
+            outcome=v.get("outcome", "proposed"),
+        )
+
+
+_MEMORY_RESULT_TYPES: dict[MemoryKind, type] = {
+    MemoryKind.PREFERENCES: Preference,
+    MemoryKind.PROCEDURAL: Instruction,
+    MemoryKind.EPISODES: Episode,
+}
+
+
+def search_memory(
+    store: BaseStore,
+    user_id: str,
+    kind: MemoryKind | str,
+    *,
+    query: str | None = None,
+    limit: int | None = None,
+) -> list[dict]:
+    """Unified dispatcher over the structured memory namespaces.
+
+    Validates *kind* against :class:`MemoryKind`, resolves the
+    ``("users", user_id, kind)`` namespace, and returns the matching values as
+    dicts (semantic ranking when *query* is given). When *limit* is ``None`` the
+    per-kind default is used (prefs=5, procedural=10, episodes=3).
+    """
+    kind = MemoryKind(kind)
+    ns = _namespace(user_id, kind.value)
+    eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
+    return [item.value for item in store.search(ns, query=query, limit=eff_limit)]
+
+
+def search_memory_typed(
+    store: BaseStore,
+    user_id: str,
+    kind: MemoryKind | str,
+    *,
+    query: str | None = None,
+    limit: int | None = None,
+) -> list[Preference | Instruction | Episode]:
+    """Typed variant of :func:`search_memory`.
+
+    Returns ``Preference`` / ``Instruction`` / ``Episode`` dataclass instances
+    (selected by *kind*) instead of raw dicts, so callers get typed, named fields
+    including the store key.
+    """
+    kind = MemoryKind(kind)
+    ns = _namespace(user_id, kind.value)
+    eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
+    result_type = _MEMORY_RESULT_TYPES[kind]
+    return [result_type.from_item(item) for item in store.search(ns, query=query, limit=eff_limit)]
+
