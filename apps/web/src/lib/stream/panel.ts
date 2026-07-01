@@ -6,7 +6,13 @@
 // `kind`/`data` loose so unknown kinds pass through forward-compatibly;
 // renderers narrow per kind.
 
-export type PanelKind = "route" | "places" | "weather" | "air_quality" | "flights";
+export type PanelKind =
+  | "route"
+  | "places"
+  | "weather"
+  | "air_quality"
+  | "flights"
+  | "hotels";
 
 /** Sky-mood bucket — drives the hero gradient + card tint. Mirror of `_condition`. */
 export type WeatherCondition =
@@ -134,6 +140,32 @@ export interface FlightsPanelData {
   results_count: number;
   cheapest_price: number;
   flights: FlightsPanelFlight[];
+}
+
+export interface HotelsPanelHotel {
+  id: string;
+  short_code: string;
+  name: string;
+  star_rating: number;
+  price_per_night: number;
+  currency: string;
+  total_price: number;
+  available: boolean;
+  available_rooms: number;
+  rating: number;
+  review_count: number;
+  amenities: string[];
+}
+
+export interface HotelsPanelData {
+  city: string;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  rooms: number;
+  results_count: number;
+  cheapest_total: number;
+  hotels: HotelsPanelHotel[];
 }
 
 /** One side-panel payload, as accumulated by the stream hook. */

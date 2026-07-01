@@ -4,9 +4,14 @@ Wrap ``HotelService`` and ``BookingService`` as LLM tools. Each opens its own
 session via ``session_scope`` and maps domain errors to ``ToolException``.
 The booking tool requires ``confirm=True`` to guard against accidental
 reservations — mutable state in an agent graph needs an explicit opt-in.
+``search_hotels`` is panel-capable: on matches it returns a short summary plus
+a ``kind="hotels"`` side-panel artifact; on no match it returns a message and
+no panel (the mapper never sends an empty panel to the drawer).
 """
 
 from __future__ import annotations
+
+from datetime import datetime, timezone
 
 from langchain_core.tools import ToolException, tool
 
@@ -14,10 +19,11 @@ from app.exceptions import AppError
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
-from app.tools._base import dump, log_tool_call, session_scope
+from app.streaming.panels import HotelsPanel
+from app.tools._base import dump, log_tool_call, panel_result, session_scope
 
 
-@tool
+@tool(response_format="content_and_artifact")
 def search_hotels(
     city: str,
     check_in: str,
@@ -28,17 +34,19 @@ def search_hotels(
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
-) -> list:
+) -> tuple[str, dict | None]:
     """Search hotels in a city with room availability for specific dates.
 
-    If no hotels match, returns a dict
-    ``{"results": [], "reason": "unknown_city" | "no_match", "message": ...}``
-    instead of a list — ``unknown_city`` means the city was not recognised,
-    ``no_match`` means the filters/dates left nothing. Tell the user; never
-    invent hotels. It is not an error.
+    Returns up to 12 hotels. On success the model sees a short summary and the
+    full comparison is sent to the Hotels side panel. If no hotels match — either
+    the city was not recognized or the filters/dates left nothing — returns a
+    short message and no panel; tell the user none were found and never invent
+    hotels. It is not an error.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
-    :param check_in: Stay start date, YYYY-MM-DD.
+    :param check_in: Stay start date, YYYY-MM-DD. Must be today or later — resolve
+        relative dates against the current date in the system prompt; never guess
+        or pass a past date.
     :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``.
     :param rooms: Number of rooms needed (default 1).
     :param adults: Adult party size across all rooms (default 2).
@@ -46,14 +54,30 @@ def search_hotels(
     :param min_stars: Keep only hotels with this star rating or above.
     :param max_price: Keep only hotels at or below this nightly rate.
     :param amenities: List of required tags, e.g. ['pool', 'wifi', 'breakfast'].
-    :return: Hotels annotated with available (bool), available_rooms, nights,
-        and total_price.
+    :return: A (summary, artifact) tuple. On matches the artifact is a
+        ``{"kind": "hotels", "data": ...}`` side-panel payload; on no match the
+        artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_hotels", locals())
+    today = datetime.now(timezone.utc).date()
+    try:
+        parsed_check_in = datetime.strptime(check_in, "%Y-%m-%d").date()
+    except ValueError as e:
+        raise ToolException(
+            f"check_in {check_in!r} is not a valid YYYY-MM-DD date. "
+            f"Today is {today.isoformat()}. Ask the traveller for concrete dates "
+            "instead of guessing."
+        ) from e
+    if parsed_check_in < today:
+        raise ToolException(
+            f"check_in {check_in} is in the past (today is {today.isoformat()}). "
+            "Do not guess or invent dates — confirm the traveller's intended dates, "
+            "resolving relative terms like 'today' or 'next weekend' against today."
+        )
     with session_scope() as s:
         try:
             svc = HotelService(s)
-            _nights, results = svc.check_availability(
+            nights, results = svc.check_availability(
                 city,
                 check_in,
                 check_out,
@@ -67,15 +91,12 @@ def search_hotels(
             if not results:
                 resolved = svc.resolve_city(city)
                 if not resolved:
-                    return {
-                        "results": [],
-                        "reason": "unknown_city",
-                        "message": (
-                            f"City '{city}' was not recognized, so no hotels could be "
-                            "searched. Ask the user to confirm or correct the city — do "
-                            "not invent hotels."
-                        ),
-                    }
+                    return (
+                        f"City '{city}' was not recognized, so no hotels could be "
+                        "searched. Ask the user to confirm or correct the city — do "
+                        "not invent hotels.",
+                        None,
+                    )
                 applied = []
                 if min_stars is not None:
                     applied.append(f"min_stars={min_stars}")
@@ -86,16 +107,28 @@ def search_hotels(
                 suffix = (
                     f" matching your filters ({', '.join(applied)})" if applied else ""
                 )
-                return {
-                    "results": [],
-                    "reason": "no_match",
-                    "message": (
-                        f"No hotels in {resolved} for {check_in} to {check_out}"
-                        f"{suffix}. Tell the user none were found and suggest relaxing "
-                        "the filters — do not invent hotels."
-                    ),
-                }
-            return dump(results)
+                return (
+                    f"No hotels in {resolved} for {check_in} to {check_out}{suffix}. "
+                    "Tell the user none were found and suggest relaxing the filters — "
+                    "do not invent hotels.",
+                    None,
+                )
+            cheapest = min(results, key=lambda h: h.total_price)
+            top_rated = max(results, key=lambda h: h.rating)
+            summary = (
+                f"{len(results)} hotels in {results[0].city} for {check_in} to {check_out} "
+                f"({nights} nights, {rooms} room{'s' if rooms > 1 else ''}). "
+                f"Cheapest {cheapest.name} ${cheapest.total_price:.0f}; "
+                f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
+                "The full comparison is in the Hotels panel."
+            )
+            return panel_result(
+                summary,
+                kind="hotels",
+                data=HotelsPanel.from_hotels(
+                    results[0].city, check_in, check_out, nights, rooms, results
+                ),
+            )
         except AppError as e:
             raise ToolException(str(e)) from e
         except ValueError as e:

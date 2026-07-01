@@ -19,11 +19,12 @@ from typing import Literal
 from app.schemas.air_quality import AirQualityResponse
 from app.schemas.base import AppBaseModel
 from app.schemas.flight import Flight
+from app.schemas.hotel import HotelAvailability
 from app.schemas.route import RouteResponse
 from app.schemas.weather import WeatherResponse
 from app.services.weather_service import emoji_for_code
 
-PanelKind = Literal["route", "places", "weather", "air_quality", "flights"]
+PanelKind = Literal["route", "places", "weather", "air_quality", "flights", "hotels"]
 
 
 def _gmaps_dir_url(o_lat: float, o_lng: float, d_lat: float, d_lng: float) -> str:
@@ -390,5 +391,86 @@ class FlightsPanel(AppBaseModel):
                     currency=f.currency,
                 )
                 for f in flights
+            ],
+        )
+
+
+class HotelsPanelHotel(AppBaseModel):
+    """One hotel row in a ``kind="hotels"`` panel."""
+
+    id: str
+    short_code: str
+    name: str
+    star_rating: int
+    price_per_night: float
+    currency: str
+    total_price: float
+    available: bool
+    available_rooms: int
+    rating: float
+    review_count: int
+    amenities: list[str]
+
+
+class HotelsPanel(AppBaseModel):
+    """``data`` payload for a ``kind="hotels"`` panel — the hotels drawer's model."""
+
+    city: str
+    check_in: str
+    check_out: str
+    nights: int
+    rooms: int
+    results_count: int
+    cheapest_total: float
+    hotels: list[HotelsPanelHotel]
+
+    @classmethod
+    def from_hotels(
+        cls,
+        city: str,
+        check_in: str,
+        check_out: str,
+        nights: int,
+        rooms: int,
+        hotels: list[HotelAvailability],
+    ) -> HotelsPanel:
+        """Project the tool's (non-empty) hotel list into the panel render model.
+
+        Order is preserved (``check_availability`` returns them in seed order). The
+        cheapest marker is the lowest all-in ``total_price`` (not nightly rate),
+        which is what the traveller actually pays.
+
+        :param city: Resolved city name echoed into the header.
+        :param check_in: Check-in date echoed into the header.
+        :param check_out: Check-out date echoed into the header.
+        :param nights: Stay length in nights (from ``check_availability``).
+        :param rooms: Rooms requested (echoed into the header).
+        :param hotels: The non-empty availability list from ``HotelService``.
+        :return: The hotels panel render model.
+        """
+        return cls(
+            city=city,
+            check_in=check_in,
+            check_out=check_out,
+            nights=nights,
+            rooms=rooms,
+            results_count=len(hotels),
+            cheapest_total=min(h.total_price for h in hotels),
+            hotels=[
+                HotelsPanelHotel(
+                    id=h.id,
+                    short_code=h.short_code,
+                    name=h.name,
+                    star_rating=h.star_rating,
+                    price_per_night=h.price_per_night,
+                    currency=h.currency,
+                    total_price=h.total_price,
+                    available=h.available,
+                    available_rooms=h.available_rooms,
+                    rating=h.rating,
+                    review_count=h.review_count,
+                    amenities=h.amenities,
+                )
+                for h in hotels
             ],
         )

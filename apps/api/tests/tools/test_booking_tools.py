@@ -14,8 +14,19 @@ def _invoke_flight(args: dict) -> ToolMessage:
     )
 
 
+def _invoke_hotel(args: dict) -> ToolMessage:
+    """Invoke the sync content_and_artifact search_hotels via ToolCall -> ToolMessage."""
+    from app.tools.hotel_tools import search_hotels
+
+    return search_hotels.invoke(
+        {"type": "tool_call", "id": "t1", "name": "search_hotels", "args": args}
+    )
+
+
 def test_search_flights_returns_panel_artifact(agent_db):
-    msg = _invoke_flight({"origin": "HAN", "destination": "SGN", "departure_date": "2027-03-15"})
+    msg = _invoke_flight(
+        {"origin": "HAN", "destination": "SGN", "departure_date": "2027-03-15"}
+    )
     assert isinstance(msg, ToolMessage)
     assert isinstance(msg.content, str) and msg.content.strip()  # model-facing summary
     assert msg.artifact["kind"] == "flights"
@@ -27,53 +38,42 @@ def test_search_flights_returns_panel_artifact(agent_db):
 def test_search_flights_price_sort_orders_artifact(agent_db):
     # Sort order is observable on the artifact now, not the content.
     msg = _invoke_flight(
-        {"origin": "HAN", "destination": "SGN", "departure_date": "2027-03-15", "sort": "price_asc"}
+        {
+            "origin": "HAN",
+            "destination": "SGN",
+            "departure_date": "2027-03-15",
+            "sort": "price_asc",
+        }
     )
     prices = [f["price"] for f in msg.artifact["data"]["flights"]]
     assert prices == sorted(prices)
 
 
-def test_search_hotels_returns_list(agent_db):
-    from app.tools.hotel_tools import search_hotels
-
-    result = search_hotels.invoke(
-        {
-            "city": "Da Nang",
-            "check_in": "2027-04-10",
-            "check_out": "2027-04-14",
-        }
+def test_search_hotels_returns_panel_artifact(agent_db):
+    msg = _invoke_hotel(
+        {"city": "Da Nang", "check_in": "2027-04-10", "check_out": "2027-04-14"}
     )
-    assert isinstance(result, list)
-    if result:
-        assert isinstance(result[0], dict)
-        # check_availability annotates results with these fields
-        assert "available" in result[0]
-        assert "nights" in result[0]
-        assert "total_price" in result[0]
+    assert isinstance(msg, ToolMessage)
+    assert isinstance(msg.content, str) and msg.content.strip()  # model-facing summary
+    assert msg.artifact["kind"] == "hotels"
+    data = msg.artifact["data"]
+    assert data["results_count"] == len(data["hotels"]) >= 1
+    row = data["hotels"][0]
+    # check_availability annotations projected through
+    assert "available" in row and "total_price" in row and "nights" not in row
 
 
-def test_search_hotels_unknown_city_returns_reason(agent_db):
-    from app.tools.hotel_tools import search_hotels
-
-    result = search_hotels.invoke(
-        {
-            "city": "NoSuchCityXYZ",
-            "check_in": "2027-04-10",
-            "check_out": "2027-04-14",
-        }
+def test_search_hotels_unknown_city_returns_message_no_panel(agent_db):
+    msg = _invoke_hotel(
+        {"city": "NoSuchCityXYZ", "check_in": "2027-04-10", "check_out": "2027-04-14"}
     )
-    # Empty results now carry an explicit signal so the LLM can answer clearly.
-    assert isinstance(result, dict)
-    assert result["results"] == []
-    assert result["reason"] == "unknown_city"
-    assert result["message"]
+    assert isinstance(msg, ToolMessage)
+    assert msg.artifact is None  # no panel on empty
+    assert "not recognized" in msg.content.lower()
 
 
-def test_search_hotels_no_match_returns_reason(agent_db):
-    from app.tools.hotel_tools import search_hotels
-
-    # City resolves, but an impossible filter (no 6-star hotels) empties the results.
-    result = search_hotels.invoke(
+def test_search_hotels_no_match_returns_message_no_panel(agent_db):
+    msg = _invoke_hotel(
         {
             "city": "Da Nang",
             "check_in": "2027-04-10",
@@ -81,10 +81,9 @@ def test_search_hotels_no_match_returns_reason(agent_db):
             "min_stars": 6,
         }
     )
-    assert isinstance(result, dict)
-    assert result["results"] == []
-    assert result["reason"] == "no_match"
-    assert result["message"]
+    assert isinstance(msg, ToolMessage)
+    assert msg.artifact is None  # no panel on empty
+    assert "no hotels" in msg.content.lower()
 
 
 def test_search_hotels_bad_dates_raise(agent_db):
