@@ -4,6 +4,7 @@ Class names intentionally match app/schemas Pydantic models — disambiguate by 
 (`from app.db import models` → models.X) vs (`from app.schemas.x import X`).
 """
 
+from app.db.models.agent_config import AgentConfig
 from app.db.models.airline import Airline
 from app.db.models.airport import Airport
 from app.db.models.booking import Booking
@@ -24,6 +25,7 @@ from app.db.models.user import User
 from app.db.models.visa import Visa
 
 __all__ = [
+    "AgentConfig",
     "Booking",
     "Conversation",
     "Message",

@@ -24,6 +24,7 @@ from langchain_core.runnables import Runnable, RunnableLambda
 from pydantic import PrivateAttr
 
 from app.agents.constants import FAST_AGENTS
+from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
 from app.enums import ModelHint
 
@@ -40,6 +41,7 @@ def _build_chat_model(
     model: str,
     *,
     temperature: float | None = None,
+    base_url: str | None = None,
     **extra: Any,
 ) -> BaseChatModel:
     """Construct a chat model via ``init_chat_model``, injecting the provider's
@@ -50,6 +52,8 @@ def _build_chat_model(
     :param provider: The provider to use.
     :param model: The model to use.
     :param temperature: The temperature to use.
+    :param base_url: Overrides the configured base URL; falls back to
+        ``settings.llm_base_url`` when unset (today's global behavior).
     :param extra: Extra arguments to pass to the chat model.
     :return: A chat model.
     """
@@ -60,8 +64,9 @@ def _build_chat_model(
     if key:
         kwargs["api_key"] = key
 
-    if s.llm_base_url:
-        kwargs["base_url"] = s.llm_base_url
+    resolved_base_url = base_url or s.llm_base_url
+    if resolved_base_url:
+        kwargs["base_url"] = resolved_base_url
 
     if temperature is not None:
         kwargs["temperature"] = temperature
@@ -125,12 +130,29 @@ def get_agent_llm(agent_name: str, model: ModelHint | None = None) -> BaseChatMo
         fast = False  # No dedicated strong model yet; fall through to main model.
 
     cfg = s.agent_llm_configs.get(agent_name)
-    if cfg is None:
+    ov = AgentConfigCache.get(agent_name)
+
+    if cfg is None and ov is None:
         return get_llm(fast=fast)
-    provider = cfg.provider or s.llm_provider
-    resolved_model = cfg.model or (s.fast_llm_model if fast else s.llm_model)
+
+    provider = (
+        (ov.provider if ov else None)
+        or (cfg.provider if cfg else None)
+        or s.llm_provider
+    )
+    resolved_model = (
+        (ov.model if ov else None)
+        or (cfg.model if cfg else None)
+        or (s.fast_llm_model if fast else s.llm_model)
+    )
+    base_url = (ov.base_url if ov else None) or s.llm_base_url
+
     return _build_chat_model(
-        provider, resolved_model, temperature=cfg.temperature, **(cfg.model_extra or {})
+        provider,
+        resolved_model,
+        temperature=cfg.temperature if cfg else None,
+        base_url=base_url,
+        **((cfg.model_extra if cfg else None) or {}),
     )
 
 

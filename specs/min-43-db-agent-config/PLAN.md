@@ -273,3 +273,63 @@ removes the per-turn `mode` selector (model now comes from the DB config, not fr
   `response_style` as fixed DEFAULT (min test churn); regenerate `schema.d.ts` via `pnpm gen:api`;
   per-agent rows for all 9 LLM nodes; migration approved. Task 0 must record the exact DELETE /
   REWRITE / NO-CHANGE test lists here before B.1/B.2 execute.
+
+- 2026-07-01 — **Task 0.1 recon complete.** Confirmed test lists (supersedes the provisional
+  labels in B.1/B.2 `<action>` text):
+
+  **DELETE** (mode-only, entire file goes away):
+  - `tests/agents/test_deferred_model.py` — tests `get_agent_llm(name, model=ModelHint)`
+    routing; that param/branch is fully removed in B.1.
+  - `tests/api/agent/test_mode_context.py` — tests router `body.mode` → `resolve_agent_context`
+    wiring end-to-end; entirely mode-specific.
+
+  **REWRITE** (drop `mode` kwarg/assertions only, keep the rest):
+  - `tests/agents/test_agent_context.py` — drop `mode=` args + `ctx.mode` assertions, keep the
+    tier-matrix coverage. (Already in B.2 `<files>`.)
+  - `tests/agents/test_tier_gating.py` — `_free_ctx`/`_premium_ctx` helpers take `mode=`; drop
+    the param, keep tier-gating assertions. **Not listed in B.2 `<files>` — add it.**
+  - `tests/agents/test_context_episodic.py` — 4 of 5 tests call
+    `resolve_agent_context(tier=.., mode=ChatMode.X)`; drop `mode=`, keep tier arg. The
+    `AgentContext()` default-ctor test (line 10) needs no change. **Not listed anywhere in
+    B.1/B.2 `<files>` — add it to B.1.**
+  - `tests/agents/test_context_memory_write.py` — same shape as above (drop `mode=` from 3
+    calls); default-ctor test at line 10 unchanged. **Not listed anywhere in B.1/B.2 `<files>` —
+    add it to B.1.**
+  - `tests/agents/test_memory_extraction.py` — 2 call sites construct
+    `AgentContext(tier=.., mode=ChatMode.FAST, allow_memory_write=False)`; drop `mode=` only.
+    **Not listed anywhere in B.1/B.2 `<files>` — add it to B.1.**
+
+  **NO-CHANGE** (constructs `AgentContext()` with defaults only, or sets kept fields):
+  - `tests/agents/test_supervisor.py`, `tests/agents/test_planner_episodic.py` — default-ctor /
+    `allow_episodic=` only, no `mode` reference.
+  - **`tests/agents/test_depth_toggles.py` — CORRECTION: the plan's B.2 `<action>` lists this as
+    DELETE ("mode-only"), which is wrong.** Grep confirms zero `ChatMode`/`mode` references in
+    this file; its 10 tests cover `allow_reflection` short-circuit, `allow_rag` tool filtering,
+    and `response_style` prompt-directive injection — all fields that are being **kept**.
+    Deleting it would silently drop that coverage. B.2 must NOT delete this file.
+
+  **Net effect on B.1/B.2 file sets:** add `tests/agents/test_tier_gating.py`,
+  `tests/agents/test_context_episodic.py`, `tests/agents/test_context_memory_write.py`,
+  `tests/agents/test_memory_extraction.py` (all REWRITE, mode-kwarg removal only); remove
+  `tests/agents/test_depth_toggles.py` from B.2's delete list (leave file untouched).
+
+- 2026-07-01 — **Phase A wave 1-4 complete.** A.1-A.7 implemented and individually green.
+
+  ### Deviations
+  - Rule 1 — `tests/test_db_models.py::test_all_tables_registered` asserted an explicit
+    literal table-name set; adding `agent_config` (Task A.1) required adding it to that set.
+    Not in A.1's `<files>`, but a direct, unavoidable consequence of registering a new table.
+  - Rule 1 — `get_agent_llm`'s first implementation (Task A.6) dropped the pre-existing
+    `if cfg is None: return get_llm(fast=fast)` shortcut, always calling `_build_chat_model`
+    directly. This broke `tests/agents/test_deferred_model.py` (still alive in Phase A —
+    it's deleted only in Phase B) because it monkeypatches `get_llm`, not `_build_chat_model`,
+    and the bypass triggered a real (unmocked) `init_chat_model` call → `OpenAIError` on
+    missing credentials. Fixed by restoring the shortcut for the `cfg is None and ov is None`
+    case, so "empty cache == today's behavior" holds at the call-path level, not just the
+    resolved-value level.
+  - Rule 1 — my own new test `tests/api/agent_config/test_agent_config_repo.py` initially used
+    the shared `seeded_session` fixture (session-scoped `tmp_db`), which by full-suite time
+    already has all 9 `agent_config` rows seeded by earlier tests via `seed_all`. Assertions
+    assuming a clean table (e.g. `repo.get("concierge") is None`) failed only in the full-suite
+    run, not in isolation. Rewrote to use a dedicated per-test temp DB (matching
+    `tests/db/test_agent_models.py`'s pattern) instead of the shared fixture.
