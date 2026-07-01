@@ -38,7 +38,15 @@ follows this schema standard from the start.
 
 ## What changed
 
-<pending implementation — intake only>
+All 26 agent tools in `app/tools/` now expose an explicit, described model-facing schema so the
+model stops guessing/inventing tool params. 20 tools (flight, hotel, trip, place, tip, expense,
+routing, weather, rag) get a co-located `<Tool>Args(AppBaseModel)` with `Field(..., description=...)`
+per param, `Literal`/reused-`str`-Enum for finite sets (sort, category, status, kind, source), and
+bounded numerics (`min_stars`/`min_rating`/`price_level`). The 6 injection-bearing memory tools keep
+an auto-derived schema (an explicit one would break ToolNode injection) with descriptions attached
+inline via `Annotated[..., Field(...)]`. A parametrized guard over `ALL_TOOLS` blocks any future tool
+(coordinates with MIN-42) shipping without a described schema. Per-domain schema tests added/extended
+(`tests/tools/`). No tool-body logic changed; MCP-exposed signature schema left as-is (documented gap).
 
 ### Rationale
 
@@ -60,6 +68,7 @@ autonomously through the full-proof chain with no human gate.
 - Rule 1 (task 2.2) — Updated pre-existing `test_add_itinerary_item_bad_status_raises` to expect `pydantic.ValidationError` instead of `ToolException`: `status`/`kind` are now enum-validated by `ToolNode` *before* the tool body runs, so the old exception path is unreachable. `apps/api/tests/tools/test_trip_tools.py`. Commit `aaac7f7`.
 - Rule 1 (task 2.1) — Fixed pre-existing `test_search_hotels_no_match_returns_message_no_panel`: it forced an empty result with `min_stars=6`, now rejected by the new `min_stars` `le=5` bound. Swapped to `max_price=1` (a valid, unmatchable filter) to preserve the test's intent. Added `test_booking_tools.py` to task 2.1 `<files>`. `apps/api/tests/tools/test_booking_tools.py`.
 - Skipped the ticket's explicit `args_schema.model_validate(...)` step — LangChain's `ToolNode` already validates tool-call args against `args_schema` before invoke (confirmed empirically in waves 1–2), so it would be dead code. Intentional, per intake decision.
+- Rule 1 (injection fix, commit `278c0fc`) — Reverted the 3 memory tools from an explicit `args_schema` back to auto-derived + inline `Annotated[..., Field(description=...)]`. An explicit schema omitting the `InjectedState`/`InjectedStore` args broke ToolNode injection (`recall_past_trips() missing 2 required positional arguments`), surfaced by `tests/agents/test_planner_episodic`. The Task 4.1 guard was updated to exempt injection-bearing tools (require every model-facing field described instead of a hand-authored `app.tools` schema). `apps/api/app/tools/memory_tools.py`, `tests/tools/test_memory_tools.py`, `tests/tools/test_tool_registry.py`.
 
 **Known pre-existing failures (NOT introduced by MIN-46):** `tests/tools/test_routing_tools.py::test_get_city_route_offline_estimate` and `::test_get_route_between_places_offline_estimate` assert the haversine fallback (`source == "estimate"`), but this environment can reach OpenRouteService so `source == "openrouteservice"`. Routing tools are untouched at this point; these are env/network-dependent and out of scope.
 
@@ -67,7 +76,12 @@ autonomously through the full-proof chain with no human gate.
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| <pending — full tool + registry suite once implemented> | `cd apps/api && make test` | — | intake only; no code changed yet |
+| Tool suite (excl. 2 pre-existing env-only routing tests) | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools -q -k "not offline_estimate"` | 0 | 115 pass |
+| Registry guard (26 tools described) | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_tool_registry.py -q` | 0 | 37 pass |
+| Agent + MCP no-regression | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents tests/mcp -q` | 1 | 5 failures IDENTICAL to base `87067c2` (OpenAI-embedding env), 0 new |
+| Lint | `cd apps/api && ruff check app scripts` | 0 | clean |
+
+**Pre-existing env failures (NOT MIN-46):** 2× `test_routing_tools.py::*_offline_estimate` (ORS reachable here → `source=="openrouteservice"` not `"estimate"`); 5× memory/procedural-injection agent tests (LangGraph store → OpenAI `/embeddings` with `OPENAI_API_KEY=test`). All confirmed failing identically on base `87067c2`.
 
 ### Rollback
 

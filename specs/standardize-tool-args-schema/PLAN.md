@@ -1,6 +1,6 @@
 ---
 slug: standardize-tool-args-schema
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-01
 ---
@@ -216,3 +216,7 @@ Enforcement task — must run last (needs every tool schema in place).
 - 2026-07-01 — Plan drafted from MIN-46 + tool catalog (26 tools / 10 files). Decisions: co-locate schemas · args_schema-only (MCP gap documented) · rely on built-in validation. Status: proposed.
 - 2026-07-01 — Branch `feat/min-46-tool-args-schema`; status active (commit `3779c9f`).
 - 2026-07-01 — **Wave 1 complete** (flight 1.1, memory 1.2, expense 1.3) — commit `40f1b01`, 14 tests pass, ruff clean. Findings folded back into plan: (a) LangChain always auto-derives a non-None `args_schema`, so Task 4.1 guard now checks `__module__` starts with `app.tools`; (b) domain enums live in `app/enums.py`; (c) memory tools previously produced an un-JSON-able auto-derived schema (`BaseStore`), now fixed by explicit schema.
+- 2026-07-01 — **Wave 2 complete** (hotel 2.1, trip 2.2, place 2.3, tip 2.4) — commit `aaac7f7`, 41 tool tests pass. Fix `7f32711`: `min_stars le=5` bound broke a pre-existing hotel no-match test (used `min_stars=6`); swapped to `max_price=1`. One pre-existing trip test updated to expect `ValidationError` (enum now validated by ToolNode).
+- 2026-07-01 — **Wave 3 complete** (routing 3.1, weather 3.2, rag 3.3) — commit `0ed312f`. All 26 tools now carry an explicit/described schema.
+- 2026-07-01 — **Task 4.1 guard** — commit `f2c3c2d`.
+- 2026-07-01 — **Injection regression fixed** — commit `278c0fc`. Wave-1 Risk #1 materialised: an explicit `args_schema` that omits `InjectedState`/`InjectedStore` args breaks ToolNode injection (`recall_past_trips() missing user_id/store`) — caught by `tests/agents/test_planner_episodic`, NOT by the schema-only unit tests. Reverted the 3 memory tools to auto-derived schema + inline `Annotated[..., Field(description=...)]`; guard now exempts injection-bearing tools when every model-facing field is described. Verified **zero regression** vs base `87067c2` (identical 5 pre-existing env failures). Status: shipped.
