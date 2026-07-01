@@ -53,3 +53,4 @@ next-env.d.ts
 # Derived plan-render artifacts (visual-planner)
 specs/**/PLAN.html
 specs/**/.plan-review.json
+WORKFLOW_DIAGRAM.html
