@@ -15,12 +15,27 @@ from typing import Annotated
 from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
+from pydantic import Field
 
 from app.memory.store import search_episodes, search_preferences, upsert_preference
+from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
 
-@tool
+class SaveUserPreferenceArgs(AppBaseModel):
+    key: str = Field(..., description="Preference key/name to store under.")
+    text: str = Field(..., description="Free-text preference value.")
+
+
+class GetUserPreferencesArgs(AppBaseModel):
+    query: str | None = Field(None, description="Optional free-text filter.")
+
+
+class RecallPastTripsArgs(AppBaseModel):
+    query: str = Field(..., description="Free-text query to filter past trip episodes.")
+
+
+@tool(args_schema=SaveUserPreferenceArgs)
 def save_user_preference(
     key: str,
     text: str,
@@ -36,12 +51,14 @@ def save_user_preference(
         model-supplied).
     :return: Confirmation message.
     """
-    log_tool_call("save_user_preference", {"key": key, "text": text, "user_id": user_id})
+    log_tool_call(
+        "save_user_preference", {"key": key, "text": text, "user_id": user_id}
+    )
     upsert_preference(store, user_id, key, {"text": text})
     return f"Saved preference '{key}'."
 
 
-@tool
+@tool(args_schema=GetUserPreferencesArgs)
 def get_user_preferences(
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
@@ -62,7 +79,7 @@ def get_user_preferences(
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
 
 
-@tool
+@tool(args_schema=RecallPastTripsArgs)
 def recall_past_trips(
     query: str,
     user_id: Annotated[str, InjectedState("user_id")],
