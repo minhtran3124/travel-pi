@@ -9,7 +9,7 @@ import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatHeader, type AgentStatus } from "./ChatHeader";
 import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
-import type { ChatMode, UseAgentStream } from "./useAgentStream";
+import type { UseAgentStream } from "./useAgentStream";
 
 export interface ChatPanelProps {
   stream: UseAgentStream;
@@ -31,8 +31,6 @@ export interface ChatPanelProps {
  * When the agent emits an interrupt event (HITL plan approval), an inline
  * approve/reject checkpoint replaces the composer until the user decides.
  */
-const MODES: ChatMode[] = ["fast", "balanced", "deep"];
-
 export function ChatPanel({
   stream,
   onClose,
@@ -41,7 +39,7 @@ export function ChatPanel({
   onToggleMap,
 }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry, mode, setMode } =
+  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
     stream;
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -66,43 +64,6 @@ export function ChatPanel({
         onToggleFullscreen={() => setFullscreen((v) => !v)}
         onClose={onClose}
       />
-
-      <div className="flex items-center gap-sm border-b border-line bg-surface px-lg py-sm">
-        <label htmlFor="chat-mode" className="shrink-0 text-xs font-medium text-muted">
-          {t("modeLabel")}
-        </label>
-        <div className="relative inline-flex items-center">
-          <select
-            id="chat-mode"
-            value={mode}
-            onChange={(e) => setMode(e.target.value as ChatMode)}
-            aria-label={t("modeLabel")}
-            className={cn(
-              "appearance-none rounded-pill border border-line bg-panel-raised",
-              "py-1 pl-md pr-7 text-xs font-semibold text-ink",
-              "cursor-pointer transition-colors hover:border-ink hover:bg-panel",
-            )}
-          >
-            {MODES.map((m) => (
-              <option key={m} value={m}>
-                {t(`mode${m.charAt(0).toUpperCase()}${m.slice(1)}` as "modeFast" | "modeBalanced" | "modeDeep")}
-              </option>
-            ))}
-          </select>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            className="pointer-events-none absolute right-2.5 size-3 text-muted"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </div>
-      </div>
 
       {error ? (
         <p

@@ -382,3 +382,24 @@ removes the per-turn `mode` selector (model now comes from the DB config, not fr
   `RISK_WARN_CATEGORIES="public-contract"` per the plan's §5 risk note — `mode` leaves
   `ChatRequest`. Weakening-validation: N/A, `_require_message_or_resume` was explicitly kept
   untouched in B.2.
+
+- 2026-07-01 — **Task C.1 executed.** Removed `ChatMode`/`MODE_STORAGE_KEY`/`readStoredMode`/
+  `writeStoredMode`/the `mode` state + `setMode` from `useAgentStream.ts` (and from all three
+  request bodies + `useCallback` deps); removed the `ChatMode` import, `MODES` array, `mode`
+  destructure, and the mode-selector `<select>` block from `ChatPanel.tsx`; removed the 4
+  `mode*` i18n keys from both locale files; rebuilt the `api-api-1` Docker image (it was still
+  serving the pre-Phase-B BE) and regenerated `schema.d.ts` against it — `ChatRequest` no longer
+  has `mode`.
+
+  ### Deviations
+  - Rule 1 — the plan's `<verify>` (`pnpm --filter web typecheck`) references a script that
+    doesn't exist in `apps/web/package.json` (only `dev`/`build`/`start`/`lint`/`gen:api`/`test`/
+    `test:watch`/`e2e`). Ran `npx tsc --noEmit` directly against the existing `tsconfig.json`
+    instead — exit 0, no errors. Also ran the full FE test suite (`pnpm --filter web test`, 70
+    passed) and lint (`pnpm --filter web lint`, exit 0) for extra confidence since the plan's
+    named verify command was unusable as written.
+  - Rule 1 — the plan's `<files>` says locale files live under `src/locales`; the actual files
+    are `apps/web/messages/en.json` / `messages/vi.json`. Edited the real paths.
+  - The Docker rebuild was necessary and not just a nice-to-have: `gen:api` hits `localhost:8000`,
+    which was serving `api-api-1`'s baked-in pre-Phase-B image (still had `mode` in its OpenAPI
+    schema) until rebuilt — confirmed via `curl .../openapi.json` before and after.
