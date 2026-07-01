@@ -14,7 +14,13 @@ def test_get_returns_active_version():
 def test_explicit_version():
     from app.prompts.registry import registry
 
-    assert registry.get("supervisor", version=3) == registry.get("supervisor")
+    # Requesting the active version explicitly matches the default get(),
+    # regardless of which version is currently active (avoids re-breaking on
+    # every prompt bump).
+    active = registry._active["supervisor"]
+    assert registry.get("supervisor", version=active) == registry.get("supervisor")
+    # An explicit non-active version is honored and returns different text.
+    assert registry.get("supervisor", version=1) != registry.get("supervisor")
 
 
 def test_unknown_name_raises():
