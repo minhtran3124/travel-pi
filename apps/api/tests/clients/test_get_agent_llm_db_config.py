@@ -99,13 +99,71 @@ def test_no_cross_agent_leak(monkeypatch):
 
 def test_empty_cache_matches_today_behavior(monkeypatch):
     captured = _capture_build_chat_model(monkeypatch)
+    monkeypatch.setattr(
+        "app.clients.llm.get_settings",
+        lambda: type(
+            "S",
+            (),
+            {
+                "agent_llm_configs": {},
+                "llm_provider": "openai",
+                "llm_model": "gpt-4o",
+                "fast_llm_model": "gpt-4o-mini",
+                "llm_base_url": None,
+            },
+        )(),
+    )
 
     from app.clients.llm import get_agent_llm
 
     get_agent_llm("concierge")
 
+    assert captured["provider"] == "openai"
+    # The empty-cache shortcut delegates to get_llm(), which does not pass
+    # base_url explicitly — _build_chat_model applies its own env fallback
+    # (see test_build_chat_model_falls_back_to_settings_base_url below),
+    # so this level only sees the unset param.
+    assert captured["base_url"] is None
+
+
+def test_empty_cache_fast_agent_uses_fast_model(monkeypatch):
+    captured = _capture_build_chat_model(monkeypatch)
+
+    from app.clients.llm import get_agent_llm
+
+    get_agent_llm("journal")
+
     from app.core.config import get_settings
 
     s = get_settings()
-    assert captured["provider"] == s.llm_provider
-    assert captured["base_url"] == s.llm_base_url
+    assert captured["model"] == s.fast_llm_model
+
+
+def test_build_chat_model_falls_back_to_settings_base_url(monkeypatch):
+    # One level deeper than the get_agent_llm tests above: verifies
+    # _build_chat_model's own `base_url or s.llm_base_url` fallback, which
+    # get_agent_llm's empty-cache shortcut relies on implicitly (it never
+    # passes base_url itself).
+    captured: dict = {}
+
+    def fake_init_chat_model(model, *, model_provider, **kwargs):
+        captured["base_url"] = kwargs.get("base_url")
+        from app.clients.llm import FakeLLM
+
+        return FakeLLM()
+
+    monkeypatch.setattr("app.clients.llm.init_chat_model", fake_init_chat_model)
+    monkeypatch.setattr(
+        "app.clients.llm.get_settings",
+        lambda: type(
+            "S",
+            (),
+            {"llm_base_url": "https://ambient-base-url.example.com"},
+        )(),
+    )
+
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("openai", "gpt-4o")
+
+    assert captured["base_url"] == "https://ambient-base-url.example.com"

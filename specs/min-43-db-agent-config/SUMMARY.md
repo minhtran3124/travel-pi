@@ -59,9 +59,9 @@ Owner clarifications in-session (2026-07-01), verbatim:
 
 ## What changed
 
-Nothing yet — this is intake only. No code was edited. The task was classified `high-risk`,
-escalated at `low` confidence, and the owner resolved all three escalations on 2026-07-01
-(see `ESCALATIONS.md`). Resolved design for MIN-43:
+**Shipped, all three phases** (see `PLAN.md` §7 Status Log for the full task-by-task record).
+The task was classified `high-risk`, escalated at `low` confidence, and the owner resolved all
+three escalations on 2026-07-01 (see `ESCALATIONS.md`). Resolved design for MIN-43:
 
 - **Per-agent config rows** (one table, one row per agent/sub-agent), each holding **provider +
   model** for that agent. "Global" = app-wide scope (shared across users/conversations, edited
@@ -104,19 +104,28 @@ Per the intake rule, low confidence escalates before work even though the lane's
 
 ### Deviations
 
-- none
+See `PLAN.md` §7 Status Log for the full list (recon-corrected DELETE/REWRITE test classifications,
+two Rule-1 auto-fixes in Task A.6/A.1, additional mode-kwarg test fixes discovered outside the
+plan's original `<files>` sets). Summary: Task 0 recon found the plan's B.2 action wrongly slated
+`test_depth_toggles.py` for deletion (it has zero `mode` references); corrected before B.1/B.2 ran.
 
 ### Verify
 
-<!-- No implementation ran; no verify rows yet. To be filled during execution. -->
-
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| (intake only — no code changes) | n/a | n/a | classification + escalation only |
+| BE suite (SQLite) | `cd apps/api && ../../.venv/bin/python -m pytest -q` | 0 | 1164 passed |
+| BE suite (Postgres) | `cd apps/api && make test-docker` | 0 | 1164 passed, exact parity with SQLite |
+| BE lint | `cd apps/api && ruff check app scripts` | 0 | clean |
+| Migration reversibility | `alembic upgrade head && alembic downgrade -1 && alembic upgrade head` | 0 | single head, clean round-trip |
+| FE test suite | `pnpm --filter web test` | 0 | 70 passed (vitest) |
+| FE typecheck | `npx tsc --noEmit` (apps/web) | 0 | plan's named `pnpm --filter web typecheck` script doesn't exist |
+| FE lint | `pnpm --filter web lint` | 0 | clean |
 
 ### Rollback
 
-- Remove intake artifacts: `rm -rf specs/min-43-db-agent-config` (no code or migration applied).
+- Revert code: `git revert 63282d8 1cee9db a8fa157` (Phase C, then B, then A — B depends on A,
+  C depends on B).
+- Revert migration: `cd apps/api && ../../.venv/bin/alembic downgrade -1`, then rebuild `travel.db`.
 
 ### Harness-Delta
 
