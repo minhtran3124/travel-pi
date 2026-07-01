@@ -220,3 +220,4 @@ Enforcement task — must run last (needs every tool schema in place).
 - 2026-07-01 — **Wave 3 complete** (routing 3.1, weather 3.2, rag 3.3) — commit `0ed312f`. All 26 tools now carry an explicit/described schema.
 - 2026-07-01 — **Task 4.1 guard** — commit `f2c3c2d`.
 - 2026-07-01 — **Injection regression fixed** — commit `278c0fc`. Wave-1 Risk #1 materialised: an explicit `args_schema` that omits `InjectedState`/`InjectedStore` args breaks ToolNode injection (`recall_past_trips() missing user_id/store`) — caught by `tests/agents/test_planner_episodic`, NOT by the schema-only unit tests. Reverted the 3 memory tools to auto-derived schema + inline `Annotated[..., Field(description=...)]`; guard now exempts injection-bearing tools when every model-facing field is described. Verified **zero regression** vs base `87067c2` (identical 5 pre-existing env failures). Status: shipped.
+- 2026-07-01 — shipped via `feat/min-46-tool-args-schema` (PR #49 → `v3`).
