@@ -10,15 +10,11 @@ behaviour), never an error.
 
 from __future__ import annotations
 
-import logging
-
 from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
 from app.services.tip_service import TipService
-from app.tools._base import dump, session_scope
-
-logger = logging.getLogger(__name__)
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -43,12 +39,9 @@ def get_local_tips(
     :return: ``{city, country, count, summary, tips: [{category, title, content,
         is_essential, ...}]}``.
     """
+    log_tool_call("get_local_tips", locals())
     if not (city or None) and not (country or None):
         raise ToolException("Provide either 'city' or 'country'.")
-
-    logger.info(
-        f"city: {city}, country: {country}, category: {category}, essential_only: {essential_only}"
-    )
 
     with session_scope() as s:
         try:

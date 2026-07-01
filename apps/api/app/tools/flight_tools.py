@@ -12,7 +12,7 @@ from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
 from app.services.flight_service import DEFAULT_SORT, FlightService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -42,6 +42,7 @@ def search_flights(
         departure_time, arrival_time, duration_minutes, price,
         seats_available, and stops.
     """
+    log_tool_call("search_flights", locals())
     with session_scope() as s:
         try:
             results = FlightService(s).search_flights(

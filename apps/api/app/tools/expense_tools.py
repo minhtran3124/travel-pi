@@ -11,7 +11,7 @@ from langchain_core.tools import ToolException, tool
 from app.exceptions import AppError
 from app.schemas.expense import ExpenseCreate
 from app.services.expense_service import ExpenseService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -32,6 +32,7 @@ def add_expense(
     :param description: Optional free-text description of the expense.
     :return: The created expense record.
     """
+    log_tool_call("add_expense", locals())
     with session_scope() as s:
         try:
             request = ExpenseCreate(
@@ -54,6 +55,7 @@ def list_expenses(trip_id: str) -> list:
     :param trip_id: The trip to list expenses for.
     :return: All recorded expenses for the trip.
     """
+    log_tool_call("list_expenses", locals())
     with session_scope() as s:
         try:
             return dump(ExpenseService(s).list(trip_id))
@@ -68,6 +70,7 @@ def expense_summary(trip_id: str) -> dict:
     :param trip_id: The trip to summarise.
     :return: The trip's expense rollup, with totals by category in USD.
     """
+    log_tool_call("expense_summary", locals())
     with session_scope() as s:
         try:
             return dump(ExpenseService(s).summary(trip_id))

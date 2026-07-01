@@ -17,6 +17,7 @@ from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
 
 from app.memory.store import search_episodes, search_preferences, upsert_preference
+from app.tools._base import log_tool_call
 
 
 @tool
@@ -35,6 +36,7 @@ def save_user_preference(
         model-supplied).
     :return: Confirmation message.
     """
+    log_tool_call("save_user_preference", {"key": key, "text": text, "user_id": user_id})
     upsert_preference(store, user_id, key, {"text": text})
     return f"Saved preference '{key}'."
 
@@ -53,6 +55,7 @@ def get_user_preferences(
     :param query: Optional free-text filter.
     :return: Matching saved preferences.
     """
+    log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
     return search_preferences(store, user_id, query=query)
 
 
@@ -74,6 +77,7 @@ def recall_past_trips(
         model-supplied).
     :return: Matching past-trip episodes.
     """
+    log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
     return search_episodes(store, user_id, query=query)
 
 

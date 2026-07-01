@@ -14,7 +14,7 @@ from app.schemas.air_quality import AirQualityResponse
 from app.schemas.weather import WeatherResponse
 from app.services import air_quality_service, weather_service
 from app.streaming.panels import AirQualityPanel, WeatherPanel
-from app.tools._base import dump, panel_result
+from app.tools._base import dump, log_tool_call, panel_result
 
 
 def _weather_summary(r: WeatherResponse) -> str:
@@ -59,6 +59,7 @@ async def get_weather(city: str, days: int | None = None):
     :return: A ``(summary, artifact)`` tuple in the LangChain
         ``content_and_artifact`` shape.
     """
+    log_tool_call("get_weather", locals())
     try:
         r = await weather_service.get_weather(city, days)
     except AppError as e:
@@ -78,6 +79,7 @@ async def get_packing(city: str, days: int | None = None) -> dict:
     :param days: Number of days to plan for (service default when omitted).
     :return: The packing suggestion.
     """
+    log_tool_call("get_packing", locals())
     try:
         return dump(await weather_service.get_packing(city, days))
     except AppError as e:
@@ -109,6 +111,7 @@ async def get_air_quality(city: str):
     :return: A ``(summary, artifact)`` tuple in the LangChain
         ``content_and_artifact`` shape.
     """
+    log_tool_call("get_air_quality", locals())
     try:
         r = await air_quality_service.get_air_quality(city)
     except AppError as e:

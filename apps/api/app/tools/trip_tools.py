@@ -13,7 +13,7 @@ from langchain_core.tools import ToolException, tool
 from app.exceptions import AppError
 from app.schemas.trip import TripItemCreate
 from app.services.trip_service import TripService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -25,6 +25,7 @@ def get_trip_summary(trip_id: str) -> dict:
     :param trip_id: The trip to summarise.
     :return: The trip's full snapshot.
     """
+    log_tool_call("get_trip_summary", locals())
     with session_scope() as s:
         try:
             return dump(TripService(s).get_trip_detail(trip_id))
@@ -39,6 +40,7 @@ def get_trip_budget(trip_id: str) -> dict:
     :param trip_id: The trip to get the budget for.
     :return: The trip's budget rollup.
     """
+    log_tool_call("get_trip_budget", locals())
     with session_scope() as s:
         try:
             return dump(TripService(s).get_trip_budget(trip_id))
@@ -53,6 +55,7 @@ def list_trip_places(trip_id: str) -> list:
     :param trip_id: The trip to list places for.
     :return: The places shortlisted onto the trip.
     """
+    log_tool_call("list_trip_places", locals())
     with session_scope() as s:
         try:
             return dump(TripService(s).list_trip_places(trip_id))
@@ -69,6 +72,7 @@ def add_place_to_trip(trip_id: str, place_id: str, source: str = "catalog") -> d
     :param source: 'catalog' (default) or 'saved'.
     :return: The created trip-place record.
     """
+    log_tool_call("add_place_to_trip", locals())
     with session_scope() as s:
         try:
             return dump(TripService(s).add_place_to_trip(trip_id, place_id, source))
@@ -100,6 +104,7 @@ def add_itinerary_item(
     :param start_time: Optional start time for the item.
     :return: The created itinerary item.
     """
+    log_tool_call("add_itinerary_item", locals())
     with session_scope() as s:
         try:
             request = TripItemCreate(

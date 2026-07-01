@@ -14,7 +14,7 @@ from app.exceptions import AppError
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -45,6 +45,7 @@ def search_hotels(
     :return: Hotels annotated with available (bool), available_rooms, nights,
         and total_price.
     """
+    log_tool_call("search_hotels", locals())
     with session_scope() as s:
         try:
             _nights, results = HotelService(s).check_availability(
@@ -96,6 +97,7 @@ def book_hotel(
     :param confirm: Set to True to proceed — prevents accidental bookings.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
+    log_tool_call("book_hotel", locals())
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"

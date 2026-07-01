@@ -12,7 +12,7 @@ from langchain_core.tools import ToolException, tool
 
 from app.exceptions import AppError
 from app.services.place_service import PlaceService
-from app.tools._base import dump, session_scope
+from app.tools._base import dump, log_tool_call, session_scope
 
 
 @tool
@@ -33,6 +33,7 @@ def search_places(
     :param price_level: Price level filter (1-4).
     :return: Matching places.
     """
+    log_tool_call("search_places", locals())
     with session_scope() as s:
         try:
             return dump(
@@ -63,6 +64,7 @@ def nearby_places(
     :return: A dict with keys 'origin' (the anchor place) and 'nearby' (list,
         nearest-first).
     """
+    log_tool_call("nearby_places", locals())
     with session_scope() as s:
         try:
             origin, results = PlaceService(s).nearby_places(
@@ -83,6 +85,7 @@ def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
     :param source: 'catalog' | 'saved'.
     :return: The place dict, or None if not found.
     """
+    log_tool_call("resolve_place", locals())
     with session_scope() as s:
         try:
             result = PlaceService(s).resolve(place_id, source)
@@ -101,6 +104,7 @@ def parse_nl_query(query: str) -> dict:
     :return: A dict with city, category, min_rating, price_level fields (any
         unrecognised field comes back as None).
     """
+    log_tool_call("parse_nl_query", locals())
     with session_scope() as s:
         try:
             return dump(PlaceService(s).parse_nl_query(query))
@@ -114,6 +118,7 @@ def list_place_categories() -> list:
 
     :return: All place categories with display metadata.
     """
+    log_tool_call("list_place_categories", locals())
     with session_scope() as s:
         try:
             return dump(PlaceService(s).categories())

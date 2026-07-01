@@ -14,6 +14,8 @@ individual tools, which LangGraph's ``ToolNode`` surfaces back to the model as a
 
 from __future__ import annotations
 
+import logging
+import pprint
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
@@ -23,6 +25,41 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
+
+logger = logging.getLogger("app.tools")
+
+
+def log_tool_call(name: str, params: dict[str, Any]) -> None:
+    """Log that a tool is being called, with its parameter values.
+
+    Called as the first statement of a ``@tool`` function so every tool
+    invocation is traceable in the logs (which tool ran, with what args) —
+    mirroring the agent-layer ``[agent] node=...`` INFO logs.
+
+    Renders a pretty, multi-line block so multi-arg tools (e.g. ``book_hotel``
+    with 11 params) are scannable instead of one long line:
+
+    ::
+
+        [tool] search_flights called
+          origin          = 'HAN'
+          destination     = 'SGN'
+          departure_date  = '2027-03-15'
+          airline         = None
+          max_price       = None
+          max_stops       = None
+          sort            = 'departure_asc'
+
+    :param name: The tool's name (function name).
+    :param params: The tool's parameter values (typically ``locals()`` at the
+        top of the function, excluding injected plumbing objects).
+    """
+    if not params:
+        logger.info("[tool] %s called (no params)", name)
+        return
+    width = max(len(k) for k in params)
+    lines = [f"  {k:<{width}} = {pprint.pformat(v, width=80)}" for k, v in params.items()]
+    logger.info("[tool] %s called\n%s", name, "\n".join(lines))
 
 
 @contextmanager

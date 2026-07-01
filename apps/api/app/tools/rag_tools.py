@@ -13,6 +13,7 @@ from langchain_core.tools import tool
 
 from app.rag.embeddings import get_vector_store
 from app.rag.retriever import hybrid_search
+from app.tools._base import log_tool_call
 
 
 @tool
@@ -23,6 +24,7 @@ def search_destination_knowledge(query: str, city: str | None = None) -> list:
     :param city: Optional city to filter results by.
     :return: Matching snippets with their metadata.
     """
+    log_tool_call("search_destination_knowledge", locals())
     store = get_vector_store()
     filters = {"city": city} if city else None
     docs = hybrid_search(store, query, filters=filters, k=5)

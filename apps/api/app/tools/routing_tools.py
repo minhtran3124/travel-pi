@@ -17,7 +17,7 @@ from app.exceptions import AppError
 from app.schemas.route import RouteResponse
 from app.services.routing_service import RoutingService
 from app.streaming.panels import RoutePanel
-from app.tools._base import panel_result, session_scope
+from app.tools._base import log_tool_call, panel_result, session_scope
 
 
 def _route_panel(r: RouteResponse) -> tuple[str, dict]:
@@ -52,6 +52,7 @@ async def get_route(origin_place_id: str, destination_place_id: str):
     :return: Distance + duration per travel mode (walk / bike / car), a
         recommended mode for the distance, and the straight-line km.
     """
+    log_tool_call("get_route", locals())
     with session_scope() as s:
         try:
             r = await RoutingService(s).get_place_route(
@@ -74,6 +75,7 @@ async def get_city_route(origin_city: str, destination_city: str):
     :return: Distance + duration per travel mode (walk / bike / car), a
         recommended mode, and the straight-line km.
     """
+    log_tool_call("get_city_route", locals())
     with session_scope() as s:
         try:
             r = await RoutingService(s).get_city_route(origin_city, destination_city)
