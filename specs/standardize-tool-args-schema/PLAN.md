@@ -31,7 +31,7 @@ Linear **MIN-46**. All 21 tools across 10 domain files currently declare `@tool`
 
 ## 3. Success Criteria
 
-- Every tool in `app.tools.registry.ALL_TOOLS` has a non-`None` `args_schema` (enforced by a new guard test).
+- Every tool in `app.tools.registry.ALL_TOOLS` has a **hand-authored** `args_schema` — one whose class `__module__` starts with `app.tools` (enforced by a new guard test). Note: LangChain auto-derives an `args_schema` from the signature when none is given, so `is not None` is *not* a sufficient check.
 - Each `args_schema` mirrors its function's model-facing params exactly — same names, same required/optional, same defaults; **injected** params (`InjectedState`, `InjectedStore`) are **excluded** from the schema and the tool still receives them at call time.
 - Finite-value params render as JSON-schema enums (via `Literal` or a reused `str`-Enum).
 - Every field has `Field(..., description=...)`; docstrings updated to match.
@@ -44,7 +44,7 @@ Linear **MIN-46**. All 21 tools across 10 domain files currently declare `@tool`
 > - Wire it: `@tool(args_schema=<Name>Args)`, preserving any existing `response_format="content_and_artifact"`.
 > - **Field parity rule:** the schema's fields must match the function params 1:1 (names/required/optional/defaults). A mismatch makes LangChain raise at tool-build time — the `import app.tools.registry` step in each verify catches it.
 > - Use `Field(..., description="…")` for required, `Field(default, description="…")` for optional. Pull descriptions from the existing docstring.
-> - Reuse existing `str`-Enums where they exist (verify each is `class X(str, Enum)`); otherwise use `typing.Literal[...]`.
+> - Reuse existing `str`-Enums where they exist (verify each is `class X(str, Enum)`); otherwise use `typing.Literal[...]`. Note: domain enums live in `app/enums.py` (e.g. `from app.enums import ExpenseCategory`), not under `app/schemas/`.
 > - Update the tool docstring so the param descriptions match the schema (remove now-redundant "valid values" prose only where the enum makes it obvious; do not touch behavior prose).
 > - Do **not** add `args_schema.model_validate` and do **not** change tool-body logic.
 
@@ -193,7 +193,7 @@ Enforcement task — must run last (needs every tool schema in place).
 ```xml
 <task id="4.1" wave="4">
   <files>apps/api/tests/tools/test_tool_registry.py</files>
-  <action>Add a parametrized guard test over app.tools.registry.ALL_TOOLS asserting every tool has a non-None args_schema (regression guard so future tools cannot ship without one — coordinates with MIN-42). Do not modify registry.py. Then run the full tool suite + ruff as the wave gate.</action>
+  <action>Add a parametrized guard test over app.tools.registry.ALL_TOOLS asserting every tool has a HAND-AUTHORED args_schema — assert `tool.args_schema.__module__.startswith("app.tools")` (LangChain auto-derives a non-None schema from the signature when none is supplied, so `is not None` would pass for un-migrated tools — verified during wave 1). This regression guard blocks future tools shipping without an explicit schema — coordinates with MIN-42. Do not modify registry.py. Then run the full tool suite + ruff as the wave gate.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/tools -q && ruff check app scripts</verify>
   <done>Guard test fails if any ALL_TOOLS entry lacks args_schema; full tools suite green; ruff clean.</done>
 </task>
@@ -213,4 +213,6 @@ Enforcement task — must run last (needs every tool schema in place).
 
 ## 6. Status Log
 
-- 2026-07-01 — Plan drafted from MIN-46 + tool catalog (21 tools / 10 files). Decisions: co-locate schemas · args_schema-only (MCP gap documented) · rely on built-in validation. Status: proposed.
+- 2026-07-01 — Plan drafted from MIN-46 + tool catalog (26 tools / 10 files). Decisions: co-locate schemas · args_schema-only (MCP gap documented) · rely on built-in validation. Status: proposed.
+- 2026-07-01 — Branch `feat/min-46-tool-args-schema`; status active (commit `3779c9f`).
+- 2026-07-01 — **Wave 1 complete** (flight 1.1, memory 1.2, expense 1.3) — commit `40f1b01`, 14 tests pass, ruff clean. Findings folded back into plan: (a) LangChain always auto-derives a non-None `args_schema`, so Task 4.1 guard now checks `__module__` starts with `app.tools`; (b) domain enums live in `app/enums.py`; (c) memory tools previously produced an un-JSON-able auto-derived schema (`BaseStore`), now fixed by explicit schema.
