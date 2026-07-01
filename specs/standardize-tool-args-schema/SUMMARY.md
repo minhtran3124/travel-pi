@@ -57,7 +57,11 @@ autonomously through the full-proof chain with no human gate.
 
 ### Deviations
 
-- none
+- Rule 1 (task 2.2) — Updated pre-existing `test_add_itinerary_item_bad_status_raises` to expect `pydantic.ValidationError` instead of `ToolException`: `status`/`kind` are now enum-validated by `ToolNode` *before* the tool body runs, so the old exception path is unreachable. `apps/api/tests/tools/test_trip_tools.py`. Commit `aaac7f7`.
+- Rule 1 (task 2.1) — Fixed pre-existing `test_search_hotels_no_match_returns_message_no_panel`: it forced an empty result with `min_stars=6`, now rejected by the new `min_stars` `le=5` bound. Swapped to `max_price=1` (a valid, unmatchable filter) to preserve the test's intent. Added `test_booking_tools.py` to task 2.1 `<files>`. `apps/api/tests/tools/test_booking_tools.py`.
+- Skipped the ticket's explicit `args_schema.model_validate(...)` step — LangChain's `ToolNode` already validates tool-call args against `args_schema` before invoke (confirmed empirically in waves 1–2), so it would be dead code. Intentional, per intake decision.
+
+**Known pre-existing failures (NOT introduced by MIN-46):** `tests/tools/test_routing_tools.py::test_get_city_route_offline_estimate` and `::test_get_route_between_places_offline_estimate` assert the haversine fallback (`source == "estimate"`), but this environment can reach OpenRouteService so `source == "openrouteservice"`. Routing tools are untouched at this point; these are env/network-dependent and out of scope.
 
 ### Verify
 

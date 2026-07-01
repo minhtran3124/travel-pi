@@ -95,7 +95,7 @@ def test_search_hotels_no_match_returns_message_no_panel(agent_db):
             "rooms": 1,
             "adults": 2,
             "children": 0,
-            "min_stars": 6,
+            "max_price": 1,  # unmatchable filter (min_stars=6 is now rejected by args_schema le=5)
         }
     )
     assert isinstance(msg, ToolMessage)

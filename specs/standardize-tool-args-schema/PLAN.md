@@ -113,7 +113,7 @@ Reuse `ExpenseCategory` (verify it is `class ExpenseCategory(str, Enum)` in `app
 
 ```xml
 <task id="2.1" wave="2">
-  <files>apps/api/app/tools/hotel_tools.py, apps/api/tests/tools/test_hotel_tools.py</files>
+  <files>apps/api/app/tools/hotel_tools.py, apps/api/tests/tools/test_hotel_tools.py, apps/api/tests/tools/test_booking_tools.py</files>
   <action>Add SearchHotelsArgs(city, check_in, check_out: str [req]; rooms, adults, children: int [req]; min_stars: int | None = None [Field ge=1, le=5]; max_price: float | None = None; amenities: list[str] | None = None) and BookHotelArgs(hotel_id, check_in, check_out, guest_name, guest_email, guest_phone: str [req]; rooms: int = 1; adults: int = 2; children: int = 0; notes: str | None = None; confirm: bool = False). Field descriptions from docstrings; note in confirm's description that it must be true to execute the booking. Keep response_format on search_hotels and the confirm/date guards in the bodies untouched. Create test_hotel_tools.py asserting both args_schema set, required vs optional/defaults correct (confirm defaults False), and a valid search invoke still returns (content, artifact).</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools.py -q</verify>
   <done>Both hotel tools carry schemas with correct required/default/confirm semantics.</done>
