@@ -14,8 +14,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from langchain_core.tools import ToolException, tool
+from pydantic import Field
 
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
@@ -23,7 +25,75 @@ from app.streaming.panels import HotelsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope
 
 
-@tool(response_format="content_and_artifact")
+class SearchHotelsArgs(AppBaseModel):
+    city: str = Field(
+        ...,
+        description="Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').",
+    )
+    check_in: str = Field(
+        ...,
+        description=(
+            "Stay start date, YYYY-MM-DD. Must be today or later — resolve relative "
+            "dates against the current date in the system prompt; never guess or "
+            "pass a past date."
+        ),
+    )
+    check_out: str = Field(
+        ..., description="Stay end date, YYYY-MM-DD. Must be after `check_in`."
+    )
+    rooms: int = Field(
+        ..., description="Number of rooms needed. Required — get it from the traveller."
+    )
+    adults: int = Field(
+        ...,
+        description="Adult party size across all rooms. Required — get it from the traveller.",
+    )
+    children: int = Field(
+        ...,
+        description="Number of children in the party (0 if none). Required — ask the traveller.",
+    )
+    min_stars: int | None = Field(
+        None, ge=1, le=5, description="Keep only hotels with this star rating or above."
+    )
+    max_price: float | None = Field(
+        None, description="Keep only hotels at or below this nightly rate."
+    )
+    amenities: list[str] | None = Field(
+        None, description="List of required tags, e.g. ['pool', 'wifi', 'breakfast']."
+    )
+
+
+class BookHotelArgs(AppBaseModel):
+    hotel_id: str = Field(
+        ...,
+        description="Canonical hotel ID or short code (HTL-XXXXXX) from search_hotels.",
+    )
+    check_in: str = Field(..., description="Stay start date, YYYY-MM-DD.")
+    check_out: str = Field(..., description="Stay end date, YYYY-MM-DD.")
+    guest_name: str = Field(
+        ..., description="Lead guest full name as on their ID/passport."
+    )
+    guest_email: str = Field(..., description="Contact email for the reservation.")
+    guest_phone: str = Field(
+        ..., description="Contact phone for the hotel (late arrival, changes)."
+    )
+    rooms: int = Field(1, description="Number of rooms to book (default 1).")
+    adults: int = Field(2, description="Adult party size across all rooms.")
+    children: int = Field(0, description="Child party size across all rooms.")
+    notes: str | None = Field(
+        None,
+        description="Optional note for the hotel (arrival time, bed type preference).",
+    )
+    confirm: bool = Field(
+        False,
+        description=(
+            "Must be set to True to execute the booking — prevents accidental "
+            "reservations. Leaving it False (the default) will not book anything."
+        ),
+    )
+
+
+@tool(args_schema=SearchHotelsArgs, response_format="content_and_artifact")
 def search_hotels(
     city: str,
     check_in: str,
@@ -141,7 +211,7 @@ def search_hotels(
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=BookHotelArgs)
 def book_hotel(
     hotel_id: str,
     check_in: str,
@@ -169,7 +239,8 @@ def book_hotel(
     :param adults: Adult party size across all rooms.
     :param children: Child party size across all rooms.
     :param notes: Optional note for the hotel (arrival time, bed type preference).
-    :param confirm: Set to True to proceed — prevents accidental bookings.
+    :param confirm: Must be True to execute the booking — prevents accidental
+        reservations; left False (the default), nothing is booked.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
     log_tool_call("book_hotel", locals())

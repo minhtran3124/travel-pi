@@ -9,16 +9,49 @@ flights — so the agent can reference a specific flight across turns.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Literal
 
 from langchain_core.tools import ToolException, tool
+from pydantic import Field
 
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
 from app.tools._base import log_tool_call, panel_result, session_scope
 
+FlightSort = Literal[
+    "departure_asc",
+    "departure_desc",
+    "price_asc",
+    "price_desc",
+    "duration_asc",
+    "duration_desc",
+]
 
-@tool(response_format="content_and_artifact")
+
+class SearchFlightsArgs(AppBaseModel):
+    origin: str = Field(
+        ..., description="3-letter IATA origin airport code, e.g. 'HAN'."
+    )
+    destination: str = Field(
+        ..., description="3-letter IATA destination airport code, e.g. 'SGN'."
+    )
+    departure_date: str = Field(
+        ...,
+        description="Departure date, ISO format YYYY-MM-DD. Must not be in the past.",
+    )
+    airline: str | None = Field(
+        None, description="Optional 2-letter IATA airline code to filter by."
+    )
+    max_price: float | None = Field(
+        None, description="Optional maximum ticket price filter."
+    )
+    max_stops: int | None = Field(None, description="Optional maximum number of stops.")
+    sort: FlightSort = Field("departure_asc", description="Result ordering.")
+
+
+@tool(args_schema=SearchFlightsArgs, response_format="content_and_artifact")
 def search_flights(
     origin: str,
     destination: str,
@@ -43,8 +76,7 @@ def search_flights(
     :param airline: 2-letter IATA code to filter by carrier (e.g. 'VN').
     :param max_price: Keep only flights at or below this fare.
     :param max_stops: 0 = nonstop only, 1 = up to one stop.
-    :param sort: departure_asc | departure_desc | price_asc | price_desc |
-        duration_asc | duration_desc. Defaults to departure_asc.
+    :param sort: Result ordering (see ``FlightSort``). Defaults to departure_asc.
     :return: A (summary, artifact) tuple. On matches the artifact is a
         ``{"kind": "flights", "data": ...}`` side-panel payload; on no match the
         artifact is ``None`` (no panel) and the summary explains the empty result.

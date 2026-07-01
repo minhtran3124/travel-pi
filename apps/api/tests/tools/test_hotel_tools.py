@@ -1,0 +1,119 @@
+"""Tests for hotel tools' args_schema (specs/standardize-tool-args-schema Task 2.1)."""
+
+import json
+
+import pytest
+from app.tools.hotel_tools import (
+    BookHotelArgs,
+    SearchHotelsArgs,
+    book_hotel,
+    search_hotels,
+)
+from langchain_core.messages import ToolMessage
+from pydantic import ValidationError
+
+
+def test_search_hotels_has_args_schema():
+    assert search_hotels.args_schema is SearchHotelsArgs
+    assert search_hotels.args_schema is not None
+
+
+def test_book_hotel_has_args_schema():
+    assert book_hotel.args_schema is BookHotelArgs
+    assert book_hotel.args_schema is not None
+
+
+def test_search_hotels_required_fields():
+    schema = SearchHotelsArgs.model_json_schema()
+    required = set(schema.get("required", []))
+    assert required == {"city", "check_in", "check_out", "rooms", "adults", "children"}
+
+
+def test_search_hotels_optional_fields_default_none():
+    fields = SearchHotelsArgs.model_fields
+    assert fields["min_stars"].default is None
+    assert fields["max_price"].default is None
+    assert fields["amenities"].default is None
+
+
+def test_search_hotels_min_stars_bounds():
+    schema_json = json.dumps(SearchHotelsArgs.model_json_schema())
+    schema = SearchHotelsArgs.model_json_schema()
+    # min_stars is Optional[int], so bounds live in the anyOf/int branch
+    min_stars_schema = schema["properties"]["min_stars"]
+    assert "1" in schema_json  # sanity: bound values are serialized somewhere
+    # locate the int branch (direct or via anyOf) and check ge/le
+    int_branch = min_stars_schema
+    if "anyOf" in min_stars_schema:
+        int_branch = next(
+            b for b in min_stars_schema["anyOf"] if b.get("type") == "integer"
+        )
+    assert int_branch["minimum"] == 1
+    assert int_branch["maximum"] == 5
+
+
+def test_book_hotel_required_fields():
+    schema = BookHotelArgs.model_json_schema()
+    required = set(schema.get("required", []))
+    assert required == {
+        "hotel_id",
+        "check_in",
+        "check_out",
+        "guest_name",
+        "guest_email",
+        "guest_phone",
+    }
+
+
+def test_book_hotel_defaults():
+    fields = BookHotelArgs.model_fields
+    assert fields["rooms"].default == 1
+    assert fields["adults"].default == 2
+    assert fields["children"].default == 0
+    assert fields["notes"].default is None
+    assert fields["confirm"].default is False
+
+
+def test_book_hotel_confirm_description_mentions_must_be_true():
+    description = BookHotelArgs.model_fields["confirm"].description
+    assert "true" in description.lower()
+
+
+def test_search_hotels_valid_invoke_returns_content_and_artifact(agent_db):
+    msg = search_hotels.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "search_hotels",
+            "args": {
+                "city": "Da Nang",
+                "check_in": "2027-03-15",
+                "check_out": "2027-03-18",
+                "rooms": 1,
+                "adults": 2,
+                "children": 0,
+            },
+        }
+    )
+    assert isinstance(msg, ToolMessage)
+    assert isinstance(msg.content, str) and msg.content.strip()
+    assert msg.artifact["kind"] == "hotels"
+
+
+def test_search_hotels_invalid_rooms_type_raises_validation_error(agent_db):
+    with pytest.raises(ValidationError):
+        search_hotels.invoke(
+            {
+                "type": "tool_call",
+                "id": "t1",
+                "name": "search_hotels",
+                "args": {
+                    "city": "Da Nang",
+                    "check_in": "2027-03-15",
+                    "check_out": "2027-03-18",
+                    "rooms": "not-a-number",
+                    "adults": 2,
+                    "children": 0,
+                },
+            }
+        )

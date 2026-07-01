@@ -8,13 +8,33 @@ the backend), so the tools are async too. Upstream failures map to
 from __future__ import annotations
 
 from langchain_core.tools import ToolException, tool
+from pydantic import Field
 
 from app.exceptions import AppError
 from app.schemas.air_quality import AirQualityResponse
+from app.schemas.base import AppBaseModel
 from app.schemas.weather import WeatherResponse
 from app.services import air_quality_service, weather_service
 from app.streaming.panels import AirQualityPanel, WeatherPanel
 from app.tools._base import dump, log_tool_call, panel_result
+
+
+class GetWeatherArgs(AppBaseModel):
+    city: str = Field(..., description="The city to get the forecast for.")
+    days: int | None = Field(
+        None, description="Number of forecast days (service default when omitted)."
+    )
+
+
+class GetPackingArgs(AppBaseModel):
+    city: str = Field(..., description="The city to get the packing suggestion for.")
+    days: int | None = Field(
+        None, description="Number of days to plan for (service default when omitted)."
+    )
+
+
+class GetAirQualityArgs(AppBaseModel):
+    city: str = Field(..., description="The city to get the air-quality forecast for.")
 
 
 def _weather_summary(r: WeatherResponse) -> str:
@@ -50,7 +70,7 @@ def _weather_summary(r: WeatherResponse) -> str:
     return "\n".join(lines)
 
 
-@tool(response_format="content_and_artifact")
+@tool(args_schema=GetWeatherArgs, response_format="content_and_artifact")
 async def get_weather(city: str, days: int | None = None):
     """Get the multi-day weather forecast for a city (temps, conditions, score).
 
@@ -71,7 +91,7 @@ async def get_weather(city: str, days: int | None = None):
     )
 
 
-@tool
+@tool(args_schema=GetPackingArgs)
 async def get_packing(city: str, days: int | None = None) -> dict:
     """Get a weather-driven packing suggestion for a city over the next days.
 
@@ -103,7 +123,7 @@ def _air_quality_summary(r: AirQualityResponse) -> str:
     return "\n".join(lines)
 
 
-@tool(response_format="content_and_artifact")
+@tool(args_schema=GetAirQualityArgs, response_format="content_and_artifact")
 async def get_air_quality(city: str):
     """Get the current air-quality forecast (US AQI + category) for a city.
 

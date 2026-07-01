@@ -12,12 +12,28 @@ domain errors to ``ToolException`` so the agent can self-correct.
 from __future__ import annotations
 
 from langchain_core.tools import ToolException, tool
+from pydantic import Field
 
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.schemas.route import RouteResponse
 from app.services.routing_service import RoutingService
 from app.streaming.panels import RoutePanel
 from app.tools._base import log_tool_call, panel_result, session_scope
+
+
+class GetRouteArgs(AppBaseModel):
+    origin_place_id: str = Field(
+        ..., description="The origin place's id or PLC-XXXX short code."
+    )
+    destination_place_id: str = Field(
+        ..., description="The destination place's id or PLC-XXXX short code."
+    )
+
+
+class GetCityRouteArgs(AppBaseModel):
+    origin_city: str = Field(..., description="The origin city name.")
+    destination_city: str = Field(..., description="The destination city name.")
 
 
 def _route_panel(r: RouteResponse) -> tuple[str, dict]:
@@ -39,7 +55,7 @@ def _route_panel(r: RouteResponse) -> tuple[str, dict]:
     return panel_result(summary, kind="route", data=RoutePanel.from_route_response(r))
 
 
-@tool(response_format="content_and_artifact")
+@tool(args_schema=GetRouteArgs, response_format="content_and_artifact")
 async def get_route(origin_place_id: str, destination_place_id: str):
     """Get distance and travel time between two places (by id or PLC-XXXX code).
 
@@ -63,7 +79,7 @@ async def get_route(origin_place_id: str, destination_place_id: str):
     return _route_panel(r)
 
 
-@tool(response_format="content_and_artifact")
+@tool(args_schema=GetCityRouteArgs, response_format="content_and_artifact")
 async def get_city_route(origin_city: str, destination_city: str):
     """Get distance and travel time between two cities by name.
 

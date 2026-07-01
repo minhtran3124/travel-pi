@@ -15,15 +15,25 @@ from typing import Annotated
 from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
+from pydantic import Field
 
 from app.memory.store import search_episodes, search_preferences, upsert_preference
 from app.tools._base import log_tool_call
 
+# NOTE: these tools take ``user_id``/``store`` as LangGraph-injected args
+# (InjectedState/InjectedStore). An explicit ``args_schema=`` that omits those
+# injected params breaks ToolNode injection (it derives injection targets from the
+# tool's schema) — the tool then gets called without them and raises "missing
+# required positional arguments". So the model-facing descriptions are attached
+# inline via ``Annotated[..., Field(description=...)]`` on the signature, and no
+# explicit ``args_schema`` is passed: LangChain auto-derives the schema while
+# keeping the injected args out of the model-facing ``tool_call_schema``.
+
 
 @tool
 def save_user_preference(
-    key: str,
-    text: str,
+    key: Annotated[str, Field(description="Preference key/name to store under.")],
+    text: Annotated[str, Field(description="Free-text preference value.")],
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
 ) -> str:
@@ -36,7 +46,9 @@ def save_user_preference(
         model-supplied).
     :return: Confirmation message.
     """
-    log_tool_call("save_user_preference", {"key": key, "text": text, "user_id": user_id})
+    log_tool_call(
+        "save_user_preference", {"key": key, "text": text, "user_id": user_id}
+    )
     upsert_preference(store, user_id, key, {"text": text})
     return f"Saved preference '{key}'."
 
@@ -45,7 +57,9 @@ def save_user_preference(
 def get_user_preferences(
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
-    query: str | None = None,
+    query: Annotated[
+        str | None, Field(description="Optional free-text filter.")
+    ] = None,
 ) -> list:
     """Recall the traveller's saved preferences (optionally filtered by a query).
 
@@ -64,7 +78,9 @@ MEMORY_TOOLS = [save_user_preference, get_user_preferences]
 
 @tool
 def recall_past_trips(
-    query: str,
+    query: Annotated[
+        str, Field(description="Free-text query to filter past trip episodes.")
+    ],
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
 ) -> list:

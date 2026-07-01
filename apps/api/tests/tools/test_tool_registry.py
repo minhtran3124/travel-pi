@@ -77,6 +77,56 @@ def test_all_tools_deduped():
     assert len(names) == len(set(names))  # no duplicates
 
 
+def _all_tools():
+    from app.tools.registry import ALL_TOOLS
+
+    return list(ALL_TOOLS)
+
+
+def _has_injected_args(tool):
+    """True if the tool carries LangGraph-injected args (InjectedState/InjectedStore).
+
+    Detected structurally: injected args appear in the full input schema but are
+    stripped from the model-facing ``tool_call_schema``.
+    """
+    full = set(tool.get_input_schema().model_fields)
+    facing = set(tool.tool_call_schema.model_fields)
+    return full != facing
+
+
+@pytest.mark.parametrize("tool", _all_tools(), ids=lambda t: t.name)
+def test_every_tool_has_explicit_described_schema(tool):
+    """Every registered tool must expose an EXPLICIT, described model-facing schema (MIN-46).
+
+    LangChain auto-derives a non-None ``args_schema`` from the signature when none
+    is supplied, so ``is not None`` is not enough. Two valid shapes:
+
+    * Normal tools: a hand-authored ``<Tool>Args`` schema living in ``app.tools.*``.
+    * Injection-bearing tools (InjectedState/InjectedStore): an explicit
+      ``args_schema`` that omits the injected args would break ToolNode injection,
+      so they keep the auto-derived schema but attach model-facing descriptions
+      inline via ``Annotated[..., Field(description=...)]``. We require every
+      model-facing field to carry a description instead.
+
+    This guard blocks a future tool (e.g. from MIN-42) shipping with an
+    undocumented, auto-derived schema.
+    """
+    assert tool.args_schema is not None
+    if _has_injected_args(tool):
+        facing = tool.tool_call_schema.model_fields
+        assert facing, f"{tool.name} exposes no model-facing args"
+        for name, field in facing.items():
+            assert field.description, (
+                f"{tool.name}.{name} has no description — add "
+                f"Annotated[..., Field(description=...)] on the signature."
+            )
+    else:
+        assert tool.args_schema.__module__.startswith("app.tools"), (
+            f"{tool.name} uses an auto-derived args_schema "
+            f"({tool.args_schema.__module__}) — declare an explicit <Tool>Args(AppBaseModel)."
+        )
+
+
 def test_memory_tool_hides_injected_store_and_user_id():
     from app.tools.memory_tools import save_user_preference
 
