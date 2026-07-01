@@ -77,6 +77,28 @@ def test_all_tools_deduped():
     assert len(names) == len(set(names))  # no duplicates
 
 
+def _all_tools():
+    from app.tools.registry import ALL_TOOLS
+
+    return list(ALL_TOOLS)
+
+
+@pytest.mark.parametrize("tool", _all_tools(), ids=lambda t: t.name)
+def test_every_tool_has_hand_authored_args_schema(tool):
+    """Every registered tool must declare an EXPLICIT args_schema (MIN-46).
+
+    LangChain auto-derives a non-None ``args_schema`` from the function signature
+    when none is supplied, so ``is not None`` is not enough — a hand-authored
+    schema lives in an ``app.tools.*`` module. This guard blocks any future tool
+    (e.g. from MIN-42) shipping without one.
+    """
+    assert tool.args_schema is not None
+    assert tool.args_schema.__module__.startswith("app.tools"), (
+        f"{tool.name} uses an auto-derived args_schema "
+        f"({tool.args_schema.__module__}) — declare an explicit <Tool>Args(AppBaseModel)."
+    )
+
+
 def test_memory_tool_hides_injected_store_and_user_id():
     from app.tools.memory_tools import save_user_preference
 
