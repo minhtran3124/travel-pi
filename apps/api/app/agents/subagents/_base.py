@@ -9,10 +9,11 @@ Compiled subgraphs are added as nodes to the supervisor graph (Task 5.4); the
 parent's checkpointer and store propagate into these nested nodes at runtime, so
 tools using ``InjectedStore`` work without per-sub-agent wiring.
 
-C.1 (specs/runtime-context-config): ``build_subagent`` now accepts a
+C.1 (specs/runtime-context-config): ``build_subagent`` accepts a
 ``resolve_model`` callable instead of a fixed ``llm``. The ``assistant`` node
-resolves + binds the model **per request** from ``runtime.context.model``, so the
-sub-agent's chat model can be selected at invoke time from ``AgentContext``.
+resolves + binds the model via ``resolve_model(None)`` — the per-request model
+hint was removed in MIN-43; model selection now comes from the DB/env-backed
+``get_agent_llm`` config.
 """
 
 from __future__ import annotations
@@ -34,7 +35,6 @@ from app.agents.state import (
     ground_current_date,
     system_with_summary,
 )
-from app.enums import ResponseStyle
 from app.prompts.registry import registry
 
 logger = logging.getLogger(__name__)
@@ -94,14 +94,10 @@ def build_subagent(
     def assistant(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
         logger.info("[agent] node=%s (assistant)", name)
         ctx = runtime.context if runtime.context is not None else None
-        ctx_model = ctx.model if ctx is not None else None
         allow_rag = ctx.allow_rag if ctx is not None else True
         allow_episodic = ctx.allow_episodic if ctx is not None else True
-        response_style = (
-            ctx.response_style if ctx is not None else ResponseStyle.DEFAULT
-        )
 
-        model = resolve_model(ctx_model)
+        model = resolve_model(None)
 
         # Filter the RAG + episodic-recall tools when the context disables them
         # (e.g. fast mode / free-tier constraint for RAG).
@@ -113,19 +109,9 @@ def build_subagent(
         ]
         bound = model.bind_tools(active_tools) if active_tools else model
 
-        # Inject a style directive into the system prompt based on response_style.
-        if response_style == ResponseStyle.CONCISE:
-            effective_system = SystemMessage(content=system.content + "\n\nBe brief.")
-        elif response_style == ResponseStyle.DETAILED:
-            effective_system = SystemMessage(
-                content=system.content + "\n\nBe thorough."
-            )
-        else:
-            effective_system = system
-
         response = bound.invoke(
             [
-                system_with_summary(state, ground_current_date(effective_system)),
+                system_with_summary(state, ground_current_date(system)),
                 *state["messages"],
             ]
         )

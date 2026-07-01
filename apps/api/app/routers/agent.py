@@ -136,10 +136,9 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
 def _resolve_context(
     effective_user_id: str,
     authenticated: bool,
-    mode: str | None,
     session: Session,
 ) -> AgentContext:
-    """Resolve the per-run AgentContext (mode from the client, tier from the BE).
+    """Resolve the per-run AgentContext (tier resolved server-side).
 
     Security: ``tier`` is resolved server-side from the users table and is never
     read from the request body.  When authenticated the effective Supabase id is
@@ -147,7 +146,6 @@ def _resolve_context(
 
     :param effective_user_id: The effective user id (JWT sub or anonymous).
     :param authenticated: Whether the caller presented a valid JWT.
-    :param mode: The client-requested agent mode, if any.
     :param session: The request-scoped DB session, used for the tier lookup.
     :return: The resolved AgentContext.
     """
@@ -157,7 +155,7 @@ def _resolve_context(
         tier = user_repo.get_tier(effective_user_id)
     else:
         tier = Tier.FREE.value
-    return resolve_agent_context(tier=tier, mode=mode)
+    return resolve_agent_context(tier=tier)
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
@@ -177,7 +175,7 @@ async def agent_chat(
     """
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
-    ctx = _resolve_context(uid, auth_user is not None, body.mode, session)
+    ctx = _resolve_context(uid, auth_user is not None, session)
     # Quota guard — raises QuotaExceededError (429) before any work begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
@@ -271,7 +269,7 @@ async def agent_stream(
     """
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
-    ctx = _resolve_context(uid, auth_user is not None, body.mode, session)
+    ctx = _resolve_context(uid, auth_user is not None, session)
     # Quota guard — raises QuotaExceededError (429) before streaming begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 

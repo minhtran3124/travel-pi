@@ -26,7 +26,6 @@ from pydantic import PrivateAttr
 from app.agents.constants import FAST_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
-from app.enums import ModelHint
 
 # Maps provider -> the settings field holding its API key.
 _PROVIDER_KEY_FIELD = {
@@ -101,33 +100,20 @@ def get_fast_llm(model: str | None = None) -> BaseChatModel:
     return get_llm(model, fast=True)
 
 
-def get_agent_llm(agent_name: str, model: ModelHint | None = None) -> BaseChatModel:
+def get_agent_llm(agent_name: str) -> BaseChatModel:
     """Build the chat model for a specific graph node.
 
-    Resolves ``settings.agent_llm_configs[agent_name]`` with fallback: provider
-    defaults to the global ``llm_provider``, model to the node's tier default
-    (fast vs main), and any extra config key passes through to the model. A node
-    with no override behaves exactly like ``get_llm()`` / ``get_fast_llm()``.
-
-    ``model`` is a semantic hint from ``AgentContext.model`` (per-request):
-    ``None``           → today's per-agent default (respects ``FAST_AGENTS``).
-    ``ModelHint.FAST`` → force the fast-tier model regardless of agent name.
-    ``ModelHint.DEEP`` → force the main (non-fast) model. A dedicated
-                         ``STRONG_LLM_MODEL`` setting can be introduced later
-                         when a third premium model is configured.
+    Resolves the DB-backed override (``AgentConfigCache``), then
+    ``settings.agent_llm_configs[agent_name]``, then the global default, per
+    field (provider/model/base_url). Model falls back to the node's tier
+    default (fast vs main, via ``FAST_AGENTS``) when nothing overrides it. A
+    node with no override behaves exactly like ``get_llm()`` / ``get_fast_llm()``.
 
     :param agent_name: The graph node name to resolve config for.
-    :param model: Semantic hint overriding the per-agent default tier.
     :return: A chat model.
     """
     s = get_settings()
     fast = agent_name in FAST_AGENTS
-
-    # Apply semantic model hint from runtime context when provided.
-    if model == ModelHint.FAST:
-        fast = True
-    elif model == ModelHint.DEEP:
-        fast = False  # No dedicated strong model yet; fall through to main model.
 
     cfg = s.agent_llm_configs.get(agent_name)
     ov = AgentConfigCache.get(agent_name)

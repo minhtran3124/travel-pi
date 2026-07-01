@@ -333,3 +333,52 @@ removes the per-turn `mode` selector (model now comes from the DB config, not fr
     assuming a clean table (e.g. `repo.get("concierge") is None`) failed only in the full-suite
     run, not in isolation. Rewrote to use a dedicated per-test temp DB (matching
     `tests/db/test_agent_models.py`'s pattern) instead of the shared fixture.
+
+- 2026-07-01 — **Task B.1 executed; two more B.1/B.2 discrepancies found while making its own
+  `<verify>` pass.**
+
+  - B.1's `<verify>` runs the *whole* `tests/agents` directory, but `tests/agents/test_agent_context.py`
+    (assigned to B.2's file set) breaks the instant `context.py`'s `resolve_agent_context` signature
+    changes — B.1 and B.2 aren't actually independently verifiable. Rewrote
+    `test_agent_context.py` inside B.1 (dropped `mode`, kept the tier matrix) since it's mechanically
+    required for B.1's own verify to pass, not a scope choice.
+  - Confirmed in code that B.1 action item (4) (remove the CONCISE/DETAILED prompt-injection
+    branches from `_base.py`) makes those two `response_style` tests in `test_depth_toggles.py`
+    untestable (the behavior they assert no longer exists) — removed
+    `test_response_style_concise_adds_be_brief` / `test_response_style_detailed_adds_be_thorough`,
+    kept `test_response_style_default_adds_no_directive` + the `allow_reflection`/`allow_rag`
+    tests. Refines the earlier NO-CHANGE classification: the file survives (correct), but 2 of
+    its 10 tests do not.
+  - `tests/agents/test_tier_gating.py`'s `_free_ctx`/`_premium_ctx` helpers took a `mode=`
+    param (one call site used `mode="fast"`); dropped the param and renamed that call site's
+    test to describe what it now asserts (gate applies regardless of message wording, not mode).
+  - `tests/agents/test_memory_extraction.py`'s two `AgentContext(..., mode=ChatMode.FAST, ...)`
+    constructor calls: dropped `mode=` only, kept `allow_memory_write=False` (still a directly
+    settable field, so the tests' actual assertions stay valid).
+  - `tests/agents/test_context_episodic.py` / `test_context_memory_write.py`: recon's REWRITE
+    label undersold the change — most of each file's tests assert *mode-conditional* behavior
+    (FAST disables memory_write, all modes resolve episodic=True) that no longer exists now that
+    `resolve_agent_context` returns fixed BALANCED capabilities. Deleted the mode-differentiated
+    tests, kept the default-ctor test + the "free tier does not gate this flag" invariant test in
+    each file (dropping `mode=` there too).
+  - `tests/agents -x -q` green (98 passed).
+
+- 2026-07-01 — **Task B.2 executed.** `ChatRequest.mode` removed (validator untouched);
+  `_resolve_context`/router call sites drop `mode`/`body.mode`; `test_mode_context.py` deleted.
+
+  ### Deviations
+  - Rule 1 — recon's grep pass surfaced `resolve_agent_context`/`mode=` hits in
+    `tests/api/agent/test_identity_hybrid.py` (a `resolve_agent_context` spy with signature
+    `spy(*, tier, mode)`) but it wasn't called out in the recorded DELETE/REWRITE/NO-CHANGE
+    lists or added to B.1/B.2's file sets — a gap in the recon pass itself, not just the
+    original plan. Dropped `mode` from the spy signature and forwarding call.
+  - Confirmed via `grep -rn "ChatMode\|ModelHint\|body\.mode" app/ tests/`: zero real hits
+    (`BaseChatModel` substring matches only). `tests/api/agent tests/agents -x -q` green
+    (164 passed).
+
+- 2026-07-01 — **Task B.3 executed.** Rebuilt `travel.db`. Full suite: 1164 passed on SQLite;
+  1164 passed on Postgres via `make test-docker` (exact parity). Final residual-symbol grep
+  clean (only `BaseChatModel` false-positive matches). `ruff check` clean. Committing with
+  `RISK_WARN_CATEGORIES="public-contract"` per the plan's §5 risk note — `mode` leaves
+  `ChatRequest`. Weakening-validation: N/A, `_require_message_or_resume` was explicitly kept
+  untouched in B.2.

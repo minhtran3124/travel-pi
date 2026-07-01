@@ -1,10 +1,10 @@
 """Agent-domain constants — one home for the flat, tunable values.
 
-Enum-valued *types* live in ``app/enums.py`` (``ChatMode``, ``Tier``, …); this
-module holds the plain constants the agent layer shares across modules: the safe
-(tier, mode) defaults, the canonical sub-agent name sets, the fast-tier node
-set, the RAG tool name, the reflection cap, and user-facing copy. Keeping them
-together makes them easy to find and change without hunting through nodes.
+Enum-valued *types* live in ``app/enums.py`` (``Tier``, …); this module holds
+the plain constants the agent layer shares across modules: the safe tier
+default, the canonical sub-agent name sets, the fast-tier node set, the RAG
+tool name, the reflection cap, and user-facing copy. Keeping them together
+makes them easy to find and change without hunting through nodes.
 
 Import from here rather than redefining; the previous home modules now re-export
 these so existing import paths keep working.
@@ -12,11 +12,10 @@ these so existing import paths keep working.
 
 from __future__ import annotations
 
-from app.enums import ChatMode, Tier
+from app.enums import Tier
 
-# --- (tier, mode) resolution defaults -------------------------------------
-# Unknown/None tier or mode fall back to these in ``resolve_agent_context``.
-DEFAULT_MODE: ChatMode = ChatMode.BALANCED
+# --- tier resolution default ------------------------------------------------
+# Unknown/None tier falls back to this in ``resolve_agent_context``.
 DEFAULT_TIER: Tier = Tier.FREE
 
 # --- sub-agent inventory --------------------------------------------------

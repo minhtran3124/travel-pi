@@ -18,12 +18,12 @@ def _runtime(ctx: AgentContext) -> SimpleNamespace:
     return SimpleNamespace(context=ctx)
 
 
-def _free_ctx(mode: str = "balanced") -> AgentContext:
-    return resolve_agent_context(tier="free", mode=mode)
+def _free_ctx() -> AgentContext:
+    return resolve_agent_context(tier="free")
 
 
-def _premium_ctx(mode: str = "balanced") -> AgentContext:
-    return resolve_agent_context(tier="premium", mode=mode)
+def _premium_ctx() -> AgentContext:
+    return resolve_agent_context(tier="premium")
 
 
 # ---------------------------------------------------------------------------
@@ -86,8 +86,8 @@ def test_free_non_booking_routes_normally():
     assert cmd.update["current_flow"] == "planner"
 
 
-def test_free_fast_booking_also_blocked():
-    """Gate applies across all free modes (fast included)."""
+def test_free_booking_blocked_regardless_of_message_wording():
+    """Gate applies to any free-tier booking-intent phrasing."""
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -96,7 +96,7 @@ def test_free_fast_booking_also_blocked():
 
     cmd = supervisor(
         {"messages": [HumanMessage(content="book me a flight")]},
-        _runtime(_free_ctx(mode="fast")),
+        _runtime(_free_ctx()),
     )
 
     assert cmd.goto == END
