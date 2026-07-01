@@ -1,6 +1,6 @@
 ---
 slug: min-43-db-agent-config
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-01
 linear: MIN-43
