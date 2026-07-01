@@ -8,14 +8,59 @@ this is the service's documented behaviour.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from langchain_core.tools import ToolException, tool
+from pydantic import Field
 
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.services.place_service import PlaceService
 from app.tools._base import dump, log_tool_call, session_scope
 
 
-@tool
+class SearchPlacesArgs(AppBaseModel):
+    city: str | None = Field(
+        None,
+        description="City to search within; fuzzy matched. None to search all cities.",
+    )
+    category: str | None = Field(None, description="Place category filter.")
+    min_rating: float | None = Field(
+        None, ge=0, le=5, description="Keep only places at or above this rating."
+    )
+    price_level: int | None = Field(
+        None, ge=1, le=4, description="Price level filter (1-4)."
+    )
+
+
+class NearbyPlacesArgs(AppBaseModel):
+    place_id: str = Field(
+        ..., description="The anchor place's id or PLC-XXXX short code."
+    )
+    radius_km: float = Field(
+        5.0, description="Search radius in kilometers (default 5.0)."
+    )
+    category: str | None = Field(
+        None, description="Optional category filter for nearby results."
+    )
+
+
+class ResolvePlaceArgs(AppBaseModel):
+    place_id: str = Field(..., description="The place's id or PLC-XXXX short code.")
+    source: Literal["catalog", "saved"] = Field(
+        "catalog", description="Where to resolve the place from: 'catalog' or 'saved'."
+    )
+
+
+class ParseNlQueryArgs(AppBaseModel):
+    query: str = Field(..., description="Free-text place query.")
+
+
+class ListPlaceCategoriesArgs(AppBaseModel):
+    pass
+
+
+@tool(args_schema=SearchPlacesArgs)
 def search_places(
     city: str | None = None,
     category: str | None = None,
@@ -48,7 +93,7 @@ def search_places(
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=NearbyPlacesArgs)
 def nearby_places(
     place_id: str,
     radius_km: float = 5.0,
@@ -77,12 +122,12 @@ def nearby_places(
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=ResolvePlaceArgs)
 def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
     """Resolve a place by id or PLC-XXXX short code.
 
     :param place_id: The place's id or PLC-XXXX short code.
-    :param source: 'catalog' | 'saved'.
+    :param source: Where to resolve the place from: 'catalog' or 'saved'.
     :return: The place dict, or None if not found.
     """
     log_tool_call("resolve_place", locals())
@@ -94,7 +139,7 @@ def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=ParseNlQueryArgs)
 def parse_nl_query(query: str) -> dict:
     """Parse a free-text place query into structured filters.
 
@@ -112,7 +157,7 @@ def parse_nl_query(query: str) -> dict:
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=ListPlaceCategoriesArgs)
 def list_place_categories() -> list:
     """List all distinct place categories with display metadata (color, icon).
 

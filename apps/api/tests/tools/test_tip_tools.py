@@ -1,7 +1,44 @@
-"""Local-tips tool tests (specs/local-tip-agent-tool)."""
+"""Local-tips tool tests (specs/local-tip-agent-tool, specs/standardize-tool-args-schema Task 2.4)."""
+
+import json
 
 import pytest
 from langchain_core.tools import ToolException
+from pydantic import ValidationError
+
+TIP_CATEGORY_VALUES = [
+    "transport",
+    "money",
+    "safety",
+    "culture",
+    "food",
+    "connectivity",
+    "health",
+    "etiquette",
+    "best_time",
+    "language",
+]
+
+
+def test_get_local_tips_has_args_schema():
+    from app.tools.tip_tools import GetLocalTipsArgs, get_local_tips
+
+    assert get_local_tips.args_schema is GetLocalTipsArgs
+
+
+def test_get_local_tips_schema_lists_all_category_values():
+    from app.tools.tip_tools import get_local_tips
+
+    schema_json = json.dumps(get_local_tips.get_input_schema().model_json_schema())
+    for value in TIP_CATEGORY_VALUES:
+        assert value in schema_json
+
+
+def test_get_local_tips_invalid_category_raises_on_invoke():
+    from app.tools.tip_tools import get_local_tips
+
+    with pytest.raises(ValidationError):
+        get_local_tips.invoke({"country": "Vietnam", "category": "not-a-category"})
 
 
 def test_get_local_tips_returns_response_for_seeded_country(agent_db):

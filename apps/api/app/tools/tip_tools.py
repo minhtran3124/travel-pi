@@ -11,13 +11,39 @@ behaviour), never an error.
 from __future__ import annotations
 
 from langchain_core.tools import ToolException, tool
+from pydantic import Field
 
+from app.enums import TipCategory
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.services.tip_service import TipService
 from app.tools._base import dump, log_tool_call, session_scope
 
 
-@tool
+class GetLocalTipsArgs(AppBaseModel):
+    city: str | None = Field(
+        None,
+        description=(
+            "City to get tips for (fuzzy matched); takes precedence over "
+            "`country`. At least one of `city` or `country` is required."
+        ),
+    )
+    country: str | None = Field(
+        None,
+        description=(
+            "Country to get tips for (fuzzy matched). At least one of "
+            "`city` or `country` is required."
+        ),
+    )
+    category: TipCategory | None = Field(
+        None, description="Optional filter to a single tip category."
+    )
+    essential_only: bool = Field(
+        False, description="Keep only the must-know advice (default False)."
+    )
+
+
+@tool(args_schema=GetLocalTipsArgs)
 def get_local_tips(
     city: str | None = None,
     country: str | None = None,
@@ -33,8 +59,7 @@ def get_local_tips(
 
     :param city: City to get tips for (fuzzy matched); takes precedence over ``country``.
     :param country: Country to get tips for (fuzzy matched).
-    :param category: Optional filter — transport, money, safety, culture, food,
-        connectivity, health, etiquette, best_time, or language.
+    :param category: Optional filter to a single tip category.
     :param essential_only: Keep only the must-know advice (default False).
     :return: ``{city, country, count, summary, tips: [{category, title, content,
         is_essential, ...}]}``.

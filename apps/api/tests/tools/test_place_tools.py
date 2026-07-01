@@ -1,7 +1,67 @@
-"""Place tools tests (specs/travel-agent Task 3.2)."""
+"""Place tools tests (specs/travel-agent Task 3.2; args_schema Task 2.3)."""
+
+import json
 
 import pytest
+from app.tools.place_tools import (
+    ListPlaceCategoriesArgs,
+    NearbyPlacesArgs,
+    ParseNlQueryArgs,
+    ResolvePlaceArgs,
+    SearchPlacesArgs,
+    list_place_categories,
+    nearby_places,
+    parse_nl_query,
+    resolve_place,
+    search_places,
+)
 from langchain_core.tools import ToolException
+from pydantic import ValidationError
+
+
+def test_all_place_tools_have_args_schema():
+    assert search_places.args_schema is SearchPlacesArgs
+    assert nearby_places.args_schema is NearbyPlacesArgs
+    assert resolve_place.args_schema is ResolvePlaceArgs
+    assert parse_nl_query.args_schema is ParseNlQueryArgs
+    assert list_place_categories.args_schema is ListPlaceCategoriesArgs
+
+
+def test_search_places_price_level_invalid_raises_on_invoke():
+    with pytest.raises(ValidationError):
+        search_places.invoke(
+            {
+                "type": "tool_call",
+                "id": "t1",
+                "name": "search_places",
+                "args": {"price_level": 7},
+            }
+        )
+
+
+def test_search_places_min_rating_bounds_in_schema():
+    schema = search_places.get_input_schema().model_json_schema()
+    min_rating_schema = schema["properties"]["min_rating"]["anyOf"][0]
+    assert min_rating_schema.get("minimum") == 0
+    assert min_rating_schema.get("maximum") == 5
+
+
+def test_search_places_price_level_bounds_in_schema():
+    schema = search_places.get_input_schema().model_json_schema()
+    price_level_schema = schema["properties"]["price_level"]["anyOf"][0]
+    assert price_level_schema.get("minimum") == 1
+    assert price_level_schema.get("maximum") == 4
+
+
+def test_resolve_place_schema_lists_source_enum_values():
+    schema_json = json.dumps(resolve_place.get_input_schema().model_json_schema())
+    assert "catalog" in schema_json
+    assert "saved" in schema_json
+
+
+def test_list_place_categories_schema_has_no_properties():
+    schema = list_place_categories.get_input_schema().model_json_schema()
+    assert schema.get("properties", {}) == {}
 
 
 def test_search_places_returns_list_for_seeded_city(agent_db):
