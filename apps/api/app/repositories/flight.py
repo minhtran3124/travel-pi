@@ -33,6 +33,9 @@ class FlightIndexRepository(Repo):
         nothing, both insert the same ``flight_id``, and the loser's COMMIT
         would raise an ``IntegrityError`` (PK violation) -> HTTP 500. The
         upsert-ignore inserts every new row and silently drops duplicates.
+
+        :param rows: ``(flight_id, origin, destination, departure_date)`` tuples
+            to record.
         """
         if not rows:
             return

@@ -56,6 +56,11 @@ class TipService:
 
         The repo returns tips ordered by ``position`` with stable ids; this sets the
         optional ``location`` field used by the dashboard's mixed-destination view.
+
+        :param scope: The tip scope (``"country"`` or ``"city"``).
+        :param key: The country or city name to look up.
+        :param location_label: The presentation label to attach, if any.
+        :return: The tips for the location with the label applied.
         """
         tips = self._tip_repo.for_location(scope, key)
         if location_label is not None:
@@ -77,6 +82,12 @@ class TipService:
         precedence and resolves its own country). Both are matched fuzzily — a
         typo or partial name still resolves. Caller is responsible for rejecting
         the case where neither is provided.
+
+        :param city: The city to look up; takes precedence over ``country``.
+        :param country: The country to look up when no ``city`` is given.
+        :param category: Restrict tips to this category, if set.
+        :param essential_only: When true, return only essential tips.
+        :return: The merged tips response for the destination.
         """
         resolved_country: str | None = None
         resolved_city: str | None = None
@@ -134,6 +145,10 @@ class TipService:
         The assembly stays in the service (not ``tip_repo.all_tips``) so the merge
         order — every country first (alphabetical by name), then every city in seed
         order — and the ``location`` labels match the previous behaviour exactly.
+
+        :param category: Restrict tips to this category, if set.
+        :param essential_only: When true, return only essential tips.
+        :return: The merged tips response across all destinations.
         """
         tips: list[Tip] = []
 
@@ -171,5 +186,9 @@ class TipService:
 def get_tip_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> TipService:
-    """FastAPI dependency: a tip service bound to the request session."""
+    """FastAPI dependency: a tip service bound to the request session.
+
+    :param session: The request-scoped DB session.
+    :return: A tip service bound to the session.
+    """
     return TipService(session)

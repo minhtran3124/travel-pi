@@ -26,6 +26,9 @@ def _norm(text: str) -> str:
     canonical NFD decomposition, so it is mapped explicitly; the remaining
     Vietnamese/Latin accents (à, ẵ, ế, …) decompose to a base letter plus a
     combining mark, which is then dropped.
+
+    :param text: The raw text to normalise.
+    :return: The trimmed, lowercased, diacritic-folded text.
     """
     lowered = text.strip().lower().replace("đ", "d")
     decomposed = unicodedata.normalize("NFD", lowered)
@@ -39,6 +42,10 @@ def match_score(query: str, candidate: str) -> float:
     else falls back to a difflib similarity ratio. Ratios below
     :data:`_FUZZY_THRESHOLD` are flattened to 0.0 ("no match"). An empty
     query matches everything (score 1.0).
+
+    :param query: The free-text search query.
+    :param candidate: The candidate string to score against.
+    :return: A relevance score between 0.0 (no match) and 1.0 (exact match).
     """
     q, c = _norm(query), _norm(candidate)
     if not q:
@@ -64,6 +71,11 @@ def fuzzy_filter(
     is the best score across its keys. Items scoring 0.0 are dropped, and
     the survivors come back sorted best-match-first (stable for ties). An
     empty or whitespace-only ``query`` returns ``items`` unchanged.
+
+    :param query: The free-text search query, or None.
+    :param items: The candidate items to filter and rank.
+    :param keys: Accessors mapping an item to a searchable string field.
+    :return: ``items`` filtered to matches and sorted best-match-first.
     """
     items = list(items)
     if not query or not query.strip():
@@ -87,6 +99,11 @@ def best_match(
     name to one canonical record" lookups. Unlike ``fuzzy_filter``, an
     empty/whitespace query yields ``None`` (not the first item), so callers
     can treat "no input" and "no match" the same way.
+
+    :param query: The free-text search query, or None.
+    :param items: The candidate items to search.
+    :param keys: Accessors mapping an item to a searchable string field.
+    :return: The best-matching item, or None if no match / no query.
     """
     if not query or not query.strip():
         return None

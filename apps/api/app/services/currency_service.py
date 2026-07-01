@@ -29,7 +29,11 @@ class CurrencyService:
         self._fx = FxRepository(session)
 
     def _resolve_code(self, code: str) -> str:
-        """Normalise and validate an ISO 4217 code, or raise ``NotFoundError``."""
+        """Normalise and validate an ISO 4217 code, or raise ``NotFoundError``.
+
+        :param code: Currency code to validate.
+        :return: The normalised (stripped, uppercased) code.
+        """
         normalised = code.strip().upper()
         if self._fx.rate(normalised) is None:
             raise NotFoundError(
@@ -56,7 +60,15 @@ class CurrencyService:
         amount: float,
         country: str | None = None,
     ) -> CurrencyConvertResponse:
-        """Convert ``amount`` from one currency to another using the mock table."""
+        """Convert ``amount`` from one currency to another using the mock table.
+
+        :param from_code: ISO 4217 source currency code.
+        :param to_code: ISO 4217 target currency code.
+        :param amount: The amount to convert, in ``from_code``.
+        :param country: Optional free-text country used to resolve the local
+            currency shown alongside the conversion.
+        :return: The conversion result, including the resolved local currency.
+        """
         src = self._resolve_code(from_code)
         dst = self._resolve_code(to_code)
 
@@ -75,5 +87,9 @@ class CurrencyService:
 def get_currency_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> CurrencyService:
-    """FastAPI dependency: a currency service bound to the request session."""
+    """FastAPI dependency: a currency service bound to the request session.
+
+    :param session: Request-scoped DB session.
+    :return: A ``CurrencyService`` instance.
+    """
     return CurrencyService(session)

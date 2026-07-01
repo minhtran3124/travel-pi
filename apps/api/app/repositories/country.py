@@ -36,6 +36,8 @@ class CountryRepository(Repo):
         Ordered by ``position`` (the curated ``COUNTRIES`` seed order), so the
         dashboard region tiles keep their hand-curated ordering — symmetric
         with how ``AirlineRepository.list`` preserves airline order.
+
+        :return: All countries, ordered by ``position``.
         """
         with self._session() as s:
             rows = s.scalars(
@@ -44,7 +46,11 @@ class CountryRepository(Repo):
             return [_row_to_dict(r) for r in rows]
 
     def get(self, code: str) -> dict | None:
-        """Return the country for an ISO 3166-1 alpha-2 ``code``, or ``None``."""
+        """Return the country for an ISO 3166-1 alpha-2 ``code``, or ``None``.
+
+        :param code: The ISO 3166-1 alpha-2 country code to look up.
+        :return: The matching country, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Country).where(models.Country.code == code)
@@ -52,7 +58,11 @@ class CountryRepository(Repo):
             return _row_to_dict(row) if row is not None else None
 
     def get_by_name(self, name: str) -> dict | None:
-        """Return the country with display ``name`` (exact), or ``None``."""
+        """Return the country with display ``name`` (exact), or ``None``.
+
+        :param name: The exact country display name to look up.
+        :return: The matching country, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Country).where(models.Country.name == name)
@@ -65,6 +75,8 @@ class CountryRepository(Repo):
         Mirrors ``sorted({c["country"] for c in CITIES})`` — the fuzzy-resolution
         target used by cities/tips/visa. Derived from the ``cities`` table so it
         matches today's behaviour exactly (countries with no cities are excluded).
+
+        :return: Sorted distinct country names present on city records.
         """
         with self._session() as s:
             names = s.scalars(select(models.City.country).distinct()).all()

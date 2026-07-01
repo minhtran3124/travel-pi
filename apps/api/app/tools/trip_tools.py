@@ -21,6 +21,9 @@ def get_trip_summary(trip_id: str) -> dict:
     """Get a trip's full snapshot: days, items, places, budget rollup, and gaps.
 
     Use this first to load context before answering questions or editing a trip.
+
+    :param trip_id: The trip to summarise.
+    :return: The trip's full snapshot.
     """
     with session_scope() as s:
         try:
@@ -31,7 +34,11 @@ def get_trip_summary(trip_id: str) -> dict:
 
 @tool
 def get_trip_budget(trip_id: str) -> dict:
-    """Get the trip's budget: caps, spent-by-category, and remaining amounts."""
+    """Get the trip's budget: caps, spent-by-category, and remaining amounts.
+
+    :param trip_id: The trip to get the budget for.
+    :return: The trip's budget rollup.
+    """
     with session_scope() as s:
         try:
             return dump(TripService(s).get_trip_budget(trip_id))
@@ -41,7 +48,11 @@ def get_trip_budget(trip_id: str) -> dict:
 
 @tool
 def list_trip_places(trip_id: str) -> list:
-    """List the places shortlisted onto a trip."""
+    """List the places shortlisted onto a trip.
+
+    :param trip_id: The trip to list places for.
+    :return: The places shortlisted onto the trip.
+    """
     with session_scope() as s:
         try:
             return dump(TripService(s).list_trip_places(trip_id))
@@ -51,7 +62,13 @@ def list_trip_places(trip_id: str) -> list:
 
 @tool
 def add_place_to_trip(trip_id: str, place_id: str, source: str = "catalog") -> dict:
-    """Shortlist a place onto a trip. source is 'catalog' (default) or 'saved'."""
+    """Shortlist a place onto a trip.
+
+    :param trip_id: The trip to shortlist the place onto.
+    :param place_id: The place's id or PLC-XXXX short code.
+    :param source: 'catalog' (default) or 'saved'.
+    :return: The created trip-place record.
+    """
     with session_scope() as s:
         try:
             return dump(TripService(s).add_place_to_trip(trip_id, place_id, source))
@@ -71,9 +88,17 @@ def add_itinerary_item(
 ) -> dict:
     """Add an itinerary item to a trip day.
 
-    kind: place|food|transport|note|other. status: pending|booked|constraint|
-    optional. Use status='booked' to record something already reserved, and
-    notes to capture details mid-trip.
+    Use status='booked' to record something already reserved, and notes to
+    capture details mid-trip.
+
+    :param trip_id: The trip to add the item to.
+    :param day: The trip day number the item belongs to.
+    :param title: The item's title.
+    :param kind: One of place|food|transport|note|other.
+    :param status: One of pending|booked|constraint|optional.
+    :param notes: Optional free-text notes for the item.
+    :param start_time: Optional start time for the item.
+    :return: The created itinerary item.
     """
     with session_scope() as s:
         try:

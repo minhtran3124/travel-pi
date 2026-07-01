@@ -30,13 +30,19 @@ class HotelRepository(Repo):
 
         Explicit ``ORDER BY position`` so ``/hotels`` offset/limit pagination
         is stable across engines (Postgres makes no row-order guarantee).
+
+        :return: All hotels, ordered by ``position``.
         """
         with self._session() as s:
             stmt = select(models.Hotel).order_by(models.Hotel.position)
             return [_row_to_hotel(r) for r in s.scalars(stmt).all()]
 
     def get(self, hotel_id: str) -> Hotel | None:
-        """Return the hotel by raw UUID ``id``, or ``None``."""
+        """Return the hotel by raw UUID ``id``, or ``None``.
+
+        :param hotel_id: The hotel's raw UUID.
+        :return: The matching hotel, or ``None`` if unknown.
+        """
         with self._session() as s:
             row = s.get(models.Hotel, hotel_id)
             return _row_to_hotel(row) if row is not None else None
@@ -47,6 +53,9 @@ class HotelRepository(Repo):
         Short codes are hash-derived from ``id`` (a Pydantic computed field, not
         a column), so this builds the models and compares — case-insensitive,
         matching ``hotel_service.get_hotel``'s ``HTL-...`` branch.
+
+        :param code: The short code to match, compared case-insensitively.
+        :return: The matching hotel, or ``None`` if no hotel's short code matches.
         """
         needle = code.strip().upper()
         with self._session() as s:
@@ -69,6 +78,13 @@ class HotelRepository(Repo):
         City / stars / price are SQL predicates; ``amenities`` is an
         all-contains refinement done in Python over the fetched rows
         (case-insensitive), mirroring ``hotel_service.search_hotels``.
+
+        :param city: Exact city name to filter by, or ``None`` for all cities.
+        :param min_stars: Minimum ``star_rating`` (inclusive), or ``None``.
+        :param max_price: Maximum ``price_per_night`` (inclusive), or ``None``.
+        :param amenities: Amenities that must all be present (case-insensitive),
+            or ``None``/empty to skip the filter.
+        :return: Hotels matching every supplied filter, in ``position`` order.
         """
         stmt = select(models.Hotel).order_by(models.Hotel.position)
         if city is not None:
@@ -91,7 +107,10 @@ class HotelRepository(Repo):
         return hotels
 
     def count_by_city(self) -> dict[str, int]:
-        """Return ``{city: hotel_count}`` — feeds ``City.hotel_count``."""
+        """Return ``{city: hotel_count}`` — feeds ``City.hotel_count``.
+
+        :return: A mapping of city name to hotel count.
+        """
         stmt = select(models.Hotel.city, func.count()).group_by(models.Hotel.city)
         with self._session() as s:
             return dict(s.execute(stmt).all())
@@ -100,6 +119,8 @@ class HotelRepository(Repo):
         """Return the distinct city names that have hotels, sorted.
 
         The fuzzy-resolution target for ``hotel_service.resolve_city``.
+
+        :return: Sorted distinct city names that have at least one hotel.
         """
         with self._session() as s:
             return sorted(set(s.scalars(select(models.Hotel.city)).all()))

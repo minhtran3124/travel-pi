@@ -46,6 +46,9 @@ def _tool_error_to_message(exc: Exception) -> str:
     timing out) would otherwise propagate out of ``astream`` and 500 the whole
     ``/agent/stream`` request. Annotating ``exc: Exception`` tells ToolNode's
     ``_infer_handled_types`` to catch every tool error.
+
+    :param exc: The exception raised by a tool call.
+    :return: A user-safe message describing the failure.
     """
     return (
         f"Tool call failed: {exc}. This is a temporary upstream problem, not a "
@@ -71,6 +74,15 @@ def build_subagent(
     The shared ``communication_style`` guideline is prepended to every domain
     prompt so all user-facing replies stay warm, concise, and travel-focused —
     translating raw tool data into useful guidance rather than dumping it.
+
+    :param name: The sub-agent's name, used as the compiled graph's node name.
+    :param tools: Domain tools bound to the ``assistant`` node (filtered by
+        context flags at invoke time).
+    :param resolve_model: Callable resolving an ``AgentContext.model`` hint to a
+        chat model, called per request inside ``assistant``.
+    :param prompt: The domain-specific system prompt appended to the shared
+        communication-style guideline.
+    :return: The compiled ReAct subgraph for this sub-agent.
     """
     style = registry.get("communication_style")
     system = SystemMessage(content=f"{style}\n\n{prompt}")

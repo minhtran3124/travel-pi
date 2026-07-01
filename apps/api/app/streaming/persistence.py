@@ -41,6 +41,10 @@ async def persist_assistant_turn(
     ``token`` events since the last ``reset``) is written to the DB as an
     ``assistant`` message via ``session_factory`` (an isolated session — not the
     request-scoped one).  An empty accumulated text is silently skipped (Rule 2).
+
+    :param events_iter: The upstream SSE event stream to pass through.
+    :param conversation_id: The conversation the persisted turn belongs to.
+    :param session_factory: Isolated sessionmaker used to write the message.
     """
     accumulated: list[str] = []
 

@@ -26,7 +26,10 @@ class CityRepository(Repo):
         self._hotels = HotelRepository(session_or_factory)
 
     def distinct_names(self) -> list[str]:
-        """Return every city name (the fuzzy-resolution target)."""
+        """Return every city name (the fuzzy-resolution target).
+
+        :return: All city names in ``models.City``.
+        """
         with self._session() as s:
             return list(s.scalars(select(models.City.name)).all())
 
@@ -44,6 +47,9 @@ class CityRepository(Repo):
         """Return a single city by exact (case-insensitive) ``name``, or ``None``.
 
         Matches ``GET /cities/{city_name}`` — an exact-name lookup, not fuzzy.
+
+        :param name: The city name to match, compared case-insensitively.
+        :return: The matching city with ``hotel_count`` filled in, or ``None``.
         """
         target = name.strip().lower()
         counts = self._hotels.count_by_city()
@@ -57,6 +63,8 @@ class CityRepository(Repo):
         """Return every city as a ``City`` schema, with ``hotel_count`` filled.
 
         Reproduces the cities router's ``_ALL_CITIES`` build (in seed order).
+
+        :return: Every city, in seed order, with ``hotel_count`` filled in.
         """
         counts = self._hotels.count_by_city()
         with self._session() as s:

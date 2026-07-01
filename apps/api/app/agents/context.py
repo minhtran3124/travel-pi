@@ -99,6 +99,12 @@ def resolve_agent_context(
       "deep" to the per-agent default.
     - **premium**: ``allowed_subagents=None`` (all permitted); ``allow_rag``
       follows the mode setting; model unrestricted.
+
+    :param tier: BE-resolved tier (raw string, enum, or None); falls back to
+        ``DEFAULT_TIER`` when unknown/None.
+    :param mode: User-selected chat mode (raw string, enum, or None); falls back
+        to ``DEFAULT_MODE`` when unknown/None.
+    :return: The resolved ``AgentContext`` for this request.
     """
     # Coerce raw strings (from the DB / client body) to enums; unknown or None
     # values fall back to the safe defaults.

@@ -36,6 +36,10 @@ def list_hotels(pagination: PaginationDep, hotels: HotelDep) -> HotelListRespons
     """Return all seeded hotels with pagination.
 
     ``total`` is the full count; use ``limit`` and ``offset`` to page.
+
+    :param pagination: The pagination params (limit/offset).
+    :param hotels: The hotel service.
+    :return: The seeded hotels, paginated.
     """
     page, total = pagination.page_of(hotels.list_hotels())
     return HotelListResponse(
@@ -86,6 +90,14 @@ def search_hotels(
     by stars / price / amenities. To check whether rooms are actually free
     for specific dates, use ``GET /hotels/availability``. Unknown cities
     return ``total: 0`` (not a 404).
+
+    :param pagination: The pagination params (limit/offset).
+    :param hotels: The hotel service.
+    :param city: City name — fuzzy (typo/case tolerant).
+    :param min_stars: Optional minimum star rating (1-5).
+    :param max_price: Optional maximum price per night (USD).
+    :param amenities: Optional required amenities (all must match).
+    :return: The matching hotels, paginated.
     """
     all_results = hotels.search_hotels(
         city, min_stars=min_stars, max_price=max_price, amenities=amenities
@@ -162,6 +174,20 @@ def hotel_availability(
     ``total_price`` (``price_per_night × nights × rooms``). With
     ``available_only=true`` the unavailable hotels are dropped. Unknown
     cities return ``total: 0``; a bad date is **422**.
+
+    :param pagination: The pagination params (limit/offset).
+    :param hotels: The hotel service.
+    :param city: City name — fuzzy (typo/case tolerant).
+    :param check_in: Check-in date, YYYY-MM-DD.
+    :param check_out: Check-out date, YYYY-MM-DD.
+    :param rooms: Rooms needed.
+    :param adults: Adults in the party.
+    :param children: Children in the party.
+    :param available_only: Whether to return only hotels that can take the booking.
+    :param min_stars: Optional minimum star rating (1-5).
+    :param max_price: Optional maximum price per night (USD).
+    :param amenities: Optional required amenities (all must match).
+    :return: The availability check results, paginated.
     """
     try:
         nights, results = hotels.check_availability(
@@ -222,7 +248,12 @@ def get_hotel(
         ),
     ],
 ) -> Hotel:
-    """Return a single hotel, or 404 if the ID does not exist."""
+    """Return a single hotel, or 404 if the ID does not exist.
+
+    :param hotels: The hotel service.
+    :param hotel_id: Hotel UUID from ``/hotels`` or ``/hotels/search``.
+    :return: The matching hotel.
+    """
     hotel = hotels.get_hotel(hotel_id)
     if hotel is None:
         raise NotFoundError(
@@ -261,5 +292,11 @@ def book_hotel(
     """Create a hotel booking, or replay an earlier one for the same key.
 
     ``total_price`` is computed server-side.
+
+    :param request: The booking request body.
+    :param bookings: The booking service.
+    :param idempotency_key: Optional client-supplied key that makes this
+        POST replay-safe.
+    :return: The created (or replayed) booking.
     """
     return bookings.book_hotel(request, idempotency_key=idempotency_key)

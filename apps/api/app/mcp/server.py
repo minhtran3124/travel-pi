@@ -20,7 +20,11 @@ from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 
 
 def build_mcp_server(name: str = "travel-pi") -> FastMCP:
-    """Build a FastMCP server exposing the registry tools."""
+    """Build a FastMCP server exposing the registry tools.
+
+    :param name: The MCP server name advertised to clients.
+    :return: The configured FastMCP server.
+    """
     server = FastMCP(name)
     for tool in ALL_TOOLS:
         meta = TOOL_METADATA[tool.name]

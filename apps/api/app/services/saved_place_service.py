@@ -78,7 +78,11 @@ def init_db() -> None:
 def get_saved_place_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> SavedPlaceService:
-    """FastAPI dependency: a saved-place store bound to the request session."""
+    """FastAPI dependency: a saved-place store bound to the request session.
+
+    :param session: Request-scoped DB session.
+    :return: A ``SavedPlaceService`` instance.
+    """
     return SavedPlaceService(session)
 
 

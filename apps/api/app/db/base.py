@@ -30,7 +30,10 @@ _SEED_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "travel-pi.seed")
 
 
 def new_uuid() -> str:
-    """Return a fresh random UUID4 string — the default PK for runtime rows."""
+    """Return a fresh random UUID4 string — the default PK for runtime rows.
+
+    :return: A random UUID4 string.
+    """
     return str(uuid.uuid4())
 
 
@@ -39,6 +42,9 @@ def deterministic_uuid(*parts: str) -> str:
 
     Seeding reference data through this keeps ``session.merge`` idempotent: the
     same natural key always maps to the same primary key across re-seeds.
+
+    :param parts: Natural-key components, joined to form the UUID5 name.
+    :return: A stable UUID5 string.
     """
     return str(uuid.uuid5(_SEED_NAMESPACE, ":".join(parts)))
 

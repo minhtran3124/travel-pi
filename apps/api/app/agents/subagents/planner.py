@@ -12,7 +12,12 @@ from app.tools.registry import get_tools_for
 
 
 def build_planner(resolve_model: Callable[[str | None], BaseChatModel]):
-    """Compile the planner sub-agent (trip/place/flight/hotel/weather tools)."""
+    """Compile the planner sub-agent (trip/place/flight/hotel/weather tools).
+
+    :param resolve_model: Callable resolving an ``AgentContext.model`` hint to a
+        chat model, called per request inside the sub-agent's ``assistant`` node.
+    :return: The compiled ReAct subgraph for this sub-agent.
+    """
     return build_subagent(
         "planner", get_tools_for("planner"), resolve_model, registry.get("planner")
     )

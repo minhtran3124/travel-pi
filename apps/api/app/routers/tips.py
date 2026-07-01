@@ -59,6 +59,13 @@ def get_tips(
     Provide either ``city`` or ``country``. Unknown locations return
     ``count: 0`` (not a 404). Empty-string params are treated as missing so
     HTML forms don't need to strip blanks.
+
+    :param tips: The tip service.
+    :param city: Optional city name (fuzzy — typo/case tolerant).
+    :param country: Optional country name (fuzzy — typo/case tolerant).
+    :param category: Optional filter by category.
+    :param essential_only: Whether to return only must-know tips.
+    :return: The merged tips for the location.
     """
     # Coerce empty strings → None (HTML forms send "" for an unset field).
     city = city or None

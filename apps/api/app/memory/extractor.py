@@ -35,6 +35,9 @@ def _last_exchange(messages: list[BaseMessage]) -> list[BaseMessage]:
     Picks the last HumanMessage (user turn) and the AIMessage that follows it
     (the agent's answer).  Falls back to the last 2 messages if the pairing
     can't be determined.
+
+    :param messages: Full conversation history to select from.
+    :return: The last user/assistant exchange as a message list.
     """
     user_idx: int | None = None
     for i in range(len(messages) - 1, -1, -1):
@@ -48,7 +51,11 @@ def _last_exchange(messages: list[BaseMessage]) -> list[BaseMessage]:
 
 
 def _parse_content(raw: str) -> ExtractedMemories:
-    """Defensive JSON parse → ``ExtractedMemories``.  Never raises."""
+    """Defensive JSON parse → ``ExtractedMemories``.  Never raises.
+
+    :param raw: Raw LLM response text expected to contain a JSON object.
+    :return: Parsed preferences/instructions/episodes, empty on any parse failure.
+    """
     try:
         obj = json.loads(raw)
     except (json.JSONDecodeError, TypeError):
@@ -100,6 +107,10 @@ def extract_memories(
     Sends the prompt and the last user—assistant exchange to *llm*, then
     defensively parses the JSON reply.  Any error → empty ``ExtractedMemories``
     (best-effort, never raises).
+
+    :param messages: Full conversation history to extract from.
+    :param llm: Chat model used to run the extraction prompt.
+    :return: Extracted preferences, instructions, and episodes.
     """
     prompt = registry.get("memory_extraction")
     exchange = _last_exchange(messages)
@@ -118,7 +129,11 @@ def extract_memories(
 
 
 def _serialize(messages: list[BaseMessage]) -> str:
-    """Turn the exchange into a compact text block for the extractor prompt."""
+    """Turn the exchange into a compact text block for the extractor prompt.
+
+    :param messages: Messages to render.
+    :return: Newline-joined ``[role] content`` lines.
+    """
     lines: list[str] = []
     for m in messages:
         role = m.__class__.__name__.replace("Message", "").lower()

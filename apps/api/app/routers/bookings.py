@@ -50,6 +50,14 @@ def list_bookings(
     ``total`` reflects the full match count before pagination. ``type`` and
     ``sort`` are validated against their enums — an unknown value returns a
     422 with the list of valid options instead of being silently ignored.
+
+    :param bookings: The booking service.
+    :param pagination: The pagination params (limit/offset).
+    :param q: Optional case-insensitive match on booking id, confirmation
+        code, customer name, or email.
+    :param booking_type: Optional filter by booking type.
+    :param sort: The sort order to apply.
+    :return: The matching bookings, sorted and paginated.
     """
     page, total = pagination.page_of(
         bookings.query(
@@ -82,6 +90,10 @@ def get_booking(
     """Return a booking by its UUID *or* its friendly confirmation code.
 
     Both identifiers are accepted interchangeably; 404 if neither matches.
+
+    :param bookings: The booking service.
+    :param booking_id: The booking UUID or confirmation code.
+    :return: The matching booking.
     """
     return bookings.get(booking_id)
 
@@ -107,5 +119,9 @@ def cancel_booking(
     Accepts the UUID or the confirmation code. A soft change — the booking
     is kept and still retrievable. Idempotent: cancelling an
     already-cancelled booking is a no-op. 404 if no booking matches.
+
+    :param bookings: The booking service.
+    :param booking_id: The booking UUID or confirmation code.
+    :return: The cancelled booking.
     """
     return bookings.cancel(booking_id)

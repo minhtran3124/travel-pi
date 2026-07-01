@@ -58,10 +58,20 @@ def build_graph(
     C.1: Sub-agent nodes receive a ``resolver_for(name)`` callable instead of a
     fixed model. When a fake is injected it is returned regardless of the
     per-request ``ctx_model`` hint, so all existing tests stay green.
+
+    :param llm: Fake/override chat model for main-tier nodes (tests).
+    :param fast_llm: Fake/override chat model for fast-tier nodes (tests).
+    :param checkpointer: Checkpoint saver for cross-turn/session state.
+    :param store: Long-term store backing episodic/RAG tools.
+    :return: The compiled travel agent graph.
     """
 
     def pick(name: str) -> BaseChatModel:
-        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection)."""
+        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection).
+
+        :param name: The node's name, used to check ``FAST_AGENTS`` membership.
+        :return: The injected fake when set, else the node's configured chat model.
+        """
         if name in FAST_AGENTS:
             return fast_llm if fast_llm is not None else get_agent_llm(name)
         return llm if llm is not None else get_agent_llm(name)
@@ -80,6 +90,11 @@ def build_graph(
         hint instead of once per iteration. The cache lives in the closure, so
         each ``build_graph`` call (e.g. per test) gets a fresh one and injected
         fakes never populate it.
+
+        :param name: The sub-agent's name (looked up in ``FAST_AGENTS`` and
+            passed through to ``get_agent_llm``).
+        :return: A callable resolving a per-request ``ctx_model`` hint to a
+            chat model.
         """
         cache: dict[str | None, BaseChatModel] = {}
 

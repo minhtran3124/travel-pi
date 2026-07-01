@@ -22,8 +22,16 @@ def add_expense(
     currency: str,
     description: str | None = None,
 ) -> dict:
-    """Record a trip expense. category: food|transport|accommodation|activities|
-    shopping|entertainment|health|other. amount is in the given ISO currency."""
+    """Record a trip expense.
+
+    :param trip_id: The trip to record the expense against.
+    :param category: One of food|transport|accommodation|activities|shopping|
+        entertainment|health|other.
+    :param amount: The expense amount, in ``currency``.
+    :param currency: ISO currency code for ``amount``.
+    :param description: Optional free-text description of the expense.
+    :return: The created expense record.
+    """
     with session_scope() as s:
         try:
             request = ExpenseCreate(
@@ -41,7 +49,11 @@ def add_expense(
 
 @tool
 def list_expenses(trip_id: str) -> list:
-    """List all recorded expenses for a trip."""
+    """List all recorded expenses for a trip.
+
+    :param trip_id: The trip to list expenses for.
+    :return: All recorded expenses for the trip.
+    """
     with session_scope() as s:
         try:
             return dump(ExpenseService(s).list(trip_id))
@@ -51,7 +63,11 @@ def list_expenses(trip_id: str) -> list:
 
 @tool
 def expense_summary(trip_id: str) -> dict:
-    """Get the trip's expense rollup (totals by category, in USD)."""
+    """Get the trip's expense rollup (totals by category, in USD).
+
+    :param trip_id: The trip to summarise.
+    :return: The trip's expense rollup, with totals by category in USD.
+    """
     with session_scope() as s:
         try:
             return dump(ExpenseService(s).summary(trip_id))

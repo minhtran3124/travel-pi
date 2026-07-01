@@ -31,6 +31,8 @@ class AirportRepository(Repo):
         listing is stable across engines AND matches the pre-migration order
         board_service samples its routes from (SQLite and Postgres make no
         row-order guarantee otherwise).
+
+        :return: All airports, ordered by ``position``.
         """
         with self._session() as s:
             rows = s.scalars(
@@ -43,6 +45,9 @@ class AirportRepository(Repo):
 
         Matches ``airport_service.get_airport`` — the lookup upper-cases the
         input so ``"dad"`` resolves the same as ``"DAD"``.
+
+        :param code: The IATA airport code to look up (case-insensitive).
+        :return: The matching airport, or ``None`` if unknown.
         """
         with self._session() as s:
             row = s.scalars(

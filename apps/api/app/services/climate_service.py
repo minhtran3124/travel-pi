@@ -52,12 +52,20 @@ def clear_climate_cache() -> None:
 
 
 def _mean(xs: list[float]) -> float:
-    """Arithmetic mean of a non-empty list. ZeroDivisionError if xs is empty."""
+    """Arithmetic mean of a non-empty list. ZeroDivisionError if xs is empty.
+
+    :param xs: The values to average; must be non-empty.
+    :return: The arithmetic mean of ``xs``.
+    """
     return sum(xs) / len(xs)
 
 
 def _median(xs: list[float | int]) -> float:
-    """Median of a non-empty list."""
+    """Median of a non-empty list.
+
+    :param xs: The values to take the median of; must be non-empty.
+    :return: The median of ``xs``.
+    """
     sorted_xs = sorted(xs)
     n = len(sorted_xs)
     mid = n // 2
@@ -84,7 +92,13 @@ def _comfort_label(avg_temp_max_c: float, rainy_days: int) -> str:
 def _build_summary(
     name: str, best_months: list[int], all_months: list[ClimateMonth]
 ) -> str:
-    """One sentence about when to visit and which month is wettest."""
+    """One sentence about when to visit and which month is wettest.
+
+    :param name: Display name of the location.
+    :param best_months: Month numbers considered the best time to visit.
+    :param all_months: Every produced :class:`ClimateMonth`, used to find the wettest.
+    :return: A one-sentence climate summary.
+    """
     if not all_months:
         return (
             f"{name} climate data is available — check individual months for details."
@@ -120,6 +134,9 @@ def _pick_best_months(months: list[ClimateMonth]) -> list[int]:
 
     Fallback: if no temperature-comfortable candidates, take the 3 months
     with the lowest rainy_days overall.
+
+    :param months: The produced :class:`ClimateMonth` entries to rank.
+    :return: Up to 3 month numbers, best-first.
     """
     if not months:
         return []
@@ -154,6 +171,13 @@ def _aggregate(
     KeyError/IndexError/TypeError/ZeroDivisionError into
     WeatherUnavailableError. The one explicit guard here is the empty
     time-series case, which raises WeatherUnavailableError directly.
+
+    :param data: The raw Open-Meteo archive response.
+    :param lat: Latitude of the resolved location.
+    :param lon: Longitude of the resolved location.
+    :param location_name: Display name of the resolved location.
+    :param country: Country of the resolved location, if known.
+    :return: A full :class:`ClimateResponse` for the location.
     """
     daily = data["daily"]
     times: list[str] = daily["time"]
@@ -267,6 +291,10 @@ async def get_climate(city: str, month: int | None = None) -> ClimateResponse:
 
     The full 12-month ClimateResponse is cached per (lat, lon) key; the
     ``month`` filter is applied at return time and never persisted to cache.
+
+    :param city: Free-text city name to geocode and look up.
+    :param month: Optional month number (1–12) to filter the response to.
+    :return: The monthly climate normals, filtered to ``month`` when given.
     """
     settings = get_settings()
 

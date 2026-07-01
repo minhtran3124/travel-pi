@@ -38,7 +38,11 @@ class SupervisorIntent(BaseModel):
 
 
 def make_supervisor(llm: BaseChatModel):
-    """Return the supervisor node bound to a routing LLM."""
+    """Return the supervisor node bound to a routing LLM.
+
+    :param llm: Chat model used for structured intent classification.
+    :return: The ``supervisor`` node function.
+    """
     # method="function_calling" avoids OpenAI's native json_schema parse path,
     # whose ParsedChatCompletion.parsed field trips a benign Pydantic serializer
     # warning when langchain-openai model_dump()s the response.

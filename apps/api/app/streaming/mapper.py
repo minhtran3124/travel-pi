@@ -29,14 +29,22 @@ logger = logging.getLogger(__name__)
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
-    """Sub-agent name owning this stream item, or ``None`` at the top level."""
+    """Sub-agent name owning this stream item, or ``None`` at the top level.
+
+    :param ns: The stream item's namespace tuple.
+    :return: The owning sub-agent name, or ``None`` at the top level.
+    """
     if not ns:
         return None
     return ns[0].split(":", 1)[0]
 
 
 def _as_message_list(value: Any) -> list[Any]:
-    """Coerce a node's ``messages`` update to a list (it may be a single msg)."""
+    """Coerce a node's ``messages`` update to a list (it may be a single msg).
+
+    :param value: The ``messages`` update value.
+    :return: The value coerced to a list.
+    """
     if value is None:
         return []
     return list(value) if isinstance(value, (list, tuple)) else [value]
@@ -54,6 +62,12 @@ async def stream_agent_events(
 
     ``context`` is the per-run ``AgentContext`` (mode/tier capabilities), forwarded
     to ``astream`` so streaming nodes see the same context as the buffered path.
+
+    :param graph: The compiled LangGraph graph to stream from.
+    :param stream_input: The input passed to ``graph.astream``.
+    :param cfg: The run's LangGraph config (thread id, etc.).
+    :param conversation_id: The conversation this turn belongs to.
+    :param context: The per-run ``AgentContext``, forwarded to ``astream``.
     """
     yield events.start(conversation_id)
 

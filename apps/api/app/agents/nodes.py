@@ -43,9 +43,14 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     and load procedural instructions from the long-term store.
 
     REVIEW.md M2: returning a SystemMessage via ``messages`` appends it *after* the
-    HumanMessage (``add_messages`` reducer).  Instead, carry the context in a plain
+    HumanMessage (``add_messages`` reducer). Instead, carry the context in a plain
     state field and let ``system_with_summary`` inject it at the *front* of every
     model call — keeping the single leading SystemMessage intact for Anthropic.
+
+    :param state: The current graph state; reads ``trip_id`` and ``user_id``.
+    :param runtime: The LangGraph runtime, used to reach the long-term store.
+    :return: Partial state update with ``trip_context`` and/or ``instructions``,
+        whichever were successfully loaded.
     """
     result: dict = {}
     trip_id = state.get("trip_id")
@@ -76,7 +81,11 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
 
 
 def make_summarize_node(llm: BaseChatModel):
-    """Return a node that compresses old turns into ``summary`` when long."""
+    """Return a node that compresses old turns into ``summary`` when long.
+
+    :param llm: The chat model used to generate the summary.
+    :return: A node function ``summarize(state) -> dict``.
+    """
 
     def summarize(state: TravelAgentState) -> dict:
         messages = state["messages"]
@@ -99,6 +108,11 @@ def make_reflection_node(
     and ``runtime.context.max_revisions`` when available, replacing the
     closed-over ``max_revisions`` fallback. Default context (allow_reflection=True,
     max_revisions=1) preserves today's behavior.
+
+    :param llm: The chat model used to judge whether the last answer needs revision.
+    :param max_revisions: Fallback revision cap used when no runtime context is
+        available.
+    :return: A node function ``reflection(state, runtime) -> Command``.
     """
     system = SystemMessage(content=registry.get("reflection"))
 
@@ -140,8 +154,11 @@ def plan_node(state: TravelAgentState) -> Command:
     """Human-in-the-loop: surface a draft booking plan and wait for approval.
 
     ``interrupt`` pauses the graph; the caller resumes with
-    ``Command(resume={"approved": True|False})``.  On approval the graph
+    ``Command(resume={"approved": True|False})``. On approval the graph
     continues to the ``booking`` sub-agent; on rejection it ends gracefully.
+
+    :param state: The current graph state; the last message is used as the draft.
+    :return: A ``Command`` routing to ``booking`` (approved) or ``END`` (rejected).
     """
     logger.info("[agent] node=plan (awaiting approval)")
     draft = state["messages"][-1].content if state["messages"] else ""
@@ -168,8 +185,11 @@ def make_extract_memory_node(llm: BaseChatModel):
     """Return a post-turn background memory extraction node (P1).
 
     Gated by ``runtime.context.allow_memory_write`` — skips entirely for FAST
-    mode.  Best-effort: any error is swallowed so a failed extraction never
+    mode. Best-effort: any error is swallowed so a failed extraction never
     breaks the turn.
+
+    :param llm: The chat model used to extract preferences/instructions/episodes.
+    :return: A node function ``extract_memory(state, runtime) -> dict``.
     """
 
     def extract_memory(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:

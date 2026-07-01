@@ -42,6 +42,11 @@ def get_visa(
     Provide either ``city`` or ``country``. Unknown locations return
     ``found: false`` (not a 404). Guidance is general and nationality-dependent
     — see the ``disclaimer`` field.
+
+    :param visa: The visa service.
+    :param city: Optional city name (fuzzy — typo/case tolerant).
+    :param country: Optional country name (fuzzy — typo/case tolerant).
+    :return: The visa / entry guidance for the destination.
     """
     # Coerce empty strings → None (HTML forms send "" for an unset field).
     city = city or None

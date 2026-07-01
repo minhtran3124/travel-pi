@@ -25,7 +25,14 @@ PanelKind = Literal["route", "places", "weather", "air_quality"]
 
 
 def _gmaps_dir_url(o_lat: float, o_lng: float, d_lat: float, d_lng: float) -> str:
-    """Keyless Google Maps directions deep-link (no API key required)."""
+    """Keyless Google Maps directions deep-link (no API key required).
+
+    :param o_lat: Origin latitude.
+    :param o_lng: Origin longitude.
+    :param d_lat: Destination latitude.
+    :param d_lng: Destination longitude.
+    :return: The Google Maps directions URL.
+    """
     return (
         "https://www.google.com/maps/dir/?api=1"
         f"&origin={o_lat},{o_lng}&destination={d_lat},{d_lng}"
@@ -58,7 +65,11 @@ class RoutePanel(AppBaseModel):
 
     @classmethod
     def from_route_response(cls, r: RouteResponse) -> RoutePanel:
-        """Project a service ``RouteResponse`` into the route panel render model."""
+        """Project a service ``RouteResponse`` into the route panel render model.
+
+        :param r: The service route response to project.
+        :return: The route panel render model.
+        """
         return cls(
             origin=RoutePanelEndpoint(
                 name=r.origin.name, lat=r.origin.latitude, lng=r.origin.longitude
@@ -97,7 +108,11 @@ _COND_STORM = frozenset({95, 96, 99})
 
 
 def _condition(code: int) -> str:
-    """Bucket a WMO weather code into a sky mood the panel themes by."""
+    """Bucket a WMO weather code into a sky mood the panel themes by.
+
+    :param code: The WMO weather code.
+    :return: The sky-mood bucket name.
+    """
     if code in (0, 1):
         return "clear"
     if code == 2:
@@ -148,7 +163,11 @@ class WeatherPanel(AppBaseModel):
 
     @classmethod
     def from_weather_response(cls, r: WeatherResponse) -> WeatherPanel:
-        """Project a service ``WeatherResponse`` into the weather panel render model."""
+        """Project a service ``WeatherResponse`` into the weather panel render model.
+
+        :param r: The service weather response to project.
+        :return: The weather panel render model.
+        """
         return cls(
             location_name=r.location.name,
             country=r.location.country,
@@ -246,7 +265,11 @@ class AirQualityPanel(AppBaseModel):
 
     @classmethod
     def from_air_quality_response(cls, r: AirQualityResponse) -> AirQualityPanel:
-        """Project a service ``AirQualityResponse`` into the AQI panel render model."""
+        """Project a service ``AirQualityResponse`` into the AQI panel render model.
+
+        :param r: The service air-quality response to project.
+        :return: The AQI panel render model.
+        """
         return cls(
             location_name=r.location.name,
             country=r.location.country,

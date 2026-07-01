@@ -35,6 +35,10 @@ class TipRepository(Repo):
 
         ``scope`` is ``"country"`` or ``"city"``; ``key`` is the resolved
         country or city name. Empty list when none — never raises.
+
+        :param scope: Either ``"country"`` or ``"city"``.
+        :param key: The resolved country or city name.
+        :return: Matching tips, ordered by ``position``; ``[]`` if none.
         """
         stmt = (
             select(models.Tip)
@@ -51,6 +55,8 @@ class TipRepository(Repo):
         tips), ordered by ``(scope, key, position)`` — country sorts before city
         alphabetically, matching the country-first iteration there. The
         presentation ``location`` label is added by the service, not here.
+
+        :return: All tips, ordered by ``(scope, key, position)``.
         """
         stmt = select(models.Tip).order_by(
             models.Tip.scope, models.Tip.key, models.Tip.position
@@ -62,6 +68,9 @@ class TipRepository(Repo):
         """Return the one-line summary for ``country``, or ``""`` if none.
 
         Mirrors ``COUNTRY_SUMMARIES.get(country, "")``.
+
+        :param country: The country name to look up.
+        :return: The one-line summary, or ``""`` if none is set.
         """
         with self._session() as s:
             row = s.scalars(

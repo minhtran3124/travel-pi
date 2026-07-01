@@ -19,7 +19,9 @@ from app.rag.retriever import hybrid_search
 def search_destination_knowledge(query: str, city: str | None = None) -> list:
     """Search the destination knowledge base for places/notes matching a query.
 
-    Optionally filter by city. Returns matching snippets with their metadata.
+    :param query: Free-text search query.
+    :param city: Optional city to filter results by.
+    :return: Matching snippets with their metadata.
     """
     store = get_vector_store()
     filters = {"city": city} if city else None

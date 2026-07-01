@@ -32,19 +32,23 @@ def get_local_tips(
 
     Provide at least one of ``city`` or ``country`` (both fuzzy — typo/case
     tolerant). ``city`` takes precedence and resolves its own country; the
-    country-level tips are merged with the city-specific ones. Optionally filter
-    by ``category`` (transport, money, safety, culture, food, connectivity,
-    health, etiquette, best_time, language) or set ``essential_only=true`` to keep
-    only the must-know advice.
+    country-level tips are merged with the city-specific ones. An unknown or
+    misspelled location returns ``count: 0`` rather than an error.
 
-    Returns ``{city, country, count, summary, tips: [{category, title, content,
-    is_essential, ...}]}``. An unknown or misspelled location returns
-    ``count: 0`` rather than an error.
+    :param city: City to get tips for (fuzzy matched); takes precedence over ``country``.
+    :param country: Country to get tips for (fuzzy matched).
+    :param category: Optional filter — transport, money, safety, culture, food,
+        connectivity, health, etiquette, best_time, or language.
+    :param essential_only: Keep only the must-know advice (default False).
+    :return: ``{city, country, count, summary, tips: [{category, title, content,
+        is_essential, ...}]}``.
     """
     if not (city or None) and not (country or None):
         raise ToolException("Provide either 'city' or 'country'.")
 
-    logger.info(f"city: {city}, country: {country}, category: {category}, essential_only: {essential_only}")
+    logger.info(
+        f"city: {city}, country: {country}, category: {category}, essential_only: {essential_only}"
+    )
 
     with session_scope() as s:
         try:

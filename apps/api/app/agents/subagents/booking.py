@@ -17,7 +17,12 @@ from app.tools.registry import get_tools_for
 
 
 def build_booking(resolve_model: Callable[[str | None], BaseChatModel]):
-    """Compile the booking sub-agent (flight/hotel search + guarded booking)."""
+    """Compile the booking sub-agent (flight/hotel search + guarded booking).
+
+    :param resolve_model: Callable resolving an ``AgentContext.model`` hint to a
+        chat model, called per request inside the sub-agent's ``assistant`` node.
+    :return: The compiled ReAct subgraph for this sub-agent.
+    """
     return build_subagent(
         "booking", get_tools_for("booking"), resolve_model, registry.get("booking")
     )

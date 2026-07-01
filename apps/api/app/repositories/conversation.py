@@ -48,6 +48,12 @@ class ConversationRepository(Repo):
         does not exist yet. This prevents orphaned messages — a message must
         never reference a conversation that is absent from this table — and
         self-heals ids minted before this guard existed.
+
+        :param conversation_id: The candidate conversation id, or ``None`` to
+            always create a fresh conversation.
+        :param user_id: The owning user's id.
+        :param trip_id: The trip to associate the conversation with, if any.
+        :return: A conversation id guaranteed to have a backing row.
         """
         if conversation_id is None:
             return self.create_conversation(user_id=user_id, trip_id=trip_id).id
@@ -69,8 +75,12 @@ class ConversationRepository(Repo):
     def reassign_user(self, *, from_user_id: str, to_user_id: str) -> int:
         """Reassign all conversations from *from_user_id* to *to_user_id*.
 
-        Returns the number of rows updated.  Messages follow automatically
-        because they are keyed by ``conversation_id``, not ``user_id``.
+        Messages follow automatically because they are keyed by
+        ``conversation_id``, not ``user_id``.
+
+        :param from_user_id: The user id to reassign conversations away from.
+        :param to_user_id: The user id to reassign conversations to.
+        :return: The number of conversation rows updated.
         """
         stmt = (
             update(models.Conversation)
@@ -118,6 +128,11 @@ class ConversationRepository(Repo):
         Joins messages → conversations on conversation_id so no additional FK is
         needed. ISO-8601 strings sort chronologically, so a ``>=`` string
         comparison yields the correct day-boundary cutoff.
+
+        :param user_id: The owning user's id.
+        :param iso_cutoff: ISO-8601 timestamp; only messages at or after this
+            cutoff are counted.
+        :return: The number of matching user-role messages.
         """
         stmt = (
             select(func.count())

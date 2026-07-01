@@ -23,6 +23,9 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
     order CORS → GZip → request-ID → rate-limit → logging → route. ``_request_id``
     is declared last so it runs earliest inbound, setting
     ``request.state.request_id`` before ``_log_requests`` reads it.
+
+    :param app: The FastAPI app to register middleware on.
+    :param settings: Application settings, used for rate-limit and CORS values.
     """
 
     # Log one line per request: method, path, status, and how long it took.

@@ -54,6 +54,12 @@ class DestinationService:
         ``include`` selects which sections to populate (``"places"``, ``"tips"``,
         ``"hotels"``, ``"weather"``); omitted sections are empty/``None``. Raises
         :class:`NotFoundError` (HTTP 404) when *city* cannot be resolved.
+
+        :param city: The city name to resolve and summarise.
+        :param include: The set of sections to populate.
+        :param place_limit: The maximum number of top places to return.
+        :param tip_limit: The maximum number of essential tips to return.
+        :return: The aggregated destination overview.
         """
         # 1. Resolve city locally — no network. Fuzzy-match over the distinct
         #    city names, then fetch the exact record for coordinates / country.
@@ -145,5 +151,9 @@ class DestinationService:
 def get_destination_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> DestinationService:
-    """FastAPI dependency: a destination service bound to the request session."""
+    """FastAPI dependency: a destination service bound to the request session.
+
+    :param session: The request-scoped DB session.
+    :return: A destination service bound to the session.
+    """
     return DestinationService(session)

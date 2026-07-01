@@ -50,6 +50,10 @@ class VisaService:
         Exactly one of ``city`` or ``country`` drives the lookup (city takes
         precedence and resolves its own country). Both are matched fuzzily. The
         caller is responsible for rejecting the case where neither is provided.
+
+        :param city: Free-text city name; takes precedence and resolves its country.
+        :param country: Free-text country name, used when no city is given.
+        :return: The entry-requirement guidance for the resolved destination.
         """
         resolved_country: str | None = None
         resolved_city: str | None = None
@@ -80,5 +84,9 @@ class VisaService:
 def get_visa_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> VisaService:
-    """FastAPI dependency: a visa service bound to the request session."""
+    """FastAPI dependency: a visa service bound to the request session.
+
+    :param session: The request-scoped DB session.
+    :return: A ``VisaService`` bound to the request session.
+    """
     return VisaService(session)

@@ -41,10 +41,13 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     Procedural instructions (per-user standing directives) are folded before the
     summary so they carry the most weight.
 
-    Returns ``base`` unchanged when none of the three fields are set, else one
-    ``SystemMessage`` combining base + instructions + trip_context + summary — a
-    single leading system message keeps providers that reject mid-stream/multiple
-    system messages happy.
+    :param state: The current graph state, read for ``instructions``,
+        ``trip_context`` and ``summary``.
+    :param base: The base system message to fold the extra context into.
+    :return: ``base`` unchanged when none of the three fields are set, else one
+        ``SystemMessage`` combining base + instructions + trip_context + summary — a
+        single leading system message keeps providers that reject mid-stream/multiple
+        system messages happy.
     """
     trip_context = state.get("trip_context")
     summary = state.get("summary")

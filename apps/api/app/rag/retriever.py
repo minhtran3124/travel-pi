@@ -23,6 +23,10 @@ def _store_filter_kwargs(store: VectorStore, filters: dict | None) -> dict:
     - ``PGVector`` (and other stores) expect a metadata dict.
     Passing no filter returns an empty dict so the call site can always do
     ``store.similarity_search(query, k=n, **kwargs)`` uniformly.
+
+    :param store: The vector store the filter will be passed to.
+    :param filters: Metadata filters to apply, or ``None``.
+    :return: The ``filter=`` kwargs for ``similarity_search``.
     """
     if not filters:
         return {}
@@ -52,6 +56,13 @@ def hybrid_search(
     The metadata filter is pushed into ``similarity_search`` so the candidate pool
     is already filtered before RRF fusion.  This avoids result starvation when
     matching documents are sparse in the semantic top-N.
+
+    :param store: The vector store to search.
+    :param query: The search query.
+    :param filters: Metadata filters to apply.
+    :param k: Number of ranked documents to return.
+    :param fetch_k: Number of candidates to fetch before fusion; defaults to ``k * 4``.
+    :return: Up to ``k`` documents ranked by RRF score.
     """
     fetch_k = fetch_k or k * 4
     filter_kwargs = _store_filter_kwargs(store, filters)

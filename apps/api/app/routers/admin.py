@@ -48,6 +48,12 @@ def set_user_tier(
     Requires a valid JWT whose ``role`` claim equals ``"admin"`` (HTTP 403
     otherwise). The tier value is validated by the request schema (HTTP 422
     for an unknown tier).
+
+    :param user_id: The id of the user whose tier is being changed.
+    :param body: The request body carrying the new tier.
+    :param auth_user: The authenticated caller (must have the admin role).
+    :param session: The request-scoped DB session.
+    :return: The updated user id and tier.
     """
     if auth_user.role != "admin":
         raise ForbiddenError("Admin role required.")

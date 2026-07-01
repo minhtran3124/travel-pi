@@ -31,6 +31,13 @@ def parse_optional_number(
     422. The value is never returned alongside an error.
 
     ``kind`` is ``int`` or ``float``. Bounds are inclusive when supplied.
+
+    :param raw: The raw query-param string, or None.
+    :param label: A human-friendly field name used in error messages.
+    :param kind: The numeric type to coerce to (``int`` or ``float``).
+    :param minimum: Inclusive lower bound, or None to skip the check.
+    :param maximum: Inclusive upper bound, or None to skip the check.
+    :return: A ``(value, error)`` tuple; exactly one of the two is non-None.
     """
     if raw is None:
         return None, None

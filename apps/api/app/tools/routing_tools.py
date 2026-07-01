@@ -26,6 +26,10 @@ def _route_panel(r: RouteResponse) -> tuple[str, dict]:
     response_format="content_and_artifact": the model only needs the headline
     distance/time; the full route (endpoints, geometry, all modes, gmaps link)
     rides on the artifact to the side-panel, not into the model's context.
+
+    :param r: The route response to summarise.
+    :return: A ``(summary, artifact)`` tuple in the LangChain
+        ``content_and_artifact`` shape.
     """
     leg = next((leg for leg in r.legs if leg.mode == r.recommended_mode), r.legs[0])
     summary = (
@@ -39,11 +43,14 @@ def _route_panel(r: RouteResponse) -> tuple[str, dict]:
 async def get_route(origin_place_id: str, destination_place_id: str):
     """Get distance and travel time between two places (by id or PLC-XXXX code).
 
-    Returns distance + duration per travel mode (walk / bike / car), a
-    recommended mode for the distance, and the straight-line km. Accepts full
-    place ids or the short PLC-XXXX codes. An unknown place id, or one without
-    coordinates in the seed data, raises an error — use the search_places tool
-    to find a valid place_id first.
+    Accepts full place ids or the short PLC-XXXX codes. An unknown place id, or
+    one without coordinates in the seed data, raises an error — use the
+    search_places tool to find a valid place_id first.
+
+    :param origin_place_id: The origin place's id or PLC-XXXX short code.
+    :param destination_place_id: The destination place's id or PLC-XXXX short code.
+    :return: Distance + duration per travel mode (walk / bike / car), a
+        recommended mode for the distance, and the straight-line km.
     """
     with session_scope() as s:
         try:
@@ -59,10 +66,13 @@ async def get_route(origin_place_id: str, destination_place_id: str):
 async def get_city_route(origin_city: str, destination_city: str):
     """Get distance and travel time between two cities by name.
 
-    Returns distance + duration per travel mode (walk / bike / car), a
-    recommended mode, and the straight-line km. City names are fuzzy /
-    typo-tolerant (e.g. 'danang' -> 'Da Nang'). An unknown city, or one without
-    coordinates in the seed data, raises an error.
+    City names are fuzzy / typo-tolerant (e.g. 'danang' -> 'Da Nang'). An
+    unknown city, or one without coordinates in the seed data, raises an error.
+
+    :param origin_city: The origin city name.
+    :param destination_city: The destination city name.
+    :return: Distance + duration per travel mode (walk / bike / car), a
+        recommended mode, and the straight-line km.
     """
     with session_scope() as s:
         try:

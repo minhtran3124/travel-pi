@@ -26,7 +26,15 @@ def save_user_preference(
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
 ) -> str:
-    """Remember a traveller preference for future trips (e.g. diet, airline, pace)."""
+    """Remember a traveller preference for future trips (e.g. diet, airline, pace).
+
+    :param key: Preference key/name to store under.
+    :param text: Free-text preference value.
+    :param user_id: The traveller's id, injected from graph state (not model-supplied).
+    :param store: The cross-session memory store, injected by LangGraph (not
+        model-supplied).
+    :return: Confirmation message.
+    """
     upsert_preference(store, user_id, key, {"text": text})
     return f"Saved preference '{key}'."
 
@@ -37,7 +45,14 @@ def get_user_preferences(
     store: Annotated[BaseStore, InjectedStore],
     query: str | None = None,
 ) -> list:
-    """Recall the traveller's saved preferences (optionally filtered by a query)."""
+    """Recall the traveller's saved preferences (optionally filtered by a query).
+
+    :param user_id: The traveller's id, injected from graph state (not model-supplied).
+    :param store: The cross-session memory store, injected by LangGraph (not
+        model-supplied).
+    :param query: Optional free-text filter.
+    :return: Matching saved preferences.
+    """
     return search_preferences(store, user_id, query=query)
 
 
@@ -51,7 +66,14 @@ def recall_past_trips(
     store: Annotated[BaseStore, InjectedStore],
 ) -> list:
     """Recall this traveller's past trip outcomes to personalise the plan (e.g.
-    pace, area, airline/hotel preferences they liked before)."""
+    pace, area, airline/hotel preferences they liked before).
+
+    :param query: Free-text query to filter past trip episodes.
+    :param user_id: The traveller's id, injected from graph state (not model-supplied).
+    :param store: The cross-session memory store, injected by LangGraph (not
+        model-supplied).
+    :return: Matching past-trip episodes.
+    """
     return search_episodes(store, user_id, query=query)
 
 

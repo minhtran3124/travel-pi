@@ -85,6 +85,9 @@ def recommend_mode(distance_km: float) -> str:
 
     Short hops are walkable, medium distances suit a bike/motorbike, and
     anything longer wants a car.
+
+    :param distance_km: The straight-line distance in kilometres.
+    :return: The recommended travel mode (``"walk"``, ``"bike"`` or ``"car"``).
     """
     if distance_km <= _WALK_MAX_KM:
         return "walk"
@@ -98,6 +101,10 @@ async def _fetch_json(url: str, params: dict) -> dict:
 
     Any transport/HTTP error is normalised to :class:`RoutingUnavailableError`
     so callers never see raw ``httpx`` exceptions.
+
+    :param url: The URL to fetch.
+    :param params: The query parameters to send.
+    :return: The parsed JSON response body.
     """
     settings = get_settings()
     try:
@@ -119,6 +126,12 @@ async def _ors_leg(
     ORS already includes in the same response — used to draw the real route on a
     map. Geometry is best-effort: a malformed/absent geometry yields ``None``
     (the leg's metrics still stand), never an error.
+
+    :param mode: The friendly travel-mode label (e.g. ``"car"``).
+    :param profile: The ORS routing profile (e.g. ``"driving-car"``).
+    :param origin: The route's origin endpoint.
+    :param destination: The route's destination endpoint.
+    :return: The route leg and its road geometry (``None`` when unavailable).
     """
     settings = get_settings()
     url = f"{settings.ors_base_url}/v2/directions/{profile}"
@@ -158,7 +171,14 @@ async def _ors_leg(
 def _estimate_leg(
     mode: str, profile: str, speed_kmh: float, straight_line_km: float
 ) -> RouteLeg:
-    """Build one travel mode's leg from the offline haversine estimate."""
+    """Build one travel mode's leg from the offline haversine estimate.
+
+    :param mode: The friendly travel-mode label (e.g. ``"car"``).
+    :param profile: The ORS routing profile (e.g. ``"driving-car"``).
+    :param speed_kmh: The fallback travel speed in km/h for this mode.
+    :param straight_line_km: The straight-line (haversine) distance in kilometres.
+    :return: The estimated route leg.
+    """
     distance_km = straight_line_km * _DETOUR_FACTOR
     duration_minutes = (distance_km / speed_kmh) * 60 if speed_kmh else 0.0
     return RouteLeg(
@@ -182,6 +202,10 @@ class RoutingService:
 
         Raises :class:`NotFoundError` if the ID is unknown or the place has no
         coordinates (so it cannot take part in a route).
+
+        :param place_id: The place ID to resolve.
+        :param label: A human-readable label (``"Origin"`` / ``"Destination"``) for error messages.
+        :return: The resolved route endpoint.
         """
         place = self._places.get_place(place_id)
         if place is None:
@@ -220,6 +244,10 @@ class RoutingService:
         "Hà Nội" the ASCII seed cannot fold, and cities outside the catalogue —
         falls back to Open-Meteo's keyless geocoder instead of confidently routing
         to the wrong city. Raises :class:`NotFoundError` only when neither resolves.
+
+        :param city_name: The city name to resolve.
+        :param label: A human-readable label (``"Origin"`` / ``"Destination"``) for error messages.
+        :return: The resolved route endpoint.
         """
         matched = best_match(city_name, self._city.distinct_names(), [lambda c: c])
         if (
@@ -269,6 +297,10 @@ class RoutingService:
         otherwise falls back to an offline straight-line estimate. Results are
         cached per endpoint pair. Raises :class:`RoutingUnavailableError` if a
         configured ORS provider is unreachable.
+
+        :param origin: The resolved origin endpoint.
+        :param destination: The resolved destination endpoint.
+        :return: The route response with per-mode legs and the recommended mode.
         """
         settings = get_settings()
         provider_enabled = settings.routing_provider_enabled
@@ -368,7 +400,12 @@ class RoutingService:
     async def get_place_route(
         self, origin_id: str, destination_id: str
     ) -> RouteResponse:
-        """Route between two places, by place ID (404 if unknown / no coords)."""
+        """Route between two places, by place ID (404 if unknown / no coords).
+
+        :param origin_id: The origin place ID.
+        :param destination_id: The destination place ID.
+        :return: The route response between the two places.
+        """
         origin = self._place_endpoint(origin_id, "Origin")
         destination = self._place_endpoint(destination_id, "Destination")
         return await self.get_route_between(origin, destination)
@@ -376,7 +413,12 @@ class RoutingService:
     async def get_city_route(
         self, origin_name: str, destination_name: str
     ) -> RouteResponse:
-        """Route between two cities, by city name (404 if unknown / no coords)."""
+        """Route between two cities, by city name (404 if unknown / no coords).
+
+        :param origin_name: The origin city name.
+        :param destination_name: The destination city name.
+        :return: The route response between the two cities.
+        """
         origin = await self._city_endpoint(origin_name, "Origin")
         destination = await self._city_endpoint(destination_name, "Destination")
         return await self.get_route_between(origin, destination)
@@ -385,5 +427,9 @@ class RoutingService:
 def get_routing_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> RoutingService:
-    """FastAPI dependency: a routing service bound to the request session."""
+    """FastAPI dependency: a routing service bound to the request session.
+
+    :param session: The request-scoped DB session.
+    :return: A routing service bound to the session.
+    """
     return RoutingService(session)

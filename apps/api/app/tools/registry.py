@@ -66,5 +66,9 @@ TOOL_METADATA: dict[str, dict[str, bool]] = {t.name: _meta(t.name) for t in ALL_
 
 
 def get_tools_for(domain: str) -> list[BaseTool]:
-    """Return the tool group for a sub-agent domain (empty list if unknown)."""
+    """Return the tool group for a sub-agent domain (empty list if unknown).
+
+    :param domain: The sub-agent domain name (e.g. 'planner', 'concierge').
+    :return: The tools bound to that domain.
+    """
     return TOOLS_BY_DOMAIN.get(domain, [])

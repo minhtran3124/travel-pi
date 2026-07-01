@@ -59,6 +59,13 @@ async def get_destination_overview(
     names are rejected with 422 before the service is called. A weather-service
     outage does not fail the request — the ``weather`` section degrades to
     ``null`` and the rest of the overview is still returned.
+
+    :param destination: The destination service.
+    :param city: City name — fuzzy (typo/case tolerant).
+    :param include: Sections to include; defaults to all.
+    :param place_limit: Maximum number of places to return.
+    :param tip_limit: Maximum number of tips to return.
+    :return: The destination overview.
     """
     sections = (
         {s.value for s in include} if include else {s.value for s in OverviewSection}
@@ -107,5 +114,9 @@ async def get_destination_climate(
     Unknown cities raise 404. An invalid ``month`` value is rejected with 422
     before the service is called. If the Open-Meteo Archive API is unavailable
     or returns malformed data, the endpoint raises 502.
+
+    :param city: City name — fuzzy (typo/case tolerant).
+    :param month: Optional 1-12 to return just that month.
+    :return: The monthly climate normals.
     """
     return await climate_service.get_climate(city, month=month)

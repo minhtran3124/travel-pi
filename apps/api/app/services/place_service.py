@@ -59,6 +59,8 @@ class PlaceService:
         ``CATEGORY_META`` (falling back to ``_FALLBACK`` for any unmapped value,
         so a newly-seeded category never errors). Order mirrors the old
         sorted ``list[str]``.
+
+        :return: Distinct place categories with display metadata, sorted by name.
         """
         return [
             PlaceCategoryInfo(
@@ -70,7 +72,10 @@ class PlaceService:
         ]
 
     def cities(self) -> list[str]:
-        """Distinct place cities, sorted (mirrors the old ``CITIES`` list)."""
+        """Distinct place cities, sorted (mirrors the old ``CITIES`` list).
+
+        :return: Distinct place cities, sorted.
+        """
         return self._place.distinct_cities()
 
     def list_places(self) -> list[Place]:
@@ -81,6 +86,9 @@ class PlaceService:
 
         Typo/spacing/case tolerant (e.g. "danang" → "Da Nang"), using the same
         matcher as ``GET /cities?q=``. Returns ``None`` if nothing matches.
+
+        :param name: Free-text city name to resolve.
+        :return: The canonical city name, or ``None`` if nothing matches.
         """
         return best_match(name, self._place.distinct_cities(), [lambda c: c])
 
@@ -101,6 +109,15 @@ class PlaceService:
         (``<=``) used by the NL search shim so a budget like "under $40" includes
         everything at or below that band. They may be combined but normally only
         one is supplied.
+
+        :param city: Optional city filter; an unrecognised city yields no results.
+        :param category: Optional place category filter.
+        :param min_rating: Optional minimum rating.
+        :param price_level: Optional exact price band to match.
+        :param price_level_max: Optional price-band ceiling (``<=``).
+        :param recommended_only: Keep only recommended places when ``True``.
+        :param sort: Sort key; unknown values fall back to rating-descending.
+        :return: The filtered, sorted places.
         """
         if city:
             # A given-but-unrecognised city yields no results (not all places).
@@ -139,6 +156,9 @@ class PlaceService:
 
         The short-code lookup is case-insensitive (``plc-ab23xy`` is the same as
         ``PLC-AB23XY``). Returns ``None`` if nothing matches.
+
+        :param place_id: A raw place ID or friendly ``PLC-XXXXXX`` short code.
+        :return: The matching place, or ``None`` if nothing matches.
         """
         if not place_id:
             return None
@@ -153,6 +173,10 @@ class PlaceService:
         Returns ``None`` when the place is unknown (catalog miss, or a missing /
         soft-deleted saved place). The ``saved`` branch reads the saved store on
         the service's request ``session`` (shared unit-of-work).
+
+        :param place_id: The place ID to resolve.
+        :param source: Either ``'catalog'`` or ``'saved'``.
+        :return: The resolved place, or ``None`` if unknown.
         """
         if source == "saved":
             return SavedPlaceRepository(self._session).get(place_id)
@@ -172,6 +196,12 @@ class PlaceService:
         ``category`` optionally narrows the result to one category. Raises
         :class:`NotFoundError` if the origin place is unknown or has no
         coordinates.
+
+        :param place_id: The origin place ID (or ``PLC-XXXX`` short code).
+        :param radius_km: Search radius in kilometres.
+        :param limit: Maximum number of nearby places to return.
+        :param category: Optional category to narrow results to.
+        :return: The origin place and the nearby places, nearest-first.
         """
         origin = self.get_place(place_id)
         if origin is None:
@@ -216,7 +246,11 @@ class PlaceService:
     # --- Natural-language query parsing (POST /places/search/nl) --------------
 
     def _nl_city(self, query: str) -> str | None:
-        """Longest canonical city name appearing in the query (case-insensitive)."""
+        """Longest canonical city name appearing in the query (case-insensitive).
+
+        :param query: The lowercased free-text query.
+        :return: The longest matching canonical city name, or ``None``.
+        """
         hits = [c for c in self.cities() if c.lower() in query]
         return max(hits, key=len) if hits else None
 
@@ -227,6 +261,9 @@ class PlaceService:
         words are ignored; any field with no signal comes back ``None``. The
         returned city is the canonical name (e.g. "Hanoi"), so it feeds straight
         into :meth:`search_places`.
+
+        :param query: The free-text places query.
+        :return: The parsed structured filters.
         """
         q = query.lower()
         return ParsedQuery(
@@ -240,7 +277,11 @@ class PlaceService:
 def get_place_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> PlaceService:
-    """FastAPI dependency: a place service bound to the request session."""
+    """FastAPI dependency: a place service bound to the request session.
+
+    :param session: The request-scoped SQLAlchemy session.
+    :return: A :class:`PlaceService` bound to ``session``.
+    """
     return PlaceService(session)
 
 
@@ -303,7 +344,11 @@ _NL_TOP_RATED = ("highly rated", "top-rated", "top rated", "highest rated", "bes
 
 
 def _budget_to_price_level(amount: float) -> int:
-    """Map a max-dollar budget to a single price band (1–4)."""
+    """Map a max-dollar budget to a single price band (1–4).
+
+    :param amount: The maximum dollar budget.
+    :return: The price band (1–4).
+    """
     if amount <= 20:
         return 1
     if amount <= 50:

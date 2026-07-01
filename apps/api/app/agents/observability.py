@@ -30,6 +30,13 @@ def _build_handler(
     the same handler (built once), while a settings change (env change +
     ``get_settings.cache_clear()`` in tests) causes a cache miss and a fresh
     build.  Returns None when disabled or on any construction error.
+
+    :param enabled: Whether Langfuse tracing is enabled.
+    :param public_key: Langfuse public key.
+    :param secret_key: Langfuse secret key.
+    :param host: Langfuse host URL.
+    :return: A configured ``CallbackHandler``, or ``None`` when disabled or
+        construction fails.
     """
     if not enabled:
         return None
@@ -46,7 +53,10 @@ def _build_handler(
 
 
 def build_langfuse_handler():
-    """Return a Langfuse CallbackHandler, or None when disabled / unconfigured."""
+    """Return a Langfuse CallbackHandler, or None when disabled / unconfigured.
+
+    :return: A configured ``CallbackHandler``, or ``None``.
+    """
     s = get_settings()
     return _build_handler(
         s.langfuse_enabled,
@@ -57,7 +67,10 @@ def build_langfuse_handler():
 
 
 def callbacks() -> list:
-    """Return the callbacks list for a graph run ([] when tracing is off)."""
+    """Return the callbacks list for a graph run ([] when tracing is off).
+
+    :return: A single-item list with the Langfuse handler, or ``[]``.
+    """
     handler = build_langfuse_handler()
     return [handler] if handler is not None else []
 
@@ -65,7 +78,13 @@ def callbacks() -> list:
 def trace_metadata(
     user_id: str, session_id: str | None, tags: list[str] | None = None
 ) -> dict:
-    """Langfuse run metadata: group traces by user and trip."""
+    """Langfuse run metadata: group traces by user and trip.
+
+    :param user_id: The authenticated user's id.
+    :param session_id: The trip id, used as the Langfuse session id.
+    :param tags: Extra Langfuse tags; defaults to ``["travel-agent"]``.
+    :return: The Langfuse metadata dict for this run.
+    """
     return {
         "langfuse_user_id": user_id,
         "langfuse_session_id": session_id or "none",

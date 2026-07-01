@@ -41,7 +41,11 @@ def session_scope() -> Iterator[Session]:
 
 
 def dump(obj: Any) -> Any:
-    """Normalise a service result into JSON-able data for tool output."""
+    """Normalise a service result into JSON-able data for tool output.
+
+    :param obj: The value to normalise (a Pydantic model, list, or plain value).
+    :return: JSON-able data — model dumped, list recursed, other values unchanged.
+    """
     if isinstance(obj, BaseModel):
         return obj.model_dump(mode="json")
     if isinstance(obj, list):
@@ -56,5 +60,12 @@ def panel_result(summary: str, *, kind: str, data: Any) -> tuple[str, dict]:
     ``{"kind", "data"}`` is forwarded by the stream mapper as a ``panel`` SSE
     event to the FE side-panel drawer (specs/agent-side-panel) and is *not* sent
     to the model. ``data`` is JSON-normalised via :func:`dump`.
+
+    :param summary: Concise text shown to the model.
+    :param kind: Panel kind identifier used by the FE to pick a renderer.
+    :param data: Raw result data, JSON-normalised via :func:`dump` before being
+        embedded in the artifact.
+    :return: A ``(summary, artifact)`` tuple in the LangChain
+        ``content_and_artifact`` shape.
     """
     return summary, {"kind": kind, "data": dump(data)}

@@ -37,6 +37,9 @@ def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingRespons
     (``data: <chunk>``).  ``TypedSSEEvent`` instances are emitted as named
     events (``event: <name>\\ndata: <data>``). The producer is responsible for
     emitting its own terminal event (the agent stream uses ``event: done``).
+
+    :param chunks: An async iterator of plain-text chunks or typed SSE events.
+    :return: A ``text/event-stream`` streaming response.
     """
 
     async def event_stream() -> AsyncIterator[str]:
