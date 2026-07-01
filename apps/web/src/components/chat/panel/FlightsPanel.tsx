@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { cn } from "@/lib/cn";
 import type { FlightsPanelData, FlightsPanelFlight } from "@/lib/stream/panel";
 
 /**
@@ -27,13 +28,16 @@ function Row({ f, cheapest }: { f: FlightsPanelFlight; cheapest: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <div
-      className="rounded-[11px] border border-line"
-      style={cheapest ? { boxShadow: "0 0 0 1px var(--color-lime)" } : undefined}
+      className={cn(
+        "rounded-[11px] border border-line bg-panel shadow-card transition duration-150 hover:-translate-y-0.5 hover:border-faint hover:shadow-lift",
+        cheapest && "ring-2 ring-lime",
+      )}
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
+        aria-expanded={open}
+        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-left active:translate-y-px"
       >
         <div className="min-w-0 flex-1">
           <div className="text-[13px] font-bold tabular-nums text-ink">

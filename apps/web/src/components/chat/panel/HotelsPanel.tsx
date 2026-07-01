@@ -7,10 +7,10 @@ import type { HotelsPanelData, HotelsPanelHotel } from "@/lib/stream/panel";
 
 /**
  * Hotels side-panel (specs/hotels-side-panel) — a compact list so every result is
- * visible without scrolling the chat. One dense row per hotel (name, stars,
- * nightly rate, all-in total, availability badge); click a row to expand detail
- * (short code, rating/reviews, amenities). The cheapest all-in stay is ringed in
- * lime. Read-only (no booking tool). Pure render + local expand state.
+ * visible without scrolling the chat. One row per hotel: a thumbnail, name, stars,
+ * guest rating, nightly rate, all-in total, and an availability badge; click a row
+ * to expand detail (rating/reviews, amenities). The cheapest all-in stay is
+ * ringed in lime. Read-only (no booking tool). Pure render + local expand state.
  */
 
 function stars(n: number): string {
@@ -19,6 +19,7 @@ function stars(n: number): string {
 
 function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
   const [open, setOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   return (
     <div
       className={cn(
@@ -32,6 +33,24 @@ function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
         aria-expanded={open}
         className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-left active:translate-y-px"
       >
+        <div className="relative size-12 shrink-0 overflow-hidden rounded-[8px] bg-panel-raised">
+          {imgError ? (
+            <span className="grid h-full w-full place-items-center text-lg" aria-hidden="true">
+              🏨
+            </span>
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element -- side-panel thumbnail: external image_url across many
+               unconfigured domains; next/image would need remotePatterns for each. */
+            <img
+              src={h.image_url}
+              alt={h.name}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              onError={() => setImgError(true)}
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[13px] font-bold text-ink">{h.name}</div>
           <div className="truncate text-[11.5px] text-muted">
@@ -61,7 +80,6 @@ function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
       </button>
       {open && (
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-line px-3 py-2.5 text-[12px]">
-          <Detail k="Short code" v={h.short_code} />
           <Detail k="Stars" v={stars(h.star_rating)} />
           <Detail k="Guest rating" v={`${h.rating.toFixed(1)} (${h.review_count} reviews)`} />
           <Detail k="Nightly rate" v={`${h.price_per_night.toFixed(2)} ${h.currency}`} />
@@ -107,3 +125,4 @@ export function HotelsPanel({ data }: { data: HotelsPanelData }) {
     </div>
   );
 }
+

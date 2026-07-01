@@ -144,7 +144,7 @@ export interface FlightsPanelData {
 
 export interface HotelsPanelHotel {
   id: string;
-  short_code: string;
+  image_url: string;
   name: string;
   star_rating: number;
   price_per_night: number;

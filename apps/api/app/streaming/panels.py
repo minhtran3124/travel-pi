@@ -399,7 +399,7 @@ class HotelsPanelHotel(AppBaseModel):
     """One hotel row in a ``kind="hotels"`` panel."""
 
     id: str
-    short_code: str
+    image_url: str
     name: str
     star_rating: int
     price_per_night: float
@@ -459,7 +459,7 @@ class HotelsPanel(AppBaseModel):
             hotels=[
                 HotelsPanelHotel(
                     id=h.id,
-                    short_code=h.short_code,
+                    image_url=h.image_url,
                     name=h.name,
                     star_rating=h.star_rating,
                     price_per_night=h.price_per_night,
