@@ -29,7 +29,11 @@ from langgraph.runtime import Runtime
 
 from app.agents.constants import EPISODIC_TOOL_NAME, RAG_TOOL_NAME
 from app.agents.context import AgentContext
-from app.agents.state import TravelAgentState, system_with_summary
+from app.agents.state import (
+    TravelAgentState,
+    ground_current_date,
+    system_with_summary,
+)
 from app.enums import ResponseStyle
 from app.prompts.registry import registry
 
@@ -120,7 +124,10 @@ def build_subagent(
             effective_system = system
 
         response = bound.invoke(
-            [system_with_summary(state, effective_system), *state["messages"]]
+            [
+                system_with_summary(state, ground_current_date(effective_system)),
+                *state["messages"],
+            ]
         )
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:

@@ -54,7 +54,8 @@ Turbo pipeline (`turbo.json`): `build` (depends on upstream `^build`, caches `.n
 ## Backend — `apps/api`
 
 FastAPI mock backend. Everything faked except keyless Open-Meteo (`/weather`, `/air-quality`,
-climate) and `/*/route` (OpenRouteService + haversine fallback).
+climate), `/*/route` (OpenRouteService + haversine fallback), and the AI agent's LLM calls
+(real provider via `init_chat_model()` when keys are set; `FakeLLM` in tests).
 
 **Core framework & data** (`apps/api/requirements.txt`)
 

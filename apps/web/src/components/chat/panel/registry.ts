@@ -2,6 +2,8 @@ import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
 import { AirQualityPanel } from "./AirQualityPanel";
+import { FlightsPanel } from "./FlightsPanel";
+import { HotelsPanel } from "./HotelsPanel";
 import { WeatherPanel } from "./WeatherPanel";
 
 // Lazy-load the route renderer (and its MapLibre bundle + CSS) only when a route
@@ -21,6 +23,8 @@ export const PANEL_RENDERERS: Record<string, ComponentType<{ data: unknown }>> =
   route: RoutePanel as unknown as ComponentType<{ data: unknown }>,
   weather: WeatherPanel as unknown as ComponentType<{ data: unknown }>,
   air_quality: AirQualityPanel as unknown as ComponentType<{ data: unknown }>,
+  flights: FlightsPanel as unknown as ComponentType<{ data: unknown }>,
+  hotels: HotelsPanel as unknown as ComponentType<{ data: unknown }>,
 };
 
 export const PANEL_LABELS: Record<string, string> = {
@@ -28,4 +32,6 @@ export const PANEL_LABELS: Record<string, string> = {
   places: "Places",
   weather: "Weather",
   air_quality: "Air Quality",
+  flights: "Flights",
+  hotels: "Hotels",
 };

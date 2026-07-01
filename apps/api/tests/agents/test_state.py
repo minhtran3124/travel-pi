@@ -132,6 +132,7 @@ def test_load_context_node_returns_trip_context_not_messages():
 def test_load_context_node_no_trip_id_returns_empty():
     """Best-effort: no trip_id -> empty dict, no state mutation."""
     from types import SimpleNamespace
+
     from app.agents.nodes import load_context_node
 
     assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {}
@@ -169,6 +170,45 @@ def test_subagent_receives_trip_context_as_leading_system_message():
     # No trailing or mid-conversation SystemMessages
     system_count = sum(1 for m in msgs if isinstance(m, SystemMessage))
     assert system_count == 1
+
+
+def test_ground_current_date_injects_today():
+    """ground_current_date grounds a real date and forbids inventing one."""
+    from datetime import datetime, timezone
+
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    grounded = ground_current_date(SystemMessage(content="BASE PROMPT"))
+    assert isinstance(grounded, SystemMessage)
+    assert "BASE PROMPT" in grounded.content
+    assert today in grounded.content
+    assert "do not guess or invent" in grounded.content
+
+
+def test_subagent_receives_todays_date_in_system_prompt():
+    """The current date reaches the model so it can resolve 'today' instead of guessing."""
+    from datetime import datetime, timezone
+
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+
+    captured: dict = {}
+
+    class CapturingLLM(FakeLLM):
+        def _generate(self, messages, *args, **kwargs):
+            captured["messages"] = messages
+            return super()._generate(messages, *args, **kwargs)
+
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
+    agent.invoke({"messages": [HumanMessage(content="find me a flight today")]})
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    system_msg = captured["messages"][0]
+    assert today in system_msg.content
+    assert "base system" in system_msg.content
 
 
 def test_subagent_receives_summary_in_system_prompt():
