@@ -3,6 +3,22 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## v4 — hotel-search detail gathering
+
+Stop the agent from silently guessing hotel-search details. Paired with the
+`search_hotels` tool making `rooms`, `adults`, and `children` required (no
+defaults), so an omitted value can no longer be assumed as 2 adults / 1 room.
+
+- **planner v4** — added a guardrail: collect check-in/check-out, rooms, and
+  guests (adults + children) before searching hotels; never guess or use a
+  default party size; restate any value that only appeared earlier (with the
+  implied nights) and ask the traveller to confirm.
+- **booking v4** — expanded the "How to Work" step 1 to enumerate the required
+  hotel details (dates, rooms, adults, children) and added a guardrail against
+  guessing dates/party size/room count.
+
+`active.yaml`: planner, booking → 4. Others unchanged.
+
 ## v3 — apply mizumi-ai patterns (P1 + P2)
 
 Reviewed the mizumi-ai hotel-concierge prompt set and adapted its transferable

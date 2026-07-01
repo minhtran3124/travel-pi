@@ -51,7 +51,14 @@ def test_search_flights_price_sort_orders_artifact(agent_db):
 
 def test_search_hotels_returns_panel_artifact(agent_db):
     msg = _invoke_hotel(
-        {"city": "Da Nang", "check_in": "2027-04-10", "check_out": "2027-04-14"}
+        {
+            "city": "Da Nang",
+            "check_in": "2027-04-10",
+            "check_out": "2027-04-14",
+            "rooms": 1,
+            "adults": 2,
+            "children": 0,
+        }
     )
     assert isinstance(msg, ToolMessage)
     assert isinstance(msg.content, str) and msg.content.strip()  # model-facing summary
@@ -65,7 +72,14 @@ def test_search_hotels_returns_panel_artifact(agent_db):
 
 def test_search_hotels_unknown_city_returns_message_no_panel(agent_db):
     msg = _invoke_hotel(
-        {"city": "NoSuchCityXYZ", "check_in": "2027-04-10", "check_out": "2027-04-14"}
+        {
+            "city": "NoSuchCityXYZ",
+            "check_in": "2027-04-10",
+            "check_out": "2027-04-14",
+            "rooms": 1,
+            "adults": 2,
+            "children": 0,
+        }
     )
     assert isinstance(msg, ToolMessage)
     assert msg.artifact is None  # no panel on empty
@@ -78,6 +92,9 @@ def test_search_hotels_no_match_returns_message_no_panel(agent_db):
             "city": "Da Nang",
             "check_in": "2027-04-10",
             "check_out": "2027-04-14",
+            "rooms": 1,
+            "adults": 2,
+            "children": 0,
             "min_stars": 6,
         }
     )
@@ -95,6 +112,9 @@ def test_search_hotels_bad_dates_raise(agent_db):
                 "city": "Da Nang",
                 "check_in": "2027-04-14",
                 "check_out": "2027-04-10",  # check_out before check_in
+                "rooms": 1,
+                "adults": 2,
+                "children": 0,
             }
         )
 
@@ -109,6 +129,9 @@ def test_search_hotels_past_date_raises(agent_db):
                 "city": "Da Nang",
                 "check_in": "2023-10-07",
                 "check_out": "2023-10-11",
+                "rooms": 1,
+                "adults": 2,
+                "children": 0,
             }
         )
 

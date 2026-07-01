@@ -28,9 +28,9 @@ def search_hotels(
     city: str,
     check_in: str,
     check_out: str,
-    rooms: int = 1,
-    adults: int = 2,
-    children: int = 0,
+    rooms: int,
+    adults: int,
+    children: int,
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
@@ -43,14 +43,20 @@ def search_hotels(
     short message and no panel; tell the user none were found and never invent
     hotels. It is not an error.
 
+    ``check_in``, ``check_out``, ``rooms``, ``adults`` and ``children`` are all
+    required and have no defaults — collect every one from the traveller and never
+    guess or assume them. The number of nights is derived from the two dates, so it
+    is not a parameter. If any of these values only appeared earlier in the
+    conversation, restate them and ask the traveller to confirm before searching.
+
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param check_in: Stay start date, YYYY-MM-DD. Must be today or later — resolve
         relative dates against the current date in the system prompt; never guess
         or pass a past date.
     :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``.
-    :param rooms: Number of rooms needed (default 1).
-    :param adults: Adult party size across all rooms (default 2).
-    :param children: Child party size across all rooms (default 0).
+    :param rooms: Number of rooms needed. Required — get it from the traveller.
+    :param adults: Adult party size across all rooms. Required — get it from the traveller.
+    :param children: Number of children in the party (0 if none). Required — ask the traveller.
     :param min_stars: Keep only hotels with this star rating or above.
     :param max_price: Keep only hotels at or below this nightly rate.
     :param amenities: List of required tags, e.g. ['pool', 'wifi', 'breakfast'].
