@@ -53,7 +53,7 @@ def _assert_route_message(msg: ToolMessage) -> None:
 def test_get_city_route_offline_estimate(agent_db):
     from app.tools.routing_tools import get_city_route
 
-    msg = _invoke(get_city_route, {"origin_city": "Tokyo", "destination_city": "Kyoto"})
+    msg = _invoke(get_city_route, {"origin_city": "Tokyo", "destination_city": "Seoul"})
     _assert_route_message(msg)
 
 
