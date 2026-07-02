@@ -82,7 +82,10 @@ Config data-layer (model + repo + cache) already exists from MIN-43/47, so the m
   first `app/data` import outside `app/db/seed.py`. Accepted at plan time: it is a plain constant
   (no seed coupling); lifting it to `core/` is more blast for no benefit. `app/services/agent_config_service.py`.
 - **Rule 3 — pin `python-multipart>=0.0.7,<0.1`** in `apps/api/requirements.txt` (needed for
-  FastAPI `Form(...)`; currently only transitively present).
+  FastAPI `Form(...)`; currently only transitively present). Commit `cfe4902`.
+- **Rule 1 — save redirects to the list page (`?saved=1`), not the edit page.** Review found the
+  saved-confirmation banner lives only on the list template, so the plan's redirect-to-edit left it
+  dead. Redirect to the list page instead (standard PRG). `app/routers/dashboard.py`. Commit `c5af70a`.
 
 ### Verify
 
@@ -92,6 +95,18 @@ Config data-layer (model + repo + cache) already exists from MIN-43/47, so the m
 | Dashboard HTTP tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_agent_config_dashboard.py -x` | _pending_ | list/edit/POST 303/400/404 |
 | Cache method | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_agent_config_cache.py -x` | _pending_ | invalidate() |
 | Lint | `cd apps/api && ruff check app` | _pending_ | new files clean |
+
+### Advisory Findings (correctness review, scored < 80 — recorded, not fixed)
+
+- **[score 20] Pre-commit cache-invalidate race** (`agent_config_service.py` invalidate before the
+  request-scoped commit). A concurrent agent read in the flush→commit window can reload stale and
+  mark the cache fresh, serving the old override for up to the TTL. Worst case (~1h) is **within
+  MIN-47's already-accepted "edits take effect within ~1h" contract**, so not a regression. Follow-up
+  only if instant propagation is ever required (invalidate after commit / write-through).
+- **[score 18] Non-atomic stampede guard** in `AgentConfigCache._maybe_refresh` — **pre-existing
+  MIN-47 code**, not introduced here; reload is idempotent (redundant DB work, not wrong data).
+- **[score 0] `base_url` cleared on save** — **intended, owner-approved design** (§7); the default
+  seed carries no custom per-agent gateway, so no real data is destroyed.
 
 ### Rollback
 

@@ -680,3 +680,10 @@ the HTTP tests). Wave 5 depends on all.
 ## Status log
 
 - 2026-07-02 — plan drafted from approved design.md + research-brief.md; 5 tasks / 5 waves.
+- 2026-07-02 — executed (subagent-driven). Commits: 1.1 `cfe4902`, 1.2 `daee6f7`, 2.1 `31a33f6`,
+  3.1 `1c51439`, 4.1 `48988fb`, redirect fix `c5af70a`. Wave 5 verify: ruff clean, 31 tests pass.
+  Per-task spec+quality reviews passed.
+- 2026-07-02 — final gates PASSED. Correctness review: F1/F2 (temperature/max_tokens bounds) fixed
+  `9061758`; F3 cache race / F4 stampede / F5 base_url recorded advisory (< 80, see SUMMARY). Intent
+  review: ✅ no divergence (all 7 scope items; deferrals owner-approved). 36 agent_config tests pass.
+  Ready for finishing-a-development-branch.
