@@ -16,6 +16,7 @@ Checkpointer + store make it stateful across turns/sessions.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -39,6 +40,9 @@ from app.agents.subagents.journal import build_journal
 from app.agents.subagents.planner import build_planner
 from app.agents.supervisor import SUBAGENTS, make_supervisor
 from app.clients.llm import FAST_AGENTS, get_agent_llm
+from app.core.agent_config_cache import AgentConfigCache
+
+logger = logging.getLogger(__name__)
 
 
 def build_graph(
@@ -142,3 +146,38 @@ def build_graph(
     builder.add_edge("extract_memory", END)
 
     return builder.compile(checkpointer=checkpointer, store=store)
+
+
+def resolve_travel_graph(app):
+    """Return the compiled graph, rebuilding it if the config generation changed.
+
+    Each node memoises its chat model for the compiled graph's life, so a DB
+    config change (surfaced by ``AgentConfigCache``'s TTL refresh) only takes
+    effect once the graph is rebuilt (MIN-47). The rebuild reuses the same
+    process-lifetime checkpointer + store, so conversation state is preserved
+    and no connection leaks.
+
+    Falls back to serving the existing graph when it was never built, when the
+    backends aren't stashed (e.g. a test that sets ``app.state.travel_graph``
+    directly), or when a rebuild fails.
+
+    :param app: The FastAPI app whose ``state`` holds the graph + backends.
+    :return: The compiled travel-agent graph, or ``None`` if unavailable.
+    """
+    graph = getattr(app.state, "travel_graph", None)
+    checkpointer = getattr(app.state, "agent_checkpointer", None)
+    store = getattr(app.state, "agent_store", None)
+    if graph is None or checkpointer is None:
+        return graph
+
+    generation = AgentConfigCache.generation()
+    if generation == getattr(app.state, "travel_graph_gen", None):
+        return graph
+
+    try:
+        app.state.travel_graph = build_graph(checkpointer=checkpointer, store=store)
+        app.state.travel_graph_gen = generation
+        logger.info("Agent graph rebuilt for config generation %d", generation)
+    except Exception:
+        logger.exception("Agent graph rebuild failed; keeping the previous graph")
+    return app.state.travel_graph

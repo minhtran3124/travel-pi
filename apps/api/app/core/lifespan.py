@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.core.agent_config_cache import reload_from_db
+from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 from app.core.config import get_settings
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
@@ -45,8 +45,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Populate the per-agent LLM config cache from the DB, so get_agent_llm
     # resolves DB overrides from the first request. Safe on an empty table
-    # (reload_from_db just syncs an empty map).
-    reload_from_db(get_session_factory(settings.database_url))
+    # (reload_from_db just syncs an empty map). ``configure`` wires the TTL +
+    # loader so later reads refresh lazily (MIN-47) without a restart.
+    _config_factory = get_session_factory(settings.database_url)
+    AgentConfigCache.configure(_config_factory, settings.agent_config_cache_ttl_seconds)
+    reload_from_db(_config_factory)
 
     # Enforce the "every city has ≥3 hotels and ≥3 places" promise from
     # CLAUDE.md — a typo in seed data would otherwise only surface when a
@@ -80,7 +83,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         open_store(settings.database_url) as store,
     ):
         try:
+            # Stash the backends + config generation so the graph can be rebuilt
+            # in-place when the DB config changes (MIN-47), reusing the same
+            # process-lifetime checkpointer/store (no connection leak).
+            app.state.agent_checkpointer = checkpointer
+            app.state.agent_store = store
             app.state.travel_graph = build_graph(checkpointer=checkpointer, store=store)
+            app.state.travel_graph_gen = AgentConfigCache.generation()
             logger.info(
                 "Agent graph ready: checkpointer=%s store=%s",
                 type(checkpointer).__name__,
