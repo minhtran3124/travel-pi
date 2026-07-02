@@ -1,6 +1,6 @@
 ---
 slug: min-48-dashboard-agent-config
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-02
 ---
@@ -687,3 +687,4 @@ the HTTP tests). Wave 5 depends on all.
   `9061758`; F3 cache race / F4 stampede / F5 base_url recorded advisory (< 80, see SUMMARY). Intent
   review: ✅ no divergence (all 7 scope items; deferrals owner-approved). 36 agent_config tests pass.
   Ready for finishing-a-development-branch.
+- 2026-07-02 — shipped via `tranhuuminh3124/min-48-be-dashboard-configure-llm-model-settings-model-system` (PR #54 → v3).
