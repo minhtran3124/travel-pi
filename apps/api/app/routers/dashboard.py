@@ -15,20 +15,28 @@ Pages:
     GET /dashboard/weather              live city weather lookup (Open-Meteo)
     GET /dashboard/air-quality          live city air-quality lookup (Open-Meteo)
     GET /dashboard/bookings             ledger of every flight/hotel booking
+    GET /dashboard/agent-config         list every agent's LLM config
+    GET /dashboard/agent-config/{name}  edit form for one agent's LLM config
+    POST /dashboard/agent-config/{name} persist one agent's LLM config
 """
 
 from datetime import date, datetime
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Depends, Form, Query, Request, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
 from app.db.session import get_session
-from app.exceptions import CityNotFoundError, WeatherUnavailableError
+from app.exceptions import (
+    CityNotFoundError,
+    DomainValidationError,
+    WeatherUnavailableError,
+)
 from app.repositories.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
@@ -41,6 +49,7 @@ from app.services import (
     flight_service,
     weather_service,
 )
+from app.services.agent_config_service import AgentConfigService
 from app.services.airport_service import AirportService
 from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
@@ -856,6 +865,109 @@ def bookings_page(
             "selected_type": selected_type,
             "sort": sort if sort in BOOKING_SORTS else "created_desc",
         },
+    )
+
+
+def _model_hints() -> list[str]:
+    """Union of catalog models across providers — datalist hints, not an allowlist."""
+    return sorted({m for p in LLM_PROVIDERS.values() for m in p.models})
+
+
+def _render_agent_config_edit(
+    request: Request,
+    *,
+    agent_name: str,
+    provider: str,
+    model: str,
+    temperature: str,
+    max_tokens: str,
+    updated_at: str | None = None,
+    error: str | None = None,
+    status_code: int = 200,
+) -> HTMLResponse:
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="agent_config_edit.html",
+        context={
+            "agent_name": agent_name,
+            "provider_value": provider,
+            "model_value": model,
+            "temperature_value": temperature,
+            "max_tokens_value": max_tokens,
+            "updated_at": updated_at,
+            "error": error,
+            "providers": sorted(PROVIDER_NAMES),
+            "model_hints": _model_hints(),
+        },
+        status_code=status_code,
+    )
+
+
+@router.get("/agent-config", response_class=HTMLResponse)
+def agent_config_page(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """List every agent's current LLM config."""
+    configs = AgentConfigService(session).list_configs()
+    return _TEMPLATES.TemplateResponse(
+        request=request, name="agent_config.html", context={"configs": configs}
+    )
+
+
+@router.get("/agent-config/{agent_name}", response_class=HTMLResponse)
+def agent_config_edit_page(
+    request: Request,
+    agent_name: str,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """Render the edit form for one agent (404 if unknown)."""
+    v = AgentConfigService(session).get_config(agent_name)  # NotFoundError → 404
+    return _render_agent_config_edit(
+        request,
+        agent_name=v.agent_name,
+        provider=v.provider or "",
+        model=v.model or "",
+        temperature="" if v.temperature is None else str(v.temperature),
+        max_tokens="" if v.max_tokens is None else str(v.max_tokens),
+        updated_at=v.updated_at,
+    )
+
+
+@router.post("/agent-config/{agent_name}", response_class=HTMLResponse)
+def agent_config_save(
+    request: Request,
+    agent_name: str,
+    session: Annotated[Session, Depends(get_session)],
+    provider: str = Form(""),
+    model: str = Form(""),
+    temperature: str = Form(""),
+    max_tokens: str = Form(""),
+) -> Response:
+    """Persist one agent's config, then redirect back (PRG). Invalid input → 400 + form."""
+    svc = AgentConfigService(session)
+    svc.get_config(agent_name)  # 404 before any write if the agent is unknown
+    try:
+        svc.update_config(
+            agent_name,
+            provider=provider,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+    except DomainValidationError as exc:
+        return _render_agent_config_edit(
+            request,
+            agent_name=agent_name,
+            provider=provider,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            error=str(exc),
+            status_code=400,
+        )
+    return RedirectResponse(
+        url=f"/dashboard/agent-config/{agent_name}?saved=1", status_code=303
     )
 
 
