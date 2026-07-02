@@ -12,6 +12,8 @@ class AgentModelOverride:
     provider: str | None = None
     model: str | None = None
     base_url: str | None = None
+    temperature: float | None = None
+    max_tokens: int | None = None
 
 
 class AgentConfigCache:
@@ -52,7 +54,11 @@ def reload_from_db(session_factory) -> None:
     repo = AgentConfigRepository(session_factory)
     cache = {
         row.agent_name: AgentModelOverride(
-            provider=row.provider, model=row.model, base_url=row.base_url
+            provider=row.provider,
+            model=row.model,
+            base_url=row.base_url,
+            temperature=row.temperature,
+            max_tokens=row.max_tokens,
         )
         for row in repo.list_all()
     }

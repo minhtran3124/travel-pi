@@ -46,24 +46,29 @@ def test_get_agent_llm_falls_back_to_tier_defaults(monkeypatch):
 
 
 def test_get_agent_llm_applies_per_agent_override(monkeypatch):
-    # Override one node onto a different provider + model + temperature; other
-    # nodes are untouched and keep the global defaults.
+    # A DB override puts one node on a different provider + model; other nodes
+    # (no row) keep the global defaults.
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
-    monkeypatch.setenv(
-        "AGENT_LLM_CONFIGS",
-        '{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6",'
-        '"temperature":0.1}}',
-    )
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
     from app.core.config import get_settings
 
     get_settings.cache_clear()
+    AgentConfigCache.clear()
+    AgentConfigCache.sync_from_cache(
+        {
+            "concierge": AgentModelOverride(
+                provider="anthropic", model="claude-sonnet-4-6", temperature=0.1
+            )
+        }
+    )
     from app.clients.llm import get_agent_llm
 
     concierge = get_agent_llm("concierge")
     assert concierge.model == "claude-sonnet-4-6"
     # Untouched node still resolves to the global OpenAI default.
     assert get_agent_llm("planner").model_name == "gpt-4.1"
+    AgentConfigCache.clear()
     get_settings.cache_clear()
 
 

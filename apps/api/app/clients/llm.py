@@ -140,22 +140,17 @@ def get_fast_llm(model: str | None = None) -> BaseChatModel:
     return get_llm(model, fast=True)
 
 
-def _coalesce(*values: Any) -> Any:
-    """Return the first non-``None`` value, or ``None`` if all are ``None``."""
-    return next((v for v in values if v is not None), None)
-
-
 def get_agent_llm(agent_name: str) -> BaseChatModel:
     """Build the chat model for a specific graph node.
 
-    Resolves per field with a **DB → env → global default** fallback: the
-    DB-backed override (``AgentConfigCache``), then
-    ``settings.agent_llm_configs[agent_name]``, then the global default. Model
-    falls back to the node's tier default (fast vs main, via ``FAST_AGENTS``)
-    when nothing overrides it. The chosen ``provider`` profile supplies its own
-    gateway ``base_url`` inside ``_build_chat_model``; only a per-agent
-    ``base_url`` override is threaded here. A node with no override behaves
-    exactly like ``get_llm()`` / ``get_fast_llm()``.
+    Resolves per field from the DB-backed override (``AgentConfigCache``),
+    falling back to the global default per field: ``provider`` to the global
+    ``llm_provider``, ``model`` to the node's tier default (fast vs main, via
+    ``FAST_AGENTS``). ``temperature`` / ``max_tokens`` are applied only when the
+    row sets them. The chosen ``provider`` profile supplies its own gateway
+    ``base_url`` inside ``_build_chat_model``; only a per-agent ``base_url``
+    override is threaded here. A node with no DB row behaves exactly like
+    ``get_llm()`` / ``get_fast_llm()``.
 
     :param agent_name: The graph node name to resolve config for.
     :return: A chat model.
@@ -163,29 +158,20 @@ def get_agent_llm(agent_name: str) -> BaseChatModel:
     s = get_settings()
     fast = agent_name in FAST_AGENTS
 
-    env = s.agent_llm_configs.get(agent_name)
     db = AgentConfigCache.get(agent_name)
-
-    if env is None and db is None:
+    if db is None:
         return get_llm(fast=fast)
 
-    provider = _coalesce(
-        db.provider if db else None,
-        env.provider if env else None,
-        s.llm_provider,
-    )
-    model = _coalesce(
-        db.model if db else None,
-        env.model if env else None,
-        s.fast_llm_model if fast else s.llm_model,
-    )
+    provider = db.provider or s.llm_provider
+    model = db.model or (s.fast_llm_model if fast else s.llm_model)
+    extra = {"max_tokens": db.max_tokens} if db.max_tokens is not None else {}
 
     return _build_chat_model(
         provider,
         model,
-        temperature=env.temperature if env else None,
-        base_url=db.base_url if db else None,
-        **((env.model_extra if env else None) or {}),
+        temperature=db.temperature,
+        base_url=db.base_url,
+        **extra,
     )
 
 

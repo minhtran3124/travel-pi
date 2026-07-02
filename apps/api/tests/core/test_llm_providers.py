@@ -17,7 +17,7 @@ _VALID_SDKS = {"openai", "anthropic", "google_genai"}
 
 
 def test_native_sdk_profiles_present():
-    # config's default provider + the env AGENT_LLM_CONFIGS path use SDK names
+    # The global LLM_PROVIDER default + DB agent_config rows may use SDK names
     # directly, so those must exist as catalog keys.
     for sdk in _VALID_SDKS:
         assert sdk in LLM_PROVIDERS

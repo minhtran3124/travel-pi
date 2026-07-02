@@ -44,6 +44,17 @@ def test_upsert_accepts_gateway_profile_name(repo):
     assert row.provider == "clinepass"
 
 
+def test_upsert_persists_temperature_and_max_tokens(repo):
+    row = repo.upsert("concierge", provider="openai", temperature=0.2, max_tokens=1024)
+    assert row.temperature == 0.2
+    assert row.max_tokens == 1024
+
+    # Re-upsert without the knobs clears them (full replace, not merge).
+    cleared = repo.upsert("concierge", provider="openai")
+    assert cleared.temperature is None
+    assert cleared.max_tokens is None
+
+
 def test_list_all_returns_every_row(repo):
     repo.upsert("concierge", provider="openai")
     repo.upsert("planner", provider="anthropic")

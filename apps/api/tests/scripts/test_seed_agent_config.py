@@ -35,9 +35,13 @@ def test_seeds_all_nine_nodes_with_defaults(db_url):
 
     rows = seed_agent_config()
 
-    assert {name for name, *_ in rows} == set(AGENT_CONFIG_NODES)
+    assert {r["agent_name"] for r in rows} == set(AGENT_CONFIG_NODES)
     assert len(rows) == 9
-    assert all(p == DEFAULT_PROVIDER and m == DEFAULT_MODEL for _, p, m, _ in rows)
+    assert all(
+        r["provider"] == DEFAULT_PROVIDER and r["model"] == DEFAULT_MODEL for r in rows
+    )
+    # Knobs default to NULL (provider defaults) unless asked for.
+    assert all(r["temperature"] is None and r["max_tokens"] is None for r in rows)
 
     # Persisted: every node carries clinepass + the nano model + the profile's
     # own gateway base_url (derived by default).
@@ -56,11 +60,22 @@ def test_base_url_defaults_to_profile_and_can_be_overridden(db_url):
 
     # Explicit override wins over the profile's gateway...
     rows = seed_agent_config(base_url="https://gw.example.com/v1", nodes=["planner"])
-    assert rows[0][3] == "https://gw.example.com/v1"
+    assert rows[0]["base_url"] == "https://gw.example.com/v1"
 
     # ...and an empty string stores NULL (fall back to profile at runtime).
     rows = seed_agent_config(base_url="", nodes=["booking"])
-    assert rows[0][3] is None
+    assert rows[0]["base_url"] is None
+
+
+def test_seeds_temperature_and_max_tokens(db_url):
+    from scripts.seed_agent_config import seed_agent_config
+
+    seed_agent_config(temperature=0.2, max_tokens=2048, nodes=["concierge"])
+
+    repo = AgentConfigRepository(get_session_factory(db_url))
+    row = repo.get("concierge")
+    assert row.temperature == 0.2
+    assert row.max_tokens == 2048
 
 
 def test_is_idempotent(db_url):
@@ -80,9 +95,9 @@ def test_custom_provider_model_and_node_subset(db_url):
         provider="claude", model="claude-sonnet-5", nodes=["concierge", "planner"]
     )
 
-    assert {name for name, *_ in rows} == {"concierge", "planner"}
+    assert {r["agent_name"] for r in rows} == {"concierge", "planner"}
     # claude profile derives its own gateway base_url.
-    assert all(base_url == "https://api.claude.com/v1" for *_, base_url in rows)
+    assert all(r["base_url"] == "https://api.claude.com/v1" for r in rows)
     repo = AgentConfigRepository(get_session_factory(db_url))
     assert len(repo.list_all()) == 2
 

@@ -1,30 +1,32 @@
 #!/usr/bin/env python3
 """Seed per-agent LLM config rows for every graph node (MIN-43).
 
-Populates the ``agent_config`` table so the **DB** — not the ``LLM_PROVIDER`` /
-``LLM_MODEL`` / ``LLM_BASE_URL`` env globals — drives each node's provider,
-model, and base_url. By default all nine nodes
+Populates the ``agent_config`` table so the **DB** — not env globals — drives
+each node's provider, model, base_url, and model knobs (temperature,
+max_tokens). By default all nine nodes
 (``app.data.agent_config.AGENT_CONFIG_NODES``) are set to the ``clinepass``
 gateway profile on ``openai/gpt-5.4-nano``, with ``base_url`` taken from that
-profile's catalog entry (so each row is self-contained). Pass ``--provider`` /
-``--model`` / ``--base-url`` to change that, or ``--nodes`` for a subset.
+profile's catalog entry (so each row is self-contained) and temperature /
+max_tokens left NULL (provider defaults). Pass ``--provider`` / ``--model`` /
+``--base-url`` / ``--temperature`` / ``--max-tokens`` to change that, or
+``--nodes`` for a subset.
 
 The startup seeder (``app/db/seed.py``) deliberately leaves these columns NULL
-so a fresh DB inherits the env globals; this script is the operational way to
-flip a deployment over to DB-driven config.
+so a fresh DB inherits the global defaults; this script is the operational way
+to flip a deployment over to DB-driven config.
 
 Run as a module from ``apps/api/`` so ``app`` is importable::
 
     python -m scripts.seed_agent_config
     python -m scripts.seed_agent_config --provider claude --model claude-sonnet-5
-    python -m scripts.seed_agent_config --base-url https://gw.example.com/v1
+    python -m scripts.seed_agent_config --temperature 0.2 --max-tokens 2048
     python -m scripts.seed_agent_config --nodes concierge planner
 
 Runs against ``settings.database_url`` (respects ``DATABASE_URL`` / ``.env``).
 Idempotent: re-running upserts the same rows. ``provider`` is validated against
-the profile catalog (``app.core.llm_providers.PROVIDER_NAMES``); ``model`` and
-``base_url`` are not. Restart the app — or have MIN-48 call ``reload_from_db`` —
-so the in-process ``AgentConfigCache`` picks up the change.
+the profile catalog (``app.core.llm_providers.PROVIDER_NAMES``); the other
+fields are not. Restart the app — or have MIN-48 call ``reload_from_db`` — so
+the in-process ``AgentConfigCache`` picks up the change.
 """
 
 from __future__ import annotations
@@ -63,16 +65,20 @@ def seed_agent_config(
     provider: str = DEFAULT_PROVIDER,
     model: str = DEFAULT_MODEL,
     base_url: object = _DERIVE_FROM_PROFILE,
+    temperature: float | None = None,
+    max_tokens: int | None = None,
     nodes: list[str] | None = None,
-) -> list[tuple[str, str | None, str | None, str | None]]:
+) -> list[dict[str, str | float | int | None]]:
     """Upsert an ``agent_config`` row per node.
 
     :param provider: The provider profile to store for every targeted node.
     :param model: The model name to store for every targeted node.
     :param base_url: Explicit base_url, or ``_DERIVE_FROM_PROFILE`` (default) to
         use the provider profile's own gateway URL.
+    :param temperature: Sampling temperature, or ``None`` to store NULL.
+    :param max_tokens: Max output tokens, or ``None`` to store NULL.
     :param nodes: Node names to seed; defaults to all ``AGENT_CONFIG_NODES``.
-    :return: A ``(agent_name, provider, model, base_url)`` tuple per row.
+    :return: One dict of the stored fields per upserted row.
     :raises DomainValidationError: If *provider* is not a known profile.
     """
     targets = nodes or list(AGENT_CONFIG_NODES)
@@ -82,15 +88,29 @@ def seed_agent_config(
     rows = []
     for name in targets:
         row = repo.upsert(
-            name, provider=provider, model=model, base_url=resolved_base_url
+            name,
+            provider=provider,
+            model=model,
+            base_url=resolved_base_url,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )
-        rows.append((row.agent_name, row.provider, row.model, row.base_url))
+        rows.append(
+            {
+                "agent_name": row.agent_name,
+                "provider": row.provider,
+                "model": row.model,
+                "base_url": row.base_url,
+                "temperature": row.temperature,
+                "max_tokens": row.max_tokens,
+            }
+        )
     return rows
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Seed per-agent LLM provider/model/base_url into agent_config."
+        description="Seed per-agent LLM config into the agent_config table."
     )
     parser.add_argument(
         "--provider",
@@ -110,6 +130,18 @@ def main() -> None:
         "Pass an empty string to store NULL.",
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature; default NULL (provider default).",
+    )
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=None,
+        help="Max output tokens; default NULL (provider default).",
+    )
+    parser.add_argument(
         "--nodes",
         nargs="*",
         default=None,
@@ -118,9 +150,20 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    rows = seed_agent_config(args.provider, args.model, args.base_url, args.nodes)
-    for name, provider, model, base_url in rows:
-        print(f"{name:16} -> provider={provider} model={model} base_url={base_url}")
+    rows = seed_agent_config(
+        args.provider,
+        args.model,
+        args.base_url,
+        args.temperature,
+        args.max_tokens,
+        args.nodes,
+    )
+    for r in rows:
+        print(
+            f"{r['agent_name']:16} -> provider={r['provider']} model={r['model']} "
+            f"base_url={r['base_url']} temperature={r['temperature']} "
+            f"max_tokens={r['max_tokens']}"
+        )
     print(f"seeded {len(rows)} agent_config rows")
 
 

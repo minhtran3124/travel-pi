@@ -51,7 +51,7 @@ def build_graph(
     """Compile the travel agent graph. Inject fakes/backends for tests.
 
     Each node resolves its own model via ``get_agent_llm`` so providers/models
-    can be tuned per agent (``settings.agent_llm_configs``). When tests inject
+    can be tuned per agent (DB ``agent_config`` via ``AgentConfigCache``). When tests inject
     ``llm`` / ``fast_llm``, those override the whole main / fast tier — the node
     keeps using the injected fake exactly as before.
 

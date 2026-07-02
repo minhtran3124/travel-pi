@@ -8,7 +8,7 @@ for local development. See ``.env.example`` for the available knobs.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.core.llm_providers import PROVIDER_NAMES
@@ -20,9 +20,9 @@ Environment = Literal["development", "production", "test"]
 def _validate_provider_profile(value: str | None) -> str | None:
     """Reject a provider that isn't a known profile (``app.core.llm_providers``).
 
-    Applied to the global ``llm_provider`` and each ``AgentLLMConfig.provider``,
-    so an env-set profile (e.g. ``clinepass``) is validated the same way the
-    agent_config DB write path is. ``None`` means "fall back", so it passes.
+    Applied to the global ``llm_provider`` so an env-set profile (e.g.
+    ``clinepass``) is validated the same way the agent_config DB write path is.
+    ``None`` means "fall back", so it passes.
     """
     if value is not None and value not in PROVIDER_NAMES:
         raise ValueError(
@@ -30,27 +30,6 @@ def _validate_provider_profile(value: str | None) -> str | None:
             f"Known profiles: {sorted(PROVIDER_NAMES)}."
         )
     return value
-
-
-class AgentLLMConfig(BaseModel):
-    """Per-agent LLM override (see ``app.clients.llm.get_agent_llm``).
-
-    Lets each graph node run on its own provider/model/knobs. Every field is
-    optional: ``provider`` falls back to the global ``llm_provider`` and
-    ``model`` to the node's tier default (fast vs main). Any extra key (e.g.
-    ``max_tokens``) passes straight through to the chat model.
-    """
-
-    model_config = ConfigDict(extra="allow", protected_namespaces=())
-
-    provider: str | None = None
-    model: str | None = None
-    temperature: float | None = None
-
-    @field_validator("provider")
-    @classmethod
-    def _check_provider(cls, v: str | None) -> str | None:
-        return _validate_provider_profile(v)
 
 
 class Settings(BaseSettings):
@@ -155,12 +134,9 @@ class Settings(BaseSettings):
     fast_llm_model: str = "gpt-4.1-mini"  # cheap model for sub-agents / summarize
     embedding_model: str = "text-embedding-3-small"
 
-    # Per-agent LLM overrides — keyed by graph node name (supervisor, planner,
-    # concierge, journal, booking, budget, summarize, reflection). Each entry is
-    # an AgentLLMConfig; absent nodes use the global provider + tier model. Set
-    # via the AGENT_LLM_CONFIGS env var as JSON, e.g.
-    #   AGENT_LLM_CONFIGS='{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6"},"supervisor":{"temperature":0.1}}'
-    agent_llm_configs: dict[str, AgentLLMConfig] = {}
+    # Per-agent overrides (provider/model/base_url/temperature/max_tokens) live
+    # in the DB ``agent_config`` table now, resolved in ``get_agent_llm`` via
+    # ``AgentConfigCache``. Seed/edit them with ``scripts/seed_agent_config.py``.
 
     # Global base-URL fallback — a catch-all OpenAI-compatible gateway host used
     # when the selected profile has no base_url of its own. Prefer a first-class
