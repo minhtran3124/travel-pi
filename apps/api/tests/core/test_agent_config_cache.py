@@ -1,4 +1,9 @@
-"""AgentConfigCache + reload_from_db (specs/min-43-db-agent-config Task A.4)."""
+"""AgentConfigCache + reload_from_db (specs/min-43-db-agent-config Task A.4).
+
+MIN-47 adds a TTL-based lazy refresh + a generation counter — covered below.
+"""
+
+import time
 
 import pytest
 from app.core.agent_config_cache import (
@@ -54,3 +59,59 @@ def test_reload_from_db_reflects_an_upsert(tmp_path):
     override = AgentConfigCache.get("concierge")
     assert override == AgentModelOverride(provider="anthropic", model="claude-3")
     assert AgentConfigCache.get("planner") is None
+
+
+# --- MIN-47: TTL refresh + generation counter -------------------------------
+
+
+def test_generation_bumps_only_when_data_changes():
+    assert AgentConfigCache.generation() == 0
+
+    AgentConfigCache.sync_from_cache({"a": AgentModelOverride(model="x")})
+    assert AgentConfigCache.generation() == 1
+
+    AgentConfigCache.sync_from_cache({"a": AgentModelOverride(model="x")})  # identical
+    assert AgentConfigCache.generation() == 1  # no bump
+
+    AgentConfigCache.sync_from_cache({"a": AgentModelOverride(model="y")})  # changed
+    assert AgentConfigCache.generation() == 2
+
+
+def test_get_reloads_from_db_when_stale(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.reload_from_db",
+        lambda factory: calls.append(factory),
+    )
+    AgentConfigCache.configure("FACTORY", ttl_seconds=3600)
+    AgentConfigCache._loaded_at = time.monotonic() - 10_000  # force past TTL
+
+    AgentConfigCache.get("concierge")
+
+    assert calls == ["FACTORY"]  # a single reload was triggered
+
+
+def test_get_skips_reload_when_fresh(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.reload_from_db",
+        lambda factory: calls.append(factory),
+    )
+    AgentConfigCache.configure("FACTORY", ttl_seconds=3600)
+    AgentConfigCache._loaded_at = time.monotonic()  # fresh
+
+    AgentConfigCache.get("concierge")
+
+    assert calls == []  # within TTL → no DB hit
+
+
+def test_no_reload_without_configure(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.reload_from_db",
+        lambda factory: calls.append(factory),
+    )
+    # configure() never called → no loader wired → get() must not touch the DB.
+    AgentConfigCache.get("concierge")
+
+    assert calls == []

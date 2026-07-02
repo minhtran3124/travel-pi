@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
+from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
 from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
@@ -55,13 +56,14 @@ def get_travel_graph(request: Request) -> Any:
 
     The graph + checkpointer + store are constructed a single time at startup and
     held on ``app.state``; resolving them here per request used to rebuild the whole
-    graph and leak a DB connection each call. Overridden in tests to inject a
-    FakeLLM-backed graph.
+    graph and leak a DB connection each call. ``resolve_travel_graph`` rebuilds it
+    in place only when the DB config generation changed (MIN-47), reusing the same
+    checkpointer/store. Overridden in tests to inject a FakeLLM-backed graph.
 
     :param request: The incoming request, used to reach ``app.state``.
     :return: The shared compiled LangGraph graph.
     """
-    graph = getattr(request.app.state, "travel_graph", None)
+    graph = resolve_travel_graph(request.app)
     if graph is None:
         raise UpstreamError("Agent graph is not available")
 
