@@ -10,9 +10,21 @@ import type { PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { createClient } from "@/lib/supabase/client";
 import { parseSSE } from "@/lib/stream/parseSSE";
+import { createSmoothReveal, type SmoothReveal } from "./smoothReveal";
 
 const CONVERSATION_STORAGE_KEY = "travel.conversationId";
 const CLAIMED_STORAGE_KEY = "travel.claimed";
+
+// --- Smooth reveal tuning ---------------------------------------------------
+// Base typewriter speed for streaming assistant text (chars/second). Lower =
+// slower, more deliberate reveal.
+const REVEAL_CHARS_PER_SEC = 40;
+// Upper bound on how far the on-screen reveal may lag behind the wire. When the
+// backlog would take longer than this to drain at the base speed, the reveal
+// speeds up so it never falls more than ~this many seconds behind. Kept generous
+// so the readable base speed governs typical answers; only very long bursts
+// (backlog > CHARS_PER_SEC * MAX_LAG_SEC chars) get sped up to bound the tail.
+const REVEAL_MAX_LAG_SEC = 6;
 
 function readStoredConversationId(): string | null {
   if (typeof window === "undefined") return null;
@@ -209,6 +221,21 @@ export function useAgentStream(
     );
   }, []);
 
+  // Smooth-reveal controller (typewriter drip). Instantiated once — drains
+  // buffered wire tokens into the assistant bubble at a bounded char rate so the
+  // text reads slower and smoother instead of jumping in bursts. See
+  // `smoothReveal.ts`. `appendToAssistant`/`setAssistant` are stable (no deps).
+  const revealRef = useRef<SmoothReveal | null>(null);
+  useEffect(() => {
+    const reveal = createSmoothReveal(
+      appendToAssistant,
+      (id) => setAssistant(id, ""),
+      { charsPerSec: REVEAL_CHARS_PER_SEC, maxLagSec: REVEAL_MAX_LAG_SEC },
+    );
+    revealRef.current = reveal;
+    return () => reveal.dispose();
+  }, [appendToAssistant, setAssistant]);
+
   const send = useCallback(
     (text: string) => {
       const message = text.trim();
@@ -224,6 +251,8 @@ export function useAgentStream(
         return;
       }
       inFlightRef.current = true;
+      // Finish revealing any leftover from the previous turn before retargeting.
+      revealRef.current?.flush();
 
       // The BE mints a fresh thread whenever conversation_id is null (and echoes
       // the id back in the `start`/`done` events). To keep multi-turn memory we
@@ -284,12 +313,12 @@ export function useAgentStream(
                 break;
               case "token":
                 received = true;
-                appendToAssistant(assistantId, event.text);
+                revealRef.current?.enqueue(assistantId, event.text);
                 break;
               case "reset":
                 // Agent revised its answer (reflection re-ran the sub-agent) —
                 // drop the superseded draft so only the final answer renders.
-                setAssistant(assistantId, "");
+                revealRef.current?.reset(assistantId);
                 break;
               case "panel":
                 received = true;
@@ -351,7 +380,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, isStreaming, onTurnComplete, setAssistant, t, userId],
+    [interrupt, isStreaming, onTurnComplete, t, userId],
   );
 
   const resume = useCallback(
@@ -396,10 +425,10 @@ export function useAgentStream(
           for await (const event of parseSSE(res.body)) {
             switch (event.type) {
               case "token":
-                appendToAssistant(assistantId, event.text);
+                revealRef.current?.enqueue(assistantId, event.text);
                 break;
               case "reset":
-                setAssistant(assistantId, "");
+                revealRef.current?.reset(assistantId);
                 break;
               case "panel":
                 setPanels((prev) =>
@@ -435,7 +464,7 @@ export function useAgentStream(
         }
       })();
     },
-    [appendToAssistant, interrupt, onTurnComplete, setAssistant, t, userId],
+    [interrupt, onTurnComplete, t, userId],
   );
 
   const retry = useCallback(() => {
@@ -449,6 +478,8 @@ export function useAgentStream(
     // Only meaningful for a dangling user turn on an existing conversation.
     if (!last || last.role !== "user" || !conversationId) return;
     inFlightRef.current = true;
+    // Finish revealing any leftover from the previous turn before retargeting.
+    revealRef.current?.flush();
 
     const assistantId = newId();
     assistantIdRef.current = assistantId;
@@ -498,10 +529,10 @@ export function useAgentStream(
               break;
             case "token":
               received = true;
-              appendToAssistant(assistantId, event.text);
+              revealRef.current?.enqueue(assistantId, event.text);
               break;
             case "reset":
-              setAssistant(assistantId, "");
+              revealRef.current?.reset(assistantId);
               break;
             case "panel":
               received = true;
@@ -551,18 +582,10 @@ export function useAgentStream(
         if (abortRef.current === controller) abortRef.current = null;
       }
     })();
-  }, [
-    appendToAssistant,
-    interrupt,
-    isStreaming,
-    messages,
-    onTurnComplete,
-    setAssistant,
-    t,
-    userId,
-  ]);
+  }, [interrupt, isStreaming, messages, onTurnComplete, t, userId]);
 
   const newConversation = useCallback(() => {
+    revealRef.current?.clear();
     clearStoredConversationId();
     conversationIdRef.current = null;
     hydratedRef.current = false;
