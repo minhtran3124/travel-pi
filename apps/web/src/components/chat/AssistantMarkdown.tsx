@@ -28,6 +28,10 @@ export function AssistantMarkdown({ content, isStreaming }: AssistantMarkdownPro
         "text-sm leading-relaxed",
         // tighten Streamdown's default block spacing inside the chat bubble
         "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        // Streamdown's default heading sizes dwarf the bubble text — scale them
+        // down to a chat-appropriate hierarchy just above body size.
+        "[&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h4]:text-sm [&_h5]:text-sm [&_h6]:text-sm",
+        "[&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold",
       )}
     >
       {content}
