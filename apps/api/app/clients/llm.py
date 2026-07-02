@@ -42,7 +42,7 @@ def _resolve_profile(provider: str) -> ProviderProfile:
     profile = get_provider(provider)
     if profile is not None:
         return profile
-    return ProviderProfile(name=provider, sdk=provider, base_url=None, models=())
+    return ProviderProfile(sdk=provider, base_url=None, models=())
 
 
 def _build_chat_model(

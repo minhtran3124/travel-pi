@@ -1,12 +1,13 @@
 """Static catalog of LLM provider *profiles* for the agent layer.
 
 A **profile** is a named endpoint the client can select (e.g. ``openai``,
-``clinepass``, ``claude``). Each maps to three things:
+``clinepass``, ``claude``). Each maps to:
 
 * ``sdk`` — the LangChain ``init_chat_model(model_provider=...)`` value that
   actually talks to the API (``openai`` / ``anthropic`` / ``google_genai``).
-  A profile's API key is read from that SDK's settings field, so a gateway
-  profile like ``clinepass`` reuses the ``openai`` key.
+* ``api_key_field`` — the ``Settings`` attribute holding this profile's own API
+  key. Every profile has a dedicated one (no sharing across providers), so a
+  gateway like ``clinepass`` needs its own ``clinepass_api_key``.
 * ``base_url`` — an OpenAI-/Anthropic-compatible gateway host, or ``None`` to
   hit the provider's default endpoint. This is what lets ``clinepass`` run the
   ``openai`` SDK against the Cline gateway without any code change.
@@ -24,7 +25,7 @@ into the DB — it is static app config, so it lives in ``core`` rather than
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, get_args
 
 # init_chat_model(model_provider=...) values — the real SDKs a profile runs on.
 LLMSdk = Literal["openai", "anthropic", "google_genai"]
@@ -40,7 +41,6 @@ class ProviderProfile:
     bare fallback profile for an unlisted provider (which then carries no key).
     """
 
-    name: str
     sdk: LLMSdk
     base_url: str | None
     models: tuple[str, ...]
@@ -48,7 +48,6 @@ class ProviderProfile:
 
 
 def _profile(
-    name: str,
     sdk: LLMSdk,
     models: list[str],
     *,
@@ -56,7 +55,6 @@ def _profile(
     api_key_field: str | None = None,
 ) -> ProviderProfile:
     return ProviderProfile(
-        name=name,
         sdk=sdk,
         base_url=base_url,
         models=tuple(models),
@@ -70,7 +68,6 @@ def _profile(
 LLM_PROVIDERS: dict[str, ProviderProfile] = {
     "openai": _profile(
         "openai",
-        "openai",
         [
             "gpt-4.1",
             "gpt-4.1-mini",
@@ -82,7 +79,6 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
     ),
     "anthropic": _profile(
         "anthropic",
-        "anthropic",
         [
             "claude-opus-4-8",
             "claude-sonnet-5",
@@ -92,7 +88,6 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
     ),
     "google_genai": _profile(
         "google_genai",
-        "google_genai",
         [
             "gemini-2.5-pro",
             "gemini-2.5-flash",
@@ -100,7 +95,6 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
         api_key_field="google_api_key",
     ),
     "clinepass": _profile(
-        "clinepass",
         "openai",
         [
             "openai/gpt-5.4-nano",
@@ -112,7 +106,6 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
         api_key_field="clinepass_api_key",
     ),
     "claude": _profile(
-        "claude",
         "anthropic",
         [
             "claude-opus-4-8",
@@ -139,9 +132,8 @@ def get_provider(name: str) -> ProviderProfile | None:
 
 
 # --- import-time consistency guard (typos fail loudly, like app/data/*) ------
-_VALID_SDKS = {"openai", "anthropic", "google_genai"}
+_VALID_SDKS = set(get_args(LLMSdk))
 for _name, _p in LLM_PROVIDERS.items():
-    assert _p.name == _name, f"profile key {_name!r} != name {_p.name!r}"
     assert _p.sdk in _VALID_SDKS, f"{_name}: unknown sdk {_p.sdk!r}"
     assert _p.base_url is None or _p.base_url.startswith("http"), (
         f"{_name}: base_url must be an http(s) URL or None"

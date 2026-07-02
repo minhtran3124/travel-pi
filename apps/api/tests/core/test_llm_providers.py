@@ -62,8 +62,8 @@ def test_provider_names_matches_catalog_keys():
 
 def test_every_profile_satisfies_the_guard_invariants():
     for name, p in LLM_PROVIDERS.items():
-        assert p.name == name
         assert p.sdk in _VALID_SDKS
         assert p.base_url is None or p.base_url.startswith("http")
         assert p.models, f"{name}: empty models"
         assert len(p.models) == len(set(p.models)), f"{name}: duplicate models"
+        assert p.api_key_field, f"{name}: missing api_key_field"
