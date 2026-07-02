@@ -63,8 +63,13 @@ describe("useAgentStream — live token accumulation", () => {
 
     await waitFor(() => expect(result.current.isStreaming).toBe(false));
 
-    const assistant = result.current.messages.find((m) => m.role === "assistant");
-    expect(assistant?.content).toBe("Visit Tokyo Tower");
+    // Text reveals via a smooth typewriter drip that keeps draining after the
+    // wire ends, so wait for the full answer to finish revealing.
+    await waitFor(() =>
+      expect(
+        result.current.messages.find((m) => m.role === "assistant")?.content,
+      ).toBe("Visit Tokyo Tower"),
+    );
     expect(chatFallback).not.toHaveBeenCalled();
     expect(result.current.error).toBeNull();
   });
@@ -108,9 +113,13 @@ describe("useAgentStream — live token accumulation", () => {
     });
     await waitFor(() => expect(result.current.isStreaming).toBe(false));
 
-    const assistant = result.current.messages.find((m) => m.role === "assistant");
-    // Final answer only — no subagent/tool text leaks into the bubble.
-    expect(assistant?.content).toBe("Sunny");
+    // Final answer only — no subagent/tool text leaks into the bubble. Wait for
+    // the smooth-reveal drip to finish draining the buffered tokens.
+    await waitFor(() =>
+      expect(
+        result.current.messages.find((m) => m.role === "assistant")?.content,
+      ).toBe("Sunny"),
+    );
     expect(result.current.error).toBeNull();
   });
 });
