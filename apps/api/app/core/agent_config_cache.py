@@ -82,6 +82,15 @@ class AgentConfigCache:
         return cls._generation
 
     @classmethod
+    def invalidate(cls) -> None:
+        """Force the next read to reload from the DB (called after a config write).
+
+        Resets only the freshness stamp; the cached map stays in place until the
+        next ``_maybe_refresh`` actually reloads. A no-op when no loader is wired.
+        """
+        cls._loaded_at = None
+
+    @classmethod
     def _maybe_refresh(cls) -> None:
         """Reload from the DB when the cache is older than the TTL."""
         if cls._session_factory is None:
