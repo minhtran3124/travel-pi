@@ -89,3 +89,46 @@ def test_update_invalidates_cache(seeded_session):
         "planner", provider="openai", model="gpt-4o", temperature="", max_tokens=""
     )
     assert AgentConfigCache._loaded_at is None
+
+
+def test_update_rejects_negative_temperature(seeded_session):
+    svc = AgentConfigService(seeded_session)
+    with pytest.raises(DomainValidationError):
+        svc.update_config(
+            "planner", provider="", model="", temperature="-0.5", max_tokens=""
+        )
+
+
+def test_update_rejects_temperature_above_2(seeded_session):
+    svc = AgentConfigService(seeded_session)
+    with pytest.raises(DomainValidationError):
+        svc.update_config(
+            "planner", provider="", model="", temperature="3", max_tokens=""
+        )
+
+
+def test_update_rejects_non_finite_temperature(seeded_session):
+    svc = AgentConfigService(seeded_session)
+    for bad in ("nan", "inf", "1e999"):
+        with pytest.raises(DomainValidationError):
+            svc.update_config(
+                "planner", provider="", model="", temperature=bad, max_tokens=""
+            )
+
+
+def test_update_rejects_zero_or_negative_max_tokens(seeded_session):
+    svc = AgentConfigService(seeded_session)
+    for bad in ("0", "-5"):
+        with pytest.raises(DomainValidationError):
+            svc.update_config(
+                "planner", provider="", model="", temperature="", max_tokens=bad
+            )
+
+
+def test_update_accepts_valid_bounds(seeded_session):
+    svc = AgentConfigService(seeded_session)
+    svc.update_config(
+        "planner", provider="", model="", temperature="2.0", max_tokens="1"
+    )
+    v = svc.get_config("planner")
+    assert (v.temperature, v.max_tokens) == (2.0, 1)

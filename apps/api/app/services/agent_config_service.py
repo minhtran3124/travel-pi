@@ -1,5 +1,6 @@
 """AgentConfigService — validate + persist per-agent LLM config, invalidate cache."""
 
+import math
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -75,7 +76,15 @@ class AgentConfigService:
         if prov is not None and prov not in PROVIDER_NAMES:
             raise DomainValidationError(f"Unknown provider: {prov!r}")
         temp = _parse_number("temperature", temperature, float)
+        if temp is not None and (not math.isfinite(temp) or not 0.0 <= temp <= 2.0):
+            raise DomainValidationError(
+                f"temperature must be between 0 and 2, got {temp!r}"
+            )
         maxt = _parse_number("max_tokens", max_tokens, int)
+        if maxt is not None and maxt < 1:
+            raise DomainValidationError(
+                f"max_tokens must be a positive integer, got {maxt!r}"
+            )
         self._repo.upsert(
             agent_name,
             provider=prov,
