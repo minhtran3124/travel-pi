@@ -35,9 +35,9 @@ class ProviderProfile:
     """A selectable provider endpoint: which SDK, which host, which models.
 
     ``api_key_field`` names the ``Settings`` attribute holding this profile's
-    API key. A gateway (e.g. ``clinepass``) has its own token, so it points at
-    a dedicated field; the client falls back to the SDK's shared key when that
-    field is unset. Native profiles leave it ``None`` (use the SDK key).
+    own API key — every catalog profile has a dedicated one (no sharing across
+    providers). It is optional on the type only so ``clients.llm`` can build a
+    bare fallback profile for an unlisted provider (which then carries no key).
     """
 
     name: str
@@ -78,6 +78,7 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
             "gpt-4o-mini",
             "o4-mini",
         ],
+        api_key_field="openai_api_key",
     ),
     "anthropic": _profile(
         "anthropic",
@@ -87,6 +88,7 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
             "claude-sonnet-5",
             "claude-haiku-4-5-20251001",
         ],
+        api_key_field="anthropic_api_key",
     ),
     "google_genai": _profile(
         "google_genai",
@@ -95,6 +97,7 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
             "gemini-2.5-pro",
             "gemini-2.5-flash",
         ],
+        api_key_field="google_api_key",
     ),
     "clinepass": _profile(
         "clinepass",
@@ -145,5 +148,8 @@ for _name, _p in LLM_PROVIDERS.items():
     )
     assert _p.models, f"{_name}: models list is empty"
     assert len(_p.models) == len(set(_p.models)), f"{_name}: duplicate models"
+    assert _p.api_key_field, (
+        f"{_name}: api_key_field required (each profile owns a key)"
+    )
 
 del _name, _p

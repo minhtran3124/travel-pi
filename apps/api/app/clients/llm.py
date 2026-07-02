@@ -28,32 +28,6 @@ from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
 from app.core.llm_providers import ProviderProfile, get_provider
 
-# The settings field holding each SDK's API key. A profile's key comes from its
-# own ``api_key_field`` when set (a dedicated gateway token), else it falls back
-# to the SDK's shared key here — so an existing openai/anthropic key keeps a
-# gateway profile working.
-_SDK_KEY_FIELD = {
-    "openai": "openai_api_key",
-    "anthropic": "anthropic_api_key",
-    "google_genai": "google_api_key",
-}
-
-
-def _resolve_api_key(settings: Any, profile: ProviderProfile) -> str | None:
-    """Return the API key for *profile*: its dedicated field first, then the
-    SDK's shared key. Skips fields that are unset/empty.
-
-    :param settings: The application settings object.
-    :param profile: The provider profile being built.
-    :return: The resolved API key, or ``None`` when none is configured.
-    """
-    for field in (profile.api_key_field, _SDK_KEY_FIELD.get(profile.sdk)):
-        if field:
-            key = getattr(settings, field, None)
-            if key:
-                return key
-    return None
-
 
 def _resolve_profile(provider: str) -> ProviderProfile:
     """Return the catalog profile for *provider*.
@@ -98,7 +72,8 @@ def _build_chat_model(
     profile = _resolve_profile(provider)
     kwargs: dict[str, Any] = dict(extra)
 
-    key = _resolve_api_key(s, profile)
+    # Each profile has its own dedicated key field — no sharing across providers.
+    key = getattr(s, profile.api_key_field, None) if profile.api_key_field else None
     if key:
         kwargs["api_key"] = key
 

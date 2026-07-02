@@ -129,8 +129,8 @@ def test_build_chat_model_native_profile_has_no_base_url(monkeypatch):
     assert captured["base_url"] is None
 
 
-def test_build_chat_model_prefers_dedicated_gateway_key(monkeypatch):
-    # clinepass has its own token -> that wins over the shared openai key.
+def test_build_chat_model_uses_dedicated_provider_key(monkeypatch):
+    # clinepass reads its own key field, not the openai one.
     captured = _capture_init_chat_model(monkeypatch)
     monkeypatch.setattr(
         "app.clients.llm.get_settings",
@@ -151,9 +151,8 @@ def test_build_chat_model_prefers_dedicated_gateway_key(monkeypatch):
     assert captured["api_key"] == "sk-cline"
 
 
-def test_build_chat_model_gateway_falls_back_to_sdk_key(monkeypatch):
-    # No dedicated clinepass token -> reuse the openai key (backward compatible
-    # with an existing OPENAI_API_KEY holding the gateway token).
+def test_build_chat_model_no_key_sharing_across_providers(monkeypatch):
+    # With no clinepass token, an openai key is NOT shared — the key is unset.
     captured = _capture_init_chat_model(monkeypatch)
     monkeypatch.setattr(
         "app.clients.llm.get_settings",
@@ -171,7 +170,7 @@ def test_build_chat_model_gateway_falls_back_to_sdk_key(monkeypatch):
 
     _build_chat_model("clinepass", "openai/gpt-4o")
 
-    assert captured["api_key"] == "sk-openai"
+    assert captured["api_key"] is None
 
 
 def test_build_chat_model_unknown_provider_falls_back_to_bare_profile(monkeypatch):

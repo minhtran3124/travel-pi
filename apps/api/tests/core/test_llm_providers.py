@@ -42,9 +42,13 @@ def test_claude_profile_uses_anthropic_sdk_and_gateway():
     assert p.api_key_field == "claude_api_key"
 
 
-def test_native_profiles_have_no_dedicated_key_field():
-    for sdk in _VALID_SDKS:
-        assert LLM_PROVIDERS[sdk].api_key_field is None
+def test_every_profile_has_its_own_key_field():
+    # No sharing: each profile names a distinct settings key field.
+    fields = [p.api_key_field for p in LLM_PROVIDERS.values()]
+    assert all(fields)  # every profile has one
+    assert len(fields) == len(set(fields))  # and they are all distinct
+    assert LLM_PROVIDERS["openai"].api_key_field == "openai_api_key"
+    assert LLM_PROVIDERS["clinepass"].api_key_field == "clinepass_api_key"
 
 
 def test_get_provider_unknown_returns_none():
