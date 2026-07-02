@@ -966,9 +966,8 @@ def agent_config_save(
             error=str(exc),
             status_code=400,
         )
-    return RedirectResponse(
-        url=f"/dashboard/agent-config/{agent_name}?saved=1", status_code=303
-    )
+    # PRG back to the list page, where the "saved" confirmation banner lives.
+    return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
 
 
 def _today() -> str:

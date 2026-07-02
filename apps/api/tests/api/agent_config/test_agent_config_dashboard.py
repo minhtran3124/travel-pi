@@ -8,6 +8,28 @@ def test_list_page_shows_all_agents(client):
         assert name in r.text
 
 
+def test_list_page_shows_saved_banner(client):
+    # POST redirects here with ?saved=1; the confirmation banner must render.
+    r = client.get("/dashboard/agent-config?saved=1")
+    assert r.status_code == 200
+    assert "saved" in r.text.lower()
+
+
+def test_post_redirects_to_list_page(client):
+    r = client.post(
+        "/dashboard/agent-config/planner",
+        data={
+            "provider": "openai",
+            "model": "gpt-4o",
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert r.status_code == 303
+    assert r.headers["location"] == "/dashboard/agent-config?saved=1"
+
+
 def test_edit_page_renders_for_known_agent(client):
     r = client.get("/dashboard/agent-config/planner")
     assert r.status_code == 200
