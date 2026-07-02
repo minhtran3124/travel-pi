@@ -37,11 +37,30 @@ def test_agent_runtime_defaults():
     assert s.summarize_threshold == 20
 
 
-def test_provider_literal_rejects_unknown():
+def test_provider_rejects_unknown():
     with pytest.raises(ValidationError):
         Settings(llm_provider="bedrock")
 
 
-@pytest.mark.parametrize("provider", ["openai", "anthropic", "google_genai"])
-def test_provider_literal_accepts_known(provider):
+@pytest.mark.parametrize(
+    "provider", ["openai", "anthropic", "google_genai", "clinepass", "claude"]
+)
+def test_provider_accepts_known_profiles(provider):
+    # Both raw SDK names and gateway profiles are valid provider values.
     assert Settings(llm_provider=provider).llm_provider == provider
+
+
+def test_agent_llm_config_provider_validated_against_profiles():
+    from app.core.config import AgentLLMConfig
+
+    # A gateway profile is accepted via the env AGENT_LLM_CONFIGS path...
+    assert AgentLLMConfig(provider="clinepass").provider == "clinepass"
+    # ...and an unknown profile is rejected there too.
+    with pytest.raises(ValidationError):
+        AgentLLMConfig(provider="bedrock")
+
+
+def test_gateway_api_key_fields_default_to_none():
+    s = Settings()
+    assert s.clinepass_api_key is None
+    assert s.claude_api_key is None

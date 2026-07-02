@@ -26,13 +26,49 @@ from pydantic import PrivateAttr
 from app.agents.constants import FAST_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
+from app.core.llm_providers import ProviderProfile, get_provider
 
-# Maps provider -> the settings field holding its API key.
-_PROVIDER_KEY_FIELD = {
+# The settings field holding each SDK's API key. A profile's key comes from its
+# own ``api_key_field`` when set (a dedicated gateway token), else it falls back
+# to the SDK's shared key here — so an existing openai/anthropic key keeps a
+# gateway profile working.
+_SDK_KEY_FIELD = {
     "openai": "openai_api_key",
     "anthropic": "anthropic_api_key",
     "google_genai": "google_api_key",
 }
+
+
+def _resolve_api_key(settings: Any, profile: ProviderProfile) -> str | None:
+    """Return the API key for *profile*: its dedicated field first, then the
+    SDK's shared key. Skips fields that are unset/empty.
+
+    :param settings: The application settings object.
+    :param profile: The provider profile being built.
+    :return: The resolved API key, or ``None`` when none is configured.
+    """
+    for field in (profile.api_key_field, _SDK_KEY_FIELD.get(profile.sdk)):
+        if field:
+            key = getattr(settings, field, None)
+            if key:
+                return key
+    return None
+
+
+def _resolve_profile(provider: str) -> ProviderProfile:
+    """Return the catalog profile for *provider*.
+
+    Falls back to a bare profile that treats the name as its own SDK with no
+    gateway, so any provider string stays usable — the catalog is a reference
+    list, not an allowlist.
+
+    :param provider: The profile name (or raw SDK name) to resolve.
+    :return: The matching :class:`ProviderProfile`, or a bare fallback.
+    """
+    profile = get_provider(provider)
+    if profile is not None:
+        return profile
+    return ProviderProfile(name=provider, sdk=provider, base_url=None, models=())
 
 
 def _build_chat_model(
@@ -43,34 +79,38 @@ def _build_chat_model(
     base_url: str | None = None,
     **extra: Any,
 ) -> BaseChatModel:
-    """Construct a chat model via ``init_chat_model``, injecting the provider's
-    API key from settings when present. ``temperature`` and ``extra`` knobs are
-    only forwarded when set, so reasoning models that reject ``temperature``
-    keep working with the defaults.
+    """Construct a chat model via ``init_chat_model`` for a provider *profile*.
 
-    :param provider: The provider to use.
+    The profile decides the underlying SDK (``model_provider``), whether a
+    gateway ``base_url`` is needed, and which settings key to inject.
+    ``temperature`` and ``extra`` knobs are only forwarded when set, so
+    reasoning models that reject ``temperature`` keep working with the defaults.
+
+    :param provider: The provider profile name (e.g. ``openai``, ``clinepass``).
     :param model: The model to use.
-    :param temperature: The temperature to use.
-    :param base_url: Overrides the configured base URL; falls back to
-        ``settings.llm_base_url`` when unset (today's global behavior).
+    :param temperature: The temperature to use, when supported.
+    :param base_url: Per-call override; wins over the profile's gateway and the
+        global ``settings.llm_base_url`` fallback.
     :param extra: Extra arguments to pass to the chat model.
     :return: A chat model.
     """
     s = get_settings()
+    profile = _resolve_profile(provider)
     kwargs: dict[str, Any] = dict(extra)
-    key = getattr(s, _PROVIDER_KEY_FIELD[provider], None)
 
+    key = _resolve_api_key(s, profile)
     if key:
         kwargs["api_key"] = key
 
-    resolved_base_url = base_url or s.llm_base_url
+    # base_url precedence: explicit arg (per-agent) > profile gateway > global.
+    resolved_base_url = base_url or profile.base_url or s.llm_base_url
     if resolved_base_url:
         kwargs["base_url"] = resolved_base_url
 
     if temperature is not None:
         kwargs["temperature"] = temperature
 
-    return init_chat_model(model, model_provider=provider, streaming=True, **kwargs)
+    return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 
 def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
@@ -100,14 +140,22 @@ def get_fast_llm(model: str | None = None) -> BaseChatModel:
     return get_llm(model, fast=True)
 
 
+def _coalesce(*values: Any) -> Any:
+    """Return the first non-``None`` value, or ``None`` if all are ``None``."""
+    return next((v for v in values if v is not None), None)
+
+
 def get_agent_llm(agent_name: str) -> BaseChatModel:
     """Build the chat model for a specific graph node.
 
-    Resolves the DB-backed override (``AgentConfigCache``), then
-    ``settings.agent_llm_configs[agent_name]``, then the global default, per
-    field (provider/model/base_url). Model falls back to the node's tier
-    default (fast vs main, via ``FAST_AGENTS``) when nothing overrides it. A
-    node with no override behaves exactly like ``get_llm()`` / ``get_fast_llm()``.
+    Resolves per field with a **DB → env → global default** fallback: the
+    DB-backed override (``AgentConfigCache``), then
+    ``settings.agent_llm_configs[agent_name]``, then the global default. Model
+    falls back to the node's tier default (fast vs main, via ``FAST_AGENTS``)
+    when nothing overrides it. The chosen ``provider`` profile supplies its own
+    gateway ``base_url`` inside ``_build_chat_model``; only a per-agent
+    ``base_url`` override is threaded here. A node with no override behaves
+    exactly like ``get_llm()`` / ``get_fast_llm()``.
 
     :param agent_name: The graph node name to resolve config for.
     :return: A chat model.
@@ -115,30 +163,29 @@ def get_agent_llm(agent_name: str) -> BaseChatModel:
     s = get_settings()
     fast = agent_name in FAST_AGENTS
 
-    cfg = s.agent_llm_configs.get(agent_name)
-    ov = AgentConfigCache.get(agent_name)
+    env = s.agent_llm_configs.get(agent_name)
+    db = AgentConfigCache.get(agent_name)
 
-    if cfg is None and ov is None:
+    if env is None and db is None:
         return get_llm(fast=fast)
 
-    provider = (
-        (ov.provider if ov else None)
-        or (cfg.provider if cfg else None)
-        or s.llm_provider
+    provider = _coalesce(
+        db.provider if db else None,
+        env.provider if env else None,
+        s.llm_provider,
     )
-    resolved_model = (
-        (ov.model if ov else None)
-        or (cfg.model if cfg else None)
-        or (s.fast_llm_model if fast else s.llm_model)
+    model = _coalesce(
+        db.model if db else None,
+        env.model if env else None,
+        s.fast_llm_model if fast else s.llm_model,
     )
-    base_url = (ov.base_url if ov else None) or s.llm_base_url
 
     return _build_chat_model(
         provider,
-        resolved_model,
-        temperature=cfg.temperature if cfg else None,
-        base_url=base_url,
-        **((cfg.model_extra if cfg else None) or {}),
+        model,
+        temperature=env.temperature if env else None,
+        base_url=db.base_url if db else None,
+        **((env.model_extra if env else None) or {}),
     )
 
 

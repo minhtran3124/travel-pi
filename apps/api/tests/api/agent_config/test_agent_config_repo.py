@@ -38,6 +38,12 @@ def test_upsert_rejects_invalid_provider(repo):
         repo.upsert("concierge", provider="not-a-provider")
 
 
+def test_upsert_accepts_gateway_profile_name(repo):
+    # Profile names beyond the raw SDKs (e.g. clinepass) are valid providers.
+    row = repo.upsert("concierge", provider="clinepass", model="openai/gpt-4o")
+    assert row.provider == "clinepass"
+
+
 def test_list_all_returns_every_row(repo):
     repo.upsert("concierge", provider="openai")
     repo.upsert("planner", provider="anthropic")

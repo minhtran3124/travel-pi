@@ -1,9 +1,8 @@
 """AgentConfigRepository — per-agent LLM provider/model/base_url override."""
 
 import logging
-from typing import get_args
 
-from app.core.config import LLMProvider
+from app.core.llm_providers import PROVIDER_NAMES
 from app.db import models
 from app.exceptions import DomainValidationError
 from app.repositories.base import Repo
@@ -52,9 +51,10 @@ class AgentConfigRepository(Repo):
         :param model: The model name override, or ``None`` to fall back.
         :param base_url: The base URL override, or ``None`` to fall back.
         :return: The upserted ``AgentConfig`` row.
-        :raises DomainValidationError: If *provider* is not a known LLMProvider.
+        :raises DomainValidationError: If *provider* is not a known profile name
+            (see ``app.core.llm_providers.PROVIDER_NAMES``).
         """
-        if provider is not None and provider not in get_args(LLMProvider):
+        if provider is not None and provider not in PROVIDER_NAMES:
             raise DomainValidationError(f"Unknown provider: {provider!r}")
         with self._session() as s:
             row = (
