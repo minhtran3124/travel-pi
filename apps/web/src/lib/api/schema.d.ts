@@ -14,6 +14,8 @@ export interface paths {
         /**
          * Liveness probe
          * @description Liveness: the app process is up. Does not touch dependencies.
+         *
+         *     :return: The liveness status.
          */
         get: operations["healthz"];
         put?: never;
@@ -38,6 +40,9 @@ export interface paths {
          *     Reports the database (must be reachable) and the routing provider as a
          *     separate, non-fatal upstream — routing degrades to an offline estimate
          *     without an ORS key, so a missing key is "fallback", not "not ready".
+         *
+         *     :param bookings: The booking service, used to ping the database.
+         *     :return: The readiness status and per-dependency checks.
          */
         get: operations["readyz"];
         put?: never;
@@ -61,6 +66,9 @@ export interface paths {
          *
          *     ``endpoints`` is derived from the live route table at request time so it
          *     stays in sync with the API automatically.
+         *
+         *     :param request: The incoming request.
+         *     :return: The service info.
          */
         get: operations["root"];
         put?: never;
@@ -85,6 +93,11 @@ export interface paths {
          *     ``total`` is the full count; use ``limit`` and ``offset`` to page. When
          *     ``q`` is given, results are fuzzy-matched and ranked by relevance instead
          *     of left in seed order.
+         *
+         *     :param airports_svc: The airport service.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param q: Optional fuzzy search on IATA code / airport name / city.
+         *     :return: The matching airports, paginated.
          */
         get: operations["list_airports"];
         put?: never;
@@ -110,6 +123,13 @@ export interface paths {
          *     count. ``total`` reflects the full match count before pagination. When
          *     ``q`` is given, results are fuzzy-matched and ranked by relevance instead
          *     of left in seed order.
+         *
+         *     :param city_repo: The city repository.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param q: Optional fuzzy search on city name / country.
+         *     :param country: Optional fuzzy filter by country name.
+         *     :param has_hotels: Optional filter for whether the city has hotel data.
+         *     :return: The matching cities, paginated.
          */
         get: operations["list_cities"];
         put?: never;
@@ -137,6 +157,11 @@ export interface paths {
          *     an offline straight-line estimate (see the ``source`` field). Returns 404
          *     if either city name is unknown, and 502 if a configured routing provider
          *     is unreachable.
+         *
+         *     :param routing: The routing service.
+         *     :param origin: City name to start from.
+         *     :param destination: City name to travel to.
+         *     :return: Distance/duration per travel mode plus the recommended mode.
          */
         get: operations["route_between_cities"];
         put?: never;
@@ -160,6 +185,10 @@ export interface paths {
          *
          *     ``city_name`` is matched case-insensitively (it is still an exact-name
          *     lookup — for typo-tolerant search use ``GET /cities?q=``).
+         *
+         *     :param city_repo: The city repository.
+         *     :param city_name: City name (case-insensitive).
+         *     :return: The matching city.
          */
         get: operations["get_city"];
         put?: never;
@@ -184,6 +213,18 @@ export interface paths {
          *     When ``return_date`` is supplied, the response also contains
          *     ``return_results`` — the matching return-leg flights (destination → origin)
          *     with the same filters applied. Both legs are independently sorted.
+         *
+         *     :param flights_svc: The flight service.
+         *     :param origin: Origin IATA 3-letter code.
+         *     :param destination: Destination IATA 3-letter code.
+         *     :param departure_date: Departure date, YYYY-MM-DD.
+         *     :param adults: Passenger count; echoed back, does not affect results.
+         *     :param return_date: Optional return date, YYYY-MM-DD.
+         *     :param airline: Optional filter by IATA airline code.
+         *     :param max_price: Optional max price in USD.
+         *     :param max_stops: Optional max number of stops.
+         *     :param sort: Sort order.
+         *     :return: The matching flights (and return-leg flights if requested).
          */
         get: operations["search_flights"];
         put?: never;
@@ -204,6 +245,10 @@ export interface paths {
         /**
          * Get a single flight by ID
          * @description Return a single flight, or 404 if the ID does not resolve.
+         *
+         *     :param flights_svc: The flight service.
+         *     :param flight_id: Flight UUID returned by ``/flights/search``.
+         *     :return: The matching flight.
          */
         get: operations["get_flight"];
         put?: never;
@@ -226,6 +271,12 @@ export interface paths {
         /**
          * Create a flight booking
          * @description Create a flight booking, or replay an earlier one for the same key.
+         *
+         *     :param request: The booking request body.
+         *     :param bookings: The booking service.
+         *     :param idempotency_key: Optional client-supplied key that makes this
+         *         POST replay-safe.
+         *     :return: The created (or replayed) booking.
          */
         post: operations["book_flight"];
         delete?: never;
@@ -246,6 +297,10 @@ export interface paths {
          * @description Return all seeded hotels with pagination.
          *
          *     ``total`` is the full count; use ``limit`` and ``offset`` to page.
+         *
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param hotels: The hotel service.
+         *     :return: The seeded hotels, paginated.
          */
         get: operations["list_hotels"];
         put?: never;
@@ -271,6 +326,14 @@ export interface paths {
          *     by stars / price / amenities. To check whether rooms are actually free
          *     for specific dates, use ``GET /hotels/availability``. Unknown cities
          *     return ``total: 0`` (not a 404).
+         *
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param hotels: The hotel service.
+         *     :param city: City name — fuzzy (typo/case tolerant).
+         *     :param min_stars: Optional minimum star rating (1-5).
+         *     :param max_price: Optional maximum price per night (USD).
+         *     :param amenities: Optional required amenities (all must match).
+         *     :return: The matching hotels, paginated.
          */
         get: operations["search_hotels"];
         put?: never;
@@ -297,6 +360,20 @@ export interface paths {
          *     ``total_price`` (``price_per_night × nights × rooms``). With
          *     ``available_only=true`` the unavailable hotels are dropped. Unknown
          *     cities return ``total: 0``; a bad date is **422**.
+         *
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param hotels: The hotel service.
+         *     :param city: City name — fuzzy (typo/case tolerant).
+         *     :param check_in: Check-in date, YYYY-MM-DD.
+         *     :param check_out: Check-out date, YYYY-MM-DD.
+         *     :param rooms: Rooms needed.
+         *     :param adults: Adults in the party.
+         *     :param children: Children in the party.
+         *     :param available_only: Whether to return only hotels that can take the booking.
+         *     :param min_stars: Optional minimum star rating (1-5).
+         *     :param max_price: Optional maximum price per night (USD).
+         *     :param amenities: Optional required amenities (all must match).
+         *     :return: The availability check results, paginated.
          */
         get: operations["hotel_availability"];
         put?: never;
@@ -317,6 +394,10 @@ export interface paths {
         /**
          * Get a single hotel by ID
          * @description Return a single hotel, or 404 if the ID does not exist.
+         *
+         *     :param hotels: The hotel service.
+         *     :param hotel_id: Hotel UUID from ``/hotels`` or ``/hotels/search``.
+         *     :return: The matching hotel.
          */
         get: operations["get_hotel"];
         put?: never;
@@ -341,6 +422,12 @@ export interface paths {
          * @description Create a hotel booking, or replay an earlier one for the same key.
          *
          *     ``total_price`` is computed server-side.
+         *
+         *     :param request: The booking request body.
+         *     :param bookings: The booking service.
+         *     :param idempotency_key: Optional client-supplied key that makes this
+         *         POST replay-safe.
+         *     :return: The created (or replayed) booking.
          */
         post: operations["book_hotel"];
         delete?: never;
@@ -361,6 +448,10 @@ export interface paths {
          * @description Return all seeded places with pagination.
          *
          *     ``total`` is the full count; use ``limit`` and ``offset`` to page.
+         *
+         *     :param places: The place service.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :return: The seeded places, paginated.
          */
         get: operations["list_places"];
         put?: never;
@@ -385,6 +476,16 @@ export interface paths {
          *     Unknown cities return ``total: 0`` (not a 404). ``min_rating`` and
          *     ``price_level`` accept empty strings as "no filter".
          *     ``total`` reflects the full match count; ``results`` is the current page.
+         *
+         *     :param places: The place service.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param city: Optional city name — fuzzy (typo/case tolerant).
+         *     :param category: Optional category filter.
+         *     :param min_rating: Optional minimum rating (0-5), as a raw string.
+         *     :param price_level: Optional exact price level 1-4, as a raw string.
+         *     :param recommended: Whether to return only editor-recommended places.
+         *     :param sort: Sort order.
+         *     :return: The matching places, paginated.
          */
         get: operations["search_places"];
         put?: never;
@@ -414,6 +515,11 @@ export interface paths {
          *     (``<=``), so "under $40" includes everything at or below that band.
          *     Unrecognised words are ignored. Pagination uses the standard
          *     ``limit`` / ``offset`` query params.
+         *
+         *     :param body: The natural-language search request.
+         *     :param places: The place service.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :return: The parsed filters and matching places, paginated.
          */
         post: operations["search_places_nl"];
         delete?: never;
@@ -432,6 +538,9 @@ export interface paths {
         /**
          * List all cities that have places
          * @description Return the sorted list of city names that have at least one place.
+         *
+         *     :param places: The place service.
+         *     :return: The sorted city names.
          */
         get: operations["list_place_cities"];
         put?: never;
@@ -455,6 +564,9 @@ export interface paths {
          *
          *     Sorted by ``name``. ``color`` is a ``#rrggbb`` hex aligned with the dashboard
          *     palette; ``icon`` is a short key for the frontend icon set.
+         *
+         *     :param places: The place service.
+         *     :return: The available place categories.
          */
         get: operations["list_categories"];
         put?: never;
@@ -475,6 +587,14 @@ export interface paths {
         /**
          * List saved places (paginated, filterable)
          * @description Return saved places, newest first, with optional filters and pagination.
+         *
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param service: The saved-place service.
+         *     :param city: Optional exact city filter.
+         *     :param category: Optional exact category filter.
+         *     :param favorite: Optional filter by favorite flag.
+         *     :param visited: Optional filter by visited flag.
+         *     :return: The matching saved places, paginated.
          */
         get: operations["list_saved_places"];
         put?: never;
@@ -485,6 +605,10 @@ export interface paths {
          *     Dedup: a non-deleted saved place with the same case-insensitive name that
          *     is within ~50 m (when both have coords) or in the same city (when coords
          *     are missing) is a duplicate → 409 with the existing id in ``hint``.
+         *
+         *     :param body: The saved-place creation request.
+         *     :param service: The saved-place service.
+         *     :return: The created saved place.
          */
         post: operations["create_saved_place"];
         delete?: never;
@@ -503,6 +627,10 @@ export interface paths {
         /**
          * Get a saved place by ID or SPL- code
          * @description Return one saved place (UUID or SPL- code); 404 if missing/soft-deleted.
+         *
+         *     :param saved_id: The saved-place UUID or SPL- short code.
+         *     :param service: The saved-place service.
+         *     :return: The matching saved place.
          */
         get: operations["get_saved_place"];
         put?: never;
@@ -510,6 +638,9 @@ export interface paths {
         /**
          * Soft-delete a saved place
          * @description Soft-delete a saved place (404 if missing/already-deleted).
+         *
+         *     :param saved_id: The saved-place UUID or SPL- short code.
+         *     :param service: The saved-place service.
          */
         delete: operations["delete_saved_place"];
         options?: never;
@@ -529,6 +660,11 @@ export interface paths {
         /**
          * Set the favorite flag (idempotent)
          * @description Idempotently SET the ``favorite`` flag to ``body.value``.
+         *
+         *     :param saved_id: The saved-place UUID or SPL- short code.
+         *     :param body: The desired flag value.
+         *     :param service: The saved-place service.
+         *     :return: The updated saved place.
          */
         post: operations["set_saved_place_favorite"];
         delete?: never;
@@ -549,6 +685,11 @@ export interface paths {
         /**
          * Set the visited flag (idempotent)
          * @description Idempotently SET the ``visited`` flag to ``body.value``.
+         *
+         *     :param saved_id: The saved-place UUID or SPL- short code.
+         *     :param body: The desired flag value.
+         *     :param service: The saved-place service.
+         *     :return: The updated saved place.
          */
         post: operations["set_saved_place_visited"];
         delete?: never;
@@ -572,6 +713,13 @@ export interface paths {
          *     place itself is excluded. Returns 404 if ``place_id`` is unknown or has
          *     no coordinates; an empty ``results`` list (not a 404) when nothing is in
          *     range.
+         *
+         *     :param places: The place service.
+         *     :param place_id: The place to search around.
+         *     :param radius_km: Search radius in kilometres (0-50).
+         *     :param limit: Maximum number of results.
+         *     :param category: Optional category filter.
+         *     :return: The nearby places, nearest first.
          */
         get: operations["nearby_places"];
         put?: never;
@@ -599,6 +747,11 @@ export interface paths {
          *     (see the ``source`` field). Returns 404 if either place ID is unknown or
          *     has no coordinates, and 502 if a configured routing provider is
          *     unreachable.
+         *
+         *     :param routing: The routing service.
+         *     :param origin: Place ID to start from.
+         *     :param destination: Place ID to travel to.
+         *     :return: Distance/duration per travel mode plus the recommended mode.
          */
         get: operations["route_between_places"];
         put?: never;
@@ -619,6 +772,10 @@ export interface paths {
         /**
          * Get a single place by ID
          * @description Return a single place, or 404 if the ID does not exist.
+         *
+         *     :param places: The place service.
+         *     :param place_id: Place UUID from ``/places`` or ``/places/search``.
+         *     :return: The matching place.
          */
         get: operations["get_place"];
         put?: never;
@@ -643,6 +800,13 @@ export interface paths {
          *     Provide either ``city`` or ``country``. Unknown locations return
          *     ``count: 0`` (not a 404). Empty-string params are treated as missing so
          *     HTML forms don't need to strip blanks.
+         *
+         *     :param tips: The tip service.
+         *     :param city: Optional city name (fuzzy — typo/case tolerant).
+         *     :param country: Optional country name (fuzzy — typo/case tolerant).
+         *     :param category: Optional filter by category.
+         *     :param essential_only: Whether to return only must-know tips.
+         *     :return: The merged tips for the location.
          */
         get: operations["get_tips"];
         put?: never;
@@ -670,6 +834,13 @@ export interface paths {
          *     names are rejected with 422 before the service is called. A weather-service
          *     outage does not fail the request — the ``weather`` section degrades to
          *     ``null`` and the rest of the overview is still returned.
+         *
+         *     :param destination: The destination service.
+         *     :param city: City name — fuzzy (typo/case tolerant).
+         *     :param include: Sections to include; defaults to all.
+         *     :param place_limit: Maximum number of places to return.
+         *     :param tip_limit: Maximum number of tips to return.
+         *     :return: The destination overview.
          */
         get: operations["get_destination_overview"];
         put?: never;
@@ -703,6 +874,10 @@ export interface paths {
          *     Unknown cities raise 404. An invalid ``month`` value is rejected with 422
          *     before the service is called. If the Open-Meteo Archive API is unavailable
          *     or returns malformed data, the endpoint raises 502.
+         *
+         *     :param city: City name — fuzzy (typo/case tolerant).
+         *     :param month: Optional 1-12 to return just that month.
+         *     :return: The monthly climate normals.
          */
         get: operations["get_destination_climate"];
         put?: never;
@@ -727,6 +902,13 @@ export interface paths {
          *     Rates are not live (see `last_updated`). Currency codes are exact
          *     identifiers — an unknown `from`/`to` returns 404. An unrecognised `country`
          *     is ignored (no `local_currency`), not an error.
+         *
+         *     :param currency: The currency service.
+         *     :param to: Target ISO 4217 code.
+         *     :param from_currency: Source ISO 4217 code.
+         *     :param amount: Amount in the source currency.
+         *     :param country: Optional destination country to attach `local_currency`.
+         *     :return: The converted amount.
          */
         get: operations["convert_currency"];
         put?: never;
@@ -751,6 +933,11 @@ export interface paths {
          *     Provide either ``city`` or ``country``. Unknown locations return
          *     ``found: false`` (not a 404). Guidance is general and nationality-dependent
          *     — see the ``disclaimer`` field.
+         *
+         *     :param visa: The visa service.
+         *     :param city: Optional city name (fuzzy — typo/case tolerant).
+         *     :param country: Optional country name (fuzzy — typo/case tolerant).
+         *     :return: The visa / entry guidance for the destination.
          */
         get: operations["get_visa"];
         put?: never;
@@ -774,6 +961,10 @@ export interface paths {
          *
          *     Returns 404 if the city name cannot be geocoded, and 502 if the upstream
          *     Open-Meteo service is unreachable.
+         *
+         *     :param city: City name to look up.
+         *     :param days: Number of forecast days (1-16).
+         *     :return: The current weather and short forecast.
          */
         get: operations["get_weather"];
         put?: never;
@@ -796,6 +987,10 @@ export interface paths {
          * @description Resolve ``city`` and return clothing/gear suggestions from the forecast.
          *
          *     Returns 404 if the city cannot be geocoded, 502 if Open-Meteo is unreachable.
+         *
+         *     :param city: City name to look up.
+         *     :param days: Number of forecast days (1-16).
+         *     :return: The packing and gear suggestions.
          */
         get: operations["get_packing"];
         put?: never;
@@ -819,6 +1014,9 @@ export interface paths {
          *
          *     Returns 404 if the city name cannot be geocoded, and 502 if the upstream
          *     Open-Meteo Air-Quality service is unreachable or returns a malformed body.
+         *
+         *     :param city: City name to look up.
+         *     :return: The current air quality and short forecast.
          */
         get: operations["get_air_quality"];
         put?: never;
@@ -843,6 +1041,14 @@ export interface paths {
          *     ``total`` reflects the full match count before pagination. ``type`` and
          *     ``sort`` are validated against their enums — an unknown value returns a
          *     422 with the list of valid options instead of being silently ignored.
+         *
+         *     :param bookings: The booking service.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :param q: Optional case-insensitive match on booking id, confirmation
+         *         code, customer name, or email.
+         *     :param booking_type: Optional filter by booking type.
+         *     :param sort: The sort order to apply.
+         *     :return: The matching bookings, sorted and paginated.
          */
         get: operations["list_bookings"];
         put?: never;
@@ -865,6 +1071,10 @@ export interface paths {
          * @description Return a booking by its UUID *or* its friendly confirmation code.
          *
          *     Both identifiers are accepted interchangeably; 404 if neither matches.
+         *
+         *     :param bookings: The booking service.
+         *     :param booking_id: The booking UUID or confirmation code.
+         *     :return: The matching booking.
          */
         get: operations["get_booking"];
         put?: never;
@@ -891,6 +1101,10 @@ export interface paths {
          *     Accepts the UUID or the confirmation code. A soft change — the booking
          *     is kept and still retrievable. Idempotent: cancelling an
          *     already-cancelled booking is a no-op. 404 if no booking matches.
+         *
+         *     :param bookings: The booking service.
+         *     :param booking_id: The booking UUID or confirmation code.
+         *     :return: The cancelled booking.
          */
         post: operations["cancel_booking"];
         delete?: never;
@@ -909,12 +1123,22 @@ export interface paths {
         /**
          * List trips (paginated, newest first)
          * @description Return trips with the shared limit/offset pagination envelope.
+         *
+         *     :param trips: The trip service.
+         *     :param pagination: The pagination params (limit/offset).
+         *     :return: The trips, paginated, newest first.
          */
         get: operations["list_trips"];
         put?: never;
         /**
          * Create a trip itinerary (with optional initial items)
          * @description Create a trip and return it, including any items sorted by day.
+         *
+         *     :param trips: The trip service.
+         *     :param body: The trip creation request.
+         *     :param idempotency_key: Optional client-supplied key that makes this
+         *         POST replay-safe.
+         *     :return: The created trip.
          */
         post: operations["create_trip"];
         delete?: never;
@@ -935,6 +1159,9 @@ export interface paths {
         /**
          * Estimate a trip's budget (calculation only — nothing is stored)
          * @description Compute a line-item budget estimate. Pure calculation; no DB, no state.
+         *
+         *     :param body: The trip estimate request.
+         *     :return: The line-item budget estimate.
          */
         post: operations["estimate_trip_budget"];
         delete?: never;
@@ -957,17 +1184,29 @@ export interface paths {
          *     ``total_spent`` sums linked non-cancelled booking prices (USD).
          *     ``gaps`` lists days missing accommodation or with no planned items.
          *     404 if the UUID is unknown.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :return: The trip detail, with total_spent and gaps.
          */
         get: operations["get_trip"];
         /**
          * Replace a trip's top-level fields
          * @description Replace the trip's title/city/dates/travelers/notes. Items unchanged.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param body: The replacement trip fields.
+         *     :return: The updated trip.
          */
         put: operations["update_trip"];
         post?: never;
         /**
          * Delete a trip and its items
          * @description Hard-delete a trip and all of its items. 404 if unknown.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
          */
         delete: operations["delete_trip"];
         options?: never;
@@ -988,6 +1227,11 @@ export interface paths {
          *
          *     409 if the trip has no start_date set (day number cannot be derived).
          *     404 if the trip UUID is unknown.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param date: Calendar date within the trip (YYYY-MM-DD).
+         *     :return: The ordered day plan with travel-time annotations.
          */
         get: operations["get_day_plan"];
         put?: never;
@@ -1011,6 +1255,10 @@ export interface paths {
          *
          *     'spent' rolls up linked, non-cancelled bookings by type (activities/buffer
          *     have no booking source yet, so 0). 404 if the trip UUID is unknown.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :return: The per-category budget caps vs spent vs remaining.
          */
         get: operations["get_trip_budget"];
         put?: never;
@@ -1021,6 +1269,11 @@ export interface paths {
          *
          *     Once set, POST /trips/{id}/items returns 409 when a linked booking would
          *     push that category's spend over its cap.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param body: The per-category budget caps to set.
+         *     :return: The updated budget.
          */
         post: operations["set_trip_budget"];
         delete?: never;
@@ -1043,6 +1296,13 @@ export interface paths {
          * @description Append a day-plan item to the trip. 404 if the trip is unknown.
          *
          *     409 if a linked booking would exceed a budget cap.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param body: The item to add.
+         *     :param idempotency_key: Optional client-supplied key that makes this
+         *         POST replay-safe.
+         *     :return: The created item.
          */
         post: operations["add_item"];
         delete?: never;
@@ -1062,12 +1322,22 @@ export interface paths {
         /**
          * Replace an item on a trip
          * @description Replace an item's fields. 404 if the trip or item does not match.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param item_id: The item UUID.
+         *     :param body: The replacement item fields.
+         *     :return: The updated item.
          */
         put: operations["update_item"];
         post?: never;
         /**
          * Delete an item from a trip
          * @description Delete one item. 404 if the trip or item does not match.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param item_id: The item UUID.
          */
         delete: operations["delete_item"];
         options?: never;
@@ -1085,6 +1355,10 @@ export interface paths {
         /**
          * List a trip's shortlisted places
          * @description Return the trip's shortlist, each entry resolved to its place body.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :return: The trip's shortlisted places.
          */
         get: operations["list_trip_places"];
         put?: never;
@@ -1092,6 +1366,11 @@ export interface paths {
          * Shortlist a place (catalog or saved) onto a trip
          * @description Add a place to the trip's shortlist. 404 if the trip or place is unknown,
          *     409 if it is already shortlisted.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param body: The place to shortlist (catalog or saved).
+         *     :return: The created shortlist entry.
          */
         post: operations["add_trip_place"];
         delete?: never;
@@ -1113,6 +1392,10 @@ export interface paths {
         /**
          * Remove a place from a trip's shortlist
          * @description Remove a shortlist entry. 404 if the trip or link does not match.
+         *
+         *     :param trips: The trip service.
+         *     :param trip_id: The trip UUID.
+         *     :param link_id: The shortlist link id.
          */
         delete: operations["remove_trip_place"];
         options?: never;
@@ -1188,9 +1471,10 @@ export interface paths {
          * @description Send a chat request to the agent.
          *
          *     :param body: The request body.
-         *     :param graph: The graph.
-         *     :param session: The session.
-         *     :return: The response.
+         *     :param graph: The compiled LangGraph graph.
+         *     :param session: The request-scoped DB session.
+         *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :return: The chat response.
          */
         post: operations["agent_chat"];
         delete?: never;
@@ -1213,10 +1497,11 @@ export interface paths {
          * @description Stream the agent's reply as Server-Sent Events.
          *
          *     :param body: The request body.
-         *     :param graph: The graph.
+         *     :param graph: The compiled LangGraph graph.
          *     :param session: The request-scoped DB session (used to create/look up the
          *         conversation and append the user message before streaming begins).
-         *     :return: The response.
+         *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :return: A streaming response of Server-Sent Events.
          */
         post: operations["agent_stream"];
         delete?: never;
@@ -1236,7 +1521,15 @@ export interface paths {
          * List conversations for a user
          * @description Return all conversations for the given user, newest first.
          *
-         *     Returns an empty list for an unknown user_id (matches the repo contract).
+         *     When authenticated the JWT sub is used and the ``user_id`` query param is
+         *     ignored (no enumeration of another user's conversations) and not required.
+         *     Anonymous callers must supply ``user_id``. Returns an empty list for an
+         *     unknown user (matches the repo contract).
+         *
+         *     :param session: The request-scoped DB session.
+         *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :param user_id: The user id to list conversations for (anonymous callers only).
+         *     :return: The user's conversations, newest first.
          */
         get: operations["list_conversations"];
         put?: never;
@@ -1258,7 +1551,17 @@ export interface paths {
          * List messages for a conversation
          * @description Return all messages for the given conversation, oldest first.
          *
-         *     Returns an empty list for an unknown conversation_id (matches the repo contract).
+         *     Ownership-scoped: the caller must be the conversation's owner. When
+         *     authenticated the JWT sub is used and the ``user_id`` query param is ignored
+         *     (no spoofing); anonymous callers must supply their ``user_id``. Returns an
+         *     empty list for an unknown conversation or one owned by someone else — this
+         *     neither leaks message contents nor confirms a conversation's existence.
+         *
+         *     :param conversation_id: The conversation to list messages for.
+         *     :param session: The request-scoped DB session.
+         *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :param user_id: The user id claiming ownership (anonymous callers only).
+         *     :return: The conversation's messages, oldest first.
          */
         get: operations["list_conversation_messages"];
         put?: never;
@@ -1279,6 +1582,8 @@ export interface paths {
         /**
          * Agent capability manifest
          * @description Get the agent capability manifest.
+         *
+         *     :return: The available subagents and tools.
          */
         get: operations["agent_manifest"];
         put?: never;
@@ -1287,6 +1592,66 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/agent/conversations/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim anonymous conversation history on login
+         * @description Reassign conversations from an anonymous id to the authenticated user's id.
+         *
+         *     Guards:
+         *     - Returns ``claimed=0`` (no-op) when ``anonymous_user_id`` equals the JWT sub.
+         *     - Returns 403 when ``anonymous_user_id`` has a ``users`` row — it is a
+         *       registered account, not an anonymous id; refusing prevents history theft.
+         *
+         *     :param body: The request body carrying the anonymous user id to claim.
+         *     :param session: The request-scoped DB session.
+         *     :param auth_user: The authenticated caller whose id becomes the new owner.
+         *     :return: The number of conversations claimed.
+         */
+        post: operations["claim_conversations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user_id}/tier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set a user's tier (admin only)
+         * @description Set the tier for *user_id*.
+         *
+         *     Requires a valid JWT whose ``role`` claim equals ``"admin"`` (HTTP 403
+         *     otherwise). The tier value is validated by the request schema (HTTP 422
+         *     for an unknown tier).
+         *
+         *     :param user_id: The id of the user whose tier is being changed.
+         *     :param body: The request body carrying the new tier.
+         *     :param auth_user: The authenticated caller (must have the admin role).
+         *     :param session: The request-scoped DB session.
+         *     :return: The updated user id and tier.
+         */
+        patch: operations["set_user_tier"];
         trace?: never;
     };
 }
@@ -1679,11 +2044,6 @@ export interface components {
              * @description Resume value for a HITL plan-approval interrupt. Pass {'approved': true} to confirm or {'approved': false} to cancel. Requires conversation_id.
              */
             resume?: unknown;
-            /**
-             * Mode
-             * @description Response mode selected by the user: 'fast' | 'balanced' | 'deep'. Unknown values default to 'balanced' on the server.
-             */
-            mode?: string | null;
         };
         /**
          * ChatResponse
@@ -1761,6 +2121,22 @@ export interface components {
             offset: number;
             /** Results */
             results: components["schemas"]["City"][];
+        };
+        /**
+         * ClaimRequest
+         * @description Request body for POST /agent/conversations/claim.
+         */
+        ClaimRequest: {
+            /** Anonymous User Id */
+            anonymous_user_id: string;
+        };
+        /**
+         * ClaimResult
+         * @description Response for POST /agent/conversations/claim.
+         */
+        ClaimResult: {
+            /** Claimed */
+            claimed: number;
         };
         /**
          * ClimateMonth
@@ -3935,6 +4311,11 @@ export interface components {
              */
             source: "openrouteservice" | "estimate";
             /**
+             * Geometry
+             * @description Road-path polyline for the recommended mode as GeoJSON [longitude, latitude] coordinate pairs, when real ORS routing is used; null in estimate mode (no ORS_API_KEY), where clients should draw a straight line between the endpoints.
+             */
+            geometry?: number[][] | null;
+            /**
              * Attribution
              * @description Required attribution string for the data source.
              */
@@ -4106,6 +4487,13 @@ export interface components {
             endpoints: string[];
         };
         /**
+         * SetTierRequest
+         * @description Request body for PATCH /admin/users/{user_id}/tier.
+         */
+        SetTierRequest: {
+            tier: components["schemas"]["Tier"];
+        };
+        /**
          * ShortlistEntry
          * @description One place on a trip's shortlist (catalog or saved), resolved.
          */
@@ -4145,6 +4533,12 @@ export interface components {
              */
             max: number;
         };
+        /**
+         * Tier
+         * @description BE-resolved account tier — the capability ceiling (specs/agent-identity-tier).
+         * @enum {string}
+         */
+        Tier: "free" | "premium";
         /**
          * Tip
          * @description A single piece of practical local advice.
@@ -4748,6 +5142,15 @@ export interface components {
             travelers: number;
             /** Notes */
             notes?: string | null;
+        };
+        /**
+         * UserTierResponse
+         * @description Response confirming the persisted tier for a user.
+         */
+        UserTierResponse: {
+            /** User Id */
+            user_id: string;
+            tier: components["schemas"]["Tier"];
         };
         /** ValidationError */
         ValidationError: {
@@ -7475,8 +7878,8 @@ export interface operations {
     };
     list_conversations: {
         parameters: {
-            query: {
-                user_id: string;
+            query?: {
+                user_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -7506,7 +7909,9 @@ export interface operations {
     };
     list_conversation_messages: {
         parameters: {
-            query?: never;
+            query?: {
+                user_id?: string | null;
+            };
             header?: never;
             path: {
                 conversation_id: string;
@@ -7551,6 +7956,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentManifest"];
+                };
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    claim_conversations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClaimRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClaimResult"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_user_tier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetTierRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTierResponse"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Request validation failed */

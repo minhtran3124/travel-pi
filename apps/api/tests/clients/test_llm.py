@@ -46,25 +46,142 @@ def test_get_agent_llm_falls_back_to_tier_defaults(monkeypatch):
 
 
 def test_get_agent_llm_applies_per_agent_override(monkeypatch):
-    # Override one node onto a different provider + model + temperature; other
-    # nodes are untouched and keep the global defaults.
+    # A DB override puts one node on a different provider + model; other nodes
+    # (no row) keep the global defaults.
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
-    monkeypatch.setenv(
-        "AGENT_LLM_CONFIGS",
-        '{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6",'
-        '"temperature":0.1}}',
-    )
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
     from app.core.config import get_settings
 
     get_settings.cache_clear()
+    AgentConfigCache.clear()
+    AgentConfigCache.sync_from_cache(
+        {
+            "concierge": AgentModelOverride(
+                provider="anthropic", model="claude-sonnet-4-6", temperature=0.1
+            )
+        }
+    )
     from app.clients.llm import get_agent_llm
 
     concierge = get_agent_llm("concierge")
     assert concierge.model == "claude-sonnet-4-6"
     # Untouched node still resolves to the global OpenAI default.
     assert get_agent_llm("planner").model_name == "gpt-4.1"
+    AgentConfigCache.clear()
     get_settings.cache_clear()
+
+
+def _capture_init_chat_model(monkeypatch, *, llm_base_url=None):
+    """Patch init_chat_model + settings; return the captured kwargs dict."""
+    captured: dict = {}
+
+    def fake_init(model, *, model_provider, **kwargs):
+        captured["model"] = model
+        captured["model_provider"] = model_provider
+        captured["base_url"] = kwargs.get("base_url")
+        captured["api_key"] = kwargs.get("api_key")
+        from app.clients.llm import FakeLLM
+
+        return FakeLLM()
+
+    monkeypatch.setattr("app.clients.llm.init_chat_model", fake_init)
+    monkeypatch.setattr(
+        "app.clients.llm.get_settings",
+        lambda: type(
+            "S",
+            (),
+            {"llm_base_url": llm_base_url, "openai_api_key": None},
+        )(),
+    )
+    return captured
+
+
+def test_build_chat_model_resolves_profile_sdk_and_gateway(monkeypatch):
+    # A gateway profile: model_provider is the underlying SDK (openai), and the
+    # profile's base_url is applied without any global llm_base_url set.
+    captured = _capture_init_chat_model(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("clinepass", "openai/gpt-4o")
+
+    assert captured["model_provider"] == "openai"
+    assert captured["base_url"] == "https://api.cline.bot/api/v1"
+
+
+def test_build_chat_model_explicit_base_url_wins_over_profile(monkeypatch):
+    captured = _capture_init_chat_model(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("clinepass", "m", base_url="https://override.example.com")
+
+    assert captured["base_url"] == "https://override.example.com"
+
+
+def test_build_chat_model_native_profile_has_no_base_url(monkeypatch):
+    # openai profile carries no gateway and no global override -> base_url unset.
+    captured = _capture_init_chat_model(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("openai", "gpt-4.1")
+
+    assert captured["model_provider"] == "openai"
+    assert captured["base_url"] is None
+
+
+def test_build_chat_model_uses_dedicated_provider_key(monkeypatch):
+    # clinepass reads its own key field, not the openai one.
+    captured = _capture_init_chat_model(monkeypatch)
+    monkeypatch.setattr(
+        "app.clients.llm.get_settings",
+        lambda: type(
+            "S",
+            (),
+            {
+                "llm_base_url": None,
+                "openai_api_key": "sk-openai",
+                "clinepass_api_key": "sk-cline",
+            },
+        )(),
+    )
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("clinepass", "openai/gpt-4o")
+
+    assert captured["api_key"] == "sk-cline"
+
+
+def test_build_chat_model_no_key_sharing_across_providers(monkeypatch):
+    # With no clinepass token, an openai key is NOT shared — the key is unset.
+    captured = _capture_init_chat_model(monkeypatch)
+    monkeypatch.setattr(
+        "app.clients.llm.get_settings",
+        lambda: type(
+            "S",
+            (),
+            {
+                "llm_base_url": None,
+                "openai_api_key": "sk-openai",
+                "clinepass_api_key": None,
+            },
+        )(),
+    )
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("clinepass", "openai/gpt-4o")
+
+    assert captured["api_key"] is None
+
+
+def test_build_chat_model_unknown_provider_falls_back_to_bare_profile(monkeypatch):
+    # An unlisted provider is used as its own SDK, no gateway (permissive).
+    captured = _capture_init_chat_model(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("xai", "grok-3")
+
+    assert captured["model_provider"] == "xai"
+    assert captured["base_url"] is None
 
 
 def test_fake_llm_scripts_text():

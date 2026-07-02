@@ -27,6 +27,7 @@ def test_all_tables_registered():
         "messages",
         "jobs",
         "users",
+        "agent_config",
     }
 
 

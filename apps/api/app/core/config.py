@@ -8,31 +8,28 @@ for local development. See ``.env.example`` for the available knobs.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.core.llm_providers import PROVIDER_NAMES
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
-# Provider strings accepted by LangChain's init_chat_model(model_provider=...).
-# Note: Google's canonical key is "google_genai" (AI Studio / Gemini API) — a
-# bare "google" is rejected by init_chat_model.
-LLMProvider = Literal["openai", "anthropic", "google_genai"]
 
 
-class AgentLLMConfig(BaseModel):
-    """Per-agent LLM override (see ``app.clients.llm.get_agent_llm``).
+def _validate_provider_profile(value: str | None) -> str | None:
+    """Reject a provider that isn't a known profile (``app.core.llm_providers``).
 
-    Lets each graph node run on its own provider/model/knobs. Every field is
-    optional: ``provider`` falls back to the global ``llm_provider`` and
-    ``model`` to the node's tier default (fast vs main). Any extra key (e.g.
-    ``max_tokens``) passes straight through to the chat model.
+    Applied to the global ``llm_provider`` so an env-set profile (e.g.
+    ``clinepass``) is validated the same way the agent_config DB write path is.
+    ``None`` means "fall back", so it passes.
     """
-
-    model_config = ConfigDict(extra="allow", protected_namespaces=())
-
-    provider: LLMProvider | None = None
-    model: str | None = None
-    temperature: float | None = None
+    if value is not None and value not in PROVIDER_NAMES:
+        raise ValueError(
+            f"Unknown LLM provider profile: {value!r}. "
+            f"Known profiles: {sorted(PROVIDER_NAMES)}."
+        )
+    return value
 
 
 class Settings(BaseSettings):
@@ -129,29 +126,38 @@ class Settings(BaseSettings):
     # so switching provider is an env change, not a code change. Every value
     # has a safe default and NO key is required — the suite runs with FakeLLM
     # and never touches the network, so zero-config local dev still works.
-    llm_provider: LLMProvider = "openai"
+    # ``llm_provider`` is a *profile* name from app.core.llm_providers (e.g.
+    # openai, clinepass, claude) — a gateway profile carries its own base_url,
+    # so LLM_PROVIDER=clinepass alone is enough (no separate LLM_BASE_URL).
+    llm_provider: str = "openai"
     llm_model: str = "gpt-4.1"
     fast_llm_model: str = "gpt-4.1-mini"  # cheap model for sub-agents / summarize
     embedding_model: str = "text-embedding-3-small"
 
-    # Per-agent LLM overrides — keyed by graph node name (supervisor, planner,
-    # concierge, journal, booking, budget, summarize, reflection). Each entry is
-    # an AgentLLMConfig; absent nodes use the global provider + tier model. Set
-    # via the AGENT_LLM_CONFIGS env var as JSON, e.g.
-    #   AGENT_LLM_CONFIGS='{"concierge":{"provider":"anthropic","model":"claude-sonnet-4-6"},"supervisor":{"temperature":0.1}}'
-    agent_llm_configs: dict[str, AgentLLMConfig] = {}
+    # Per-agent overrides (provider/model/base_url/temperature/max_tokens) live
+    # in the DB ``agent_config`` table now, resolved in ``get_agent_llm`` via
+    # ``AgentConfigCache``. Seed/edit them with ``scripts/seed_agent_config.py``.
 
-    # Optional base URL override — point the LLM client at an OpenAI-compatible
-    # gateway/proxy (e.g. clinepass) instead of the provider's default host.
-    # Passed straight through to init_chat_model() when set; leave unset to hit
-    # the provider directly. Pair it with the matching provider's API key below.
+    # Global base-URL fallback — a catch-all OpenAI-compatible gateway host used
+    # when the selected profile has no base_url of its own. Prefer a first-class
+    # profile (e.g. LLM_PROVIDER=clinepass, which carries its own base_url); keep
+    # this only for ad-hoc/one-off gateways not worth a catalog entry.
     llm_base_url: str | None = None
 
     # API keys — optional; only needed when a real model is wired in. Left
-    # unset for local dev and CI (tests inject a fake client).
+    # unset for local dev and CI (tests inject a fake client). Gateway profiles
+    # (clinepass/claude) have their own token but fall back to the SDK's key
+    # (openai/anthropic) when unset, so an existing OPENAI_API_KEY keeps working.
     openai_api_key: str | None = None
     anthropic_api_key: str | None = None
     google_api_key: str | None = None
+    clinepass_api_key: str | None = None
+    claude_api_key: str | None = None
+
+    @field_validator("llm_provider")
+    @classmethod
+    def _check_llm_provider(cls, v: str) -> str:
+        return _validate_provider_profile(v)
 
     # Langfuse observability — disabled by default so test/CI never emit traces
     # or require keys. Enable + set keys in a real deployment.

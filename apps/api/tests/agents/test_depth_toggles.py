@@ -6,9 +6,8 @@ Verifies that:
 - Reflection node runs the LLM and routes normally with default context.
 - Assistant node drops the RAG tool when allow_rag=False.
 - Assistant node keeps the RAG tool when allow_rag=True.
-- Response style "concise" injects "Be brief." into the system prompt.
-- Response style "detailed" injects "Be thorough." into the system prompt.
-- Response style "default" adds no extra directive.
+- Response style "default" adds no extra directive (the only value reachable
+  now that MIN-43 removed the mode-driven CONCISE/DETAILED prompt injection).
 
 All tests are offline: FakeLLM is used, no network calls.
 """
@@ -24,7 +23,6 @@ from app.clients.llm import FakeLLM
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.tools import tool as lc_tool
-from langgraph.graph import END
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -208,36 +206,6 @@ def _make_capturing_generate(captured: list):
         return ChatResult(generations=[ChatGeneration(message=AIMessage(content="ok"))])
 
     return spy
-
-
-def test_response_style_concise_adds_be_brief(monkeypatch):
-    """'concise' response_style appends 'Be brief.' to the system prompt."""
-    captured: list = []
-    monkeypatch.setattr(FakeLLM, "_generate", _make_capturing_generate(captured))
-
-    fake = FakeLLM()
-    subgraph = build_subagent("style_concise", [], lambda _: fake, "base prompt")
-    state = {"messages": [HumanMessage(content="hi")]}
-    subgraph.invoke(state, context=AgentContext(response_style="concise"))
-
-    assert captured, "LLM was never invoked"
-    system_content = captured[0].content
-    assert "Be brief." in system_content
-
-
-def test_response_style_detailed_adds_be_thorough(monkeypatch):
-    """'detailed' response_style appends 'Be thorough.' to the system prompt."""
-    captured: list = []
-    monkeypatch.setattr(FakeLLM, "_generate", _make_capturing_generate(captured))
-
-    fake = FakeLLM()
-    subgraph = build_subagent("style_detailed", [], lambda _: fake, "base prompt")
-    state = {"messages": [HumanMessage(content="hi")]}
-    subgraph.invoke(state, context=AgentContext(response_style="detailed"))
-
-    assert captured, "LLM was never invoked"
-    system_content = captured[0].content
-    assert "Be thorough." in system_content
 
 
 def test_response_style_default_adds_no_directive(monkeypatch):

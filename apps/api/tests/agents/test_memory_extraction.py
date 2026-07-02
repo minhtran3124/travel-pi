@@ -1,7 +1,7 @@
 """Task 2.1 — Background memory extraction node (specs/agent-memory-layers)."""
 
 from app.agents.context import AgentContext
-from app.enums import ChatMode, Tier
+from app.enums import Tier
 from langchain_core.messages import AIMessage, HumanMessage
 
 
@@ -131,7 +131,7 @@ def test_fast_mode_writes_nothing():
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=store
     )
 
-    ctx = AgentContext(tier=Tier.FREE, mode=ChatMode.FAST, allow_memory_write=False)
+    ctx = AgentContext(tier=Tier.FREE, allow_memory_write=False)
     graph.invoke(
         {
             "messages": [HumanMessage(content="I'm vegetarian")],
@@ -288,7 +288,7 @@ def test_fast_mode_writes_no_episode():
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
-    from app.enums import ChatMode, Tier
+    from app.enums import Tier
     from app.memory.store import search_episodes, search_preferences
     from langgraph.checkpoint.memory import MemorySaver
     from langgraph.store.memory import InMemoryStore
@@ -303,7 +303,7 @@ def test_fast_mode_writes_no_episode():
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=store
     )
 
-    ctx = AgentContext(tier=Tier.FREE, mode=ChatMode.FAST, allow_memory_write=False)
+    ctx = AgentContext(tier=Tier.FREE, allow_memory_write=False)
     # The extractor is gated off in FAST (fast LLM only returns "OK"), so the store
     # must stay empty — no episode and no preference written.
     graph.invoke(

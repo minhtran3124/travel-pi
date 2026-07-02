@@ -51,7 +51,7 @@ def build_graph(
     """Compile the travel agent graph. Inject fakes/backends for tests.
 
     Each node resolves its own model via ``get_agent_llm`` so providers/models
-    can be tuned per agent (``settings.agent_llm_configs``). When tests inject
+    can be tuned per agent (DB ``agent_config`` via ``AgentConfigCache``). When tests inject
     ``llm`` / ``fast_llm``, those override the whole main / fast tier — the node
     keeps using the injected fake exactly as before.
 
@@ -80,8 +80,9 @@ def build_graph(
         """Deferred resolver for sub-agent nodes — called per request (D1).
 
         When a fake is injected (tests), it is returned regardless of
-        ``ctx_model`` → all existing tests stay green. In prod,
-        ``get_agent_llm(name, model=ctx_model)`` does per-request selection.
+        ``ctx_model`` → all existing tests stay green. In prod, ``ctx_model`` is
+        always ``None`` (the per-request model hint was removed in MIN-43) and
+        ``get_agent_llm(name)`` resolves the DB/env-backed config.
 
         The ReAct ``assistant`` node re-runs on every tool round-trip, so this
         resolver is hit many times per turn. Built models are memoized per
@@ -103,7 +104,7 @@ def build_graph(
             if fake is not None:
                 return fake
             if ctx_model not in cache:
-                cache[ctx_model] = get_agent_llm(name, model=ctx_model)
+                cache[ctx_model] = get_agent_llm(name)
             return cache[ctx_model]
 
         return resolve

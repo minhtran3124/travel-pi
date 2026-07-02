@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.core.agent_config_cache import reload_from_db
 from app.core.config import get_settings
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
@@ -41,6 +42,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # populates a fresh DB so the later (Chunk E) DB-backed coverage check has
     # data to read.
     seed_all(get_session_factory(settings.database_url))
+
+    # Populate the per-agent LLM config cache from the DB, so get_agent_llm
+    # resolves DB overrides from the first request. Safe on an empty table
+    # (reload_from_db just syncs an empty map).
+    reload_from_db(get_session_factory(settings.database_url))
 
     # Enforce the "every city has ≥3 hotels and ≥3 places" promise from
     # CLAUDE.md — a typo in seed data would otherwise only surface when a
