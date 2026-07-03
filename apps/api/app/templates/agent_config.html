@@ -59,6 +59,10 @@
         {% endif %}
       </div>
 
+      {% if c.description %}
+      <p class="ac-desc">{{ c.description }}</p>
+      {% endif %}
+
       <div class="ac-mid">
         {% if c.provider or c.model %}
           <span class="ac-prov">{{ c.provider or "—" }}</span>
@@ -132,6 +136,27 @@
   </div>
 </div>
 
+<!-- Confirm-before-save dialog — a styled replacement for window.confirm(),
+     reusing the same modal tokens so it matches the rest of the dashboard. -->
+<div id="confirm-modal" class="agent-modal" aria-hidden="true">
+  <div class="am-backdrop" data-confirm-cancel></div>
+  <div class="am-dialog cm-dialog" role="alertdialog" aria-modal="true"
+       aria-labelledby="cm-title" aria-describedby="cm-msg">
+    <div class="cm-head">
+      <span class="cm-ico" aria-hidden="true">⚠️</span>
+      <div>
+        <h2 id="cm-title" class="am-title">Save agent config?</h2>
+        <p id="cm-msg" class="am-sub"></p>
+      </div>
+    </div>
+    <div class="am-actions">
+      <span class="spacer"></span>
+      <button type="button" class="fb-link" data-confirm-cancel>Cancel</button>
+      <button type="button" class="fb-btn" id="cm-confirm">Save changes</button>
+    </div>
+  </div>
+</div>
+
 <style>
   .ac-lead { color: var(--muted); font-size: 0.88rem; margin: 0 0 18px; max-width: 60ch; }
   .ac-saved {
@@ -202,6 +227,10 @@
     color: var(--sec, var(--accent));
   }
 
+  .ac-desc {
+    margin: -2px 0 0; color: var(--muted); font-size: 0.78rem; line-height: 1.4;
+  }
+
   .ac-mid { font-size: 0.85rem; min-height: 1.2em; }
   .ac-prov { font-weight: 700; color: var(--ink); }
   .ac-sep { color: var(--muted); margin: 0 4px; }
@@ -230,6 +259,15 @@
     border-radius: var(--radius); box-shadow: var(--shadow-lg);
     padding: 22px; animation: am-pop .16s ease-out;
   }
+  .cm-dialog { width: min(400px, 100%); }
+  .cm-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .cm-ico {
+    flex-shrink: 0; width: 38px; height: 38px; display: grid; place-items: center;
+    font-size: 1.1rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .cm-head .am-title { margin-bottom: 5px; }
+  .cm-head .am-sub { margin: 0; }
   @keyframes am-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .am-dialog { animation: none; } }
   .am-close {
@@ -339,7 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+    // Don't close the edit modal while the confirm dialog is stacked on top.
+    const confirming = document.getElementById('confirm-modal').classList.contains('show');
+    if (e.key === 'Escape' && !confirming && modal.classList.contains('show')) closeModal();
   });
 
   // Re-suggest models when the provider changes.
@@ -361,10 +401,35 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault(); showError('Max tokens must be a positive integer.'); return;
       }
     }
-    const agent = form.action.split('/').pop();
-    if (!confirm('Save config for ' + decodeURIComponent(agent) + '? This changes the live agent model.')) {
-      e.preventDefault();
-    }
+    // Validation passed — hand off to the styled confirm dialog instead of
+    // the native window.confirm() popup.
+    e.preventDefault();
+    openConfirm(decodeURIComponent(form.action.split('/').pop()));
+  });
+
+  // ── Styled save-confirmation dialog (replaces window.confirm) ──────
+  const confirmModal = document.getElementById('confirm-modal');
+  const cmConfirm = $('cm-confirm');
+
+  function openConfirm(agent) {
+    $('cm-msg').textContent =
+      'This updates the live model for “' + agent + '”. It takes effect on the next agent run.';
+    confirmModal.classList.add('show');
+    confirmModal.setAttribute('aria-hidden', 'false');
+    cmConfirm.focus();
+  }
+  function closeConfirm() {
+    confirmModal.classList.remove('show');
+    confirmModal.setAttribute('aria-hidden', 'true');
+    // The edit modal stays open behind it, so leave scroll locked.
+  }
+
+  // form.submit() bypasses the submit event above, so no confirm loop.
+  cmConfirm.addEventListener('click', () => { closeConfirm(); form.submit(); });
+  confirmModal.querySelectorAll('[data-confirm-cancel]')
+    .forEach(el => el.addEventListener('click', closeConfirm));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && confirmModal.classList.contains('show')) closeConfirm();
   });
 });
 </script>

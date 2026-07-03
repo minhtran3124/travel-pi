@@ -10,6 +10,7 @@ from app.core.llm_providers import PROVIDER_NAMES
 from app.data.agent_config import (  # first app.data import outside seed.py — accepted plan decision
     AGENT_CONFIG_GROUPS,
     AGENT_CONFIG_NODES,
+    AGENT_DESCRIPTIONS,
 )
 from app.exceptions import DomainValidationError, NotFoundError
 from app.repositories.agent_config import AgentConfigRepository
@@ -20,6 +21,7 @@ class AgentConfigView:
     """Read view for one agent's config (no ORM leak past the service)."""
 
     agent_name: str
+    description: str | None = None
     provider: str | None = None
     model: str | None = None
     temperature: float | None = None
@@ -119,10 +121,12 @@ class AgentConfigService:
 
     @staticmethod
     def _to_view(row, agent_name: str) -> AgentConfigView:
+        description = AGENT_DESCRIPTIONS.get(agent_name)
         if row is None:
-            return AgentConfigView(agent_name=agent_name)
+            return AgentConfigView(agent_name=agent_name, description=description)
         return AgentConfigView(
             agent_name=agent_name,
+            description=description,
             provider=row.provider,
             model=row.model,
             temperature=row.temperature,
