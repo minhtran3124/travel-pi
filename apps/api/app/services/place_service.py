@@ -102,6 +102,7 @@ class PlaceService:
         price_level_max: int | None = None,
         recommended_only: bool = False,
         sort: str = DEFAULT_SORT,
+        exclude_names: list[str] | None = None,
     ) -> list[Place]:
         """Filter and sort places.
 
@@ -117,6 +118,8 @@ class PlaceService:
         :param price_level_max: Optional price-band ceiling (``<=``).
         :param recommended_only: Keep only recommended places when ``True``.
         :param sort: Sort key; unknown values fall back to rating-descending.
+        :param exclude_names: Optional place names to omit from the results (e.g.
+            items already suggested this conversation).
         :return: The filtered, sorted places.
         """
         if city:
@@ -135,6 +138,10 @@ class PlaceService:
             price_level_max=price_level_max,
             recommended=recommended_only or None,
         )
+
+        if exclude_names:
+            excluded = set(exclude_names)
+            results = [p for p in results if p.name not in excluded]
 
         if sort == "rating_asc":
             results.sort(key=lambda p: p.rating)
