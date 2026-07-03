@@ -4,6 +4,10 @@ Schema-only assertions — these tools hit the live Open-Meteo client, so we nev
 invoke them here (keeps the suite network-free and <60s).
 """
 
+import asyncio
+
+import pytest
+from app.exceptions import CityNotFoundError, UpstreamError, WeatherUnavailableError
 from app.tools.weather_tools import (
     GetAirQualityArgs,
     GetPackingArgs,
@@ -12,6 +16,7 @@ from app.tools.weather_tools import (
     get_packing,
     get_weather,
 )
+from langchain_core.tools import ToolException
 
 
 def test_get_weather_has_hand_authored_args_schema():
@@ -47,3 +52,25 @@ def test_get_air_quality_schema_only_city():
     schema = get_air_quality.get_input_schema().model_json_schema()
     assert schema["required"] == ["city"]
     assert set(schema["properties"]) == {"city"}
+
+
+def test_get_weather_reraises_upstream(monkeypatch):
+    from app.tools import weather_tools
+
+    async def boom(*a, **k):
+        raise WeatherUnavailableError("open-meteo down")
+
+    monkeypatch.setattr(weather_tools.weather_service, "get_weather", boom)
+    with pytest.raises(UpstreamError):
+        asyncio.run(weather_tools.get_weather.ainvoke({"city": "Paris"}))
+
+
+def test_get_weather_wraps_logic(monkeypatch):
+    from app.tools import weather_tools
+
+    async def boom(*a, **k):
+        raise CityNotFoundError("nope")
+
+    monkeypatch.setattr(weather_tools.weather_service, "get_weather", boom)
+    with pytest.raises(ToolException):
+        asyncio.run(weather_tools.get_weather.ainvoke({"city": "Xyzzy"}))

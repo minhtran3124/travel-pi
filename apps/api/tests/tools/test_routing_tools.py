@@ -11,6 +11,7 @@ async, so we drive them via ``asyncio.run(tool.ainvoke(...))``.
 import asyncio
 
 import pytest
+from app.exceptions import RoutingUnavailableError, UpstreamError
 from app.services.place_service import PlaceService
 from app.tools._base import session_scope
 from langchain_core.messages import ToolMessage
@@ -94,3 +95,19 @@ def test_get_city_route_args_schema():
     assert GetCityRouteArgs.__module__.startswith("app.tools")
     schema = get_city_route.get_input_schema().model_json_schema()
     assert set(schema["required"]) == {"origin_city", "destination_city"}
+
+
+def test_get_city_route_reraises_upstream(monkeypatch):
+    from app.services import routing_service as rs_mod
+    from app.tools import routing_tools
+
+    async def boom(self, *a, **k):
+        raise RoutingUnavailableError("ORS down")
+
+    monkeypatch.setattr(rs_mod.RoutingService, "get_city_route", boom)
+    with pytest.raises(UpstreamError):
+        asyncio.run(
+            routing_tools.get_city_route.ainvoke(
+                {"origin_city": "Hanoi", "destination_city": "Da Nang"}
+            )
+        )

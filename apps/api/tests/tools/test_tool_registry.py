@@ -141,16 +141,15 @@ def test_memory_tool_hides_injected_store_and_user_id():
 def test_weather_tool_maps_upstream_error(monkeypatch):
     import asyncio
 
-    from app.exceptions import WeatherUnavailableError
+    from app.exceptions import UpstreamError, WeatherUnavailableError
     from app.services import weather_service
     from app.tools.weather_tools import get_weather
-    from langchain_core.tools import ToolException
 
     async def boom(city, days=None):
         raise WeatherUnavailableError("open-meteo down")
 
     monkeypatch.setattr(weather_service, "get_weather", boom)
-    with pytest.raises(ToolException):
+    with pytest.raises(UpstreamError):
         asyncio.run(get_weather.ainvoke({"city": "Tokyo"}))
 
 

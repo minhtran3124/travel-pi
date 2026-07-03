@@ -85,6 +85,8 @@ def _build_chat_model(
     if temperature is not None:
         kwargs["temperature"] = temperature
 
+    kwargs.setdefault("max_retries", 0)  # graph owns retry (MIN-49); avoid SDK double-retry
+
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 

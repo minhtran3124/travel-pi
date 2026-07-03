@@ -14,7 +14,7 @@ from __future__ import annotations
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
-from app.exceptions import AppError
+from app.exceptions import AppError, UpstreamError
 from app.schemas.base import AppBaseModel
 from app.schemas.route import RouteResponse
 from app.services.routing_service import RoutingService
@@ -74,6 +74,8 @@ async def get_route(origin_place_id: str, destination_place_id: str):
             r = await RoutingService(s).get_place_route(
                 origin_place_id, destination_place_id
             )
+        except UpstreamError:
+            raise  # transient — let RetryPolicy retry the node
         except AppError as e:
             raise ToolException(str(e)) from e
     return _route_panel(r)
@@ -95,6 +97,8 @@ async def get_city_route(origin_city: str, destination_city: str):
     with session_scope() as s:
         try:
             r = await RoutingService(s).get_city_route(origin_city, destination_city)
+        except UpstreamError:
+            raise  # transient — let RetryPolicy retry the node
         except AppError as e:
             raise ToolException(str(e)) from e
     return _route_panel(r)
