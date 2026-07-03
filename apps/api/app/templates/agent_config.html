@@ -88,11 +88,9 @@
 
       <label class="am-field">
         <span class="am-label">Model</span>
-        <input type="text" name="model" id="am-model" list="agent-model-hints"
+        <input type="text" name="model" id="am-model"
                placeholder="(global default)" autocomplete="off">
-        <datalist id="agent-model-hints">
-          {% for m in model_hints %}<option value="{{ m }}">{% endfor %}
-        </datalist>
+        <div class="am-chips" id="am-model-chips" hidden></div>
       </label>
 
       <div class="am-row">
@@ -193,8 +191,7 @@
   .am-sub { margin: 0 0 16px; color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
   .am-error {
     margin: 0 0 14px; padding: 10px 12px; border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--red, #f87171) 16%, transparent);
-    color: var(--red, #f87171); font-size: 0.84rem; font-weight: 600;
+    background: rgba(248,113,113,.14); color: var(--red); font-size: 0.84rem; font-weight: 600;
   }
   .am-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .am-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
@@ -212,6 +209,18 @@
   .am-actions .spacer { flex: 1; }
   .am-updated { font-size: 0.72rem; color: var(--muted); }
 
+  /* Model suggestion chips for the selected provider (styled, in-flow — no
+     native datalist popup that would overlap the fields below). */
+  .am-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .am-chips[hidden] { display: none; }
+  .am-chip {
+    font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted);
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .am-chip:hover { color: var(--accent); border-color: var(--accent); }
+  .am-chip.on { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
   @media (max-width: 480px) { .am-row { grid-template-columns: 1fr; } }
 </style>
 
@@ -222,9 +231,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('agent-form');
   const $ = (id) => document.getElementById(id);
   const errEl = $('am-error');
+  const PROVIDER_MODELS = {{ provider_models | tojson }};
 
   function showError(msg) { errEl.textContent = msg; errEl.hidden = false; }
   function clearError() { errEl.textContent = ''; errEl.hidden = true; }
+
+  // Render clickable model suggestions for the chosen provider (a styled,
+  // in-flow replacement for a native <datalist> popup).
+  function renderModelChips(provider) {
+    const box = $('am-model-chips');
+    const models = PROVIDER_MODELS[provider] || [];
+    box.innerHTML = '';
+    models.forEach(m => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'am-chip' + (m === $('am-model').value ? ' on' : '');
+      chip.textContent = m;
+      chip.addEventListener('click', () => {
+        $('am-model').value = m;
+        box.querySelectorAll('.am-chip').forEach(c => c.classList.toggle('on', c === chip));
+      });
+      box.appendChild(chip);
+    });
+    box.hidden = models.length === 0;
+  }
 
   function openModal(card) {
     const d = card.dataset;
@@ -236,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('am-temperature').value = d.temperature || '';
     $('am-max-tokens').value = d.maxTokens || '';
     $('am-updated').textContent = d.updatedAt ? ('Last updated: ' + d.updatedAt) : '';
+    renderModelChips(d.provider || '');
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -259,6 +290,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
   });
+
+  // Re-suggest models when the provider changes.
+  $('am-provider').addEventListener('change', () => renderModelChips($('am-provider').value));
 
   // Client-side guards mirror the server bounds so most errors never round-trip.
   form.addEventListener('submit', (e) => {

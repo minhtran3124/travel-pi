@@ -916,7 +916,9 @@ def agent_config_page(
         context={
             "configs": configs,
             "providers": sorted(PROVIDER_NAMES),
-            "model_hints": _model_hints(),
+            "provider_models": {
+                name: list(p.models) for name, p in LLM_PROVIDERS.items()
+            },
         },
     )
 
