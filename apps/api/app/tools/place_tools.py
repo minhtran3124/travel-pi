@@ -118,8 +118,10 @@ def search_places(
                     "and suggest relaxing the filters — do not invent places.",
                     None,
                 )
-            where = f" in {city}" if city else ""
-            what = f" {category}" if category else ""
+            canonical_city = results[0].city if city else None
+            canonical_category = results[0].category if category else None
+            where = f" in {canonical_city}" if canonical_city else ""
+            what = f" {canonical_category}" if canonical_category else ""
             summary = (
                 f"{len(results)}{what} place{'s' if len(results) != 1 else ''}"
                 f"{where}. The full list is in the Places panel."
@@ -127,7 +129,9 @@ def search_places(
             return panel_result(
                 summary,
                 kind="places",
-                data=PlacesPanel.from_places(city, category, results),
+                data=PlacesPanel.from_places(
+                    canonical_city, canonical_category, results
+                ),
             )
         except AppError as e:
             raise ToolException(str(e)) from e
