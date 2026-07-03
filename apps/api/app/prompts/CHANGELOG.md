@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## v5 — concierge: default to a shortlist
+
+Dumping the full search-results list (e.g. every café in a city) by default was
+overwhelming and buried the actually-useful picks; a Vietnamese-language test
+conversation surfaced this alongside a separate reflection-loop bug where the
+revision prompt (an English `HumanMessage`) got read as "the traveller's latest
+message" and silently flipped the reply language mid-turn (fixed in
+`app/agents/nodes.py`, not a prompt change).
+
+- **concierge v5** — when the traveller doesn't ask for a specific count or
+  "all", present only the top 4–5 (highest-rated first) and offer to show more,
+  instead of presenting every returned item.
+
+`active.yaml`: concierge → 5. Others unchanged.
+
 ## v4 — hotel-search detail gathering
 
 Stop the agent from silently guessing hotel-search details. Paired with the

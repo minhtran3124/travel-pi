@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, SystemMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
@@ -126,8 +126,10 @@ def make_reflection_node(
         if not allow_reflection or revisions >= effective_max:
             logger.info("[agent] reflection → extract_memory (no revision)")
             return Command(goto="extract_memory")
+
         last = state["messages"][-1]
         verdict = llm.invoke([system, last]).content
+
         if "REVISE" in str(verdict).upper():
             # current_flow is always set by the supervisor before a sub-agent runs
             # (so reflection is only reachable with one); the "extract_memory"
@@ -139,7 +141,11 @@ def make_reflection_node(
                 update={
                     "revisions": revisions + 1,
                     "messages": [
-                        HumanMessage(content="Please improve your previous answer.")
+                        SystemMessage(
+                            content="Please improve your previous answer. This is an "
+                            "internal review note, not a message from the traveller — "
+                            "keep replying in the traveller's own language."
+                        )
                     ],
                 },
                 goto=target,
