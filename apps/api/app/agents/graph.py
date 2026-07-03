@@ -32,6 +32,7 @@ from app.agents.nodes import (
     make_summarize_node,
     plan_node,
 )
+from app.agents.retry import LLM_RETRY
 from app.agents.state import TravelAgentState
 from app.agents.subagents.booking import build_booking
 from app.agents.subagents.budget import build_budget
@@ -115,11 +116,14 @@ def build_graph(
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
     builder.add_node("load_context", load_context_node)
-    builder.add_node("summarize", make_summarize_node(pick("summarize")))
+    builder.add_node(
+        "summarize", make_summarize_node(pick("summarize")), retry_policy=LLM_RETRY
+    )
     builder.add_node(
         "supervisor",
         make_supervisor(pick("supervisor")),
         destinations=(*SUBAGENTS, "plan", "__end__"),
+        retry_policy=LLM_RETRY,
     )
     # HITL plan-approval gate: fires before booking commits anything destructive.
     builder.add_node("plan", plan_node, destinations=("booking", "__end__"))
@@ -132,8 +136,13 @@ def build_graph(
         "reflection",
         make_reflection_node(pick("reflection")),
         destinations=(*SUBAGENTS, "extract_memory"),
+        retry_policy=LLM_RETRY,
     )
-    builder.add_node("extract_memory", make_extract_memory_node(pick("extract_memory")))
+    builder.add_node(
+        "extract_memory",
+        make_extract_memory_node(pick("extract_memory")),
+        retry_policy=LLM_RETRY,
+    )
 
     builder.add_edge(START, "load_context")
     builder.add_edge("load_context", "summarize")

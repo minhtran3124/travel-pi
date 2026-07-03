@@ -6,6 +6,7 @@ from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
 
+from app.agents.retry import TOOL_FAULT
 from app.agents.subagents._base import build_subagent
 from app.prompts.registry import registry
 from app.tools.registry import get_tools_for
@@ -23,4 +24,5 @@ def build_concierge(resolve_model: Callable[[str | None], BaseChatModel]):
         get_tools_for("concierge"),
         resolve_model,
         registry.get("concierge"),
+        tool_fault=TOOL_FAULT,
     )

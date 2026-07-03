@@ -6,6 +6,7 @@ from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
 
+from app.agents.retry import TOOL_FAULT
 from app.agents.subagents._base import build_subagent
 from app.prompts.registry import registry
 from app.tools.registry import get_tools_for
@@ -19,5 +20,9 @@ def build_planner(resolve_model: Callable[[str | None], BaseChatModel]):
     :return: The compiled ReAct subgraph for this sub-agent.
     """
     return build_subagent(
-        "planner", get_tools_for("planner"), resolve_model, registry.get("planner")
+        "planner",
+        get_tools_for("planner"),
+        resolve_model,
+        registry.get("planner"),
+        tool_fault=TOOL_FAULT,
     )
