@@ -9,7 +9,7 @@
   'extract_memory': '🧠'
 } %}
 
-{% set section_colors = ['var(--accent)', '#60a5fa', '#c084fc'] %}
+{% set section_colors = ['var(--accent)', 'var(--cyan)', 'var(--violet)'] %}
 {% set total = groups | map(attribute='configs') | map('length') | sum %}
 
 <div class="board-head">
@@ -136,7 +136,7 @@
   .ac-lead { color: var(--muted); font-size: 0.88rem; margin: 0 0 18px; max-width: 60ch; }
   .ac-saved {
     padding: 12px 16px; margin: 0 0 16px; border-radius: var(--radius-sm);
-    background: rgba(52,211,153,.13); color: var(--green); font-weight: 600; font-size: 0.9rem;
+    background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); font-weight: 600; font-size: 0.9rem;
   }
 
   /* ── Sections (main / sub / support), colour-coded by --sec ── */
@@ -188,7 +188,7 @@
   .ac-top { display: flex; align-items: center; gap: 8px; }
   .ac-ico {
     font-size: 1.05rem; width: 30px; height: 30px; flex-shrink: 0;
-    display: grid; place-items: center; border-radius: 9px;
+    display: grid; place-items: center; border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--sec, var(--accent)) 15%, transparent);
   }
   .ac-name { font-weight: 800; font-size: 0.98rem; letter-spacing: -0.01em; }
@@ -222,7 +222,7 @@
     display: none; align-items: center; justify-content: center; padding: 20px;
   }
   .agent-modal.show { display: flex; }
-  .am-backdrop { position: absolute; inset: 0; background: rgba(6,7,10,.74); backdrop-filter: blur(3px); }
+  .am-backdrop { position: absolute; inset: 0; background: var(--scrim); backdrop-filter: blur(3px); }
   .am-dialog {
     position: relative; z-index: 1; width: min(460px, 100%);
     max-height: calc(100vh - 40px); overflow-y: auto;
@@ -242,7 +242,7 @@
   .am-sub { margin: 0 0 16px; color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
   .am-error {
     margin: 0 0 14px; padding: 10px 12px; border-radius: var(--radius-sm);
-    background: rgba(248,113,113,.14); color: var(--red); font-size: 0.84rem; font-weight: 600;
+    background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); font-size: 0.84rem; font-weight: 600;
   }
   .am-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .am-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
