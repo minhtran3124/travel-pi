@@ -908,13 +908,13 @@ def agent_config_page(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
 ) -> HTMLResponse:
-    """List every agent's current LLM config as a card grid (edit in a modal)."""
-    configs = AgentConfigService(session).list_configs()
+    """List every agent's LLM config, grouped into sections (edit in a modal)."""
+    groups = AgentConfigService(session).list_grouped()
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="agent_config.html",
         context={
-            "configs": configs,
+            "groups": groups,
             "providers": sorted(PROVIDER_NAMES),
             "provider_models": {
                 name: list(p.models) for name, p in LLM_PROVIDERS.items()

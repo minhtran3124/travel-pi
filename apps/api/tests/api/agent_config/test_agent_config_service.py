@@ -12,6 +12,16 @@ def test_list_configs_returns_every_node(seeded_session):
     assert len(configs) == len(AGENT_CONFIG_NODES)
 
 
+def test_list_grouped_covers_every_node_once(seeded_session):
+    from app.data.agent_config import AGENT_CONFIG_GROUPS
+
+    groups = AgentConfigService(seeded_session).list_grouped()
+    assert [g.title for g in groups] == [t for t, _, _ in AGENT_CONFIG_GROUPS]
+    flat = [c.agent_name for g in groups for c in g.configs]
+    assert flat == AGENT_CONFIG_NODES  # every node, once, in order
+    assert len(set(flat)) == len(AGENT_CONFIG_NODES)
+
+
 def test_get_config_unknown_agent_raises_not_found(seeded_session):
     svc = AgentConfigService(seeded_session)
     with pytest.raises(NotFoundError):

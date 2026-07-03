@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.llm_providers import PROVIDER_NAMES
-from app.data.agent_config import (
-    AGENT_CONFIG_NODES,  # first app.data import outside seed.py — accepted plan decision
+from app.data.agent_config import (  # first app.data import outside seed.py — accepted plan decision
+    AGENT_CONFIG_GROUPS,
+    AGENT_CONFIG_NODES,
 )
 from app.exceptions import DomainValidationError, NotFoundError
 from app.repositories.agent_config import AgentConfigRepository
@@ -24,6 +25,15 @@ class AgentConfigView:
     temperature: float | None = None
     max_tokens: int | None = None
     updated_at: str | None = None
+
+
+@dataclass(frozen=True)
+class AgentConfigGroup:
+    """A dashboard section: a title, a blurb, and the agents in it."""
+
+    title: str
+    blurb: str
+    configs: list[AgentConfigView]
 
 
 def _norm(value: str | None) -> str | None:
@@ -55,6 +65,14 @@ class AgentConfigService:
         """Return one view per node in AGENT_CONFIG_NODES, merged with DB rows."""
         rows = {r.agent_name: r for r in self._repo.list_all()}
         return [self._to_view(rows.get(name), name) for name in AGENT_CONFIG_NODES]
+
+    def list_grouped(self) -> list["AgentConfigGroup"]:
+        """Return the configs split into dashboard sections (main / sub / support)."""
+        by_name = {v.agent_name: v for v in self.list_configs()}
+        return [
+            AgentConfigGroup(title, blurb, [by_name[n] for n in names])
+            for title, blurb, names in AGENT_CONFIG_GROUPS
+        ]
 
     def get_config(self, agent_name: str) -> AgentConfigView:
         """Return the view for *agent_name*; NotFoundError if not a known node."""

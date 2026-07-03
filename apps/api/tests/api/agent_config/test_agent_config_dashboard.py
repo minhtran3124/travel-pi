@@ -25,6 +25,16 @@ def test_list_page_is_card_grid_with_edit_modal(client):
         assert f'data-agent="{name}"' in r.text
 
 
+def test_list_page_renders_role_sections(client):
+    from app.data.agent_config import AGENT_CONFIG_GROUPS
+
+    r = client.get("/dashboard/agent-config")
+    assert r.status_code == 200
+    assert r.text.count('class="ac-section"') == len(AGENT_CONFIG_GROUPS)
+    for title, _blurb, _names in AGENT_CONFIG_GROUPS:
+        assert title in r.text
+
+
 def test_list_page_shows_saved_banner(client):
     # POST redirects here with ?saved=1; the confirmation banner must render.
     r = client.get("/dashboard/agent-config?saved=1")

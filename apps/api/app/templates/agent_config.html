@@ -9,12 +9,15 @@
   'extract_memory': '🧠'
 } %}
 
+{% set section_colors = ['var(--accent)', '#60a5fa', '#c084fc'] %}
+{% set total = groups | map(attribute='configs') | map('length') | sum %}
+
 <div class="board-head">
   <h1 class="board-title">
     <span class="plane">🤖</span>
     <span>Agent LLM configuration</span>
   </h1>
-  <div class="clock">{{ configs | length }} agents</div>
+  <div class="clock">{{ total }} agents</div>
 </div>
 
 {% if request.query_params.get('saved') %}
@@ -22,48 +25,61 @@
 {% endif %}
 
 <p class="ac-lead">
-  Per-agent model overrides. A card with no values falls back to the global default.
-  Click a card to edit — changes take effect on the next agent run.
+  Per-agent model overrides, grouped by role. A card with no values falls back to the
+  global default. Click a card to edit — changes take effect on the next agent run.
 </p>
 
-<div class="agent-grid">
-  {% for c in configs %}
-  <article class="agent-card" role="button" tabindex="0"
-           data-agent="{{ c.agent_name }}"
-           data-provider="{{ c.provider or '' }}"
-           data-model="{{ c.model or '' }}"
-           data-temperature="{{ c.temperature if c.temperature is not none else '' }}"
-           data-max-tokens="{{ c.max_tokens if c.max_tokens is not none else '' }}"
-           data-updated-at="{{ c.updated_at or '' }}">
-    <div class="ac-top">
-      <span class="ac-ico">{{ agent_icons.get(c.agent_name, '⚙️') }}</span>
-      <span class="ac-name">{{ c.agent_name }}</span>
-      {% if c.provider or c.model or c.temperature is not none or c.max_tokens is not none %}
-        <span class="ac-pill ac-pill-on">custom</span>
-      {% else %}
-        <span class="ac-pill">default</span>
-      {% endif %}
+{% for g in groups %}
+<section class="ac-section" style="--sec: {{ section_colors[loop.index0 % (section_colors | length)] }}">
+  <header class="ac-sechead">
+    <span class="ac-secbar" aria-hidden="true"></span>
+    <div class="ac-sectitle">
+      <h2>{{ g.title }}</h2>
+      <p>{{ g.blurb }}</p>
     </div>
+    <span class="ac-seccount">{{ g.configs | length }}</span>
+  </header>
 
-    <div class="ac-mid">
-      {% if c.provider or c.model %}
-        <span class="ac-prov">{{ c.provider or "—" }}</span>
-        <span class="ac-sep">/</span>
-        <span class="ac-model">{{ c.model or "—" }}</span>
-      {% else %}
-        <span class="ac-muted">Using global default provider &amp; model</span>
-      {% endif %}
-    </div>
+  <div class="agent-grid">
+    {% for c in g.configs %}
+    <article class="agent-card" role="button" tabindex="0"
+             data-agent="{{ c.agent_name }}"
+             data-provider="{{ c.provider or '' }}"
+             data-model="{{ c.model or '' }}"
+             data-temperature="{{ c.temperature if c.temperature is not none else '' }}"
+             data-max-tokens="{{ c.max_tokens if c.max_tokens is not none else '' }}"
+             data-updated-at="{{ c.updated_at or '' }}">
+      <div class="ac-top">
+        <span class="ac-ico">{{ agent_icons.get(c.agent_name, '⚙️') }}</span>
+        <span class="ac-name">{{ c.agent_name }}</span>
+        {% if c.provider or c.model or c.temperature is not none or c.max_tokens is not none %}
+          <span class="ac-pill ac-pill-on">custom</span>
+        {% else %}
+          <span class="ac-pill">default</span>
+        {% endif %}
+      </div>
 
-    <div class="ac-foot">
-      <span class="ac-stat"><span class="ac-k">temp</span>
-        <span class="ac-v">{{ c.temperature if c.temperature is not none else "—" }}</span></span>
-      <span class="ac-stat"><span class="ac-k">max tokens</span>
-        <span class="ac-v">{{ c.max_tokens if c.max_tokens is not none else "—" }}</span></span>
-    </div>
-  </article>
-  {% endfor %}
-</div>
+      <div class="ac-mid">
+        {% if c.provider or c.model %}
+          <span class="ac-prov">{{ c.provider or "—" }}</span>
+          <span class="ac-sep">/</span>
+          <span class="ac-model">{{ c.model or "—" }}</span>
+        {% else %}
+          <span class="ac-muted">Using global default provider &amp; model</span>
+        {% endif %}
+      </div>
+
+      <div class="ac-foot">
+        <span class="ac-stat"><span class="ac-k">temp</span>
+          <span class="ac-v">{{ c.temperature if c.temperature is not none else "—" }}</span></span>
+        <span class="ac-stat"><span class="ac-k">max tokens</span>
+          <span class="ac-v">{{ c.max_tokens if c.max_tokens is not none else "—" }}</span></span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
 
 <!-- Edit modal — one form, populated client-side from the clicked card. -->
 <div id="agent-modal" class="agent-modal" aria-hidden="true">
@@ -123,33 +139,68 @@
     background: rgba(52,211,153,.13); color: var(--green); font-weight: 600; font-size: 0.9rem;
   }
 
+  /* ── Sections (main / sub / support), colour-coded by --sec ── */
+  .ac-section { margin-bottom: 26px; }
+  .ac-sechead { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+  .ac-secbar {
+    width: 4px; align-self: stretch; min-height: 34px; border-radius: 999px;
+    background: var(--sec, var(--accent));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--sec, var(--accent)) 55%, transparent);
+  }
+  .ac-sectitle h2 {
+    margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ac-sectitle p { margin: 2px 0 0; color: var(--muted); font-size: 0.8rem; }
+  .ac-seccount {
+    margin-left: auto; font-size: 0.72rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    padding: 4px 11px; border-radius: 999px;
+    color: var(--sec, var(--accent));
+    background: color-mix(in srgb, var(--sec, var(--accent)) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--sec, var(--accent)) 40%, transparent);
+  }
+
   .agent-grid {
     display: grid; gap: 14px;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 
   .agent-card {
-    display: flex; flex-direction: column; gap: 10px;
+    display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden;
     background: var(--panel); border: 1px solid var(--line);
     border-radius: var(--radius); padding: 16px;
     cursor: pointer; transition: border-color .12s, box-shadow .12s, transform .12s;
   }
-  .agent-card:hover {
-    border-color: var(--accent);
-    box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
-    transform: translateY(-1px);
+  /* a thin top accent in the section colour */
+  .agent-card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+    background: linear-gradient(90deg, var(--sec, var(--accent)),
+                color-mix(in srgb, var(--sec, var(--accent)) 25%, transparent));
+    opacity: 0.75;
   }
-  .agent-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .agent-card:hover {
+    border-color: var(--sec, var(--accent));
+    box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--sec, var(--accent)) 45%, transparent);
+    transform: translateY(-2px);
+  }
+  .agent-card:focus-visible { outline: 2px solid var(--sec, var(--accent)); outline-offset: 2px; }
 
   .ac-top { display: flex; align-items: center; gap: 8px; }
-  .ac-ico { font-size: 1.15rem; }
+  .ac-ico {
+    font-size: 1.05rem; width: 30px; height: 30px; flex-shrink: 0;
+    display: grid; place-items: center; border-radius: 9px;
+    background: color-mix(in srgb, var(--sec, var(--accent)) 15%, transparent);
+  }
   .ac-name { font-weight: 800; font-size: 0.98rem; letter-spacing: -0.01em; }
   .ac-pill {
     margin-left: auto; font-size: 0.64rem; font-weight: 800; text-transform: uppercase;
     letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px;
     background: var(--panel-2); color: var(--muted);
   }
-  .ac-pill-on { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+  .ac-pill-on {
+    background: color-mix(in srgb, var(--sec, var(--accent)) 22%, transparent);
+    color: var(--sec, var(--accent));
+  }
 
   .ac-mid { font-size: 0.85rem; min-height: 1.2em; }
   .ac-prov { font-weight: 700; color: var(--ink); }
