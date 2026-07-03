@@ -87,5 +87,5 @@ The core intent — adopt LangGraph fault-tolerance primitives, gated behind rec
 
 ### Rollback
 
-- Work is uncommitted on branch `feat/agent-fault-tolerance` (off `v3`) at completion of implementation; before any commit, `git checkout v3 -- .` or `git switch v3 && git branch -D feat/agent-fault-tolerance` discards it entirely.
-- Once committed: `git revert <sha>` (or `git switch v3` to abandon the branch pre-merge).
+- `git revert d059bb6` (commit on `feat/agent-fault-tolerance`, off `v3`).
+- Pre-merge: `git switch v3` to abandon the branch without reverting.

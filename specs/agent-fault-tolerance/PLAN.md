@@ -1,6 +1,6 @@
 ---
 slug: agent-fault-tolerance
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-03
 linear: MIN-49
@@ -720,4 +720,5 @@ Expected: PASS. (Booking/budget/journal unchanged → their error UX is preserve
 ## Status Log
 
 - 2026-07-03 — Plan drafted from design.md + research-brief.md (all forks/open items resolved: SAGA dropped, TimeoutPolicy deferred, decision B for LLM retry).
-- 2026-07-03 — All 7 tasks (waves 1-4) implemented on branch `feat/agent-fault-tolerance` (off `v3`), via executing-plans skill. Waves 1 and 2 dispatched as parallel subagents (1.1/1.2, then 2.1/2.2/2.3); waves 3 and 4 executed directly (single-task waves). Full regression green (253 tests, `tests/agents tests/tools tests/clients`). Two deviations recorded in `SUMMARY.md` (stale pre-existing test + plan test-fixture bug, both Rule 1). Not yet committed/pushed — proceeding to finishing-a-development-branch.
+- 2026-07-03 — All 7 tasks (waves 1-4) implemented on branch `feat/agent-fault-tolerance` (off `v3`), via executing-plans skill. Waves 1 and 2 dispatched as parallel subagents (1.1/1.2, then 2.1/2.2/2.3); waves 3 and 4 executed directly (single-task waves). Full regression green (253 tests, `tests/agents tests/tools tests/clients`). Two deviations recorded in `SUMMARY.md` (stale pre-existing test + plan test-fixture bug, both Rule 1).
+- 2026-07-03 — shipped via `feat/agent-fault-tolerance` (commit `d059bb6`); PR opening against `v3`.
