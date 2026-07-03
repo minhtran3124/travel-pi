@@ -2,38 +2,285 @@
 {% block title %}Agent Config{% endblock %}
 
 {% block content %}
-<h1>Agent LLM configuration</h1>
+{# per-agent glyph, so the grid reads at a glance (falls back to a gear) #}
+{% set agent_icons = {
+  'supervisor': '🧭', 'planner': '🗺️', 'concierge': '🛎️', 'journal': '📔',
+  'booking': '🎫', 'budget': '💰', 'summarize': '📝', 'reflection': '🔍',
+  'extract_memory': '🧠'
+} %}
+
+<div class="board-head">
+  <h1 class="board-title">
+    <span class="plane">🤖</span>
+    <span>Agent LLM configuration</span>
+  </h1>
+  <div class="clock">{{ configs | length }} agents</div>
+</div>
 
 {% if request.query_params.get('saved') %}
-  <p style="padding: 12px 16px; margin: 0 0 16px; border-radius: var(--radius-sm); background: rgba(52,211,153,.13); color: var(--green); font-weight: 600; font-size: 0.9rem;">
-    Configuration saved.
-  </p>
+  <p class="ac-saved">✓ Configuration saved.</p>
 {% endif %}
 
-<div class="table-wrap" style="border-radius: var(--radius); border: 1px solid var(--line);">
-  <table class="fids">
-    <thead>
-      <tr>
-        <th>Agent</th>
-        <th>Provider</th>
-        <th>Model</th>
-        <th>Temp</th>
-        <th>Max tokens</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for c in configs %}
-      <tr>
-        <td class="from-city">{{ c.agent_name }}</td>
-        <td>{{ c.provider or "—" }}</td>
-        <td>{{ c.model or "—" }}</td>
-        <td>{{ c.temperature if c.temperature is not none else "—" }}</td>
-        <td>{{ c.max_tokens if c.max_tokens is not none else "—" }}</td>
-        <td><a class="route-link" href="/dashboard/agent-config/{{ c.agent_name }}">Edit</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<p class="ac-lead">
+  Per-agent model overrides. A card with no values falls back to the global default.
+  Click a card to edit — changes take effect on the next agent run.
+</p>
+
+<div class="agent-grid">
+  {% for c in configs %}
+  <article class="agent-card" role="button" tabindex="0"
+           data-agent="{{ c.agent_name }}"
+           data-provider="{{ c.provider or '' }}"
+           data-model="{{ c.model or '' }}"
+           data-temperature="{{ c.temperature if c.temperature is not none else '' }}"
+           data-max-tokens="{{ c.max_tokens if c.max_tokens is not none else '' }}"
+           data-updated-at="{{ c.updated_at or '' }}">
+    <div class="ac-top">
+      <span class="ac-ico">{{ agent_icons.get(c.agent_name, '⚙️') }}</span>
+      <span class="ac-name">{{ c.agent_name }}</span>
+      {% if c.provider or c.model or c.temperature is not none or c.max_tokens is not none %}
+        <span class="ac-pill ac-pill-on">custom</span>
+      {% else %}
+        <span class="ac-pill">default</span>
+      {% endif %}
+    </div>
+
+    <div class="ac-mid">
+      {% if c.provider or c.model %}
+        <span class="ac-prov">{{ c.provider or "—" }}</span>
+        <span class="ac-sep">/</span>
+        <span class="ac-model">{{ c.model or "—" }}</span>
+      {% else %}
+        <span class="ac-muted">Using global default provider &amp; model</span>
+      {% endif %}
+    </div>
+
+    <div class="ac-foot">
+      <span class="ac-stat"><span class="ac-k">temp</span>
+        <span class="ac-v">{{ c.temperature if c.temperature is not none else "—" }}</span></span>
+      <span class="ac-stat"><span class="ac-k">max tokens</span>
+        <span class="ac-v">{{ c.max_tokens if c.max_tokens is not none else "—" }}</span></span>
+    </div>
+  </article>
+  {% endfor %}
 </div>
+
+<!-- Edit modal — one form, populated client-side from the clicked card. -->
+<div id="agent-modal" class="agent-modal" aria-hidden="true">
+  <div class="am-backdrop" data-close></div>
+  <div class="am-dialog" role="dialog" aria-modal="true" aria-labelledby="am-title">
+    <button class="am-close" type="button" data-close aria-label="Close">✕</button>
+    <h2 id="am-title" class="am-title">Edit agent</h2>
+    <p class="am-sub" id="am-sub">Overrides for this agent. Leave a field blank to use the global default.</p>
+
+    <form id="agent-form" method="post" action="">
+      <p id="am-error" class="am-error" hidden></p>
+
+      <label class="am-field">
+        <span class="am-label">Provider</span>
+        <select name="provider" id="am-provider">
+          <option value="">(global default)</option>
+          {% for p in providers %}
+          <option value="{{ p }}">{{ p }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="am-field">
+        <span class="am-label">Model</span>
+        <input type="text" name="model" id="am-model" list="agent-model-hints"
+               placeholder="(global default)" autocomplete="off">
+        <datalist id="agent-model-hints">
+          {% for m in model_hints %}<option value="{{ m }}">{% endfor %}
+        </datalist>
+      </label>
+
+      <div class="am-row">
+        <label class="am-field">
+          <span class="am-label">Temperature <span class="am-hint">0–2</span></span>
+          <input type="number" name="temperature" id="am-temperature"
+                 min="0" max="2" step="0.1" placeholder="(default)" inputmode="decimal">
+        </label>
+        <label class="am-field">
+          <span class="am-label">Max tokens <span class="am-hint">≥ 1</span></span>
+          <input type="number" name="max_tokens" id="am-max-tokens"
+                 min="1" step="1" placeholder="(default)" inputmode="numeric">
+        </label>
+      </div>
+
+      <div class="am-actions">
+        <span class="am-updated" id="am-updated"></span>
+        <span class="spacer"></span>
+        <button type="button" class="fb-link" data-close>Cancel</button>
+        <button type="submit" class="fb-btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .ac-lead { color: var(--muted); font-size: 0.88rem; margin: 0 0 18px; max-width: 60ch; }
+  .ac-saved {
+    padding: 12px 16px; margin: 0 0 16px; border-radius: var(--radius-sm);
+    background: rgba(52,211,153,.13); color: var(--green); font-weight: 600; font-size: 0.9rem;
+  }
+
+  .agent-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .agent-card {
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px;
+    cursor: pointer; transition: border-color .12s, box-shadow .12s, transform .12s;
+  }
+  .agent-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+    transform: translateY(-1px);
+  }
+  .agent-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .ac-top { display: flex; align-items: center; gap: 8px; }
+  .ac-ico { font-size: 1.15rem; }
+  .ac-name { font-weight: 800; font-size: 0.98rem; letter-spacing: -0.01em; }
+  .ac-pill {
+    margin-left: auto; font-size: 0.64rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted);
+  }
+  .ac-pill-on { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+
+  .ac-mid { font-size: 0.85rem; min-height: 1.2em; }
+  .ac-prov { font-weight: 700; color: var(--ink); }
+  .ac-sep { color: var(--muted); margin: 0 4px; }
+  .ac-model { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ac-muted { color: var(--muted); font-style: italic; }
+
+  .ac-foot { display: flex; gap: 8px; margin-top: auto; }
+  .ac-stat {
+    flex: 1; display: flex; flex-direction: column; gap: 2px;
+    background: var(--panel-2); border-radius: var(--radius-sm); padding: 7px 10px;
+  }
+  .ac-k { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .ac-v { font-size: 0.95rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* ── Edit modal ─────────────────────────────────────────────────── */
+  .agent-modal {
+    position: fixed; inset: 0; z-index: var(--z-modal);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .agent-modal.show { display: flex; }
+  .am-backdrop { position: absolute; inset: 0; background: rgba(6,7,10,.74); backdrop-filter: blur(3px); }
+  .am-dialog {
+    position: relative; z-index: 1; width: min(460px, 100%);
+    max-height: calc(100vh - 40px); overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    padding: 22px; animation: am-pop .16s ease-out;
+  }
+  @keyframes am-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .am-dialog { animation: none; } }
+  .am-close {
+    position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--muted);
+    border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; line-height: 1;
+  }
+  .am-close:hover { color: var(--ink); border-color: var(--accent); }
+  .am-title { margin: 0 4px 2px 0; font-size: 1.12rem; font-weight: 800; }
+  .am-sub { margin: 0 0 16px; color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
+  .am-error {
+    margin: 0 0 14px; padding: 10px 12px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--red, #f87171) 16%, transparent);
+    color: var(--red, #f87171); font-size: 0.84rem; font-weight: 600;
+  }
+  .am-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .am-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+  .am-hint { font-weight: 600; color: var(--muted); opacity: 0.7; }
+  .am-field select, .am-field input {
+    width: 100%; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 10px 12px; font: 0.95rem inherit;
+  }
+  .am-field select:focus, .am-field input:focus {
+    outline: none; border-color: var(--accent); box-shadow: var(--ring);
+  }
+  .am-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .am-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .am-actions .spacer { flex: 1; }
+  .am-updated { font-size: 0.72rem; color: var(--muted); }
+
+  @media (max-width: 480px) { .am-row { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('agent-modal');
+  if (!modal) return;
+  const form = document.getElementById('agent-form');
+  const $ = (id) => document.getElementById(id);
+  const errEl = $('am-error');
+
+  function showError(msg) { errEl.textContent = msg; errEl.hidden = false; }
+  function clearError() { errEl.textContent = ''; errEl.hidden = true; }
+
+  function openModal(card) {
+    const d = card.dataset;
+    clearError();
+    form.action = '/dashboard/agent-config/' + encodeURIComponent(d.agent);
+    $('am-title').textContent = 'Edit · ' + d.agent;
+    $('am-provider').value = d.provider || '';
+    $('am-model').value = d.model || '';
+    $('am-temperature').value = d.temperature || '';
+    $('am-max-tokens').value = d.maxTokens || '';
+    $('am-updated').textContent = d.updatedAt ? ('Last updated: ' + d.updatedAt) : '';
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    $('am-provider').focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.agent-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card); }
+    });
+  });
+
+  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+  });
+
+  // Client-side guards mirror the server bounds so most errors never round-trip.
+  form.addEventListener('submit', (e) => {
+    clearError();
+    const t = $('am-temperature').value.trim();
+    if (t !== '') {
+      const n = Number(t);
+      if (!Number.isFinite(n) || n < 0 || n > 2) {
+        e.preventDefault(); showError('Temperature must be a number between 0 and 2.'); return;
+      }
+    }
+    const m = $('am-max-tokens').value.trim();
+    if (m !== '') {
+      if (!/^\d+$/.test(m) || parseInt(m, 10) < 1) {
+        e.preventDefault(); showError('Max tokens must be a positive integer.'); return;
+      }
+    }
+    const agent = form.action.split('/').pop();
+    if (!confirm('Save config for ' + decodeURIComponent(agent) + '? This changes the live agent model.')) {
+      e.preventDefault();
+    }
+  });
+});
+</script>
 {% endblock %}

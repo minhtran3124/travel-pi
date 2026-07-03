@@ -8,6 +8,23 @@ def test_list_page_shows_all_agents(client):
         assert name in r.text
 
 
+def test_list_page_is_card_grid_with_edit_modal(client):
+    # Card grid + in-page edit modal (no separate detail page navigation).
+    r = client.get("/dashboard/agent-config")
+    assert r.status_code == 200
+    assert 'class="agent-grid"' in r.text
+    assert r.text.count('class="agent-card"') == len(AGENT_CONFIG_NODES)
+    assert 'id="agent-modal"' in r.text
+    assert 'id="agent-form"' in r.text
+    # the modal carries the full edit form (provider select + all four fields)
+    assert '<select name="provider"' in r.text
+    for field in ("model", "temperature", "max_tokens"):
+        assert f'name="{field}"' in r.text
+    # each card carries its agent key for the modal to target the POST
+    for name in AGENT_CONFIG_NODES:
+        assert f'data-agent="{name}"' in r.text
+
+
 def test_list_page_shows_saved_banner(client):
     # POST redirects here with ?saved=1; the confirmation banner must render.
     r = client.get("/dashboard/agent-config?saved=1")
