@@ -25,6 +25,13 @@ CITIES: list[dict] = [
         "longitude": 105.7869,
     },
     {
+        "name": "Cu Lao Cham",
+        "country": "Vietnam",
+        "airport_codes": [],  # nearest airport: DAD (Da Nang); reached by boat from Hoi An
+        "latitude": 15.9490,
+        "longitude": 108.5080,
+    },
+    {
         "name": "Da Lat",
         "country": "Vietnam",
         "airport_codes": ["DLI"],
@@ -74,6 +81,13 @@ CITIES: list[dict] = [
         "longitude": 107.5909,
     },
     {
+        "name": "My Son",
+        "country": "Vietnam",
+        "airport_codes": [],  # nearest airport: DAD (Da Nang)
+        "latitude": 15.7639,
+        "longitude": 108.1209,
+    },
+    {
         "name": "Nha Trang",
         "country": "Vietnam",
         "airport_codes": ["CXR"],
@@ -93,6 +107,13 @@ CITIES: list[dict] = [
         "airport_codes": ["UIH"],
         "latitude": 13.7794,
         "longitude": 109.2287,
+    },
+    {
+        "name": "Tam Ky",
+        "country": "Vietnam",
+        "airport_codes": [],  # nearest airport: DAD (Da Nang); Chu Lai (VCL) is closer but not yet seeded
+        "latitude": 15.5737,
+        "longitude": 108.4743,
     },
     {
         "name": "Vinh",

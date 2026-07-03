@@ -30,6 +30,7 @@ from langgraph.runtime import Runtime
 
 from app.agents.constants import EPISODIC_TOOL_NAME, RAG_TOOL_NAME
 from app.agents.context import AgentContext
+from app.agents.retry import LLM_RETRY, ToolFaultPolicy
 from app.agents.state import (
     TravelAgentState,
     ground_current_date,
@@ -66,6 +67,7 @@ def build_subagent(
     tools: list[BaseTool],
     resolve_model: Callable[[str | None], BaseChatModel],
     prompt: str,
+    tool_fault: ToolFaultPolicy | None = None,
 ):
     """Compile a ReAct subgraph for one specialist domain.
 
@@ -121,13 +123,21 @@ def build_subagent(
         return {"messages": [response]}
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
-    builder.add_node("assistant", assistant)
+    builder.add_node("assistant", assistant, retry_policy=LLM_RETRY)
     builder.add_edge(START, "assistant")
 
     if tools:
-        builder.add_node(
-            "tools", ToolNode(tools, handle_tool_errors=_tool_error_to_message)
-        )
+        if tool_fault is None:
+            builder.add_node(
+                "tools", ToolNode(tools, handle_tool_errors=_tool_error_to_message)
+            )
+        else:
+            builder.add_node(
+                "tools",
+                ToolNode(tools, handle_tool_errors=tool_fault.handle_tool_errors),
+                retry_policy=tool_fault.retry_policy,
+                error_handler=tool_fault.error_handler,
+            )
         # tools_condition -> "tools" when the last message has tool calls, else END.
         builder.add_conditional_edges("assistant", tools_condition)
         builder.add_edge("tools", "assistant")

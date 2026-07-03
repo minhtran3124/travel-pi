@@ -10,7 +10,7 @@ from __future__ import annotations
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
-from app.exceptions import AppError
+from app.exceptions import AppError, UpstreamError
 from app.schemas.air_quality import AirQualityResponse
 from app.schemas.base import AppBaseModel
 from app.schemas.weather import WeatherResponse
@@ -82,6 +82,8 @@ async def get_weather(city: str, days: int | None = None):
     log_tool_call("get_weather", locals())
     try:
         r = await weather_service.get_weather(city, days)
+    except UpstreamError:
+        raise  # transient — let RetryPolicy retry the node
     except AppError as e:
         raise ToolException(str(e)) from e
     return panel_result(
@@ -102,6 +104,8 @@ async def get_packing(city: str, days: int | None = None) -> dict:
     log_tool_call("get_packing", locals())
     try:
         return dump(await weather_service.get_packing(city, days))
+    except UpstreamError:
+        raise  # transient — let RetryPolicy retry the node
     except AppError as e:
         raise ToolException(str(e)) from e
 
@@ -134,6 +138,8 @@ async def get_air_quality(city: str):
     log_tool_call("get_air_quality", locals())
     try:
         r = await air_quality_service.get_air_quality(city)
+    except UpstreamError:
+        raise  # transient — let RetryPolicy retry the node
     except AppError as e:
         raise ToolException(str(e)) from e
     return panel_result(
