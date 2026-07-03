@@ -31,6 +31,14 @@ class SearchPlacesArgs(AppBaseModel):
     price_level: int | None = Field(
         None, ge=1, le=4, description="Price level filter (1-4)."
     )
+    exclude_names: list[str] | None = Field(
+        None,
+        description=(
+            "Place names to omit from the results — pass the names already suggested "
+            "this conversation when the traveller asks for other/different options, "
+            "instead of repeating the same search."
+        ),
+    )
 
 
 class NearbyPlacesArgs(AppBaseModel):
@@ -66,6 +74,7 @@ def search_places(
     category: str | None = None,
     min_rating: float | None = None,
     price_level: int | None = None,
+    exclude_names: list[str] | None = None,
 ) -> list:
     """Search places by city, category, minimum rating, or price level (1–4).
 
@@ -76,6 +85,7 @@ def search_places(
     :param category: Place category filter.
     :param min_rating: Keep only places at or above this rating.
     :param price_level: Price level filter (1-4).
+    :param exclude_names: Place names to omit — pass prior suggestions on a follow-up.
     :return: Matching places.
     """
     log_tool_call("search_places", locals())
@@ -87,6 +97,7 @@ def search_places(
                     category=category,
                     min_rating=min_rating,
                     price_level=price_level,
+                    exclude_names=exclude_names,
                 )
             )
         except AppError as e:

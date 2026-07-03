@@ -49,3 +49,36 @@ The wave file-overlap guard only checks DECLARED `<files>`; it's blind to shared
 
 **Full doc:** docs/solutions/harness/wave-shared-file-partition.md
 ---
+
+## [2026-07-03] reflection-humanmessage-language-flip
+**Type:** bug
+**Module:** agent/reflection
+**Tags:** langgraph, message-roles, reflection-loop, tool-error-handling, prompt-versioning, uvicorn-reload
+**Applicable when:** Working on LangGraph multi-agent nodes that inject synthetic messages into state["messages"] (e.g. reflection/revision loops, retry prompts) where a prompt rule keys behavior off "the traveller's latest message".
+
+The reflection self-critique loop injected its "please improve" revision note as a `HumanMessage`, so the concierge's language-detection rule ("reply in the language of the traveller's latest message") misread it as real user input and silently flipped the reply to English mid-conversation. Fixed by making the injected note a `SystemMessage` — internal control messages must never be `HumanMessage` when a prompt keys off "latest message."
+
+**Full doc:** docs/solutions/agent/reflection-humanmessage-language-flip.md
+---
+
+## [2026-07-03] langgraph-thread-reset-and-prompt-reload
+**Type:** knowledge
+**Module:** agent/reflection
+**Tags:** langgraph, checkpointer, poisoned-thread, uvicorn-reload, prompt-versioning
+**Applicable when:** Debugging an AI-agent behavior that appears to repeat across multiple turns of one conversation thread, or verifying a fix/prompt change against a live dev agent.
+
+A bad tool-error message or synthetic instruction written into LangGraph's checkpointed state (Postgres `checkpoints`/`checkpoint_writes`/`checkpoint_blobs`/`store`) resurfaces on every future turn of that thread — clearing the display-only `messages`/`conversations` tables is not enough for a clean re-test. Separately, `uvicorn --reload`'s watcher only restarts on `.py` changes, so editing a prompt `.md` or `active.yaml` silently does nothing until `docker compose restart api` forces the module-level `PromptRegistry` singleton to reload.
+
+**Full doc:** docs/solutions/agent/langgraph-thread-reset-and-prompt-reload.md
+---
+
+## [2026-07-03] reflection-humanmessage-language-flip-decisions
+**Type:** decision
+**Module:** agent/reflection
+**Tags:** langgraph, message-roles, reflection-loop, category-matching, fuzzy-match, prompt-versioning
+**Applicable when:** Adding or debugging a free-text agent-tool argument that must map to a fixed set of DB values, or injecting a programmatic/internal instruction into a LangGraph agent's state["messages"].
+
+Two decisions from the same session: (1) fixed a category exact-match miss (`"cafes"` vs. seeded `"cafe"`) by adding `PlaceService.resolve_category()` — a backend fuzzy-matcher reusing the existing `best_match()`/`resolve_city()` pattern — rather than relying on a tool-schema hint the model might not follow; (2) fixed the reflection language-flip bug structurally (message role, not just wording) by using `SystemMessage` for internal notes, matching the graph's existing system/human/AI role discipline.
+
+**Full doc:** docs/solutions/agent/reflection-humanmessage-language-flip-decisions.md
+---

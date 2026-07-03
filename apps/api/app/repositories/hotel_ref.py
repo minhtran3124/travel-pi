@@ -124,3 +124,16 @@ class HotelRepository(Repo):
         """
         with self._session() as s:
             return sorted(set(s.scalars(select(models.Hotel.city)).all()))
+
+    def distinct_amenities(self) -> list[str]:
+        """Return the distinct amenity strings across all seeded hotels, sorted.
+
+        ``amenities`` is a JSON list column (no cross-engine SQL distinct), so
+        this flattens it in Python. The fuzzy-resolution target for
+        ``hotel_service.resolve_amenities``.
+
+        :return: Sorted distinct amenity strings.
+        """
+        with self._session() as s:
+            rows = s.scalars(select(models.Hotel.amenities)).all()
+        return sorted({a for row in rows for a in row})

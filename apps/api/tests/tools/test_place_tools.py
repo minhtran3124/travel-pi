@@ -123,3 +123,16 @@ def test_nearby_places_raises_for_unknown_origin(agent_db):
 
     with pytest.raises(ToolException):
         nearby_places.invoke({"place_id": "nonexistent-id-xyz"})
+
+
+def test_search_places_exclude_names_omits_matches(agent_db):
+    from app.tools.place_tools import search_places
+
+    baseline = search_places.invoke({"city": "Tokyo"})
+    assert len(baseline) == 4
+
+    excluded = [baseline[0]["name"], baseline[1]["name"]]
+    filtered = search_places.invoke({"city": "Tokyo", "exclude_names": excluded})
+
+    assert len(filtered) == len(baseline) - 2
+    assert not set(excluded) & {p["name"] for p in filtered}

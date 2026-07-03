@@ -92,6 +92,17 @@ class PlaceService:
         """
         return best_match(name, self._place.distinct_cities(), [lambda c: c])
 
+    def resolve_category(self, name: str | None) -> str | None:
+        """Resolve a free-text category to a canonical one (e.g. "cafes" → "cafe").
+
+        Typo/plural tolerant, same matcher as :meth:`resolve_city`. Returns
+        ``None`` if nothing matches.
+
+        :param name: Free-text category to resolve.
+        :return: The canonical category name, or ``None`` if nothing matches.
+        """
+        return best_match(name, CATEGORY_META.keys(), [lambda c: c])
+
     def search_places(
         self,
         *,
@@ -102,6 +113,7 @@ class PlaceService:
         price_level_max: int | None = None,
         recommended_only: bool = False,
         sort: str = DEFAULT_SORT,
+        exclude_names: list[str] | None = None,
     ) -> list[Place]:
         """Filter and sort places.
 
@@ -117,6 +129,8 @@ class PlaceService:
         :param price_level_max: Optional price-band ceiling (``<=``).
         :param recommended_only: Keep only recommended places when ``True``.
         :param sort: Sort key; unknown values fall back to rating-descending.
+        :param exclude_names: Optional place names to omit from the results (e.g.
+            items already suggested this conversation).
         :return: The filtered, sorted places.
         """
         if city:
@@ -127,14 +141,26 @@ class PlaceService:
         else:
             resolved = None
 
+        if category:
+            # Same given-but-unrecognised contract as city (e.g. "cafes" → "cafe").
+            resolved_category = self.resolve_category(category)
+            if not resolved_category:
+                return []
+        else:
+            resolved_category = None
+
         results = self._place.search(
             city=resolved,
-            category=category,
+            category=resolved_category,
             min_rating=min_rating,
             price_level=price_level,
             price_level_max=price_level_max,
             recommended=recommended_only or None,
         )
+
+        if exclude_names:
+            excluded = set(exclude_names)
+            results = [p for p in results if p.name not in excluded]
 
         if sort == "rating_asc":
             results.sort(key=lambda p: p.rating)
