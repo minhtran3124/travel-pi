@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Edit · {{ agent_name }}{% endblock %}
+
+{% block content %}
+<a class="back" href="/dashboard/agent-config">← Agent config</a>
+<h1>Edit config · {{ agent_name }}</h1>
+
+{% if error %}
+  <p class="error">{{ error }}</p>
+{% endif %}
+
+<form class="search" method="post" action="/dashboard/agent-config/{{ agent_name }}"
+      onsubmit="return confirm('Save config for {{ agent_name }}? This changes the live agent model.');">
+  <label>
+    Provider
+    <select name="provider">
+      <option value="" {% if not provider_value %}selected{% endif %}>(global default)</option>
+      {% for p in providers %}
+      <option value="{{ p }}" {% if provider_value == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Model
+    <input type="text" name="model" value="{{ model_value }}" list="model-hints"
+           placeholder="(global default)">
+    <datalist id="model-hints">
+      {% for m in model_hints %}<option value="{{ m }}">{% endfor %}
+    </datalist>
+  </label>
+  <label>
+    Temperature
+    <input type="text" name="temperature" value="{{ temperature_value }}" placeholder="(default)">
+  </label>
+  <label>
+    Max tokens
+    <input type="text" name="max_tokens" value="{{ max_tokens_value }}" placeholder="(default)">
+  </label>
+  <button type="submit">Save</button>
+  <a class="fb-link" href="/dashboard/agent-config">Cancel</a>
+</form>
+
+{% if updated_at %}
+  <p class="count">Last updated: {{ updated_at }}</p>
+{% endif %}
+{% endblock %}

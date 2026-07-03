@@ -25,9 +25,9 @@ def test_get_llm_builds_configured_provider(monkeypatch):
     from app.clients.llm import get_fast_llm, get_llm
 
     llm = get_llm()
-    assert llm.model_name == "gpt-4.1"
+    assert llm.model_name == "gpt-5"
     fast = get_fast_llm()
-    assert fast.model_name == "gpt-4.1-mini"
+    assert fast.model_name == "gpt-5-mini"
     get_settings.cache_clear()
 
 
@@ -40,8 +40,8 @@ def test_get_agent_llm_falls_back_to_tier_defaults(monkeypatch):
     get_settings.cache_clear()
     from app.clients.llm import get_agent_llm
 
-    assert get_agent_llm("supervisor").model_name == "gpt-4.1"
-    assert get_agent_llm("journal").model_name == "gpt-4.1-mini"
+    assert get_agent_llm("supervisor").model_name == "gpt-5"
+    assert get_agent_llm("journal").model_name == "gpt-5-mini"
     get_settings.cache_clear()
 
 
@@ -67,7 +67,7 @@ def test_get_agent_llm_applies_per_agent_override(monkeypatch):
     concierge = get_agent_llm("concierge")
     assert concierge.model == "claude-sonnet-4-6"
     # Untouched node still resolves to the global OpenAI default.
-    assert get_agent_llm("planner").model_name == "gpt-4.1"
+    assert get_agent_llm("planner").model_name == "gpt-5"
     AgentConfigCache.clear()
     get_settings.cache_clear()
 

@@ -14,8 +14,8 @@ def test_llm_defaults_require_no_key():
     s = Settings()
     # Provider-agnostic default is OpenAI.
     assert s.llm_provider == "openai"
-    assert s.llm_model == "gpt-4.1"
-    assert s.fast_llm_model == "gpt-4.1-mini"
+    assert s.llm_model == "gpt-5"
+    assert s.fast_llm_model == "gpt-5-mini"
     assert s.embedding_model == "text-embedding-3-small"
     # No key is mandatory — the suite runs without secrets.
     assert s.openai_api_key is None

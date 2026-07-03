@@ -115,3 +115,15 @@ def test_no_reload_without_configure(monkeypatch):
     AgentConfigCache.get("concierge")
 
     assert calls == []
+
+
+def test_invalidate_forces_next_read_to_reload():
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+
+    AgentConfigCache.clear()
+    AgentConfigCache.sync_from_cache({"planner": AgentModelOverride(model="gpt-4o")})
+    assert AgentConfigCache._loaded_at is not None  # "loaded" state
+
+    AgentConfigCache.invalidate()
+
+    assert AgentConfigCache._loaded_at is None  # next read will reload

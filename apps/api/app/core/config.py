@@ -130,8 +130,8 @@ class Settings(BaseSettings):
     # openai, clinepass, claude) — a gateway profile carries its own base_url,
     # so LLM_PROVIDER=clinepass alone is enough (no separate LLM_BASE_URL).
     llm_provider: str = "openai"
-    llm_model: str = "gpt-4.1"
-    fast_llm_model: str = "gpt-4.1-mini"  # cheap model for sub-agents / summarize
+    llm_model: str = "gpt-5"
+    fast_llm_model: str = "gpt-5-mini"  # cheap model for sub-agents / summarize
     embedding_model: str = "text-embedding-3-small"
 
     # Per-agent overrides (provider/model/base_url/temperature/max_tokens) live
