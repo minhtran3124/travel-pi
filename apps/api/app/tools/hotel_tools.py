@@ -59,7 +59,12 @@ class SearchHotelsArgs(AppBaseModel):
         None, description="Keep only hotels at or below this nightly rate."
     )
     amenities: list[str] | None = Field(
-        None, description="List of required tags, e.g. ['pool', 'wifi', 'breakfast']."
+        None,
+        description=(
+            "List of required amenities — fuzzy matched, e.g. 'wifi' → 'Free WiFi' "
+            "(case/typo/substring tolerant). Does not include breakfast — that's a "
+            "separate `breakfast_included` field on the hotel, not an amenity tag."
+        ),
     )
 
 

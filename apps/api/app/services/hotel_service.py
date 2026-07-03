@@ -128,6 +128,23 @@ class HotelService:
         """
         return best_match(name, self._hotel_repo.distinct_cities(), [lambda c: c])
 
+    def resolve_amenities(self, amenities: list[str] | None) -> list[str] | None:
+        """Fuzzy-resolve each requested amenity to its canonical seeded string.
+
+        Typo/plural/substring tolerant (e.g. "wifi" → "Free WiFi"), same matcher
+        as :meth:`resolve_city`. An amenity that matches nothing is passed
+        through as-is so the repo's containment check still runs — no seed
+        amenity will equal it, so it correctly excludes every hotel rather than
+        silently guessing.
+
+        :param amenities: Free-text amenity strings, or ``None``.
+        :return: Canonicalized amenity strings, or ``None`` if ``amenities`` was falsy.
+        """
+        if not amenities:
+            return None
+        catalog = self._hotel_repo.distinct_amenities()
+        return [best_match(a, catalog, [lambda c: c]) or a for a in amenities]
+
     def search_hotels(
         self,
         city: str,
@@ -156,7 +173,7 @@ class HotelService:
             city=resolved,
             min_stars=min_stars,
             max_price=max_price,
-            amenities=amenities,
+            amenities=self.resolve_amenities(amenities),
         )
 
     def get_hotel(self, hotel_id: str) -> Hotel | None:
