@@ -69,11 +69,11 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
     "openai": _profile(
         "openai",
         [
-            "gpt-4.1",
-            "gpt-4.1-mini",
-            "gpt-4o",
-            "gpt-4o-mini",
-            "o4-mini",
+            "gpt-5",
+            "gpt-5.1",
+            "gpt-5-pro",
+            "gpt-5-mini",
+            "gpt-5-nano",
         ],
         api_key_field="openai_api_key",
     ),
