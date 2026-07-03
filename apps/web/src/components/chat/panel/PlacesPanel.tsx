@@ -72,7 +72,7 @@ function Row({ p }: { p: PlacesPanelPlace }) {
         <div className="border-t border-line px-3 py-2.5">
           <p className="mb-2 text-[12px] text-ink">{p.description}</p>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[12px]">
-            <Detail k="Category" v={p.category} />
+            <Detail k="Category" v={p.category} className="capitalize" />
             <Detail k="Rating" v={`${p.rating.toFixed(1)} (${p.review_count} reviews)`} />
             <Detail k="Price" v={priceBand(p.price_level)} />
             <Detail k="Hours" v={p.opening_hours ?? "—"} />
@@ -93,11 +93,11 @@ function Row({ p }: { p: PlacesPanelPlace }) {
   );
 }
 
-function Detail({ k, v }: { k: string; v: string }) {
+function Detail({ k, v, className }: { k: string; v: string; className?: string }) {
   return (
     <div>
       <dt className="text-muted">{k}</dt>
-      <dd className="font-semibold capitalize text-ink">{v}</dd>
+      <dd className={cn("font-semibold text-ink", className)}>{v}</dd>
     </div>
   );
 }

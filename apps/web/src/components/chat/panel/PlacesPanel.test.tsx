@@ -49,4 +49,14 @@ describe("PlacesPanel", () => {
     expect(screen.getByText(/1204 reviews/)).toBeInTheDocument();
     expect(screen.getByText(/Cluster of limestone hills/)).toBeInTheDocument();
   });
+
+  it("only capitalizes the category detail, not the composite rating/reviews text", () => {
+    const { container } = render(<PlacesPanel data={DATA} />);
+    fireEvent.click(screen.getByText(/Marble Mountains/));
+    const ratingDetail = screen.getByText(/1204 reviews/);
+    expect(ratingDetail.className).not.toMatch(/\bcapitalize\b/);
+    const categoryDetail = container.querySelector("dd.capitalize");
+    expect(categoryDetail).not.toBeNull();
+    expect(categoryDetail?.textContent).toBe("landmark");
+  });
 });
