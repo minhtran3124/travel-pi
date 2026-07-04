@@ -27,6 +27,7 @@ class AgentConfigView:
     temperature: float | None = None
     max_tokens: int | None = None
     updated_at: str | None = None
+    enabled: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -89,6 +90,7 @@ class AgentConfigService:
         model: str,
         temperature: str,
         max_tokens: str,
+        enabled: bool = True,
     ) -> None:
         """Validate + persist config for *agent_name*, then invalidate the cache."""
         self._require_known(agent_name)
@@ -112,6 +114,7 @@ class AgentConfigService:
             base_url=None,  # hidden field — client derives it from the provider profile
             temperature=temp,
             max_tokens=maxt,
+            enabled=enabled,
         )
         AgentConfigCache.invalidate()
 
@@ -132,4 +135,5 @@ class AgentConfigService:
             temperature=row.temperature,
             max_tokens=row.max_tokens,
             updated_at=row.updated_at,
+            enabled=row.enabled,
         )
