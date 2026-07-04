@@ -149,6 +149,26 @@ def test_nearby_places_raises_for_unknown_origin(agent_db):
         nearby_places.invoke({"place_id": "nonexistent-id-xyz"})
 
 
+def test_search_places_caps_panel_at_four(agent_db):
+    from app.tools.place_tools import search_places
+
+    msg = _call(search_places, {"city": "Da Nang"})
+    places = msg.artifact["data"]["places"]
+    assert len(places) == 4
+    assert msg.artifact["data"]["results_count"] == 4
+    assert "Top 4 of" in msg.content
+    ratings = [p["rating"] for p in places]
+    assert ratings == sorted(ratings, reverse=True)
+
+
+def test_search_places_no_cap_message_when_total_at_or_under_four(agent_db):
+    from app.tools.place_tools import search_places
+
+    msg = _call(search_places, {"city": "Tokyo"})
+    assert "Top 4 of" not in msg.content
+    assert len(msg.artifact["data"]["places"]) == 4
+
+
 def test_search_places_exclude_names_omits_matches(agent_db):
     from app.tools.place_tools import search_places
 

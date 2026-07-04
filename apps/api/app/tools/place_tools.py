@@ -69,6 +69,12 @@ class ListPlaceCategoriesArgs(AppBaseModel):
     pass
 
 
+# Cap the Places panel to the top N (highest-rated first, the service's default
+# sort) so a broad/unfiltered query doesn't flood the drawer with the entire
+# seeded set.
+_PLACES_PANEL_CAP = 4
+
+
 @tool(args_schema=SearchPlacesArgs, response_format="content_and_artifact")
 def search_places(
     city: str | None = None,
@@ -79,11 +85,11 @@ def search_places(
 ) -> tuple[str, dict | None]:
     """Search places by city, category, minimum rating, or price level (1–4).
 
-    On matches the model sees a short summary and the full list is sent to the
-    Places side panel. If nothing matches — either the city was not recognized or
-    the filters left nothing — returns a short message and no panel; tell the user
-    none were found and never invent places. It is not an error. Leave all args as
-    None to list all seeded places.
+    On matches the model sees a short summary and the top 4 (highest-rated first)
+    are sent to the Places side panel. If nothing matches — either the city was not
+    recognized or the filters left nothing — returns a short message and no panel;
+    tell the user none were found and never invent places. It is not an error.
+    Leave all args as None to list all seeded places.
 
     :param city: City to search within; fuzzy matched. None to search all cities.
     :param category: Place category filter.
@@ -91,8 +97,9 @@ def search_places(
     :param price_level: Price level filter (1-4).
     :param exclude_names: Place names to omit — pass prior suggestions on a follow-up.
     :return: A (summary, artifact) tuple. On matches the artifact is a
-        ``{"kind": "places", "data": ...}`` side-panel payload; on no match the
-        artifact is ``None`` (no panel) and the summary explains the empty result.
+        ``{"kind": "places", "data": ...}`` side-panel payload capped at 4 places;
+        on no match the artifact is ``None`` (no panel) and the summary explains
+        the empty result.
     """
     log_tool_call("search_places", locals())
     with session_scope() as s:
@@ -118,19 +125,29 @@ def search_places(
                     "and suggest relaxing the filters — do not invent places.",
                     None,
                 )
-            canonical_city = results[0].city if city else None
-            canonical_category = results[0].category if category else None
+            total_count = len(results)
+            top_results = results[:_PLACES_PANEL_CAP]
+            canonical_city = top_results[0].city if city else None
+            canonical_category = top_results[0].category if category else None
             where = f" in {canonical_city}" if canonical_city else ""
             what = f" {canonical_category}" if canonical_category else ""
-            summary = (
-                f"{len(results)}{what} place{'s' if len(results) != 1 else ''}"
-                f"{where}. The full list is in the Places panel."
-            )
+            if total_count > len(top_results):
+                summary = (
+                    f"Top {len(top_results)} of {total_count}{what} places{where} "
+                    "(highest-rated first) are in the Places panel. Offer to search "
+                    "again with different filters or exclude_names if the traveller "
+                    "wants more or different options."
+                )
+            else:
+                summary = (
+                    f"{total_count}{what} place{'s' if total_count != 1 else ''}"
+                    f"{where}. The full list is in the Places panel."
+                )
             return panel_result(
                 summary,
                 kind="places",
                 data=PlacesPanel.from_places(
-                    canonical_city, canonical_category, results
+                    canonical_city, canonical_category, top_results
                 ),
             )
         except AppError as e:
