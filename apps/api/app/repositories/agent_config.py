@@ -45,6 +45,7 @@ class AgentConfigRepository(Repo):
         base_url: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        enabled: bool | None = None,
     ) -> "models.AgentConfig":
         """Insert or update the config row for *agent_name*.
 
@@ -54,6 +55,7 @@ class AgentConfigRepository(Repo):
         :param base_url: The base URL override, or ``None`` to fall back.
         :param temperature: The sampling temperature, or ``None`` for the default.
         :param max_tokens: The max output tokens, or ``None`` for the default.
+        :param enabled: Whether the agent step is enabled, or ``None`` to fall back.
         :return: The upserted ``AgentConfig`` row.
         :raises DomainValidationError: If *provider* is not a known profile name
             (see ``app.core.llm_providers.PROVIDER_NAMES``).
@@ -74,6 +76,7 @@ class AgentConfigRepository(Repo):
             row.base_url = base_url
             row.temperature = temperature
             row.max_tokens = max_tokens
+            row.enabled = enabled
             self._commit(s)
             s.refresh(row)
             logger.info(
