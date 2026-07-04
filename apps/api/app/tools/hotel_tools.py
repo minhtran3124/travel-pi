@@ -275,4 +275,6 @@ def book_hotel(
             raise ToolException(str(e)) from e
 
 
-HOTEL_TOOLS = [search_hotels, book_hotel]
+HOTEL_SEARCH_TOOLS = [search_hotels]
+HOTEL_BOOKING_TOOLS = [book_hotel]
+HOTEL_TOOLS = HOTEL_SEARCH_TOOLS + HOTEL_BOOKING_TOOLS
