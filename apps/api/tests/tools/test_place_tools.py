@@ -15,8 +15,21 @@ from app.tools.place_tools import (
     resolve_place,
     search_places,
 )
+from langchain_core.messages import ToolMessage
 from langchain_core.tools import ToolException
 from pydantic import ValidationError
+
+
+def _call(tool, args: dict) -> ToolMessage:
+    """Invoke a content_and_artifact tool via a ToolCall, returning the ToolMessage.
+
+    A bare-dict ``.invoke({...})`` on a content_and_artifact tool silently drops
+    the artifact and returns only the content string, so business behaviour must
+    be asserted through the ``ToolMessage`` a proper ToolCall yields.
+    """
+    return tool.invoke(
+        {"type": "tool_call", "id": "t1", "name": tool.name, "args": args}
+    )
 
 
 def test_all_place_tools_have_args_schema():
@@ -67,22 +80,33 @@ def test_list_place_categories_schema_has_no_properties():
 def test_search_places_returns_list_for_seeded_city(agent_db):
     from app.tools.place_tools import search_places
 
-    out = search_places.invoke({"city": "Tokyo"})
-    assert isinstance(out, list)
+    msg = _call(search_places, {"city": "Tokyo"})
+    assert isinstance(msg.artifact["data"]["places"], list)
+    assert len(msg.artifact["data"]["places"]) > 0
+
+
+def test_search_places_matching_search_emits_places_panel(agent_db):
+    from app.tools.place_tools import search_places
+
+    msg = _call(search_places, {"city": "Tokyo"})
+    assert isinstance(msg, ToolMessage)
+    assert isinstance(msg.content, str) and msg.content.strip()
+    assert msg.artifact["kind"] == "places"
 
 
 def test_search_places_unknown_city_returns_empty(agent_db):
     from app.tools.place_tools import search_places
 
-    out = search_places.invoke({"city": "Nowhereville"})
-    assert out == []
+    msg = _call(search_places, {"city": "Nowhereville"})
+    assert msg.artifact is None
 
 
 def test_search_places_no_args_returns_list(agent_db):
     from app.tools.place_tools import search_places
 
-    out = search_places.invoke({})
-    assert isinstance(out, list)
+    msg = _call(search_places, {})
+    assert isinstance(msg.artifact["data"]["places"], list)
+    assert len(msg.artifact["data"]["places"]) > 0
 
 
 def test_list_place_categories_non_empty(agent_db):
@@ -125,14 +149,36 @@ def test_nearby_places_raises_for_unknown_origin(agent_db):
         nearby_places.invoke({"place_id": "nonexistent-id-xyz"})
 
 
+def test_search_places_caps_panel_at_four(agent_db):
+    from app.tools.place_tools import search_places
+
+    msg = _call(search_places, {"city": "Da Nang"})
+    places = msg.artifact["data"]["places"]
+    assert len(places) == 4
+    assert msg.artifact["data"]["results_count"] == 4
+    assert "Top 4 of" in msg.content
+    ratings = [p["rating"] for p in places]
+    assert ratings == sorted(ratings, reverse=True)
+
+
+def test_search_places_no_cap_message_when_total_at_or_under_four(agent_db):
+    from app.tools.place_tools import search_places
+
+    msg = _call(search_places, {"city": "Tokyo"})
+    assert "Top 4 of" not in msg.content
+    assert len(msg.artifact["data"]["places"]) == 4
+
+
 def test_search_places_exclude_names_omits_matches(agent_db):
     from app.tools.place_tools import search_places
 
-    baseline = search_places.invoke({"city": "Tokyo"})
+    baseline = _call(search_places, {"city": "Tokyo"}).artifact["data"]["places"]
     assert len(baseline) == 4
 
     excluded = [baseline[0]["name"], baseline[1]["name"]]
-    filtered = search_places.invoke({"city": "Tokyo", "exclude_names": excluded})
+    filtered = _call(
+        search_places, {"city": "Tokyo", "exclude_names": excluded}
+    ).artifact["data"]["places"]
 
     assert len(filtered) == len(baseline) - 2
     assert not set(excluded) & {p["name"] for p in filtered}

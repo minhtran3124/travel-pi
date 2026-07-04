@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import { AirQualityPanel } from "./AirQualityPanel";
 import { FlightsPanel } from "./FlightsPanel";
 import { HotelsPanel } from "./HotelsPanel";
+import { PlacesPanel } from "./PlacesPanel";
 import { WeatherPanel } from "./WeatherPanel";
 
 // Lazy-load the route renderer (and its MapLibre bundle + CSS) only when a route
@@ -16,11 +17,12 @@ const RoutePanel = dynamic(
 /**
  * kind → renderer. A renderer receives the panel's `data` (it narrows the
  * `unknown` per its kind). Unknown kinds are absent here, so the drawer renders
- * nothing for them — forward-compatible with a `places` panel added when its
- * tool becomes panel-capable.
+ * nothing for them — forward-compatible with future panel kinds added when their
+ * tools become panel-capable.
  */
 export const PANEL_RENDERERS: Record<string, ComponentType<{ data: unknown }>> = {
   route: RoutePanel as unknown as ComponentType<{ data: unknown }>,
+  places: PlacesPanel as unknown as ComponentType<{ data: unknown }>,
   weather: WeatherPanel as unknown as ComponentType<{ data: unknown }>,
   air_quality: AirQualityPanel as unknown as ComponentType<{ data: unknown }>,
   flights: FlightsPanel as unknown as ComponentType<{ data: unknown }>,

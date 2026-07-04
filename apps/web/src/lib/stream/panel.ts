@@ -168,6 +168,30 @@ export interface HotelsPanelData {
   hotels: HotelsPanelHotel[];
 }
 
+export interface PlacesPanelPlace {
+  id: string;
+  name: string;
+  city: string;
+  country: string;
+  category: string;
+  description: string;
+  address: string;
+  rating: number;
+  review_count: number;
+  price_level: number;
+  opening_hours: string | null;
+  image_url: string;
+  tags: string[];
+  is_recommended: boolean;
+}
+
+export interface PlacesPanelData {
+  city: string | null;
+  category: string | null;
+  results_count: number;
+  places: PlacesPanelPlace[];
+}
+
 /** One side-panel payload, as accumulated by the stream hook. */
 export interface PanelArtifact {
   toolCallId: string;
