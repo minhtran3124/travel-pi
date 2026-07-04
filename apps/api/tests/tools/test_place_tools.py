@@ -169,6 +169,22 @@ def test_search_places_no_cap_message_when_total_at_or_under_four(agent_db):
     assert len(msg.artifact["data"]["places"]) == 4
 
 
+def test_search_places_content_names_panel_places(agent_db):
+    """The model-facing content must name the exact places shown in the panel.
+
+    Regression: the summary previously carried only a count ("4 cafe places in
+    Da Nang. The full list is in the Places panel."), so the model had no names
+    to ground on and invented well-known chains that diverged from the panel.
+    """
+    from app.tools.place_tools import search_places
+
+    msg = _call(search_places, {"city": "Da Nang"})
+    panel_names = [p["name"] for p in msg.artifact["data"]["places"]]
+    assert panel_names
+    for name in panel_names:
+        assert name in msg.content
+
+
 def test_search_places_exclude_names_omits_matches(agent_db):
     from app.tools.place_tools import search_places
 
