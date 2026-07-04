@@ -56,8 +56,20 @@ def run_memory_extraction(
         extracted = extract_memories(messages, llm)
         for pref in extracted.preferences:
             upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            logger.info(
+                "[agent] extract_memory saved preference user=%s key=%s text=%r",
+                user_id,
+                pref["key"],
+                pref["text"],
+            )
         for instr in extracted.instructions:
             upsert_instruction(store, user_id, instr["key"], {"text": instr["text"]})
+            logger.info(
+                "[agent] extract_memory saved instruction user=%s key=%s text=%r",
+                user_id,
+                instr["key"],
+                instr["text"],
+            )
         # P2: persist episodes with rich metadata. A turn that passed the HITL
         # plan-approval gate (plan_approved=True) records outcome="approved";
         # otherwise the extractor's default ("proposed") stands.
@@ -74,6 +86,15 @@ def run_memory_extraction(
                     "city": ep.get("city"),
                     "outcome": outcome,
                 },
+            )
+            logger.info(
+                "[agent] extract_memory saved episode user=%s key=%s city=%s "
+                "outcome=%s text=%r",
+                user_id,
+                key,
+                ep.get("city"),
+                outcome,
+                ep["text"],
             )
         logger.info(
             "[agent] extract_memory preferences=%d instructions=%d episodes=%d",
