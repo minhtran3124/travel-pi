@@ -36,8 +36,12 @@ model list — an authoritative source needing no external lookup).
 
 - **`openai` profile — all 5 listed models were deprecated.** `gpt-5`, `gpt-5.1`, `gpt-5-pro`,
   `gpt-5-mini`, `gpt-5-nano` are retired; OpenAI's current active generation is GPT-5.4/5.5.
-  Replaced with `gpt-5.5`, `gpt-5.5-pro`, `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.4-mini`,
-  `gpt-5.4-nano` (confirmed live via `developers.openai.com/api/docs/models/all`).
+  First pass replaced with the full current generation (`gpt-5.5`, `gpt-5.5-pro`, `gpt-5.4`,
+  `gpt-5.4-pro`, `gpt-5.4-mini`, `gpt-5.4-nano`, confirmed live via
+  `developers.openai.com/api/docs/models/all`); then, per user follow-up, narrowed to exactly
+  what this project's own `OPENAI_API_KEY` returns from `GET /v1/models` — `gpt-4o-mini`,
+  `gpt-4.1-mini`, `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.4-nano` — since `gpt-5.5-pro`/`gpt-5.4`/
+  `gpt-5.4-pro` aren't accessible on this key even though they're current, documented models.
 - **`clinepass` profile's `openai/*` entries — same deprecated generation.** Replaced
   `openai/gpt-5`, `openai/gpt-5-mini`, `openai/gpt-5-nano` with `openai/gpt-5.5`,
   `openai/gpt-5.4-mini`, `openai/gpt-5.4-nano` (kept the OpenRouter-style `provider/model`
@@ -70,7 +74,12 @@ specifically); flagging separately rather than silently expanding scope.
 
 ### Deviations
 
-- none
+- Rule 1 — During review, an uncommitted edit appeared on this file mid-session narrowing the
+  `openai` list to the project's actual `/v1/models` access (dropping `gpt-5.5-pro`/`gpt-5.4`/
+  `gpt-5.4-pro`, adding `gpt-4o-mini`/`gpt-4.1-mini`) — not made by this session's own edits.
+  Surfaced to the user rather than silently overwritten or force-switched past (git itself
+  blocked the branch switch that would have clobbered it). User chose to keep it. Commit
+  `48a5f8f`.
 
 ### Verify
 
