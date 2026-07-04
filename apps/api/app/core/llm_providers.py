@@ -69,11 +69,13 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
     "openai": _profile(
         "openai",
         [
-            "gpt-5",
-            "gpt-5.1",
-            "gpt-5-pro",
-            "gpt-5-mini",
-            "gpt-5-nano",
+            "gpt-4o-mini",
+            "gpt-5.5",
+            "gpt-5.5-pro",
+            "gpt-5.4",
+            "gpt-5.4-pro",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
         ],
         api_key_field="openai_api_key",
     ),
@@ -97,9 +99,9 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
     "clinepass": _profile(
         "openai",
         [
-            "openai/gpt-5",
-            "openai/gpt-5-mini",
-            "openai/gpt-5-nano",
+            "openai/gpt-5.5",
+            "openai/gpt-5.4-mini",
+            "openai/gpt-5.4-nano",
             "anthropic/claude-sonnet-5",
         ],
         base_url="https://api.cline.bot/api/v1",
