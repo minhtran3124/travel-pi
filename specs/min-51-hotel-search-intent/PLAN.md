@@ -124,6 +124,15 @@ booking = transactions).
 - **PENDING — manual real-LLM acceptance** (residual, non-deterministic prompt routing): with a
   real LLM, verify "khách sạn ở Đà Nẵng giá dưới 1tr" → concierge (no interrupt, answers + soft
   booking offer) and "tôi muốn đặt phòng khách sạn X" → booking (interrupt). Not automatable.
+- 2026-07-04 — **Follow-up fix (Approach A) after live review:** concierge still asked for
+  check-in/out/rooms/guests before showing hotels — because its only hotel tool was the
+  availability `search_hotels` (requires dates/occupancy). Added a dateless `browse_hotels` tool
+  (city + optional min_stars/max_price/amenities → `HotelService.search_hotels`) + a
+  `HotelsPanel.from_catalog` variant; rebound concierge to `browse_hotels` (not `search_hotels`);
+  rewrote concierge v7 Hotels section to ask only for the city and never for booking details.
+  Booking keeps availability `search_hotels` + `book_hotel`. Broad suite → **382 passed**.
+  FE caveat: catalog panels carry empty `check_in/check_out` + `nights=0` — the web hotels drawer
+  should guard the date/nights line for the dateless case (apps/web follow-up).
 - **Noted, out of scope:** `planner` is bound to `book_hotel` + `search_hotels` and can book
   without the supervisor-level HITL (interrupt only fires for target==booking). Pre-existing;
   candidate for a separate ticket.

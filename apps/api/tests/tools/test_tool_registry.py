@@ -272,16 +272,23 @@ def test_air_quality_tool_returns_panel(monkeypatch):
 
 
 def test_hotel_tool_split():
-    """search_hotels moved to concierge; book_hotel stays off concierge (MIN-51)."""
+    """concierge gets the dateless browse_hotels; booking keeps availability
+    search_hotels + book_hotel (MIN-51)."""
     from app.tools.registry import ALL_TOOLS, TOOL_METADATA, get_tools_for
 
     concierge = {t.name for t in get_tools_for("concierge")}
-    assert "search_hotels" in concierge
+    assert "browse_hotels" in concierge
+    assert "search_hotels" not in concierge
     assert "book_hotel" not in concierge
 
     booking = {t.name for t in get_tools_for("booking")}
+    assert "search_hotels" in booking
     assert "book_hotel" in booking
 
-    assert "search_hotels" in {t.name for t in ALL_TOOLS}
+    all_names = {t.name for t in ALL_TOOLS}
+    assert "browse_hotels" in all_names
+    assert "search_hotels" in all_names
 
+    assert TOOL_METADATA["browse_hotels"]["destructive"] is False
+    assert TOOL_METADATA["browse_hotels"]["readOnly"] is True
     assert TOOL_METADATA["search_hotels"]["destructive"] is False

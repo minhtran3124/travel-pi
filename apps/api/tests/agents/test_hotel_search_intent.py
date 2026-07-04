@@ -4,18 +4,16 @@ Verifies that:
 - A hotel-search-style message routed to the concierge sub-agent completes
   without a plan-approval interrupt (only booking triggers HITL).
 - A booking-intent message still interrupts as before (regression guard).
-- The concierge sub-agent can actually call ``search_hotels`` and get back a
-  ``kind="hotels"`` panel artifact.
+- The concierge sub-agent can actually call ``browse_hotels`` (the dateless
+  catalog browse) and get back a ``kind="hotels"`` panel artifact.
 
 FakeLLM-driven graph tests bypass prompt CONTENT for routing (supervisor
 intent is injected via ``structured_responses``), so (a)/(b) validate the
 STRUCTURAL wiring (routing target -> interrupt-or-not), not the LLM's
 prompt-following. (c) validates that concierge's tool binding actually
-includes ``search_hotels`` and that invoking it produces the expected
+includes ``browse_hotels`` and that invoking it produces the expected
 ToolMessage + artifact shape.
 """
-
-from datetime import datetime, timedelta, timezone
 
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
@@ -74,14 +72,10 @@ def test_booking_intent_still_interrupts():
     assert payload["type"] == "plan_approval"
 
 
-def test_concierge_can_call_search_hotels(agent_db):
+def test_concierge_can_call_browse_hotels(agent_db):
     from app.agents.subagents._base import build_subagent
     from app.prompts.registry import registry
     from app.tools.registry import get_tools_for
-
-    today = datetime.now(timezone.utc).date()
-    check_in = (today + timedelta(days=30)).isoformat()
-    check_out = (today + timedelta(days=33)).isoformat()
 
     fake = FakeLLM(
         responses=[
@@ -89,15 +83,8 @@ def test_concierge_can_call_search_hotels(agent_db):
                 content="",
                 tool_calls=[
                     {
-                        "name": "search_hotels",
-                        "args": {
-                            "city": "Da Nang",
-                            "check_in": check_in,
-                            "check_out": check_out,
-                            "rooms": 1,
-                            "adults": 2,
-                            "children": 0,
-                        },
+                        "name": "browse_hotels",
+                        "args": {"city": "Da Nang", "max_price": 200},
                         "id": "h1",
                     }
                 ],
@@ -117,6 +104,6 @@ def test_concierge_can_call_search_hotels(agent_db):
     )
 
     tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
-    assert tool_msgs, "expected search_hotels to be called"
-    search_result = next(m for m in tool_msgs if m.name == "search_hotels")
-    assert search_result.artifact["kind"] == "hotels"
+    assert tool_msgs, "expected browse_hotels to be called"
+    browse_result = next(m for m in tool_msgs if m.name == "browse_hotels")
+    assert browse_result.artifact["kind"] == "hotels"

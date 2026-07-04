@@ -4,9 +4,11 @@ Wrap ``HotelService`` and ``BookingService`` as LLM tools. Each opens its own
 session via ``session_scope`` and maps domain errors to ``ToolException``.
 The booking tool requires ``confirm=True`` to guard against accidental
 reservations — mutable state in an agent graph needs an explicit opt-in.
-``search_hotels`` is panel-capable: on matches it returns a short summary plus
-a ``kind="hotels"`` side-panel artifact; on no match it returns a message and
-no panel (the mapper never sends an empty panel to the drawer).
+``search_hotels`` (dated availability, booking flow) and ``browse_hotels``
+(dateless catalog, concierge) are both panel-capable: on matches they return a
+short summary plus a ``kind="hotels"`` side-panel artifact; on no match they
+return a message and no panel (the mapper never sends an empty panel to the
+drawer).
 """
 
 from __future__ import annotations
@@ -51,6 +53,27 @@ class SearchHotelsArgs(AppBaseModel):
     children: int = Field(
         ...,
         description="Number of children in the party (0 if none). Required — ask the traveller.",
+    )
+    min_stars: int | None = Field(
+        None, ge=1, le=5, description="Keep only hotels with this star rating or above."
+    )
+    max_price: float | None = Field(
+        None, description="Keep only hotels at or below this nightly rate."
+    )
+    amenities: list[str] | None = Field(
+        None,
+        description=(
+            "List of required amenities — fuzzy matched, e.g. 'wifi' → 'Free WiFi' "
+            "(case/typo/substring tolerant). Does not include breakfast — that's a "
+            "separate `breakfast_included` field on the hotel, not an amenity tag."
+        ),
+    )
+
+
+class BrowseHotelsArgs(AppBaseModel):
+    city: str = Field(
+        ...,
+        description="Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').",
     )
     min_stars: int | None = Field(
         None, ge=1, le=5, description="Keep only hotels with this star rating or above."
@@ -216,6 +239,85 @@ def search_hotels(
             raise ToolException(str(e)) from e
 
 
+@tool(args_schema=BrowseHotelsArgs, response_format="content_and_artifact")
+def browse_hotels(
+    city: str,
+    min_stars: int | None = None,
+    max_price: float | None = None,
+    amenities: list[str] | None = None,
+) -> tuple[str, dict | None]:
+    """Answer hotel info/search questions — price, location, amenities, rating — with no dates.
+
+    Use this to browse what's in a city (e.g. "hotels in Da Nang under $100",
+    "any 4-star places with a pool?"). It does **not** check date-specific
+    availability and does **not** book — for a real reservation with exact
+    dates, the booking flow's ``search_hotels`` (availability) and
+    ``book_hotel`` handle that.
+
+    Returns up to 12 hotels. On success the model sees a short summary and the
+    full comparison is sent to the Hotels side panel. If no hotels match —
+    either the city was not recognized or the filters left nothing — returns a
+    short message and no panel; tell the user none were found and never invent
+    hotels. It is not an error.
+
+    :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
+    :param min_stars: Keep only hotels with this star rating or above.
+    :param max_price: Keep only hotels at or below this nightly rate.
+    :param amenities: List of required tags, e.g. ['pool', 'wifi', 'breakfast'].
+    :return: A (summary, artifact) tuple. On matches the artifact is a
+        ``{"kind": "hotels", "data": ...}`` side-panel payload; on no match the
+        artifact is ``None`` (no panel) and the summary explains the empty result.
+    """
+    log_tool_call("browse_hotels", locals())
+    with session_scope() as s:
+        try:
+            svc = HotelService(s)
+            results = svc.search_hotels(
+                city, min_stars=min_stars, max_price=max_price, amenities=amenities
+            )
+            if not results:
+                resolved = svc.resolve_city(city)
+                if not resolved:
+                    return (
+                        f"City '{city}' was not recognized, so no hotels could be "
+                        "searched. Ask the user to confirm or correct the city — do "
+                        "not invent hotels.",
+                        None,
+                    )
+                applied = []
+                if min_stars is not None:
+                    applied.append(f"min_stars={min_stars}")
+                if max_price is not None:
+                    applied.append(f"max_price={max_price}")
+                if amenities:
+                    applied.append(f"amenities={amenities}")
+                suffix = (
+                    f" matching your filters ({', '.join(applied)})" if applied else ""
+                )
+                return (
+                    f"No hotels in {resolved}{suffix}. Tell the user none were found "
+                    "and suggest relaxing the filters — do not invent hotels.",
+                    None,
+                )
+            cheapest = min(results, key=lambda h: h.price_per_night)
+            top_rated = max(results, key=lambda h: h.rating)
+            summary = (
+                f"{len(results)} hotels in {results[0].city}. "
+                f"Cheapest {cheapest.name} ${cheapest.price_per_night:.0f}/night; "
+                f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
+                "The full comparison is in the Hotels panel."
+            )
+            return panel_result(
+                summary,
+                kind="hotels",
+                data=HotelsPanel.from_catalog(results[0].city, results),
+            )
+        except AppError as e:
+            raise ToolException(str(e)) from e
+        except ValueError as e:
+            raise ToolException(str(e)) from e
+
+
 @tool(args_schema=BookHotelArgs)
 def book_hotel(
     hotel_id: str,
@@ -275,6 +377,8 @@ def book_hotel(
             raise ToolException(str(e)) from e
 
 
-HOTEL_SEARCH_TOOLS = [search_hotels]
+# Concierge's dateless catalog browse (MIN-51) — never asks for dates/occupancy.
+HOTEL_SEARCH_TOOLS = [browse_hotels]
 HOTEL_BOOKING_TOOLS = [book_hotel]
-HOTEL_TOOLS = HOTEL_SEARCH_TOOLS + HOTEL_BOOKING_TOOLS
+# Booking's dated availability search + the actual reservation.
+HOTEL_TOOLS = [search_hotels] + HOTEL_BOOKING_TOOLS
