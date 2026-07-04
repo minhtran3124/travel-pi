@@ -269,6 +269,9 @@ tests/agents/ tests/tools/ tests/rag/ tests/api/agent/
 
 ### Phase 4 — RAG (pgvector)
 
+> **SUPERSEDED (2026-07-04):** RAG was fully removed — see
+> `specs/remove-rag-feature/`. The agent now relies on tool calls only.
+
 #### Task 4.1 — Embeddings + vector store init (+ fake)
 
 ```xml
@@ -366,6 +369,9 @@ tests/agents/ tests/tools/ tests/rag/ tests/api/agent/
 ### Phase 8 — Evaluation
 
 #### Task 8.1 — Eval harness (RAGAS + LLM-as-judge + CI gate)
+
+> **SUPERSEDED (2026-07-04):** RAG was fully removed — see
+> `specs/remove-rag-feature/`. The agent now relies on tool calls only.
 
 ```xml
 <task id="8.1" wave="1">
