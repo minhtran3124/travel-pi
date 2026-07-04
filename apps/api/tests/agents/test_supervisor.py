@@ -69,7 +69,7 @@ def test_reflection_ok_ends():
         {"messages": [AIMessage(content="great answer")], "current_flow": "planner"},
         runtime,
     )
-    assert cmd.goto == "extract_memory"
+    assert cmd.goto == END
 
 
 def test_reflection_revise_loops_back_then_stops():
@@ -87,7 +87,7 @@ def test_reflection_revise_loops_back_then_stops():
     )
     assert cmd.goto == "planner"
     assert cmd.update["revisions"] == 1
-    # second pass: already at max -> goes to extract_memory
+    # second pass: already at max -> goes to END
     cmd2 = node(
         {
             "messages": [AIMessage(content="bad")],
@@ -96,4 +96,4 @@ def test_reflection_revise_loops_back_then_stops():
         },
         runtime,
     )
-    assert cmd2.goto == "extract_memory"
+    assert cmd2.goto == END

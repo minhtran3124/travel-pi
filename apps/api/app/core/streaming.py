@@ -20,6 +20,7 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass
 
 from fastapi.responses import StreamingResponse
+from starlette.background import BackgroundTask
 
 
 @dataclass
@@ -30,7 +31,11 @@ class TypedSSEEvent:
     data: str
 
 
-def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingResponse:
+def sse_response(
+    chunks: AsyncIterator[str | TypedSSEEvent],
+    *,
+    background: BackgroundTask | None = None,
+) -> StreamingResponse:
     """Return a text/event-stream response.
 
     Plain-string chunks are emitted as default SSE events
@@ -39,6 +44,9 @@ def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingRespons
     emitting its own terminal event (the agent stream uses ``event: done``).
 
     :param chunks: An async iterator of plain-text chunks or typed SSE events.
+    :param background: Optional Starlette background task run by the ASGI
+        server after the response body has fully drained — used to schedule
+        post-stream work (e.g. memory extraction) off the reply path.
     :return: A ``text/event-stream`` streaming response.
     """
 
@@ -57,4 +65,5 @@ def sse_response(chunks: AsyncIterator[str | TypedSSEEvent]) -> StreamingRespons
         event_stream(),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        background=background,
     )

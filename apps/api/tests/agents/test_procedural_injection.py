@@ -1,6 +1,6 @@
 """Task 2.1 — Procedural instruction injection (specs/agent-memory-layers)."""
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
 
 def test_instructions_reach_system_prompt():
@@ -26,12 +26,12 @@ def test_instructions_reach_system_prompt():
         structured_responses=[SupervisorIntent(target_agent="concierge")] * 4,
         responses=["Concierge says hello"] * 4,
     )
-    # fast: journal, budget, reflection, summarize won't be triggered for
-    # concierge route, but reflection + extract_memory will use fast.
+    # fast: journal, budget, summarize won't be triggered for the concierge
+    # route; only reflection uses fast here (memory extraction now runs as a
+    # post-response background task, not as an in-graph node).
     fast = FakeLLM(
         responses=[
             "OK",  # reflection verdict
-            '{"preferences": [], "instructions": []}',  # extractor output
         ]
     )
     graph = build_graph(

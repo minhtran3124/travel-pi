@@ -85,6 +85,12 @@ def _make_app(
 
     app.dependency_overrides[get_session] = _override_session
     app.dependency_overrides[get_travel_graph] = _override_graph
+    # Test-only introspection hook: lets tests reach the same store/llm the
+    # request handler sees. Deliberately NOT named `app.state.travel_graph` —
+    # the real lifespan (app/core/lifespan.py) sets that attribute on startup
+    # with a production (Postgres-backed) graph, which would clobber this one
+    # once `TestClient(app)` triggers the ASGI startup event.
+    app.state.test_graph = _graph
 
     # Premium requires authentication (hybrid identity — anonymous is always free).
     # Simulate being logged in as the first premium user so tier resolves correctly.
@@ -366,6 +372,62 @@ def test_chat_returns_fallback_when_graph_raises(tmp_path):
         s.close()
     assistant_contents = [m.content for m in msgs if m.role == "assistant"]
     assert AGENT_ERROR_FALLBACK_MSG in assistant_contents
+
+
+def test_chat_schedules_memory_extraction_background_task(tmp_path):
+    """After a normal (non-interrupted) turn, /agent/chat must run memory
+    extraction as a FastAPI BackgroundTask and write the result to the store.
+
+    ``extract_memory`` is a FAST_AGENTS member (app/agents/constants.py), so
+    ``graph.extract_memory_llm`` resolves to the same fake `fast_llm` instance
+    used by `summarize`/`reflection`. On a brand-new conversation, `summarize`
+    skips its LLM call (history too short — see make_summarize_node), so the
+    fast-response queue is consumed as: reflection ("OK"), then extraction
+    (scripted JSON) — in that order. TestClient runs BackgroundTasks
+    synchronously after the response, so the store write is visible immediately.
+    """
+    from app.memory.store import search_preferences
+
+    app = _make_app(
+        tmp_path,
+        "concierge",
+        "Visit Tokyo Tower at sunset.",
+        fast_responses=[
+            "OK",
+            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '"instructions": [], "episodes": []}',
+        ],
+    )
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    assert resp.json()["interrupt_pending"] is False
+
+    prefs = search_preferences(app.state.test_graph.store, "u1")
+    assert any(p["text"] == "prefers window seats" for p in prefs)
+
+
+def test_chat_skips_memory_extraction_when_interrupt_pending(tmp_path):
+    """A turn that pauses at the plan-approval interrupt must NOT run memory
+    extraction — the reply is empty ("" — no assistant turn to extract from)
+    and the flow hasn't been approved yet.
+    """
+    from app.memory.store import search_preferences
+
+    app = _make_app(tmp_path, "booking", "Hotel booked!", premium_users=["u1"])
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={"message": "book me a hotel in Paris", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    assert resp.json()["interrupt_pending"] is True
+
+    prefs = search_preferences(app.state.test_graph.store, "u1")
+    assert prefs == []
 
 
 def test_manifest_lists_tools_and_subagents(client):

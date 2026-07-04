@@ -64,6 +64,7 @@ async def stream_agent_events(
     cfg: dict,
     conversation_id: str,
     context: Any = None,
+    final_state_sink: dict | None = None,
 ) -> AsyncIterator[TypedSSEEvent]:
     """Yield typed SSE events for one agent turn (or interrupt resume).
 
@@ -75,6 +76,9 @@ async def stream_agent_events(
     :param cfg: The run's LangGraph config (thread id, etc.).
     :param conversation_id: The conversation this turn belongs to.
     :param context: The per-run ``AgentContext``, forwarded to ``astream``.
+    :param final_state_sink: When provided, populated with the post-drain
+        ``values``/``interrupt_pending`` snapshot so a caller (e.g. a response
+        background task) can run memory extraction after the stream completes.
     """
     yield events.start(conversation_id)
 
@@ -176,6 +180,9 @@ async def stream_agent_events(
         # Pending HITL interrupt is on the snapshot, not in the stream.
         state = await graph.aget_state(cfg)
         interrupts = state.interrupts
+        if final_state_sink is not None:
+            final_state_sink["values"] = state.values if state else {}
+            final_state_sink["interrupt_pending"] = bool(interrupts)
         if interrupts:
             logger.debug(
                 "[stream_agent_events] interrupt pending for conv=%s", conversation_id
