@@ -59,4 +59,12 @@ inject qua `build_graph(llm=, fast_llm=)`)? Ứng viên: stash resolved extract-
 
 | Check | Command | Exit | Notes |
 |---|---|---|---|
-| _(điền khi execute)_ | `cd apps/api && make test` | | full suite green sau khi rework test |
+| Full suite | `cd apps/api && make test` (`.env` aside) | 0 | 1237 passed |
+| Runner unit | `pytest tests/memory/test_extraction_runner.py -x` | 0 | 6 passed |
+| Graph rewire | `pytest tests/agents/test_depth_toggles.py tests/agents/test_supervisor.py -x` | 0 | reflection→END |
+| /chat bg task | `pytest tests/api/agent/test_agent_chat.py -x` | 0 | 12 passed (skip on interrupt) |
+| /stream bg task | `pytest tests/api/agent/test_stream_persistence.py -x` | 0 | 6 passed |
+
+### Rollback
+
+- `git revert 8dee139 170dbeb 104b406 7cd6471` (waves 4→1), hoặc bỏ branch `feat/memory-extraction-background` (chưa merge).

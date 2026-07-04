@@ -140,3 +140,8 @@ that both endpoints schedule.
 ## 6. Status Log
 
 - 2026-07-04 — Plan drafted (status: proposed).
+- 2026-07-04 — Shipped on `feat/memory-extraction-background` (status: shipped). Commits:
+  W1 `7cd6471` runner + tests · W2 `104b406` remove node / reflection→END + expose `extract_memory_llm` ·
+  W3 `170dbeb` /chat BackgroundTask · W4 `8dee139` /stream response-background · W5 comment cleanup.
+  Compiled-graph attribute risk closed (plain attr works — `CompiledStateGraph`/`Pregel` are plain classes).
+  Full suite: **1237 passed** (`make test`, run with `.env` aside per env-openai-key gotcha).
