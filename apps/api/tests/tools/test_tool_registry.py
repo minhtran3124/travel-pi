@@ -269,3 +269,19 @@ def test_air_quality_tool_returns_panel(monkeypatch):
     assert data["us_aqi"] == 35 and data["band"] == "good" and data["emoji"] == "😊"
     assert len(data["pollutants"]) == 6
     assert data["forecast"][0]["category"] == "Good"
+
+
+def test_hotel_tool_split():
+    """search_hotels moved to concierge; book_hotel stays off concierge (MIN-51)."""
+    from app.tools.registry import ALL_TOOLS, TOOL_METADATA, get_tools_for
+
+    concierge = {t.name for t in get_tools_for("concierge")}
+    assert "search_hotels" in concierge
+    assert "book_hotel" not in concierge
+
+    booking = {t.name for t in get_tools_for("booking")}
+    assert "book_hotel" in booking
+
+    assert "search_hotels" in {t.name for t in ALL_TOOLS}
+
+    assert TOOL_METADATA["search_hotels"]["destructive"] is False
