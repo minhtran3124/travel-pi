@@ -1,7 +1,7 @@
 """AgentContext + resolve_agent_context policy (specs/runtime-context-config A.1 / D.1).
 
 Pins the single tier -> capability mapping. D.1 adds tier-level gating: free
-loses RAG and booking; premium keeps all sub-agents and RAG. The user-selectable
+loses booking; premium keeps all sub-agents. The user-selectable
 "mode" lever was removed in MIN-43 — every run gets the fixed BALANCED
 capability set, gated only by tier.
 """
@@ -24,7 +24,6 @@ def test_defaults_equal_todays_behavior():
     ctx = AgentContext()
     assert ctx.tier == "free"
     assert ctx.allow_reflection is True
-    assert ctx.allow_rag is True
     assert ctx.allowed_subagents is None
     assert ctx.max_revisions == 1
 
@@ -34,8 +33,6 @@ def test_unknown_tier_falls_back_to_free():
     ctx = resolve_agent_context(tier="enterprise")
     assert ctx.tier == "free"
     assert ctx.allow_reflection is True
-    # free tier: RAG always off
-    assert ctx.allow_rag is False
     assert ctx.max_revisions == 1
     # free tier: booking excluded
     assert ctx.allowed_subagents == _FREE_SUBAGENTS
@@ -44,15 +41,12 @@ def test_unknown_tier_falls_back_to_free():
 def test_none_input_falls_back_to_free():
     ctx = resolve_agent_context(tier=None)
     assert ctx.tier == "free"
-    assert ctx.allow_rag is False
     assert ctx.allowed_subagents == _FREE_SUBAGENTS
 
 
-def test_free_gates_rag_and_booking():
+def test_free_gates_booking():
     ctx = resolve_agent_context(tier="free")
     assert ctx.allow_reflection is True
-    # D.1: free tier always has RAG off
-    assert ctx.allow_rag is False
     assert ctx.max_revisions == 1
     # D.1: booking excluded from free
     assert ctx.allowed_subagents is not None
@@ -60,11 +54,10 @@ def test_free_gates_rag_and_booking():
     assert ctx.allowed_subagents == _FREE_SUBAGENTS
 
 
-def test_premium_unlocks_rag_and_all_subagents():
+def test_premium_unlocks_all_subagents():
     ctx = resolve_agent_context(tier="premium")
     assert ctx.tier == "premium"
     assert ctx.allow_reflection is True
-    assert ctx.allow_rag is True
     assert ctx.response_style == "default"
     assert ctx.max_revisions == 1
     # D.1: premium allows all sub-agents (None = unrestricted)

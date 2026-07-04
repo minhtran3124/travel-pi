@@ -4,8 +4,6 @@ Drives the eval runner with a FakeLLM / in-memory store so CI exercises the
 pipeline (and the threshold gates) with no API key or network.
 """
 
-from langchain_core.documents import Document
-
 
 def test_routing_eval_pipeline_scores_and_gates():
     from app.agents.supervisor import SupervisorIntent
@@ -34,20 +32,3 @@ def test_routing_accuracy_detects_misroute():
         {"expected": "budget", "predicted": "concierge"},
     ]
     assert routing_accuracy(results) == 0.5
-
-
-def test_retrieval_eval_pipeline():
-    from app.rag.embeddings import get_vector_store
-    from eval.metrics import retrieval_hit_rate
-    from eval.run_eval import RETRIEVAL_THRESHOLD, load_dataset, run_retrieval_eval
-
-    store = get_vector_store(database_url="sqlite:///:memory:")
-    store.add_documents(
-        [
-            Document(page_content="ramen shop in Shinjuku", metadata={"city": "Tokyo"}),
-            Document(page_content="beach club", metadata={"city": "Da Nang"}),
-        ]
-    )
-    dataset = load_dataset("rag.json")
-    results = run_retrieval_eval(store, dataset)
-    assert retrieval_hit_rate(results) >= RETRIEVAL_THRESHOLD

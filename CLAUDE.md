@@ -54,7 +54,7 @@ app/
   agents/        # LangGraph supervisor + 5 ReAct sub-agents, nodes, state, checkpointer
   tools/         # agent tools grouped by domain (registry.py); also exposed via mcp/
   clients/llm.py # provider-agnostic LLM client (init_chat_model; FakeLLM in tests)
-  memory/ rag/   # conversation memory (summarizer/store) + RAG retrieval (pgvector)
+  memory/        # conversation memory (summarizer/store)
   db/models/     # ORM models (plain class names, used via `models.` namespace)
   schemas/       # Pydantic v2 models (extend AppBaseModel)
   data/          # seed source of truth

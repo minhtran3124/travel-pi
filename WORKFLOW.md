@@ -28,7 +28,7 @@ procedural / episodes) read on the way in and written in the background on the w
 | `agents/checkpointer.py`, `memory/store.py` | Thread checkpoints + long-term semantic store |
 | `memory/extractor.py`, `memory/summarizer.py` | Background extraction + history compression |
 | `streaming/*.py`, `core/streaming.py` | Typed SSE events + isolated-session persistence |
-| `rag/*.py`, `mcp/server.py`, `agents/observability.py` | Retrieval · MCP tool surface · Langfuse |
+| `mcp/server.py`, `agents/observability.py` | MCP tool surface · Langfuse |
 
 Graph + checkpointer + store are built **once** in `core/lifespan.py`, held on
 `app.state.travel_graph`, resolved per request by `get_travel_graph()` (tests inject a `FakeLLM` graph).
@@ -72,7 +72,6 @@ START → load_context → summarize → supervisor ──Command(goto)──┐
 |---|---|---|---|---|
 | `model` hint | FAST | default | DEEP | DEEP→default |
 | `allow_reflection` | ✗ | ✓ | ✓ | — |
-| `allow_rag` | ✗ | ✓ | ✓ | forced ✗ |
 | `allow_memory_write` | ✗ | ✓ | ✓ | — |
 | `allow_episodic` | ✓ | ✓ | ✓ | — |
 | `max_revisions` | 0 | 1 | 2 | — |
@@ -84,7 +83,7 @@ START → load_context → summarize → supervisor ──Command(goto)──┐
 - **extract_memory** — always on the accept path; **no-op when `allow_memory_write=False`** (FAST) or no user/store. → `END`.
 - Handoffs supervisor→sub-agent and reflection→next are dynamic `Command(goto)`; sub-agent→reflection is a static edge. `agent_recursion_limit=25` backstops cycles.
 
-**Sub-agent ReAct loop** (`subagents/_base.py`): `START → assistant ⇄ tools → END`. `assistant` resolves its model per request from `ctx.model`, `bind_tools` on domain tools **filtered by context** (drop RAG if `!allow_rag`, drop `recall_past_trips` if `!allow_episodic`), and prompts with `system_with_summary`. `ToolNode` maps `ToolException` → `ToolMessage(status="error")` for self-correction.
+**Sub-agent ReAct loop** (`subagents/_base.py`): `START → assistant ⇄ tools → END`. `assistant` resolves its model per request from `ctx.model`, `bind_tools` on domain tools **filtered by context** (drop `recall_past_trips` if `!allow_episodic`), and prompts with `system_with_summary`. `ToolNode` maps `ToolException` → `ToolMessage(status="error")` for self-correction.
 
 ---
 
@@ -95,7 +94,7 @@ Model tier: `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`, `extr
 | Sub-agent | Model | Tool groups |
 |---|---|---|
 | **planner** | full | trip, place, flight, hotel, weather, routing, episodes |
-| **concierge** | full | place, weather, routing, tip, rag |
+| **concierge** | full | place, weather, routing, tip |
 | **journal** | fast | trip, memory |
 | **booking** | full | flight, hotel (`book_hotel`† HITL-gated) |
 | **budget** | fast | expense, `get_trip_budget` |
@@ -109,7 +108,6 @@ Model tier: `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`, `extr
 | routing / tip | `get_route`, `get_city_route` · destination tips |
 | expense | `add_expense`*, `list_expenses`, `expense_summary` |
 | memory / episodes | `save_user_preference`*, `get_user_preferences` · `recall_past_trips` (gated `allow_episodic`) |
-| rag | `search_destination_knowledge` (gated `allow_rag`) |
 
 `*` write · `†` destructive. Flags in `TOOL_METADATA` → surface via `/manifest` + MCP. Each tool opens its own `session_scope()` and maps errors to `ToolException`.
 
@@ -143,9 +141,8 @@ Model tier: `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`, `extr
 
 ---
 
-## 7. RAG · MCP · observability
+## 7. MCP · observability
 
-- **RAG** (`rag/*.py`): hybrid vector + lexical (RRF) over destination knowledge; OpenAI embeddings + pgvector prod, fakes + in-memory dev/test (1536 dim). Only via concierge's `search_destination_knowledge`, gated by `allow_rag`.
 - **MCP** (`mcp/server.py`): same registry re-exposed with readOnly/destructive flags; drops `InjectedStore` tools.
 - **Observability** (`observability.py`): optional Langfuse callbacks + trace metadata by `user_id`/`trip_id`; off by default.
 
@@ -157,7 +154,7 @@ Model tier: `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`, `extr
 |---|---|---|
 | `llm_provider` / `llm_model` / `fast_llm_model` | `openai` / `gpt-4.1` / `gpt-4.1-mini` | Provider + main/fast tiers |
 | `agent_llm_configs` / `llm_base_url` | `{}` / None | Per-node overrides · custom endpoint |
-| `embedding_model` | `text-embedding-3-small` | RAG + store index |
+| `embedding_model` | `text-embedding-3-small` | Long-term store semantic index |
 | `*_api_key` | None | Provider auth (None ⇒ raises on first use) |
 | `agent_recursion_limit` / `summarize_threshold` | 25 / 20 | Cycle backstop · compression trigger |
 | `langfuse_enabled` + keys | off | Tracing |

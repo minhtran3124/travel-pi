@@ -12,7 +12,7 @@ open for the process lifetime) rather than per request. Postgres in docker/prod;
 Both backends are constructed with a semantic ``index`` (REVIEW.md C3) so
 ``store.search(ns, query=...)`` ranks by embedding similarity — without it, ``query`` is
 silently ignored and search degrades to recency. The index embeds the ``text`` field of
-each stored value using the shared ``app.rag.embeddings`` model (real OpenAI when keyed,
+each stored value using the shared ``app.core.embeddings`` model (real OpenAI when keyed,
 deterministic fake otherwise). On a Postgres image without pgvector the indexed
 ``PostgresStore`` fails to initialise and degrades to an indexed ``InMemoryStore``.
 """
@@ -30,7 +30,7 @@ from langgraph.store.memory import InMemoryStore
 from langgraph.store.postgres import PostgresStore
 
 from app.core.config import get_settings
-from app.rag.embeddings import EMBED_DIM, get_embeddings
+from app.core.embeddings import EMBED_DIM, get_embeddings
 
 logger = logging.getLogger(__name__)
 

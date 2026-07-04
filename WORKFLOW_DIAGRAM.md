@@ -190,7 +190,6 @@ flowchart LR
     C --> weather
     C --> routing
     C --> tip[tip]
-    C --> rag[("RAG<br/>destination knowledge")]
 
     J --> trip
     J --> memory[("memory<br/>prefs store")]
@@ -218,6 +217,5 @@ flowchart LR
 | expense | `add_expense`*, `list_expenses`, `expense_summary` |
 | memory | `save_user_preference`*, `get_user_preferences` |
 | episodes | `recall_past_trips` |
-| rag | `search_destination_knowledge` |
 
 `*` write · `†` destructive
