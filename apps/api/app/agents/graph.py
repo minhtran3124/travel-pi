@@ -27,7 +27,6 @@ from langgraph.store.base import BaseStore
 from app.agents.context import AgentContext
 from app.agents.nodes import (
     load_context_node,
-    make_extract_memory_node,
     make_reflection_node,
     make_summarize_node,
     plan_node,
@@ -135,12 +134,7 @@ def build_graph(
     builder.add_node(
         "reflection",
         make_reflection_node(pick("reflection")),
-        destinations=(*SUBAGENTS, "extract_memory"),
-        retry_policy=LLM_RETRY,
-    )
-    builder.add_node(
-        "extract_memory",
-        make_extract_memory_node(pick("extract_memory")),
+        destinations=(*SUBAGENTS, END),
         retry_policy=LLM_RETRY,
     )
 
@@ -151,10 +145,15 @@ def build_graph(
     for name in SUBAGENTS:
         builder.add_edge(name, "reflection")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
-    # reflection -> sub-agent | extract_memory is a Command(goto=...).
-    builder.add_edge("extract_memory", END)
+    # reflection -> sub-agent | END is a Command(goto=...).
 
-    return builder.compile(checkpointer=checkpointer, store=store)
+    compiled = builder.compile(checkpointer=checkpointer, store=store)
+    # Memory extraction no longer runs in-graph (specs/memory-extraction-background);
+    # routers schedule it as a background task and need the resolved LLM. Reuse the
+    # single existing injection seam (llm=/fast_llm= override + get_agent_llm) by
+    # attaching it to the compiled graph, alongside the already-exposed `.store`.
+    compiled.extract_memory_llm = pick("extract_memory")
+    return compiled
 
 
 def resolve_travel_graph(app):

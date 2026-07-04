@@ -6,7 +6,10 @@
 - ``make_reflection_node``: bounded self-correction — critiques the last answer
   and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
-- ``make_extract_memory_node``: post-turn background memory extraction (P1).
+
+Post-turn memory extraction no longer runs in-graph — see
+``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
+background task after the response is sent.
 """
 
 from __future__ import annotations
@@ -23,13 +26,7 @@ from app.agents.constants import DEFAULT_MAX_REVISIONS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
-from app.memory.extractor import extract_memories
-from app.memory.store import (
-    get_instructions,
-    upsert_episode,
-    upsert_instruction,
-    upsert_preference,
-)
+from app.memory.store import get_instructions
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -124,18 +121,18 @@ def make_reflection_node(
         revisions = state.get("revisions", 0)
         logger.info("[agent] node=reflection revisions=%d", revisions)
         if not allow_reflection or revisions >= effective_max:
-            logger.info("[agent] reflection → extract_memory (no revision)")
-            return Command(goto="extract_memory")
+            logger.info("[agent] reflection → END (no revision)")
+            return Command(goto=END)
 
         last = state["messages"][-1]
         verdict = llm.invoke([system, last]).content
 
         if "REVISE" in str(verdict).upper():
             # current_flow is always set by the supervisor before a sub-agent runs
-            # (so reflection is only reachable with one); the "extract_memory"
-            # fallback keeps every emission within the node's declared destinations
-            # and routes a no-flow edge case through the turn-completion path.
-            target = state.get("current_flow") or "extract_memory"
+            # (so reflection is only reachable with one); the END fallback keeps
+            # every emission within the node's declared destinations and routes a
+            # no-flow edge case through the turn-completion path.
+            target = state.get("current_flow") or END
             logger.info("[agent] reflection → %s (revise)", target)
             return Command(
                 update={
@@ -150,8 +147,8 @@ def make_reflection_node(
                 },
                 goto=target,
             )
-        logger.info("[agent] reflection → extract_memory (answer accepted)")
-        return Command(goto="extract_memory")
+        logger.info("[agent] reflection → END (answer accepted)")
+        return Command(goto=END)
 
     return reflection
 
@@ -185,69 +182,3 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
-
-
-def make_extract_memory_node(llm: BaseChatModel):
-    """Return a post-turn background memory extraction node (P1).
-
-    Gated by ``runtime.context.allow_memory_write`` — skips entirely for FAST
-    mode. Best-effort: any error is swallowed so a failed extraction never
-    breaks the turn.
-
-    :param llm: The chat model used to extract preferences/instructions/episodes.
-    :return: A node function ``extract_memory(state, runtime) -> dict``.
-    """
-
-    def extract_memory(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
-        ctx = runtime.context if runtime.context is not None else None
-        allow_write = ctx.allow_memory_write if ctx is not None else True
-        if not allow_write:
-            logger.info(
-                "[agent] node=extract_memory (skipped — allow_memory_write=False)"
-            )
-            return {}
-
-        user_id = state.get("user_id")
-        store = getattr(runtime, "store", None)
-        if not user_id or store is None:
-            logger.info("[agent] node=extract_memory (skipped — no user_id or store)")
-            return {}
-
-        try:
-            extracted = extract_memories(state["messages"], llm)
-            for pref in extracted.preferences:
-                upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
-            for instr in extracted.instructions:
-                upsert_instruction(
-                    store, user_id, instr["key"], {"text": instr["text"]}
-                )
-            # P2: persist episodes with rich metadata. A turn that passed the HITL
-            # plan-approval gate (plan_approved=True) records outcome="approved";
-            # otherwise the extractor's default ("proposed") stands.
-            trip_id = state.get("trip_id")
-            plan_approved = state.get("plan_approved", False)
-            for ep in extracted.episodes:
-                key = ep.get("key") or trip_id or "episode"
-                outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
-                upsert_episode(
-                    store,
-                    user_id,
-                    key,
-                    {
-                        "text": ep["text"],
-                        "trip_id": trip_id,
-                        "city": ep.get("city"),
-                        "outcome": outcome,
-                    },
-                )
-            logger.info(
-                "[agent] node=extract_memory preferences=%d instructions=%d episodes=%d",
-                len(extracted.preferences),
-                len(extracted.instructions),
-                len(extracted.episodes),
-            )
-        except Exception:
-            logger.exception("[agent] node=extract_memory: write failed")
-        return {}
-
-    return extract_memory
