@@ -17,5 +17,3 @@ def test_free_tier_does_not_gate_episodic():
 
     ctx = resolve_agent_context(tier=Tier.FREE)
     assert ctx.allow_episodic is True
-    # Contrast: RAG IS gated off for free, to prove episodic is a separate concern.
-    assert ctx.allow_rag is False

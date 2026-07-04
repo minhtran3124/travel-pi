@@ -4,8 +4,6 @@ Verifies that:
 - Reflection node short-circuits (goes to END) when allow_reflection=False.
 - Reflection node short-circuits when max_revisions is reached.
 - Reflection node runs the LLM and routes normally with default context.
-- Assistant node drops the RAG tool when allow_rag=False.
-- Assistant node keeps the RAG tool when allow_rag=True.
 - Response style "default" adds no extra directive (the only value reachable
   now that MIN-43 removed the mode-driven CONCISE/DETAILED prompt injection).
 
@@ -18,11 +16,10 @@ from types import SimpleNamespace
 
 from app.agents.context import AgentContext
 from app.agents.nodes import make_reflection_node
-from app.agents.subagents._base import RAG_TOOL_NAME, build_subagent
+from app.agents.subagents._base import build_subagent
 from app.clients.llm import FakeLLM
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
-from langchain_core.tools import tool as lc_tool
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -117,80 +114,6 @@ def test_reflection_loops_on_revise_verdict():
 
     assert result.goto == "concierge"
     assert result.update["revisions"] == 1
-
-
-# ---------------------------------------------------------------------------
-# RAG tool gating in assistant node
-# ---------------------------------------------------------------------------
-
-
-@lc_tool
-def search_destination_knowledge(query: str) -> list:  # noqa: D401
-    """Fake RAG tool with canonical name."""
-    return []
-
-
-@lc_tool
-def get_weather(city: str) -> str:  # noqa: D401
-    """Non-RAG tool."""
-    return "sunny"
-
-
-def test_assistant_drops_rag_tool_when_allow_rag_false(monkeypatch):
-    """RAG tool is excluded from bind_tools when allow_rag=False."""
-    bind_calls: list[list[str]] = []
-
-    _orig_bind = FakeLLM.bind_tools
-
-    def capturing_bind(self, tools, **kwargs):
-        bind_calls.append([t.name for t in tools])
-        return _orig_bind(self, tools, **kwargs)
-
-    monkeypatch.setattr(FakeLLM, "bind_tools", capturing_bind)
-
-    fake = FakeLLM(responses=["answer"])
-    subgraph = build_subagent(
-        "test_rag_off",
-        [search_destination_knowledge, get_weather],
-        lambda _: fake,
-        "test prompt",
-    )
-    state = {"messages": [HumanMessage(content="hi")]}
-    subgraph.invoke(state, context=AgentContext(allow_rag=False))
-
-    assert bind_calls, "bind_tools was never called"
-    assert RAG_TOOL_NAME not in bind_calls[-1], (
-        f"RAG tool was not filtered out: {bind_calls[-1]}"
-    )
-    assert "get_weather" in bind_calls[-1]
-
-
-def test_assistant_keeps_rag_tool_when_allow_rag_true(monkeypatch):
-    """RAG tool is included in bind_tools when allow_rag=True (default)."""
-    bind_calls: list[list[str]] = []
-
-    _orig_bind = FakeLLM.bind_tools
-
-    def capturing_bind(self, tools, **kwargs):
-        bind_calls.append([t.name for t in tools])
-        return _orig_bind(self, tools, **kwargs)
-
-    monkeypatch.setattr(FakeLLM, "bind_tools", capturing_bind)
-
-    fake = FakeLLM(responses=["answer"])
-    subgraph = build_subagent(
-        "test_rag_on",
-        [search_destination_knowledge, get_weather],
-        lambda _: fake,
-        "test prompt",
-    )
-    state = {"messages": [HumanMessage(content="hi")]}
-    subgraph.invoke(state, context=AgentContext(allow_rag=True))
-
-    assert bind_calls, "bind_tools was never called"
-    assert RAG_TOOL_NAME in bind_calls[-1], (
-        f"RAG tool was unexpectedly filtered: {bind_calls[-1]}"
-    )
 
 
 # ---------------------------------------------------------------------------

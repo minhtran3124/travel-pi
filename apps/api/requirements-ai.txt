@@ -12,7 +12,6 @@
 # Core graph + framework.
 langgraph>=1.0,<2.0
 langchain>=1.0,<2.0
-langchain-text-splitters>=0.3,<1.0  # RAG chunking (not pulled transitively by langchain 1.x)
 
 # Provider integrations (provider-agnostic via init_chat_model()).
 langchain-openai>=0.3,<1.0
@@ -24,10 +23,6 @@ langchain-google-genai>=4.0,<5.0  # provider="google_genai" (Gemini / AI Studio)
 # removed JsonPlusSerializer.dumps and breaks at runtime).
 langgraph-checkpoint-sqlite>=3.0,<4.0
 langgraph-checkpoint-postgres>=3.0,<4.0
-
-# RAG — pgvector via langchain-postgres.
-langchain-postgres>=0.0.12
-pgvector>=0.3,<1.0
 
 # Observability.
 langfuse>=3.0,<5.0

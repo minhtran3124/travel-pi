@@ -28,7 +28,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.runtime import Runtime
 
-from app.agents.constants import EPISODIC_TOOL_NAME, RAG_TOOL_NAME
+from app.agents.constants import EPISODIC_TOOL_NAME
 from app.agents.context import AgentContext
 from app.agents.retry import LLM_RETRY, ToolFaultPolicy
 from app.agents.state import (
@@ -96,18 +96,13 @@ def build_subagent(
     def assistant(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
         logger.info("[agent] node=%s (assistant)", name)
         ctx = runtime.context if runtime.context is not None else None
-        allow_rag = ctx.allow_rag if ctx is not None else True
         allow_episodic = ctx.allow_episodic if ctx is not None else True
 
         model = resolve_model(None)
 
-        # Filter the RAG + episodic-recall tools when the context disables them
-        # (e.g. fast mode / free-tier constraint for RAG).
+        # Filter the episodic-recall tool when the context disables it.
         active_tools = [
-            t
-            for t in tools
-            if (allow_rag or t.name != RAG_TOOL_NAME)
-            and (allow_episodic or t.name != EPISODIC_TOOL_NAME)
+            t for t in tools if (allow_episodic or t.name != EPISODIC_TOOL_NAME)
         ]
         bound = model.bind_tools(active_tools) if active_tools else model
 

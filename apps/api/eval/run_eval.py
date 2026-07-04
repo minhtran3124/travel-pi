@@ -1,6 +1,6 @@
 """Offline eval runner (specs/travel-agent Task 8.1).
 
-Runs the routing and retrieval datasets and asserts quality thresholds. The
+Runs the routing dataset and asserts the quality threshold. The
 functions take injected dependencies so the CI smoke test drives them with a
 FakeLLM (no network); ``main()`` builds the real LLM and is for manual/keyed runs.
 
@@ -23,7 +23,6 @@ from eval.metrics import routing_accuracy
 _DATASETS = Path(__file__).resolve().parent / "datasets"
 
 ROUTING_THRESHOLD = 0.9
-RETRIEVAL_THRESHOLD = 0.8
 
 
 def load_dataset(name: str) -> list[dict]:
@@ -52,18 +51,6 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
                 "predicted": predicted,
             }
         )
-    return results
-
-
-def run_retrieval_eval(store, dataset: list[dict]) -> list[dict]:
-    """Run hybrid search per query and check the expected keyword is retrieved."""
-    from app.rag.retriever import hybrid_search
-
-    results = []
-    for item in dataset:
-        docs = hybrid_search(store, item["query"], filters={"city": item["city"]}, k=5)
-        hit = any(item["keyword"] in d.page_content for d in docs)
-        results.append({"query": item["query"], "hit": hit})
     return results
 
 

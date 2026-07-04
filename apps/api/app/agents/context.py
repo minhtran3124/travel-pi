@@ -33,7 +33,6 @@ class AgentContext:
 
     tier: Tier = DEFAULT_TIER
     allow_reflection: bool = True
-    allow_rag: bool = True
     allow_memory_write: bool = True
     # P2: episodic recall (planner's recall_past_trips). Default ON for everyone.
     allow_episodic: bool = True
@@ -51,9 +50,9 @@ def resolve_agent_context(*, tier: Tier | str | None) -> AgentContext:
     ``tier`` is the only ceiling applied on top.
 
     Tier ceilings (D.1 confirmed product decision):
-    - **free**: ``allow_rag=False`` always; ``allowed_subagents`` excludes all
-      premium-only sub-agents (currently: "booking").
-    - **premium**: ``allowed_subagents=None`` (all permitted); ``allow_rag=True``.
+    - **free**: ``allowed_subagents`` excludes all premium-only sub-agents
+      (currently: "booking").
+    - **premium**: ``allowed_subagents=None`` (all permitted).
 
     :param tier: BE-resolved tier (raw string, enum, or None); falls back to
         ``DEFAULT_TIER`` when unknown/None.
@@ -66,12 +65,9 @@ def resolve_agent_context(*, tier: Tier | str | None) -> AgentContext:
     except ValueError:
         tier = DEFAULT_TIER
 
-    allow_rag = True
     allowed_subagents: frozenset[str] | None
 
     if tier == Tier.FREE:
-        # Free cannot use RAG.
-        allow_rag = False
         # Free cannot reach premium-only sub-agents.
         allowed_subagents = frozenset(ALL_SUBAGENTS) - PREMIUM_ONLY_SUBAGENTS
     else:
@@ -81,7 +77,6 @@ def resolve_agent_context(*, tier: Tier | str | None) -> AgentContext:
     return AgentContext(
         tier=tier,
         allow_reflection=True,
-        allow_rag=allow_rag,
         allow_memory_write=True,
         allow_episodic=True,
         response_style=ResponseStyle.DEFAULT,
