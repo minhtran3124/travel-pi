@@ -42,7 +42,9 @@ class AgentContext:
     max_revisions: int = 1
 
 
-def resolve_agent_context(*, tier: Tier | str | None) -> AgentContext:
+def resolve_agent_context(
+    *, tier: Tier | str | None, allow_reflection: bool = True
+) -> AgentContext:
     """Map tier -> concrete ``AgentContext`` (the single policy function).
 
     Unknown/None tier falls back to the safe default (``free``). Pure +
@@ -56,6 +58,8 @@ def resolve_agent_context(*, tier: Tier | str | None) -> AgentContext:
 
     :param tier: BE-resolved tier (raw string, enum, or None); falls back to
         ``DEFAULT_TIER`` when unknown/None.
+    :param allow_reflection: DB-config-driven reflection gate (from
+        ``agent_config.enabled``); defaults True.
     :return: The resolved ``AgentContext`` for this request.
     """
     # Coerce a raw string (from the DB) to the enum; unknown or None values
@@ -76,7 +80,7 @@ def resolve_agent_context(*, tier: Tier | str | None) -> AgentContext:
 
     return AgentContext(
         tier=tier,
-        allow_reflection=True,
+        allow_reflection=allow_reflection,
         allow_memory_write=True,
         allow_episodic=True,
         response_style=ResponseStyle.DEFAULT,

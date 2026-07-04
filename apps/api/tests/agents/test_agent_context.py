@@ -77,3 +77,28 @@ def test_free_subagents_contains_core_agents():
     assert "journal" in _FREE_SUBAGENTS
     assert "budget" in _FREE_SUBAGENTS
     assert "booking" not in _FREE_SUBAGENTS
+
+
+def test_resolve_agent_context_honors_allow_reflection():
+    """The new keyword flag threads into the resolved context; default stays True."""
+    from app.agents.context import resolve_agent_context
+
+    assert resolve_agent_context(tier="free").allow_reflection is True
+    assert (
+        resolve_agent_context(tier="free", allow_reflection=False).allow_reflection
+        is False
+    )
+
+
+def test_resolve_context_disables_reflection_from_db_config():
+    """`_resolve_context` reads reflection.enabled from the cache (None → on)."""
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+    from app.routers import agent as agent_router
+
+    AgentConfigCache.clear()
+    AgentConfigCache.sync_from_cache({"reflection": AgentModelOverride(enabled=False)})
+    try:
+        ctx = agent_router._resolve_context("anon", False, session=None)
+        assert ctx.allow_reflection is False
+    finally:
+        AgentConfigCache.clear()

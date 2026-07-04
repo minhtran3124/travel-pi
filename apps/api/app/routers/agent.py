@@ -22,6 +22,7 @@ from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
+from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
 from app.core.config import get_settings
 from app.core.streaming import sse_response
@@ -162,7 +163,9 @@ def _resolve_context(
         tier = user_repo.get_tier(effective_user_id)
     else:
         tier = Tier.FREE.value
-    return resolve_agent_context(tier=tier)
+    refl = AgentConfigCache.get("reflection")
+    allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
+    return resolve_agent_context(tier=tier, allow_reflection=allow_reflection)
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
