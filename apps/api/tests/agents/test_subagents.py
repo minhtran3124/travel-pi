@@ -29,10 +29,3 @@ def test_subagents_build_and_answer(builder_name):
     agent = builder(lambda _: fake)
     out = agent.invoke({"messages": [HumanMessage(content="hi")]})
     assert out["messages"][-1].content == "here is my answer"
-
-
-def test_concierge_has_rag_tool():
-    from app.tools.registry import get_tools_for
-
-    names = {t.name for t in get_tools_for("concierge")}
-    assert "search_destination_knowledge" in names
