@@ -90,7 +90,7 @@ class AgentConfigService:
         model: str,
         temperature: str,
         max_tokens: str,
-        enabled: bool = True,
+        enabled: bool | None = None,
     ) -> None:
         """Validate + persist config for *agent_name*, then invalidate the cache."""
         self._require_known(agent_name)
@@ -107,6 +107,8 @@ class AgentConfigService:
             raise DomainValidationError(
                 f"max_tokens must be a positive integer, got {maxt!r}"
             )
+        # None → the caller doesn't own the flag; leave the column untouched.
+        extra = {} if enabled is None else {"enabled": enabled}
         self._repo.upsert(
             agent_name,
             provider=prov,
@@ -114,7 +116,7 @@ class AgentConfigService:
             base_url=None,  # hidden field — client derives it from the provider profile
             temperature=temp,
             max_tokens=maxt,
-            enabled=enabled,
+            **extra,
         )
         AgentConfigCache.invalidate()
 

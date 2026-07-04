@@ -142,3 +142,65 @@ def test_saving_reflection_unchecked_disables_it(client, tmp_db):
     with get_session_factory(tmp_db)() as session:
         view = AgentConfigService(session).get_config("reflection")
     assert view.enabled is False
+
+
+def test_modal_edit_preserves_disabled_reflection(client, tmp_db):
+    # P1 regression: disabling reflection (reflection form: marker present,
+    # checkbox unchecked) then editing ONLY the model via the modal path
+    # (NO enabled_marker) must NOT silently re-enable reflection.
+    disable = client.post(
+        "/dashboard/agent-config/reflection",
+        data={
+            "provider": "",
+            "model": "",
+            "temperature": "",
+            "max_tokens": "",
+            "enabled_marker": "1",
+        },
+        follow_redirects=False,
+    )
+    assert disable.status_code == 303
+    # Modal edits only the model — it never submits an enabled_marker.
+    modal = client.post(
+        "/dashboard/agent-config/reflection",
+        data={
+            "provider": "",
+            "model": "gpt-4o",
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert modal.status_code == 303
+    with get_session_factory(tmp_db)() as session:
+        view = AgentConfigService(session).get_config("reflection")
+    assert view.enabled is False
+
+
+def test_modal_exposes_reflection_toggle(client):
+    # The reflection CARD carries a data-enabled attribute and the shared modal
+    # markup carries the (reflection-only) enabled checkbox + marker.
+    r = client.get("/dashboard/agent-config")
+    assert r.status_code == 200
+    assert "data-enabled" in r.text
+    assert 'id="am-enabled"' in r.text
+    assert 'id="am-enabled-marker"' in r.text
+
+
+def test_modal_save_preserves_null_for_non_reflection(client, tmp_db):
+    # A non-reflection modal save (no marker) must leave enabled untouched
+    # (NULL / None), not flip it to True.
+    resp = client.post(
+        "/dashboard/agent-config/supervisor",
+        data={
+            "provider": "",
+            "model": "gpt-4o",
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code == 303
+    with get_session_factory(tmp_db)() as session:
+        view = AgentConfigService(session).get_config("supervisor")
+    assert view.enabled is None

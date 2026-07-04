@@ -9,6 +9,10 @@ from app.repositories.base import Repo
 
 logger = logging.getLogger(__name__)
 
+# Sentinel: distinguishes "caller omitted enabled" (leave the column as-is)
+# from an explicit ``None`` (write NULL). Only callers that own the flag pass it.
+_UNSET = object()
+
 
 class AgentConfigRepository(Repo):
     """ORM-backed store for per-agent LLM config overrides."""
@@ -45,7 +49,7 @@ class AgentConfigRepository(Repo):
         base_url: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
-        enabled: bool | None = None,
+        enabled: "bool | None" = _UNSET,
     ) -> "models.AgentConfig":
         """Insert or update the config row for *agent_name*.
 
@@ -55,7 +59,9 @@ class AgentConfigRepository(Repo):
         :param base_url: The base URL override, or ``None`` to fall back.
         :param temperature: The sampling temperature, or ``None`` for the default.
         :param max_tokens: The max output tokens, or ``None`` for the default.
-        :param enabled: Whether the agent step is enabled, or ``None`` to fall back.
+        :param enabled: Whether the agent step is enabled. Omit it (the default)
+            to leave the column unchanged; new rows then take the model default
+            (NULL, treated as enabled). Only callers that own the flag pass it.
         :return: The upserted ``AgentConfig`` row.
         :raises DomainValidationError: If *provider* is not a known profile name
             (see ``app.core.llm_providers.PROVIDER_NAMES``).
@@ -76,7 +82,8 @@ class AgentConfigRepository(Repo):
             row.base_url = base_url
             row.temperature = temperature
             row.max_tokens = max_tokens
-            row.enabled = enabled
+            if enabled is not _UNSET:
+                row.enabled = enabled
             self._commit(s)
             s.refresh(row)
             logger.info(

@@ -960,9 +960,9 @@ def agent_config_save(
     """Persist one agent's config, then redirect back (PRG). Invalid input → 400 + form."""
     svc = AgentConfigService(session)
     svc.get_config(agent_name)  # 404 before any write if the agent is unknown
-    # No marker → this form doesn't own the flag (non-reflection) → stay enabled.
+    # No marker → this form doesn't own the flag → preserve it (None = don't touch).
     # Marker present → an unchecked checkbox submits nothing, so `enabled` is None.
-    enabled_val = True if enabled_marker is None else (enabled == "on")
+    enabled_val = None if enabled_marker is None else (enabled == "on")
     try:
         svc.update_config(
             agent_name,
