@@ -84,10 +84,8 @@ climate), `/*/route` (OpenRouteService + haversine fallback), and the AI agent's
 |---|---|---|
 | Agent graph runtime | **LangGraph** | `>=1.0,<2.0` |
 | LLM framework | **LangChain** | `>=1.0,<2.0` |
-| RAG chunking | **langchain-text-splitters** | `>=0.3,<1.0` |
 | LLM providers | **langchain-openai** / **langchain-anthropic** (provider-agnostic via `init_chat_model()`) | `>=0.3,<1.0` / `>=1.0,<2.0` |
 | Checkpointers | **langgraph-checkpoint-sqlite** / **-postgres** | `>=3.0,<4.0` |
-| Vector store / RAG | **langchain-postgres** + **pgvector** | `>=0.0.12` / `>=0.3,<1.0` |
 | Observability | **Langfuse** (optional, off by default) | `>=3.0,<5.0` |
 | Tool exposure | **MCP** (Model Context Protocol server) | `>=1.2,<2.0` |
 

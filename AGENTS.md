@@ -66,7 +66,7 @@ apps/
       agents/         LangGraph supervisor + sub-agents + nodes + state
       tools/          agent tools, grouped by domain (registry.py)
       clients/llm.py  provider-agnostic LLM client
-      memory/ rag/    conversation memory + retrieval
+      memory/         conversation memory (summarizer/store)
       schemas/ db/    Pydantic v2 models + ORM models
   web/        Next.js frontend (TypeScript)
 docs/         longer-form documentation
