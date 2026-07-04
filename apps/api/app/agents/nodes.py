@@ -49,7 +49,13 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     :return: Partial state update with ``trip_context`` and/or ``instructions``,
         whichever were successfully loaded.
     """
-    result: dict = {}
+    # Reset the HITL plan-approval signal at the start of every fresh turn so
+    # episode outcome="approved" is scoped to the turn that actually resumed
+    # from the approval interrupt (issue #63). A resume turn (Command(resume=...))
+    # does NOT re-enter load_context, so the approving turn keeps plan_approved=True;
+    # background memory extraction reads the flag from that turn's final-state
+    # snapshot before the *next* turn's load_context clears it.
+    result: dict = {"plan_approved": False}
     trip_id = state.get("trip_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
     if trip_id:

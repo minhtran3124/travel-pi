@@ -107,3 +107,57 @@ def test_non_booking_flow_has_no_interrupt():
             f"{agent} must complete without interrupt"
         )
         assert result["current_flow"] == agent
+
+
+# ---------------------------------------------------------------------------
+# plan_approved must reset per turn (issue #63)
+# ---------------------------------------------------------------------------
+
+
+def test_plan_approved_resets_on_next_turn():
+    """A booking approval must not leak outcome="approved" onto later turns.
+
+    The approving turn keeps plan_approved=True (so its episode records
+    "approved"), but the next fresh turn on the SAME thread must reset it to
+    False — otherwise every subsequent episode is mislabeled (issue #63).
+    """
+    # Turn 1 supervises to booking; turn 2 to concierge (structured cursor cycles).
+    main = FakeLLM(
+        structured_responses=[
+            SupervisorIntent(target_agent="booking"),
+            SupervisorIntent(target_agent="concierge"),
+        ],
+        responses=["Hotel booked!", "Sunny in Hanoi"],
+    )
+    fast = FakeLLM(responses=["OK"])
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+    cfg = {"configurable": {"thread_id": "t-reset"}}
+
+    # Turn 1: book → interrupt → approve. plan_node sets the flag True.
+    graph.invoke(
+        {
+            "messages": [HumanMessage(content="book me a hotel")],
+            "user_id": "u1",
+            "trip_id": None,
+        },
+        cfg,
+    )
+    approved = graph.invoke(Command(resume={"approved": True}), cfg)
+    assert approved.get("plan_approved") is True, (
+        "approving turn must carry plan_approved=True"
+    )
+
+    # Turn 2: a fresh, unrelated turn on the same thread must clear the flag.
+    nxt = graph.invoke(
+        {
+            "messages": [HumanMessage(content="weather in Hanoi?")],
+            "user_id": "u1",
+            "trip_id": None,
+        },
+        cfg,
+    )
+    assert nxt.get("plan_approved") is False, (
+        "plan_approved must reset on the next fresh turn (issue #63)"
+    )
