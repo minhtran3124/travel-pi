@@ -8,8 +8,23 @@ from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.db.session import get_session
 from app.main import create_app
+from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
+
+
+@pytest.fixture(autouse=True)
+def _clear_geocode_cache():
+    """Reset the module-level geocode cache around every test.
+
+    ``weather_service.geocode_city`` memoises successful lookups process-wide, so
+    without this a city geocoded (with one canned payload) in one test would leak
+    a cache hit into the next — which patches ``_fetch_json`` to a different
+    payload or an error. Clearing before and after keeps each test hermetic.
+    """
+    weather_service.clear_geocode_cache()
+    yield
+    weather_service.clear_geocode_cache()
 
 
 @pytest.fixture(scope="session")
