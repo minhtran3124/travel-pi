@@ -131,17 +131,25 @@ def search_places(
             canonical_category = top_results[0].category if category else None
             where = f" in {canonical_city}" if canonical_city else ""
             what = f" {canonical_category}" if canonical_category else ""
+            # Name the places the model must ground on: without these in the
+            # content, the model only sees a count and invents well-known names
+            # that diverge from the Places panel.
+            listed = ", ".join(f"{p.name} ({p.rating:.1f}★)" for p in top_results)
+            ground = (
+                f" These exact places are shown in the Places panel: {listed}. "
+                "Recommend only from these by name — do not invent other places."
+            )
             if total_count > len(top_results):
                 summary = (
                     f"Top {len(top_results)} of {total_count}{what} places{where} "
-                    "(highest-rated first) are in the Places panel. Offer to search "
-                    "again with different filters or exclude_names if the traveller "
-                    "wants more or different options."
+                    f"(highest-rated first).{ground} Offer to search again with "
+                    "different filters or exclude_names if the traveller wants "
+                    "more or different options."
                 )
             else:
                 summary = (
                     f"{total_count}{what} place{'s' if total_count != 1 else ''}"
-                    f"{where}. The full list is in the Places panel."
+                    f"{where}.{ground}"
                 )
             return panel_result(
                 summary,
