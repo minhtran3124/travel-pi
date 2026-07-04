@@ -5,12 +5,77 @@ import json
 import pytest
 from app.tools.hotel_tools import (
     BookHotelArgs,
+    BrowseHotelsArgs,
     SearchHotelsArgs,
     book_hotel,
+    browse_hotels,
     search_hotels,
 )
 from langchain_core.messages import ToolMessage
 from pydantic import ValidationError
+
+
+def test_browse_hotels_has_args_schema():
+    assert browse_hotels.args_schema is BrowseHotelsArgs
+    assert browse_hotels.args_schema is not None
+
+
+def test_browse_hotels_required_fields():
+    schema = BrowseHotelsArgs.model_json_schema()
+    required = set(schema.get("required", []))
+    assert required == {"city"}
+
+
+def test_browse_hotels_optional_fields_default_none():
+    fields = BrowseHotelsArgs.model_fields
+    assert fields["min_stars"].default is None
+    assert fields["max_price"].default is None
+    assert fields["amenities"].default is None
+
+
+def test_browse_hotels_valid_invoke_returns_content_and_artifact(agent_db):
+    msg = browse_hotels.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "browse_hotels",
+            "args": {"city": "Da Nang"},
+        }
+    )
+    assert isinstance(msg, ToolMessage)
+    assert isinstance(msg.content, str) and msg.content.strip()
+    assert msg.artifact["kind"] == "hotels"
+    data = msg.artifact["data"]
+    assert data["results_count"] >= 1
+    assert data["check_in"] == "" and data["check_out"] == "" and data["nights"] == 0
+
+
+def test_browse_hotels_sorted_cheapest_first(agent_db):
+    msg = browse_hotels.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "browse_hotels",
+            "args": {"city": "Da Nang"},
+        }
+    )
+    hotels = msg.artifact["data"]["hotels"]
+    prices = [h["price_per_night"] for h in hotels]
+    assert prices == sorted(prices), "panel must lead with the cheapest hotel"
+
+
+def test_browse_hotels_unknown_city_returns_no_match_and_no_artifact(agent_db):
+    msg = browse_hotels.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "browse_hotels",
+            "args": {"city": "Nowheresville"},
+        }
+    )
+    assert isinstance(msg, ToolMessage)
+    assert isinstance(msg.content, str) and msg.content.strip()
+    assert msg.artifact is None
 
 
 def test_search_hotels_has_args_schema():
