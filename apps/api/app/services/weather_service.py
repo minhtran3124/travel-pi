@@ -138,19 +138,45 @@ async def _fetch_json(url: str, params: dict) -> dict:
         raise WeatherUnavailableError(str(exc)) from exc
 
 
+# City coordinates are static, so a successful geocode is cached indefinitely
+# (keyed by normalised name). This dedupes the repeated lookups a single agent
+# turn makes — e.g. the concierge's parallel get_weather + get_air_quality both
+# geocoding the same city — and, crucially, means a tools-node *retry* after a
+# transient upstream timeout reuses the already-resolved coordinates instead of
+# re-hitting Open-Meteo. Only hits are cached: a miss/typo stays retryable, and
+# a transport error propagates before we ever reach the store.
+_GEOCODE_CACHE: dict[str, dict] = {}
+
+
+def clear_geocode_cache() -> None:
+    """Empty the geocoding cache. Used by tests for per-test isolation."""
+    _GEOCODE_CACHE.clear()
+
+
 async def geocode_city(city: str) -> dict | None:
     """Resolve a city name to its first geocoding match, or ``None``.
+
+    Successful matches are memoised in :data:`_GEOCODE_CACHE` (see its comment);
+    a cache hit skips the outbound Open-Meteo call entirely.
 
     :param city: The city name to geocode.
     :return: The first geocoding match, or ``None`` when there is no match.
     """
+    key = city.strip().casefold()
+    cached = _GEOCODE_CACHE.get(key)
+    if cached is not None:
+        return cached
+
     settings = get_settings()
     data = await _fetch_json(
         settings.weather_geocoding_url,
         {"name": city, "count": 1, "language": "en", "format": "json"},
     )
     results = data.get("results") or []
-    return results[0] if results else None
+    location = results[0] if results else None
+    if location is not None:
+        _GEOCODE_CACHE[key] = location
+    return location
 
 
 async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
