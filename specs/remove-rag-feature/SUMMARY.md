@@ -46,6 +46,36 @@ User explicitly chose full deletion over the reversible "disable only" default a
 
 - [Score 25/100 — below the 80 threshold, not fixed] Correctness review also flagged (P3, low confidence): a Postgres-checkpointed LangGraph thread interrupted mid-tool-call to `search_destination_knowledge` at the exact moment this diff deployed could fail to resume cleanly (ToolNode no longer recognizes the tool name). Independent scorer confirmed low confidence: this repo is a mock/demo backend (per root CLAUDE.md) without real persistent production checkpoint state, and the trigger condition (a thread paused between tool-call emission and tool-result production, at the precise moment of this deploy) is highly contrived. No action taken — advisory only.
 
+### Post-merge CI failure (found after PR #60 opened)
+
+CI (`.github/workflows/`) failed on the `api` job — a clean `pip install` from `requirements.txt` +
+`requirements-ai.txt` (unlike my long-lived local dev venv, which had leftover cached packages)
+surfaced `NameError: name 'np' is not defined` inside `langchain_core.embeddings.fake.
+DeterministicFakeEmbedding._get_embedding`, cascading into ~22 test failures across
+`tests/memory/`, `tests/core/test_embeddings.py`, and `tests/agents/test_memory.py` — every path
+that embeds without an LLM key (the CI/test default). Root cause: `pgvector` and
+`langchain-postgres` (both removed in Task 1.6) each declare `numpy` as a direct dependency;
+`langchain-core` itself does not, even though `DeterministicFakeEmbedding` needs `numpy` at
+runtime. Removing those two packages silently dropped `numpy` from a fresh install. My local venv
+never showed this because `pip install -r` doesn't uninstall now-unlisted transitive packages —
+numpy stayed cached from before this branch existed, masking the regression through every local
+test run in this session (Waves 1–3, both correctness/intent reviews, and the pre-push
+test-runner). Only CI's clean-room install caught it.
+
+Fixed: added an explicit `numpy>=1.21,<3` line to `requirements-ai.txt` with a comment explaining
+why. Verified in a **genuinely fresh venv** (`python3 -m venv` + `pip install -r requirements.txt
+-r requirements-ai.txt`, not the cached local one) — reproduced the failure without the pin,
+confirmed 1235 passed / 0 failed with it. Commit `74abb23`, pushed to PR #60.
+
+- Rule 3 — missing dependency (`numpy`), added to `requirements-ai.txt` with rationale above. `apps/api/requirements-ai.txt`. Commit `74abb23`.
+- Rule 3 — `risk-corroboration.sh`'s `external-provider` hard gate fired on the same commit (generic pattern-match on any `requirements*.txt` diff). This is a transitive-dependency restoration, not a new external service/AI-provider integration — downgraded via `RISK_WARN_CATEGORIES="external-provider"` for that one commit.
+
+**Harness-Delta (added):** local dev venvs that predate a branch can mask a dependency-removal
+regression that only a clean install (CI, or a fresh venv) will catch — `pip install -r` never
+uninstalls packages dropped from a requirements file. Worth a standing practice: when a plan task
+removes a top-level pip dependency, verify in a throwaway fresh venv, not just the shared dev one,
+before considering the task's tests authoritative.
+
 ### Verify
 
 | Check | Command | Exit | Notes |
@@ -60,6 +90,7 @@ User explicitly chose full deletion over the reversible "disable only" default a
 | Wave 3 full suite | `pytest -q` (with `.env` aside) | 0 | 1235 passed, 0 failed — no collection errors, tests/rag/ collision resolved |
 | Post-correctness-review prompt fix | `pytest tests/prompts/ tests/agents/test_state_system_prompt.py -q` + full suite (with `.env` aside) | 0 | 13 passed + 1235 passed — concierge v6 loads as active, no "knowledge base" reference, exclude_names test intact |
 | Post-intent-review docs fix | `pytest -q` (with `.env` aside) | 0 | 1235 passed, 0 failed — docs-only change, no code touched |
+| CI failure repro + fix | `python3 -m venv <fresh>; pip install -r requirements.txt -r requirements-ai.txt; pytest -q` in a genuinely fresh venv (not the cached local one) | 1 (repro, pre-fix) → 0 (post-fix) | Reproduced the `NameError: name 'np' is not defined` CI failure locally; 1235 passed / 0 failed after adding `numpy>=1.21,<3` to requirements-ai.txt |
 
 ### Intent Findings
 
@@ -72,7 +103,7 @@ Final `/intent-review` (fresh subagent, blind to PLAN.md, model: opus, BASE=b7a7
 
 ### Rollback
 
-Commits on `chore/remove-rag-feature` (oldest first): `dbd8212` (Task 1.1), `d4bb3a0` (Task 1.5), `e0bb019` (Tasks 1.2+1.4+1.6, shared-index collision — see Harness-Delta), `8366805` (Task 1.3), `72a6534` (Task 2.1), `3d0dc6a` (Task 3.1), `e6cacbe` (correctness-review fix: stale concierge prompt), `ab686d9` (intent-review fix: stale architecture docs).
+Commits on `chore/remove-rag-feature` (oldest first): `dbd8212` (Task 1.1), `d4bb3a0` (Task 1.5), `e0bb019` (Tasks 1.2+1.4+1.6, shared-index collision — see Harness-Delta), `8366805` (Task 1.3), `72a6534` (Task 2.1), `3d0dc6a` (Task 3.1), `e6cacbe` (correctness-review fix: stale concierge prompt), `ab686d9` (intent-review fix: stale architecture docs), `74abb23` (post-PR CI fix: missing numpy dependency).
 
 - Full revert: `git revert --no-commit ab686d9 e6cacbe 3d0dc6a 72a6534 8366805 e0bb019 d4bb3a0 dbd8212 && git commit`
 - Or reset the branch to its base: `git reset --hard b7a7544` (only before merging/pushing).
