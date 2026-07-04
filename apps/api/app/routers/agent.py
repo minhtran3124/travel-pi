@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
@@ -27,6 +27,7 @@ from app.core.streaming import sse_response
 from app.db.session import get_session
 from app.enums import Tier
 from app.exceptions import DomainValidationError, ForbiddenError, UpstreamError
+from app.memory.extraction_runner import run_memory_extraction
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
@@ -166,6 +167,7 @@ async def agent_chat(
     graph: GraphDep,
     session: SessionDep,
     auth_user: OptionalUserDep,
+    background: BackgroundTasks,
 ) -> ChatResponse:
     """Send a chat request to the agent.
 
@@ -173,6 +175,8 @@ async def agent_chat(
     :param graph: The compiled LangGraph graph.
     :param session: The request-scoped DB session.
     :param auth_user: The authenticated user, or None for anonymous callers.
+    :param background: FastAPI background-task queue; used to run memory
+        extraction after the reply is returned, off the request's critical path.
     :return: The chat response.
     """
     uid = _effective_user_id(auth_user, body.user_id)
@@ -242,6 +246,19 @@ async def agent_chat(
             reply = AGENT_ERROR_FALLBACK_MSG
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
+        )
+        # Schedule memory extraction to run after the response is sent — never
+        # while a plan-approval interrupt is pending (the runner re-checks its
+        # own gates, so this is belt-and-suspenders).
+        background.add_task(
+            run_memory_extraction,
+            messages=result["messages"],
+            user_id=result.get("user_id"),
+            trip_id=result.get("trip_id"),
+            plan_approved=result.get("plan_approved", False),
+            allow_memory_write=ctx.allow_memory_write,
+            store=graph.store,
+            llm=graph.extract_memory_llm,
         )
 
     return ChatResponse(
