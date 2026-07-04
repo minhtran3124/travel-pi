@@ -63,7 +63,13 @@ projection "to its tool conversion." This is that deferred conversion, not a new
 
 <!-- Score < 80 threshold — not blocking, recorded per correctness-review's residual-work gate. -->
 
-- **P2 / Rule 4 — `search_places` has no result cap.** Unlike `search_hotels` (caps at 12), `search_places` with broad/no filters can return the entire seeded set (up to ~500 places, ~197 for a single city like Da Nang) — all projected into the `PlacesPanel` artifact, persisted on the LangGraph checkpoint, and rendered as one row per place in the FE drawer. Scored 75/100 (real but pre-existing unboundedness in `PlaceService.search_places`, newly exposed via the panel path rather than newly introduced). Not fixed in this pass — capping/pagination is a design decision (Rule 4: changes tool output shape / contract), not a mechanical fix. Follow-up: cap `PlacesPanel.from_places` similarly to `HotelsPanel`'s top-12, or add FE virtualization.
+- ~~**P2 / Rule 4 — `search_places` has no result cap.**~~ **RESOLVED 2026-07-04** — user
+  explicitly specified the cap (top 4). `search_places` now slices to the top 4 highest-rated
+  (the service's default sort) before building the panel; the model-facing summary says
+  "Top 4 of N..." when the true match count exceeds 4, so it can still offer "want more?" per
+  the concierge prompt's existing convention. `apps/api/app/tools/place_tools.py`
+  (`_PLACES_PANEL_CAP = 4`). New tests: `test_search_places_caps_panel_at_four`,
+  `test_search_places_no_cap_message_when_total_at_or_under_four`.
 - **Dropped (score 0, false positive):** `search_places` catches only `AppError`, not `ValueError` (parity gap vs. `search_hotels`). Traced `PlaceService.search_places` → `resolve_city`/`resolve_category` → `best_match`/`fuzzy_filter` → repository `.search()` — no reachable `ValueError` source exists in this path (unlike hotels' date parsing). No action needed.
 
 ### Verify
@@ -76,6 +82,9 @@ projection "to its tool conversion." This is that deferred conversion, not a new
 | Task 2.1 tests | `pnpm vitest run src/components/chat/panel` | 0 | 20 passed (7 files, independently re-run) |
 | FE typecheck | `npx tsc --noEmit` | 0 | clean |
 | FE lint | `pnpm lint` | 0 | clean |
+| Follow-up (cap) tests | `pytest tests/tools/test_place_tools.py tests/streaming/test_places_panel.py -q` | 0 | 21 passed |
+| Follow-up full suite | `DATABASE_URL="sqlite:////tmp/verify_places_cap.db" pytest tests/ -q` | 1 | 1243 passed, 8 failed — same pre-existing/env-driven set, unrelated |
+| Follow-up lint | `ruff check app/tools/place_tools.py tests/tools/test_place_tools.py` | 0 | clean |
 
 ### Intent Findings
 
@@ -88,6 +97,32 @@ projection "to its tool conversion." This is that deferred conversion, not a new
 
 - `git revert 4d7953e 8abccc1 f40a4fb 916fcd6` (or revert the branch merge). Purely additive —
   no migrations, no schema changes, no data changes.
+
+## Follow-up: cap search_places to top 4 (2026-07-04)
+
+Lane: tiny
+Confidence: high
+Reason: Closes the PR's own advisory finding (uncapped `search_places` panel) — a human
+(the user) has now made the previously-ambiguous design decision explicit ("top 4"), which is
+what made it Rule 4 before. Single function, single file, ≤1 flag (existing-behavior, mild —
+`search_places` currently returns unbounded results; capping changes that, but no existing test
+asserts a count above 4 for its fixtures, e.g. Tokyo's own seed set is exactly 4). No new public
+callable, no schema/contract change.
+Flags: existing-behavior
+Affects: `app/tools/place_tools.py` (search_places result cap)
+Input-type: change request
+
+### Intent (follow-up)
+
+> need update should return top 4 places after search, show side panel on the left, and short summarization on the right
+
+Scope-narrowed via clarifying question: side-panel-on-left and short-chat-summary were both
+already true in the shipped code (SidePanel renders first/left in `ChatWidget.tsx`'s flex row;
+the concierge prompt already caps chat-reply mentions to top 4-5 and the tool already sends the
+model only a one-line summary, never the full list). The only real gap — confirmed by the user
+— is that the **panel itself** shows unbounded results. Scope: cap `search_places`'s returned
+list to the top 4 (rating-sorted) before it reaches `PlacesPanel.from_places`, mirroring
+`search_hotels`'s existing cap pattern but with N=4 per the user's explicit number.
 
 ### Harness-Delta
 
