@@ -38,6 +38,15 @@ def test_get_returns_none_for_unknown_agent():
     assert AgentConfigCache.get("nonexistent") is None
 
 
+def test_override_carries_enabled_flag():
+    """AgentModelOverride round-trips an explicit `enabled` bool; default is None."""
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+
+    assert AgentModelOverride().enabled is None  # unset → None (read side coalesces)
+    AgentConfigCache.sync_from_cache({"reflection": AgentModelOverride(enabled=False)})
+    assert AgentConfigCache.get("reflection").enabled is False
+
+
 def test_clear_empties_cache():
     AgentConfigCache.sync_from_cache(
         {"concierge": AgentModelOverride(provider="openai")}
