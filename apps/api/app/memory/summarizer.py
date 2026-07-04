@@ -15,6 +15,7 @@ from langchain_core.messages import (
     HumanMessage,
     RemoveMessage,
     SystemMessage,
+    ToolMessage,
 )
 
 from app.core.config import get_settings
@@ -24,6 +25,27 @@ _SUMMARY_SYSTEM = (
     "Preserve concrete facts the assistant will need later: destinations, dates, "
     "budget, booked items, stated preferences and constraints. Be terse."
 )
+
+
+def _safe_split(messages: list[BaseMessage], keep_last: int) -> int:
+    """Index into ``messages`` where the kept (verbatim) tail should start.
+
+    A naive ``len(messages) - keep_last`` can land in the middle of an
+    AIMessage-with-``tool_calls`` + its ``ToolMessage`` response(s): if the
+    ToolMessage lands in the kept tail but its parent AIMessage falls in the
+    removed portion, the next model call sends an orphaned tool result and the
+    provider rejects it ("No tool call found for function call output with
+    call_id ..."). Walk the boundary back past any ``ToolMessage`` run so a
+    tool-call/tool-result pair is always kept or removed together.
+
+    :param messages: The full conversation history being split.
+    :param keep_last: Requested number of trailing messages to keep verbatim.
+    :return: The (possibly earlier) index where the kept tail actually starts.
+    """
+    split = max(len(messages) - keep_last, 0)
+    while split > 0 and isinstance(messages[split], ToolMessage):
+        split -= 1
+    return split
 
 
 def should_summarize(messages: list[BaseMessage], threshold: int | None = None) -> bool:
@@ -51,7 +73,8 @@ def summarize_conversation(
 
     :param messages: The full conversation history to compress.
     :param llm: The chat model used to generate the summary.
-    :param keep_last: Number of trailing messages to keep verbatim (not removed).
+    :param keep_last: Minimum number of trailing messages to keep verbatim (not
+        removed); more may be kept to avoid splitting a tool-call/tool-result pair.
     :return: A tuple of the summary text and the messages to remove.
     """
     transcript = "\n".join(
@@ -60,7 +83,8 @@ def summarize_conversation(
     summary = llm.invoke(
         [SystemMessage(content=_SUMMARY_SYSTEM), HumanMessage(content=transcript)]
     ).content
+    split = _safe_split(messages, keep_last)
     to_remove = [
-        RemoveMessage(id=m.id) for m in messages[:-keep_last] if getattr(m, "id", None)
+        RemoveMessage(id=m.id) for m in messages[:split] if getattr(m, "id", None)
     ]
     return summary, to_remove

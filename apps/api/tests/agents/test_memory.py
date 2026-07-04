@@ -1,6 +1,44 @@
 """Long-term store + summarizer (specs/travel-agent Task 2.2)."""
 
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+
+
+def test_summarize_conversation_keeps_tool_call_pairs_intact():
+    """A naive messages[:-keep_last] slice can orphan a ToolMessage whose
+    parent AIMessage(tool_calls=...) falls just before the cut — the next
+    model call then sees a tool result with no matching tool call and the
+    provider rejects the whole request. Reproduces the exact boundary: a
+    parallel two-tool-call AIMessage with keep_last landing between its two
+    ToolMessage responses."""
+    from app.clients.llm import FakeLLM
+    from app.memory.summarizer import summarize_conversation
+
+    msgs = [
+        HumanMessage(content="q0", id="h0"),
+        AIMessage(
+            content="",
+            id="a0",
+            tool_calls=[
+                {"name": "search_places", "args": {}, "id": "c1"},
+                {"name": "get_weather", "args": {}, "id": "c2"},
+            ],
+        ),
+        ToolMessage(content="places found", id="t0", tool_call_id="c1"),
+        ToolMessage(content="sunny", id="t1", tool_call_id="c2"),
+        AIMessage(content="Here you go", id="a1"),
+        HumanMessage(content="q1", id="h1"),
+    ]
+
+    llm = FakeLLM(responses=["SUMMARY: ..."])
+    # Naive messages[:-3] would remove h0, a0, t0 and keep t1 orphaned —
+    # the fix must keep a0 whenever either of its ToolMessages survives.
+    _, to_remove = summarize_conversation(msgs, llm, keep_last=3)
+
+    removed_ids = {rm.id for rm in to_remove}
+    assert "a0" not in removed_ids
+    assert "t0" not in removed_ids
+    assert "t1" not in removed_ids
+    assert removed_ids == {"h0"}
 
 
 def test_store_falls_back_to_in_memory():
