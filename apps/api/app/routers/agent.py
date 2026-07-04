@@ -15,6 +15,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
+from starlette.background import BackgroundTask
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
@@ -27,7 +28,10 @@ from app.core.streaming import sse_response
 from app.db.session import get_session
 from app.enums import Tier
 from app.exceptions import DomainValidationError, ForbiddenError, UpstreamError
-from app.memory.extraction_runner import run_memory_extraction
+from app.memory.extraction_runner import (
+    run_memory_extraction,
+    run_memory_extraction_from_stream,
+)
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
@@ -334,6 +338,18 @@ async def agent_stream(
     # request used, so test overrides via get_session still propagate.
     factory = _isolated_factory(session)
 
+    # Populated by stream_agent_events after the SSE stream fully drains; read
+    # by the response's background task (below) so memory extraction runs off
+    # the reply path, using the final graph state.
+    sink: dict = {}
+    background_task = BackgroundTask(
+        run_memory_extraction_from_stream,
+        sink=sink,
+        allow_memory_write=ctx.allow_memory_write,
+        store=graph.store,
+        llm=graph.extract_memory_llm,
+    )
+
     return sse_response(
         persist_assistant_turn(
             stream_agent_events(
@@ -342,10 +358,12 @@ async def agent_stream(
                 cfg=cfg,
                 conversation_id=conversation_id,
                 context=ctx,
+                final_state_sink=sink,
             ),
             conversation_id=conversation_id,
             session_factory=factory,
-        )
+        ),
+        background=background_task,
     )
 
 

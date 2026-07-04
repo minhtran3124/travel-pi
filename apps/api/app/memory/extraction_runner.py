@@ -84,3 +84,41 @@ def run_memory_extraction(
     except Exception:
         logger.exception("[agent] extract_memory: write failed")
     return None
+
+
+def run_memory_extraction_from_stream(
+    *,
+    sink: dict,
+    allow_memory_write: bool,
+    store: BaseStore | None,
+    llm: BaseChatModel,
+) -> None:
+    """Adapt a streaming turn's post-drain ``sink`` into ``run_memory_extraction``.
+
+    ``sink`` is populated by ``stream_agent_events`` after the SSE stream fully
+    drains (see ``final_state_sink``); this adapter is the entry point a
+    ``StreamingResponse`` background task calls, so extraction still runs off
+    the reply path even though the final graph state is only known post-drain.
+    No-op (best-effort) when the sink is empty (stream crashed before the
+    post-drain fetch) or a plan-approval interrupt is pending.
+
+    :param sink: The mutable dict populated by ``stream_agent_events`` with
+        ``values`` (final graph state) and ``interrupt_pending``.
+    :param allow_memory_write: Gate forwarded to ``run_memory_extraction``.
+    :param store: LangGraph store to write into.
+    :param llm: Chat model used to run the extraction prompt.
+    """
+    if not sink or sink.get("interrupt_pending"):
+        return None
+
+    values = sink.get("values") or {}
+    run_memory_extraction(
+        messages=values.get("messages", []),
+        user_id=values.get("user_id"),
+        trip_id=values.get("trip_id"),
+        plan_approved=values.get("plan_approved", False),
+        allow_memory_write=allow_memory_write,
+        store=store,
+        llm=llm,
+    )
+    return None

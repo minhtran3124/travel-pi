@@ -13,6 +13,7 @@ import json
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
+from app.core.auth import AuthUser, get_current_user_optional
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
@@ -28,9 +29,27 @@ from langgraph.store.memory import InMemoryStore
 # ---------------------------------------------------------------------------
 
 
-def _make_app(tmp_path, answer: str = "Here is your travel advice."):
+def _make_app(
+    tmp_path,
+    answer: str = "Here is your travel advice.",
+    *,
+    intent_target: str = "concierge",
+    fast_responses: list[str] | None = None,
+    premium_users: list[str] | None = None,
+):
     url = f"sqlite:///{tmp_path / 'stream_persist.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    if premium_users:
+        from app.repositories.user import UserRepository
+
+        s = get_session_factory(url)()
+        try:
+            for uid in premium_users:
+                UserRepository(s).upsert_tier(uid, "premium")
+            s.commit()
+        finally:
+            s.close()
 
     app = create_app()
 
@@ -46,10 +65,12 @@ def _make_app(tmp_path, answer: str = "Here is your travel advice."):
             s.close()
 
     main_llm = FakeLLM(
-        structured_responses=[SupervisorIntent(target_agent="concierge")] * 6,
+        structured_responses=[SupervisorIntent(target_agent=intent_target)] * 6,
         responses=[answer] * 6,
     )
-    fast_llm = FakeLLM(responses=["OK"] * 6)
+    fast_llm = FakeLLM(
+        responses=fast_responses if fast_responses is not None else ["OK"] * 6
+    )
     _graph = build_graph(
         llm=main_llm,
         fast_llm=fast_llm,
@@ -62,6 +83,20 @@ def _make_app(tmp_path, answer: str = "Here is your travel advice."):
 
     app.dependency_overrides[get_session] = _override_session
     app.dependency_overrides[get_travel_graph] = _override_graph
+    # Test-only introspection hook (see tests/api/agent/test_agent_chat.py):
+    # deliberately not `app.state.travel_graph` — the real lifespan would
+    # clobber it with a production graph once TestClient triggers startup.
+    app.state.test_graph = _graph
+
+    # Premium requires authentication (hybrid identity — anonymous is always
+    # free). Simulate being logged in as the first premium user so tier
+    # resolves correctly (mirrors tests/api/agent/test_agent_chat.py).
+    if premium_users:
+        _puid = premium_users[0]
+        app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+            id=_puid, email=None, role=None, claims={}
+        )
+
     return app, url
 
 
@@ -233,3 +268,62 @@ def test_stream_resume_does_not_append_user_message(tmp_path):
     messages = repo.list_messages(conv.id)
     user_msgs = [m for m in messages if m.role == "user"]
     assert len(user_msgs) == 0, "resume turn must not add a user message row"
+
+
+def test_stream_schedules_memory_extraction_after_drain(tmp_path):
+    """A normal (non-resume, non-interrupted) /agent/stream turn must run memory
+    extraction via the response's background task once the SSE stream fully
+    drains, writing the scripted preference to the graph's store.
+
+    ``extract_memory`` is a FAST_AGENTS member (app/agents/constants.py), so
+    ``graph.extract_memory_llm`` resolves to the same fake fast_llm used by
+    reflection. TestClient consumes the full response body — including the
+    Starlette `background` task — synchronously within `client.post`, so the
+    store write is visible immediately after the call returns.
+    """
+    from app.memory.store import search_preferences
+
+    app, _url = _make_app(
+        tmp_path,
+        fast_responses=[
+            "OK",
+            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '"instructions": [], "episodes": []}',
+        ],
+    )
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/stream",
+            json={
+                "message": "What should I visit in Kyoto?",
+                "user_id": "user-extract",
+            },
+        )
+    assert resp.status_code == 200
+
+    prefs = search_preferences(app.state.test_graph.store, "user-extract")
+    assert any(p["text"] == "prefers window seats" for p in prefs)
+
+
+def test_stream_booking_interrupt_skips_memory_extraction(tmp_path):
+    """A booking /agent/stream turn that emits a plan-approval interrupt must
+    NOT run memory extraction — the graph is paused, not finished, so the
+    background task's sink carries ``interrupt_pending=True`` and no-ops.
+    """
+    from app.memory.store import search_preferences
+
+    app, _url = _make_app(
+        tmp_path,
+        intent_target="booking",
+        premium_users=["user-book"],
+    )
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/stream",
+            json={"message": "book me a hotel in Paris", "user_id": "user-book"},
+        )
+    assert resp.status_code == 200
+    assert "event: interrupt" in resp.text
+
+    prefs = search_preferences(app.state.test_graph.store, "user-book")
+    assert prefs == []
