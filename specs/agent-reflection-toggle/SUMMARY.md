@@ -70,9 +70,44 @@ migration hard gate (narrowed to one nullable column). Ready for `/writing-plans
 
 ### Verify
 
-_(to be filled by the executing plan)_
+| Check | Command | Exit | Notes |
+|---|---|---|---|
+| Lint | `ruff check app scripts` | 0 | clean (4 pre-existing format-drift files untouched, none mine) |
+| Migration (SQLite+Postgres) | `alembic upgrade head` | 0 | single head `d2f4b6a8c0e1`; applied on dev Postgres |
+| Full suite (temp SQLite) | `pytest -q` | 0* | 1258 passed; *6 pre-existing env failures (5 OPENAI_API_KEY/ORS, confirmed failing on baseline `3cf7603`) — none from this change |
+| Docker Postgres parity | `make test-docker` | 0 | full suite green on Postgres |
+| Correctness gate | adversarial `/correctness-review` (opus, whole diff) | — | 3 findings → fixed → re-review ✅ 0 bugs |
+
+> Local `travel.db` (SQLite convenience file, gitignored) is stale (pre-migration) and lacks the
+> `enabled` column; the pytest suite uses isolated temp DBs so it is unaffected, but a local run
+> pinned at `sqlite:///travel.db` needs `rm travel.db` + reseed (or `alembic upgrade head` against
+> it). Per [[stale-travel-db-breaks-suite-on-schema-change]].
+
+### Deviations
+
+- Rule 1 — Fixed `test_identity_hybrid.py` tier spy, which hard-coded the pre-feature
+  `resolve_agent_context(*, tier)` signature; Task 4 added the `allow_reflection` kwarg, so the
+  spy now forwards it (asserts unchanged). `tests/api/agent/test_identity_hybrid.py`. Commit `83031c4`.
+- Rule 1 — Adversarial correctness review found `upsert` wrote `enabled` unconditionally, so
+  editing reflection's model via the list-page **modal** (the real edit UI), a CLI reseed, or any
+  non-reflection save silently reverted an explicit disable (P1) and caused spurious graph
+  rebuilds (P3×2). Fixed with preserve-on-absent write semantics (repo `_UNSET` sentinel →
+  service None-guard → router None-on-no-marker) and surfaced the toggle in the actual modal
+  (reflection-only, `disabled` inputs elsewhere so they never submit).
+  `app/repositories/agent_config.py`, `app/services/agent_config_service.py`,
+  `app/routers/dashboard.py`, `app/templates/agent_config.html`. Commit `1c6faed`.
+- Note — the `risk-corroboration.sh` hook flagged `auth` on commit `1c6faed` (false positive:
+  `max_tokens`/`maxTokens` matches the "token" substring; no auth/JWT/permission change in the
+  diff). Downgraded for that single commit with `RISK_WARN_CATEGORIES="auth"`.
+
+### Review Findings
+
+All correctness findings resolved (✅ with sha `1c6faed`); none deferred. Final adversarial
+re-review: 🐛 0 bugs.
 
 ### Rollback
 
-_(to be filled once the approach + migration are chosen; will include `alembic downgrade -1`
-and `git revert <sha>`)_
+- Revert code: `git revert 1c6faed 83031c4 c52b4bc 2211ed9 dcc82f3 bf2eeb0 b0f1069 436d5e5`
+  (or revert the whole branch merge commit).
+- Revert migration: `cd apps/api && ../../.venv/bin/alembic downgrade -1` (drops the `enabled`
+  column; additive + nullable, so no data loss on downgrade).

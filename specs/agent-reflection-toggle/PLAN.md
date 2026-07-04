@@ -713,3 +713,13 @@ Expected: green — confirms the Boolean `add_column` migration applies on Postg
 ## 6. Status Log
 
 - 2026-07-04 — Plan drafted from `/feature-intake` findings (design fork resolved: Option A, reflection-only, dashboard checkbox now). Ready for review + execution.
+- 2026-07-04 — Executed via subagent-driven-development (each task: TDD + spec review + quality review, all ✅/Approved):
+  - Wave 1 — Task 1.1 `436d5e5` (enabled column + migration)
+  - Wave 2 — Task 2.1 `b0f1069` (cache field), Task 3.1 `bf2eeb0` (repo upsert)
+  - Wave 3 — Task 4.1 `dcc82f3` (context param + router wiring), Task 5.1 `2211ed9` (service)
+  - Wave 4 — Task 6.1 `c52b4bc` (dashboard checkbox + template)
+  - Wave 5 — Task 7.1: gates PASSED. Lint clean; `pytest -q` 1258 passed (6 pre-existing env failures, confirmed on baseline `3cf7603`); `make test-docker` exit 0.
+  - Post-task correctness review (`/correctness-review`, opus, whole diff) found a P1 + 2×P3 (unconditional `enabled` write let modal/CLI/non-reflection saves clobber the toggle). Fixed in `1c6faed` (preserve-on-absent + toggle moved into the real modal UI). Re-review ✅ 0 bugs.
+  - Intent review (`/intent-review`, sonnet, blind to PLAN) ✅ no divergence.
+  - Also fixed a coupled test spy in `83031c4` (Task 4 signature change).
+  - Status: implementation complete + all gates green. Awaiting user go-ahead for push + PR (`finishing-a-development-branch`).
