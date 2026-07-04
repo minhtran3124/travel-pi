@@ -129,14 +129,23 @@ def test_load_context_node_returns_trip_context_not_messages():
     assert "messages" not in result
 
 
-def test_load_context_node_no_trip_id_returns_empty():
-    """Best-effort: no trip_id -> empty dict, no state mutation."""
+def test_load_context_node_no_trip_id_resets_plan_approved():
+    """No trip_id -> only the per-turn plan_approved reset, no other mutation.
+
+    load_context runs at the start of every fresh turn and always clears the
+    HITL plan-approval flag so outcome="approved" stays scoped to the approving
+    turn (issue #63).
+    """
     from types import SimpleNamespace
 
     from app.agents.nodes import load_context_node
 
-    assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {}
-    assert load_context_node({"messages": []}, SimpleNamespace()) == {}
+    assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {
+        "plan_approved": False
+    }
+    assert load_context_node({"messages": []}, SimpleNamespace()) == {
+        "plan_approved": False
+    }
 
 
 def test_subagent_receives_trip_context_as_leading_system_message():
