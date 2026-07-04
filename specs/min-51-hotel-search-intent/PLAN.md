@@ -117,7 +117,13 @@ booking = transactions).
 ## 6. Status Log
 
 - 2026-07-04 — Plan drafted (proposed). Approach A locked in SUMMARY.md.
-- _TODO on execute_ — W1 rebind, W2 prompts v5/v7, W3 tests green.
-- _TODO on execute_ — Manual real-LLM acceptance: verify "khách sạn ở Đà Nẵng giá
-  dưới 1tr" → concierge (no interrupt) and "tôi muốn đặt phòng khách sạn X" →
-  booking (interrupt). Run broad suite with `apps/api/.env` moved aside.
+- 2026-07-04 — SHIPPED on `fix/min-51-hotel-search-intent`. Commits: W1 `4ddcbfd` tool split +
+  concierge rebind · W2 `7d7e684` supervisor v5 / concierge v7 prompts · W3 `6d2bd23` tests.
+  Broad suite `tests/agents tests/tools tests/api/agent` → **297 passed** (`.env` aside).
+  Rule-1 deviation (W2): fixed contradictory planner/concierge sub-agent bullets in supervisor v5.
+- **PENDING — manual real-LLM acceptance** (residual, non-deterministic prompt routing): with a
+  real LLM, verify "khách sạn ở Đà Nẵng giá dưới 1tr" → concierge (no interrupt, answers + soft
+  booking offer) and "tôi muốn đặt phòng khách sạn X" → booking (interrupt). Not automatable.
+- **Noted, out of scope:** `planner` is bound to `book_hotel` + `search_hotels` and can book
+  without the supervisor-level HITL (interrupt only fires for target==booking). Pre-existing;
+  candidate for a separate ticket.
