@@ -50,6 +50,20 @@ def test_browse_hotels_valid_invoke_returns_content_and_artifact(agent_db):
     assert data["check_in"] == "" and data["check_out"] == "" and data["nights"] == 0
 
 
+def test_browse_hotels_sorted_cheapest_first(agent_db):
+    msg = browse_hotels.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "browse_hotels",
+            "args": {"city": "Da Nang"},
+        }
+    )
+    hotels = msg.artifact["data"]["hotels"]
+    prices = [h["price_per_night"] for h in hotels]
+    assert prices == sorted(prices), "panel must lead with the cheapest hotel"
+
+
 def test_browse_hotels_unknown_city_returns_no_match_and_no_artifact(agent_db):
     msg = browse_hotels.invoke(
         {

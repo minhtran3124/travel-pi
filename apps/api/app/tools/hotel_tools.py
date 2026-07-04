@@ -254,11 +254,12 @@ def browse_hotels(
     dates, the booking flow's ``search_hotels`` (availability) and
     ``book_hotel`` handle that.
 
-    Returns up to 12 hotels. On success the model sees a short summary and the
-    full comparison is sent to the Hotels side panel. If no hotels match —
-    either the city was not recognized or the filters left nothing — returns a
-    short message and no panel; tell the user none were found and never invent
-    hotels. It is not an error.
+    Returns up to 12 hotels, sorted cheapest nightly rate first (best value on
+    top). On success the model sees a short summary and the full comparison is
+    sent to the Hotels side panel. If no hotels match — either the city was not
+    recognized or the filters left nothing — returns a short message and no
+    panel; tell the user none were found and never invent hotels. It is not an
+    error.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param min_stars: Keep only hotels with this star rating or above.
@@ -299,7 +300,10 @@ def browse_hotels(
                     "and suggest relaxing the filters — do not invent hotels.",
                     None,
                 )
-            cheapest = min(results, key=lambda h: h.price_per_night)
+            # Default sort: cheapest nightly rate first, so the panel leads with
+            # the best-value option (ties keep the seed order — sorted() is stable).
+            results = sorted(results, key=lambda h: h.price_per_night)
+            cheapest = results[0]
             top_rated = max(results, key=lambda h: h.rating)
             summary = (
                 f"{len(results)} hotels in {results[0].city}. "
