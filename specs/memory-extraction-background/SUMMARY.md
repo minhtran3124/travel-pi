@@ -65,6 +65,21 @@ inject qua `build_graph(llm=, fast_llm=)`)? Ứng viên: stash resolved extract-
 | /chat bg task | `pytest tests/api/agent/test_agent_chat.py -x` | 0 | 12 passed (skip on interrupt) |
 | /stream bg task | `pytest tests/api/agent/test_stream_persistence.py -x` | 0 | 6 passed |
 
+### Advisory Findings (correctness-review, all < threshold-80)
+
+- **Comment inaccuracy (FIXED, `9e...`)** — `agent.py` scheduling comment claimed the runner
+  "re-checks its own gates" re: interrupt; it does not. Interrupt-skip is guaranteed only by the
+  `else` (not-interrupt) branch. Comment corrected to prevent a future refactor footgun.
+- **Advisory — /stream disconnect drops extraction** (`streaming/mapper.py`). On a mid-stream
+  client disconnect (`CancelledError`), Starlette never runs the response `background`, so
+  extraction is skipped. Not a regression — the old in-graph node also wouldn't run on a
+  cancelled graph; graceful degradation, best-effort semantics preserved. No action.
+- **Advisory — PRE-EXISTING `plan_approved` never reset** (`agents/state.py` / `plan_node`).
+  `plan_approved` is set True on booking approval and never reset, so on the same conversation
+  thread every later turn records episodes `outcome="approved"`. Carried into the runner
+  **verbatim** from the old node (identical read) — NOT introduced here. Real latent bug, out of
+  this branch's scope; fix belongs at `plan_node`/state reset. Surfaced to user.
+
 ### Rollback
 
 - `git revert 8dee139 170dbeb 104b406 7cd6471` (waves 4→1), hoặc bỏ branch `feat/memory-extraction-background` (chưa merge).

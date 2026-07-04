@@ -251,9 +251,10 @@ async def agent_chat(
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
-        # Schedule memory extraction to run after the response is sent — never
-        # while a plan-approval interrupt is pending (the runner re-checks its
-        # own gates, so this is belt-and-suspenders).
+        # Schedule memory extraction to run after the response is sent. The
+        # interrupt-skip is guaranteed solely by this `else` branch: the runner
+        # does NOT check interrupt state — it only re-checks allow_memory_write,
+        # user_id, and store. Do not move this call out from under the guard.
         background.add_task(
             run_memory_extraction,
             messages=result["messages"],
