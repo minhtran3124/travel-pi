@@ -884,6 +884,7 @@ def _render_agent_config_edit(
     updated_at: str | None = None,
     error: str | None = None,
     status_code: int = 200,
+    enabled: bool | None = None,
 ) -> HTMLResponse:
     return _TEMPLATES.TemplateResponse(
         request=request,
@@ -898,6 +899,7 @@ def _render_agent_config_edit(
             "error": error,
             "providers": sorted(PROVIDER_NAMES),
             "model_hints": _model_hints(),
+            "enabled_value": enabled,
         },
         status_code=status_code,
     )
@@ -939,6 +941,7 @@ def agent_config_edit_page(
         temperature="" if v.temperature is None else str(v.temperature),
         max_tokens="" if v.max_tokens is None else str(v.max_tokens),
         updated_at=v.updated_at,
+        enabled=v.enabled,
     )
 
 
@@ -951,10 +954,15 @@ def agent_config_save(
     model: str = Form(""),
     temperature: str = Form(""),
     max_tokens: str = Form(""),
+    enabled: str | None = Form(None),
+    enabled_marker: str | None = Form(None),
 ) -> Response:
     """Persist one agent's config, then redirect back (PRG). Invalid input → 400 + form."""
     svc = AgentConfigService(session)
     svc.get_config(agent_name)  # 404 before any write if the agent is unknown
+    # No marker → this form doesn't own the flag (non-reflection) → stay enabled.
+    # Marker present → an unchecked checkbox submits nothing, so `enabled` is None.
+    enabled_val = True if enabled_marker is None else (enabled == "on")
     try:
         svc.update_config(
             agent_name,
@@ -962,6 +970,7 @@ def agent_config_save(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
+            enabled=enabled_val,
         )
     except DomainValidationError as exc:
         return _render_agent_config_edit(
@@ -973,6 +982,7 @@ def agent_config_save(
             max_tokens=max_tokens,
             error=str(exc),
             status_code=400,
+            enabled=enabled_val,
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
     return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
