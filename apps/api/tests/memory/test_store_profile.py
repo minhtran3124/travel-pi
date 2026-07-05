@@ -11,11 +11,15 @@ def test_get_profile_returns_reserved_keys_in_order():
     # a non-reserved preference must NOT leak into the profile
     upsert_preference(store, "u1", "diet", {"text": "vegetarian"})
 
-    assert get_profile(store, "u1") == {
+    result = get_profile(store, "u1")
+    assert result == {
         "name": "Minh",
         "gender": "female",
         "travel_group": "family with young children",
     }
+    # spec calls out PROFILE_KEYS order explicitly — dict == is order-insensitive,
+    # so pin the key order directly.
+    assert list(result.keys()) == ["name", "gender", "travel_group"]
 
 
 def test_get_profile_omits_missing_and_blank():
