@@ -13,8 +13,10 @@ turn via `TravelAgentState.profile` (`app/agents/nodes.py` load_context_node).
 - **memory_extraction v3** — capture the three reserved personalization keys when
   the traveller volunteers them; never infer gender/name/group.
 - **concierge v8 / planner v5** — added "Personalize before suggesting": one light,
-  optional, skippable question about trip company before giving recommendations;
-  never block on it; never ask for gender directly.
+  optional, skippable question about trip company before giving recommendations,
+  plus an optional gentle **name** ask for warmer address; never block on either;
+  **never ask for gender directly** (gender used only if the traveller volunteers
+  it). The gender narrowing was confirmed with the requester on PII grounds.
 
 `active.yaml`: concierge → 8, planner → 5, memory_extraction → 3. Others unchanged.
 
