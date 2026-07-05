@@ -142,3 +142,16 @@ def test_update_accepts_valid_bounds(seeded_session):
     )
     v = svc.get_config("planner")
     assert (v.temperature, v.max_tokens) == (2.0, 1)
+
+
+def test_update_config_persists_enabled_and_view_reflects_it(seeded_session):
+    svc = AgentConfigService(seeded_session)
+    svc.update_config(
+        "reflection",
+        provider="",
+        model="",
+        temperature="",
+        max_tokens="",
+        enabled=False,
+    )
+    assert svc.get_config("reflection").enabled is False

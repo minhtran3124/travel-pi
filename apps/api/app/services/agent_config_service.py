@@ -27,6 +27,7 @@ class AgentConfigView:
     temperature: float | None = None
     max_tokens: int | None = None
     updated_at: str | None = None
+    enabled: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -89,6 +90,7 @@ class AgentConfigService:
         model: str,
         temperature: str,
         max_tokens: str,
+        enabled: bool | None = None,
     ) -> None:
         """Validate + persist config for *agent_name*, then invalidate the cache."""
         self._require_known(agent_name)
@@ -105,6 +107,8 @@ class AgentConfigService:
             raise DomainValidationError(
                 f"max_tokens must be a positive integer, got {maxt!r}"
             )
+        # None → the caller doesn't own the flag; leave the column untouched.
+        extra = {} if enabled is None else {"enabled": enabled}
         self._repo.upsert(
             agent_name,
             provider=prov,
@@ -112,6 +116,7 @@ class AgentConfigService:
             base_url=None,  # hidden field — client derives it from the provider profile
             temperature=temp,
             max_tokens=maxt,
+            **extra,
         )
         AgentConfigCache.invalidate()
 
@@ -132,4 +137,5 @@ class AgentConfigService:
             temperature=row.temperature,
             max_tokens=row.max_tokens,
             updated_at=row.updated_at,
+            enabled=row.enabled,
         )

@@ -48,6 +48,7 @@
              data-model="{{ c.model or '' }}"
              data-temperature="{{ c.temperature if c.temperature is not none else '' }}"
              data-max-tokens="{{ c.max_tokens if c.max_tokens is not none else '' }}"
+             data-enabled="{{ '' if c.enabled is none else ('true' if c.enabled else 'false') }}"
              data-updated-at="{{ c.updated_at or '' }}">
       <div class="ac-top">
         <span class="ac-ico">{{ agent_icons.get(c.agent_name, '⚙️') }}</span>
@@ -125,6 +126,14 @@
                  min="1" step="1" placeholder="(default)" inputmode="numeric">
         </label>
       </div>
+
+      {# Reflection-only. Inputs inside a `hidden` element still submit, so the
+         fields are `disabled` (never submitted) for non-reflection agents. #}
+      <label class="am-field am-check" id="am-enabled-field" hidden>
+        <input type="checkbox" name="enabled" value="on" id="am-enabled" disabled>
+        <span class="am-check-text">Reflection enabled</span>
+        <input type="hidden" name="enabled_marker" value="1" id="am-enabled-marker" disabled>
+      </label>
 
       <div class="am-actions">
         <span class="am-updated" id="am-updated"></span>
@@ -294,6 +303,15 @@
     outline: none; border-color: var(--accent); box-shadow: var(--ring);
   }
   .am-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* Reflection toggle: horizontal checkbox + label, opted out of the full-width
+     text-input styling above (which would stretch and centre the checkbox). */
+  .am-check { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
+  .am-check input[type="checkbox"] {
+    width: 18px; height: 18px; flex: 0 0 auto; margin: 0; padding: 0;
+    border: 0; background: none; border-radius: 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .am-check-text { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
   .am-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
   .am-actions .spacer { flex: 1; }
   .am-updated { font-size: 0.72rem; color: var(--muted); }
@@ -355,6 +373,16 @@ document.addEventListener('DOMContentLoaded', () => {
     $('am-temperature').value = d.temperature || '';
     $('am-max-tokens').value = d.maxTokens || '';
     $('am-updated').textContent = d.updatedAt ? ('Last updated: ' + d.updatedAt) : '';
+    // Reflection-only "enabled" toggle. Disabled inputs aren't submitted, so
+    // non-reflection saves never carry the flag (preserve-on-absent server-side).
+    const isRefl = d.agent === 'reflection';
+    const enField = $('am-enabled-field');
+    const enBox = $('am-enabled');
+    const enMarker = $('am-enabled-marker');
+    enField.hidden = !isRefl;
+    enBox.disabled = !isRefl;
+    enMarker.disabled = !isRefl;
+    if (isRefl) enBox.checked = (d.enabled !== 'false');  // '' or 'true' → on (NULL/True)
     renderModelChips(d.provider || '');
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
