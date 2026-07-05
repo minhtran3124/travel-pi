@@ -26,7 +26,7 @@ from app.agents.constants import DEFAULT_MAX_REVISIONS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
-from app.memory.store import get_instructions
+from app.memory.store import get_instructions, get_profile
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -80,6 +80,21 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))
         except Exception:
             logger.exception("[agent] load_context: instruction load failed")
+
+        try:
+            profile = get_profile(store, user_id)
+            if profile:
+                labels = {
+                    "name": "Name",
+                    "gender": "Gender",
+                    "travel_group": "Travelling as",
+                }
+                result["profile"] = "\n".join(
+                    f"- {labels[k]}: {v}" for k, v in profile.items()
+                )
+                logger.info("[agent] node=load_context profile=%d", len(profile))
+        except Exception:
+            logger.exception("[agent] load_context: profile load failed")
     return result
 
 
