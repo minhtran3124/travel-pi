@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## v-min-53 — proactive personalization (name / gender / travel-group)
+
+MIN-53: agent softly, optionally learns who the traveller is and who they travel
+with, to personalize address and suggestions. Stored in the existing prefs store
+under reserved keys (`name`, `gender`, `travel_group`) — no schema. Injected each
+turn via `TravelAgentState.profile` (`app/agents/nodes.py` load_context_node).
+
+- **memory_extraction v3** — capture the three reserved personalization keys when
+  the traveller volunteers them; never infer gender/name/group.
+- **concierge v8 / planner v5** — added "Personalize before suggesting": one light,
+  optional, skippable question about trip company before giving recommendations;
+  never block on it; never ask for gender directly.
+
+`active.yaml`: concierge → 8, planner → 5, memory_extraction → 3. Others unchanged.
+
 ## v5 — concierge: default to a shortlist
 
 Dumping the full search-results list (e.g. every café in a city) by default was
