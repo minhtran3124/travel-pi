@@ -1,6 +1,6 @@
 ---
 slug: min-53-chatbot-personalization
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-05
 ---
@@ -427,7 +427,8 @@ def test_min53_bumped_versions_active():
 - 2026-07-05 — Wave 1 complete (status active). Task 1.1 `ace1c75` (+ review hardening `7fbf53c`), Task 1.2 `18b2964`. Both two-stage reviewed ✅.
 - 2026-07-05 — Wave 2 complete. Task 2.1 `bf7c452` (profile injection in load_context_node). Two-stage reviewed ✅ (5/5 tests incl. no-regression).
 - 2026-07-05 — Wave 3 complete. Task 3.1 `651d984` (prompts: ask + capture; active.yaml; CHANGELOG; smoke test). Two-stage reviewed ✅ (9/9).
-- 2026-07-05 — Ship gates. Correctness review → 1 Medium bug (get_profile non-string text) fixed `dc58563`. Intent review → 2 findings escalated + resolved with requester: name-ask added `c00eaa6`, gender narrowing confirmed (see ESCALATIONS.md). Blast-radius suite 168 passed; full suite blocked only by dev Postgres down (env, not regression). Ready for PR.
+- 2026-07-05 — Ship gates. Correctness review → 1 Medium bug (get_profile non-string text) fixed `dc58563`. Intent review → 2 findings escalated + resolved with requester: name-ask added `c00eaa6`, gender narrowing confirmed (see ESCALATIONS.md). Blast-radius suite 168 passed; full suite blocked only by dev Postgres down (env, not regression).
+- 2026-07-05 — shipped via `feat/min-53-chatbot-personalization` (PR #68)
 
 ## 7. Wave Map
 
