@@ -155,7 +155,8 @@ def get_profile(store: BaseStore, user_id: str) -> dict[str, str]:
     for key in PROFILE_KEYS:
         item = store.get(_prefs_namespace(user_id), key)
         if item is not None:
-            text = item.value.get("text", "").strip()
+            raw = item.value.get("text")
+            text = raw.strip() if isinstance(raw, str) else ""
             if text:
                 profile[key] = text
     return profile

@@ -32,3 +32,14 @@ def test_get_profile_omits_missing_and_blank():
 def test_get_profile_empty_user():
     store = get_store("sqlite:///:memory:")
     assert get_profile(store, "u_none") == {}
+
+
+def test_get_profile_skips_non_string_text_without_dropping_others():
+    """A non-string text on one reserved key must not poison the others."""
+    store = get_store("sqlite:///:memory:")
+    upsert_preference(store, "u3", "name", {"text": "Minh"})
+    upsert_preference(
+        store, "u3", "travel_group", {"text": ["solo", "couple"]}
+    )  # bad type
+    # name survives; the malformed travel_group is skipped, not fatal
+    assert get_profile(store, "u3") == {"name": "Minh"}
