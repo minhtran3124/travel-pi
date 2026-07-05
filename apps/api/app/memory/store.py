@@ -135,6 +135,32 @@ def search_preferences(
     return [item.value for item in results]
 
 
+# Reserved preference keys for MIN-53 personalization. These three ride the
+# existing prefs namespace (no schema) and are auto-injected each turn.
+PROFILE_KEYS: tuple[str, ...] = ("name", "gender", "travel_group")
+
+
+def get_profile(store: BaseStore, user_id: str) -> dict[str, str]:
+    """Return the traveller's personalization profile: reserved preference keys
+    (:data:`PROFILE_KEYS`) that exist with non-empty text, in reserved-key order.
+
+    Uses direct keyed ``store.get`` rather than semantic ``search_preferences`` so
+    the three fields are exact and never reordered/dropped by similarity ranking.
+
+    :param store: Long-term store to read from.
+    :param user_id: Owning user's id.
+    :return: ``{key: text}`` for each reserved key present with non-blank text.
+    """
+    profile: dict[str, str] = {}
+    for key in PROFILE_KEYS:
+        item = store.get(_prefs_namespace(user_id), key)
+        if item is not None:
+            text = item.value.get("text", "").strip()
+            if text:
+                profile[key] = text
+    return profile
+
+
 def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single procedural instruction (value must be a JSON dict
     with a ``text`` field so the semantic index works).
