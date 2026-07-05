@@ -1,6 +1,6 @@
 ---
 slug: agent-reflection-toggle
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-04
 ---
@@ -722,4 +722,6 @@ Expected: green — confirms the Boolean `add_column` migration applies on Postg
   - Post-task correctness review (`/correctness-review`, opus, whole diff) found a P1 + 2×P3 (unconditional `enabled` write let modal/CLI/non-reflection saves clobber the toggle). Fixed in `1c6faed` (preserve-on-absent + toggle moved into the real modal UI). Re-review ✅ 0 bugs.
   - Intent review (`/intent-review`, sonnet, blind to PLAN) ✅ no divergence.
   - Also fixed a coupled test spy in `83031c4` (Task 4 signature change).
-  - Status: implementation complete + all gates green. Awaiting user go-ahead for push + PR (`finishing-a-development-branch`).
+  - Status: implementation complete + all gates green.
+- 2026-07-05 — post-PR UI fix `76675a9`: reflection-enabled checkbox was inheriting the modal/edit-form full-width text-input styling (stretched + centred above its label); gave it an inline row layout in both templates. Verified via browser screenshot.
+- 2026-07-05 — shipped via `feat/agent-reflection-toggle` (PR #67 → v3).
