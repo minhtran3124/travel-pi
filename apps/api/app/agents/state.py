@@ -29,34 +29,41 @@ class TravelAgentState(MessagesState):
     instructions: (
         str  # standing procedural instructions; folded into leading system message
     )
+    profile: (
+        str  # personalization block (name/gender/travel-group); injected at model call
+    )
     plan_approved: bool  # P2: HITL plan-approval signal → episode outcome="approved"
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
-    """Fold ``instructions``, ``trip_context`` and ``summary`` into one leading system prompt.
+    """Fold ``profile``, ``instructions``, ``trip_context`` and ``summary`` into one leading system prompt.
 
     REVIEW.md C2: the rolling ``summary`` must be re-injected after compression.
     REVIEW.md M2: the trip-context snapshot must appear *before* the HumanMessage,
     not appended to ``messages`` via the ``add_messages`` reducer (which would place
     it *after* the HumanMessage and upset Anthropic's single-system-message rule).
 
-    Procedural instructions (per-user standing directives) are folded before the
-    summary so they carry the most weight.
+    The traveller ``profile`` is folded first — before instructions — so name/gender
+    carry the most weight for address/tone. Procedural instructions (per-user
+    standing directives) are folded before the summary so they carry the most weight.
 
-    :param state: The current graph state, read for ``instructions``,
+    :param state: The current graph state, read for ``profile``, ``instructions``,
         ``trip_context`` and ``summary``.
     :param base: The base system message to fold the extra context into.
-    :return: ``base`` unchanged when none of the three fields are set, else one
-        ``SystemMessage`` combining base + instructions + trip_context + summary — a
-        single leading system message keeps providers that reject mid-stream/multiple
-        system messages happy.
+    :return: ``base`` unchanged when none of the four fields are set, else one
+        ``SystemMessage`` combining base + profile + instructions + trip_context +
+        summary — a single leading system message keeps providers that reject
+        mid-stream/multiple system messages happy.
     """
     trip_context = state.get("trip_context")
     summary = state.get("summary")
     instructions = state.get("instructions")
-    if not trip_context and not summary and not instructions:
+    profile = state.get("profile")
+    if not trip_context and not summary and not instructions and not profile:
         return base
     parts = [base.content]
+    if profile:
+        parts.append(f"Traveller profile:\n{profile}")
     if instructions:
         parts.append(f"Standing traveller instructions:\n{instructions}")
     if trip_context:
