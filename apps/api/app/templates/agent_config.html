@@ -129,11 +129,9 @@
 
       {# Reflection-only. Inputs inside a `hidden` element still submit, so the
          fields are `disabled` (never submitted) for non-reflection agents. #}
-      <label class="am-field" id="am-enabled-field" hidden>
-        <span class="am-label">
-          <input type="checkbox" name="enabled" value="on" id="am-enabled" disabled>
-          Reflection enabled
-        </span>
+      <label class="am-field am-check" id="am-enabled-field" hidden>
+        <input type="checkbox" name="enabled" value="on" id="am-enabled" disabled>
+        <span class="am-check-text">Reflection enabled</span>
         <input type="hidden" name="enabled_marker" value="1" id="am-enabled-marker" disabled>
       </label>
 
@@ -305,6 +303,15 @@
     outline: none; border-color: var(--accent); box-shadow: var(--ring);
   }
   .am-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* Reflection toggle: horizontal checkbox + label, opted out of the full-width
+     text-input styling above (which would stretch and centre the checkbox). */
+  .am-check { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
+  .am-check input[type="checkbox"] {
+    width: 18px; height: 18px; flex: 0 0 auto; margin: 0; padding: 0;
+    border: 0; background: none; border-radius: 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .am-check-text { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
   .am-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
   .am-actions .spacer { flex: 1; }
   .am-updated { font-size: 0.72rem; color: var(--muted); }

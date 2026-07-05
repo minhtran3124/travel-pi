@@ -2,6 +2,23 @@
 {% block title %}Edit · {{ agent_name }}{% endblock %}
 
 {% block content %}
+<style>
+  /* Reflection toggle: horizontal checkbox + label. Overrides form.search's
+     column layout + uppercase label and the full-width/min-width input rule
+     (which would otherwise stretch and centre the checkbox). */
+  form.search label.cb-field {
+    flex-direction: row; align-items: center; gap: 10px;
+    text-transform: none; letter-spacing: normal;
+  }
+  form.search .cb-field input[type="checkbox"] {
+    min-width: 0; width: 18px; height: 18px; flex: 0 0 auto;
+    padding: 0; border: 0; background: none; accent-color: var(--accent);
+  }
+  .cb-field .cb-text {
+    font-size: 0.875rem; font-weight: 600; color: var(--ink);
+    text-transform: none; letter-spacing: normal;
+  }
+</style>
 <a class="back" href="/dashboard/agent-config">← Agent config</a>
 <h1>Edit config · {{ agent_name }}</h1>
 
@@ -37,11 +54,11 @@
     <input type="text" name="max_tokens" value="{{ max_tokens_value }}" placeholder="(default)">
   </label>
   {% if agent_name == 'reflection' %}
-  <label>
+  <label class="cb-field">
     <input type="hidden" name="enabled_marker" value="1">
     <input type="checkbox" name="enabled" value="on"
            {% if enabled_value is not false %}checked{% endif %}>
-    Reflection enabled
+    <span class="cb-text">Reflection enabled</span>
   </label>
   {% endif %}
   <button type="submit">Save</button>
