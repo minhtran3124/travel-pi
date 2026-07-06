@@ -15,9 +15,7 @@ def test_system_with_summary_folds_instructions():
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
-    combined = system_with_summary(
-        {"instructions": "Always show EUR"}, base
-    )
+    combined = system_with_summary({"instructions": "Always show EUR"}, base)
     assert isinstance(combined, SystemMessage)
     assert "BASE" in combined.content
     assert "Standing traveller instructions" in combined.content
@@ -80,3 +78,37 @@ def test_new_user_no_behavior_change():
     base = SystemMessage(content="BASE")
     result = system_with_summary({}, base)
     assert result is base
+
+
+def test_profile_field_in_state_schema():
+    from app.agents.state import TravelAgentState
+
+    assert "profile" in TravelAgentState.__annotations__
+
+
+def test_system_with_summary_folds_profile():
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    combined = system_with_summary({"profile": "- Name: Minh"}, base)
+    assert "Traveller profile:" in combined.content
+    assert "- Name: Minh" in combined.content
+    assert "BASE" in combined.content
+
+
+def test_system_with_summary_profile_before_instructions():
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    combined = system_with_summary(
+        {"profile": "- Name: Minh", "instructions": "Always show EUR"}, base
+    )
+    c = combined.content
+    assert c.index("Traveller profile:") < c.index("Standing traveller instructions")
+
+
+def test_system_with_summary_empty_profile_unchanged():
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    assert system_with_summary({"profile": ""}, base) is base
