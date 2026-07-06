@@ -1,6 +1,6 @@
 ---
 slug: min-58-chatbot-eval-deepeval
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-07-06
 ---
@@ -615,6 +615,8 @@ Notes:
 
 - 2026-07-06 — Plan drafted (proposed). Intake lane=normal, confidence=high; research-brief + SUMMARY in spec dir.
 - 2026-07-06 — Plan-document-reviewer pass: fixed wave ordering (datasets → wave 3 since its test imports `eval.metrics_geval`), removed unneeded `tests/eval/__init__.py`, replaced fragile cross-test import in the runner test with an inline stub graph, hardened the regression `<verify>` to `&&`-chain (was masking failures) and drop the key-requiring `run_eval.py` execution, added a direct `_tools_called` unit test.
+- 2026-07-06 — Wave 1 ✅ Task 1.1 `6918c89` (deepeval 4.0.7 pinned `>=4.0,<5`; caps intact, pip check clean). Deep gate passed, no escalation.
+- 2026-07-06 — Wave 2 ✅ Task 2.1 `1eeea9a` (metrics_geval), Task 2.2 `cd5e462` (harness). `tests/eval` = 10 passed no-network, ruff clean. Deviations logged in SUMMARY (deepeval API symbol, eager-key fixture, hook workarounds).
 
 ## 7. Wave Map
 
