@@ -1,6 +1,6 @@
 ---
 slug: subagent-create-agent-migration
-status: proposed
+status: active (pilot-gated — scope confirmed by human)
 owner: Minh Tran
 created: 2026-07-06
 revised: 2026-07-06 (post multi-agent review)
@@ -181,4 +181,6 @@ journal, coi như đã de-risk hướng B cho tương lai, mọi subagent khác 
 - 2026-07-06 — **Revised sau panel review 4 persona.** Sửa motivation (category error); tách PII (Wave A, ship trước);
   commit chỉ tới journal pilot + STOP gate; strengthen PoC (retry-propagation/streaming/parallel); parity harness lên Wave 1;
   booking + retire-v1 ra khỏi committed scope. Feasibility xác nhận state/context khả thi (factory.py:815,1443); retry phải
-  qua middleware on_failure="error" (factory.py:1502). Chờ human-confirm scope trước Wave 0.
+  qua middleware on_failure="error" (factory.py:1502).
+- 2026-07-06 — **Scope CONFIRMED bởi human: pilot-gated.** Committed = Wave A (PII) + Wave 0–3 (PoC → middleware+parity →
+  v2 factory → journal pilot → STOP). Wave 4+ expand-on-demand. Sẵn sàng execute; mỗi wave re-intake khi thực thi.
