@@ -29,7 +29,10 @@ def _final_reply(messages: list[Any]) -> str:
     if not ai:
         return ""
     content = ai[-1].content
-    return content if isinstance(content, str) else str(content)
+    if isinstance(content, str):
+        return content
+    # Provider block-list content (Anthropic/Bedrock): concatenate the text blocks.
+    return "".join(b.get("text", "") for b in content if isinstance(b, dict))
 
 
 def _tools_called(messages: list[Any]) -> list[ToolCall]:

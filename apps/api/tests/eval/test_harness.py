@@ -62,3 +62,19 @@ def test_final_reply_coerces_block_list_content_to_str():
     assert isinstance(out, str)
     assert _final_reply([AIMessage(content="plain")]) == "plain"
     assert _final_reply([]) == ""
+    # Block-list content -> extracted text, not a repr:
+    assert (
+        _final_reply(
+            [
+                AIMessage(
+                    content=[
+                        {"type": "text", "text": "hi"},
+                        {"type": "text", "text": " there"},
+                    ]
+                )
+            ]
+        )
+        == "hi there"
+    )
+    # Empty block list -> empty string, not "[]":
+    assert _final_reply([AIMessage(content=[])]) == ""
