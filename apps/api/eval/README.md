@@ -66,8 +66,10 @@ All commands from `apps/api/`:
 ../../.venv/bin/python -m pytest tests/eval -q
 ```
 
-`run_deepeval` builds the agent once, runs every dataset case through it, applies **all**
-four G-Eval rubrics + `ToolCorrectnessMetric` to **every** case, and prints a per-metric
+`run_deepeval` builds the agent once and runs every dataset case through it, then:
+applies the four G-Eval rubrics to every reply; applies `ToolCorrectnessMetric` **only** to
+cases that declare `expected_tools`; **skips** cases with an empty reply (e.g. a HITL
+plan-approval interrupt — GEval rejects an empty `actual_output`); and prints a per-metric
 pass/fail table with the judge's reasoning.
 
 ## Add a test case

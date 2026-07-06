@@ -21,16 +21,35 @@ def has_real_openai_key() -> bool:
 
 
 def build_test_cases(graph, datasets: dict[str, list[dict]]) -> list:
-    """Run every case through the graph → list of LLMTestCase (needs a real graph/key)."""
+    """Run each case through the graph → LLMTestCases, skipping empty replies.
+
+    A case whose final reply is empty — e.g. a HITL plan-approval interrupt that
+    pauses before any assistant text — is dropped and logged: GEval rejects an
+    empty ``actual_output`` (``MissingTestCaseParamsError``). Each case gets a
+    globally-unique index → unique checkpointer thread id (no cross-case bleed).
+    """
     from eval.harness import run_case
 
     cases = []
     index = 0
     for items in datasets.values():
         for case in items:
-            cases.append(run_case(graph, case, index).test_case)
+            test_case = run_case(graph, case, index).test_case
             index += 1
+            if (test_case.actual_output or "").strip():
+                cases.append(test_case)
+            else:
+                print(f"[eval] skip (empty reply): {case['input'][:60]}")
     return cases
+
+
+def tool_cases(cases: list) -> list:
+    """Cases that declare expected tools — the only ones ToolCorrectness should score.
+
+    ``ToolCorrectnessMetric`` on a case with no ``expected_tools`` penalizes any
+    real tool call, which is a category error for non-tool cases. Restrict it.
+    """
+    return [tc for tc in cases if tc.expected_tools]
 
 
 def main() -> int:
@@ -47,8 +66,18 @@ def main() -> int:
 
     graph = build_eval_graph()
     test_cases = build_test_cases(graph, load_all())
-    metrics = [f() for f in GEVAL_METRICS.values()] + [tool_correctness_metric()]
-    evaluate(test_cases=test_cases, metrics=metrics)
+    if not test_cases:
+        print("[eval] no scorable cases (all replies empty).")
+        return 0
+
+    # G-Eval rubrics (language / intent / grounding / format) apply to every reply.
+    evaluate(test_cases=test_cases, metrics=[f() for f in GEVAL_METRICS.values()])
+
+    # ToolCorrectness only where the case declares expected tools, else it
+    # penalizes legitimate tool calls on cases that never specified any.
+    scored_for_tools = tool_cases(test_cases)
+    if scored_for_tools:
+        evaluate(test_cases=scored_for_tools, metrics=[tool_correctness_metric()])
     return 0
 
 

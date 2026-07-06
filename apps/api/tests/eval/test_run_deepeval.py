@@ -70,3 +70,31 @@ def test_build_test_cases_uses_globally_unique_thread_ids():
     )
     # 3 cases across 2 datasets → 3 DISTINCT thread_ids (no cross-dataset collision)
     assert len(set(g.threads)) == 3
+
+
+class _EmptyReplyGraph:
+    """Returns an empty final reply (e.g. a HITL plan-approval interrupt)."""
+
+    def invoke(self, state, cfg, context=None):
+        from langchain_core.messages import AIMessage
+
+        return {"messages": [AIMessage(content="")], "current_flow": "booking"}
+
+
+def test_build_test_cases_skips_empty_reply(capsys):
+    # GEval rejects an empty actual_output; empty-reply cases must be dropped.
+    cases = r.build_test_cases(_EmptyReplyGraph(), {"d": [{"input": "book it"}]})
+    assert cases == []
+    assert "skip (empty reply)" in capsys.readouterr().out
+
+
+def test_tool_cases_filters_to_those_with_expected_tools():
+    # ToolCorrectness should only score cases that declare expected tools —
+    # applying it to a no-tool case penalizes any legitimate tool call.
+    from deepeval.test_case import LLMTestCase, ToolCall
+
+    with_tools = LLMTestCase(
+        input="x", actual_output="y", expected_tools=[ToolCall(name="get_weather")]
+    )
+    without = LLMTestCase(input="a", actual_output="b")
+    assert r.tool_cases([with_tools, without]) == [with_tools]
