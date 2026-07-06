@@ -3,6 +3,19 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## v-min-60 — chatbot branding (name: Tin)
+
+MIN-60: give the assistant a name so it can refer to itself in first person
+instead of sounding like an anonymous tool.
+
+- **communication_style v4** — added an "## Identity" section: the assistant's
+  name is **Tin** (Trợ lý Tìm–Đi–Nghỉ); use it by name once or twice per reply
+  when natural, otherwise "mình"; never call itself a generic "trợ lý ảo".
+  Prepended to every sub-agent prompt via `_base.py`, so all five sub-agents
+  (planner/concierge/journal/booking/budget) pick it up automatically.
+
+`active.yaml`: communication_style → 4. Others unchanged.
+
 ## v-min-53 — proactive personalization (name / gender / travel-group)
 
 MIN-53: agent softly, optionally learns who the traveller is and who they travel
