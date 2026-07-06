@@ -37,3 +37,9 @@ langfuse>=3.0,<5.0
 
 # MCP server — expose agent tools to external clients (Phase 9 / roadmap B11).
 mcp>=1.2,<2.0
+
+# Offline eval harness (MIN-58). Eval-only tooling — not imported by the runtime
+# app; used by the DeepEval scripts/CI to grade agent responses with an
+# OpenAI-native LLM judge. Verified not to force the fastapi/starlette/pydantic
+# caps above (pip check clean at pin time).
+deepeval>=4.0,<5
