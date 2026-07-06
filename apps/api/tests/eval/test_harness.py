@@ -51,3 +51,14 @@ def test_tools_called_extracts_names_from_ai_tool_calls():
     )
     assert [t.name for t in _tools_called([msg])] == ["search_hotels"]
     assert _tools_called([AIMessage(content="no tools")]) == []
+
+
+def test_final_reply_coerces_block_list_content_to_str():
+    # Providers (Anthropic/Bedrock) may return content as a list of blocks;
+    # actual_output must be a str, never a list (avoids pydantic ValidationError).
+    from eval.harness import _final_reply
+
+    out = _final_reply([AIMessage(content=[{"type": "text", "text": "hi"}])])
+    assert isinstance(out, str)
+    assert _final_reply([AIMessage(content="plain")]) == "plain"
+    assert _final_reply([]) == ""

@@ -26,7 +26,10 @@ class EvalResult:
 
 def _final_reply(messages: list[Any]) -> str:
     ai = [m for m in messages if isinstance(m, AIMessage)]
-    return (ai[-1].content or "") if ai else ""
+    if not ai:
+        return ""
+    content = ai[-1].content
+    return content if isinstance(content, str) else str(content)
 
 
 def _tools_called(messages: list[Any]) -> list[ToolCall]:

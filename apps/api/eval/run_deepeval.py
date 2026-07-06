@@ -15,7 +15,9 @@ _PLACEHOLDER_KEYS = {"", "test", "changeme", "placeholder"}
 
 def has_real_openai_key() -> bool:
     """True only when OPENAI_API_KEY is set to a non-placeholder value."""
-    return (os.environ.get("OPENAI_API_KEY") or "").strip() not in _PLACEHOLDER_KEYS
+    return (
+        os.environ.get("OPENAI_API_KEY") or ""
+    ).strip().lower() not in _PLACEHOLDER_KEYS
 
 
 def build_test_cases(graph, datasets: dict[str, list[dict]]) -> list:
@@ -23,9 +25,11 @@ def build_test_cases(graph, datasets: dict[str, list[dict]]) -> list:
     from eval.harness import run_case
 
     cases = []
+    index = 0
     for items in datasets.values():
-        for i, case in enumerate(items):
-            cases.append(run_case(graph, case, i).test_case)
+        for case in items:
+            cases.append(run_case(graph, case, index).test_case)
+            index += 1
     return cases
 
 

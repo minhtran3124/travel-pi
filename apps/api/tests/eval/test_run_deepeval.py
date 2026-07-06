@@ -27,6 +27,14 @@ def test_has_real_openai_key_detection(monkeypatch):
     assert r.has_real_openai_key() is False
 
 
+def test_has_real_openai_key_placeholder_case_insensitive(monkeypatch):
+    # Mixed-case placeholders must still count as placeholders, not real keys.
+    monkeypatch.setenv("OPENAI_API_KEY", "Test")
+    assert r.has_real_openai_key() is False
+    monkeypatch.setenv("OPENAI_API_KEY", "PLACEHOLDER")
+    assert r.has_real_openai_key() is False
+
+
 class _StubGraph:
     """Minimal graph stand-in: .invoke returns a canned result (no network, no cross-test import)."""
 
@@ -40,3 +48,25 @@ def test_build_test_cases_fans_dataset_through_harness():
     cases = r.build_test_cases(_StubGraph(), {"d": [{"input": "a"}, {"input": "b"}]})
     assert len(cases) == 2
     assert [c.input for c in cases] == ["a", "b"]
+
+
+class _RecordingGraph:
+    """Records the thread_ids it was invoked with (proves no cross-dataset collision)."""
+
+    def __init__(self):
+        self.threads = []
+
+    def invoke(self, state, cfg, context=None):
+        from langchain_core.messages import AIMessage
+
+        self.threads.append(cfg["configurable"]["thread_id"])
+        return {"messages": [AIMessage(content="ok")], "current_flow": "concierge"}
+
+
+def test_build_test_cases_uses_globally_unique_thread_ids():
+    g = _RecordingGraph()
+    r.build_test_cases(
+        g, {"a": [{"input": "1"}, {"input": "2"}], "b": [{"input": "3"}]}
+    )
+    # 3 cases across 2 datasets → 3 DISTINCT thread_ids (no cross-dataset collision)
+    assert len(set(g.threads)) == 3

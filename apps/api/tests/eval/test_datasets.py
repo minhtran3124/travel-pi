@@ -38,3 +38,14 @@ def test_load_rejects_missing_input(tmp_path, monkeypatch):
     monkeypatch.setattr(loader, "_DATASETS", tmp_path)
     with pytest.raises(ValueError):
         loader.load("bad.json")
+
+
+def test_load_rejects_non_dict_elements(tmp_path, monkeypatch):
+    import eval.loader as loader
+
+    bad = tmp_path / "bad.json"
+    # Non-dict elements (e.g. bare ints) must raise ValueError, not TypeError.
+    bad.write_text("[1, 2]", encoding="utf-8")
+    monkeypatch.setattr(loader, "_DATASETS", tmp_path)
+    with pytest.raises(ValueError):
+        loader.load("bad.json")

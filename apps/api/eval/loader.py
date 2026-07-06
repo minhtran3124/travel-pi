@@ -15,7 +15,11 @@ def load(name: str) -> list[dict]:
     if not isinstance(data, list):
         raise ValueError(f"{name}: expected a JSON list")
     for i, case in enumerate(data):
-        if _REQUIRED not in case or not isinstance(case[_REQUIRED], str):
+        if (
+            not isinstance(case, dict)
+            or _REQUIRED not in case
+            or not isinstance(case[_REQUIRED], str)
+        ):
             raise ValueError(f"{name}[{i}]: missing required string 'input'")
     return data
 
