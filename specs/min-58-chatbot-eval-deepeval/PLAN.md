@@ -1,6 +1,6 @@
 ---
 slug: min-58-chatbot-eval-deepeval
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-06
 ---
@@ -621,6 +621,7 @@ Notes:
 - 2026-07-06 — Wave 4 ✅ Task 4.1 `b9d1b07` (run_deepeval runner, skip-gracefully). Task 4.2 regression gate PASS: `tests/eval` = 19 passed no-network, ruff clean, routing-smoke import intact, `run_deepeval` skips exit 0. All 6 tasks done; entering final correctness + intent review.
 - 2026-07-06 — `/correctness-review` (sonnet finder, ensemble diversity): 4 findings. Fixed all as Rule 1 — `80bc4cf` (P1 cross-dataset thread_id collision + loader/key/coercion hardening), `c243abf` (re-review caught a Fix-4 regression → block-text extraction). Re-review ✅: all resolved, no open findings. `tests/eval` = 23 passed no-network.
 - 2026-07-06 — `/intent-review` (sonnet, blind to PLAN): ✅ **No intent divergence** — 10 intent clauses satisfied, all deferred items correctly absent, no gap/drift/excess. All three oracles (spec/correctness/intent) green. Ready for finishing-a-development-branch.
+- 2026-07-06 — shipped via `feat/min-58-chatbot-eval-deepeval` (PR #69, base v3). Targeted suite `tests/eval` = 23 passed no-network.
 
 ## 7. Wave Map
 
