@@ -44,7 +44,7 @@ Ticket **MIN-58** — "Design & Implementation: Hệ thống Evaluation cho chat
 A DeepEval + G-Eval offline evaluation layer was added under `apps/api/eval/` (additive, no production agent code touched):
 - `metrics_geval.py` — 4 natural-language G-Eval rubrics (response language / search-vs-booking intent / fact-grounding / format) + `ToolCorrectnessMetric`, judged by OpenAI `gpt-4o-mini` (string, no custom adapter).
 - `harness.py` — `run_case` drives the compiled LangGraph graph and builds a DeepEval `LLMTestCase` (final reply, `tools_called`, `current_flow`) with a globally-unique thread id per case; `build_eval_graph()` for keyed runs.
-- `loader.py` + `datasets/{intent_min51,language_min57,tools_min46,format_min54}.json` — 19 issue-linked cases (MIN-51/57/46/54).
+- `loader.py` + `datasets/{intent,language,tools,format}.json` — 19 issue-linked cases (MIN-51/57/46/54), **bilingual EN/VI** (Vietnamese inputs are load-bearing for the `response_language`/MIN-57 metric — data was deliberately kept bilingual, not converted to English-only).
 - `run_deepeval.py` — keyed runner that **skips gracefully** (exit 0) without a real OpenAI key.
 - `deepeval>=4.0,<5` pinned in `requirements-ai.txt` (caps intact). Existing no-network routing smoke (`run_eval.py`) preserved.
 
