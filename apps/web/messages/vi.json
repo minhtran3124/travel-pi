@@ -390,7 +390,7 @@
     }
   },
   "Chat": {
-    "headerTitle": "Trợ lý Du lịch",
+    "headerTitle": "Tin · Trợ lý Du lịch",
     "dialogLabel": "Trợ lý Du lịch",
     "statusReady": "Sẵn sàng khi bạn cần",
     "statusWorking": "Đang xử lý…",
@@ -404,8 +404,8 @@
     "sendMessage": "Gửi tin nhắn",
     "retry": "Thử lại",
     "retryHint": "Câu trả lời trước chưa hoàn tất.",
-    "greetingTitle": "Chào bạn! Tôi là trợ lý đồng hành du lịch của bạn",
-    "greetingBody": "Cho tôi biết bạn muốn đi đâu, tôi sẽ lên kế hoạch, tìm kiếm và đặt chỗ — hoặc cứ hỏi tôi bất cứ điều gì.",
+    "greetingTitle": "Chào bạn! Mình là Tin 👋",
+    "greetingBody": "Mình là Tin, trợ lý giúp bạn tìm điểm đến, lên lịch trình và chốt chuyến đi — cứ hỏi mình bất cứ điều gì nhé.",
     "tryAsking": "Thử hỏi",
     "suggestions": {
       "planWeekendPrompt": "Lên kế hoạch một kỳ nghỉ cuối tuần dài ở Tokyo",
