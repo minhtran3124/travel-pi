@@ -79,8 +79,7 @@ Append to the relevant `datasets/*.json`. Only `input` is required:
   "input": "Tìm khách sạn ở Huế cuối tuần này",
   "expected_flow": "concierge",
   "expected_tools": ["search_hotels"],
-  "metrics": ["search_vs_booking", "response_language"],
-  "issue": "MIN-51"
+  "metrics": ["search_vs_booking", "response_language"]
 }
 ```
 
@@ -90,7 +89,6 @@ Append to the relevant `datasets/*.json`. Only `input` is required:
 | `expected_flow` | which sub-agent should handle it (`concierge` / `booking` / `planner` / …) |
 | `expected_tools` | tool names `ToolCorrectnessMetric` grades against (must be real, e.g. `search_hotels`, `get_weather`) |
 | `metrics` | which rubrics are *relevant* — documents intent. **Note:** the runner currently applies all rubrics to all cases; this field is the basis for future per-case filtering |
-| `issue` | linked ticket, for traceability |
 
 Keep non-English inputs (e.g. Vietnamese) in `language.json` — they are what make
 `response_language` able to catch the MIN-57 "answers in the wrong language" regression.
