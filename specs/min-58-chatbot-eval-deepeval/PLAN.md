@@ -616,7 +616,9 @@ Notes:
 - 2026-07-06 — Plan drafted (proposed). Intake lane=normal, confidence=high; research-brief + SUMMARY in spec dir.
 - 2026-07-06 — Plan-document-reviewer pass: fixed wave ordering (datasets → wave 3 since its test imports `eval.metrics_geval`), removed unneeded `tests/eval/__init__.py`, replaced fragile cross-test import in the runner test with an inline stub graph, hardened the regression `<verify>` to `&&`-chain (was masking failures) and drop the key-requiring `run_eval.py` execution, added a direct `_tools_called` unit test.
 - 2026-07-06 — Wave 1 ✅ Task 1.1 `6918c89` (deepeval 4.0.7 pinned `>=4.0,<5`; caps intact, pip check clean). Deep gate passed, no escalation.
-- 2026-07-06 — Wave 2 ✅ Task 2.1 `1eeea9a` (metrics_geval), Task 2.2 `cd5e462` (harness). `tests/eval` = 10 passed no-network, ruff clean. Deviations logged in SUMMARY (deepeval API symbol, eager-key fixture, hook workarounds).
+- 2026-07-06 — Wave 2 ✅ Task 2.1 `1eeea9a` (metrics_geval), Task 2.2 `cd5e462` (harness). `tests/eval` = 10 passed no-network, ruff clean. Deviations logged in SUMMARY (deepeval API symbol, eager-key fixture, hook workarounds). Orchestrator metadata `ae3c899`.
+- 2026-07-06 — Wave 3 ✅ Task 3.1 `371f9e4` (loader + 4 datasets, 19 cases). `tests/eval` = 15 passed no-network, ruff clean. Rule 3: `assert False`→`pytest.raises` (B011).
+- 2026-07-06 — Wave 4 ✅ Task 4.1 `b9d1b07` (run_deepeval runner, skip-gracefully). Task 4.2 regression gate PASS: `tests/eval` = 19 passed no-network, ruff clean, routing-smoke import intact, `run_deepeval` skips exit 0. All 6 tasks done; entering final correctness + intent review.
 
 ## 7. Wave Map
 
