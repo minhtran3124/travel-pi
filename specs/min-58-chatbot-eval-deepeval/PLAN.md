@@ -620,6 +620,7 @@ Notes:
 - 2026-07-06 — Wave 3 ✅ Task 3.1 `371f9e4` (loader + 4 datasets, 19 cases). `tests/eval` = 15 passed no-network, ruff clean. Rule 3: `assert False`→`pytest.raises` (B011).
 - 2026-07-06 — Wave 4 ✅ Task 4.1 `b9d1b07` (run_deepeval runner, skip-gracefully). Task 4.2 regression gate PASS: `tests/eval` = 19 passed no-network, ruff clean, routing-smoke import intact, `run_deepeval` skips exit 0. All 6 tasks done; entering final correctness + intent review.
 - 2026-07-06 — `/correctness-review` (sonnet finder, ensemble diversity): 4 findings. Fixed all as Rule 1 — `80bc4cf` (P1 cross-dataset thread_id collision + loader/key/coercion hardening), `c243abf` (re-review caught a Fix-4 regression → block-text extraction). Re-review ✅: all resolved, no open findings. `tests/eval` = 23 passed no-network.
+- 2026-07-06 — `/intent-review` (sonnet, blind to PLAN): ✅ **No intent divergence** — 10 intent clauses satisfied, all deferred items correctly absent, no gap/drift/excess. All three oracles (spec/correctness/intent) green. Ready for finishing-a-development-branch.
 
 ## 7. Wave Map
 
