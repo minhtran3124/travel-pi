@@ -6,10 +6,10 @@ from eval.metrics_geval import GEVAL_METRICS
 def test_all_datasets_load_and_validate():
     all_ds = load_all()
     assert set(all_ds) == {
-        "intent_min51.json",
-        "language_min57.json",
-        "tools_min46.json",
-        "format_min54.json",
+        "intent.json",
+        "language.json",
+        "tools.json",
+        "format.json",
     }
 
 

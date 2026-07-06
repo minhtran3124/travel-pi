@@ -1,0 +1,38 @@
+[
+  {
+    "input": "Tìm khách sạn ở Đà Nẵng cho 2 người cuối tuần này",
+    "expected_flow": "concierge",
+    "metrics": ["search_vs_booking", "response_language"],
+    "issue": "MIN-51"
+  },
+  {
+    "input": "What hotels are available in Hanoi under $50?",
+    "expected_flow": "concierge",
+    "metrics": ["search_vs_booking", "response_language"],
+    "issue": "MIN-51"
+  },
+  {
+    "input": "Cho tôi xem các chuyến bay từ TP.HCM đi Tokyo tuần sau",
+    "expected_flow": "concierge",
+    "metrics": ["search_vs_booking"],
+    "issue": "MIN-51"
+  },
+  {
+    "input": "Show me flight options SGN to Bangkok next Friday",
+    "expected_flow": "concierge",
+    "metrics": ["search_vs_booking"],
+    "issue": "MIN-51"
+  },
+  {
+    "input": "Có phòng nào ở Hội An gần biển không?",
+    "expected_flow": "concierge",
+    "metrics": ["search_vs_booking", "response_language"],
+    "issue": "MIN-51"
+  },
+  {
+    "input": "Đặt phòng khách sạn đó giúp tôi",
+    "expected_flow": "booking",
+    "metrics": ["response_language"],
+    "issue": "MIN-51"
+  }
+]

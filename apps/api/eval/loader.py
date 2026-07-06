@@ -10,7 +10,7 @@ _REQUIRED = "input"
 
 
 def load(name: str) -> list[dict]:
-    """Load and validate one dataset file by name (e.g. ``intent_min51.json``)."""
+    """Load and validate one dataset file by name (e.g. ``intent.json``)."""
     data = json.loads((_DATASETS / name).read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError(f"{name}: expected a JSON list")
@@ -27,9 +27,9 @@ def load(name: str) -> list[dict]:
 def load_all() -> dict[str, list[dict]]:
     """Load every MIN-58 dataset (excludes routing.json — owned by run_eval)."""
     names = [
-        "intent_min51.json",
-        "language_min57.json",
-        "tools_min46.json",
-        "format_min54.json",
+        "intent.json",
+        "language.json",
+        "tools.json",
+        "format.json",
     ]
     return {n: load(n) for n in names}

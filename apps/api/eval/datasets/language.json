@@ -1,0 +1,32 @@
+[
+  {
+    "input": "Thời tiết ở Hà Nội tuần này thế nào?",
+    "expected_flow": "concierge",
+    "metrics": ["response_language"],
+    "issue": "MIN-57"
+  },
+  {
+    "input": "Gợi ý cho tôi vài món ăn nên thử ở Huế",
+    "expected_flow": "concierge",
+    "metrics": ["response_language"],
+    "issue": "MIN-57"
+  },
+  {
+    "input": "Lên lịch trình 3 ngày ở Đà Lạt giúp tôi",
+    "expected_flow": "planner",
+    "metrics": ["response_language"],
+    "issue": "MIN-57"
+  },
+  {
+    "input": "Tôi cần mang theo gì khi đi Sa Pa vào mùa đông?",
+    "expected_flow": "concierge",
+    "metrics": ["response_language"],
+    "issue": "MIN-57"
+  },
+  {
+    "input": "What should I pack for a beach trip to Nha Trang?",
+    "expected_flow": "concierge",
+    "metrics": ["response_language"],
+    "issue": "MIN-57"
+  }
+]

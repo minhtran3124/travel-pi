@@ -1,6 +1,0 @@
-[
-  {"input": "Compare Hanoi and Ho Chi Minh City for a 5-day trip: weather, food, and budget", "expected_flow": "concierge", "metrics": ["format_quality"], "issue": "MIN-54"},
-  {"input": "Give me a 3-day Tokyo itinerary with morning, afternoon, and evening plans", "expected_flow": "planner", "metrics": ["format_quality"], "issue": "MIN-54"},
-  {"input": "List the top 5 things to do in Da Nang with a short note on each", "expected_flow": "concierge", "metrics": ["format_quality"], "issue": "MIN-54"},
-  {"input": "Break down a typical daily budget for backpacking in Vietnam by category", "expected_flow": "concierge", "metrics": ["format_quality"], "issue": "MIN-54"}
-]
