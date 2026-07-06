@@ -56,4 +56,6 @@ không gánh rủi ro refactor, và giữ cửa mở cho `create_agent` sau này
 - [x] Xác định tương thích StateGraph vs create_agent → **chỉ create_agent** (pivot answered)
 - [x] Trả lời câu hỏi kiến trúc refactor → **DEFER**, cost/benefit ghi trên
 - [x] Quyết định adopt/defer từng ứng viên → bảng trên
-- [ ] PoC `PIIMiddleware` chạy thật (tùy chọn) — chưa chạy; đường đi ghi ở research-brief §PoC
+- [x] PoC `PIIMiddleware` chạy thật → `poc/pii_middleware_poc.py` **PASS**: email→`[REDACTED_EMAIL]`,
+      card→`****-****-****-5100`, redact/mask áp *trước* model ở `langchain 1.3.11`. Xác nhận API + chứng
+      minh năng lực PII lấy được (nhưng vẫn buộc `create_agent` — củng cố khuyến nghị ship PII "thủ công").

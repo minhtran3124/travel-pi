@@ -61,7 +61,7 @@ Phần lớn cross-cutting concern (retry, memory extraction, model resolution, 
 | --- | --- | --- | --- |
 | API middleware ở version pin | `grep -E 'langchain>=1\|langgraph>=1' apps/api/requirements-ai.txt` | 0 | Xác nhận `create_agent`/`AgentMiddleware` có sẵn |
 | Subagent hand-rolled (không create_agent) | `grep -c 'create_agent' apps/api/app/agents/subagents/_base.py` | 0 hit | Xác nhận middleware KHÔNG reach subagent hiện tại |
-| PoC PIIMiddleware chạy thật | — | — | Chưa chạy — tùy chọn, đường đi ở research-brief §PoC |
+| PoC PIIMiddleware chạy thật | `.venv/bin/python specs/agent-middleware-spike/poc/pii_middleware_poc.py` | 0 | PASS: email redacted + card masked trước model (langchain 1.3.11) |
 
 ### Rollback
 
