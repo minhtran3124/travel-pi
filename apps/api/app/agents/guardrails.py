@@ -25,9 +25,11 @@ logger = logging.getLogger(__name__)
 
 _EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
 # A run of 13–19 digits, optionally grouped by single spaces or hyphens (card
-# formats). Separators sit only *between* digits so the match never consumes a
-# trailing space. The Luhn check below rejects non-card numbers that happen to match.
-_CARD_RE = re.compile(r"\b\d(?:[ -]?\d){12,18}\b")
+# formats). Deliberately broad — spaces, dots, hyphens, and newlines are all
+# tolerated as separators; the Luhn window search below is what distinguishes a
+# real card from an incidental digit run. The run ends on a digit so a trailing
+# separator is never consumed.
+_CARD_RUN_RE = re.compile(r"\d[\d\s.\-]{11,}\d")
 
 
 def _luhn_ok(digits: str) -> bool:
@@ -50,18 +52,45 @@ def _luhn_ok(digits: str) -> bool:
     return total % 10 == 0
 
 
+# Card lengths in preference order: the common 16/15/13/14 and 19 first, the
+# uncommon 17/18 last. This matters when a card is glued to trailing digits
+# (e.g. an expiry) inside one run — checking standard lengths first finds the
+# real card before a longer, expiry-inflated window that happens to pass Luhn.
+_CARD_LENGTHS = (16, 15, 13, 14, 19, 18, 17)
+
+
+def _card_last4(digits: str) -> str | None:
+    """Return last-4 of a Luhn-valid card window inside a digit run.
+
+    Searches windows (not the whole run) so a card immediately followed by other
+    digits — expiry, CVV, a stray number glued by a separator — is still
+    detected, the reason a whole-run Luhn check leaked cards. Standard card
+    lengths are tried first (see ``_CARD_LENGTHS``).
+
+    :param digits: The digit-only characters of a candidate run.
+    :return: The last four digits of a valid card window, or None if none exists.
+    """
+    n = len(digits)
+    for length in _CARD_LENGTHS:
+        if length > n:
+            continue
+        for start in range(n - length + 1):
+            window = digits[start : start + length]
+            if _luhn_ok(window):
+                return window[-4:]
+    return None
+
+
 def _mask_card(match: re.Match[str]) -> str:
-    """Mask a matched card number to ``****-****-****-<last4>``; leave non-cards.
+    """Mask a candidate run to ``****-****-****-<last4>`` when it holds a card.
 
     :param match: A regex match over a candidate card-number run.
-    :return: The masked form when the run is a Luhn-valid 13–19 digit card, else
-        the original text unchanged.
+    :return: The masked form when the run contains a Luhn-valid 13–19 digit card,
+        else the original text unchanged.
     """
     raw = match.group(0)
-    digits = re.sub(r"\D", "", raw)
-    if not (13 <= len(digits) <= 19) or not _luhn_ok(digits):
-        return raw
-    return f"****-****-****-{digits[-4:]}"
+    last4 = _card_last4(re.sub(r"\D", "", raw))
+    return f"****-****-****-{last4}" if last4 is not None else raw
 
 
 def redact_pii(text: str) -> str:
@@ -76,7 +105,7 @@ def redact_pii(text: str) -> str:
     if not text:
         return text
     text = _EMAIL_RE.sub("[REDACTED_EMAIL]", text)
-    text = _CARD_RE.sub(_mask_card, text)
+    text = _CARD_RUN_RE.sub(_mask_card, text)
     return text
 
 
@@ -105,4 +134,6 @@ def pii_guardrail_node(state: TravelAgentState) -> dict:
         return {}
 
     logger.info("[agent] node=pii_guardrail redacted user input")
-    return {"messages": [HumanMessage(content=redacted, id=original.id)]}
+    # model_copy keeps the id (so add_messages replaces in place) plus name /
+    # additional_kwargs / response_metadata rather than dropping them.
+    return {"messages": [original.model_copy(update={"content": redacted})]}

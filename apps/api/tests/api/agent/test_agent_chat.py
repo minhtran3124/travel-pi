@@ -520,3 +520,56 @@ def test_stream_booking_resume_rejected(booking_client):
     assert "event: done" in text
     assert "event: interrupt" not in text
     assert "Hotel booked" not in text
+
+
+# ---------------------------------------------------------------------------
+# PII guardrail — raw PII must never reach the conversation store (MIN-62)
+# ---------------------------------------------------------------------------
+
+
+def test_chat_persists_redacted_user_message(tmp_path):
+    """/agent/chat must redact email/card before persisting the user turn, so
+    raw PII is never stored at rest in the conversation DB."""
+    from app.repositories.conversation import ConversationRepository
+
+    url = f"sqlite:///{tmp_path / 'pii.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        finally:
+            s.close()
+
+    graph = build_graph(
+        llm=FakeLLM(
+            structured_responses=[SupervisorIntent(target_agent="concierge")] * 6,
+            responses=["ok"] * 6,
+        ),
+        fast_llm=FakeLLM(responses=["OK"] * 6),
+        checkpointer=MemorySaver(),
+        store=InMemoryStore(),
+    )
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_travel_graph] = lambda: graph
+
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={"message": "my email is leak@x.com", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    conv_id = resp.json()["conversation_id"]
+
+    s = get_session_factory(url)()
+    try:
+        msgs = ConversationRepository(s).list_messages(conv_id)
+    finally:
+        s.close()
+    user_contents = [m.content for m in msgs if m.role == "user"]
+    assert user_contents, "user turn must be persisted"
+    assert all("leak@x.com" not in c for c in user_contents), "raw PII persisted!"
+    assert any("[REDACTED_EMAIL]" in c for c in user_contents)

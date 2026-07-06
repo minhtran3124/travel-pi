@@ -47,13 +47,34 @@ Chờ human chốt scope (xem ESCALATIONS/AskUserQuestion) trước khi implemen
 Redact **email + credit_card** (mask last-4, Luhn-gated). **KHÔNG** redact name (giữ MIN-53) hay phone.
 Mode: **redact-in-place ở entry node** (`START → pii_guardrail → load_context`, replace theo id).
 
+### Deviations
+
+- **Rule 2 (security auto-add)** — redact PII ở router boundary trong `app/routers/agent.py` (2 handler,
+  trước `append_message` + graph). Security review bắt: raw PII persist vào **conversation DB** (không chỉ
+  checkpointer/LLM). Guardrail node giữ làm defense-in-depth. Ngoài file-set plan gốc (blast-radius warn) —
+  intentional, là core security fix của MIN-62.
+
+### Review fixes (2-persona panel: security + correctness)
+
+- 🔴 **Card regex leak** (cả 2 reviewer): `"card 4111 1111 1111 1111 08/25"` (card+expiry) + dấu phân cách
+  dot/newline/glued-to-letter đều lọt. Sửa: run rộng `\d[\d\s.\-]{11,}\d` + Luhn **window search** ưu tiên
+  độ dài chuẩn (16/15/13/14/19 trước 18/17) → bắt card dù có expiry.
+- 🟠 **Persistence leak** → Rule 2 ở trên.
+- 🟡 **Field loss**: dùng `model_copy(update={"content"})` giữ id + name/additional_kwargs.
+- Test bổ sung: card+expiry, dot/newline sep, glued-to-letter, no-id no-op, multimodal no-op, field-preserve,
+  router persistence e2e.
+
 ### Verify
+
+> Local: `apps/api/.env` hard-set `DATABASE_URL=postgres:5433` → TestClient lifespan fail. Chạy với
+> `DATABASE_URL="sqlite:///..."` override (hoặc `make test`). `.env` cũng chứa **OPENAI key thật** — nên flag.
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| PII guardrail tests | `../../.venv/bin/python -m pytest tests/agents/test_pii_redaction.py -q` | 0 | 12 pass: redact_pii (email/card/Luhn/name-untouched/phone-untouched) + node in-place + graph e2e |
-| Regression agents+memory | `../../.venv/bin/python -m pytest tests/agents/ tests/memory/ -q` | 0 | 171 pass — entry-node chèn không phá flow nào |
-| Lint | `../../.venv/bin/ruff check app/agents/guardrails.py app/agents/graph.py tests/agents/test_pii_redaction.py` | 0 | clean |
+| PII guardrail tests | `pytest tests/agents/test_pii_redaction.py -q` | 0 | 18 pass (incl. các case leak review bắt) |
+| Router persistence | `DATABASE_URL=sqlite pytest tests/api/agent/test_agent_chat.py -q` | 0 | 13 pass (incl. redacted-persist e2e) |
+| Regression | `DATABASE_URL=sqlite pytest tests/agents/ tests/memory/ tests/api/agent/ -q` | 0 | **248 pass** |
+| Lint | `ruff check app/agents/guardrails.py app/agents/graph.py app/routers/agent.py tests/...` | 0 | clean |
 
 ### Rollback
 

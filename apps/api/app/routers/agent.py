@@ -20,6 +20,7 @@ from starlette.background import BackgroundTask
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
+from app.agents.guardrails import redact_pii
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
@@ -204,12 +205,16 @@ async def agent_chat(
             # Resume a graph paused at a plan-approval interrupt.
             result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
         else:
+            # Redact PII at the boundary so it reaches neither the conversation
+            # store nor the model (MIN-62). The graph's pii_guardrail node is a
+            # defense-in-depth backstop for any other caller.
+            user_message = redact_pii(body.message)
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=user_message
             )
             result = await graph.ainvoke(
                 {
-                    "messages": [HumanMessage(content=body.message)],
+                    "messages": [HumanMessage(content=user_message)],
                     "user_id": uid,
                     "trip_id": body.trip_id,
                 },
@@ -320,12 +325,13 @@ async def agent_stream(
         # retry the user message is already saved (the previous turn was
         # interrupted before the assistant reply persisted), so skip re-appending
         # it to avoid a duplicate question bubble.
+        user_message = redact_pii(body.message)
         if not body.retry:
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=user_message
             )
         stream_input = {
-            "messages": [HumanMessage(content=body.message)],
+            "messages": [HumanMessage(content=user_message)],
             "user_id": uid,
             "trip_id": body.trip_id,
         }
