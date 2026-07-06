@@ -79,7 +79,8 @@ Normal lane rather than tiny: the change spans two domains (apps/web message-bub
 | --- | --- | --- | --- |
 | Prompt tests (incl. test_tin_identity) | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts -x -q` | 0 | 11 passed; confirms active=v5 resolves and still contains "Tin" |
 | Web typecheck | `cd apps/web && pnpm exec tsc --noEmit` | 0 | no errors |
-| Visual (line-height/emoji render) | _not run_ — needs web dev server + a live agent reply; phase-level UAT | — | emoji/bold output not machine-verified locally (DeepEval judge needs a real OPENAI key; `.env` has `=test`) |
+| Live agent reply — emoji present | `curl -s POST localhost:8000/agent/chat` (Docker, real OpenAI key) | 0 | Short reply → `✈️`; long itinerary → `🌴🍜 … 🙂`; bold only on values. Confirms v5 active + emoji default-present after guidance strengthened + graph reload. |
+| Visual (line-height spacing) | _not run_ — needs web dev server render; phase-level UAT | — | CSS class change; verify visually in `apps/web` |
 
 ### Rollback
 
