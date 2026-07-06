@@ -1,0 +1,40 @@
+import pytest
+from eval.loader import load_all
+from eval.metrics_geval import GEVAL_METRICS
+
+
+def test_all_datasets_load_and_validate():
+    all_ds = load_all()
+    assert set(all_ds) == {
+        "intent_min51.json",
+        "language_min57.json",
+        "tools_min46.json",
+        "format_min54.json",
+    }
+
+
+def test_total_case_count_at_least_15():
+    assert sum(len(v) for v in load_all().values()) >= 15
+
+
+def test_every_case_has_string_input():
+    for cases in load_all().values():
+        for c in cases:
+            assert isinstance(c["input"], str) and c["input"]
+
+
+def test_declared_metrics_reference_known_geval_keys():
+    for cases in load_all().values():
+        for c in cases:
+            for m in c.get("metrics", []):
+                assert m in GEVAL_METRICS
+
+
+def test_load_rejects_missing_input(tmp_path, monkeypatch):
+    import eval.loader as loader
+
+    bad = tmp_path / "bad.json"
+    bad.write_text('[{"nope": 1}]', encoding="utf-8")
+    monkeypatch.setattr(loader, "_DATASETS", tmp_path)
+    with pytest.raises(ValueError):
+        loader.load("bad.json")
