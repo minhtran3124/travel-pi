@@ -46,6 +46,7 @@ export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
           ref={textareaRef}
           rows={1}
           value={draft}
+          disabled={disabled}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
             // Enter sends; Shift+Enter inserts a newline.
@@ -56,7 +57,7 @@ export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
           }}
           placeholder={t("composerPlaceholder")}
           aria-label={t("composerAriaLabel")}
-          className="min-w-0 flex-1 resize-none self-center bg-transparent py-1.5 text-sm leading-relaxed text-ink placeholder:text-muted focus:outline-none focus-visible:shadow-none"
+          className="min-w-0 flex-1 resize-none self-center bg-transparent py-1.5 text-sm leading-relaxed text-ink placeholder:text-muted focus:outline-none focus-visible:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
         />
         <button
           type="submit"

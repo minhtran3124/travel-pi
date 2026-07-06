@@ -3,6 +3,36 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## v-min-60 — chatbot branding (name: Tin)
+
+MIN-60: give the assistant a name so it can refer to itself in first person
+instead of sounding like an anonymous tool.
+
+- **communication_style v4** — added an "## Identity" section: the assistant's
+  name is **Tin** (Trợ lý Tìm–Đi–Nghỉ); use it by name once or twice per reply
+  when natural, otherwise "mình"; never call itself a generic "trợ lý ảo".
+  Prepended to every sub-agent prompt via `_base.py`, so all five sub-agents
+  (planner/concierge/journal/booking/budget) pick it up automatically.
+
+`active.yaml`: communication_style → 4. Others unchanged.
+
+## v-min-60-followup — language stickiness + name-capture guard
+
+Two bugs found in a real English conversation (conv `2239214e`): the bot flipped
+to Vietnamese on a trip-action turn, and the memory extractor stored the bot's own
+name ("Tin") as the traveller's name.
+
+- **communication_style v4** (edited in place, unshipped) — rewrote "## Language":
+  reply language is now **sticky** and set by the traveller's most recent *typed*
+  message. Tool results, trip data, and Vietnamese place names (Đà Nẵng, Hà Nội)
+  no longer switch the language; a too-short message ("look good") keeps the
+  language already in use. Fixes the flip-to-Vietnamese on the planner/tool turn.
+- **memory_extraction v4** — added a guard: capture `name` only from the
+  traveller's own words in a *user* message; **never** capture the assistant's
+  name. "Tin" (the assistant's name, any language) is not the traveller's name.
+
+`active.yaml`: memory_extraction → 4. communication_style stays 4 (in-place edit).
+
 ## v-min-53 — proactive personalization (name / gender / travel-group)
 
 MIN-53: agent softly, optionally learns who the traveller is and who they travel

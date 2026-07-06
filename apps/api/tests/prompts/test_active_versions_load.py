@@ -26,4 +26,4 @@ def test_min53_bumped_versions_active():
     )
     assert active["concierge"] == 8
     assert active["planner"] == 5
-    assert active["memory_extraction"] == 3
+    assert active["memory_extraction"] == 4  # MIN-60 follow-up: name-capture guard
