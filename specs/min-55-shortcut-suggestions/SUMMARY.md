@@ -77,7 +77,7 @@ User chose the **hybrid** approach: ship a cheap, zero-latency heuristic (flow �
 
 ### Intent Findings
 
-- advisory (`drift`, behaviorally-equivalent) — Intent to-do "Test các case cụ thể: tìm khách sạn, tìm chuyến bay, hỏi thông tin điểm đến, booking flow." E2E coverage: destination-info (`test_chat_returns_flow_scoped_suggestions`) + booking/interrupt (`test_chat_returns_no_suggestions_when_interrupt_pending`); hotel-search + flight-search scenarios covered only structurally via the flow-generic unit test (`test_known_flow_returns_bounded_prefixed_keys` over all 5 `ALL_SUBAGENTS`). Mechanism is flow-generic so those scenarios behave identically to the tested flows. Routing: **advisory / follow-up** — add 2 literal e2e cases (hotel→planner/concierge, flight→booking) in a later commit; non-blocking for ship.
+- ✅ RESOLVED (`b62ae5f`) — advisory (`drift`, behaviorally-equivalent) — Intent to-do "Test các case cụ thể: tìm khách sạn, tìm chuyến bay, hỏi thông tin điểm đến, booking flow." Now covered end-to-end: destination-info (`test_chat_returns_flow_scoped_suggestions`), booking/interrupt (`test_chat_returns_no_suggestions_when_interrupt_pending`), plus **hotel-search + flight-search** e2e (`b62ae5f`, both route to `planner` — the free-tier search sub-agent; `booking` is premium + HITL-interrupt so yields empty suggestions by design). Assertions couple suggestions to the router's actual chosen flow. `test_agent_chat.py`: 17 passed.
 
 ### Rollback
 
