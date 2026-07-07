@@ -1,6 +1,7 @@
 ---
 slug: min-55-shortcut-suggestions
 status: active
+# reviews: correctness ✅ (0 findings), intent ✅ (1 advisory recorded). Ready for finishing-a-development-branch.
 owner: Minh Tran
 created: 2026-07-06
 ---

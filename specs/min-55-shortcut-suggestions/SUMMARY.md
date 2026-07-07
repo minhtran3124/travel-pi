@@ -57,20 +57,32 @@ User chose the **hybrid** approach: ship a cheap, zero-latency heuristic (flow �
 
 ### Deviations
 
-- none
+- Rule 1 — Task 3.1 updated a pre-existing `parseSSE` `done` deep-equality test to include `suggestions: []` (the parser now always emits the field). Required, in-file. Commit `1817e1d`.
 
 ### Verify
 
-<!-- Filled at DONE — one row per check actually run. -->
-
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| <unit / lint / build / behavior> | `<command>` | 0 | <output excerpt on fail> |
+| BE heuristic unit | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_suggestions.py -x` | 0 | 9 passed |
+| BE /agent/chat | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_chat.py -q` | 0 | 15 passed |
+| BE done SSE event | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_stream_events.py tests/api/agent/test_streaming_sse.py -x` | 0 | 24 passed |
+| FE parseSSE | `cd apps/web && pnpm test src/lib/stream/parseSSE.test.ts` | 0 | 21 passed |
+| FE ChatSuggestions | `cd apps/web && pnpm test src/components/chat/ChatSuggestions.test.tsx` | 0 | 3 passed |
+| FE useAgentStream | `cd apps/web && pnpm test src/components/chat/useAgentStream.stream.test.tsx` | 0 | 5 passed |
+| FE chat suite + typecheck | `cd apps/web && pnpm test src/components/chat && pnpm exec tsc --noEmit` | 0 | 33 tests; tsc clean |
+
+### Correctness Review
+
+- `/correctness-review` (BASE `1603309`..HEAD `80e8634`, finder model sonnet, FIND stage): ✅ no correctness defects. Traced agent_chat happy + interrupt-pending; stream happy + interrupt→resume + retry + exception; parseSSE done with absent/null/non-array/valid; ChatSuggestions render/click; ChatPanel visibility guard. Confirmed the single required `events.done` caller updated; both `suggestions_for_flow` imports present (guards `formatter-strips-unused-import` regression). No findings → no SCORE/fix loop needed.
+
+### Intent Findings
+
+- advisory (`drift`, behaviorally-equivalent) — Intent to-do "Test các case cụ thể: tìm khách sạn, tìm chuyến bay, hỏi thông tin điểm đến, booking flow." E2E coverage: destination-info (`test_chat_returns_flow_scoped_suggestions`) + booking/interrupt (`test_chat_returns_no_suggestions_when_interrupt_pending`); hotel-search + flight-search scenarios covered only structurally via the flow-generic unit test (`test_known_flow_returns_bounded_prefixed_keys` over all 5 `ALL_SUBAGENTS`). Mechanism is flow-generic so those scenarios behave identically to the tested flows. Routing: **advisory / follow-up** — add 2 literal e2e cases (hotel→planner/concierge, flight→booking) in a later commit; non-blocking for ship.
 
 ### Rollback
 
-- `git revert <sha>`
+- Revert the feature range: `git revert --no-commit 8eba8fc^..80e8634 && git commit` (or drop the branch — it is unmerged, off `v3`).
 
 ### Harness-Delta
 
-- none
+- backlog (→ `/compound`) — Parallel wave subagents committing to the SHARED git index race: two Wave-2 agents' `git add`+`commit` interleaved, entangling both diffs into one commit and leaving one task's files uncommitted; the pre-commit hook also auto-staged a sibling task's files. Mitigations that worked: from Wave 3 on, subagents implement + verify only (no commit) and the controller serializes commits with explicit pathspecs. Corroborates existing `wave-shared-file-partition` learning; the new angle is the **commit/index** contention (not just file/type overlap). Worth a `docs/solutions/harness/` note.
