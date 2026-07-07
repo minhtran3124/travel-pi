@@ -173,6 +173,56 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
+def test_chat_returns_flow_scoped_suggestions(client):
+    """A completed turn returns a `suggestions` list of keys prefixed by the flow.
+
+    The `client` fixture routes to `concierge`, so every suggestion key must start
+    with `concierge.` and the list must be non-empty (MIN-55, Task 2.1).
+    """
+    resp = client.post(
+        "/agent/chat",
+        json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["current_flow"] == "concierge"
+    suggestions = body["suggestions"]
+    assert isinstance(suggestions, list)
+    assert suggestions  # non-empty for a known flow
+    assert all(s.startswith("concierge.") for s in suggestions)
+
+
+def test_chat_returns_no_suggestions_when_interrupt_pending(booking_client):
+    """An interrupt-pending turn yields an empty `suggestions` list — no chips
+    surface while the user is being asked to approve a plan.
+    """
+    resp = booking_client.post(
+        "/agent/chat",
+        json={"message": "book me a hotel in Paris", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["interrupt_pending"] is True
+    assert body["suggestions"] == []
+
+
+def test_chat_response_suggestions_match_flow_map():
+    """Focused unit check: ChatResponse carries the flow-scoped keys verbatim."""
+    from app.agents.suggestions import suggestions_for_flow
+    from app.schemas.agent import ChatResponse
+
+    resp = ChatResponse(
+        conversation_id="c",
+        reply="r",
+        suggestions=suggestions_for_flow("booking"),
+    )
+    assert resp.suggestions == [
+        "booking.otherOptions",
+        "booking.bookThis",
+        "booking.comparePrices",
+    ]
+
+
 def test_stream_emits_sse_events(client):
     resp = client.post(
         "/agent/stream",
