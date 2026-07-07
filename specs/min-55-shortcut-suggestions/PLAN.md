@@ -432,6 +432,11 @@ Trong `ChatPanel.tsx`: thêm `import { ChatSuggestions } from "./ChatSuggestions
 ## 6. Status Log
 
 - 2026-07-06 — Plan drafted (proposed). Lane normal, confidence high (SUMMARY.md). Waves 1→5, 8 tasks.
+- 2026-07-07 — Wave 1 done. 1.1 `8eba8fc` (heuristic + tests, 9 pass); 1.2 `88cd795` (welcome labels + followups i18n, verify ok). Independent review ✅ spec+quality; cross-contract BE↔en↔vi = 15 keys, zero drift.
+- 2026-07-07 — Wave 5 done. 5.1 `0704fb8` (ChatPanel renders ChatSuggestions, guarded on completed-turn/non-empty; 33 chat tests pass, tsc --noEmit exit 0). All 8 tasks implemented; per-task spec+quality reviews ✅. Next: final /correctness-review + /intent-review over whole diff.
+- 2026-07-07 — Wave 4 done. 4.1 `c45435b` (useAgentStream consumes done.suggestions across all 3 SSE loops + clears on send/retry/resume/newConversation, 5 pass). Review ✅ all 5 spec points; no no-op loop; tests genuine.
+- 2026-07-07 — Wave 3 done. 3.1 `1817e1d` (parseSSE done.suggestions, 21 pass); 3.2 `4c63b88` (ChatSuggestions component, 3 pass). Implement-only + serial controller commits (no race). Review ✅ both; click sends prompt not label; no t.has; tokens real; 24 tests.
+- 2026-07-07 — Wave 2 done. 2.1 `006b5ec` (ChatResponse.suggestions + /agent/chat, 15 pass); 2.2 `55a52d6` (done SSE event suggestions, 24 pass). Concurrent-git race entangled commits mid-wave; controller untangled (2.1 re-committed clean). Review ✅ both tasks, tree clean, all events.done callers updated, 35 tests. Harness-Delta (backlog): parallel subagents committing to shared index race — from Wave 3, implement-only + controller serializes commits.
 
 ## 7. Wave Map
 
