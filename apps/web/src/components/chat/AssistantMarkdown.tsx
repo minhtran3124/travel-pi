@@ -25,9 +25,14 @@ export function AssistantMarkdown({ content, isStreaming }: AssistantMarkdownPro
     <Streamdown
       isAnimating={isStreaming}
       className={cn(
-        "text-sm leading-relaxed",
+        "text-sm leading-normal",
         // tighten Streamdown's default block spacing inside the chat bubble
         "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        // Streamdown's default heading/paragraph/list margins are loose for chat —
+        // pull the heading→text, paragraph, and list gaps tighter. Arbitrary rem
+        // values, not named spacing tokens (those shadow the Tailwind scale).
+        "[&_h2]:mt-[0.75rem] [&_h2]:mb-[0.25rem] [&_h3]:mt-[0.75rem] [&_h3]:mb-[0.25rem]",
+        "[&_p]:my-[0.375rem] [&_ul]:my-[0.375rem] [&_ol]:my-[0.375rem] [&_li]:my-[0.125rem]",
         // Streamdown's default heading sizes dwarf the bubble text — scale them
         // down to a chat-appropriate hierarchy just above body size.
         "[&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h4]:text-sm [&_h5]:text-sm [&_h6]:text-sm",
