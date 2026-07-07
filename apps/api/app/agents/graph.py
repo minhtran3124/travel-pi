@@ -25,6 +25,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
 from app.agents.context import AgentContext
+from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
     load_context_node,
     make_reflection_node,
@@ -114,6 +115,10 @@ def build_graph(
         return resolve
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
+    # PII guardrail runs first so email/card are redacted before any model call,
+    # before persistence to the checkpointer, and before the post-response memory
+    # extractor reads the turn (MIN-62).
+    builder.add_node("pii_guardrail", pii_guardrail_node)
     builder.add_node("load_context", load_context_node)
     builder.add_node(
         "summarize", make_summarize_node(pick("summarize")), retry_policy=LLM_RETRY
@@ -138,7 +143,8 @@ def build_graph(
         retry_policy=LLM_RETRY,
     )
 
-    builder.add_edge(START, "load_context")
+    builder.add_edge(START, "pii_guardrail")
+    builder.add_edge("pii_guardrail", "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
     # supervisor -> sub-agent (or plan) is a Command(goto=...) handoff (no static edge).
