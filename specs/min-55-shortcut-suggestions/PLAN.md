@@ -1,7 +1,6 @@
 ---
 slug: min-55-shortcut-suggestions
-status: active
-# reviews: correctness ✅ (0 findings), intent ✅ (1 advisory recorded). Ready for finishing-a-development-branch.
+status: shipped
 owner: Minh Tran
 created: 2026-07-06
 ---
@@ -434,6 +433,8 @@ Trong `ChatPanel.tsx`: thêm `import { ChatSuggestions } from "./ChatSuggestions
 
 - 2026-07-06 — Plan drafted (proposed). Lane normal, confidence high (SUMMARY.md). Waves 1→5, 8 tasks.
 - 2026-07-07 — Wave 1 done. 1.1 `8eba8fc` (heuristic + tests, 9 pass); 1.2 `88cd795` (welcome labels + followups i18n, verify ok). Independent review ✅ spec+quality; cross-contract BE↔en↔vi = 15 keys, zero drift.
+- 2026-07-07 — Final gates ✅. /correctness-review 0 findings; /intent-review 1 advisory → resolved by e2e hotel/flight tests `b62ae5f` (both route to planner). Full targeted suite: 50 BE + 62 FE pass.
+- 2026-07-07 — shipped via `feat/min-55-shortcut-suggestions` (PR pending).
 - 2026-07-07 — Wave 5 done. 5.1 `0704fb8` (ChatPanel renders ChatSuggestions, guarded on completed-turn/non-empty; 33 chat tests pass, tsc --noEmit exit 0). All 8 tasks implemented; per-task spec+quality reviews ✅. Next: final /correctness-review + /intent-review over whole diff.
 - 2026-07-07 — Wave 4 done. 4.1 `c45435b` (useAgentStream consumes done.suggestions across all 3 SSE loops + clears on send/retry/resume/newConversation, 5 pass). Review ✅ all 5 spec points; no no-op loop; tests genuine.
 - 2026-07-07 — Wave 3 done. 3.1 `1817e1d` (parseSSE done.suggestions, 21 pass); 3.2 `4c63b88` (ChatSuggestions component, 3 pass). Implement-only + serial controller commits (no race). Review ✅ both; click sends prompt not label; no t.has; tokens real; 24 tests.
