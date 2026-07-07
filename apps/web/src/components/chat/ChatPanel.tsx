@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { ChatComposer } from "./ChatComposer";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatHeader, type AgentStatus } from "./ChatHeader";
+import { ChatSuggestions } from "./ChatSuggestions";
 import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
 import type { UseAgentStream } from "./useAgentStream";
@@ -39,8 +40,17 @@ export function ChatPanel({
   onToggleMap,
 }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
-    stream;
+  const {
+    messages,
+    send,
+    isStreaming,
+    error,
+    interrupt,
+    resume,
+    canRetry,
+    retry,
+    suggestions,
+  } = stream;
   const [fullscreen, setFullscreen] = useState(false);
 
   const inputBlocked = isStreaming || interrupt !== null;
@@ -103,6 +113,10 @@ export function ChatPanel({
             {mapHidden ? "Show panel" : "Hide panel"}
           </button>
         </div>
+      ) : null}
+
+      {messages.length > 0 && !isStreaming && interrupt === null && suggestions.length > 0 ? (
+        <ChatSuggestions suggestions={suggestions} onPick={send} disabled={inputBlocked} />
       ) : null}
 
       {interrupt !== null ? (
