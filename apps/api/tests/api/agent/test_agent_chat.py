@@ -118,6 +118,16 @@ def booking_client(tmp_path):
         yield c
 
 
+@pytest.fixture
+def planner_client(tmp_path):
+    # Hotel/flight *search* (not booking) routes to the planner sub-agent, which
+    # owns the trip/flight/hotel tools. planner is free-tier and non-interrupting,
+    # so the turn completes and returns follow-up suggestions.
+    app = _make_app(tmp_path, "planner", "Here are some options for your trip.")
+    with TestClient(app) as c:
+        yield c
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -221,6 +231,45 @@ def test_chat_response_suggestions_match_flow_map():
         "booking.bookThis",
         "booking.comparePrices",
     ]
+
+
+def test_chat_hotel_search_returns_flow_scoped_suggestions(planner_client):
+    """MIN-55 e2e — a literal hotel-search message drives the full
+    message→route→flow→suggestions path. Flow-agnostic: the assertion couples the
+    suggestion keys to whatever flow the router actually picked, so it holds no
+    matter which sub-agent handles the search.
+    """
+    resp = planner_client.post(
+        "/agent/chat",
+        json={"message": "Find me a cheap hotel in Da Nang", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    flow = body["current_flow"]
+    assert flow  # non-null known flow
+    suggestions = body["suggestions"]
+    assert isinstance(suggestions, list)
+    assert suggestions  # non-empty for a known flow
+    assert all(s.startswith(flow + ".") for s in suggestions)
+
+
+def test_chat_flight_search_returns_flow_scoped_suggestions(planner_client):
+    """MIN-55 e2e — a literal flight-search message drives the full
+    message→route→flow→suggestions path. Same flow-agnostic assertion as the
+    hotel case: suggestion keys must be scoped to the flow the router chose.
+    """
+    resp = planner_client.post(
+        "/agent/chat",
+        json={"message": "Find flights to Tokyo next month", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    flow = body["current_flow"]
+    assert flow  # non-null known flow
+    suggestions = body["suggestions"]
+    assert isinstance(suggestions, list)
+    assert suggestions  # non-empty for a known flow
+    assert all(s.startswith(flow + ".") for s in suggestions)
 
 
 def test_stream_emits_sse_events(client):
