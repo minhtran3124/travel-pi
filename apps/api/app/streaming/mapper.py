@@ -21,6 +21,7 @@ from typing import Any
 from langchain_core.messages import AIMessage, ToolMessage
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.suggestions import suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
@@ -192,7 +193,12 @@ async def stream_agent_events(
             )
 
         current_flow = state.values.get("current_flow") if state else None
-        yield events.done(conversation_id=conversation_id, current_flow=current_flow)
+        suggestions = [] if interrupts else suggestions_for_flow(current_flow)
+        yield events.done(
+            conversation_id=conversation_id,
+            current_flow=current_flow,
+            suggestions=suggestions,
+        )
 
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event
         import asyncio
