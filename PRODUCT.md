@@ -74,6 +74,11 @@ agent should read as an enthusiastic guide that's genuinely good at the job.
 5. **Earned delight.** Small, systematic moments (confirmations, transitions, the agent
    landing a result) — Duolingo's craft of delight without its mascots. One memorable
    touch beats ten decorative ones.
+6. **One system, no one-offs.** Every new component or element composes the shared design
+   system — the `ui/` primitives and tokens documented in `DESIGN.md` — before inventing
+   anything bespoke. Consistency is the product feeling trustworthy; a screen that reaches
+   for a native browser dialog or a hand-rolled control breaks the "capable, not corporate"
+   frame. Extend the system deliberately; never route around it.
 
 ## Accessibility & Inclusion
 

@@ -101,6 +101,11 @@ export interface UseAgentStream {
    * drawer renders these by `kind`.
    */
   panels: PanelArtifact[];
+  /**
+   * Context-aware follow-up suggestion keys from the last completed turn; empty
+   * until a turn finishes / while a new turn is in flight.
+   */
+  suggestions: string[];
 }
 
 /** Replace any existing panel of the same kind — latest wins, newest last. */
@@ -144,6 +149,7 @@ export function useAgentStream(
   const [error, setError] = useState<string | null>(null);
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
   const [panels, setPanels] = useState<PanelArtifact[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const conversationIdRef = useRef<string | null>(null);
   // Prevents double-hydration when userId effect re-runs (e.g. strict-mode double-invoke).
@@ -268,6 +274,7 @@ export function useAgentStream(
       const assistantId = newId();
       assistantIdRef.current = assistantId;
       setError(null);
+      setSuggestions([]);
       setMessages((prev) => [
         ...prev,
         { id: newId(), role: "user", content: message },
@@ -341,10 +348,13 @@ export function useAgentStream(
                   payload: event.payload,
                 });
                 break;
+              case "done":
+                setSuggestions(event.suggestions);
+                break;
               case "error":
                 // In-band backend failure — route through the catch below.
                 throw new Error(`agent error: ${event.code}`);
-              // subagent / tool_call / tool_result / done: not surfaced — we only
+              // subagent / tool_call / tool_result: not surfaced — we only
               // render the assistant's final answer.
               default:
                 break;
@@ -402,6 +412,7 @@ export function useAgentStream(
       setInterrupt(null);
       setIsStreaming(true);
       setError(null);
+      setSuggestions([]);
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -439,9 +450,12 @@ export function useAgentStream(
                   }),
                 );
                 break;
+              case "done":
+                setSuggestions(event.suggestions);
+                break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
-              // Nested interrupts are not expected; start/done/subagent/tool
+              // Nested interrupts are not expected; start/subagent/tool
               // events are no-ops here.
               default:
                 break;
@@ -484,6 +498,7 @@ export function useAgentStream(
     const assistantId = newId();
     assistantIdRef.current = assistantId;
     setError(null);
+    setSuggestions([]);
     // No new user bubble — the question is already on screen and in the DB.
     setMessages((prev) => [
       ...prev,
@@ -554,6 +569,9 @@ export function useAgentStream(
                 payload: event.payload,
               });
               break;
+            case "done":
+              setSuggestions(event.suggestions);
+              break;
             case "error":
               throw new Error(`agent error: ${event.code}`);
             default:
@@ -593,6 +611,7 @@ export function useAgentStream(
     setError(null);
     setInterrupt(null);
     setPanels([]);
+    setSuggestions([]);
   }, []);
 
   const lastMessage = messages[messages.length - 1];
@@ -610,5 +629,6 @@ export function useAgentStream(
     retry,
     newConversation,
     panels,
+    suggestions,
   };
 }

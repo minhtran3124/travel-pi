@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/cn";
 import { AgentAvatar } from "./AgentAvatar";
+import { ChatSettingsMenu } from "./ChatSettingsMenu";
 
 const iconButtonClass =
   "flex h-9 w-9 items-center justify-center rounded-[12px] border border-line bg-panel text-ink transition duration-150 hover:bg-panel-raised active:translate-y-px";
@@ -39,14 +40,16 @@ export interface ChatHeaderProps {
   fullscreen: boolean;
   onToggleFullscreen: () => void;
   onClose: () => void;
+  onNewConversation: () => void;
 }
 
-/** Chat panel title bar: agent identity, live status, expand/shrink + close. */
+/** Chat panel title bar: agent identity, live status, settings + expand/shrink + close. */
 export function ChatHeader({
   status,
   fullscreen,
   onToggleFullscreen,
   onClose,
+  onNewConversation,
 }: ChatHeaderProps) {
   const t = useTranslations("Chat");
   return (
@@ -75,6 +78,10 @@ export function ChatHeader({
         </div>
       </div>
       <div className="flex items-center gap-xs">
+        <ChatSettingsMenu
+          onNewConversation={onNewConversation}
+          disabled={status !== "ready"}
+        />
         <button
           type="button"
           aria-label={fullscreen ? t("shrinkPanel") : t("expandPanel")}
