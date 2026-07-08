@@ -34,7 +34,15 @@ class SupervisorIntent(BaseModel):
     """Structured routing decision."""
 
     target_agent: _Target = Field(description="Which specialist should handle this.")
-    language: str = Field(default="en", description="Detected user language code.")
+    language: str = Field(
+        default="en",
+        description=(
+            "The traveller's PRIMARY/DOMINANT language across the whole "
+            "conversation (code, e.g. 'en'/'vi'). Ignore lone interjections and "
+            "loanwords ('ok','fine','good'); only report a different code on a "
+            "clear, sustained switch."
+        ),
+    )
 
 
 def make_supervisor(llm: BaseChatModel):
@@ -51,7 +59,19 @@ def make_supervisor(llm: BaseChatModel):
 
     def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
         logger.info("[agent] node=supervisor")
-        intent = router.invoke([system_with_summary(state, system), *state["messages"]])
+        # Feed the already-established conversation language into the router so the
+        # model itself returns the sticky value and does not flip on a lone English
+        # interjection in an otherwise Vietnamese thread. "unknown" on the first turn
+        # keeps existing behaviour when no language has been detected yet.
+        established = state.get("language") or "unknown"
+        base = SystemMessage(
+            content=(
+                f"{system.content}\n\n"
+                f"Established conversation language: {established}; "
+                "keep it unless the traveller clearly switches."
+            )
+        )
+        intent = router.invoke([system_with_summary(state, base), *state["messages"]])
         target = getattr(intent, "target_agent", None)
         if target not in SUBAGENTS:
             logger.info("[agent] supervisor → END (unknown intent: %s)", target)
@@ -81,6 +101,12 @@ def make_supervisor(llm: BaseChatModel):
         # Route booking through the HITL plan-approval node first.
         next_node = "plan" if target == "booking" else target
         logger.info("[agent] supervisor → %s (intent=%s)", next_node, target)
-        return Command(update={"current_flow": target}, goto=next_node)
+        # Persist the detected language. The `or` fallback fires only when the model
+        # returns a falsy/empty code — it does not pin the language, so a genuine,
+        # model-reported switch still flows through `intent.language`.
+        lang = getattr(intent, "language", None) or state.get("language", "en")
+        return Command(
+            update={"current_flow": target, "language": lang}, goto=next_node
+        )
 
     return supervisor
