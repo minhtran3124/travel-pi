@@ -18,7 +18,7 @@ Taxonomy
 * ``panel``       — structured side-panel payload from a tool's artifact:
   ``{tool_call_id, kind, data, language}`` (``kind`` ∈ ``route|places|weather``)
 * ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
-* ``done``        — terminal success: ``{conversation_id, current_flow, language}``
+* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language}``
 * ``error``       — terminal failure: ``{code, message}``
 """
 
@@ -86,13 +86,18 @@ def interrupt(*, conversation_id: str, payload: Any) -> TypedSSEEvent:
 
 
 def done(
-    *, conversation_id: str, current_flow: str | None, language: str = "en"
+    *,
+    conversation_id: str,
+    current_flow: str | None,
+    suggestions: list[str],
+    language: str = "en",
 ) -> TypedSSEEvent:
     return _event(
         "done",
         {
             "conversation_id": conversation_id,
             "current_flow": current_flow,
+            "suggestions": suggestions,
             "language": language,
         },
     )

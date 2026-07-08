@@ -168,7 +168,50 @@ describe("parseSSE — typed protocol", () => {
       type: "done",
       conversationId: "c1",
       currentFlow: "concierge",
+      suggestions: [],
     });
+  });
+
+  it("parses done with a suggestions array of string keys", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", {
+          conversation_id: "c1",
+          current_flow: "booking",
+          suggestions: ["booking.bookThis", "booking.comparePrices"],
+        }),
+      ]),
+    );
+    expect(events.at(-1)).toEqual({
+      type: "done",
+      conversationId: "c1",
+      currentFlow: "booking",
+      suggestions: ["booking.bookThis", "booking.comparePrices"],
+    });
+  });
+
+  it("defaults suggestions to [] when the field is absent (backward-compat)", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", { conversation_id: "c1", current_flow: null }),
+      ]),
+    );
+    const done = events.at(-1) as Extract<SSEEvent, { type: "done" }>;
+    expect(done.suggestions).toEqual([]);
+  });
+
+  it("coerces a non-array suggestions value to []", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", {
+          conversation_id: "c1",
+          current_flow: null,
+          suggestions: "nope",
+        }),
+      ]),
+    );
+    const done = events.at(-1) as Extract<SSEEvent, { type: "done" }>;
+    expect(done.suggestions).toEqual([]);
   });
 
   it("parses error events", async () => {

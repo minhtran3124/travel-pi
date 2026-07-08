@@ -4,9 +4,11 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ChatComposer } from "./ChatComposer";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatHeader, type AgentStatus } from "./ChatHeader";
+import { ChatSuggestions } from "./ChatSuggestions";
 import { InterruptPrompt } from "./InterruptPrompt";
 import { MessageList } from "./MessageList";
 import type { UseAgentStream } from "./useAgentStream";
@@ -39,9 +41,29 @@ export function ChatPanel({
   onToggleMap,
 }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
-    stream;
+  const {
+    messages,
+    send,
+    isStreaming,
+    error,
+    interrupt,
+    resume,
+    canRetry,
+    retry,
+    newConversation,
+    suggestions,
+  } = stream;
   const [fullscreen, setFullscreen] = useState(false);
+  const [confirmNew, setConfirmNew] = useState(false);
+
+  // Confirm only when there's something to lose; an empty chat resets silently.
+  const handleNewConversation = () => {
+    if (messages.length > 0) {
+      setConfirmNew(true);
+      return;
+    }
+    newConversation();
+  };
 
   const inputBlocked = isStreaming || interrupt !== null;
   const status: AgentStatus =
@@ -63,6 +85,7 @@ export function ChatPanel({
         fullscreen={fullscreen}
         onToggleFullscreen={() => setFullscreen((v) => !v)}
         onClose={onClose}
+        onNewConversation={handleNewConversation}
       />
 
       {error ? (
@@ -105,6 +128,10 @@ export function ChatPanel({
         </div>
       ) : null}
 
+      {messages.length > 0 && !isStreaming && interrupt === null && suggestions.length > 0 ? (
+        <ChatSuggestions suggestions={suggestions} onPick={send} disabled={inputBlocked} />
+      ) : null}
+
       {interrupt !== null ? (
         <InterruptPrompt
           draft={interrupt.payload.draft}
@@ -114,6 +141,18 @@ export function ChatPanel({
       ) : (
         <ChatComposer disabled={inputBlocked} onSend={send} />
       )}
+
+      <ConfirmDialog
+        open={confirmNew}
+        title={t("newConversation")}
+        message={t("newConversationConfirm")}
+        confirmLabel={t("newConversationCta")}
+        onConfirm={() => {
+          setConfirmNew(false);
+          newConversation();
+        }}
+        onCancel={() => setConfirmNew(false)}
+      />
     </section>
   );
 }

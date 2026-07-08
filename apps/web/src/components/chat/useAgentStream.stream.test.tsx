@@ -182,3 +182,95 @@ describe("useAgentStream — panel language plumbing", () => {
     expect(result.current.panelLanguage).toBe("en");
   });
 });
+
+describe("useAgentStream — follow-up suggestions", () => {
+  beforeEach(() => {
+    chatFallback.mockReset();
+  });
+
+  it("exposes follow-up suggestions carried by the terminal done event", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("token", { content: "Booked" }),
+          sse("done", {
+            conversation_id: "c1",
+            current_flow: "booking",
+            suggestions: ["booking.bookThis", "booking.comparePrices"],
+          }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+
+    act(() => {
+      result.current.send("book it");
+    });
+
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    await waitFor(() =>
+      expect(result.current.suggestions).toEqual([
+        "booking.bookThis",
+        "booking.comparePrices",
+      ]),
+    );
+  });
+
+  it("clears stale suggestions at the start of the next send", async () => {
+    const withSuggestions = () => ({
+      ok: true,
+      body: wireStream([
+        sse("start", { conversation_id: "c1" }),
+        sse("token", { content: "Booked" }),
+        sse("done", {
+          conversation_id: "c1",
+          current_flow: "booking",
+          suggestions: ["booking.bookThis", "booking.comparePrices"],
+        }),
+      ]),
+    });
+    const noSuggestions = () => ({
+      ok: true,
+      body: wireStream([
+        sse("start", { conversation_id: "c1" }),
+        sse("token", { content: "Hello" }),
+        sse("done", { conversation_id: "c1", current_flow: "concierge", suggestions: [] }),
+      ]),
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockImplementationOnce(async () => withSuggestions())
+        .mockImplementationOnce(async () => noSuggestions()),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+
+    // First turn populates suggestions.
+    act(() => {
+      result.current.send("book it");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    await waitFor(() =>
+      expect(result.current.suggestions).toEqual([
+        "booking.bookThis",
+        "booking.comparePrices",
+      ]),
+    );
+
+    // A new turn clears the stale chips synchronously at its start.
+    act(() => {
+      result.current.send("thanks");
+    });
+    expect(result.current.suggestions).toEqual([]);
+
+    // And they stay cleared when the next turn carries none.
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    await waitFor(() => expect(result.current.suggestions).toEqual([]));
+  });
+});

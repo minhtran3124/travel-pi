@@ -54,7 +54,7 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
             {!isUser ? <AgentAvatar size="sm" className="mb-0.5" /> : null}
             <div
               className={cn(
-                "max-w-[78%] px-md py-sm text-sm leading-relaxed",
+                "max-w-[78%] px-md py-sm text-sm leading-normal",
                 isUser
                   ? "whitespace-pre-wrap rounded-[16px] rounded-br-[5px] bg-ink font-medium text-on-ink"
                   : "rounded-[16px] rounded-bl-[5px] border border-line bg-panel text-ink shadow-card",

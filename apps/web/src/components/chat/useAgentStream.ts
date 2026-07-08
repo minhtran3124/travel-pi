@@ -108,6 +108,11 @@ export interface UseAgentStream {
    * changes when an event supplies a `language`.
    */
   panelLanguage: string;
+  /**
+   * Context-aware follow-up suggestion keys from the last completed turn; empty
+   * until a turn finishes / while a new turn is in flight.
+   */
+  suggestions: string[];
 }
 
 /** Replace any existing panel of the same kind — latest wins, newest last. */
@@ -152,6 +157,7 @@ export function useAgentStream(
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
   const [panels, setPanels] = useState<PanelArtifact[]>([]);
   const [panelLanguage, setPanelLanguage] = useState("en");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const conversationIdRef = useRef<string | null>(null);
   // Prevents double-hydration when userId effect re-runs (e.g. strict-mode double-invoke).
@@ -283,6 +289,7 @@ export function useAgentStream(
       const assistantId = newId();
       assistantIdRef.current = assistantId;
       setError(null);
+      setSuggestions([]);
       setMessages((prev) => [
         ...prev,
         { id: newId(), role: "user", content: message },
@@ -350,6 +357,7 @@ export function useAgentStream(
               case "done":
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
+                setSuggestions(event.suggestions);
                 break;
               case "interrupt":
                 received = true;
@@ -423,6 +431,7 @@ export function useAgentStream(
       setInterrupt(null);
       setIsStreaming(true);
       setError(null);
+      setSuggestions([]);
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -465,6 +474,7 @@ export function useAgentStream(
               case "done":
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
+                setSuggestions(event.suggestions);
                 break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
@@ -511,6 +521,7 @@ export function useAgentStream(
     const assistantId = newId();
     assistantIdRef.current = assistantId;
     setError(null);
+    setSuggestions([]);
     // No new user bubble — the question is already on screen and in the DB.
     setMessages((prev) => [
       ...prev,
@@ -576,6 +587,7 @@ export function useAgentStream(
             case "done":
               // Terminal event — capture the turn's language for the panels.
               applyPanelLanguage(event.language);
+              setSuggestions(event.suggestions);
               break;
             case "interrupt":
               received = true;
@@ -627,6 +639,7 @@ export function useAgentStream(
     setInterrupt(null);
     setPanels([]);
     setPanelLanguage("en");
+    setSuggestions([]);
   }, []);
 
   const lastMessage = messages[messages.length - 1];
@@ -645,5 +658,6 @@ export function useAgentStream(
     newConversation,
     panels,
     panelLanguage,
+    suggestions,
   };
 }

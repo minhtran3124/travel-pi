@@ -21,6 +21,7 @@ from typing import Any
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.suggestions import suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
@@ -242,9 +243,11 @@ async def stream_agent_events(
             )
 
         current_flow = state.values.get("current_flow") if state else None
+        suggestions = [] if interrupts else suggestions_for_flow(current_flow)
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,
+            suggestions=suggestions,
             language=current_language,
         )
 
