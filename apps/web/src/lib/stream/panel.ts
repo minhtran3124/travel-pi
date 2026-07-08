@@ -197,4 +197,6 @@ export interface PanelArtifact {
   toolCallId: string;
   kind: string;
   data: unknown;
+  /** Traveller's language the payload was localized to (e.g. "vi"). Absent → "en". */
+  language?: string;
 }

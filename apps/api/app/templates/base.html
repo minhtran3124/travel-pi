@@ -213,6 +213,8 @@
     @media (prefers-reduced-motion: reduce) { .tp-dialog-panel { animation: none; } }
 
     .wrap { max-width: 1140px; margin: 0 auto; padding: 28px 20px 64px; }
+    /* Opt-in wide layout (e.g. prompt dashboard) — roomier for side-by-side views. */
+    .wrap.wrap-wide { max-width: 1800px; padding-left: clamp(20px, 3vw, 40px); padding-right: clamp(20px, 3vw, 40px); }
 
     /* ── Page header (section title strip) ── */
     .page-head {
@@ -903,8 +905,8 @@
       <a href="/dashboard/weather" class="tab {{ 'on' if path.startswith('/dashboard/weather') else '' }}">Weather</a>
       <a href="/dashboard/air-quality" class="tab {{ 'on' if path.startswith('/dashboard/air-quality') else '' }}">Air Quality</a>
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
-      <a href="/dashboard/checklist" class="tab {{ 'on' if path.startswith('/dashboard/checklist') else '' }}">My List<span id="trip-badge" class="tab-badge" hidden></span></a>
       <a href="/dashboard/agent-config" class="tab {{ 'on' if path.startswith('/dashboard/agent-config') else '' }}">Agent Config</a>
+      <a href="/dashboard/prompts" class="tab {{ 'on' if path.startswith('/dashboard/prompts') else '' }}">Prompts</a>
       <span class="spacer"></span>
       <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
         <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
@@ -915,7 +917,7 @@
       <a href="/docs" class="tab tab-ext">API Docs ↗</a>
     </div>
   </nav>
-  <div class="wrap">
+  <div class="wrap {% block wrap_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </div>
   <footer>
@@ -988,6 +990,7 @@
         { ic: '🌦️', lbl: 'Weather', sub: '', url: '/dashboard/weather', kw: 'weather forecast' },
         { ic: '🌫️', lbl: 'Air Quality', sub: 'US-AQI & pollutants', url: '/dashboard/air-quality', kw: 'air quality aqi pollution haze smog pm2.5' },
         { ic: '🎫', lbl: 'Bookings', sub: '', url: '/dashboard/bookings', kw: 'bookings reservations' },
+        { ic: '📝', lbl: 'Prompts', sub: '', url: '/dashboard/prompts', kw: 'prompts versions' },
         { ic: '📚', lbl: 'API Docs', sub: '', url: '/docs', kw: 'api docs swagger' }
       ];
       var dynamic = null;      // built after fetch: city actions + airports
@@ -1068,20 +1071,6 @@
       });
       input.addEventListener('input', function () { render(input.value); });
       modal.querySelectorAll('[data-cmdk-close]').forEach(function (el) { el.addEventListener('click', close); });
-    })();
-
-    /* ── Nav badge: total saved items across trips ── */
-    (function () {
-      var badge = document.getElementById('trip-badge');
-      if (!badge || !window.TripStore) return;
-      function refresh() {
-        var n = TripStore.totalItems();
-        badge.textContent = n;
-        badge.hidden = n === 0;
-      }
-      refresh();
-      window.addEventListener('tripschange', refresh);
-      window.addEventListener('storage', refresh);  // sync across tabs
     })();
   </script>
   <script>

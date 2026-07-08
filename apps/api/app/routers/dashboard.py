@@ -88,19 +88,6 @@ def dashboard_index(request: Request) -> HTMLResponse:
     return _TEMPLATES.TemplateResponse(request=request, name="index.html")
 
 
-@router.get("/checklist", response_class=HTMLResponse)
-def checklist_page(request: Request) -> HTMLResponse:
-    """Render the personal travel checklist.
-
-    Pure client-side: trips and saved places live in the browser
-    (localStorage), so there is no backend state or context to pass.
-
-    :param request: The incoming request.
-    :return: The rendered checklist page.
-    """
-    return _TEMPLATES.TemplateResponse(request=request, name="checklist.html")
-
-
 @router.get("/_search.json", include_in_schema=False)
 def palette_index(
     session: Annotated[Session, Depends(get_session)],

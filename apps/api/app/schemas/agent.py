@@ -52,6 +52,7 @@ class ChatResponse(AppBaseModel):
     conversation_id: str
     reply: str
     current_flow: str | None = None
+    suggestions: list[str] = Field(default_factory=list)
     interrupt_pending: bool = False
     interrupt_payload: dict | None = None
 

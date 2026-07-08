@@ -398,6 +398,10 @@
     "shrinkPanel": "Thu nhỏ bảng",
     "expandPanel": "Mở rộng bảng",
     "closeAssistant": "Đóng trợ lý du lịch",
+    "settingsMenu": "Cài đặt hội thoại",
+    "newConversation": "Cuộc trò chuyện mới",
+    "newConversationConfirm": "Thao tác này sẽ xoá đoạn chat hiện tại và bắt đầu lại từ đầu.",
+    "newConversationCta": "Bắt đầu mới",
     "openAssistant": "Mở trợ lý du lịch",
     "composerPlaceholder": "Nhắn tin cho trợ lý du lịch…",
     "composerAriaLabel": "Nhắn tin cho trợ lý du lịch",
@@ -409,13 +413,40 @@
     "tryAsking": "Thử hỏi",
     "suggestions": {
       "planWeekendPrompt": "Lên kế hoạch một kỳ nghỉ cuối tuần dài ở Tokyo",
-      "planWeekendLabel": "Lên kế hoạch cuối tuần dài ở Tokyo",
+      "planWeekendLabel": "Cuối tuần ở Tokyo 🗾",
       "findCoffeePrompt": "Tìm quán cà phê ngon gần khách sạn của tôi",
-      "findCoffeeLabel": "Tìm cà phê ngon gần đây",
+      "findCoffeeLabel": "Cà phê gần đây ☕",
       "checkWeatherPrompt": "Thời tiết ở Bali bây giờ thế nào?",
-      "checkWeatherLabel": "Xem thời tiết ở Bali",
+      "checkWeatherLabel": "Thời tiết Bali ⛅",
       "checkBudgetPrompt": "Ngân sách chuyến đi của tôi đang thế nào?",
-      "checkBudgetLabel": "Ngân sách của tôi thế nào?"
+      "checkBudgetLabel": "Ngân sách 💰"
+    },
+    "followups": {
+      "planner": {
+        "addDay": { "label": "Thêm một ngày ➕", "prompt": "Thêm một ngày nữa vào lịch trình này" },
+        "adjustBudget": { "label": "Chỉnh ngân sách 💰", "prompt": "Điều chỉnh kế hoạch này cho vừa ngân sách của tôi" },
+        "findStay": { "label": "Tìm chỗ ở 🏨", "prompt": "Tìm chỗ ở cho chuyến đi này" }
+      },
+      "concierge": {
+        "nearbyPlaces": { "label": "Gần đây khác 📍", "prompt": "Cho tôi xem những địa điểm khác gần đây" },
+        "checkWeather": { "label": "Thời tiết ⛅", "prompt": "Thời tiết ở đó bây giờ thế nào?" },
+        "getThere": { "label": "Cách đến đó 🧭", "prompt": "Làm sao để đến đó?" }
+      },
+      "journal": {
+        "addNote": { "label": "Thêm ghi chú 📝", "prompt": "Thêm một ghi chú vào nhật ký chuyến đi của tôi" },
+        "viewTimeline": { "label": "Dòng thời gian 🗒️", "prompt": "Cho tôi xem dòng thời gian chuyến đi" },
+        "tripSummary": { "label": "Tóm tắt chuyến đi ✨", "prompt": "Tóm tắt chuyến đi của tôi đến giờ" }
+      },
+      "booking": {
+        "otherOptions": { "label": "Lựa chọn khác 🔁", "prompt": "Cho tôi xem các lựa chọn khác" },
+        "bookThis": { "label": "Đặt ngay ✅", "prompt": "Đặt cái này" },
+        "comparePrices": { "label": "So sánh giá ⚖️", "prompt": "So sánh các mức giá" }
+      },
+      "budget": {
+        "addExpense": { "label": "Thêm chi phí ➕", "prompt": "Thêm một khoản chi vào ngân sách của tôi" },
+        "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
+        "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
+      }
     },
     "interruptTitle": "Sẵn sàng khi bạn cần",
     "approve": "Đồng ý",
@@ -427,6 +458,80 @@
     "fallbackCouldNotReach": "Xin lỗi — tôi không thể kết nối tới trợ lý du lịch.",
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
     "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay."
+  },
+  "Panel": {
+    "detailPanelLabel": "Bảng chi tiết",
+    "hidePanel": "Ẩn bảng",
+    "tabs": {
+      "route": "Lộ trình",
+      "places": "Địa điểm",
+      "weather": "Thời tiết",
+      "airQuality": "Chất lượng không khí",
+      "flights": "Chuyến bay",
+      "hotels": "Khách sạn"
+    },
+    "route": {
+      "mapLabel": "Bản đồ lộ trình",
+      "openInGoogleMaps": "Mở trong Google Maps",
+      "summary": "{distance} km · ~{duration} phút bằng {mode}{estimated, select, true { (ước tính)} other {}}",
+      "legChip": "{mode} · {distance} km · {duration} phút"
+    },
+    "places": {
+      "fallbackTitle": "Địa điểm",
+      "results": "{count, plural, other {# kết quả}}",
+      "pick": "đề xuất",
+      "category": "Hạng mục",
+      "rating": "Đánh giá",
+      "ratingValue": "{rating} ({count, plural, other {# đánh giá}})",
+      "price": "Giá",
+      "hours": "Giờ mở cửa",
+      "address": "Địa chỉ",
+      "tags": "Thẻ"
+    },
+    "weather": {
+      "today": "Hôm nay",
+      "feelsLike": "Cảm giác như {temp}°C",
+      "humidity": "Độ ẩm",
+      "wind": "Gió",
+      "windUnit": "km/h",
+      "updated": "Cập nhật",
+      "timezone": "Múi giờ"
+    },
+    "airQuality": {
+      "today": "Hôm nay",
+      "usAqi": "US AQI",
+      "scaleLow": "0 Tốt",
+      "scaleHigh": "300+ Nguy hại",
+      "forecastHeading": "Dự báo theo ngày — AQI cao nhất"
+    },
+    "flights": {
+      "nonstop": "bay thẳng",
+      "stops": "{count, plural, other {# điểm dừng}}",
+      "seatsLeft": "còn {count} chỗ",
+      "durationValue": "{h}h {m}p",
+      "summary": "{date} · {count, plural, other {# kết quả}} · rẻ nhất {price}",
+      "airline": "Hãng bay",
+      "flight": "Chuyến bay",
+      "route": "Hành trình",
+      "duration": "Thời gian bay",
+      "stopsLabel": "Điểm dừng",
+      "seatsLeftLabel": "Ghế còn lại",
+      "price": "Giá"
+    },
+    "hotels": {
+      "perNight": "/đêm",
+      "roomsLeft": "còn {count} phòng",
+      "full": "hết phòng",
+      "available": "còn phòng",
+      "summary": "{checkIn} → {checkOut} · {nights, plural, other {# đêm}} · {rooms, plural, other {# phòng}} · {results, plural, other {# kết quả}} · rẻ nhất {price}",
+      "stars": "Hạng sao",
+      "guestRating": "Đánh giá của khách",
+      "guestRatingValue": "{rating} ({count, plural, other {# đánh giá}})",
+      "nightlyRate": "Giá mỗi đêm",
+      "allInTotal": "Tổng trọn gói",
+      "roomsLeftLabel": "Số phòng còn lại",
+      "amenities": "Tiện nghi"
+    }
   },
   "Errors": {
     "somethingWentWrongTitle": "Đã xảy ra lỗi",

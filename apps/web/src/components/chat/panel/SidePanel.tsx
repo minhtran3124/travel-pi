@@ -1,10 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import type { PanelArtifact } from "@/lib/stream/panel";
-import { PANEL_LABELS, PANEL_RENDERERS } from "./registry";
+import { PANEL_LABEL_KEYS, PANEL_RENDERERS } from "./registry";
 
 /**
  * The detail drawer that springs out to the left of the chat panel. Shows the
@@ -19,6 +20,7 @@ export function SidePanel({
   panels: PanelArtifact[];
   onClose: () => void;
 }) {
+  const t = useTranslations("Panel");
   const renderable = useMemo(
     () => panels.filter((p) => PANEL_RENDERERS[p.kind]),
     [panels],
@@ -48,7 +50,7 @@ export function SidePanel({
 
   return (
     <section
-      aria-label="Detail panel"
+      aria-label={t("detailPanelLabel")}
       className="tp-chat-in flex h-[min(70vh,560px)] w-[min(92vw,440px)] flex-col overflow-hidden rounded-[20px] border border-line bg-white text-ink shadow-lift"
     >
       <header className="flex items-center justify-between border-b border-line px-lg py-sm">
@@ -65,14 +67,14 @@ export function SidePanel({
                   : "text-muted hover:bg-surface",
               )}
             >
-              {PANEL_LABELS[k] ?? k}
+              {PANEL_LABEL_KEYS[k] ? t(PANEL_LABEL_KEYS[k]) : k}
             </button>
           ))}
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Hide panel"
+          aria-label={t("hidePanel")}
           className="text-sm text-muted transition hover:text-ink"
         >
           ✕

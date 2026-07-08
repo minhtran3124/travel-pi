@@ -1,8 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import { FlightsPanel } from "./FlightsPanel";
+import { PanelIntlProvider } from "./PanelIntlProvider";
 import type { FlightsPanelData } from "@/lib/stream/panel";
+
+// Panels read STATIC labels via `useTranslations`, so they must render inside a
+// PanelIntlProvider (the streamed-language provider used in production).
+const Intl = ({ children }: { children: ReactNode }) => (
+  <PanelIntlProvider language="en">{children}</PanelIntlProvider>
+);
 
 const DATA: FlightsPanelData = {
   origin: "HAN",
@@ -24,7 +32,7 @@ const DATA: FlightsPanelData = {
 
 describe("FlightsPanel", () => {
   it("renders a row per flight and the header count", () => {
-    render(<FlightsPanel data={DATA} />);
+    render(<FlightsPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText(/2 results/i)).toBeInTheDocument();
     // Flight number sits in a mixed text node ("VietJet Air VJ155 · nonstop · 5 left"),
     // so match with a regex — the repo convention (see RoutePanel.test.tsx).
@@ -33,7 +41,7 @@ describe("FlightsPanel", () => {
   });
 
   it("expands a row on click to reveal detail", () => {
-    render(<FlightsPanel data={DATA} />);
+    render(<FlightsPanel data={DATA} />, { wrapper: Intl });
     expect(screen.queryByText(/seats left/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByText(/VJ155/));
     expect(screen.getByText(/seats left/i)).toBeInTheDocument();

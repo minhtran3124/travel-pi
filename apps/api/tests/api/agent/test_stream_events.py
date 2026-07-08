@@ -50,9 +50,26 @@ def test_tool_call_truncates_args_preview():
 
 
 def test_done_factory_shape():
-    ev = events.done(conversation_id="c1", current_flow="booking")
+    ev = events.done(
+        conversation_id="c1", current_flow="booking", suggestions=["booking.bookThis"]
+    )
     assert ev.event == "done"
-    assert _payload(ev) == {"conversation_id": "c1", "current_flow": "booking"}
+    assert _payload(ev) == {
+        "conversation_id": "c1",
+        "current_flow": "booking",
+        "suggestions": ["booking.bookThis"],
+        "language": "en",
+    }
+
+
+def test_done_factory_empty_suggestions():
+    ev = events.done(conversation_id="c1", current_flow=None, suggestions=[])
+    assert _payload(ev) == {
+        "conversation_id": "c1",
+        "current_flow": None,
+        "suggestions": [],
+        "language": "en",
+    }
 
 
 # --- mapper ----------------------------------------------------------------
@@ -137,6 +154,10 @@ def test_mapper_emits_ordered_protocol():
     assert out[3][1] == {"content": "Your"}
     assert out[5][1] == {"id": "tc1", "status": "ok"}
     assert out[6][1]["current_flow"] == "planner"
+    # done carries flow-prefixed follow-up suggestion keys for a known flow.
+    suggestions = out[6][1]["suggestions"]
+    assert isinstance(suggestions, list) and suggestions
+    assert all(s.startswith("planner.") for s in suggestions)
 
 
 def test_mapper_dedupes_tool_calls():
@@ -175,6 +196,8 @@ def test_mapper_emits_interrupt_before_done():
     names = [n for n, _ in out]
     assert names == ["start", "interrupt", "done"]
     assert out[1][1] == {"conversation_id": "c1", "payload": {"plan": "approve?"}}
+    # A pending interrupt suppresses suggestions (the turn isn't complete).
+    assert out[2][1]["suggestions"] == []
 
 
 def test_mapper_suppresses_non_subagent_tokens():
@@ -218,7 +241,11 @@ def test_mapper_emits_token_for_plan_node_message():
         (
             (),
             "updates",
-            {"plan": {"messages": [AIMessage(content="Booking cancelled as requested.")]}},
+            {
+                "plan": {
+                    "messages": [AIMessage(content="Booking cancelled as requested.")]
+                }
+            },
         )
     ]
     out = _run(_FakeGraph(items))
@@ -268,7 +295,12 @@ def _route_response() -> RouteResponse:
 def test_panel_factory_shape():
     ev = events.panel(tool_call_id="tc1", kind="route", data={"x": 1})
     assert ev.event == "panel"
-    assert _payload(ev) == {"tool_call_id": "tc1", "kind": "route", "data": {"x": 1}}
+    assert _payload(ev) == {
+        "tool_call_id": "tc1",
+        "kind": "route",
+        "data": {"x": 1},
+        "language": "en",
+    }
 
 
 def test_route_panel_projection():
@@ -394,6 +426,7 @@ def test_mapper_emits_panel_before_tool_result():
         "tool_call_id": "tc1",
         "kind": "route",
         "data": {"recommended_mode": "car"},
+        "language": "en",
     }
 
 

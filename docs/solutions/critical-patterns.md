@@ -82,3 +82,14 @@ Two decisions from the same session: (1) fixed a category exact-match miss (`"ca
 
 **Full doc:** docs/solutions/agent/reflection-humanmessage-language-flip-decisions.md
 ---
+
+## [2026-07-08] supervisor-active-yaml-is-a-pointer
+**Type:** failure
+**Module:** agent/prompts
+**Tags:** langgraph, prompts, supervisor, prompt-registry, active-yaml, versioned-prompts, silent-no-op
+**Applicable when:** About to change the wording of any agent/supervisor system prompt loaded through the prompt registry (files under apps/api/app/prompts/<agent>/).
+
+`app/prompts/<agent>/active.yaml` is only a name→version pointer map — the real prompt prose lives in the versioned `vN.md` it points to (e.g. `supervisor/v5.md`), which is what `registry.get(<agent>)` returns. Editing `active.yaml` to change wording is a silent no-op and can corrupt the map; edit the active `vN.md` instead. Distinct from the "prompt edits need a graph rebuild" learning — this is editing the wrong file entirely.
+
+**Full doc:** docs/solutions/agent/supervisor-active-yaml-is-a-pointer.md
+---

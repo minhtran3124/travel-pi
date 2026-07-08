@@ -398,6 +398,10 @@
     "shrinkPanel": "Shrink panel",
     "expandPanel": "Expand panel",
     "closeAssistant": "Close travel assistant",
+    "settingsMenu": "Conversation settings",
+    "newConversation": "New conversation",
+    "newConversationConfirm": "This clears the current chat and starts fresh.",
+    "newConversationCta": "Start new",
     "openAssistant": "Open travel assistant",
     "composerPlaceholder": "Message the travel assistant…",
     "composerAriaLabel": "Message the travel assistant",
@@ -409,13 +413,40 @@
     "tryAsking": "Try asking",
     "suggestions": {
       "planWeekendPrompt": "Plan a long weekend in Tokyo",
-      "planWeekendLabel": "Plan a long weekend in Tokyo",
+      "planWeekendLabel": "Weekend in Tokyo 🗾",
       "findCoffeePrompt": "Find good coffee near my hotel",
-      "findCoffeeLabel": "Find good coffee nearby",
+      "findCoffeeLabel": "Coffee nearby ☕",
       "checkWeatherPrompt": "What's the weather like in Bali right now?",
-      "checkWeatherLabel": "Check the weather in Bali",
+      "checkWeatherLabel": "Weather in Bali ⛅",
       "checkBudgetPrompt": "How is my trip budget looking?",
-      "checkBudgetLabel": "How's my budget looking?"
+      "checkBudgetLabel": "My budget 💰"
+    },
+    "followups": {
+      "planner": {
+        "addDay": { "label": "Add a day ➕", "prompt": "Add another day to this itinerary" },
+        "adjustBudget": { "label": "Adjust budget 💰", "prompt": "Adjust this plan to fit my budget" },
+        "findStay": { "label": "Find a stay 🏨", "prompt": "Find places to stay for this trip" }
+      },
+      "concierge": {
+        "nearbyPlaces": { "label": "More nearby 📍", "prompt": "Show me other places nearby" },
+        "checkWeather": { "label": "Weather ⛅", "prompt": "What's the weather there right now?" },
+        "getThere": { "label": "How to get there 🧭", "prompt": "How do I get there?" }
+      },
+      "journal": {
+        "addNote": { "label": "Add a note 📝", "prompt": "Add a note to my trip journal" },
+        "viewTimeline": { "label": "Timeline 🗒️", "prompt": "Show my trip timeline" },
+        "tripSummary": { "label": "Trip summary ✨", "prompt": "Summarize my trip so far" }
+      },
+      "booking": {
+        "otherOptions": { "label": "Other options 🔁", "prompt": "Show me other options" },
+        "bookThis": { "label": "Book this ✅", "prompt": "Book this one" },
+        "comparePrices": { "label": "Compare prices ⚖️", "prompt": "Compare the prices" }
+      },
+      "budget": {
+        "addExpense": { "label": "Add expense ➕", "prompt": "Add an expense to my budget" },
+        "remaining": { "label": "Remaining 💵", "prompt": "How much budget do I have left?" },
+        "breakdown": { "label": "Breakdown 📊", "prompt": "Show me the budget breakdown" }
+      }
     },
     "interruptTitle": "Ready when you are",
     "approve": "Approve",
@@ -427,6 +458,80 @@
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
     "errorQuota": "You've reached today's free message limit."
+  },
+  "Panel": {
+    "detailPanelLabel": "Detail panel",
+    "hidePanel": "Hide panel",
+    "tabs": {
+      "route": "Route",
+      "places": "Places",
+      "weather": "Weather",
+      "airQuality": "Air Quality",
+      "flights": "Flights",
+      "hotels": "Hotels"
+    },
+    "route": {
+      "mapLabel": "Route map",
+      "openInGoogleMaps": "Open in Google Maps",
+      "summary": "{distance} km · ~{duration} min by {mode}{estimated, select, true { (estimated)} other {}}",
+      "legChip": "{mode} · {distance} km · {duration} min"
+    },
+    "places": {
+      "fallbackTitle": "Places",
+      "results": "{count, plural, one {# result} other {# results}}",
+      "pick": "pick",
+      "category": "Category",
+      "rating": "Rating",
+      "ratingValue": "{rating} ({count, plural, one {# review} other {# reviews}})",
+      "price": "Price",
+      "hours": "Hours",
+      "address": "Address",
+      "tags": "Tags"
+    },
+    "weather": {
+      "today": "Today",
+      "feelsLike": "Feels like {temp}°C",
+      "humidity": "Humidity",
+      "wind": "Wind",
+      "windUnit": "km/h",
+      "updated": "Updated",
+      "timezone": "Timezone"
+    },
+    "airQuality": {
+      "today": "Today",
+      "usAqi": "US AQI",
+      "scaleLow": "0 Good",
+      "scaleHigh": "300+ Hazardous",
+      "forecastHeading": "Daily forecast — peak AQI"
+    },
+    "flights": {
+      "nonstop": "nonstop",
+      "stops": "{count, plural, one {# stop} other {# stops}}",
+      "seatsLeft": "{count} left",
+      "durationValue": "{h}h {m}m",
+      "summary": "{date} · {count, plural, one {# result} other {# results}} · cheapest {price}",
+      "airline": "Airline",
+      "flight": "Flight",
+      "route": "Route",
+      "duration": "Duration",
+      "stopsLabel": "Stops",
+      "seatsLeftLabel": "Seats left",
+      "price": "Price"
+    },
+    "hotels": {
+      "perNight": "/night",
+      "roomsLeft": "{count} left",
+      "full": "full",
+      "available": "available",
+      "summary": "{checkIn} → {checkOut} · {nights, plural, one {# night} other {# nights}} · {rooms, plural, one {# room} other {# rooms}} · {results, plural, one {# result} other {# results}} · cheapest {price}",
+      "stars": "Stars",
+      "guestRating": "Guest rating",
+      "guestRatingValue": "{rating} ({count, plural, one {# review} other {# reviews}})",
+      "nightlyRate": "Nightly rate",
+      "allInTotal": "All-in total",
+      "roomsLeftLabel": "Rooms left",
+      "amenities": "Amenities"
+    }
   },
   "Errors": {
     "somethingWentWrongTitle": "Something went wrong",

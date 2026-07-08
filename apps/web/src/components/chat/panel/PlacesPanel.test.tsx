@@ -1,8 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
+import { PanelIntlProvider } from "./PanelIntlProvider";
 import { PlacesPanel } from "./PlacesPanel";
 import type { PlacesPanelData } from "@/lib/stream/panel";
+
+// Panels read STATIC labels via `useTranslations`, so they must render inside a
+// PanelIntlProvider (the streamed-language provider used in production).
+const Intl = ({ children }: { children: ReactNode }) => (
+  <PanelIntlProvider language="en">{children}</PanelIntlProvider>
+);
 
 const DATA: PlacesPanelData = {
   city: "Da Nang",
@@ -24,7 +32,7 @@ const DATA: PlacesPanelData = {
 
 describe("PlacesPanel", () => {
   it("renders a row per place and the header", () => {
-    render(<PlacesPanel data={DATA} />);
+    render(<PlacesPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText(/2 results/i)).toBeInTheDocument();
     // Place name sits in a mixed text node — match with a regex (repo convention).
     expect(screen.getByText(/Marble Mountains/)).toBeInTheDocument();
@@ -32,28 +40,28 @@ describe("PlacesPanel", () => {
   });
 
   it("renders a thumbnail per place", () => {
-    render(<PlacesPanel data={DATA} />);
+    render(<PlacesPanel data={DATA} />, { wrapper: Intl });
     // one img per place, alt = place name
     expect(screen.getByAltText("Marble Mountains")).toBeInTheDocument();
     expect(screen.getByAltText("Han Market")).toBeInTheDocument();
   });
 
   it("expands a row on click to reveal detail", () => {
-    render(<PlacesPanel data={DATA} />);
+    render(<PlacesPanel data={DATA} />, { wrapper: Intl });
     // description + review count only appear in the expanded detail, not the collapsed row
-    expect(screen.queryByText(/1204 reviews/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/1,204 reviews/)).not.toBeInTheDocument();
     expect(
       screen.queryByText(/Cluster of limestone hills/),
     ).not.toBeInTheDocument();
     fireEvent.click(screen.getByText(/Marble Mountains/));
-    expect(screen.getByText(/1204 reviews/)).toBeInTheDocument();
+    expect(screen.getByText(/1,204 reviews/)).toBeInTheDocument();
     expect(screen.getByText(/Cluster of limestone hills/)).toBeInTheDocument();
   });
 
   it("only capitalizes the category detail, not the composite rating/reviews text", () => {
-    const { container } = render(<PlacesPanel data={DATA} />);
+    const { container } = render(<PlacesPanel data={DATA} />, { wrapper: Intl });
     fireEvent.click(screen.getByText(/Marble Mountains/));
-    const ratingDetail = screen.getByText(/1204 reviews/);
+    const ratingDetail = screen.getByText(/1,204 reviews/);
     expect(ratingDetail.className).not.toMatch(/\bcapitalize\b/);
     const categoryDetail = container.querySelector("dd.capitalize");
     expect(categoryDetail).not.toBeNull();

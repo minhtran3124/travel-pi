@@ -1,8 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import { HotelsPanel } from "./HotelsPanel";
+import { PanelIntlProvider } from "./PanelIntlProvider";
 import type { HotelsPanelData } from "@/lib/stream/panel";
+
+// Panels read STATIC labels via `useTranslations`, so they must render inside a
+// PanelIntlProvider (the streamed-language provider used in production).
+const Intl = ({ children }: { children: ReactNode }) => (
+  <PanelIntlProvider language="en">{children}</PanelIntlProvider>
+);
 
 const DATA: HotelsPanelData = {
   city: "Da Nang",
@@ -24,7 +32,7 @@ const DATA: HotelsPanelData = {
 
 describe("HotelsPanel", () => {
   it("renders a row per hotel and the header", () => {
-    render(<HotelsPanel data={DATA} />);
+    render(<HotelsPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText(/2 results/i)).toBeInTheDocument();
     // Hotel name sits in a mixed text node — match with a regex (repo convention).
     expect(screen.getByText(/Grand Da Nang Hotel/)).toBeInTheDocument();
@@ -32,18 +40,41 @@ describe("HotelsPanel", () => {
   });
 
   it("renders a thumbnail per hotel", () => {
-    render(<HotelsPanel data={DATA} />);
+    render(<HotelsPanel data={DATA} />, { wrapper: Intl });
     // one img per hotel, alt = hotel name
     expect(screen.getByAltText("Grand Da Nang Hotel")).toBeInTheDocument();
     expect(screen.getByAltText("Seaside Resort")).toBeInTheDocument();
   });
 
   it("expands a row on click to reveal detail", () => {
-    render(<HotelsPanel data={DATA} />);
+    render(<HotelsPanel data={DATA} />, { wrapper: Intl });
     // review count only appears in the expanded detail, not the collapsed row
     expect(screen.queryByText(/842 reviews/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByText(/Grand Da Nang Hotel/));
     expect(screen.getByText(/842 reviews/)).toBeInTheDocument();
+  });
+
+  it("renders static labels in the streamed panel language, not the cookie locale", () => {
+    // English catalog → "Nightly rate".
+    const { unmount } = render(
+      <PanelIntlProvider language="en">
+        <HotelsPanel data={DATA} />
+      </PanelIntlProvider>,
+    );
+    fireEvent.click(screen.getByText(/Grand Da Nang Hotel/));
+    expect(screen.getByText("Nightly rate")).toBeInTheDocument();
+    expect(screen.queryByText("Giá mỗi đêm")).not.toBeInTheDocument();
+    unmount();
+
+    // Vietnamese catalog → "Giá mỗi đêm" (from vi.json Panel.hotels.nightlyRate).
+    render(
+      <PanelIntlProvider language="vi">
+        <HotelsPanel data={DATA} />
+      </PanelIntlProvider>,
+    );
+    fireEvent.click(screen.getByText(/Grand Da Nang Hotel/));
+    expect(screen.getByText("Giá mỗi đêm")).toBeInTheDocument();
+    expect(screen.queryByText("Nightly rate")).not.toBeInTheDocument();
   });
 });
 

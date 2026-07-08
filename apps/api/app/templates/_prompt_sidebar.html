@@ -1,0 +1,54 @@
+{# Left sidebar listing every prompt name + the two-pane workspace shell.
+   Reused by prompt_detail + prompt_diff so the browse rail persists across
+   selection. `current` is the active name. The <style> is emitted once per
+   page (the macro is called once), carrying the shared layout CSS. #}
+{% macro prompt_sidebar(names_meta, current) %}
+<nav class="prompt-sidebar" aria-label="Prompts">
+  <div class="prompt-sidebar-head">Prompts</div>
+  {% for p in names_meta %}
+  <a class="prompt-nav-item {{ 'is-current' if p.name == current else '' }}"
+     href="/dashboard/prompts/{{ p.name }}"
+     {% if p.name == current %}aria-current="page"{% endif %}>
+    <span class="prompt-nav-name">{{ p.name }}</span>
+    <span class="badge active-badge">v{{ p.active }}</span>
+  </a>
+  {% endfor %}
+</nav>
+<style>
+  .prompt-workspace {
+    display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 20px;
+    align-items: start;
+  }
+  .prompt-sidebar {
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 8px;
+    position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto;
+  }
+  .prompt-sidebar-head {
+    font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); padding: 6px 10px 8px;
+  }
+  .prompt-nav-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 10px; border-radius: var(--radius-sm);
+    text-decoration: none; color: var(--ink); border: 1px solid transparent;
+    transition: background .14s, border-color .14s, color .14s;
+  }
+  .prompt-nav-item:hover { background: var(--panel-2); }
+  .prompt-nav-item.is-current { background: var(--accent-glow); border-color: var(--accent); }
+  .prompt-nav-name { font-weight: 700; font-size: 0.9rem; word-break: break-word; }
+  .active-badge {
+    background: var(--panel-2); color: var(--muted);
+    font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+  }
+  .prompt-nav-item.is-current .active-badge { background: var(--accent-glow); color: var(--accent-dim); }
+
+  .prompt-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+  @media (max-width: 720px) {
+    .prompt-workspace { grid-template-columns: 1fr; }
+    .prompt-sidebar { position: static; max-height: 220px; }
+  }
+</style>
+{% endmacro %}

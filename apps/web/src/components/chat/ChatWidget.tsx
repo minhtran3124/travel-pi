@@ -7,6 +7,7 @@ import { useCallback, useState } from "react";
 import { qk } from "@/lib/api/keys";
 import { ChatLauncher } from "./ChatLauncher";
 import { ChatPanel } from "./ChatPanel";
+import { PanelIntlProvider } from "./panel/PanelIntlProvider";
 import { SidePanel } from "./panel/SidePanel";
 import { useAgentStream } from "./useAgentStream";
 
@@ -63,7 +64,9 @@ export function ChatWidget() {
       {open ? (
         <div className="flex flex-row items-end gap-md">
           {showDrawer ? (
-            <SidePanel panels={stream.panels} onClose={() => setMapHidden(true)} />
+            <PanelIntlProvider language={stream.panelLanguage}>
+              <SidePanel panels={stream.panels} onClose={() => setMapHidden(true)} />
+            </PanelIntlProvider>
           ) : null}
           <ChatPanel
             stream={stream}

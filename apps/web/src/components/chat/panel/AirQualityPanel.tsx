@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import type {
   AirQualityPanelData,
   AirQualityPanelDay,
@@ -65,6 +67,7 @@ function Pollutant({ p }: { p: AirQualityPanelPollutant }) {
 }
 
 function ForecastCard({ day, isToday }: { day: AirQualityPanelDay; isToday: boolean }) {
+  const t = useTranslations("Panel");
   const glow = glowOf(day.band);
   return (
     <div
@@ -87,7 +90,7 @@ function ForecastCard({ day, isToday }: { day: AirQualityPanelDay; isToday: bool
             className="inline-block rounded-full px-2 py-px text-[0.66rem] font-extrabold uppercase tracking-wide text-ink"
             style={{ background: `rgba(${glow}, .18)` }}
           >
-            Today
+            {t("airQuality.today")}
           </span>
         ) : (
           day.date
@@ -108,6 +111,7 @@ function ForecastCard({ day, isToday }: { day: AirQualityPanelDay; isToday: bool
 }
 
 export function AirQualityPanel({ data }: { data: AirQualityPanelData }) {
+  const t = useTranslations("Panel");
   const {
     location_name,
     country,
@@ -148,7 +152,7 @@ export function AirQualityPanel({ data }: { data: AirQualityPanelData }) {
               {us_aqi ?? "—"}
             </div>
             <div className="mt-1 text-[0.6rem] font-bold uppercase tracking-widest text-white/70">
-              US AQI
+              {t("airQuality.usAqi")}
             </div>
           </div>
 
@@ -176,8 +180,8 @@ export function AirQualityPanel({ data }: { data: AirQualityPanelData }) {
               <span className="block h-3.5 w-3.5 rounded-full bg-white shadow-[0_0_0_3px_rgba(0,0,0,.35),0_0_8px_rgba(255,255,255,.6)]" />
             </div>
             <div className="mt-1.5 flex justify-between text-[0.66rem] font-bold text-white/60">
-              <span>0 Good</span>
-              <span>300+ Hazardous</span>
+              <span>{t("airQuality.scaleLow")}</span>
+              <span>{t("airQuality.scaleHigh")}</span>
             </div>
           </div>
         )}
@@ -192,7 +196,7 @@ export function AirQualityPanel({ data }: { data: AirQualityPanelData }) {
       {forecast.length > 0 && (
         <>
           <h2 className="mb-2.5 mt-5 text-xs font-extrabold uppercase tracking-wide text-muted">
-            Daily forecast — peak AQI
+            {t("airQuality.forecastHeading")}
           </h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5">
             {forecast.map((day, i) => (

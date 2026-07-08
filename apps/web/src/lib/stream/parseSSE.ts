@@ -10,7 +10,7 @@
 //   event: tool_call    data: {"id","name","args_preview","subagent"}
 //   event: tool_result  data: {"id","status"}            status ∈ ok|error
 //   event: interrupt    data: {"conversation_id","payload"}
-//   event: done         data: {"conversation_id","current_flow"}   (terminal)
+//   event: done         data: {"conversation_id","current_flow","suggestions"}   (terminal)
 //   event: error        data: {"code","message"}                   (terminal)
 //
 // There is no bare-`data:` token frame and no `[DONE]` sentinel any more — the
@@ -72,6 +72,8 @@ export interface SSEPanelEvent {
   toolCallId: string;
   kind: string;
   data: unknown;
+  /** Traveller's language the payload was localized to (e.g. "vi"). Absent → "en". */
+  language?: string;
 }
 
 export interface SSEInterruptPayload {
@@ -90,6 +92,9 @@ export interface SSEDoneEvent {
   type: "done";
   conversationId: string;
   currentFlow: string | null;
+  suggestions: string[];
+  /** Traveller's language for this turn (e.g. "vi"). Absent → "en". */
+  language?: string;
 }
 
 /** Terminal failure event surfaced in-band by the backend. */
@@ -213,6 +218,7 @@ function parseSegment(segment: string): SSEEvent | null {
         toolCallId: String(data.tool_call_id ?? ""),
         kind: String(data.kind ?? ""),
         data: data.data,
+        language: data.language == null ? undefined : String(data.language),
       };
     case "interrupt":
       return {
@@ -225,6 +231,8 @@ function parseSegment(segment: string): SSEEvent | null {
         type: "done",
         conversationId: String(data.conversation_id ?? ""),
         currentFlow: data.current_flow == null ? null : String(data.current_flow),
+        suggestions: Array.isArray(data.suggestions) ? data.suggestions.map(String) : [],
+        language: data.language == null ? undefined : String(data.language),
       };
     case "error":
       return {

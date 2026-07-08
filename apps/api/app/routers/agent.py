@@ -21,6 +21,7 @@ from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
+from app.agents.suggestions import suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
@@ -230,6 +231,7 @@ async def agent_chat(
             conversation_id=conversation_id,
             reply=reply,
             current_flow=None,
+            suggestions=[],
             interrupt_pending=False,
             interrupt_payload=None,
         )
@@ -273,6 +275,11 @@ async def agent_chat(
         conversation_id=conversation_id,
         reply=reply,
         current_flow=result.get("current_flow"),
+        suggestions=(
+            []
+            if interrupt_pending
+            else suggestions_for_flow(result.get("current_flow"))
+        ),
         interrupt_pending=interrupt_pending,
         interrupt_payload=interrupt_payload,
     )
