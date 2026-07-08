@@ -143,3 +143,8 @@ name, active flagged, content shown) → **diff** (line-level, exactly two versi
   W3 `12a8f07` (router + registration), W4 `2f9c86c` (12 route tests). 22 tests green on
   SQLite; ruff clean; independent correctness+intent review found no defects.
 - 2026-07-08 — shipped via `feat/min-45-prompt-version-dashboard` (PR #76 → v3).
+- 2026-07-08 — UX iteration (user request) `d5d5019`: two-pane browse layout — persistent
+  left sidebar of prompt names (shared `_prompt_sidebar` macro), right pane defaults to the
+  **latest** version, compare bar moved to the top (defaults previous→latest). Removed the
+  separate list page (`prompt_list.html`); `/dashboard/prompts` auto-selects the first prompt.
+  24 tests green. Note: "latest" = highest version number (currently == active for all 9 prompts).
