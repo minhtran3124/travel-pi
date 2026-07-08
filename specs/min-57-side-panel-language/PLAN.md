@@ -726,4 +726,13 @@ Cross-engine parity once green: `cd apps/api && make test-docker`.
 
 ## 9. Status Log
 
-- 2026-07-08 — Plan drafted from `design.md` + `research-brief.md`. Lane high-risk. 6 waves / 10 tasks. Plan-review passed (2 iterations; localizer field-name fixes + parity-test coverage). Awaiting execution handoff.
+- 2026-07-08 — Plan drafted from `design.md` + `research-brief.md`. Lane high-risk. 6 waves / 10 tasks. Plan-review passed (2 iterations; localizer field-name fixes + parity-test coverage).
+- 2026-07-08 — Executed via subagent-driven-development on `feat/min-57-side-panel-language`. All waves green (spec + quality review each):
+  - Wave 1 (1.1/1.2/1.3) — `01e30e5`
+  - Wave 2 (2.1/2.2) — `eb36ee5`
+  - Wave 3 (3.1 + async-translation review fixes) — `90a9269`
+  - Wave 4 (4.1/4.2) — `ae0955d`
+  - Wave 5 (5.1) — `61760e5`
+  - Wave 6 (6.1) — `611c540`
+  - Deviations logged in SUMMARY (`v5.md` vs `active.yaml`; shared `test_stream_events.py`; `parseSSE.ts`; `ChatWidget` vs `ChatPanel`).
+  - BE targeted suites green (streaming/agents 144); FE tsc+lint+build green (80 unit tests). Full raw suite blocked by the documented Postgres-less env limitation (`make test-docker` = pre-merge cross-engine gate).
