@@ -412,13 +412,40 @@
     "tryAsking": "Thử hỏi",
     "suggestions": {
       "planWeekendPrompt": "Lên kế hoạch một kỳ nghỉ cuối tuần dài ở Tokyo",
-      "planWeekendLabel": "Lên kế hoạch cuối tuần dài ở Tokyo",
+      "planWeekendLabel": "Cuối tuần ở Tokyo 🗾",
       "findCoffeePrompt": "Tìm quán cà phê ngon gần khách sạn của tôi",
-      "findCoffeeLabel": "Tìm cà phê ngon gần đây",
+      "findCoffeeLabel": "Cà phê gần đây ☕",
       "checkWeatherPrompt": "Thời tiết ở Bali bây giờ thế nào?",
-      "checkWeatherLabel": "Xem thời tiết ở Bali",
+      "checkWeatherLabel": "Thời tiết Bali ⛅",
       "checkBudgetPrompt": "Ngân sách chuyến đi của tôi đang thế nào?",
-      "checkBudgetLabel": "Ngân sách của tôi thế nào?"
+      "checkBudgetLabel": "Ngân sách 💰"
+    },
+    "followups": {
+      "planner": {
+        "addDay": { "label": "Thêm một ngày ➕", "prompt": "Thêm một ngày nữa vào lịch trình này" },
+        "adjustBudget": { "label": "Chỉnh ngân sách 💰", "prompt": "Điều chỉnh kế hoạch này cho vừa ngân sách của tôi" },
+        "findStay": { "label": "Tìm chỗ ở 🏨", "prompt": "Tìm chỗ ở cho chuyến đi này" }
+      },
+      "concierge": {
+        "nearbyPlaces": { "label": "Gần đây khác 📍", "prompt": "Cho tôi xem những địa điểm khác gần đây" },
+        "checkWeather": { "label": "Thời tiết ⛅", "prompt": "Thời tiết ở đó bây giờ thế nào?" },
+        "getThere": { "label": "Cách đến đó 🧭", "prompt": "Làm sao để đến đó?" }
+      },
+      "journal": {
+        "addNote": { "label": "Thêm ghi chú 📝", "prompt": "Thêm một ghi chú vào nhật ký chuyến đi của tôi" },
+        "viewTimeline": { "label": "Dòng thời gian 🗒️", "prompt": "Cho tôi xem dòng thời gian chuyến đi" },
+        "tripSummary": { "label": "Tóm tắt chuyến đi ✨", "prompt": "Tóm tắt chuyến đi của tôi đến giờ" }
+      },
+      "booking": {
+        "otherOptions": { "label": "Lựa chọn khác 🔁", "prompt": "Cho tôi xem các lựa chọn khác" },
+        "bookThis": { "label": "Đặt ngay ✅", "prompt": "Đặt cái này" },
+        "comparePrices": { "label": "So sánh giá ⚖️", "prompt": "So sánh các mức giá" }
+      },
+      "budget": {
+        "addExpense": { "label": "Thêm chi phí ➕", "prompt": "Thêm một khoản chi vào ngân sách của tôi" },
+        "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
+        "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
+      }
     },
     "interruptTitle": "Sẵn sàng khi bạn cần",
     "approve": "Đồng ý",

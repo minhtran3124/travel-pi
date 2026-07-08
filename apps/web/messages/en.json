@@ -412,13 +412,40 @@
     "tryAsking": "Try asking",
     "suggestions": {
       "planWeekendPrompt": "Plan a long weekend in Tokyo",
-      "planWeekendLabel": "Plan a long weekend in Tokyo",
+      "planWeekendLabel": "Weekend in Tokyo 🗾",
       "findCoffeePrompt": "Find good coffee near my hotel",
-      "findCoffeeLabel": "Find good coffee nearby",
+      "findCoffeeLabel": "Coffee nearby ☕",
       "checkWeatherPrompt": "What's the weather like in Bali right now?",
-      "checkWeatherLabel": "Check the weather in Bali",
+      "checkWeatherLabel": "Weather in Bali ⛅",
       "checkBudgetPrompt": "How is my trip budget looking?",
-      "checkBudgetLabel": "How's my budget looking?"
+      "checkBudgetLabel": "My budget 💰"
+    },
+    "followups": {
+      "planner": {
+        "addDay": { "label": "Add a day ➕", "prompt": "Add another day to this itinerary" },
+        "adjustBudget": { "label": "Adjust budget 💰", "prompt": "Adjust this plan to fit my budget" },
+        "findStay": { "label": "Find a stay 🏨", "prompt": "Find places to stay for this trip" }
+      },
+      "concierge": {
+        "nearbyPlaces": { "label": "More nearby 📍", "prompt": "Show me other places nearby" },
+        "checkWeather": { "label": "Weather ⛅", "prompt": "What's the weather there right now?" },
+        "getThere": { "label": "How to get there 🧭", "prompt": "How do I get there?" }
+      },
+      "journal": {
+        "addNote": { "label": "Add a note 📝", "prompt": "Add a note to my trip journal" },
+        "viewTimeline": { "label": "Timeline 🗒️", "prompt": "Show my trip timeline" },
+        "tripSummary": { "label": "Trip summary ✨", "prompt": "Summarize my trip so far" }
+      },
+      "booking": {
+        "otherOptions": { "label": "Other options 🔁", "prompt": "Show me other options" },
+        "bookThis": { "label": "Book this ✅", "prompt": "Book this one" },
+        "comparePrices": { "label": "Compare prices ⚖️", "prompt": "Compare the prices" }
+      },
+      "budget": {
+        "addExpense": { "label": "Add expense ➕", "prompt": "Add an expense to my budget" },
+        "remaining": { "label": "Remaining 💵", "prompt": "How much budget do I have left?" },
+        "breakdown": { "label": "Breakdown 📊", "prompt": "Show me the budget breakdown" }
+      }
     },
     "interruptTitle": "Ready when you are",
     "approve": "Approve",

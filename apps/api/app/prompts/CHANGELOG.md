@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## v-min-54 — chat formatting polish (emoji + tighter bold)
+
+MIN-54: make replies friendlier and cleaner to scan. Prompt half of the issue
+(the web spacing/line-height half lives in `apps/web`).
+
+- **communication_style v5** — copied v4, then two edits under "## How to Format":
+  (a) sharpened the bold rule so **only the specific value** is bold (a name, number,
+  price, date, place), never a whole sentence or a generic word; (b) added a new
+  "### Emoji" subsection — tasteful, contextual travel emoji (🏨 ✈️ 🌴 💰 📅 …) used
+  sparingly, at the start of a line/term, never on every bullet, and skipped entirely
+  in warnings / disclaimers / tool-failure replies. "## Identity" (name **Tin**) is
+  unchanged, so `test_tin_identity` still holds across all five sub-agents.
+
+`active.yaml`: communication_style → 5. Others unchanged.
+
 ## v-min-60 — chatbot branding (name: Tin)
 
 MIN-60: give the assistant a name so it can refer to itself in first person

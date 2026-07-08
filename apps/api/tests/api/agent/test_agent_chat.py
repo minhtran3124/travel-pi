@@ -118,6 +118,16 @@ def booking_client(tmp_path):
         yield c
 
 
+@pytest.fixture
+def planner_client(tmp_path):
+    # Hotel/flight *search* (not booking) routes to the planner sub-agent, which
+    # owns the trip/flight/hotel tools. planner is free-tier and non-interrupting,
+    # so the turn completes and returns follow-up suggestions.
+    app = _make_app(tmp_path, "planner", "Here are some options for your trip.")
+    with TestClient(app) as c:
+        yield c
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -171,6 +181,95 @@ def test_chat_returns_reply_and_persists(client):
     )
     assert resp2.status_code == 200
     assert resp2.json()["conversation_id"] == body["conversation_id"]
+
+
+def test_chat_returns_flow_scoped_suggestions(client):
+    """A completed turn returns a `suggestions` list of keys prefixed by the flow.
+
+    The `client` fixture routes to `concierge`, so every suggestion key must start
+    with `concierge.` and the list must be non-empty (MIN-55, Task 2.1).
+    """
+    resp = client.post(
+        "/agent/chat",
+        json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["current_flow"] == "concierge"
+    suggestions = body["suggestions"]
+    assert isinstance(suggestions, list)
+    assert suggestions  # non-empty for a known flow
+    assert all(s.startswith("concierge.") for s in suggestions)
+
+
+def test_chat_returns_no_suggestions_when_interrupt_pending(booking_client):
+    """An interrupt-pending turn yields an empty `suggestions` list — no chips
+    surface while the user is being asked to approve a plan.
+    """
+    resp = booking_client.post(
+        "/agent/chat",
+        json={"message": "book me a hotel in Paris", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["interrupt_pending"] is True
+    assert body["suggestions"] == []
+
+
+def test_chat_response_suggestions_match_flow_map():
+    """Focused unit check: ChatResponse carries the flow-scoped keys verbatim."""
+    from app.agents.suggestions import suggestions_for_flow
+    from app.schemas.agent import ChatResponse
+
+    resp = ChatResponse(
+        conversation_id="c",
+        reply="r",
+        suggestions=suggestions_for_flow("booking"),
+    )
+    assert resp.suggestions == [
+        "booking.otherOptions",
+        "booking.bookThis",
+        "booking.comparePrices",
+    ]
+
+
+def test_chat_hotel_search_returns_flow_scoped_suggestions(planner_client):
+    """MIN-55 e2e — a literal hotel-search message drives the full
+    message→route→flow→suggestions path. Flow-agnostic: the assertion couples the
+    suggestion keys to whatever flow the router actually picked, so it holds no
+    matter which sub-agent handles the search.
+    """
+    resp = planner_client.post(
+        "/agent/chat",
+        json={"message": "Find me a cheap hotel in Da Nang", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    flow = body["current_flow"]
+    assert flow  # non-null known flow
+    suggestions = body["suggestions"]
+    assert isinstance(suggestions, list)
+    assert suggestions  # non-empty for a known flow
+    assert all(s.startswith(flow + ".") for s in suggestions)
+
+
+def test_chat_flight_search_returns_flow_scoped_suggestions(planner_client):
+    """MIN-55 e2e — a literal flight-search message drives the full
+    message→route→flow→suggestions path. Same flow-agnostic assertion as the
+    hotel case: suggestion keys must be scoped to the flow the router chose.
+    """
+    resp = planner_client.post(
+        "/agent/chat",
+        json={"message": "Find flights to Tokyo next month", "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    flow = body["current_flow"]
+    assert flow  # non-null known flow
+    suggestions = body["suggestions"]
+    assert isinstance(suggestions, list)
+    assert suggestions  # non-empty for a known flow
+    assert all(s.startswith(flow + ".") for s in suggestions)
 
 
 def test_stream_emits_sse_events(client):
