@@ -79,6 +79,29 @@ class PromptRegistry:
         """All known prompt names."""
         return sorted(self._prompts)
 
+    def versions(self, name: str) -> list[int]:
+        """Return all known version numbers for ``name``, ascending.
+
+        :param name: The prompt name to look up.
+        :return: Sorted list of version numbers.
+        """
+        if name not in self._prompts:
+            raise KeyError(f"Unknown prompt: {name!r}")
+        return sorted(self._prompts[name])
+
+    def active_version(self, name: str) -> int:
+        """Return the active version number for ``name``.
+
+        :param name: The prompt name to look up.
+        :return: The active version, or the newest version if none declared.
+        """
+        if name not in self._prompts:
+            raise KeyError(f"Unknown prompt: {name!r}")
+        version = self._active.get(name)
+        if version is None:
+            version = max(self._prompts[name])  # newest if no active declared
+        return version
+
 
 # Module-level singleton — import and call registry.get(...).
 registry = PromptRegistry()
