@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import type {
   WeatherCondition,
   WeatherPanelData,
@@ -47,6 +49,7 @@ function heroBackground(condition: WeatherCondition): string {
 }
 
 function ForecastCard({ day, isToday }: { day: WeatherPanelDay; isToday: boolean }) {
+  const t = useTranslations("Panel");
   const glow = (CONDITION[day.condition] ?? CONDITION.rain).glow;
   return (
     <div
@@ -69,7 +72,7 @@ function ForecastCard({ day, isToday }: { day: WeatherPanelDay; isToday: boolean
             className="inline-block rounded-full px-2 py-px text-[0.66rem] font-extrabold uppercase tracking-wide text-ink"
             style={{ background: `rgba(${glow}, .18)` }}
           >
-            Today
+            {t("weather.today")}
           </span>
         ) : (
           day.date
@@ -108,6 +111,7 @@ function ForecastCard({ day, isToday }: { day: WeatherPanelDay; isToday: boolean
 }
 
 export function WeatherPanel({ data }: { data: WeatherPanelData }) {
+  const t = useTranslations("Panel");
   const { current, daily, location_name, country, timezone, attribution } = data;
   const place = country ? `${location_name}, ${country}` : location_name;
 
@@ -126,25 +130,27 @@ export function WeatherPanel({ data }: { data: WeatherPanelData }) {
             </div>
             <div className="text-base font-bold">{current.description}</div>
             <div className="text-sm text-white/70">
-              Feels like {Math.round(current.apparent_temperature_c)}°C
+              {t("weather.feelsLike", { temp: Math.round(current.apparent_temperature_c) })}
             </div>
             <div className="truncate text-xs text-white/60">📍 {place}</div>
           </div>
         </div>
 
         <div className="relative z-[1] mt-md grid grid-cols-2 gap-x-6 gap-y-3 border-t border-white/15 pt-md">
-          <Stat label="💧 Humidity" value={`${current.relative_humidity}%`} />
+          <Stat label={`💧 ${t("weather.humidity")}`} value={`${current.relative_humidity}%`} />
           <Stat
-            label="💨 Wind"
+            label={`💨 ${t("weather.wind")}`}
             value={
               <>
                 {Math.round(current.wind_speed_kmh)}{" "}
-                <small className="text-xs font-semibold text-white/70">km/h</small>
+                <small className="text-xs font-semibold text-white/70">
+                  {t("weather.windUnit")}
+                </small>
               </>
             }
           />
-          <Stat label="🕑 Updated" value={current.time.replace("T", " ")} />
-          <Stat label="🌐 Timezone" value={timezone} />
+          <Stat label={`🕑 ${t("weather.updated")}`} value={current.time.replace("T", " ")} />
+          <Stat label={`🌐 ${t("weather.timezone")}`} value={timezone} />
         </div>
       </div>
 

@@ -58,6 +58,7 @@ def test_done_factory_shape():
         "conversation_id": "c1",
         "current_flow": "booking",
         "suggestions": ["booking.bookThis"],
+        "language": "en",
     }
 
 
@@ -67,6 +68,7 @@ def test_done_factory_empty_suggestions():
         "conversation_id": "c1",
         "current_flow": None,
         "suggestions": [],
+        "language": "en",
     }
 
 
@@ -293,7 +295,12 @@ def _route_response() -> RouteResponse:
 def test_panel_factory_shape():
     ev = events.panel(tool_call_id="tc1", kind="route", data={"x": 1})
     assert ev.event == "panel"
-    assert _payload(ev) == {"tool_call_id": "tc1", "kind": "route", "data": {"x": 1}}
+    assert _payload(ev) == {
+        "tool_call_id": "tc1",
+        "kind": "route",
+        "data": {"x": 1},
+        "language": "en",
+    }
 
 
 def test_route_panel_projection():
@@ -419,6 +426,7 @@ def test_mapper_emits_panel_before_tool_result():
         "tool_call_id": "tc1",
         "kind": "route",
         "data": {"recommended_mode": "car"},
+        "language": "en",
     }
 
 

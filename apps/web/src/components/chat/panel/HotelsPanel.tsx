@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -18,6 +19,7 @@ function stars(n: number): string {
 }
 
 function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
+  const t = useTranslations("Panel");
   const [open, setOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
   return (
@@ -57,9 +59,12 @@ function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
             <span className="text-amber-500">{stars(h.star_rating)}</span>{" "}
             <span className="tabular-nums">{h.rating.toFixed(1)}</span>
             {" · "}
-            <span className="tabular-nums">${Math.round(h.price_per_night)}</span>/night
+            <span className="tabular-nums">${Math.round(h.price_per_night)}</span>
+            {t("hotels.perNight")}
             {" · "}
-            {h.available ? `${h.available_rooms} left` : "full"}
+            {h.available
+              ? t("hotels.roomsLeft", { count: h.available_rooms })
+              : t("hotels.full")}
           </div>
         </div>
         <div className="text-right">
@@ -74,19 +79,22 @@ function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
                 : "var(--color-coral-ink)",
             }}
           >
-            {h.available ? "available" : "full"}
+            {h.available ? t("hotels.available") : t("hotels.full")}
           </div>
         </div>
       </button>
       {open && (
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-line px-3 py-2.5 text-[12px]">
-          <Detail k="Stars" v={stars(h.star_rating)} />
-          <Detail k="Guest rating" v={`${h.rating.toFixed(1)} (${h.review_count} reviews)`} />
-          <Detail k="Nightly rate" v={`${h.price_per_night.toFixed(2)} ${h.currency}`} />
-          <Detail k="All-in total" v={`${h.total_price.toFixed(2)} ${h.currency}`} />
-          <Detail k="Rooms left" v={String(h.available_rooms)} />
+          <Detail k={t("hotels.stars")} v={stars(h.star_rating)} />
+          <Detail
+            k={t("hotels.guestRating")}
+            v={t("hotels.guestRatingValue", { rating: h.rating.toFixed(1), count: h.review_count })}
+          />
+          <Detail k={t("hotels.nightlyRate")} v={`${h.price_per_night.toFixed(2)} ${h.currency}`} />
+          <Detail k={t("hotels.allInTotal")} v={`${h.total_price.toFixed(2)} ${h.currency}`} />
+          <Detail k={t("hotels.roomsLeftLabel")} v={String(h.available_rooms)} />
           <div className="col-span-2">
-            <dt className="text-muted">Amenities</dt>
+            <dt className="text-muted">{t("hotels.amenities")}</dt>
             <dd className="font-semibold text-ink">
               {h.amenities.length ? h.amenities.join(", ") : "—"}
             </dd>
@@ -107,14 +115,21 @@ function Detail({ k, v }: { k: string; v: string }) {
 }
 
 export function HotelsPanel({ data }: { data: HotelsPanelData }) {
+  const t = useTranslations("Panel");
   const { city, check_in, check_out, nights, rooms, results_count, cheapest_total, hotels } = data;
   return (
     <div className="h-full overflow-y-auto p-md">
       <div className="mb-2.5">
         <div className="text-[15px] font-bold text-ink">{city}</div>
         <div className="text-[12.5px] text-muted">
-          {check_in} → {check_out} · {nights} night{nights === 1 ? "" : "s"} · {rooms} room
-          {rooms === 1 ? "" : "s"} · {results_count} results · cheapest ${Math.round(cheapest_total)}
+          {t("hotels.summary", {
+            checkIn: check_in,
+            checkOut: check_out,
+            nights,
+            rooms,
+            results: results_count,
+            price: `$${Math.round(cheapest_total)}`,
+          })}
         </div>
       </div>
       <div className="flex flex-col gap-2">

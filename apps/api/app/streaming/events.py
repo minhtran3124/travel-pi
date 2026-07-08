@@ -16,9 +16,9 @@ Taxonomy
 * ``tool_call``   — a tool invocation started: ``{id, name, args_preview, subagent}``
 * ``tool_result`` — a tool finished: ``{id, status}`` (``status`` ∈ ``ok|error``)
 * ``panel``       — structured side-panel payload from a tool's artifact:
-  ``{tool_call_id, kind, data}`` (``kind`` ∈ ``route|places|weather``)
+  ``{tool_call_id, kind, data, language}`` (``kind`` ∈ ``route|places|weather``)
 * ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
-* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions}``
+* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language}``
 * ``error``       — terminal failure: ``{code, message}``
 """
 
@@ -67,8 +67,18 @@ def tool_result(*, id: str, status: str) -> TypedSSEEvent:
     return _event("tool_result", {"id": id, "status": status})
 
 
-def panel(*, tool_call_id: str, kind: str, data: Any) -> TypedSSEEvent:
-    return _event("panel", {"tool_call_id": tool_call_id, "kind": kind, "data": data})
+def panel(
+    *, tool_call_id: str, kind: str, data: Any, language: str = "en"
+) -> TypedSSEEvent:
+    return _event(
+        "panel",
+        {
+            "tool_call_id": tool_call_id,
+            "kind": kind,
+            "data": data,
+            "language": language,
+        },
+    )
 
 
 def interrupt(*, conversation_id: str, payload: Any) -> TypedSSEEvent:
@@ -76,7 +86,11 @@ def interrupt(*, conversation_id: str, payload: Any) -> TypedSSEEvent:
 
 
 def done(
-    *, conversation_id: str, current_flow: str | None, suggestions: list[str]
+    *,
+    conversation_id: str,
+    current_flow: str | None,
+    suggestions: list[str],
+    language: str = "en",
 ) -> TypedSSEEvent:
     return _event(
         "done",
@@ -84,6 +98,7 @@ def done(
             "conversation_id": conversation_id,
             "current_flow": current_flow,
             "suggestions": suggestions,
+            "language": language,
         },
     )
 

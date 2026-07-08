@@ -1,8 +1,16 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RoutePanelData } from "@/lib/stream/panel";
+import { PanelIntlProvider } from "./PanelIntlProvider";
 import { RoutePanel } from "./RoutePanel";
+
+// Panels read STATIC labels via `useTranslations`, so they must render inside a
+// PanelIntlProvider (the streamed-language provider used in production).
+const Intl = ({ children }: { children: ReactNode }) => (
+  <PanelIntlProvider language="en">{children}</PanelIntlProvider>
+);
 
 const mapInstance = {
   on: (ev: string, cb: () => void) => {
@@ -49,7 +57,7 @@ describe("RoutePanel", () => {
   });
 
   it("renders the route headline, recommended leg and gmaps deep-link", () => {
-    render(<RoutePanel data={DATA} />);
+    render(<RoutePanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText("Hotel → Dragon Bridge")).toBeInTheDocument();
     expect(screen.getByText(/2.4 km · ~7 min by car \(estimated\)/)).toBeInTheDocument();
     const link = screen.getByRole("link", { name: /open in google maps/i });
@@ -60,7 +68,7 @@ describe("RoutePanel", () => {
   });
 
   it("initialises a MapLibre map and draws a straight line when geometry is null", async () => {
-    render(<RoutePanel data={DATA} />);
+    render(<RoutePanel data={DATA} />, { wrapper: Intl });
     await waitFor(() => expect(MapMock).toHaveBeenCalledTimes(1));
     const lineCall = mapInstance.addSource.mock.calls.find((c) => c[0] === "route");
     expect(lineCall).toBeTruthy();

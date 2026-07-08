@@ -1,8 +1,16 @@
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import type { AirQualityPanelData } from "@/lib/stream/panel";
 import { AirQualityPanel } from "./AirQualityPanel";
+import { PanelIntlProvider } from "./PanelIntlProvider";
+
+// Panels read STATIC labels via `useTranslations`, so they must render inside a
+// PanelIntlProvider (the streamed-language provider used in production).
+const Intl = ({ children }: { children: ReactNode }) => (
+  <PanelIntlProvider language="en">{children}</PanelIntlProvider>
+);
 
 const DATA: AirQualityPanelData = {
   location_name: "Hanoi",
@@ -31,7 +39,7 @@ const DATA: AirQualityPanelData = {
 
 describe("AirQualityPanel", () => {
   it("renders the AQI dial, advice, location and scale ends", () => {
-    render(<AirQualityPanel data={DATA} />);
+    render(<AirQualityPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText("118")).toBeInTheDocument(); // dial value
     expect(screen.getByText("US AQI")).toBeInTheDocument();
     expect(
@@ -43,7 +51,7 @@ describe("AirQualityPanel", () => {
   });
 
   it("renders all six pollutants, showing — for unavailable values", () => {
-    render(<AirQualityPanel data={DATA} />);
+    render(<AirQualityPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText("PM2.5")).toBeInTheDocument();
     expect(screen.getByText("42.3")).toBeInTheDocument();
     expect(screen.getByText("CO")).toBeInTheDocument();
@@ -52,7 +60,7 @@ describe("AirQualityPanel", () => {
   });
 
   it("tags the first forecast day TODAY and carries peak AQI", () => {
-    render(<AirQualityPanel data={DATA} />);
+    render(<AirQualityPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText("Today")).toBeInTheDocument();
     expect(screen.getByText("2026-07-01")).toBeInTheDocument();
     expect(screen.getByText("120")).toBeInTheDocument(); // today's peak AQI

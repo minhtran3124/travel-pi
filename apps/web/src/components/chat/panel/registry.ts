@@ -29,11 +29,15 @@ export const PANEL_RENDERERS: Record<string, ComponentType<{ data: unknown }>> =
   hotels: HotelsPanel as unknown as ComponentType<{ data: unknown }>,
 };
 
-export const PANEL_LABELS: Record<string, string> = {
-  route: "Route",
-  places: "Places",
-  weather: "Weather",
-  air_quality: "Air Quality",
-  flights: "Flights",
-  hotels: "Hotels",
+/**
+ * panel kind → `Panel.tabs.*` translation key. Resolved via `useTranslations`
+ * at render (in SidePanel) so the tab labels follow the streamed panel language.
+ */
+export const PANEL_LABEL_KEYS: Record<string, string> = {
+  route: "tabs.route",
+  places: "tabs.places",
+  weather: "tabs.weather",
+  air_quality: "tabs.airQuality",
+  flights: "tabs.flights",
+  hotels: "tabs.hotels",
 };

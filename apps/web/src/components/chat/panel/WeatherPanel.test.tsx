@@ -1,8 +1,16 @@
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import type { WeatherPanelData } from "@/lib/stream/panel";
+import { PanelIntlProvider } from "./PanelIntlProvider";
 import { WeatherPanel } from "./WeatherPanel";
+
+// Panels read STATIC labels via `useTranslations`, so they must render inside a
+// PanelIntlProvider (the streamed-language provider used in production).
+const Intl = ({ children }: { children: ReactNode }) => (
+  <PanelIntlProvider language="en">{children}</PanelIntlProvider>
+);
 
 const DATA: WeatherPanelData = {
   location_name: "Da Nang",
@@ -43,7 +51,7 @@ const DATA: WeatherPanelData = {
 
 describe("WeatherPanel", () => {
   it("renders the current-conditions hero with rounded temp, feels-like and stats", () => {
-    render(<WeatherPanel data={DATA} />);
+    render(<WeatherPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText("28")).toBeInTheDocument();
     expect(screen.getByText("Thunderstorm")).toBeInTheDocument();
     expect(screen.getByText("Feels like 36°C")).toBeInTheDocument();
@@ -55,7 +63,7 @@ describe("WeatherPanel", () => {
   });
 
   it("tags the first forecast day TODAY and shows the rest by date", () => {
-    render(<WeatherPanel data={DATA} />);
+    render(<WeatherPanel data={DATA} />, { wrapper: Intl });
     expect(screen.getByText("Today")).toBeInTheDocument();
     expect(screen.getByText("2026-07-01")).toBeInTheDocument();
     // first day's max/min, rounded
@@ -64,7 +72,7 @@ describe("WeatherPanel", () => {
   });
 
   it("renders a precipitation bar only when probability is present", () => {
-    render(<WeatherPanel data={DATA} />);
+    render(<WeatherPanel data={DATA} />, { wrapper: Intl });
     // day 1 has 92%; day 2 is null → exactly one precip readout
     expect(screen.getByText("💧 92%")).toBeInTheDocument();
     expect(screen.getAllByText(/💧 \d+%/)).toHaveLength(1);

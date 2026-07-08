@@ -124,6 +124,65 @@ describe("useAgentStream — live token accumulation", () => {
   });
 });
 
+describe("useAgentStream — panel language plumbing", () => {
+  it("carries `language` from panel/done events into panelLanguage", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("panel", {
+            tool_call_id: "t1",
+            kind: "weather",
+            data: { location_name: "Da Nang" },
+            language: "vi",
+          }),
+          sse("token", { content: "Xin chao" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge", language: "vi" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("thoi tiet da nang?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    expect(result.current.panelLanguage).toBe("vi");
+    // The accumulated panel artifact carries the same language.
+    expect(result.current.panels[0]?.language).toBe("vi");
+    expect(result.current.error).toBeNull();
+  });
+
+  it("leaves panelLanguage at the default 'en' when events omit `language`", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("panel", { tool_call_id: "t1", kind: "weather", data: {} }),
+          sse("token", { content: "Sunny" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    // Default before any turn.
+    expect(result.current.panelLanguage).toBe("en");
+
+    act(() => {
+      result.current.send("weather?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    expect(result.current.panelLanguage).toBe("en");
+  });
+});
+
 describe("useAgentStream — follow-up suggestions", () => {
   beforeEach(() => {
     chatFallback.mockReset();

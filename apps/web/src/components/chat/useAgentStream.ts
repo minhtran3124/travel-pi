@@ -102,6 +102,13 @@ export interface UseAgentStream {
    */
   panels: PanelArtifact[];
   /**
+   * Language the streamed panels were localized to (BCP-47 short code, e.g.
+   * "vi"). Carried from the `panel`/`done` SSE events so the drawer can render
+   * the panel subtree in the traveller's language. Defaults to "en" and only
+   * changes when an event supplies a `language`.
+   */
+  panelLanguage: string;
+  /**
    * Context-aware follow-up suggestion keys from the last completed turn; empty
    * until a turn finishes / while a new turn is in flight.
    */
@@ -149,6 +156,7 @@ export function useAgentStream(
   const [error, setError] = useState<string | null>(null);
   const [interrupt, setInterrupt] = useState<InterruptState | null>(null);
   const [panels, setPanels] = useState<PanelArtifact[]>([]);
+  const [panelLanguage, setPanelLanguage] = useState("en");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const conversationIdRef = useRef<string | null>(null);
@@ -214,6 +222,13 @@ export function useAgentStream(
         });
     })();
   }, [userId]);
+
+  // Carry the panel language from `panel`/`done` events. Called from every panel
+  // and done handler across the send/resume/retry flows so the three stay in
+  // sync. Missing `language` leaves the current value (default "en") untouched.
+  const applyPanelLanguage = useCallback((language?: string) => {
+    if (language) setPanelLanguage(language);
+  }, []);
 
   const appendToAssistant = useCallback((id: string, chunk: string) => {
     setMessages((prev) =>
@@ -329,13 +344,20 @@ export function useAgentStream(
                 break;
               case "panel":
                 received = true;
+                applyPanelLanguage(event.language);
                 setPanels((prev) =>
                   upsertPanelByKind(prev, {
                     toolCallId: event.toolCallId,
                     kind: event.kind,
                     data: event.data,
+                    language: event.language,
                   }),
                 );
+                break;
+              case "done":
+                // Terminal event — capture the turn's language for the panels.
+                applyPanelLanguage(event.language);
+                setSuggestions(event.suggestions);
                 break;
               case "interrupt":
                 received = true;
@@ -347,9 +369,6 @@ export function useAgentStream(
                   conversationId: event.conversationId,
                   payload: event.payload,
                 });
-                break;
-              case "done":
-                setSuggestions(event.suggestions);
                 break;
               case "error":
                 // In-band backend failure — route through the catch below.
@@ -390,7 +409,7 @@ export function useAgentStream(
         }
       })();
     },
-    [interrupt, isStreaming, onTurnComplete, t, userId],
+    [applyPanelLanguage, interrupt, isStreaming, onTurnComplete, t, userId],
   );
 
   const resume = useCallback(
@@ -442,21 +461,25 @@ export function useAgentStream(
                 revealRef.current?.reset(assistantId);
                 break;
               case "panel":
+                applyPanelLanguage(event.language);
                 setPanels((prev) =>
                   upsertPanelByKind(prev, {
                     toolCallId: event.toolCallId,
                     kind: event.kind,
                     data: event.data,
+                    language: event.language,
                   }),
                 );
                 break;
               case "done":
+                // Terminal event — capture the turn's language for the panels.
+                applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
                 break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
-              // Nested interrupts are not expected; start/subagent/tool
-              // events are no-ops here.
+              // Nested interrupts are not expected; start/subagent/tool events
+              // are no-ops here.
               default:
                 break;
             }
@@ -478,7 +501,7 @@ export function useAgentStream(
         }
       })();
     },
-    [interrupt, onTurnComplete, t, userId],
+    [applyPanelLanguage, interrupt, onTurnComplete, t, userId],
   );
 
   const retry = useCallback(() => {
@@ -551,13 +574,20 @@ export function useAgentStream(
               break;
             case "panel":
               received = true;
+              applyPanelLanguage(event.language);
               setPanels((prev) =>
                 upsertPanelByKind(prev, {
                   toolCallId: event.toolCallId,
                   kind: event.kind,
                   data: event.data,
+                  language: event.language,
                 }),
               );
+              break;
+            case "done":
+              // Terminal event — capture the turn's language for the panels.
+              applyPanelLanguage(event.language);
+              setSuggestions(event.suggestions);
               break;
             case "interrupt":
               received = true;
@@ -568,9 +598,6 @@ export function useAgentStream(
                 conversationId: event.conversationId,
                 payload: event.payload,
               });
-              break;
-            case "done":
-              setSuggestions(event.suggestions);
               break;
             case "error":
               throw new Error(`agent error: ${event.code}`);
@@ -600,7 +627,7 @@ export function useAgentStream(
         if (abortRef.current === controller) abortRef.current = null;
       }
     })();
-  }, [interrupt, isStreaming, messages, onTurnComplete, t, userId]);
+  }, [applyPanelLanguage, interrupt, isStreaming, messages, onTurnComplete, t, userId]);
 
   const newConversation = useCallback(() => {
     revealRef.current?.clear();
@@ -611,6 +638,7 @@ export function useAgentStream(
     setError(null);
     setInterrupt(null);
     setPanels([]);
+    setPanelLanguage("en");
     setSuggestions([]);
   }, []);
 
@@ -629,6 +657,7 @@ export function useAgentStream(
     retry,
     newConversation,
     panels,
+    panelLanguage,
     suggestions,
   };
 }
