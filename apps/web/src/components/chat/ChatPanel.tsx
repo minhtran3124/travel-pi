@@ -39,9 +39,26 @@ export function ChatPanel({
   onToggleMap,
 }: ChatPanelProps) {
   const t = useTranslations("Chat");
-  const { messages, send, isStreaming, error, interrupt, resume, canRetry, retry } =
-    stream;
+  const {
+    messages,
+    send,
+    isStreaming,
+    error,
+    interrupt,
+    resume,
+    canRetry,
+    retry,
+    newConversation,
+  } = stream;
   const [fullscreen, setFullscreen] = useState(false);
+
+  // Confirm only when there's something to lose; an empty chat resets silently.
+  const handleNewConversation = () => {
+    if (messages.length > 0 && !window.confirm(t("newConversationConfirm"))) {
+      return;
+    }
+    newConversation();
+  };
 
   const inputBlocked = isStreaming || interrupt !== null;
   const status: AgentStatus =
@@ -63,6 +80,7 @@ export function ChatPanel({
         fullscreen={fullscreen}
         onToggleFullscreen={() => setFullscreen((v) => !v)}
         onClose={onClose}
+        onNewConversation={handleNewConversation}
       />
 
       {error ? (
