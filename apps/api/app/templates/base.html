@@ -905,7 +905,6 @@
       <a href="/dashboard/weather" class="tab {{ 'on' if path.startswith('/dashboard/weather') else '' }}">Weather</a>
       <a href="/dashboard/air-quality" class="tab {{ 'on' if path.startswith('/dashboard/air-quality') else '' }}">Air Quality</a>
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
-      <a href="/dashboard/checklist" class="tab {{ 'on' if path.startswith('/dashboard/checklist') else '' }}">My List<span id="trip-badge" class="tab-badge" hidden></span></a>
       <a href="/dashboard/agent-config" class="tab {{ 'on' if path.startswith('/dashboard/agent-config') else '' }}">Agent Config</a>
       <a href="/dashboard/prompts" class="tab {{ 'on' if path.startswith('/dashboard/prompts') else '' }}">Prompts</a>
       <span class="spacer"></span>
@@ -1072,20 +1071,6 @@
       });
       input.addEventListener('input', function () { render(input.value); });
       modal.querySelectorAll('[data-cmdk-close]').forEach(function (el) { el.addEventListener('click', close); });
-    })();
-
-    /* ── Nav badge: total saved items across trips ── */
-    (function () {
-      var badge = document.getElementById('trip-badge');
-      if (!badge || !window.TripStore) return;
-      function refresh() {
-        var n = TripStore.totalItems();
-        badge.textContent = n;
-        badge.hidden = n === 0;
-      }
-      refresh();
-      window.addEventListener('tripschange', refresh);
-      window.addEventListener('storage', refresh);  // sync across tabs
     })();
   </script>
   <script>
