@@ -1,6 +1,6 @@
 ---
 slug: min-56-new-conversation
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-08
 ---
@@ -88,3 +88,4 @@ This work is purely wiring that function into a new header menu. **No backend ch
   leaking BE context). Fixed by gating the gear on `status === "ready"` (`disabled` when
   `working`/`waiting`), which also wires the previously-dead `disabled` prop. Added
   `ChatHeader.test.tsx` as the regression guard. tsc 0 · lint 0 · 35 chat tests green.
+- 2026-07-08 — shipped via `feat/min-56-new-conversation` (PR #75 → v3).
