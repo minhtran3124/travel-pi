@@ -213,6 +213,8 @@
     @media (prefers-reduced-motion: reduce) { .tp-dialog-panel { animation: none; } }
 
     .wrap { max-width: 1140px; margin: 0 auto; padding: 28px 20px 64px; }
+    /* Opt-in wide layout (e.g. prompt dashboard) — roomier for side-by-side views. */
+    .wrap.wrap-wide { max-width: 1800px; padding-left: clamp(20px, 3vw, 40px); padding-right: clamp(20px, 3vw, 40px); }
 
     /* ── Page header (section title strip) ── */
     .page-head {
@@ -916,7 +918,7 @@
       <a href="/docs" class="tab tab-ext">API Docs ↗</a>
     </div>
   </nav>
-  <div class="wrap">
+  <div class="wrap {% block wrap_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </div>
   <footer>

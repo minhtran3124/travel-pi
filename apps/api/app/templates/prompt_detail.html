@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_prompt_sidebar.html" import prompt_sidebar %}
 {% block title %}{{ name ~ ' · prompt' if name else 'Prompts' }}{% endblock %}
+{% block wrap_class %}wrap-wide{% endblock %}
 
 {% block content %}
 <div class="page-head">
