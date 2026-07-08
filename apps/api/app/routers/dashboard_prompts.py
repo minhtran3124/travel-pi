@@ -6,8 +6,8 @@ store, not a DB-backed repository. Same idiom: Jinja2 templates, excluded from
 the OpenAPI schema.
 
 Pages:
-    GET /dashboard/prompts                    list every known prompt name
-    GET /dashboard/prompts/{name}              view one version of a prompt
+    GET /dashboard/prompts                    browse: sidebar of names + latest version
+    GET /dashboard/prompts/{name}              one prompt's version (defaults to latest)
     GET /dashboard/prompts/{name}/diff         side-by-side diff of two versions
 """
 
@@ -38,37 +38,29 @@ def _parse_version(raw: str) -> int:
     return int(raw[1:] if raw.startswith("v") else raw)
 
 
-@router.get("/prompts", response_class=HTMLResponse, include_in_schema=False)
-async def list_prompts(request: Request) -> HTMLResponse:
-    """List every known prompt name with its active version and version count."""
-    prompts = [
-        {
-            "name": name,
-            "active": registry.active_version(name),
-            "count": len(registry.versions(name)),
-        }
+def _names_meta() -> list[dict]:
+    """Every prompt name + its active version, for the sidebar rail."""
+    return [
+        {"name": name, "active": registry.active_version(name)}
         for name in sorted(registry.names())
     ]
-    return _TEMPLATES.TemplateResponse(
-        request=request,
-        name="prompt_list.html",
-        context={"request": request, "prompts": prompts},
-    )
 
 
-@router.get("/prompts/{name}", response_class=HTMLResponse, include_in_schema=False)
-async def prompt_detail(
-    request: Request, name: str, version: str | None = None
-) -> HTMLResponse:
-    """Show one version of a prompt (defaults to the active version)."""
+def _render_detail(request: Request, name: str, version: str | None) -> HTMLResponse:
+    """Render the browse workspace (sidebar + one prompt version on the right).
+
+    Defaults the right pane to the *latest* version; the compare bar defaults to
+    "previous → latest". ``version`` (``vN``/``N``) overrides the shown version.
+    """
     try:
         versions = registry.versions(name)
         active = registry.active_version(name)
     except KeyError as e:
         raise NotFoundError(str(e)) from e
 
+    latest = max(versions)
     if version is None:
-        selected = active
+        selected = latest
     else:
         try:
             selected = _parse_version(version)
@@ -77,19 +69,52 @@ async def prompt_detail(
         if selected not in versions:
             raise NotFoundError(f"Prompt {name!r} has no version v{selected}")
 
-    content = registry.get(name, selected)
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="prompt_detail.html",
         context={
             "request": request,
+            "names_meta": _names_meta(),
             "name": name,
             "versions": versions,
             "active": active,
             "selected": selected,
-            "content": content,
+            "content": registry.get(name, selected),
+            "cmp_from": versions[-2] if len(versions) >= 2 else versions[0],
+            "cmp_to": latest,
         },
     )
+
+
+@router.get("/prompts", response_class=HTMLResponse, include_in_schema=False)
+async def list_prompts(request: Request) -> HTMLResponse:
+    """Browse prompts: sidebar of every name + the first prompt's latest version."""
+    names = sorted(registry.names())
+    if not names:
+        return _TEMPLATES.TemplateResponse(
+            request=request,
+            name="prompt_detail.html",
+            context={
+                "request": request,
+                "names_meta": [],
+                "name": None,
+                "versions": [],
+                "active": None,
+                "selected": None,
+                "content": "",
+                "cmp_from": None,
+                "cmp_to": None,
+            },
+        )
+    return _render_detail(request, names[0], None)
+
+
+@router.get("/prompts/{name}", response_class=HTMLResponse, include_in_schema=False)
+async def prompt_detail(
+    request: Request, name: str, version: str | None = None
+) -> HTMLResponse:
+    """Show one version of a prompt (defaults to the latest version)."""
+    return _render_detail(request, name, version)
 
 
 @router.get(
@@ -119,6 +144,7 @@ async def prompt_diff(
         name="prompt_diff.html",
         context={
             "request": request,
+            "names_meta": _names_meta(),
             "name": name,
             "from_v": from_int,
             "to_v": to_int,

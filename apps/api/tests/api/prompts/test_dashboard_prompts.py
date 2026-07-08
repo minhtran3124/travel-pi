@@ -8,27 +8,47 @@ route, assert status + substring on the body. Coverage is driven off the live
 from app.prompts.registry import registry
 
 
-def test_list_page_lists_every_registered_prompt(client):
+def test_browse_page_lists_every_prompt_in_sidebar(client):
     r = client.get("/dashboard/prompts")
     assert r.status_code == 200
     for name in registry.names():
         assert name in r.text
 
 
-def test_list_page_shows_active_version_and_count(client):
-    # budget has v1 + v2 with active v2 (per active.yaml) — both facts must surface.
+def test_sidebar_shows_active_version_badges(client):
+    # Each sidebar item badges the prompt's active version (e.g. supervisor v5).
     r = client.get("/dashboard/prompts")
     assert r.status_code == 200
+    assert f"v{registry.active_version('supervisor')}" in r.text
     assert f"v{registry.active_version('budget')}" in r.text
-    assert str(len(registry.versions("budget"))) in r.text
 
 
-def test_list_is_dynamic_off_the_registry(client):
-    # One card per registered name — proves new dirs appear with no code change.
+def test_sidebar_is_dynamic_off_the_registry(client):
+    # One nav item per registered name — proves new dirs appear with no code change.
+    # Match the class attribute (not the CSS selector, which also mentions the class).
     r = client.get("/dashboard/prompts")
-    assert r.text.count("prompt-card") == len(registry.names()) or all(
-        n in r.text for n in registry.names()
-    )
+    assert r.text.count('class="prompt-nav-item') == len(registry.names())
+
+
+def test_browse_defaults_to_first_prompt(client):
+    # The bare browse page auto-selects the first prompt (sorted) on the right;
+    # its compare form targets that prompt, and a sidebar item is marked current.
+    r = client.get("/dashboard/prompts")
+    assert r.status_code == 200
+    first = sorted(registry.names())[0]
+    assert f'action="/dashboard/prompts/{first}/diff"' in r.text
+    assert 'aria-current="page"' in r.text
+
+
+def test_detail_defaults_to_latest_and_compare_prev_to_latest(client):
+    # supervisor: latest v5, so the right pane defaults to v5 and the compare bar
+    # defaults to previous→latest (from v4, to v5).
+    versions = registry.versions("supervisor")
+    latest, prev = versions[-1], versions[-2]
+    r = client.get("/dashboard/prompts/supervisor")
+    assert r.status_code == 200
+    assert f'<option value="v{latest}" selected' in r.text  # compare "to" = latest
+    assert f'<option value="v{prev}" selected' in r.text  # compare "from" = previous
 
 
 def test_detail_page_lists_versions_and_flags_active(client):

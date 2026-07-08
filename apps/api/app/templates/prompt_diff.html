@@ -1,14 +1,23 @@
 {% extends "base.html" %}
+{% from "_prompt_sidebar.html" import prompt_sidebar %}
 {% block title %}{{ name }} diff{% endblock %}
 
 {% block content %}
-<a class="back" href="/dashboard/prompts/{{ name }}">← {{ name }}</a>
-
 <div class="page-head">
-  <h1 class="page-title"><span class="icon">🔀</span><span>{{ name }}: v{{ from_v }} → v{{ to_v }}</span></h1>
+  <h1 class="page-title"><span class="icon">📝</span><span>Prompts</span></h1>
+  <div class="page-meta">{{ names_meta | length }} prompt{{ 's' if names_meta | length != 1 else '' }}</div>
 </div>
 
-<div class="diff-toggle" role="group" aria-label="Diff layout">
+<div class="prompt-workspace">
+  {{ prompt_sidebar(names_meta, name) }}
+
+  <div class="prompt-main">
+    <div class="diff-head">
+      <a class="back" href="/dashboard/prompts/{{ name }}">← {{ name }}</a>
+      <h2 class="prompt-main-title">{{ name }}: v{{ from_v }} → v{{ to_v }}</h2>
+    </div>
+
+    <div class="diff-toggle" role="group" aria-label="Diff layout">
   <button type="button" id="btn-unified" class="diff-toggle-btn is-on" onclick="setDiffView('unified')">Unified</button>
   <button type="button" id="btn-sxs" class="diff-toggle-btn" onclick="setDiffView('sxs')">Side-by-side</button>
 </div>
@@ -56,8 +65,11 @@
     {% endfor %}
   </div>
 </div>
+  </div>
+</div>
 
 <style>
+  .diff-head { display: flex; flex-direction: column; gap: 8px; }
   .diff-toggle {
     display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 14px;
     background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
