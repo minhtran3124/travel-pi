@@ -1,6 +1,6 @@
 ---
 slug: min-45-prompt-version-dashboard
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-08
 ---
@@ -142,3 +142,4 @@ name, active flagged, content shown) → **diff** (line-level, exactly two versi
   W1 `8edc6dc` (registry helpers + diff util, 10 tests), W2 `d989a3e` (templates + nav),
   W3 `12a8f07` (router + registration), W4 `2f9c86c` (12 route tests). 22 tests green on
   SQLite; ruff clean; independent correctness+intent review found no defects.
+- 2026-07-08 — shipped via `feat/min-45-prompt-version-dashboard` (PR #76 → v3).
