@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ name }} · prompt{% endblock %}
+
+{% block content %}
+<a class="back" href="/dashboard/prompts">← Prompts</a>
+
+<div class="page-head">
+  <h1 class="page-title"><span class="icon">📝</span><span>{{ name }}</span></h1>
+  <div class="page-meta">active v{{ active }}</div>
+</div>
+
+<div class="prompt-versions">
+  {% for v in versions %}
+  <a class="version-pill {{ 'is-selected' if v == selected else '' }}"
+     href="/dashboard/prompts/{{ name }}?version=v{{ v }}">
+    v{{ v }}{% if v == active %}<span class="version-active-flag">active</span>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+<div class="card prompt-content-card">
+  <pre class="prompt-content">{{ content }}</pre>
+</div>
+
+<form method="get" action="/dashboard/prompts/{{ name }}/diff" class="diff-picker">
+  <div class="fg">
+    <span class="fl">From</span>
+    <select name="from">
+      {% for v in versions %}
+      <option value="v{{ v }}" {% if v == selected %}selected{% endif %}>v{{ v }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="fg">
+    <span class="fl">To</span>
+    <select name="to">
+      {% for v in versions %}
+      <option value="v{{ v }}" {% if v == active %}selected{% endif %}>v{{ v }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="fb-btn" type="submit">Compare</button>
+</form>
+
+<style>
+  .prompt-versions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .version-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel-2);
+    color: var(--muted); font-size: 0.83rem; font-weight: 600;
+    text-decoration: none;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .version-pill:hover { border-color: var(--accent); color: var(--ink); }
+  .version-pill.is-selected {
+    border-color: var(--accent); background: var(--accent-glow); color: var(--ink);
+  }
+  .version-active-flag {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--accent-dim);
+  }
+  .prompt-content-card { margin-bottom: 20px; overflow-x: auto; }
+  .prompt-content {
+    margin: 0; white-space: pre-wrap; word-break: break-word;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem; line-height: 1.6; color: var(--ink);
+  }
+  .diff-picker {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+</style>
+{% endblock %}
