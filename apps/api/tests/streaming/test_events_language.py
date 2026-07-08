@@ -14,5 +14,7 @@ def test_panel_carries_language():
 
 
 def test_done_carries_language():
-    ev = events.done(conversation_id="c1", current_flow="concierge", language="vi")
+    ev = events.done(
+        conversation_id="c1", current_flow="concierge", suggestions=[], language="vi"
+    )
     assert json.loads(ev.data)["language"] == "vi"
