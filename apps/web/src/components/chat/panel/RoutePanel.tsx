@@ -2,6 +2,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
 import type { RoutePanelData } from "@/lib/stream/panel";
@@ -41,6 +42,7 @@ function recommendedLeg(d: RoutePanelData) {
  * lazily inside the effect so the GL bundle loads only when a route is shown.
  */
 export function RoutePanel({ data }: { data: RoutePanelData }) {
+  const t = useTranslations("Panel");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const leg = recommendedLeg(data);
 
@@ -112,7 +114,7 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div ref={containerRef} className="min-h-0 flex-1" aria-label="Route map" />
+      <div ref={containerRef} className="min-h-0 flex-1" aria-label={t("route.mapLabel")} />
 
       <div className="border-t border-line bg-white px-lg py-md">
         <div className="flex items-center justify-between gap-md">
@@ -121,9 +123,12 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
               {data.origin.name} → {data.destination.name}
             </p>
             <p className="text-xs text-muted">
-              {leg.distance_km} km · ~{Math.round(leg.duration_minutes)} min by{" "}
-              {data.recommended_mode}
-              {data.source === "estimate" ? " (estimated)" : ""}
+              {t("route.summary", {
+                distance: leg.distance_km,
+                duration: Math.round(leg.duration_minutes),
+                mode: data.recommended_mode,
+                estimated: data.source === "estimate" ? "true" : "false",
+              })}
             </p>
           </div>
           <a
@@ -132,7 +137,7 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
             rel="noopener noreferrer"
             className="shrink-0 rounded-full border border-line px-md py-xs text-xs font-medium text-ink transition hover:bg-surface"
           >
-            Open in Google Maps
+            {t("route.openInGoogleMaps")}
           </a>
         </div>
 
@@ -146,7 +151,11 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
                   : "bg-surface text-muted"
               }`}
             >
-              {l.mode} · {l.distance_km} km · {Math.round(l.duration_minutes)} min
+              {t("route.legChip", {
+                mode: l.mode,
+                distance: l.distance_km,
+                duration: Math.round(l.duration_minutes),
+              })}
             </span>
           ))}
         </div>

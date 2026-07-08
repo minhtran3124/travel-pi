@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -16,16 +17,13 @@ function hhmm(iso: string): string {
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
-function dur(mins: number): string {
-  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
-}
-
-function stopLabel(stops: number): string {
-  return stops === 0 ? "nonstop" : `${stops} stop${stops > 1 ? "s" : ""}`;
-}
-
 function Row({ f, cheapest }: { f: FlightsPanelFlight; cheapest: boolean }) {
+  const t = useTranslations("Panel");
   const [open, setOpen] = useState(false);
+  const dur = (mins: number) =>
+    t("flights.durationValue", { h: Math.floor(mins / 60), m: mins % 60 });
+  const stopLabel = (stops: number) =>
+    stops === 0 ? t("flights.nonstop") : t("flights.stops", { count: stops });
   return (
     <div
       className={cn(
@@ -45,7 +43,8 @@ function Row({ f, cheapest }: { f: FlightsPanelFlight; cheapest: boolean }) {
             <span className="font-medium text-faint">{dur(f.duration_minutes)}</span>
           </div>
           <div className="truncate text-[11.5px] text-muted">
-            {f.airline_name} {f.flight_number} · {stopLabel(f.stops)} · {f.seats_available} left
+            {f.airline_name} {f.flight_number} · {stopLabel(f.stops)} ·{" "}
+            {t("flights.seatsLeft", { count: f.seats_available })}
           </div>
         </div>
         <div className="text-right">
@@ -62,13 +61,13 @@ function Row({ f, cheapest }: { f: FlightsPanelFlight; cheapest: boolean }) {
       </button>
       {open && (
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-line px-3 py-2.5 text-[12px]">
-          <Detail k="Airline" v={`${f.airline_name} (${f.airline_code})`} />
-          <Detail k="Flight" v={f.flight_number} />
-          <Detail k="Route" v={`${f.origin} → ${f.destination}`} />
-          <Detail k="Duration" v={dur(f.duration_minutes)} />
-          <Detail k="Stops" v={stopLabel(f.stops)} />
-          <Detail k="Seats left" v={String(f.seats_available)} />
-          <Detail k="Price" v={`${f.price.toFixed(2)} ${f.currency}`} />
+          <Detail k={t("flights.airline")} v={`${f.airline_name} (${f.airline_code})`} />
+          <Detail k={t("flights.flight")} v={f.flight_number} />
+          <Detail k={t("flights.route")} v={`${f.origin} → ${f.destination}`} />
+          <Detail k={t("flights.duration")} v={dur(f.duration_minutes)} />
+          <Detail k={t("flights.stopsLabel")} v={stopLabel(f.stops)} />
+          <Detail k={t("flights.seatsLeftLabel")} v={String(f.seats_available)} />
+          <Detail k={t("flights.price")} v={`${f.price.toFixed(2)} ${f.currency}`} />
         </dl>
       )}
     </div>
@@ -85,6 +84,7 @@ function Detail({ k, v }: { k: string; v: string }) {
 }
 
 export function FlightsPanel({ data }: { data: FlightsPanelData }) {
+  const t = useTranslations("Panel");
   const { origin, destination, departure_date, results_count, cheapest_price, flights } = data;
   return (
     <div className="h-full overflow-y-auto p-md">
@@ -93,7 +93,11 @@ export function FlightsPanel({ data }: { data: FlightsPanelData }) {
           {origin} <span className="font-black text-lime">→</span> {destination}
         </div>
         <div className="text-[12.5px] text-muted">
-          {departure_date} · {results_count} results · cheapest ${Math.round(cheapest_price)}
+          {t("flights.summary", {
+            date: departure_date,
+            count: results_count,
+            price: `$${Math.round(cheapest_price)}`,
+          })}
         </div>
       </div>
       <div className="flex flex-col gap-2">

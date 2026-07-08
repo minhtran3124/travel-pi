@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -19,6 +20,7 @@ function priceBand(level: number): string {
 }
 
 function Row({ p }: { p: PlacesPanelPlace }) {
+  const t = useTranslations("Panel");
   const [open, setOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
   return (
@@ -65,23 +67,26 @@ function Row({ p }: { p: PlacesPanelPlace }) {
           <div className="truncate text-[11px] text-faint">{p.address}</div>
         </div>
         {p.is_recommended && (
-          <div className="shrink-0 text-[10.5px] font-bold text-lime">★ pick</div>
+          <div className="shrink-0 text-[10.5px] font-bold text-lime">★ {t("places.pick")}</div>
         )}
       </button>
       {open && (
         <div className="border-t border-line px-3 py-2.5">
           <p className="mb-2 text-[12px] text-ink">{p.description}</p>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[12px]">
-            <Detail k="Category" v={p.category} className="capitalize" />
-            <Detail k="Rating" v={`${p.rating.toFixed(1)} (${p.review_count} reviews)`} />
-            <Detail k="Price" v={priceBand(p.price_level)} />
-            <Detail k="Hours" v={p.opening_hours ?? "—"} />
+            <Detail k={t("places.category")} v={p.category} className="capitalize" />
+            <Detail
+              k={t("places.rating")}
+              v={t("places.ratingValue", { rating: p.rating.toFixed(1), count: p.review_count })}
+            />
+            <Detail k={t("places.price")} v={priceBand(p.price_level)} />
+            <Detail k={t("places.hours")} v={p.opening_hours ?? "—"} />
             <div className="col-span-2">
-              <dt className="text-muted">Address</dt>
+              <dt className="text-muted">{t("places.address")}</dt>
               <dd className="font-semibold text-ink">{p.address}</dd>
             </div>
             <div className="col-span-2">
-              <dt className="text-muted">Tags</dt>
+              <dt className="text-muted">{t("places.tags")}</dt>
               <dd className="font-semibold text-ink">
                 {p.tags.length ? p.tags.join(", ") : "—"}
               </dd>
@@ -103,14 +108,17 @@ function Detail({ k, v, className }: { k: string; v: string; className?: string 
 }
 
 export function PlacesPanel({ data }: { data: PlacesPanelData }) {
+  const t = useTranslations("Panel");
   const { city, category, results_count, places } = data;
   const summary = [city, category].filter(Boolean).join(" · ");
   return (
     <div className="h-full overflow-y-auto p-md">
       <div className="mb-2.5">
-        <div className="text-[15px] font-bold text-ink">{summary || "Places"}</div>
+        <div className="text-[15px] font-bold text-ink">
+          {summary || t("places.fallbackTitle")}
+        </div>
         <div className="text-[12.5px] text-muted">
-          {results_count} result{results_count === 1 ? "" : "s"}
+          {t("places.results", { count: results_count })}
         </div>
       </div>
       <div className="flex flex-col gap-2">
