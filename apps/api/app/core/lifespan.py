@@ -56,6 +56,28 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # user searched the affected city.
     check_city_coverage()
 
+    # Pre-warm the travel-knowledge RAG store (specs/travel-knowledge-rag) so the
+    # concierge's `search_travel_knowledge` tool works from the first request. The
+    # store is a cached singleton keyed by DATABASE_URL; ingest_knowledge embeds the
+    # visa + tips + summaries corpus with stable ids (idempotent upsert). Wrapped so
+    # a failure never blocks startup — RAG degrades to "no results", the concierge
+    # answers from its other tools. Postgres reads the persisted collection; this
+    # keeps it current after a seed change.
+    try:
+        from app.rag.embeddings import get_vector_store
+        from app.rag.ingest import ingest_knowledge
+
+        store = get_vector_store()
+        with get_session_factory(settings.database_url)() as session:
+            count = ingest_knowledge(store, session)
+        logger.info(
+            "Travel knowledge RAG ready: %d documents in %s",
+            count,
+            type(store).__name__,
+        )
+    except Exception:
+        logger.exception("Travel knowledge RAG pre-warm failed; tool degrades to empty")
+
     # The per-service init_db() calls (also create_all, idempotent) keep each
     # service constructable/initable independently in tests; on Postgres they
     # are no-ops after Alembic has run (checkfirst=True).

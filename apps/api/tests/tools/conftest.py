@@ -33,3 +33,26 @@ def trip_id(agent_db):
         trip = TripService(s).create_trip(TripCreate(title="Tokyo trip", city="Tokyo"))
         s.commit()
         return trip.id
+
+
+@pytest.fixture
+def reset_store(monkeypatch):
+    """Clear the cached RAG vector store(s) + force fake embeddings (isolation).
+
+    The concierge's ``search_travel_knowledge`` tool resolves a cached singleton
+    store keyed by ``DATABASE_URL`` and embeds via ``get_embeddings()``. A previous
+    test that pointed the setting at a different temp DB would leak a stale store,
+    and a real ``OPENAI_API_KEY`` in ``apps/api/.env`` would make the tool hit
+    OpenAI. Clear the store cache and force the deterministic fake embeddings.
+    """
+    from app.rag.embeddings import reset_vector_store
+
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    get_settings.cache_clear()
+    s = get_settings()
+    monkeypatch.setattr(s, "openai_api_key", None)
+    get_settings.cache_clear()
+    reset_vector_store()
+    yield
+    reset_vector_store()
+    get_settings.cache_clear()
