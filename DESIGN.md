@@ -99,6 +99,11 @@ components:
     rounded: "{rounded.pill}"
     height: "56px"
     width: "56px"
+  dialog:
+    backgroundColor: "{colors.panel}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.lg}"
+    padding: "16px"
 ---
 
 # Design System: Travel Planner
@@ -296,6 +301,24 @@ warmth on the other surfaces comes from the covers, copy, and the coral accent i
 - **Focus:** Global neutral focus ring — `box-shadow: 0 0 0 3px rgba(28,28,28,0.16)`,
   `outline: none`. The same ring on every focusable element; the accent is *not* the focus color.
 
+### Modals & Dialogs
+There is **one** modal primitive — `ui/Modal` — and everything overlaying the page is
+built on it. It carries the shared chrome so no screen re-invents it: a dimmed backdrop
+(`#1c1c1c` at 40% + `backdrop-blur-sm`), a centered Panel-white surface with a 1px `line`
+border, large radius (`20px`, `rounded-lg`), `shadow-lift`, and `16px` (`p-lg`) padding,
+entering with the `tp-pop` pop (`0.16s ease-out`). It **traps focus**, restores focus to
+the trigger on close, and dismisses on both Esc and backdrop click. The title is Headline
+(extrabold `1.1rem`). Width is the explicit `max-w-[28rem]` — never `max-w-md`, which the
+`--spacing-md` token collapses to 12px under Tailwind v4.
+- **`ui/ConfirmDialog`:** the yes/no confirmation, composed on `Modal`. Body copy is
+  `text-sm` `muted`; the footer is `flex justify-end gap-sm` with a **ghost Cancel** and a
+  **primary (ink) confirm** — the same two-button footer every modal uses (see
+  `NewTripModal`). Use it for any destructive or irreversible prompt.
+- **Named Rule — The No-Native-Dialog Rule.** `window.confirm`, `window.alert`, and
+  `window.prompt` are **forbidden** in product UI. They render the browser's chrome
+  (unstyled, unbranded, no focus trap, no tokens) — the exact off-brand box this system
+  exists to replace. Reach for `ConfirmDialog` (or `Modal`) instead, always.
+
 ### Navigation
 - **Style:** A single top bar — `panel` background, hairline bottom border, `56px` tall,
   centered to a `max-w-5xl` column. Bold wordmark on the left, bold `text-sm` links beside it.
@@ -330,6 +353,10 @@ warmth on the other surfaces comes from the covers, copy, and the coral accent i
   disabled) and the global focus ring.
 - **Do** keep motion crisp and state-driven (150–200ms); honor `prefers-reduced-motion`
   on every animation.
+- **Do** build every new component out of the shared `ui/` primitives (`Button`, `Modal`,
+  `ConfirmDialog`, `Field`, `Spinner`, …) and the design tokens (`bg-panel`, `border-line`,
+  `text-ink`/`muted`, the `xs–xl` spacing scale, `rounded-{sm,md,lg,pill}`). Extend the
+  system before inventing a one-off; a new element that doesn't cite this doc is a bug.
 
 ### Don't:
 - **Don't** build a **generic SaaS dashboard** — no card-grid sea, no gray-on-white, no
@@ -346,3 +373,6 @@ warmth on the other surfaces comes from the covers, copy, and the coral accent i
 - **Don't** add a second typeface or a display font for UI labels, buttons, or data.
 - **Don't** put a hard, dark drop shadow on anything (the 2014 Test). Shadows are wide,
   soft, and low-opacity.
+- **Don't** use `window.confirm` / `alert` / `prompt`, or hand-roll a bespoke overlay.
+  Use `ConfirmDialog` / `Modal` (the No-Native-Dialog Rule) — native browser dialogs are
+  unstyled, unbranded, and break the focus/motion contract.

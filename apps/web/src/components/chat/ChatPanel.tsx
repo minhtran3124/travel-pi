@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ChatComposer } from "./ChatComposer";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatHeader, type AgentStatus } from "./ChatHeader";
@@ -53,10 +54,12 @@ export function ChatPanel({
     suggestions,
   } = stream;
   const [fullscreen, setFullscreen] = useState(false);
+  const [confirmNew, setConfirmNew] = useState(false);
 
   // Confirm only when there's something to lose; an empty chat resets silently.
   const handleNewConversation = () => {
-    if (messages.length > 0 && !window.confirm(t("newConversationConfirm"))) {
+    if (messages.length > 0) {
+      setConfirmNew(true);
       return;
     }
     newConversation();
@@ -138,6 +141,18 @@ export function ChatPanel({
       ) : (
         <ChatComposer disabled={inputBlocked} onSend={send} />
       )}
+
+      <ConfirmDialog
+        open={confirmNew}
+        title={t("newConversation")}
+        message={t("newConversationConfirm")}
+        confirmLabel={t("newConversationCta")}
+        onConfirm={() => {
+          setConfirmNew(false);
+          newConversation();
+        }}
+        onCancel={() => setConfirmNew(false)}
+      />
     </section>
   );
 }
