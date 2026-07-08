@@ -1,6 +1,6 @@
 ---
 slug: min-57-side-panel-language
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-08
 linear: MIN-57
@@ -736,3 +736,5 @@ Cross-engine parity once green: `cd apps/api && make test-docker`.
   - Wave 6 (6.1) — `611c540`
   - Deviations logged in SUMMARY (`v5.md` vs `active.yaml`; shared `test_stream_events.py`; `parseSSE.ts`; `ChatWidget` vs `ChatPanel`).
   - BE targeted suites green (streaming/agents 144); FE tsc+lint+build green (80 unit tests). Full raw suite blocked by the documented Postgres-less env limitation (`make test-docker` = pre-merge cross-engine gate).
+- 2026-07-08 — `/correctness-review` (no blocking bug; 3 advisories in SUMMARY) + `/intent-review` (satisfies intent, no gap/excess/drift) passed. test-runner: 163 passed.
+- 2026-07-08 — shipped via `feat/min-57-side-panel-language` (PR #77 → v3).
