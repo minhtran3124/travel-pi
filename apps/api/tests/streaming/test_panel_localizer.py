@@ -6,23 +6,25 @@ bounded lookup tables, the injected-translator path for free-form place prose
 complete against its English source.
 """
 
+import asyncio
+
 from app.streaming import panel_localizer as pl
 from app.streaming.panel_localizer import localize_panel
 
 
 def test_en_is_identity():
     data = {"current": {"description": "Clear sky"}}
-    assert localize_panel("weather", data, "en") is data
+    assert asyncio.run(localize_panel("weather", data, "en")) is data
 
 
 def test_unknown_language_is_identity():
     data = {"current": {"description": "Clear sky"}}
-    assert localize_panel("weather", data, "fr") is data
+    assert asyncio.run(localize_panel("weather", data, "fr")) is data
 
 
 def test_vi_localizes_weather_description():
     data = {"current": {"description": "Clear sky"}, "daily": []}
-    out = localize_panel("weather", data, "vi")
+    out = asyncio.run(localize_panel("weather", data, "vi"))
     assert out["current"]["description"] == pl.WEATHER_VI["Clear sky"]
     assert out is not data
     assert data["current"]["description"] == "Clear sky"
@@ -33,14 +35,14 @@ def test_vi_localizes_daily_weather_descriptions():
         "current": {"description": "Clear sky"},
         "daily": [{"description": "Moderate rain"}, {"description": "Fog"}],
     }
-    out = localize_panel("weather", data, "vi")
+    out = asyncio.run(localize_panel("weather", data, "vi"))
     assert out["daily"][0]["description"] == pl.WEATHER_VI["Moderate rain"]
     assert out["daily"][1]["description"] == pl.WEATHER_VI["Fog"]
 
 
 def test_vi_unknown_bounded_value_passes_through():
-    out = localize_panel(
-        "weather", {"current": {"description": "??"}, "daily": []}, "vi"
+    out = asyncio.run(
+        localize_panel("weather", {"current": {"description": "??"}, "daily": []}, "vi")
     )
     assert out["current"]["description"] == "??"
 
@@ -48,12 +50,12 @@ def test_vi_unknown_bounded_value_passes_through():
 def test_vi_places_description_uses_translator():
     calls = []
 
-    def translator(text):
+    async def translator(text):
         calls.append(text)
         return "TRANSLATED:" + text
 
     data = {"places": [{"description": "A cozy cafe.", "category": "cafe"}]}
-    out = localize_panel("places", data, "vi", translator=translator)
+    out = asyncio.run(localize_panel("places", data, "vi", translator=translator))
     assert out["places"][0]["description"] == "TRANSLATED:A cozy cafe."
     assert out["places"][0]["category"] == pl.CATEGORY_VI["cafe"]
     assert calls == ["A cozy cafe."]
@@ -61,16 +63,16 @@ def test_vi_places_description_uses_translator():
 
 def test_vi_places_top_level_category_localized():
     data = {"category": "restaurant", "places": []}
-    out = localize_panel("places", data, "vi")
+    out = asyncio.run(localize_panel("places", data, "vi"))
     assert out["category"] == pl.CATEGORY_VI["restaurant"]
 
 
 def test_translator_error_falls_back_to_english():
-    def boom(text):
+    async def boom(text):
         raise RuntimeError("no llm")
 
     data = {"places": [{"description": "A cozy cafe.", "category": "cafe"}]}
-    out = localize_panel("places", data, "vi", translator=boom)
+    out = asyncio.run(localize_panel("places", data, "vi", translator=boom))
     assert out["places"][0]["description"] == "A cozy cafe."
 
 
@@ -80,7 +82,7 @@ def test_vi_air_quality_uses_forecast_key():
         "advice": "Air quality is satisfactory — enjoy the outdoors.",
         "forecast": [{"category": "Good"}],
     }
-    out = localize_panel("air_quality", data, "vi")
+    out = asyncio.run(localize_panel("air_quality", data, "vi"))
     assert out["category"] == pl.AQI_CATEGORY_VI["Good"]
     assert (
         out["advice"]
@@ -91,7 +93,7 @@ def test_vi_air_quality_uses_forecast_key():
 
 def test_vi_hotels_amenities_localized():
     data = {"hotels": [{"amenities": ["Pool", "Spa", "Unknown Perk"]}]}
-    out = localize_panel("hotels", data, "vi")
+    out = asyncio.run(localize_panel("hotels", data, "vi"))
     assert out["hotels"][0]["amenities"][0] == pl.AMENITY_VI["Pool"]
     assert out["hotels"][0]["amenities"][1] == pl.AMENITY_VI["Spa"]
     # Unknown amenity passes through unchanged.

@@ -52,7 +52,11 @@ def test_tool_call_truncates_args_preview():
 def test_done_factory_shape():
     ev = events.done(conversation_id="c1", current_flow="booking")
     assert ev.event == "done"
-    assert _payload(ev) == {"conversation_id": "c1", "current_flow": "booking"}
+    assert _payload(ev) == {
+        "conversation_id": "c1",
+        "current_flow": "booking",
+        "language": "en",
+    }
 
 
 # --- mapper ----------------------------------------------------------------
@@ -218,7 +222,11 @@ def test_mapper_emits_token_for_plan_node_message():
         (
             (),
             "updates",
-            {"plan": {"messages": [AIMessage(content="Booking cancelled as requested.")]}},
+            {
+                "plan": {
+                    "messages": [AIMessage(content="Booking cancelled as requested.")]
+                }
+            },
         )
     ]
     out = _run(_FakeGraph(items))
@@ -268,7 +276,12 @@ def _route_response() -> RouteResponse:
 def test_panel_factory_shape():
     ev = events.panel(tool_call_id="tc1", kind="route", data={"x": 1})
     assert ev.event == "panel"
-    assert _payload(ev) == {"tool_call_id": "tc1", "kind": "route", "data": {"x": 1}}
+    assert _payload(ev) == {
+        "tool_call_id": "tc1",
+        "kind": "route",
+        "data": {"x": 1},
+        "language": "en",
+    }
 
 
 def test_route_panel_projection():
@@ -394,6 +407,7 @@ def test_mapper_emits_panel_before_tool_result():
         "tool_call_id": "tc1",
         "kind": "route",
         "data": {"recommended_mode": "car"},
+        "language": "en",
     }
 
 

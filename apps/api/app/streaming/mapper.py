@@ -18,14 +18,26 @@ import logging
 from collections.abc import AsyncIterator
 from typing import Any
 
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.supervisor import SUBAGENTS
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
+from app.streaming.panel_localizer import localize_panel
 
 logger = logging.getLogger(__name__)
+
+#: System instruction for the panel-prose translator. Kept minimal and imperative
+#: so the model translates the place description into Vietnamese rather than
+#: answering or echoing it, while leaving proper nouns intact.
+_TRANSLATE_SYSTEM = SystemMessage(
+    content=(
+        "You are a translator. Translate the user's text into Vietnamese. "
+        "Keep proper nouns (place names, brands, cities, landmarks) unchanged. "
+        "Return ONLY the translated text — no preamble, quotes, or explanation."
+    )
+)
 
 #: Main-graph nodes that end a turn with a content-bearing AIMessage (tier gate,
 #: unknown intent, plan cancel/approve). Their message never streams via the
@@ -82,6 +94,32 @@ async def stream_agent_events(
     """
     yield events.start(conversation_id)
 
+    # Seed the language BEFORE the astream loop so a HITL-resume turn (which
+    # skips the supervisor and never emits a language delta) still tags its
+    # panels/done with the persisted language. Best-effort — default en.
+    current_language = "en"
+    try:
+        _pre = await graph.aget_state(cfg)
+        pre_lang = _pre.values.get("language") if _pre and _pre.values else None
+        if isinstance(pre_lang, str) and pre_lang:
+            current_language = pre_lang
+    except Exception:  # noqa: BLE001 — best-effort seed; default en
+        pass
+
+    # Translator closure for free-form panel prose; only invoked by
+    # localize_panel under vi. Async end-to-end so the SSE event loop is never
+    # blocked. Never call get_fast_llm() here.
+    _tl = getattr(graph, "translate_llm", None)
+    if _tl is not None:
+
+        async def _translate(text: str) -> str:
+            resp = await _tl.ainvoke([_TRANSLATE_SYSTEM, HumanMessage(content=text)])
+            return resp.content
+
+        translator = _translate
+    else:
+        translator = None
+
     current_subagent: str | None = None
     last_msg_id: str | None = None
     emitted_tool_calls: set[str] = set()
@@ -132,6 +170,11 @@ async def stream_agent_events(
                 for node_name, delta in (data or {}).items():
                     if not isinstance(delta, dict):
                         continue
+                    # Capture the language the moment a node (the supervisor)
+                    # persists it, so subsequent panels/done in this turn tag it.
+                    node_lang = delta.get("language")
+                    if isinstance(node_lang, str) and node_lang:
+                        current_language = node_lang
                     # Cross-cutting terminal nodes (supervisor/plan) in the main
                     # graph end the turn with a content-bearing AIMessage (tier
                     # gate, unknown intent, plan cancel/approve). That message
@@ -161,10 +204,17 @@ async def stream_agent_events(
                             # surface it before the status pill. Plain tools have none.
                             artifact = getattr(msg, "artifact", None)
                             if isinstance(artifact, dict) and "kind" in artifact:
+                                panel_data = await localize_panel(
+                                    artifact["kind"],
+                                    artifact.get("data"),
+                                    current_language,
+                                    translator=translator,
+                                )
                                 yield events.panel(
                                     tool_call_id=msg.tool_call_id,
                                     kind=artifact["kind"],
-                                    data=artifact.get("data"),
+                                    data=panel_data,
+                                    language=current_language,
                                 )
                             status = "error" if msg.status == "error" else "ok"
                             yield events.tool_result(id=msg.tool_call_id, status=status)
@@ -192,7 +242,11 @@ async def stream_agent_events(
             )
 
         current_flow = state.values.get("current_flow") if state else None
-        yield events.done(conversation_id=conversation_id, current_flow=current_flow)
+        yield events.done(
+            conversation_id=conversation_id,
+            current_flow=current_flow,
+            language=current_language,
+        )
 
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event
         import asyncio

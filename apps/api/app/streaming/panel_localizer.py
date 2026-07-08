@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import copy
 import logging
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ AMENITY_VI: dict[str, str] = {
     "Spa": "Spa",
 }
 
-Translator = Callable[[str], str]
+Translator = Callable[[str], Awaitable[str]]
 
 
 def _swap(value: Any, table: dict[str, str]) -> Any:
@@ -133,7 +133,7 @@ def _swap(value: Any, table: dict[str, str]) -> Any:
     return value
 
 
-def localize_panel(
+async def localize_panel(
     kind: str,
     data: dict,
     language: str,
@@ -187,7 +187,7 @@ def localize_panel(
             desc = place.get("description")
             if translator and isinstance(desc, str) and desc:
                 try:
-                    place["description"] = translator(desc)
+                    place["description"] = await translator(desc)
                 except Exception as e:  # noqa: BLE001
                     logger.error("[PANEL_LOCALIZER] translate failed: %s", e)
 

@@ -62,7 +62,7 @@ Bug is caused by two independent string sources: (a) hardcoded English labels in
 
 ### Deviations
 
-- none
+- Rule 1 — Task 2.1 edited the active supervisor prompt at `apps/api/app/prompts/supervisor/v5.md` (the version `registry.get("supervisor")` actually returns) instead of the planned `active.yaml`, which is only a name→version map (editing it would break the map and have zero prompt effect). High-blast `active.yaml` was left untouched. Commit `eb36ee5`. (PLAN file-manifest gap: `active.yaml` is a pointer, not prose.)
 
 ### Verify
 

@@ -118,8 +118,8 @@ def test_state_language_absent_defaults_via_get():
 
 ```xml
 <task id="1.2" wave="1">
-  <files>apps/api/app/streaming/events.py, apps/api/tests/streaming/test_events_language.py</files>
-  <action>Add a `language: str = "en"` keyword param to `events.panel(...)` and `events.done(...)`, folding it into the JSON payload. Default "en" keeps existing call sites and the en path byte-identical when language is unset. Update the taxonomy docstring lines for `panel` and `done` to include `language`.</action>
+  <files>apps/api/app/streaming/events.py, apps/api/tests/streaming/test_events_language.py, apps/api/tests/api/agent/test_stream_events.py</files>
+  <action>Add a `language: str = "en"` keyword param to `events.panel(...)` and `events.done(...)`, folding it into the JSON payload. Default "en" keeps existing call sites and the en path byte-identical when language is unset. Update the taxonomy docstring lines for `panel` and `done` to include `language`. NOTE (shared-contract): `tests/api/agent/test_stream_events.py` pins the exact panel/done payload shape with `==`; update its three shape assertions (`test_done_factory_shape`, `test_panel_factory_shape`, `test_mapper_emits_panel_before_tool_result`) to include `"language": "en"`. This file was missed at plan time (wave-shared-file-partition) and fixed during Wave 3.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/streaming/test_events_language.py -x</verify>
   <done>panel/done payloads include `language`; default is "en".</done>
 </task>
