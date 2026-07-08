@@ -78,9 +78,19 @@ tests/           # pytest, isolated temp SQLite DB per run
 - `logging.getLogger(__name__)`, never `print()`.
 - No auth, pagination, or rate limiting.
 
-## Design (dashboard only)
+## Design
 
-Before touching `/dashboard/*` templates: read `PRODUCT.md` + `DESIGN.md`. Tokens live in `app/templates/base.html` `:root`. Use `/impeccable` for design tasks.
+Two design systems, one per surface. Read the matching `DESIGN.md` + `PRODUCT.md` before
+any UI work, and use `/impeccable` for design tasks. **Any new component or element follows
+the system — extend it, never route around it.**
+
+- **Web app (`apps/web/`, Next.js):** repo-root `DESIGN.md` + `PRODUCT.md`. Build from the
+  shared `apps/web/src/components/ui/` primitives (`Button`, `Modal`, `ConfirmDialog`,
+  `Field`, `Select`, `Pill`, …) and the Tailwind `@theme` tokens (`bg-panel`, `border-line`,
+  `text-ink`/`muted`, `xs–xl` spacing, `rounded-{sm,md,lg,pill}`). Never a native
+  `window.confirm`/`alert`/`prompt` or a hand-rolled overlay — use `ConfirmDialog`/`Modal`.
+- **API dashboard (`apps/api/`, `/dashboard/*` templates):** `apps/api/DESIGN.md` +
+  `apps/api/PRODUCT.md`. Tokens live in `app/templates/base.html` `:root`.
 
 ## Knowledge Base
 Solved problems, patterns, and architectural decisions: `docs/solutions/`
