@@ -46,9 +46,19 @@ Scope decisions confirmed by the user at intake:
 
 ## What changed
 
-<!-- Filled by the executing agent(s). Intake only records lane/confidence/intent. -->
-
-Not yet implemented — intake only.
+The chat side panel now renders in the conversation's dominant language. Backend: the
+supervisor's already-computed `SupervisorIntent.language` is persisted into
+`TravelAgentState.language` (empty-code fallback keeps the prior language, so a lone
+"ok"/"fine" doesn't flip it; conversation-level guidance added to the supervisor prompt);
+`app/streaming/mapper.py` seeds the language (incl. HITL-resume via a pre-loop `aget_state`),
+tracks it from supervisor deltas, and localizes each panel at emission via the new async
+`app/streaming/panel_localizer.py` — deterministic `vi` lookup tables for bounded strings
+(weather/AQI/category/amenities) plus an injected `graph.translate_llm` (async, translate-to-
+Vietnamese prompt) for place descriptions; `panel`/`done` SSE events gain a `language` field.
+Frontend: `parseSSE`/`useAgentStream` carry the streamed language as `panelLanguage`, and a new
+`PanelIntlProvider` wraps the panel subtree in a nested `NextIntlClientProvider` keyed off it,
+with a new `Panel` message namespace (en+vi) the panel components consume via `useTranslations`.
+The English path is a behavioral no-op (identity localization + additive `language` key).
 
 ### Rationale
 
@@ -66,13 +76,29 @@ Bug is caused by two independent string sources: (a) hardcoded English labels in
 - Rule 1 — Wave 3 fixed 3 shape assertions in `apps/api/tests/api/agent/test_stream_events.py` (`==` on the exact panel/done payload) to include the additive `"language": "en"`; broken by the Wave-1 events.py superset but missed because Wave-1's verify didn't run `tests/api/agent/`. Shared-test-contract file added to Task 1.2 `<files>`. Commit `90a9269`. (wave-shared-file-partition.)
 - Rule 3 — Task 4.2 also edited `apps/web/src/lib/stream/parseSSE.ts` (not in the original plan `<files>`) — the panel/done SSE envelope + parser actually live there; a type-only change would leave `language` undefined at runtime. Sanctioned by the task action ("if the envelope lives elsewhere, add it there"). Added to Task 4.2 `<files>`. (PLAN file-manifest gap.)
 
+### Advisory Findings
+
+<!-- Sub-threshold (score <80) correctness-review candidates: recorded, not blocking. -->
+
+- **`.content` assumed `str`** (`app/streaming/mapper.py:117`) — the async translator returns `resp.content`; a provider returning content-blocks (list) would put a non-str into `place["description"]`. Consistent with the existing repo convention (`app/memory/extractor.py:122`, `app/agents/nodes.py:149` read `.content` identically) — a pre-existing whole-repo assumption, not introduced here. Advisory.
+- **`locale={language}` passthrough** (`PanelIntlProvider.tsx`) — an out-of-range language code would reach `Intl` number formatting (ICU `#`) and could throw; the backend only emits validated `en`/`vi`, so unreachable today. Advisory.
+- **Mixed-source language edge** (`useAgentStream.ts`) — if a `panel` event omits `language` but `done` supplies it, an artifact's `.language` can differ from the drawer's `panelLanguage`; low risk since the BE emits both together. Advisory.
+- **Perf (non-correctness):** `localize_panel` awaits the translator per place (serialized N LLM calls) and the mapper does two `aget_state` reads per stream; the design's `(text, language)` cache was deferred. Acceptable at current scale.
+
 ### Verify
 
 <!-- Filled during execution. -->
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| _pending implementation_ | _—_ | _—_ | intake only |
+| BE streaming | `cd apps/api && ../../.venv/bin/python -m pytest tests/streaming -x` | 0 | incl. panel_localizer, mapper_language, panel_language_e2e |
+| BE agents | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents -x` | 0 | incl. supervisor_language, graph_translate_handle (117) |
+| BE event-shape | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_stream_events.py -x` | 0 | superset assertions updated |
+| BE combined | `cd apps/api && ../../.venv/bin/python -m pytest tests/streaming tests/agents -x` | 0 | 144 passed |
+| FE typecheck+lint | `cd apps/web && pnpm --filter web exec tsc --noEmit && pnpm --filter web lint` | 0 | Node v24 |
+| FE unit | `cd apps/web && pnpm --filter web test` | 0 | 80 passed |
+| FE prod build | `cd apps/web && pnpm --filter web build` | 0 | 12 static pages generated |
+| BE full raw suite | `cd apps/api && make test` | 1 | **Env-limited**: 544 sqlalchemy conn errors (Postgres down + `.env` DATABASE_URL); flat across all waves → not a regression. Run `make test-docker` (Postgres) as the pre-merge cross-engine gate. |
 
 ### Rollback
 
