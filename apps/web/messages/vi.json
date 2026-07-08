@@ -428,6 +428,80 @@
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
     "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay."
   },
+  "Panel": {
+    "detailPanelLabel": "Bảng chi tiết",
+    "hidePanel": "Ẩn bảng",
+    "tabs": {
+      "route": "Lộ trình",
+      "places": "Địa điểm",
+      "weather": "Thời tiết",
+      "airQuality": "Chất lượng không khí",
+      "flights": "Chuyến bay",
+      "hotels": "Khách sạn"
+    },
+    "route": {
+      "mapLabel": "Bản đồ lộ trình",
+      "openInGoogleMaps": "Mở trong Google Maps",
+      "summary": "{distance} km · ~{duration} phút bằng {mode}{estimated, select, true { (ước tính)} other {}}",
+      "legChip": "{mode} · {distance} km · {duration} phút"
+    },
+    "places": {
+      "fallbackTitle": "Địa điểm",
+      "results": "{count, plural, other {# kết quả}}",
+      "pick": "đề xuất",
+      "category": "Hạng mục",
+      "rating": "Đánh giá",
+      "ratingValue": "{rating} ({count, plural, other {# đánh giá}})",
+      "price": "Giá",
+      "hours": "Giờ mở cửa",
+      "address": "Địa chỉ",
+      "tags": "Thẻ"
+    },
+    "weather": {
+      "today": "Hôm nay",
+      "feelsLike": "Cảm giác như {temp}°C",
+      "humidity": "Độ ẩm",
+      "wind": "Gió",
+      "windUnit": "km/h",
+      "updated": "Cập nhật",
+      "timezone": "Múi giờ"
+    },
+    "airQuality": {
+      "today": "Hôm nay",
+      "usAqi": "US AQI",
+      "scaleLow": "0 Tốt",
+      "scaleHigh": "300+ Nguy hại",
+      "forecastHeading": "Dự báo theo ngày — AQI cao nhất"
+    },
+    "flights": {
+      "nonstop": "bay thẳng",
+      "stops": "{count, plural, other {# điểm dừng}}",
+      "seatsLeft": "còn {count} chỗ",
+      "durationValue": "{h}h {m}p",
+      "summary": "{date} · {count, plural, other {# kết quả}} · rẻ nhất {price}",
+      "airline": "Hãng bay",
+      "flight": "Chuyến bay",
+      "route": "Hành trình",
+      "duration": "Thời gian bay",
+      "stopsLabel": "Điểm dừng",
+      "seatsLeftLabel": "Ghế còn lại",
+      "price": "Giá"
+    },
+    "hotels": {
+      "perNight": "/đêm",
+      "roomsLeft": "còn {count} phòng",
+      "full": "hết phòng",
+      "available": "còn phòng",
+      "summary": "{checkIn} → {checkOut} · {nights, plural, other {# đêm}} · {rooms, plural, other {# phòng}} · {results, plural, other {# kết quả}} · rẻ nhất {price}",
+      "stars": "Hạng sao",
+      "guestRating": "Đánh giá của khách",
+      "guestRatingValue": "{rating} ({count, plural, other {# đánh giá}})",
+      "nightlyRate": "Giá mỗi đêm",
+      "allInTotal": "Tổng trọn gói",
+      "roomsLeftLabel": "Số phòng còn lại",
+      "amenities": "Tiện nghi"
+    }
+  },
   "Errors": {
     "somethingWentWrongTitle": "Đã xảy ra lỗi",
     "somethingWentWrongHint": "Một lỗi bất ngờ đã làm gián đoạn trang này. Bạn có thể thử lại.",

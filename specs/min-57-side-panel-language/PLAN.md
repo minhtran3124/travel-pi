@@ -643,7 +643,7 @@ And the terminal done: `yield events.done(conversation_id=conversation_id, curre
 
 ```xml
 <task id="4.2" wave="4">
-  <files>apps/web/src/lib/stream/panel.ts, apps/web/src/components/chat/useAgentStream.ts, apps/web/src/components/chat/useAgentStream.test.ts</files>
+  <files>apps/web/src/lib/stream/panel.ts, apps/web/src/lib/stream/parseSSE.ts, apps/web/src/components/chat/useAgentStream.ts, apps/web/src/components/chat/useAgentStream.stream.test.tsx</files>
   <action>(1) In panel.ts add `language?: string` to the panel *event* type (the {tool_call_id, kind, data} envelope, not the per-kind data interfaces). If the envelope type lives in useAgentStream/stream types, add it there. (2) In useAgentStream.ts, add a `panelLanguage` state (default "en"); set it from `evt.language` when present in EVERY `case "panel"` block — there are THREE (~lines 323/433/537 per the mapper/stream-consumer flows) — and in every `case "done"` block; expose `panelLanguage` alongside `panels`. Missing all handlers desyncs language across initial-load vs resume flows. Keep backward-compat: missing language → "en". Consider a single helper `setPanelLanguage(evt.language)` called from each case to avoid drift.</action>
   <verify>export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"; cd apps/web && pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- useAgentStream</verify>
   <done>Hook exposes the streamed `panelLanguage`; types compile; test asserts vi panel event sets panelLanguage="vi".</done>

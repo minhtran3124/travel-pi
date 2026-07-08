@@ -428,6 +428,80 @@
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
     "errorQuota": "You've reached today's free message limit."
   },
+  "Panel": {
+    "detailPanelLabel": "Detail panel",
+    "hidePanel": "Hide panel",
+    "tabs": {
+      "route": "Route",
+      "places": "Places",
+      "weather": "Weather",
+      "airQuality": "Air Quality",
+      "flights": "Flights",
+      "hotels": "Hotels"
+    },
+    "route": {
+      "mapLabel": "Route map",
+      "openInGoogleMaps": "Open in Google Maps",
+      "summary": "{distance} km · ~{duration} min by {mode}{estimated, select, true { (estimated)} other {}}",
+      "legChip": "{mode} · {distance} km · {duration} min"
+    },
+    "places": {
+      "fallbackTitle": "Places",
+      "results": "{count, plural, one {# result} other {# results}}",
+      "pick": "pick",
+      "category": "Category",
+      "rating": "Rating",
+      "ratingValue": "{rating} ({count, plural, one {# review} other {# reviews}})",
+      "price": "Price",
+      "hours": "Hours",
+      "address": "Address",
+      "tags": "Tags"
+    },
+    "weather": {
+      "today": "Today",
+      "feelsLike": "Feels like {temp}°C",
+      "humidity": "Humidity",
+      "wind": "Wind",
+      "windUnit": "km/h",
+      "updated": "Updated",
+      "timezone": "Timezone"
+    },
+    "airQuality": {
+      "today": "Today",
+      "usAqi": "US AQI",
+      "scaleLow": "0 Good",
+      "scaleHigh": "300+ Hazardous",
+      "forecastHeading": "Daily forecast — peak AQI"
+    },
+    "flights": {
+      "nonstop": "nonstop",
+      "stops": "{count, plural, one {# stop} other {# stops}}",
+      "seatsLeft": "{count} left",
+      "durationValue": "{h}h {m}m",
+      "summary": "{date} · {count, plural, one {# result} other {# results}} · cheapest {price}",
+      "airline": "Airline",
+      "flight": "Flight",
+      "route": "Route",
+      "duration": "Duration",
+      "stopsLabel": "Stops",
+      "seatsLeftLabel": "Seats left",
+      "price": "Price"
+    },
+    "hotels": {
+      "perNight": "/night",
+      "roomsLeft": "{count} left",
+      "full": "full",
+      "available": "available",
+      "summary": "{checkIn} → {checkOut} · {nights, plural, one {# night} other {# nights}} · {rooms, plural, one {# room} other {# rooms}} · {results, plural, one {# result} other {# results}} · cheapest {price}",
+      "stars": "Stars",
+      "guestRating": "Guest rating",
+      "guestRatingValue": "{rating} ({count, plural, one {# review} other {# reviews}})",
+      "nightlyRate": "Nightly rate",
+      "allInTotal": "All-in total",
+      "roomsLeftLabel": "Rooms left",
+      "amenities": "Amenities"
+    }
+  },
   "Errors": {
     "somethingWentWrongTitle": "Something went wrong",
     "somethingWentWrongHint": "An unexpected error interrupted this page. You can try again.",

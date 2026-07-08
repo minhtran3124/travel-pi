@@ -63,6 +63,8 @@ Bug is caused by two independent string sources: (a) hardcoded English labels in
 ### Deviations
 
 - Rule 1 — Task 2.1 edited the active supervisor prompt at `apps/api/app/prompts/supervisor/v5.md` (the version `registry.get("supervisor")` actually returns) instead of the planned `active.yaml`, which is only a name→version map (editing it would break the map and have zero prompt effect). High-blast `active.yaml` was left untouched. Commit `eb36ee5`. (PLAN file-manifest gap: `active.yaml` is a pointer, not prose.)
+- Rule 1 — Wave 3 fixed 3 shape assertions in `apps/api/tests/api/agent/test_stream_events.py` (`==` on the exact panel/done payload) to include the additive `"language": "en"`; broken by the Wave-1 events.py superset but missed because Wave-1's verify didn't run `tests/api/agent/`. Shared-test-contract file added to Task 1.2 `<files>`. Commit `90a9269`. (wave-shared-file-partition.)
+- Rule 3 — Task 4.2 also edited `apps/web/src/lib/stream/parseSSE.ts` (not in the original plan `<files>`) — the panel/done SSE envelope + parser actually live there; a type-only change would leave `language` undefined at runtime. Sanctioned by the task action ("if the envelope lives elsewhere, add it there"). Added to Task 4.2 `<files>`. (PLAN file-manifest gap.)
 
 ### Verify
 
