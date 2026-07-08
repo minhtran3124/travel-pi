@@ -1,6 +1,6 @@
 ---
 slug: min-57-side-panel-language
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-07-08
 linear: MIN-57
