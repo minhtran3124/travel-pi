@@ -94,6 +94,7 @@ def test_ingest_knowledge_chunks_long_content(
             "source": "tip",
             "scope": "country",
             "country": "Vietnam",
+            "category": "transport",
             "title": "Long tip",
         },
     )
@@ -103,6 +104,16 @@ def test_ingest_knowledge_chunks_long_content(
     store = get_vector_store(database_url="sqlite:///:memory:")
     count = ingest_mod.ingest_knowledge(store, session=None)
     assert count > 1  # the single long tip was chunked into several documents
+
+
+def test_doc_id_distinguishes_same_title_tips_by_category():
+    """Two same-title country tips get distinct ids (regression: id collision)."""
+    from app.rag.ingest import _doc_id
+
+    meta = {"source": "tip", "country": "Vietnam", "title": "Getting around"}
+    a = Document(page_content="a", metadata={**meta, "category": "transport"})
+    b = Document(page_content="b", metadata={**meta, "category": "safety"})
+    assert _doc_id(a) != _doc_id(b)
 
 
 def test_build_knowledge_corpus_covers_all_sources(seeded_session):

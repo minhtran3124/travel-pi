@@ -142,13 +142,17 @@ def build_knowledge_corpus(session: Session) -> list[Document]:
         if entry is not None:
             docs.append(visa_to_document(country, entry))
 
+    # City rows drive both the country set (for country-wide tips) and the
+    # city-scoped tips — load them once.
+    cities = city_repo.list_with_counts()
+
     # Country-wide tips.
-    for country in sorted({c.country for c in city_repo.list_with_counts()}):
+    for country in sorted({c.country for c in cities}):
         for tip in tip_repo.for_location("country", country):
             docs.append(tip_to_document(tip, country=country, city=None))
 
     # City-scoped tips (resolve the country from the city record).
-    for city in city_repo.list_with_counts():
+    for city in cities:
         for tip in tip_repo.for_location("city", city.name):
             docs.append(tip_to_document(tip, country=city.country, city=city.name))
 
@@ -166,7 +170,7 @@ def _doc_id(doc: Document) -> str:
     """Derive a stable upsert id for a corpus document from its metadata.
 
     :param doc: The document to derive an id for.
-    :return: A stable id string unique per (source, country, [city,] title).
+    :return: A stable id string unique per (source, country, [city,] category, title).
     """
     src = doc.metadata["source"]
     if src == "visa":
@@ -174,12 +178,15 @@ def _doc_id(doc: Document) -> str:
     if src == "summary":
         return f"summary-{doc.metadata['country']}"
     # tip — scope it by city when present so a country tip and a same-titled city
-    # tip don't collide; the title keeps it stable across re-ingests.
+    # tip don't collide, and by category so two same-titled tips in one location
+    # (the Tip model is unique on scope/key/position, not title) stay distinct;
+    # the title keeps it stable across re-ingests.
     country = doc.metadata["country"]
+    category = doc.metadata["category"]
     title = doc.metadata["title"]
     if "city" in doc.metadata:
-        return f"tip-{doc.metadata['city']}-{country}-{title}"
-    return f"tip-{country}-{title}"
+        return f"tip-{doc.metadata['city']}-{country}-{category}-{title}"
+    return f"tip-{country}-{category}-{title}"
 
 
 def ingest_knowledge(store: VectorStore, session: Session) -> int:

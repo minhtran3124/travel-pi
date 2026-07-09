@@ -30,12 +30,35 @@ from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStore
 
 from app.core.config import get_settings
-from app.core.embeddings import EMBED_DIM, get_embeddings
+from app.core.embeddings import get_embeddings
 
 DEFAULT_COLLECTION = "travel_knowledge"
 # Collection name for the visa + local-tips + country-summary documents. Distinct
 # from the old ``travel_pois`` (places) collection so a Postgres deployment that
 # still has the orphaned places collection does not mix scopes.
+
+
+def _build_store(embeddings: Embeddings, url: str, collection: str) -> VectorStore:
+    """Select the vector store backend by URL (single source for the choice).
+
+    Postgres URL -> ``PGVector`` (pgvector, persists the collection); anything
+    else -> :class:`InMemoryVectorStore`. Shared by both the cached path and the
+    caller-supplied-embeddings path so the backend choice lives in one place.
+
+    :param embeddings: Embedding model the store will use.
+    :param url: Database URL used to select the backend.
+    :param collection: Vector store collection/table name (pgvector only).
+    :return: The vector store.
+    """
+    if url.startswith("postgres"):
+        from langchain_postgres import PGVector
+
+        return PGVector(
+            embeddings=embeddings,
+            connection=url,
+            collection_name=collection,
+        )
+    return InMemoryVectorStore(embeddings)
 
 
 @lru_cache(maxsize=8)
@@ -54,16 +77,7 @@ def _get_vector_store_cached(
     :param collection: Vector store collection/table name.
     :return: The (cached) vector store.
     """
-    emb = get_embeddings()
-    if database_url.startswith("postgres"):
-        from langchain_postgres import PGVector
-
-        return PGVector(
-            embeddings=emb,
-            connection=database_url,
-            collection_name=collection,
-        )
-    return InMemoryVectorStore(emb)
+    return _build_store(get_embeddings(), database_url, collection)
 
 
 def get_vector_store(
@@ -89,15 +103,7 @@ def get_vector_store(
     """
     if embeddings is not None:
         url = database_url or get_settings().database_url
-        if url.startswith("postgres"):
-            from langchain_postgres import PGVector
-
-            return PGVector(
-                embeddings=embeddings,
-                connection=url,
-                collection_name=collection,
-            )
-        return InMemoryVectorStore(embeddings)
+        return _build_store(embeddings, url, collection)
     url = database_url or get_settings().database_url
     return _get_vector_store_cached(url, collection=collection)
 
@@ -115,12 +121,8 @@ def reset_vector_store() -> None:
     _get_vector_store_cached.cache_clear()
 
 
-# Re-export so the single source of truth (app.core.embeddings) is the only place
-# the dimension lives, while keeping ``app.rag.embeddings.EMBED_DIM`` importable
-# for any caller that still expects it here.
 __all__ = [
     "DEFAULT_COLLECTION",
-    "EMBED_DIM",
     "get_embeddings",
     "get_vector_store",
     "reset_vector_store",
