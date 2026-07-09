@@ -9,7 +9,9 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 from typing import Annotated, Any
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from langchain_core.messages import AIMessage, HumanMessage
@@ -142,6 +144,28 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
     return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
 
+def _resolve_timezone(raw: str | None) -> str:
+    """Return a valid IANA tz string, falling back to the configured default.
+
+    The client sends its detected timezone; a missing or invalid value must not
+    fail the request — we ground dates against ``settings.agent_timezone`` instead.
+
+    :param raw: Client-supplied IANA timezone name, or None.
+    :return: A valid IANA timezone name.
+    """
+    default = get_settings().agent_timezone
+    if not raw:
+        return default
+    try:
+        ZoneInfo(raw)
+        return raw
+    except Exception:
+        logger.warning(
+            "[agent] invalid timezone %r from client; using %s", raw, default
+        )
+        return default
+
+
 def _resolve_context(
     effective_user_id: str,
     authenticated: bool,
@@ -152,6 +176,9 @@ def _resolve_context(
     Security: ``tier`` is resolved server-side from the users table and is never
     read from the request body.  When authenticated the effective Supabase id is
     used; anonymous callers are always ``free`` (no DB lookup needed).
+
+    The per-request timezone is applied by the caller via ``replace`` (it comes
+    from the request body, unlike the server-resolved tier).
 
     :param effective_user_id: The effective user id (JWT sub or anonymous).
     :param authenticated: Whether the caller presented a valid JWT.
@@ -190,6 +217,7 @@ async def agent_chat(
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before any work begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
@@ -304,6 +332,7 @@ async def agent_stream(
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before streaming begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
