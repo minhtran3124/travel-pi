@@ -24,7 +24,7 @@ from git ``3d0dc6a^``):
 
 from __future__ import annotations
 
-from functools import lru_cache
+import threading
 
 from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStore
@@ -36,6 +36,16 @@ DEFAULT_COLLECTION = "travel_knowledge"
 # Collection name for the visa + local-tips + country-summary documents. Distinct
 # from the old ``travel_pois`` (places) collection so a Postgres deployment that
 # still has the orphaned places collection does not mix scopes.
+
+# Guards vector-store construction. ``langchain_postgres`` registers its ORM tables
+# on a process-global declarative ``Base`` the first time any ``PGVector`` is built,
+# and that registration is NOT thread-safe: two threads racing the first build (the
+# concierge fires tools in parallel, and eval builds the store lazily with no
+# lifespan pre-warm) both try to define ``langchain_pg_collection`` and the second
+# raises ``Table ... already defined``. Reentrant so the cached path can hold it
+# while ``_build_store`` re-acquires it.
+_build_lock = threading.RLock()
+_store_cache: dict[tuple[str, str], VectorStore] = {}
 
 
 def _build_store(embeddings: Embeddings, url: str, collection: str) -> VectorStore:
@@ -53,15 +63,17 @@ def _build_store(embeddings: Embeddings, url: str, collection: str) -> VectorSto
     if url.startswith("postgres"):
         from langchain_postgres import PGVector
 
-        return PGVector(
-            embeddings=embeddings,
-            connection=url,
-            collection_name=collection,
-        )
+        # Serialize: PGVector's first construction registers ORM tables on a
+        # process-global Base that is not thread-safe (see _build_lock).
+        with _build_lock:
+            return PGVector(
+                embeddings=embeddings,
+                connection=url,
+                collection_name=collection,
+            )
     return InMemoryVectorStore(embeddings)
 
 
-@lru_cache(maxsize=8)
 def _get_vector_store_cached(
     database_url: str,
     *,
@@ -73,11 +85,25 @@ def _get_vector_store_cached(
     share one store instance — essential for ``InMemoryVectorStore``, whose state
     lives on the instance. ``reset_vector_store`` clears the cache.
 
+    Double-checked locking replaces ``functools.lru_cache``: lru_cache does not
+    serialize concurrent misses, so two threads racing a cold cache each built a
+    ``PGVector`` and collided on its non-thread-safe global table registration
+    (see ``_build_lock``). Now exactly one build happens per key.
+
     :param database_url: Database URL used to select the backend.
     :param collection: Vector store collection/table name.
     :return: The (cached) vector store.
     """
-    return _build_store(get_embeddings(), database_url, collection)
+    key = (database_url, collection)
+    store = _store_cache.get(key)
+    if store is not None:
+        return store
+    with _build_lock:
+        store = _store_cache.get(key)  # re-check: another thread may have built it
+        if store is None:
+            store = _build_store(get_embeddings(), database_url, collection)
+            _store_cache[key] = store
+        return store
 
 
 def get_vector_store(
@@ -118,7 +144,8 @@ def reset_vector_store() -> None:
 
     :return: None.
     """
-    _get_vector_store_cached.cache_clear()
+    with _build_lock:
+        _store_cache.clear()
 
 
 __all__ = [

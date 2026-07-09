@@ -47,6 +47,47 @@ def test_reset_vector_store_clears_cache(reset_store, fake_embeddings):
     assert a is not b
 
 
+def test_concurrent_get_vector_store_builds_once(
+    reset_store, fake_embeddings, monkeypatch
+):
+    """Concurrent cold-cache access builds exactly one store (thread-safe cache).
+
+    Guards the fix for the race where ``PGVector``'s non-thread-safe global table
+    registration raised ``Table ... already defined``: without serialized
+    construction, N threads racing a cold cache each build. The double-checked
+    lock builds once. Uses a stub ``_build_store`` so the test needs no Postgres.
+    """
+    import threading
+    import time
+
+    import app.rag.embeddings as e
+
+    builds: list[tuple[str, str]] = []
+
+    def slow_build(embeddings, url, collection):
+        time.sleep(0.02)  # widen the race window so a broken impl double-builds
+        builds.append((url, collection))
+        return object()  # sentinel store; identity is what the test checks
+
+    monkeypatch.setattr(e, "_build_store", slow_build)
+
+    start = threading.Barrier(8)
+    results: list[object] = []
+
+    def worker():
+        start.wait()  # release all racers into the cache-miss path together
+        results.append(e.get_vector_store(database_url="sqlite:///race.db"))
+
+    threads = [threading.Thread(target=worker) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert len(builds) == 1  # built exactly once despite 8 concurrent racers
+    assert len({id(r) for r in results}) == 1  # all share the single instance
+
+
 def test_explicit_embeddings_not_cached(reset_store, fake_embeddings):
     """A caller passing its own embeddings gets a private, uncached instance."""
     from app.rag.embeddings import get_vector_store
