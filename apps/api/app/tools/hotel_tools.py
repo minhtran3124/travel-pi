@@ -13,11 +13,14 @@ drawer).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
+from app.core.config import get_settings
+from app.core.dates import resolve_travel_date
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
@@ -163,14 +166,16 @@ def search_hotels(
         artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_hotels", locals())
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(ZoneInfo(get_settings().agent_timezone)).date()
     try:
+        check_in = resolve_travel_date(check_in, today)
+        check_out = resolve_travel_date(check_out, today)
         parsed_check_in = datetime.strptime(check_in, "%Y-%m-%d").date()
     except ValueError as e:
         raise ToolException(
-            f"check_in {check_in!r} is not a valid YYYY-MM-DD date. "
-            f"Today is {today.isoformat()}. Ask the traveller for concrete dates "
-            "instead of guessing."
+            f"check_in {check_in!r} / check_out {check_out!r} could not be resolved to "
+            f"concrete YYYY-MM-DD dates. Today is {today.isoformat()}. Resolve relative "
+            "terms against today and ask the traveller for concrete dates."
         ) from e
     if parsed_check_in < today:
         raise ToolException(

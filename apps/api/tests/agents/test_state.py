@@ -243,3 +243,26 @@ def test_subagent_receives_summary_in_system_prompt():
     system_msg = captured["messages"][0]
     assert "base system" in system_msg.content
     assert "vegetarian" in system_msg.content
+
+
+def test_ground_current_date_uses_timezone():
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    tz = "Asia/Ho_Chi_Minh"
+    today_local = datetime.now(ZoneInfo(tz)).strftime("%Y-%m-%d")
+    grounded = ground_current_date(SystemMessage(content="BASE"), tz)
+    assert today_local in grounded.content
+    assert tz in grounded.content
+    assert "BASE" in grounded.content
+
+
+def test_ground_current_date_invalid_tz_falls_back_to_utc():
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    grounded = ground_current_date(SystemMessage(content="BASE"), "Not/AZone")
+    assert "UTC" in grounded.content  # fell back, did not raise

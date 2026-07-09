@@ -8,12 +8,15 @@ flights — so the agent can reference a specific flight across turns.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Literal
+from zoneinfo import ZoneInfo
 
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
+from app.core.config import get_settings
+from app.core.dates import resolve_travel_date
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.services.flight_service import DEFAULT_SORT, FlightService
@@ -82,14 +85,15 @@ def search_flights(
         artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_flights", locals())
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(ZoneInfo(get_settings().agent_timezone)).date()
     try:
+        departure_date = resolve_travel_date(departure_date, today)
         parsed_date = datetime.strptime(departure_date, "%Y-%m-%d").date()
     except ValueError as e:
         raise ToolException(
-            f"departure_date {departure_date!r} is not a valid YYYY-MM-DD date. "
-            f"Today is {today.isoformat()}. Ask the traveller for a concrete date "
-            "instead of guessing."
+            f"departure_date {departure_date!r} could not be resolved to a concrete "
+            f"YYYY-MM-DD date. Today is {today.isoformat()}. Resolve relative terms "
+            "(e.g. 'tomorrow') against today and ask the traveller for a concrete date."
         ) from e
     if parsed_date < today:
         raise ToolException(
