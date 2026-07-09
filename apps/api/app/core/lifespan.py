@@ -56,6 +56,48 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # user searched the affected city.
     check_city_coverage()
 
+    # Pre-warm the travel-knowledge RAG store (specs/travel-knowledge-rag) so the
+    # concierge's `search_travel_knowledge` tool works from the first request. The
+    # store is a cached singleton keyed by DATABASE_URL; ingest_knowledge embeds the
+    # visa + tips + summaries corpus with stable ids (idempotent upsert). Wrapped so
+    # a failure never blocks startup — RAG degrades to "no results", the concierge
+    # answers from its other tools. Postgres reads the persisted collection; this
+    # keeps it current after a seed change.
+    try:
+        from langchain_core.vectorstores import InMemoryVectorStore
+
+        from app.rag.embeddings import get_vector_store
+        from app.rag.ingest import ingest_knowledge
+
+        store = get_vector_store()
+        # A persisted backend (pgvector) keeps the corpus across restarts, so skip
+        # the re-embed when the collection is already populated — otherwise every
+        # boot (and every worker) re-calls the embeddings API for the whole corpus.
+        # The in-memory store (tests/SQLite) is ephemeral per process, so it always
+        # needs ingesting. After a seed change on Postgres, re-run
+        # ``scripts/ingest_rag.py`` to refresh the persisted collection.
+        already_ingested = False
+        if not isinstance(store, InMemoryVectorStore):
+            try:
+                already_ingested = bool(store.similarity_search("visa", k=1))
+            except Exception:
+                already_ingested = False
+        if already_ingested:
+            logger.info(
+                "Travel knowledge RAG already ingested in %s; skipping re-embed",
+                type(store).__name__,
+            )
+        else:
+            with get_session_factory(settings.database_url)() as session:
+                count = ingest_knowledge(store, session)
+            logger.info(
+                "Travel knowledge RAG ready: %d documents in %s",
+                count,
+                type(store).__name__,
+            )
+    except Exception:
+        logger.exception("Travel knowledge RAG pre-warm failed; tool degrades to empty")
+
     # The per-service init_db() calls (also create_all, idempotent) keep each
     # service constructable/initable independently in tests; on Postgres they
     # are no-ops after Alembic has run (checkfirst=True).
