@@ -53,6 +53,14 @@ a genuine design fork, hence normal lane with a short design step before plannin
 - Rule 1 (correctness-review) — `resolve_travel_date` now also accepts `YYYY/MM/DD` (slash form, a common model slip on ISO); previously misparsed day-first → `ValueError`. `app/core/dates.py`. (finding #3, score 75)
 - Rule 1 (correctness-review) — New `today_in_timezone(tz)` helper: tools compute `today` through it so a misconfigured `AGENT_TIMEZONE` degrades to UTC instead of raising `ZoneInfoNotFoundError` out of the tool (was `ZoneInfo(...)` outside the try/except). `app/core/dates.py`, `app/tools/flight_tools.py`, `app/tools/hotel_tools.py`. (finding #4, score 75)
 
+### Intent Findings
+
+<!-- From /intent-review (blind to PLAN), oracle = the verbatim ### Intent above. -->
+
+- **drift (medium), recorded — tool ignores per-request tz.** Same as advisory #1 below: the prompt grounds "today" in `ctx.timezone` but the tool's date math uses the server default `agent_timezone`. Behaviorally equivalent for the reproduced VN user (default == VN); divergent for other zones. Tied to FE task 5.2 — thread the resolved tz into the tools when 5.2 ships.
+- **verification caveat (medium), recorded — the multi-turn over-asking loop is fixed only by the prompt reframe, with no deterministic test reproducing it.** The deterministic layer (`resolve_travel_date`) and the tool path are unit-tested, but the reported symptom (LLM looping / never calling the tool / not stitching "10/07"+"2026" across turns) rests on probabilistic prompt behavior — a FakeLLM (scripted) test cannot prove it. Per design §7 this is verified via the DeepEval harness + the manual repro in **Task 5.1** (acceptance step, pending). Intent coverage is present; the gap is in automated proof of the symptom, which is inherent to LLM-behavior changes.
+- **drift (low), needs user confirmation — clause (3) delivered narrowly (dates only).** The summarizer (`app/memory/`) is untouched; clause (3) ("understand recent messages … gather/summarize intelligently") is addressed only via the date-stitching + "restate collected fields" prompt text. Reasonable if clause (3) was about the flight/hotel collection loop (the reproduced bug); a gap if the user meant a broader conversation-summarizer improvement. **Escalated to the user for scope confirmation before ship.**
+
 ### Advisory Findings
 
 <!-- Correctness-review findings that scored < 80 (threshold) — recorded, not blocking. -->
