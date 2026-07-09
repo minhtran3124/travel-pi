@@ -20,14 +20,14 @@
     "input": "Find me hotels in Hanoi for two nights",
     "expected_flow": "concierge",
     "expected_tools": [
-      "search_hotels"
+      "browse_hotels"
     ]
   },
   {
     "input": "Tìm khách sạn ở Hội An giúp tôi",
     "expected_flow": "concierge",
     "expected_tools": [
-      "search_hotels"
+      "browse_hotels"
     ],
     "metrics": [
       "response_language"

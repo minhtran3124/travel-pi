@@ -37,6 +37,9 @@ def build_test_cases(graph, datasets: dict[str, list[dict]]) -> list:
             test_case = run_case(graph, case, index).test_case
             index += 1
             if (test_case.actual_output or "").strip():
+                # Carry the case's declared rubrics so each G-Eval metric scores
+                # only the cases that opted into it (see cases_for_metric).
+                test_case.metadata = {"metrics": case.get("metrics", [])}
                 cases.append(test_case)
             else:
                 print(f"[eval] skip (empty reply): {case['input'][:60]}")
@@ -50,6 +53,17 @@ def tool_cases(cases: list) -> list:
     real tool call, which is a category error for non-tool cases. Restrict it.
     """
     return [tc for tc in cases if tc.expected_tools]
+
+
+def cases_for_metric(key: str, cases: list) -> list:
+    """Cases that opted into the G-Eval rubric ``key`` via their ``metrics`` field.
+
+    Applying every rubric to every case (the original behavior) is a category
+    error — e.g. judging a weather question on search-vs-booking intent, or the
+    booking case on search intent — which manufactured false negatives and a
+    misleading denominator. Each rubric now scores only its declared cases.
+    """
+    return [tc for tc in cases if key in (tc.metadata or {}).get("metrics", [])]
 
 
 def main() -> int:
@@ -70,8 +84,16 @@ def main() -> int:
         print("[eval] no scorable cases (all replies empty).")
         return 0
 
-    # G-Eval rubrics (language / intent / grounding / format) apply to every reply.
-    evaluate(test_cases=test_cases, metrics=[f() for f in GEVAL_METRICS.values()])
+    # Each G-Eval rubric scores ONLY the cases that declare it in their `metrics`
+    # field. The old code applied all four rubrics to all cases, judging (e.g.) a
+    # weather question on search-vs-booking intent — a category error that
+    # produced false negatives and an inflated-bad denominator.
+    for key, factory in GEVAL_METRICS.items():
+        subset = cases_for_metric(key, test_cases)
+        if subset:
+            evaluate(test_cases=subset, metrics=[factory()])
+        else:
+            print(f"[eval] no cases declare metric '{key}' — skipped.")
 
     # ToolCorrectness only where the case declares expected tools, else it
     # penalizes legitimate tool calls on cases that never specified any.
