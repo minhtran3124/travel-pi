@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from langchain_core.tools import BaseTool
 
+from app.tools.booking_tools import BOOKING_TOOLS
 from app.tools.expense_tools import EXPENSE_TOOLS
 from app.tools.flight_tools import FLIGHT_TOOLS
 from app.tools.hotel_tools import HOTEL_SEARCH_TOOLS, HOTEL_TOOLS
@@ -35,7 +36,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         PLACE_TOOLS + WEATHER_TOOLS + ROUTING_TOOLS + TIP_TOOLS + HOTEL_SEARCH_TOOLS
     ),
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
-    "booking": FLIGHT_TOOLS + HOTEL_TOOLS,
+    "booking": FLIGHT_TOOLS + HOTEL_TOOLS + BOOKING_TOOLS,
     "budget": EXPENSE_TOOLS + [t for t in TRIP_TOOLS if t.name == "get_trip_budget"],
 }
 
@@ -46,13 +47,16 @@ ALL_TOOLS: list[BaseTool] = list(
 
 # MCP-style annotations per tool name. readOnly=True => safe GET-like call;
 # destructive=True => irreversible side effect (money / cancellation).
-_DESTRUCTIVE = {"book_hotel"}
+_DESTRUCTIVE = {"book_hotel", "book_flight", "cancel_flight", "cancel_hotel"}
 _WRITE = {
     "add_place_to_trip",
     "add_itinerary_item",
     "add_expense",
     "save_user_preference",
     "book_hotel",
+    "book_flight",
+    "cancel_flight",
+    "cancel_hotel",
 }
 
 
