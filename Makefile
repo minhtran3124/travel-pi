@@ -1,6 +1,6 @@
 # Monorepo root Makefile — delegates BE targets into apps/api, FE via pnpm/turbo.
 # BE (apps/api) keeps its own Makefile; this is a thin convenience layer.
-.PHONY: help install dev test test-docker lint seed api web up down build diagram
+.PHONY: help install dev test test-docker lint seed api fe web up down build diagram
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -30,8 +30,10 @@ seed:           ## Seed the BE database
 api:            ## Run only the BE dev server
 	$(MAKE) -C apps/api dev
 
-web:            ## Run the FE dev server on the Node pinned in apps/web/.nvmrc (24.17.0)
-	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use && pnpm run dev
+fe:             ## Run the FE dev server (cd apps/web → nvm use stable → pnpm run dev)
+	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use stable && pnpm run dev
+
+web: fe         ## Alias for `fe`
 
 up:             ## Build + start api + Postgres in Docker (delegates to apps/api)
 	$(MAKE) -C apps/api up
