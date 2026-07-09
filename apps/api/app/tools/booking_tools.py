@@ -58,6 +58,8 @@ def _cancel(
             return dump(svc.cancel(booking_id))
         except AppError as e:
             raise ToolException(str(e)) from e
+        except ValueError as e:
+            raise ToolException(str(e)) from e
 
 
 @tool(args_schema=CancelBookingArgs)

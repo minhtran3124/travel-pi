@@ -224,7 +224,19 @@ def book_flight(
     :param confirm: Must be True to execute the booking; left False, nothing books.
     :return: The confirmed Booking with id, confirmation_code, status, total_price.
     """
-    log_tool_call("book_flight", locals())
+    # Log only the non-PII flight identifiers, not passenger name/email/phone
+    # (guidelines: never log sensitive data).
+    log_tool_call(
+        "book_flight",
+        {
+            "flight_id": flight_id,
+            "flight_number": flight_number,
+            "origin": origin,
+            "destination": destination,
+            "departure_date": departure_date,
+            "confirm": confirm,
+        },
+    )
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
