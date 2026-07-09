@@ -45,6 +45,7 @@
   --color-panel-raised:  var(--panel-raised);  /* inputs, secondary fills */
   --color-line:          var(--line);          /* hairline borders */
   --color-line-soft:     var(--line-soft);     /* faint dividers */
+  --color-scrim:         var(--scrim);         /* modal/dialog backdrop dim */
 
   /* text */
   --color-ink:        var(--ink);        /* primary text + primary action bg */
@@ -119,6 +120,7 @@
   --panel-raised:  #f4f4f2;
   --line:          #ececec;
   --line-soft:     #f1f0ee;
+  --scrim:         #1c1c1c;   /* modal backdrop — near-black dim (DESIGN.md §Modals) */
 
   /* text */
   --ink:        #1c1c1c;
@@ -180,6 +182,7 @@
   --panel-raised:  #2e333e; /* inputs, secondary fills */
   --line:          #3b414d; /* hairline borders — visibly define cards/items */
   --line-soft:     #2f343f; /* faint dividers */
+  --scrim:         #000000; /* modal backdrop — pure black, stronger over the dark page */
 
   /* text */
   --ink:        #f2f2f0;
