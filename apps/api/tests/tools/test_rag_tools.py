@@ -80,6 +80,35 @@ def test_search_travel_knowledge_country_filter(agent_db, reset_store, monkeypat
     assert all(r["metadata"]["country"] == "Vietnam" for r in out["results"])
 
 
+def test_search_travel_knowledge_country_filter_fuzzy(
+    agent_db, reset_store, monkeypatch
+):
+    """Free-text country resolves to the seeded name before the exact filter."""
+    _fake_embeddings(monkeypatch)
+    _ingest_corpus(agent_db)
+    from app.tools.rag_tools import search_travel_knowledge
+
+    # Lowercase 'vietnam' would miss an exact metadata match; fuzzy resolution
+    # maps it to the seeded 'Vietnam' so the filter still surfaces its tips.
+    out = search_travel_knowledge.invoke(
+        {"query": "transport and money tips", "country": "vietnam"}
+    )
+    assert out["count"] >= 1
+    assert all(r["metadata"]["country"] == "Vietnam" for r in out["results"])
+
+
+def test_search_travel_knowledge_degrades_to_empty_on_store_failure(monkeypatch):
+    """A store/embeddings failure returns the count:0 signal, never raises."""
+    import app.tools.rag_tools as rt
+
+    def boom():
+        raise RuntimeError("vector store unavailable")
+
+    monkeypatch.setattr(rt, "get_vector_store", boom)
+    out = rt.search_travel_knowledge.invoke({"query": "do I need a visa for Vietnam"})
+    assert out == {"results": [], "count": 0}
+
+
 def test_search_travel_knowledge_empty_when_no_match(
     agent_db, reset_store, monkeypatch
 ):

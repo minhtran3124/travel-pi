@@ -17,6 +17,16 @@ def test_chunk_text_short_passthrough():
     assert chunk_text("a short tip") == ["a short tip"]
 
 
+def test_lexical_score_ignores_punctuation():
+    """Punctuated natural-language tokens still overlap (regression: str.split)."""
+    from app.rag.retriever import _lexical_score
+
+    doc = Document(page_content="Visa-free stay in Vietnam. 45 days.")
+    # 'visa'/'vietnam' from the query overlap the doc once punctuation/hyphens are
+    # stripped; a naive whitespace split ('Vietnam?' vs 'Vietnam.') would score 0.
+    assert _lexical_score("do I need a visa for Vietnam?", doc) >= 2
+
+
 def test_hybrid_search_empty_store(reset_store, fake_embeddings):
     from app.rag.embeddings import get_vector_store
     from app.rag.retriever import hybrid_search

@@ -185,16 +185,31 @@ def _doc_id(doc: Document) -> str:
 def ingest_knowledge(store: VectorStore, session: Session) -> int:
     """Embed the visa + tips + summaries corpus into the store (idempotent upsert).
 
-    Passes stable ``ids`` derived from the record keys so re-ingesting the same
-    corpus upserts existing entries instead of appending duplicates.
+    Long content is split into overlapping chunks (short content passes through as
+    one) before embedding, so a detail buried in a long tip embeds against its own
+    chunk vector rather than the whole record's averaged vector. Passes stable
+    ``ids`` derived from the record keys (chunk-suffixed when a record splits) so
+    re-ingesting the same corpus upserts existing entries instead of appending
+    duplicates.
 
     :param store: The vector store to embed into.
     :param session: The DB session used to load the reference content.
-    :return: The document count ingested.
+    :return: The document (chunk) count ingested.
     """
     docs = build_knowledge_corpus(session)
     if not docs:
         return 0
-    ids = [_doc_id(d) for d in docs]
-    store.add_documents(docs, ids=ids)
-    return len(docs)
+    chunked: list[Document] = []
+    ids: list[str] = []
+    for doc in docs:
+        base = _doc_id(doc)
+        chunks = chunk_text(doc.page_content)
+        if len(chunks) == 1:
+            chunked.append(doc)
+            ids.append(base)
+            continue
+        for i, chunk in enumerate(chunks):
+            chunked.append(Document(page_content=chunk, metadata={**doc.metadata}))
+            ids.append(f"{base}#{i}")
+    store.add_documents(chunked, ids=ids)
+    return len(chunked)

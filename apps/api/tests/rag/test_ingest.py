@@ -81,6 +81,30 @@ def test_summary_to_document_shape():
     assert "Vietnam is diverse and affordable." in doc.page_content
 
 
+def test_ingest_knowledge_chunks_long_content(
+    reset_store, fake_embeddings, monkeypatch
+):
+    """Long records are split before embedding (regression: chunk_text was unused)."""
+    from app.rag import ingest as ingest_mod
+    from app.rag.embeddings import get_vector_store
+
+    long_doc = Document(
+        page_content="word " * 500,
+        metadata={
+            "source": "tip",
+            "scope": "country",
+            "country": "Vietnam",
+            "title": "Long tip",
+        },
+    )
+    monkeypatch.setattr(
+        ingest_mod, "build_knowledge_corpus", lambda session: [long_doc]
+    )
+    store = get_vector_store(database_url="sqlite:///:memory:")
+    count = ingest_mod.ingest_knowledge(store, session=None)
+    assert count > 1  # the single long tip was chunked into several documents
+
+
 def test_build_knowledge_corpus_covers_all_sources(seeded_session):
     docs = build_knowledge_corpus(seeded_session)
     sources = {d.metadata["source"] for d in docs}

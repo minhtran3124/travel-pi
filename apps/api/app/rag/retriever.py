@@ -15,10 +15,26 @@ matching documents are sparse in the semantic top-N (the original
 
 from __future__ import annotations
 
+import re
+
 from langchain_core.documents import Document
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStore
 
 _RRF_K = 60  # standard RRF damping constant
+_WORD_RE = re.compile(r"\w+")
+
+
+def _tokenize(text: str) -> set[str]:
+    """Lowercase word tokens with punctuation stripped.
+
+    Splitting on ``\\w+`` (not whitespace) means ``"Vietnam?"`` and ``"Vietnam."``
+    both tokenize to ``vietnam``, so the lexical leg still fires on natural,
+    punctuated questions.
+
+    :param text: The text to tokenize.
+    :return: The set of lowercase word tokens.
+    """
+    return set(_WORD_RE.findall(text.lower()))
 
 
 def _store_filter_kwargs(store: VectorStore, filters: dict | None) -> dict:
@@ -50,9 +66,7 @@ def _lexical_score(query: str, doc: Document) -> int:
     :param doc: The document to score.
     :return: The number of query tokens present in the document.
     """
-    q = set(query.lower().split())
-    d = set(doc.page_content.lower().split())
-    return len(q & d)
+    return len(_tokenize(query) & _tokenize(doc.page_content))
 
 
 def hybrid_search(
