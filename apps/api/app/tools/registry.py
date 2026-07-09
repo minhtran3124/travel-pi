@@ -16,6 +16,7 @@ from app.tools.flight_tools import FLIGHT_TOOLS
 from app.tools.hotel_tools import HOTEL_SEARCH_TOOLS, HOTEL_TOOLS
 from app.tools.memory_tools import EPISODE_TOOLS, MEMORY_TOOLS
 from app.tools.place_tools import PLACE_TOOLS
+from app.tools.rag_tools import KNOWLEDGE_TOOLS
 from app.tools.routing_tools import ROUTING_TOOLS
 from app.tools.tip_tools import TIP_TOOLS
 from app.tools.trip_tools import TRIP_TOOLS
@@ -33,7 +34,12 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + EPISODE_TOOLS
     ),
     "concierge": (
-        PLACE_TOOLS + WEATHER_TOOLS + ROUTING_TOOLS + TIP_TOOLS + HOTEL_SEARCH_TOOLS
+        PLACE_TOOLS
+        + WEATHER_TOOLS
+        + ROUTING_TOOLS
+        + TIP_TOOLS
+        + HOTEL_SEARCH_TOOLS
+        + KNOWLEDGE_TOOLS
     ),
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
     "booking": FLIGHT_TOOLS + HOTEL_TOOLS + BOOKING_TOOLS,

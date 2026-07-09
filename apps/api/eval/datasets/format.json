@@ -1,6 +1,6 @@
 [
   {
-    "input": "Compare Hanoi and Ho Chi Minh City for a 5-day trip: weather, food, and budget",
+    "input": "Compare Hanoi and Ho Chi Minh City for a 5-day trip: food, culture, and budget",
     "expected_flow": "concierge",
     "metrics": [
       "format_quality"
@@ -14,7 +14,7 @@
     ]
   },
   {
-    "input": "List the top 5 things to do in Da Nang with a short note on each",
+    "input": "List the top things to do in Da Nang with a short note on each",
     "expected_flow": "concierge",
     "metrics": [
       "format_quality"

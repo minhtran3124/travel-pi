@@ -13,7 +13,7 @@ from app.tools.registry import get_tools_for
 
 
 def build_concierge(resolve_model: Callable[[str | None], BaseChatModel]):
-    """Compile the concierge sub-agent (place/weather tools + RAG retrieval).
+    """Compile the concierge sub-agent (knowledge retrieval + place/weather tools).
 
     :param resolve_model: Callable resolving an ``AgentContext.model`` hint to a
         chat model, called per request inside the sub-agent's ``assistant`` node.

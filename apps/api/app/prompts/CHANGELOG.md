@@ -3,6 +3,25 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## travel-knowledge-rag — concierge knowledge-search tool
+
+specs/travel-knowledge-rag: re-introduce RAG over visa + local-tips seed content,
+exposed to the concierge as a new `search_travel_knowledge` tool. The concierge
+calls it for free-text visa/entry and local-advice questions and grounds on its
+results (guidance, not a ruling); falls back to `get_local_tips` for practical
+tips when it returns `count: 0` (there is no visa-specific tool).
+
+- **concierge v9** — copied v8, then added a new "## Visa & local advice"
+  section (between Hotels and the weather Example) instructing the model to call
+  `search_travel_knowledge` for free-text visa/local-advice questions, present
+  results as guidance (nationality-dependent, confirm with the official
+  authority), and fall back to `get_local_tips` when retrieval is empty.
+  Existing sections (grounding, shortlist, personalize, hotels, exclude_names)
+  are unchanged, so `test_concierge_prompt_mentions_exclude_names_on_followup`
+  still holds.
+
+`active.yaml`: concierge → 9. Others unchanged.
+
 ## v-min-54 — chat formatting polish (emoji + tighter bold)
 
 MIN-54: make replies friendlier and cleaner to scan. Prompt half of the issue

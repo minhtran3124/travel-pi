@@ -39,9 +39,13 @@ def search_vs_booking_metric() -> GEval:
         name="Search vs Booking Intent",
         criteria=(
             "The input is a hotel/flight SEARCH or information request, not a "
-            "confirmed booking. A good answer presents options/results. Penalize "
-            "answers that push booking, ask for payment/passport/guest details, or "
-            "assume the user already decided to book."
+            "confirmed booking. A good answer stays in search mode: it presents "
+            "options/results, or — when nothing matches — clearly says none were "
+            "found and offers to adjust the search (widen the budget, change the "
+            "dates, relax filters). Reporting no results and offering to broaden "
+            "the search is CORRECT behavior, not a failure. Penalize ONLY answers "
+            "that push booking, ask for payment/passport/guest details, or assume "
+            "the user already decided to book."
         ),
         evaluation_params=_IO,
         threshold=DEFAULT_THRESHOLD,
@@ -69,9 +73,12 @@ def format_quality_metric() -> GEval:
     return GEval(
         name="Format Quality",
         criteria=(
-            "A good answer emphasizes important information (prices, dates, hotel/"
-            "flight names) with bold, uses tidy structure (short paragraphs or "
-            "lists) and tasteful emoji — not a dense wall of plain text."
+            "Judge ONLY presentation and formatting: important information (prices, "
+            "dates, hotel/flight names) emphasized with bold, tidy structure (short "
+            "paragraphs or lists), and tasteful emoji — not a dense wall of plain "
+            "text. Do NOT penalize the answer's completeness, item count, or whether "
+            "it fully covers the request's scope (e.g. returning fewer items than "
+            "asked); those are out of scope for this formatting rubric."
         ),
         evaluation_params=_IO,
         threshold=DEFAULT_THRESHOLD,
