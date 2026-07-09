@@ -24,8 +24,10 @@ def test_min53_bumped_versions_active():
     active = yaml.safe_load(
         (Path(__file__).resolve().parents[2] / "app/prompts/active.yaml").read_text()
     )
-    # concierge was bumped again to 9 by travel-knowledge-rag; planner/memory
-    # stay at their MIN-53/MIN-60 versions.
+    # concierge was bumped again to 9 by travel-knowledge-rag; memory stays at
+    # its MIN-60 version. planner→6 / booking→5 bumped by flight-search-date-context
+    # (date resolution + multi-turn stitching reframe).
     assert active["concierge"] == 9
-    assert active["planner"] == 5
+    assert active["planner"] == 6
+    assert active["booking"] == 5
     assert active["memory_extraction"] == 4  # MIN-60 follow-up: name-capture guard
