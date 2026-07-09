@@ -38,6 +38,12 @@ class ChatRequest(AppBaseModel):
         "Pass {'approved': true} to confirm or {'approved': false} to cancel. "
         "Requires conversation_id.",
     )
+    timezone: str | None = Field(
+        default=None,
+        description="Traveller's IANA timezone (e.g. 'Asia/Ho_Chi_Minh') detected by the "
+        "client via Intl.DateTimeFormat().resolvedOptions().timeZone. Used to ground "
+        "relative dates like 'tomorrow'. Invalid or missing falls back to the server default.",
+    )
 
     @model_validator(mode="after")
     def _require_message_or_resume(self) -> "ChatRequest":

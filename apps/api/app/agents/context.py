@@ -40,10 +40,16 @@ class AgentContext:
     # None means "all sub-agents allowed"; a frozenset restricts routing (Phase D.1).
     allowed_subagents: frozenset[str] | None = None
     max_revisions: int = 1
+    # Per-request IANA timezone used to ground "today" for relative-date
+    # resolution; None keeps the legacy UTC behavior.
+    timezone: str | None = None
 
 
 def resolve_agent_context(
-    *, tier: Tier | str | None, allow_reflection: bool = True
+    *,
+    tier: Tier | str | None,
+    allow_reflection: bool = True,
+    timezone: str | None = None,
 ) -> AgentContext:
     """Map tier -> concrete ``AgentContext`` (the single policy function).
 
@@ -60,6 +66,8 @@ def resolve_agent_context(
         ``DEFAULT_TIER`` when unknown/None.
     :param allow_reflection: DB-config-driven reflection gate (from
         ``agent_config.enabled``); defaults True.
+    :param timezone: Per-request IANA timezone for relative-date resolution;
+        None keeps the legacy UTC behavior.
     :return: The resolved ``AgentContext`` for this request.
     """
     # Coerce a raw string (from the DB) to the enum; unknown or None values
@@ -86,4 +94,5 @@ def resolve_agent_context(
         response_style=ResponseStyle.DEFAULT,
         allowed_subagents=allowed_subagents,
         max_revisions=1,
+        timezone=timezone,
     )
