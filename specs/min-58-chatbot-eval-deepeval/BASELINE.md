@@ -2,7 +2,15 @@
 
 Keyed runs of the DeepEval harness (ticket step 4).
 
-- **Run 3 — `gpt-5.4-mini`, eval calibrated (2026-07-09):** the trustworthy baseline. A
+- **Run 4 — `gpt-5.4-mini`, calibration + confound removal (2026-07-09):** the current baseline.
+  An "agent-first" diagnosis (2 judge passes/case) confirmed the agent has no real prompt
+  misses — the remaining sub-100 scores were eval confounds, so three more small eval/data
+  fixes landed: the `format_quality` rubric now judges presentation only (not item count); the
+  "top 5 things to do in Da Nang" case dropped its hard count (catalog seeds 4, agent correctly
+  won't invent a 5th); and a format case that depended on the weather service — which can never
+  succeed in eval, the simulated 2026 date is beyond Open-Meteo's real forecast horizon — was
+  re-scoped off it. **All four measurable rubrics now score 100%.** Use THIS run.
+- **Run 3 — `gpt-5.4-mini`, eval calibrated (2026-07-09):** first trustworthy baseline. A
   diagnosis of Runs 1–2 found the low `Search vs Booking` / `Tool Correctness` numbers were
   **eval artifacts, not agent bugs**. Three fixes landed (`fix/min-58-eval-calibration`):
   (A) the runner now scores each rubric only on cases that declare it (was: all 4 rubrics on
@@ -14,6 +22,32 @@ Keyed runs of the DeepEval harness (ticket step 4).
   ⚠️ Its "agent/prompt bug (MIN-51/MIN-46)" read-out was **overturned by the Run-3 diagnosis** —
   MIN-51/MIN-46 are correct; the harness was miscalibrated. Kept below for history.
 - **Run 1 — `gpt-4o-mini` proxy (2026-07-06):** original baseline, kept below for history.
+
+## Run 4 — agent `gpt-5.4-mini`, judge `gpt-4o-mini`, confounds removed (2026-07-09)
+
+| Metric (rubric → ticket) | Pass | % | vs Run 3 |
+|---|---|---|---|
+| Response Language (MIN-57) | 10/10 | **100%** | = |
+| Search vs Booking Intent (MIN-51) | 5/5 | **100%** | +40pp (Run-3 3/5 was judge noise; rubric C) |
+| Tool Correctness (MIN-46) | 4/4 | **100%** | +25pp (browse_hotels; no transient weather miss) |
+| Format Quality (MIN-54) | 4/4 | **100%** | +25pp (rubric ignores count; de-counted + de-weathered cases) |
+| Fact Grounding | — | n/a | unassigned (needs `retrieval_context` — see Run 3) |
+
+Search/Tool/Language from the full keyed run; Format confirmed 4/4 by a follow-up format-only
+re-check after the Compare case was re-scoped off the weather service. Cases for those three
+metrics were unchanged since the full run, so the numbers compose.
+
+**Read-out:** the agent-first diagnosis (each case judged twice) showed **all 5 search cases
+pass both times and all 4 tool cases pass** — the earlier sub-100 numbers were LLM-judge noise
+(scores flipping around the 0.7 threshold) plus two eval confounds, not agent prompt bugs:
+- `format_quality` was penalizing a missing *5th* Da Nang item — a data/completeness issue, not
+  formatting. Rubric now judges presentation only; the case no longer demands a hard count.
+- one format case required live weather, which **structurally cannot succeed in eval** (the agent
+  runs on a simulated 2026 "today", past Open-Meteo's real forecast window), so it always
+  degraded to "service unavailable". Re-scoped to food/culture/budget — a clean formatting test.
+
+No agent code was changed — tuning prompts to chase the residual judge noise was rejected
+(it risks pushing the agent to invent a 5th item, i.e. hallucinate).
 
 ## Run 3 — agent `gpt-5.4-mini`, judge `gpt-4o-mini`, eval calibrated (2026-07-09)
 

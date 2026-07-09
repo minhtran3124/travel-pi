@@ -54,13 +54,37 @@ on the datasets so scoring is explicit. Recorded so the reviewer can challenge i
   results) so it penalizes every concrete fact as "invented" (meaningless 2/7). Recording a
   false metric is worse than none; left `no_hallucination` defined but unassigned. See follow-up.
 
+## Round 2 — agent-first diagnosis (user asked "can we improve test results?")
+
+Diagnosed each metric-relevant case with two judge passes to separate real misses from noise.
+Result: **no safely-fixable agent prompt misses** — all 5 search cases and all 4 tool cases
+pass; the residual sub-100 scores were LLM-judge threshold noise + two eval confounds. Fixed
+the confounds (eval/data only, no agent change), lifting all four measurable rubrics to 100%:
+
+- `format_quality` rubric reworded to judge presentation only (was penalizing a missing 5th
+  Da Nang item — a completeness/data issue, not formatting).
+- `format.json`: "top 5 things to do" → "top things to do" (catalog seeds 4; agent correctly
+  won't invent a 5th — forcing 5 would invite hallucination).
+- `format.json`: the Hanoi/HCMC compare case required live weather, which **can't succeed in
+  eval** (simulated 2026 date > Open-Meteo forecast horizon); re-scoped to food/culture/budget.
+
+Rejected: tuning agent prompts to chase residual judge noise (violates simplicity; risks
+pushing the agent to hallucinate to satisfy a rubric).
+
 ## Follow-ups (discovered)
 
 - **Wire grounding context for `no_hallucination`**: capture tool-result output in
   `harness.run_case` as `LLMTestCase.retrieval_context`, add `RETRIEVAL_CONTEXT` to the rubric's
   `evaluation_params`, then re-assign it to hotel/flight cases. Only then is Fact Grounding real.
-- `search_vs_booking` scoring is LLM-judge non-deterministic (3/5 ~ 4/5 across same-day runs);
-  consider a larger intent dataset or a stricter/structured judge for stability.
+- **Stub weather in eval** (descoped from Round 2 — brittle canned-schema): the real Open-Meteo
+  call can never resolve for the simulated future date, so any weather-dependent case degrades.
+  A clean eval-only weather stub would let weather cases test more than tool-correctness.
+- **RAG tool double-build collision**: `search_travel_knowledge` raised
+  `Table 'langchain_pg_collection' is already defined` when the vector store is built twice in
+  one process (eval builds a fresh graph). Degrades gracefully (empty result) but is a latent
+  bug — `get_vector_store`/PGVector needs `extend_existing` or a single cached MetaData.
+- `search_vs_booking`/`format` scoring is LLM-judge non-deterministic near the 0.7 threshold on
+  small N (4–5); a larger dataset or a stricter/structured judge would stabilize the numbers.
 
 ## Rollback
 

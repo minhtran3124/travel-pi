@@ -73,9 +73,12 @@ def format_quality_metric() -> GEval:
     return GEval(
         name="Format Quality",
         criteria=(
-            "A good answer emphasizes important information (prices, dates, hotel/"
-            "flight names) with bold, uses tidy structure (short paragraphs or "
-            "lists) and tasteful emoji — not a dense wall of plain text."
+            "Judge ONLY presentation and formatting: important information (prices, "
+            "dates, hotel/flight names) emphasized with bold, tidy structure (short "
+            "paragraphs or lists), and tasteful emoji — not a dense wall of plain "
+            "text. Do NOT penalize the answer's completeness, item count, or whether "
+            "it fully covers the request's scope (e.g. returning fewer items than "
+            "asked); those are out of scope for this formatting rubric."
         ),
         evaluation_params=_IO,
         threshold=DEFAULT_THRESHOLD,
