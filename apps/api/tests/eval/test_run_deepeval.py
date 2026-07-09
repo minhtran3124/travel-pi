@@ -88,6 +88,38 @@ def test_build_test_cases_skips_empty_reply(capsys):
     assert "skip (empty reply)" in capsys.readouterr().out
 
 
+def test_build_test_cases_attaches_declared_metrics():
+    # Each case's `metrics` field must ride along on the test case so that
+    # cases_for_metric can score each rubric only on the cases that opted in.
+    cases = r.build_test_cases(
+        _StubGraph(),
+        {"d": [{"input": "a", "metrics": ["response_language"]}, {"input": "b"}]},
+    )
+    assert cases[0].metadata == {"metrics": ["response_language"]}
+    assert cases[1].metadata == {"metrics": []}  # unlabeled → empty
+
+
+def test_cases_for_metric_selects_only_declared():
+    # A rubric scores only the cases that declare it — not every case (which was
+    # a category error: e.g. judging a weather question on search-vs-booking).
+    from deepeval.test_case import LLMTestCase
+
+    a = LLMTestCase(
+        input="a",
+        actual_output="x",
+        metadata={"metrics": ["search_vs_booking"]},
+    )
+    b = LLMTestCase(
+        input="b",
+        actual_output="y",
+        metadata={"metrics": ["response_language"]},
+    )
+    c = LLMTestCase(input="c", actual_output="z")  # no metadata at all
+    assert r.cases_for_metric("search_vs_booking", [a, b, c]) == [a]
+    assert r.cases_for_metric("response_language", [a, b, c]) == [b]
+    assert r.cases_for_metric("no_hallucination", [a, b, c]) == []
+
+
 def test_tool_cases_filters_to_those_with_expected_tools():
     # ToolCorrectness should only score cases that declare expected tools —
     # applying it to a no-tool case penalizes any legitimate tool call.

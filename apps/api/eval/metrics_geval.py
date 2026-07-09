@@ -39,9 +39,13 @@ def search_vs_booking_metric() -> GEval:
         name="Search vs Booking Intent",
         criteria=(
             "The input is a hotel/flight SEARCH or information request, not a "
-            "confirmed booking. A good answer presents options/results. Penalize "
-            "answers that push booking, ask for payment/passport/guest details, or "
-            "assume the user already decided to book."
+            "confirmed booking. A good answer stays in search mode: it presents "
+            "options/results, or — when nothing matches — clearly says none were "
+            "found and offers to adjust the search (widen the budget, change the "
+            "dates, relax filters). Reporting no results and offering to broaden "
+            "the search is CORRECT behavior, not a failure. Penalize ONLY answers "
+            "that push booking, ask for payment/passport/guest details, or assume "
+            "the user already decided to book."
         ),
         evaluation_params=_IO,
         threshold=DEFAULT_THRESHOLD,
