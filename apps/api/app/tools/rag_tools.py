@@ -144,6 +144,11 @@ def search_travel_knowledge(
             "[search_travel_knowledge] retrieval failed; returning empty result"
         )
         return {"results": [], "count": 0}
+    logger.info(
+        "[tool] search_travel_knowledge -> %d result(s) (filters=%s)",
+        len(docs),
+        filters or None,
+    )
     results = [{"content": d.page_content, "metadata": d.metadata} for d in docs]
     return {"results": results, "count": len(results)}
 
