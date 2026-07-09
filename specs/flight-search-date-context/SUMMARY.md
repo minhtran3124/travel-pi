@@ -45,7 +45,20 @@ a genuine design fork, hence normal lane with a short design step before plannin
 
 ### Deviations
 
-- none
+- Rule 3 — Fixed the prescribed test invoke shape: `content_and_artifact` tools (`search_flights`/`search_hotels`) only return the `(content, artifact)` tuple when invoked with a `ToolCall`-shaped payload, not a plain args dict. Reworded `tests/api/tools/test_flight_tools_dates.py` + `test_hotel_tools_dates.py` to match the repo's existing convention. Commit `6935412`.
+- Rule 3 — Trimmed the now-unused `timezone` import (`from datetime import datetime, timezone` → `from datetime import datetime`) in `app/tools/flight_tools.py` and `app/tools/hotel_tools.py` after replacing `datetime.now(timezone.utc)`. Commit `6935412`.
+- Rule 1 — Updated the `resolve_agent_context` spy in `tests/api/agent/test_identity_hybrid.py` to accept `timezone=` (broke on the corrected signature). Commit `d3c1ccd`.
+- Rule 1/3 (controller) — Applied the per-request tz to `AgentContext` via `dataclasses.replace` at the router call site instead of threading `raw_timezone` through `_resolve_context`. Functionally equivalent, cleaner separation of server-resolved tier vs body-supplied tz, and keeps the DB `session` arg off the changed lines so `risk-corroboration.sh`'s `\bsession\b` auth heuristic does not false-positive. `app/routers/agent.py`. Commit `d3c1ccd`.
+- Rule 1 — Updated `tests/prompts/test_active_versions_load.py` (hardcoded `planner==5`/`booking==4`) to assert the new active versions `planner==6`/`booking==5`. Commit `a31a5e5`.
+- Rule 1 (correctness-review) — `resolve_travel_date` now also accepts `YYYY/MM/DD` (slash form, a common model slip on ISO); previously misparsed day-first → `ValueError`. `app/core/dates.py`. (finding #3, score 75)
+- Rule 1 (correctness-review) — New `today_in_timezone(tz)` helper: tools compute `today` through it so a misconfigured `AGENT_TIMEZONE` degrades to UTC instead of raising `ZoneInfoNotFoundError` out of the tool (was `ZoneInfo(...)` outside the try/except). `app/core/dates.py`, `app/tools/flight_tools.py`, `app/tools/hotel_tools.py`. (finding #4, score 75)
+
+### Advisory Findings
+
+<!-- Correctness-review findings that scored < 80 (threshold) — recorded, not blocking. -->
+
+- **#1 (score 0, latent) — tool `today` uses the configured default tz, not the per-request tz.** `search_flights`/`search_hotels` compute `today` from `agent_timezone` (tools can't read the `AgentContext` context channel), while the prompt is grounded in `ctx.timezone`. **No effect in the current shipped state** — the FE does not yet send `body.timezone`, so `ctx.timezone` falls back to `agent_timezone` for every request and both sides agree. It only diverges once **task 5.2 (FE sends `Intl…timeZone`)** ships a non-VN client tz: a client west of UTC+7 near the date boundary could have a valid same-day date rejected as past by the tool. **Action: when 5.2 lands, thread the per-request tz into the tools** (InjectedState or an already-resolved `today`) so the tool's past-date check uses the same zone as the prompt.
+- **#2 (score 0, non-fatal) — `check_in`/`check_out` resolved independently, no max-stay upper bound.** Two out-of-order bare `DD/MM` (e.g. `20/07` + `05/07`) can roll `check_out` to next year → a ~350-night search that passes the `nights >= 1` guard. Does not crash; the `check_out > check_in` guard catches the reverse direction. Confirm-first prompting surfaces the absurd night count to the traveller. Left as-is (adding a max-stay guard is out of scope).
 
 ### Verify
 
@@ -54,10 +67,20 @@ a genuine design fork, hence normal lane with a short design step before plannin
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
 | Reproduce (read live thread) | `docker exec api-db-1 psql -U travel -d travel -c "SELECT role,substring(content,1,120) FROM messages WHERE conversation_id='7a22074c-4611-4690-8b64-b24856a52ef4' ORDER BY created_at"` | 0 | 26 msgs; flight-collect loop confirmed, no tool_calls |
+| dates helper unit | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_dates.py -x` | 0 | 18 passed |
+| context/schema unit | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_context.py tests/api/agent/test_agent_schemas.py -x` | 0 | 6 passed |
+| grounding tz unit | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state.py -x` | 0 | 14 passed (incl. legacy one-arg) |
+| tool date normalization | `cd apps/api && DATABASE_URL=sqlite:///./travel.db ../../.venv/bin/python -m pytest tests/api/tools/test_flight_tools_dates.py tests/api/tools/test_hotel_tools_dates.py -x` | 0 | 4 passed; regression 68+32 |
+| router tz + identity | `cd apps/api && DATABASE_URL=sqlite:///./travel.db ../../.venv/bin/python -m pytest tests/api/agent -x` | 0 | 41 passed |
+| agents + api/agent suites | `cd apps/api && DATABASE_URL=sqlite:///./travel.db ../../.venv/bin/python -m pytest tests/agents tests/api/agent -q` | 0 | 214 passed |
+| prompt registry active | `cd apps/api && ../../.venv/bin/python -c "from app.prompts.registry import registry; assert 'Resolving is not guessing' in registry.get('planner'); assert 'Never invent' in registry.get('booking')"` | 0 | planner v6 + booking v5 active |
+| full BE suite (make test) | `cd apps/api && make test` | — | running (Wave 5.1) |
 
 ### Rollback
 
-- `git revert <sha>`
+- Revert all implementation commits: `git revert 8d4aeb9 d3c1ccd 6935412 25e9fed`
+- Or reset the branch to the plan commit: `git reset --hard 39b8216`
+- Prompt-only rollback (keep code): set `app/prompts/active.yaml` back to `planner: 5`, `booking: 4` and rebuild the graph.
 
 ### Harness-Delta
 

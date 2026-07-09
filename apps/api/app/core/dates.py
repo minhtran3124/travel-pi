@@ -9,7 +9,8 @@ search. Weekday/phrase parsing is deliberately out of scope.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 # Relative day-words (English + Vietnamese, with/without diacritics) -> offset.
 _RELATIVE_DAYS: dict[str, int] = {
@@ -56,9 +57,14 @@ def resolve_travel_date(raw: str, today: date) -> str:
     if token in _RELATIVE_DAYS:
         return (today + timedelta(days=_RELATIVE_DAYS[token])).isoformat()
 
-    # 3. Day-first slash/dash forms: DD/MM/YYYY or DD/MM (year inferred).
+    # 3. Slash/dash numeric forms.
     parts = token.replace("-", "/").split("/")
     if len(parts) in (2, 3) and all(p.isdigit() and p != "" for p in parts):
+        # 3a. YYYY/MM/DD — a common model slip on the ISO format (dashes expected).
+        # A 4-digit leading part is unambiguously a year, so read it ISO-order.
+        if len(parts) == 3 and len(parts[0]) == 4:
+            return date(int(parts[0]), int(parts[1]), int(parts[2])).isoformat()
+        # 3b. Day-first DD/MM/YYYY or DD/MM (year inferred).
         day, month = int(parts[0]), int(parts[1])
         if len(parts) == 3:
             year = int(parts[2])
@@ -75,3 +81,21 @@ def resolve_travel_date(raw: str, today: date) -> str:
         return candidate.isoformat()
 
     raise ValueError(f"unrecognized date {raw!r}")
+
+
+def today_in_timezone(tz_name: str | None) -> date:
+    """Return the current date in ``tz_name``, falling back to UTC on a bad name.
+
+    Used by tools to ground "today" without crashing on a misconfigured
+    ``AGENT_TIMEZONE`` — an invalid IANA name degrades to UTC rather than raising
+    ``ZoneInfoNotFoundError`` out of the tool.
+
+    :param tz_name: An IANA timezone name, or None (→ UTC).
+    :return: Today's date in that zone (UTC if the name is missing/invalid).
+    """
+    if tz_name:
+        try:
+            return datetime.now(ZoneInfo(tz_name)).date()
+        except Exception:
+            pass
+    return datetime.now(timezone.utc).date()

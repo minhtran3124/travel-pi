@@ -10,13 +10,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Literal
-from zoneinfo import ZoneInfo
 
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
 from app.core.config import get_settings
-from app.core.dates import resolve_travel_date
+from app.core.dates import resolve_travel_date, today_in_timezone
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.services.flight_service import DEFAULT_SORT, FlightService
@@ -85,7 +84,7 @@ def search_flights(
         artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_flights", locals())
-    today = datetime.now(ZoneInfo(get_settings().agent_timezone)).date()
+    today = today_in_timezone(get_settings().agent_timezone)
     try:
         departure_date = resolve_travel_date(departure_date, today)
         parsed_date = datetime.strptime(departure_date, "%Y-%m-%d").date()
