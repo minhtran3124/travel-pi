@@ -34,6 +34,12 @@ langchain-google-genai>=4.0,<5.0  # provider="google_genai" (Gemini / AI Studio)
 langchain-postgres>=0.0.13,<0.1
 pgvector>=0.3,<1.0
 
+# app/rag/ingest.py chunks long prose with RecursiveCharacterTextSplitter.
+# langchain 1.x dropped langchain-text-splitters from its dependency tree, so
+# it must be explicit — an existing venv may still carry it as a stale leftover
+# from a pre-1.0 install while a clean CI install has no such package.
+langchain-text-splitters>=0.3,<1.0
+
 # Checkpointers — SQLite local/test, Postgres in docker/prod.
 # Pin >=3.0 to match langgraph-checkpoint 4.x core serializer (2.x calls a
 # removed JsonPlusSerializer.dumps and breaks at runtime).
