@@ -16,9 +16,11 @@ from pydantic import Field
 
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
+from app.schemas.flight import FlightBookingRequest
+from app.services.booking_service import BookingService
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
-from app.tools._base import log_tool_call, panel_result, session_scope
+from app.tools._base import dump, log_tool_call, panel_result, session_scope
 
 FlightSort = Literal[
     "departure_asc",
@@ -147,4 +149,105 @@ def search_flights(
             raise ToolException(str(e)) from e
 
 
-FLIGHT_TOOLS = [search_flights]
+class BookFlightArgs(AppBaseModel):
+    flight_id: str | None = Field(
+        None,
+        description=(
+            "The `id` of a flight from a search_flights result. Provide this "
+            "OR flight_number+origin+destination+departure_date, not both."
+        ),
+    )
+    flight_number: str | None = Field(
+        None,
+        description=(
+            "Carrier code + number, e.g. 'VN123'. Required (with "
+            "origin+destination+departure_date) when flight_id is not given."
+        ),
+    )
+    origin: str | None = Field(
+        None, description="3-letter IATA origin code, e.g. 'HAN'."
+    )
+    destination: str | None = Field(
+        None, description="3-letter IATA destination code, e.g. 'SGN'."
+    )
+    departure_date: str | None = Field(None, description="Departure date, YYYY-MM-DD.")
+    passenger_name: str = Field(
+        ..., description="Full name as printed on the passenger's ID/passport."
+    )
+    passenger_email: str = Field(
+        ..., description="Contact email for the itinerary and e-ticket."
+    )
+    passenger_phone: str = Field(
+        ..., description="Contact phone for airline notifications (delays, gate)."
+    )
+    notes: str | None = Field(
+        None, description="Optional note for the airline (seat/meal preference)."
+    )
+    confirm: bool = Field(
+        False,
+        description=(
+            "Must be set to True to execute the booking — prevents accidental "
+            "reservations. Leaving it False (the default) will not book anything."
+        ),
+    )
+
+
+@tool(args_schema=BookFlightArgs)
+def book_flight(
+    passenger_name: str,
+    passenger_email: str,
+    passenger_phone: str,
+    flight_id: str | None = None,
+    flight_number: str | None = None,
+    origin: str | None = None,
+    destination: str | None = None,
+    departure_date: str | None = None,
+    notes: str | None = None,
+    confirm: bool = False,
+) -> dict:
+    """Book a flight. You MUST pass confirm=True to create the reservation.
+
+    Identify the flight EITHER by ``flight_id`` (from a search_flights result)
+    OR by ``flight_number`` + ``origin`` + ``destination`` + ``departure_date``
+    — provide one, not both. Raises ``ToolException`` if the flight is not found
+    or the identifier is invalid/incomplete.
+
+    :param passenger_name: Full name as printed on the passenger's ID/passport.
+    :param passenger_email: Contact email for the itinerary and e-ticket.
+    :param passenger_phone: Contact phone for airline notifications.
+    :param flight_id: The `id` from a search_flights result (mode A).
+    :param flight_number: Carrier code + number, e.g. 'VN123' (mode B).
+    :param origin: 3-letter IATA origin code (mode B).
+    :param destination: 3-letter IATA destination code (mode B).
+    :param departure_date: Departure date YYYY-MM-DD (mode B).
+    :param notes: Optional note for the airline.
+    :param confirm: Must be True to execute the booking; left False, nothing books.
+    :return: The confirmed Booking with id, confirmation_code, status, total_price.
+    """
+    log_tool_call("book_flight", locals())
+    if not confirm:
+        raise ToolException(
+            "set confirm=true to book — this action creates a real reservation"
+        )
+    with session_scope() as s:
+        try:
+            request = FlightBookingRequest(
+                flight_id=flight_id,
+                flight_number=flight_number,
+                origin=origin,
+                destination=destination,
+                departure_date=departure_date,
+                passenger_name=passenger_name,
+                passenger_email=passenger_email,
+                passenger_phone=passenger_phone,
+                notes=notes,
+            )
+            result = BookingService(s).book_flight(request)
+            return dump(result)
+        except AppError as e:
+            raise ToolException(str(e)) from e
+        except ValueError as e:
+            raise ToolException(str(e)) from e
+
+
+FLIGHT_TOOLS = [search_flights, book_flight]
