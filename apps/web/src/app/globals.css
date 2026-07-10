@@ -317,6 +317,23 @@ body {
 }
 .tp-msg-in { animation: tp-msg-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* Staggered row entrance for side-panel lists (hotels / flights / places). Each
+ * row fades + lifts in sequence (delay set inline per index), so a freshly-
+ * streamed panel reveals top-to-bottom instead of snapping every row in at once
+ * — the "jumpy" reflow. The delay is bounded inline (index capped) so the whole
+ * cascade stays under ~0.5s. Pure CSS on mount — not class/observer-gated — so
+ * it always resolves to the visible end state (and collapses to instant under
+ * prefers-reduced-motion below). Mirrors the tp-deal trips-grid pattern: the
+ * entrance lives on a wrapper so the row's own hover-lift transform is unaffected. */
+@keyframes tp-row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-row-in {
+  opacity: 0;
+  animation: tp-row-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* "Thinking" — three dots bounce in sequence (staggered via delay). */
 @keyframes tp-typing {
   0%, 70%, 100% { transform: translateY(0);   opacity: .35; }
@@ -335,6 +352,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .tp-deal { opacity: 1; }
+  .tp-row-in { opacity: 1; }
   /* Infinite/looping motion must be silenced outright, not just sped up. */
   .tp-typing-dot { animation: none; opacity: .6; }
   .tp-ping { animation: none; opacity: 0; }

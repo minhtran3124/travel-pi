@@ -122,8 +122,14 @@ export function PlacesPanel({ data }: { data: PlacesPanelData }) {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {places.map((p) => (
-          <Row key={p.id} p={p} />
+        {places.map((p, i) => (
+          <div
+            key={p.id}
+            className="tp-row-in"
+            style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
+          >
+            <Row p={p} />
+          </div>
         ))}
       </div>
     </div>

@@ -133,8 +133,14 @@ export function HotelsPanel({ data }: { data: HotelsPanelData }) {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {hotels.map((h) => (
-          <Row key={h.id} h={h} cheapest={h.total_price === cheapest_total} />
+        {hotels.map((h, i) => (
+          <div
+            key={h.id}
+            className="tp-row-in"
+            style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
+          >
+            <Row h={h} cheapest={h.total_price === cheapest_total} />
+          </div>
         ))}
       </div>
     </div>

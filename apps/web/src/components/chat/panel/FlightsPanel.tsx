@@ -101,8 +101,14 @@ export function FlightsPanel({ data }: { data: FlightsPanelData }) {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {flights.map((f) => (
-          <Row key={f.id} f={f} cheapest={f.price === cheapest_price} />
+        {flights.map((f, i) => (
+          <div
+            key={f.id}
+            className="tp-row-in"
+            style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
+          >
+            <Row f={f} cheapest={f.price === cheapest_price} />
+          </div>
         ))}
       </div>
     </div>
