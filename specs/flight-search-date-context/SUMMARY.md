@@ -61,6 +61,11 @@ a genuine design fork, hence normal lane with a short design step before plannin
 - **verification caveat (medium), recorded — the multi-turn over-asking loop is fixed only by the prompt reframe, with no deterministic test reproducing it.** The deterministic layer (`resolve_travel_date`) and the tool path are unit-tested, but the reported symptom (LLM looping / never calling the tool / not stitching "10/07"+"2026" across turns) rests on probabilistic prompt behavior — a FakeLLM (scripted) test cannot prove it. Per design §7 this is verified via the DeepEval harness + the manual repro in **Task 5.1** (acceptance step, pending). Intent coverage is present; the gap is in automated proof of the symptom, which is inherent to LLM-behavior changes.
 - **drift (low), needs user confirmation — clause (3) delivered narrowly (dates only).** The summarizer (`app/memory/`) is untouched; clause (3) ("understand recent messages … gather/summarize intelligently") is addressed only via the date-stitching + "restate collected fields" prompt text. Reasonable if clause (3) was about the flight/hotel collection loop (the reproduced bug); a gap if the user meant a broader conversation-summarizer improvement. **RESOLVED — user confirmed (2026-07-10) clause (3) = the flight/hotel collection loop only, not a summarizer change. In scope; delivered.**
 
+### Manual-repro observations (Task 5.1, 2026-07-10 — soft, not blocking)
+
+- For a **read-only flight search** the planner **infers + surfaces** the resolved date ("sáng mai, 11/07/2026") and searches directly, rather than doing a separate yes/no confirm turn (the design's UX choice (ii)). Reasonable for a non-destructive search — the assumption is surfaced for correction; confirm-first matters more for `booking` (destructive). Prompt guides but does not hard-enforce it.
+- When **no date is given at all**, the planner assumes "today" and searches (surfacing "hôm nay 10/07/2026") instead of asking "which date?". Slightly aggressive; a future prompt tweak could make it ask first. Not the reported bug.
+
 ### Advisory Findings
 
 <!-- Correctness-review findings that scored < 80 (threshold) — recorded, not blocking. -->
@@ -82,7 +87,8 @@ a genuine design fork, hence normal lane with a short design step before plannin
 | router tz + identity | `cd apps/api && DATABASE_URL=sqlite:///./travel.db ../../.venv/bin/python -m pytest tests/api/agent -x` | 0 | 41 passed |
 | agents + api/agent suites | `cd apps/api && DATABASE_URL=sqlite:///./travel.db ../../.venv/bin/python -m pytest tests/agents tests/api/agent -q` | 0 | 214 passed |
 | prompt registry active | `cd apps/api && ../../.venv/bin/python -c "from app.prompts.registry import registry; assert 'Resolving is not guessing' in registry.get('planner'); assert 'Never invent' in registry.get('booking')"` | 0 | planner v6 + booking v5 active |
-| full BE suite (make test) | `cd apps/api && make test` | — | running (Wave 5.1) |
+| full BE suite (CI-equivalent) | `.env aside + DATABASE_URL=sqlite … pytest <targeted>` | 0 | 382 passed (8 make-test fails are pre-existing .env artifacts) |
+| **manual repro (Task 5.1)** | graph rebuilt (`docker compose up -d`); `POST /agent/chat` w/ `timezone:Asia/Ho_Chi_Minh` | 0 | "sáng mai"→**resolved 11/07/2026 + search_flights called** (5 real flights); "25/12"→**25/12/2026, no year re-ask**. Registry confirms planner v6 + booking v5 active. Bug (loop, no tool call) gone. |
 
 ### Rollback
 
