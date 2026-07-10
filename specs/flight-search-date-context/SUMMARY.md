@@ -89,6 +89,7 @@ a genuine design fork, hence normal lane with a short design step before plannin
 | prompt registry active | `cd apps/api && ../../.venv/bin/python -c "from app.prompts.registry import registry; assert 'Resolving is not guessing' in registry.get('planner'); assert 'Never invent' in registry.get('booking')"` | 0 | planner v6 + booking v5 active |
 | full BE suite (CI-equivalent) | `.env aside + DATABASE_URL=sqlite … pytest <targeted>` | 0 | 382 passed (8 make-test fails are pre-existing .env artifacts) |
 | **manual repro (Task 5.1)** | graph rebuilt (`docker compose up -d`); `POST /agent/chat` w/ `timezone:Asia/Ho_Chi_Minh` | 0 | "sáng mai"→**resolved 11/07/2026 + search_flights called** (5 real flights); "25/12"→**25/12/2026, no year re-ask**. Registry confirms planner v6 + booking v5 active. Bug (loop, no tool call) gone. |
+| **FE network check (Task 5.2)** | `pnpm dev` + playwright (Node 24) w/ browser `timezoneId:America/New_York`, send a flight message | 0 | live `POST /agent/stream` body carries `"timezone":"America/New_York"` (browser-detected via `Intl…timeZone`), confirming FE→BE tz plumbing end-to-end. |
 
 ### Rollback
 
