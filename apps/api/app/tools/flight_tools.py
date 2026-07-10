@@ -8,7 +8,7 @@ flights — so the agent can reference a specific flight across turns.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Literal
 
 from langchain_core.tools import ToolException, tool
@@ -94,7 +94,11 @@ def search_flights(
             f"YYYY-MM-DD date. Today is {today.isoformat()}. Resolve relative terms "
             "(e.g. 'tomorrow') against today and ask the traveller for a concrete date."
         ) from e
-    if parsed_date < today:
+    # 1-day grace: `today` is computed in the server's configured zone, but the
+    # traveller's date was resolved against their own timezone (in the prompt), so
+    # the two "todays" can differ by up to a day. Tolerate that skew rather than
+    # reject a date the traveller correctly considers today/future.
+    if parsed_date < today - timedelta(days=1):
         raise ToolException(
             f"departure_date {departure_date} is in the past (today is "
             f"{today.isoformat()}). Do not guess or invent dates — confirm the "

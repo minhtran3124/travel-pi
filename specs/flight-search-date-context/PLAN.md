@@ -859,3 +859,4 @@ Expected: prints the first line of each new version without error.
 - 2026-07-09 — `/correctness-review`: findings #3 (YYYY/MM/DD) + #4 (bad-tz crash) fixed `fea3b06`; #1/#2 recorded advisory.
 - 2026-07-10 — `/intent-review`: 3 findings recorded (`3b4f0d4`); clause-3 scope user-confirmed = collection-only (`ba69358`). All gates pass; 382 targeted tests green (CI-equivalent). Task 5.2 (FE tz) + 5.1 (manual/DeepEval acceptance) are documented follow-ups.
 - 2026-07-10 — shipped via `feat/flight-search-date-context` (PR #84 → v3).
+- 2026-07-10 — Task 5.1 manual repro passed (live LLM). Task 5.2 done: FE `useAgentStream.ts` sends `Intl…timeZone` (3 stream call sites) + regenerated `schema.d.ts`; BE 1-day tz-skew grace in flight/hotel past-date checks closes advisory #1. Verified e2e on `/agent/stream` with `America/New_York`. FE tsc + eslint clean.

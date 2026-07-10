@@ -13,7 +13,7 @@ drawer).
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
@@ -176,7 +176,9 @@ def search_hotels(
             f"concrete YYYY-MM-DD dates. Today is {today.isoformat()}. Resolve relative "
             "terms against today and ask the traveller for concrete dates."
         ) from e
-    if parsed_check_in < today:
+    # 1-day grace for timezone skew between the server-configured `today` and the
+    # traveller's own zone (their dates were resolved against their tz in the prompt).
+    if parsed_check_in < today - timedelta(days=1):
         raise ToolException(
             f"check_in {check_in} is in the past (today is {today.isoformat()}). "
             "Do not guess or invent dates — confirm the traveller's intended dates, "
