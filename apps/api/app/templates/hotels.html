@@ -25,24 +25,24 @@
 </div>
 
 <form method="get" action="/dashboard/hotels" class="filter-bar">
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Search</span>
     <input type="search" name="q" value="{{ query }}" placeholder="Hotel name…">
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">City</span>
-    <select name="city" onchange="this.form.submit()">
+    <select name="city">
       <option value="">All cities ({{ total }})</option>
       {% for c in cities %}
         <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Sort</span>
-    <select name="sort" onchange="this.form.submit()">
+    <select name="sort">
       <option value="featured"    {% if sort == 'featured'    %}selected{% endif %}>Featured</option>
       <option value="rating_desc" {% if sort == 'rating_desc' %}selected{% endif %}>Rating ↓</option>
       <option value="rating_asc"  {% if sort == 'rating_asc'  %}selected{% endif %}>Rating ↑</option>
@@ -50,7 +50,7 @@
       <option value="price_desc"  {% if sort == 'price_desc'  %}selected{% endif %}>Price ↓</option>
       <option value="name"        {% if sort == 'name'        %}selected{% endif %}>Name A–Z</option>
     </select>
-  </div>
+  </label>
 
   <button class="fb-btn" type="submit">Search</button>
 
@@ -78,6 +78,7 @@
   {% set ts = type_styles.get(hotel.property_type, {'c': '#38bdf8', 'i': '🏨'}) %}
   {% set rtier = 'rb-exc' if hotel.rating >= 9 else 'rb-great' if hotel.rating >= 8 else 'rb-good' if hotel.rating >= 7 else 'rb-ok' %}
   <article class="hotel-card" role="button" tabindex="0" style="--c: {{ ts.c }}"
+           aria-haspopup="dialog" aria-label="{{ hotel.name }} — {{ hotel.city }}"
            data-name="{{ hotel.name }}"
            data-city="{{ hotel.city }}"
            data-country="{{ hotel.country }}"
@@ -386,15 +387,11 @@ document.addEventListener('DOMContentLoaded', () => {
     $('hm-code').textContent = d.code;
     $('hm-foot-price').innerHTML = d.currency + ' ' + d.price + '<span> / night</span>';
 
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    window.openDialog(modal, { initialFocus: '#hm-name' });
   }
 
   function closeModal() {
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    window.closeDialog(modal);
   }
 
   document.querySelectorAll('.hotel-card').forEach(card => {
@@ -407,10 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
   modal.querySelectorAll('[data-close]').forEach(el => {
     el.addEventListener('click', closeModal);
   });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
-  });
+  // Esc handled by openDialog's keydown trap — no duplicate here.
 });
 </script>
 {% endblock %}

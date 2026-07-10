@@ -30,35 +30,37 @@
 </div>
 
 <form method="get" action="/dashboard/tips" class="filter-bar">
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Country</span>
-    <select name="country" onchange="this.form.city.value=''; this.form.submit()">
+    <select name="country" onchange="this.form.city.value=''">
       <option value="">All countries</option>
       {% for c in countries %}
         <option value="{{ c }}" {% if selected_country == c %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">City</span>
-    <select name="city" onchange="this.form.submit()">
+    <select name="city">
       <option value="">{{ "— any city —" if selected_country else "All cities" }}</option>
       {% for c in cities %}
         <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Category</span>
-    <select name="category" onchange="this.form.submit()">
+    <select name="category">
       <option value="">All categories</option>
       {% for key, label in categories.items() %}
         <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
+
+  <button class="fb-btn" type="submit">Apply</button>
 
   <div class="fb-sep"></div>
 

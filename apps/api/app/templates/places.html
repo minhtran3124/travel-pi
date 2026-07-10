@@ -20,47 +20,47 @@
 </div>
 
 <form method="get" action="/dashboard/places" class="filter-bar">
-  <div class="fg" style="position: relative;">
+  <label class="fg">
     <span class="fl">City</span>
-    <input type="text" id="city-input" name="city" value="{{ selected_city or '' }}"
-           placeholder="All cities" autocomplete="off">
-    <ul id="city-dropdown" class="city-dropdown">
-      <li data-value="">All cities</li>
+    <select name="city">
+      <option value="">All cities</option>
       {% for c in cities %}
-        <li data-value="{{ c }}">{{ c }}</li>
+        <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
-    </ul>
-  </div>
+    </select>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Category</span>
-    <select name="category" onchange="this.form.submit()">
+    <select name="category">
       <option value="">All categories</option>
       {% for key, label in categories.items() %}
         <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Min rating</span>
-    <select name="min_rating" onchange="this.form.submit()">
+    <select name="min_rating">
       <option value="">Any</option>
       {% for r in [3.0, 3.5, 4.0, 4.5] %}
         <option value="{{ r }}" {% if selected_min_rating == r %}selected{% endif %}>{{ r }}+</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Price</span>
-    <select name="price_level" onchange="this.form.submit()">
+    <select name="price_level">
       <option value="">Any</option>
       {% for lvl, label in price_labels.items() %}
         <option value="{{ lvl }}" {% if selected_price_level == lvl %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
+
+  <button class="fb-btn" type="submit">Apply</button>
 
   <div class="fb-sep"></div>
 
@@ -73,14 +73,14 @@
 
   <div class="fb-sep"></div>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Sort</span>
-    <select name="sort" onchange="this.form.submit()">
+    <select name="sort">
       {% for key, label in sort_options.items() %}
         <option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
   {% if selected_city or selected_category or selected_min_rating or selected_price_level or recommended %}
     <a href="/dashboard/places" class="fb-link">✕ Clear</a>
@@ -99,6 +99,7 @@
       {% if is_feat %}{% set ns.feat = ns.feat + 1 %}{% endif %}
       {% set size = 'feat' if is_feat else ('wide' if loop.index0 % 6 == 5 else '') %}
       <div class="place-card {{ size }}" role="button" tabindex="0"
+           aria-haspopup="dialog" aria-label="{{ place.name }} — {{ place.city }}"
            style="--c: {{ cat_colors.get(place.category, 'var(--accent)') }}"
            data-name="{{ place.name }}"
            data-city="{{ place.city }}"
@@ -180,22 +181,6 @@
 </div>
 
 <style>
-  .city-dropdown {
-    position: absolute; top: 100%; left: 0; right: 0;
-    margin: 4px 0 0 0; padding: 0; list-style: none;
-    background: var(--panel-2); border: 1px solid var(--line);
-    border-radius: var(--radius-sm); max-height: 240px; overflow-y: auto;
-    display: none; z-index: 1000;
-  }
-  .city-dropdown.show { display: block; }
-  .city-dropdown li {
-    padding: 10px 12px; cursor: pointer;
-    font-size: 0.875rem; transition: background .1s;
-  }
-  .city-dropdown li:hover,
-  .city-dropdown li.active { background: var(--accent-glow); }
-  .city-dropdown li.filtered { display: none; }
-
   /* ── Bento mosaic: photo-fill tiles, recommended span 2×2 ── */
   .place-grid {
     display: grid; gap: 14px;
@@ -372,65 +357,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('city-input');
-  const dropdown = document.getElementById('city-dropdown');
-  const items = dropdown.querySelectorAll('li');
-
-  input.addEventListener('focus', () => {
-    dropdown.classList.add('show');
-  });
-
-  let active = -1;
-  const visibleItems = () => [...items].filter(i => !i.classList.contains('filtered'));
-  const setActive = (list, idx) => {
-    list.forEach(i => i.classList.remove('active'));
-    if (idx >= 0 && idx < list.length) {
-      list[idx].classList.add('active');
-      list[idx].scrollIntoView({ block: 'nearest' });
-    }
-  };
-
-  input.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    items.forEach(item => {
-      const text = item.textContent.toLowerCase();
-      item.classList.toggle('filtered', !text.includes(query));
-    });
-    active = -1;
-    dropdown.classList.add('show');
-  });
-
-  items.forEach(item => {
-    item.addEventListener('click', () => {
-      input.value = item.dataset.value;
-      dropdown.classList.remove('show');
-      input.form.submit();
-    });
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.fg')) {
-      dropdown.classList.remove('show');
-    }
-  });
-
-  input.addEventListener('keydown', (e) => {
-    const vis = visibleItems();
-    if (e.key === 'ArrowDown') {
-      e.preventDefault(); dropdown.classList.add('show');
-      active = Math.min(active + 1, vis.length - 1); setActive(vis, active);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      active = Math.max(active - 1, 0); setActive(vis, active);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (active >= 0 && vis[active]) input.value = vis[active].dataset.value;
-      input.form.submit();
-    } else if (e.key === 'Escape') {
-      dropdown.classList.remove('show'); active = -1;
-    }
-  });
-
   // ── Place detail modal ───────────────────────────────────────────
   const modal = document.getElementById('place-modal');
   const $ = (id) => document.getElementById(id);
@@ -481,15 +407,11 @@ document.addEventListener('DOMContentLoaded', () => {
       map.hidden = true;
     }
 
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    window.openDialog(modal, { initialFocus: '#pm-close' });
   }
 
   function closeModal() {
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    window.closeDialog(modal);
   }
 
   document.querySelectorAll('.place-card').forEach(card => {
@@ -502,10 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
   modal.querySelectorAll('[data-close]').forEach(el => {
     el.addEventListener('click', closeModal);
   });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
-  });
+  // Esc handled by openDialog's keydown trap — no duplicate here.
 });
 </script>
 

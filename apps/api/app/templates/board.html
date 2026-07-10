@@ -13,21 +13,21 @@
 <form method="get" action="/dashboard/flights" class="filter-bar">
   <input type="hidden" name="mode" value="{{ mode }}">
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">{{ "Arriving at" if mode == "arrivals" else "Departing from" }}</span>
-    <select name="airport" onchange="this.form.submit()">
+    <select name="airport">
       {% for a in airports %}
         <option value="{{ a.code }}" {% if a.code == airport.code %}selected{% endif %}>
           {{ a.code }} — {{ a.city }}
         </option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Date</span>
-    <input type="date" name="date" value="{{ date }}" onchange="this.form.submit()">
-  </div>
+    <input type="date" name="date" value="{{ date }}">
+  </label>
 
   <button class="fb-btn" type="submit">View</button>
 
@@ -67,7 +67,7 @@
     </thead>
     <tbody>
       {% for row in rows %}
-      <tr class="frow" data-href="/dashboard/flights/{{ row.flight_id }}" tabindex="0">
+      <tr class="frow" data-href="/dashboard/flights/{{ row.flight_id }}">
         <td class="sta">{{ row.scheduled.strftime("%H:%M") }}</td>
         <td class="eta">{{ row.estimated.strftime("%H:%M") if row.estimated else "" }}</td>
         <td>
@@ -82,7 +82,7 @@
           <span class="airline" style="background: {{ row.airline_color }}">{{ row.airline_code }}</span>
           <span class="airline-name">{{ row.airline_name }}</span>
         </td>
-        <td class="flight"><a href="/dashboard/flights/{{ row.flight_id }}">{{ row.flight_number }}</a></td>
+        <td class="flight"><a href="/dashboard/flights/{{ row.flight_id }}" aria-label="Flight {{ row.flight_number }} — {{ row.airport.city if row.airport else row.airport_code }}">{{ row.flight_number }}</a></td>
         <td><span class="remark {{ row.status_kind }}">{{ row.status }}</span></td>
       </tr>
       {% endfor %}
@@ -92,10 +92,9 @@
 {% endif %}
 
 <style>
-  /* Whole flight row is clickable → detail (the flight-number link stays the
-     keyboard/semantic path). */
+  /* Whole flight row is clickable → detail. The flight-number <a> is the sole
+     keyboard tab stop (named via aria-label); the row click forwards to it. */
   .frow { cursor: pointer; }
-  .frow:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 </style>
 
 <script>
@@ -106,14 +105,13 @@
     document.getElementById("clock").textContent = hh + ":" + mm;
   }, 1000);
 
-  // Click anywhere on a row to open the flight detail (links still work).
+  // Click anywhere on a row opens the flight detail by activating the in-row link
+  // (so the keyboard/semantic path and the mouse path share one destination).
   document.querySelectorAll("tr.frow").forEach(function (tr) {
     tr.addEventListener("click", function (e) {
       if (e.target.closest("a")) return;            // let real links win
-      window.location.href = tr.dataset.href;
-    });
-    tr.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") window.location.href = tr.dataset.href;
+      var a = tr.querySelector("a[href]");
+      if (a) a.click();
     });
   });
 </script>

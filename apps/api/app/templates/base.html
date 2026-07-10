@@ -16,6 +16,7 @@
        All surface/text pairings verified ≥ WCAG AA.
     ═══════════════════════════════════════════ */
     :root {
+      color-scheme: dark;      /* shell is dark → native <select>/date/search/scrollbars render dark UA chrome */
       --bg:       #1a1614;   /* app canvas (lifted dark, faint warm-neutral) */
       --panel:    #221d1a;   /* raised surfaces: cards, table, nav */
       --panel-2:  #2e2723;   /* inset tier: inputs, table head, tiles */
@@ -211,6 +212,22 @@
     .tp-btn-ok:hover { filter: brightness(1.08); }
     .tp-btn-ok.danger { background: var(--red); color: #2a0a0a; }
     @media (prefers-reduced-motion: reduce) { .tp-dialog-panel { animation: none; } }
+
+    /* ── Shared keyboard focus ring ──
+       The --ring token existed but most link/chip primitives relied on UA outlines.
+       One rule covers the recurring nav/filter/card-link controls. */
+    :where(.tab, .fb-link, .explore a, .seg a, .version-pill, .toggle-chip, .back, .frow a, .page a, .prompt-nav-item):focus-visible {
+      outline: none; box-shadow: var(--ring); border-radius: var(--radius-sm);
+    }
+
+    /* ── Skip link ── hidden until focused (keyboard users jump past the topbar). */
+    .skip {
+      position: absolute; left: -9999px; top: 0; z-index: var(--z-modal);
+      background: var(--panel); color: var(--ink);
+      padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--accent);
+      font: 700 0.85rem inherit; text-decoration: none;
+    }
+    .skip:focus { left: 8px; top: 8px; }
 
     .wrap { max-width: 1140px; margin: 0 auto; padding: 28px 20px 64px; }
     /* Opt-in wide layout (e.g. prompt dashboard) — roomier for side-by-side views. */
@@ -887,9 +904,66 @@
     };
     window.tpPrompt = function (title, value) { return window.tpDialog({ title: title, value: value, input: true }); };
     window.tpConfirm = function (title, message, okLabel) { return window.tpDialog({ title: title, message: message, input: false, okLabel: okLabel || 'OK', danger: true }); };
+
+    /* ── Shared modal/dialog focus manager (WCAG 2.1.2 / 2.4.3 / 2.4.7) ──
+       openDialog: store the trigger, inert + aria-hide the rest of the page, move
+       focus into the dialog, install a Tab-trap + Esc-close. closeDialog: reverse
+       it and restore focus to the trigger. Handles stacked dialogs (only clears
+       body overflow when no other .show dialog remains). No animation of its own
+       — the per-modal .show transitions + the global prefers-reduced-motion block
+       own all motion. */
+    var _TP_DIAL_SEL = 'a[href],button:not([disabled]),input:not([type="hidden"]),select,textarea,[tabindex]:not([tabindex="-1"])';
+    window.openDialog = function (modal, opts) {
+      opts = opts || {};
+      var trigger = document.activeElement;
+      /* Inert + aria-hide every body child except the modal and the skip link. */
+      Array.prototype.forEach.call(document.body.children, function (el) {
+        if (el === modal || el.classList.contains('skip')) return;
+        if (!el.hasAttribute('inert')) { el.setAttribute('inert', ''); el.dataset.__tpInert = '1'; }
+      });
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      var initial = opts.initialFocus
+        ? (typeof opts.initialFocus === 'string' ? modal.querySelector(opts.initialFocus) : opts.initialFocus)
+        : modal.querySelector(_TP_DIAL_SEL);
+      if (initial) { try { initial.focus({ preventScroll: true }); } catch (e) { initial.focus(); } }
+      function onKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); window.closeDialog(modal); return; }
+        if (e.key === 'Tab') {
+          var f = Array.prototype.filter.call(modal.querySelectorAll(_TP_DIAL_SEL), function (el) {
+            return el.offsetParent !== null || el === document.activeElement;
+          });
+          if (!f.length) return;
+          var first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+      modal.addEventListener('keydown', onKey);
+      modal._tpTrigger = trigger;
+      modal._tpOnKey = onKey;
+    };
+    window.closeDialog = function (modal) {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (modal._tpOnKey) modal.removeEventListener('keydown', modal._tpOnKey);
+      /* Release inert on everything we set it on. */
+      Array.prototype.forEach.call(document.body.children, function (el) {
+        if (el.dataset.__tpInert === '1') { el.removeAttribute('inert'); delete el.dataset.__tpInert; }
+      });
+      /* Stacked dialogs: keep the page scroll-locked while another dialog is still open. */
+      if (document.querySelector('.tp-dialog.show, .cmdk.show, .agent-modal.show, .hm-dialog.show, .bk-dialog.show, .modal.show')) {
+        document.body.style.overflow = 'hidden';
+      }
+      var t = modal._tpTrigger;
+      if (t && typeof t.focus === 'function') { try { t.focus({ preventScroll: true }); } catch (e) { t.focus(); } }
+    };
   </script>
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
   <div id="nav-progress" aria-hidden="true"></div>
   <nav class="topbar">
     <a class="topbar-brand" href="/dashboard">
@@ -917,7 +991,7 @@
       <a href="/docs" class="tab tab-ext">API Docs ↗</a>
     </div>
   </nav>
-  <div class="wrap {% block wrap_class %}{% endblock %}">
+  <div id="main" class="wrap {% block wrap_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </div>
   <footer>

@@ -17,15 +17,17 @@
 </div>
 
 <form method="get" action="/dashboard/visa" class="filter-bar">
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Country</span>
-    <select name="country" onchange="this.form.submit()">
+    <select name="country">
       <option value="">All countries</option>
       {% for c in countries %}
         <option value="{{ c }}" {% if selected_country == c %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
+
+  <button class="fb-btn" type="submit">Apply</button>
 
   {% if selected_country or selected_city %}
     <a href="/dashboard/visa" class="fb-link">✕ Clear</a>
