@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { cn } from "@/lib/cn";
 import type { SavedPlace } from "@/lib/query/places";
 
 export interface SavedPlaceCardProps {
@@ -27,18 +26,21 @@ function initials(name: string): string {
 }
 
 // Soft, friendly avatar tints — seeded by name so each place stays recognisable.
-const AVATAR_TINTS = [
-  "bg-coral-soft text-coral-ink",
-  "bg-lime-soft text-on-accent",
-  "bg-[#dbeafe] text-[#1e40af]",
-  "bg-[#e7e0fb] text-[#5b21b6]",
-  "bg-[#d2f2ec] text-[#0f766e]",
-] as const;
+// Each tint is a hue rendered through the same color-mix formula as `ui/Pill`:
+// a 16%-hue wash over the surface (`--panel`) for the tile and a 70%-hue blend
+// toward text (`--ink`) for the initials. Both `--panel` and `--ink` flip between
+// themes, so the tile is a pale wash + dark text in light mode and a deep wash +
+// light text in dark mode — legible in both, with no hardcoded hex.
+const AVATAR_HUES = ["#fb7755", "#cbf24a", "#3b82f6", "#7c3aed", "#0d9486"] as const;
 
-function tintFor(seed: string): string {
+function tintFor(seed: string): { background: string; color: string } {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return AVATAR_TINTS[h % AVATAR_TINTS.length];
+  const hue = AVATAR_HUES[h % AVATAR_HUES.length];
+  return {
+    background: `color-mix(in srgb, ${hue} 16%, var(--panel))`,
+    color: `color-mix(in srgb, ${hue} 70%, var(--ink))`,
+  };
 }
 
 function PinIcon() {
@@ -101,10 +103,8 @@ export function SavedPlaceCard({
       <div className="flex items-start gap-sm">
         <span
           aria-hidden="true"
-          className={cn(
-            "grid size-9 shrink-0 place-items-center rounded-md text-sm font-extrabold",
-            tintFor(place.name),
-          )}
+          className="grid size-9 shrink-0 place-items-center rounded-md text-sm font-extrabold"
+          style={tintFor(place.name)}
         >
           {initials(place.name)}
         </span>

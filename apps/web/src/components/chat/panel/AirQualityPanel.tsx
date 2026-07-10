@@ -45,7 +45,7 @@ function heroBackground(band: AqiBand): string {
 
 function Pollutant({ p }: { p: AirQualityPanelPollutant }) {
   return (
-    <div className="rounded-[12px] border border-line bg-surface px-3.5 py-3">
+    <div className="rounded-[12px] border border-line bg-panel-raised px-3.5 py-3">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-sm font-extrabold text-ink">{p.label}</span>
         <span className="truncate text-[0.66rem] font-semibold text-muted">
@@ -71,7 +71,7 @@ function ForecastCard({ day, isToday }: { day: AirQualityPanelDay; isToday: bool
   const glow = glowOf(day.band);
   return (
     <div
-      className="relative flex flex-col items-center gap-1.5 overflow-hidden rounded-[12px] border border-line bg-surface px-2.5 py-3 text-center"
+      className="relative flex flex-col items-center gap-1.5 overflow-hidden rounded-[12px] border border-line bg-panel-raised px-2.5 py-3 text-center"
       style={
         isToday
           ? { borderColor: `rgba(${glow}, .55)`, boxShadow: `0 0 0 1px rgba(${glow}, .25)` }
