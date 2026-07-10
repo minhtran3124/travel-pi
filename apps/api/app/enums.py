@@ -195,3 +195,27 @@ class ResponseStyle(str, Enum):
     DEFAULT = "default"
     CONCISE = "concise"
     DETAILED = "detailed"
+
+
+class GraderVerdict(str, Enum):
+    """Outcome of one rubric-grader pass (MIN-59).
+
+    Names converge with LangChain Deep Agents' ``RubricMiddleware`` so the node can
+    later fold into it. Written to ``TravelAgentState.grader_verdict`` every time
+    the grader runs, so the trade-off report is computed from data rather than from
+    grepping log lines.
+    """
+
+    #: Every rubric criterion passed — the answer ships as-is.
+    SATISFIED = "satisfied"
+    #: Some criterion failed and revise budget remains — the sub-agent runs again.
+    NEEDS_REVISION = "needs_revision"
+    #: Budget exhausted: the final draft WAS graded and still fails a criterion.
+    #: This is also MIN-59's ``failed`` state. The two names in the original request
+    #: describe one event from two angles — "the loop ran out of rounds" and "the
+    #: answer is still unsatisfied" — and because the grader now always grades the
+    #: final draft before stopping, they cannot occur apart. Keeping a separate
+    #: ``failed`` member would ship an unreachable value.
+    MAX_ITERATIONS_REACHED = "max_iterations_reached"
+    #: The judge threw or returned an unusable verdict — fail-open, answer kept.
+    GRADER_ERROR = "grader_error"

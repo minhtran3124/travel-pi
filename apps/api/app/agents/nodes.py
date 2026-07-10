@@ -55,7 +55,14 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # does NOT re-enter load_context, so the approving turn keeps plan_approved=True;
     # background memory extraction reads the flag from that turn's final-state
     # snapshot before the *next* turn's load_context clears it.
-    result: dict = {"plan_approved": False}
+    # The rubric grader's revise budget and verdict are per-turn, not per-thread:
+    # without this reset the checkpointer would carry an exhausted budget into every
+    # later turn of the conversation (MIN-59, ESCALATIONS.md E1).
+    result: dict = {
+        "plan_approved": False,
+        "grader_iterations": 0,
+        "grader_verdict": None,
+    }
     trip_id = state.get("trip_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
     if trip_id:

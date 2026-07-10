@@ -28,6 +28,12 @@ class TravelAgentState(MessagesState):
     )
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
+    # MIN-59 rubric grader. Deliberately NOT ``revisions``: sharing that counter let a
+    # grader revision on booking/concierge push it past reflection's cap, silently
+    # disabling reflection for every later turn of the conversation. Reset per turn in
+    # ``load_context_node`` — a turn-scoped counter must actually be turn-scoped.
+    grader_iterations: int
+    grader_verdict: str | None  # last GraderVerdict value; measurement surface
     trip_context: str  # active-trip snapshot; injected at model call, not into messages
     instructions: (
         str  # standing procedural instructions; folded into leading system message

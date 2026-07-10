@@ -129,22 +129,28 @@ def test_load_context_node_returns_trip_context_not_messages():
     assert "messages" not in result
 
 
-def test_load_context_node_no_trip_id_resets_plan_approved():
-    """No trip_id -> only the per-turn plan_approved reset, no other mutation.
+def test_load_context_node_no_trip_id_resets_per_turn_fields():
+    """No trip_id -> only the per-turn resets, no other mutation.
 
-    load_context runs at the start of every fresh turn and always clears the
-    HITL plan-approval flag so outcome="approved" stays scoped to the approving
-    turn (issue #63).
+    load_context runs at the start of every fresh turn and clears the state that is
+    scoped to one turn: the HITL plan-approval flag, so outcome="approved" stays
+    scoped to the approving turn (issue #63); and the rubric grader's revise budget
+    and verdict, so an exhausted budget cannot leak into later turns of the same
+    conversation (MIN-59, ESCALATIONS.md E1).
     """
     from types import SimpleNamespace
 
     from app.agents.nodes import load_context_node
 
     assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {
-        "plan_approved": False
+        "plan_approved": False,
+        "grader_iterations": 0,
+        "grader_verdict": None,
     }
     assert load_context_node({"messages": []}, SimpleNamespace()) == {
-        "plan_approved": False
+        "plan_approved": False,
+        "grader_iterations": 0,
+        "grader_verdict": None,
     }
 
 

@@ -166,7 +166,13 @@ def _resolve_context(
         tier = Tier.FREE.value
     refl = AgentConfigCache.get("reflection")
     allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
-    return resolve_agent_context(tier=tier, allow_reflection=allow_reflection)
+    grader = AgentConfigCache.get("grader")
+    allow_grader = (
+        True if (grader is None or grader.enabled is None) else grader.enabled
+    )
+    return resolve_agent_context(
+        tier=tier, allow_reflection=allow_reflection, allow_grader=allow_grader
+    )
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")

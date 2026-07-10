@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+from app.agents.grader import CriterionResult, GraderResponse
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
@@ -27,6 +29,28 @@ from langgraph.store.memory import InMemoryStore
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def _reset_agent_config_cache():
+    """Keep the process-wide config cache from leaking between tests."""
+    yield
+    from app.core.agent_config_cache import AgentConfigCache
+
+    AgentConfigCache.clear()
+
+
+def _force_grader_enabled():
+    """Turn the rubric grader on for a test that scripts grader verdicts.
+
+    The ``grader`` agent_config row seeds ``enabled=False`` (unmeasured prototype,
+    gated off by default), so without this the grader delegates to ``reflection``
+    and the scripted verdicts are never consumed. Must be called INSIDE the
+    ``TestClient`` block — lifespan wires a DB loader that would overwrite the cache.
+    """
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+
+    AgentConfigCache.sync_from_cache({"grader": AgentModelOverride(enabled=True)})
 
 
 def _make_app(
@@ -69,7 +93,13 @@ def _make_app(
         responses=[answer] * 6,
     )
     fast_llm = FakeLLM(
-        responses=fast_responses if fast_responses is not None else ["OK"] * 6
+        responses=fast_responses if fast_responses is not None else ["OK"] * 6,
+        # concierge/booking turns are judged by the MIN-59 rubric grader, which
+        # reads this structured queue rather than ``responses``.
+        structured_responses=[
+            GraderResponse(evaluations=[CriterionResult(name="grounding", passed=True)])
+        ]
+        * 6,
     )
     _graph = build_graph(
         llm=main_llm,
@@ -276,22 +306,23 @@ def test_stream_schedules_memory_extraction_after_drain(tmp_path):
     drains, writing the scripted preference to the graph's store.
 
     ``extract_memory`` is a FAST_AGENTS member (app/agents/constants.py), so
-    ``graph.extract_memory_llm`` resolves to the same fake fast_llm used by
-    reflection. TestClient consumes the full response body — including the
-    Starlette `background` task — synchronously within `client.post`, so the
-    store write is visible immediately after the call returns.
+    ``graph.extract_memory_llm`` resolves to the same fake fast_llm used by the
+    grader — but the grader reads the *structured* queue, so this plain queue
+    holds only the extraction JSON. TestClient consumes the full response body —
+    including the Starlette `background` task — synchronously within
+    `client.post`, so the store write is visible immediately after the call.
     """
     from app.memory.store import search_preferences
 
     app, _url = _make_app(
         tmp_path,
         fast_responses=[
-            "OK",
             '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
     )
     with TestClient(app) as client:
+        _force_grader_enabled()
         resp = client.post(
             "/agent/stream",
             json={

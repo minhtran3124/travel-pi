@@ -218,9 +218,9 @@ def test_tier_resolves_from_authed_id(tmp_path):
     calls: list[dict] = []
     real_resolve = agent_router.resolve_agent_context
 
-    def spy(*, tier, allow_reflection=True):
+    def spy(*, tier, **kwargs):
         calls.append({"tier": tier})
-        return real_resolve(tier=tier, allow_reflection=allow_reflection)
+        return real_resolve(tier=tier, **kwargs)
 
     # Patch resolve_agent_context to capture the tier passed by the router.
     original = agent_router.resolve_agent_context

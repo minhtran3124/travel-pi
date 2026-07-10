@@ -21,13 +21,20 @@ AGENT_CONFIG_GROUPS: list[tuple[str, str, list[str]]] = [
     (
         "Support agents",
         "Background nodes for memory, summarization and reflection.",
-        ["summarize", "reflection", "extract_memory"],
+        ["summarize", "reflection", "grader", "extract_memory"],
     ),
 ]
 
 AGENT_CONFIG_NODES: list[str] = [
     name for _title, _blurb, names in AGENT_CONFIG_GROUPS for name in names
 ]
+
+# Nodes seeded with ``enabled = False`` on first insert; every other node seeds NULL
+# (which means "on"). ``grader`` is an unmeasured prototype (MIN-59) — it must not add
+# a judge LLM call to any environment until its latency/cost/quality report exists.
+# NOTE: the dashboard's ``enabled`` checkbox is currently gated to ``reflection`` only
+# (``templates/agent_config.html``), so turning this on today needs a direct DB write.
+SEED_DISABLED_AGENTS: frozenset[str] = frozenset({"grader"})
 
 # One-line role description per node, shown on the config card so the grid reads
 # at a glance. Sourced from each node's active prompt (``app/prompts/<name>``).
@@ -42,5 +49,6 @@ AGENT_DESCRIPTIONS: dict[str, str] = {
     "budget": "Records expenses and reports on the trip budget.",
     "summarize": "Condenses long conversations to keep the context small.",
     "reflection": "Reviews the last answer and asks for a fix when it's weak.",
+    "grader": "Grades booking/concierge answers against a rubric and asks for a fix.",
     "extract_memory": "Saves durable traveller preferences to long-term memory.",
 }

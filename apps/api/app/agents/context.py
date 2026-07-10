@@ -33,6 +33,7 @@ class AgentContext:
 
     tier: Tier = DEFAULT_TIER
     allow_reflection: bool = True
+    allow_grader: bool = True
     allow_memory_write: bool = True
     # P2: episodic recall (planner's recall_past_trips). Default ON for everyone.
     allow_episodic: bool = True
@@ -43,7 +44,10 @@ class AgentContext:
 
 
 def resolve_agent_context(
-    *, tier: Tier | str | None, allow_reflection: bool = True
+    *,
+    tier: Tier | str | None,
+    allow_reflection: bool = True,
+    allow_grader: bool = True,
 ) -> AgentContext:
     """Map tier -> concrete ``AgentContext`` (the single policy function).
 
@@ -60,6 +64,8 @@ def resolve_agent_context(
         ``DEFAULT_TIER`` when unknown/None.
     :param allow_reflection: DB-config-driven reflection gate (from
         ``agent_config.enabled``); defaults True.
+    :param allow_grader: DB-config-driven rubric-grader gate (from
+        ``agent_config."grader".enabled``); defaults True.
     :return: The resolved ``AgentContext`` for this request.
     """
     # Coerce a raw string (from the DB) to the enum; unknown or None values
@@ -81,6 +87,7 @@ def resolve_agent_context(
     return AgentContext(
         tier=tier,
         allow_reflection=allow_reflection,
+        allow_grader=allow_grader,
         allow_memory_write=True,
         allow_episodic=True,
         response_style=ResponseStyle.DEFAULT,

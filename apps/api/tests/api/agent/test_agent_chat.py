@@ -9,6 +9,7 @@ Includes HITL stream tests (feat/agent-stream-hitl):
 import json
 
 import pytest
+from app.agents.grader import CriterionResult, GraderResponse
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
@@ -28,6 +29,43 @@ from langgraph.store.memory import InMemoryStore
 # ---------------------------------------------------------------------------
 
 
+@pytest.fixture(autouse=True)
+def _reset_agent_config_cache():
+    """Keep the process-wide config cache from leaking between tests."""
+    yield
+    from app.core.agent_config_cache import AgentConfigCache
+
+    AgentConfigCache.clear()
+
+
+def _force_grader_enabled():
+    """Turn the rubric grader on for a test that scripts grader verdicts.
+
+    The ``grader`` agent_config row seeds ``enabled=False`` (MIN-59 is an unmeasured
+    prototype, gated off by default), so without this a grader-scripted test silently
+    delegates to ``reflection`` and never exercises the loop it claims to test.
+
+    Must be called INSIDE the ``TestClient`` block: lifespan wires a DB loader whose
+    first read would otherwise overwrite whatever we put in the cache.
+    """
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+
+    AgentConfigCache.sync_from_cache({"grader": AgentModelOverride(enabled=True)})
+
+
+def _verdict(passed: bool = True, gap: str = "") -> GraderResponse:
+    """A one-criterion grader verdict for the fast FakeLLM's structured queue.
+
+    ``booking`` / ``concierge`` turns are judged by the MIN-59 rubric grader
+    instead of ``reflection``, so those flows consume ``structured_responses``
+    (one verdict per answer) and leave ``fast_responses`` to the other fast
+    nodes (``summarize``, ``extract_memory``).
+    """
+    return GraderResponse(
+        evaluations=[CriterionResult(name="grounding", passed=passed, gap=gap)]
+    )
+
+
 def _make_app(
     tmp_path,
     intent_target: str,
@@ -35,6 +73,7 @@ def _make_app(
     *,
     responses=None,
     fast_responses=None,
+    grader_verdicts=None,
     premium_users: list[str] | None = None,
 ):
     from app.repositories.user import UserRepository
@@ -74,7 +113,10 @@ def _make_app(
         responses=responses if responses is not None else [answer] * 6,
     )
     fast = FakeLLM(
-        responses=fast_responses if fast_responses is not None else ["OK"] * 6
+        responses=fast_responses if fast_responses is not None else ["OK"] * 6,
+        structured_responses=(
+            grader_verdicts if grader_verdicts is not None else [_verdict()] * 6
+        ),
     )
     _graph = build_graph(
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
@@ -291,11 +333,12 @@ def test_stream_emits_sse_events(client):
 
 
 def test_stream_emits_reset_on_revised_answer(tmp_path):
-    """When reflection revises (re-runs the sub-agent), a `reset` event must
+    """When the grader revises (re-runs the sub-agent), a `reset` event must
     separate the superseded draft from the final answer so the FE can drop it.
 
-    fast LLM says REVISE once (then OK), so the concierge answers twice with two
-    distinct message ids; the stream must carry exactly one `event: reset`.
+    The rubric grader fails the first answer (then passes the second), so the
+    concierge answers twice with two distinct message ids; the stream must carry
+    exactly one `event: reset`.
     """
     app = _make_app(
         tmp_path,
@@ -305,9 +348,13 @@ def test_stream_emits_reset_on_revised_answer(tmp_path):
             AIMessage(content="DRAFT answer", id="m1"),
             AIMessage(content="FINAL answer", id="m2"),
         ],
-        fast_responses=["REVISE", "OK"],
+        grader_verdicts=[
+            _verdict(False, "Ground the prices in tool output."),
+            _verdict(),
+        ],
     )
     with TestClient(app) as c:
+        _force_grader_enabled()
         resp = c.post("/agent/stream", json={"message": "weather?", "user_id": "u1"})
     text = resp.text
     assert "DRAFT answer" in text
@@ -479,11 +526,12 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
 
     ``extract_memory`` is a FAST_AGENTS member (app/agents/constants.py), so
     ``graph.extract_memory_llm`` resolves to the same fake `fast_llm` instance
-    used by `summarize`/`reflection`. On a brand-new conversation, `summarize`
-    skips its LLM call (history too short — see make_summarize_node), so the
-    fast-response queue is consumed as: reflection ("OK"), then extraction
-    (scripted JSON) — in that order. TestClient runs BackgroundTasks
-    synchronously after the response, so the store write is visible immediately.
+    used by `summarize`/`grader`. On a brand-new conversation, `summarize` skips
+    its LLM call (history too short — see make_summarize_node) and the concierge
+    turn is judged by the `grader`, which reads the *structured* queue — so the
+    plain fast-response queue holds only the extraction JSON. TestClient runs
+    BackgroundTasks synchronously after the response, so the store write is
+    visible immediately.
     """
     from app.memory.store import search_preferences
 
@@ -492,12 +540,12 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
         "concierge",
         "Visit Tokyo Tower at sunset.",
         fast_responses=[
-            "OK",
             '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
     )
     with TestClient(app) as c:
+        _force_grader_enabled()
         resp = c.post(
             "/agent/chat",
             json={"message": "What should I see in Tokyo?", "user_id": "u1"},

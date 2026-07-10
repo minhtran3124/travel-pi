@@ -8,4 +8,6 @@ journal: 2
 booking: 4
 budget: 2
 reflection: 1
+grader_booking: 1
+grader_concierge: 1
 memory_extraction: 4

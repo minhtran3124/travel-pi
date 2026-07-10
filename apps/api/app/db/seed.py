@@ -26,7 +26,7 @@ import logging
 
 from sqlalchemy import select
 
-from app.data.agent_config import AGENT_CONFIG_NODES
+from app.data.agent_config import AGENT_CONFIG_NODES, SEED_DISABLED_AGENTS
 from app.data.airlines import AIRLINE_COLORS, AIRLINES
 from app.data.airports import AIRPORTS
 from app.data.cities import CITIES
@@ -264,12 +264,16 @@ def _seed_fx(session) -> None:
 def _seed_agent_config(session) -> None:
     # agent_name is a natural key with an auto UUID PK → upsert by lookup like
     # City, not merge (merge would insert a fresh row each run).
+    #
+    # ``enabled`` is only ever set on INSERT, never on an existing row: once an
+    # operator toggles a node from the dashboard, re-seeding must not clobber it.
     for name in AGENT_CONFIG_NODES:
         existing = session.scalar(
             select(models.AgentConfig).where(models.AgentConfig.agent_name == name)
         )
         if existing is None:
-            session.add(models.AgentConfig(agent_name=name))
+            enabled = False if name in SEED_DISABLED_AGENTS else None
+            session.add(models.AgentConfig(agent_name=name, enabled=enabled))
 
 
 def _check_short_code_collisions(session) -> None:

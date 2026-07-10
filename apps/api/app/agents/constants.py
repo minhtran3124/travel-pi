@@ -33,7 +33,7 @@ PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 # Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
 # config omits ``model``. Everything else defaults to the main ``llm_model``.
 FAST_AGENTS: frozenset[str] = frozenset(
-    {"summarize", "journal", "budget", "reflection", "extract_memory"}
+    {"summarize", "journal", "budget", "reflection", "extract_memory", "grader"}
 )
 
 # --- tooling --------------------------------------------------------------
@@ -44,6 +44,17 @@ EPISODIC_TOOL_NAME = "recall_past_trips"
 # --- reflection -----------------------------------------------------------
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
 DEFAULT_MAX_REVISIONS = 1
+
+# --- runtime rubric grader (MIN-59) ------------------------------------------
+# Sub-agent flows whose answers pass through the rubric grader node instead of
+# the generic reflection judge. Each flow needs a ``prompts/grader_<flow>/``
+# rubric; the grader delegates any other flow straight to ``reflection``.
+GRADED_FLOWS: frozenset[str] = frozenset({"booking", "concierge"})
+
+# Revise-loop cap for the grader (shares the ``revisions`` state counter with
+# reflection, so the combined loop count can never exceed this). MIN-59
+# proposes 2 rounds for the prototype.
+DEFAULT_MAX_GRADER_ITERATIONS = 2
 
 # --- user-facing copy -----------------------------------------------------
 # Shown when a free user is routed to a premium-only sub-agent (booking).

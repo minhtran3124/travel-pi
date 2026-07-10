@@ -3,6 +3,20 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## MIN-59 — runtime rubric grader (2026-07-10)
+
+specs/min-59-runtime-self-eval-loop: a dedicated `grader` node rubric-grades the
+`booking` and `concierge` answers at runtime and loops the sub-agent with
+per-criterion feedback. One rubric prompt per graded flow; criteria are lifted
+from the MIN-58 offline eval rubrics so runtime and offline judge the same thing.
+
+- **grader_booking v1** — new. Criteria: `required_info`, `no_redundant_questions`,
+  `grounding`, `language`.
+- **grader_concierge v1** — new. Criteria: `grounding`, `completeness`,
+  `search_vs_booking`, `language`.
+
+`active.yaml`: grader_booking → 1, grader_concierge → 1. Others unchanged.
+
 ## travel-knowledge-rag — concierge knowledge-search tool
 
 specs/travel-knowledge-rag: re-introduce RAG over visa + local-tips seed content,

@@ -90,6 +90,18 @@ def test_resolve_agent_context_honors_allow_reflection():
     )
 
 
+def test_context_allow_grader_defaults_true():
+    """allow_grader defaults ON (parity with allow_reflection)."""
+    ctx = resolve_agent_context(tier="premium")
+    assert ctx.allow_grader is True
+
+
+def test_context_allow_grader_passthrough():
+    """resolve_agent_context threads allow_grader into the frozen context."""
+    ctx = resolve_agent_context(tier="premium", allow_grader=False)
+    assert ctx.allow_grader is False
+
+
 def test_resolve_context_disables_reflection_from_db_config():
     """`_resolve_context` reads reflection.enabled from the cache (None → on)."""
     from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
@@ -100,5 +112,21 @@ def test_resolve_context_disables_reflection_from_db_config():
     try:
         ctx = agent_router._resolve_context("anon", False, session=None)
         assert ctx.allow_reflection is False
+    finally:
+        AgentConfigCache.clear()
+
+
+def test_resolve_context_disables_grader_from_db_config():
+    """`_resolve_context` reads grader.enabled from the cache (None → on)."""
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+    from app.routers import agent as agent_router
+
+    AgentConfigCache.clear()
+    AgentConfigCache.sync_from_cache({"grader": AgentModelOverride(enabled=False)})
+    try:
+        ctx = agent_router._resolve_context("anon", False, session=None)
+        assert ctx.allow_grader is False
+        # The reflection gate is independent — no row means it stays on.
+        assert ctx.allow_reflection is True
     finally:
         AgentConfigCache.clear()

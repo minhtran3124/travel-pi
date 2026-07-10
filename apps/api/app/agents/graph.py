@@ -5,13 +5,20 @@ Wires the full agentic graph:
     START -> load_context -> summarize -> supervisor
                                               | Command(goto=<sub-agent>)
                  planner / concierge / journal / booking / budget
-                                              v
-                                         reflection
+                          |                                |
+             (booking, concierge)              (planner, journal, budget)
+                          v                                v
+                       grader ----------------------> reflection
+           Command(goto=<sub-agent> | reflection | END)   |
                                    Command(goto=<sub-agent> | END)
 
 The supervisor routes by intent; each sub-agent is a ReAct subgraph that
-self-corrects on tool errors; reflection adds a bounded answer-quality loop.
-Checkpointer + store make it stateful across turns/sessions.
+self-corrects on tool errors. The graded flows (``GRADED_FLOWS``) pass through
+the rubric ``grader`` node (MIN-59), which either accepts the answer, loops the
+sub-agent with per-criterion feedback, or — when disabled — delegates to the
+generic ``reflection`` judge that still guards the remaining flows. Both add a
+bounded answer-quality loop. Checkpointer + store make it stateful across
+turns/sessions.
 """
 
 from __future__ import annotations
@@ -24,7 +31,9 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
+from app.agents.constants import GRADED_FLOWS
 from app.agents.context import AgentContext
+from app.agents.grader import make_grader_node
 from app.agents.nodes import (
     load_context_node,
     make_reflection_node,
@@ -137,14 +146,23 @@ def build_graph(
         destinations=(*SUBAGENTS, END),
         retry_policy=LLM_RETRY,
     )
+    # MIN-59: rubric judge for the graded flows; delegates to reflection when the
+    # DB toggle is off or the flow has no rubric (keeps the baseline path exact).
+    builder.add_node(
+        "grader",
+        make_grader_node(pick("grader")),
+        destinations=(*sorted(GRADED_FLOWS), "reflection", END),
+        retry_policy=LLM_RETRY,
+    )
 
     builder.add_edge(START, "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
     # supervisor -> sub-agent (or plan) is a Command(goto=...) handoff (no static edge).
     for name in SUBAGENTS:
-        builder.add_edge(name, "reflection")
+        builder.add_edge(name, "grader" if name in GRADED_FLOWS else "reflection")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
+    # grader -> sub-agent | reflection | END is a Command(goto=...).
     # reflection -> sub-agent | END is a Command(goto=...).
 
     compiled = builder.compile(checkpointer=checkpointer, store=store)
