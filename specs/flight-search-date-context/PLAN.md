@@ -1,6 +1,6 @@
 ---
 slug: flight-search-date-context
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-09
 ---
@@ -855,3 +855,7 @@ Expected: prints the first line of each new version without error.
 
 ## Status Log
 - 2026-07-09 — Plan drafted from approved design + research brief. Awaiting review + execution-mode choice.
+- 2026-07-09 — Executed waves 1–4 (subagent-driven): `25e9fed` (w1), `6935412` (w2), `d3c1ccd` (w3), `8d4aeb9` (w4), `a31a5e5` (active-versions test fix).
+- 2026-07-09 — `/correctness-review`: findings #3 (YYYY/MM/DD) + #4 (bad-tz crash) fixed `fea3b06`; #1/#2 recorded advisory.
+- 2026-07-10 — `/intent-review`: 3 findings recorded (`3b4f0d4`); clause-3 scope user-confirmed = collection-only (`ba69358`). All gates pass; 382 targeted tests green (CI-equivalent). Task 5.2 (FE tz) + 5.1 (manual/DeepEval acceptance) are documented follow-ups.
+- 2026-07-10 — shipped via `feat/flight-search-date-context` (PR pending).
