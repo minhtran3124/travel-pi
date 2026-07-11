@@ -38,7 +38,7 @@
 </div>
 
 <form method="get" action="/dashboard/weather" class="filter-bar">
-  <div class="fg">
+  <label class="fg">
     <span class="fl">City</span>
     <select name="city" class="city-select" required>
       <option value="" disabled {% if not query_city %}selected{% endif %}>Select a city…</option>
@@ -46,9 +46,9 @@
         <option value="{{ c }}" {% if query_city == c %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Forecast</span>
     <select name="days">
       {% for d in days_options %}
@@ -57,7 +57,7 @@
         </option>
       {% endfor %}
     </select>
-  </div>
+  </label>
 
   <button class="fb-btn" type="submit">Check weather</button>
 
@@ -72,7 +72,9 @@
 </form>
 
 {% if error %}
-  <div class="error" style="border-radius: 0 0 var(--radius) var(--radius);">{{ error }}</div>
+  <div class="error" style="border-radius: 0 0 var(--radius) var(--radius);">{{ error }}
+    {% if query_city %}<br><a class="empty-hint" href="/dashboard/weather?city={{ query_city | urlencode }}&amp;days={{ days }}">↻ Try again</a>{% endif %}
+  </div>
 
 {% elif weather %}
   <div class="weather-panel">
