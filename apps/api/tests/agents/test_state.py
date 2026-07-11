@@ -194,7 +194,11 @@ def test_ground_current_date_injects_today():
     assert "BASE PROMPT" in grounded.content
     assert today in grounded.content
     assert "resolve_date" in grounded.content
-    assert "ask only when" in grounded.content.lower()
+    # No date given is the one case that must still produce a question: the note has to
+    # forbid the fallback explicitly, not merely permit asking. A live probe showed the
+    # model defaulting to today when the note only said "ask only when…".
+    assert "must ask" in grounded.content.lower()
+    assert f"never fall back to {today}" in grounded.content.lower()
 
 
 def test_subagent_receives_todays_date_in_system_prompt():

@@ -27,7 +27,15 @@ Two forks resolved by the user at intake (`AskUserQuestion`):
 
 ## What changed
 
-<pending — filled at completion>
+The agent no longer asks the traveller to confirm a date, and no longer computes one in its head.
+`app/core/dates.py` now resolves the weekday and phrase forms it used to leave to the LLM (EN + VN,
+diacritics optional), with pinned semantics and an `AmbiguousDateError` for anything that would need
+a guess. A new read-only agent tool, `resolve_date`, wraps it: the agent passes the traveller's
+literal expression, code computes the date, and the result lands in the tool trace where it can be
+audited. `booking/v6` and the `ground_current_date` note then drop the pre-search confirmation — the
+agent resolves, searches, and *states* the date in its answer so the traveller can correct it in one
+turn. Two behaviors are deliberately preserved: explicit approval before an actual booking, and a
+single question when the traveller gave no date at all (never a default, never a random pick).
 
 ### Rationale
 
@@ -78,6 +86,11 @@ Approval before an actual **booking** is untouched — that gate is about money,
 | Prompt booking v6 (task 3.1) | `pytest tests/api/agent tests/agents -q` | 0 | 214 passed; v5→v6 diff reviewed — booking-approval guardrails byte-identical |
 | Grounding note (task 3.2) | `pytest tests/agents/test_state.py -q` | 0 | 14 passed |
 | Tool error text (task 3.3) | `pytest tests/api/tools -q` | 0 | 14 passed; diff inspected — docstring/message lines only, no validation branch touched |
+| Full suite (task 4.1) | `cd apps/api && mv .env .env.bak && DATABASE_URL=sqlite:///./full.db ../../.venv/bin/python -m pytest -q; mv .env.bak .env` | 0 | **1486 passed**. The repo `.env` must be set aside — it pins a real Postgres/OpenAI/ORS config that fails 5 unrelated tests regardless of this diff (known: `env-openai-key-test-breaks-llm-tests`) |
+| Lint (task 4.1) | `cd apps/api && ruff check app scripts` | 0 | clean |
+| **Live: weekday date → no question** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN thứ 6 tuần sau"}` on a fresh thread, after `docker exec api-api-1 touch app/main.py` | 0 | Tool trace: `resolve_date` → `search_flights`. Reply: "chuyến bay **SGN → HAN** vào **24/07/2026** (thứ Sáu tuần sau)" — resolved, searched, stated. No confirmation turn. 24/07 is the correct answer for today = Sat 2026-07-11 |
+| **Live: relative date → no question** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN ngày mai"}` | 0 | Tool trace: `resolve_date` → `search_flights`. Reply states **12/07/2026** |
+| **Live: no date → asks exactly once** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN"}` | 0 | No search tool called. Reply: "bạn chưa nói **ngày bay** … Bạn muốn bay **ngày nào**?" — one question, no default date |
 
 ### Rollback
 
@@ -87,4 +100,19 @@ Approval before an actual **booking** is untouched — that gate is about money,
 
 ### Harness-Delta
 
-- none
+- backlog (→ `/compound`) — **A prompt-behavior change needs a live probe in its `<verify>`, not just
+  pytest.** Task 3.2's rewrite of `ground_current_date` passed every test (14/14) while silently
+  dropping the "do not guess or invent one" prohibition: the note still *permitted* asking but no
+  longer *forbade* defaulting, and the live agent promptly defaulted to today when given no date —
+  the exact behavior the plan lists as a non-goal. Only the task-4.1 live probe caught it. A prompt
+  assertion (`"resolve_date" in note`) proves a string is present, never that a behavior survived.
+- backlog — **Task `<verify>` scopes were too narrow to catch a cross-cutting pin.** Task 3.1 bumped
+  `active.yaml` and verified with `pytest tests/api/agent tests/agents`, which does not include
+  `tests/prompts/` — where `test_min53_bumped_versions_active` pins the active version numbers. The
+  break only surfaced in the wave-4 full suite. A task that edits `active.yaml` should verify
+  `tests/prompts/` too.
+- note — `hooks/blast-radius-check.sh` cited a stale active plan (`specs/min-54-chat-ui-polish/PLAN.md`)
+  on every edit in this feature, and `hooks/risk-corroboration.sh` picked the most-recently-modified
+  `specs/*/SUMMARY.md` (`ls -t`) rather than this feature's, blocking a commit against another spec's
+  `Lane: normal`. Both are plan-selection bugs, not scope violations. Workaround used: stage this
+  feature's `SUMMARY.md` in the commit (the hook prefers a staged SUMMARY).

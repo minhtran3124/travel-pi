@@ -113,7 +113,9 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
         '"next Friday", "thứ 6 tuần sau", "12/07") with the resolve_date tool — '
         "do not compute them yourself. Do not ask the traveller to confirm a date "
         "resolve_date already returned; state it in your answer so they can "
-        "correct it. Ask only when the traveller gave no date signal at all, or "
-        "resolve_date reports the expression is ambiguous."
+        "correct it. If the traveller mentioned NO date at all, you MUST ask which "
+        f"date they want — never fall back to {today}, and never invent a date they "
+        "did not give. Ask, too, when resolve_date reports the expression is "
+        "ambiguous."
     )
     return SystemMessage(content=f"{note}\n\n{base.content}")

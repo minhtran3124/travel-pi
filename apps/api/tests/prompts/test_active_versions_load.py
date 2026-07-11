@@ -26,8 +26,10 @@ def test_min53_bumped_versions_active():
     )
     # concierge was bumped again to 9 by travel-knowledge-rag; memory stays at
     # its MIN-60 version. planner→6 / booking→5 bumped by flight-search-date-context
-    # (date resolution + multi-turn stitching reframe).
+    # (date resolution + multi-turn stitching reframe); booking→6 by
+    # agent-date-resolution (dates go through the resolve_date tool, and are stated
+    # rather than confirmed before a search).
     assert active["concierge"] == 9
     assert active["planner"] == 6
-    assert active["booking"] == 5
+    assert active["booking"] == 6
     assert active["memory_extraction"] == 4  # MIN-60 follow-up: name-capture guard
