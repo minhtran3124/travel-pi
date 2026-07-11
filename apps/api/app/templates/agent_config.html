@@ -10,6 +10,7 @@
 } %}
 
 {% set section_colors = ['var(--accent)', 'var(--cyan)', 'var(--violet)'] %}
+{% set section_icons = ['🧭', '🧩', '🔧'] %}
 {% set total = groups | map(attribute='configs') | map('length') | sum %}
 
 <div class="board-head">
@@ -32,7 +33,7 @@
 {% for g in groups %}
 <section class="ac-section" style="--sec: {{ section_colors[loop.index0 % (section_colors | length)] }}">
   <header class="ac-sechead">
-    <span class="ac-secbar" aria-hidden="true"></span>
+    <span class="ac-secglyph" aria-hidden="true">{{ section_icons[loop.index0 % (section_icons | length)] }}</span>
     <div class="ac-sectitle">
       <h2>{{ g.title }}</h2>
       <p>{{ g.blurb }}</p>
@@ -176,10 +177,14 @@
   /* ── Sections (main / sub / support), colour-coded by --sec ── */
   .ac-section { margin-bottom: 26px; }
   .ac-sechead { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
-  .ac-secbar {
-    width: 4px; align-self: stretch; min-height: 34px; border-radius: 999px;
-    background: var(--sec, var(--accent));
-    box-shadow: 0 0 12px color-mix(in srgb, var(--sec, var(--accent)) 55%, transparent);
+  /* Standard glyph + count-chip section header (replaces the banned side-stripe). */
+  .ac-secglyph {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    background: color-mix(in srgb, var(--sec, var(--accent)) 16%, var(--panel-2));
+    border: 1px solid color-mix(in srgb, var(--sec, var(--accent)) 38%, var(--line));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sec, var(--accent)) 7%, transparent);
   }
   .ac-sectitle h2 {
     margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: -0.01em;
@@ -219,12 +224,24 @@
   }
   .agent-card:focus-visible { outline: 2px solid var(--sec, var(--accent)); outline-offset: 2px; }
 
-  .ac-top { display: flex; align-items: center; gap: 8px; }
+  /* Role-hued icon tile on each card (section palette; no new hues),
+     mirroring the bordered glyph tiles used in the tips field guide. */
   .ac-ico {
-    font-size: 1.05rem; width: 30px; height: 30px; flex-shrink: 0;
-    display: grid; place-items: center; border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--sec, var(--accent)) 15%, transparent);
+    font-size: 1.1rem; width: 38px; height: 38px; flex-shrink: 0;
+    display: grid; place-items: center; border-radius: 11px;
+    background: color-mix(in srgb, var(--sec, var(--accent)) 17%, var(--panel-2));
+    border: 1px solid color-mix(in srgb, var(--sec, var(--accent)) 40%, var(--line));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sec, var(--accent)) 8%, transparent);
   }
+  .agent-card[data-agent="supervisor"] {
+    /* Visual seniority for the "flight director": a wider span and a stronger
+       accent border, so the lead agent reads as the head of the roster. */
+    grid-column: span 2;
+    border-width: 2px;
+    border-color: color-mix(in srgb, var(--sec, var(--accent)) 55%, var(--line));
+    box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--sec, var(--accent)) 30%, transparent);
+  }
+  .agent-card[data-agent="supervisor"]::before { height: 4px; opacity: 1; }
   .ac-name { font-weight: 800; font-size: 0.98rem; letter-spacing: -0.01em; }
   .ac-pill {
     margin-left: auto; font-size: 0.64rem; font-weight: 800; text-transform: uppercase;
@@ -278,7 +295,11 @@
   .cm-head .am-title { margin-bottom: 5px; }
   .cm-head .am-sub { margin: 0; }
   @keyframes am-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .am-dialog { animation: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .am-dialog { animation: none; }
+    .agent-card, .agent-card::before { transition: none; }
+    .agent-card:hover { transform: none; }
+  }
   .am-close {
     position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
     border: 1px solid var(--line); background: var(--panel-2); color: var(--muted);

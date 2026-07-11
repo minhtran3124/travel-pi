@@ -428,5 +428,19 @@
     .cat-ico { width: 34px; height: 34px; font-size: 1.05rem; }
     .cat-name { font-size: 1.05rem; }
   }
+
+  /* ── Reduced motion ──
+     Honor prefers-reduced-motion: no hover lift, no marker/scale motion,
+     no colour transitions — every transition/keyframe above resolves to its
+     final state instantly. Matches the defense-in-depth pattern used in base. */
+  @media (prefers-reduced-motion: reduce) {
+    .dest, .dest-go, .guide-jump a, .entry, .m-dot, .m-ess {
+      transition: none;
+    }
+    .dest:hover, .entry:hover { transform: none; }
+    .dest:hover .dest-go { transform: none; }
+    .entry:hover .m-dot { transform: rotate(45deg); }
+    .entry:hover .m-ess { transform: none; }
+  }
 </style>
 {% endblock %}

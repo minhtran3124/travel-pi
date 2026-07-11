@@ -7,7 +7,9 @@
     <span class="plane">{{ "🛬" if mode == "arrivals" else "🛫" }}</span>
     <span>{{ "Arrivals" if mode == "arrivals" else "Departures" }} · {{ airport.city }} ({{ airport.code }})</span>
   </h1>
-  <div class="clock" id="clock">{{ now }}</div>
+  <div class="clock" id="clock">
+    <span id="clk-h">{{ now[:2] }}</span><span class="clk-colon" aria-hidden="true">:</span><span id="clk-m">{{ now[3:] }}</span>
+  </div>
 </div>
 
 <form method="get" action="/dashboard/flights" class="filter-bar">
@@ -54,7 +56,11 @@
   </div>
 {% else %}
 <div class="table-wrap">
-  <table class="fids">
+  <p class="dateline" aria-label="Board date, airport and direction">
+    {{ rows[0].scheduled.strftime("%a %d %b").upper() }} · {{ airport.code }} ·
+    {{ "ARRIVALS" if mode == "arrivals" else "DEPARTURES" }}
+  </p>
+  <table class="fids" id="fids-board">
     <thead>
       <tr>
         <th>Scheduled</th>
@@ -67,9 +73,9 @@
     </thead>
     <tbody>
       {% for row in rows %}
-      <tr class="frow" data-href="/dashboard/flights/{{ row.flight_id }}">
+      <tr class="frow" data-href="/dashboard/flights/{{ row.flight_id }}" style="--i: {{ loop.index0 }}">
         <td class="sta">{{ row.scheduled.strftime("%H:%M") }}</td>
-        <td class="eta">{{ row.estimated.strftime("%H:%M") if row.estimated else "" }}</td>
+        <td class="eta"><span class="flap">{{ row.estimated.strftime("%H:%M") if row.estimated else "" }}</span></td>
         <td>
           {% if row.airport %}
             <span class="from-city">{{ row.airport.city }}</span>
@@ -83,7 +89,7 @@
           <span class="airline-name">{{ row.airline_name }}</span>
         </td>
         <td class="flight"><a href="/dashboard/flights/{{ row.flight_id }}" aria-label="Flight {{ row.flight_number }} — {{ row.airport.city if row.airport else row.airport_code }}">{{ row.flight_number }}</a></td>
-        <td><span class="remark {{ row.status_kind }}">{{ row.status }}</span></td>
+        <td><span class="remark flap {{ row.status_kind }}">{{ row.status }}</span></td>
       </tr>
       {% endfor %}
     </tbody>
@@ -95,15 +101,64 @@
   /* Whole flight row is clickable → detail. The flight-number <a> is the sole
      keyboard tab stop (named via aria-label); the row click forwards to it. */
   .frow { cursor: pointer; }
+
+  /* ── Board dateline — the Solari header strip above the table ── */
+  .dateline {
+    margin: 0; padding: 8px 14px;
+    font-family: "Menlo", "Consolas", "SF Mono", monospace;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent-dim);
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  /* ── FIDS colon-blink — the clock separator ticks once a second ── */
+  .clk-colon { animation: clk-blink 1s steps(2, end) infinite; }
+  @keyframes clk-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0.25; } }
+
+  /* ── Split-flap settle (the hero entrance) ──
+     The remarks + estimated cells flip in once like a Solari board: a single
+     two-frame rotateX flip, staggered ~28ms/row, capped so the whole board
+     settles in ≤600ms. Only plays when JS adds .is-settling (once per full
+     navigation); reduced-motion renders the final state instantly. */
+  #fids-board.is-settling td { perspective: 500px; }
+  #fids-board.is-settling .flap {
+    display: inline-block; transform-origin: top center;
+    animation: flap-settle .18s cubic-bezier(.3, 1, .4, 1) both;
+    animation-delay: min(calc(var(--i, 0) * 28ms), 400ms);
+  }
+  @keyframes flap-settle {
+    from { transform: rotateX(-92deg); opacity: .35; }
+    to   { transform: rotateX(0); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .clk-colon { animation: none; }
+    #fids-board.is-settling .flap { animation: none; }
+  }
 </style>
 
 <script>
   setInterval(function () {
     var d = new Date();
-    var hh = String(d.getHours()).padStart(2, "0");
-    var mm = String(d.getMinutes()).padStart(2, "0");
-    document.getElementById("clock").textContent = hh + ":" + mm;
+    document.getElementById("clk-h").textContent = String(d.getHours()).padStart(2, "0");
+    document.getElementById("clk-m").textContent = String(d.getMinutes()).padStart(2, "0");
   }, 1000);
+
+  /* One-shot split-flap settle: add the settling class once on a genuine full
+     navigation. Skipped under reduced-motion and on bfcache restores (the
+     class is removed after the settle so a view-transition re-paint can't
+     replay it). */
+  (function () {
+    var board = document.getElementById("fids-board");
+    if (!board) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function play() { board.classList.add("is-settling"); setTimeout(function () { board.classList.remove("is-settling"); }, 650); }
+    if (reduce) { return; }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", play);
+    } else { play(); }
+    window.addEventListener("pageshow", function (e) { if (e.persisted) board.classList.remove("is-settling"); });
+  })();
 
   // Click anywhere on a row opens the flight detail by activating the in-row link
   // (so the keyboard/semantic path and the mouse path share one destination).

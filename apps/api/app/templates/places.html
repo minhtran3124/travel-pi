@@ -353,6 +353,20 @@
     .place-grid { grid-template-columns: 1fr; }
     .place-card.feat { grid-column: span 1; grid-row: span 1; }
   }
+
+  /* ── Reduced motion ──
+     Honor prefers-reduced-motion: no hover lift, no image zoom, no save-button
+     pop, and the detail modal pops in instantly (the one keyframe resolves to
+     its final frame). Matches the per-template guard pattern used in base. */
+  @media (prefers-reduced-motion: reduce) {
+    .place-card, .pc-img, .pc-save, .pm-close, .pm-map {
+      transition: none;
+    }
+    .place-card:hover { transform: none; }
+    .place-card:hover .pc-img { transform: none; }
+    .pc-save:hover { transform: none; }
+    .pm-dialog { animation: none; }
+  }
 </style>
 
 <script>
