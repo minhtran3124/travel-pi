@@ -88,18 +88,40 @@ Approval before an actual **booking** is untouched — that gate is about money,
 | Tool error text (task 3.3) | `pytest tests/api/tools -q` | 0 | 14 passed; diff inspected — docstring/message lines only, no validation branch touched |
 | Full suite (task 4.1) | `cd apps/api && mv .env .env.bak && DATABASE_URL=sqlite:///./full.db ../../.venv/bin/python -m pytest -q; mv .env.bak .env` | 0 | **1486 passed**. The repo `.env` must be set aside — it pins a real Postgres/OpenAI/ORS config that fails 5 unrelated tests regardless of this diff (known: `env-openai-key-test-breaks-llm-tests`) |
 | Lint (task 4.1) | `cd apps/api && ruff check app scripts` | 0 | clean |
-| **Live: weekday date → no question** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN thứ 6 tuần sau"}` on a fresh thread, after `docker exec api-api-1 touch app/main.py` | 0 | Tool trace: `resolve_date` → `search_flights`. Reply: "chuyến bay **SGN → HAN** vào **24/07/2026** (thứ Sáu tuần sau)" — resolved, searched, stated. No confirmation turn. 24/07 is the correct answer for today = Sat 2026-07-11 |
+| ~~Live: weekday date (task 4.1, first attempt)~~ | ~~`POST /agent/chat {"message":"…thứ 6 tuần sau"}`~~ | — | **RETRACTED — this row recorded a WRONG answer as verified.** It read "24/07/2026" as correct for today = Sat 2026-07-11; the correct answer is **17/07**. Code review (P0) caught it. The check confirmed the code matched the pinned rule without ever checking the rule matched what "thứ 6 tuần sau" means. See the post-review rows below |
+| **Live: weekday date → no question** (post-review) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN thứ 6 tuần sau"}` on a fresh thread, after `docker exec api-api-1 touch app/main.py` | 0 | Routed to **planner** (the dominant path, whose prompt the review found still ordered in-head math + a pre-search confirmation). Tool trace: `resolve_date` → `search_flights`. Reply: "chuyến bay SGN → HAN cho **thứ Sáu, 17/07/2026**" — correct date, stated in the traveller's language, no confirmation turn |
+| **Invariant sweep** (post-review) | ad-hoc REPL: 14 consecutive anchor days × 3 weekdays | 0 | `resolve("<weekday> tuần sau")` always lands inside the 7-day window opened by `resolve("tuần sau")` — the P0 class is now closed by construction, not by one lucky anchor |
 | **Live: relative date → no question** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN ngày mai"}` | 0 | Tool trace: `resolve_date` → `search_flights`. Reply states **12/07/2026** |
 | **Live: no date → asks exactly once** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN"}` | 0 | No search tool called. Reply: "bạn chưa nói **ngày bay** … Bạn muốn bay **ngày nào**?" — one question, no default date |
 
 ### Rollback
 
-- Revert code: `git revert <sha>`
-- Prompt rollback is independent of code: set `booking`/`supervisor` back to their prior versions in
-  `app/prompts/active.yaml` (versioned prompts, old files retained) and rebuild the graph.
+- Revert the whole feature (newest first, so the tree never passes through a broken state):
+  `git revert --no-commit 20f4d15 00a3e71 53637cf e833714 0e0a302 && git commit`
+  (`20f4d15` = the post-code-review fix round; the four before it are the original waves.)
+- Prompt-only rollback, no code revert needed: set `booking: 5` and `planner: 6` in
+  `app/prompts/active.yaml` (versioned prompts — v5/v6 files are retained) and rebuild the graph
+  with `docker exec api-api-1 touch app/main.py`. The `resolve_date` tool stays registered but the
+  agent stops being told to use it, so behavior returns to ask-and-confirm.
 
 ### Harness-Delta
 
+- backlog (→ `/compound`) — **Verifying an implementation against a rule I invented is not
+  verification.** The P0 (`"thứ 6 tuần sau"` off by +7) survived a spot-check, 51 unit tests, and a
+  live probe, because all three asked "does the code do what the pinned rule says?" and none asked
+  "does the pinned rule say what the phrase means?" The tests pinned `today = Thursday` — the one
+  anchor where the bug is invisible — and the SUMMARY then recorded the wrong answer as proof. Two
+  cheap defenses generalize: parametrize over EVERY anchor when behavior depends on the anchor, and
+  assert cross-form INVARIANTS (`"<weekday> tuần sau"` must fall inside the week `"tuần sau"` opens)
+  rather than a table of expected values, since an invariant catches a wrong rule while a value table
+  only re-states it.
+- backlog (→ `/compound`) — **A negative grep is not evidence of absence.** I concluded "only
+  `booking/v5` carries the confirm-date rule" from one filtered grep; `planner/v6` carried it too,
+  wrapped onto a line the filter did not match, and planner is the *dominant* search path. The live
+  probe passed anyway (the prepended grounding note happened to win over the contradictory prompt),
+  so the feature looked delivered while the main path still ordered the old behavior. `behavior.md`
+  already says `not_observed != absent`; the operational form is: when a prompt rule is being
+  removed, enumerate every ACTIVE prompt and read it, never grep for the phrasing you remember.
 - backlog (→ `/compound`) — **A prompt-behavior change needs a live probe in its `<verify>`, not just
   pytest.** Task 3.2's rewrite of `ground_current_date` passed every test (14/14) while silently
   dropping the "do not guess or invent one" prohibition: the note still *permitted* asking but no

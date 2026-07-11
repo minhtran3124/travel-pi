@@ -43,7 +43,12 @@ class SearchHotelsArgs(AppBaseModel):
         ),
     )
     check_out: str = Field(
-        ..., description="Stay end date, YYYY-MM-DD. Must be after `check_in`."
+        ...,
+        description=(
+            "Stay end date, YYYY-MM-DD. Must be after `check_in`. For any non-ISO "
+            "wording, call the resolve_date tool on the traveller's original "
+            "expression first — never compute or guess a date yourself."
+        ),
     )
     rooms: int = Field(
         ..., description="Number of rooms needed. Required — get it from the traveller."
@@ -153,7 +158,9 @@ def search_hotels(
     :param check_in: Stay start date, YYYY-MM-DD. Must be today or later. For any
         non-ISO wording, call the resolve_date tool on the traveller's original
         expression first — never compute or guess a date yourself.
-    :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``.
+    :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``. For
+        any non-ISO wording, call the resolve_date tool on the traveller's
+        original expression first — never compute or guess a date yourself.
     :param rooms: Number of rooms needed. Required — get it from the traveller.
     :param adults: Adult party size across all rooms. Required — get it from the traveller.
     :param children: Number of children in the party (0 if none). Required — ask the traveller.

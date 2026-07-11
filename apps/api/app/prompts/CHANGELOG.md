@@ -3,6 +3,32 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-date-resolution (follow-up) — planner missed by the date rewrite
+
+Code review on `feat/agent-date-resolution` found that the `booking v6` date
+rewrite below was never applied to `planner` — and planner is the dominant
+path for flight/hotel *searches* (the supervisor routes most searches there,
+and `resolve_date` is bound to planner). Planner v6 still told the model to
+"resolve relative dates … to a concrete date yourself" and to "get a single
+yes/no confirmation before you search", directly contradicting the CURRENT
+DATE note (`app/agents/state.py::ground_current_date`) prepended to every
+sub-agent prompt.
+
+- **planner v7** — copied v6, then applied the same date rewrite as
+  `booking v6` to the two date guardrail bullets: any non-ISO date (relative,
+  weekday, partial) MUST go through the `resolve_date` tool — never computed
+  in the model's head — and the agent searches/proposes immediately, stating
+  the resolved date in its answer instead of asking for a yes/no confirmation
+  first. A date question is now asked only when the traveller gave no date
+  signal at all or `resolve_date` reports the expression is ambiguous.
+  Everything else is untouched: "Never invent flights, hotels, or prices",
+  the required-hotel-detail guardrail (rooms/guests/party-size must come from
+  the traveller, never defaulted), and the multi-turn stitching behavior
+  ("combine details the traveller gave across several turns", don't re-ask
+  for something already provided).
+
+`active.yaml`: planner → 7. Others unchanged.
+
 ## agent-date-resolution — stop confirming a date before searching
 
 specs/agent-date-resolution: deterministic date resolution (`app/core/dates.py`)
