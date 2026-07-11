@@ -58,10 +58,11 @@ Approval before an actual **booking** is untouched — that gate is about money,
 
 ### Verify
 
-<pending — filled at completion>
-
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
+| Resolver unit (task 1.1) | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_dates.py -q` | 0 | 51 passed |
+| Resolver lint (task 1.1) | `cd apps/api && ruff check app/core/dates.py tests/core/test_dates.py` | 0 | clean |
+| Resolver spot-check vs a known Saturday (today = Sat 2026-07-11) | ad-hoc REPL over 18 expressions | 0 | "thứ 6 tuần sau"→2026-07-24(Fri) · "friday"→07-17 · "thứ 7"→07-18 (strictly-future) · "cuối tuần này"→07-18(Sat) · "tuần sau"→07-13(Mon) · "3 ngày nữa"→07-14 · "sometime soon"/"07/2026"→AmbiguousDateError |
 
 ### Rollback
 
