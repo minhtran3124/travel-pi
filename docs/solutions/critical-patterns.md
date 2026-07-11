@@ -93,3 +93,47 @@ Two decisions from the same session: (1) fixed a category exact-match miss (`"ca
 
 **Full doc:** docs/solutions/agent/supervisor-active-yaml-is-a-pointer.md
 ---
+
+## [2026-07-11] llm-parses-code-computes
+**Type:** decision
+**Module:** agent/tools
+**Tags:** llm, structured-output, date-resolution, tool-design, determinism, i18n, few-shot
+**Applicable when:** An agent tool must turn free-text human input (dates, durations, quantities, budgets) into a precise machine value, and you are choosing between a hardcoded parser, an LLM that returns the final value, or a split.
+
+Both obvious options fail: a hardcoded lexicon never converges (it asked the traveller to clarify "tuần tới", which means exactly what "tuần sau" means), and letting the LLM return the final value reintroduces the arithmetic bug class it was built to prevent. Split by strength — **the model returns a structured INTENT (`{kind:"weekday", weekday:0, week:"next"}`), never a date; code does the arithmetic.** A misread phrase is then visible in the trace and fixable with a few-shot; a silent +7-day slip becomes impossible. A numeric fast path (ISO/DD-MM) skips the model entirely.
+
+**Full doc:** docs/solutions/agent/llm-parses-code-computes.md
+---
+
+## [2026-07-11] new-agent-config-node-seeds-null-model
+**Type:** bug
+**Module:** agent/config
+**Tags:** agent-config, seed, llm, get_agent_llm, 403, silent-degradation, deploy
+**Applicable when:** Adding a NEW agent-config node (a new sub-agent, or any component that calls get_agent_llm with a new name) — including a tool that makes its own LLM call.
+
+`app/db/seed.py::_seed_agent_config` inserts a new node's row with **NULL provider/model**, so the node looks configured (row exists, dashboard lists it) while `get_agent_llm` quietly falls back to the env default model against OpenAI directly — a **403** on a gateway account, on every call, in one feature only. A new agent node is a deploy step: seed its provider/model (`scripts/seed_agent_config.py --nodes <name>`, run with `-w /app -e PYTHONPATH=/app` in the container) and rebuild the graph. When something passes every test but fails everywhere in the real stack, suspect config/data state and read the provider's HTTP status in the container log.
+
+**Full doc:** docs/solutions/agent/new-agent-config-node-seeds-null-model.md
+---
+
+## [2026-07-11] verify-against-invented-rule
+**Type:** failure
+**Module:** harness
+**Tags:** verification, testing, invariants, parametrize, anchor-dependence, evidence, false-proof
+**Applicable when:** Implementing behavior whose correct output depends on WHEN it runs (weekday, month boundary, timezone, fiscal period) — or any time you are about to write a test whose expected values you derived from a rule you yourself invented.
+
+A P0 (a date off by exactly 7 days, into a paid-booking flow) survived 51 green tests, a REPL spot-check, and a live probe that **recorded the wrong answer as proof**. Every check asked "does the code match the rule?"; none asked "is the rule right?" — a test whose expected values come from the same head that wrote the implementation is a tautology with a green tick. The tests also pinned a single anchor weekday, and it was the one where the bug is invisible. Fix: **assert INVARIANTS derivable from meaning, not tables of expected values, and parametrize over every anchor.** An invariant catches a wrong rule; a value table only restates it.
+
+**Full doc:** docs/solutions/harness/verify-against-invented-rule.md
+---
+
+## [2026-07-11] negative-grep-is-not-absence
+**Type:** failure
+**Module:** harness
+**Tags:** grep, evidence, not-observed-vs-absent, prompts, active-yaml, search-methodology
+**Applicable when:** About to conclude "only file X does Y" from a search — especially when removing a rule/behavior that may be stated in several places, and above all across the versioned agent prompts.
+
+A filtered grep returned nothing, so the scope was set to one prompt file. The rule was also in `planner/v6.md` — the **dominant** path — wrapped across lines the filter's second `AND` term never matched. The feature shipped with the behavior it removed still active on the main path; the live probe passed only because the prepended grounding note happened to out-argue the contradictory prompt. When REMOVING a rule, **enumerate the active prompts (via `active.yaml`) and read them** — never grep for phrasing you are, by definition, unsure of — then pin the removal with a test asserting the retired phrases are ABSENT.
+
+**Full doc:** docs/solutions/harness/negative-grep-is-not-absence.md
+---
