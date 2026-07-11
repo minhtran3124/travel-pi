@@ -54,7 +54,13 @@ Approval before an actual **booking** is untouched — that gate is about money,
 
 ### Deviations
 
-- none
+- Rule 1 (task 2.1) — `resolve_date` declares an explicit `args_schema=ResolveDateArgs` rather than
+  the inline `Annotated`/`Field` form the plan asked for. The "explicit args_schema breaks LangGraph
+  injection" rule only bites tools that take `InjectedState`/`InjectedStore` args; `resolve_date`
+  takes none, and the pre-existing registry contract test
+  (`tests/tools/test_tool_registry.py::test_every_tool_has_explicit_described_schema`) *requires* a
+  hand-authored schema for every non-injected tool — the inline form would have broken it.
+  Corroborated: that test passes 40/40 with `resolve_date` registered. `app/tools/date_tools.py`.
 
 ### Verify
 
