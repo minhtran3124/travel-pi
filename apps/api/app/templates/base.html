@@ -916,9 +916,12 @@
     window.openDialog = function (modal, opts) {
       opts = opts || {};
       var trigger = document.activeElement;
-      /* Inert + aria-hide every body child except the modal and the skip link. */
+      /* Inert every body child except the modal, the skip link, and any
+         ancestor of the modal. inert applies to a whole subtree, so inerting
+         an ancestor of the modal (e.g. the .wrap that contains it) would also
+         inert the modal itself — making the dialog's own buttons unclickable. */
       Array.prototype.forEach.call(document.body.children, function (el) {
-        if (el === modal || el.classList.contains('skip')) return;
+        if (el === modal || el.classList.contains('skip') || (modal && el.contains(modal))) return;
         if (!el.hasAttribute('inert')) { el.setAttribute('inert', ''); el.dataset.__tpInert = '1'; }
       });
       modal.classList.add('show');
