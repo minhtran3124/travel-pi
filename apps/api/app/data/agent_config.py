@@ -21,7 +21,7 @@ AGENT_CONFIG_GROUPS: list[tuple[str, str, list[str]]] = [
     (
         "Support agents",
         "Background nodes for memory, summarization and reflection.",
-        ["summarize", "reflection", "extract_memory"],
+        ["summarize", "reflection", "extract_memory", "date_resolution"],
     ),
 ]
 
@@ -43,4 +43,5 @@ AGENT_DESCRIPTIONS: dict[str, str] = {
     "summarize": "Condenses long conversations to keep the context small.",
     "reflection": "Reviews the last answer and asks for a fix when it's weak.",
     "extract_memory": "Saves durable traveller preferences to long-term memory.",
+    "date_resolution": "Parses a traveller's date wording into a structured intent.",
 }

@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 
 from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG
 from app.agents.context import AgentContext
-from app.agents.state import TravelAgentState, system_with_summary
+from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
 from app.prompts.registry import registry
 
 # Re-exported for callers that do `from app.agents.supervisor import SUBAGENTS`.
@@ -59,6 +59,11 @@ def make_supervisor(llm: BaseChatModel):
 
     def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
         logger.info("[agent] node=supervisor")
+        ctx = (
+            runtime.context
+            if runtime is not None and runtime.context is not None
+            else AgentContext()
+        )
         # Feed the already-established conversation language into the router so the
         # model itself returns the sticky value and does not flip on a lone English
         # interjection in an otherwise Vietnamese thread. "unknown" on the first turn
@@ -71,7 +76,12 @@ def make_supervisor(llm: BaseChatModel):
                 "keep it unless the traveller clearly switches."
             )
         )
-        intent = router.invoke([system_with_summary(state, base), *state["messages"]])
+        intent = router.invoke(
+            [
+                system_with_summary(state, ground_current_date(base, ctx.timezone)),
+                *state["messages"],
+            ]
+        )
         target = getattr(intent, "target_agent", None)
         if target not in SUBAGENTS:
             logger.info("[agent] supervisor → END (unknown intent: %s)", target)
@@ -87,11 +97,6 @@ def make_supervisor(llm: BaseChatModel):
         # chosen target is not in the allow-list, degrade gracefully instead of
         # routing there.  This also blocks the plan->booking HITL path for free
         # users because "plan" is only reachable via this branch.
-        ctx = (
-            runtime.context
-            if runtime is not None and runtime.context is not None
-            else AgentContext()
-        )
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
             logger.info("[agent] supervisor → END (tier-gated: %s)", target)
             return Command(

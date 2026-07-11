@@ -174,6 +174,9 @@ class Settings(BaseSettings):
     # reloads it from the DB (MIN-47). Default ~1h: config edits take effect
     # within this window without a restart; normal reads stay in-memory.
     agent_config_cache_ttl_seconds: int = 3600
+    # Default IANA timezone used to ground "today" for relative-date resolution
+    # when the client does not send a valid timezone (see specs/flight-search-date-context).
+    agent_timezone: str = "Asia/Ho_Chi_Minh"
 
     # --- Supabase auth (specs/supabase-auth) ---
     # Verify incoming Supabase access tokens (asymmetric RS256/ES256) against

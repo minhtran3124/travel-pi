@@ -3,9 +3,10 @@
 communication_style: 5
 supervisor: 5
 concierge: 9
-planner: 5
+planner: 7
 journal: 2
-booking: 4
+booking: 6
 budget: 2
 reflection: 1
 memory_extraction: 4
+date_resolution: 1

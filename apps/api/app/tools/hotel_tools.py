@@ -13,11 +13,13 @@ drawer).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta
 
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
+from app.core.config import get_settings
+from app.core.dates import resolve_travel_date, today_in_timezone
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
@@ -35,13 +37,18 @@ class SearchHotelsArgs(AppBaseModel):
     check_in: str = Field(
         ...,
         description=(
-            "Stay start date, YYYY-MM-DD. Must be today or later — resolve relative "
-            "dates against the current date in the system prompt; never guess or "
-            "pass a past date."
+            "Stay start date, YYYY-MM-DD. Must be today or later. For any non-ISO "
+            "wording, call the resolve_date tool on the traveller's original "
+            "expression first — never compute or guess a date yourself."
         ),
     )
     check_out: str = Field(
-        ..., description="Stay end date, YYYY-MM-DD. Must be after `check_in`."
+        ...,
+        description=(
+            "Stay end date, YYYY-MM-DD. Must be after `check_in`. For any non-ISO "
+            "wording, call the resolve_date tool on the traveller's original "
+            "expression first — never compute or guess a date yourself."
+        ),
     )
     rooms: int = Field(
         ..., description="Number of rooms needed. Required — get it from the traveller."
@@ -148,10 +155,12 @@ def search_hotels(
     conversation, restate them and ask the traveller to confirm before searching.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
-    :param check_in: Stay start date, YYYY-MM-DD. Must be today or later — resolve
-        relative dates against the current date in the system prompt; never guess
-        or pass a past date.
-    :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``.
+    :param check_in: Stay start date, YYYY-MM-DD. Must be today or later. For any
+        non-ISO wording, call the resolve_date tool on the traveller's original
+        expression first — never compute or guess a date yourself.
+    :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``. For
+        any non-ISO wording, call the resolve_date tool on the traveller's
+        original expression first — never compute or guess a date yourself.
     :param rooms: Number of rooms needed. Required — get it from the traveller.
     :param adults: Adult party size across all rooms. Required — get it from the traveller.
     :param children: Number of children in the party (0 if none). Required — ask the traveller.
@@ -163,20 +172,27 @@ def search_hotels(
         artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_hotels", locals())
-    today = datetime.now(timezone.utc).date()
+    today = today_in_timezone(get_settings().agent_timezone)
     try:
+        check_in = resolve_travel_date(check_in, today)
+        check_out = resolve_travel_date(check_out, today)
         parsed_check_in = datetime.strptime(check_in, "%Y-%m-%d").date()
     except ValueError as e:
         raise ToolException(
-            f"check_in {check_in!r} is not a valid YYYY-MM-DD date. "
-            f"Today is {today.isoformat()}. Ask the traveller for concrete dates "
-            "instead of guessing."
+            f"check_in {check_in!r} / check_out {check_out!r} could not be resolved to "
+            f"concrete YYYY-MM-DD dates. Today is {today.isoformat()}. Call the "
+            "resolve_date tool on the traveller's original date expressions to get "
+            "concrete dates — only ask the traveller if resolve_date reports one "
+            "ambiguous."
         ) from e
-    if parsed_check_in < today:
+    # 1-day grace for timezone skew between the server-configured `today` and the
+    # traveller's own zone (their dates were resolved against their tz in the prompt).
+    if parsed_check_in < today - timedelta(days=1):
         raise ToolException(
             f"check_in {check_in} is in the past (today is {today.isoformat()}). "
-            "Do not guess or invent dates — confirm the traveller's intended dates, "
-            "resolving relative terms like 'today' or 'next weekend' against today."
+            "Do not guess or invent dates — call the resolve_date tool on the "
+            "traveller's original date expressions to get the correct concrete "
+            "dates; only ask if resolve_date reports one ambiguous."
         )
     with session_scope() as s:
         try:

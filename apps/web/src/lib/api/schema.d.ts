@@ -1474,6 +1474,8 @@ export interface paths {
          *     :param graph: The compiled LangGraph graph.
          *     :param session: The request-scoped DB session.
          *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :param background: FastAPI background-task queue; used to run memory
+         *         extraction after the reply is returned, off the request's critical path.
          *     :return: The chat response.
          */
         post: operations["agent_chat"];
@@ -2044,6 +2046,11 @@ export interface components {
              * @description Resume value for a HITL plan-approval interrupt. Pass {'approved': true} to confirm or {'approved': false} to cancel. Requires conversation_id.
              */
             resume?: unknown;
+            /**
+             * Timezone
+             * @description Traveller's IANA timezone (e.g. 'Asia/Ho_Chi_Minh') detected by the client via Intl.DateTimeFormat().resolvedOptions().timeZone. Used to ground relative dates like 'tomorrow'. Invalid or missing falls back to the server default.
+             */
+            timezone?: string | null;
         };
         /**
          * ChatResponse
@@ -2056,6 +2063,8 @@ export interface components {
             reply: string;
             /** Current Flow */
             current_flow?: string | null;
+            /** Suggestions */
+            suggestions?: string[];
             /**
              * Interrupt Pending
              * @default false

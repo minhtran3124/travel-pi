@@ -3,6 +3,82 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-date-resolution Phase 5 — new `date_resolution` prompt (LLM parses, code computes)
+
+specs/agent-date-resolution §4b: the hardcoded weekday/phrase word tables in
+`app/core/dates.py` are a treadmill — patching one missed phrase at a time
+never converges, and only ever covers the languages we thought to hardcode.
+Replaced with a new `date_resolution` prompt family: a small, fast model
+reads the traveller's date wording and returns a **structured intent**
+(`kind` + kind-specific fields) — never a computed date. All date arithmetic
+stays in code (`app/core/dates.py`, wired in a follow-up task), so a misread
+phrase is visible and testable in the trace, and a wrong `+7` (the earlier
+P0) becomes impossible because the model never does arithmetic at all.
+
+- **date_resolution v1** — new prompt. Covers every intent kind (`absolute`,
+  `relative_day`, `weekday`, `week_start`, `weekend`, `offset`, `ambiguous`)
+  with few-shot `input -> intent` examples spanning Vietnamese (with and
+  without diacritics), English, Japanese, and Spanish. Pins the conventions
+  the model maps onto — bare weekday = next occurrence strictly after today;
+  "this <weekday>" = current calendar week; "next <weekday>" = next calendar
+  week — and is explicit that `ambiguous` is the safe answer for "no date at
+  all" or genuinely multiple readings, not for merely unusual phrasing
+  ("tuần tới" is ordinary, not ambiguous — the old lexicon's failure mode).
+
+`active.yaml`: date_resolution → 1 (new). Added to `FAST_AGENTS`
+(`app/agents/constants.py`) so it resolves to the cheap model, and to
+`AGENT_CONFIG_NODES` / `AGENT_DESCRIPTIONS` (`app/data/agent_config.py`) so
+it is configurable from the dashboard like every other node. Others
+unchanged.
+
+## agent-date-resolution (follow-up) — planner missed by the date rewrite
+
+Code review on `feat/agent-date-resolution` found that the `booking v6` date
+rewrite below was never applied to `planner` — and planner is the dominant
+path for flight/hotel *searches* (the supervisor routes most searches there,
+and `resolve_date` is bound to planner). Planner v6 still told the model to
+"resolve relative dates … to a concrete date yourself" and to "get a single
+yes/no confirmation before you search", directly contradicting the CURRENT
+DATE note (`app/agents/state.py::ground_current_date`) prepended to every
+sub-agent prompt.
+
+- **planner v7** — copied v6, then applied the same date rewrite as
+  `booking v6` to the two date guardrail bullets: any non-ISO date (relative,
+  weekday, partial) MUST go through the `resolve_date` tool — never computed
+  in the model's head — and the agent searches/proposes immediately, stating
+  the resolved date in its answer instead of asking for a yes/no confirmation
+  first. A date question is now asked only when the traveller gave no date
+  signal at all or `resolve_date` reports the expression is ambiguous.
+  Everything else is untouched: "Never invent flights, hotels, or prices",
+  the required-hotel-detail guardrail (rooms/guests/party-size must come from
+  the traveller, never defaulted), and the multi-turn stitching behavior
+  ("combine details the traveller gave across several turns", don't re-ask
+  for something already provided).
+
+`active.yaml`: planner → 7. Others unchanged.
+
+## agent-date-resolution — stop confirming a date before searching
+
+specs/agent-date-resolution: deterministic date resolution (`app/core/dates.py`)
+plus a new `resolve_date` agent tool made the LLM's own date arithmetic and the
+pre-search "please confirm this date" turn redundant — the agent now resolves
+and states the date instead of asking the traveller to pre-approve it.
+
+- **booking v6** — copied v5, then rewrote the date-confirmation part of
+  "## How to Work" step 1: any non-ISO date (relative, weekday, partial) must
+  go through the `resolve_date` tool — never computed in the model's head —
+  and the agent searches/quotes immediately, stating the resolved date in its
+  answer instead of asking for a yes/no confirmation first. A date question is
+  now asked only when the traveller gave no date signal at all or `resolve_date`
+  reports the expression is ambiguous. The non-date "restate + confirm" flow
+  (rooms, guests, party size) is unchanged. Booking-approval language —
+  "Never confirm a booking without explicit approval. Quoting is safe; booking
+  is not." and "Confirm the resolved value once before booking." — is
+  untouched: this only removes the pre-*search*/pre-*quote* date confirmation,
+  not the pre-*booking* approval gate.
+
+`active.yaml`: booking → 6. Others unchanged.
+
 ## travel-knowledge-rag — concierge knowledge-search tool
 
 specs/travel-knowledge-rag: re-introduce RAG over visa + local-tips seed content,

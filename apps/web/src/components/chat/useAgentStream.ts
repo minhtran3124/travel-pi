@@ -303,6 +303,7 @@ export function useAgentStream(
         trip_id: tripIdRef.current ?? null,
         conversation_id: conversationIdRef.current,
         retry: false,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
 
       const controller = new AbortController();
@@ -426,6 +427,7 @@ export function useAgentStream(
         trip_id: tripIdRef.current ?? null,
         conversation_id: pendingInterrupt.conversationId,
         retry: false,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
 
       setInterrupt(null);
@@ -536,6 +538,7 @@ export function useAgentStream(
       conversation_id: conversationId,
       // Re-answer the existing user turn without re-saving the question.
       retry: true,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
 
     const controller = new AbortController();

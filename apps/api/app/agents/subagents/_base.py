@@ -106,9 +106,10 @@ def build_subagent(
         ]
         bound = model.bind_tools(active_tools) if active_tools else model
 
+        tz = ctx.timezone if ctx is not None else None
         response = bound.invoke(
             [
-                system_with_summary(state, ground_current_date(system)),
+                system_with_summary(state, ground_current_date(system, tz)),
                 *state["messages"],
             ]
         )

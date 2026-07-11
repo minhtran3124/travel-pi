@@ -8,12 +8,14 @@ flights — so the agent can reference a specific flight across turns.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta
 from typing import Literal
 
 from langchain_core.tools import ToolException, tool
 from pydantic import Field
 
+from app.core.config import get_settings
+from app.core.dates import resolve_travel_date, today_in_timezone
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.services.flight_service import DEFAULT_SORT, FlightService
@@ -70,9 +72,10 @@ def search_flights(
 
     :param origin: 3-letter IATA code for the origin airport (e.g. 'HAN', 'SGN', 'NRT').
     :param destination: 3-letter IATA code for the destination airport (e.g. 'HAN', 'SGN', 'NRT').
-    :param departure_date: ISO date YYYY-MM-DD. Must be today or later — resolve
-        relative dates (e.g. "today", "tomorrow") against the current date given in
-        the system prompt; never guess or pass a past date.
+    :param departure_date: ISO date YYYY-MM-DD. Must be today or later. For any
+        non-ISO wording (e.g. "today", "tomorrow", "next Friday"), call the
+        resolve_date tool on the traveller's original expression first — never
+        compute or guess a date yourself.
     :param airline: 2-letter IATA code to filter by carrier (e.g. 'VN').
     :param max_price: Keep only flights at or below this fare.
     :param max_stops: 0 = nonstop only, 1 = up to one stop.
@@ -82,21 +85,28 @@ def search_flights(
         artifact is ``None`` (no panel) and the summary explains the empty result.
     """
     log_tool_call("search_flights", locals())
-    today = datetime.now(timezone.utc).date()
+    today = today_in_timezone(get_settings().agent_timezone)
     try:
+        departure_date = resolve_travel_date(departure_date, today)
         parsed_date = datetime.strptime(departure_date, "%Y-%m-%d").date()
     except ValueError as e:
         raise ToolException(
-            f"departure_date {departure_date!r} is not a valid YYYY-MM-DD date. "
-            f"Today is {today.isoformat()}. Ask the traveller for a concrete date "
-            "instead of guessing."
+            f"departure_date {departure_date!r} could not be resolved to a concrete "
+            f"YYYY-MM-DD date. Today is {today.isoformat()}. Call the resolve_date "
+            "tool on the traveller's original date expression to get a concrete "
+            "date — only ask the traveller if resolve_date reports it ambiguous."
         ) from e
-    if parsed_date < today:
+    # 1-day grace: `today` is computed in the server's configured zone, but the
+    # traveller's date was resolved against their own timezone (in the prompt), so
+    # the two "todays" can differ by up to a day. Tolerate that skew rather than
+    # reject a date the traveller correctly considers today/future.
+    if parsed_date < today - timedelta(days=1):
         raise ToolException(
             f"departure_date {departure_date} is in the past (today is "
-            f"{today.isoformat()}). Do not guess or invent dates — confirm the "
-            "traveller's intended date, resolving relative terms like 'today' or "
-            "'next Friday' against today."
+            f"{today.isoformat()}). Do not guess or invent dates — call the "
+            "resolve_date tool on the traveller's original date expression to get "
+            "the correct concrete date; only ask if resolve_date reports it "
+            "ambiguous."
         )
     with session_scope() as s:
         try:
