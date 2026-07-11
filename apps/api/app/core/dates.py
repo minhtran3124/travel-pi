@@ -94,8 +94,27 @@ _VN_NUMERIC_WEEKDAY_RE = re.compile(r"^t(?:hu)?\s*([2-7])$")
 
 _NEXT_PREFIX = "next "
 _THIS_PREFIX = "this "
-_NEXT_WEEK_SUFFIX = " tuan sau"
-_THIS_WEEK_SUFFIX = " tuan nay"
+
+# "Next week" has several everyday Vietnamese spellings and a traveller picks
+# whichever they please — "tuần tới" is as common as "tuần sau". Matching only
+# one of them sends the rest to AmbiguousDateError, so the agent asks a question
+# about a phrase that was never ambiguous. Longest-first: " tuan ke tiep" must
+# be tried before " tuan ke", or the shorter one strips first and leaves "tiep".
+_NEXT_WEEK_SUFFIXES = (
+    " tuan ke tiep",
+    " tuan tiep theo",
+    " tuan sau",
+    " tuan toi",
+    " tuan ke",
+)
+_THIS_WEEK_SUFFIXES = (" tuan nay",)
+
+# The same phrases standing alone (no weekday), e.g. "sang tuần" = "next week".
+_NEXT_WEEK_WORDS = (
+    ("next week",) + tuple(s.strip() for s in _NEXT_WEEK_SUFFIXES) + ("sang tuan",)
+)
+_THIS_WEEKEND_WORDS = ("this weekend", "cuoi tuan nay")
+_NEXT_WEEKEND_WORDS = ("next weekend", "cuoi tuan sau", "cuoi tuan toi", "cuoi tuan ke")
 
 _DAY_OFFSET_EN_RE = re.compile(r"^in (\d+) days?$")
 _DAY_OFFSET_VN_RE = re.compile(r"^(\d+) ngay nua$")
@@ -167,10 +186,15 @@ def _parse_weekday_phrase(token: str) -> tuple[int, str] | None:
         ``modifier`` is one of ``"bare"``, ``"this"``, ``"next"``; else None.
     """
     remainder, modifier = token, "bare"
-    if remainder.endswith(_NEXT_WEEK_SUFFIX):
-        remainder, modifier = remainder[: -len(_NEXT_WEEK_SUFFIX)], "next"
-    elif remainder.endswith(_THIS_WEEK_SUFFIX):
-        remainder, modifier = remainder[: -len(_THIS_WEEK_SUFFIX)], "this"
+    for suffix in _NEXT_WEEK_SUFFIXES:
+        if remainder.endswith(suffix):
+            remainder, modifier = remainder[: -len(suffix)], "next"
+            break
+    else:
+        for suffix in _THIS_WEEK_SUFFIXES:
+            if remainder.endswith(suffix):
+                remainder, modifier = remainder[: -len(suffix)], "this"
+                break
     if remainder.startswith(_NEXT_PREFIX):
         remainder, modifier = remainder[len(_NEXT_PREFIX) :], "next"
     elif remainder.startswith(_THIS_PREFIX):
@@ -310,19 +334,20 @@ def _resolve_normalized(raw: str, today: date) -> str:
             return candidate.isoformat()
         return _next_occurrence_strictly_after(today, weekday).isoformat()
 
-    # 5. "next week" / "tuần sau" (bare) -> Monday of next calendar week.
-    if normalized in ("next week", "tuan sau"):
+    # 5. "next week" / "tuần sau" / "tuần tới" / "sang tuần" (bare) -> Monday of
+    # next calendar week.
+    if normalized in _NEXT_WEEK_WORDS:
         return (_monday_of_week(today) + timedelta(days=7)).isoformat()
 
     # 6. "this weekend" / "cuối tuần này" -> the Saturday of the current
     # calendar week — or today, if the weekend is already underway.
-    if normalized in ("this weekend", "cuoi tuan nay"):
+    if normalized in _THIS_WEEKEND_WORDS:
         if today.weekday() in (5, 6):  # Sat or Sun: this weekend is now.
             return today.isoformat()
         return (_monday_of_week(today) + timedelta(days=5)).isoformat()
 
-    # 7. "next weekend" / "cuối tuần sau" -> the Saturday of next calendar week.
-    if normalized in ("next weekend", "cuoi tuan sau"):
+    # 7. "next weekend" / "cuối tuần sau" / "cuối tuần tới" -> Saturday of next week.
+    if normalized in _NEXT_WEEKEND_WORDS:
         return (_monday_of_week(today) + timedelta(days=12)).isoformat()
 
     # 8. Day offsets: "in N day(s)" / "N ngày nữa", bounded to a sane

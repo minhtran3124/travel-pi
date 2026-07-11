@@ -158,6 +158,32 @@ def test_next_weekday_never_overshoots_next_week_window(anchor):
     assert next_week_monday <= next_friday <= next_week_monday + timedelta(days=6)
 
 
+_NEXT_WEEK_SYNONYMS = ["tuần sau", "tuần tới", "tuần kế", "tuần tiếp theo"]
+
+
+@pytest.mark.parametrize("anchor", _WEEK_ANCHORS, ids=lambda d: d.strftime("%A"))
+def test_next_week_synonyms_resolve_identically(anchor):
+    # A traveller picks whichever spelling they please — "thứ 2 tuần tới" is as
+    # common as "thứ 2 tuần sau". Every synonym must land on the same day, or the
+    # unmatched ones raise AmbiguousDateError and the agent asks a needless
+    # question about a phrase that was never ambiguous (reported from the chat UI).
+    bare = {resolve_travel_date(s, anchor) for s in _NEXT_WEEK_SYNONYMS}
+    assert len(bare) == 1
+    assert resolve_travel_date("sang tuần", anchor) == bare.pop()
+
+    with_weekday = {
+        resolve_travel_date(f"thứ 2 {s}", anchor) for s in _NEXT_WEEK_SYNONYMS
+    }
+    assert with_weekday == {
+        resolve_travel_date("tuần sau", anchor)
+    }  # Monday of next week
+
+    weekend = {
+        resolve_travel_date(s, anchor) for s in ("cuối tuần sau", "cuối tuần tới")
+    }
+    assert len(weekend) == 1
+
+
 def test_next_weekday_matches_confirmed_bug_report_example():
     # Exact figures from the confirmed P0 finding (today = Sat 2026-07-11).
     today = date(2026, 7, 11)
