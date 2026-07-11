@@ -80,9 +80,9 @@ Approval before an actual **booking** is untouched — that gate is about money,
 | --- | --- | --- | --- |
 | Resolver unit (task 1.1) | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_dates.py -q` | 0 | 51 passed |
 | Resolver lint (task 1.1) | `cd apps/api && ruff check app/core/dates.py tests/core/test_dates.py` | 0 | clean |
-| Resolver spot-check vs a known Saturday (today = Sat 2026-07-11) | ad-hoc REPL over 18 expressions | 0 | "thứ 6 tuần sau"→2026-07-24(Fri) · "friday"→07-17 · "thứ 7"→07-18 (strictly-future) · "cuối tuần này"→07-18(Sat) · "tuần sau"→07-13(Mon) · "3 ngày nữa"→07-14 · "sometime soon"/"07/2026"→AmbiguousDateError |
+| ~~Resolver spot-check vs a known Saturday (task 1.1)~~ | ~~ad-hoc REPL over 18 expressions~~ | — | **RETRACTED — recorded the P0 as correct.** It read "thứ 6 tuần sau"→2026-07-24 and "cuối tuần này"→07-18 (on a Saturday) as right. Both were wrong: 07-17 and 07-11. The REPL only re-derived the rule the code already implemented. Superseded by the invariant sweep below |
 | Tool + registry (task 2.1) | `pytest tests/api/tools/test_date_tools.py tests/api/agent -q` | 0 | 99 passed; registry contract `tests/tools/test_tool_registry.py` 40/40 |
-| `resolve_date` live invoke (task 2.1) | ad-hoc REPL | 0 | bound to planner/concierge/booking, readOnly; "thứ 6 tuần sau"→`2026-07-24 (Friday). Today is 2026-07-11 (Asia/Ho_Chi_Minh).`; "khi nào rảnh thì đi"→ToolException telling the agent to ask |
+| `resolve_date` live invoke (task 2.1) | ad-hoc REPL | 0 | bound to planner/concierge/booking, readOnly; "khi nào rảnh thì đi"→ToolException telling the agent to ask. (Its "thứ 6 tuần sau"→2026-07-24 line carried the P0 and is retracted — the post-review tool returns 2026-07-17.) |
 | Prompt booking v6 (task 3.1) | `pytest tests/api/agent tests/agents -q` | 0 | 214 passed; v5→v6 diff reviewed — booking-approval guardrails byte-identical |
 | Grounding note (task 3.2) | `pytest tests/agents/test_state.py -q` | 0 | 14 passed |
 | Tool error text (task 3.3) | `pytest tests/api/tools -q` | 0 | 14 passed; diff inspected — docstring/message lines only, no validation branch touched |
@@ -91,14 +91,16 @@ Approval before an actual **booking** is untouched — that gate is about money,
 | ~~Live: weekday date (task 4.1, first attempt)~~ | ~~`POST /agent/chat {"message":"…thứ 6 tuần sau"}`~~ | — | **RETRACTED — this row recorded a WRONG answer as verified.** It read "24/07/2026" as correct for today = Sat 2026-07-11; the correct answer is **17/07**. Code review (P0) caught it. The check confirmed the code matched the pinned rule without ever checking the rule matched what "thứ 6 tuần sau" means. See the post-review rows below |
 | **Live: weekday date → no question** (post-review) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN thứ 6 tuần sau"}` on a fresh thread, after `docker exec api-api-1 touch app/main.py` | 0 | Routed to **planner** (the dominant path, whose prompt the review found still ordered in-head math + a pre-search confirmation). Tool trace: `resolve_date` → `search_flights`. Reply: "chuyến bay SGN → HAN cho **thứ Sáu, 17/07/2026**" — correct date, stated in the traveller's language, no confirmation turn |
 | **Invariant sweep** (post-review) | ad-hoc REPL: 14 consecutive anchor days × 3 weekdays | 0 | `resolve("<weekday> tuần sau")` always lands inside the 7-day window opened by `resolve("tuần sau")` — the P0 class is now closed by construction, not by one lucky anchor |
+| **Live: no date → asks once** (post-review) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN"}` | 0 | No search tool called; one question ("bạn chưa nói **ngày bay**"), no default date. Still holds after the planner v7 rewrite |
+| **Full suite + lint** (post-review) | `cd apps/api && mv .env .env.bak && DATABASE_URL=sqlite:///./f.db ../../.venv/bin/python -m pytest -q; mv .env.bak .env` · `ruff check app scripts` | 0 | **1526 passed** (was 1486 — +40 from the anchor sweep, invariant, overflow, past-date, punctuation and prompt-content tests added by the review) · ruff clean |
 | **Live: relative date → no question** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN ngày mai"}` | 0 | Tool trace: `resolve_date` → `search_flights`. Reply states **12/07/2026** |
 | **Live: no date → asks exactly once** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN"}` | 0 | No search tool called. Reply: "bạn chưa nói **ngày bay** … Bạn muốn bay **ngày nào**?" — one question, no default date |
 
 ### Rollback
 
 - Revert the whole feature (newest first, so the tree never passes through a broken state):
-  `git revert --no-commit 20f4d15 00a3e71 53637cf e833714 0e0a302 && git commit`
-  (`20f4d15` = the post-code-review fix round; the four before it are the original waves.)
+  `git revert --no-commit e6cd373 00a3e71 53637cf e833714 0e0a302 && git commit`
+  (`e6cd373` = the post-code-review fix round; the four before it are the original waves.)
 - Prompt-only rollback, no code revert needed: set `booking: 5` and `planner: 6` in
   `app/prompts/active.yaml` (versioned prompts — v5/v6 files are retained) and rebuild the graph
   with `docker exec api-api-1 touch app/main.py`. The `resolve_date` tool stays registered but the
