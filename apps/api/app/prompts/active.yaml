@@ -5,7 +5,7 @@ supervisor: 5
 concierge: 9
 planner: 6
 journal: 2
-booking: 5
+booking: 6
 budget: 2
 reflection: 1
 memory_extraction: 4

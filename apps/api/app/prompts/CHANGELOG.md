@@ -3,6 +3,28 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-date-resolution — stop confirming a date before searching
+
+specs/agent-date-resolution: deterministic date resolution (`app/core/dates.py`)
+plus a new `resolve_date` agent tool made the LLM's own date arithmetic and the
+pre-search "please confirm this date" turn redundant — the agent now resolves
+and states the date instead of asking the traveller to pre-approve it.
+
+- **booking v6** — copied v5, then rewrote the date-confirmation part of
+  "## How to Work" step 1: any non-ISO date (relative, weekday, partial) must
+  go through the `resolve_date` tool — never computed in the model's head —
+  and the agent searches/quotes immediately, stating the resolved date in its
+  answer instead of asking for a yes/no confirmation first. A date question is
+  now asked only when the traveller gave no date signal at all or `resolve_date`
+  reports the expression is ambiguous. The non-date "restate + confirm" flow
+  (rooms, guests, party size) is unchanged. Booking-approval language —
+  "Never confirm a booking without explicit approval. Quoting is safe; booking
+  is not." and "Confirm the resolved value once before booking." — is
+  untouched: this only removes the pre-*search*/pre-*quote* date confirmation,
+  not the pre-*booking* approval gate.
+
+`active.yaml`: booking → 6. Others unchanged.
+
 ## travel-knowledge-rag — concierge knowledge-search tool
 
 specs/travel-knowledge-rag: re-introduce RAG over visa + local-tips seed content,

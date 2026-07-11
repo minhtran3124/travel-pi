@@ -78,14 +78,18 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
 
 
 def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:
-    """Prepend today's date so the model resolves relative dates instead of guessing.
+    """Prepend today's date and point relative-date resolution at the resolve_date tool.
 
-    Without a concrete "today", the model has to invent a date when the traveller
-    says something like "hôm nay"/"today" or "next Friday", which then flows into
-    tool calls such as ``search_flights(departure_date=...)``. Grounding a real date
-    lets it resolve those expressions and forbids fabricating a date that was never
-    given. Computed per request — the graph is built once at startup, so a long-
-    running server would otherwise serve a date frozen at boot.
+    Without a concrete "today", the model has no anchor for expressions like
+    "hôm nay"/"today" or "next Friday", which then flow into tool calls such as
+    ``search_flights(departure_date=...)``. Grounding a real date gives it that
+    anchor; the note also routes non-ISO date expressions through the
+    ``resolve_date`` tool instead of letting the model compute them itself, and
+    tells it to state the resolved date rather than ask the traveller to
+    confirm it — asking is reserved for no date signal at all, or an ambiguous
+    expression ``resolve_date`` itself reports. Computed per request — the
+    graph is built once at startup, so a long-running server would otherwise
+    serve a date frozen at boot.
 
     :param base: The base system message to fold the date grounding into.
     :param tz: Optional IANA timezone (e.g. "Asia/Ho_Chi_Minh") for the traveller;
@@ -104,9 +108,12 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
     today = now.strftime("%Y-%m-%d")
     note = (
         f"CURRENT DATE: today is {today} ({zone_label}). This is the only correct "
-        'value for "today". Resolve every relative date ("today", "tomorrow", '
-        '"next Friday", "this weekend") against it, and never pass a tool a date '
-        f"earlier than {today}. If the traveller has not given enough to derive a "
-        "concrete date, ask them — do not guess or invent one."
+        'value for "today", and never pass a tool a date earlier than '
+        f'{today}. Resolve relative, weekday, or partial dates ("tomorrow", '
+        '"next Friday", "thứ 6 tuần sau", "12/07") with the resolve_date tool — '
+        "do not compute them yourself. Do not ask the traveller to confirm a date "
+        "resolve_date already returned; state it in your answer so they can "
+        "correct it. Ask only when the traveller gave no date signal at all, or "
+        "resolve_date reports the expression is ambiguous."
     )
     return SystemMessage(content=f"{note}\n\n{base.content}")

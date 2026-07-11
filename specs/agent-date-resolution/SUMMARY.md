@@ -61,6 +61,10 @@ Approval before an actual **booking** is untouched — that gate is about money,
   (`tests/tools/test_tool_registry.py::test_every_tool_has_explicit_described_schema`) *requires* a
   hand-authored schema for every non-injected tool — the inline form would have broken it.
   Corroborated: that test passes 40/40 with `resolve_date` registered. `app/tools/date_tools.py`.
+- Rule 1 (task 3.2) — `ground_current_date` also lost its middle sentence ("Resolve every relative
+  date … against it"), not just the closing "ask them" one the plan named. Keeping it would have left
+  the grounded prompt self-contradictory: compute the date yourself *and* route it through
+  `resolve_date`. `app/agents/state.py`.
 
 ### Verify
 
@@ -69,6 +73,11 @@ Approval before an actual **booking** is untouched — that gate is about money,
 | Resolver unit (task 1.1) | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_dates.py -q` | 0 | 51 passed |
 | Resolver lint (task 1.1) | `cd apps/api && ruff check app/core/dates.py tests/core/test_dates.py` | 0 | clean |
 | Resolver spot-check vs a known Saturday (today = Sat 2026-07-11) | ad-hoc REPL over 18 expressions | 0 | "thứ 6 tuần sau"→2026-07-24(Fri) · "friday"→07-17 · "thứ 7"→07-18 (strictly-future) · "cuối tuần này"→07-18(Sat) · "tuần sau"→07-13(Mon) · "3 ngày nữa"→07-14 · "sometime soon"/"07/2026"→AmbiguousDateError |
+| Tool + registry (task 2.1) | `pytest tests/api/tools/test_date_tools.py tests/api/agent -q` | 0 | 99 passed; registry contract `tests/tools/test_tool_registry.py` 40/40 |
+| `resolve_date` live invoke (task 2.1) | ad-hoc REPL | 0 | bound to planner/concierge/booking, readOnly; "thứ 6 tuần sau"→`2026-07-24 (Friday). Today is 2026-07-11 (Asia/Ho_Chi_Minh).`; "khi nào rảnh thì đi"→ToolException telling the agent to ask |
+| Prompt booking v6 (task 3.1) | `pytest tests/api/agent tests/agents -q` | 0 | 214 passed; v5→v6 diff reviewed — booking-approval guardrails byte-identical |
+| Grounding note (task 3.2) | `pytest tests/agents/test_state.py -q` | 0 | 14 passed |
+| Tool error text (task 3.3) | `pytest tests/api/tools -q` | 0 | 14 passed; diff inspected — docstring/message lines only, no validation branch touched |
 
 ### Rollback
 
