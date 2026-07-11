@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { toUtcDate } from "@/lib/datetime";
 import type { FlightsPanelData, FlightsPanelFlight } from "@/lib/stream/panel";
 
 /**
@@ -12,8 +13,10 @@ import type { FlightsPanelData, FlightsPanelFlight } from "@/lib/stream/panel";
  * expand full detail. Read-only (no booking tool). Pure render + local expand state.
  */
 
+/** Wall-clock HH:MM as scheduled at the airport — `toUtcDate` pins the API's
+ *  naive datetimes so the viewer's timezone never shifts them. */
 function hhmm(iso: string): string {
-  const d = new Date(iso);
+  const d = toUtcDate(iso);
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
