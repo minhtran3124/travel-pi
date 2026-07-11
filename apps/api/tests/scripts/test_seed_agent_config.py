@@ -26,7 +26,7 @@ def db_url(tmp_path, monkeypatch):
     return url
 
 
-def test_seeds_all_nine_nodes_with_defaults(db_url):
+def test_seeds_every_node_with_defaults(db_url):
     from scripts.seed_agent_config import (
         DEFAULT_MODEL,
         DEFAULT_PROVIDER,
@@ -35,8 +35,11 @@ def test_seeds_all_nine_nodes_with_defaults(db_url):
 
     rows = seed_agent_config()
 
+    # Count against AGENT_CONFIG_NODES, not a literal: the set assertion above
+    # already pins WHICH nodes are seeded, so a hardcoded number adds no coverage
+    # and only breaks when a legitimate node is added (it did, for date_resolution).
     assert {r["agent_name"] for r in rows} == set(AGENT_CONFIG_NODES)
-    assert len(rows) == 9
+    assert len(rows) == len(AGENT_CONFIG_NODES)
     assert all(
         r["provider"] == DEFAULT_PROVIDER and r["model"] == DEFAULT_MODEL for r in rows
     )
@@ -52,7 +55,7 @@ def test_seeds_all_nine_nodes_with_defaults(db_url):
         "openai/gpt-5.4-nano",
         "https://api.cline.bot/api/v1",
     )
-    assert len(stored) == 9
+    assert len(stored) == len(AGENT_CONFIG_NODES)
 
 
 def test_base_url_defaults_to_profile_and_can_be_overridden(db_url):
@@ -85,7 +88,7 @@ def test_is_idempotent(db_url):
     seed_agent_config()  # re-run upserts the same rows, no duplicates
 
     repo = AgentConfigRepository(get_session_factory(db_url))
-    assert len(repo.list_all()) == 9
+    assert len(repo.list_all()) == len(AGENT_CONFIG_NODES)
 
 
 def test_custom_provider_model_and_node_subset(db_url):

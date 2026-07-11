@@ -93,8 +93,28 @@ Approval before an actual **booking** is untouched — that gate is about money,
 | **Invariant sweep** (post-review) | ad-hoc REPL: 14 consecutive anchor days × 3 weekdays | 0 | `resolve("<weekday> tuần sau")` always lands inside the 7-day window opened by `resolve("tuần sau")` — the P0 class is now closed by construction, not by one lucky anchor |
 | **Live: no date → asks once** (post-review) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN"}` | 0 | No search tool called; one question ("bạn chưa nói **ngày bay**"), no default date. Still holds after the planner v7 rewrite |
 | **Full suite + lint** (post-review) | `cd apps/api && mv .env .env.bak && DATABASE_URL=sqlite:///./f.db ../../.venv/bin/python -m pytest -q; mv .env.bak .env` · `ruff check app scripts` | 0 | **1526 passed** (was 1486 — +40 from the anchor sweep, invariant, overflow, past-date, punctuation and prompt-content tests added by the review) · ruff clean |
+| **Phase 5 suite + lint** (LLM parser) | same commands | 0 | **1514 passed** · `ruff check app scripts` clean. Count drops from 1526 because the deleted lexicon took its per-word cases with it; the arithmetic invariants (7-anchor sweep, cross-form window) all survive, re-expressed over intents |
+| **Phase 5 live: multilingual** | `POST /agent/chat` on fresh threads, after seeding the `date_resolution` model row + `docker exec api-api-1 touch app/main.py` | 0 | Every trace `resolve_date` → `search_flights`, no confirmation turn. "thứ 2 tuần tới" → **13/07** (the phrase the lexicon regressed on) · "thứ 6 tuần sau" → **17/07** (the P0 phrase) · "cuối tuần sau" → **18/07** · 来週の月曜日 → **13/07** · "el próximo viernes" → **17/07** · "the day after tomorrow" → **13/07**. None of the last three were expressible in the old lexicon |
+| **Phase 5 live: no date** | `POST /agent/chat {"message":"tìm chuyến bay HAN DAD khi nào rảnh thì đi"}` | 0 | Model returns `kind="ambiguous"` → ToolException → the agent asks one question. No search tool called, no invented date |
 | **Live: relative date → no question** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN ngày mai"}` | 0 | Tool trace: `resolve_date` → `search_flights`. Reply states **12/07/2026** |
 | **Live: no date → asks exactly once** (task 4.1) | `POST /agent/chat {"message":"tìm chuyến bay SGN đi HAN"}` | 0 | No search tool called. Reply: "bạn chưa nói **ngày bay** … Bạn muốn bay **ngày nào**?" — one question, no default date |
+
+### Deploy note (phase 5)
+
+`date_resolution` is a new agent-config node. `app/db/seed.py::_seed_agent_config` inserts the row
+with **NULL provider/model**, and `get_agent_llm` then falls back to the env default
+(`fast_llm_model = gpt-5-mini`, direct OpenAI) — which **403s** on this account, so every
+`resolve_date` call failed with "hệ thống đang lỗi khi đổi ngày" until the row was given a model.
+Any environment must seed it like its siblings:
+
+```
+docker exec -w /app -e PYTHONPATH=/app api-api-1 \
+  python scripts/seed_agent_config.py --provider openai --model gpt-5.4-mini --nodes date_resolution
+```
+
+(Then rebuild the graph: `docker exec api-api-1 touch app/main.py`.) The failure is loud and
+recoverable — the tool raises ToolException and the agent asks for a concrete date rather than
+inventing one — but the feature is silently degraded until the row is seeded.
 
 ### Rollback
 

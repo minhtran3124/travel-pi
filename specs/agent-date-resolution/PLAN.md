@@ -108,6 +108,74 @@ trust it. **Resolving is not guessing; asking to double-check the model's arithm
 </task>
 ```
 
+## 4b. Phase 5 — Replace the word dictionaries with an LLM parser (follow-up)
+
+**Why.** Waves 1–4 shipped a hardcoded lexicon (`_RELATIVE_DAYS`, `_WEEKDAY_NAMES`, this/next
+prefix tables). It is a treadmill: `"tuần tới"` — as ordinary as `"tuần sau"` — was missing, so the
+agent asked about a phrase that was never ambiguous. Patching it word by word never converges, and
+it only ever covers the two languages we thought of.
+
+**The split.** Understanding language is what an LLM is good at; date arithmetic is what it is bad
+at — the P0 (`+7` overshoot) was arithmetic. So: **the model parses, the code computes.** The model
+returns a *structured intent* (`{kind: "weekday", weekday: "monday", week: "next"}`), never a date.
+Code turns that intent into an ISO date deterministically. A misread phrase is visible in the trace
+and testable; a wrong `+7` becomes impossible.
+
+### Task 5.1 — Prompt + model wiring for the date parser
+
+```xml
+<task id="5.1" wave="5">
+  <files>app/prompts/date_resolution/v1.md, app/prompts/active.yaml, app/prompts/CHANGELOG.md, app/agents/constants.py, app/data/agent_config.py</files>
+  <action>Add the `date_resolution` prompt family: a system prompt that receives today's date, weekday, and IANA zone, and must return a STRUCTURED INTENT — never a computed date. Cover, with few-shot examples in several languages (VN with/without diacritics, EN, and at least one the lexicon never handled, e.g. 来週の月曜日 / próximo lunes), each intent kind: absolute (explicit d/m[/y]), relative_day (today/tomorrow/day-after), weekday + week(current|next), week_start, weekend + week, offset (N days), and ambiguous (with a reason). State the pinned conventions the model must map onto — a bare weekday means the next occurrence strictly after today; "this <weekday>" means the current calendar week; "next <weekday>" means the next calendar week — and that anything it cannot map without inventing information is `ambiguous`, which is what makes the agent ask. Register it in active.yaml (`date_resolution: 1`) + CHANGELOG. Add "date_resolution" to FAST_AGENTS (app/agents/constants.py) so it resolves to the cheap model, and to AGENT_CONFIG_NODES + AGENT_DESCRIPTIONS (app/data/agent_config.py) so it is configurable from the dashboard like every other model.</action>
+  <verify>cd apps/api &amp;&amp; mv .env .env.bak; DATABASE_URL=sqlite:///./s.db ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts -q; r=$?; mv .env.bak .env; rm -f s.db; exit $r</verify>
+  <done>registry.get("date_resolution") returns the prompt; it resolves to the fast model; dashboard config lists it.</done>
+</task>
+```
+
+### Task 5.2 — `core/dates.py`: numeric fast-path + intent arithmetic, dictionaries deleted
+
+```xml
+<task id="5.2" wave="5">
+  <files>app/schemas/date_intent.py, app/core/dates.py, tests/core/test_dates.py</files>
+  <action>Define the DateIntent Pydantic schema (the contract the model fills). Rewrite core/dates.py to two language-independent halves: (a) `parse_numeric_date(raw, today)` — ISO, DD/MM, DD/MM/YYYY, YYYY/MM/DD only, no words; (b) `compute_from_intent(intent, today)` — the deterministic arithmetic, carrying forward the week-anchored semantics and every invariant already pinned by the current tests (bare weekday = strictly after today; "next <weekday>" = that weekday of next calendar week, always inside the window opened by week_start(next); weekend = Saturday, or today when the weekend is already underway; offsets bounded to 0..730; nothing resolves into the past). DELETE _RELATIVE_DAYS, _WEEKDAY_NAMES, the this/next prefix + suffix tables, the day-offset regexes, and the diacritic folding — every word-matching table goes. Keep AmbiguousDateError and today_in_timezone. Tests stay pure (no LLM): keep the 7-anchor sweep and the cross-form invariant, re-expressed over intents.</action>
+  <verify>cd apps/api &amp;&amp; ../../.venv/bin/python -m pytest tests/core/test_dates.py -q &amp;&amp; ruff check app/core</verify>
+  <done>No word table remains in core/dates.py; the arithmetic invariants still hold across all 7 anchors.</done>
+</task>
+```
+
+### Task 5.3 — `resolve_date` calls the parser, code computes
+
+```xml
+<task id="5.3" wave="6">
+  <files>app/tools/date_tools.py, tests/api/tools/test_date_tools.py</files>
+  <action>Rewrite resolve_date: (1) try parse_numeric_date — an ISO/DD-MM date costs zero tokens and zero latency; (2) otherwise call the LLM: `get_agent_llm("date_resolution").with_structured_output(DateIntent, method="function_calling")` (copy supervisor.py:57 — the function_calling method is deliberate), system = registry.get("date_resolution") with today/weekday/zone interpolated, human = the traveller's literal expression; (3) compute the date IN CODE from the returned intent — never take a date from the model; (4) apply the existing past-date guard and return the same summary string. kind == "ambiguous" -> ToolException carrying the model's reason (the only path that makes the agent ask). Any LLM/parse failure -> ToolException, never a raw exception. Tests: monkeypatch get_agent_llm to a FakeLLM(structured_responses=[...]) — the seam used by tests/api/tools/test_date_tools.py:21 — and cover: numeric fast-path takes ZERO LLM calls; a parsed intent computes the right date; ambiguous -> ToolException; past -> ToolException; an LLM exception -> ToolException, not a crash.</action>
+  <verify>cd apps/api &amp;&amp; mv .env .env.bak; DATABASE_URL=sqlite:///./s3.db ../../.venv/bin/python -m pytest tests/api/tools tests/tools/test_tool_registry.py -q; r=$?; mv .env.bak .env; rm -f s3.db; exit $r</verify>
+  <done>resolve_date resolves any language via the model but computes every date in code; no LLM call for numeric input; tests run offline on FakeLLM.</done>
+</task>
+```
+
+### Task 5.4 — The search tools' backstop is numeric-only now
+
+```xml
+<task id="5.4" wave="6">
+  <files>tests/api/tools/test_flight_tools_dates.py, tests/api/tools/test_hotel_tools_dates.py</files>
+  <action>search_flights/search_hotels still call resolve_travel_date as a backstop, but it no longer understands words — so a word expression passed straight to a search tool now raises ToolException telling the agent to call resolve_date first. That is the intended tightening: nothing previously FORCED the resolve_date round-trip the audit trail depends on, and now something does. Update the tests that pass "tomorrow"/relative words directly to a search tool: assert the ToolException and that its message names resolve_date, instead of asserting a silent resolution. Keep every numeric/ISO case passing unchanged, and keep the past-date + one-day-timezone-grace tests exactly as they are.</action>
+  <verify>cd apps/api &amp;&amp; mv .env .env.bak; DATABASE_URL=sqlite:///./s4.db ../../.venv/bin/python -m pytest tests/api/tools -q; r=$?; mv .env.bak .env; rm -f s4.db; exit $r</verify>
+  <done>Word input to a search tool fails loudly toward resolve_date; numeric input still resolves.</done>
+</task>
+```
+
+### Task 5.5 — Full suite + multilingual live probe
+
+```xml
+<task id="5.5" wave="7">
+  <files>specs/agent-date-resolution/SUMMARY.md</files>
+  <action>Full suite + ruff. Then rebuild the graph (`docker exec api-api-1 touch app/main.py`) and probe on FRESH thread_ids, checking the tool trace each time: "thứ 2 tuần tới" (the phrase that regressed), "thứ 6 tuần sau" (must be the Friday of next week, NOT +7), "next friday", a language the lexicon never covered, and a no-date message (must still ask exactly one question). Record every transcript, the resolved date, and the tool trace in SUMMARY.md ### Verify.</action>
+  <verify>cd apps/api &amp;&amp; make test</verify>
+  <done>Suite green; the probes show correct dates across languages with resolve_date -> search_flights in every trace, and no-date still asks once.</done>
+</task>
+```
+
 ## 5. Risks
 
 - **Weekday semantics are a convention, not a fact.** "Thứ 6" on a Friday could mean today or next

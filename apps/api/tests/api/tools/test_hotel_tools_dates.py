@@ -12,18 +12,18 @@ def _invoke(args: dict):
     )
 
 
-def test_relative_hotel_dates_resolve():
-    msg = _invoke(
-        {
-            "city": "Da Nang",
-            "check_in": "ngày mai",
-            "check_out": "ngày kia",
-            "rooms": 1,
-            "adults": 2,
-            "children": 0,
-        }
-    )
-    assert isinstance(msg.content, str) and msg.content
+def test_word_dates_are_rejected_toward_resolve_date():
+    with pytest.raises(ToolException, match="resolve_date"):
+        _invoke(
+            {
+                "city": "Da Nang",
+                "check_in": "ngày mai",
+                "check_out": "ngày kia",
+                "rooms": 1,
+                "adults": 2,
+                "children": 0,
+            }
+        )
 
 
 def test_unparseable_check_in_raises():

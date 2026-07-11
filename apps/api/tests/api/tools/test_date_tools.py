@@ -1,14 +1,16 @@
 from datetime import date, timedelta
+from unittest.mock import MagicMock
 
 import app.tools.date_tools as date_tools_module
 import pytest
 from app.core.config import get_settings
+from app.schemas.date_intent import DateIntent
 from app.tools.date_tools import resolve_date
 from langchain_core.tools import ToolException
 
 # Fixed "today" — mirrors tests/core/test_dates.py so tool-level expectations
-# cannot drift with the wall clock. A Thursday.
-TODAY = date(2026, 7, 9)
+# cannot drift with the wall clock. A Saturday.
+TODAY = date(2026, 7, 11)
 
 
 @pytest.fixture(autouse=True)
@@ -21,63 +23,110 @@ def fixed_today(monkeypatch):
     monkeypatch.setattr(date_tools_module, "today_in_timezone", lambda tz_name: TODAY)
 
 
-def test_relative_expression_resolves():
-    expected_iso = (TODAY + timedelta(days=1)).isoformat()
+class _ScriptedLLM:
+    """Fake structured-output LLM: records the messages it received and
+    returns one scripted :class:`DateIntent` (or raises, for provider-error
+    tests). Mirrors ``_RouterLLM`` in ``tests/agents/test_supervisor_language.py``.
+    """
 
-    summary = resolve_date.invoke({"expression": "tomorrow"})
+    def __init__(self, response=None, error=None):
+        self._response = response
+        self._error = error
+        self.received_messages = None
 
-    assert expected_iso in summary
+    def with_structured_output(self, *_a, **_k):
+        return self
 
-
-def test_weekday_expression_resolves():
-    delta = (4 - TODAY.weekday()) % 7  # Friday = 4
-    if delta == 0:
-        delta = 7
-    expected = TODAY + timedelta(days=delta)
-
-    summary = resolve_date.invoke({"expression": "next friday"})
-
-    # "next" prefix adds a further 7 days on top of the strictly-future Friday.
-    assert (expected + timedelta(days=7)).isoformat() in summary
+    def invoke(self, messages):
+        self.received_messages = messages
+        if self._error is not None:
+            raise self._error
+        return self._response
 
 
-def test_summary_contains_iso_weekday_and_grounded_today():
+def _patch_llm(monkeypatch, llm):
+    monkeypatch.setattr(date_tools_module, "get_agent_llm", lambda name: llm)
+
+
+def _no_llm_allowed(monkeypatch):
+    """Fail the test loudly if the numeric fast path ever calls the LLM getter."""
+    spy = MagicMock(side_effect=AssertionError("get_agent_llm must not be called"))
+    monkeypatch.setattr(date_tools_module, "get_agent_llm", spy)
+    return spy
+
+
+def test_numeric_iso_expression_resolves_with_zero_llm_calls(monkeypatch):
+    spy = _no_llm_allowed(monkeypatch)
+
+    summary = resolve_date.invoke({"expression": "2026-07-13"})
+
+    assert "2026-07-13" in summary
+    spy.assert_not_called()
+
+
+def test_numeric_day_month_expression_resolves_with_zero_llm_calls(monkeypatch):
+    spy = _no_llm_allowed(monkeypatch)
+
+    summary = resolve_date.invoke({"expression": "13/07"})
+
+    assert "2026-07-13" in summary
+    spy.assert_not_called()
+
+
+def test_word_expression_calls_llm_and_computes_from_intent(monkeypatch):
+    # Today is pinned to Sat 2026-07-11. "next monday" -> weekday=0, week="next"
+    # -> Monday of next calendar week -> 2026-07-13.
+    llm = _ScriptedLLM(response=DateIntent(kind="weekday", weekday=0, week="next"))
+    _patch_llm(monkeypatch, llm)
+
+    summary = resolve_date.invoke({"expression": "next monday"})
+
+    assert "2026-07-13" in summary
+    assert llm.received_messages is not None
+
+
+def test_system_prompt_interpolates_today_weekday_and_zone(monkeypatch):
+    llm = _ScriptedLLM(response=DateIntent(kind="relative_day", day_offset=1))
+    _patch_llm(monkeypatch, llm)
     tz_name = get_settings().agent_timezone
-    resolved = TODAY + timedelta(days=1)
 
-    summary = resolve_date.invoke({"expression": "tomorrow"})
+    resolve_date.invoke({"expression": "tomorrow-ish"})
 
-    assert resolved.isoformat() in summary
-    assert resolved.strftime("%A") in summary
-    assert TODAY.isoformat() in summary
-    assert tz_name in summary
-
-
-def test_summary_spells_out_month_so_it_cannot_be_misread():
-    # Finding 4: an ISO-only echo lets a day-first misreading survive
-    # unchallenged. The summary must spell the month out.
-    resolved = TODAY + timedelta(days=1)
-
-    summary = resolve_date.invoke({"expression": "tomorrow"})
-
-    assert resolved.strftime("%B") in summary  # full month name, not "07"/"04"
-    assert str(resolved.day) in summary
-    assert resolved.strftime("%A") in summary
+    assert llm.received_messages is not None
+    system_content = llm.received_messages[0].content
+    assert TODAY.isoformat() in system_content
+    assert TODAY.strftime("%A") in system_content
+    assert tz_name in system_content
+    assert "{{TODAY_DATE}}" not in system_content
+    assert "{{TODAY_WEEKDAY}}" not in system_content
+    assert "{{TIMEZONE}}" not in system_content
+    human_content = llm.received_messages[1].content
+    assert human_content == "tomorrow-ish"
 
 
-def test_ambiguous_expression_raises_toolexception_telling_agent_to_ask():
+def test_ambiguous_intent_raises_toolexception_with_model_reason(monkeypatch):
+    llm = _ScriptedLLM(
+        response=DateIntent(kind="ambiguous", reason="no date signal at all")
+    )
+    _patch_llm(monkeypatch, llm)
+
     with pytest.raises(ToolException) as exc_info:
         resolve_date.invoke({"expression": "someday"})
 
     message = str(exc_info.value)
-    assert "someday" in message
+    assert "no date signal at all" in message
     assert "ambiguous" in message.lower()
     assert "ask" in message.lower()
 
 
-def test_bare_month_year_raises_toolexception():
-    # A bare month/year (no day component) is ambiguous, not an invalid
-    # calendar date — resolve_travel_date raises AmbiguousDateError for it.
+def test_bare_month_year_raises_toolexception_without_calling_llm(monkeypatch):
+    # A bare month/year (no day component) is a numeric-shaped but ambiguous
+    # token — parse_numeric_date raises AmbiguousDateError for it, which
+    # falls through to the LLM. Script an ambiguous response so the tool's
+    # own message still surfaces cleanly.
+    llm = _ScriptedLLM(response=DateIntent(kind="ambiguous", reason="no day given"))
+    _patch_llm(monkeypatch, llm)
+
     with pytest.raises(ToolException) as exc_info:
         resolve_date.invoke({"expression": "07/2026"})
 
@@ -87,7 +136,9 @@ def test_bare_month_year_raises_toolexception():
     assert "ask" in message.lower()
 
 
-def test_invalid_calendar_date_raises_toolexception():
+def test_invalid_calendar_date_raises_toolexception_without_calling_llm(monkeypatch):
+    spy = _no_llm_allowed(monkeypatch)
+
     with pytest.raises(ToolException) as exc_info:
         resolve_date.invoke({"expression": "99/99/2026"})
 
@@ -95,12 +146,13 @@ def test_invalid_calendar_date_raises_toolexception():
     assert "99/99/2026" in message
     assert "not a valid date" in message.lower()
     assert "ask" in message.lower()
+    spy.assert_not_called()
 
 
 def test_past_date_is_rejected():
-    # Finding 2: resolve_date must not cheerfully echo back a past date —
-    # it's the sole date oracle now, exported over MCP without the
-    # search_flights-style past-date guard downstream.
+    # resolve_date must not cheerfully echo back a past date — it's the sole
+    # date oracle now, exported over MCP without the search_flights-style
+    # past-date guard downstream.
     with pytest.raises(ToolException) as exc_info:
         resolve_date.invoke({"expression": "2020-07-12"})
 
@@ -119,28 +171,51 @@ def test_past_date_allows_one_day_grace():
     assert yesterday in summary
 
 
-def test_overflow_from_resolver_converts_to_toolexception(monkeypatch):
-    # Finding 3: resolve_date is the public boundary — no bug in the resolver
-    # (bounded day-offsets or not) should ever escape as a raw OverflowError.
-    # Exercised directly against the tool's own except clause, independent of
-    # whatever guard app.core.dates puts around day-offsets internally.
-    def _raise_overflow(raw, today):
-        raise OverflowError("date value out of range")
-
-    monkeypatch.setattr(date_tools_module, "resolve_travel_date", _raise_overflow)
+def test_resolved_past_date_from_llm_intent_is_rejected(monkeypatch):
+    # The past-date guard applies uniformly after either path resolves an
+    # ISO date — exercise it via the LLM path with an explicit past year.
+    llm = _ScriptedLLM(response=DateIntent(kind="absolute", year=2020, month=7, day=12))
+    _patch_llm(monkeypatch, llm)
 
     with pytest.raises(ToolException) as exc_info:
-        resolve_date.invoke({"expression": "in 99999999999999999999999999 days"})
+        resolve_date.invoke({"expression": "12 tháng 7 năm 2020"})
 
     message = str(exc_info.value)
-    assert "not a valid date" in message.lower()
+    assert "2020-07-12" in message
+    assert "past" in message.lower()
+    assert "ask" in message.lower()
+
+
+def test_malformed_intent_from_model_raises_toolexception_not_crash(monkeypatch):
+    # weekday intent missing its `weekday` field — compute_from_intent treats
+    # this as malformed input and raises AmbiguousDateError rather than
+    # crashing on a None comparison.
+    llm = _ScriptedLLM(response=DateIntent(kind="weekday", weekday=None, week="bare"))
+    _patch_llm(monkeypatch, llm)
+
+    with pytest.raises(ToolException) as exc_info:
+        resolve_date.invoke({"expression": "some weekday"})
+
+    message = str(exc_info.value)
+    assert "ask" in message.lower()
+
+
+def test_llm_provider_error_raises_toolexception_not_crash(monkeypatch):
+    llm = _ScriptedLLM(error=RuntimeError("provider unavailable"))
+    _patch_llm(monkeypatch, llm)
+
+    with pytest.raises(ToolException) as exc_info:
+        resolve_date.invoke({"expression": "next friday"})
+
+    message = str(exc_info.value)
+    assert "next friday" in message
     assert "ask" in message.lower()
 
 
 def test_falls_back_to_settings_timezone_without_graph_runtime():
-    # Finding 1: outside a graph run (as in this unit test, or a direct/MCP
-    # call) there is no runtime to read AgentContext.timezone from, so the
-    # tool must fall back to the global setting rather than raise.
+    # Outside a graph run (as in this unit test, or a direct/MCP call) there
+    # is no runtime to read AgentContext.timezone from, so the tool must fall
+    # back to the global setting rather than raise.
     assert date_tools_module._grounding_timezone() == get_settings().agent_timezone
 
 

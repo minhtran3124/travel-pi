@@ -33,7 +33,14 @@ PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 # Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
 # config omits ``model``. Everything else defaults to the main ``llm_model``.
 FAST_AGENTS: frozenset[str] = frozenset(
-    {"summarize", "journal", "budget", "reflection", "extract_memory"}
+    {
+        "summarize",
+        "journal",
+        "budget",
+        "reflection",
+        "extract_memory",
+        "date_resolution",
+    }
 )
 
 # --- tooling --------------------------------------------------------------

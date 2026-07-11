@@ -1,46 +1,55 @@
-"""Deterministic resolution of the relative/weekday/partial travel-date forms.
+"""Deterministic resolution of travel-date expressions.
 
-A safety net beneath the LLM: rather than trusting the model to do date
-arithmetic in its head ("next Friday", "cuối tuần này"), the agent sends the
-traveller's literal expression through :func:`resolve_travel_date` and passes
-the resulting ISO date to a tool. This module owns every form travellers
-commonly type, so the LLM never has to compute a date itself.
+This module owns two language-independent halves. Understanding a
+traveller's phrasing ("next Friday", "cuối tuần này", 来週の月曜日) is a job
+for the ``date_resolution`` LLM (see ``app/tools/date_tools.py``); date
+arithmetic is not — a model can misjudge language, but it should never be
+trusted to add days in its head. So:
 
-Weekday/phrase semantics (pinned, not just "a sensible convention" — see
-:class:`AmbiguousDateError` for the alternative), all anchored to the
-**calendar week (Monday–Sunday)** so every form agrees with every other:
+- :func:`parse_numeric_date` is the zero-token fast path: pure numeric forms
+  (ISO, ``DD/MM``, ``DD/MM/YYYY``, ``YYYY/MM/DD``) that never need a model
+  call. No word is ever matched here.
+- :func:`compute_from_intent` takes a :class:`~app.schemas.date_intent.DateIntent`
+  — the *parsed* shape the model returns, never a date the model computed —
+  and turns it into an ISO date deterministically.
 
-- A **bare** weekday ("friday", "thứ 6") resolves to the next occurrence of
-  that weekday **strictly after** ``today`` — never today itself, never the
-  past.
-- A **"this"-prefixed** weekday ("this friday", "thứ 6 tuần này") resolves to
-  that weekday **within the current calendar week**. If it has already
-  passed this week, that's a guess (roll to next week? report an error?) —
-  raise :class:`AmbiguousDateError` instead of picking one.
-- A **"next"-prefixed** weekday ("next friday", "thứ 6 tuần sau") resolves to
-  that weekday **within the next calendar week** — i.e. Monday-of-next-week
-  plus the weekday offset. This intentionally lands inside the same 7-day
-  window as the bare "next week"/"tuần sau" phrase below, so
-  ``resolve("thứ 6 tuần sau")`` always falls within
-  ``[resolve("tuần sau"), resolve("tuần sau") + 6 days]``.
-- "next week" / "tuần sau" (bare, no weekday) -> the Monday of next calendar
-  week.
-- "this weekend" / "cuối tuần này" -> the Saturday of the current calendar
-  week — or **today**, if today already is that Saturday or the following
-  Sunday (the weekend "this week" refers to is already underway).
-- "next weekend" / "cuối tuần sau" -> the Saturday of next calendar week.
-- Nothing that would require guessing resolves at all — nothing this module
-  can't parse, or a bare month/year with no day, raises
-  :class:`AmbiguousDateError` instead.
+Both raise :class:`AmbiguousDateError` (a :class:`ValueError` subclass)
+rather than guess. Weekday/week semantics (pinned, not just "a sensible
+convention"), anchored to the **calendar week (Monday-Sunday)**:
+
+- A **bare** weekday (``week="bare"``) resolves to the next occurrence of
+  that weekday **strictly after** today — never today itself, never the past.
+- A **current-week** weekday (``week="current"``) resolves to that weekday
+  **within the current calendar week**. If it already passed, that's a guess
+  (roll to next week? report an error?) — raises :class:`AmbiguousDateError`
+  instead of picking one.
+- A **next-week** weekday (``week="next"``) resolves to that weekday
+  **within the next calendar week** — i.e. Monday-of-next-week plus the
+  weekday offset. This intentionally lands inside the same 7-day window as
+  ``week_start`` with ``week="next"``.
+- ``week_start`` -> the Monday of the current/next calendar week.
+- ``weekend`` with ``week="current"`` -> the Saturday of the current
+  calendar week — or **today**, if today already is that Saturday or the
+  following Sunday (the weekend is already underway). With ``week="next"``
+  -> the Saturday of next calendar week.
+- ``relative_day`` / ``offset`` -> today plus a day count, bounded to
+  0..730 days; outside that window, or missing, raises
+  :class:`AmbiguousDateError`.
+- ``absolute`` -> that calendar date; a null year picks the nearest future
+  occurrence of that day/month.
+- ``ambiguous`` -> raises :class:`AmbiguousDateError` carrying the model's
+  reason.
+- A malformed intent (a kind whose required fields are missing/out of
+  range) raises :class:`AmbiguousDateError` rather than crashing — the model
+  fills this field, so it is untrusted input.
 """
 
 from __future__ import annotations
 
-import re
 from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from app.core.text import fold_diacritics
+from app.schemas.date_intent import DateIntent
 
 
 class AmbiguousDateError(ValueError):
@@ -53,100 +62,9 @@ class AmbiguousDateError(ValueError):
     """
 
 
-# Relative day-words -> offset. Keys are diacritic-folded (see ``_normalize``,
-# applied to every token before lookup), so a single ASCII key matches both
-# accented ("hôm nay") and unaccented ("hom nay") traveller input.
-_RELATIVE_DAYS: dict[str, int] = {
-    "today": 0,
-    "hom nay": 0,
-    "tomorrow": 1,
-    "ngay mai": 1,
-    "mai": 1,
-    "day after tomorrow": 2,
-    "ngay kia": 2,
-    "mot": 2,
-}
-
-# Weekday names (English + Vietnamese, diacritics already folded — see
-# ``_normalize``) -> Python's Monday=0..Sunday=6.
-_WEEKDAY_NAMES: dict[str, int] = {
-    "monday": 0,
-    "tuesday": 1,
-    "wednesday": 2,
-    "thursday": 3,
-    "friday": 4,
-    "saturday": 5,
-    "sunday": 6,
-    "thu hai": 0,
-    "thu ba": 1,
-    "thu tu": 2,
-    "thu nam": 3,
-    "thu sau": 4,
-    "thu bay": 5,
-    "chu nhat": 6,
-}
-_SUNDAY_SHORTHAND = "cn"
-
-# VN numeric shorthand: "thứ 2".."thứ 7" / "thu 2".."thu 7" / "t2".."t7" ->
-# Monday(0)..Saturday(5) (Vietnamese numbers weekdays from Monday=2; Sunday
-# has no number, it's "Chủ Nhật"/"cn").
-_VN_NUMERIC_WEEKDAY_RE = re.compile(r"^t(?:hu)?\s*([2-7])$")
-
-_NEXT_PREFIX = "next "
-_THIS_PREFIX = "this "
-
-# "Next week" has several everyday Vietnamese spellings and a traveller picks
-# whichever they please — "tuần tới" is as common as "tuần sau". Matching only
-# one of them sends the rest to AmbiguousDateError, so the agent asks a question
-# about a phrase that was never ambiguous. Longest-first: " tuan ke tiep" must
-# be tried before " tuan ke", or the shorter one strips first and leaves "tiep".
-_NEXT_WEEK_SUFFIXES = (
-    " tuan ke tiep",
-    " tuan tiep theo",
-    " tuan sau",
-    " tuan toi",
-    " tuan ke",
-)
-_THIS_WEEK_SUFFIXES = (" tuan nay",)
-
-# The same phrases standing alone (no weekday), e.g. "sang tuần" = "next week".
-_NEXT_WEEK_WORDS = (
-    ("next week",) + tuple(s.strip() for s in _NEXT_WEEK_SUFFIXES) + ("sang tuan",)
-)
-_THIS_WEEKEND_WORDS = ("this weekend", "cuoi tuan nay")
-_NEXT_WEEKEND_WORDS = ("next weekend", "cuoi tuan sau", "cuoi tuan toi", "cuoi tuan ke")
-
-_DAY_OFFSET_EN_RE = re.compile(r"^in (\d+) days?$")
-_DAY_OFFSET_VN_RE = re.compile(r"^(\d+) ngay nua$")
-
 # Reject day offsets outside a sane travel-planning window rather than
-# letting an absurd offset ("in 99999999999999999999999999 days") reach
-# ``timedelta``/``date`` arithmetic, where it raises ``OverflowError`` —
-# not a ``ValueError``, so it would escape every ``except ValueError`` in
-# the tool layer (``date_tools``, ``flight_tools``, ``hotel_tools``).
+# letting an absurd offset reach ``timedelta``/``date`` arithmetic.
 _MAX_DAY_OFFSET = 730
-
-# Non-word characters (incl. punctuation) at the very start/end of a token,
-# e.g. the trailing "!" in "friday!" or "." in "thứ 6.". Anchored, so it
-# never touches meaningful *internal* separators like the "/" in "10/07".
-_EDGE_NOISE_RE = re.compile(r"^[^\w]+|[^\w]+$", re.UNICODE)
-
-
-def _normalize(raw: str) -> str:
-    """Normalize a raw token once, up front, for every branch below.
-
-    Lowercases, folds diacritics, strips leading/trailing punctuation, and
-    collapses internal whitespace — so cosmetic noise a traveller might add
-    ("friday!", "thứ 6.", double-spaced "hôm  nay") does not spuriously miss
-    every branch and raise :class:`AmbiguousDateError`, forcing a needless
-    follow-up question.
-
-    :param raw: The traveller-supplied token, not yet lowercased/stripped.
-    :return: The normalized token, ready for every branch below.
-    """
-    token = _EDGE_NOISE_RE.sub("", raw.strip().lower())
-    token = fold_diacritics(token)
-    return re.sub(r"\s+", " ", token).strip()
 
 
 def _monday_of_week(day: date) -> date:
@@ -156,53 +74,6 @@ def _monday_of_week(day: date) -> date:
     :return: The Monday on/before ``day``.
     """
     return day - timedelta(days=day.weekday())
-
-
-def _weekday_index(remainder: str) -> int | None:
-    """Match a (folded, modifier-stripped) token against a weekday name.
-
-    :param remainder: The token with any this/next modifier already removed.
-    :return: A ``Monday=0..Sunday=6`` index, or None if not a weekday name.
-    """
-    if remainder in _WEEKDAY_NAMES:
-        return _WEEKDAY_NAMES[remainder]
-    if remainder == _SUNDAY_SHORTHAND:
-        return 6
-    match = _VN_NUMERIC_WEEKDAY_RE.match(remainder)
-    if match:
-        return int(match.group(1)) - 2
-    return None
-
-
-def _parse_weekday_phrase(token: str) -> tuple[int, str] | None:
-    """Parse a normalized token as an optionally-modified weekday name.
-
-    Strips a trailing VN modifier (" tuan sau" / " tuan nay") or a leading EN
-    modifier ("next " / "this "), then matches what's left against a weekday
-    name.
-
-    :param token: The normalized (see :func:`_normalize`) token.
-    :return: ``(weekday, modifier)`` if ``token`` names a weekday, where
-        ``modifier`` is one of ``"bare"``, ``"this"``, ``"next"``; else None.
-    """
-    remainder, modifier = token, "bare"
-    for suffix in _NEXT_WEEK_SUFFIXES:
-        if remainder.endswith(suffix):
-            remainder, modifier = remainder[: -len(suffix)], "next"
-            break
-    else:
-        for suffix in _THIS_WEEK_SUFFIXES:
-            if remainder.endswith(suffix):
-                remainder, modifier = remainder[: -len(suffix)], "this"
-                break
-    if remainder.startswith(_NEXT_PREFIX):
-        remainder, modifier = remainder[len(_NEXT_PREFIX) :], "next"
-    elif remainder.startswith(_THIS_PREFIX):
-        remainder, modifier = remainder[len(_THIS_PREFIX) :], "this"
-    weekday = _weekday_index(remainder)
-    if weekday is None:
-        return None
-    return weekday, modifier
 
 
 def _next_occurrence_strictly_after(today: date, weekday: int) -> date:
@@ -218,63 +89,45 @@ def _next_occurrence_strictly_after(today: date, weekday: int) -> date:
     return today + timedelta(days=delta)
 
 
-def resolve_travel_date(raw: str, today: date) -> str:
-    """Normalize a relative/weekday/partial date expression to ISO ``YYYY-MM-DD``.
+def parse_numeric_date(raw: str, today: date) -> str:
+    """Parse a purely numeric date expression to ISO ``YYYY-MM-DD``.
 
-    Handles, case-insensitively: ISO dates (validated, returned unchanged —
-    the ISO and ``DD/MM(/YYYY)`` branches deliberately do not reject a past
-    date; see the module docstring), relative day-words (today/tomorrow, hôm
-    nay/ngày mai/ngày kia, bare mai/mốt), day-first ``DD/MM`` or
-    ``DD/MM/YYYY`` (a missing year picks the nearest future occurrence),
-    weekday names in English and Vietnamese (with and without diacritics,
-    including "thứ 2".."thứ 7"/"t2".."t7"/"cn"), optionally modified by
-    this/next ("next friday", "thứ 6 tuần sau", "thứ 6 tuần này" — see the
-    module docstring for the pinned calendar-week semantics), "next
-    week"/"tuần sau" (-> Monday of next week), "this weekend"/"cuối tuần
-    này" and "next weekend"/"cuối tuần sau", and day offsets ("in 3 days", "3
-    ngày nữa", bounded to 0..730 days).
+    The zero-token fast path: handles ISO dates (validated, returned
+    unchanged — deliberately does not reject a past date), day-first
+    ``DD/MM`` or ``DD/MM/YYYY`` (a missing year picks the nearest future
+    occurrence; a 2-digit year is read as 20xx), and ``YYYY/MM/DD`` (a
+    common model slip on the ISO format). No word is ever matched — a
+    non-numeric expression raises :class:`AmbiguousDateError` so the caller
+    can fall back to the ``date_resolution`` LLM.
 
-    Surrounding punctuation and doubled whitespace ("friday!", "thứ 6.",
-    "hôm  nay") are normalized away before matching, so cosmetic noise never
-    forces an avoidable :class:`AmbiguousDateError`.
-
-    :param raw: The traveller-supplied date token, possibly relative or partial.
-    :param today: The current date in the traveller's timezone (grounds relatives).
+    :param raw: The traveller-supplied date token.
+    :param today: The current date in the traveller's timezone (grounds a
+        missing year).
     :returns: An ISO ``YYYY-MM-DD`` date string.
-    :raises AmbiguousDateError: If ``raw`` cannot be resolved without guessing
-        (an unrecognized phrase, a bare month/year with no day, a "this
-        <weekday>" that already passed this week, or a day offset outside
-        the 0..730 day window). Subclasses ``ValueError``.
+    :raises AmbiguousDateError: If ``raw`` is not a numeric date, or is a
+        bare month/year with no day component.
     :raises ValueError: If ``raw`` is empty or names an invalid calendar date.
     """
     if not raw or not raw.strip():
         raise ValueError("empty date")
     try:
-        return _resolve_normalized(raw, today)
+        return _parse_numeric(raw.strip().lower(), today)
     except (OverflowError, OSError) as e:
-        # Belt-and-braces: an extreme numeric input (a huge year or day
-        # offset) can overflow C-level date/timedelta arithmetic and raise
-        # OverflowError/OSError instead of ValueError, which would escape
-        # every ``except ValueError`` in the tool layer. Anything that
-        # reaches here is unresolvable without guessing anyway.
+        # Belt-and-braces: guards against a huge numeric literal overflowing
+        # C-level date arithmetic in a way that isn't a plain ValueError,
+        # which would escape every ``except ValueError`` in the tool layer.
         raise AmbiguousDateError(f"{raw!r} is out of range: {e}") from e
 
 
-def _resolve_normalized(raw: str, today: date) -> str:
-    """Do the actual parsing/matching for :func:`resolve_travel_date`.
+def _parse_numeric(token: str, today: date) -> str:
+    """Do the actual numeric matching for :func:`parse_numeric_date`.
 
-    Split out so the top-level function can wrap it in one
-    ``OverflowError``/``OSError`` safety net (see its docstring) without
-    nesting that try/except around every branch below.
-
-    :param raw: The traveller-supplied date token (non-empty).
+    :param token: The lowercased, stripped date token.
     :param today: The current date in the traveller's timezone.
     :returns: An ISO ``YYYY-MM-DD`` date string.
-    :raises AmbiguousDateError: See :func:`resolve_travel_date`.
-    :raises ValueError: See :func:`resolve_travel_date`.
+    :raises AmbiguousDateError: See :func:`parse_numeric_date`.
+    :raises ValueError: See :func:`parse_numeric_date`.
     """
-    token = raw.strip().lower()
-
     # 1. Already ISO — validate and pass through untouched.
     try:
         return datetime.strptime(token, "%Y-%m-%d").date().isoformat()
@@ -284,8 +137,8 @@ def _resolve_normalized(raw: str, today: date) -> str:
     # 2. Slash/dash numeric forms.
     parts = token.replace("-", "/").split("/")
     if len(parts) in (2, 3) and all(p.isdigit() and p != "" for p in parts):
-        # 2a. YYYY/MM/DD — a common model slip on the ISO format (dashes expected).
-        # A 4-digit leading part is unambiguously a year, so read it ISO-order.
+        # 2a. YYYY/MM/DD — a common model slip on the ISO format (dashes
+        # expected). A 4-digit leading part is unambiguously a year.
         if len(parts) == 3 and len(parts[0]) == 4:
             return date(int(parts[0]), int(parts[1]), int(parts[2])).isoformat()
         # 2b. A 2-part token whose second half is a 4-digit year (e.g.
@@ -293,7 +146,9 @@ def _resolve_normalized(raw: str, today: date) -> str:
         # DD/MM (day 7, "month" 2026: invalid) or MM/YYYY with no day given.
         # Never guess which day of the month; raise instead.
         if len(parts) == 2 and len(parts[1]) == 4:
-            raise AmbiguousDateError(f"{raw!r} has no day component (bare month/year)")
+            raise AmbiguousDateError(
+                f"{token!r} has no day component (bare month/year)"
+            )
         # 2c. Day-first DD/MM/YYYY or DD/MM (year inferred).
         day, month = int(parts[0]), int(parts[1])
         if len(parts) == 3:
@@ -305,65 +160,122 @@ def _resolve_normalized(raw: str, today: date) -> str:
         try:
             candidate = date(today.year, month, day)
         except ValueError as e:
-            raise ValueError(f"invalid date {raw!r}") from e
+            raise ValueError(f"invalid date {token!r}") from e
         if candidate < today:
             candidate = date(today.year + 1, month, day)
         return candidate.isoformat()
 
-    # Everything below is matched against the normalized (folded,
-    # punctuation/whitespace-cleaned) token — including the relative
-    # day-words, which is why step 1 (ISO) and step 2 (slash/dash numeric)
-    # run first: normalization must never perturb a literal numeric date.
-    normalized = _normalize(raw)
+    raise AmbiguousDateError(f"not a numeric date: {token!r}")
 
-    # 3. Relative day-words.
-    if normalized in _RELATIVE_DAYS:
-        return (today + timedelta(days=_RELATIVE_DAYS[normalized])).isoformat()
 
-    # 4. Weekday names/shorthands, optionally this/next-modified.
-    parsed = _parse_weekday_phrase(normalized)
-    if parsed is not None:
-        weekday, modifier = parsed
-        if modifier == "next":
-            next_monday = _monday_of_week(today) + timedelta(days=7)
-            return (next_monday + timedelta(days=weekday)).isoformat()
-        if modifier == "this":
-            candidate = _monday_of_week(today) + timedelta(days=weekday)
-            if candidate < today:
-                raise AmbiguousDateError(f"{raw!r} already passed this calendar week")
-            return candidate.isoformat()
-        return _next_occurrence_strictly_after(today, weekday).isoformat()
+def compute_from_intent(intent: DateIntent, today: date) -> str:
+    """Turn a model-parsed :class:`DateIntent` into an ISO ``YYYY-MM-DD`` date.
 
-    # 5. "next week" / "tuần sau" / "tuần tới" / "sang tuần" (bare) -> Monday of
-    # next calendar week.
-    if normalized in _NEXT_WEEK_WORDS:
-        return (_monday_of_week(today) + timedelta(days=7)).isoformat()
+    Pure arithmetic — never guesses. ``intent`` is untrusted input (an LLM
+    fills it), so a malformed combination of fields raises
+    :class:`AmbiguousDateError` rather than crashing.
 
-    # 6. "this weekend" / "cuối tuần này" -> the Saturday of the current
-    # calendar week — or today, if the weekend is already underway.
-    if normalized in _THIS_WEEKEND_WORDS:
-        if today.weekday() in (5, 6):  # Sat or Sun: this weekend is now.
-            return today.isoformat()
-        return (_monday_of_week(today) + timedelta(days=5)).isoformat()
+    :param intent: The structured intent returned by the ``date_resolution``
+        model.
+    :param today: The current date in the traveller's timezone.
+    :returns: An ISO ``YYYY-MM-DD`` date string.
+    :raises AmbiguousDateError: If ``intent`` is ambiguous, malformed, or
+        resolves outside the supported range (see the module docstring for
+        the full semantics table).
+    :raises ValueError: If ``intent`` names an invalid calendar date.
+    """
+    try:
+        return _compute(intent, today)
+    except (OverflowError, OSError) as e:
+        raise AmbiguousDateError(f"{intent!r} is out of range: {e}") from e
 
-    # 7. "next weekend" / "cuối tuần sau" / "cuối tuần tới" -> Saturday of next week.
-    if normalized in _NEXT_WEEKEND_WORDS:
-        return (_monday_of_week(today) + timedelta(days=12)).isoformat()
 
-    # 8. Day offsets: "in N day(s)" / "N ngày nữa", bounded to a sane
-    # travel-planning window (see ``_MAX_DAY_OFFSET``).
-    offset_match = _DAY_OFFSET_EN_RE.match(normalized) or _DAY_OFFSET_VN_RE.match(
-        normalized
-    )
-    if offset_match:
-        offset = int(offset_match.group(1))
-        if offset > _MAX_DAY_OFFSET:
-            raise AmbiguousDateError(
-                f"{raw!r} is too far out ({offset} days; max {_MAX_DAY_OFFSET})"
-            )
+def _compute(intent: DateIntent, today: date) -> str:
+    """Do the actual per-kind arithmetic for :func:`compute_from_intent`.
+
+    :param intent: The structured intent returned by the model.
+    :param today: The current date in the traveller's timezone.
+    :returns: An ISO ``YYYY-MM-DD`` date string.
+    :raises AmbiguousDateError: See :func:`compute_from_intent`.
+    :raises ValueError: See :func:`compute_from_intent`.
+    """
+    kind = intent.kind
+
+    if kind == "absolute":
+        if intent.month is None or intent.day is None:
+            raise AmbiguousDateError("absolute intent missing month/day")
+        if intent.year is not None:
+            return date(intent.year, intent.month, intent.day).isoformat()
+        # No year given: this year, or next year if that date already passed.
+        try:
+            candidate = date(today.year, intent.month, intent.day)
+        except ValueError as e:
+            raise ValueError(f"invalid date in intent: {e}") from e
+        if candidate < today:
+            candidate = date(today.year + 1, intent.month, intent.day)
+        return candidate.isoformat()
+
+    if kind in ("relative_day", "offset"):
+        offset = intent.day_offset
+        if offset is None or not (0 <= offset <= _MAX_DAY_OFFSET):
+            raise AmbiguousDateError(f"day_offset out of range: {offset!r}")
         return (today + timedelta(days=offset)).isoformat()
 
-    raise AmbiguousDateError(f"unrecognized date {raw!r}")
+    if kind == "weekday":
+        weekday = intent.weekday
+        if weekday is None or not (0 <= weekday <= 6):
+            raise AmbiguousDateError(f"invalid weekday: {weekday!r}")
+        if intent.week == "next":
+            next_monday = _monday_of_week(today) + timedelta(days=7)
+            return (next_monday + timedelta(days=weekday)).isoformat()
+        if intent.week == "current":
+            candidate = _monday_of_week(today) + timedelta(days=weekday)
+            if candidate < today:
+                raise AmbiguousDateError("weekday already passed this calendar week")
+            return candidate.isoformat()
+        if intent.week == "bare":
+            return _next_occurrence_strictly_after(today, weekday).isoformat()
+        raise AmbiguousDateError(f"invalid week for weekday intent: {intent.week!r}")
+
+    if kind == "week_start":
+        if intent.week == "next":
+            return (_monday_of_week(today) + timedelta(days=7)).isoformat()
+        if intent.week == "current":
+            return _monday_of_week(today).isoformat()
+        raise AmbiguousDateError(f"invalid week for week_start intent: {intent.week!r}")
+
+    if kind == "weekend":
+        if intent.week == "next":
+            return (_monday_of_week(today) + timedelta(days=12)).isoformat()
+        if intent.week == "current":
+            if today.weekday() in (5, 6):  # Sat or Sun: this weekend is now.
+                return today.isoformat()
+            return (_monday_of_week(today) + timedelta(days=5)).isoformat()
+        raise AmbiguousDateError(f"invalid week for weekend intent: {intent.week!r}")
+
+    if kind == "ambiguous":
+        raise AmbiguousDateError(intent.reason or "ambiguous date expression")
+
+    raise AmbiguousDateError(f"unrecognized intent kind: {kind!r}")
+
+
+def resolve_travel_date(raw: str, today: date) -> str:
+    """Numeric-only alias of :func:`parse_numeric_date`.
+
+    Kept for the search tools' backstop (``flight_tools``/``hotel_tools``
+    call this by name), which only ever needs to validate an already-numeric
+    date. Word input now raises :class:`AmbiguousDateError` here — an
+    intentional tightening: a search tool receiving a word expression should
+    fail loudly toward ``resolve_date`` (the LLM-backed parser in
+    ``app/tools/date_tools.py``) rather than silently resolve it.
+
+    :param raw: The traveller-supplied date token.
+    :param today: The current date in the traveller's timezone.
+    :returns: An ISO ``YYYY-MM-DD`` date string.
+    :raises AmbiguousDateError: See :func:`parse_numeric_date`.
+    :raises ValueError: See :func:`parse_numeric_date`.
+    """
+    return parse_numeric_date(raw, today)
 
 
 def today_in_timezone(tz_name: str | None) -> date:

@@ -2,7 +2,14 @@ from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import pytest
-from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
+from app.core.dates import (
+    AmbiguousDateError,
+    compute_from_intent,
+    parse_numeric_date,
+    resolve_travel_date,
+    today_in_timezone,
+)
+from app.schemas.date_intent import DateIntent
 
 TODAY = date(2026, 7, 9)  # a Thursday
 
@@ -11,13 +18,6 @@ TODAY = date(2026, 7, 9)  # a Thursday
     "raw,expected",
     [
         ("2026-07-10", "2026-07-10"),
-        ("today", "2026-07-09"),
-        ("hôm nay", "2026-07-09"),
-        ("tomorrow", "2026-07-10"),
-        ("ngày mai", "2026-07-10"),
-        ("Ngày Mai", "2026-07-10"),
-        ("mai", "2026-07-10"),
-        ("ngày kia", "2026-07-11"),
         ("10/07/2026", "2026-07-10"),
         ("10-07-2026", "2026-07-10"),
         ("10/07", "2026-07-10"),
@@ -25,7 +25,8 @@ TODAY = date(2026, 7, 9)  # a Thursday
         ("2026/07/10", "2026-07-10"),  # YYYY/MM/DD slash form (model slip on ISO)
     ],
 )
-def test_resolves_simple_forms(raw, expected):
+def test_parse_numeric_date_resolves_numeric_forms(raw, expected):
+    assert parse_numeric_date(raw, TODAY) == expected
     assert resolve_travel_date(raw, TODAY) == expected
 
 
@@ -45,100 +46,137 @@ def test_today_in_timezone_none_uses_utc():
     assert today_in_timezone(None) == datetime.now(timezone.utc).date()
 
 
-@pytest.mark.parametrize("raw", ["", "   ", "someday"])
-def test_rejects_unresolvable(raw):
+@pytest.mark.parametrize("raw", ["", "   "])
+def test_parse_numeric_date_rejects_empty(raw):
     with pytest.raises(ValueError):
-        resolve_travel_date(raw, TODAY)
+        parse_numeric_date(raw, TODAY)
 
 
-@pytest.mark.parametrize("raw", ["someday", "gibberish date"])
-def test_unrecognized_phrase_raises_ambiguous(raw):
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "someday",
+        "gibberish date",
+        "tomorrow",
+        "friday",
+        "next friday",
+        "thứ 6 tuần sau",
+    ],
+)
+def test_parse_numeric_date_rejects_words(raw):
+    # The numeric fast path never matches a word — that's the LLM's job now.
     with pytest.raises(AmbiguousDateError):
-        resolve_travel_date(raw, TODAY)
+        parse_numeric_date(raw, TODAY)
 
 
 def test_invalid_calendar_date_raises_plain_valueerror():
     # "99/99" is just an invalid date (not ambiguous) -> a plain ValueError,
     # not the AmbiguousDateError subclass.
     with pytest.raises(ValueError) as exc_info:
-        resolve_travel_date("99/99", TODAY)
+        parse_numeric_date("99/99", TODAY)
     assert not isinstance(exc_info.value, AmbiguousDateError)
 
 
 def test_bare_month_year_raises_ambiguous():
     with pytest.raises(AmbiguousDateError):
-        resolve_travel_date("07/2026", TODAY)
+        parse_numeric_date("07/2026", TODAY)
+
+
+def test_resolve_travel_date_is_numeric_only_alias():
+    assert resolve_travel_date("2026-07-10", TODAY) == "2026-07-10"
+    with pytest.raises(AmbiguousDateError):
+        resolve_travel_date("tomorrow", TODAY)
+
+
+# --- compute_from_intent -----------------------------------------------
+
+
+def _intent(**kwargs) -> DateIntent:
+    return DateIntent(**kwargs)
 
 
 @pytest.mark.parametrize(
-    "raw,expected",
+    "intent,expected",
     [
+        # relative_day: today=0, tomorrow=1, day-after=2.
+        (_intent(kind="relative_day", day_offset=0), "2026-07-09"),
+        (_intent(kind="relative_day", day_offset=1), "2026-07-10"),
+        (_intent(kind="relative_day", day_offset=2), "2026-07-11"),
         # Bare weekday -> next occurrence strictly after today (TODAY = Thu
-        # 2026-07-09; the very next Friday is 07-10). Unchanged by the P0 fix.
-        ("friday", "2026-07-10"),
-        ("Friday", "2026-07-10"),
-        ("thứ 6", "2026-07-10"),
-        ("thu 6", "2026-07-10"),
-        ("t6", "2026-07-10"),
-        ("thứ Sáu", "2026-07-10"),
-        ("thu sau", "2026-07-10"),
+        # 2026-07-09; the very next Friday is 07-10).
+        (_intent(kind="weekday", weekday=4, week="bare"), "2026-07-10"),
         # Bare weekday equal to today's own weekday must roll to next week,
-        # never resolve to today (TODAY is a Thursday).
-        ("thursday", "2026-07-16"),
-        ("thứ 5", "2026-07-16"),
-        # "this"-prefixed weekday -> that weekday within the CURRENT
-        # calendar week (Mon 07-06..Sun 07-12); Friday hasn't passed yet.
-        ("this friday", "2026-07-10"),
-        ("thứ 6 tuần này", "2026-07-10"),
-        # "this <today's own weekday>" resolves to today itself: it hasn't
-        # passed "this week" — it IS this week, right now.
-        ("this thursday", "2026-07-09"),
-        # "next"-prefixed weekday -> Monday-of-next-week + weekday offset
-        # (week-anchored — NOT "strictly-future occurrence + 7 days", the
-        # P0 bug this fix corrects). These two coincide for a Thursday
-        # anchor since Friday is the very next day; see the dedicated
-        # multi-anchor regression tests below for the case that exposes
-        # the bug.
-        ("next friday", "2026-07-17"),
-        ("thứ 6 tuần sau", "2026-07-17"),
-        ("thu 6 tuan sau", "2026-07-17"),
-        # Sunday shorthand.
-        ("chủ nhật", "2026-07-12"),
-        ("chu nhat", "2026-07-12"),
-        ("cn", "2026-07-12"),
-        ("sunday", "2026-07-12"),
-        # "next week" / "tuần sau" -> Monday of next calendar week.
-        ("next week", "2026-07-13"),
-        ("tuần sau", "2026-07-13"),
-        ("tuan sau", "2026-07-13"),
-        # "this weekend" / "cuối tuần này" -> the coming Saturday.
-        ("this weekend", "2026-07-11"),
-        ("cuối tuần này", "2026-07-11"),
-        ("cuoi tuan nay", "2026-07-11"),
-        # "next weekend" / "cuối tuần sau" -> Saturday of NEXT calendar
-        # week. Previously unimplemented (raised AmbiguousDateError) even
-        # though the resolve_date tool docstring already advertised it.
-        ("next weekend", "2026-07-18"),
-        ("cuối tuần sau", "2026-07-18"),
-        ("cuoi tuan sau", "2026-07-18"),
-        # Day offsets.
-        ("in 3 days", "2026-07-12"),
-        ("in 1 day", "2026-07-10"),
-        ("3 ngày nữa", "2026-07-12"),
-        ("3 ngay nua", "2026-07-12"),
+        # never resolve to today (TODAY is a Thursday, weekday=3).
+        (_intent(kind="weekday", weekday=3, week="bare"), "2026-07-16"),
+        # week="current" -> that weekday within the CURRENT calendar week
+        # (Mon 07-06..Sun 07-12); Friday hasn't passed yet.
+        (_intent(kind="weekday", weekday=4, week="current"), "2026-07-10"),
+        # "current <today's own weekday>" resolves to today itself: it
+        # hasn't passed "this week" — it IS this week, right now.
+        (_intent(kind="weekday", weekday=3, week="current"), "2026-07-09"),
+        # week="next" -> Monday-of-next-week + weekday offset (week-anchored
+        # — NOT "strictly-future occurrence + 7 days", the P0 bug this
+        # module fixes). Coincides with the bare case for a Thursday anchor
+        # since Friday is the very next day; see the multi-anchor sweep
+        # below for the case that exposes the bug.
+        (_intent(kind="weekday", weekday=4, week="next"), "2026-07-17"),
+        # Sunday.
+        (_intent(kind="weekday", weekday=6, week="bare"), "2026-07-12"),
+        # week_start.
+        (_intent(kind="week_start", week="current"), "2026-07-06"),
+        (_intent(kind="week_start", week="next"), "2026-07-13"),
+        # weekend, current week: the coming Saturday.
+        (_intent(kind="weekend", week="current"), "2026-07-11"),
+        # weekend, next calendar week.
+        (_intent(kind="weekend", week="next"), "2026-07-18"),
+        # offset.
+        (_intent(kind="offset", day_offset=3), "2026-07-12"),
+        (_intent(kind="offset", day_offset=1), "2026-07-10"),
+        # absolute, year given.
+        (_intent(kind="absolute", year=2026, month=7, day=10), "2026-07-10"),
+        # absolute, no year -> nearest future occurrence (07-08 already
+        # passed this year, so 2027).
+        (_intent(kind="absolute", month=7, day=8), "2027-07-08"),
+        (_intent(kind="absolute", month=7, day=10), "2026-07-10"),
     ],
 )
-def test_resolves_weekday_and_phrase_forms(raw, expected):
-    assert resolve_travel_date(raw, TODAY) == expected
+def test_compute_from_intent_resolves_forms(intent, expected):
+    assert compute_from_intent(intent, TODAY) == expected
 
 
-def test_this_weekday_already_passed_raises_ambiguous():
+def test_compute_from_intent_current_weekday_already_passed_raises_ambiguous():
     # TODAY is Thursday 2026-07-09; Monday of this calendar week (07-06)
     # already passed. Asking beats silently rolling forward to next week.
     with pytest.raises(AmbiguousDateError):
-        resolve_travel_date("this monday", TODAY)
+        compute_from_intent(_intent(kind="weekday", weekday=0, week="current"), TODAY)
+
+
+def test_compute_from_intent_ambiguous_kind_raises_with_reason():
+    intent = _intent(kind="ambiguous", reason="traveller gave no date signal")
+    with pytest.raises(AmbiguousDateError, match="traveller gave no date signal"):
+        compute_from_intent(intent, TODAY)
+
+
+@pytest.mark.parametrize(
+    "intent",
+    [
+        # kind says weekday but weekday is None.
+        _intent(kind="weekday", week="bare"),
+        # kind says weekday but week is missing.
+        _intent(kind="weekday", weekday=4),
+        # kind says absolute but month/day missing.
+        _intent(kind="absolute", year=2026),
+        # kind says relative_day but day_offset missing.
+        _intent(kind="relative_day"),
+        # kind says week_start but week missing.
+        _intent(kind="week_start"),
+        # kind says weekend but week missing.
+        _intent(kind="weekend"),
+    ],
+)
+def test_compute_from_intent_malformed_raises_ambiguous_not_crash(intent):
     with pytest.raises(AmbiguousDateError):
-        resolve_travel_date("thứ 2 tuần này", TODAY)
+        compute_from_intent(intent, TODAY)
 
 
 # The 7 possible anchor weekdays for TODAY, Mon 2026-07-06..Sun 2026-07-12.
@@ -150,94 +188,71 @@ _WEEK_ANCHORS = [date(2026, 7, 6) + timedelta(days=i) for i in range(7)]
 
 @pytest.mark.parametrize("anchor", _WEEK_ANCHORS, ids=lambda d: d.strftime("%A"))
 def test_next_weekday_never_overshoots_next_week_window(anchor):
-    # "<weekday> tuần sau" must always land inside the 7-day window that
-    # starts at "tuần sau" (Monday of next week) — never Monday + 7 extra.
-    next_week_monday = date.fromisoformat(resolve_travel_date("tuần sau", anchor))
-    next_friday = date.fromisoformat(resolve_travel_date("thứ 6 tuần sau", anchor))
+    # weekday+week="next" must always land inside the 7-day window that
+    # week_start+week="next" opens — never Monday + 7 extra.
+    next_week_monday = date.fromisoformat(
+        compute_from_intent(_intent(kind="week_start", week="next"), anchor)
+    )
+    next_friday = date.fromisoformat(
+        compute_from_intent(_intent(kind="weekday", weekday=4, week="next"), anchor)
+    )
     assert next_friday == next_week_monday + timedelta(days=4)
     assert next_week_monday <= next_friday <= next_week_monday + timedelta(days=6)
-
-
-_NEXT_WEEK_SYNONYMS = ["tuần sau", "tuần tới", "tuần kế", "tuần tiếp theo"]
-
-
-@pytest.mark.parametrize("anchor", _WEEK_ANCHORS, ids=lambda d: d.strftime("%A"))
-def test_next_week_synonyms_resolve_identically(anchor):
-    # A traveller picks whichever spelling they please — "thứ 2 tuần tới" is as
-    # common as "thứ 2 tuần sau". Every synonym must land on the same day, or the
-    # unmatched ones raise AmbiguousDateError and the agent asks a needless
-    # question about a phrase that was never ambiguous (reported from the chat UI).
-    bare = {resolve_travel_date(s, anchor) for s in _NEXT_WEEK_SYNONYMS}
-    assert len(bare) == 1
-    assert resolve_travel_date("sang tuần", anchor) == bare.pop()
-
-    with_weekday = {
-        resolve_travel_date(f"thứ 2 {s}", anchor) for s in _NEXT_WEEK_SYNONYMS
-    }
-    assert with_weekday == {
-        resolve_travel_date("tuần sau", anchor)
-    }  # Monday of next week
-
-    weekend = {
-        resolve_travel_date(s, anchor) for s in ("cuối tuần sau", "cuối tuần tới")
-    }
-    assert len(weekend) == 1
 
 
 def test_next_weekday_matches_confirmed_bug_report_example():
     # Exact figures from the confirmed P0 finding (today = Sat 2026-07-11).
     today = date(2026, 7, 11)
-    assert resolve_travel_date("tuần sau", today) == "2026-07-13"
-    assert resolve_travel_date("thứ 2 tuần sau", today) == "2026-07-13"
-    assert resolve_travel_date("thứ 6 tuần sau", today) == "2026-07-17"
+    assert (
+        compute_from_intent(_intent(kind="week_start", week="next"), today)
+        == "2026-07-13"
+    )
+    assert (
+        compute_from_intent(_intent(kind="weekday", weekday=0, week="next"), today)
+        == "2026-07-13"
+    )
+    assert (
+        compute_from_intent(_intent(kind="weekday", weekday=4, week="next"), today)
+        == "2026-07-17"
+    )
 
 
 @pytest.mark.parametrize("anchor", _WEEK_ANCHORS, ids=lambda d: d.strftime("%A"))
-def test_this_weekend_is_current_week_saturday_or_today(anchor):
-    resolved = date.fromisoformat(resolve_travel_date("this weekend", anchor))
+def test_weekend_current_is_that_weeks_saturday_or_today(anchor):
+    resolved = date.fromisoformat(
+        compute_from_intent(_intent(kind="weekend", week="current"), anchor)
+    )
     if anchor.weekday() in (5, 6):  # Sat/Sun: the weekend is already now.
         assert resolved == anchor
     else:
         assert resolved == date(2026, 7, 11)  # Saturday of that same week.
 
 
-def test_next_weekend_is_saturday_of_next_week():
-    assert resolve_travel_date("next weekend", TODAY) == "2026-07-18"
-    assert resolve_travel_date("cuối tuần sau", TODAY) == "2026-07-18"
-    assert resolve_travel_date("cuoi tuan sau", TODAY) == "2026-07-18"
-
-
-@pytest.mark.parametrize(
-    "raw,expected",
-    [
-        ("friday!", "2026-07-10"),
-        ("thứ 6.", "2026-07-10"),
-        ("hôm  nay", "2026-07-09"),
-        ("  Friday  ", "2026-07-10"),
-        ("next friday?", "2026-07-17"),
-    ],
-)
-def test_punctuation_and_whitespace_noise_does_not_block_resolution(raw, expected):
-    assert resolve_travel_date(raw, TODAY) == expected
-
-
-@pytest.mark.parametrize(
-    "raw",
-    [
-        "in 99999999999999999999999999 days",
-        "3000000 ngày nữa",
-        "in 731 days",
-    ],
-)
-def test_day_offset_outside_window_raises_ambiguous_not_overflow(raw):
-    # OverflowError (not ValueError) must never escape this function —
-    # every caller in the tool layer only catches ValueError/AmbiguousDateError.
-    with pytest.raises(AmbiguousDateError):
-        resolve_travel_date(raw, TODAY)
-
-
-def test_day_offset_at_max_window_resolves():
+def test_weekend_next_is_saturday_of_next_week():
     assert (
-        resolve_travel_date("in 730 days", TODAY)
+        compute_from_intent(_intent(kind="weekend", week="next"), TODAY) == "2026-07-18"
+    )
+
+
+@pytest.mark.parametrize("day_offset", [-1, 731, 3_000_000])
+def test_offset_outside_window_raises_ambiguous(day_offset):
+    with pytest.raises(AmbiguousDateError):
+        compute_from_intent(_intent(kind="offset", day_offset=day_offset), TODAY)
+    with pytest.raises(AmbiguousDateError):
+        compute_from_intent(_intent(kind="relative_day", day_offset=day_offset), TODAY)
+
+
+def test_offset_at_max_window_resolves():
+    assert (
+        compute_from_intent(_intent(kind="offset", day_offset=730), TODAY)
         == (TODAY + timedelta(days=730)).isoformat()
     )
+
+
+def test_unrecognized_kind_raises_ambiguous_not_crash():
+    # Pydantic's Literal validation would normally reject this at
+    # construction, but guard the arithmetic layer too in case a caller
+    # bypasses the schema (e.g. constructs via model_construct).
+    intent = DateIntent.model_construct(kind="bogus")
+    with pytest.raises(AmbiguousDateError):
+        compute_from_intent(intent, TODAY)

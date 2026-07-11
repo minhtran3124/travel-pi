@@ -3,6 +3,34 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-date-resolution Phase 5 — new `date_resolution` prompt (LLM parses, code computes)
+
+specs/agent-date-resolution §4b: the hardcoded weekday/phrase word tables in
+`app/core/dates.py` are a treadmill — patching one missed phrase at a time
+never converges, and only ever covers the languages we thought to hardcode.
+Replaced with a new `date_resolution` prompt family: a small, fast model
+reads the traveller's date wording and returns a **structured intent**
+(`kind` + kind-specific fields) — never a computed date. All date arithmetic
+stays in code (`app/core/dates.py`, wired in a follow-up task), so a misread
+phrase is visible and testable in the trace, and a wrong `+7` (the earlier
+P0) becomes impossible because the model never does arithmetic at all.
+
+- **date_resolution v1** — new prompt. Covers every intent kind (`absolute`,
+  `relative_day`, `weekday`, `week_start`, `weekend`, `offset`, `ambiguous`)
+  with few-shot `input -> intent` examples spanning Vietnamese (with and
+  without diacritics), English, Japanese, and Spanish. Pins the conventions
+  the model maps onto — bare weekday = next occurrence strictly after today;
+  "this <weekday>" = current calendar week; "next <weekday>" = next calendar
+  week — and is explicit that `ambiguous` is the safe answer for "no date at
+  all" or genuinely multiple readings, not for merely unusual phrasing
+  ("tuần tới" is ordinary, not ambiguous — the old lexicon's failure mode).
+
+`active.yaml`: date_resolution → 1 (new). Added to `FAST_AGENTS`
+(`app/agents/constants.py`) so it resolves to the cheap model, and to
+`AGENT_CONFIG_NODES` / `AGENT_DESCRIPTIONS` (`app/data/agent_config.py`) so
+it is configurable from the dashboard like every other node. Others
+unchanged.
+
 ## agent-date-resolution (follow-up) — planner missed by the date rewrite
 
 Code review on `feat/agent-date-resolution` found that the `booking v6` date
