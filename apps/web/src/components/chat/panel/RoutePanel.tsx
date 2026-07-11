@@ -116,7 +116,7 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
     <div className="flex h-full flex-col">
       <div ref={containerRef} className="min-h-0 flex-1" aria-label={t("route.mapLabel")} />
 
-      <div className="border-t border-line bg-white px-lg py-md">
+      <div className="border-t border-line bg-panel px-lg py-md">
         <div className="flex items-center justify-between gap-md">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-ink">
@@ -135,7 +135,7 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
             href={data.gmaps_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 rounded-full border border-line px-md py-xs text-xs font-medium text-ink transition hover:bg-surface"
+            className="shrink-0 rounded-full border border-line px-md py-xs text-xs font-medium text-ink transition hover:bg-panel-raised"
           >
             {t("route.openInGoogleMaps")}
           </a>
@@ -147,8 +147,8 @@ export function RoutePanel({ data }: { data: RoutePanelData }) {
               key={l.mode}
               className={`rounded-full px-sm py-xs text-xs ${
                 l.mode === data.recommended_mode
-                  ? "bg-ink text-white"
-                  : "bg-surface text-muted"
+                  ? "bg-ink text-on-ink"
+                  : "bg-panel-raised text-muted"
               }`}
             >
               {t("route.legChip", {

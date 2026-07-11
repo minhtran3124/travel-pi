@@ -53,7 +53,7 @@ function ForecastCard({ day, isToday }: { day: WeatherPanelDay; isToday: boolean
   const glow = (CONDITION[day.condition] ?? CONDITION.rain).glow;
   return (
     <div
-      className="relative flex flex-col items-center gap-1.5 overflow-hidden rounded-[12px] border border-line bg-surface px-2.5 py-3 text-center"
+      className="relative flex flex-col items-center gap-1.5 overflow-hidden rounded-[12px] border border-line bg-panel-raised px-2.5 py-3 text-center"
       style={
         isToday
           ? { borderColor: `rgba(${glow}, .55)`, boxShadow: `0 0 0 1px rgba(${glow}, .25)` }
