@@ -1,0 +1,164 @@
+"""Task 4.1 — supervisor slot extraction + secondary intent (MIN-65 DESIGN D3)."""
+
+from types import SimpleNamespace
+
+from app.agents.context import AgentContext
+from langchain_core.messages import HumanMessage
+
+
+def _runtime(ctx: AgentContext | None = None) -> SimpleNamespace:
+    """Minimal runtime stand-in matching the Runtime[AgentContext] interface."""
+    return SimpleNamespace(context=ctx if ctx is not None else AgentContext())
+
+
+# ---------------------------------------------------------------------------
+# Date slots — resolvable vs. unresolvable
+# ---------------------------------------------------------------------------
+
+
+def test_resolvable_dates_land_in_trip_facts_as_iso():
+    from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(
+        target_agent="planner",
+        slots=ExtractedSlots(start_date_text="2026-08-15", end_date_text="20/08/2026"),
+    )
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor(
+        {"messages": [HumanMessage(content="plan a trip 15/8 to 20/8")]}, _runtime()
+    )
+
+    assert cmd.update["trip_facts"] == {
+        "start_date": "2026-08-15",
+        "end_date": "2026-08-20",
+    }
+
+
+def test_unresolvable_date_text_is_dropped_not_set_none():
+    from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(
+        target_agent="planner",
+        slots=ExtractedSlots(start_date_text="garbled nonsense", end_date_text=None),
+    )
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor({"messages": [HumanMessage(content="plan a trip")]}, _runtime())
+
+    assert "start_date" not in cmd.update["trip_facts"]
+    assert "end_date" not in cmd.update["trip_facts"]
+    assert cmd.update["trip_facts"] == {}
+
+
+# ---------------------------------------------------------------------------
+# Count slots — adults/children/rooms
+# ---------------------------------------------------------------------------
+
+
+def test_positive_counts_land_in_trip_facts():
+    from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(
+        target_agent="planner",
+        slots=ExtractedSlots(adults=2, children=1, rooms=1),
+    )
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor(
+        {"messages": [HumanMessage(content="2 adults 1 child 1 room")]}, _runtime()
+    )
+
+    assert cmd.update["trip_facts"] == {"adults": 2, "children": 1, "rooms": 1}
+
+
+def test_zero_negative_or_absent_counts_are_dropped():
+    from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(
+        target_agent="planner",
+        slots=ExtractedSlots(adults=0, children=-1, rooms=None),
+    )
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor({"messages": [HumanMessage(content="hmm")]}, _runtime())
+
+    assert cmd.update["trip_facts"] == {}
+
+
+# ---------------------------------------------------------------------------
+# Secondary intent gating
+# ---------------------------------------------------------------------------
+
+
+def test_booking_target_forces_secondary_to_empty_even_if_llm_set_one():
+    from app.agents.supervisor import SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(target_agent="booking", secondary_agent="concierge")
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor(
+        {"messages": [HumanMessage(content="book the hotel and find me food")]},
+        _runtime(),
+    )
+
+    assert cmd.update["pending_flows"] == []
+
+
+def test_valid_distinct_secondary_queues_pending_flow():
+    from app.agents.supervisor import SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor(
+        {"messages": [HumanMessage(content="find a flight and tell me about food")]},
+        _runtime(),
+    )
+
+    assert cmd.update["pending_flows"] == ["concierge"]
+
+
+def test_secondary_equal_to_target_is_dropped():
+    from app.agents.supervisor import SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(target_agent="planner", secondary_agent="planner")
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
+
+    assert cmd.update["pending_flows"] == []
+
+
+# ---------------------------------------------------------------------------
+# Regression: no slots mentioned -> routing behavior unchanged
+# ---------------------------------------------------------------------------
+
+
+def test_no_slots_mentioned_routing_unchanged():
+    from app.agents.supervisor import SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    llm = FakeLLM(structured_responses=[SupervisorIntent(target_agent="planner")])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
+
+    assert cmd.goto == "planner"
+    assert cmd.update["current_flow"] == "planner"
+    assert cmd.update["trip_facts"] == {}
+    assert cmd.update["pending_flows"] == []
