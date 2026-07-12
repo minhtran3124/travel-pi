@@ -26,7 +26,13 @@ from app.agents.constants import DEFAULT_MAX_REVISIONS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
-from app.memory.store import get_instructions, get_profile
+from app.memory.store import (
+    PROFILE_KEYS,
+    MemoryKind,
+    get_instructions,
+    get_profile,
+    search_memory_typed,
+)
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -95,6 +101,25 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
                 logger.info("[agent] node=load_context profile=%d", len(profile))
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
+
+        # Best-effort: recency-ordered full-read of traveller preferences (MIN-65
+        # DESIGN D2 — bounded full-read beats semantic search at this store size),
+        # excluding PROFILE_KEYS since those already surface via the profile block
+        # above. search_memory_typed (not search_preferences) is used because it
+        # preserves each preference's store key, needed both to filter and to
+        # format the "- {key}: {value}" lines below.
+        try:
+            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
+            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
+            if non_profile:
+                result["preferences"] = "\n".join(
+                    f"- {p.key}: {p.text}" for p in non_profile
+                )
+                logger.info(
+                    "[agent] node=load_context preferences=%d", len(non_profile)
+                )
+        except Exception:
+            logger.exception("[agent] load_context: preferences load failed")
     return result
 
 
