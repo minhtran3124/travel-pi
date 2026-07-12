@@ -9,7 +9,7 @@ def test_versions_returns_sorted_ints():
 
 
 def test_active_version_matches_active_yaml():
-    assert registry.active_version("supervisor") == 5
+    assert registry.active_version("supervisor") == 6
 
 
 def test_active_version_falls_back_to_max_when_absent_from_active_yaml(tmp_path):
