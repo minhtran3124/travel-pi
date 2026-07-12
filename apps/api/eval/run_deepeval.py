@@ -55,7 +55,8 @@ def build_test_cases(graph, datasets: dict[str, list[dict]]) -> list:
                 test_case.retrieval_context = keys
                 cases.append(test_case)
             else:
-                print(f"[eval] skip (empty reply): {case['input'][:60]}")
+                preview = case.get("input") or " / ".join(case.get("turns", []))
+                print(f"[eval] skip (empty reply): {preview[:60]}")
     return cases
 
 
