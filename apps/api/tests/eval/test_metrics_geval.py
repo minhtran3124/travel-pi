@@ -21,12 +21,15 @@ def test_judge_is_openai_native_string():
     assert JUDGE_MODEL == "gpt-4o-mini"
 
 
-def test_geval_registry_has_four_dimensions():
+def test_geval_registry_has_six_dimensions():
+    # MIN-65 D9 adds memory_recall + suggestion_relevance to the MIN-58 four.
     assert set(GEVAL_METRICS) == {
         "response_language",
         "search_vs_booking",
         "no_hallucination",
         "format_quality",
+        "memory_recall",
+        "suggestion_relevance",
     }
 
 

@@ -28,18 +28,31 @@ def build_test_cases(graph, datasets: dict[str, list[dict]]) -> list:
     empty ``actual_output`` (``MissingTestCaseParamsError``). Each case gets a
     globally-unique index → unique checkpointer thread id (no cross-case bleed).
     """
+    from app.agents.suggestions import suggestions_for_flow
+
     from eval.harness import run_case
 
     cases = []
     index = 0
     for items in datasets.values():
         for case in items:
-            test_case = run_case(graph, case, index).test_case
+            result = run_case(graph, case, index)
+            test_case = result.test_case
             index += 1
             if (test_case.actual_output or "").strip():
                 # Carry the case's declared rubrics so each G-Eval metric scores
                 # only the cases that opted into it (see cases_for_metric).
-                test_case.metadata = {"metrics": case.get("metrics", [])}
+                # Also attach the follow-up suggestion keys routed for this
+                # case's final flow — suggestion_relevance's deterministic
+                # layer checks them for non-emptiness + catalog membership,
+                # and its GEval half reads them back via retrieval_context.
+                keys = suggestions_for_flow(result.current_flow)
+                test_case.metadata = {
+                    **(test_case.metadata or {}),
+                    "metrics": case.get("metrics", []),
+                    "suggestions": keys,
+                }
+                test_case.retrieval_context = keys
                 cases.append(test_case)
             else:
                 print(f"[eval] skip (empty reply): {case['input'][:60]}")
@@ -64,6 +77,41 @@ def cases_for_metric(key: str, cases: list) -> list:
     misleading denominator. Each rubric now scores only its declared cases.
     """
     return [tc for tc in cases if key in (tc.metadata or {}).get("metrics", [])]
+
+
+def known_suggestion_keys() -> set:
+    """All valid suggestion keys (``flow.subkey``) from the current catalog.
+
+    Single source of truth: ``app.agents.suggestions._FLOW_SUGGESTIONS``. As
+    MIN-65 task 6.1 grows the catalog, this membership check follows
+    automatically — no change needed here.
+    """
+    from app.agents.suggestions import _FLOW_SUGGESTIONS
+
+    return {key for keys in _FLOW_SUGGESTIONS.values() for key in keys}
+
+
+def suggestion_relevance_deterministic(cases: list) -> dict:
+    """Deterministic pass/fail for ``suggestion_relevance``: non-empty + known keys.
+
+    Measures the ticket's acceptance criterion (>=80% of responses carry a
+    relevant suggestion) without an LLM judge call. A case "passes" when its
+    attached suggestions are non-empty AND every key belongs to the known
+    catalog — an unknown/typo'd key is as much a failure as no suggestion.
+    """
+    catalog = known_suggestion_keys()
+    scored = cases_for_metric("suggestion_relevance", cases)
+    passed = 0
+    for tc in scored:
+        keys = (tc.metadata or {}).get("suggestions", [])
+        if keys and all(k in catalog for k in keys):
+            passed += 1
+    total = len(scored)
+    return {
+        "total": total,
+        "passed": passed,
+        "rate": (passed / total) if total else 0.0,
+    }
 
 
 def main() -> int:
@@ -94,6 +142,16 @@ def main() -> int:
             evaluate(test_cases=subset, metrics=[factory()])
         else:
             print(f"[eval] no cases declare metric '{key}' — skipped.")
+
+    # Deterministic suggestion_relevance layer: measures the ticket's AC
+    # (>=80% of responses carry a relevant, catalog-valid suggestion) without
+    # a judge call — runs independently of the GEval pass above.
+    det = suggestion_relevance_deterministic(test_cases)
+    if det["total"]:
+        print(
+            f"[eval] suggestion_relevance (deterministic): "
+            f"{det['passed']}/{det['total']} ({det['rate']:.0%})"
+        )
 
     # ToolCorrectness only where the case declares expected tools, else it
     # penalizes legitimate tool calls on cases that never specified any.
