@@ -22,8 +22,6 @@ Scope-deciding answers at intake (AskUserQuestion):
 
 ## What changed
 
-<!-- filled at execution -->
-
 `app/streaming/panels.py` (593 lines, 6 panel kinds) becomes a package `app/streaming/panels/`
 with `base.py` (registry + shared helpers) and one module per kind. Each module owns its
 projection model, its `vi` lookup tables, and its localize function, and registers itself.
@@ -51,21 +49,44 @@ string with no caller checking it — enforceable.
 
 ### Deviations
 
-<!-- filled at execution -->
-
-- none
+- **PLAN gap (task 2.1 `<files>`)** — the file set omitted `tests/streaming/test_mapper_language.py` and
+  `tests/streaming/test_panel_language_e2e.py`, which reach for `panel_localizer.WEATHER_VI` /
+  `panel_localizer.CATEGORY_VI` directly. The subagent correctly STOPPED at its scope boundary rather
+  than widen it; the controller repointed both imports at the panel modules (import lines only — zero
+  assertion edits) and re-verified. Root cause: the intake grep for panel-module coupling matched on
+  `from app.streaming.panels import`, which these two files do not use — they go through
+  `panel_localizer`'s namespace. Commit `5465cd6`.
+- **Rule 3** — the `ruff-on-edit` hook stripped the new `get_panel` import from `app/tools/_base.py`
+  twice (added before its usage existed), the known [[ruff-on-edit-strips-unused-imports]] gotcha;
+  re-added once the usage landed. Same hook cosmetically re-wrapped one pre-existing line in
+  `log_tool_call` — no logic touched. Commit `5465cd6`.
+- **Rule 1** — deleted the dead `PanelKind = Literal[...]` (re-grepped: zero importers across `app/`
+  and `tests/`). `panel_kinds()` is its live replacement. Commit `0f8b22f`.
+- **Not fixed (pre-existing, left alone per surgical-changes rule):** `ruff format --check` flags
+  `tests/streaming/test_flights_panel.py`, and `ruff check app tests` reports 6 errors in
+  `tests/agents/test_hotel_search_intent.py`, `tests/api/expense/test_expense_repo.py`,
+  `tests/memory/test_structured_namespaces.py`. All confirmed to have zero diff vs `v3` — not ours.
 
 ### Verify
 
-<!-- filled at execution — one row per check actually RUN -->
-
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
+| Baseline (pre-refactor) | `pytest tests/streaming tests/tools tests/api/agent/test_stream_events.py -q` | 0 | 188 passed — the number the refactor had to preserve |
+| Panels + tools + stream (post) | `pytest tests/streaming tests/tools tests/api/agent/test_stream_events.py -q` | 0 | 196 passed = 188 baseline + 8 new `test_panel_result.py`. **Zero existing assertions edited** — the proof the SSE payload is unchanged |
+| Full BE suite | `../../.venv/bin/python -m pytest -q` | 0 | 1522 passed, 55.9s |
+| Lint (changed files) | `ruff check app/streaming app/tools tests/streaming tests/tools` | 0 | All checks passed |
+| Format (changed files) | `ruff format --check app/streaming app/tools` | 0 | 27 files already formatted |
+| Registry is live | `python -c "from app.streaming.panels import panel_kinds; print(sorted(panel_kinds()))"` | 0 | `['air_quality', 'flights', 'hotels', 'places', 'route', 'weather']` |
 
 ### Rollback
 
-- `git revert <sha>` (pure refactor; no migration, no data change)
+- `git revert <sha>` (pure refactor; no migration, no data change, no FE change)
 
 ### Harness-Delta
 
-- none
+- **backlog → `/compound`.** The `blast-radius` PostToolUse hook checked every edit in this feature
+  against a **stale active plan** (`specs/min-54-chat-ui-polish/PLAN.md` — a long-shipped feature),
+  so it warned on every file even though all of them are listed in this feature's `PLAN.md` `<files>`
+  sets. Both wave subagents flagged it independently. A hook that cries wolf on 100% of correct edits
+  trains everyone to ignore it, which is exactly when it would have caught real scope creep. The
+  active-plan pointer needs to resolve to the plan the work is actually running under.
