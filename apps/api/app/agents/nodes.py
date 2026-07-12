@@ -6,6 +6,8 @@
 - ``make_reflection_node``: bounded self-correction — critiques the last answer
   and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
+- ``dispatch_next``: pure-code multi-intent router — sends the turn to a queued
+  secondary sub-agent, or on to reflection once the queue is empty (MIN-65 D4).
 
 Post-turn memory extraction no longer runs in-graph — see
 ``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
@@ -228,3 +230,27 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
+
+
+def dispatch_next(state: TravelAgentState) -> Command:
+    """Route to a queued secondary sub-agent, or on to reflection (MIN-65 D4).
+
+    Pure-code multi-intent dispatcher — no LLM call. Every sub-agent's static
+    edge points here instead of straight to ``reflection``, so a supervisor
+    that queued a second, distinct intent in ``pending_flows`` (bounded to one
+    entry, never "booking" — see ``app.agents.supervisor``) gets that second
+    sub-agent run in the same turn before reflection reviews the final answer.
+    The second sub-agent sees the first one's messages in state, so it
+    naturally continues the thread (e.g. "the flight picked above").
+
+    :param state: The current graph state; reads ``pending_flows``.
+    :return: A ``Command`` routing to the next queued sub-agent (draining the
+        queue and updating ``current_flow``), or to ``reflection`` once empty.
+    """
+    pending = state.get("pending_flows") or []
+    if pending:
+        nxt, rest = pending[0], pending[1:]
+        logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
+        return Command(update={"current_flow": nxt, "pending_flows": rest}, goto=nxt)
+    logger.info("[agent] dispatch_next → reflection (queue empty)")
+    return Command(goto="reflection")
