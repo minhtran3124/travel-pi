@@ -101,6 +101,10 @@ class SearchHotelsArgs(AppBaseModel):
             "separate `breakfast_included` field on the hotel, not an amenity tag."
         ),
     )
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class BrowseHotelsArgs(AppBaseModel):
@@ -121,6 +125,10 @@ class BrowseHotelsArgs(AppBaseModel):
             "(case/typo/substring tolerant). Does not include breakfast — that's a "
             "separate `breakfast_included` field on the hotel, not an amenity tag."
         ),
+    )
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
     )
 
 

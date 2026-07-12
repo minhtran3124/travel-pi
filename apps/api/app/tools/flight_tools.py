@@ -73,6 +73,10 @@ class SearchFlightsArgs(AppBaseModel):
     )
     max_stops: int | None = Field(None, description="Optional maximum number of stops.")
     sort: FlightSort = Field("departure_asc", description="Result ordering.")
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 @tool(args_schema=SearchFlightsArgs, response_format="content_and_artifact")

@@ -106,22 +106,67 @@ def _facing(tool):
 def test_search_hotels_preferences_hidden_from_schema():
     fields = _facing(search_hotels)
     assert "preferences" not in fields
-    assert set(fields) == set(SearchHotelsArgs.model_fields)
+    # `preferences` is declared on SearchHotelsArgs (not just the function
+    # signature) so LangGraph's ToolNode treats it as optional when a caller's
+    # state lacks the key (e.g. a bare subgraph invoke, or a future MCP-exposed
+    # call that never went through load_context_node) — see MIN-65 task 6.2
+    # follow-up fix. It must still be excluded from the model-facing schema.
+    assert set(fields) == set(SearchHotelsArgs.model_fields) - {"preferences"}
     assert "preferences" not in search_hotels.args
 
 
 def test_browse_hotels_preferences_hidden_from_schema():
     fields = _facing(browse_hotels)
     assert "preferences" not in fields
-    assert set(fields) == set(BrowseHotelsArgs.model_fields)
+    assert set(fields) == set(BrowseHotelsArgs.model_fields) - {"preferences"}
     assert "preferences" not in browse_hotels.args
 
 
 def test_search_flights_preferences_hidden_from_schema():
     fields = _facing(search_flights)
     assert "preferences" not in fields
-    assert set(fields) == set(SearchFlightsArgs.model_fields)
+    assert set(fields) == set(SearchFlightsArgs.model_fields) - {"preferences"}
     assert "preferences" not in search_flights.args
+
+
+def test_browse_hotels_tolerates_state_without_preferences_key():
+    """Regression guard: a caller whose state lacks `preferences` entirely
+    (e.g. a subgraph test or an MCP-exposed call bypassing load_context_node)
+    must not KeyError — the field's schema default makes it optional at the
+    LangGraph ToolNode injection layer, not just at the Python call layer.
+    """
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+    from app.prompts.registry import registry
+    from app.tools.registry import get_tools_for
+    from langchain_core.messages import AIMessage, HumanMessage
+
+    fake = FakeLLM(
+        responses=[
+            AIMessage(
+                content="",
+                tool_calls=[
+                    {
+                        "name": "browse_hotels",
+                        "args": {"city": "Da Nang"},
+                        "id": "h1",
+                    }
+                ],
+            ),
+            "Here are some hotels.",
+        ]
+    )
+    subgraph = build_subagent(
+        "concierge_no_prefs_test",
+        get_tools_for("concierge"),
+        lambda _: fake,
+        registry.get("concierge"),
+    )
+    result = subgraph.invoke(
+        {"messages": [HumanMessage(content="find me a hotel in Da Nang")]}
+    )
+    tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
+    assert any(m.name == "browse_hotels" for m in tool_msgs)
 
 
 def test_preferences_param_present_on_function_for_injection():
