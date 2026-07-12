@@ -446,7 +446,15 @@
         "addExpense": { "label": "Add expense ➕", "prompt": "Add an expense to my budget" },
         "remaining": { "label": "Remaining 💵", "prompt": "How much budget do I have left?" },
         "breakdown": { "label": "Breakdown 📊", "prompt": "Show me the budget breakdown" }
-      }
+      },
+      "book_hotel_next": { "label": "Find a hotel next 🏨", "prompt": "Find a hotel for this trip now" },
+      "transport_to_hotel": { "label": "Get to my hotel 🚕", "prompt": "How do I get to my hotel from the airport?" },
+      "activities_near_destination": { "label": "Things to do there 🎟️", "prompt": "What can I do near my destination?" },
+      "weather_before_trip": { "label": "Check the weather ⛅", "prompt": "What's the weather like for my trip dates?" },
+      "packing_tips": { "label": "Packing tips 🎒", "prompt": "What should I pack for this trip?" },
+      "family_activities": { "label": "Family-friendly ideas 👨‍👩‍👧", "prompt": "Suggest family-friendly activities for this trip" },
+      "budget_check": { "label": "Check my budget 💰", "prompt": "How is my trip budget looking?" },
+      "local_tips_destination": { "label": "Local tips 🧭", "prompt": "Share some local tips for my destination" }
     },
     "interruptTitle": "Ready when you are",
     "approve": "Approve",

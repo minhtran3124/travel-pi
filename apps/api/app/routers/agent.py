@@ -23,7 +23,7 @@ from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
-from app.agents.suggestions import suggestions_for_flow
+from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
@@ -306,7 +306,12 @@ async def agent_chat(
         suggestions=(
             []
             if interrupt_pending
-            else suggestions_for_flow(result.get("current_flow"))
+            else suggestions_for_flow(
+                result.get("current_flow"),
+                trip_facts=result.get("trip_facts"),
+                profile=profile_for_suggestions(graph.store, uid),
+                preferences=result.get("preferences", ""),
+            )
         ),
         interrupt_pending=interrupt_pending,
         interrupt_payload=interrupt_payload,
