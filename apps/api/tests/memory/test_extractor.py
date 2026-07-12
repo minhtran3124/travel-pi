@@ -246,3 +246,50 @@ def test_extract_memories_prompt_v2_has_episodes():
     assert "episodes" in prompt
     assert "preferences" in prompt
     assert "instructions" in prompt
+
+
+# --- Task 5.2: canonical-key vocabulary (v5) ---------------------------------
+
+
+def test_active_memory_extraction_prompt_is_v5_with_canonical_keys():
+    """active.yaml points memory_extraction at v5, which documents the
+    canonical-key vocabulary (D5 store hygiene) so extraction reuses stable
+    keys instead of drifting into duplicate near-synonyms."""
+    from app.prompts.registry import registry
+
+    prompt = registry.get("memory_extraction")
+    assert registry.get("memory_extraction", version=5) == prompt
+    for canonical_key in (
+        "diet",
+        "hotel_type",
+        "airline",
+        "cabin_class",
+        "budget_band",
+        "seat",
+        "travel_pace",
+        "language",
+    ):
+        assert canonical_key in prompt
+    assert "reuse" in prompt.lower()
+
+
+def test_extract_memories_parses_canonical_key_output():
+    """With the v5 canonical-key guidance active, the extractor still parses a
+    valid JSON reply using a canonical key (e.g. 'airline') without error —
+    the pipeline itself is unaffected by the prompt wording change."""
+    from app.clients.llm import FakeLLM
+    from app.memory.extractor import extract_memories
+
+    json_str = (
+        '{"preferences": [{"key": "airline", "text": "prefers ANA over JAL"}],'
+        ' "instructions": [], "episodes": []}'
+    )
+    llm = FakeLLM(responses=[json_str])
+    msgs = [
+        HumanMessage(content="Actually I prefer ANA over JAL now"),
+        AIMessage(content="Got it, updated!"),
+    ]
+    result = extract_memories(msgs, llm)
+    assert result.preferences == [{"key": "airline", "text": "prefers ANA over JAL"}]
+    assert result.instructions == []
+    assert result.episodes == []
