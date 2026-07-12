@@ -1,0 +1,52 @@
+[
+  {
+    "input": "Lên lịch trình 5 ngày ở Đà Nẵng giúp mình",
+    "expected_flow": "planner",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Give me a 3-day itinerary for Hanoi",
+    "expected_flow": "planner",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Tokyo có gì chơi vào tháng 9?",
+    "expected_flow": "concierge",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "What's the weather like in Bangkok this weekend?",
+    "expected_flow": "concierge",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Nhớ giúp mình là mình ăn chay nhé",
+    "expected_flow": "journal",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Add a note: I want to visit the beach on day 2",
+    "expected_flow": "journal",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Đặt khách sạn ở Hội An cho tôi",
+    "expected_flow": "booking",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Book the cheapest flight from SGN to Da Nang next Friday",
+    "expected_flow": "booking",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Chuyến đi Phú Quốc của mình còn bao nhiêu ngân sách?",
+    "expected_flow": "budget",
+    "metrics": ["suggestion_relevance"]
+  },
+  {
+    "input": "Break down my Tokyo trip expenses so far",
+    "expected_flow": "budget",
+    "metrics": ["suggestion_relevance"]
+  }
+]
