@@ -102,7 +102,7 @@ def test_vi_hotels_amenities_localized():
 
 def test_vi_tables_cover_english_sources():
     from app.services.weather_service import WMO_CODES
-    from app.streaming.panels import _AQI_ADVICE, _AQI_BAND
+    from app.streaming.panels.air_quality import _AQI_ADVICE, _AQI_BAND
 
     wmo_values = set(WMO_CODES.values())
     assert wmo_values <= set(pl.WEATHER_VI), wmo_values - set(pl.WEATHER_VI)
