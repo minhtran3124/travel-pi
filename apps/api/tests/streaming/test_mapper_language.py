@@ -12,8 +12,9 @@ import asyncio
 import json
 from types import SimpleNamespace
 
-from app.streaming import panel_localizer
 from app.streaming.mapper import stream_agent_events
+from app.streaming.panels.places import CATEGORY_VI
+from app.streaming.panels.weather import WEATHER_VI
 from langchain_core.messages import ToolMessage
 
 
@@ -100,10 +101,7 @@ def test_mapper_localizes_and_tags_panel_and_done_vi():
     assert len(panels) == 1
     panel = panels[0]
     assert panel["language"] == "vi"
-    assert (
-        panel["data"]["current"]["description"]
-        == panel_localizer.WEATHER_VI["Clear sky"]
-    )
+    assert panel["data"]["current"]["description"] == WEATHER_VI["Clear sky"]
 
     done = next(d for n, d in out if n == "done")
     assert done["language"] == "vi"
@@ -147,7 +145,7 @@ def test_mapper_translates_place_prose_via_async_llm():
     place = panel["data"]["places"][0]
     # Prose translated through the async LLM; bounded category via the vi table.
     assert place["description"] == "VI:A cozy cafe."
-    assert place["category"] == panel_localizer.CATEGORY_VI["cafe"]
+    assert place["category"] == CATEGORY_VI["cafe"]
     assert tl.calls == ["A cozy cafe."]
 
 
@@ -169,10 +167,7 @@ def test_mapper_seeds_language_from_state_on_hitl_resume():
     assert len(panels) == 1
     panel = panels[0]
     assert panel["language"] == "vi"
-    assert (
-        panel["data"]["current"]["description"]
-        == panel_localizer.WEATHER_VI["Clear sky"]
-    )
+    assert panel["data"]["current"]["description"] == WEATHER_VI["Clear sky"]
 
     done = next(d for n, d in out if n == "done")
     assert done["language"] == "vi"

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from typing import Any
 
 from app.schemas.base import AppBaseModel
 
@@ -52,3 +53,15 @@ def panel_kinds() -> tuple[str, ...]:
     :return: A tuple of every registered kind.
     """
     return tuple(_REGISTRY.keys())
+
+
+def _swap(value: Any, table: dict[str, str]) -> Any:
+    """Return ``table[value]`` when ``value`` is a mapped string, else ``value``.
+
+    :param value: The candidate value (only ``str`` values are looked up).
+    :param table: The English → Vietnamese lookup table.
+    :return: The localized string, or the original value untouched.
+    """
+    if isinstance(value, str):
+        return table.get(value, value)
+    return value

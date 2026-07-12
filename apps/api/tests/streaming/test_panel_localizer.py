@@ -8,8 +8,11 @@ complete against its English source.
 
 import asyncio
 
-from app.streaming import panel_localizer as pl
 from app.streaming.panel_localizer import localize_panel
+from app.streaming.panels.air_quality import AQI_ADVICE_VI, AQI_CATEGORY_VI
+from app.streaming.panels.hotels import AMENITY_VI
+from app.streaming.panels.places import CATEGORY_VI
+from app.streaming.panels.weather import WEATHER_VI
 
 
 def test_en_is_identity():
@@ -25,7 +28,7 @@ def test_unknown_language_is_identity():
 def test_vi_localizes_weather_description():
     data = {"current": {"description": "Clear sky"}, "daily": []}
     out = asyncio.run(localize_panel("weather", data, "vi"))
-    assert out["current"]["description"] == pl.WEATHER_VI["Clear sky"]
+    assert out["current"]["description"] == WEATHER_VI["Clear sky"]
     assert out is not data
     assert data["current"]["description"] == "Clear sky"
 
@@ -36,8 +39,8 @@ def test_vi_localizes_daily_weather_descriptions():
         "daily": [{"description": "Moderate rain"}, {"description": "Fog"}],
     }
     out = asyncio.run(localize_panel("weather", data, "vi"))
-    assert out["daily"][0]["description"] == pl.WEATHER_VI["Moderate rain"]
-    assert out["daily"][1]["description"] == pl.WEATHER_VI["Fog"]
+    assert out["daily"][0]["description"] == WEATHER_VI["Moderate rain"]
+    assert out["daily"][1]["description"] == WEATHER_VI["Fog"]
 
 
 def test_vi_unknown_bounded_value_passes_through():
@@ -57,14 +60,14 @@ def test_vi_places_description_uses_translator():
     data = {"places": [{"description": "A cozy cafe.", "category": "cafe"}]}
     out = asyncio.run(localize_panel("places", data, "vi", translator=translator))
     assert out["places"][0]["description"] == "TRANSLATED:A cozy cafe."
-    assert out["places"][0]["category"] == pl.CATEGORY_VI["cafe"]
+    assert out["places"][0]["category"] == CATEGORY_VI["cafe"]
     assert calls == ["A cozy cafe."]
 
 
 def test_vi_places_top_level_category_localized():
     data = {"category": "restaurant", "places": []}
     out = asyncio.run(localize_panel("places", data, "vi"))
-    assert out["category"] == pl.CATEGORY_VI["restaurant"]
+    assert out["category"] == CATEGORY_VI["restaurant"]
 
 
 def test_translator_error_falls_back_to_english():
@@ -83,19 +86,19 @@ def test_vi_air_quality_uses_forecast_key():
         "forecast": [{"category": "Good"}],
     }
     out = asyncio.run(localize_panel("air_quality", data, "vi"))
-    assert out["category"] == pl.AQI_CATEGORY_VI["Good"]
+    assert out["category"] == AQI_CATEGORY_VI["Good"]
     assert (
         out["advice"]
-        == pl.AQI_ADVICE_VI["Air quality is satisfactory — enjoy the outdoors."]
+        == AQI_ADVICE_VI["Air quality is satisfactory — enjoy the outdoors."]
     )
-    assert out["forecast"][0]["category"] == pl.AQI_CATEGORY_VI["Good"]
+    assert out["forecast"][0]["category"] == AQI_CATEGORY_VI["Good"]
 
 
 def test_vi_hotels_amenities_localized():
     data = {"hotels": [{"amenities": ["Pool", "Spa", "Unknown Perk"]}]}
     out = asyncio.run(localize_panel("hotels", data, "vi"))
-    assert out["hotels"][0]["amenities"][0] == pl.AMENITY_VI["Pool"]
-    assert out["hotels"][0]["amenities"][1] == pl.AMENITY_VI["Spa"]
+    assert out["hotels"][0]["amenities"][0] == AMENITY_VI["Pool"]
+    assert out["hotels"][0]["amenities"][1] == AMENITY_VI["Spa"]
     # Unknown amenity passes through unchanged.
     assert out["hotels"][0]["amenities"][2] == "Unknown Perk"
 
@@ -105,19 +108,15 @@ def test_vi_tables_cover_english_sources():
     from app.streaming.panels.air_quality import _AQI_ADVICE, _AQI_BAND
 
     wmo_values = set(WMO_CODES.values())
-    assert wmo_values <= set(pl.WEATHER_VI), wmo_values - set(pl.WEATHER_VI)
-    assert set(_AQI_BAND) <= set(pl.AQI_CATEGORY_VI), set(_AQI_BAND) - set(
-        pl.AQI_CATEGORY_VI
-    )
-    assert set(_AQI_ADVICE.values()) <= set(pl.AQI_ADVICE_VI)
+    assert wmo_values <= set(WEATHER_VI), wmo_values - set(WEATHER_VI)
+    assert set(_AQI_BAND) <= set(AQI_CATEGORY_VI), set(_AQI_BAND) - set(AQI_CATEGORY_VI)
+    assert set(_AQI_ADVICE.values()) <= set(AQI_ADVICE_VI)
 
 
 def test_vi_category_and_amenity_tables_cover_sources():
     from app.data.hotels import HOTELS
     from app.services.place_service import CATEGORY_META
 
-    assert set(CATEGORY_META) <= set(pl.CATEGORY_VI), set(CATEGORY_META) - set(
-        pl.CATEGORY_VI
-    )
+    assert set(CATEGORY_META) <= set(CATEGORY_VI), set(CATEGORY_META) - set(CATEGORY_VI)
     seeded_amenities = {a for h in HOTELS for a in h.get("amenities", [])}
-    assert seeded_amenities <= set(pl.AMENITY_VI), seeded_amenities - set(pl.AMENITY_VI)
+    assert seeded_amenities <= set(AMENITY_VI), seeded_amenities - set(AMENITY_VI)

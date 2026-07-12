@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from app.schemas.air_quality import AirQualityResponse
 from app.schemas.base import AppBaseModel
-from app.streaming.panels.base import PanelSpec, register_panel
+from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
 
 # US-AQI category → presentation, mirroring the dashboard's aqi_* macros
 # (templates/air_quality.html). Band keys the FE gradient/glow; emoji + advice
@@ -34,6 +34,55 @@ _AQI_ADVICE = {
     "Hazardous": "Emergency conditions — stay indoors with air filtered.",
 }
 _AQI_UNKNOWN_ADVICE = "No air-quality reading is available for this location right now."
+
+# US-AQI category → Vietnamese. One entry per KEY of ``_AQI_BAND`` above
+# (parity-tested).
+AQI_CATEGORY_VI: dict[str, str] = {
+    "Good": "Tốt",
+    "Moderate": "Trung bình",
+    "Unhealthy for Sensitive Groups": "Không tốt cho nhóm nhạy cảm",
+    "Unhealthy": "Có hại cho sức khỏe",
+    "Very Unhealthy": "Rất có hại cho sức khỏe",
+    "Hazardous": "Nguy hiểm",
+}
+
+# AQI advice sentence → Vietnamese. One entry per VALUE of ``_AQI_ADVICE`` above
+# (parity-tested).
+AQI_ADVICE_VI: dict[str, str] = {
+    "Air quality is satisfactory — enjoy the outdoors.": (
+        "Chất lượng không khí tốt — thoải mái tận hưởng ngoài trời."
+    ),
+    "Acceptable, but unusually sensitive people should limit long exertion.": (
+        "Ở mức chấp nhận được, nhưng người nhạy cảm nên hạn chế vận động lâu ngoài trời."
+    ),
+    "Sensitive groups should reduce prolonged outdoor exertion.": (
+        "Nhóm nhạy cảm nên giảm vận động kéo dài ngoài trời."
+    ),
+    "Everyone may feel effects — limit time outdoors.": (
+        "Mọi người đều có thể bị ảnh hưởng — hạn chế thời gian ở ngoài trời."
+    ),
+    "Health alert — avoid outdoor activity and mask up.": (
+        "Cảnh báo sức khỏe — tránh hoạt động ngoài trời và đeo khẩu trang."
+    ),
+    "Emergency conditions — stay indoors with air filtered.": (
+        "Tình trạng khẩn cấp — ở trong nhà với không khí đã được lọc."
+    ),
+}
+
+
+async def _localize_vi(data: dict, translator: Translator | None) -> None:
+    """Swap ``category``/``advice``/``forecast[*].category`` to Vietnamese in place.
+
+    :param data: The already-deep-copied ``air_quality`` panel data dict.
+    :param translator: Unused — ``air_quality`` has no free-form prose.
+    """
+    if isinstance(data.get("category"), str):
+        data["category"] = _swap(data["category"], AQI_CATEGORY_VI)
+    if isinstance(data.get("advice"), str):
+        data["advice"] = _swap(data["advice"], AQI_ADVICE_VI)
+    for day in data.get("forecast") or []:
+        if isinstance(day, dict):
+            day["category"] = _swap(day.get("category"), AQI_CATEGORY_VI)
 
 
 class AirQualityPanelPollutant(AppBaseModel):
@@ -131,4 +180,6 @@ class AirQualityPanel(AppBaseModel):
         )
 
 
-register_panel(PanelSpec(kind="air_quality", model=AirQualityPanel))
+register_panel(
+    PanelSpec(kind="air_quality", model=AirQualityPanel, localize_vi=_localize_vi)
+)
