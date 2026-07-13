@@ -187,3 +187,13 @@ Scenarios: `happy`, `ambiguous`, `multi_turn`, `tool_failure`, `adversarial`.
 ## 8. Status Log
 
 - 2026-07-13 — plan proposed (research: `research-brief.md`; design: `design-portability.md`, `design-agentic-evolution.md`).
+- 2026-07-13 — **phase 1 shipped** on `feat/agent-eval-pipeline`. Waves 1–4 complete:
+  `1b906f3` core (types/ports/registry/boundary gate) · `ee40961` deterministic metrics +
+  report/baseline · `35ae2f1` LangGraph adapter + trajectory + judged + 84-golden matrix ·
+  `95da3dd` runner/CLI + DB oracle + extractor · `f1ddef8` make targets + CI + READMEs +
+  legacy retirement. 133 eval tests green; full API suite 1625 passed / 5 pre-existing env
+  failures. Evidence: `SUMMARY.md` → `### Verify`; behavior-to-proof: `TEST_MATRIX.md`.
+- **Open (not done):** no judged run has executed against a live model, so `eval/baselines/main.json`
+  does not exist and `eval-compare` has nothing to gate against; the nightly CI job needs the
+  `OPENAI_API_KEY` repo secret. Phase 2 (Langfuse tracing + failure-mining agent) and phase 3
+  (MCP server) remain proposed — see `design-agentic-evolution.md`, `design-portability.md`.
