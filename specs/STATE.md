@@ -732,3 +732,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: 672e79a Merge remote-tracking branch 'github/v3' into feat/flight-search-date-context
 - user_turns: 0
 
+
+### 2026-07-13T13:21:28Z
+- session_id: e9444d26-dd69-4af7-bf71-81369525a336
+- exit: 
+- last_commit: 9d702f5 docs(eval): record phase-1 evidence — test matrix, verify table, open gaps
+- user_turns: 0
+
