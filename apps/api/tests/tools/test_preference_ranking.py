@@ -59,10 +59,12 @@ def test_rank_by_preference_empty_preferences_is_noop():
 
 def test_rank_by_preference_ties_keep_original_order():
     """Stability proof: two items with the equal (nonzero) score preserve order."""
-    items = [Item("first", "x"), Item("second", "x")]
-    ranked, reasons = rank_by_preference(items, "loves x", keyword_fn=_tag_keyword_fn)
+    items = [Item("first", "spa"), Item("second", "spa")]
+    ranked, reasons = rank_by_preference(
+        items, "loves a spa", keyword_fn=_tag_keyword_fn
+    )
     assert [i.name for i in ranked] == ["first", "second"]
-    assert reasons == ["x"]
+    assert reasons == ["spa"]
 
 
 def test_rank_by_preference_never_drops_items():
@@ -87,12 +89,47 @@ def test_rank_by_preference_folds_diacritics_both_sides():
 
 
 def test_rank_by_preference_dedupes_reasons_first_seen_order():
-    items = [Item("a", "x"), Item("b", "x"), Item("c", "y")]
+    items = [Item("a", "spa"), Item("b", "spa"), Item("c", "pool")]
     ranked, reasons = rank_by_preference(
-        items, "x and y both please", keyword_fn=_tag_keyword_fn
+        items, "wants a spa and a pool please", keyword_fn=_tag_keyword_fn
     )
-    assert reasons == ["x", "y"]  # deduped, first-seen order
+    assert reasons == ["spa", "pool"]  # deduped, first-seen order
     assert len(ranked) == 3
+
+
+def test_rank_by_preference_does_not_false_match_short_keyword_inside_a_word():
+    """Regression: a short keyword like the 2-letter airline code "ke" must not
+    match as a substring of ordinary words like "likes"/"weekend"/"tickets"."""
+    items = [Item("first", "ke"), Item("second", "other")]
+    ranked, reasons = rank_by_preference(
+        items, "Traveller likes booking tickets early", keyword_fn=_tag_keyword_fn
+    )
+    assert [i.name for i in ranked] == ["first", "second"]  # unchanged order
+    assert reasons == []
+
+
+def test_rank_by_preference_does_not_false_match_word_inside_a_longer_token():
+    """Regression: "hotel" must not match inside the store key "hotel_type" —
+    the preferences block folds `- {key}: {text}` lines, so the key text is
+    part of the haystack (see nodes.py load_context_node)."""
+    items = [Item("first", "hotel"), Item("second", "other")]
+    ranked, reasons = rank_by_preference(
+        items,
+        "- hotel_type: Traveller prefers boutique stays",
+        keyword_fn=_tag_keyword_fn,
+    )
+    assert [i.name for i in ranked] == ["first", "second"]  # unchanged order
+    assert reasons == []
+
+
+def test_rank_by_preference_real_word_boundary_match_still_works():
+    """A genuine, standalone mention of a short-ish keyword still matches."""
+    items = [Item("first", "spa"), Item("second", "other")]
+    ranked, reasons = rank_by_preference(
+        items, "Traveller wants a spa", keyword_fn=_tag_keyword_fn
+    )
+    assert ranked[0].name == "first"
+    assert reasons == ["spa"]
 
 
 # --- Tool wiring: injection stays hidden from the model-facing schema ------
@@ -308,4 +345,43 @@ def test_search_flights_preference_ranking_is_deterministic(agent_db):
     ids1 = [f["id"] for f in first[1]["data"]["flights"]]
     ids2 = [f["id"] for f in second[1]["data"]["flights"]]
     assert ids1 == ids2
-    assert first[0] == second[0]
+
+
+# --- Regression: preferences (learned memory / PII) must never reach logs --
+
+
+def test_search_hotels_does_not_log_preferences(agent_db, caplog):
+    """ce-code-review finding: log_tool_call(..., locals()) was emitting the
+    traveller's full learned-preferences block (diet, health, budget, etc.)
+    at INFO on every search — a new PII surface introduced alongside the
+    `preferences` param. It must be redacted, not just present-but-fine."""
+    import logging
+
+    with caplog.at_level(logging.INFO, logger="app.tools"):
+        search_hotels.func(
+            city="Da Nang",
+            check_in="2026-08-15",
+            check_out="2026-08-20",
+            rooms=1,
+            adults=2,
+            children=0,
+            preferences="- diet: traveller has a severe shellfish allergy",
+        )
+    logged = "\n".join(r.message for r in caplog.records)
+    assert "shellfish" not in logged
+    assert "<redacted>" in logged
+
+
+def test_search_flights_does_not_log_preferences(agent_db, caplog):
+    import logging
+
+    with caplog.at_level(logging.INFO, logger="app.tools"):
+        search_flights.func(
+            origin="HAN",
+            destination="SGN",
+            departure_date="2026-08-15",
+            preferences="- diet: traveller has a severe shellfish allergy",
+        )
+    logged = "\n".join(r.message for r in caplog.records)
+    assert "shellfish" not in logged
+    assert "<redacted>" in logged

@@ -94,6 +94,27 @@ def test_zero_negative_or_absent_counts_are_dropped():
     assert cmd.update["trip_facts"] == {}
 
 
+def test_children_zero_is_kept_unlike_adults_and_rooms():
+    """Regression (ce-code-review finding): "2 adults, no kids" must not be
+    re-asked about later — children=0 is a required, meaningful hotel-search
+    value ("0 if none"), unlike adults/rooms where 0 is genuinely invalid."""
+    from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
+    from app.clients.llm import FakeLLM
+
+    intent = SupervisorIntent(
+        target_agent="planner",
+        slots=ExtractedSlots(adults=2, children=0, rooms=1),
+    )
+    llm = FakeLLM(structured_responses=[intent])
+    supervisor = make_supervisor(llm)
+
+    cmd = supervisor(
+        {"messages": [HumanMessage(content="2 adults, no kids, 1 room")]}, _runtime()
+    )
+
+    assert cmd.update["trip_facts"] == {"adults": 2, "children": 0, "rooms": 1}
+
+
 # ---------------------------------------------------------------------------
 # Secondary intent gating
 # ---------------------------------------------------------------------------

@@ -28,6 +28,12 @@ from app.db.engine import get_session_factory
 
 logger = logging.getLogger("app.tools")
 
+# Injected/free-text params that carry personal data and must never be
+# rendered into logs, even when a tool passes `locals()` wholesale. Callers
+# should still prefer excluding injected plumbing from `params` themselves
+# (see the docstring below) — this is a backstop, not a substitute.
+_REDACTED_PARAM_KEYS = {"preferences"}
+
 
 def log_tool_call(name: str, params: dict[str, Any]) -> None:
     """Log that a tool is being called, with its parameter values.
@@ -57,8 +63,14 @@ def log_tool_call(name: str, params: dict[str, Any]) -> None:
     if not params:
         logger.info("[tool] %s called (no params)", name)
         return
-    width = max(len(k) for k in params)
-    lines = [f"  {k:<{width}} = {pprint.pformat(v, width=80)}" for k, v in params.items()]
+    safe_params = {
+        k: ("<redacted>" if k in _REDACTED_PARAM_KEYS else v) for k, v in params.items()
+    }
+    width = max(len(k) for k in safe_params)
+    lines = [
+        f"  {k:<{width}} = {pprint.pformat(v, width=80)}"
+        for k, v in safe_params.items()
+    ]
     logger.info("[tool] %s called\n%s", name, "\n".join(lines))
 
 

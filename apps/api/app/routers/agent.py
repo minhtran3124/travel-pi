@@ -271,11 +271,26 @@ async def agent_chat(
     if interrupt_pending:
         reply = ""
     else:
-        # Pick the last *assistant* message, not result["messages"][-1] blindly: a
-        # ReAct sub-agent that exhausts the recursion limit can leave a ToolMessage
-        # (raw JSON) as the final entry, which must never surface as the reply.
-        ai_messages = [m for m in result["messages"] if isinstance(m, AIMessage)]
-        reply = ai_messages[-1].content if ai_messages else ""
+        # Join every *assistant* message produced THIS turn, not just the last
+        # one: a multi-intent turn (MIN-65 dispatch_next) runs two sub-agents
+        # sequentially, each appending its own AIMessage — taking only the
+        # last one silently drops the first sub-agent's entire answer from the
+        # REST response (it would still stream over SSE, and still reach
+        # memory extraction, but never reach this client). Scope to messages
+        # after the last HumanMessage so prior turns' AIMessages in the full
+        # thread history are never included. A ReAct sub-agent that exhausts
+        # the recursion limit can still leave a ToolMessage (raw JSON) as the
+        # final entry, which must never surface as the reply — filtering to
+        # AIMessage already excludes it.
+        turn_messages = result["messages"]
+        for i in range(len(turn_messages) - 1, -1, -1):
+            if isinstance(turn_messages[i], HumanMessage):
+                turn_messages = turn_messages[i:]
+                break
+        ai_messages = [
+            m for m in turn_messages if isinstance(m, AIMessage) and m.content
+        ]
+        reply = "\n\n".join(m.content for m in ai_messages)
         # Guarantee a user-facing reply even when the graph finished without an
         # assistant message (e.g. a ReAct loop that exhausted the recursion limit
         # on repeated tool errors). The user must always get a readable message.

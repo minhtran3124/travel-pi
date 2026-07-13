@@ -116,7 +116,9 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
         parts.append(f"Summary of earlier conversation:\n{summary}")
     if trip_facts:
         bullets = "\n".join(
-            f"- {key}: {value}" for key, value in trip_facts.items() if value
+            f"- {key}: {value}"
+            for key, value in trip_facts.items()
+            if value is not None
         )
         parts.append(
             "Known trip facts (already provided by the traveller — do NOT ask "

@@ -183,6 +183,56 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
+def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
+    """Regression (ce-code-review finding): a multi-intent turn (MIN-65
+    dispatch_next) must not silently drop the first sub-agent's answer from
+    the non-streaming REST reply — both answers must be present."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    main = FakeLLM(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+        ]
+        * 6,
+        responses=["flights found", "here's what to see"] * 3,
+    )
+    fast = FakeLLM(responses=["OK"] * 6)
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_travel_graph] = lambda: graph
+    app.state.test_graph = graph
+
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={
+                "message": "flights to Tokyo and things to do there",
+                "user_id": "u1",
+            },
+        )
+    assert resp.status_code == 200
+    reply = resp.json()["reply"]
+    assert "flights found" in reply
+    assert "here's what to see" in reply
+
+
 def test_chat_returns_flow_scoped_suggestions(client):
     """A completed turn returns a `suggestions` list of keys prefixed by the flow.
 

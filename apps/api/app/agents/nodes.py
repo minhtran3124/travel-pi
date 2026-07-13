@@ -24,7 +24,7 @@ from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 
-from app.agents.constants import DEFAULT_MAX_REVISIONS
+from app.agents.constants import ALL_SUBAGENTS, DEFAULT_MAX_REVISIONS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
@@ -250,6 +250,20 @@ def dispatch_next(state: TravelAgentState) -> Command:
     pending = state.get("pending_flows") or []
     if pending:
         nxt, rest = pending[0], pending[1:]
+        # Fail safe rather than trusting the caller: the supervisor is the
+        # only writer of pending_flows and already excludes "booking" and
+        # tier-restricted agents, but dispatch_next is a second entry point
+        # into every sub-agent and must not blindly honour a queue entry
+        # that would bypass the booking HITL interrupt if that upstream
+        # guard ever regressed (ce-code-review finding, 4 independent
+        # reviewers).
+        if nxt not in ALL_SUBAGENTS or nxt == "booking":
+            logger.error(
+                "[agent] dispatch_next refusing illegal queued flow: %r "
+                "(pending_flows should never contain this) → reflection",
+                nxt,
+            )
+            return Command(update={"pending_flows": []}, goto="reflection")
         logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
         return Command(update={"current_flow": nxt, "pending_flows": rest}, goto=nxt)
     logger.info("[agent] dispatch_next → reflection (queue empty)")

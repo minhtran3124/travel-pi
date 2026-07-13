@@ -11,12 +11,36 @@ the "same query = same result" determinism the search tools already rely on
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Iterable
 from typing import TypeVar
 
 from app.core.text import fold_diacritics
 
 T = TypeVar("T")
+
+# Keywords shorter than this are too collision-prone for a substring/boundary
+# match (e.g. 2-letter IATA airline codes) — never match on their own.
+_MIN_KEYWORD_LEN = 3
+
+
+def _keyword_matches(keyword: str, folded_haystack: str) -> bool:
+    """Word-boundary match, not a raw substring check.
+
+    A raw substring check false-positives badly: a 2-letter airline code like
+    "KE" matches inside "likes"/"tickets"/"weekend", and "hotel" (a generic
+    property type) matches inside the canonical preference key "hotel_type"
+    (the preferences block folds ``- {key}: {text}`` lines, so the key text
+    is part of the haystack). ``_`` is a word character, so ``\\bhotel\\b``
+    correctly does not match "hotel_type".
+    """
+    folded_kw = fold_diacritics(str(keyword).lower()).strip()
+    if len(folded_kw) < _MIN_KEYWORD_LEN:
+        return False
+    return (
+        re.search(rf"(?<!\w){re.escape(folded_kw)}(?!\w)", folded_haystack) is not None
+    )
+
 
 # One "feature" of an item: alternate keyword phrasings that would indicate the
 # traveller wants this feature, plus the human-readable reason to surface in
@@ -53,7 +77,7 @@ def rank_by_preference(
     for item in items:
         score = 0
         for keywords, reason in keyword_fn(item):
-            if any(fold_diacritics(str(kw).lower()) in folded_prefs for kw in keywords):
+            if any(_keyword_matches(kw, folded_prefs) for kw in keywords):
                 score += 1
                 reasons[reason] = None
         scores.append(score)

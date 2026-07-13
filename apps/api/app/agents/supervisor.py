@@ -128,6 +128,20 @@ def _normalize_count_slot(value: int | None) -> int | None:
     return value
 
 
+def _normalize_children_slot(value: int | None) -> int | None:
+    """Keep a non-negative children count, including zero — unlike adults/
+    rooms, zero is a meaningful, commonly-stated value ("no kids") and is a
+    required field on the hotel search tools ("0 if none"). Only drop a
+    genuinely negative or absent value.
+
+    :param value: Raw int from :class:`ExtractedSlots`, or None.
+    :return: ``value`` if 0 or a positive int, else None.
+    """
+    if value is None or value < 0:
+        return None
+    return value
+
+
 def _normalize_budget_slot(raw: str | None) -> str | None:
     """Extract a number + optional currency hint from free text, or drop it.
 
@@ -173,8 +187,8 @@ def _normalize_slots(slots: ExtractedSlots | None, today: date) -> dict:
     adults = _normalize_count_slot(slots.adults)
     if adults:
         normalized["adults"] = adults
-    children = _normalize_count_slot(slots.children)
-    if children:
+    children = _normalize_children_slot(slots.children)
+    if children is not None:
         normalized["children"] = children
     rooms = _normalize_count_slot(slots.rooms)
     if rooms:
@@ -261,7 +275,14 @@ def make_supervisor(llm: BaseChatModel):
             getattr(intent, "slots", None), today_in_timezone(ctx.timezone)
         )
         secondary = getattr(intent, "secondary_agent", None)
-        if target == "booking" or secondary == target:
+        if (
+            target == "booking"
+            or secondary == target
+            or (
+                ctx.allowed_subagents is not None
+                and secondary not in ctx.allowed_subagents
+            )
+        ):
             secondary = None
         pending_flows = [secondary] if secondary else []
         return Command(

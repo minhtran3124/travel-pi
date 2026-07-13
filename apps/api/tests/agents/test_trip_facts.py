@@ -108,17 +108,26 @@ def test_system_with_summary_folds_trip_facts_bullets():
     assert "- adults: 2" in content
 
 
-def test_system_with_summary_trip_facts_skips_falsy_values():
+def test_system_with_summary_trip_facts_renders_zero_but_skips_none():
+    """Regression (ce-code-review finding): children=0 ("no kids") is a
+    meaningful, commonly-stated value and must render — only a genuinely
+    absent (None) key should be skipped."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
     combined = system_with_summary(
-        {"trip_facts": {"destination": "Da Nang", "children": 0, "hotel_area": ""}},
+        {
+            "trip_facts": {
+                "destination": "Da Nang",
+                "children": 0,
+                "hotel_area": None,
+            }
+        },
         base,
     )
     content = combined.content
     assert "- destination: Da Nang" in content
-    assert "children" not in content
+    assert "- children: 0" in content
     assert "hotel_area" not in content
 
 
