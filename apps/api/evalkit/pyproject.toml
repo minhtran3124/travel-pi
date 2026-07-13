@@ -1,0 +1,16 @@
+[project]
+name = "agent-evalkit"
+version = "0.1.0"
+description = "Portable capability x scenario agent-eval engine (goldens, ports, metrics, report/baseline)."
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.6.0,<3.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "evalkit" = "." }
+packages = ["evalkit"]

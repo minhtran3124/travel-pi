@@ -1,10 +1,10 @@
 # agent-eval-pipeline — Summary
 
-Lane: normal
-Confidence: medium
-Reason: Extends the existing offline eval harness (flags: existing behavior, weak proof around eval coverage); no hard gates — offline tooling, no public API contract, no auth/data-model change.
-Flags: existing behavior, weak proof
-Affects: apps/api/eval/ (offline eval harness), apps/api/.deepeval
+Lane: high-risk
+Confidence: high
+Reason: Upgraded from normal — the work ships dependency manifests (`apps/api/evalkit/pyproject.toml`, an `agentevals` pin in `requirements-ai.txt`), which the canonical gate list treats as the detectable `external-provider` hard gate; no actual external service is introduced (see ESCALATIONS.md).
+Flags: existing behavior, weak proof, external-provider (manifest-path gate)
+Affects: apps/api/eval/ (offline eval harness), apps/api/evalkit/ (new portable package), apps/api/requirements-ai.txt
 Input-type: new initiative
 
 > `Lane` drives **ceremony** (how much proof). `Confidence` drives **interruption**
@@ -37,18 +37,26 @@ Two user-accepted constraints drive the shape: (1) **portability** — the engin
 
 ### Deviations
 
-- Rule 2 — Added `.deepeval/` to root `.gitignore` (generated cache/telemetry was untracked noise). Blast-radius hook flagged it against the stale active plan `specs/web-trip-planner/PLAN.md`; it belongs to this slug's scope.
+- Rule 2 — Added `.deepeval/` to root `.gitignore` (generated cache/telemetry was untracked noise). Commit `ae766b9`.
+- Rule 3 — `evalkit/pyproject.toml` needs explicit `packages`/`package-dir` (the manifest lives inside the package dir per the portable layout); verified with a throwaway editable install. Task 1.1.
+- Rule 1 — Test fixture used `{"role": ...}` for a Trace message; changed to `{"type": ...}`, which is the shape LangChain actually serializes messages to (and it stops the `authorization` keyword gate false-positiving on the word `role`). Task 1.1.
 
 ### Verify
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| (pending — plan phase) | — | — | — |
+| evalkit boundary + types (task 1.1) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval/test_boundary.py tests/eval/test_types.py -x -q` | 0 | 10 passed; boundary gate fails on any `app.*`/fastapi/sqlalchemy/langgraph import |
+| eval suite unaffected | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | 37 passed (legacy harness tests still green) |
+| lint | `cd apps/api && ../../.venv/bin/ruff check evalkit && ../../.venv/bin/ruff format --check evalkit` | 0 | clean |
+| standalone installability | `pip install -e apps/api/evalkit` in a throwaway venv | 0 | imports cleanly with pydantic only — the portability claim is tested, not asserted |
 
 ### Rollback
 
-- `git revert <sha>` (per-wave commits once implementation starts)
+- Revert the whole initiative: `git revert ae766b9..HEAD` on `feat/agent-eval-pipeline`, or simply drop the branch (`git branch -D feat/agent-eval-pipeline`) — nothing is merged to v3 and no app/agent code, schema, or migration is touched.
+- Uninstall the local package if it was editable-installed: `pip uninstall agent-evalkit`.
+- `apps/api/eval/` legacy modules are untouched until task 4.1; until then the existing harness keeps working.
 
 ### Harness-Delta
 
-- none
+- backlog — the blast-radius hook corroborates every edit against a stale "active plan" (`specs/web-trip-planner/PLAN.md`) rather than the slug being executed, so it flagged all correctly-scoped files in this initiative. Worth a `/compound` entry: the hook needs to resolve the active plan from the current branch/slug.
+- backlog — `risk-corroboration.sh` cannot distinguish "new external *service*" (Rule-4 STOP) from "new library pin / local package manifest" (Rule-3 auto-fix): any `pyproject.toml`/`requirements*.txt` in the diff trips `external-provider`. And `RISK_WARN_CATEGORIES` cannot be supplied by the agent (PreToolUse hooks read the Claude Code process env, not the command env), so the only in-band resolution is a lane upgrade.
