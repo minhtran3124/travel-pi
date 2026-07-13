@@ -75,13 +75,18 @@ def _stub_factory(scores: list[float]):
 # --- rubric DATA + registration ------------------------------------------
 
 
-def test_all_four_rubrics_are_data():
-    assert set(RUBRICS) == {
-        "response_language",
-        "search_vs_booking",
-        "no_hallucination",
-        "format_quality",
-    }
+ALL_RUBRIC_NAMES = {
+    "response_language",
+    "search_vs_booking",
+    "no_hallucination",
+    "format_quality",
+    "memory_recall",
+    "suggestion_relevance",
+}
+
+
+def test_all_six_rubrics_are_data():
+    assert set(RUBRICS) == ALL_RUBRIC_NAMES
     for _name, rubric in RUBRICS.items():
         assert "criteria" in rubric and rubric["criteria"]
         assert "evaluation_params" in rubric and rubric["evaluation_params"]
@@ -97,25 +102,38 @@ def test_no_hallucination_rubric_requests_retrieval_context():
     )
 
 
+def test_suggestion_relevance_rubric_requests_retrieval_context():
+    """MIN-65 task 1.2: relevance is judged against the suggestion keys
+    carried in retrieval_context, same grounding pattern as no_hallucination."""
+    from deepeval.test_case import SingleTurnParams
+
+    assert (
+        SingleTurnParams.RETRIEVAL_CONTEXT
+        in RUBRICS["suggestion_relevance"]["evaluation_params"]
+    )
+
+
 def test_other_rubrics_do_not_request_retrieval_context():
     from deepeval.test_case import SingleTurnParams
 
-    for name in ("response_language", "search_vs_booking", "format_quality"):
+    for name in (
+        "response_language",
+        "search_vs_booking",
+        "format_quality",
+        "memory_recall",
+    ):
         assert (
             SingleTurnParams.RETRIEVAL_CONTEXT not in RUBRICS[name]["evaluation_params"]
         )
 
 
-def test_all_four_metrics_are_registered_by_module_import():
+def test_all_six_metrics_are_registered_by_module_import():
     names = list_metrics()
-    for expected in (
-        "response_language",
-        "search_vs_booking",
-        "no_hallucination",
-        "format_quality",
-    ):
+    for expected in ALL_RUBRIC_NAMES:
         assert expected in names
     assert isinstance(get_metric("response_language"), GEvalJudgedMetric)
+    assert isinstance(get_metric("memory_recall"), GEvalJudgedMetric)
+    assert isinstance(get_metric("suggestion_relevance"), GEvalJudgedMetric)
 
 
 def test_registering_never_builds_a_real_judge_without_a_key(monkeypatch):
@@ -208,7 +226,7 @@ def test_make_judged_metric_builds_configured_instance():
     assert metric.k == 3
 
 
-def test_make_all_judged_metrics_returns_all_four():
+def test_make_all_judged_metrics_returns_all_six():
     metrics = make_all_judged_metrics(k=3)
     assert {m.name for m in metrics} == set(RUBRICS)
     assert all(m.k == 3 for m in metrics)

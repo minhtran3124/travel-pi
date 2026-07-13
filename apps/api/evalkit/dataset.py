@@ -51,9 +51,29 @@ interprets ``kind``/``params``; that is entirely the oracle metric's concern.
 
 ``id`` must be unique across every file in the dataset directory. A
 duplicate, an unknown ``capability``/``scenario`` (per the supplied
-`Taxonomy`), or a case that fails `Golden`'s own validation (e.g. neither/
-both of ``input``/``turns`` set) all raise `ValueError` naming the file and
-case id (or its index, when the id itself is missing/malformed).
+`Taxonomy`), a case that fails `Golden`'s own validation (e.g. neither/
+both of ``input``/``turns`` set), or a case naming an unregistered
+``metrics`` entry (per the optional ``known_metrics`` set, see below) all
+raise `ValueError` naming the file and case id (or its index, when the id
+itself is missing/malformed).
+
+## Unknown-metric validation
+
+A golden's ``metrics`` field names metric strings that a runner will later
+resolve via ``evalkit.registry.get_metric`` — but that registry is populated
+by *importing* ``evalkit.metrics`` (plus optional extras), and this store
+must NOT import metrics itself: doing so would couple the (framework-free)
+store to those optional extras (``agentevals``, ``deepeval``), breaking the
+portability boundary (`tests/eval/test_boundary.py`). So the check is
+opt-in: the caller passes its own ``known_metrics: set[str] | None`` (e.g.
+``eval/__main__.py`` passes ``set(evalkit.registry.list_metrics())`` after
+importing ``evalkit.metrics``). When ``known_metrics`` is ``None`` (the
+default), this validation is skipped entirely — e.g. a test store built
+before any metrics module is imported still loads cleanly.
+
+This turns a dataset naming a metric nobody implements into a load-time
+failure (naming the file, golden id, and the unknown metric) instead of a
+mid-run `KeyError` after minutes of judged API calls.
 """
 
 from __future__ import annotations
@@ -76,9 +96,15 @@ class JsonDatasetStore:
     over later.
     """
 
-    def __init__(self, directory: str | Path, taxonomy: Taxonomy) -> None:
+    def __init__(
+        self,
+        directory: str | Path,
+        taxonomy: Taxonomy,
+        known_metrics: set[str] | None = None,
+    ) -> None:
         self.directory = Path(directory)
         self.taxonomy = taxonomy
+        self.known_metrics = known_metrics
         self._goldens: list[Golden] = self._load_all()
 
     def _load_all(self) -> list[Golden]:
@@ -106,6 +132,17 @@ class JsonDatasetStore:
                     self.taxonomy.validate_golden(golden)
                 except ValueError as exc:
                     raise ValueError(f"{path.name}: {exc}") from exc
+
+                if self.known_metrics is not None and golden.metrics:
+                    unknown_metrics = [
+                        m for m in golden.metrics if m not in self.known_metrics
+                    ]
+                    if unknown_metrics:
+                        raise ValueError(
+                            f"{path.name}: golden {golden.id!r} names unknown "
+                            f"metric(s) {unknown_metrics!r}; known: "
+                            f"{sorted(self.known_metrics)}"
+                        )
 
                 if golden.id in seen_ids:
                     raise ValueError(

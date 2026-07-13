@@ -1,12 +1,21 @@
 """Judge-based (G-Eval) eval metrics: temp-0, k-repeat averaged (task 2.3).
 
-Ports the 4 calibrated G-Eval rubrics from the original
-``apps/api/eval/metrics_geval.py`` (MIN-58: ``response_language``,
-``search_vs_booking``, ``format_quality``, ``no_hallucination``) as **DATA** —
-``RUBRICS`` below is the whole rubric definition (criteria + evaluation
-params + threshold). A project that wants different rubrics only supplies
-its own dict to `make_judged_metric`/`make_all_judged_metrics`, never edits
-this module's evaluation logic (`design-portability.md`).
+Ports 6 calibrated G-Eval rubrics from the original
+``apps/api/eval/metrics_geval.py`` as **DATA** — ``RUBRICS`` below is the
+whole rubric definition (criteria + evaluation params + threshold). A
+project that wants different rubrics only supplies its own dict to
+`make_judged_metric`/`make_all_judged_metrics`, never edits this module's
+evaluation logic (`design-portability.md`).
+
+Four (``response_language``, ``search_vs_booking``, ``format_quality``,
+``no_hallucination``) are MIN-58's calibrated set. Two more
+(``memory_recall``, ``suggestion_relevance``) were designed and registered
+in MIN-65 task 1.2 (commit ``9c410e6``, since-removed
+``eval/metrics_geval.py``) but never carried over when this module replaced
+that file — several `eval/datasets/*.json` goldens (task 2.4) name them in
+their ``metrics`` field, which used to crash a full run mid-flight with a
+`KeyError` once the judged metrics ran. Ported here verbatim from that
+commit; not re-derived.
 
 Judge-variance control (`research-brief.md` §5/§6): the judge always runs at
 **temperature 0**, and each `evaluate()` call repeats the judge call `k`
@@ -19,6 +28,15 @@ unusable. It is now grounded: `build_retrieval_context()` serializes every
 captured `Trace.tool_calls[].output` into a readable string, and
 ``no_hallucination``'s rubric lists `RETRIEVAL_CONTEXT` in its
 `evaluation_params` so the judge actually reads it.
+
+Known gap: ``suggestion_relevance`` also requests `RETRIEVAL_CONTEXT` (its
+MIN-65 criteria expects it to carry the reply's follow-up *suggestion keys*),
+but `build_retrieval_context()` here only ever serializes tool-call outputs
+— nothing in `evalkit`/`eval/adapters` today attaches suggestion keys to a
+`Trace`. Until a runner wires that (a `Trace` field + adapter change, outside
+this task's scope), the judge sees tool-call context instead of suggestion
+keys for this rubric — a quality gap, not a crash: `evaluate()` still runs
+and returns a score.
 
 Import-time safety: constructing a `GEvalJudgedMetric` (and therefore
 importing/registering this module) never builds a DeepEval `GEval` or
@@ -101,6 +119,32 @@ RUBRICS: dict[str, dict[str, Any]] = {
             "asked); those are out of scope for this formatting rubric."
         ),
         "evaluation_params": _IO,
+        "threshold": DEFAULT_THRESHOLD,
+    },
+    "memory_recall": {
+        "criteria": (
+            "The conversation may already contain facts the traveller provided "
+            "earlier (dates, party size/composition, destination, stated "
+            "preferences). Penalize the actual output if it re-asks for a fact "
+            "already given earlier in the input/conversation history. Asking "
+            "about a genuinely NEW field that was never mentioned is CORRECT "
+            "behavior and must NOT be penalized."
+        ),
+        "evaluation_params": _IO,
+        "threshold": DEFAULT_THRESHOLD,
+    },
+    "suggestion_relevance": {
+        "criteria": (
+            "The retrieval context lists follow-up suggestion keys offered to "
+            "the traveller after this reply; each key's final segment reads "
+            "as a short EN action phrase (e.g. 'checkWeather' ~ 'Check "
+            "weather'). Judge whether these suggested follow-ups are "
+            "topically relevant to the input and actual output — i.e. things "
+            "a traveller in this exact conversation would plausibly want to "
+            "do next. Penalize suggestions that belong to an unrelated flow "
+            "or topic."
+        ),
+        "evaluation_params": _IO_WITH_CONTEXT,
         "threshold": DEFAULT_THRESHOLD,
     },
 }

@@ -1,4 +1,5 @@
-.PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint
+.PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint \
+        eval-smoke eval-full eval-baseline eval-compare
 
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
 VENV ?= ../../.venv
@@ -47,3 +48,15 @@ fmt:            ## Format
 
 lint:           ## Lint
 	$(VENV)/bin/ruff check app scripts
+
+eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only
+	$(VENV)/bin/python -m eval --suite smoke
+
+eval-full:      ## Judged agent eval: full matrix, k=3 repeats, writes a Report JSON
+	$(VENV)/bin/python -m eval --suite full --repeat 3 --out eval/reports/latest.json
+
+eval-baseline:  ## Save the latest report as the committed baseline
+	mkdir -p eval/baselines && cp eval/reports/latest.json eval/baselines/main.json
+
+eval-compare:   ## Compare the latest report against the committed baseline (exit 1 on regression)
+	$(VENV)/bin/python -c "from evalkit.baseline import compare, render_table; from evalkit.report import load_report; import sys; report = load_report('eval/reports/latest.json'); baseline = load_report('eval/baselines/main.json'); diff = compare(report, baseline); print(render_table(diff)); sys.exit(diff.exit_code())"

@@ -22,7 +22,7 @@ from app.db.engine import get_session_factory
 from evalkit import cli
 from evalkit.dataset import JsonDatasetStore
 from evalkit.metrics.oracle import make_oracle_fact_check_metric
-from evalkit.registry import register_metric
+from evalkit.registry import list_metrics, register_metric
 
 from eval.adapters.config import DATASET_DIR, TAXONOMY
 from eval.adapters.langgraph_runner import LangGraphRunner
@@ -61,7 +61,13 @@ except ImportError:
 
 
 def main() -> int:
-    dataset_store = JsonDatasetStore(DATASET_DIR, TAXONOMY)
+    # `evalkit.metrics` (imported above) already registered every metric by
+    # this point, so `list_metrics()` is the complete real vocabulary — a
+    # golden naming an unregistered metric now fails loudly at load time
+    # instead of KeyError-ing mid-run, minutes into a judged full suite.
+    dataset_store = JsonDatasetStore(
+        DATASET_DIR, TAXONOMY, known_metrics=set(list_metrics())
+    )
     agent_runner = LangGraphRunner()
 
     # Wire the real extractor into `oracle_fact_check` only when a real judge/

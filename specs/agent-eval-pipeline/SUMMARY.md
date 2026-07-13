@@ -21,7 +21,9 @@ Input-type: new initiative
 
 ## What changed
 
-Plan phase complete: `research-brief.md` (repo deep-dive + uncommitted-changes review + external best practices) and `PLAN.md` (9 tasks / 4 waves). One hygiene edit: `.deepeval/` added to root `.gitignore` (runtime cache/telemetry, regenerated per run). No agent/app code changed.
+Phase 1 shipped in 4 waves on `feat/agent-eval-pipeline`. A portable engine (`apps/api/evalkit/` — types, 5 ports, metric registry, dataset store, runner, CLI, report, baseline; installable standalone as `agent-evalkit`, pydantic-only core with `agentevals`/`deepeval` as extras) plus the travel-pi binding (`apps/api/eval/adapters/` — LangGraph runner, DB oracle, LLM extractor, taxonomy). 13 metrics across three families: judge-free deterministic, deterministic trajectory, and G-Eval judged (temp-0, k-repeat averaged). The golden matrix grew 24 → 84 cases across 10 capabilities × 5 scenarios, VN + EN, schema-validated at load. The six legacy eval modules were retired once each was confirmed superseded. `make eval-{smoke,full,baseline,compare}` + a CI workflow (keyless PR gate, judged nightly with baseline diff).
+
+Three defects found and closed on the way: `no_hallucination` was blind (no `retrieval_context` — now fed from real tool outputs); seven goldens named metrics no rubric implemented (would have `KeyError`d mid-run after paid judge calls — rubrics recovered from the MIN-65 commit that defined them, and unknown metric names are now rejected at load); the `.deepeval/` runtime cache was untracked noise (gitignored).
 
 ### Rationale
 
@@ -45,10 +47,15 @@ Two user-accepted constraints drive the shape: (1) **portability** — the engin
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| evalkit boundary + types (task 1.1) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval/test_boundary.py tests/eval/test_types.py -x -q` | 0 | 10 passed; boundary gate fails on any `app.*`/fastapi/sqlalchemy/langgraph import |
-| eval suite unaffected | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | 37 passed (legacy harness tests still green) |
-| lint | `cd apps/api && ../../.venv/bin/ruff check evalkit && ../../.venv/bin/ruff format --check evalkit` | 0 | clean |
-| standalone installability | `pip install -e apps/api/evalkit` in a throwaway venv | 0 | imports cleanly with pydantic only — the portability claim is tested, not asserted |
+| eval suite (all 4 waves) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | 133 passed |
+| boundary gate (portability) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval/test_boundary.py -q` | 0 | ast walk of `evalkit/`; fails on any `app.*`/fastapi/sqlalchemy/langgraph import |
+| standalone installability | `pip install -e apps/api/evalkit` in a throwaway venv | 0 | imports with pydantic alone — the portability claim is tested, not asserted |
+| full API suite (no regression) | `cd apps/api && DATABASE_URL="sqlite:///./test_verify.db" OPENAI_API_KEY="" ../../.venv/bin/python -m pytest tests/ -q` | 1 | 1625 passed, **5 failed — all pre-existing** (`tests/core/test_config_llm.py`, `test_embeddings.py`, `tests/tools/test_routing_tools.py`: this checkout's `.env` ships real ORS/OpenAI keys). No file under those paths was touched. Without the DB override the run errors at setup (known: `.env` points at a Postgres that is not up). |
+| suite auditability | `cd apps/api && ../../.venv/bin/python -m eval --suite full --dry-run` | 0 | 66 goldens listed with their metrics, no agent invoked; previously would have `KeyError`d on unregistered metric names |
+| make targets | `cd apps/api && make -n eval-smoke eval-full eval-baseline eval-compare` | 0 | all four resolve |
+| lint | `cd apps/api && ../../.venv/bin/ruff check evalkit eval && ../../.venv/bin/ruff format --check evalkit eval` | 0 | clean |
+
+**Not yet run (be honest about it):** a real judged `make eval-full` against a live LLM + DB. It needs a reachable model (the eval graph bypasses `AgentConfigCache` and falls back to env `gpt-5`/`gpt-5-mini` → 403) and a seeded DB. Until that run happens there is **no baseline**, so `eval-compare` has nothing to gate against — that is the first thing to do next, not a claim this work already made.
 
 ### Rollback
 

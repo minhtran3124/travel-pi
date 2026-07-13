@@ -161,6 +161,38 @@ def test_non_dict_element_raises(tmp_path):
         JsonDatasetStore(tmp_path, TAXONOMY)
 
 
+def test_unknown_metric_raises_naming_file_case_and_metric(tmp_path):
+    case = _case("bad-01", "flight_search", "happy")
+    case["metrics"] = ["flow_match", "not_a_real_metric"]
+    _write(tmp_path, "bad.json", [case])
+    with pytest.raises(ValueError, match="bad.json.*bad-01.*not_a_real_metric"):
+        JsonDatasetStore(tmp_path, TAXONOMY, known_metrics={"flow_match"})
+
+
+def test_known_metrics_none_skips_metric_validation(tmp_path):
+    """Default (`known_metrics=None`) never checks `metrics` — the store
+    stays importable/usable with zero coupling to `evalkit.metrics`."""
+    case = _case("ok-01", "flight_search", "happy")
+    case["metrics"] = ["totally_made_up"]
+    _write(tmp_path, "ok.json", [case])
+    store = JsonDatasetStore(tmp_path, TAXONOMY)
+    assert len(store.load()) == 1
+
+
+def test_real_dataset_metrics_are_all_registered():
+    """Regression: every real golden's `metrics` entries must resolve
+    against the real evalkit registry, or `python -m eval --suite full`
+    dies mid-flight with a `KeyError` after the judged metrics start
+    running (the bug this test guards against)."""
+    import evalkit.metrics  # noqa: F401 - populate the registry
+    from evalkit.registry import list_metrics
+
+    store = JsonDatasetStore(
+        REAL_DATASET_DIR, TAXONOMY, known_metrics=set(list_metrics())
+    )
+    assert len(store.load()) > 0
+
+
 def test_save_round_trips_through_the_store(tmp_path):
     store = JsonDatasetStore(tmp_path, TAXONOMY)
     assert store.load() == []
