@@ -54,3 +54,6 @@ next-env.d.ts
 specs/**/PLAN.html
 specs/**/.plan-review.json
 WORKFLOW_DIAGRAM.html
+
+# DeepEval runtime cache/telemetry (regenerated per eval run)
+.deepeval/
