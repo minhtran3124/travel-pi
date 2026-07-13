@@ -12,6 +12,7 @@ silently to "no claimed value found" in production.
 
 from __future__ import annotations
 
+import pytest
 from app.clients.llm import FakeLLM
 from eval.adapters.db_oracle import DbOracle
 from eval.adapters.extractor import (
@@ -19,11 +20,12 @@ from eval.adapters.extractor import (
     _FlightOffersClaim,
     llm_extract,
 )
+from evalkit.metrics.oracle import ExtractionError
 
 
 def _patch_llm(monkeypatch, structured_response):
     fake = FakeLLM(structured_responses=[structured_response])
-    monkeypatch.setattr("eval.adapters.extractor.get_fast_llm", lambda: fake)
+    monkeypatch.setattr("eval.adapters.extractor.get_fast_llm", lambda *_: fake)
     return fake
 
 
@@ -48,10 +50,10 @@ def test_returns_none_when_the_reply_states_no_price(monkeypatch):
     assert result is None
 
 
-def test_returns_none_for_an_unsupported_kind_without_calling_the_llm(monkeypatch):
+def test_unsupported_kind_raises_without_calling_the_llm(monkeypatch):
     called = {"n": 0}
 
-    def _boom():
+    def _boom(*_args):
         called["n"] += 1
         raise AssertionError(
             "get_fast_llm should not be called for an unsupported kind"
@@ -59,26 +61,48 @@ def test_returns_none_for_an_unsupported_kind_without_calling_the_llm(monkeypatc
 
     monkeypatch.setattr("eval.adapters.extractor.get_fast_llm", _boom)
 
-    result = llm_extract("anything", "weather_forecast", {})
+    with pytest.raises(ExtractionError, match="no extraction schema"):
+        llm_extract("anything", "weather_forecast", {})
 
-    assert result is None
     assert called["n"] == 0
 
 
-def test_returns_none_when_extraction_raises(monkeypatch):
+def test_a_failed_llm_call_raises_instead_of_looking_like_an_empty_reply(monkeypatch):
+    """The bug this pins: a 403 from the extractor's provider used to return
+    `None`, which `OracleFactCheck` reads as "the reply claimed nothing" and
+    FAILS the case — the eval charging its own misconfiguration to the agent.
+    """
+
     class _BoomLLM:
         def with_structured_output(self, schema):
             class _Boom:
                 def invoke(self, prompt):
-                    raise RuntimeError("provider unavailable")
+                    raise RuntimeError("403 does not have access to model")
 
             return _Boom()
 
-    monkeypatch.setattr("eval.adapters.extractor.get_fast_llm", lambda: _BoomLLM())
+    monkeypatch.setattr("eval.adapters.extractor.get_fast_llm", lambda *_: _BoomLLM())
 
-    result = llm_extract("The cheapest flight is $123.", "flight_offers", {})
+    with pytest.raises(ExtractionError, match="403"):
+        llm_extract("The cheapest flight is $123.", "flight_offers", {})
 
-    assert result is None
+
+def test_extraction_runs_on_the_eval_owned_model_not_the_env_default(monkeypatch):
+    """`EVAL_EXTRACTOR_MODEL` is the eval's own knob — the extractor is eval
+    infrastructure, so it must not silently ride the env agent default.
+    """
+    seen: list[str | None] = []
+
+    def _capture(model=None):
+        seen.append(model)
+        return FakeLLM(structured_responses=[_FlightOffersClaim(min_price=123.0)])
+
+    monkeypatch.setattr("eval.adapters.extractor.EXTRACTOR_MODEL", "gpt-5.4-mini")
+    monkeypatch.setattr("eval.adapters.extractor.get_fast_llm", _capture)
+
+    llm_extract("The cheapest flight is $123.", "flight_offers", {})
+
+    assert seen == ["gpt-5.4-mini"]
 
 
 # --- the wiring-bug test: schema fields must exist in DbOracle's real keys -

@@ -15,6 +15,7 @@ import argparse
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from evalkit.metrics.oracle import ExtractionError
 from evalkit.ports import AgentRunner, DatasetStore, Oracle
 from evalkit.registry import Taxonomy
 from evalkit.report import Report, report_exit_code, save_report
@@ -99,20 +100,27 @@ def main(
         _print_dry_run(goldens, metrics)
         return 0
 
-    report = run_eval(
-        goldens,
-        agent_runner,
-        metrics,
-        taxonomy,
-        oracle=oracle,
-        repeat=args.repeat,
-        judge_available=judge_available,
-        run_meta={
-            "suite": args.suite,
-            "capability": args.capability,
-            "language": args.language,
-        },
-    )
+    try:
+        report = run_eval(
+            goldens,
+            agent_runner,
+            metrics,
+            taxonomy,
+            oracle=oracle,
+            repeat=args.repeat,
+            judge_available=judge_available,
+            run_meta={
+                "suite": args.suite,
+                "capability": args.capability,
+                "language": args.language,
+            },
+        )
+    except ExtractionError as exc:
+        # The eval's own extractor is broken, so no verdict it produced is
+        # trustworthy — abort with a fixable message instead of shipping a
+        # report full of failures the agent did not cause.
+        print(f"\nEVAL MISCONFIGURED — oracle extraction could not run:\n  {exc}\n")
+        return 2
 
     if args.out:
         save_report(report, args.out)

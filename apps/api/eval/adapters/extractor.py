@@ -22,7 +22,10 @@ import logging
 from typing import Any
 
 from app.clients.llm import get_fast_llm
+from evalkit.metrics.oracle import ExtractionError
 from pydantic import BaseModel, Field
+
+from eval.adapters.config import EXTRACTOR_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -149,27 +152,34 @@ def llm_extract(reply: str, kind: str, params: dict[str, Any]) -> dict[str, Any]
     :param params: The oracle-check's lookup params (unused by extraction
         itself — logging only).
     :return: A dict of the fields the reply actually stated (nulls dropped),
-        or `None` when *kind* is unsupported, extraction failed, or the reply
-        stated nothing at all.
+        or `None` when the reply stated nothing at all — a verdict about the
+        agent, and the ONLY thing `None` may mean.
+    :raises ExtractionError: when extraction could not run (unsupported kind,
+        or the LLM call failed) — an eval-config bug, never charged to the agent.
     """
     schema = _SCHEMAS.get(kind)
     if schema is None:
-        logger.warning(
-            "[EVAL] llm_extract: no extraction schema for oracle kind=%s", kind
+        # The oracle supports this kind but no extraction schema covers it —
+        # a vocabulary gap in the eval, not a claim the agent failed to make.
+        raise ExtractionError(
+            f"no extraction schema for oracle kind={kind!r} — add one to "
+            f"eval/adapters/extractor.py::_SCHEMAS"
         )
-        return None
 
-    llm = get_fast_llm()
+    llm = get_fast_llm(EXTRACTOR_MODEL)
     structured = llm.with_structured_output(schema)
     prompt = _EXTRACTION_PROMPT.format(reply=reply)
 
     try:
         result = structured.invoke(prompt)
-    except Exception as exc:  # noqa: BLE001 - extraction failure must degrade, not crash the eval run
-        logger.warning(
-            "[EVAL] llm_extract failed for kind=%s params=%s: %s", kind, params, exc
-        )
-        return None
+    except Exception as exc:
+        # Loud, not silent: returning None here would read as "the reply stated
+        # nothing", failing the case and blaming a possibly-correct agent for
+        # the eval's own broken model/key. See `ExtractionError`'s docstring.
+        raise ExtractionError(
+            f"extractor LLM call failed for kind={kind} params={params} "
+            f"(model={EXTRACTOR_MODEL or 'env FAST_LLM_MODEL default'}): {exc}"
+        ) from exc
 
     claimed = result.model_dump(exclude_none=True)
     return claimed or None

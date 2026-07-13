@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 from eval.adapters.db_oracle import DbOracle
-from evalkit.metrics.oracle import OracleFactCheck
+from evalkit.metrics.oracle import ExtractionError, OracleFactCheck
 from evalkit.registry import get_metric
 from evalkit.types import Golden, Trace
 
@@ -181,7 +181,8 @@ def test_unsupported_kind_is_not_applicable_never_a_pass_by_accident(seeded_sess
     assert "not_applicable" in result.detail
 
 
-def test_extraction_failure_fails_loud_not_a_crash(seeded_session):
+def test_a_reply_claiming_nothing_fails_loud_not_a_crash(seeded_session):
+    """`None` from the extractor means the AGENT stated no checkable value."""
     oracle = DbOracle(seeded_session)
     golden = _golden(
         oracle_checks=[{"kind": "flight_offers", "params": _FLIGHT_PARAMS}]
@@ -196,6 +197,26 @@ def test_extraction_failure_fails_loud_not_a_crash(seeded_session):
 
     assert not result.passed
     assert "no claimed value" in result.detail
+
+
+def test_a_broken_extractor_aborts_the_run_instead_of_failing_the_agent(seeded_session):
+    """A broken extractor (bad model/key) must NOT be recorded as an agent
+    failure: its `ExtractionError` propagates so the run stops and gets fixed,
+    rather than producing a report of failures the agent never caused.
+    """
+    oracle = DbOracle(seeded_session)
+    golden = _golden(
+        oracle_checks=[{"kind": "flight_offers", "params": _FLIGHT_PARAMS}]
+    )
+    trace = Trace(reply="The cheapest flight is $88.")
+
+    def broken_extractor(reply, kind, params):
+        raise ExtractionError("403 does not have access to model gpt-5-mini")
+
+    metric = OracleFactCheck(extractor=broken_extractor)
+
+    with pytest.raises(ExtractionError, match="403"):
+        metric.evaluate(golden, trace, oracle)
 
 
 def test_oracle_lookup_failure_fails_loud_not_a_crash(seeded_session):

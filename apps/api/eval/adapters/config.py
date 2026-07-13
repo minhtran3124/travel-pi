@@ -9,6 +9,7 @@ threshold per-capability pass rates on.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from evalkit.registry import Taxonomy
@@ -50,3 +51,16 @@ TAXONOMY = Taxonomy(
 EVAL_DIR = Path(__file__).resolve().parent.parent
 DATASET_DIR = EVAL_DIR / "datasets"
 BASELINE_DIR = EVAL_DIR / "baselines"
+
+# Model for the oracle extractor (`eval/adapters/extractor.py`), which parses
+# the agent's reply into claimed values. It is EVAL infrastructure, not a graph
+# node, so its model is configured here rather than seeded into the product's
+# `agent_config` table (where it would surface on the config dashboard as an
+# agent nobody serves).
+#
+# Unset falls back to the env `FAST_LLM_MODEL`. That default is only usable if
+# the provider key can actually call it — this repo's key cannot call the
+# `gpt-5-mini` default, which is exactly the misconfiguration `ExtractionError`
+# now reports instead of charging it to the agent. Set `EVAL_EXTRACTOR_MODEL`
+# to a model the key can call (here: `gpt-5.4-mini`, what the DB serves).
+EXTRACTOR_MODEL: str | None = os.environ.get("EVAL_EXTRACTOR_MODEL") or None

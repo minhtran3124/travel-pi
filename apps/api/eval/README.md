@@ -120,11 +120,16 @@ registered raises `KeyError` at run time (`evalkit.registry.get_metric`), not a 
 All commands from `apps/api/`, via the root delegating `Makefile` or directly:
 
 ```bash
-make eval-smoke      # keyless: python -m eval --suite smoke — deterministic + trajectory only
-make eval-full        # judged: python -m eval --suite full --repeat 3 --out eval/reports/latest.json
+make eval-smoke       # deterministic + trajectory only; writes reports/latest.{json,html}
+make eval-full        # judged: --suite full --repeat 3; writes reports/latest.{json,html}
+make eval-html        # re-render latest.json as HTML — no agent, no LLM spend
 make eval-baseline    # cp eval/reports/latest.json -> eval/baselines/main.json (commit this)
 make eval-compare     # diff eval/reports/latest.json against eval/baselines/main.json; exit 1 on regression
 ```
+
+`latest.html` is the one to open when something fails: totals and pass rate, each capability
+against its threshold, and every case expandable to its per-check verdict and reason, failures
+first. It is self-contained (no CDN/asset), so it also works as a CI artifact.
 
 `--dry-run` (e.g. `../../.venv/bin/python -m eval --suite smoke --dry-run`) lists the selected
 goldens and their resolved metric names without invoking the agent at all — the fastest way to
@@ -138,15 +143,23 @@ app's own lifespan on container start).
 
 ## Gotchas (real, read from the code — not aspirational)
 
-- **The eval harness bypasses `AgentConfigCache` and needs a reachable model key.**
-  `LangGraphRunner` (`eval/adapters/langgraph_runner.py`) calls `app.agents.graph.build_graph`
-  directly, never through a FastAPI request — so the request-scoped `AgentConfigCache` that
-  normally resolves each agent's configured model is never populated. Every node falls back to
-  `get_agent_llm`'s env-configured model (`gpt-5`/`gpt-5-mini` by default) and needs a real
-  provider key *at invocation time*, or you get a 403 the moment the graph actually calls the
-  LLM. Tests always inject `FakeLLM` via `LangGraphRunner(llm=..., fast_llm=...)` to stay
-  network-free; a real `make eval-smoke`/`eval-full` run needs a working `OPENAI_API_KEY` (or
-  whatever `LLM_PROVIDER` is configured) regardless of whether any metric on the run is judged.
+- **A real run grades the DB-configured agent, not the env-default one.** `eval/__main__.py`
+  loads `AgentConfigCache` (`configure` + `reload_from_db`, mirroring `app/core/lifespan.py`)
+  and builds the run's `AgentContext` the way `app/routers/agent.py` does, so nodes resolve the
+  same per-agent models the API serves and reflection follows its DB toggle. Before that wiring
+  existed, every node fell back to `get_agent_llm`'s env default (`gpt-5`/`gpt-5-mini`) — a 403
+  on this repo's key, and otherwise a score for an agent nobody ships. Consequence: **the DB
+  must be reachable and its `agent_config` rows populated** (`make seed`) for a real run; tests
+  stay network-free by injecting `FakeLLM` via `LangGraphRunner(llm=..., fast_llm=...)`.
+
+- **The oracle extractor has its OWN model knob, `EVAL_EXTRACTOR_MODEL`.** `llm_extract`
+  (`eval/adapters/extractor.py`) is eval infrastructure, not a graph node, so it is deliberately
+  NOT in the product's `agent_config` table/dashboard — set `EVAL_EXTRACTOR_MODEL` to a model
+  your provider key can actually call (unset falls back to the env `FAST_LLM_MODEL`, which on
+  this repo's key is a 403). If extraction cannot run it raises `ExtractionError` and the CLI
+  aborts with `EVAL MISCONFIGURED` (exit 2), rather than reporting "extractor found no claimed
+  value" and failing goldens the agent got right — a broken eval must never charge its own
+  misconfiguration to the agent.
 
 - **The DB must already exist, with its schema created and seeded, before you run eval at
   all.** `LangGraphRunner`/`build_eval_graph` only sets up an in-memory checkpointer/store

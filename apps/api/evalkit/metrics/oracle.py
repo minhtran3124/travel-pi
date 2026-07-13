@@ -29,11 +29,26 @@ from evalkit.ports import Oracle
 from evalkit.registry import register_metric
 from evalkit.types import CheckResult, Golden, Trace
 
+
+class ExtractionError(RuntimeError):
+    """The extractor could not RUN (bad model/key/schema) — an eval-config bug.
+
+    Strictly different from "the reply claimed nothing", which is `None`/`{}`
+    and is a verdict about the agent. Collapsing the two is not a style choice:
+    a 403 from the extractor's provider once made every `oracle_fact_check`
+    report "extractor found no claimed value" and FAIL the case, i.e. the eval
+    blamed a correct agent for its own misconfiguration. Raising instead aborts
+    the run with a fixable message, and never manufactures a verdict from an
+    answer nobody read.
+    """
+
+
 # `extractor(reply, kind, params) -> dict[str, Any] | None`. Returns the
 # subset of oracle-shaped fields it could find stated as fact in `reply`
 # (e.g. `{"min_price": 123.0}`), or `None`/`{}` when it found no claim at all
-# relevant to `kind`. Production: an LLM structured-output call (extraction
-# only — see the module docstring). Tests: a hand-written stub.
+# relevant to `kind`. It must raise `ExtractionError` when it cannot run at
+# all — never return `None` for that. Production: an LLM structured-output
+# call (extraction only — see the module docstring). Tests: a hand-written stub.
 Extractor = Callable[[str, str, "dict[str, Any]"], "dict[str, Any] | None"]
 
 # Absolute tolerance for float-valued fields (prices etc.), in the field's own
@@ -154,6 +169,10 @@ class OracleFactCheck:
                     detail=f"{tag}: oracle lookup failed: {exc!r}",
                 )
 
+            # An `ExtractionError` here is deliberately NOT caught: the eval
+            # itself is broken, so every verdict it would go on to produce is
+            # worthless. Let it abort the run (the CLI turns it into a fixable
+            # message) rather than silently recording agent failures.
             claimed = self._extractor(trace.reply, kind, params) or {}
             agrees, overlap, detail = _compare(expected, claimed, self._tolerance)
 
