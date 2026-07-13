@@ -78,4 +78,4 @@ class FlightsPanel(AppBaseModel):
         )
 
 
-register_panel(PanelSpec(kind="flights", model=FlightsPanel))
+register_panel(PanelSpec(kind="flights"))

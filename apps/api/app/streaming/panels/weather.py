@@ -152,4 +152,4 @@ class WeatherPanel(AppBaseModel):
         )
 
 
-register_panel(PanelSpec(kind="weather", model=WeatherPanel, localize_vi=_localize_vi))
+register_panel(PanelSpec(kind="weather", localize_vi=_localize_vi))

@@ -35,8 +35,11 @@ _AQI_ADVICE = {
 }
 _AQI_UNKNOWN_ADVICE = "No air-quality reading is available for this location right now."
 
-# US-AQI category → Vietnamese. One entry per KEY of ``_AQI_BAND`` above
-# (parity-tested).
+# US-AQI category → Vietnamese. One entry per category
+# ``air_quality_service._us_aqi_category`` can return — that is the source of
+# truth, NOT ``_AQI_BAND`` above (which is itself derived and omits the
+# ``"Unknown"`` fallback the service emits when Open-Meteo has no reading).
+# Parity-tested against the service function itself.
 AQI_CATEGORY_VI: dict[str, str] = {
     "Good": "Tốt",
     "Moderate": "Trung bình",
@@ -44,10 +47,12 @@ AQI_CATEGORY_VI: dict[str, str] = {
     "Unhealthy": "Có hại cho sức khỏe",
     "Very Unhealthy": "Rất có hại cho sức khỏe",
     "Hazardous": "Nguy hiểm",
+    "Unknown": "Không rõ",
 }
 
 # AQI advice sentence → Vietnamese. One entry per VALUE of ``_AQI_ADVICE`` above
-# (parity-tested).
+# PLUS ``_AQI_UNKNOWN_ADVICE`` — the panel emits that fallback whenever the
+# category is unmapped, so it needs a translation like any other (parity-tested).
 AQI_ADVICE_VI: dict[str, str] = {
     "Air quality is satisfactory — enjoy the outdoors.": (
         "Chất lượng không khí tốt — thoải mái tận hưởng ngoài trời."
@@ -66,6 +71,9 @@ AQI_ADVICE_VI: dict[str, str] = {
     ),
     "Emergency conditions — stay indoors with air filtered.": (
         "Tình trạng khẩn cấp — ở trong nhà với không khí đã được lọc."
+    ),
+    _AQI_UNKNOWN_ADVICE: (
+        "Hiện chưa có số liệu chất lượng không khí cho địa điểm này."
     ),
 }
 
@@ -180,6 +188,4 @@ class AirQualityPanel(AppBaseModel):
         )
 
 
-register_panel(
-    PanelSpec(kind="air_quality", model=AirQualityPanel, localize_vi=_localize_vi)
-)
+register_panel(PanelSpec(kind="air_quality", localize_vi=_localize_vi))

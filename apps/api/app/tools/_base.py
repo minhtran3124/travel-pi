@@ -25,7 +25,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
-from app.streaming.panels import get_panel
+from app.streaming.panels import UnknownPanelKind, get_panel
 
 logger = logging.getLogger("app.tools")
 
@@ -108,10 +108,13 @@ def panel_result(summary: str, *, kind: str, data: Any) -> tuple[str, dict]:
         embedded in the artifact.
     :return: A ``(summary, artifact)`` tuple in the LangChain
         ``content_and_artifact`` shape.
-    :raises ValueError: If ``kind`` is not a registered panel kind — a typo'd
-        kind is a programming error at the tool seam, not a runtime condition
-        to swallow or fall back on.
+    :raises UnknownPanelKind: If ``kind`` is not a registered panel kind — a typo'd
+        kind is a programming error at the tool seam, not a runtime condition to
+        swallow or fall back on. It is deliberately not a ``ValueError``: several
+        panel tools wrap ``ValueError``/``AppError`` into ``ToolException``, which
+        the agent relays back to the model as a recoverable logic error, so a bad
+        kind would reach the traveller as a chat message instead of failing loudly.
     """
     if get_panel(kind) is None:
-        raise ValueError(f"unknown panel kind: {kind!r}")
+        raise UnknownPanelKind(f"unknown panel kind: {kind!r}")
     return summary, {"kind": kind, "data": dump(data)}

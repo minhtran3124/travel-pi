@@ -160,4 +160,4 @@ class HotelsPanel(AppBaseModel):
         )
 
 
-register_panel(PanelSpec(kind="hotels", model=HotelsPanel, localize_vi=_localize_vi))
+register_panel(PanelSpec(kind="hotels", localize_vi=_localize_vi))

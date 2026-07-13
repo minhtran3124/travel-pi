@@ -83,4 +83,4 @@ class RoutePanel(AppBaseModel):
         )
 
 
-register_panel(PanelSpec(kind="route", model=RoutePanel))
+register_panel(PanelSpec(kind="route"))

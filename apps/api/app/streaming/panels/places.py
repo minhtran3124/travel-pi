@@ -44,7 +44,7 @@ async def _localize_vi(data: dict, translator: Translator | None) -> None:
             try:
                 place["description"] = await translator(desc)
             except Exception as e:  # noqa: BLE001
-                logger.error("[PANEL_LOCALIZER] translate failed: %s", e)
+                logger.error("[PANELS_PLACES] translate failed: %s", e)
 
 
 class PlacesPanelPlace(AppBaseModel):
@@ -119,4 +119,4 @@ class PlacesPanel(AppBaseModel):
         )
 
 
-register_panel(PanelSpec(kind="places", model=PlacesPanel, localize_vi=_localize_vi))
+register_panel(PanelSpec(kind="places", localize_vi=_localize_vi))

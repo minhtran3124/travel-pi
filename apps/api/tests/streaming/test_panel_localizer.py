@@ -104,13 +104,30 @@ def test_vi_hotels_amenities_localized():
 
 
 def test_vi_tables_cover_english_sources():
+    """Parity against the SOURCES, not against sibling derived tables.
+
+    The AQI half used to compare ``AQI_CATEGORY_VI`` with ``_AQI_BAND`` — two tables
+    both derived from the service, so the ``"Unknown"`` category (which the service
+    emits when Open-Meteo has no reading, and which ``_AQI_BAND`` omits) fell through
+    the gap and reached Vietnamese users in English. Enumerate what the service can
+    actually return instead.
+    """
+    from app.services.air_quality_service import _us_aqi_category
     from app.services.weather_service import WMO_CODES
-    from app.streaming.panels.air_quality import _AQI_ADVICE, _AQI_BAND
+    from app.streaming.panels.air_quality import _AQI_ADVICE, _AQI_UNKNOWN_ADVICE
 
     wmo_values = set(WMO_CODES.values())
     assert wmo_values <= set(WEATHER_VI), wmo_values - set(WEATHER_VI)
-    assert set(_AQI_BAND) <= set(AQI_CATEGORY_VI), set(_AQI_BAND) - set(AQI_CATEGORY_VI)
-    assert set(_AQI_ADVICE.values()) <= set(AQI_ADVICE_VI)
+
+    # Every category the service can produce, incl. the None -> "Unknown" fallback.
+    service_categories = {_us_aqi_category(v) for v in [None, *range(0, 600, 5)]}
+    assert service_categories <= set(AQI_CATEGORY_VI), service_categories - set(
+        AQI_CATEGORY_VI
+    )
+
+    # Every advice sentence the panel can emit, incl. the unmapped-category fallback.
+    panel_advice = set(_AQI_ADVICE.values()) | {_AQI_UNKNOWN_ADVICE}
+    assert panel_advice <= set(AQI_ADVICE_VI), panel_advice - set(AQI_ADVICE_VI)
 
 
 def test_vi_category_and_amenity_tables_cover_sources():

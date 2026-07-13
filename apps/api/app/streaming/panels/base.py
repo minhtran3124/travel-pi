@@ -1,4 +1,4 @@
-"""Panel registry: kind -> (model, localizer) lookup.
+"""Panel registry: kind -> localizer lookup, and the set of valid kinds.
 
 Nothing panel-specific lives here. Each panel module registers itself at
 import time via :func:`register_panel`; :mod:`app.streaming.panels` imports
@@ -11,16 +11,25 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-from app.schemas.base import AppBaseModel
-
 Translator = Callable[[str], Awaitable[str]]
 Localizer = Callable[[dict, "Translator | None"], Awaitable[None]]
+
+
+class UnknownPanelKind(Exception):
+    """A panel kind that no module registered — a source-level bug, not a runtime condition.
+
+    Deliberately NOT a ``ValueError`` and NOT an ``AppError``: the panel tools wrap
+    both of those into ``ToolException``, which the agent relays back to the model as
+    a recoverable *logic* error. A mistyped kind would then surface to the traveller as
+    a chat message instead of failing loudly, so this must be a type neither handler
+    catches. CI is the real guard (``tests/tools/test_panel_result.py`` scans the tool
+    modules); this is the backstop.
+    """
 
 
 @dataclass(frozen=True)
 class PanelSpec:
     kind: str
-    model: type[AppBaseModel]
     localize_vi: Localizer | None = None
 
 

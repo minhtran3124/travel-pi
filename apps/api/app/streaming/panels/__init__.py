@@ -24,7 +24,7 @@ To add a panel kind — create ONE file, ``panels/<kind>.py``:
    mutates ``data`` in place. Comment each table with the source of truth it must stay in
    parity with — the parity tests key off that. Free-form prose goes through the injected
    ``translator``; never call ``get_fast_llm()`` here.
-3. Call ``register_panel(PanelSpec(kind=..., model=..., localize_vi=...))`` at module scope
+3. Call ``register_panel(PanelSpec(kind=..., localize_vi=...))`` at module scope
    (omit ``localize_vi`` when the panel has no translatable strings — it then deep-copies
    and localizes nothing).
 4. Import the module in this ``__init__`` (that import IS the registration) and add its
@@ -45,6 +45,7 @@ from app.streaming.panels.air_quality import (  # noqa: F401
 )
 from app.streaming.panels.base import (  # noqa: F401
     PanelSpec,
+    UnknownPanelKind,
     get_panel,
     panel_kinds,
     register_panel,
@@ -77,6 +78,7 @@ __all__ = [
     "RoutePanel",
     "RoutePanelEndpoint",
     "RoutePanelLeg",
+    "UnknownPanelKind",
     "WeatherPanel",
     "WeatherPanelCurrent",
     "WeatherPanelDay",
