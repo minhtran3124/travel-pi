@@ -26,3 +26,10 @@ try:
     from . import judged  # noqa: F401
 except ImportError:  # pragma: no cover - exercised only without the extra
     logger.warning("[EVALKIT] deepeval missing — judged (G-Eval) metrics unavailable")
+
+try:
+    from . import oracle  # noqa: F401
+except ImportError:  # pragma: no cover - exercised only without the extra
+    logger.warning(
+        "[EVALKIT] oracle module unavailable — oracle_fact_check unregistered"
+    )

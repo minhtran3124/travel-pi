@@ -49,7 +49,7 @@
         "params": {"city": "Hanoi", "check_in": "2026-08-10", "check_out": "2026-08-12"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
     "notes": "Dated availability/booking-flow search — search_hotels, not browse_hotels. New case (not a legacy migration) added for oracle_checks coverage."
   },
   {
@@ -92,7 +92,7 @@
         "params": {"city": "Nha Trang", "check_in": "2026-09-01", "check_out": "2026-09-05"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
   },
   {
     "id": "hotels-multi_turn-en-01",
@@ -112,6 +112,6 @@
         "params": {"city": "Da Nang", "check_in": "2026-09-10", "check_out": "2026-09-14"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
   }
 ]

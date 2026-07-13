@@ -14,7 +14,7 @@
         "params": {"origin": "SGN", "destination": "DAD", "departure_date": "2026-08-20"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
   },
   {
     "id": "flight_search-happy-en-01",
@@ -31,7 +31,7 @@
         "params": {"origin": "HAN", "destination": "SGN", "departure_date": "2026-08-15"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
   },
   {
     "id": "flight_search-ambiguous-vi-01",
@@ -95,7 +95,7 @@
         "params": {"origin": "HAN", "destination": "PQC", "departure_date": "2026-08-25"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
   },
   {
     "id": "flight_search-multi_turn-en-01",
@@ -115,6 +115,6 @@
         "params": {"origin": "DAD", "destination": "BKK", "departure_date": "2026-09-05"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
   }
 ]
