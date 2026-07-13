@@ -17,6 +17,7 @@ import os
 import sys
 
 import evalkit.metrics  # noqa: F401 - import side effect: registers deterministic/trajectory/judged/oracle metrics
+from app.agents.context import AgentContext
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
 from evalkit import cli
@@ -60,6 +61,31 @@ except ImportError:
     DbOracle = None
 
 
+def _prod_agent_context(session_factory) -> AgentContext:
+    """Load the DB agent config and mirror how a real request builds its context.
+
+    Without this the graph runs on the env-default models (`gpt-5`/`gpt-5-mini`)
+    and with reflection forced on — neither is what production serves, so the
+    scores would grade an agent nobody ships (agent memory
+    `eval-harness-bypasses-db-config-and-context`). `configure` + `reload_from_db`
+    mirror `app/core/lifespan.py`; the reflection flag mirrors
+    `app/routers/agent.py::_resolve_context`.
+    """
+    from app.agents.context import resolve_agent_context
+    from app.core.agent_config_cache import AgentConfigCache, reload_from_db
+
+    settings = get_settings()
+    AgentConfigCache.configure(session_factory, settings.agent_config_cache_ttl_seconds)
+    reload_from_db(session_factory)
+
+    refl = AgentConfigCache.get("reflection")
+    allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
+    logger.warning(
+        "[EVAL] agent config loaded from DB (allow_reflection=%s)", allow_reflection
+    )
+    return resolve_agent_context(tier=None, allow_reflection=allow_reflection)
+
+
 def main() -> int:
     # `evalkit.metrics` (imported above) already registered every metric by
     # this point, so `list_metrics()` is the complete real vocabulary — a
@@ -68,7 +94,6 @@ def main() -> int:
     dataset_store = JsonDatasetStore(
         DATASET_DIR, TAXONOMY, known_metrics=set(list_metrics())
     )
-    agent_runner = LangGraphRunner()
 
     # Wire the real extractor into `oracle_fact_check` only when a real judge/
     # LLM key is configured — `llm_extract` (eval/adapters/extractor.py) makes
@@ -96,6 +121,14 @@ def main() -> int:
     # it does not open a connection (SQLAlchemy `Session`s connect lazily), so
     # this is still safe for `--dry-run`, which never reaches the oracle.
     session_factory = get_session_factory(get_settings().database_url)
+
+    # `--dry-run` must stay DB-free (module docstring), and it never invokes the
+    # agent — so the DB-backed per-agent config is only loaded for a real run.
+    dry_run = "--dry-run" in sys.argv[1:]
+    agent_runner = LangGraphRunner(
+        context=None if dry_run else _prod_agent_context(session_factory)
+    )
+
     with session_factory() as session:
         oracle = DbOracle(session) if DbOracle is not None else None
         return cli.main(

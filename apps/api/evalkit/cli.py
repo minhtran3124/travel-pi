@@ -18,6 +18,7 @@ from typing import Any
 from evalkit.ports import AgentRunner, DatasetStore, Oracle
 from evalkit.registry import Taxonomy
 from evalkit.report import Report, report_exit_code, save_report
+from evalkit.report_html import save_html
 from evalkit.runner import resolve_metric_names, run_eval
 
 
@@ -30,6 +31,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--language", default=None, choices=["vi", "en"])
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--out", default=None)
+    parser.add_argument(
+        "--html",
+        default=None,
+        help="Also write a browsable HTML report (pass/fail per case) to this path.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -111,6 +117,10 @@ def main(
     if args.out:
         save_report(report, args.out)
         print(f"report written to {args.out}")
+
+    if args.html:
+        save_html(report, args.html)
+        print(f"html report written to {args.html}")
 
     _print_summary(report)
     return report_exit_code(report)

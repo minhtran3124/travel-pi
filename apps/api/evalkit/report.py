@@ -92,8 +92,15 @@ def report_exit_code(report: Report) -> int:
 
 
 def save_report(report: Report, path: str | Path) -> None:
-    """Write *report* as indented JSON to *path*."""
-    Path(path).write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    """Write *report* as indented JSON to *path*, creating parent dirs as needed.
+
+    The mkdir is not a nicety: saving happens AFTER the whole suite has run, so
+    a missing `reports/` directory would otherwise discard a full judged run's
+    results (real LLM spend) at the very last step.
+    """
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(report.model_dump_json(indent=2), encoding="utf-8")
 
 
 def load_report(path: str | Path) -> Report:
