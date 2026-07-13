@@ -37,7 +37,7 @@ Research: `research-brief.md`.
 
 ## 4. Matrix (dataset target)
 
-Capabilities: `flight_search`, `hotels`, `booking`, `budget`, `journal`, `memory_personalization`, `language_vi_en`, `date_resolution`, `error_handling`.
+Capabilities (as built — one dataset file per capability, so these are also the filenames): `flight_search`, `hotels`, `booking`, `budget`, `journal`, `memory`, `language`, `dates`, `errors`, `routing`. (`routing` absorbs the legacy supervisor-routing smoke suite; the shorter names replace the plan's original `memory_personalization` / `language_vi_en` / `date_resolution` / `error_handling`.)
 Scenarios: `happy`, `ambiguous`, `multi_turn`, `tool_failure`, `adversarial`.
 3–5 goldens per populated cell; empty cells are allowed and *visible* (the schema makes gaps countable) — they become the golden-generation agent's backlog in phase 2.5.
 

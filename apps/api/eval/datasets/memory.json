@@ -1,0 +1,158 @@
+[
+  {
+    "id": "memory-happy-vi-01",
+    "capability": "memory",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "smoke",
+    "input": "Lưu giúp tôi sở thích: tôi thích đi bộ đường dài hơn là nằm biển",
+    "expected_flow": "journal",
+    "expected_tools": ["save_user_preference"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"]
+  },
+  {
+    "id": "memory-happy-en-01",
+    "capability": "memory",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
+    "input": "Remember that I prefer window seats on flights",
+    "expected_flow": "journal",
+    "expected_tools": ["save_user_preference"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"]
+  },
+  {
+    "id": "memory-ambiguous-vi-01",
+    "capability": "memory",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tôi đã từng nói với bạn về sở thích du lịch của tôi chưa nhỉ?",
+    "expected_flow": "journal",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "Vague recall query with no specific key — plausible get_user_preferences call, not asserted as a hard requirement."
+  },
+  {
+    "id": "memory-ambiguous-en-01",
+    "capability": "memory",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Do you remember what I told you before?",
+    "expected_flow": "journal",
+    "metrics": ["flow_match", "reply_language"]
+  },
+  {
+    "id": "memory-multi_turn-vi-01",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tôi muốn đi Đà Nẵng ngày 15-20/8, 2 người lớn và 1 trẻ em",
+      "Vậy có khách sạn nào phù hợp không?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 eval/datasets/memory.json (commit fa8c9a1, branch tranhuuminh3124/min-65-..., not yet merged to v3). Destination Da Nang, dates 15-20/8, party 2 adults + 1 child were already stated in turn 1 — the reply should not re-ask for them."
+  },
+  {
+    "id": "memory-multi_turn-vi-02",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Chuyến đi Nha Trang tuần sau, đi 4 người lớn",
+      "Có gợi ý nhà hàng nào không?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json. Destination Nha Trang and party size 4 adults were already stated — should not be re-asked."
+  },
+  {
+    "id": "memory-multi_turn-vi-03",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tìm chuyến bay từ TP.HCM đi Tokyo ngày 10/9",
+      "Tìm khách sạn gần đó luôn nhé"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json. Origin SGN and destination Tokyo were already stated in turn 1 — the hotel search should reuse Tokyo as the area, not ask which city."
+  },
+  {
+    "id": "memory-multi_turn-vi-04",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Ngân sách của tôi khoảng 20 triệu cho chuyến đi Phú Quốc",
+      "Gợi ý lịch trình 3 ngày giúp mình"
+    ],
+    "expected_flow": "planner",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json. Budget (~20 triệu VND) and destination Phú Quốc were already stated — the itinerary should respect the stated budget, not ask for it again."
+  },
+  {
+    "id": "memory-multi_turn-en-01",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "I'm planning a trip to Bangkok from Aug 20 to Aug 25, 2026, 2 adults",
+      "What hotels do you recommend?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json. Destination Bangkok, dates Aug 20-25 2026, party 2 adults were already stated — should not be re-asked."
+  },
+  {
+    "id": "memory-multi_turn-vi-05",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Đi Đà Lạt cuối tuần này",
+      "2 người lớn thôi",
+      "Gợi ý khách sạn nhé"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json. Destination (Đà Lạt), dates (this weekend, from turn 1) and party size (2 adults, from turn 2) accumulate across three turns — the final reply should reuse all three, not just the latest turn."
+  },
+  {
+    "id": "memory-multi_turn-vi-06",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tôi ăn chay, nhớ giúp mình nhé",
+      "Gợi ý nhà hàng ở Đà Nẵng cho tôi"
+    ],
+    "expected_flow": "journal",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json, originally a cross-session case (new_thread_at=1): turn 2 was meant to run on a NEW thread_id to test long-term store recall (vegetarian preference) vs checkpoint history. Golden.turns (evalkit/types.py) has no thread-reset marker, so this is APPROXIMATED as same-thread multi-turn here — a known schema gap flagged for a future Golden field, not fixed in this task (types.py is out of scope, owned by task 1.1)."
+  },
+  {
+    "id": "memory-multi_turn-vi-07",
+    "capability": "memory",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tôi thích khách sạn gần biển, tiêu chuẩn 4-5 sao",
+      "Tìm khách sạn ở Nha Trang giúp mình"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "memory_recall", "reply_language"],
+    "notes": "Ported from MIN-65 memory.json, originally a cross-session case (new_thread_at=1) — same schema-gap approximation as memory-multi_turn-vi-06 (see that case's note)."
+  }
+]

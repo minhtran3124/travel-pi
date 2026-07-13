@@ -1,0 +1,76 @@
+[
+  {
+    "id": "dates-happy-en-01",
+    "capability": "dates",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
+    "input": "What's the weather in Tokyo tomorrow?",
+    "expected_flow": "concierge",
+    "expected_tools": ["get_weather"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "Migrated from legacy tools.json; recategorized under 'dates' (relative-date resolution: 'tomorrow') rather than a nonexistent 'weather' capability bucket."
+  },
+  {
+    "id": "dates-happy-vi-01",
+    "capability": "dates",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "smoke",
+    "input": "Thời tiết ở Đà Nẵng ngày mai thế nào?",
+    "expected_flow": "concierge",
+    "expected_tools": ["get_weather"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "Migrated from legacy tools.json; recategorized under 'dates' (relative-date resolution: 'ngày mai')."
+  },
+  {
+    "id": "dates-ambiguous-vi-01",
+    "capability": "dates",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Cho tôi xem chuyến bay đi Nha Trang cuối tuần này",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "'Cuối tuần này' (this weekend) is a relative range, not a single date — a good answer resolves it (resolve_date) or asks which day, rather than guessing."
+  },
+  {
+    "id": "dates-ambiguous-en-01",
+    "capability": "dates",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Find me a hotel in Da Lat sometime next month",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "'Sometime next month' is deliberately vague — no exact check-in/check-out date."
+  },
+  {
+    "id": "dates-multi_turn-vi-01",
+    "capability": "dates",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tôi muốn đặt khách sạn ở Phú Quốc",
+      "Khoảng cuối tuần sau, 3 đêm"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "Relative date ('cuối tuần sau') plus a duration ('3 đêm') instead of explicit check-in/check-out — tests relative-range resolution across turns."
+  },
+  {
+    "id": "dates-multi_turn-en-01",
+    "capability": "dates",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "I want to book a flight to Singapore",
+      "Let's say in 2 weeks from today"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "'In 2 weeks from today' — tests relative-date resolution anchored to the current date."
+  }
+]

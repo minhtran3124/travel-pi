@@ -1,22 +1,130 @@
 [
   {
+    "id": "routing-happy-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
     "input": "Plan a 3-day itinerary for Tokyo",
-    "expected": "planner"
+    "expected_flow": "planner",
+    "expected": "planner",
+    "metrics": ["flow_match"],
+    "notes": "Legacy routing.json (run_eval.py/metrics.py, kept for now — removed in task 4.1). The 'expected' key is a backward-compat duplicate of expected_flow: run_eval.py's load_dataset() reads raw JSON directly (not through Golden) and still keys off 'expected'; Golden itself ignores unknown keys (pydantic v2 default extra='ignore'), so this file validates cleanly against the new schema without breaking the legacy no-network routing smoke test."
   },
   {
+    "id": "routing-happy-en-02",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
     "input": "What's the weather like in Hanoi this week?",
-    "expected": "concierge"
+    "expected_flow": "concierge",
+    "expected": "concierge",
+    "metrics": ["flow_match"]
   },
   {
+    "id": "routing-happy-en-03",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
     "input": "Log that I paid 50 USD for lunch today",
-    "expected": "budget"
+    "expected_flow": "budget",
+    "expected": "budget",
+    "metrics": ["flow_match"]
   },
   {
-    "input": "Go ahead and book the hotel for those dates",
-    "expected": "booking"
-  },
-  {
+    "id": "routing-happy-en-04",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
     "input": "Remember that I am vegetarian for next time",
-    "expected": "journal"
+    "expected_flow": "journal",
+    "expected": "journal",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-happy-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Lên kế hoạch cho tôi chuyến đi 4 ngày ở Hội An",
+    "expected_flow": "planner",
+    "expected": "planner",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-happy-vi-02",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Ghi lại tôi vừa chi 200,000 đồng cho taxi",
+    "expected_flow": "budget",
+    "expected": "budget",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-ambiguous-en-01",
+    "capability": "routing",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Go ahead and book the hotel for those dates",
+    "expected_flow": "booking",
+    "expected": "booking",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-ambiguous-vi-01",
+    "capability": "routing",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Chuyến đi của tôi thế nào rồi?",
+    "expected_flow": "journal",
+    "expected": "journal",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-ambiguous-en-02",
+    "capability": "routing",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Can you help me sort out my trip?",
+    "expected_flow": "journal",
+    "expected": "journal",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-multi_turn-vi-01",
+    "capability": "routing",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tìm khách sạn ở Đà Nẵng cho tôi",
+      "Đặt luôn khách sạn đó và ghi lại tôi ăn chay nhé"
+    ],
+    "expected_flow": "booking",
+    "metrics": ["flow_match"],
+    "notes": "Multi-intent case (booking + a secondary journal/preference intent) — closes the gap flagged in specs/min-65-chatbot-intelligence/RESULTS.md follow-ups ('routing.json has no multi-intent test cases'). expected_flow is the supervisor's PRIMARY dispatch target; no legacy 'expected' key since this shape (turns) isn't consumed by the legacy single-turn run_eval.py."
+  },
+  {
+    "id": "routing-multi_turn-en-01",
+    "capability": "routing",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "Search flights from Ho Chi Minh City to Bangkok",
+      "Also remind me to pack sunscreen and book the cheapest one"
+    ],
+    "expected_flow": "booking",
+    "metrics": ["flow_match"],
+    "notes": "Multi-intent case (booking + a secondary journal/packing-note intent) — same multi-intent gap as routing-multi_turn-vi-01."
   }
 ]

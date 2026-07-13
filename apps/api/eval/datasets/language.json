@@ -1,37 +1,103 @@
 [
   {
+    "id": "language-happy-vi-01",
+    "capability": "language",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "smoke",
     "input": "Thời tiết ở Hà Nội tuần này thế nào?",
     "expected_flow": "concierge",
-    "metrics": [
-      "response_language"
-    ]
+    "metrics": ["flow_match", "reply_language"]
   },
   {
+    "id": "language-happy-vi-02",
+    "capability": "language",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
     "input": "Gợi ý cho tôi vài món ăn nên thử ở Huế",
     "expected_flow": "concierge",
-    "metrics": [
-      "response_language"
-    ]
+    "metrics": ["flow_match", "reply_language", "response_language"]
   },
   {
+    "id": "language-happy-vi-03",
+    "capability": "language",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
     "input": "Lên lịch trình 3 ngày ở Đà Lạt giúp tôi",
     "expected_flow": "planner",
-    "metrics": [
-      "response_language"
-    ]
+    "metrics": ["flow_match", "reply_language", "response_language"]
   },
   {
-    "input": "Tôi cần mang theo gì khi đi Sa Pa vào mùa đông?",
+    "id": "language-happy-vi-04",
+    "capability": "language",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tôi cần mang theo gì khi đi Đà Lạt vào mùa đông?",
     "expected_flow": "concierge",
-    "metrics": [
-      "response_language"
-    ]
+    "metrics": ["flow_match", "reply_language", "response_language"],
+    "notes": "Migrated from legacy language.json; original city 'Sa Pa' is not in the seed data (app/data/cities.py) — swapped for the seeded 'Da Lat' (also a highland/cool-climate city) to keep the case grounded in real data."
   },
   {
+    "id": "language-happy-en-01",
+    "capability": "language",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
     "input": "What should I pack for a beach trip to Nha Trang?",
     "expected_flow": "concierge",
-    "metrics": [
-      "response_language"
-    ]
+    "metrics": ["flow_match", "reply_language"]
+  },
+  {
+    "id": "language-ambiguous-vi-01",
+    "capability": "language",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Trip đi Đà Nẵng của tôi thế nào rồi ta?",
+    "expected_flow": "journal",
+    "metrics": ["flow_match", "reply_language", "response_language"],
+    "notes": "Code-switched input (English loanword 'trip' inside a Vietnamese sentence) — the reply must still be Vietnamese."
+  },
+  {
+    "id": "language-ambiguous-en-01",
+    "capability": "language",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Can you switch to English? Tôi muốn hỏi về khách sạn",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language", "response_language"],
+    "notes": "User explicitly requests a language switch mid-sentence — the reply should honor it and answer in English."
+  },
+  {
+    "id": "language-multi_turn-vi-01",
+    "capability": "language",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "Cho tôi hỏi về chuyến bay đi Bangkok",
+      "Trả lời bằng tiếng Anh được không?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language", "response_language"],
+    "notes": "language=en is the EXPECTED reply language after the turn-2 switch request, not the language of turn 1."
+  },
+  {
+    "id": "language-multi_turn-en-01",
+    "capability": "language",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tell me about flights to Tokyo",
+      "Actually, please switch to Vietnamese for the rest of this chat"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "reply_language", "response_language"],
+    "notes": "language=vi is the EXPECTED reply language after the turn-2 switch request."
   }
 ]

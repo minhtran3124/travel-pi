@@ -1,0 +1,92 @@
+[
+  {
+    "id": "budget-happy-vi-01",
+    "capability": "budget",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "smoke",
+    "input": "Ghi lại tôi vừa chi 500,000 VND cho ăn trưa hôm nay",
+    "expected_flow": "budget",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "No trip_id in a single-shot eval context — expected_tools intentionally unset; a good agent asks which trip before calling add_expense rather than guessing."
+  },
+  {
+    "id": "budget-happy-en-01",
+    "capability": "budget",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
+    "input": "Log that I paid 50 USD for lunch today",
+    "expected_flow": "budget",
+    "metrics": ["flow_match", "reply_language"]
+  },
+  {
+    "id": "budget-ambiguous-vi-01",
+    "capability": "budget",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Chuyến đi Phú Quốc của mình còn bao nhiêu ngân sách?",
+    "expected_flow": "budget",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "No trip_id given — which trip is ambiguous outside a live session."
+  },
+  {
+    "id": "budget-ambiguous-en-01",
+    "capability": "budget",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Break down my Tokyo trip expenses so far",
+    "expected_flow": "budget",
+    "metrics": ["flow_match", "reply_language"]
+  },
+  {
+    "id": "budget-ambiguous-en-02",
+    "capability": "budget",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Compare Hanoi and Ho Chi Minh City for a 5-day trip: food, culture, and budget",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "format_quality", "reply_language"],
+    "notes": "Migrated from legacy format.json (MIN-54); judges presentation only, not completeness/scope per MIN-58 calibration."
+  },
+  {
+    "id": "budget-ambiguous-en-03",
+    "capability": "budget",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Break down a typical daily budget for backpacking in Vietnam by category",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "format_quality", "reply_language"],
+    "notes": "Migrated from legacy format.json (MIN-54); general advice, not trip-specific."
+  },
+  {
+    "id": "budget-multi_turn-vi-01",
+    "capability": "budget",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Ngân sách của tôi cho chuyến Đà Lạt là 10 triệu đồng",
+      "Tôi còn lại bao nhiêu sau khi đặt khách sạn?"
+    ],
+    "expected_flow": "budget",
+    "metrics": ["flow_match", "reply_language"]
+  },
+  {
+    "id": "budget-multi_turn-en-01",
+    "capability": "budget",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "My budget for the Bali trip is $1500",
+      "How much have I spent on hotels so far?"
+    ],
+    "expected_flow": "budget",
+    "metrics": ["flow_match", "reply_language"]
+  }
+]

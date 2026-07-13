@@ -1,0 +1,74 @@
+[
+  {
+    "id": "journal-happy-vi-01",
+    "capability": "journal",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "smoke",
+    "input": "Nhớ giúp mình là mình ăn chay nhé",
+    "expected_flow": "journal",
+    "expected_tools": ["save_user_preference"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"]
+  },
+  {
+    "id": "journal-happy-en-01",
+    "capability": "journal",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
+    "input": "Add a note: I want to visit the beach on day 2",
+    "expected_flow": "journal",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "No trip_id in a single-shot eval context — expected_tools intentionally unset; agent may ask which trip before add_itinerary_item."
+  },
+  {
+    "id": "journal-ambiguous-vi-01",
+    "capability": "journal",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Cho tôi xem lịch trình chuyến đi Đà Lạt của tôi",
+    "expected_flow": "journal",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "No trip_id given — ambiguous which trip outside a live session."
+  },
+  {
+    "id": "journal-ambiguous-en-01",
+    "capability": "journal",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "List the top things to do in Da Nang with a short note on each",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "format_quality", "reply_language"],
+    "notes": "Migrated from legacy format.json (MIN-54). MIN-58 calibration: catalog seeds 4 places, not 5 — do not force a 5th (would invite hallucination)."
+  },
+  {
+    "id": "journal-multi_turn-vi-01",
+    "capability": "journal",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Lên lịch trình 3 ngày ở Đà Lạt giúp tôi",
+      "Thêm buổi tối ăn lẩu vào ngày 2 nhé"
+    ],
+    "expected_flow": "planner",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "capability=journal (itinerary/notes content) even though the routed sub-agent flow is 'planner' — capability is an orthogonal reporting bucket, not the routing target."
+  },
+  {
+    "id": "journal-multi_turn-en-01",
+    "capability": "journal",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "Give me a 3-day Tokyo itinerary with morning, afternoon, and evening plans",
+      "Add a food market visit to day 2 morning"
+    ],
+    "expected_flow": "planner",
+    "metrics": ["flow_match", "format_quality", "reply_language"],
+    "notes": "Migrated from legacy format.json (MIN-54), extended to multi_turn with a follow-up edit."
+  }
+]

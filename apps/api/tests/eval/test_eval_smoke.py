@@ -11,7 +11,15 @@ def test_routing_eval_pipeline_scores_and_gates():
     from eval.metrics import routing_accuracy
     from eval.run_eval import ROUTING_THRESHOLD, load_dataset, run_routing_eval
 
-    dataset = load_dataset("routing.json")
+    # routing.json was restructured (agent-eval-pipeline task 2.4) into the
+    # capability x scenario Golden schema, which also carries a legacy
+    # "input"/"expected" pair per single-turn case for this no-network smoke
+    # test's benefit. The dataset now also has multi-turn ("turns") cases with
+    # no single "input"/"expected" (Golden.turns has no legacy analogue) — this
+    # smoke test only covers the single-turn subset, unchanged in strictness
+    # (still asserts 100% routing accuracy on what it does cover).
+    dataset = [item for item in load_dataset("routing.json") if "expected" in item]
+    assert dataset, "routing.json has no legacy-compatible (single-turn) cases left"
     # Script the supervisor to return each expected agent in order -> 100%.
     fake = FakeLLM(
         structured_responses=[
