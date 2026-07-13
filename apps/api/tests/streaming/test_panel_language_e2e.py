@@ -13,8 +13,8 @@ import json
 from types import SimpleNamespace
 
 from app.agents.supervisor import SupervisorIntent, make_supervisor
-from app.streaming import panel_localizer
 from app.streaming.mapper import stream_agent_events
+from app.streaming.panels.places import CATEGORY_VI
 from langchain_core.messages import HumanMessage, ToolMessage
 
 
@@ -92,7 +92,7 @@ def test_e2e_vi_full_path_translates_and_tags_language():
     panel = panels[0]
     place = panel["data"]["places"][0]
     assert place["description"] == "VI:A cozy cafe."  # translated free-form prose
-    assert place["category"] == panel_localizer.CATEGORY_VI["cafe"]  # bounded lookup
+    assert place["category"] == CATEGORY_VI["cafe"]  # bounded lookup
     assert panel["language"] == "vi"
 
     done = next(d for n, d in out if n == "done")
