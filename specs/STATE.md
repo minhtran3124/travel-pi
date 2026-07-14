@@ -739,3 +739,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: 9d702f5 docs(eval): record phase-1 evidence — test matrix, verify table, open gaps
 - user_turns: 0
 
+
+### 2026-07-14T01:02:30Z
+- session_id: e7b899ae-8069-42b4-a0d2-65c183da7969
+- exit: 
+- last_commit: 5d85903 fix(agent,eval): route logged expenses to budget; correct the flight_search goldens
+- user_turns: 0
+
