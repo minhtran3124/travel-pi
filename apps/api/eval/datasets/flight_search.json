@@ -6,7 +6,7 @@
     "language": "vi",
     "suite": "smoke",
     "input": "Tìm chuyến bay từ TP.HCM đi Đà Nẵng ngày 20/8/2026 cho 1 người",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "expected_tools": ["search_flights"],
     "oracle_checks": [
       {
@@ -23,7 +23,7 @@
     "language": "en",
     "suite": "smoke",
     "input": "Show me flight options from Hanoi to Ho Chi Minh City on 2026-08-15",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "expected_tools": ["search_flights"],
     "oracle_checks": [
       {
@@ -40,7 +40,7 @@
     "language": "vi",
     "suite": "full",
     "input": "Có chuyến bay nào rẻ đi Bangkok không?",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "metrics": ["flow_match", "search_vs_booking", "reply_language"],
     "notes": "No origin/date given — a good answer asks for the missing origin/date rather than guessing."
   },
@@ -51,7 +51,7 @@
     "language": "en",
     "suite": "full",
     "input": "I want to fly somewhere warm next month, what are my options?",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "metrics": ["flow_match", "search_vs_booking", "reply_language"],
     "notes": "No origin/destination/date — deliberately open-ended; agent should narrow down, not fabricate options."
   },
@@ -62,7 +62,7 @@
     "language": "vi",
     "suite": "full",
     "input": "Cho tôi xem các chuyến bay từ TP.HCM đi Tokyo tuần sau",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "metrics": ["flow_match", "search_vs_booking", "reply_language"],
     "notes": "Migrated verbatim from legacy intent.json; 'tuần sau' (next week) is a relative range, not an exact date."
   },
@@ -73,7 +73,7 @@
     "language": "en",
     "suite": "full",
     "input": "Show me flight options SGN to Bangkok next Friday",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "metrics": ["flow_match", "search_vs_booking", "reply_language"],
     "notes": "Migrated verbatim from legacy intent.json."
   },
@@ -87,7 +87,7 @@
       "Tôi muốn bay từ Hà Nội đi Phú Quốc",
       "Ngày 25 tháng 8 năm 2026 nhé, cho 2 người lớn"
     ],
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "expected_tools": ["search_flights"],
     "oracle_checks": [
       {
@@ -107,7 +107,7 @@
       "I need a flight from Da Nang to Bangkok",
       "Let's do September 5, 2026 please"
     ],
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "expected_tools": ["search_flights"],
     "oracle_checks": [
       {
