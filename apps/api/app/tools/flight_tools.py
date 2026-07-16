@@ -9,9 +9,10 @@ flights — so the agent can reference a specific flight across turns.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Literal
+from typing import Annotated, Literal
 
 from langchain_core.tools import ToolException, tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.core.config import get_settings
@@ -21,6 +22,27 @@ from app.schemas.base import AppBaseModel
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
 from app.tools._base import log_tool_call, panel_result, session_scope
+from app.tools._ranking import rank_by_preference
+
+
+def _flight_keyword_features(flight) -> list[tuple[list[str], str]]:
+    """Preference-matchable features for one flight search result (DESIGN.md D7).
+
+    Time-of-day boundary: "morning" matches a 05:00–11:59 departure, "evening"
+    matches 18:00–23:59 — the two ranges travellers most commonly mean by those
+    words. Midday and red-eye (00:00–04:59) departures are left unboosted
+    (v1 trade-off, boost-only so it never hides a flight that doesn't match).
+    """
+    features: list[tuple[list[str], str]] = [
+        ([flight.airline.name, flight.airline.code], flight.airline.name)
+    ]
+    hour = flight.departure_time.hour
+    if 5 <= hour < 12:
+        features.append((["morning", "sáng", "buổi sáng"], "morning departure"))
+    elif hour >= 18:
+        features.append((["evening", "tối", "buổi tối"], "evening departure"))
+    return features
+
 
 FlightSort = Literal[
     "departure_asc",
@@ -51,6 +73,10 @@ class SearchFlightsArgs(AppBaseModel):
     )
     max_stops: int | None = Field(None, description="Optional maximum number of stops.")
     sort: FlightSort = Field("departure_asc", description="Result ordering.")
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 @tool(args_schema=SearchFlightsArgs, response_format="content_and_artifact")
@@ -62,6 +88,7 @@ def search_flights(
     max_price: float | None = None,
     max_stops: int | None = None,
     sort: str = DEFAULT_SORT,
+    preferences: Annotated[str, InjectedState("preferences")] = "",
 ) -> tuple[str, dict | None]:
     """Search flights for a route and date with optional filters and sort.
 
@@ -136,6 +163,11 @@ def search_flights(
                     "do not invent flights.",
                     None,
                 )
+            # Preference boost layers on top of the requested `sort`, stably —
+            # the caller's chosen order is kept as the tiebreaker.
+            results, matched_reasons = rank_by_preference(
+                results, preferences, keyword_fn=_flight_keyword_features
+            )
             cheapest = min(results, key=lambda f: f.price)
             earliest = min(results, key=lambda f: f.departure_time)
             summary = (
@@ -144,6 +176,8 @@ def search_flights(
                 f"earliest {earliest.flight_number} at {earliest.departure_time:%H:%M}. "
                 "The full comparison is in the Flights panel."
             )
+            if matched_reasons:
+                summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             return panel_result(
                 summary,
                 kind="flights",

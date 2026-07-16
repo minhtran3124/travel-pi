@@ -91,12 +91,25 @@ def test_build_test_cases_skips_empty_reply(capsys):
 def test_build_test_cases_attaches_declared_metrics():
     # Each case's `metrics` field must ride along on the test case so that
     # cases_for_metric can score each rubric only on the cases that opted in.
+    # (MIN-65 D9: metadata also carries `suggestions` — the concierge flow's
+    # suggestion keys routed by the stub graph's current_flow.)
     cases = r.build_test_cases(
         _StubGraph(),
         {"d": [{"input": "a", "metrics": ["response_language"]}, {"input": "b"}]},
     )
-    assert cases[0].metadata == {"metrics": ["response_language"]}
-    assert cases[1].metadata == {"metrics": []}  # unlabeled → empty
+    suggestions = [
+        "concierge.nearbyPlaces",
+        "concierge.checkWeather",
+        "concierge.getThere",
+    ]
+    assert cases[0].metadata == {
+        "metrics": ["response_language"],
+        "suggestions": suggestions,
+    }
+    assert cases[1].metadata == {
+        "metrics": [],
+        "suggestions": suggestions,
+    }  # unlabeled → empty
 
 
 def test_cases_for_metric_selects_only_declared():

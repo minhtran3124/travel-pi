@@ -23,6 +23,7 @@ import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 
 from langgraph.store.base import BaseStore
@@ -108,6 +109,17 @@ def _prefs_namespace(user_id: str) -> tuple[str, str, str]:
     return _namespace(user_id, "prefs")
 
 
+def _stamped(value: dict) -> dict:
+    """Return *value* with ``updated_at`` set to the current UTC time (D5 store
+    hygiene). Does not mutate the caller's dict; index config is untouched —
+    ``text`` remains the only embedded field.
+
+    :param value: JSON-serializable payload about to be written.
+    :return: A shallow copy of *value* with ``updated_at`` added/refreshed.
+    """
+    return {**value, "updated_at": datetime.now(timezone.utc).isoformat()}
+
+
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single user preference (value must be a JSON dict).
 
@@ -116,7 +128,7 @@ def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> 
     :param key: Preference key within the user's prefs namespace.
     :param value: JSON-serializable preference payload.
     """
-    store.put(_prefs_namespace(user_id), key, value)
+    store.put(_prefs_namespace(user_id), key, _stamped(value))
 
 
 def search_preferences(
@@ -171,7 +183,7 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
     :param key: Instruction key within the user's procedural namespace.
     :param value: JSON-serializable instruction payload.
     """
-    store.put(_namespace(user_id, "procedural"), key, value)
+    store.put(_namespace(user_id, "procedural"), key, _stamped(value))
 
 
 def get_instructions(
@@ -201,7 +213,7 @@ def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> Non
     :param key: Episode key within the user's episodes namespace (the trip id).
     :param value: JSON-serializable episode payload.
     """
-    store.put(_namespace(user_id, "episodes"), key, value)
+    store.put(_namespace(user_id, "episodes"), key, _stamped(value))
 
 
 def search_episodes(

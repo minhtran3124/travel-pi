@@ -6,6 +6,8 @@
 - ``make_reflection_node``: bounded self-correction — critiques the last answer
   and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
+- ``dispatch_next``: pure-code multi-intent router — sends the turn to a queued
+  secondary sub-agent, or on to reflection once the queue is empty (MIN-65 D4).
 
 Post-turn memory extraction no longer runs in-graph — see
 ``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
@@ -22,11 +24,21 @@ from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 
-from app.agents.constants import DEFAULT_MAX_REVISIONS
+from app.agents.constants import (
+    ALL_SUBAGENTS,
+    DEFAULT_MAX_REVISIONS,
+    REFLECTION_REVISE_NOTE,
+)
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
-from app.memory.store import get_instructions, get_profile
+from app.memory.store import (
+    PROFILE_KEYS,
+    MemoryKind,
+    get_instructions,
+    get_profile,
+    search_memory_typed,
+)
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -95,6 +107,25 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
                 logger.info("[agent] node=load_context profile=%d", len(profile))
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
+
+        # Best-effort: recency-ordered full-read of traveller preferences (MIN-65
+        # DESIGN D2 — bounded full-read beats semantic search at this store size),
+        # excluding PROFILE_KEYS since those already surface via the profile block
+        # above. search_memory_typed (not search_preferences) is used because it
+        # preserves each preference's store key, needed both to filter and to
+        # format the "- {key}: {value}" lines below.
+        try:
+            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
+            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
+            if non_profile:
+                result["preferences"] = "\n".join(
+                    f"- {p.key}: {p.text}" for p in non_profile
+                )
+                logger.info(
+                    "[agent] node=load_context preferences=%d", len(non_profile)
+                )
+        except Exception:
+            logger.exception("[agent] load_context: preferences load failed")
     return result
 
 
@@ -158,13 +189,7 @@ def make_reflection_node(
             return Command(
                 update={
                     "revisions": revisions + 1,
-                    "messages": [
-                        SystemMessage(
-                            content="Please improve your previous answer. This is an "
-                            "internal review note, not a message from the traveller — "
-                            "keep replying in the traveller's own language."
-                        )
-                    ],
+                    "messages": [SystemMessage(content=REFLECTION_REVISE_NOTE)],
                 },
                 goto=target,
             )
@@ -203,3 +228,41 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
+
+
+def dispatch_next(state: TravelAgentState) -> Command:
+    """Route to a queued secondary sub-agent, or on to reflection (MIN-65 D4).
+
+    Pure-code multi-intent dispatcher — no LLM call. Every sub-agent's static
+    edge points here instead of straight to ``reflection``, so a supervisor
+    that queued a second, distinct intent in ``pending_flows`` (bounded to one
+    entry, never "booking" — see ``app.agents.supervisor``) gets that second
+    sub-agent run in the same turn before reflection reviews the final answer.
+    The second sub-agent sees the first one's messages in state, so it
+    naturally continues the thread (e.g. "the flight picked above").
+
+    :param state: The current graph state; reads ``pending_flows``.
+    :return: A ``Command`` routing to the next queued sub-agent (draining the
+        queue and updating ``current_flow``), or to ``reflection`` once empty.
+    """
+    pending = state.get("pending_flows") or []
+    if pending:
+        nxt, rest = pending[0], pending[1:]
+        # Fail safe rather than trusting the caller: the supervisor is the
+        # only writer of pending_flows and already excludes "booking" and
+        # tier-restricted agents, but dispatch_next is a second entry point
+        # into every sub-agent and must not blindly honour a queue entry
+        # that would bypass the booking HITL interrupt if that upstream
+        # guard ever regressed (ce-code-review finding, 4 independent
+        # reviewers).
+        if nxt not in ALL_SUBAGENTS or nxt == "booking":
+            logger.error(
+                "[agent] dispatch_next refusing illegal queued flow: %r "
+                "(pending_flows should never contain this) → reflection",
+                nxt,
+            )
+            return Command(update={"pending_flows": []}, goto="reflection")
+        logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
+        return Command(update={"current_flow": nxt, "pending_flows": rest}, goto=nxt)
+    logger.info("[agent] dispatch_next → reflection (queue empty)")
+    return Command(goto="reflection")

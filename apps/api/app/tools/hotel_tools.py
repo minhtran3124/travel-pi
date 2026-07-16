@@ -14,12 +14,15 @@ drawer).
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from typing import Annotated
 
 from langchain_core.tools import ToolException, tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.core.config import get_settings
 from app.core.dates import resolve_travel_date, today_in_timezone
+from app.core.text import fold_diacritics
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
@@ -27,6 +30,29 @@ from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._ranking import rank_by_preference
+
+
+def _hotel_keyword_features(hotel) -> list[tuple[list[str], str]]:
+    """Preference-matchable features for one hotel search result (DESIGN.md D7).
+
+    Star rating and property type are matched by exact keyword; the beach/area
+    check only fires when the hotel's own address/description actually mentions
+    a beach — a keyword heuristic, not semantic understanding of "beachfront",
+    so paraphrases can be missed (v1 trade-off, boost-only so it never hides a
+    hotel that doesn't match).
+    """
+    stars = hotel.star_rating
+    features: list[tuple[list[str], str]] = [
+        ([f"{stars} sao", f"{stars}-star", f"{stars} star"], f"{stars}-star"),
+        ([hotel.property_type], hotel.property_type),
+    ]
+    own_text = fold_diacritics(f"{hotel.description} {hotel.address}".lower())
+    if "beach" in own_text or "bien" in own_text:
+        features.append(
+            (["beach", "beachfront", "biển", "gần biển", "bờ biển"], "beachfront")
+        )
+    return features
 
 
 class SearchHotelsArgs(AppBaseModel):
@@ -75,6 +101,10 @@ class SearchHotelsArgs(AppBaseModel):
             "separate `breakfast_included` field on the hotel, not an amenity tag."
         ),
     )
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class BrowseHotelsArgs(AppBaseModel):
@@ -95,6 +125,10 @@ class BrowseHotelsArgs(AppBaseModel):
             "(case/typo/substring tolerant). Does not include breakfast — that's a "
             "separate `breakfast_included` field on the hotel, not an amenity tag."
         ),
+    )
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
     )
 
 
@@ -139,6 +173,7 @@ def search_hotels(
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
+    preferences: Annotated[str, InjectedState("preferences")] = "",
 ) -> tuple[str, dict | None]:
     """Search hotels in a city with room availability for specific dates.
 
@@ -233,6 +268,9 @@ def search_hotels(
                     "do not invent hotels.",
                     None,
                 )
+            results, matched_reasons = rank_by_preference(
+                results, preferences, keyword_fn=_hotel_keyword_features
+            )
             cheapest = min(results, key=lambda h: h.total_price)
             top_rated = max(results, key=lambda h: h.rating)
             summary = (
@@ -242,6 +280,8 @@ def search_hotels(
                 f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
                 "The full comparison is in the Hotels panel."
             )
+            if matched_reasons:
+                summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             return panel_result(
                 summary,
                 kind="hotels",
@@ -261,6 +301,7 @@ def browse_hotels(
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
+    preferences: Annotated[str, InjectedState("preferences")] = "",
 ) -> tuple[str, dict | None]:
     """Answer hotel info/search questions — price, location, amenities, rating — with no dates.
 
@@ -271,8 +312,11 @@ def browse_hotels(
     ``book_hotel`` handle that.
 
     Returns up to 12 hotels, sorted cheapest nightly rate first (best value on
-    top). On success the model sees a short summary and the full comparison is
-    sent to the Hotels side panel. If no hotels match — either the city was not
+    top) — unless the traveller's known preferences (star rating, hotel type,
+    beachfront) boost a better match to the top, in which case cheapest-price
+    order is kept only as the tiebreaker. On success the model sees a short
+    summary and the full comparison is sent to the Hotels side panel. If no
+    hotels match — either the city was not
     recognized or the filters left nothing — returns a short message and no
     panel; tell the user none were found and never invent hotels. It is not an
     error.
@@ -319,7 +363,15 @@ def browse_hotels(
             # Default sort: cheapest nightly rate first, so the panel leads with
             # the best-value option (ties keep the seed order — sorted() is stable).
             results = sorted(results, key=lambda h: h.price_per_night)
-            cheapest = results[0]
+            # Preference boost layers on top, stably — cheapest-first is preserved
+            # as the tiebreaker among hotels with equal preference-match scores.
+            results, matched_reasons = rank_by_preference(
+                results, preferences, keyword_fn=_hotel_keyword_features
+            )
+            # Re-ranking can move a pricier preferred hotel to position 0, so the
+            # "cheapest" callout must still look up the actual min price — not
+            # just index 0 — regardless of preference re-order.
+            cheapest = min(results, key=lambda h: h.price_per_night)
             top_rated = max(results, key=lambda h: h.rating)
             summary = (
                 f"{len(results)} hotels in {results[0].city}. "
@@ -327,6 +379,8 @@ def browse_hotels(
                 f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
                 "The full comparison is in the Hotels panel."
             )
+            if matched_reasons:
+                summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             return panel_result(
                 summary,
                 kind="hotels",

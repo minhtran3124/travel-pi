@@ -8,42 +8,48 @@ owner: Minh Tran
 
 Lane: normal
 Confidence: high
-Reason: Multi-layer agent change (state + supervisor + graph + nodes + tools + prompts + eval + FE i18n) → cần plan đầy đủ. Không hard gate: không auth, không migration DB, không external provider mới, không đổi public contract (`ChatResponse.suggestions` giữ shape list key). Nền tảng (store, extraction, suggestions, eval) đã ship và được map kỹ → high confidence.
-Flags: existing-behavior (supervisor structured output, suggestions call sites), weak-proof (eval cần key thật để chạy baseline)
-Affects: app/agents/{state,supervisor,graph,nodes,suggestions}.py, app/memory/store.py, app/tools/{_ranking,hotel_tools,flight_tools}.py, app/prompts/* (5 version mới), eval/*, apps/web/messages/*.json
+Reason: Multi-layer agent change (state + supervisor + graph + nodes + tools + prompts + eval + FE i18n) → needs a full plan. No hard gate: no auth, no DB migration, no new external provider, no public-contract change (`ChatResponse.suggestions` keeps its list-of-keys shape). The foundation (store, extraction, suggestions, eval) is already shipped and was mapped thoroughly → high confidence.
+Flags: existing-behavior (supervisor structured output, suggestions call sites), weak-proof (eval needs a real key to run the baseline)
+Affects: app/agents/{state,supervisor,graph,nodes,suggestions}.py, app/memory/store.py, app/tools/{_ranking,hotel_tools,flight_tools}.py, app/prompts/* (5 new versions), eval/*, apps/web/messages/*.json
 Input-type: feature request (Linear MIN-65)
-Route: research (3 agents) → HLD.md → DESIGN.md → PLAN.md (8 waves, 10 tasks) → chờ user review trước khi execute
+Route: research (3 agents) → HLD.md → DESIGN.md → PLAN.md (8 waves, 10 tasks) → await user review before executing
 Escalate: no
 
 ## Status
 
-**Plan-only.** Artifacts: `HLD.md` (nghiên cứu + so sánh phương án), `DESIGN.md` (D1–D9 +
-test matrix), `PLAN.md` (XML tasks). Chưa sửa code.
+**Plan-only** (at the time this record was written). Artifacts: `HLD.md` (research +
+option comparison), `DESIGN.md` (D1–D9 + test matrix), `PLAN.md` (XML tasks). No code
+changed yet.
 
 ## Rationale
 
-Áp decision-tree memory (working/semantic/episodic/procedural) cho từng loại thông tin:
-gap thật duy nhất của memory là **working-memory slots** (`trip_facts` trong state) +
-độ phủ injection của prefs; phần dài hạn đã ship (P1/P2). Reasoning giải bằng
-secondary-intent bounded + dispatch node (zero LLM call thêm); suggestions giải bằng rule
-engine deterministic giữ contract i18n; ranking bằng stable-sort re-rank trong tool.
-Eval-first theo đúng note của ticket.
+Running the memory decision-tree (working/semantic/episodic/procedural) per information
+type: the only real memory gap is **working-memory slots** (`trip_facts` in state) +
+preference injection coverage; the long-term side is already shipped (P1/P2). Reasoning
+is solved with a bounded secondary-intent + dispatch node (zero extra LLM calls);
+suggestions are solved with a deterministic rule engine that keeps the i18n contract;
+ranking uses a stable-sort re-rank inside the tool. Eval-first, exactly as the ticket
+requested.
 
 ## Alternatives considered
 
-- Adopt Mem0 / LangMem / Letta — rejected (HLD §3.1): hệ memory thứ hai song song
-  checkpointer/store, quá tầm mock-backend; BaseStore + pgvector đã đủ cơ chế.
-- Slot-extraction node riêng hoặc tool LLM-discretionary — rejected (HLD §3.2): +1 LLM
-  call/turn hoặc lặp lại gap P1; gộp vào structured output supervisor là zero-cost.
-- LLM-generated suggestions — rejected v1 (HLD §3.4): phá contract i18n key với FE.
+- Adopting Mem0 / LangMem / Letta — rejected (HLD §3.1): a second memory system running
+  alongside the checkpointer/store, overkill for a mock backend; BaseStore + pgvector
+  already provides enough of the mechanism.
+- A dedicated slot-extraction node, or an LLM-discretionary tool — rejected (HLD §3.2):
+  either +1 LLM call/turn or repeats the exact gap P1 already fixed; folding it into the
+  supervisor's structured output is zero-cost.
+- LLM-generated suggestions — rejected for v1 (HLD §3.4): breaks the i18n-key contract
+  with the FE.
 
 ### Verify
 
 | Check | Command | Exit | Notes |
 |---|---|---|---|
-| (pending) per-task | xem PLAN.md `<verify>` rows | — | điền khi execute |
+| (pending) per-task | see PLAN.md `<verify>` rows | — | filled in during execution |
 
 ### Rollback
 
-- Plan-only: xoá `specs/min-65-chatbot-intelligence/` nếu bỏ hướng này.
-- Khi execute: mỗi task 1 commit → `git revert <sha>`; prompt rollback = flip `active.yaml` về version cũ (file cũ không bị sửa); không migration DB.
+- Plan-only: delete `specs/min-65-chatbot-intelligence/` if this direction is abandoned.
+- During execution: one commit per task → `git revert <sha>`; prompt rollback = flip
+  `active.yaml` back to the old version (old files are never edited); no DB migration.

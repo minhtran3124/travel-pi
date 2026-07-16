@@ -86,6 +86,52 @@ def format_quality_metric() -> GEval:
     )
 
 
+def memory_recall_metric() -> GEval:
+    """Assistant reuses facts already given; asking a genuinely new field is fine (MIN-65 D9)."""
+    return GEval(
+        name="Memory Recall",
+        criteria=(
+            "The conversation may already contain facts the traveller provided "
+            "earlier (dates, party size/composition, destination, stated "
+            "preferences). Penalize the actual output if it re-asks for a fact "
+            "already given earlier in the input/conversation history. Asking "
+            "about a genuinely NEW field that was never mentioned is CORRECT "
+            "behavior and must NOT be penalized."
+        ),
+        evaluation_params=_IO,
+        threshold=DEFAULT_THRESHOLD,
+        model=JUDGE_MODEL,
+    )
+
+
+def suggestion_relevance_metric() -> GEval:
+    """Suggested follow-up keys must be topically relevant to the conversation (MIN-65 D9).
+
+    The retrieval context carries the follow-up suggestion keys attached to
+    this reply (dotted ``flow.subkey`` form, e.g. ``concierge.checkWeather`` —
+    self-descriptive stand-ins for the FE's localized EN chip labels). This is
+    the GEval half of the metric; ``suggestion_relevance_deterministic`` in
+    ``run_deepeval.py`` is the non-judge half that measures the ticket's
+    >=80%-have-a-suggestion acceptance criterion.
+    """
+    return GEval(
+        name="Suggestion Relevance",
+        criteria=(
+            "The retrieval context lists follow-up suggestion keys offered to "
+            "the traveller after this reply; each key's final segment reads "
+            "as a short EN action phrase (e.g. 'checkWeather' ~ 'Check "
+            "weather'). Judge whether these suggested follow-ups are "
+            "topically relevant to the input and actual output — i.e. things "
+            "a traveller in this exact conversation would plausibly want to "
+            "do next. Penalize suggestions that belong to an unrelated flow "
+            "or topic."
+        ),
+        evaluation_params=_IO + [SingleTurnParams.RETRIEVAL_CONTEXT],
+        threshold=DEFAULT_THRESHOLD,
+        model=JUDGE_MODEL,
+    )
+
+
 def tool_correctness_metric() -> ToolCorrectnessMetric:
     """Deterministic: compares tools_called vs expected_tools (MIN-46). No judge."""
     return ToolCorrectnessMetric()
@@ -97,4 +143,6 @@ GEVAL_METRICS = {
     "search_vs_booking": search_vs_booking_metric,
     "no_hallucination": no_hallucination_metric,
     "format_quality": format_quality_metric,
+    "memory_recall": memory_recall_metric,
+    "suggestion_relevance": suggestion_relevance_metric,
 }

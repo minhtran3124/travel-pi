@@ -52,6 +52,16 @@ EPISODIC_TOOL_NAME = "recall_past_trips"
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
 DEFAULT_MAX_REVISIONS = 1
 
+# Internal note reflection injects into ``state["messages"]`` when it sends an
+# answer back for revision. Shared so the REST reply-assembly can recognise a
+# superseded draft (the answer immediately before this note) without coupling to
+# the wording. A SystemMessage (never HumanMessage) so language-detection and
+# "the traveller's latest message" prompt rules don't misfire.
+REFLECTION_REVISE_NOTE = (
+    "Please improve your previous answer. This is an internal review note, not "
+    "a message from the traveller — keep replying in the traveller's own language."
+)
+
 # --- user-facing copy -----------------------------------------------------
 # Shown when a free user is routed to a premium-only sub-agent (booking).
 BOOKING_UPGRADE_MSG = (
