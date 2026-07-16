@@ -292,3 +292,34 @@ def test_hotel_tool_split():
     assert TOOL_METADATA["browse_hotels"]["destructive"] is False
     assert TOOL_METADATA["browse_hotels"]["readOnly"] is True
     assert TOOL_METADATA["search_hotels"]["destructive"] is False
+
+
+def test_planner_never_binds_destructive_tools():
+    """The planner must never hold money/irreversible tools: only the booking
+    route passes through the HITL plan_node gate, so a destructive tool bound
+    to planner would execute without human approval. Booking owns them all.
+    Guards against a shared tool list leaking a new destructive tool into the
+    planner again (it happened twice: book_hotel at registry birth, book_flight
+    in MIN-42)."""
+    from app.tools.registry import TOOL_METADATA, get_tools_for
+
+    planner = {t.name for t in get_tools_for("planner")}
+    destructive_in_planner = {n for n in planner if TOOL_METADATA[n]["destructive"]}
+    assert not destructive_in_planner, (
+        f"planner binds destructive tools {destructive_in_planner} — move them "
+        "to the booking domain (HITL-gated) instead"
+    )
+
+    # Planner keeps its search tools; booking keeps the full lifecycle.
+    assert {"search_flights", "search_hotels"} <= planner
+    booking = {t.name for t in get_tools_for("booking")}
+    assert {"book_flight", "book_hotel", "cancel_flight", "cancel_hotel"} <= booking
+
+
+def test_mcp_surface_unchanged_by_planner_scoping():
+    """ALL_TOOLS dedupes across domains, so scoping planner to search-only must
+    not remove the booking tools from the MCP/manifest surface."""
+    from app.tools.registry import ALL_TOOLS
+
+    all_names = {t.name for t in ALL_TOOLS}
+    assert {"book_flight", "book_hotel", "cancel_flight", "cancel_hotel"} <= all_names

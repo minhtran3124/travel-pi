@@ -424,7 +424,20 @@ def book_hotel(
         reservations; left False (the default), nothing is booked.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
-    log_tool_call("book_hotel", locals())
+    # Log only the booking identifiers, never guest name/email/phone
+    # (guidelines: never log sensitive contact details).
+    log_tool_call(
+        "book_hotel",
+        {
+            "hotel_id": hotel_id,
+            "check_in": check_in,
+            "check_out": check_out,
+            "rooms": rooms,
+            "adults": adults,
+            "children": children,
+            "confirm": confirm,
+        },
+    )
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
@@ -453,6 +466,8 @@ def book_hotel(
 
 # Concierge's dateless catalog browse (MIN-51) — never asks for dates/occupancy.
 HOTEL_SEARCH_TOOLS = [browse_hotels]
+# Planner's dated availability search (no reservation power — booking owns the money tools).
+HOTEL_AVAILABILITY_TOOLS = [search_hotels]
 HOTEL_BOOKING_TOOLS = [book_hotel]
 # Booking's dated availability search + the actual reservation.
-HOTEL_TOOLS = [search_hotels] + HOTEL_BOOKING_TOOLS
+HOTEL_TOOLS = HOTEL_AVAILABILITY_TOOLS + HOTEL_BOOKING_TOOLS

@@ -35,3 +35,13 @@ def test_destructive_tool_annotations():
 
     summary = tools["get_trip_summary"]
     assert summary.annotations.readOnlyHint is True
+
+
+def test_book_and_cancel_tools_exposed_destructive():
+    from app.mcp.server import build_mcp_server
+
+    tools = {t.name: t for t in _list_tools(build_mcp_server())}
+    for name in ("book_flight", "cancel_flight", "cancel_hotel"):
+        assert name in tools, f"{name} not exposed over MCP"
+        assert "Cannot be undone." in tools[name].description
+        assert tools[name].annotations.destructiveHint is True

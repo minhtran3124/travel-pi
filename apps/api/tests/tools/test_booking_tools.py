@@ -208,3 +208,39 @@ def test_book_hotel_guard_raises_when_confirm_false(agent_db):
                 "confirm": False,
             }
         )
+
+
+def test_book_hotel_does_not_log_guest_pii(agent_db, caplog):
+    """book_hotel must log only booking identifiers, never guest
+    name/email/phone (guards against a regression back to locals()) (MIN-42)."""
+    import logging
+
+    from app.db.engine import get_session_factory
+    from app.services.hotel_service import HotelService
+    from app.tools.hotel_tools import book_hotel
+
+    with get_session_factory(agent_db)() as s:
+        _, results = HotelService(s).check_availability(
+            "Da Nang", "2027-04-10", "2027-04-14", rooms=1, adults=2, children=0
+        )
+        hotel = next((h for h in results if h.available), None)
+        assert hotel is not None, "no available Da Nang hotel to arrange the test"
+        hotel_id = hotel.id
+
+    with caplog.at_level(logging.INFO, logger="app.tools"):
+        book_hotel.invoke(
+            {
+                "hotel_id": hotel_id,
+                "check_in": "2027-04-10",
+                "check_out": "2027-04-14",
+                "guest_name": "Very Secret Guest",
+                "guest_email": "secret.guest@example.com",
+                "guest_phone": "+1 555 987 6543",
+                "confirm": True,
+            }
+        )
+
+    assert "Very Secret Guest" not in caplog.text
+    assert "secret.guest@example.com" not in caplog.text
+    assert "+1 555 987 6543" not in caplog.text
+    assert hotel_id in caplog.text  # the plain booking identifier IS logged
