@@ -24,7 +24,11 @@ from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 
-from app.agents.constants import ALL_SUBAGENTS, DEFAULT_MAX_REVISIONS
+from app.agents.constants import (
+    ALL_SUBAGENTS,
+    DEFAULT_MAX_REVISIONS,
+    REFLECTION_REVISE_NOTE,
+)
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
@@ -185,13 +189,7 @@ def make_reflection_node(
             return Command(
                 update={
                     "revisions": revisions + 1,
-                    "messages": [
-                        SystemMessage(
-                            content="Please improve your previous answer. This is an "
-                            "internal review note, not a message from the traveller — "
-                            "keep replying in the traveller's own language."
-                        )
-                    ],
+                    "messages": [SystemMessage(content=REFLECTION_REVISE_NOTE)],
                 },
                 goto=target,
             )

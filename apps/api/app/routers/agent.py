@@ -14,12 +14,12 @@ from typing import Annotated, Any
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.background import BackgroundTask
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.constants import AGENT_ERROR_FALLBACK_MSG, REFLECTION_REVISE_NOTE
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
@@ -287,10 +287,25 @@ async def agent_chat(
             if isinstance(turn_messages[i], HumanMessage):
                 turn_messages = turn_messages[i:]
                 break
-        ai_messages = [
-            m for m in turn_messages if isinstance(m, AIMessage) and m.content
-        ]
-        reply = "\n\n".join(m.content for m in ai_messages)
+        # Drop reflection-superseded drafts. A REVISE re-runs the *same*
+        # sub-agent and appends a fresh answer without removing the rejected
+        # one (add_messages appends; nothing emits a RemoveMessage), so joining
+        # blindly would surface the flawed draft next to its correction. The
+        # revise-note SystemMessage marks the boundary — it appears only before
+        # a revision, never between two distinct sub-agents on a multi-intent
+        # turn — so popping the most recent answer on each note keeps the final
+        # answer per sub-agent while preserving both answers of a multi-intent
+        # turn. This mirrors the SSE path's `reset` event. Exclude tool-calling
+        # AIMessages: a model may emit intermediate reasoning content alongside
+        # tool_calls, which is not a user-facing answer.
+        answers: list[str] = []
+        for m in turn_messages:
+            if isinstance(m, SystemMessage) and m.content == REFLECTION_REVISE_NOTE:
+                if answers:
+                    answers.pop()
+            elif isinstance(m, AIMessage) and m.content and not m.tool_calls:
+                answers.append(m.content)
+        reply = "\n\n".join(answers)
         # Guarantee a user-facing reply even when the graph finished without an
         # assistant message (e.g. a ReAct loop that exhausted the recursion limit
         # on repeated tool errors). The user must always get a readable message.

@@ -367,6 +367,31 @@ def test_stream_emits_reset_on_revised_answer(tmp_path):
     assert text.index("DRAFT") < text.index("event: reset") < text.index("FINAL")
 
 
+def test_chat_reply_excludes_reflection_rejected_draft(tmp_path):
+    """Regression (ce-code-review P1): when reflection REVISEs, the graph keeps
+    both the superseded draft and the revised answer in state (add_messages
+    appends; nothing removes the draft). The non-streaming REST reply must
+    return ONLY the final answer — not the rejected draft glued to it — mirroring
+    the SSE path's `reset`. Same fixture as the SSE reset test, asserted on the
+    /agent/chat JSON reply instead of the stream."""
+    app = _make_app(
+        tmp_path,
+        "concierge",
+        "unused",
+        responses=[
+            AIMessage(content="DRAFT answer", id="m1"),
+            AIMessage(content="FINAL answer", id="m2"),
+        ],
+        fast_responses=["REVISE", "OK"],
+    )
+    with TestClient(app) as c:
+        resp = c.post("/agent/chat", json={"message": "weather?", "user_id": "u1"})
+    assert resp.status_code == 200
+    reply = resp.json()["reply"]
+    assert "FINAL answer" in reply
+    assert "DRAFT answer" not in reply
+
+
 def test_stream_drops_tool_json_output(tmp_path, monkeypatch):
     """Structured weather data must ride the `panel` channel, never the NL tokens.
 
