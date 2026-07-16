@@ -2,6 +2,7 @@
 
 from types import SimpleNamespace
 
+import pytest
 from app.agents.context import AgentContext
 from langchain_core.messages import HumanMessage
 
@@ -183,3 +184,44 @@ def test_no_slots_mentioned_routing_unchanged():
     assert cmd.update["current_flow"] == "planner"
     assert cmd.update["trip_facts"] == {}
     assert cmd.update["pending_flows"] == []
+
+
+# ---------------------------------------------------------------------------
+# Budget slot — _BUDGET_RE "parse or drop" (MIN-65 DESIGN D3, no full currency
+# parser: a number + optional currency hint is kept verbatim, anything with no
+# number is dropped rather than guessed)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        # Plain number, no currency hint.
+        ("5000000", "5000000"),
+        # Each supported currency-unit hint (kept verbatim, spaced off the amount).
+        ("10 triệu", "10 triệu"),
+        ("10tr", "10 tr"),
+        ("500 nghìn", "500 nghìn"),
+        ("500 ngàn", "500 ngàn"),
+        ("20k", "20 k"),
+        ("300 usd", "300 usd"),
+        ("200000 đ", "200000 đ"),
+        # Group separators and decimals inside the amount are preserved.
+        ("2.000.000 vnd", "2.000.000 vnd"),
+        ("1.5 triệu", "1.5 triệu"),
+        # A trailing currency symbol is a unit; a leading one is not matched.
+        ("300$", "300 $"),
+        ("$300", "300"),
+        # Number embedded in a sentence is still found.
+        ("around 10 triệu please", "10 triệu"),
+        # No number → dropped, never guessed.
+        ("no budget here", None),
+        ("", None),
+        ("   ", None),
+        (None, None),
+    ],
+)
+def test_normalize_budget_slot(raw, expected):
+    from app.agents.supervisor import _normalize_budget_slot
+
+    assert _normalize_budget_slot(raw) == expected
