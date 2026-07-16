@@ -78,7 +78,7 @@ START → load_context → summarize → supervisor ──Command(goto)──┐
 | `allowed_subagents` | all | all | all | no `booking` |
 
 - **supervisor** — structured `SupervisorIntent` → `current_flow=target`. Unknown or tier-gated target → graceful `END` (`BOOKING_UPGRADE_MSG` for free+booking). Booking routes via `plan` first. `destinations=(*SUBAGENTS, "plan", "__end__")`.
-- **plan_node (HITL, wired)** — `interrupt()` before the one destructive tool (`book_hotel`). Resume `{approved}`: yes → `booking` + `plan_approved=True`; no → `END`.
+- **plan_node (HITL, wired)** — `interrupt()` gating the `booking` route, whose domain holds every destructive tool (`book_flight`, `book_hotel`, `cancel_*`; planner binds search only). Resume `{approved}`: yes → `booking` + `plan_approved=True`; no → `END`.
 - **reflection** — reads `allow_reflection` / `max_revisions`. Disabled or cap reached → `extract_memory`; else judge `REVISE`/`OK`: `REVISE` loops to `current_flow`, `OK` → `extract_memory`. `destinations=(*SUBAGENTS, "extract_memory")`.
 - **extract_memory** — always on the accept path; **no-op when `allow_memory_write=False`** (FAST) or no user/store. → `END`.
 - Handoffs supervisor→sub-agent and reflection→next are dynamic `Command(goto)`; sub-agent→reflection is a static edge. `agent_recursion_limit=25` backstops cycles.
@@ -93,10 +93,10 @@ Model tier: `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`, `extr
 
 | Sub-agent | Model | Tool groups |
 |---|---|---|
-| **planner** | full | trip, place, flight, hotel, weather, routing, episodes |
+| **planner** | full | trip, place, flight search, hotel search, weather, routing, episodes |
 | **concierge** | full | place, weather, routing, tip |
 | **journal** | fast | trip, memory |
-| **booking** | full | flight, hotel (`book_hotel`† HITL-gated) |
+| **booking** | full | flight, hotel, cancels (`book_flight`/`book_hotel`/`cancel_*`† HITL-gated) |
 | **budget** | fast | expense, `get_trip_budget` |
 
 | Group | Tools |

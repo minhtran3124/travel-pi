@@ -413,6 +413,8 @@ def book_hotel(
 
 # Concierge's dateless catalog browse (MIN-51) — never asks for dates/occupancy.
 HOTEL_SEARCH_TOOLS = [browse_hotels]
+# Planner's dated availability search (no reservation power — booking owns the money tools).
+HOTEL_AVAILABILITY_TOOLS = [search_hotels]
 HOTEL_BOOKING_TOOLS = [book_hotel]
 # Booking's dated availability search + the actual reservation.
-HOTEL_TOOLS = [search_hotels] + HOTEL_BOOKING_TOOLS
+HOTEL_TOOLS = HOTEL_AVAILABILITY_TOOLS + HOTEL_BOOKING_TOOLS

@@ -12,8 +12,12 @@ from langchain_core.tools import BaseTool
 
 from app.tools.booking_tools import BOOKING_TOOLS
 from app.tools.expense_tools import EXPENSE_TOOLS
-from app.tools.flight_tools import FLIGHT_TOOLS
-from app.tools.hotel_tools import HOTEL_SEARCH_TOOLS, HOTEL_TOOLS
+from app.tools.flight_tools import FLIGHT_SEARCH_TOOLS, FLIGHT_TOOLS
+from app.tools.hotel_tools import (
+    HOTEL_AVAILABILITY_TOOLS,
+    HOTEL_SEARCH_TOOLS,
+    HOTEL_TOOLS,
+)
 from app.tools.memory_tools import EPISODE_TOOLS, MEMORY_TOOLS
 from app.tools.place_tools import PLACE_TOOLS
 from app.tools.rag_tools import KNOWLEDGE_TOOLS
@@ -24,11 +28,13 @@ from app.tools.weather_tools import WEATHER_TOOLS
 
 # Tools grouped by the sub-agent that should bind them.
 TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
+    # Planner searches flights/hotels but never books — the money tools live in
+    # the booking domain only, whose route is HITL-gated via plan_node.
     "planner": (
         TRIP_TOOLS
         + PLACE_TOOLS
-        + FLIGHT_TOOLS
-        + HOTEL_TOOLS
+        + FLIGHT_SEARCH_TOOLS
+        + HOTEL_AVAILABILITY_TOOLS
         + WEATHER_TOOLS
         + ROUTING_TOOLS
         + EPISODE_TOOLS

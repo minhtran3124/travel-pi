@@ -280,4 +280,8 @@ def book_flight(
             raise ToolException(str(e)) from e
 
 
-FLIGHT_TOOLS = [search_flights, book_flight]
+# Planner's flight search (no reservation power — booking owns the money tools).
+FLIGHT_SEARCH_TOOLS = [search_flights]
+FLIGHT_BOOKING_TOOLS = [book_flight]
+# Booking's search + the actual reservation.
+FLIGHT_TOOLS = FLIGHT_SEARCH_TOOLS + FLIGHT_BOOKING_TOOLS
