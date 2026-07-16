@@ -24,7 +24,13 @@ from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
-from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._base import (
+    booking_idempotency_key,
+    dump,
+    log_tool_call,
+    panel_result,
+    session_scope,
+)
 
 
 class SearchHotelsArgs(AppBaseModel):
@@ -354,7 +360,20 @@ def book_hotel(
         reservations; left False (the default), nothing is booked.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
-    log_tool_call("book_hotel", locals())
+    # Log only the booking identifiers, never guest name/email/phone
+    # (guidelines: never log sensitive contact details).
+    log_tool_call(
+        "book_hotel",
+        {
+            "hotel_id": hotel_id,
+            "check_in": check_in,
+            "check_out": check_out,
+            "rooms": rooms,
+            "adults": adults,
+            "children": children,
+            "confirm": confirm,
+        },
+    )
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
@@ -373,7 +392,18 @@ def book_hotel(
                 guest_phone=guest_phone,
                 notes=notes,
             )
-            result = BookingService(s).book_hotel(request)
+            result = BookingService(s).book_hotel(
+                request,
+                idempotency_key=booking_idempotency_key(
+                    "hotel",
+                    hotel_id,
+                    check_in,
+                    check_out,
+                    str(rooms),
+                    guest_email,
+                    guest_name,
+                ),
+            )
             return dump(result)
         except AppError as e:
             raise ToolException(str(e)) from e

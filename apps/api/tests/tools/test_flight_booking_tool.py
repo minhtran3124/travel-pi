@@ -61,3 +61,32 @@ def test_book_flight_happy_path_returns_booking(agent_db):
     assert result["type"] == "flight"
     assert result["status"] == "confirmed"
     assert result["confirmation_code"]
+
+
+def test_book_flight_duplicate_call_replays_same_booking(agent_db):
+    """A re-emitted/retried identical book_flight replays the original booking
+    (deterministic idempotency key) instead of creating a duplicate (MIN-42)."""
+    from app.db.engine import get_session_factory
+    from app.services.flight_service import FlightService
+    from app.tools.flight_tools import book_flight
+
+    with get_session_factory(agent_db)() as s:
+        flight_number = (
+            FlightService(s).search_flights("HAN", "SGN", "2027-03-15")[0].flight_number
+        )
+
+    args = {
+        "flight_number": flight_number,
+        "origin": "HAN",
+        "destination": "SGN",
+        "departure_date": "2027-03-15",
+        "passenger_name": "Test User",
+        "passenger_email": "test@example.com",
+        "passenger_phone": "+1 555 000 0000",
+        "confirm": True,
+    }
+    first = book_flight.invoke(dict(args))
+    second = book_flight.invoke(dict(args))
+
+    assert second["id"] == first["id"]
+    assert second["confirmation_code"] == first["confirmation_code"]
