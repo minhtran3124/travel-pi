@@ -63,9 +63,12 @@ def test_book_flight_happy_path_returns_booking(agent_db):
     assert result["confirmation_code"]
 
 
-def test_book_flight_duplicate_call_replays_same_booking(agent_db):
-    """A re-emitted/retried identical book_flight replays the original booking
-    (deterministic idempotency key) instead of creating a duplicate (MIN-42)."""
+def test_book_flight_repeated_call_creates_distinct_bookings(agent_db):
+    """Two identical book_flight calls create two DISTINCT bookings — the tool
+    has no idempotency collapse, matching a REST POST with no Idempotency-Key.
+    Guards against re-introducing a content-hash idempotency key, which would
+    silently swallow an intentional second booking (and, worse, replay a
+    cancelled one) — see the PR #80 deep-review revert."""
     from app.db.engine import get_session_factory
     from app.services.flight_service import FlightService
     from app.tools.flight_tools import book_flight
@@ -88,5 +91,5 @@ def test_book_flight_duplicate_call_replays_same_booking(agent_db):
     first = book_flight.invoke(dict(args))
     second = book_flight.invoke(dict(args))
 
-    assert second["id"] == first["id"]
-    assert second["confirmation_code"] == first["confirmation_code"]
+    assert second["id"] != first["id"]
+    assert second["confirmation_code"] != first["confirmation_code"]

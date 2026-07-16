@@ -24,13 +24,7 @@ from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
-from app.tools._base import (
-    booking_idempotency_key,
-    dump,
-    log_tool_call,
-    panel_result,
-    session_scope,
-)
+from app.tools._base import dump, log_tool_call, panel_result, session_scope
 
 
 class SearchHotelsArgs(AppBaseModel):
@@ -392,18 +386,7 @@ def book_hotel(
                 guest_phone=guest_phone,
                 notes=notes,
             )
-            result = BookingService(s).book_hotel(
-                request,
-                idempotency_key=booking_idempotency_key(
-                    "hotel",
-                    hotel_id,
-                    check_in,
-                    check_out,
-                    str(rooms),
-                    guest_email,
-                    guest_name,
-                ),
-            )
+            result = BookingService(s).book_hotel(request)
             return dump(result)
         except AppError as e:
             raise ToolException(str(e)) from e

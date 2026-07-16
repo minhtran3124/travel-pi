@@ -1,9 +1,9 @@
 # min-42-implement-mcp-tool — Summary
 
-Lane: normal
+Lane: high-risk
 Confidence: high
-Reason: Additive new agent tools (book_flight, cancel_flight, cancel_hotel) that thinly wrap already-existing, already-tested BookingService methods; only public-contract flag fires (they widen the MCP tool surface for external clients) — additive, not a route/envelope change, guarded by confirm=True.
-Flags: public-contract
+Reason: Originally normal (additive MCP tools). Escalated to high-risk for the post-review follow-ups, which change booking money-path behaviour: reverting the content-hash idempotency fix (a deep-review found it regressed cancel-then-rebook + swallowed intentional duplicates) and re-scoping the planner off the destructive tools. These touch reservation semantics and remove test asserts, warranting the higher scrutiny.
+Flags: public-contract, weakening-validation
 Affects: MCP tool surface (auto-exposed from app/tools/registry.py via app/mcp/server.py); no HTTP route / schema change
 Input-type: spec slice
 
@@ -62,6 +62,14 @@ MCP exposure is registry-driven (`build_mcp_server()` iterates `ALL_TOOLS`), so 
 ### Rollback
 
 - `git revert f9e0e38 f034fa5 41433cf` (or drop the whole branch — all changes are additive; no migration).
+- Post-review follow-ups (2026-07-16): PII-log fix + planner scoping — `git revert <commit>`; idempotency revert — the change itself is a revert of `91f7ad2`'s idempotency portion, re-adding it would re-introduce the money-path regressions the deep review found, so it should not be rolled back.
+
+### Review follow-up (2026-07-16, post multi-agent review)
+
+Three review findings addressed on this branch:
+1. PII-log — `book_hotel` now logs an explicit identifier-only dict (not `locals()`); guest name/email/phone stay out of logs. Kept.
+2. Planner scoping — planner bound to flight/hotel **search only**; every destructive tool lives in the `booking` domain, whose route is the only one passing the HITL `plan_node` interrupt. Kept. A registry invariant test blocks a destructive tool ever leaking back into the planner.
+3. Idempotency — the initially-shipped content-hash idempotency key was **reverted** after a high-effort deep review found it net-negative: it permanently replayed cancelled bookings on cancel-then-rebook, silently swallowed an intentional second identical booking, and hashed un-normalised inputs (so it did not even prevent the duplicate it targeted). The booking sub-agent has no auto-retry, so the original "retry double-books" vector does not exist on the agent path; MCP-retry idempotency is the client's concern (as with the REST `Idempotency-Key` header, which is client-supplied, not server-derived). Tool booking now matches REST-without-a-key semantics: each call creates a new booking. A positive test asserts two identical calls create distinct bookings.
 
 ### Harness-Delta
 

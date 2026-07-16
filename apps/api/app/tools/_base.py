@@ -14,7 +14,6 @@ individual tools, which LangGraph's ``ToolNode`` surfaces back to the model as a
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import pprint
 from collections.abc import Iterator
@@ -59,9 +58,7 @@ def log_tool_call(name: str, params: dict[str, Any]) -> None:
         logger.info("[tool] %s called (no params)", name)
         return
     width = max(len(k) for k in params)
-    lines = [
-        f"  {k:<{width}} = {pprint.pformat(v, width=80)}" for k, v in params.items()
-    ]
+    lines = [f"  {k:<{width}} = {pprint.pformat(v, width=80)}" for k, v in params.items()]
     logger.info("[tool] %s called\n%s", name, "\n".join(lines))
 
 
@@ -109,22 +106,3 @@ def panel_result(summary: str, *, kind: str, data: Any) -> tuple[str, dict]:
         ``content_and_artifact`` shape.
     """
     return summary, {"kind": kind, "data": dump(data)}
-
-
-def booking_idempotency_key(namespace: str, *parts: str | None) -> str:
-    """Derive a stable idempotency key for a booking tool call.
-
-    Agent and MCP tool callers can't supply the ``Idempotency-Key`` header the
-    REST booking routes accept, so a re-emitted or retried tool call would
-    otherwise mint a duplicate (paid) booking. Hashing the booking's identifying
-    fields into a deterministic key makes an identical repeat replay the original
-    booking via ``BookingService._replay`` instead of creating a second one. The
-    fields are hashed (not stored verbatim) so no guest/passenger contact
-    details land in the persisted ``idempotency_key`` column.
-
-    :param namespace: Booking-type prefix, e.g. ``"flight"`` or ``"hotel"``.
-    :param parts: The identifying field values; ``None`` counts as empty.
-    :return: A ``"<namespace>:<sha256-hex>"`` key, stable across identical calls.
-    """
-    raw = "|".join(p or "" for p in parts)
-    return f"{namespace}:{hashlib.sha256(raw.encode()).hexdigest()}"

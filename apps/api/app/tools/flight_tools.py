@@ -20,13 +20,7 @@ from app.schemas.flight import FlightBookingRequest
 from app.services.booking_service import BookingService
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
-from app.tools._base import (
-    booking_idempotency_key,
-    dump,
-    log_tool_call,
-    panel_result,
-    session_scope,
-)
+from app.tools._base import dump, log_tool_call, panel_result, session_scope
 
 FlightSort = Literal[
     "departure_asc",
@@ -260,19 +254,7 @@ def book_flight(
                 passenger_phone=passenger_phone,
                 notes=notes,
             )
-            result = BookingService(s).book_flight(
-                request,
-                idempotency_key=booking_idempotency_key(
-                    "flight",
-                    flight_id,
-                    flight_number,
-                    origin,
-                    destination,
-                    departure_date,
-                    passenger_email,
-                    passenger_name,
-                ),
-            )
+            result = BookingService(s).book_flight(request)
             return dump(result)
         except AppError as e:
             raise ToolException(str(e)) from e

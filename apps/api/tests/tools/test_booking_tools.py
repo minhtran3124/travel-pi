@@ -210,40 +210,6 @@ def test_book_hotel_guard_raises_when_confirm_false(agent_db):
         )
 
 
-def test_book_hotel_duplicate_call_replays_same_booking(agent_db):
-    """A re-emitted/retried identical book_hotel replays the original booking
-    (deterministic idempotency key) instead of creating a duplicate (MIN-42)."""
-    from app.db.engine import get_session_factory
-    from app.services.hotel_service import HotelService
-    from app.tools.hotel_tools import book_hotel
-
-    with get_session_factory(agent_db)() as s:
-        _, results = HotelService(s).check_availability(
-            "Da Nang", "2027-04-10", "2027-04-14", rooms=1, adults=2, children=0
-        )
-        hotel = next((h for h in results if h.available), None)
-        assert hotel is not None, "no available Da Nang hotel to arrange the test"
-        hotel_id = hotel.id
-
-    args = {
-        "hotel_id": hotel_id,
-        "check_in": "2027-04-10",
-        "check_out": "2027-04-14",
-        "rooms": 1,
-        "adults": 2,
-        "children": 0,
-        "guest_name": "Test User",
-        "guest_email": "test@example.com",
-        "guest_phone": "+1 555 000 0000",
-        "confirm": True,
-    }
-    first = book_hotel.invoke(dict(args))
-    second = book_hotel.invoke(dict(args))
-
-    assert second["id"] == first["id"]
-    assert second["confirmation_code"] == first["confirmation_code"]
-
-
 def test_book_hotel_does_not_log_guest_pii(agent_db, caplog):
     """book_hotel must log only booking identifiers, never guest
     name/email/phone (guards against a regression back to locals()) (MIN-42)."""
