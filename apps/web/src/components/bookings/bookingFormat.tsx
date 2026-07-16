@@ -3,7 +3,10 @@
 import type { CSSProperties } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
+import { toUtcDate } from "@/lib/datetime";
 import type { Booking } from "@/lib/query/bookings";
+
+export { toUtcDate };
 
 export const iconProps = {
     width: 18,
@@ -71,18 +74,6 @@ export function TypeGlyph({
     );
 }
 
-/**
- * The API serves naive wall-clock datetimes (no offset). Pin them to UTC so we
- * render the time exactly as booked (the local departure-board time), not
- * shifted into the viewer's timezone.
- */
-export function toUtcDate(iso: string): Date {
-    return new Date(
-        /[zZ]|[+-]\d\d:?\d\d$/.test(iso) || !iso.includes("T")
-            ? iso
-            : `${iso}Z`,
-    );
-}
 
 /**
  * Shared booking presentation — the headline you scan for and friendly,

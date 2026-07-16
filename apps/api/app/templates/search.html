@@ -78,7 +78,7 @@
   {% if flights %}
     <p class="count">{{ flights | length }} flight(s) found</p>
     <div class="table-wrap" style="border-radius: var(--radius); border: 1px solid var(--line);">
-      <table class="fids">
+      <table class="fids" id="fids-search">
         <thead>
           <tr>
             <th>Departure</th>
@@ -96,13 +96,13 @@
           {% for flight in flights %}
             {% set origin_airport = airports_by_code.get(flight.origin) %}
             {% set dest_airport = airports_by_code.get(flight.destination) %}
-            <tr>
-              <td class="sta">{{ flight.departure_time.strftime("%H:%M") }}
+            <tr style="--i: {{ loop.index0 }}">
+              <td class="sta"><span class="flap">{{ flight.departure_time.strftime("%H:%M") }}
                 <span class="sub">{{ flight.departure_time.strftime("%d %b") }}</span>
-              </td>
-              <td class="sta">{{ flight.arrival_time.strftime("%H:%M") }}
+              </span></td>
+              <td class="sta"><span class="flap">{{ flight.arrival_time.strftime("%H:%M") }}
                 <span class="sub">{{ flight.arrival_time.strftime("%d %b") }}</span>
-              </td>
+              </span></td>
               <td>
                 <span class="from-city">{{ flight.origin }}</span>
                 <span class="sub">{{ origin_airport.city ~ ", " ~ origin_airport.country if origin_airport else "—" }}</span>
@@ -132,16 +132,80 @@
     </div>
   {% else %}
     <div class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">
-      <div class="empty-ico">🛫</div>
+      <div class="empty-arc" aria-hidden="true">
+        <svg viewBox="0 0 200 56" width="140" height="40">
+          <path d="M 14 46 C 74 6 126 6 186 42" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"/>
+          <circle cx="14" cy="46" r="3.5" fill="var(--accent)"/>
+          <circle cx="186" cy="42" r="3.5" fill="var(--accent)"/>
+        </svg>
+        <span class="empty-arc-plane">✈️</span>
+      </div>
       <strong>No flights found</strong><br>
       Nothing matches this route, date, and filters.
     </div>
   {% endif %}
 {% else %}
   <div class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">
-    <div class="empty-ico">🧭</div>
+    <div class="empty-arc" aria-hidden="true">
+      <svg viewBox="0 0 200 56" width="140" height="40">
+        <path d="M 14 46 C 74 6 126 6 186 42" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"/>
+        <circle cx="14" cy="46" r="3.5" fill="var(--accent)"/>
+        <circle cx="186" cy="42" r="3.5" fill="var(--accent)"/>
+      </svg>
+      <span class="empty-arc-plane">✈️</span>
+    </div>
     <strong>Search flights by route</strong><br>
     Pick an origin, destination, and date, then hit Search.
   </div>
 {% endif %}
+
+<style>
+  /* ── Route-arc empty-state motif ──
+     A minimal redraw of the home hero's dashed route-arc + plane, drawn once
+     and fully static (no motion to guard). Lives inside the existing .empty
+     grammar so the friendly copy and structure are unchanged. */
+  .empty-arc { position: relative; width: 140px; height: 40px; margin: 0 auto 14px; }
+  .empty-arc svg { display: block; }
+  .empty-arc-plane {
+    position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    font-size: 1.35rem; line-height: 1;
+  }
+
+  /* ── Results settle (parity with the flights board) ──
+     The departure/arrival time cells flip in once like a Solari board: a
+     two-frame rotateX flip, staggered ~28ms/row, capped ≤600ms. Page-scoped
+     duplication of board.html's pattern — base.html is untouched. Only plays
+     when JS adds .is-settling (once per full navigation); reduced-motion
+     renders the final state instantly. */
+  #fids-search.is-settling td { perspective: 500px; }
+  #fids-search.is-settling .flap {
+    display: inline-block; transform-origin: top center;
+    animation: s-flap-settle .18s cubic-bezier(.3, 1, .4, 1) both;
+    animation-delay: min(calc(var(--i, 0) * 28ms), 400ms);
+  }
+  @keyframes s-flap-settle {
+    from { transform: rotateX(-92deg); opacity: .35; }
+    to   { transform: rotateX(0); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #fids-search.is-settling .flap { animation: none; }
+  }
+</style>
+
+<script>
+  /* One-shot split-flap settle for the search results — mirrors the board's
+     trigger: add the settling class once on a genuine full navigation, skip
+     under reduced-motion and on bfcache restores. */
+  (function () {
+    var table = document.getElementById("fids-search");
+    if (!table) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function play() { table.classList.add("is-settling"); setTimeout(function () { table.classList.remove("is-settling"); }, 650); }
+    if (reduce) return;
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", play);
+    else play();
+    window.addEventListener("pageshow", function (e) { if (e.persisted) table.classList.remove("is-settling"); });
+  })();
+</script>
 {% endblock %}

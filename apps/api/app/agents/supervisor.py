@@ -8,6 +8,8 @@ Unknown intent ends gracefully with a fallback message.
 from __future__ import annotations
 
 import logging
+import re
+from datetime import date
 from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -19,21 +21,58 @@ from pydantic import BaseModel, Field
 
 from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG
 from app.agents.context import AgentContext
-from app.agents.state import TravelAgentState, system_with_summary
+from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
+from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
 from app.prompts.registry import registry
 
 # Re-exported for callers that do `from app.agents.supervisor import SUBAGENTS`.
 # Single source of truth lives in context.py (avoids circular imports).
 SUBAGENTS = ALL_SUBAGENTS
 _Target = Literal["planner", "concierge", "journal", "booking", "budget"]
+# Secondary intent can never be "booking" (HLD non-goal — booking always needs
+# the HITL plan-approval path, never a queued follow-on); MIN-65 DESIGN D3.
+_SecondaryTarget = Literal["planner", "concierge", "journal", "budget"]
 
 logger = logging.getLogger(__name__)
+
+
+class ExtractedSlots(BaseModel):
+    """Raw traveller-stated mentions for this turn — verbatim text only.
+
+    The model extracts what was said, never a resolved value (MIN-65 DESIGN
+    D3, the "LLM parses, code computes" pattern): dates stay as free text
+    ("next Friday", "15/8") and are turned into ISO dates by
+    :func:`app.core.dates.resolve_travel_date` in plain Python after the LLM
+    call returns, never by the model itself. Every field is optional so the
+    model is never pressured to invent a value it wasn't given.
+    """
+
+    destination: str | None = None
+    origin: str | None = None
+    start_date_text: str | None = None
+    end_date_text: str | None = None
+    adults: int | None = None
+    children: int | None = None
+    rooms: int | None = None
+    budget_text: str | None = None
+    cabin_class: str | None = None
+    hotel_area: str | None = None
 
 
 class SupervisorIntent(BaseModel):
     """Structured routing decision."""
 
     target_agent: _Target = Field(description="Which specialist should handle this.")
+    secondary_agent: _SecondaryTarget | None = Field(
+        default=None,
+        description=(
+            "A second, clearly distinct sub-agent to queue for this turn, only "
+            "when the traveller's message contains two separate requests (e.g. "
+            "both a flight and a hotel need). Never 'booking', and never the "
+            "same value as target_agent. Leave null for the common single-intent "
+            "case."
+        ),
+    )
     language: str = Field(
         default="en",
         description=(
@@ -43,6 +82,125 @@ class SupervisorIntent(BaseModel):
             "clear, sustained switch."
         ),
     )
+    slots: ExtractedSlots | None = Field(
+        default=None,
+        description=(
+            "Trip details the traveller explicitly stated THIS turn, verbatim. "
+            "Leave every field null if not mentioned or you are unsure — never "
+            "guess or infer a value."
+        ),
+    )
+
+
+# Loose "number + currency hint" match: a digit run (with optional , / . group
+# separators) followed by an optional unit token. Deliberately simple — MIN-65
+# DESIGN D3 keeps budget normalization to "parse or drop", not a full currency
+# parser; a raw mention that doesn't match is dropped rather than guessed.
+_BUDGET_RE = re.compile(
+    r"(?P<amount>\d[\d.,]*)\s*(?P<unit>triệu|tr|ngh\xecn|ng\xe0n|k|usd|vnd|đ|\$|₫)?",
+    re.IGNORECASE,
+)
+
+
+def _normalize_date_slot(raw: str | None, today: date) -> str | None:
+    """Resolve a raw date mention to ISO, or drop it — never guess.
+
+    :param raw: Verbatim date text from :class:`ExtractedSlots`, or None.
+    :param today: "Today" in the traveller's timezone, anchoring a missing year.
+    :return: An ISO ``YYYY-MM-DD`` date, or None if absent/unresolvable.
+    """
+    if not raw or not raw.strip():
+        return None
+    try:
+        return resolve_travel_date(raw, today)
+    except (AmbiguousDateError, ValueError):
+        return None
+
+
+def _normalize_count_slot(value: int | None) -> int | None:
+    """Keep a positive headcount/room count; drop zero, negative, or absent.
+
+    :param value: Raw int from :class:`ExtractedSlots`, or None.
+    :return: ``value`` if a positive int, else None.
+    """
+    if value is None or value <= 0:
+        return None
+    return value
+
+
+def _normalize_children_slot(value: int | None) -> int | None:
+    """Keep a non-negative children count, including zero — unlike adults/
+    rooms, zero is a meaningful, commonly-stated value ("no kids") and is a
+    required field on the hotel search tools ("0 if none"). Only drop a
+    genuinely negative or absent value.
+
+    :param value: Raw int from :class:`ExtractedSlots`, or None.
+    :return: ``value`` if 0 or a positive int, else None.
+    """
+    if value is None or value < 0:
+        return None
+    return value
+
+
+def _normalize_budget_slot(raw: str | None) -> str | None:
+    """Extract a number + optional currency hint from free text, or drop it.
+
+    :param raw: Verbatim budget text from :class:`ExtractedSlots`, or None.
+    :return: The matched "amount unit" text, or None if no number was found.
+    """
+    if not raw or not raw.strip():
+        return None
+    match = _BUDGET_RE.search(raw)
+    if not match:
+        return None
+    amount = match.group("amount")
+    unit = (match.group("unit") or "").strip()
+    return f"{amount} {unit}".strip()
+
+
+def _normalize_slots(slots: ExtractedSlots | None, today: date) -> dict:
+    """Turn raw :class:`ExtractedSlots` into the ``trip_facts`` update dict.
+
+    Only successfully-resolved keys are included — never an explicit ``None``
+    for a slot that failed or wasn't mentioned, since ``merge_trip_facts``
+    treats an absent key as "no update this turn", not "delete" (MIN-65
+    DESIGN D1); explicitly passing None would be indistinguishable to the
+    reducer but is avoided here for clarity at the call site.
+
+    :param slots: The model's raw extraction for this turn, or None.
+    :param today: "Today" in the traveller's timezone, for date resolution.
+    :return: A dict of only the resolved slot values, keyed by trip-fact name.
+    """
+    if slots is None:
+        return {}
+    normalized: dict[str, str | int] = {}
+    if slots.destination:
+        normalized["destination"] = slots.destination
+    if slots.origin:
+        normalized["origin"] = slots.origin
+    start_date = _normalize_date_slot(slots.start_date_text, today)
+    if start_date:
+        normalized["start_date"] = start_date
+    end_date = _normalize_date_slot(slots.end_date_text, today)
+    if end_date:
+        normalized["end_date"] = end_date
+    adults = _normalize_count_slot(slots.adults)
+    if adults:
+        normalized["adults"] = adults
+    children = _normalize_children_slot(slots.children)
+    if children is not None:
+        normalized["children"] = children
+    rooms = _normalize_count_slot(slots.rooms)
+    if rooms:
+        normalized["rooms"] = rooms
+    budget = _normalize_budget_slot(slots.budget_text)
+    if budget:
+        normalized["budget"] = budget
+    if slots.cabin_class:
+        normalized["cabin_class"] = slots.cabin_class
+    if slots.hotel_area:
+        normalized["hotel_area"] = slots.hotel_area
+    return normalized
 
 
 def make_supervisor(llm: BaseChatModel):
@@ -59,6 +217,11 @@ def make_supervisor(llm: BaseChatModel):
 
     def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
         logger.info("[agent] node=supervisor")
+        ctx = (
+            runtime.context
+            if runtime is not None and runtime.context is not None
+            else AgentContext()
+        )
         # Feed the already-established conversation language into the router so the
         # model itself returns the sticky value and does not flip on a lone English
         # interjection in an otherwise Vietnamese thread. "unknown" on the first turn
@@ -71,7 +234,12 @@ def make_supervisor(llm: BaseChatModel):
                 "keep it unless the traveller clearly switches."
             )
         )
-        intent = router.invoke([system_with_summary(state, base), *state["messages"]])
+        intent = router.invoke(
+            [
+                system_with_summary(state, ground_current_date(base, ctx.timezone)),
+                *state["messages"],
+            ]
+        )
         target = getattr(intent, "target_agent", None)
         if target not in SUBAGENTS:
             logger.info("[agent] supervisor → END (unknown intent: %s)", target)
@@ -87,11 +255,6 @@ def make_supervisor(llm: BaseChatModel):
         # chosen target is not in the allow-list, degrade gracefully instead of
         # routing there.  This also blocks the plan->booking HITL path for free
         # users because "plan" is only reachable via this branch.
-        ctx = (
-            runtime.context
-            if runtime is not None and runtime.context is not None
-            else AgentContext()
-        )
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
             logger.info("[agent] supervisor → END (tier-gated: %s)", target)
             return Command(
@@ -105,8 +268,31 @@ def make_supervisor(llm: BaseChatModel):
         # returns a falsy/empty code — it does not pin the language, so a genuine,
         # model-reported switch still flows through `intent.language`.
         lang = getattr(intent, "language", None) or state.get("language", "en")
+        # MIN-65 D3: normalize raw slots in code (never trust the LLM to resolve
+        # a date/number itself), and code-gate the secondary intent — booking can
+        # never have a queued follow-on, and a duplicate of target is a no-op.
+        trip_facts = _normalize_slots(
+            getattr(intent, "slots", None), today_in_timezone(ctx.timezone)
+        )
+        secondary = getattr(intent, "secondary_agent", None)
+        if (
+            target == "booking"
+            or secondary == target
+            or (
+                ctx.allowed_subagents is not None
+                and secondary not in ctx.allowed_subagents
+            )
+        ):
+            secondary = None
+        pending_flows = [secondary] if secondary else []
         return Command(
-            update={"current_flow": target, "language": lang}, goto=next_node
+            update={
+                "current_flow": target,
+                "language": lang,
+                "trip_facts": trip_facts,
+                "pending_flows": pending_flows,
+            },
+            goto=next_node,
         )
 
     return supervisor

@@ -17,22 +17,38 @@ T = TypeVar("T")
 _FUZZY_THRESHOLD = 0.6
 
 
+def fold_diacritics(text: str) -> str:
+    """Fold Vietnamese (and other Latin) diacritics to their base ASCII letters.
+
+    Shared by :mod:`app.core.text` (fuzzy city/airport matching) and
+    :mod:`app.core.dates` (weekday/phrase matching), so an accented seed name
+    ("Đà Nẵng") or date phrase ("thứ Sáu") matches its unaccented form ("Da
+    Nang", "thu sau") against a single dictionary/threshold, instead of
+    doubling every entry. ``đ`` (U+0111) has no canonical NFD decomposition,
+    so it is mapped explicitly; the remaining Vietnamese/Latin accents (à, ẵ,
+    ế, …) decompose to a base letter plus a combining mark, which is then
+    dropped.
+
+    :param text: The text to fold (case is left as-is; callers typically
+        lowercase first).
+    :return: The diacritic-folded text.
+    """
+    folded = text.replace("đ", "d")
+    decomposed = unicodedata.normalize("NFD", folded)
+    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+
+
 def _norm(text: str) -> str:
     """Normalise for comparison: trim, lowercase, and fold diacritics.
 
     Folding lets an accented free-text query ("Đà Nẵng") match an ASCII seed
     name ("Da Nang") — without it, difflib scores the two below the match
-    threshold and the lookup wrongly returns nothing. ``đ`` (U+0111) has no
-    canonical NFD decomposition, so it is mapped explicitly; the remaining
-    Vietnamese/Latin accents (à, ẵ, ế, …) decompose to a base letter plus a
-    combining mark, which is then dropped.
+    threshold and the lookup wrongly returns nothing.
 
     :param text: The raw text to normalise.
     :return: The trimmed, lowercased, diacritic-folded text.
     """
-    lowered = text.strip().lower().replace("đ", "d")
-    decomposed = unicodedata.normalize("NFD", lowered)
-    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return fold_diacritics(text.strip().lower())
 
 
 def match_score(query: str, candidate: str) -> float:

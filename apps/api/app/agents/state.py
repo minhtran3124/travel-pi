@@ -9,9 +9,30 @@ is working state the supervisor and sub-agents read and update.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Annotated
+from zoneinfo import ZoneInfo
 
 from langchain_core.messages import SystemMessage
 from langgraph.graph import MessagesState
+
+
+def merge_trip_facts(old: dict | None, new: dict | None) -> dict:
+    """Reducer for ``TravelAgentState.trip_facts`` (MIN-65 DESIGN D1).
+
+    Starts from ``old`` (or ``{}``) and overlays every key in ``new`` whose
+    value is not ``None``. A ``None`` value in an update means "no info this
+    turn", not "delete" — an existing fact is never removed by a later turn
+    that simply didn't mention it again.
+
+    :param old: The trip facts accumulated so far, or ``None``.
+    :param new: The update to overlay, or ``None``.
+    :return: The merged trip-facts dict.
+    """
+    merged = dict(old or {})
+    for key, value in (new or {}).items():
+        if value is not None:
+            merged[key] = value
+    return merged
 
 
 class TravelAgentState(MessagesState):
@@ -36,10 +57,18 @@ class TravelAgentState(MessagesState):
         str  # personalization block (name/gender/travel-group); injected at model call
     )
     plan_approved: bool  # P2: HITL plan-approval signal → episode outcome="approved"
+    trip_facts: Annotated[
+        dict, merge_trip_facts
+    ]  # entity/slot memory for this thread (MIN-65 D1); never store PII/secrets here
+    preferences: str  # traveller preferences block, formatted text (MIN-65 D2)
+    pending_flows: list[
+        str
+    ]  # secondary sub-agent(s) queued for this turn (MIN-65 D4 dispatch_next)
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
-    """Fold ``profile``, ``instructions``, ``trip_context`` and ``summary`` into one leading system prompt.
+    """Fold ``profile``, ``instructions``, ``trip_context``, ``summary``, ``trip_facts``
+    and ``preferences`` into one leading system prompt.
 
     REVIEW.md C2: the rolling ``summary`` must be re-injected after compression.
     REVIEW.md M2: the trip-context snapshot must appear *before* the HumanMessage,
@@ -49,20 +78,32 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     The traveller ``profile`` is folded first — before instructions — so name/gender
     carry the most weight for address/tone. Procedural instructions (per-user
     standing directives) are folded before the summary so they carry the most weight.
+    ``trip_facts`` and ``preferences`` (MIN-65 DESIGN D1/D2) are folded last, after
+    the summary — they are per-turn/derived context, lower priority than the four
+    standing fields above.
 
     :param state: The current graph state, read for ``profile``, ``instructions``,
-        ``trip_context`` and ``summary``.
+        ``trip_context``, ``summary``, ``trip_facts`` and ``preferences``.
     :param base: The base system message to fold the extra context into.
-    :return: ``base`` unchanged when none of the four fields are set, else one
+    :return: ``base`` unchanged when none of the six fields are set, else one
         ``SystemMessage`` combining base + profile + instructions + trip_context +
-        summary — a single leading system message keeps providers that reject
-        mid-stream/multiple system messages happy.
+        summary + trip_facts + preferences — a single leading system message keeps
+        providers that reject mid-stream/multiple system messages happy.
     """
     trip_context = state.get("trip_context")
     summary = state.get("summary")
     instructions = state.get("instructions")
     profile = state.get("profile")
-    if not trip_context and not summary and not instructions and not profile:
+    trip_facts = state.get("trip_facts")
+    preferences = state.get("preferences")
+    if (
+        not trip_context
+        and not summary
+        and not instructions
+        and not profile
+        and not trip_facts
+        and not preferences
+    ):
         return base
     parts = [base.content]
     if profile:
@@ -73,28 +114,64 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
         parts.append(f"Current trip context:\n{trip_context}")
     if summary:
         parts.append(f"Summary of earlier conversation:\n{summary}")
+    if trip_facts:
+        bullets = "\n".join(
+            f"- {key}: {value}"
+            for key, value in trip_facts.items()
+            if value is not None
+        )
+        parts.append(
+            "Known trip facts (already provided by the traveller — do NOT ask "
+            "again; if a required field is missing here, ask ONLY for that "
+            f"field):\n{bullets}"
+        )
+    if preferences:
+        parts.append(
+            "Traveller preferences (learned from past conversations — use to "
+            f"personalise, confirm before acting on stale ones):\n{preferences}"
+        )
     return SystemMessage(content="\n\n".join(parts))
 
 
-def ground_current_date(base: SystemMessage) -> SystemMessage:
-    """Prepend today's date so the model resolves relative dates instead of guessing.
+def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:
+    """Prepend today's date and point relative-date resolution at the resolve_date tool.
 
-    Without a concrete "today", the model has to invent a date when the traveller
-    says something like "hôm nay"/"today" or "next Friday", which then flows into
-    tool calls such as ``search_flights(departure_date=...)``. Grounding a real date
-    lets it resolve those expressions and forbids fabricating a date that was never
-    given. Computed per request — the graph is built once at startup, so a long-
-    running server would otherwise serve a date frozen at boot.
+    Without a concrete "today", the model has no anchor for expressions like
+    "hôm nay"/"today" or "next Friday", which then flow into tool calls such as
+    ``search_flights(departure_date=...)``. Grounding a real date gives it that
+    anchor; the note also routes non-ISO date expressions through the
+    ``resolve_date`` tool instead of letting the model compute them itself, and
+    tells it to state the resolved date rather than ask the traveller to
+    confirm it — asking is reserved for no date signal at all, or an ambiguous
+    expression ``resolve_date`` itself reports. Computed per request — the
+    graph is built once at startup, so a long-running server would otherwise
+    serve a date frozen at boot.
 
     :param base: The base system message to fold the date grounding into.
+    :param tz: Optional IANA timezone (e.g. "Asia/Ho_Chi_Minh") for the traveller;
+        grounds "today" in their local zone. Invalid/None falls back to UTC.
     :return: A ``SystemMessage`` with ``base`` followed by the date-grounding note.
     """
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    zone_label = "UTC"
+    now = datetime.now(timezone.utc)
+    if tz:
+        try:
+            now = datetime.now(ZoneInfo(tz))
+            zone_label = tz
+        except Exception:  # unknown/invalid tz -> keep UTC
+            now = datetime.now(timezone.utc)
+            zone_label = "UTC"
+    today = now.strftime("%Y-%m-%d")
     note = (
-        f"CURRENT DATE: today is {today} (UTC). This is the only correct value for "
-        '"today". Resolve every relative date ("today", "tomorrow", "next Friday", '
-        '"this weekend") against it, and never pass a tool a date earlier than '
-        f"{today}. If the traveller has not given enough to derive a concrete date, "
-        "ask them — do not guess or invent one."
+        f"CURRENT DATE: today is {today} ({zone_label}). This is the only correct "
+        'value for "today", and never pass a tool a date earlier than '
+        f'{today}. Resolve relative, weekday, or partial dates ("tomorrow", '
+        '"next Friday", "thứ 6 tuần sau", "12/07") with the resolve_date tool — '
+        "do not compute them yourself. Do not ask the traveller to confirm a date "
+        "resolve_date already returned; state it in your answer so they can "
+        "correct it. If the traveller mentioned NO date at all, you MUST ask which "
+        f"date they want — never fall back to {today}, and never invent a date they "
+        "did not give. Ask, too, when resolve_date reports the expression is "
+        "ambiguous."
     )
     return SystemMessage(content=f"{note}\n\n{base.content}")

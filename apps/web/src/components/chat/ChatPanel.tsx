@@ -117,7 +117,7 @@ export function ChatPanel({
       ) : null}
 
       {hasPanels && onToggleMap ? (
-        <div className="flex justify-start border-t border-line bg-surface px-lg py-sm">
+        <div className="flex justify-start border-t border-line bg-panel-raised px-lg py-sm">
           <button
             type="button"
             onClick={onToggleMap}

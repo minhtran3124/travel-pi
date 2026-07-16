@@ -193,7 +193,12 @@ def test_ground_current_date_injects_today():
     assert isinstance(grounded, SystemMessage)
     assert "BASE PROMPT" in grounded.content
     assert today in grounded.content
-    assert "do not guess or invent" in grounded.content
+    assert "resolve_date" in grounded.content
+    # No date given is the one case that must still produce a question: the note has to
+    # forbid the fallback explicitly, not merely permit asking. A live probe showed the
+    # model defaulting to today when the note only said "ask only when…".
+    assert "must ask" in grounded.content.lower()
+    assert f"never fall back to {today}" in grounded.content.lower()
 
 
 def test_subagent_receives_todays_date_in_system_prompt():
@@ -243,3 +248,26 @@ def test_subagent_receives_summary_in_system_prompt():
     system_msg = captured["messages"][0]
     assert "base system" in system_msg.content
     assert "vegetarian" in system_msg.content
+
+
+def test_ground_current_date_uses_timezone():
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    tz = "Asia/Ho_Chi_Minh"
+    today_local = datetime.now(ZoneInfo(tz)).strftime("%Y-%m-%d")
+    grounded = ground_current_date(SystemMessage(content="BASE"), tz)
+    assert today_local in grounded.content
+    assert tz in grounded.content
+    assert "BASE" in grounded.content
+
+
+def test_ground_current_date_invalid_tz_falls_back_to_utc():
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    grounded = ground_current_date(SystemMessage(content="BASE"), "Not/AZone")
+    assert "UTC" in grounded.content  # fell back, did not raise

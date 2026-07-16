@@ -10,6 +10,8 @@ def test_all_datasets_load_and_validate():
         "language.json",
         "tools.json",
         "format.json",
+        "memory.json",
+        "suggestions.json",
     }
 
 
@@ -17,10 +19,16 @@ def test_total_case_count_at_least_15():
     assert sum(len(v) for v in load_all().values()) >= 15
 
 
-def test_every_case_has_string_input():
+def test_every_case_has_string_input_or_turns():
+    # MIN-65 D9: a case is either the original single-turn shape (string
+    # `input`) or the multi-turn shape (non-empty list of string `turns`).
     for cases in load_all().values():
         for c in cases:
-            assert isinstance(c["input"], str) and c["input"]
+            if "turns" in c:
+                assert isinstance(c["turns"], list) and c["turns"]
+                assert all(isinstance(t, str) for t in c["turns"])
+            else:
+                assert isinstance(c["input"], str) and c["input"]
 
 
 def test_declared_metrics_reference_known_geval_keys():

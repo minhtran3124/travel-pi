@@ -25,8 +25,15 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
+from app.streaming.panels import UnknownPanelKind, get_panel
 
 logger = logging.getLogger("app.tools")
+
+# Injected/free-text params that carry personal data and must never be
+# rendered into logs, even when a tool passes `locals()` wholesale. Callers
+# should still prefer excluding injected plumbing from `params` themselves
+# (see the docstring below) — this is a backstop, not a substitute.
+_REDACTED_PARAM_KEYS = {"preferences"}
 
 
 def log_tool_call(name: str, params: dict[str, Any]) -> None:
@@ -57,8 +64,14 @@ def log_tool_call(name: str, params: dict[str, Any]) -> None:
     if not params:
         logger.info("[tool] %s called (no params)", name)
         return
-    width = max(len(k) for k in params)
-    lines = [f"  {k:<{width}} = {pprint.pformat(v, width=80)}" for k, v in params.items()]
+    safe_params = {
+        k: ("<redacted>" if k in _REDACTED_PARAM_KEYS else v) for k, v in params.items()
+    }
+    width = max(len(k) for k in safe_params)
+    lines = [
+        f"  {k:<{width}} = {pprint.pformat(v, width=80)}"
+        for k, v in safe_params.items()
+    ]
     logger.info("[tool] %s called\n%s", name, "\n".join(lines))
 
 
@@ -99,10 +112,19 @@ def panel_result(summary: str, *, kind: str, data: Any) -> tuple[str, dict]:
     to the model. ``data`` is JSON-normalised via :func:`dump`.
 
     :param summary: Concise text shown to the model.
-    :param kind: Panel kind identifier used by the FE to pick a renderer.
+    :param kind: Panel kind identifier used by the FE to pick a renderer. Must be
+        a kind registered in :mod:`app.streaming.panels` (see ``panel_kinds()``).
     :param data: Raw result data, JSON-normalised via :func:`dump` before being
         embedded in the artifact.
     :return: A ``(summary, artifact)`` tuple in the LangChain
         ``content_and_artifact`` shape.
+    :raises UnknownPanelKind: If ``kind`` is not a registered panel kind — a typo'd
+        kind is a programming error at the tool seam, not a runtime condition to
+        swallow or fall back on. It is deliberately not a ``ValueError``: several
+        panel tools wrap ``ValueError``/``AppError`` into ``ToolException``, which
+        the agent relays back to the model as a recoverable logic error, so a bad
+        kind would reach the traveller as a chat message instead of failing loudly.
     """
+    if get_panel(kind) is None:
+        raise UnknownPanelKind(f"unknown panel kind: {kind!r}")
     return summary, {"kind": kind, "data": dump(data)}

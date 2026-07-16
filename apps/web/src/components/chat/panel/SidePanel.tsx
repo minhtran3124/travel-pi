@@ -51,7 +51,7 @@ export function SidePanel({
   return (
     <section
       aria-label={t("detailPanelLabel")}
-      className="tp-chat-in flex h-[min(70vh,560px)] w-[min(92vw,440px)] flex-col overflow-hidden rounded-[20px] border border-line bg-white text-ink shadow-lift"
+      className="tp-chat-in flex h-[min(70vh,560px)] w-[min(92vw,440px)] flex-col overflow-hidden rounded-[20px] border border-line bg-panel text-ink shadow-lift"
     >
       <header className="flex items-center justify-between border-b border-line px-lg py-sm">
         <div className="flex gap-xs">
@@ -63,8 +63,8 @@ export function SidePanel({
               className={cn(
                 "rounded-full px-sm py-xs text-xs font-medium transition",
                 k === active.kind
-                  ? "bg-ink text-white"
-                  : "text-muted hover:bg-surface",
+                  ? "bg-ink text-on-ink"
+                  : "text-muted hover:bg-panel-raised",
               )}
             >
               {PANEL_LABEL_KEYS[k] ? t(PANEL_LABEL_KEYS[k]) : k}

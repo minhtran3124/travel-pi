@@ -26,8 +26,7 @@
   <p class="error">{{ error }}</p>
 {% endif %}
 
-<form class="search" method="post" action="/dashboard/agent-config/{{ agent_name }}"
-      onsubmit="return confirm('Save config for {{ agent_name }}? This changes the live agent model.');">
+<form class="search" id="cfg-form" method="post" action="/dashboard/agent-config/{{ agent_name }}">
   <label>
     Provider
     <select name="provider">
@@ -68,4 +67,24 @@
 {% if updated_at %}
   <p class="count">Last updated: {{ updated_at }}</p>
 {% endif %}
+
+<script>
+  // Confirm-before-save via the themed dialog (replaces the native confirm()).
+  // tpDialog (base.html) with danger:false so the OK button isn't red — a Save
+  // isn't a destructive action. Resolves bool; on true, submit the form for real.
+  (function () {
+    var form = document.getElementById('cfg-form');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      window.tpDialog({
+        title: 'Save config for {{ agent_name }}?',
+        message: 'This changes the live agent model. It takes effect on the next agent run.',
+        input: false,
+        okLabel: 'Save',
+        danger: false
+      }).then(function (ok) { if (ok) form.submit(); });
+    });
+  })();
+</script>
 {% endblock %}

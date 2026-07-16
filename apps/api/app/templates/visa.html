@@ -17,15 +17,17 @@
 </div>
 
 <form method="get" action="/dashboard/visa" class="filter-bar">
-  <div class="fg">
+  <label class="fg">
     <span class="fl">Country</span>
-    <select name="country" onchange="this.form.submit()">
+    <select name="country">
       <option value="">All countries</option>
       {% for c in countries %}
         <option value="{{ c }}" {% if selected_country == c %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-  </div>
+  </label>
+
+  <button class="fb-btn" type="submit">Apply</button>
 
   {% if selected_country or selected_city %}
     <a href="/dashboard/visa" class="fb-link">✕ Clear</a>
@@ -282,7 +284,7 @@
     text-align: center; text-transform: uppercase;
     transform: rotate(-6deg);
     opacity: 0.9;
-    animation: stamp-in .4s cubic-bezier(.22,1,.36,1) both;
+    animation: stamp-in .2s cubic-bezier(.22,1,.36,1) both;
   }
   .stamp::before {
     content: ''; position: absolute; inset: 4px;
@@ -299,7 +301,7 @@
   }
   .stamp-big { font-size: 1.6rem; font-weight: 800; line-height: 1; letter-spacing: 0.02em; }
   @keyframes stamp-in {
-    from { opacity: 0; transform: rotate(-22deg) scale(1.5); }
+    from { opacity: 0; transform: rotate(-12deg) scale(1.15); }
     to   { opacity: 0.9; transform: rotate(-6deg) scale(1); }
   }
 

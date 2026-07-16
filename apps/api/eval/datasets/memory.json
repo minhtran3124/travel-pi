@@ -1,0 +1,93 @@
+[
+  {
+    "turns": [
+      "Tôi muốn đi Đà Nẵng ngày 15-20/8, 2 người lớn và 1 trẻ em",
+      "Vậy có khách sạn nào phù hợp không?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["memory_recall"],
+    "context": [
+      "Destination Đà Nẵng, dates 15-20/8, party 2 adults + 1 child were already stated in turn 1 — the reply should not re-ask for them."
+    ]
+  },
+  {
+    "turns": [
+      "Chuyến đi Nha Trang tuần sau, đi 4 người lớn",
+      "Có gợi ý nhà hàng nào không?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["memory_recall"],
+    "context": [
+      "Destination Nha Trang and party size 4 adults were already stated — should not be re-asked."
+    ]
+  },
+  {
+    "turns": [
+      "Tìm chuyến bay từ TP.HCM đi Tokyo ngày 10/9",
+      "Tìm khách sạn gần đó luôn nhé"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["memory_recall"],
+    "context": [
+      "Origin SGN and destination Tokyo were already stated in turn 1 — the hotel search should reuse Tokyo as the area, not ask which city."
+    ]
+  },
+  {
+    "turns": [
+      "Ngân sách của tôi khoảng 20 triệu cho chuyến đi Phú Quốc",
+      "Gợi ý lịch trình 3 ngày giúp mình"
+    ],
+    "expected_flow": "planner",
+    "metrics": ["memory_recall"],
+    "context": [
+      "Budget (~20 triệu VND) and destination Phú Quốc were already stated — the itinerary should respect the stated budget, not ask for it again."
+    ]
+  },
+  {
+    "turns": [
+      "I'm planning a trip to Bangkok from Aug 20 to Aug 25, 2026, 2 adults",
+      "What hotels do you recommend?"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["memory_recall"],
+    "context": [
+      "Destination Bangkok, dates Aug 20-25 2026, party 2 adults were already stated — should not be re-asked."
+    ]
+  },
+  {
+    "turns": [
+      "Đi Đà Lạt cuối tuần này",
+      "2 người lớn thôi",
+      "Gợi ý khách sạn nhé"
+    ],
+    "expected_flow": "concierge",
+    "metrics": ["memory_recall"],
+    "context": [
+      "Destination (Đà Lạt), dates (this weekend, from turn 1) and party size (2 adults, from turn 2) accumulate across three turns — the final reply should reuse all three, not just the latest turn."
+    ]
+  },
+  {
+    "turns": [
+      "Tôi ăn chay, nhớ giúp mình nhé",
+      "Gợi ý nhà hàng ở Đà Nẵng cho tôi"
+    ],
+    "new_thread_at": 1,
+    "expected_flow": "journal",
+    "metrics": ["memory_recall"],
+    "context": [
+      "The vegetarian preference was stated in a PREVIOUS session (before the thread reset) and must come from long-term store memory, not checkpoint history — the follow-up thread has no access to turn 0's messages."
+    ]
+  },
+  {
+    "turns": [
+      "Tôi thích khách sạn gần biển, tiêu chuẩn 4-5 sao",
+      "Tìm khách sạn ở Nha Trang giúp mình"
+    ],
+    "new_thread_at": 1,
+    "expected_flow": "concierge",
+    "metrics": ["memory_recall"],
+    "context": [
+      "The beachfront/4-5 star hotel preference was stated in a PREVIOUS session — the new-session search should still prefer beachfront, high-star hotels via long-term store memory, not the (now-empty) checkpoint history."
+    ]
+  }
+]

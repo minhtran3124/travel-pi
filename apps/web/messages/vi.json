@@ -446,7 +446,15 @@
         "addExpense": { "label": "Thêm chi phí ➕", "prompt": "Thêm một khoản chi vào ngân sách của tôi" },
         "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
         "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
-      }
+      },
+      "book_hotel_next": { "label": "Tìm khách sạn tiếp 🏨", "prompt": "Tìm khách sạn cho chuyến đi này" },
+      "transport_to_hotel": { "label": "Đến khách sạn thế nào 🚕", "prompt": "Làm sao để đến khách sạn từ sân bay?" },
+      "activities_near_destination": { "label": "Hoạt động gần đó 🎟️", "prompt": "Có gì để làm gần điểm đến của tôi?" },
+      "weather_before_trip": { "label": "Xem thời tiết ⛅", "prompt": "Thời tiết vào ngày đi chuyến này thế nào?" },
+      "packing_tips": { "label": "Mẹo đóng gói 🎒", "prompt": "Tôi nên mang theo gì cho chuyến đi này?" },
+      "family_activities": { "label": "Gợi ý cho gia đình 👨‍👩‍👧", "prompt": "Gợi ý hoạt động phù hợp cho gia đình trong chuyến đi này" },
+      "budget_check": { "label": "Kiểm tra ngân sách 💰", "prompt": "Ngân sách chuyến đi của tôi đang thế nào?" },
+      "local_tips_destination": { "label": "Mẹo địa phương 🧭", "prompt": "Chia sẻ vài mẹo địa phương cho điểm đến của tôi" }
     },
     "interruptTitle": "Sẵn sàng khi bạn cần",
     "approve": "Đồng ý",

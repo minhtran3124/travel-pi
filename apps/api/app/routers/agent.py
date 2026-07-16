@@ -9,19 +9,21 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 from typing import Annotated, Any
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.background import BackgroundTask
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.constants import AGENT_ERROR_FALLBACK_MSG, REFLECTION_REVISE_NOTE
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
-from app.agents.suggestions import suggestions_for_flow
+from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
@@ -142,6 +144,28 @@ def _isolated_factory(session: Session) -> sessionmaker[Session]:
     return sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
 
 
+def _resolve_timezone(raw: str | None) -> str:
+    """Return a valid IANA tz string, falling back to the configured default.
+
+    The client sends its detected timezone; a missing or invalid value must not
+    fail the request — we ground dates against ``settings.agent_timezone`` instead.
+
+    :param raw: Client-supplied IANA timezone name, or None.
+    :return: A valid IANA timezone name.
+    """
+    default = get_settings().agent_timezone
+    if not raw:
+        return default
+    try:
+        ZoneInfo(raw)
+        return raw
+    except Exception:
+        logger.warning(
+            "[agent] invalid timezone %r from client; using %s", raw, default
+        )
+        return default
+
+
 def _resolve_context(
     effective_user_id: str,
     authenticated: bool,
@@ -152,6 +176,9 @@ def _resolve_context(
     Security: ``tier`` is resolved server-side from the users table and is never
     read from the request body.  When authenticated the effective Supabase id is
     used; anonymous callers are always ``free`` (no DB lookup needed).
+
+    The per-request timezone is applied by the caller via ``replace`` (it comes
+    from the request body, unlike the server-resolved tier).
 
     :param effective_user_id: The effective user id (JWT sub or anonymous).
     :param authenticated: Whether the caller presented a valid JWT.
@@ -190,6 +217,7 @@ async def agent_chat(
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before any work begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
@@ -243,11 +271,41 @@ async def agent_chat(
     if interrupt_pending:
         reply = ""
     else:
-        # Pick the last *assistant* message, not result["messages"][-1] blindly: a
-        # ReAct sub-agent that exhausts the recursion limit can leave a ToolMessage
-        # (raw JSON) as the final entry, which must never surface as the reply.
-        ai_messages = [m for m in result["messages"] if isinstance(m, AIMessage)]
-        reply = ai_messages[-1].content if ai_messages else ""
+        # Join every *assistant* message produced THIS turn, not just the last
+        # one: a multi-intent turn (MIN-65 dispatch_next) runs two sub-agents
+        # sequentially, each appending its own AIMessage — taking only the
+        # last one silently drops the first sub-agent's entire answer from the
+        # REST response (it would still stream over SSE, and still reach
+        # memory extraction, but never reach this client). Scope to messages
+        # after the last HumanMessage so prior turns' AIMessages in the full
+        # thread history are never included. A ReAct sub-agent that exhausts
+        # the recursion limit can still leave a ToolMessage (raw JSON) as the
+        # final entry, which must never surface as the reply — filtering to
+        # AIMessage already excludes it.
+        turn_messages = result["messages"]
+        for i in range(len(turn_messages) - 1, -1, -1):
+            if isinstance(turn_messages[i], HumanMessage):
+                turn_messages = turn_messages[i:]
+                break
+        # Drop reflection-superseded drafts. A REVISE re-runs the *same*
+        # sub-agent and appends a fresh answer without removing the rejected
+        # one (add_messages appends; nothing emits a RemoveMessage), so joining
+        # blindly would surface the flawed draft next to its correction. The
+        # revise-note SystemMessage marks the boundary — it appears only before
+        # a revision, never between two distinct sub-agents on a multi-intent
+        # turn — so popping the most recent answer on each note keeps the final
+        # answer per sub-agent while preserving both answers of a multi-intent
+        # turn. This mirrors the SSE path's `reset` event. Exclude tool-calling
+        # AIMessages: a model may emit intermediate reasoning content alongside
+        # tool_calls, which is not a user-facing answer.
+        answers: list[str] = []
+        for m in turn_messages:
+            if isinstance(m, SystemMessage) and m.content == REFLECTION_REVISE_NOTE:
+                if answers:
+                    answers.pop()
+            elif isinstance(m, AIMessage) and m.content and not m.tool_calls:
+                answers.append(m.content)
+        reply = "\n\n".join(answers)
         # Guarantee a user-facing reply even when the graph finished without an
         # assistant message (e.g. a ReAct loop that exhausted the recursion limit
         # on repeated tool errors). The user must always get a readable message.
@@ -278,7 +336,12 @@ async def agent_chat(
         suggestions=(
             []
             if interrupt_pending
-            else suggestions_for_flow(result.get("current_flow"))
+            else suggestions_for_flow(
+                result.get("current_flow"),
+                trip_facts=result.get("trip_facts"),
+                profile=profile_for_suggestions(graph.store, uid),
+                preferences=result.get("preferences", ""),
+            )
         ),
         interrupt_pending=interrupt_pending,
         interrupt_payload=interrupt_payload,
@@ -304,6 +367,7 @@ async def agent_stream(
     uid = _effective_user_id(auth_user, body.user_id)
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before streaming begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
