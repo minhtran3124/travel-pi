@@ -1,6 +1,6 @@
-# Travel Planner Mock API
+# Travel Planner API
 
-A fake travel-booking backend — flights, hotels, and bookings — for frontend development. No API keys, no payments, no real data.
+A travel-planning backend with full CRUD APIs — trips, bookings, expenses, hotels, places — persisted in SQLite/Postgres, plus a LangGraph AI agent. Flights and hotel availability are generated deterministically from seed data (no external booking providers, no payments); weather/air-quality/climate and routing call real keyless services.
 
 ## Run
 
@@ -99,7 +99,7 @@ tests/             # pytest suite
 scripts/           # data generators
 ```
 
-Add mock hotels:
+Add seed hotels:
 
 ```bash
 python scripts/generate_data.py hotels --city "Da Nang" --count 3

@@ -35,7 +35,7 @@ Interactive docs: `http://localhost:8000/docs`
 | GET | `/air-quality` | US-AQI + pollutants + forecast |
 | GET | `/destinations/climate` | Monthly climate normals + best-time guidance |
 | GET | `/destinations/{city}/overview` | City briefing: weather, places, tips, hotels |
-| GET | `/currency/convert` | Currency conversion (mock FX rates) |
+| GET | `/currency/convert` | Currency conversion (static FX snapshot) |
 | GET | `/bookings` | List/search bookings |
 | GET | `/bookings/{booking_id}` | One booking (UUID or confirmation code) |
 | POST | `/bookings/{booking_id}/cancel` | Cancel a booking |
@@ -551,7 +551,7 @@ curl "http://localhost:8000/destinations/Bangkok/overview?include=weather,places
 
 ## `GET /currency/convert`
 
-Mock FX rates (static snapshot, not live). Supported codes: `USD`, `EUR`, `GBP`, `AUD`, `VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`, `KRW`, `JPY`.
+Static FX snapshot (not live rates). Supported codes: `USD`, `EUR`, `GBP`, `AUD`, `VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`, `KRW`, `JPY`.
 
 | Param | Required | Default | Notes |
 |-------|----------|---------|-------|

@@ -53,9 +53,12 @@ Turbo pipeline (`turbo.json`): `build` (depends on upstream `^build`, caches `.n
 
 ## Backend — `apps/api`
 
-FastAPI mock backend. Everything faked except keyless Open-Meteo (`/weather`, `/air-quality`,
+FastAPI backend with full CRUD APIs (trips, bookings, expenses, hotels, places, …) persisted
+in SQLite/Postgres. Real external calls: keyless Open-Meteo (`/weather`, `/air-quality`,
 climate), `/*/route` (OpenRouteService + haversine fallback), and the AI agent's LLM calls
-(real provider via `init_chat_model()` when keys are set; `FakeLLM` in tests).
+(real provider via `init_chat_model()` when keys are set; `FakeLLM` in tests). Travel
+inventory (flights, hotel availability) is deterministically generated from seed data; FX is
+a static snapshot.
 
 **Core framework & data** (`apps/api/requirements.txt`)
 

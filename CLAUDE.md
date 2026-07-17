@@ -4,7 +4,7 @@ Guidance for Claude Code working in this repo.
 
 ## Project
 
-FastAPI mock backend for a Travel Planner agent. Everything is faked except keyless Open-Meteo calls (`/weather`, `/air-quality`, `/destinations/{city}/climate`), `/*/route` (OpenRouteService, haversine fallback), and the AI agent's LLM calls (real provider via `init_chat_model()` when keys are set; `FakeLLM` in tests). Flights, hotel availability, trips, bookings, and FX remain deterministic/DB-seeded fakes.
+FastAPI backend for a Travel Planner agent. Trips, bookings, expenses, hotels, places, and other domain data are real CRUD APIs persisted in SQLite/Postgres. Real external calls: keyless Open-Meteo (`/weather`, `/air-quality`, `/destinations/{city}/climate`), `/*/route` (OpenRouteService, haversine fallback), and the AI agent's LLM calls (real provider via `init_chat_model()` when keys are set; `FakeLLM` in tests). Travel inventory stays synthetic: flight and hotel-availability search is deterministically generated from seed data, and FX is a static snapshot.
 
 **Monorepo** (pnpm workspaces + Turborepo). The BE lives in `apps/api/` (FastAPI) and the
 Next.js FE in `apps/web/`. Do BE work in `apps/api/`; the single Python venv stays at the

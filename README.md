@@ -1,11 +1,14 @@
 # Travel Planner — monorepo
 
-A Next.js frontend and a FastAPI mock backend in one repo, managed with
-pnpm workspaces + Turborepo.
+A Next.js frontend and a FastAPI backend in one repo, managed with
+pnpm workspaces + Turborepo. The backend serves full CRUD APIs (trips,
+bookings, expenses, hotels, places, …) plus an AI travel agent; only
+travel inventory (flights, hotel availability) is deterministically
+generated from seed data.
 
 ```
 apps/
-  api/   FastAPI mock backend (Python, uv)  — see apps/api/README.md
+  api/   FastAPI backend (Python, uv)  — see apps/api/README.md
   web/   Next.js frontend (TypeScript)
 packages/  shared libraries (none yet)
 ```
