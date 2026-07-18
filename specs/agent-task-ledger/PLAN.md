@@ -148,3 +148,7 @@ the combined answer.
   suite 224 passed (215 baseline + 9 new, no regression), ruff clean, supervisor prompt v7 active.
   Deviation (Rule 1): ordered plans are not deduplicated so a specialist may recur; legacy
   `secondary_agent` keeps its differs-from-target drop. Status → shipped-pending-review.
+- 2026-07-18 — Added multi-intent **evaluation** slice (same PR): `eval/datasets/multi_intent.json`,
+  `plan_accuracy()` metric, `run_plan_eval()` in `run_eval.py` (threshold 0.8), and offline smoke
+  tests. Verify: eval suite 55 passed, ruff clean. Covers the prompt-quality dimension (v7's
+  planning) that the FakeLLM unit tests can't.

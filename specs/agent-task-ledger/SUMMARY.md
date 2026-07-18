@@ -39,6 +39,14 @@ runs planner → concierge → planner in a single turn instead of forcing multi
 Added `MAX_LEDGER_STEPS = 4` (cap), supervisor prompt `v7` (documents the ordered plan), and a
 new `test_task_ledger.py` suite. Legacy `secondary_agent` retained as the len-1 fallback.
 
+**Evaluation (follow-up in the same PR):** the prompt-quality dimension — does the *real* model
+emit good ordered plans? — is covered by extending the no-network routing smoke: a new
+`eval/datasets/multi_intent.json`, a deterministic `plan_accuracy()` metric (grades target +
+ordered ledger), a `run_plan_eval()` runner wired into `eval/run_eval.py main()` (threshold 0.8),
+and offline smoke tests in `tests/eval/test_eval_smoke.py`. A real keyed run
+(`python eval/run_eval.py`) exercises v7 against a live provider; CI runs the FakeLLM-scripted
+smoke.
+
 ### Rationale
 
 Option A (extend `SupervisorIntent`) over Option B (`write_todos` tool): the drain machinery is
@@ -69,6 +77,8 @@ emitting an ordered list, preserving the "LLM parses (one structured call), code
 | Full agent regression | `DATABASE_URL=sqlite:///:memory: python -m pytest tests/agents/ -q` | 0 | 224 passed (215 baseline + 9 new; no regression) |
 | Prompt registry | `python -c "from app.prompts.registry import registry; assert registry.active_version('supervisor')==7"` | 0 | v7 active, `plan` documented |
 | Lint | `ruff check app/agents/{supervisor,constants,nodes,state}.py tests/agents/test_task_ledger.py` | 0 | clean |
+| Eval smoke suite | `DATABASE_URL=sqlite:///:memory: python -m pytest tests/eval -q` | 0 | 55 passed (incl. new `plan_accuracy` + `run_plan_eval` FakeLLM smoke) |
+| Eval lint | `ruff check eval/run_eval.py eval/metrics.py tests/eval/test_eval_smoke.py` | 0 | clean |
 
 ### Rollback
 
