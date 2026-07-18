@@ -6,8 +6,9 @@
 - ``make_reflection_node``: bounded self-correction — critiques the last answer
   and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
-- ``dispatch_next``: pure-code multi-intent router — sends the turn to a queued
-  secondary sub-agent, or on to reflection once the queue is empty (MIN-65 D4).
+- ``dispatch_next``: pure-code ledger drainer — pops the next queued follow-on
+  sub-agent from the ordered ledger (P1), or goes on to reflection once the
+  ledger is empty (MIN-65 D4).
 
 Post-turn memory extraction no longer runs in-graph — see
 ``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
@@ -231,15 +232,16 @@ def plan_node(state: TravelAgentState) -> Command:
 
 
 def dispatch_next(state: TravelAgentState) -> Command:
-    """Route to a queued secondary sub-agent, or on to reflection (MIN-65 D4).
+    """Drain the next step of the task ledger, or on to reflection (MIN-65 D4).
 
-    Pure-code multi-intent dispatcher — no LLM call. Every sub-agent's static
-    edge points here instead of straight to ``reflection``, so a supervisor
-    that queued a second, distinct intent in ``pending_flows`` (bounded to one
-    entry, never "booking" — see ``app.agents.supervisor``) gets that second
-    sub-agent run in the same turn before reflection reviews the final answer.
-    The second sub-agent sees the first one's messages in state, so it
-    naturally continues the thread (e.g. "the flight picked above").
+    Pure-code ledger drainer — no LLM call. Every sub-agent's static edge points
+    here instead of straight to ``reflection``, so a supervisor that queued an
+    ordered ledger of follow-on sub-agents in ``pending_flows`` (P1; capped at
+    ``MAX_LEDGER_STEPS - 1`` entries, never "booking" — see
+    ``app.agents.supervisor``) gets each queued sub-agent run in order, in the
+    same turn, before reflection reviews the final answer. Each queued sub-agent
+    sees the previous ones' messages in state, so it naturally continues the
+    thread (e.g. "the flight picked above").
 
     :param state: The current graph state; reads ``pending_flows``.
     :return: A ``Command`` routing to the next queued sub-agent (draining the
