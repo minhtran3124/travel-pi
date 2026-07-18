@@ -34,7 +34,11 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         fn = tool.coroutine or tool.func
         # InjectedStore tools carry a runtime-only `store` param in their
         # signature (hidden from the LLM schema) — they can't be served over MCP.
-        if "store" in inspect.signature(fn).parameters:
+        # Tools with an InjectedToolCallId `tool_call_id` param return a langgraph
+        # `Command` and need the agent's runtime tool-call id — also not servable
+        # over MCP (an external client can't supply one).
+        params = inspect.signature(fn).parameters
+        if "store" in params or "tool_call_id" in params:
             continue
         server.add_tool(
             fn,

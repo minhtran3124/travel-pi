@@ -1,14 +1,43 @@
-"""Trip & itinerary tools (specs/travel-agent Task 3.1).
+"""Trip-tools schema + injection tests (specs/agent-trip-context Task 1.1).
 
-Task 2.2 (specs/standardize-tool-args-schema) extends this file with
-args_schema / enum-in-schema / invalid-value assertions.
+``trip_id`` is injected via ``InjectedState`` (mirroring ``user_id`` in
+``memory_tools.py``): an explicit ``args_schema=`` that omits it breaks
+LangGraph's ToolNode injection, so these tools keep an auto-derived schema and
+attach model-facing descriptions inline via ``Annotated[..., Field(...)]``. We
+assert the MODEL-FACING ``tool_call_schema`` (excludes injected args) and drive
+at least one read + one write tool through a real ``ToolNode`` to prove
+injection actually resolves ``trip_id`` from graph state.
 """
 
+import inspect
 import json
 
 import pytest
+from app.agents.state import TravelAgentState
+from langchain_core.messages import AIMessage
 from langchain_core.tools import ToolException
+from langgraph.graph import END, StateGraph
+from langgraph.prebuilt import ToolNode
+from langgraph.types import Command
 from pydantic import ValidationError
+
+
+def _facing(tool):
+    """Model-facing schema fields (injected args stripped)."""
+    return tool.tool_call_schema.model_fields
+
+
+def _tool_node_graph(tool):
+    """Compile a minimal one-node graph so ToolNode gets a real LangGraph
+    runtime (CONFIG_KEY_RUNTIME) to resolve InjectedState from — a bare
+    ``ToolNode(...).invoke(state_dict)`` has no runtime and raises
+    "Missing required config key" before injection ever runs.
+    """
+    graph = StateGraph(TravelAgentState)
+    graph.add_node("tools", ToolNode([tool]))
+    graph.set_entry_point("tools")
+    graph.add_edge("tools", END)
+    return graph.compile()
 
 
 def test_get_trip_summary(trip_id):
@@ -43,9 +72,9 @@ def test_add_itinerary_item(trip_id):
 
 
 def test_add_itinerary_item_bad_status_raises(trip_id):
-    # Now caught by the AddItineraryItemArgs enum field (validated by LangChain's
-    # ToolNode against args_schema before invoke), not the tool body's ValueError
-    # catch — see specs/standardize-tool-args-schema Task 2.2.
+    # Caught by the annotated `status` field (validated by LangChain's
+    # ToolNode against the auto-derived schema before invoke), not the tool
+    # body's ValueError catch.
     from app.tools.trip_tools import add_itinerary_item
 
     with pytest.raises(ValidationError):
@@ -61,13 +90,8 @@ def test_get_trip_budget(trip_id):
     assert isinstance(out, dict)
 
 
-def test_all_trip_tools_have_args_schema():
+def test_trip_tools_model_facing_schema_excludes_trip_id():
     from app.tools.trip_tools import (
-        AddItineraryItemArgs,
-        AddPlaceToTripArgs,
-        GetTripBudgetArgs,
-        GetTripSummaryArgs,
-        ListTripPlacesArgs,
         add_itinerary_item,
         add_place_to_trip,
         get_trip_budget,
@@ -75,11 +99,37 @@ def test_all_trip_tools_have_args_schema():
         list_trip_places,
     )
 
-    assert get_trip_summary.args_schema is GetTripSummaryArgs
-    assert get_trip_budget.args_schema is GetTripBudgetArgs
-    assert list_trip_places.args_schema is ListTripPlacesArgs
-    assert add_place_to_trip.args_schema is AddPlaceToTripArgs
-    assert add_itinerary_item.args_schema is AddItineraryItemArgs
+    for t in (
+        get_trip_summary,
+        get_trip_budget,
+        list_trip_places,
+        add_place_to_trip,
+        add_itinerary_item,
+    ):
+        assert "trip_id" not in _facing(t), t.name
+
+
+def test_trip_id_remains_in_function_signature():
+    """The Annotated[..., InjectedState] trip_id param must still be present on
+    the underlying function so LangGraph's ToolNode can inject it at call
+    time — only the model-facing schema excludes it.
+    """
+    from app.tools.trip_tools import (
+        add_itinerary_item,
+        add_place_to_trip,
+        get_trip_budget,
+        get_trip_summary,
+        list_trip_places,
+    )
+
+    for t in (
+        get_trip_summary,
+        get_trip_budget,
+        list_trip_places,
+        add_place_to_trip,
+        add_itinerary_item,
+    ):
+        assert "trip_id" in inspect.signature(t.func).parameters, t.name
 
 
 def test_add_place_to_trip_schema_lists_source_values():
@@ -117,3 +167,74 @@ def test_add_itinerary_item_invalid_kind_raises_on_invoke(trip_id):
                 },
             }
         )
+
+
+def test_get_trip_summary_injected_via_tool_node(trip_id):
+    """Prove trip_id resolves via InjectedState through a real ToolNode (read tool)."""
+    from app.tools.trip_tools import get_trip_summary
+
+    compiled = _tool_node_graph(get_trip_summary)
+    ai_msg = AIMessage(
+        content="",
+        tool_calls=[{"name": "get_trip_summary", "args": {}, "id": "call-1"}],
+    )
+    result = compiled.invoke({"messages": [ai_msg], "trip_id": trip_id})
+    tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
+    assert len(tool_msgs) == 1
+    assert tool_msgs[0].status != "error"
+    payload = json.loads(tool_msgs[0].content)
+    assert payload["id"] == trip_id
+
+
+def test_add_itinerary_item_injected_via_tool_node(trip_id):
+    """Prove trip_id resolves via InjectedState through a real ToolNode (write tool)."""
+    from app.tools.trip_tools import add_itinerary_item
+
+    compiled = _tool_node_graph(add_itinerary_item)
+    ai_msg = AIMessage(
+        content="",
+        tool_calls=[
+            {
+                "name": "add_itinerary_item",
+                "args": {"day": 2, "title": "Ben Thanh Market"},
+                "id": "call-2",
+            }
+        ],
+    )
+    result = compiled.invoke({"messages": [ai_msg], "trip_id": trip_id})
+    tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
+    assert len(tool_msgs) == 1
+    assert tool_msgs[0].status != "error"
+    payload = json.loads(tool_msgs[0].content)
+    assert payload["title"] == "Ben Thanh Market"
+
+
+def test_create_trip_returns_command_with_new_trip_id_and_message(agent_db):
+    from app.tools.trip_tools import create_trip
+
+    result = create_trip.invoke(
+        {
+            "type": "tool_call",
+            "id": "call-create-1",
+            "name": "create_trip",
+            "args": {"title": "Da Nang long weekend", "city": "Da Nang"},
+        }
+    )
+    assert isinstance(result, Command)
+    new_trip_id = result.update["trip_id"]
+    assert isinstance(new_trip_id, str) and new_trip_id
+
+    messages = result.update["messages"]
+    assert len(messages) == 1
+    msg = messages[0]
+    assert msg.__class__.__name__ == "ToolMessage"
+    assert msg.tool_call_id == "call-create-1"
+    payload = json.loads(msg.content)
+    assert payload["id"] == new_trip_id
+    assert payload["title"] == "Da Nang long weekend"
+
+
+def test_create_trip_not_in_trip_tools():
+    from app.tools.trip_tools import TRIP_TOOLS, create_trip
+
+    assert create_trip not in TRIP_TOOLS

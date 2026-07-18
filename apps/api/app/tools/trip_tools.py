@@ -4,72 +4,51 @@ Wrap ``TripService`` as LLM tools. Each opens its own session via
 ``session_scope`` and maps domain errors to ``ToolException`` so the agent can
 self-correct. ``readOnly`` / ``destructive`` metadata is attached for the
 manifest + MCP layer (roadmap B1) and lives in ``registry.py``.
+
+``trip_id`` is injected by LangGraph from ``TravelAgentState.trip_id``
+(``InjectedState``), mirroring ``user_id`` in ``memory_tools.py`` — the model
+never sees or supplies the internal trip UUID (specs/agent-trip-context).
+
+NOTE: these tools take ``trip_id`` as a LangGraph-injected arg
+(``InjectedState``). An explicit ``args_schema=`` that omits an injected param
+breaks ToolNode injection (it derives injection targets from the tool's
+schema) — the tool then gets called without it and raises "missing required
+positional arguments". So the model-facing descriptions are attached inline
+via ``Annotated[..., Field(description=...)]`` on the signature, and no
+explicit ``args_schema`` is passed: LangChain auto-derives the schema while
+keeping the injected arg out of the model-facing ``tool_call_schema``.
 """
 
 from __future__ import annotations
 
-from typing import Literal
+import json
+from typing import Annotated, Literal
 
-from langchain_core.tools import ToolException, tool
+from langchain_core.messages import ToolMessage
+from langchain_core.tools import InjectedToolCallId, ToolException, tool
+from langgraph.prebuilt import InjectedState
+from langgraph.types import Command
 from pydantic import Field
 
 from app.enums import TripItemKind, TripItemStatus
 from app.exceptions import AppError
-from app.schemas.base import AppBaseModel
-from app.schemas.trip import TripItemCreate
+from app.schemas.trip import TripCreate, TripItemCreate
 from app.services.trip_service import TripService
 from app.tools._base import dump, log_tool_call, session_scope
 
 
-class GetTripSummaryArgs(AppBaseModel):
-    trip_id: str = Field(..., description="The trip to summarise.")
-
-
-class GetTripBudgetArgs(AppBaseModel):
-    trip_id: str = Field(..., description="The trip to get the budget for.")
-
-
-class ListTripPlacesArgs(AppBaseModel):
-    trip_id: str = Field(..., description="The trip to list places for.")
-
-
-class AddPlaceToTripArgs(AppBaseModel):
-    trip_id: str = Field(..., description="The trip to shortlist the place onto.")
-    place_id: str = Field(..., description="The place's id or PLC-XXXX short code.")
-    source: Literal["catalog", "saved"] = Field(
-        "catalog",
-        description="Where the place comes from: 'catalog' (default) or 'saved'.",
-    )
-
-
-class AddItineraryItemArgs(AppBaseModel):
-    trip_id: str = Field(..., description="The trip to add the item to.")
-    day: int = Field(..., description="The trip day number the item belongs to.")
-    title: str = Field(..., description="The item's title.")
-    kind: TripItemKind = Field(
-        TripItemKind.PLACE, description="The kind of itinerary entry."
-    )
-    status: TripItemStatus = Field(
-        TripItemStatus.PENDING, description="Planning state of the item."
-    )
-    notes: str | None = Field(
-        None, description="Optional free-text notes for the item."
-    )
-    start_time: str | None = Field(
-        None, description="Optional start time for the item."
-    )
-
-
-@tool(args_schema=GetTripSummaryArgs)
-def get_trip_summary(trip_id: str) -> dict:
+@tool
+def get_trip_summary(
+    trip_id: Annotated[str, InjectedState("trip_id")],
+) -> dict:
     """Get a trip's full snapshot: days, items, places, budget rollup, and gaps.
 
     Use this first to load context before answering questions or editing a trip.
 
-    :param trip_id: The trip to summarise.
+    :param trip_id: The active trip, injected from graph state (not model-supplied).
     :return: The trip's full snapshot.
     """
-    log_tool_call("get_trip_summary", locals())
+    log_tool_call("get_trip_summary", {"trip_id": trip_id})
     with session_scope() as s:
         try:
             return dump(TripService(s).get_trip_detail(trip_id))
@@ -77,14 +56,16 @@ def get_trip_summary(trip_id: str) -> dict:
             raise ToolException(str(e)) from e
 
 
-@tool(args_schema=GetTripBudgetArgs)
-def get_trip_budget(trip_id: str) -> dict:
+@tool
+def get_trip_budget(
+    trip_id: Annotated[str, InjectedState("trip_id")],
+) -> dict:
     """Get the trip's budget: caps, spent-by-category, and remaining amounts.
 
-    :param trip_id: The trip to get the budget for.
+    :param trip_id: The active trip, injected from graph state (not model-supplied).
     :return: The trip's budget rollup.
     """
-    log_tool_call("get_trip_budget", locals())
+    log_tool_call("get_trip_budget", {"trip_id": trip_id})
     with session_scope() as s:
         try:
             return dump(TripService(s).get_trip_budget(trip_id))
@@ -92,14 +73,16 @@ def get_trip_budget(trip_id: str) -> dict:
             raise ToolException(str(e)) from e
 
 
-@tool(args_schema=ListTripPlacesArgs)
-def list_trip_places(trip_id: str) -> list:
+@tool
+def list_trip_places(
+    trip_id: Annotated[str, InjectedState("trip_id")],
+) -> list:
     """List the places shortlisted onto a trip.
 
-    :param trip_id: The trip to list places for.
+    :param trip_id: The active trip, injected from graph state (not model-supplied).
     :return: The places shortlisted onto the trip.
     """
-    log_tool_call("list_trip_places", locals())
+    log_tool_call("list_trip_places", {"trip_id": trip_id})
     with session_scope() as s:
         try:
             return dump(TripService(s).list_trip_places(trip_id))
@@ -107,16 +90,30 @@ def list_trip_places(trip_id: str) -> list:
             raise ToolException(str(e)) from e
 
 
-@tool(args_schema=AddPlaceToTripArgs)
-def add_place_to_trip(trip_id: str, place_id: str, source: str = "catalog") -> dict:
+@tool
+def add_place_to_trip(
+    place_id: Annotated[
+        str, Field(description="The place's id or PLC-XXXX short code.")
+    ],
+    trip_id: Annotated[str, InjectedState("trip_id")],
+    source: Annotated[
+        Literal["catalog", "saved"],
+        Field(
+            description="Where the place comes from: 'catalog' (default) or 'saved'."
+        ),
+    ] = "catalog",
+) -> dict:
     """Shortlist a place onto a trip.
 
-    :param trip_id: The trip to shortlist the place onto.
     :param place_id: The place's id or PLC-XXXX short code.
+    :param trip_id: The active trip, injected from graph state (not model-supplied).
     :param source: 'catalog' (default) or 'saved'.
     :return: The created trip-place record.
     """
-    log_tool_call("add_place_to_trip", locals())
+    log_tool_call(
+        "add_place_to_trip",
+        {"trip_id": trip_id, "place_id": place_id, "source": source},
+    )
     with session_scope() as s:
         try:
             return dump(TripService(s).add_place_to_trip(trip_id, place_id, source))
@@ -124,31 +121,50 @@ def add_place_to_trip(trip_id: str, place_id: str, source: str = "catalog") -> d
             raise ToolException(str(e)) from e
 
 
-@tool(args_schema=AddItineraryItemArgs)
+@tool
 def add_itinerary_item(
-    trip_id: str,
-    day: int,
-    title: str,
-    kind: str = "place",
-    status: str = "pending",
-    notes: str | None = None,
-    start_time: str | None = None,
+    day: Annotated[int, Field(description="The trip day number the item belongs to.")],
+    title: Annotated[str, Field(description="The item's title.")],
+    trip_id: Annotated[str, InjectedState("trip_id")],
+    kind: Annotated[
+        TripItemKind, Field(description="The kind of itinerary entry.")
+    ] = TripItemKind.PLACE,
+    status: Annotated[
+        TripItemStatus, Field(description="Planning state of the item.")
+    ] = TripItemStatus.PENDING,
+    notes: Annotated[
+        str | None, Field(description="Optional free-text notes for the item.")
+    ] = None,
+    start_time: Annotated[
+        str | None, Field(description="Optional start time for the item.")
+    ] = None,
 ) -> dict:
     """Add an itinerary item to a trip day.
 
     Use status='booked' to record something already reserved, and notes to
     capture details mid-trip.
 
-    :param trip_id: The trip to add the item to.
     :param day: The trip day number the item belongs to.
     :param title: The item's title.
+    :param trip_id: The active trip, injected from graph state (not model-supplied).
     :param kind: One of place|activity|meal|transport|note.
     :param status: One of pending|booked|constraint|optional.
     :param notes: Optional free-text notes for the item.
     :param start_time: Optional start time for the item.
     :return: The created itinerary item.
     """
-    log_tool_call("add_itinerary_item", locals())
+    log_tool_call(
+        "add_itinerary_item",
+        {
+            "trip_id": trip_id,
+            "day": day,
+            "title": title,
+            "kind": kind,
+            "status": status,
+            "notes": notes,
+            "start_time": start_time,
+        },
+    )
     with session_scope() as s:
         try:
             request = TripItemCreate(
@@ -173,3 +189,76 @@ TRIP_TOOLS = [
     add_place_to_trip,
     add_itinerary_item,
 ]
+
+
+@tool
+def create_trip(
+    title: Annotated[
+        str, Field(description="Trip title, e.g. 'Da Nang long weekend'.")
+    ],
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    city: Annotated[
+        str | None, Field(description="Primary destination city (free text).")
+    ] = None,
+    start_date: Annotated[
+        str | None, Field(description="Trip start date (YYYY-MM-DD).")
+    ] = None,
+    end_date: Annotated[
+        str | None, Field(description="Trip end date (YYYY-MM-DD).")
+    ] = None,
+    travelers: Annotated[int | None, Field(description="Number of travelers.")] = None,
+) -> Command:
+    """Create a new trip and make it the active trip for the rest of this turn.
+
+    Call this when there is no active trip, before shortlisting places or
+    adding itinerary items.
+
+    :param title: Trip title, e.g. 'Da Nang long weekend'.
+    :param tool_call_id: The originating tool call id, injected by LangGraph
+        (not model-supplied) so the resulting ``ToolMessage`` can be matched
+        back to this call.
+    :param city: Primary destination city.
+    :param start_date: Trip start date (YYYY-MM-DD).
+    :param end_date: Trip end date (YYYY-MM-DD).
+    :param travelers: Number of travelers.
+    :return: A ``Command`` that sets the new trip as the active trip and
+        emits a ``ToolMessage`` with the created trip.
+    """
+    log_tool_call(
+        "create_trip",
+        {
+            "title": title,
+            "city": city,
+            "start_date": start_date,
+            "end_date": end_date,
+            "travelers": travelers,
+        },
+    )
+    with session_scope() as s:
+        try:
+            kwargs = {
+                "title": title,
+                "city": city,
+                "start_date": start_date,
+                "end_date": end_date,
+            }
+            if travelers is not None:
+                kwargs["travelers"] = travelers
+            request = TripCreate(**kwargs)
+            trip = TripService(s).create_trip(request)
+        except AppError as e:
+            raise ToolException(str(e)) from e
+        except ValueError as e:  # pydantic validation on bad dates
+            raise ToolException(str(e)) from e
+
+    return Command(
+        update={
+            "trip_id": trip.id,
+            "messages": [
+                ToolMessage(
+                    content=json.dumps(dump(trip), ensure_ascii=False),
+                    tool_call_id=tool_call_id,
+                )
+            ],
+        }
+    )
