@@ -67,6 +67,15 @@ class SearchFlightsArgs(AppBaseModel):
         ...,
         description="Departure date, ISO format YYYY-MM-DD. Must not be in the past.",
     )
+    return_date: str | None = Field(
+        None,
+        description=(
+            "Optional return date, ISO format YYYY-MM-DD, to price a round trip. "
+            "When set, the return leg (destination→origin) is searched too and its "
+            "real fare is returned — never double the outbound fare to estimate a "
+            "round-trip total, always search the return leg with this parameter."
+        ),
+    )
     airline: str | None = Field(
         None, description="Optional 2-letter IATA airline code to filter by."
     )
@@ -86,6 +95,7 @@ def search_flights(
     origin: str,
     destination: str,
     departure_date: str,
+    return_date: str | None = None,
     airline: str | None = None,
     max_price: float | None = None,
     max_stops: int | None = None,
@@ -97,7 +107,9 @@ def search_flights(
     Returns up to 5 deterministic flights — same query always returns the same
     results. On success the model sees a short summary and the full comparison is
     sent to the Flights side panel. If no flights match, returns a short message
-    and no panel; tell the user none were found and never invent flights.
+    and no panel; tell the user none were found and never invent flights. To
+    price a round trip, pass ``return_date`` so the return leg is actually
+    searched — never double the outbound fare to estimate a total.
 
     :param origin: 3-letter IATA code for the origin airport (e.g. 'HAN', 'SGN', 'NRT').
     :param destination: 3-letter IATA code for the destination airport (e.g. 'HAN', 'SGN', 'NRT').
@@ -105,6 +117,9 @@ def search_flights(
         non-ISO wording (e.g. "today", "tomorrow", "next Friday"), call the
         resolve_date tool on the traveller's original expression first — never
         compute or guess a date yourself.
+    :param return_date: Optional ISO date YYYY-MM-DD for the return leg
+        (destination→origin). When set, its real fare is included in the
+        summary — resolve non-ISO wording the same way as ``departure_date``.
     :param airline: 2-letter IATA code to filter by carrier (e.g. 'VN').
     :param max_price: Keep only flights at or below this fare.
     :param max_stops: 0 = nonstop only, 1 = up to one stop.
@@ -137,6 +152,26 @@ def search_flights(
             "the correct concrete date; only ask if resolve_date reports it "
             "ambiguous."
         )
+    if return_date is not None:
+        try:
+            return_date = resolve_travel_date(return_date, today)
+            parsed_return_date = datetime.strptime(return_date, "%Y-%m-%d").date()
+        except ValueError as e:
+            raise ToolException(
+                f"return_date {return_date!r} could not be resolved to a concrete "
+                f"YYYY-MM-DD date. Today is {today.isoformat()}. Call the "
+                "resolve_date tool on the traveller's original date expression to "
+                "get a concrete date — only ask the traveller if resolve_date "
+                "reports it ambiguous."
+            ) from e
+        if parsed_return_date < today - timedelta(days=1):
+            raise ToolException(
+                f"return_date {return_date} is in the past (today is "
+                f"{today.isoformat()}). Do not guess or invent dates — call the "
+                "resolve_date tool on the traveller's original date expression to "
+                "get the correct concrete date; only ask if resolve_date reports "
+                "it ambiguous."
+            )
     with session_scope() as s:
         try:
             results = FlightService(s).search_flights(
@@ -172,12 +207,53 @@ def search_flights(
             )
             cheapest = min(results, key=lambda f: f.price)
             earliest = min(results, key=lambda f: f.departure_time)
-            summary = (
-                f"{len(results)} flights {origin}→{destination} on {departure_date}. "
-                f"Cheapest {cheapest.flight_number} ${cheapest.price:.0f}; "
-                f"earliest {earliest.flight_number} at {earliest.departure_time:%H:%M}. "
-                "The full comparison is in the Flights panel."
-            )
+            currency = cheapest.currency
+
+            return_results = None
+            if return_date is not None:
+                # Mirrors the REST layer's round-trip pattern (routers/flights.py):
+                # a second, independent search on the swapped leg — never a fare
+                # derived from the outbound search.
+                return_results = FlightService(s).search_flights(
+                    destination,
+                    origin,
+                    return_date,
+                    airline=airline,
+                    max_price=max_price,
+                    max_stops=max_stops,
+                    sort=sort,
+                )
+
+            if return_results is None:
+                summary = (
+                    f"{len(results)} one-way flights {origin}→{destination} on "
+                    f"{departure_date} ({currency}). Cheapest {cheapest.flight_number} "
+                    f"{currency} {cheapest.price:.0f}; earliest {earliest.flight_number} "
+                    f"at {earliest.departure_time:%H:%M}. The full comparison is in "
+                    "the Flights panel."
+                )
+            elif return_results:
+                return_cheapest = min(return_results, key=lambda f: f.price)
+                summary = (
+                    f"{len(results)} outbound flights {origin}→{destination} on "
+                    f"{departure_date} ({currency}). Cheapest outbound "
+                    f"{cheapest.flight_number} {currency} {cheapest.price:.0f}; "
+                    f"earliest {earliest.flight_number} at "
+                    f"{earliest.departure_time:%H:%M}. {len(return_results)} return "
+                    f"flights {destination}→{origin} on {return_date}. Cheapest "
+                    f"return {return_cheapest.flight_number} {currency} "
+                    f"{return_cheapest.price:.0f}. These are two separate one-way "
+                    "fares — the full comparison is in the Flights panel."
+                )
+            else:
+                summary = (
+                    f"{len(results)} outbound flights {origin}→{destination} on "
+                    f"{departure_date} ({currency}). Cheapest outbound "
+                    f"{cheapest.flight_number} {currency} {cheapest.price:.0f}; "
+                    f"earliest {earliest.flight_number} at "
+                    f"{earliest.departure_time:%H:%M}. No return flights found "
+                    f"{destination}→{origin} on {return_date}."
+                )
             if matched_reasons:
                 summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             return panel_result(

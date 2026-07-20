@@ -44,6 +44,6 @@ def test_min53_bumped_versions_active():
     # climate-normals routing (a date beyond the forecast horizon must use
     # get_climate and be described as typical conditions, never as a forecast).
     assert active["concierge"] == 11
-    assert active["planner"] == 10
+    assert active["planner"] == 11
     assert active["booking"] == 7
     assert active["memory_extraction"] == 5
