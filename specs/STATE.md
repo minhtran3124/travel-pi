@@ -830,3 +830,80 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: bfb51dd Merge pull request #80 from minhtran3124/feat/min-42-implement-mcp-tool
 - user_turns: 0
 
+
+### 2026-07-17T14:46:05Z
+- session_id: 9ef43332-2fcf-47dd-8532-5a85e3731d5c
+- exit: 
+- last_commit: c89f5ca fix(settings): update status message for branch-isolation guard in settings.json to improve clarity
+- user_turns: 0
+
+
+### 2026-07-18T07:02:13Z
+- session_id: 4196dd15-350c-419e-aa08-5b46d5359615
+- exit: 
+- last_commit: ddc7ddb Merge pull request #92 from minhtran3124/docs/agentic-chatbot-research
+- user_turns: 0
+
+
+### 2026-07-18T07:02:13Z
+- session_id: 72716d51-e260-4f29-9c81-b5503ed85d5f
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:43Z
+- session_id: 87fa96e1-5da3-4acd-85b5-8cc7716ec0c2
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:44Z
+- session_id: 852b8752-8ba1-4a60-b8a6-c2c7dc3d1859
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:45Z
+- session_id: b7ae70fc-1560-44be-b6a7-253e51d71f1c
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:45Z
+- session_id: 2ad43f65-5504-4898-a452-f72227bd73fd
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:45Z
+- session_id: 8dc9d632-e8fb-4b4f-834f-b48fad272698
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:46Z
+- session_id: 20a7fa5c-6f2a-4666-ad26-ed887ebc9e9f
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T01:08:46Z
+- session_id: 82f249e8-f2f4-4e89-8d4d-6ba25cfdb3bd
+- exit: 
+- last_commit: 6dfc7d3 fix(agent): inject trip_id + add create_trip so the model never asks for a trip id
+- user_turns: 0
+
+
+### 2026-07-20T09:04:36Z
+- session_id: a5485ea8-69df-4899-98fd-7ebcd24d6c82
+- exit: 
+- last_commit: 0a5974c Merge pull request #94 from minhtran3124/feat/agent-trip-context
+- user_turns: 0
+
