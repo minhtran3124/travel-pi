@@ -40,7 +40,10 @@ def test_min53_bumped_versions_active():
     # key-drift duplication in the store. agent-trip-context bumped planner→9:
     # trip_id is now injected (never asked of / shown to the traveller) and the
     # planner opens a trip via create_trip when none is active.
-    assert active["concierge"] == 10
-    assert active["planner"] == 9
+    # weather-trip-date-accuracy bumped concierge→11 / planner→10: forecast vs
+    # climate-normals routing (a date beyond the forecast horizon must use
+    # get_climate and be described as typical conditions, never as a forecast).
+    assert active["concierge"] == 11
+    assert active["planner"] == 10
     assert active["booking"] == 7
     assert active["memory_extraction"] == 5

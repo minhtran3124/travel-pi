@@ -11,6 +11,7 @@ from __future__ import annotations
 from langchain_core.tools import BaseTool
 
 from app.tools.booking_tools import BOOKING_TOOLS
+from app.tools.climate_tools import CLIMATE_TOOLS
 from app.tools.date_tools import DATE_TOOLS
 from app.tools.expense_tools import EXPENSE_TOOLS
 from app.tools.flight_tools import FLIGHT_SEARCH_TOOLS, FLIGHT_TOOLS
@@ -38,6 +39,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + FLIGHT_SEARCH_TOOLS
         + HOTEL_AVAILABILITY_TOOLS
         + WEATHER_TOOLS
+        + CLIMATE_TOOLS
         + ROUTING_TOOLS
         + EPISODE_TOOLS
         + DATE_TOOLS
@@ -45,6 +47,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
     "concierge": (
         PLACE_TOOLS
         + WEATHER_TOOLS
+        + CLIMATE_TOOLS
         + ROUTING_TOOLS
         + TIP_TOOLS
         + HOTEL_SEARCH_TOOLS

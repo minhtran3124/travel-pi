@@ -2,8 +2,8 @@
 # get(name) returns this version unless an explicit version= is passed.
 communication_style: 6
 supervisor: 7
-concierge: 10
-planner: 9
+concierge: 11
+planner: 10
 journal: 2
 booking: 7
 budget: 2

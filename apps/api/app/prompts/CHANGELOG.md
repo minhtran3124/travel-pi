@@ -3,6 +3,28 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## weather-trip-date-accuracy — climate vs forecast, and matching the tool's dates to the trip
+
+specs/weather-trip-date-accuracy (MIN-66 / #97): `get_weather`/`get_packing` gained an optional
+`date` and now refuse a date beyond the ~2-week forecast horizon instead of silently returning
+today's forecast; a new `get_climate` tool exposes monthly normals for dates further out. The
+prompt half of the fix teaches the model when to use which and to check the covered-dates line
+the weather summary now states, so a trip-date mismatch (the reported bug: a Sep trip answered
+with the Jul forecast) is visible instead of silently wrong.
+
+- **concierge v11** — added a third `## Grounding` bullet: check `get_weather`/`get_packing`'s
+  stated covered dates against the traveller's dates; call `get_climate` for a date beyond the
+  horizon and describe it as typical/average conditions, never a forecast. Extended the
+  `## Example — weather` block with a Don't/Do pair showing a climate-normals reply framed
+  correctly. Everything else (grounding order, shortlist rule, hotels, visa & local advice) is
+  unchanged.
+- **planner v10** — added one Guardrails bullet: a weather-fit itinerary must check
+  `get_weather`/`get_packing`'s covered dates against the trip's actual dates, and use
+  `get_climate` (never as a forecast) for a date beyond the horizon. Planner had no prior
+  weather mention; this is additive, no restructuring.
+
+`active.yaml`: concierge → 11, planner → 10. Others unchanged.
+
 ## agent-date-resolution Phase 5 — new `date_resolution` prompt (LLM parses, code computes)
 
 specs/agent-date-resolution §4b: the hardcoded weekday/phrase word tables in
