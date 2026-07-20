@@ -25,15 +25,23 @@ eval/
 ├─ metrics_geval.py   # 4 G-Eval rubrics + ToolCorrectnessMetric; judge = gpt-4o-mini
 ├─ harness.py         # run_case(): drives the graph, builds one DeepEval LLMTestCase
 ├─ loader.py          # loads + validates datasets/*.json
-├─ run_eval.py        # legacy no-network routing-accuracy smoke (unchanged)
-├─ metrics.py         # routing_accuracy() helper for the smoke
+├─ run_eval.py        # no-network routing + plan-accuracy smoke
+├─ metrics.py         # routing_accuracy() + plan_accuracy() helpers for the smoke
 └─ datasets/
-   ├─ intent.json     # MIN-51 — search must not push booking
-   ├─ language.json   # MIN-57 — reply in the user's language (EN + VI cases)
-   ├─ tools.json      # MIN-46 — correct tool called (expected_tools)
-   ├─ format.json     # MIN-54 — bold key info, tidy structure
-   └─ routing.json    # supervisor routing (used by run_eval.py only)
+   ├─ intent.json       # MIN-51 — search must not push booking
+   ├─ language.json     # MIN-57 — reply in the user's language (EN + VI cases)
+   ├─ tools.json        # MIN-46 — correct tool called (expected_tools)
+   ├─ format.json       # MIN-54 — bold key info, tidy structure
+   ├─ routing.json      # supervisor routing (used by run_eval.py only)
+   └─ multi_intent.json # P1 — supervisor emits an ordered multi-step plan (run_eval.py only)
 ```
+
+The routing smoke (`run_eval.py`) grades two things against the supervisor's
+structured decision, both deterministic (exact match, no judge): `routing_accuracy`
+on `routing.json` (single `expected` target), and `plan_accuracy` on
+`multi_intent.json` — a case is correct only if the primary target **and** the
+ordered `expected_plan` (the follow-on ledger P1 queues in `pending_flows`) both
+match. Add a multi-intent case as `{"input", "expected", "expected_plan": [...]}`.
 
 The four G-Eval rubrics (registry `GEVAL_METRICS` in `metrics_geval.py`):
 `response_language`, `search_vs_booking`, `no_hallucination`, `format_quality`.

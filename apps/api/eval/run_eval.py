@@ -18,11 +18,12 @@ from app.agents.context import AgentContext
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END
 
-from eval.metrics import routing_accuracy
+from eval.metrics import plan_accuracy, routing_accuracy
 
 _DATASETS = Path(__file__).resolve().parent / "datasets"
 
 ROUTING_THRESHOLD = 0.9
+PLAN_THRESHOLD = 0.8
 
 
 def load_dataset(name: str) -> list[dict]:
@@ -54,14 +55,48 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
     return results
 
 
+def run_plan_eval(llm, dataset: list[dict]) -> list[dict]:
+    """Route each multi-intent input and capture the ordered ledger (P1).
+
+    Mirrors :func:`run_routing_eval` but also records the ``pending_flows`` the
+    supervisor queued, so :func:`eval.metrics.plan_accuracy` can grade whether
+    the model both routed correctly AND produced the expected ordered plan.
+    """
+    from app.agents.supervisor import make_supervisor
+
+    supervisor = make_supervisor(llm)
+    runtime = SimpleNamespace(context=AgentContext())
+    results = []
+    for item in dataset:
+        cmd = supervisor({"messages": [HumanMessage(content=item["input"])]}, runtime)
+        update = cmd.update or {}
+        predicted = update.get("current_flow") or (
+            "none" if cmd.goto == END else cmd.goto
+        )
+        results.append(
+            {
+                "input": item["input"],
+                "expected": item["expected"],
+                "predicted": predicted,
+                "expected_plan": item.get("expected_plan", []),
+                "predicted_plan": update.get("pending_flows") or [],
+            }
+        )
+    return results
+
+
 def main() -> int:
     """Run evals against the real configured model; returns a process exit code."""
     from app.clients.llm import get_llm
 
-    routing = run_routing_eval(get_llm(), load_dataset("routing.json"))
+    llm = get_llm()
+    routing = run_routing_eval(llm, load_dataset("routing.json"))
     acc = routing_accuracy(routing)
+    plan = run_plan_eval(llm, load_dataset("multi_intent.json"))
+    pacc = plan_accuracy(plan)
     print(f"routing_accuracy = {acc:.2f} (threshold {ROUTING_THRESHOLD})")
-    ok = acc >= ROUTING_THRESHOLD
+    print(f"plan_accuracy = {pacc:.2f} (threshold {PLAN_THRESHOLD})")
+    ok = acc >= ROUTING_THRESHOLD and pacc >= PLAN_THRESHOLD
     return 0 if ok else 1
 
 

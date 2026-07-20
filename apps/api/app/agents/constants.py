@@ -30,6 +30,16 @@ ALL_SUBAGENTS: tuple[str, ...] = (
 # Sub-agents unavailable on the free tier (routing is restricted to the rest).
 PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 
+# --- task ledger (P1) -----------------------------------------------------
+# Max total sub-agent runs the supervisor may schedule in ONE turn — the
+# primary target plus up to ``MAX_LEDGER_STEPS - 1`` ordered follow-ons drained
+# by ``dispatch_next``. Bounded because each sub-agent is an isolated ReAct
+# subgraph (own recursion budget), so the parent graph spends ~2 super-steps
+# per step (dispatch_next + the subagent node); 4 steps stay well inside
+# ``agent_recursion_limit`` (25) with headroom for the reflection revise loop.
+# The supervisor truncates an over-long model-emitted plan to this in code.
+MAX_LEDGER_STEPS = 4
+
 # Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
 # config omits ``model``. Everything else defaults to the main ``llm_model``.
 FAST_AGENTS: frozenset[str] = frozenset(

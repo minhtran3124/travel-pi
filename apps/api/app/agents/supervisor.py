@@ -19,7 +19,7 @@ from langgraph.runtime import Runtime
 from langgraph.types import Command
 from pydantic import BaseModel, Field
 
-from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG
+from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
@@ -70,7 +70,20 @@ class SupervisorIntent(BaseModel):
             "when the traveller's message contains two separate requests (e.g. "
             "both a flight and a hotel need). Never 'booking', and never the "
             "same value as target_agent. Leave null for the common single-intent "
-            "case."
+            "case. Superseded by `plan` when that is set."
+        ),
+    )
+    plan: list[_SecondaryTarget] | None = Field(
+        default=None,
+        description=(
+            "An ORDERED list of follow-on sub-agents to run this turn AFTER "
+            "target_agent, for a request that spans several specialists (e.g. "
+            "'plan my Tokyo weekend: flights + weather + itinerary' → "
+            "target_agent=planner, plan=[concierge, planner]). List only the "
+            "follow-ons, in execution order. A specialist MAY recur when it does "
+            "distinct work at a later stage. Never 'booking'. Leave null for a "
+            "single-domain request (then target_agent alone handles it). Extra "
+            "or invalid steps are dropped in code."
         ),
     )
     language: str = Field(
@@ -269,22 +282,44 @@ def make_supervisor(llm: BaseChatModel):
         # model-reported switch still flows through `intent.language`.
         lang = getattr(intent, "language", None) or state.get("language", "en")
         # MIN-65 D3: normalize raw slots in code (never trust the LLM to resolve
-        # a date/number itself), and code-gate the secondary intent — booking can
-        # never have a queued follow-on, and a duplicate of target is a no-op.
+        # a date/number itself).
         trip_facts = _normalize_slots(
             getattr(intent, "slots", None), today_in_timezone(ctx.timezone)
         )
-        secondary = getattr(intent, "secondary_agent", None)
-        if (
-            target == "booking"
-            or secondary == target
-            or (
-                ctx.allowed_subagents is not None
-                and secondary not in ctx.allowed_subagents
-            )
-        ):
-            secondary = None
-        pending_flows = [secondary] if secondary else []
+        # P1 task ledger: the supervisor may emit an ordered ``plan`` of follow-on
+        # sub-agents to run this turn after ``target``; fall back to the legacy
+        # single ``secondary_agent`` when ``plan`` is absent. An ordered plan is
+        # honoured as written — a specialist MAY legitimately recur (e.g. planner
+        # searches flights early, then builds the itinerary later), so steps are
+        # not deduplicated. The queue is still built in plain Python and never
+        # trusts the model blindly: drop anything unknown or "booking" (always
+        # HITL, never queued — defensive; the ``_SecondaryTarget`` type already
+        # forbids it) or a tier-gated agent, and cap the follow-ons at
+        # ``MAX_LEDGER_STEPS - 1``. A booking *target* routes through the HITL
+        # plan node with no queued follow-ons (matches the pre-ledger behavior).
+        raw_plan = getattr(intent, "plan", None)
+        if raw_plan:
+            candidates, drop_target_dup = list(raw_plan), False
+        else:
+            # Legacy single-secondary path: a secondary equal to the target was
+            # always a no-op, so preserve that drop for exact backward compat.
+            legacy = getattr(intent, "secondary_agent", None)
+            candidates, drop_target_dup = ([legacy] if legacy else []), True
+        pending_flows: list[str] = []
+        if target != "booking":
+            for step in candidates:
+                if len(pending_flows) >= MAX_LEDGER_STEPS - 1:
+                    break
+                if step not in ALL_SUBAGENTS or step == "booking":
+                    continue
+                if drop_target_dup and step == target:
+                    continue
+                if (
+                    ctx.allowed_subagents is not None
+                    and step not in ctx.allowed_subagents
+                ):
+                    continue
+                pending_flows.append(step)
         return Command(
             update={
                 "current_flow": target,

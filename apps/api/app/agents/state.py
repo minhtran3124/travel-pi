@@ -63,7 +63,8 @@ class TravelAgentState(MessagesState):
     preferences: str  # traveller preferences block, formatted text (MIN-65 D2)
     pending_flows: list[
         str
-    ]  # secondary sub-agent(s) queued for this turn (MIN-65 D4 dispatch_next)
+    ]  # ordered ledger of follow-on sub-agents queued for this turn (P1);
+    # drained in order by dispatch_next, never contains "booking" (MIN-65 D4)
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
