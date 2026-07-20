@@ -24,7 +24,7 @@ from app.tools.place_tools import PLACE_TOOLS
 from app.tools.rag_tools import KNOWLEDGE_TOOLS
 from app.tools.routing_tools import ROUTING_TOOLS
 from app.tools.tip_tools import TIP_TOOLS
-from app.tools.trip_tools import TRIP_TOOLS
+from app.tools.trip_tools import TRIP_TOOLS, create_trip
 from app.tools.weather_tools import WEATHER_TOOLS
 
 # Tools grouped by the sub-agent that should bind them.
@@ -33,6 +33,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
     # the booking domain only, whose route is HITL-gated via plan_node.
     "planner": (
         TRIP_TOOLS
+        + [create_trip]
         + PLACE_TOOLS
         + FLIGHT_SEARCH_TOOLS
         + HOTEL_AVAILABILITY_TOOLS
@@ -72,6 +73,7 @@ _WRITE = {
     "book_flight",
     "cancel_flight",
     "cancel_hotel",
+    "create_trip",
 }
 
 

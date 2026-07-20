@@ -37,8 +37,10 @@ def test_min53_bumped_versions_active():
     # default-with-confirm for tool-optional args; booking explicitly does
     # NOT, since every book_* arg must stay traveller-supplied); memory_
     # extraction→5 adds the canonical-key vocabulary that curbs preference
-    # key-drift duplication in the store.
+    # key-drift duplication in the store. agent-trip-context bumped planner→9:
+    # trip_id is now injected (never asked of / shown to the traveller) and the
+    # planner opens a trip via create_trip when none is active.
     assert active["concierge"] == 10
-    assert active["planner"] == 8
+    assert active["planner"] == 9
     assert active["booking"] == 7
     assert active["memory_extraction"] == 5

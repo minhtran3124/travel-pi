@@ -18,7 +18,9 @@ Taxonomy
 * ``panel``       — structured side-panel payload from a tool's artifact:
   ``{tool_call_id, kind, data, language}`` (``kind`` ∈ ``route|places|weather``)
 * ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
-* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language}``
+* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language, trip_id}``
+  (``trip_id`` is informational — see ``ChatResponse.trip_id``'s field description
+  for why the client must not resend it as the next request's ``trip_id``)
 * ``error``       — terminal failure: ``{code, message}``
 """
 
@@ -91,6 +93,7 @@ def done(
     current_flow: str | None,
     suggestions: list[str],
     language: str = "en",
+    trip_id: str | None = None,
 ) -> TypedSSEEvent:
     return _event(
         "done",
@@ -99,6 +102,7 @@ def done(
             "current_flow": current_flow,
             "suggestions": suggestions,
             "language": language,
+            "trip_id": trip_id,
         },
     )
 

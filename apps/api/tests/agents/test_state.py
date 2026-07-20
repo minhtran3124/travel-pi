@@ -124,7 +124,6 @@ def test_load_context_node_returns_trip_context_not_messages():
     # trip_context carries the info
     assert "trip_context" in result
     assert "Tokyo Adventure" in result["trip_context"]
-    assert "t1" in result["trip_context"]
     # messages is NOT in result (no trailing SystemMessage injected)
     assert "messages" not in result
 

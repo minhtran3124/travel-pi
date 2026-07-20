@@ -57,6 +57,20 @@ class ChatResponse(AppBaseModel):
 
     conversation_id: str
     reply: str
+    trip_id: str | None = Field(
+        default=None,
+        description="The active trip after this turn — echoes the request's "
+        "trip_id, or a new id when the agent opened one via create_trip. "
+        "Informational only (e.g. to display or link to the trip) — do NOT "
+        "resend this as the next request's trip_id just because it changed "
+        "here: the server derives the LangGraph thread key from the "
+        "request's trip_id, so echoing a create_trip-opened id back would "
+        "fork the conversation onto a fresh, empty thread. Only pass an "
+        "explicit trip_id when the user has actually navigated to that "
+        "trip's own page; otherwise keep sending whatever this "
+        "conversation started with (including null) and the server keeps "
+        "the active trip current on its own.",
+    )
     current_flow: str | None = None
     suggestions: list[str] = Field(default_factory=list)
     interrupt_pending: bool = False

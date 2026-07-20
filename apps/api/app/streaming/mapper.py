@@ -261,6 +261,7 @@ async def stream_agent_events(
             current_flow=current_flow,
             suggestions=suggestions,
             language=current_language,
+            trip_id=state.values.get("trip_id") if state else None,
         )
 
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event
