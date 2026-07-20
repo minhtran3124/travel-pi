@@ -39,13 +39,19 @@ from app.tools._base import dump, log_tool_call, session_scope
 
 @tool
 def get_trip_summary(
-    trip_id: Annotated[str, InjectedState("trip_id")],
+    trip_id: Annotated[
+        str,
+        InjectedState("trip_id"),
+        Field(description="The trip to summarise."),
+    ],
 ) -> dict:
     """Get a trip's full snapshot: days, items, places, budget rollup, and gaps.
 
     Use this first to load context before answering questions or editing a trip.
 
-    :param trip_id: The active trip, injected from graph state (not model-supplied).
+    :param trip_id: The trip to summarise. Injected from graph state on the
+        LangGraph agent path (not model-supplied there); a direct/MCP caller
+        must pass it explicitly.
     :return: The trip's full snapshot.
     """
     log_tool_call("get_trip_summary", {"trip_id": trip_id})
@@ -58,11 +64,17 @@ def get_trip_summary(
 
 @tool
 def get_trip_budget(
-    trip_id: Annotated[str, InjectedState("trip_id")],
+    trip_id: Annotated[
+        str,
+        InjectedState("trip_id"),
+        Field(description="The trip to get the budget for."),
+    ],
 ) -> dict:
     """Get the trip's budget: caps, spent-by-category, and remaining amounts.
 
-    :param trip_id: The active trip, injected from graph state (not model-supplied).
+    :param trip_id: The trip to get the budget for. Injected from graph state
+        on the LangGraph agent path (not model-supplied there); a direct/MCP
+        caller must pass it explicitly.
     :return: The trip's budget rollup.
     """
     log_tool_call("get_trip_budget", {"trip_id": trip_id})
@@ -75,11 +87,17 @@ def get_trip_budget(
 
 @tool
 def list_trip_places(
-    trip_id: Annotated[str, InjectedState("trip_id")],
+    trip_id: Annotated[
+        str,
+        InjectedState("trip_id"),
+        Field(description="The trip to list places for."),
+    ],
 ) -> list:
     """List the places shortlisted onto a trip.
 
-    :param trip_id: The active trip, injected from graph state (not model-supplied).
+    :param trip_id: The trip to list places for. Injected from graph state on
+        the LangGraph agent path (not model-supplied there); a direct/MCP
+        caller must pass it explicitly.
     :return: The places shortlisted onto the trip.
     """
     log_tool_call("list_trip_places", {"trip_id": trip_id})
@@ -95,7 +113,11 @@ def add_place_to_trip(
     place_id: Annotated[
         str, Field(description="The place's id or PLC-XXXX short code.")
     ],
-    trip_id: Annotated[str, InjectedState("trip_id")],
+    trip_id: Annotated[
+        str,
+        InjectedState("trip_id"),
+        Field(description="The trip to shortlist the place onto."),
+    ],
     source: Annotated[
         Literal["catalog", "saved"],
         Field(
@@ -106,7 +128,9 @@ def add_place_to_trip(
     """Shortlist a place onto a trip.
 
     :param place_id: The place's id or PLC-XXXX short code.
-    :param trip_id: The active trip, injected from graph state (not model-supplied).
+    :param trip_id: The trip to shortlist the place onto. Injected from graph
+        state on the LangGraph agent path (not model-supplied there); a
+        direct/MCP caller must pass it explicitly.
     :param source: 'catalog' (default) or 'saved'.
     :return: The created trip-place record.
     """
@@ -125,7 +149,11 @@ def add_place_to_trip(
 def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
     title: Annotated[str, Field(description="The item's title.")],
-    trip_id: Annotated[str, InjectedState("trip_id")],
+    trip_id: Annotated[
+        str,
+        InjectedState("trip_id"),
+        Field(description="The trip to add the item to."),
+    ],
     kind: Annotated[
         TripItemKind, Field(description="The kind of itinerary entry.")
     ] = TripItemKind.PLACE,
@@ -146,7 +174,9 @@ def add_itinerary_item(
 
     :param day: The trip day number the item belongs to.
     :param title: The item's title.
-    :param trip_id: The active trip, injected from graph state (not model-supplied).
+    :param trip_id: The trip to add the item to. Injected from graph state on
+        the LangGraph agent path (not model-supplied there); a direct/MCP
+        caller must pass it explicitly.
     :param kind: One of place|activity|meal|transport|note.
     :param status: One of pending|booked|constraint|optional.
     :param notes: Optional free-text notes for the item.
