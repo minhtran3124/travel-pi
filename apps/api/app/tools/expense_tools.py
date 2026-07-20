@@ -14,7 +14,7 @@ from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.schemas.expense import ExpenseCreate
 from app.services.expense_service import ExpenseService
-from app.tools._base import dump, log_tool_call, session_scope
+from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
 class AddExpenseArgs(AppBaseModel):
@@ -63,7 +63,7 @@ def add_expense(
             )
             return dump(ExpenseService(s).create(trip_id, request))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
@@ -80,7 +80,7 @@ def list_expenses(trip_id: str) -> list:
         try:
             return dump(ExpenseService(s).list(trip_id))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ExpenseSummaryArgs)
@@ -95,7 +95,7 @@ def expense_summary(trip_id: str) -> dict:
         try:
             return dump(ExpenseService(s).summary(trip_id))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 EXPENSE_TOOLS = [add_expense, list_expenses, expense_summary]

@@ -34,7 +34,7 @@ from app.enums import TripItemKind, TripItemStatus
 from app.exceptions import AppError
 from app.schemas.trip import TripCreate, TripItemCreate
 from app.services.trip_service import TripService
-from app.tools._base import dump, log_tool_call, session_scope
+from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
 @tool
@@ -59,7 +59,7 @@ def get_trip_summary(
         try:
             return dump(TripService(s).get_trip_detail(trip_id))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool
@@ -82,7 +82,7 @@ def get_trip_budget(
         try:
             return dump(TripService(s).get_trip_budget(trip_id))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool
@@ -105,7 +105,7 @@ def list_trip_places(
         try:
             return dump(TripService(s).list_trip_places(trip_id))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool
@@ -142,7 +142,7 @@ def add_place_to_trip(
         try:
             return dump(TripService(s).add_place_to_trip(trip_id, place_id, source))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool
@@ -207,7 +207,7 @@ def add_itinerary_item(
             )
             return dump(TripService(s).add_item(trip_id, request))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad kind/status
             raise ToolException(str(e)) from e
 
@@ -277,7 +277,7 @@ def create_trip(
             request = TripCreate(**kwargs)
             trip = TripService(s).create_trip(request)
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad dates
             raise ToolException(str(e)) from e
 

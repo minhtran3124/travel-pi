@@ -10,13 +10,13 @@ one complements.
 
 from __future__ import annotations
 
-from langchain_core.tools import ToolException, tool
+from langchain_core.tools import tool
 from pydantic import Field
 
 from app.exceptions import AppError, UpstreamError
 from app.schemas.base import AppBaseModel
 from app.services import climate_service
-from app.tools._base import dump, log_tool_call
+from app.tools._base import dump, log_tool_call, tool_error
 
 
 class GetClimateArgs(AppBaseModel):
@@ -52,7 +52,7 @@ async def get_climate(city: str, month: int | None = None) -> dict:
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
     except AppError as e:
-        raise ToolException(str(e)) from e
+        raise tool_error(e) from e
 
 
 CLIMATE_TOOLS = [get_climate]

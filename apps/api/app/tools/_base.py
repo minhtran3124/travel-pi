@@ -7,9 +7,13 @@ error), mirroring the unit-of-work the request boundary provides. ``dump()``
 normalises Pydantic results to plain JSON-able structures so tool outputs are
 always serialisable into the graph state / checkpoint.
 
-Domain exceptions raised by services are mapped to ``ToolException`` by the
-individual tools, which LangGraph's ``ToolNode`` surfaces back to the model as a
-``ToolMessage(status="error")`` so it can self-correct.
+Domain exceptions raised by services are mapped to ``ToolException`` via
+:func:`tool_error`, which LangGraph's ``ToolNode`` surfaces back to the model as
+a ``ToolMessage(status="error")`` so it can self-correct. Tools must go through
+``tool_error`` rather than ``ToolException(str(e))`` directly: ``AppError.__str__``
+returns ``detail`` only, so a bare ``str(e)`` silently drops ``hint`` — the
+recovery pointer the model needs — even though it is written for exactly this
+path.
 """
 
 from __future__ import annotations
@@ -20,11 +24,13 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
+from langchain_core.tools import ToolException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
+from app.exceptions import AppError
 from app.streaming.panels import UnknownPanelKind, get_panel
 
 logger = logging.getLogger("app.tools")
@@ -34,6 +40,26 @@ logger = logging.getLogger("app.tools")
 # should still prefer excluding injected plumbing from `params` themselves
 # (see the docstring below) — this is a backstop, not a substitute.
 _REDACTED_PARAM_KEYS = {"preferences"}
+
+
+def tool_error(e: AppError) -> ToolException:
+    """Fold an ``AppError`` into a ``ToolException`` the model can act on.
+
+    ``AppError.__str__`` returns ``detail`` only, so a bare
+    ``ToolException(str(e))`` silently drops ``hint`` — the recovery pointer
+    written specifically to help the agent self-correct. This appends it when
+    present; with no ``hint`` the result is identical to ``str(e)``, so
+    hint-less errors are unaffected.
+
+    Call as ``raise tool_error(e) from e`` — the explicit ``from e`` preserves
+    ``__cause__`` (this function does not set it itself, since the
+    ``ToolException`` it returns is not yet raised).
+
+    :param e: The caught domain error.
+    :return: A ``ToolException`` ready to be raised.
+    """
+    message = str(e) if e.hint is None else f"{e.detail} Hint: {e.hint}"
+    return ToolException(message)
 
 
 def log_tool_call(name: str, params: dict[str, Any]) -> None:
