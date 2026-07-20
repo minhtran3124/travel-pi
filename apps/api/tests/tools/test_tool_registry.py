@@ -106,7 +106,10 @@ def test_every_tool_has_explicit_described_schema(tool):
       ``args_schema`` that omits the injected args would break ToolNode injection,
       so they keep the auto-derived schema but attach model-facing descriptions
       inline via ``Annotated[..., Field(description=...)]``. We require every
-      model-facing field to carry a description instead.
+      model-facing field to carry a description instead. A tool whose only
+      arg(s) are injected (e.g. ``get_trip_summary`` after the InjectedState
+      refactor, specs/agent-trip-context) has an empty model-facing schema —
+      that trivially satisfies "every field is described" and must pass, not fail.
 
     This guard blocks a future tool (e.g. from MIN-42) shipping with an
     undocumented, auto-derived schema.
@@ -114,7 +117,8 @@ def test_every_tool_has_explicit_described_schema(tool):
     assert tool.args_schema is not None
     if _has_injected_args(tool):
         facing = tool.tool_call_schema.model_fields
-        assert facing, f"{tool.name} exposes no model-facing args"
+        if not facing:
+            return  # no model-facing args left to describe — nothing to check
         for name, field in facing.items():
             assert field.description, (
                 f"{tool.name}.{name} has no description — add "
@@ -314,6 +318,25 @@ def test_planner_never_binds_destructive_tools():
     assert {"search_flights", "search_hotels"} <= planner
     booking = {t.name for t in get_tools_for("booking")}
     assert {"book_flight", "book_hotel", "cancel_flight", "cancel_hotel"} <= booking
+
+
+def test_create_trip_bound_to_planner_only():
+    """create_trip (specs/agent-trip-context) is scoped to the planner domain
+    only — it is not part of the shared TRIP_TOOLS list, so it must be added
+    explicitly and must not leak into the other sub-agents."""
+    from app.tools.registry import get_tools_for
+
+    planner = {t.name for t in get_tools_for("planner")}
+    assert "create_trip" in planner
+
+    for domain in ("concierge", "journal", "booking", "budget"):
+        assert "create_trip" not in {t.name for t in get_tools_for(domain)}
+
+
+def test_create_trip_metadata_is_write_not_destructive():
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["create_trip"] == {"readOnly": False, "destructive": False}
 
 
 def test_mcp_surface_unchanged_by_planner_scoping():

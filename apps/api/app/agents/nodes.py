@@ -75,8 +75,7 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
             with session_scope() as s:
                 detail = TripService(s).get_trip_detail(trip_id)
             result["trip_context"] = (
-                f"Active trip: {detail.title} (city: {detail.city}). "
-                f"Use the trip tools with trip_id={trip_id} for details."
+                f"Active trip: {detail.title} (city: {detail.city})."
             )
         except AppError:
             pass
