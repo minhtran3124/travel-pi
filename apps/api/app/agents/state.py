@@ -65,6 +65,9 @@ class TravelAgentState(MessagesState):
         str
     ]  # ordered ledger of follow-on sub-agents queued for this turn (P1);
     # drained in order by dispatch_next, never contains "booking" (MIN-65 D4)
+    awaiting_user: bool  # set by the needs_clarification tool when a sub-agent is
+    # blocked on the traveller; dispatch_next then abandons the remaining
+    # ledger for this turn instead of draining it (MIN-68)
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:

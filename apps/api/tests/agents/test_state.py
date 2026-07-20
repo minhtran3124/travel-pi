@@ -133,17 +133,19 @@ def test_load_context_node_no_trip_id_resets_plan_approved():
 
     load_context runs at the start of every fresh turn and always clears the
     HITL plan-approval flag so outcome="approved" stays scoped to the approving
-    turn (issue #63).
+    turn (issue #63), and likewise clears awaiting_user (MIN-68).
     """
     from types import SimpleNamespace
 
     from app.agents.nodes import load_context_node
 
     assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {
-        "plan_approved": False
+        "plan_approved": False,
+        "awaiting_user": False,
     }
     assert load_context_node({"messages": []}, SimpleNamespace()) == {
-        "plan_approved": False
+        "plan_approved": False,
+        "awaiting_user": False,
     }
 
 
