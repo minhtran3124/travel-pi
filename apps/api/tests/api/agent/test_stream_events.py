@@ -59,6 +59,7 @@ def test_done_factory_shape():
         "current_flow": "booking",
         "suggestions": ["booking.bookThis"],
         "language": "en",
+        "trip_id": None,
     }
 
 
@@ -69,7 +70,15 @@ def test_done_factory_empty_suggestions():
         "current_flow": None,
         "suggestions": [],
         "language": "en",
+        "trip_id": None,
     }
+
+
+def test_done_factory_carries_trip_id():
+    ev = events.done(
+        conversation_id="c1", current_flow=None, suggestions=[], trip_id="trip-1"
+    )
+    assert _payload(ev)["trip_id"] == "trip-1"
 
 
 # --- mapper ----------------------------------------------------------------
