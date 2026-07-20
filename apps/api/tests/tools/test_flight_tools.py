@@ -61,3 +61,52 @@ def test_search_flights_invalid_sort_raises_validation_error(agent_db):
                 },
             }
         )
+
+
+def test_search_flights_return_date_is_optional_and_defaults_none():
+    assert SearchFlightsArgs.model_fields["return_date"].default is None
+    assert SearchFlightsArgs.model_fields["return_date"].is_required() is False
+
+
+def test_search_flights_omitting_return_date_is_one_way(agent_db):
+    """MIN-67 regression: omitting `return_date` must leave one-way behavior
+    byte-identical — no return leg searched, summary says "one-way"."""
+    msg = search_flights.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "search_flights",
+            "args": {
+                "origin": "HAN",
+                "destination": "SGN",
+                "departure_date": "2027-03-15",
+            },
+        }
+    )
+    assert "one-way" in msg.content
+    assert "return" not in msg.content.lower()
+
+
+def test_search_flights_with_return_date_searches_the_return_leg(agent_db):
+    """MIN-67: passing `return_date` must search the return leg for real fares
+    instead of the model deriving a round-trip total by doubling the outbound."""
+    msg = search_flights.invoke(
+        {
+            "type": "tool_call",
+            "id": "t1",
+            "name": "search_flights",
+            "args": {
+                "origin": "HAN",
+                "destination": "SGN",
+                "departure_date": "2027-03-15",
+                "return_date": "2027-03-22",
+            },
+        }
+    )
+    assert "return flights" in msg.content
+    assert "outbound" in msg.content
+    assert "SGN→HAN" in msg.content
+    # The panel still reflects the outbound leg only; the return leg's real
+    # fare is surfaced in the text the model reads.
+    assert msg.artifact["kind"] == "flights"
+    assert msg.artifact["data"]["origin"] == "HAN"
