@@ -453,6 +453,72 @@ def test_stream_drops_tool_json_output(tmp_path, monkeypatch):
     assert text.count("Sunny and warm in Bali.") == 1  # answer once, not duplicated
 
 
+def test_trip_id_persists_across_turns_after_create_trip(tmp_path, monkeypatch):
+    """Regression (ce-code-review finding, PR #94 review comment): a trip the
+    agent opens via ``create_trip`` must stay active on the NEXT turn even
+    though the web client has no way to learn the new id and keeps sending
+    ``trip_id: null``.
+
+    Before the fix, the router passed ``"trip_id": body.trip_id`` (``None``)
+    into every ``graph.ainvoke`` call, which overwrote the checkpoint's
+    ``trip_id`` (no reducer on that state key) back to ``None`` on the very
+    next turn — silently discarding the trip ``create_trip`` just opened.
+
+    ``create_trip`` resolves its DB session via ``get_settings().database_url``
+    (tools run inside the graph, not a request — see tests/tools/conftest.py),
+    which is independent of ``_make_app``'s ``get_session`` override. Point it
+    at the same temp DB ``_make_app`` already creates so the tool call can
+    actually write, mirroring the ``agent_db`` fixture pattern.
+    """
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'agent_api.db'}")
+    get_settings.cache_clear()
+
+    create_trip_call = AIMessage(
+        content="",
+        tool_calls=[
+            {
+                "name": "create_trip",
+                "args": {"title": "Da Nang long weekend", "city": "Da Nang"},
+                "id": "c1",
+            }
+        ],
+    )
+    app = _make_app(
+        tmp_path,
+        "planner",
+        "",
+        responses=[create_trip_call, "I've started a new trip for you.", "Sure thing!"],
+    )
+    with TestClient(app) as c:
+        resp1 = c.post(
+            "/agent/chat",
+            json={"message": "Plan a trip to Da Nang", "user_id": "u1"},
+        )
+        assert resp1.status_code == 200
+        body1 = resp1.json()
+        trip_id = body1["trip_id"]
+        assert trip_id  # a real trip was created and returned to the client
+
+        # Second turn: same conversation, client still doesn't know about the
+        # new trip (mirrors the real web client, which never learns it) —
+        # trip_id is omitted from the request body, defaulting to None.
+        resp2 = c.post(
+            "/agent/chat",
+            json={
+                "message": "sounds good",
+                "user_id": "u1",
+                "conversation_id": body1["conversation_id"],
+            },
+        )
+        assert resp2.status_code == 200
+        body2 = resp2.json()
+        assert body2["trip_id"] == trip_id  # must NOT be clobbered back to None
+
+    get_settings.cache_clear()
+
+
 def test_stream_survives_tool_upstream_failure(tmp_path, monkeypatch):
     """A tool's upstream outage must not 500 the stream.
 

@@ -57,6 +57,13 @@ class ChatResponse(AppBaseModel):
 
     conversation_id: str
     reply: str
+    trip_id: str | None = Field(
+        default=None,
+        description="The active trip after this turn — echoes the request's "
+        "trip_id, or a new id when the agent opened one via create_trip. "
+        "Clients should store this and send it back on later turns so a "
+        "trip created mid-conversation stays active.",
+    )
     current_flow: str | None = None
     suggestions: list[str] = Field(default_factory=list)
     interrupt_pending: bool = False

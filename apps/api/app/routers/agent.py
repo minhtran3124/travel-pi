@@ -129,6 +129,34 @@ def _config(thread_id: str, user_id: str, trip_id: str | None) -> dict:
     }
 
 
+def _turn_input(message: str, user_id: str, trip_id: str | None) -> dict:
+    """Build the graph-invocation input for a new user turn.
+
+    ``trip_id`` is included only when the client supplied one. LangGraph
+    merges an invocation's input into the loaded checkpoint state per
+    channel; ``TravelAgentState.trip_id`` has no reducer, so a channel key
+    absent from the input keeps its checkpointed value, while an explicit
+    ``None`` would overwrite it. The web client has no way to learn a
+    trip_id the ``create_trip`` tool set mid-conversation, so it keeps
+    sending ``trip_id: null`` on every later turn — passing that through
+    unconditionally clobbered the checkpoint's trip_id back to ``None`` on
+    the very next turn (specs/fix-trip-id-persist-across-turns).
+
+    :param message: The traveller's message for this turn.
+    :param user_id: The effective user id (JWT sub or anonymous).
+    :param trip_id: The client-declared trip id, or None if the client has
+        no active trip context.
+    :return: The input dict for ``graph.ainvoke``.
+    """
+    turn_input: dict = {
+        "messages": [HumanMessage(content=message)],
+        "user_id": user_id,
+    }
+    if trip_id is not None:
+        turn_input["trip_id"] = trip_id
+    return turn_input
+
+
 def _isolated_factory(session: Session) -> sessionmaker[Session]:
     """Sessionmaker bound to ``session``'s engine, for use after the request ends.
 
@@ -230,18 +258,20 @@ async def agent_chat(
 
     try:
         if body.resume is not None:
+            # Commit (and release the SQLite write lock) before the graph runs
+            # so a tool's own session_scope() (e.g. create_trip) can write.
+            # For Postgres this is harmless; for SQLite it prevents "database
+            # is locked" — mirrors the /stream handler below.
+            session.commit()
             # Resume a graph paused at a plan-approval interrupt.
             result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
         else:
             repo.append_message(
                 conversation_id=conversation_id, role="user", content=body.message
             )
+            session.commit()
             result = await graph.ainvoke(
-                {
-                    "messages": [HumanMessage(content=body.message)],
-                    "user_id": uid,
-                    "trip_id": body.trip_id,
-                },
+                _turn_input(body.message, uid, body.trip_id),
                 cfg,
                 context=ctx,
             )
@@ -258,6 +288,7 @@ async def agent_chat(
         return ChatResponse(
             conversation_id=conversation_id,
             reply=reply,
+            trip_id=body.trip_id,
             current_flow=None,
             suggestions=[],
             interrupt_pending=False,
@@ -332,6 +363,7 @@ async def agent_chat(
     return ChatResponse(
         conversation_id=conversation_id,
         reply=reply,
+        trip_id=result.get("trip_id"),
         current_flow=result.get("current_flow"),
         suggestions=(
             []
@@ -395,11 +427,7 @@ async def agent_stream(
             repo.append_message(
                 conversation_id=conversation_id, role="user", content=body.message
             )
-        stream_input = {
-            "messages": [HumanMessage(content=body.message)],
-            "user_id": uid,
-            "trip_id": body.trip_id,
-        }
+        stream_input = _turn_input(body.message, uid, body.trip_id)
 
     # Commit (and release the SQLite write lock) before streaming begins so
     # the isolated factory session inside persist_assistant_turn can write.
