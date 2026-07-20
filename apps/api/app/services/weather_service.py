@@ -225,9 +225,16 @@ async def get_weather(
         today = datetime.datetime.now(datetime.timezone.utc).date()
         horizon = today + datetime.timedelta(days=_FORECAST_HORIZON_DAYS)
         if date > horizon:
+            # The get_climate pointer lives in the DETAIL, not only the hint:
+            # agent tools surface errors as ``ToolException(str(e))`` and
+            # ``AppError.__str__`` returns ``detail`` alone, so a hint-only
+            # pointer never reaches the model. The hint is kept for the HTTP
+            # error envelope, which does carry it.
             raise DomainValidationError(
                 f"'{date.isoformat()}' is beyond the {_FORECAST_HORIZON_DAYS}-day "
-                "weather forecast horizon.",
+                "weather forecast horizon. Call get_climate for typical/average "
+                "conditions (monthly normals) instead — there is no per-day "
+                "forecast that far out.",
                 hint=(
                     "Open-Meteo has no per-day forecast that far out. Call "
                     "get_climate for typical/average conditions (monthly "
