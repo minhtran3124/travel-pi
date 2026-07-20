@@ -10,14 +10,14 @@ from __future__ import annotations
 
 from typing import Literal
 
-from langchain_core.tools import ToolException, tool
+from langchain_core.tools import tool
 from pydantic import Field
 
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.services.place_service import PlaceService
 from app.streaming.panels import PlacesPanel
-from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
 
 
 class SearchPlacesArgs(AppBaseModel):
@@ -159,7 +159,7 @@ def search_places(
                 ),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=NearbyPlacesArgs)
@@ -188,7 +188,7 @@ def nearby_places(
             )
             return {"origin": dump(origin), "nearby": dump(results)}
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ResolvePlaceArgs)
@@ -205,7 +205,7 @@ def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
             result = PlaceService(s).resolve(place_id, source)
             return dump(result)
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ParseNlQueryArgs)
@@ -223,7 +223,7 @@ def parse_nl_query(query: str) -> dict:
         try:
             return dump(PlaceService(s).parse_nl_query(query))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ListPlaceCategoriesArgs)
@@ -237,7 +237,7 @@ def list_place_categories() -> list:
         try:
             return dump(PlaceService(s).categories())
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 PLACE_TOOLS = [

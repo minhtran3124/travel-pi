@@ -16,7 +16,7 @@ from app.enums import BookingType
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.services.booking_service import BookingService
-from app.tools._base import dump, log_tool_call, session_scope
+from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
 class CancelBookingArgs(AppBaseModel):
@@ -57,7 +57,7 @@ def _cancel(
                 )
             return dump(svc.cancel(booking_id))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 

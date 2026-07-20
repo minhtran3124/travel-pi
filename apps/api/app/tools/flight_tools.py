@@ -23,7 +23,7 @@ from app.schemas.flight import FlightBookingRequest
 from app.services.booking_service import BookingService
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
-from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
 from app.tools._ranking import rank_by_preference
 
 
@@ -264,7 +264,7 @@ def search_flights(
                 ),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
@@ -377,7 +377,7 @@ def book_flight(
             result = BookingService(s).book_flight(request)
             return dump(result)
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 

@@ -11,7 +11,7 @@ domain errors to ``ToolException`` so the agent can self-correct.
 
 from __future__ import annotations
 
-from langchain_core.tools import ToolException, tool
+from langchain_core.tools import tool
 from pydantic import Field
 
 from app.exceptions import AppError, UpstreamError
@@ -19,7 +19,7 @@ from app.schemas.base import AppBaseModel
 from app.schemas.route import RouteResponse
 from app.services.routing_service import RoutingService
 from app.streaming.panels import RoutePanel
-from app.tools._base import log_tool_call, panel_result, session_scope
+from app.tools._base import log_tool_call, panel_result, session_scope, tool_error
 
 
 class GetRouteArgs(AppBaseModel):
@@ -77,7 +77,7 @@ async def get_route(origin_place_id: str, destination_place_id: str):
         except UpstreamError:
             raise  # transient — let RetryPolicy retry the node
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
     return _route_panel(r)
 
 
@@ -100,7 +100,7 @@ async def get_city_route(origin_city: str, destination_city: str):
         except UpstreamError:
             raise  # transient — let RetryPolicy retry the node
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
     return _route_panel(r)
 
 

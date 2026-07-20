@@ -17,7 +17,7 @@ from app.enums import TipCategory
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.services.tip_service import TipService
-from app.tools._base import dump, log_tool_call, session_scope
+from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
 class GetLocalTipsArgs(AppBaseModel):
@@ -79,7 +79,7 @@ def get_local_tips(
                 )
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 TIP_TOOLS = [get_local_tips]

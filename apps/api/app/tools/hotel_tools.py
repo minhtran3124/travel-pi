@@ -29,7 +29,7 @@ from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
-from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
 from app.tools._ranking import rank_by_preference
 
 
@@ -290,7 +290,7 @@ def search_hotels(
                 ),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
@@ -387,7 +387,7 @@ def browse_hotels(
                 data=HotelsPanel.from_catalog(results[0].city, results),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
@@ -459,7 +459,7 @@ def book_hotel(
             result = BookingService(s).book_hotel(request)
             return dump(result)
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 

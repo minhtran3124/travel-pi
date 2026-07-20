@@ -20,7 +20,7 @@ from app.schemas.base import AppBaseModel
 from app.schemas.weather import WeatherResponse
 from app.services import air_quality_service, weather_service
 from app.streaming.panels import AirQualityPanel, WeatherPanel
-from app.tools._base import dump, log_tool_call, panel_result
+from app.tools._base import dump, log_tool_call, panel_result, tool_error
 
 _DATE_DESCRIPTION = (
     "Optional specific date, ISO format YYYY-MM-DD, to get a single day's "
@@ -142,7 +142,7 @@ async def get_weather(city: str, days: int | None = None, date: str | None = Non
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
     except AppError as e:
-        raise ToolException(str(e)) from e
+        raise tool_error(e) from e
     return panel_result(
         _weather_summary(r),
         kind="weather",
@@ -173,7 +173,7 @@ async def get_packing(
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
     except AppError as e:
-        raise ToolException(str(e)) from e
+        raise tool_error(e) from e
 
 
 def _air_quality_summary(r: AirQualityResponse) -> str:
@@ -207,7 +207,7 @@ async def get_air_quality(city: str):
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
     except AppError as e:
-        raise ToolException(str(e)) from e
+        raise tool_error(e) from e
     return panel_result(
         _air_quality_summary(r),
         kind="air_quality",
