@@ -93,6 +93,18 @@ E001 (option B: keep `get_weather` forecast-only, add a separate `get_climate` t
 - **Done:** Both prompts describe the split; `active.yaml` points at existing files (guarded by
   the registry test rewritten in `a64c981`).
 
+### Task 4.2 — Repair callers broken by the new signature (wave 4)
+
+- **Files:** apps/api/tests/unit/test_weather_packing.py, apps/api/tests/prompts/test_active_versions_load.py
+- **Action:** Added after the full suite (not the per-wave subsets) surfaced two regressions the
+  wave verifies had missed. `get_packing` forwards `date=` unconditionally, which breaks five
+  monkeypatched `_mock_get_weather(city, days=None)` fakes — widen the fakes to match the real
+  signature rather than making production code conditional to accommodate test doubles.
+  `test_min53_bumped_versions_active` hardcodes `concierge == 10` / `planner == 9`; update to
+  11 / 10. See Risks — that test is a known tripwire, not fixed here.
+- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///./travel.db ../../.venv/bin/python -m pytest -q` (with `.env` moved aside)
+- **Done:** Full suite green, not just the per-wave subsets.
+
 ### Task 4.1 — End-to-end regression for the reported scenario (wave 4)
 
 - **Files:** apps/api/tests/agents/test_weather_date_scope.py
@@ -118,6 +130,17 @@ E001 (option B: keep `get_weather` forecast-only, add a separate `get_climate` t
   on top of it; if it does not behave as assumed, 1.1's error path still holds the line.
 - **Stale prompt in the running agent.** Prompt changes do not hot-reload (registry singleton +
   graph built at lifespan). Any manual check needs `docker exec api-api-1 touch app/main.py`.
+- **Hardcoded prompt versions are a recurring tripwire.** `tests/prompts/test_active_versions_load.py::test_min53_bumped_versions_active`
+  pins `concierge`/`planner`/`booking`/`memory_extraction` to literal numbers, so every legitimate
+  prompt bump breaks it — its comment has grown into a changelog of past bumps. This is the second
+  such test hit in two days (the first was rewritten in `a64c981`), and it is now redundant with
+  both `test_every_active_version_loads_nonempty` directly above it and the rewritten
+  `test_active_version_matches_active_yaml`. Bumped the numbers here to stay in scope; **recommend
+  deleting it separately** rather than maintaining a third copy of the same guard.
+- **Per-wave verify subsets missed real regressions.** Waves 1-3 each ran only their own test
+  subset and passed; the full suite then failed on `tests/unit/` and `tests/prompts/`, neither of
+  which any wave's verify command covered. Task 4.2 exists only because of that gap — a full-suite
+  gate belongs at the end of any plan that changes a widely-called signature.
 
 ## 6. Status Log
 
