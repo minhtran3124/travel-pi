@@ -54,13 +54,18 @@ def search_vs_booking_metric() -> GEval:
 
 
 def no_hallucination_metric() -> GEval:
-    """No invented hotel/flight facts not grounded in tool results."""
+    """No invented or derived hotel/flight facts not grounded in tool results (MIN-67)."""
     return GEval(
         name="Fact Grounding",
         criteria=(
             "Penalize the actual output if it invents specific hotel or flight "
             "names, prices, times, or availability that a real tool call would "
-            "supply. Generic guidance is fine; fabricated concrete facts are not."
+            "supply. Also penalize a price that is computed or extrapolated from "
+            "a partial tool result — e.g. doubling a one-way fare to state a "
+            "round-trip total — even though it is derived from a real number: "
+            "every concrete price stated must itself be one a tool call returned, "
+            "not arithmetic performed on one. Generic guidance is fine; fabricated "
+            "or derived concrete facts are not."
         ),
         evaluation_params=_IO,
         threshold=DEFAULT_THRESHOLD,

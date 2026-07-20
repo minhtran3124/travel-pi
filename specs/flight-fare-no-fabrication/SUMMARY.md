@@ -25,7 +25,13 @@ was ever searched; the number came from no tool. It then fed the "$1,200–$2,20
 
 ### What changed
 
-Intake only so far.
+`search_flights` takes an optional `return_date` and searches the real return leg (reusing the
+path the REST layer already used — swap origin/destination and search again; no service change
+needed). The summary the model reads now names the currency, says one-way vs outbound/return, and
+states plainly that the two legs are separate one-way fares. Planner v11 extends the existing
+"never invent prices" guardrail to cover *derivation* — a stated price must be one a tool
+returned, never doubled or summed from one. The eval `no_hallucination` rubric was widened the
+same way. Omitting `return_date` leaves the one-way path byte-identical, pinned by a test.
 
 ### Rationale
 
@@ -53,13 +59,25 @@ asked to total.
 
 ### Deviations
 
-- none
+- PLAN Task 2.1 said "copy v9 → v10". Stale by the time it ran: PR #101 merged first and took
+  planner v10, so this became v10 → **v11** after a rebase. The PLAN anticipated the collision in
+  its Risks; resolved by merging #101, then rebasing rather than editing the other slug's file.
+- PLAN `Files:` lists were incomplete in two tasks — 2.1 omitted `CHANGELOG.md` and
+  `tests/prompts/test_active_versions_load.py` (the hardcoded-version tripwire), 3.1 omitted
+  `eval/metrics_geval.py` though its Action text described the edit. Both flagged by the
+  blast-radius hook and recorded rather than silently absorbed.
+- No Rule 1–3 code auto-fixes were needed.
 
 ### Verify
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| _pending implementation_ | | | |
+| Full backend suite | `pytest -q` (with `.env` aside) | 0 | **1740 passed, 0 failed** |
+| Lint | `ruff check app scripts eval` | 0 | clean |
+| Round-trip returns real return-leg data | `pytest tests/tools/test_flight_roundtrip.py -q` | 0 | HAN→SGN today+45/+52: outbound cheapest USD 88, real return USD 61.50 — doubling would give 176, so the assertion genuinely discriminates |
+| Regression test actually bites | return-leg search replaced with the outbound results | 1 | fails as intended (`'Cheapest return VJ665 USD 62' not in …`); tool file restored byte-identical |
+| One-way path unchanged | `pytest tests/tools tests/api/flight tests/services -q` | 0 | 288 passed; omitting `return_date` skips the second service call entirely |
+| Prompt + agent wiring | `pytest tests/api/prompts tests/prompts tests/agents -q` | 0 | 268 passed; `active.yaml` planner 10→11 resolves |
 
 ### Rollback
 

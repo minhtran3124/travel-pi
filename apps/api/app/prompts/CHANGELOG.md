@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## flight-fare-no-fabrication — forbid derived prices, not just invented ones
+
+specs/flight-fare-no-fabrication (MIN-67 / #98): the agent searched one leg and told the
+traveller "from $136 round-trip total" by doubling a real $68 one-way fare — grounded in a
+tool result, so the prior "never invent" wording didn't catch it. `search_flights` gained an
+optional `return_date` (wave 1) so a round trip's real return-leg fare can actually be
+retrieved; this is the prompt half.
+
+- **planner v11** — extended the existing "Never invent flights, hotels, or prices"
+  Guardrails bullet in place (not a new bullet) to also ban derivation: a stated price must
+  be one a tool returned, never computed, doubled, summed, or extrapolated from one; search
+  the return leg with `return_date` to price a round trip. Everything else unchanged.
+
+`active.yaml`: planner → 11. Others unchanged.
+
 ## weather-trip-date-accuracy — climate vs forecast, and matching the tool's dates to the trip
 
 specs/weather-trip-date-accuracy (MIN-66 / #97): `get_weather`/`get_packing` gained an optional
