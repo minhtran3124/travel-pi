@@ -285,10 +285,22 @@ async def agent_chat(
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
+        # The failed graph run may still have left a checkpointed trip_id from
+        # an earlier turn's create_trip (this turn's own state update, if any,
+        # never committed). Report that instead of the request's trip_id —
+        # which _turn_input intentionally omits/leaves stale — so a client
+        # reading this field doesn't see a spurious null. Best-effort.
+        fallback_trip_id = body.trip_id
+        try:
+            checkpoint = await graph.aget_state(cfg)
+            if checkpoint and checkpoint.values:
+                fallback_trip_id = checkpoint.values.get("trip_id", body.trip_id)
+        except Exception:  # noqa: BLE001 — best-effort; fall back to body.trip_id
+            pass
         return ChatResponse(
             conversation_id=conversation_id,
             reply=reply,
-            trip_id=body.trip_id,
+            trip_id=fallback_trip_id,
             current_flow=None,
             suggestions=[],
             interrupt_pending=False,

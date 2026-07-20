@@ -519,6 +519,113 @@ def test_trip_id_persists_across_turns_after_create_trip(tmp_path, monkeypatch):
     get_settings.cache_clear()
 
 
+def test_chat_fallback_reports_checkpointed_trip_id_not_stale_request_value(
+    tmp_path, monkeypatch
+):
+    """Regression (ce-code-review finding, PR #95 review comment): when the
+    graph run itself fails on a turn AFTER an earlier turn's ``create_trip``,
+    the exception-fallback ``ChatResponse`` must report the checkpoint's real
+    active trip_id — not blindly echo the request's (stale/null) trip_id,
+    which would misrepresent an already-open trip as having none.
+    """
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'agent_api.db'}")
+    get_settings.cache_clear()
+
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    create_trip_call = AIMessage(
+        content="",
+        tool_calls=[
+            {
+                "name": "create_trip",
+                "args": {"title": "Da Nang long weekend", "city": "Da Nang"},
+                "id": "c1",
+            }
+        ],
+    )
+    main = FakeLLM(
+        structured_responses=[SupervisorIntent(target_agent="planner")] * 6,
+        responses=[create_trip_call, "I've started a new trip for you."] * 3,
+    )
+    fast = FakeLLM(responses=["OK"] * 6)
+    real_graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+
+    class _FailOnSecondTurn:
+        """Delegates to the real graph, but fails the SECOND ainvoke call —
+        proving the fallback path reads the checkpoint (from turn 1's
+        successful create_trip), not just the request body."""
+
+        def __init__(self, graph):
+            self._graph = graph
+            self._calls = 0
+
+        async def ainvoke(self, *args, **kwargs):
+            self._calls += 1
+            if self._calls >= 2:
+                raise RuntimeError("model provider down")
+            return await self._graph.ainvoke(*args, **kwargs)
+
+        async def aget_state(self, *args, **kwargs):
+            return await self._graph.aget_state(*args, **kwargs)
+
+        @property
+        def store(self):
+            return self._graph.store
+
+        @property
+        def extract_memory_llm(self):
+            return self._graph.extract_memory_llm
+
+    wrapped_graph = _FailOnSecondTurn(real_graph)
+
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_travel_graph] = lambda: wrapped_graph
+
+    with TestClient(app) as c:
+        resp1 = c.post(
+            "/agent/chat",
+            json={"message": "Plan a trip to Da Nang", "user_id": "u1"},
+        )
+        assert resp1.status_code == 200
+        trip_id = resp1.json()["trip_id"]
+        assert trip_id
+
+        resp2 = c.post(
+            "/agent/chat",
+            json={
+                "message": "sounds good",
+                "user_id": "u1",
+                "conversation_id": resp1.json()["conversation_id"],
+            },
+        )
+        assert resp2.status_code == 200
+        body2 = resp2.json()
+        assert body2["reply"]
+        # The graph run failed, but the checkpoint from turn 1 still has the
+        # trip active — the fallback must report it, not the request's None.
+        assert body2["trip_id"] == trip_id
+
+    get_settings.cache_clear()
+
+
 def test_stream_survives_tool_upstream_failure(tmp_path, monkeypatch):
     """A tool's upstream outage must not 500 the stream.
 
