@@ -78,10 +78,12 @@ class SupervisorIntent(BaseModel):
         description=(
             "An ORDERED list of follow-on sub-agents to run this turn AFTER "
             "target_agent, for a request that spans several specialists (e.g. "
-            "'plan my Tokyo weekend: flights + weather + itinerary'). List them "
-            "in execution order and EXCLUDE target_agent itself. Never 'booking'. "
-            "Leave null for a single-domain request (then target_agent alone "
-            "handles it). Extra or invalid steps are dropped in code."
+            "'plan my Tokyo weekend: flights + weather + itinerary' → "
+            "target_agent=planner, plan=[concierge, planner]). List only the "
+            "follow-ons, in execution order. A specialist MAY recur when it does "
+            "distinct work at a later stage. Never 'booking'. Leave null for a "
+            "single-domain request (then target_agent alone handles it). Extra "
+            "or invalid steps are dropped in code."
         ),
     )
     language: str = Field(
