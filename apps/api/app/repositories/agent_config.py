@@ -2,6 +2,8 @@
 
 import logging
 
+from sqlalchemy import func
+
 from app.core.llm_providers import PROVIDER_NAMES
 from app.db import models
 from app.exceptions import DomainValidationError
@@ -26,6 +28,19 @@ class AgentConfigRepository(Repo):
             return list(
                 s.query(models.AgentConfig).order_by(models.AgentConfig.agent_name)
             )
+
+    def max_updated_at(self) -> str | None:
+        """Return the most recent ``updated_at`` across every row, or ``None`` if empty.
+
+        Cheap cross-process freshness probe (GH-106): a single scalar, not a
+        full ``list_all()`` reload. ``updated_at`` is an ISO-8601 string
+        (``TimestampMixin``), so ``MAX()`` sorts correctly as text on both
+        SQLite and Postgres.
+
+        :return: The lexicographically greatest ``updated_at``, or ``None``.
+        """
+        with self._session() as s:
+            return s.query(func.max(models.AgentConfig.updated_at)).scalar()
 
     def get(self, agent_name: str) -> "models.AgentConfig | None":
         """Return the config row for *agent_name*, or ``None`` if absent.
