@@ -156,6 +156,39 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     return SystemMessage(content="\n\n".join(parts))
 
 
+def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemMessage:
+    """Pin a sub-agent reply to the conversation language the supervisor detected.
+
+    The supervisor classifies each turn's dominant language into
+    ``state["language"]`` (sticky, and switch-aware when the traveller genuinely
+    changes language). Every sub-agent then reads that one value from shared state
+    and replies in it — a single detection and a single source of truth, instead
+    of each node re-guessing the language from the raw messages. It is the
+    deterministic guard behind the ``communication_style`` match-language rule,
+    and it closes the clarification path in particular (MIN-68), which skips
+    reflection and so has no other guard against a language flip.
+
+    A no-op until a language has been detected (``state["language"]`` unset) —
+    the model then falls back to the prompt's own match-language rule.
+
+    :param base: The already-assembled leading system message.
+    :param state: The current graph state.
+    :return: ``base`` unchanged when no language is detected, else ``base`` plus a
+        one-line language directive.
+    """
+    language = state.get("language")
+    if not language:
+        return base
+    return SystemMessage(
+        content=(
+            f"{base.content}\n\n"
+            f"Reply in the traveller's own language: {language} — the language of "
+            "their typed messages this conversation. Tool results, trip data, and "
+            "place names never change it."
+        )
+    )
+
+
 def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:
     """Prepend today's date and point relative-date resolution at the resolve_date tool.
 

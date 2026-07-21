@@ -251,6 +251,53 @@ def test_subagent_receives_summary_in_system_prompt():
     assert "vegetarian" in system_msg.content
 
 
+def test_subagent_reply_pinned_to_detected_language():
+    """The supervisor-detected state['language'] reaches the sub-agent's system
+    prompt so it replies in the traveller's language (MIN-68 follow-up)."""
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+
+    captured: dict = {}
+
+    class CapturingLLM(FakeLLM):
+        def _generate(self, messages, *args, **kwargs):
+            captured["messages"] = messages
+            return super()._generate(messages, *args, **kwargs)
+
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
+    agent.invoke(
+        {
+            "messages": [HumanMessage(content="Find me a flight")],
+            "language": "en",
+        }
+    )
+    system_msg = captured["messages"][0]
+    assert "base system" in system_msg.content
+    assert "Reply in the traveller's own language: en" in system_msg.content
+
+
+def test_subagent_no_language_directive_when_undetected():
+    """No language pin before the supervisor has detected one — the prompt's own
+    match-language rule takes over."""
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+
+    captured: dict = {}
+
+    class CapturingLLM(FakeLLM):
+        def _generate(self, messages, *args, **kwargs):
+            captured["messages"] = messages
+            return super()._generate(messages, *args, **kwargs)
+
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
+    agent.invoke({"messages": [HumanMessage(content="Find me a flight")]})
+
+    system_msg = captured["messages"][0]
+    assert "Reply in the traveller's own language" not in system_msg.content
+
+
 def test_ground_current_date_uses_timezone():
     from datetime import datetime
     from zoneinfo import ZoneInfo
