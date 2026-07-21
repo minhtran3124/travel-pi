@@ -48,7 +48,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # (reload_from_db just syncs an empty map). ``configure`` wires the TTL +
     # loader so later reads refresh lazily (MIN-47) without a restart.
     _config_factory = get_session_factory(settings.database_url)
-    AgentConfigCache.configure(_config_factory, settings.agent_config_cache_ttl_seconds)
+    AgentConfigCache.configure(
+        _config_factory, settings.agent_config_poll_interval_seconds
+    )
     reload_from_db(_config_factory)
 
     # Enforce the "every city has ≥3 hotels and ≥3 places" promise from
