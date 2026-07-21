@@ -907,3 +907,59 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: 0a5974c Merge pull request #94 from minhtran3124/feat/agent-trip-context
 - user_turns: 0
 
+
+### 2026-07-20T13:22:38Z
+- session_id: 2d465a45-5d06-4778-ad99-785d7d51d5e8
+- exit: 
+- last_commit: 851f46d Merge pull request #104 from minhtran3124/fix/tool-error-hint-propagation
+- user_turns: 0
+
+
+### 2026-07-20T13:28:59Z
+- session_id: d2fba863-cebb-4e9a-a09a-4f2ed21aa156
+- exit: 
+- last_commit: 851f46d Merge pull request #104 from minhtran3124/fix/tool-error-hint-propagation
+- user_turns: 0
+
+
+### 2026-07-21T00:05:22Z
+- session_id: 58c9af9e-186a-4e15-9663-cba05c4c0692
+- exit: 
+- last_commit: 1460c26 feat(agents): ledger early-exit groundwork — awaiting_user + needs_clarification (MIN-68)
+- user_turns: 0
+
+
+### 2026-07-21T00:05:23Z
+- session_id: 4b57aa61-8ce7-49a6-bc41-c041be015f78
+- exit: 
+- last_commit: 1460c26 feat(agents): ledger early-exit groundwork — awaiting_user + needs_clarification (MIN-68)
+- user_turns: 0
+
+
+### 2026-07-21T02:46:22Z
+- session_id: 850e5405-042c-40dd-8720-bc574fd79d06
+- exit: 
+- last_commit: cef6f91 docs: mark reflection advisory resolved in min-68 SUMMARY
+- user_turns: 0
+
+
+### 2026-07-21T04:43:16Z
+- session_id: 6db17903-d546-411e-86ec-c03cc9809818
+- exit: 
+- last_commit: 707e9ba fix(agents): default English + pin sub-agent replies to detected language
+- user_turns: 0
+
+
+### 2026-07-21T04:48:05Z
+- session_id: af3d50d5-5a63-41ba-96da-58f93450affd
+- exit: 
+- last_commit: 707e9ba fix(agents): default English + pin sub-agent replies to detected language
+- user_turns: 0
+
+
+### 2026-07-21T04:59:25Z
+- session_id: 24565fdf-624f-49ed-9649-e06aec330acd
+- exit: 
+- last_commit: 707e9ba fix(agents): default English + pin sub-agent replies to detected language
+- user_turns: 0
+
