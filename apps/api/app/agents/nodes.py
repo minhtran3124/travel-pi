@@ -168,6 +168,15 @@ def make_reflection_node(
     system = SystemMessage(content=registry.get("reflection"))
 
     def reflection(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
+        # MIN-68 / #99: a turn blocked on the traveller ends with a clarifying
+        # question — a necessarily "incomplete" answer the reviewer would flag
+        # REVISE, re-running the sub-agent to answer WITHOUT the missing detail
+        # (and, on the REST path, dropping the question for that guess). Such a
+        # turn is terminal and not reviewable; end it here, before the judge call.
+        if state.get("awaiting_user"):
+            logger.info("[agent] reflection → END (awaiting traveller; not reviewable)")
+            return Command(goto=END)
+
         ctx = runtime.context if runtime.context is not None else None
         allow_reflection = ctx.allow_reflection if ctx is not None else True
         effective_max = ctx.max_revisions if ctx is not None else max_revisions

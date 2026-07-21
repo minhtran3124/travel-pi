@@ -159,3 +159,27 @@ def test_duplicate_clarification_calls_do_not_crash():
     assert out["awaiting_user"] is True
     assert out["pending_flows"] == []
     assert not any("NEVER-RUN" in str(m.content) for m in out["messages"])
+
+
+def test_blocked_turn_survives_revise_prone_reflection():
+    # A clarifying question is by construction "incomplete", so the reflection
+    # judge would flag it REVISE and re-run the sub-agent to answer WITHOUT the
+    # missing detail. The awaiting_user guard must end the turn regardless, so
+    # the question is not revised away (MIN-68 / #99, PR #105 review).
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
+        ],
+        main_responses=[
+            _CLARIFY_CALL,
+            "Which exact date do you want to depart?",
+            "NEVER-RUN revised answer",
+        ],
+        fast_responses=["REVISE"],  # reflection judge would loop if unguarded
+    )
+    out = _invoke(graph, "plan a trip end of this month", "t-blocked-revise")
+
+    assert out["awaiting_user"] is True
+    contents = [str(m.content) for m in out["messages"]]
+    assert "Which exact date do you want to depart?" in contents
+    assert not any("NEVER-RUN" in c for c in contents)
