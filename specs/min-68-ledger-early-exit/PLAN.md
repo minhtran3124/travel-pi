@@ -502,3 +502,8 @@ registered in `app/tools/registry.py`, so it stays off the MCP server and `/agen
   docstring-tense finding confirmed closed. Verify: 64 passed (ledger+registry files);
   broader tests/agents+tests/prompts 249 passed. 2 failures in tests/tools/test_routing_tools.py
   confirmed pre-existing (live ORS key in .env; also fail on the unmodified wave-1 tree).
+- 2026-07-21 — Final gates. Adversarial correctness review (6 angles → 6 deduped findings →
+  independent scoring): 1 entered the fix-loop after direct repro (duplicate parallel
+  needs_clarification calls → InvalidUpdateError turn crash) — fixed with a last-write-wins
+  reducer, commit `6f13aaf`; 5 recorded as Advisory Findings in SUMMARY.md. Intent review
+  (blind to this plan, oracle = issue #99 verbatim + intake decisions): ✅ no divergence.

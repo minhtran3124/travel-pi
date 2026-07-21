@@ -27,7 +27,7 @@ Intake decisions (user, 2026-07-20): (1) exit policy — **abandon the plan** (c
 
 ## What changed
 
-<pending — filled at completion>
+A sub-agent blocked on the traveller can now short-circuit the task ledger. New Command-returning `needs_clarification` tool (unregistered — off MCP//agent/manifest) sets a single-turn `awaiting_user` flag (last-write-wins reducer; reset by `load_context` each turn); `dispatch_next` then abandons the remaining `pending_flows` and routes straight to reflection instead of draining queued sub-agents whose output the traveller never sees. The tool is appended to every specialist in `build_subagent`, and `communication_style` v7 teaches when to call it (once, only when traveller-blocked; never for tool failures). Commits: `1460c26` (wave 1), `b8336d1` (wave 2), `6f13aaf` (correctness fix). Review chain: per-task spec + quality ✅, adversarial correctness (6 angles → 1 confirmed fix + 5 advisories), intent review ✅.
 
 ### Rationale
 
@@ -40,6 +40,17 @@ Abandon-not-park chosen by the user at intake: the clarifying answer often inval
 ### Deviations
 
 - Rule 1 — Pre-existing exact-shape assert `load_context_node(...) == {"plan_approved": False}` broke on the additive `awaiting_user` key; extended to include `"awaiting_user": False` (+1 docstring line). `apps/api/tests/agents/test_state.py`. Commit `1460c26`. Plan gap: file was missing from Task 1.1's Files set (same class as docs/solutions/harness/sse-additive-field-breaks-cross-dir-shape-test.md).
+- Rule 1 — Correctness-review finding (empirically reproduced): duplicate parallel `needs_clarification` calls crashed the turn with `InvalidUpdateError` (plain LastValue channel, two Command writes in one superstep). Fixed with a `last_write_wins` reducer on `awaiting_user` + graph-level regression test. `apps/api/app/agents/state.py`, `apps/api/tests/agents/test_ledger_early_exit.py`. Commit `6f13aaf`.
+
+### Advisory Findings
+
+Correctness-review findings scoring below the fix-loop threshold (80) — recorded, not auto-fixed:
+
+- (50) **Reflection may REVISE a clarifying question** — the early exit routes to `reflection`, whose prompt says REVISE on "incomplete" answers; a clarifying question is by construction incomplete. A REVISE would pressure the blocked sub-agent to answer without the missing detail (fabrication risk MIN-67 class) and, on SSE, replace the streamed question. Trigger depends on the judge LLM's verdict (unverifiable from the tree). Possible hardening: `if state.get("awaiting_user"): return Command(goto=END)` at the top of `reflection()`. `apps/api/app/agents/nodes.py:266` → `:170-199`.
+- (50) **False-positive latch** — nothing in code un-sets `awaiting_user` within a turn: if the model calls the tool but then self-recovers and answers fully without asking, the queued follow-ons are still abandoned. Guard is prompt-only ("call ONCE… then ask"). Possible hardening: corroborate the latch against the final AIMessage in `dispatch_next`. `apps/api/app/tools/clarification_tools.py` + `apps/api/app/agents/nodes.py:260-266`.
+- (50) **`graceful_fallback` may discard the tool's Command** — in TOOL_FAULT sub-agents, a sibling I/O tool exhausting retries with a non-ToolException fails the whole tools node; the fallback emits GRACEFUL_MSG for every call id incl. `needs_clarification`, and the flag write may be lost (LangGraph merge behavior under error_handler unconfirmed; same latent shape pre-exists with `create_trip`). `apps/api/app/agents/retry.py:75-98` (unmodified-line interaction).
+- (0, pre-existing) **`revisions` never resets per turn** — the reflection counter persists in the checkpoint; after one REVISE anywhere in a thread, reflection is silently disabled for that conversation's lifetime (`revisions >= max_revisions` forever). Reported by 3 independent angles. Fix would be `"revisions": 0` in `load_context_node`'s reset dict — out of this branch's scope (unmodified lines). `apps/api/app/agents/nodes.py:73,175-193`.
+- (0, no wrong outcome) **SSE emits `needs_clarification` tool_call events** — mapper emits them like any tool, but the FE explicitly ignores `tool_call`/`tool_result` events (`apps/web/src/components/chat/useAgentStream.ts` — "not surfaced"), and mapper lines are unmodified. Cosmetic at most.
 
 ### Verify
 
@@ -54,7 +65,7 @@ Abandon-not-park chosen by the user at intake: the clarifying answer often inval
 
 ### Rollback
 
-- `git revert <sha>`
+- `git revert 6f13aaf b8336d1 1460c26` (code commits, newest first; prompt rollback alternative: set `communication_style: 6` in `app/prompts/active.yaml`)
 
 ### Harness-Delta
 
