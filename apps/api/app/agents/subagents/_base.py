@@ -37,6 +37,7 @@ from app.agents.state import (
     system_with_summary,
 )
 from app.prompts.registry import registry
+from app.tools.clarification_tools import needs_clarification
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,11 @@ def build_subagent(
         communication-style guideline.
     :return: The compiled ReAct subgraph for this sub-agent.
     """
+    # MIN-68: every specialist can signal "blocked on the traveller" so
+    # dispatch_next abandons the remaining ledger instead of draining it.
+    # Appended here (not in the tool registry) so it stays off MCP/manifest.
+    tools = [*tools, needs_clarification]
+
     style = registry.get("communication_style")
     system = SystemMessage(content=f"{style}\n\n{prompt}")
 
