@@ -14,6 +14,7 @@ from app.core.agent_config_cache import (
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.repositories.agent_config import AgentConfigRepository
+from sqlalchemy.exc import SQLAlchemyError
 
 
 @pytest.fixture(autouse=True)
@@ -165,7 +166,7 @@ def test_invalidate_forces_next_read_to_reload():
 
 def test_poll_failure_keeps_serving_stale_cache(monkeypatch):
     def _boom(factory):
-        raise RuntimeError("db unreachable")
+        raise SQLAlchemyError("db unreachable")
 
     monkeypatch.setattr("app.core.agent_config_cache.max_updated_at", _boom)
     AgentConfigCache.configure("FACTORY", poll_interval_seconds=3600)
@@ -186,7 +187,7 @@ def test_reload_failure_keeps_serving_stale_cache(monkeypatch):
     )
 
     def _boom(factory):
-        raise RuntimeError("db unreachable")
+        raise SQLAlchemyError("db unreachable")
 
     monkeypatch.setattr("app.core.agent_config_cache.reload_from_db", _boom)
     AgentConfigCache.configure("FACTORY", poll_interval_seconds=3600)

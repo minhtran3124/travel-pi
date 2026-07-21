@@ -20,6 +20,8 @@ import time
 from dataclasses import dataclass
 from typing import ClassVar
 
+from sqlalchemy.exc import SQLAlchemyError
+
 logger = logging.getLogger(__name__)
 
 # Fallback poll interval (seconds) until ``configure`` wires the settings-driven value.
@@ -132,7 +134,7 @@ class AgentConfigCache:
         with cls._refresh_lock:
             try:
                 latest = max_updated_at(cls._session_factory)
-            except Exception as exc:  # noqa: BLE001 - fail open on any DB error
+            except SQLAlchemyError as exc:
                 logger.error(
                     f"[AgentConfigCache] poll failed, serving stale cache: {exc}"
                 )
@@ -141,7 +143,7 @@ class AgentConfigCache:
                 return
             try:
                 reload_from_db(cls._session_factory)
-            except Exception as exc:  # noqa: BLE001 - fail open on any DB error
+            except SQLAlchemyError as exc:
                 logger.error(
                     f"[AgentConfigCache] reload failed, serving stale cache: {exc}"
                 )
