@@ -45,8 +45,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # Populate the per-agent LLM config cache from the DB, so get_agent_llm
     # resolves DB overrides from the first request. Safe on an empty table
-    # (reload_from_db just syncs an empty map). ``configure`` wires the TTL +
-    # loader so later reads refresh lazily (MIN-47) without a restart.
+    # (reload_from_db just syncs an empty map). ``configure`` wires the poll
+    # interval + loader so later reads refresh lazily (GH-106) without a restart.
     _config_factory = get_session_factory(settings.database_url)
     AgentConfigCache.configure(
         _config_factory, settings.agent_config_poll_interval_seconds
