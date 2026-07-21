@@ -94,11 +94,11 @@ def test_update_is_per_agent_isolated(seeded_session):
 def test_update_invalidates_cache(seeded_session):
     AgentConfigCache.clear()
     AgentConfigCache.sync_from_cache({})
-    assert AgentConfigCache._loaded_at is not None
+    assert AgentConfigCache._dirty is False
     AgentConfigService(seeded_session).update_config(
         "planner", provider="openai", model="gpt-4o", temperature="", max_tokens=""
     )
-    assert AgentConfigCache._loaded_at is None
+    assert AgentConfigCache._dirty is True
 
 
 def test_update_rejects_negative_temperature(seeded_session):

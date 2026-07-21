@@ -47,6 +47,11 @@ class AgentConfigCache:
     _known_updated_at: str | None = None
     _poll_interval_seconds: float = _DEFAULT_POLL_INTERVAL_SECONDS
     _session_factory = None
+    # Set by invalidate(), cleared by a _maybe_refresh() that actually reaches
+    # the DB. Forces the next poll to re-check even if _loaded_at still looks
+    # fresh — see invalidate()'s docstring for why this exists instead of
+    # nulling _loaded_at directly.
+    _dirty: bool = False
     # FastAPI's GraphDep (app/routers/agent.py) is a sync dependency, so
     # FastAPI runs it via run_in_threadpool on a real OS thread per request —
     # concurrent _maybe_refresh() calls across threads are the normal case
@@ -56,6 +61,11 @@ class AgentConfigCache:
     # lock-free so the hot path ("not due yet") costs nothing. Permanent
     # class attribute — clear() does not need to reset it.
     _refresh_lock: ClassVar[threading.Lock] = threading.Lock()
+    # Guards only `_dirty` — a plain flag flip, never held across a DB call.
+    # Kept separate from _refresh_lock so invalidate() can never block on the
+    # DB round-trip that lock serializes. Permanent class attribute — clear()
+    # does not need to reset it.
+    _dirty_lock: ClassVar[threading.Lock] = threading.Lock()
 
     @classmethod
     def configure(cls, session_factory, poll_interval_seconds: float) -> None:
@@ -105,10 +115,20 @@ class AgentConfigCache:
     def invalidate(cls) -> None:
         """Force the next read to reload from the DB (called after a config write).
 
-        Resets only the freshness stamp; the cached map stays in place until the
-        next ``_maybe_refresh`` actually reloads. A no-op when no loader is wired.
+        Sets a durable dirty flag rather than nulling ``_loaded_at`` directly: a
+        reload already in flight (started before this write committed) can
+        finish *after* this call and restamp ``_loaded_at`` fresh via
+        ``sync_from_cache``, which would silently clobber a plain ``None`` and
+        swallow the invalidation until the next poll interval. The dirty flag
+        can't be clobbered the same way — ``_maybe_refresh`` only clears it
+        immediately before it actually reaches the DB, so a flag set during (or
+        after) an in-flight reload survives to force the *next* poll. Guarded
+        by ``_dirty_lock`` rather than ``_refresh_lock`` so this never blocks
+        on the DB round-trip the latter serializes — a no-op when no loader is
+        wired other than the flag flip.
         """
-        cls._loaded_at = None
+        with cls._dirty_lock:
+            cls._dirty = True
 
     @classmethod
     def _maybe_refresh(cls) -> None:
@@ -122,7 +142,8 @@ class AgentConfigCache:
         if cls._session_factory is None:
             return  # no loader wired (tests drive the cache via sync_from_cache)
         if (
-            cls._loaded_at is not None
+            not cls._dirty
+            and cls._loaded_at is not None
             and time.monotonic() - cls._loaded_at < cls._poll_interval_seconds
         ):
             return
@@ -132,14 +153,20 @@ class AgentConfigCache:
         # worker per request, so racing threads could otherwise interleave a
         # slower thread's stale reload over a faster thread's fresher one.
         with cls._refresh_lock:
+            with cls._dirty_lock:
+                was_dirty = cls._dirty
+                cls._dirty = False
             try:
                 latest = max_updated_at(cls._session_factory)
             except SQLAlchemyError as exc:
                 logger.error(
                     f"[AgentConfigCache] poll failed, serving stale cache: {exc}"
                 )
+                if was_dirty:
+                    with cls._dirty_lock:
+                        cls._dirty = True
                 return
-            if latest == cls._known_updated_at:
+            if latest == cls._known_updated_at and not was_dirty:
                 return
             try:
                 reload_from_db(cls._session_factory)
@@ -147,6 +174,9 @@ class AgentConfigCache:
                 logger.error(
                     f"[AgentConfigCache] reload failed, serving stale cache: {exc}"
                 )
+                if was_dirty:
+                    with cls._dirty_lock:
+                        cls._dirty = True
                 return
             cls._known_updated_at = latest
 
@@ -159,6 +189,7 @@ class AgentConfigCache:
         cls._known_updated_at = None
         cls._session_factory = None
         cls._poll_interval_seconds = _DEFAULT_POLL_INTERVAL_SECONDS
+        cls._dirty = False
 
 
 def reload_from_db(session_factory) -> None:
