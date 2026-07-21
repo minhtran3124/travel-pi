@@ -28,6 +28,7 @@ def test_all_tables_registered():
         "jobs",
         "users",
         "agent_config",
+        "rate_limit_counters",
     }
 
 
