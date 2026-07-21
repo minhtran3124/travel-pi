@@ -49,6 +49,8 @@ Abandon-not-park chosen by the user at intake: the clarifying answer often inval
 | Task 1.1 unit tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_ledger_early_exit.py -x -q` | 0 | 4 passed |
 | Task 1.2 tool tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_clarification_tools.py -x -q` | 0 | 2 passed |
 | Wave-1 regression (agents) | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/ -q` | 0 | 232 passed after test_state.py exact-shape fix |
+| Task 2.1 verify (ledger + registry) | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_ledger_early_exit.py tests/agents/test_task_ledger.py tests/tools/test_tool_registry.py -q` | 0 | 64 passed; re-run by controller and both reviewers |
+| Wave-2 regression (agents + prompts) | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/ tests/prompts/ -q` | 0 | 249 passed (quality reviewer re-run); 2 pre-existing failures in tests/tools/test_routing_tools.py are env-dependent (live ORS key), present on the unmodified tree |
 
 ### Rollback
 

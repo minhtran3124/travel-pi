@@ -496,3 +496,9 @@ registered in `app/tools/registry.py`, so it stays off the MCP server and `/agen
   (docstring wiring-tense note resolves itself when wave 2 lands). Deviation: Rule 1 —
   exact-shape assert in tests/agents/test_state.py extended for the additive `awaiting_user`
   key (plan gap: that file should have been in Task 1.1's Files set).
+- 2026-07-21 — Wave 2 complete (task 2.1, commit `b8336d1`). Spec review ✅ (verbatim match,
+  scope exact); quality review Approved (2 informational minors: `_base.py` no-tools `else`
+  branch now unreachable-by-construction; FakeLLM response cycling is order-coupled). Wave-1's
+  docstring-tense finding confirmed closed. Verify: 64 passed (ledger+registry files);
+  broader tests/agents+tests/prompts 249 passed. 2 failures in tests/tools/test_routing_tools.py
+  confirmed pre-existing (live ORS key in .env; also fail on the unmodified wave-1 tree).
