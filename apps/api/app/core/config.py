@@ -125,8 +125,8 @@ class Settings(BaseSettings):
     # rate_limit_nominal above. A DB-backed fixed-window counter caps how many
     # feedback actions one effective user may take per window. Distinct from the
     # per-day agent quota (agent_free_daily_turn_limit). Env-overridable.
-    feedback_rate_limit_max: int = 30
-    feedback_rate_limit_window_seconds: int = 60
+    feedback_rate_limit_max: int = Field(default=30, gt=0)
+    feedback_rate_limit_window_seconds: int = Field(default=60, gt=0)
 
     # --- AI / Agent layer (specs/travel-agent) ---
     # Provider-agnostic: the agent layer builds models via init_chat_model(),

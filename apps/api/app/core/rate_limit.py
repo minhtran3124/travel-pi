@@ -67,6 +67,11 @@ def enforce_rate_limit(
     :param now_epoch: Override the clock (tests); defaults to ``time.time()``.
     :return: The :class:`RateLimitDecision` when allowed.
     """
+    if limit <= 0 or window_seconds <= 0:
+        raise ValueError(
+            f"rate limit policy '{name}' requires positive limit and window; "
+            f"got limit={limit}, window_seconds={window_seconds}"
+        )
     if now_epoch is None:
         now_epoch = int(time.time())
     # Commit the increment in its OWN transaction on the same engine, not the
@@ -103,6 +108,13 @@ def rate_limit(
     When the resolver yields no subject (anonymous with no fallback id), the
     limit is skipped — the route's own auth is responsible for rejecting it.
     """
+    # Fail at wiring/startup, not per-request, on a misconfigured policy
+    # (e.g. an env override setting the window to 0 → ZeroDivisionError).
+    if limit <= 0 or window_seconds <= 0:
+        raise ValueError(
+            f"rate limit policy '{name}' requires positive limit and window; "
+            f"got limit={limit}, window_seconds={window_seconds}"
+        )
 
     def dependency(
         request: Request,

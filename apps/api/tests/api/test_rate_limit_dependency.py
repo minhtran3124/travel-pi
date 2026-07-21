@@ -29,6 +29,13 @@ def session_factory(tmp_path):
 # --- core callable -------------------------------------------------------
 
 
+@pytest.mark.parametrize("bad", [{"limit": 0}, {"window_seconds": 0}])
+def test_rate_limit_factory_rejects_non_positive_policy(bad):
+    kwargs = {"name": "t", "limit": 5, "window_seconds": 60, **bad}
+    with pytest.raises(ValueError):
+        rate_limit(**kwargs)
+
+
 def test_enforce_raises_rate_limit_error_after_limit(session_factory):
     s = session_factory()
     for _ in range(3):
