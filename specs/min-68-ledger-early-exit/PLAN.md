@@ -1,6 +1,6 @@
 ---
 slug: min-68-ledger-early-exit
-status: active
+status: shipped
 owner: minhtran
 created: 2026-07-20
 ---
@@ -507,3 +507,4 @@ registered in `app/tools/registry.py`, so it stays off the MCP server and `/agen
   needs_clarification calls → InvalidUpdateError turn crash) — fixed with a last-write-wins
   reducer, commit `6f13aaf`; 5 recorded as Advisory Findings in SUMMARY.md. Intent review
   (blind to this plan, oracle = issue #99 verbatim + intake decisions): ✅ no divergence.
+- 2026-07-21 — shipped via `feat/min-68-ledger-early-exit` (full suite 1752 passed).
