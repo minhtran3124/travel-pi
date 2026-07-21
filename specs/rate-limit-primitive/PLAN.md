@@ -141,3 +141,11 @@ branch before executing.
 - 2026-07-21 — Plan drafted from `specs/user-feedback-v1/REVIEW.vi.md` gap #1. Scope decided: reusable
   DB-backed primitive, per-user enforcement now, per-IP deferred. Implementation not started;
   `/feature-intake` + branch required before executing (high-risk lane).
+- 2026-07-21 — Intake: high-risk / high-confidence (`SUMMARY.md`). Branch `feat/rate-limit-primitive`
+  off `v3`.
+- 2026-07-21 — Waves 1–3 shipped and green. Commits: 1.1+1.2 `847cc63`, 2.1 `1b9bae2`, 3.1 `7615bb4`.
+  Verify: alembic round-trip clean; 87 tests pass (rate-limit suite + error-envelope regression);
+  1790 tests collect with no import breakage.
+- 2026-07-21 — Task 4.1 **BLOCKED**: depends on `POST /agent/feedback` from `specs/user-feedback-v1`,
+  which is not yet implemented. Wire `Depends(rate_limit(...))` (or call `enforce_rate_limit()` with
+  the body-resolved anonymous subject) when that endpoint lands.

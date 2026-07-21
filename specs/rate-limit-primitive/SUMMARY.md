@@ -25,11 +25,19 @@ promises `429` but the repo has no rate-limit enforcement.
 
 ## What changed
 
-Intake + planning only. No runtime code or schema changed this turn. `PLAN.md` (5 tasks / 4 waves)
-was drafted for a reusable, DB-backed, per-effective-user rate-limit primitive (counter table +
-migration, `RateLimitError` 429, atomic window-increment repository, reusable `rate_limit(policy)`
-FastAPI dependency with a subject seam for future per-IP), applied to `POST /agent/feedback` first.
-Implementation is **not started** and requires an explicit go-ahead + branch.
+**Waves 1–3 implemented and green** on branch `feat/rate-limit-primitive`; **wave 4 deferred**
+(blocked on the `user-feedback-v1` feedback endpoint, which is not yet built).
+
+- Wave 1 (`847cc63`): `RateLimitCounter` model + reversible migration (`d2f4b6a8c0e1` →
+  `e1a2b3c4d5f6`), `RateLimitError(AppError, 429)` with `retry_after`, `feedback_rate_limit_*` settings.
+- Wave 2 (`1b9bae2`): `RateLimitRepository.hit()` — atomic `UPDATE count = count + 1`, race-safe
+  first-insert, elapsed-window prune, `RateLimitDecision(allowed/remaining/reset_at/retry_after)`.
+- Wave 3 (`7615bb4`): `enforce_rate_limit()` core callable + reusable `rate_limit()` FastAPI
+  dependency (subject seam for future per-IP), `errors.py` emits `Retry-After` for `RateLimitError`.
+
+Wave 4 (`Depends(rate_limit(...))` on `POST /agent/feedback`) is ready to wire once that endpoint
+exists — the primitive is endpoint-independent and the feedback route can also call
+`enforce_rate_limit()` directly with its body-resolved anonymous subject.
 
 ### Rationale
 
@@ -50,16 +58,27 @@ because a correct cross-worker per-IP limiter needs shared state the repo does n
 
 ### Deviations
 
-- none
+- Rule 2 — `errors.py` emits only `Retry-After` for `RateLimitError` (not real `X-RateLimit-*`
+  values as the plan's T3.1 wording suggested). The `_rate_limit_headers` middleware overwrites
+  `X-RateLimit-*` on every response, so setting them in the handler would be clobbered; `Retry-After`
+  is the actionable header and is untouched by that middleware. Commit `7615bb4`.
+- Rule 2 — Used module-level `Depends` aliases in `rate_limit.py` (not inline `Annotated`) because
+  Python 3.14 deferred annotations fail to resolve inline `Annotated[..., Depends(...)]` inside a
+  nested dependency function. Matches the repo's `SessionDep`/`OptionalUserDep` convention. Commit `7615bb4`.
+- Scope — Wave 4 not executed: it depends on the `POST /agent/feedback` endpoint from
+  `specs/user-feedback-v1`, which is unimplemented. Recorded as a blocker, not silently skipped.
 
 ### Verify
 
-<!-- No checks run yet — this turn is intake + planning only. The re-runnable checks below are
-     the per-task Verify commands defined in PLAN.md, to be executed during implementation. -->
-
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| Intake docs only — nothing executed | `n/a` | — | No runtime/schema change this turn; PLAN.md Verify rows are the pending gates |
+| Alembic round-trip | `DATABASE_URL=sqlite:///$tmp alembic upgrade head && alembic downgrade -1 && alembic upgrade head` | 0 | `d2f4b6a8c0e1` ↔ `e1a2b3c4d5f6` clean |
+| Wave 1 tests | `pytest tests/db/test_rate_limit_migration.py tests/core/test_rate_limit_config.py -q` | 0 | 8 passed |
+| Wave 2 tests | `pytest tests/db/test_rate_limit_repository.py -q` | 0 | 5 passed (limit boundary, window reset, subject/bucket isolation, prune) |
+| Wave 3 tests | `pytest tests/api/test_rate_limit_dependency.py -q` | 0 | 4 passed |
+| Error-envelope regression | `pytest tests/infra/test_errors.py + rate-limit suite -q` | 0 | 87 passed — errors.py change safe |
+| Full-suite import sanity | `pytest --co -q` | 0 | 1790 tests collected, no import breakage from new model |
+| tests/db full | `pytest tests/db -q` | 0 | 36 passed |
 
 ### Rollback
 
