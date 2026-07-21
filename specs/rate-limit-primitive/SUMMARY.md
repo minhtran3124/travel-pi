@@ -67,6 +67,15 @@ because a correct cross-worker per-IP limiter needs shared state the repo does n
   nested dependency function. Matches the repo's `SessionDep`/`OptionalUserDep` convention. Commit `7615bb4`.
 - Scope — Wave 4 not executed: it depends on the `POST /agent/feedback` endpoint from
   `specs/user-feedback-v1`, which is unimplemented. Recorded as a blocker, not silently skipped.
+- Rule 1 (post-review hardening, commit `71638a5`) — an adversarial correctness review confirmed the
+  core sound (window math, atomicity, rowcount) and found 4 defects, all fixed: (1) default subject
+  resolver now limits authenticated callers only — dropped the spoofable query `user_id` fallback that
+  enabled bypass + cross-user DoS; (2) the increment commits in its own transaction so erroring/blocked
+  requests are still counted (was tied to the request UoW → under-count); (3/4) prune keeps a one-window
+  grace margin so clock skew can't wipe the active window or trigger a `scalar_one` race.
+- Test quality — rate-limit repo/migration tests switched from hard-coded SQLite to the `tmp_db`
+  fixture, so `make test-docker` genuinely exercises them on Postgres (verified: 8 pass on the dev
+  Postgres). The dependency test stays isolated SQLite by design (HTTP behaviour is engine-agnostic).
 
 ### Verify
 
@@ -79,6 +88,8 @@ because a correct cross-worker per-IP limiter needs shared state the repo does n
 | Error-envelope regression | `pytest tests/infra/test_errors.py + rate-limit suite -q` | 0 | 87 passed — errors.py change safe |
 | Full-suite import sanity | `pytest --co -q` | 0 | 1790 tests collected, no import breakage from new model |
 | tests/db full | `pytest tests/db -q` | 0 | 36 passed |
+| Post-fix all-engines | `pytest <rate-limit suite> -q` | 0 | 19 passed on SQLite (incl. review-fix tests) |
+| Postgres parity | `TEST_DATABASE_URL=…5433 pytest test_rate_limit_repository.py test_rate_limit_migration.py -q` | 0 | 8 passed on real Postgres (atomic increment + unique constraint) |
 
 ### Rollback
 
