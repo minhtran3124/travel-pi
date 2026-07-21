@@ -15,8 +15,10 @@ graph) can detect the change and rebuild.
 """
 
 import logging
+import threading
 import time
 from dataclasses import dataclass
+from typing import ClassVar
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,15 @@ class AgentConfigCache:
     _known_updated_at: str | None = None
     _poll_interval_seconds: float = _DEFAULT_POLL_INTERVAL_SECONDS
     _session_factory = None
+    # FastAPI's GraphDep (app/routers/agent.py) is a sync dependency, so
+    # FastAPI runs it via run_in_threadpool on a real OS thread per request —
+    # concurrent _maybe_refresh() calls across threads are the normal case
+    # under load, not an edge case. This lock serializes only the
+    # actual-refresh path (poll -> conditional reload -> known-version
+    # update) inside _maybe_refresh; the interval-check early-return stays
+    # lock-free so the hot path ("not due yet") costs nothing. Permanent
+    # class attribute — clear() does not need to reset it.
+    _refresh_lock: ClassVar[threading.Lock] = threading.Lock()
 
     @classmethod
     def configure(cls, session_factory, poll_interval_seconds: float) -> None:
@@ -115,21 +126,27 @@ class AgentConfigCache:
             return
         # Stamp first so a slow poll doesn't let concurrent readers stampede.
         cls._loaded_at = time.monotonic()
-        try:
-            latest = max_updated_at(cls._session_factory)
-        except Exception as exc:  # noqa: BLE001 - fail open on any DB error
-            logger.error(f"[AgentConfigCache] poll failed, serving stale cache: {exc}")
-            return
-        if latest == cls._known_updated_at:
-            return
-        try:
-            reload_from_db(cls._session_factory)
-        except Exception as exc:  # noqa: BLE001 - fail open on any DB error
-            logger.error(
-                f"[AgentConfigCache] reload failed, serving stale cache: {exc}"
-            )
-            return
-        cls._known_updated_at = latest
+        # Serialize the actual refresh: GraphDep runs this on a threadpool
+        # worker per request, so racing threads could otherwise interleave a
+        # slower thread's stale reload over a faster thread's fresher one.
+        with cls._refresh_lock:
+            try:
+                latest = max_updated_at(cls._session_factory)
+            except Exception as exc:  # noqa: BLE001 - fail open on any DB error
+                logger.error(
+                    f"[AgentConfigCache] poll failed, serving stale cache: {exc}"
+                )
+                return
+            if latest == cls._known_updated_at:
+                return
+            try:
+                reload_from_db(cls._session_factory)
+            except Exception as exc:  # noqa: BLE001 - fail open on any DB error
+                logger.error(
+                    f"[AgentConfigCache] reload failed, serving stale cache: {exc}"
+                )
+                return
+            cls._known_updated_at = latest
 
     @classmethod
     def clear(cls) -> None:

@@ -199,6 +199,7 @@ def test_reload_failure_keeps_serving_stale_cache(monkeypatch):
     result = AgentConfigCache.get("concierge")  # must not raise
 
     assert result == AgentModelOverride(provider="openai")  # stale value still served
+    assert AgentConfigCache._known_updated_at == "2026-07-21T00:00:00+00:00"
 
 
 def test_cache_detects_a_write_made_without_invalidate(tmp_path):
