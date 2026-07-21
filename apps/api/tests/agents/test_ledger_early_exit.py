@@ -61,16 +61,12 @@ def test_load_context_resets_awaiting_user():
 
 _CLARIFY_CALL = {
     "content": "",
-    "tool_calls": [
-        {"name": "needs_clarification", "args": {}, "id": "call-clarify-1"}
-    ],
+    "tool_calls": [{"name": "needs_clarification", "args": {}, "id": "call-clarify-1"}],
 }
 
 
 def _build(structured_responses, main_responses, fast_responses):
-    main = FakeLLM(
-        structured_responses=structured_responses, responses=main_responses
-    )
+    main = FakeLLM(structured_responses=structured_responses, responses=main_responses)
     fast = FakeLLM(responses=fast_responses)
     return build_graph(
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
@@ -134,3 +130,32 @@ def test_awaiting_user_is_single_turn():
     contents = [str(m.content) for m in out2["messages"]]
     assert "flights found" in contents
     assert "weather is clear" in contents  # fresh ledger drained
+
+
+def test_duplicate_clarification_calls_do_not_crash():
+    # A zero-arg tool invites duplicate parallel tool calls; two Commands
+    # writing awaiting_user in one superstep must not InvalidUpdateError
+    # (last-write-wins reducer, MIN-68).
+    double_call = {
+        "content": "",
+        "tool_calls": [
+            {"name": "needs_clarification", "args": {}, "id": "call-dup-1"},
+            {"name": "needs_clarification", "args": {}, "id": "call-dup-2"},
+        ],
+    }
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
+        ],
+        main_responses=[
+            double_call,
+            "Which exact date do you want to depart?",
+            "NEVER-RUN concierge answer",
+        ],
+        fast_responses=["OK"],
+    )
+    out = _invoke(graph, "plan a trip end of this month", "t-dup-clarify")
+
+    assert out["awaiting_user"] is True
+    assert out["pending_flows"] == []
+    assert not any("NEVER-RUN" in str(m.content) for m in out["messages"])

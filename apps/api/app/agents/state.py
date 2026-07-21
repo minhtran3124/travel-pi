@@ -35,6 +35,22 @@ def merge_trip_facts(old: dict | None, new: dict | None) -> dict:
     return merged
 
 
+def last_write_wins(old: bool, new: bool) -> bool:
+    """Reducer for ``TravelAgentState.awaiting_user`` (MIN-68).
+
+    Duplicate parallel writes in one superstep (e.g. the model emitting the
+    zero-arg ``needs_clarification`` tool call twice in one message) must not
+    crash the turn with ``InvalidUpdateError`` — the last write simply wins.
+    Deliberately NOT a sticky ``or``: ``load_context_node``'s per-turn
+    ``False`` reset must always take effect.
+
+    :param old: The current channel value (unused).
+    :param new: The incoming update.
+    :return: ``new``.
+    """
+    return new
+
+
 class TravelAgentState(MessagesState):
     """Conversation + working state for the travel agent.
 
@@ -65,9 +81,12 @@ class TravelAgentState(MessagesState):
         str
     ]  # ordered ledger of follow-on sub-agents queued for this turn (P1);
     # drained in order by dispatch_next, never contains "booking" (MIN-65 D4)
-    awaiting_user: bool  # set by the needs_clarification tool when a sub-agent is
+    awaiting_user: Annotated[
+        bool, last_write_wins
+    ]  # set by the needs_clarification tool when a sub-agent is
     # blocked on the traveller; dispatch_next then abandons the remaining
-    # ledger for this turn instead of draining it (MIN-68)
+    # ledger for this turn instead of draining it (MIN-68); reducer: duplicate
+    # parallel writes must not crash the turn
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
