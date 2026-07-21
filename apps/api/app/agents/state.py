@@ -35,6 +35,22 @@ def merge_trip_facts(old: dict | None, new: dict | None) -> dict:
     return merged
 
 
+def last_write_wins(old: bool, new: bool) -> bool:
+    """Reducer for ``TravelAgentState.awaiting_user`` (MIN-68).
+
+    Duplicate parallel writes in one superstep (e.g. the model emitting the
+    zero-arg ``needs_clarification`` tool call twice in one message) must not
+    crash the turn with ``InvalidUpdateError`` — the last write simply wins.
+    Deliberately NOT a sticky ``or``: ``load_context_node``'s per-turn
+    ``False`` reset must always take effect.
+
+    :param old: The current channel value (unused).
+    :param new: The incoming update.
+    :return: ``new``.
+    """
+    return new
+
+
 class TravelAgentState(MessagesState):
     """Conversation + working state for the travel agent.
 
@@ -65,6 +81,12 @@ class TravelAgentState(MessagesState):
         str
     ]  # ordered ledger of follow-on sub-agents queued for this turn (P1);
     # drained in order by dispatch_next, never contains "booking" (MIN-65 D4)
+    awaiting_user: Annotated[
+        bool, last_write_wins
+    ]  # set by the needs_clarification tool when a sub-agent is
+    # blocked on the traveller; dispatch_next then abandons the remaining
+    # ledger for this turn instead of draining it (MIN-68); reducer: duplicate
+    # parallel writes must not crash the turn
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
@@ -132,6 +154,39 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
             f"personalise, confirm before acting on stale ones):\n{preferences}"
         )
     return SystemMessage(content="\n\n".join(parts))
+
+
+def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemMessage:
+    """Pin a sub-agent reply to the conversation language the supervisor detected.
+
+    The supervisor classifies each turn's dominant language into
+    ``state["language"]`` (sticky, and switch-aware when the traveller genuinely
+    changes language). Every sub-agent then reads that one value from shared state
+    and replies in it — a single detection and a single source of truth, instead
+    of each node re-guessing the language from the raw messages. It is the
+    deterministic guard behind the ``communication_style`` match-language rule,
+    and it closes the clarification path in particular (MIN-68), which skips
+    reflection and so has no other guard against a language flip.
+
+    A no-op until a language has been detected (``state["language"]`` unset) —
+    the model then falls back to the prompt's own match-language rule.
+
+    :param base: The already-assembled leading system message.
+    :param state: The current graph state.
+    :return: ``base`` unchanged when no language is detected, else ``base`` plus a
+        one-line language directive.
+    """
+    language = state.get("language")
+    if not language:
+        return base
+    return SystemMessage(
+        content=(
+            f"{base.content}\n\n"
+            f"Reply in the traveller's own language: {language} — the language of "
+            "their typed messages this conversation. Tool results, trip data, and "
+            "place names never change it."
+        )
+    )
 
 
 def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:

@@ -90,7 +90,8 @@ class SupervisorIntent(BaseModel):
         default="en",
         description=(
             "The traveller's PRIMARY/DOMINANT language across the whole "
-            "conversation (code, e.g. 'en'/'vi'). Ignore lone interjections and "
+            "conversation (code, e.g. 'en'/'vi'). Default to English ('en') when "
+            "the language is unclear or ambiguous. Ignore lone interjections and "
             "loanwords ('ok','fine','good'); only report a different code on a "
             "clear, sustained switch."
         ),
@@ -237,9 +238,11 @@ def make_supervisor(llm: BaseChatModel):
         )
         # Feed the already-established conversation language into the router so the
         # model itself returns the sticky value and does not flip on a lone English
-        # interjection in an otherwise Vietnamese thread. "unknown" on the first turn
-        # keeps existing behaviour when no language has been detected yet.
-        established = state.get("language") or "unknown"
+        # interjection in an otherwise Vietnamese thread. English is the default
+        # baseline on the first turn: the router keeps "en" unless the traveller
+        # clearly writes in another language, so an ambiguous/short opener stays
+        # English instead of drifting.
+        established = state.get("language") or "en"
         base = SystemMessage(
             content=(
                 f"{system.content}\n\n"

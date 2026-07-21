@@ -35,8 +35,10 @@ from app.agents.state import (
     TravelAgentState,
     ground_current_date,
     system_with_summary,
+    with_reply_language,
 )
 from app.prompts.registry import registry
+from app.tools.clarification_tools import needs_clarification
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +92,11 @@ def build_subagent(
         communication-style guideline.
     :return: The compiled ReAct subgraph for this sub-agent.
     """
+    # MIN-68: every specialist can signal "blocked on the traveller" so
+    # dispatch_next abandons the remaining ledger instead of draining it.
+    # Appended here (not in the tool registry) so it stays off MCP/manifest.
+    tools = [*tools, needs_clarification]
+
     style = registry.get("communication_style")
     system = SystemMessage(content=f"{style}\n\n{prompt}")
 
@@ -107,12 +114,12 @@ def build_subagent(
         bound = model.bind_tools(active_tools) if active_tools else model
 
         tz = ctx.timezone if ctx is not None else None
-        response = bound.invoke(
-            [
-                system_with_summary(state, ground_current_date(system, tz)),
-                *state["messages"],
-            ]
-        )
+        system_msg = system_with_summary(state, ground_current_date(system, tz))
+        # Every sub-agent replies in the supervisor-detected conversation language
+        # (state["language"]) — one detection, one source of truth. Also closes the
+        # clarification path (MIN-68), which skips reflection's language guard.
+        system_msg = with_reply_language(system_msg, state)
+        response = bound.invoke([system_msg, *state["messages"]])
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
             logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))

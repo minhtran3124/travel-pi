@@ -3,6 +3,20 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## ledger-early-exit — signal "blocked on the traveller" instead of draining the plan
+
+specs/min-68-ledger-early-exit (MIN-68 / #99): when a queued multi-step plan hits a
+specialist that needs a clarifying answer, the remaining steps used to run anyway and
+produce output the traveller never sees. Sub-agents now carry a `needs_clarification`
+tool (control-flow, not registry/MCP-exposed) that sets `awaiting_user`, making
+`dispatch_next` abandon the rest of the ledger; the next turn re-plans.
+
+- **communication_style v7** — appended a `## Blocked on the Traveller` section telling
+  every specialist to call `needs_clarification` once when only the traveller can
+  unblock them, and never for tool failures. Everything else unchanged from v6.
+
+`active.yaml`: communication_style → 7. Others unchanged.
+
 ## flight-fare-no-fabrication — forbid derived prices, not just invented ones
 
 specs/flight-fare-no-fabrication (MIN-67 / #98): the agent searched one leg and told the

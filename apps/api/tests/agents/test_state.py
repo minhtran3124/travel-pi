@@ -133,17 +133,19 @@ def test_load_context_node_no_trip_id_resets_plan_approved():
 
     load_context runs at the start of every fresh turn and always clears the
     HITL plan-approval flag so outcome="approved" stays scoped to the approving
-    turn (issue #63).
+    turn (issue #63), and likewise clears awaiting_user (MIN-68).
     """
     from types import SimpleNamespace
 
     from app.agents.nodes import load_context_node
 
     assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {
-        "plan_approved": False
+        "plan_approved": False,
+        "awaiting_user": False,
     }
     assert load_context_node({"messages": []}, SimpleNamespace()) == {
-        "plan_approved": False
+        "plan_approved": False,
+        "awaiting_user": False,
     }
 
 
@@ -247,6 +249,53 @@ def test_subagent_receives_summary_in_system_prompt():
     system_msg = captured["messages"][0]
     assert "base system" in system_msg.content
     assert "vegetarian" in system_msg.content
+
+
+def test_subagent_reply_pinned_to_detected_language():
+    """The supervisor-detected state['language'] reaches the sub-agent's system
+    prompt so it replies in the traveller's language (MIN-68 follow-up)."""
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+
+    captured: dict = {}
+
+    class CapturingLLM(FakeLLM):
+        def _generate(self, messages, *args, **kwargs):
+            captured["messages"] = messages
+            return super()._generate(messages, *args, **kwargs)
+
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
+    agent.invoke(
+        {
+            "messages": [HumanMessage(content="Find me a flight")],
+            "language": "en",
+        }
+    )
+    system_msg = captured["messages"][0]
+    assert "base system" in system_msg.content
+    assert "Reply in the traveller's own language: en" in system_msg.content
+
+
+def test_subagent_no_language_directive_when_undetected():
+    """No language pin before the supervisor has detected one — the prompt's own
+    match-language rule takes over."""
+    from app.agents.subagents._base import build_subagent
+    from app.clients.llm import FakeLLM
+
+    captured: dict = {}
+
+    class CapturingLLM(FakeLLM):
+        def _generate(self, messages, *args, **kwargs):
+            captured["messages"] = messages
+            return super()._generate(messages, *args, **kwargs)
+
+    capturing = CapturingLLM(responses=["ok"])
+    agent = build_subagent("plain", [], lambda _: capturing, "base system")
+    agent.invoke({"messages": [HumanMessage(content="Find me a flight")]})
+
+    system_msg = captured["messages"][0]
+    assert "Reply in the traveller's own language" not in system_msg.content
 
 
 def test_ground_current_date_uses_timezone():

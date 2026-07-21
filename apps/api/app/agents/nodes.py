@@ -68,7 +68,9 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # does NOT re-enter load_context, so the approving turn keeps plan_approved=True;
     # background memory extraction reads the flag from that turn's final-state
     # snapshot before the *next* turn's load_context clears it.
-    result: dict = {"plan_approved": False}
+    # awaiting_user is likewise single-turn (MIN-68): a clarifying question asked
+    # last turn must not abandon THIS turn's fresh ledger.
+    result: dict = {"plan_approved": False, "awaiting_user": False}
     trip_id = state.get("trip_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
     if trip_id:
@@ -166,6 +168,15 @@ def make_reflection_node(
     system = SystemMessage(content=registry.get("reflection"))
 
     def reflection(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
+        # MIN-68 / #99: a turn blocked on the traveller ends with a clarifying
+        # question — a necessarily "incomplete" answer the reviewer would flag
+        # REVISE, re-running the sub-agent to answer WITHOUT the missing detail
+        # (and, on the REST path, dropping the question for that guess). Such a
+        # turn is terminal and not reviewable; end it here, before the judge call.
+        if state.get("awaiting_user"):
+            logger.info("[agent] reflection → END (awaiting traveller; not reviewable)")
+            return Command(goto=END)
+
         ctx = runtime.context if runtime.context is not None else None
         allow_reflection = ctx.allow_reflection if ctx is not None else True
         effective_max = ctx.max_revisions if ctx is not None else max_revisions
@@ -242,11 +253,26 @@ def dispatch_next(state: TravelAgentState) -> Command:
     sees the previous ones' messages in state, so it naturally continues the
     thread (e.g. "the flight picked above").
 
+    When ``awaiting_user`` is set (a sub-agent called the ``needs_clarification``
+    tool), the remaining queue is abandoned and the turn goes straight to
+    reflection (MIN-68).
+
     :param state: The current graph state; reads ``pending_flows``.
     :return: A ``Command`` routing to the next queued sub-agent (draining the
         queue and updating ``current_flow``), or to ``reflection`` once empty.
     """
     pending = state.get("pending_flows") or []
+    # MIN-68: a sub-agent that called needs_clarification is blocked on the
+    # traveller — running the queued follow-ons would spend LLM/tool calls on
+    # output the traveller never sees (the reply is the clarifying question).
+    # Abandon the rest of the plan; next turn re-plans with the answer.
+    if state.get("awaiting_user"):
+        logger.info(
+            "[agent] dispatch_next → reflection (awaiting traveller; "
+            "abandoning %d queued step(s))",
+            len(pending),
+        )
+        return Command(update={"pending_flows": []}, goto="reflection")
     if pending:
         nxt, rest = pending[0], pending[1:]
         # Fail safe rather than trusting the caller: the supervisor is the
