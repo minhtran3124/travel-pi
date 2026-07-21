@@ -5,10 +5,11 @@ Two entry points over :class:`~app.repositories.rate_limit.RateLimitRepository`:
 - :func:`enforce_rate_limit` — the core callable. Resolve the effective subject
   yourself, then call it (used where the subject comes from a request body, e.g.
   the feedback endpoint's anonymous id).
-- :func:`rate_limit` — a FastAPI dependency factory sugar over the callable, with
-  a default subject resolver (JWT subject, else a ``user_id`` query param). The
-  resolver is a seam: pass a custom one, or supply an IP-based resolver once a
-  shared cross-worker store exists (deferred per-IP hardening).
+- :func:`rate_limit` — a FastAPI dependency factory sugar over the callable. Its
+  default subject resolver limits AUTHENTICATED callers only (anonymous → skipped,
+  never trusted via a spoofable query/body id). The resolver is a seam: pass a
+  custom one, or an IP-based resolver once a shared cross-worker store exists
+  (deferred per-IP hardening).
 
 Enforcement is per effective user; per-IP/device is intentionally out of scope.
 """
@@ -48,6 +49,15 @@ def _default_subject(request: Request, auth_user: AuthUser | None) -> str | None
     return auth_user.id if auth_user is not None else None
 
 
+def _validate_policy(name: str, limit: int, window_seconds: int) -> None:
+    """Reject a misconfigured policy early (a 0 window would ZeroDivisionError)."""
+    if limit <= 0 or window_seconds <= 0:
+        raise ValueError(
+            f"rate limit policy '{name}' requires positive limit and window; "
+            f"got limit={limit}, window_seconds={window_seconds}"
+        )
+
+
 def enforce_rate_limit(
     session: Session,
     *,
@@ -67,11 +77,7 @@ def enforce_rate_limit(
     :param now_epoch: Override the clock (tests); defaults to ``time.time()``.
     :return: The :class:`RateLimitDecision` when allowed.
     """
-    if limit <= 0 or window_seconds <= 0:
-        raise ValueError(
-            f"rate limit policy '{name}' requires positive limit and window; "
-            f"got limit={limit}, window_seconds={window_seconds}"
-        )
+    _validate_policy(name, limit, window_seconds)
     if now_epoch is None:
         now_epoch = int(time.time())
     # Commit the increment in its OWN transaction on the same engine, not the
@@ -110,11 +116,7 @@ def rate_limit(
     """
     # Fail at wiring/startup, not per-request, on a misconfigured policy
     # (e.g. an env override setting the window to 0 → ZeroDivisionError).
-    if limit <= 0 or window_seconds <= 0:
-        raise ValueError(
-            f"rate limit policy '{name}' requires positive limit and window; "
-            f"got limit={limit}, window_seconds={window_seconds}"
-        )
+    _validate_policy(name, limit, window_seconds)
 
     def dependency(
         request: Request,

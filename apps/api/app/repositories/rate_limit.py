@@ -60,13 +60,17 @@ class RateLimitRepository(Repo):
         window_start = now_epoch - (now_epoch % window_seconds)
         reset_at = window_start + window_seconds
         with self._session() as s:
-            # Bound table growth: drop rows at least one full window in the past.
-            # The grace margin (not just ``< window_start``) means inter-worker
-            # clock skew cannot wipe a subject's still-active current-window row,
-            # so the increment below always finds/creates the row it expects.
+            # Bound table growth: drop THIS bucket's rows that are at least one
+            # full window in the past. Scoped to ``bucket`` — policies share this
+            # table with different window lengths, so a short-window policy must
+            # never prune another policy's longer, still-active window. The
+            # one-window grace margin also means inter-worker clock skew cannot
+            # wipe the active current-window row the increment below expects.
             s.execute(
                 delete(models.RateLimitCounter).where(
-                    models.RateLimitCounter.window_start < window_start - window_seconds
+                    models.RateLimitCounter.bucket == bucket,
+                    models.RateLimitCounter.window_start
+                    < window_start - window_seconds,
                 )
             )
             count = self._increment(s, bucket, subject, window_start)
@@ -115,8 +119,14 @@ class RateLimitRepository(Repo):
             return 1
         except IntegrityError:
             # A concurrent worker inserted the row first; increment it now.
-            s.execute(upd)
-            return self._read_count(s, bucket, subject, window_start)
+            result = s.execute(upd)
+            if result.rowcount and result.rowcount > 0:
+                return self._read_count(s, bucket, subject, window_start)
+            # Defensive: the row vanished between the failed insert and this
+            # update. The bucket-scoped grace-margin prune never touches the
+            # current window, so this is effectively unreachable — but treat it
+            # as a fresh first hit rather than raising NoResultFound (HTTP 500).
+            return 1
 
     def _read_count(
         self, s: Session, bucket: str, subject: str, window_start: int

@@ -69,6 +69,32 @@ def test_buckets_are_independent(repo):
     assert _hit(repo, bucket="chat").allowed is True
 
 
+def test_prune_does_not_wipe_a_different_bucket_active_window(repo):
+    # Reusable across policies with DIFFERENT window lengths: a short-window
+    # policy's prune must not delete a long-window policy's still-active row.
+    # chat window=3600 at now=10000 -> window_start 7200, active until 10800.
+    repo.hit(
+        bucket="chat", subject="u1", now_epoch=10000, limit=100, window_seconds=3600
+    )
+    # feedback window=60 at now=10001 -> its prune cutoff is 9900; the chat row
+    # (7200 < 9900) would be wiped by an UNSCOPED prune.
+    repo.hit(
+        bucket="feedback", subject="u1", now_epoch=10001, limit=3, window_seconds=60
+    )
+    # Second chat hit lands in the SAME chat window; it must see count=2, proving
+    # the feedback prune left the chat counter intact (buggy prune -> count=1).
+    d = repo.hit(
+        bucket="chat", subject="u1", now_epoch=10002, limit=100, window_seconds=3600
+    )
+    assert d.remaining == 100 - 2
+    with repo._session() as s:
+        chat_windows = {
+            r.window_start
+            for r in s.query(RateLimitCounter).filter_by(bucket="chat").all()
+        }
+    assert chat_windows == {7200}
+
+
 def test_expired_windows_are_pruned(repo):
     # Fill an old window.
     for _ in range(LIMIT):
