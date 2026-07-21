@@ -11,7 +11,7 @@ window inserts the row race-safely via the ``begin_nested()`` savepoint +
 
 from dataclasses import dataclass
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -60,20 +60,26 @@ class RateLimitRepository(Repo):
         window_start = now_epoch - (now_epoch % window_seconds)
         reset_at = window_start + window_seconds
         with self._session() as s:
-            # Bound table growth: drop THIS bucket's rows that are at least one
-            # full window in the past. Scoped to ``bucket`` — policies share this
-            # table with different window lengths, so a short-window policy must
-            # never prune another policy's longer, still-active window. The
-            # one-window grace margin also means inter-worker clock skew cannot
-            # wipe the active current-window row the increment below expects.
-            s.execute(
-                delete(models.RateLimitCounter).where(
-                    models.RateLimitCounter.bucket == bucket,
-                    models.RateLimitCounter.window_start
-                    < window_start - window_seconds,
+            # The limiter runs in its own connection (see app.core.rate_limit).
+            # On SQLite, make a concurrent writer wait for the lock rather than
+            # raise "database is locked"; no-op on Postgres.
+            if s.get_bind().dialect.name == "sqlite":
+                s.execute(text("PRAGMA busy_timeout = 5000"))
+            count, inserted = self._increment(s, bucket, subject, window_start)
+            if inserted:
+                # Prune only when a NEW window is created — not on every hit — so
+                # the cleanup DELETE stays off the hot update path. Scoped to THIS
+                # bucket with a one-window grace margin (never the active current
+                # window), so a short-window policy cannot wipe another policy's
+                # still-active longer window, and clock skew cannot wipe the
+                # current window either.
+                s.execute(
+                    delete(models.RateLimitCounter).where(
+                        models.RateLimitCounter.bucket == bucket,
+                        models.RateLimitCounter.window_start
+                        < window_start - window_seconds,
+                    )
                 )
-            )
-            count = self._increment(s, bucket, subject, window_start)
             self._commit(s)
         allowed = count <= limit
         remaining = max(0, limit - count)
@@ -87,8 +93,12 @@ class RateLimitRepository(Repo):
 
     def _increment(
         self, s: Session, bucket: str, subject: str, window_start: int
-    ) -> int:
-        """Atomically add 1 to the window's counter, returning the new count."""
+    ) -> tuple[int, bool]:
+        """Atomically add 1 to the window's counter.
+
+        :return: ``(new_count, inserted)`` — ``inserted`` is True only when this
+            call created the window's row (used to gate the opportunistic prune).
+        """
         upd = (
             update(models.RateLimitCounter)
             .where(
@@ -103,7 +113,7 @@ class RateLimitRepository(Repo):
         )
         result = s.execute(upd)
         if result.rowcount and result.rowcount > 0:
-            return self._read_count(s, bucket, subject, window_start)
+            return self._read_count(s, bucket, subject, window_start), False
         # No existing row for this window — insert the first hit race-safely.
         try:
             with s.begin_nested():
@@ -116,17 +126,17 @@ class RateLimitRepository(Repo):
                     )
                 )
                 s.flush()
-            return 1
+            return 1, True
         except IntegrityError:
             # A concurrent worker inserted the row first; increment it now.
             result = s.execute(upd)
             if result.rowcount and result.rowcount > 0:
-                return self._read_count(s, bucket, subject, window_start)
+                return self._read_count(s, bucket, subject, window_start), False
             # Defensive: the row vanished between the failed insert and this
             # update. The bucket-scoped grace-margin prune never touches the
             # current window, so this is effectively unreachable — but treat it
             # as a fresh first hit rather than raising NoResultFound (HTTP 500).
-            return 1
+            return 1, False
 
     def _read_count(
         self, s: Session, bucket: str, subject: str, window_start: int

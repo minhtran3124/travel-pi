@@ -16,9 +16,11 @@ Enforcement is per effective user; per-IP/device is intentionally out of scope.
 
 import time
 from collections.abc import Callable
+from functools import cache
 from typing import Annotated
 
 from fastapi import Depends, Request
+from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.auth import AuthUser, get_current_user_optional
@@ -58,6 +60,16 @@ def _validate_policy(name: str, limit: int, window_seconds: int) -> None:
         )
 
 
+@cache
+def _independent_factory(engine: Engine) -> sessionmaker[Session]:
+    """Cache one sessionmaker per engine (built once, not per request).
+
+    The engine comes from the request session's bind (itself process-cached per
+    URL), so this keys on identity and stays a small, bounded cache.
+    """
+    return sessionmaker(bind=engine, expire_on_commit=False, future=True)
+
+
 def enforce_rate_limit(
     session: Session,
     *,
@@ -86,7 +98,7 @@ def enforce_rate_limit(
     # the repo an own-session + own-commit; the caller's session only supplies
     # the engine bind, so this still targets the request's database (and the
     # test's isolated DB).
-    factory = sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
+    factory = _independent_factory(session.get_bind())
     decision = RateLimitRepository(factory).hit(
         bucket=name,
         subject=subject,
