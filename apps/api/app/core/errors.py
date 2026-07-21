@@ -82,11 +82,18 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
         extra: dict[str, object] = {}
         if exc.hint:
             extra["hint"] = exc.hint
+        # RateLimitError carries a retry_after; surface it as the Retry-After
+        # header so clients back off correctly. Other errors set no headers.
+        headers: dict[str, str] | None = None
+        retry_after = getattr(exc, "retry_after", None)
+        if retry_after is not None:
+            headers = {"Retry-After": str(retry_after)}
         return JSONResponse(
             status_code=exc.status_code,
             content=_error_body(
                 type(exc).__name__, exc.detail, exc.status_code, request, **extra
             ),
+            headers=headers,
         )
 
     @app.exception_handler(StarletteHTTPException)
