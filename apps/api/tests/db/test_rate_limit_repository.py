@@ -2,7 +2,7 @@
 
 import pytest
 from app.db.base import Base
-from app.db.engine import get_session_factory
+from app.db.engine import get_engine, get_session_factory
 from app.db.models import RateLimitCounter
 from app.repositories.rate_limit import RateLimitRepository
 
@@ -11,10 +11,14 @@ LIMIT = 3
 
 
 @pytest.fixture
-def repo(tmp_path):
-    url = f"sqlite:///{tmp_path / 'rl.db'}"
-    factory = get_session_factory(url)
-    Base.metadata.create_all(bind=factory().get_bind())
+def repo(tmp_db):
+    # Cross-engine: Postgres under TEST_DATABASE_URL, else temp SQLite. Clean the
+    # shared table so each test starts empty on the Postgres path.
+    factory = get_session_factory(tmp_db)
+    Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
+    with factory() as s:
+        s.query(RateLimitCounter).delete()
+        s.commit()
     return RateLimitRepository(factory)
 
 

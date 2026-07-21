@@ -60,10 +60,13 @@ class RateLimitRepository(Repo):
         window_start = now_epoch - (now_epoch % window_seconds)
         reset_at = window_start + window_seconds
         with self._session() as s:
-            # Bound table growth: drop rows from windows that have fully elapsed.
+            # Bound table growth: drop rows at least one full window in the past.
+            # The grace margin (not just ``< window_start``) means inter-worker
+            # clock skew cannot wipe a subject's still-active current-window row,
+            # so the increment below always finds/creates the row it expects.
             s.execute(
                 delete(models.RateLimitCounter).where(
-                    models.RateLimitCounter.window_start < window_start
+                    models.RateLimitCounter.window_start < window_start - window_seconds
                 )
             )
             count = self._increment(s, bucket, subject, window_start)

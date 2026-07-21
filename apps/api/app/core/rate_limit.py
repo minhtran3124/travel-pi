@@ -18,7 +18,7 @@ from collections.abc import Callable
 from typing import Annotated
 
 from fastapi import Depends, Request
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.auth import AuthUser, get_current_user_optional
 from app.db.session import get_session
@@ -35,14 +35,17 @@ _OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)
 
 
 def _default_subject(request: Request, auth_user: AuthUser | None) -> str | None:
-    """JWT subject when authenticated, else the ``user_id`` query fallback.
+    """Authenticated callers only; anonymous → ``None`` (limit skipped).
 
-    Mirrors the agent endpoints' identity precedence: a valid token wins and a
-    client-supplied id is only a fallback for anonymous callers.
+    Deliberately does NOT fall back to a client-supplied id (query/body): such an
+    id is spoofable and shares the authenticated id space, so trusting it would
+    let an anonymous caller both evade the limit (rotate ids) and exhaust another
+    user's counter by sending their id (cross-user DoS). Anonymous limiting needs
+    a stable, non-spoofable key (per-IP/device) — deferred — so endpoints with
+    anonymous principals must pass an explicit ``subject`` resolver that namespaces
+    the actor (e.g. feedback's body-resolved effective actor under an ``anon:`` key).
     """
-    if auth_user is not None:
-        return auth_user.id
-    return request.query_params.get("user_id")
+    return auth_user.id if auth_user is not None else None
 
 
 def enforce_rate_limit(
@@ -66,7 +69,14 @@ def enforce_rate_limit(
     """
     if now_epoch is None:
         now_epoch = int(time.time())
-    decision = RateLimitRepository(session).hit(
+    # Commit the increment in its OWN transaction on the same engine, not the
+    # caller's unit of work: an abuse limiter must count a request even when the
+    # request later rolls back (a 4xx/5xx after this check). Factory mode gives
+    # the repo an own-session + own-commit; the caller's session only supplies
+    # the engine bind, so this still targets the request's database (and the
+    # test's isolated DB).
+    factory = sessionmaker(bind=session.get_bind(), expire_on_commit=False, future=True)
+    decision = RateLimitRepository(factory).hit(
         bucket=name,
         subject=subject,
         now_epoch=now_epoch,

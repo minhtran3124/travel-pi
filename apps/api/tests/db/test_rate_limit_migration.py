@@ -7,17 +7,28 @@ that both the migration and ``create_all`` must produce, on a throwaway engine.
 
 import pytest
 from app.db.base import Base
-from app.db.engine import get_session_factory
+from app.db.engine import get_engine, get_session_factory
 from app.db.models import RateLimitCounter
 from sqlalchemy.exc import IntegrityError
 
 
 @pytest.fixture
-def session(tmp_path):
-    url = f"sqlite:///{tmp_path / 'rl.db'}"
-    factory = get_session_factory(url)
-    Base.metadata.create_all(bind=factory().get_bind())
-    return factory()
+def session(tmp_db):
+    # tmp_db resolves to Postgres under TEST_DATABASE_URL (make test-docker),
+    # else a temp SQLite file — so this exercises cross-engine parity. Clean the
+    # (shared) table for isolation on the Postgres path.
+    factory = get_session_factory(tmp_db)
+    Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
+    with factory() as s:
+        s.query(RateLimitCounter).delete()
+        s.commit()
+    s = factory()
+    try:
+        yield s
+    finally:
+        # Close so the SQLite file connection does not hold a lock into the
+        # next test (a leaked open session breaks the shared-file path).
+        s.close()
 
 
 def test_table_registered_with_expected_columns():
