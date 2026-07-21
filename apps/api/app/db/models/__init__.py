@@ -18,6 +18,7 @@ from app.db.models.hotel import Hotel
 from app.db.models.job import Job
 from app.db.models.message import Message
 from app.db.models.place import Place
+from app.db.models.rate_limit_counter import RateLimitCounter
 from app.db.models.saved_place import SavedPlace
 from app.db.models.tip import CountrySummary, Tip
 from app.db.models.trip import Trip, TripItem, TripPlaceLink
@@ -42,6 +43,7 @@ __all__ = [
     "City",
     "Hotel",
     "Place",
+    "RateLimitCounter",
     "Tip",
     "CountrySummary",
     "Visa",
