@@ -33,11 +33,16 @@ class AgentConfigRepository(Repo):
         """Return the most recent ``updated_at`` across every row, or ``None`` if empty.
 
         Cheap cross-process freshness probe (GH-106): a single scalar, not a
-        full ``list_all()`` reload. ``updated_at`` is an ISO-8601 string
-        (``TimestampMixin``), so ``MAX()`` sorts correctly as text on both
-        SQLite and Postgres.
+        full ``list_all()`` reload. ``updated_at`` is written by
+        ``TimestampMixin`` via ``_utc_now_iso()`` (``datetime.now(timezone.utc)
+        .isoformat()``).
 
-        :return: The lexicographically greatest ``updated_at``, or ``None``.
+        :return: The lexicographically greatest ``updated_at``. ``None`` if the
+            table is empty. Ordering is correct even though ``isoformat()`` omits
+            the fractional-seconds component when ``microsecond == 0`` (varying
+            string length) — the timezone offset always follows immediately, and
+            ``'+'``/``'-'`` sort before ``'.'`` in ASCII, so the shorter and
+            longer forms still compare correctly.
         """
         with self._session() as s:
             return s.query(func.max(models.AgentConfig.updated_at)).scalar()
