@@ -3,6 +3,7 @@
 MIN-47 adds a TTL-based lazy refresh + a generation counter — covered below.
 """
 
+import threading
 import time
 
 import pytest
@@ -157,11 +158,115 @@ def test_invalidate_forces_next_read_to_reload():
 
     AgentConfigCache.clear()
     AgentConfigCache.sync_from_cache({"planner": AgentModelOverride(model="gpt-4o")})
-    assert AgentConfigCache._loaded_at is not None  # "loaded" state
+    assert AgentConfigCache._dirty is False  # "loaded" state
 
     AgentConfigCache.invalidate()
 
-    assert AgentConfigCache._loaded_at is None  # next read will reload
+    assert AgentConfigCache._dirty is True  # next read will reload
+
+
+def test_invalidate_never_blocks_on_a_reload_in_flight(monkeypatch):
+    """invalidate() must return immediately even while a reload holds
+    ``_refresh_lock`` and is mid DB-call — it only takes ``_dirty_lock``,
+    a separate, always-uncontended-for-long lock. If invalidate() ever
+    regressed to acquiring ``_refresh_lock`` itself, this would hang for the
+    full 5s timeout instead of returning right away.
+    """
+    from app.core.agent_config_cache import AgentConfigCache
+
+    poll_reached_db = threading.Event()
+    release_poll = threading.Event()
+
+    def _blocking_max_updated_at(factory):
+        poll_reached_db.set()
+        release_poll.wait(timeout=5)
+        return "2026-07-21T00:00:00+00:00"  # matches known -> no reload needed
+
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.max_updated_at", _blocking_max_updated_at
+    )
+    AgentConfigCache.configure("FACTORY", poll_interval_seconds=3600)
+    AgentConfigCache._known_updated_at = "2026-07-21T00:00:00+00:00"
+    AgentConfigCache._loaded_at = time.monotonic() - 10_000  # force past interval
+
+    poll_thread = threading.Thread(target=AgentConfigCache._maybe_refresh)
+    poll_thread.start()
+    assert poll_reached_db.wait(timeout=5)  # poll is now inside _refresh_lock
+
+    start = time.monotonic()
+    AgentConfigCache.invalidate()
+    elapsed = time.monotonic() - start
+
+    release_poll.set()
+    poll_thread.join(timeout=5)
+
+    assert elapsed < 1.0  # did not wait for the DB call to finish
+    assert AgentConfigCache._dirty is True
+
+
+def test_invalidate_survives_a_reload_already_in_flight(monkeypatch):
+    """GH-106 PR #107 review: invalidate() must not be clobbered by a racing
+    reload that started before it and finishes after it.
+
+    Simulates: a poll thread has already captured ``was_dirty=False`` and is
+    mid DB-call (inside ``max_updated_at``) when a same-process dashboard save
+    commits and calls ``invalidate()`` from another thread. The reload then
+    proceeds to completion and restamps ``_loaded_at`` fresh via
+    ``sync_from_cache`` — the dirty flag set by the racing ``invalidate()``
+    must survive that and still force the *next* poll to hit the DB for real,
+    even though ``_loaded_at`` now looks fresh.
+    """
+    from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
+
+    poll_reached_db = threading.Event()
+    invalidate_done = threading.Event()
+
+    def _fake_max_updated_at(factory):
+        poll_reached_db.set()
+        invalidate_done.wait(timeout=5)
+        return "2026-07-21T00:00:01+00:00"  # different -> triggers a reload
+
+    def _fake_reload_from_db(factory):
+        AgentConfigCache.sync_from_cache(
+            {"concierge": AgentModelOverride(provider="stale")}
+        )
+
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.max_updated_at", _fake_max_updated_at
+    )
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.reload_from_db", _fake_reload_from_db
+    )
+    AgentConfigCache.configure("FACTORY", poll_interval_seconds=3600)
+    AgentConfigCache._known_updated_at = "2026-07-21T00:00:00+00:00"  # stale
+    AgentConfigCache._loaded_at = time.monotonic() - 10_000  # force past interval
+
+    poll_thread = threading.Thread(target=AgentConfigCache._maybe_refresh)
+    poll_thread.start()
+    assert poll_reached_db.wait(timeout=5)  # poll captured was_dirty=False, mid DB-call
+
+    AgentConfigCache.invalidate()  # races the in-flight poll
+    invalidate_done.set()  # let the poll's DB call return and finish the reload
+
+    poll_thread.join(timeout=5)
+
+    assert AgentConfigCache._dirty is True  # invalidation survived the in-flight reload
+
+    # And it actually forces a real reload on the very next poll, even though
+    # max_updated_at reports no change and _loaded_at now looks fresh.
+    reload_calls = []
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.max_updated_at",
+        lambda factory: AgentConfigCache._known_updated_at,  # "no change"
+    )
+    monkeypatch.setattr(
+        "app.core.agent_config_cache.reload_from_db",
+        lambda factory: reload_calls.append(factory),
+    )
+
+    AgentConfigCache.get("concierge")
+
+    assert reload_calls == ["FACTORY"]
 
 
 def test_poll_failure_keeps_serving_stale_cache(monkeypatch):
