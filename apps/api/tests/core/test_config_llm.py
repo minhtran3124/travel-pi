@@ -37,6 +37,28 @@ def test_agent_runtime_defaults():
     assert s.summarize_threshold == 20
 
 
+def test_agent_config_poll_interval_default():
+    # Default cadence when neither env var is set (GH-106 PR #107 review).
+    assert Settings().agent_config_poll_interval_seconds == 5
+
+
+def test_agent_config_poll_interval_reads_new_env_var(monkeypatch):
+    monkeypatch.setenv("AGENT_CONFIG_POLL_INTERVAL_SECONDS", "30")
+    assert Settings().agent_config_poll_interval_seconds == 30
+
+
+def test_agent_config_poll_interval_falls_back_to_old_env_var(monkeypatch):
+    # Deployments still setting the pre-rename var must keep working.
+    monkeypatch.setenv("AGENT_CONFIG_CACHE_TTL_SECONDS", "3600")
+    assert Settings().agent_config_poll_interval_seconds == 3600
+
+
+def test_agent_config_poll_interval_new_env_var_wins_over_old(monkeypatch):
+    monkeypatch.setenv("AGENT_CONFIG_POLL_INTERVAL_SECONDS", "10")
+    monkeypatch.setenv("AGENT_CONFIG_CACHE_TTL_SECONDS", "3600")
+    assert Settings().agent_config_poll_interval_seconds == 10
+
+
 def test_provider_rejects_unknown():
     with pytest.raises(ValidationError):
         Settings(llm_provider="bedrock")

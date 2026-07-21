@@ -8,7 +8,7 @@ for local development. See ``.env.example`` for the available knobs.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.core.llm_providers import PROVIDER_NAMES
@@ -171,9 +171,20 @@ class Settings(BaseSettings):
     summarize_threshold: int = 20  # compress history once messages exceed this
     agent_free_daily_turn_limit: int = 20  # max user turns per day for the free tier
     # How long the DB-backed per-agent config cache may serve before a read
-    # reloads it from the DB (MIN-47). Default ~1h: config edits take effect
-    # within this window without a restart; normal reads stay in-memory.
-    agent_config_cache_ttl_seconds: int = 3600
+    # polls the DB for a change (GH-106: a cheap MAX(updated_at) check, not a
+    # full reload — the full reload only happens if that value changed).
+    # Default a few seconds: cross-process config edits become visible without
+    # a restart and without an expensive reload on every poll.
+    # Accepts the pre-rename env var (AGENT_CONFIG_CACHE_TTL_SECONDS) as a
+    # fallback so deployments that already set it keep working; the new name
+    # wins if both are set (GH-106 PR #107 review).
+    agent_config_poll_interval_seconds: int = Field(
+        default=5,
+        validation_alias=AliasChoices(
+            "AGENT_CONFIG_POLL_INTERVAL_SECONDS",
+            "AGENT_CONFIG_CACHE_TTL_SECONDS",
+        ),
+    )
     # Default IANA timezone used to ground "today" for relative-date resolution
     # when the client does not send a valid timezone (see specs/flight-search-date-context).
     agent_timezone: str = "Asia/Ho_Chi_Minh"

@@ -76,3 +76,17 @@ def test_list_all_returns_every_row(repo):
     repo.upsert("planner", provider="anthropic")
     names = {row.agent_name for row in repo.list_all()}
     assert names == {"concierge", "planner"}
+
+
+def test_max_updated_at_returns_none_when_empty(repo):
+    assert repo.max_updated_at() is None
+
+
+def test_max_updated_at_reflects_latest_write(repo):
+    repo.upsert("concierge", provider="openai")
+    first = repo.max_updated_at()
+    assert first is not None
+
+    repo.upsert("planner", provider="anthropic")
+    second = repo.max_updated_at()
+    assert second >= first  # a later write is never an earlier timestamp
