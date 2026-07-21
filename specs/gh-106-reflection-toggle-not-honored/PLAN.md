@@ -1,6 +1,6 @@
 ---
 slug: gh-106-reflection-toggle-not-honored
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-21
 ---
@@ -547,3 +547,6 @@ All commands below run from `apps/api/`. Test runner: `../../.venv/bin/python -m
   Wave 4: Task 3.1 verify — clean on first run, no changes needed. All per-task spec + quality
   reviews passed (with fix-and-re-review loops noted above). 72 targeted tests green,
   `ruff check app` clean.
+- 2026-07-21 — final gates passed: adversarial correctness review (6 angles, 4 candidates, 1 fixed
+  `3466447`, 3 advisory — see `SUMMARY.md`), intent review (1 report-only excess finding, documented
+  in `SUMMARY.md`). Shipped via `fix/gh-106-reflection-toggle-not-honored` (PR #107 → v3).
