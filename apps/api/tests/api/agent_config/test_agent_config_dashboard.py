@@ -1,3 +1,5 @@
+import re
+
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.services.agent_config_service import AgentConfigService
@@ -194,8 +196,10 @@ def test_reflection_checkbox_has_hidden_override_rule(client):
     # class rule without !important) fixes it.
     r = client.get("/dashboard/agent-config")
     assert r.status_code == 200
-    assert "#am-enabled-field[hidden]" in r.text
-    assert "display: none" in r.text
+    rule = re.search(
+        r"#am-enabled-field\[hidden\]\s*\{\s*display:\s*none;?\s*\}", r.text
+    )
+    assert rule is not None
 
 
 def test_modal_save_preserves_null_for_non_reflection(client, tmp_db):
