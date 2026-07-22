@@ -1,50 +1,59 @@
 ---
 slug: user-feedback-learning
 doc: research
-lang: vi
+lang: en
 status: complete
 created: 2026-07-21
+source_of_truth: true
 ---
 
-# Deep research — Học từ feedback của user trong LLM graph
+> **Language note:** This English document is the source of truth. For the Vietnamese translation,
+> see [RESEARCH.vi.md](./RESEARCH.vi.md).
+
+# Deep research — Learning from user feedback in the LLM graph
 
 ## Executive answer
 
-**Không nên tạo một specialist `learning_agent` để supervisor route qua sau mỗi câu hỏi.**
-Supervisor của travel-pi nên tiếp tục làm đúng một việc: hiểu travel intent và chuyển sang
-planner/concierge/journal/booking/budget. Learning là một năng lực **cross-cutting**, chạy ở hot
-path cho lệnh rõ ràng như “hãy nhớ/đừng nhớ”, và chạy background cho correction hoặc tín hiệu ngầm.
+**Do not create a specialist `learning_agent` for the supervisor to route through after every
+request.** The travel-pi supervisor should continue to do one job: understand travel intent and
+handoff to planner/concierge/journal/booking/budget. Learning is a **cross-cutting** capability. It
+runs in the hot path for explicit commands such as “remember this/do not remember this,” and in the
+background for corrections or implicit signals.
 
-**LLM không nên có toàn quyền quyết định cái gì được lưu.** Trách nhiệm đúng là:
+**The LLM should not have unilateral authority to decide what is stored.** The appropriate division
+of responsibility is:
 
-1. Product policy định nghĩa loại dữ liệu được nhớ, scope, retention, consent và dữ liệu cấm.
-2. Code/policy engine áp rule deterministic về explicit/implicit signal, confidence, conflict và
-   quyền create/update/delete.
-3. LLM chỉ đọc trajectory và tạo `MemoryCandidate` có cấu trúc.
-4. User hoặc human reviewer quyết định case mơ hồ, nhạy cảm, và mọi thay đổi hành vi dùng chung.
+1. Product policy defines which data categories may be remembered, their scope, retention, consent,
+   and prohibited data.
+2. Code/a policy engine applies deterministic rules for explicit versus implicit signals,
+   confidence, conflicts, and create/update/delete permissions.
+3. The LLM only reads the trajectory and produces a structured `MemoryCandidate`.
+4. The user or a human reviewer decides ambiguous and sensitive cases, as well as every change to
+   shared behavior.
 
-Đây cũng là hướng mà LangGraph/LangMem mô tả: memory có thể được ghi trong hot path hoặc bằng một
-background task; nó không bắt buộc là một agent được supervisor điều phối
+This is also the direction described by LangGraph/LangMem: memory may be written in the hot path or
+by a background task; it does not have to be an agent orchestrated by the supervisor
 ([LangGraph memory overview](https://docs.langchain.com/oss/python/concepts/memory),
 [LangMem concepts](https://langchain-ai.github.io/langmem/concepts/conceptual_guide/)).
 
-## 1. Trước hết phải tách ba nghĩa của “learn”
+## 1. First, distinguish the three meanings of “learn”
 
-| Nghĩa | Ví dụ | Cập nhật ở đâu | Có tự động trong request graph? |
+| Meaning | Example | Where it is updated | Automatic in the request graph? |
 |---|---|---|---|
-| **Per-user adaptation** | Minh thích ghế cửa sổ, ăn chay, không ở hostel | Long-term Store theo `user_id` | Có thể hot path/background |
-| **Product/system improvement** | Planner thường quên hỏi số khách; prompt/tool/routing cần sửa | Trace → dataset → eval → prompt/code version mới | Không; chạy offline có gate |
-| **Model-weight learning** | Fine-tune một model từ tập feedback lớn | Training pipeline riêng của model provider/team ML | Tuyệt đối không online theo từng turn |
+| **Per-user adaptation** | Minh prefers a window seat, eats vegetarian, and does not stay in hostels | Long-term Store keyed by `user_id` | May run in the hot path/background |
+| **Product/system improvement** | The planner often forgets to ask for the number of travellers; the prompt/tool/routing needs correction | Trace → dataset → eval → new prompt/code version | No; runs offline with gates |
+| **Model-weight learning** | Fine-tune a model using a large feedback dataset | A separate training pipeline owned by the model provider/ML team | Never online per turn |
 
-Nếu user nói “đừng gợi ý hostel cho **tôi**”, đó là user memory. Nếu 300 users cùng complain vì
-planner không giải thích trade-off, đó là evidence để sửa product/prompt sau eval. Hai luồng không
-được ghi chung vào một namespace và một feedback đơn lẻ không được sửa system prompt production.
+If a user says “do not suggest hostels to **me**,” that is user memory. If 300 users complain that
+the planner does not explain trade-offs, that is evidence for changing the product/prompt after
+evaluation. These flows must not write to the same namespace, and a single feedback item must not
+change the production system prompt.
 
-## 2. Travel-pi thực sự đang chạy thế nào
+## 2. How travel-pi actually runs today
 
-### 2.1 Answer graph không có memory agent/node ở cuối
+### 2.1 The answer graph has no memory agent/node at the end
 
-Topology hiện tại là:
+The current topology is:
 
 ```text
 START → load_context → summarize → supervisor
@@ -54,75 +63,82 @@ START → load_context → summarize → supervisor
                            dispatch_next → reflection → END
 ```
 
-`build_graph()` không đăng ký `extract_memory`; sau compile nó chỉ gắn model handle
-`compiled.extract_memory_llm` để router dùng ngoài graph
-([graph.py](../../apps/api/app/agents/graph.py#L122-L175)). `nodes.py` cũng ghi rõ extraction đã
-chuyển sang post-turn background runner
-([nodes.py](../../apps/api/app/agents/nodes.py#L1-L15)). Vì vậy câu trả lời trực tiếp cho thắc mắc
-là: **supervisor không đi qua một “con agent học feedback”.**
+`build_graph()` does not register `extract_memory`; after compilation, it only attaches the model
+handle `compiled.extract_memory_llm` for the router to use outside the graph
+([graph.py](../../apps/api/app/agents/graph.py#L122-L175)). `nodes.py` also states explicitly that
+extraction moved to a post-turn background runner
+([nodes.py](../../apps/api/app/agents/nodes.py#L1-L15)). The direct answer to the original question
+is therefore: **the supervisor does not pass through an “agent that learns feedback.”**
 
-### 2.2 Write path hiện tại là background extraction
+### 2.2 The current write path is background extraction
 
-- `/agent/chat` hoàn tất graph, persist assistant reply, rồi schedule `run_memory_extraction`
-  bằng `BackgroundTasks` ([agent.py](../../apps/api/app/routers/agent.py#L357-L373)).
-- `/agent/stream` drain SSE, lấy final state vào `sink`, rồi chạy `BackgroundTask` sau response
-  ([agent.py](../../apps/api/app/routers/agent.py#L456-L481)).
-- Runner gọi một fast LLM, nhận `preferences`, `instructions`, `episodes`, rồi upsert thẳng vào
-  Store ([extraction_runner.py](../../apps/api/app/memory/extraction_runner.py#L23-L107)).
-- Extractor chỉ nhìn exchange cuối cùng và parse JSON thủ công
+- `/agent/chat` completes the graph, persists the assistant reply, and then schedules
+  `run_memory_extraction` through `BackgroundTasks`
+  ([agent.py](../../apps/api/app/routers/agent.py#L357-L373)).
+- `/agent/stream` drains SSE, obtains the final state in `sink`, and then runs a `BackgroundTask`
+  after the response ([agent.py](../../apps/api/app/routers/agent.py#L456-L481)).
+- The runner calls a fast LLM, receives `preferences`, `instructions`, and `episodes`, then upserts
+  them directly into the Store
+  ([extraction_runner.py](../../apps/api/app/memory/extraction_runner.py#L23-L107)).
+- The extractor only sees the final exchange and parses JSON manually
   ([extractor.py](../../apps/api/app/memory/extractor.py#L32-L128)).
-- Prompt v5 yêu cầu chỉ lấy durable signals và dùng canonical keys
+- Prompt v5 requires extraction of durable signals only and uses canonical keys
   ([memory_extraction/v5.md](../../apps/api/app/prompts/memory_extraction/v5.md)).
 
-### 2.3 Read path hiện tại
+### 2.3 The current read path
 
-Long-term Store tách namespace theo user:
+The long-term Store separates namespaces by user:
 
 - `("users", user_id, "prefs")` — semantic facts/preferences.
-- `("users", user_id, "procedural")` — standing instructions của riêng user.
-- `("users", user_id, "episodes")` — outcome của trip cũ.
+- `("users", user_id, "procedural")` — that user's standing instructions.
+- `("users", user_id, "episodes")` — outcomes of previous trips.
 
-Store là key-addressed: cùng key thì overwrite; có semantic index trên field `text`
-([store.py](../../apps/api/app/memory/store.py#L104-L216)). `load_context_node` đọc profile,
-instructions và preferences vào state/prompt trước supervisor
-([nodes.py](../../apps/api/app/agents/nodes.py#L86-L130)). Đây là personalization bằng external
-memory, không phải model tự train lại weights.
+The Store is key-addressed: the same key is overwritten; the `text` field has a semantic index
+([store.py](../../apps/api/app/memory/store.py#L104-L216)). `load_context_node` reads profile,
+instructions, and preferences into state/the prompt before the supervisor
+([nodes.py](../../apps/api/app/agents/nodes.py#L86-L130)). This is personalization through external
+memory, not the model retraining its weights.
 
-### 2.4 Những gì code hiện tại chưa có
+### 2.4 What the current code does not yet have
 
-1. Chưa có `FeedbackEvent` chuẩn: thumbs up/down, reason, correction, accept/reject, edit,
-   click/save/book/cancel chưa được lưu như evidence bất biến.
-2. LLM extractor đang vừa tạo candidate vừa quyết định write; chưa có policy/verifier độc lập.
-3. Memory chưa có provenance, confidence, source message/run, sensitivity, TTL hay trạng thái
-   `proposed/disputed/superseded`.
-4. Chỉ upsert; chưa có first-class correction/delete/forget flow và conflict resolution.
-5. Prompt JSON + defensive parser không phải structured output schema; parse fail thì silent no-op.
-6. FastAPI in-process background task không durable: process chết sau reply có thể mất extraction;
-   turn kế tiếp quá nhanh có thể chưa thấy memory mới.
-7. `allow_memory_write` hiện luôn `True` trong resolved context
-   ([context.py](../../apps/api/app/agents/context.py#L89-L97)); chưa có user-facing opt-out.
-8. `WORKFLOW.md` vẫn mô tả topology cũ có terminal `extract_memory`, trong khi code hiện tại đã
-   chuyển background. Khi implement feature nên sửa docs cùng lúc.
+1. There is no canonical `FeedbackEvent`: thumbs up/down, reason, correction, accept/reject, edit,
+   click/save/book/cancel are not persisted as immutable evidence.
+2. The LLM extractor currently both creates the candidate and decides the write; there is no
+   independent policy/verifier.
+3. Memory has no provenance, confidence, source message/run, sensitivity, TTL, or
+   `proposed/disputed/superseded` state.
+4. The system only upserts; it has no first-class correction/delete/forget flow or conflict
+   resolution.
+5. Prompted JSON plus a defensive parser is not a structured output schema; parsing failure becomes
+   a silent no-op.
+6. A FastAPI in-process background task is not durable: if the process dies after replying,
+   extraction may be lost; a subsequent turn that arrives too quickly may not see the new memory.
+7. `allow_memory_write` is currently always `True` in the resolved context
+   ([context.py](../../apps/api/app/agents/context.py#L89-L97)); there is no user-facing opt-out.
+8. `WORKFLOW.md` still describes the old topology with terminal `extract_memory`, while the current
+   code has moved it to the background. The documentation should be corrected alongside feature
+   implementation.
 
-## 3. So sánh các kiến trúc
+## 3. Architecture comparison
 
-| Option | Cách chạy | Ưu điểm | Vấn đề | Decision |
+| Option | Execution | Advantages | Problems | Decision |
 |---|---|---|---|---|
-| A. Supervisor route sang `learning_agent` | Learning là một travel intent/sub-agent | Dễ vẽ graph | Có thể bị route miss; tăng latency; trộn domain routing với data governance | **Reject** |
-| B. Terminal node trong graph | Mọi path đều qua extractor trước `END` | Deterministic, checkpoint-visible | User phải chờ thêm LLM call; interrupt/error path phức tạp | Không quay lại |
-| C. Specialist tự gọi memory tool | Planner/journal tự quyết định ghi | Memory có ngay, user thấy rõ | Tool-use discretionary, policy lệch giữa agent, ảnh hưởng task chính | Chỉ dùng cho explicit command |
-| D. Post-response background pipeline | Emit trajectory → extract → verify → write | Không tăng reply latency; policy tập trung; dễ batch/consolidate | Eventual consistency; cần retry/idempotency | **Default** |
-| E. Hybrid C + D | Explicit hot path, implicit/background | Cân bằng immediacy và quality | Hai write path cần cùng policy/idempotency | **Recommended** |
+| A. Supervisor routes to `learning_agent` | Learning is a travel intent/sub-agent | Easy to draw in the graph | Routing can miss it; increases latency; mixes domain routing with data governance | **Reject** |
+| B. Terminal node in the graph | Every path passes through an extractor before `END` | Deterministic and checkpoint-visible | The user waits for another LLM call; interrupt/error paths become more complex | Do not restore |
+| C. Specialist calls a memory tool | Planner/journal decides whether to write | Memory is immediate and visible to the user | Tool use is discretionary; policy diverges across agents; distracts from the primary task | Use only for explicit commands |
+| D. Post-response background pipeline | Emit trajectory → extract → verify → write | Does not increase reply latency; centralized policy; easy to batch/consolidate | Eventual consistency; requires retry/idempotency | **Default** |
+| E. Hybrid C + D | Explicit hot path, implicit/background | Balances immediacy and quality | Both write paths need the same policy/idempotency | **Recommended** |
 
-LangMem gọi hai cơ chế này là conscious/hot-path và subconscious/background. Hot path cho update
-ngay nhưng thêm latency và buộc agent multitask; background tách logic và không chặn response
+LangMem calls these mechanisms conscious/hot-path and subconscious/background. The hot path gives
+immediate updates but adds latency and forces the agent to multitask; the background path separates
+the logic and does not block the response
 ([LangMem concepts](https://langchain-ai.github.io/langmem/concepts/conceptual_guide/),
-[background quickstart](https://langchain-ai.github.io/langmem/background_quickstart/)). Memory
-tool của LangMem cũng hỗ trợ create/update/delete và cho phép app giới hạn actions — thêm bằng chứng
-rằng quyền write phải được policy hóa, không chỉ prompt hóa
+[background quickstart](https://langchain-ai.github.io/langmem/background_quickstart/)). LangMem's
+memory tool also supports create/update/delete and allows the application to restrict actions —
+further evidence that write authority should be enforced through policy, not only through a prompt
 ([Memory Tools API](https://langchain-ai.github.io/langmem/reference/tools/)).
 
-## 4. Target architecture cho travel-pi
+## 4. Target architecture for travel-pi
 
 ```text
 ONLINE ANSWER PATH
@@ -149,28 +165,28 @@ Traces + feedback events
   → versioned deploy (never direct self-edit in production)
 ```
 
-Memory pipeline là service/worker cross-cutting. Có thể implement nó bằng plain functions hoặc một
-nhỏ `StateGraph` riêng nếu cần retry/branching, nhưng **không đặt nó vào danh sách specialist mà
-supervisor travel route tới**.
+The memory pipeline is a cross-cutting service/worker. It can be implemented with plain functions
+or a small, separate `StateGraph` if retries/branching are needed, but **do not put it in the list of
+specialists to which the travel supervisor routes**.
 
-## 5. Ai quyết định học cái gì?
+## 5. Who decides what is learned?
 
 ### Decision stack
 
-| Tầng | Quyết định | Không được quyết định |
+| Layer | Decides | Must not decide |
 |---|---|---|
-| Product policy | Category, scope, consent, retention, sensitive denylist, promotion threshold | Nội dung candidate cụ thể |
-| Deterministic code | Signal strength, conflict precedence, allowed operation, idempotency | Tự suy diễn meaning từ free text |
-| LLM extractor | Candidate type/key/value/scope + evidence span + proposed operation | Bypass policy hoặc sửa prompt global |
-| User | Confirm/correct/forget, view/edit/delete, turn personalization off | Vô tình thay đổi behavior cho mọi user |
-| Human/eval gate | Ship shared procedural/prompt/tool/routing changes | Ghi preference cá nhân thay user |
+| Product policy | Category, scope, consent, retention, sensitive denylist, promotion threshold | Specific candidate content |
+| Deterministic code | Signal strength, conflict precedence, allowed operation, idempotency | Infer meaning from free text on its own |
+| LLM extractor | Candidate type/key/value/scope + evidence span + proposed operation | Bypass policy or modify the global prompt |
+| User | Confirm/correct/forget, view/edit/delete, turn personalization off | Accidentally change behavior for every user |
+| Human/eval gate | Ship shared procedural/prompt/tool/routing changes | Write personal preferences on a user's behalf |
 
-Supervisor có thể đưa metadata routing (`current_flow`, specialist, tool trace) vào event để giúp
-root-cause attribution, nhưng không làm memory gate.
+The supervisor may add routing metadata (`current_flow`, specialist, tool trace) to the event to
+support root-cause attribution, but it is not the memory gate.
 
-## 6. Event và candidate model đề xuất
+## 6. Proposed event and candidate models
 
-`FeedbackEvent` nên immutable:
+`FeedbackEvent` should be immutable:
 
 ```json
 {
@@ -191,7 +207,7 @@ root-cause attribution, nhưng không làm memory gate.
 }
 ```
 
-`MemoryCandidate`/`MemoryRecord` nên có tối thiểu:
+`MemoryCandidate`/`MemoryRecord` should contain at least:
 
 ```json
 {
@@ -212,27 +228,28 @@ root-cause attribution, nhưng không làm memory gate.
 }
 ```
 
-Không nhất thiết phải thêm toàn bộ field vào semantic index; chỉ `text` cần embedding. Metadata dùng
-cho audit, filter, conflict và UI. Profile nhỏ/canonical nên direct-key lookup; episodes mới cần
-semantic search. LangGraph Store tổ chức memory bằng namespace + key và cho search cross-session
+Not every field needs to be added to the semantic index; only `text` needs embedding. Metadata is
+used for auditing, filtering, conflict handling, and UI. A small/canonical profile should use direct
+key lookup; episodes are where semantic search is useful. LangGraph Store organizes memory through
+namespace + key and supports cross-session search
 ([LangGraph persistence](https://docs.langchain.com/oss/python/langgraph/persistence/)).
 
-## 7. Write policy cụ thể
+## 7. Concrete write policy
 
-| Signal | Ví dụ | Action |
+| Signal | Example | Action |
 |---|---|---|
-| Explicit remember | “Nhớ là mình ăn chay” | Upsert `prefs/diet` ngay; acknowledge |
-| Explicit standing rule | “Luôn hiển thị giá bằng EUR” | Upsert user `procedural/price_currency` ngay |
-| Explicit correction | “Không, mình thích aisle chứ không phải window” | New explicit wins; old record `superseded`; preserve evidence |
-| Explicit forget | “Quên việc mình thích ANA đi” | Delete/tombstone exact memory; acknowledge |
-| Contextual preference | “Đi với con nhỏ thì chỉ chọn khách sạn có thang máy” | Scope theo `travel_group=family`; không biến thành global rule |
-| Thumb-down không reason | 👎 | Lưu feedback event; **không suy diễn** preference |
-| One click/book | Chọn hotel boutique một lần | Episode/outcome evidence; chưa promote thành durable preference |
-| Repeated consistent behavior | Chọn boutique 3 trip khác nhau | Tạo `proposed` candidate; confirm hoặc threshold-gated promotion |
-| Silence/no click | Không bấm suggestion | Không coi là dislike; `not_observed != negative evidence` |
-| Sensitive data | Passport/card/health detail | Không đưa vào semantic memory; dùng domain store phù hợp hoặc reject |
+| Explicit remember | “Remember that I am vegetarian” | Upsert `prefs/diet` immediately; acknowledge |
+| Explicit standing rule | “Always display prices in EUR” | Upsert user `procedural/price_currency` immediately |
+| Explicit correction | “No, I prefer aisle rather than window” | New explicit value wins; old record becomes `superseded`; preserve evidence |
+| Explicit forget | “Forget that I like ANA” | Delete/tombstone the exact memory; acknowledge |
+| Contextual preference | “When travelling with young children, only choose hotels with an elevator” | Scope to `travel_group=family`; do not turn it into a global rule |
+| Thumb-down without reason | 👎 | Store a feedback event; **do not infer** a preference |
+| One click/booking | Select a boutique hotel once | Episode/outcome evidence; do not yet promote to a durable preference |
+| Repeated consistent behavior | Select boutique hotels across three different trips | Create a `proposed` candidate; confirm or use threshold-gated promotion |
+| Silence/no click | Do not click a suggestion | Do not treat it as dislike; `not_observed != negative evidence` |
+| Sensitive data | Passport/card/health detail | Do not put it in semantic memory; use an appropriate domain store or reject |
 
-Conflict precedence đề xuất:
+Proposed conflict precedence:
 
 ```text
 new explicit correction
@@ -242,105 +259,112 @@ new explicit correction
   > model inference
 ```
 
-Nếu hai facts có thể cùng đúng theo context, tách scope thay vì overwrite. Nếu scope không rõ, giữ
-`disputed/proposed` và hỏi user. Không dùng float confidence của LLM như sự thật tuyệt đối; confidence
-chỉ là một input cho deterministic gate.
+If two facts may both be true in different contexts, separate them by scope instead of overwriting.
+If the scope is unclear, keep the candidate `disputed/proposed` and ask the user. Do not treat an
+LLM's floating-point confidence as ground truth; confidence is only one input to the deterministic
+gate.
 
-## 8. Product-level learning từ feedback
+## 8. Product-level learning from feedback
 
-User memory và system behavior phải có firewall. Ví dụ user nói “câu trả lời này dài quá” có thể là:
+User memory and system behavior need a firewall. For example, when a user says “this answer is too
+long,” it may indicate:
 
-- preference cá nhân: user nhiều lần yêu cầu concise → `procedural` theo user;
-- defect của product: nhiều negative traces cùng rubric → sửa communication prompt;
-- lỗi dữ liệu/tool: giá sai → sửa service/tool, không sửa prompt;
-- lỗi routing: supervisor chọn concierge thay vì budget → thêm routing eval/case.
+- a personal preference: the user repeatedly requests concise responses → per-user `procedural`;
+- a product defect: many negative traces fail the same rubric → update the communication prompt;
+- a data/tool error: a price is wrong → fix the service/tool, not the prompt;
+- a routing error: the supervisor chooses concierge instead of budget → add a routing eval/case.
 
-Do đó offline pipeline phải attribute feedback đến `supervisor | specialist | tool | retrieval |
-memory | UX`, rồi mới tạo candidate change. LangMem có prompt optimizer nhận nhiều trajectories cùng
-feedback, nhưng output chỉ nên là một candidate được eval/version-control, không tự flip active
-prompt ([Prompt optimization guide](https://langchain-ai.github.io/langmem/guides/optimize_memory_prompt/),
+The offline pipeline must therefore attribute feedback to `supervisor | specialist | tool |
+retrieval | memory | UX` before creating a candidate change. LangMem has a prompt optimizer that
+accepts multiple trajectories with feedback, but its output should only be a candidate that is
+evaluated and version-controlled, never something that directly flips the active prompt
+([Prompt optimization guide](https://langchain-ai.github.io/langmem/guides/optimize_memory_prompt/),
 [multi-prompt optimization](https://langchain-ai.github.io/langmem/guides/optimize_compound_system/)).
-LangSmith mô tả loop production trace → online monitoring → failing cases vào dataset → offline
-experiment → redeploy; thumbs-down có thể được đưa vào annotation queue thay vì dùng trực tiếp làm
-training truth ([evaluation lifecycle](https://docs.langchain.com/langsmith/evaluation),
-[annotation queues](https://docs.langchain.com/langsmith/annotation-queues)). Travel-pi có thể áp
-dụng pattern này bằng DeepEval + Langfuse hiện có, không cần adopt LangSmith.
+LangSmith describes a loop of production trace → online monitoring → failing cases added to a
+dataset → offline experiment → redeploy; thumbs-down can enter an annotation queue rather than be
+used directly as training truth
+([evaluation lifecycle](https://docs.langchain.com/langsmith/evaluation),
+[annotation queues](https://docs.langchain.com/langsmith/annotation-queues)). Travel-pi can apply
+this pattern using its existing DeepEval + Langfuse stack without adopting LangSmith.
 
-## 9. User control và privacy
+## 9. User control and privacy
 
-Minimum product contract nên có:
+The minimum product contract should include:
 
-- “What I remember” — xem memory active và evidence/source giải thích được.
-- Edit, forget one, clear all, disable future writes, và temporary/no-memory chat.
-- Thông báo khi explicit command tạo/update/delete memory.
-- Sensitive denylist; không infer protected/sensitive traits.
-- Retention/expiry cho episode cũ; audit log cho write/delete; cross-user isolation tests.
+- “What I remember” — show active memory with explainable evidence/source.
+- Edit, forget one, clear all, disable future writes, and temporary/no-memory chat.
+- Notify the user when an explicit command creates/updates/deletes memory.
+- A sensitive-data denylist; do not infer protected/sensitive traits.
+- Retention/expiry for old episodes; an audit log for write/delete; cross-user isolation tests.
 
-OpenAI's current memory controls là một useful product precedent: user có thể xem, sửa/xóa memory,
-tắt memory, và sensitive information không nên được proactively remembered nếu user không yêu cầu
+OpenAI's current memory controls are a useful product precedent: users can view, edit/delete memory,
+turn memory off, and sensitive information should not be proactively remembered unless the user
+requests it
 ([OpenAI Memory FAQ](https://help.openai.com/en/articles/8590148-personalization-and-data-controls-faq)).
-Đây là pattern thiết kế, không phải tuyên bố rằng travel-pi đã đáp ứng một regulatory regime.
+This is a design pattern, not a claim that travel-pi complies with any regulatory regime.
 
 ## 10. Evaluation gates
 
 ### User-memory quality
 
-- Candidate precision/recall theo từng kind và explicitness.
-- False-write rate, đặc biệt một-off và sensitive data.
+- Candidate precision/recall by kind and explicitness.
+- False-write rate, especially for one-off signals and sensitive data.
 - Correct update/delete/conflict/scope rate.
-- Cross-user leakage = 0 trong adversarial tests.
-- Retrieval relevance và “memory used correctly”, không chỉ “memory found”.
-- User correction/forget rate sau khi memory được dùng.
+- Cross-user leakage = 0 in adversarial tests.
+- Retrieval relevance and “memory used correctly,” not only “memory found.”
+- User correction/forget rate after memory is used.
 
-### Runtime/ops
+### Runtime/operations
 
-- Reply p50/p95 không tăng ở background path.
-- Extraction completion, retry, dead-letter và idempotency rate.
-- Eventual-consistency lag đến khi memory có thể recall.
-- Cost/token per extracted candidate và per accepted memory.
+- Reply p50/p95 does not increase on the background path.
+- Extraction completion, retry, dead-letter, and idempotency rate.
+- Eventual-consistency lag until memory can be recalled.
+- Cost/tokens per extracted candidate and per accepted memory.
 
 ### Product improvement
 
-- Offline regression theo flow/specialist trước khi prompt/tool change được ship.
-- Pairwise quality và task success, không chỉ thumbs-up tổng.
-- A/B memory on/off hoặc policy version A/B với guardrail về safety/privacy.
+- Offline regression by flow/specialist before a prompt/tool change is shipped.
+- Pairwise quality and task success, not only aggregate thumbs-up.
+- A/B memory on/off or policy-version A/B with safety/privacy guardrails.
 
-Launch gate nên ưu tiên **precision hơn recall**: bỏ sót một preference thường chỉ làm câu trả lời ít
-personalized; ghi sai một preference làm user mất trust. Mọi negative production trace quan trọng
-nên trở thành regression case có thể chạy lại.
+The launch gate should prioritize **precision over recall**: missing a preference usually only makes
+the response less personalized; storing a wrong preference damages user trust. Every important
+negative production trace should become a reproducible regression case.
 
 ## 11. Phased roadmap
 
 ### Phase 0 — Explicit feedback foundation
 
 - Capture immutable feedback events + trace/run/message/node/tool provenance.
-- Hỗ trợ `remember`, `correct`, `forget` với canonical keys và acknowledgement.
-- Không enable implicit write.
+- Support `remember`, `correct`, and `forget` with canonical keys and acknowledgement.
+- Do not enable implicit writes.
 
 ### Phase 1 — Safe background candidates (shadow mode)
 
-- Đổi extractor sang structured schema.
-- LLM tạo candidate; policy/verifier quyết định `reject/propose/activate`.
-- Ghi confidence, evidence, scope, sensitivity và conflict action; chưa đưa proposed memory vào prompt.
+- Change the extractor to a structured schema.
+- The LLM creates candidates; policy/verifier decides `reject/propose/activate`.
+- Store confidence, evidence, scope, sensitivity, and conflict action; do not yet inject proposed
+  memory into the prompt.
 
 ### Phase 2 — Controlled personalization
 
-- Enable high-confidence low-risk background writes.
-- Repeated implicit signals mới được promote; ambiguous case xin confirm.
-- Thêm memory management UI/API, opt-out, retention và durable worker/retry.
+- Enable high-confidence, low-risk background writes.
+- Only repeated implicit signals may be promoted; ambiguous cases ask for confirmation.
+- Add memory-management UI/API, opt-out, retention, and a durable worker/retry mechanism.
 
 ### Phase 3 — Offline system-learning loop
 
-- Curate negative/positive trajectories vào DeepEval datasets.
-- Root-cause attribution theo graph node/tool/prompt version.
-- Generate candidate prompt changes, regression eval, human approval, versioned rollout.
+- Curate negative/positive trajectories into DeepEval datasets.
+- Perform root-cause attribution by graph node/tool/prompt version.
+- Generate candidate prompt changes, regression-evaluate them, require human approval, and use a
+  versioned rollout.
 
-### Phase 4 — Chỉ khi data đủ lớn
+### Phase 4 — Only when enough data exists
 
-- Cân nhắc offline fine-tuning/ranker training nếu memory/prompt/tool fixes không đủ và consent/data
-  governance cho phép. Không bao giờ update model weights từ một live user turn.
+- Consider offline fine-tuning/ranker training if memory/prompt/tool fixes are insufficient and
+  consent/data governance permits it. Never update model weights from a live user turn.
 
-## 12. Mapping vào repo nếu triển khai
+## 12. Mapping to the repository for implementation
 
 | Concern | Existing seam | Likely work |
 |---|---|---|
@@ -359,16 +383,119 @@ nên trở thành regression case có thể chạy lại.
 seam. A new dependency is justified only if conflict/consolidation/versioning needs exceed what this
 small structured policy can safely handle.
 
+## 13. Recommended implementation sequence
+
+Implementation should use a new `specs/user-feedback-v1/` package; this research remains the
+architecture decision record. Do not add `learning_agent` to the supervisor's specialist list.
+
+### PR 1 — Feedback event foundation
+
+Collect evidence only; do not change memory behavior yet.
+
+- Add an immutable SQL `FeedbackEvent` model.
+- Support `thumbs_up`, `thumbs_down`, `comment`, `correction`, `remember`, and `forget` signals.
+- Add `POST /agent/feedback`.
+- Attach feedback to `assistant_message_id`, `conversation_id`, `user_id`, specialist/tool trace,
+  and prompt version.
+- Return `assistant_message_id` from `/chat` and the SSE `done` event.
+- Add frontend thumbs up/down controls with an optional reason.
+- Enforce ownership so users can only submit feedback for their own messages.
+- Add idempotency so retries or double-clicks do not create duplicate events.
+
+A thumb-down without a reason must create only a feedback event; it must **not** write memory.
+
+### PR 2 — Memory candidate pipeline in shadow mode
+
+Separate LLM extraction from write authority:
+
+```text
+Feedback/trajectory
+  → LLM extracts MemoryCandidate
+  → deterministic policy
+  → reject | proposed | active
+```
+
+- Move extraction to structured output.
+- Include `kind`, `key`, `value`, `operation=create|update|delete`, `scope`, `confidence`,
+  `evidence_event_ids`, and `sensitivity` in each candidate.
+- Apply the precedence rule: explicit correction > explicit statement > repeated implicit signal >
+  one-off implicit signal.
+- Detect conflicts with current memory.
+- Run in shadow mode: record decisions, but do not inject `proposed` memory into prompts.
+- Do not infer passport, payment, or other sensitive data.
+
+### PR 3 — Explicit remember/correct/forget
+
+Enable learning only for unambiguous cases:
+
+- “Remember that I am vegetarian” → activate `prefs/diet`.
+- “I prefer aisle, not window” → supersede the old preference.
+- “Forget that I like ANA” → delete/tombstone the memory.
+- Confirm to the user exactly what was remembered, corrected, or forgotten.
+- Make both the hot path and background path use the same policy service.
+
+### PR 4 — Memory controls
+
+Before enabling implicit learning:
+
+- Add APIs to view, edit, and delete memory.
+- Add a “What I remember” UI.
+- Support clear all, disable memory, and temporary chat.
+- Show provenance: which feedback/evidence caused each memory.
+- Apply TTL to episodes; explicit preferences do not expire automatically.
+- Audit delete/update operations and test cross-user isolation.
+
+### PR 5 — Controlled implicit learning
+
+Promote implicit signals only when evidence is sufficient:
+
+- A single click/booking becomes episode evidence, not a durable preference.
+- Repeated signals across multiple trips may create a `proposed` candidate.
+- Scope contextual preferences by solo/family/destination context.
+- Ask the user when conflicts are ambiguous instead of overwriting.
+- Track false-write and correction rates.
+
+### PR 6 — Offline product learning
+
+Keep shared product improvement in a separate offline flow:
+
+```text
+Feedback events + Langfuse traces
+  → root-cause attribution
+  → DeepEval dataset
+  → prompt/tool/routing candidate
+  → regression eval
+  → human-approved deployment
+```
+
+Never let a live turn directly edit the active prompt or train model weights online.
+
+### Cross-cutting acceptance gates
+
+- Thumbs-only feedback never creates memory.
+- Cross-user feedback/read/write is rejected and covered by tests.
+- Feedback events and memory operations are idempotent.
+- Background processing does not increase reply latency.
+- Every active memory is traceable to its evidence.
+- Sensitive data is never written to semantic memory.
+- Implicit learning stays disabled until user controls and the shadow-evaluation gate exist.
+
+**Immediate recommendation:** start with **PR 1 — Feedback event foundation**. It establishes
+auditable evidence and stable identifiers before the system is allowed to learn. Classify this work
+as **high-risk** because it introduces a database schema/migration and changes public HTTP/SSE
+contracts. It therefore needs a dedicated implementation plan, migration/rollback reasoning,
+ownership and idempotency tests, contract tests, and rerunnable verification evidence.
+
 ## Final decision
 
 ```text
-Supervisor decides: “request này cần travel specialist nào?”
-Memory extractor proposes: “exchange này có durable signal nào?”
-Policy engine decides: “candidate này có được create/update/delete không?”
-User/human decides: “case mơ hồ/nhạy cảm/global change có được chấp nhận không?”
-Offline eval decides: “system change này có đủ tốt để deploy không?”
+Supervisor decides: “Which travel specialist does this request need?”
+Memory extractor proposes: “Does this exchange contain a durable signal?”
+Policy engine decides: “May this candidate be created/updated/deleted?”
+User/human decides: “Should this ambiguous/sensitive/global change be accepted?”
+Offline eval decides: “Is this system change good enough to deploy?”
 ```
 
-Vì vậy, câu trả lời ngắn nhất là: **không phải một con agent mà supervisor bắt buộc đi qua; nên là
-một pipeline background riêng, cộng hot-path cho explicit feedback. LLM đề xuất cái cần học, còn
-policy + user controls mới có quyền quyết định cái được lưu.**
+The shortest answer is: **this should not be an agent that the supervisor must pass through; it
+should be a separate background pipeline plus a hot path for explicit feedback. The LLM proposes
+what to learn, while policy + user controls have the authority to decide what is stored.**

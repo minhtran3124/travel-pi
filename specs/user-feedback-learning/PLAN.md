@@ -26,6 +26,8 @@ useful to retain.
 - Compare supervisor-routed, in-graph, hot-path, and background approaches.
 - Define a concrete write policy, target flow, risks, evaluation gates, and phased roadmap.
 - Support conclusions with current code references and primary/official sources.
+- Publish synchronized English source-of-truth and Vietnamese translation documents, each carrying
+  the recommended PR-by-PR implementation sequence.
 
 ## 4. Tasks
 
@@ -57,6 +59,16 @@ useful to retain.
 - **Verify:** `git diff --check -- specs/user-feedback-learning`
 - **Done:** Research is reviewable and implementation can be planned separately without reopening the core architecture question.
 
+### Task 5.1 — Publish bilingual research and implementation handoff
+
+- **Files:** `specs/user-feedback-learning/RESEARCH.md`, `specs/user-feedback-learning/RESEARCH.vi.md`
+- **Action:** Make `RESEARCH.md` the English source of truth, add an equivalent Vietnamese
+  translation, cross-link both documents, and include PR 1–6 sequencing from feedback capture
+  through offline product learning.
+- **Verify:** `test "$(rg -c '^### PR [1-6]' specs/user-feedback-learning/RESEARCH.md)" -eq 6 && test "$(rg -c '^### PR [1-6]' specs/user-feedback-learning/RESEARCH.vi.md)" -eq 6`
+- **Done:** Both languages contain the same architecture decision, safety boundaries, rollout,
+  acceptance gates, and immediate recommendation to start with feedback-event capture.
+
 ## 5. Risks
 
 - Existing documents describe both the old terminal-node design and the newer background design;
@@ -70,3 +82,5 @@ useful to retain.
 
 - 2026-07-21 — Research completed against current code and official sources; recommendation and
   rollout recorded in `RESEARCH.md`.
+- 2026-07-21 — Published English source-of-truth + Vietnamese translation and added the concrete
+  PR 1–6 implementation handoff to both documents.
