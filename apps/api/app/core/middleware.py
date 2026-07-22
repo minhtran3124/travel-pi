@@ -62,17 +62,30 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
         )
         return response
 
-    # Informational, unenforced rate-limit headers on every response.
+    # Real policy headers on enforced routes; nominal informational headers on
+    # all other responses. The dependency/error handler records the enforced
+    # decision on request.state before control returns through this middleware.
     @app.middleware("http")
     async def _rate_limit_headers(
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
         response = await call_next(request)
-        limit = settings.rate_limit_nominal
-        response.headers["X-RateLimit-Limit"] = str(limit)
-        response.headers["X-RateLimit-Remaining"] = str(limit)
-        response.headers["X-RateLimit-Reset"] = str(int(time.time()) + 60)
+        applied = getattr(request.state, "rate_limit_applied", False)
+        policy = getattr(request.state, "rate_limit", None)
+        if not applied:
+            limit = settings.rate_limit_nominal
+            remaining = limit
+            reset = int(time.time()) + 60
+            response.headers["X-RateLimit-Limit"] = str(limit)
+            response.headers["X-RateLimit-Remaining"] = str(remaining)
+            response.headers["X-RateLimit-Reset"] = str(reset)
+        elif policy is not None:
+            response.headers["X-RateLimit-Limit"] = str(policy["limit"])
+            response.headers["X-RateLimit-Remaining"] = str(policy["remaining"])
+            response.headers["X-RateLimit-Reset"] = str(policy["reset"])
+        # A RateLimitError without policy metadata keeps Retry-After from the
+        # exception handler but honestly omits unknown X-RateLimit capacity.
         return response
 
     # Correlate logs and error envelopes across a request. Declared last so it

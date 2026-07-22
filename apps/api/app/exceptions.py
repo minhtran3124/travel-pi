@@ -106,3 +106,35 @@ class QuotaExceededError(AppError):
     default_detail = (
         "Daily message limit reached. Upgrade to premium for unlimited access."
     )
+
+
+class RateLimitError(AppError):
+    """A caller exceeded a short-window rate limit for an action (HTTP 429).
+
+    Distinct from :class:`QuotaExceededError` (a per-day usage budget): this is
+    an abuse limiter enforced per effective user by ``app.repositories.rate_limit``
+    / ``app.core.rate_limit`` (``specs/rate-limit-primitive``). ``retry_after`` is
+    the number of seconds until the current window resets; the ``AppError``
+    handler in ``app.core.errors`` emits it as the ``Retry-After`` header.
+    """
+
+    status_code = 429
+    default_detail = "Rate limit exceeded. Please retry shortly."
+
+    def __init__(
+        self,
+        detail: str | None = None,
+        *,
+        retry_after: int,
+        limit: int | None = None,
+        remaining: int | None = None,
+        reset_at: int | None = None,
+        hint: str | None = None,
+    ) -> None:
+        super().__init__(detail, hint=hint)
+        self.retry_after = retry_after
+        # HTTP-facing policy metadata is optional so direct/manual construction
+        # remains backwards compatible. The limiter always supplies all three.
+        self.limit = limit
+        self.remaining = remaining
+        self.reset_at = reset_at

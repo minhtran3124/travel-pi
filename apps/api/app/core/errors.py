@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import Settings
-from app.exceptions import AppError
+from app.exceptions import AppError, RateLimitError
 
 logger = logging.getLogger(__name__)
 
@@ -82,11 +82,32 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
         extra: dict[str, object] = {}
         if exc.hint:
             extra["hint"] = exc.hint
+        # RateLimitError carries a retry_after; surface it as the Retry-After
+        # header so clients back off correctly. Its policy decision also travels
+        # through request.state to the outer middleware, which emits truthful
+        # X-RateLimit-* values after this response is built.
+        headers: dict[str, str] | None = None
+        if isinstance(exc, RateLimitError):
+            headers = {"Retry-After": str(exc.retry_after)}
+            # Mark even a manually raised/metadata-less 429 as rate-limited so
+            # middleware does not add unrelated nominal capacity headers.
+            request.state.rate_limit_applied = True
+            if (
+                exc.limit is not None
+                and exc.remaining is not None
+                and exc.reset_at is not None
+            ):
+                request.state.rate_limit = {
+                    "limit": exc.limit,
+                    "remaining": exc.remaining,
+                    "reset": exc.reset_at,
+                }
         return JSONResponse(
             status_code=exc.status_code,
             content=_error_body(
                 type(exc).__name__, exc.detail, exc.status_code, request, **extra
             ),
+            headers=headers,
         )
 
     @app.exception_handler(StarletteHTTPException)

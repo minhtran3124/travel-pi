@@ -37,6 +37,9 @@ and writes, and uses a hot path only for explicit remember/correct/forget comman
 - Follow-up 2026-07-21 — synchronized `WORKFLOW.md` with the current parent graph, task ledger,
   fixed per-run context, background extraction, state/tool/model configuration, and known gaps.
   `WORKFLOW_DIAGRAM.md` remains intentionally untouched pending the next pass.
+- Follow-up 2026-07-21 — made `RESEARCH.md` the English source of truth and added
+  `RESEARCH.vi.md` as the synchronized Vietnamese version. Both include the recommended PR 1–6
+  implementation sequence and the immediate PR 1 feedback-event foundation.
 
 ## Deviations
 
@@ -54,6 +57,11 @@ and writes, and uses a hot path only for explicit remember/correct/forget comman
 | Workflow stale claims removed | `if rg -n 'mode × tier\|extract_memory → END\|current_flow=REVISE\|ctx\.model\|gpt-4\.1' WORKFLOW.md; then false; else true; fi` | 0 | Old in-graph extraction, request-mode, model-hint, and model-default descriptions removed |
 | Workflow current anchors | `rg -n 'dispatch_next\|AFTER RESPONSE\|no .*extract_memory.* graph node\|BackgroundTask\|gpt-5-mini\|pending_flows\|awaiting_user' WORKFLOW.md` | 0 | Current topology, context, background extraction, and defaults documented |
 | Workflow diff hygiene | `git diff --check -- WORKFLOW.md` | 0 | No whitespace errors |
+| Bilingual PR sequence | `rg -c '^### PR [1-6]' specs/user-feedback-learning/RESEARCH.md specs/user-feedback-learning/RESEARCH.vi.md` | 0 | Both documents contain all six recommended PRs |
+| Bilingual section parity | `rg -c '^## ' specs/user-feedback-learning/RESEARCH.md specs/user-feedback-learning/RESEARCH.vi.md` | 0 | 15 top-level sections in each document |
+| External-source parity | `diff <(rg -o 'https://[^)]+' specs/user-feedback-learning/RESEARCH.md \| sort -u) <(rg -o 'https://[^)]+' specs/user-feedback-learning/RESEARCH.vi.md \| sort -u)` | 0 | Both versions preserve the same official source URLs |
+| Local-reference parity | `diff <(rg -o '\.\./\.\./[^)#]+' specs/user-feedback-learning/RESEARCH.md \| sort -u) <(rg -o '\.\./\.\./[^)#]+' specs/user-feedback-learning/RESEARCH.vi.md \| sort -u)` | 0 | Both versions preserve the same code references |
+| Bilingual cross-links | `rg -n 'source_of_truth\|RESEARCH\.vi\.md\|RESEARCH\.md' specs/user-feedback-learning/RESEARCH.md specs/user-feedback-learning/RESEARCH.vi.md` | 0 | English source and Vietnamese translation link to one another |
 
 ### Rollback
 
