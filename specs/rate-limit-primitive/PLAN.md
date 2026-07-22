@@ -1,6 +1,6 @@
 ---
 slug: rate-limit-primitive
-status: proposed
+status: active
 owner: minhtran
 created: 2026-07-21
 ---
@@ -118,6 +118,42 @@ branch before executing.
   written for the rejected call; after window reset the caller can post again; authenticated and
   anonymous both enforced.
 
+### Task 5.1 — Harden persistence identity, migration, and concurrency proof (wave 5)
+
+- **Files:** apps/api/app/db/models/rate_limit_counter.py,
+  apps/api/alembic/versions/f3b7c9d1e5a2_harden_rate_limit_counters.py,
+  apps/api/app/repositories/rate_limit.py, apps/api/tests/db/test_rate_limit_migration.py,
+  apps/api/tests/db/test_rate_limit_repository.py
+- **Action:** Add a descendant migration from the already-committed rate-limit revision; make policy
+  identity include the window size so rolling configuration changes cannot prune or reuse another
+  active policy window; store epoch seconds as `BigInteger`; persist/index `prune_after`; replace
+  metadata-only migration coverage with an old-head upgrade/downgrade round-trip; and add
+  synchronized concurrent first-hit/existing-row tests using distinct sessions.
+- **Verify:** `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_rate_limit_migration.py tests/db/test_rate_limit_repository.py -q`
+- **Done:** Mixed-window policies do not reset one another, the migration is reversible and
+  64-bit-safe, and concurrent hits persist exactly once per request with exactly `limit` allowed.
+
+### Task 5.2 — Make transaction ordering and response headers truthful (wave 5)
+
+- **Files:** apps/api/app/core/rate_limit.py, apps/api/app/core/errors.py, apps/api/app/core/middleware.py, apps/api/app/exceptions.py, apps/api/tests/api/test_rate_limit_dependency.py, apps/api/tests/infra/test_errors.py
+- **Action:** Prevent the SQLite independent-session self-lock with an explicit pre-write contract
+  and regression coverage; propagate the real policy decision from dependency and direct-call paths
+  to the HTTP layer so enforced routes return truthful `X-RateLimit-*` plus `Retry-After`; omit
+  nominal capacity on metadata-less 429s while retaining nominal headers for normal unenforced routes.
+- **Verify:** `cd apps/api && ../../.venv/bin/python -m pytest tests/api/test_rate_limit_dependency.py tests/infra/test_errors.py -q`
+- **Done:** A prior request-session write cannot wait five seconds and fail opaquely, and a blocked
+  production-stack response never advertises positive remaining capacity.
+
+### Task 5.3 — Refresh deploy and audit handoff (wave 5)
+
+- **Files:** apps/api/.env.example, specs/rate-limit-primitive/PLAN.md, specs/rate-limit-primitive/SUMMARY.md
+- **Action:** Advertise the feedback limiter settings, record the review fixes and current test
+  evidence, replace stale status/counts and rollback placeholders, and preserve Task 4.1 as the only
+  deferred integration item.
+- **Verify:** `git diff --check -- apps/api/.env.example specs/rate-limit-primitive`
+- **Done:** Operators can discover every setting and the high-risk audit record matches the actual
+  branch state with exact rollback commands.
+
 ## 5. Risks
 
 - **Fixed-window burst:** a fixed window allows up to 2×limit across a boundary. Acceptable for a coarse
@@ -149,3 +185,10 @@ branch before executing.
 - 2026-07-21 — Task 4.1 **BLOCKED**: depends on `POST /agent/feedback` from `specs/user-feedback-v1`,
   which is not yet implemented. Wire `Depends(rate_limit(...))` (or call `enforce_rate_limit()` with
   the body-resolved anonymous subject) when that endpoint lands.
+- 2026-07-22 — Code review requested fixes from P1 through P3. Wave 5 added for policy identity,
+  SQLite transaction ordering, truthful headers, real migration/concurrency tests, 64-bit epochs,
+  and deploy/audit documentation. Task 4.1 remains independently blocked.
+- 2026-07-22 — Wave 5 complete: 49 targeted tests pass on both SQLite and PostgreSQL 17; Ruff,
+  formatting, sole Alembic head `f3b7c9d1e5a2`, metadata check, and scoped diff hygiene pass. The
+  env-isolated backend suite passes 1802 tests with one pre-existing Open-Meteo-dependent city-route
+  case deselected. Task 4.1 remains the only blocked item.

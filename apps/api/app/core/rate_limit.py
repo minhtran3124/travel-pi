@@ -78,18 +78,34 @@ def enforce_rate_limit(
     limit: int,
     window_seconds: int,
     now_epoch: int | None = None,
+    request: Request | None = None,
 ) -> RateLimitDecision:
     """Record one hit and raise :class:`RateLimitError` (429) when over the limit.
 
-    :param session: The request-scoped session (unit of work).
+    :param session: The request-scoped session (unit of work). It must not have
+        started a transaction yet; the limiter commits on an independent session
+        so rejected/erroring requests are still counted durably.
     :param name: Policy/bucket name (e.g. ``"feedback"``).
     :param subject: Effective actor id.
     :param limit: Max requests allowed per window.
     :param window_seconds: Fixed-window length in seconds.
     :param now_epoch: Override the clock (tests); defaults to ``time.time()``.
+    :param request: Optional HTTP request. Pass it when calling the core function
+        directly from a route so middleware can emit the real policy headers.
     :return: The :class:`RateLimitDecision` when allowed.
     """
     _validate_policy(name, limit, window_seconds)
+    # The durable increment must use an independent transaction. If the caller's
+    # request session has already started one, a prior SQLite write can hold the
+    # database-wide writer lock and make the limiter wait for busy_timeout before
+    # failing with an opaque "database is locked" error. Enforce one explicit,
+    # cross-engine contract instead: rate limiting runs before any request UoW
+    # read/write. Never commit or roll back caller-owned work to make room.
+    if session.in_transaction():
+        raise RuntimeError(
+            "enforce_rate_limit() must run before the request session starts a "
+            "transaction; attach the dependency before database work"
+        )
     if now_epoch is None:
         now_epoch = int(time.time())
     # Commit the increment in its OWN transaction on the same engine, not the
@@ -106,9 +122,19 @@ def enforce_rate_limit(
         limit=limit,
         window_seconds=window_seconds,
     )
+    if request is not None:
+        request.state.rate_limit_applied = True
+        request.state.rate_limit = {
+            "limit": limit,
+            "remaining": decision.remaining,
+            "reset": decision.reset_at,
+        }
     if not decision.allowed:
         raise RateLimitError(
             retry_after=decision.retry_after,
+            limit=limit,
+            remaining=decision.remaining,
+            reset_at=decision.reset_at,
             hint="Wait for the Retry-After window, then retry.",
         )
     return decision
@@ -144,6 +170,7 @@ def rate_limit(
             subject=subj,
             limit=limit,
             window_seconds=window_seconds,
+            request=request,
         )
 
     return dependency

@@ -126,7 +126,15 @@ class RateLimitError(AppError):
         detail: str | None = None,
         *,
         retry_after: int,
+        limit: int | None = None,
+        remaining: int | None = None,
+        reset_at: int | None = None,
         hint: str | None = None,
     ) -> None:
         super().__init__(detail, hint=hint)
         self.retry_after = retry_after
+        # HTTP-facing policy metadata is optional so direct/manual construction
+        # remains backwards compatible. The limiter always supplies all three.
+        self.limit = limit
+        self.remaining = remaining
+        self.reset_at = reset_at
