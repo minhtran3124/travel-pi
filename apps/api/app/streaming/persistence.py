@@ -41,6 +41,7 @@ async def persist_assistant_turn(
     ``token`` events since the last ``reset``) is written to the DB as an
     ``assistant`` message via ``session_factory`` (an isolated session — not the
     request-scoped one).  An empty accumulated text is silently skipped (Rule 2).
+    Several answers in one turn are separated by a blank line.
 
     :param events_iter: The upstream SSE event stream to pass through.
     :param conversation_id: The conversation the persisted turn belongs to.
@@ -60,7 +61,12 @@ async def persist_assistant_turn(
         elif event.event == "reset":
             accumulated.clear()
 
-    text = "".join(accumulated)
+    # Blank line between answers, mirroring the REST path (routers/agent.py).
+    # A multi-intent turn drains a ledger of sub-agents and each one contributes
+    # its own answer; joining with "" glued them into one run-on paragraph. This
+    # is only correct because the mapper coalesces each assistant message into
+    # exactly one `token` event, so one entry here == one complete answer.
+    text = "\n\n".join(accumulated)
     if not text:
         return
 

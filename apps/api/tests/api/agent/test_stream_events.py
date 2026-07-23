@@ -133,8 +133,6 @@ def test_mapper_emits_ordered_protocol():
     )
     items = [
         (ns, "updates", {"agent": {"messages": [ai_tc]}}),
-        (ns, "messages", (AIMessageChunk(content="Your", id="m1"), {})),
-        (ns, "messages", (AIMessageChunk(content=" trip", id="m1"), {})),
         (
             ns,
             "updates",
@@ -146,6 +144,15 @@ def test_mapper_emits_ordered_protocol():
                 }
             },
         ),
+        (ns, "messages", (AIMessageChunk(content="Your", id="m1"), {})),
+        (ns, "messages", (AIMessageChunk(content=" trip", id="m1"), {})),
+        # The answer's completing update — this is what releases the prose the
+        # mapper holds back (gh-109), so the deltas surface as one token.
+        (
+            ns,
+            "updates",
+            {"agent": {"messages": [AIMessage(content="Your trip", id="m1")]}},
+        ),
     ]
     out = _run(_FakeGraph(items, values={"current_flow": "planner"}))
     names = [name for name, _ in out]
@@ -153,18 +160,17 @@ def test_mapper_emits_ordered_protocol():
         "start",
         "subagent",
         "tool_call",
-        "token",
-        "token",
         "tool_result",
+        "token",
         "done",
     ]
     assert out[1][1] == {"name": "planner"}
     assert out[2][1]["id"] == "tc1"
-    assert out[3][1] == {"content": "Your"}
-    assert out[5][1] == {"id": "tc1", "status": "ok"}
-    assert out[6][1]["current_flow"] == "planner"
+    assert out[3][1] == {"id": "tc1", "status": "ok"}
+    assert out[4][1] == {"content": "Your trip"}
+    assert out[5][1]["current_flow"] == "planner"
     # done carries flow-prefixed follow-up suggestion keys for a known flow.
-    suggestions = out[6][1]["suggestions"]
+    suggestions = out[5][1]["suggestions"]
     assert isinstance(suggestions, list) and suggestions
     assert all(s.startswith("planner.") for s in suggestions)
 
@@ -188,15 +194,127 @@ def test_mapper_dedupes_tool_calls():
     assert [n for n, _ in out].count("tool_call") == 1
 
 
-def test_mapper_emits_reset_on_new_message_id():
+def test_mapper_emits_reset_on_reflection_revision():
+    """`reset` is keyed to the reflection node bumping `revisions` — the only
+    event that means "the streamed draft was rejected"."""
     ns = ("planner:1",)
     items = [
         (ns, "messages", (AIMessageChunk(content="draft", id="m1"), {})),
+        (ns, "updates", {"agent": {"messages": [AIMessage(content="draft", id="m1")]}}),
+        ((), "updates", {"reflection": {"revisions": 1}}),
         (ns, "messages", (AIMessageChunk(content="final", id="m2"), {})),
+        (ns, "updates", {"agent": {"messages": [AIMessage(content="final", id="m2")]}}),
     ]
     out = _run(_FakeGraph(items))
     names = [n for n, _ in out]
     assert names == ["start", "subagent", "token", "reset", "token", "done"]
+    assert out[2][1] == {"content": "draft"}
+    assert out[4][1] == {"content": "final"}
+
+
+def test_mapper_drops_preamble_of_a_tool_calling_message():
+    """gh-109 regression: an ordinary ReAct round (assistant prose + tool call →
+    tool result → final assistant message) changes the assistant message id but is
+    NOT a rejected draft. Emitting `reset` here made the reply visibly restart."""
+    ns = ("planner:1",)
+    preamble = "I can do that, I just need one exact date."
+    answer = f"{preamble}\n\nWhat exact departure date should I use?"
+    tc = {"id": "clarify-1", "name": "needs_clarification", "args": {}}
+    items = [
+        (ns, "messages", (AIMessageChunk(content=preamble, id="m1"), {})),
+        (
+            ns,
+            "updates",
+            {
+                "agent": {
+                    "messages": [AIMessage(content=preamble, id="m1", tool_calls=[tc])]
+                }
+            },
+        ),
+        (
+            ns,
+            "updates",
+            {
+                "tools": {
+                    "messages": [ToolMessage(content="ask", tool_call_id="clarify-1")]
+                }
+            },
+        ),
+        (ns, "messages", (AIMessageChunk(content=answer, id="m2"), {})),
+        (ns, "updates", {"agent": {"messages": [AIMessage(content=answer, id="m2")]}}),
+    ]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert "reset" not in names
+    assert names == [
+        "start",
+        "subagent",
+        "tool_call",
+        "tool_result",
+        "token",
+        "done",
+    ]
+    # Exactly one token, and it is the answer — the preamble never reaches the wire.
+    assert out[4][1] == {"content": answer}
+
+
+def test_mapper_resets_when_a_different_subagent_answers():
+    """gh-109 (second half): each queued ledger step regenerates a COMPLETE
+    answer rather than contributing a slice, so a drained 4-step ledger sent the
+    same reply four times. A new sub-agent's answer supersedes the previous one.
+
+    Deliberately keyed to the sub-agent changing, NOT to message-id inequality:
+    the latter also fires inside one sub-agent's ReAct round, which is what made
+    a single clarification visibly restart.
+    """
+    items = [
+        (
+            ("planner:1",),
+            "messages",
+            (AIMessageChunk(content="full answer", id="m1"), {}),
+        ),
+        (
+            ("planner:1",),
+            "updates",
+            {"agent": {"messages": [AIMessage(content="full answer", id="m1")]}},
+        ),
+        (
+            ("budget:1",),
+            "messages",
+            (AIMessageChunk(content="same answer again", id="m2"), {}),
+        ),
+        (
+            ("budget:1",),
+            "updates",
+            {"agent": {"messages": [AIMessage(content="same answer again", id="m2")]}},
+        ),
+    ]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert names == [
+        "start",
+        "subagent",
+        "token",
+        "subagent",
+        "reset",
+        "token",
+        "done",
+    ]
+    # The reset lands between the two answers, so only the last survives on
+    # screen and in persistence (which clears its accumulator on reset).
+    assert out[2][1] == {"content": "full answer"}
+    assert out[5][1] == {"content": "same answer again"}
+
+
+def test_mapper_skips_reset_when_nothing_streamed_yet():
+    """A revision with no prior streamed draft has nothing to drop."""
+    ns = ("planner:1",)
+    items = [
+        ((), "updates", {"reflection": {"revisions": 1}}),
+        (ns, "messages", (AIMessageChunk(content="final", id="m2"), {})),
+    ]
+    out = _run(_FakeGraph(items))
+    assert [n for n, _ in out] == ["start", "subagent", "token", "done"]
 
 
 def test_mapper_emits_interrupt_before_done():

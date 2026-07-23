@@ -183,3 +183,87 @@ def test_blocked_turn_survives_revise_prone_reflection():
     contents = [str(m.content) for m in out["messages"]]
     assert "Which exact date do you want to depart?" in contents
     assert not any("NEVER-RUN" in c for c in contents)
+
+
+# ---------------------------------------------------------------------------
+# gh-109: the flag must not depend on the model calling needs_clarification
+# ---------------------------------------------------------------------------
+
+#: An unresolvable date the numeric fast path rejects in code — no LLM call, so
+#: the FakeLLM script stays deterministic.
+_BAD_DATE_CALL = {
+    "content": "",
+    "tool_calls": [
+        {
+            "name": "resolve_date",
+            "args": {"expression": "99/99/2026"},
+            "id": "call-resolve-1",
+        }
+    ],
+}
+
+
+def test_prose_clarification_after_failed_resolve_abandons_queue():
+    """gh-109: the sub-agent asks for the missing date in PROSE and never calls
+    ``needs_clarification``.
+
+    That is what shipped the duplicated reply: ``needs_clarification`` was the
+    only writer of ``awaiting_user``, so the flag stayed false, the ledger
+    drained, and every queued sub-agent re-answered the same question. A
+    ``resolve_date`` that cannot resolve now sets the flag itself.
+    """
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", plan=["concierge", "planner"])
+        ],
+        main_responses=[
+            _BAD_DATE_CALL,
+            "I need one exact date before I can search flights.",
+            "NEVER-RUN concierge answer",
+            "NEVER-RUN planner follow-on answer",
+        ],
+        fast_responses=["OK"],
+    )
+    out = _invoke(graph, "plan a trip at the end of this month", "t-prose-clarify")
+
+    assert out["awaiting_user"] is True
+    assert out["pending_flows"] == []
+    contents = [str(m.content) for m in out["messages"]]
+    assert "I need one exact date before I can search flights." in contents
+    # The duplication: each queued sub-agent re-answering the same question.
+    assert not any("NEVER-RUN" in c for c in contents)
+
+
+def test_later_successful_resolve_does_not_clear_the_flag():
+    """Pins an accepted trade-off: the flag is sticky within a turn.
+
+    ``last_write_wins`` does not clear on a later success, so a model that
+    retries with a *different* expression after a failure still ends the turn
+    with its question. That is the intended bias — ``resolve_date``'s contract
+    is "do not guess" — and the queued work is re-planned next turn anyway.
+    """
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
+        ],
+        main_responses=[
+            _BAD_DATE_CALL,
+            {
+                "content": "",
+                "tool_calls": [
+                    {
+                        "name": "resolve_date",
+                        "args": {"expression": "2026-08-30"},
+                        "id": "call-resolve-2",
+                    }
+                ],
+            },
+            "Did you mean 30 August 2026?",
+            "NEVER-RUN concierge answer",
+        ],
+        fast_responses=["OK"],
+    )
+    out = _invoke(graph, "plan a trip at the end of this month", "t-sticky-flag")
+
+    assert out["awaiting_user"] is True
+    assert not any("NEVER-RUN" in str(m.content) for m in out["messages"])
