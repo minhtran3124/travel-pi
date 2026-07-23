@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Search by route{% endblock %}
+
+{% block content %}
+<a class="back" href="/dashboard/flights">← Flight board</a>
+<h1>Search flights by route</h1>
+
+<form class="search" method="get" action="/dashboard/flights/search">
+  <label>
+    Origin
+    <select name="origin" required>
+      <option value="">— choose origin —</option>
+      {% for airport in airports %}
+        <option value="{{ airport.code }}"
+                {% if airport.code == search.origin %}selected{% endif %}>
+          {{ airport.code }} — {{ airport.city }} ({{ airport.country }})
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Destination
+    <select name="destination" required>
+      <option value="">— choose destination —</option>
+      {% for airport in airports %}
+        <option value="{{ airport.code }}"
+                {% if airport.code == search.destination %}selected{% endif %}>
+          {{ airport.code }} — {{ airport.city }} ({{ airport.country }})
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Departure date
+    <input type="date" name="departure_date"
+           value="{{ search.departure_date or '' }}" required>
+  </label>
+  <label>
+    Airline
+    <select name="airline">
+      <option value="">Any airline</option>
+      {% for a in airlines %}
+        <option value="{{ a.code }}"
+                {% if a.code == search.airline %}selected{% endif %}>
+          {{ a.code }} — {{ a.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Max price (USD)
+    <input type="number" name="max_price" min="0" step="10"
+           placeholder="Any"
+           value="{{ search.max_price if search.max_price is not none else '' }}">
+  </label>
+  <label>
+    Stops
+    <select name="max_stops">
+      <option value="">Any</option>
+      <option value="0" {% if search.max_stops == 0 %}selected{% endif %}>Direct only</option>
+      <option value="1" {% if search.max_stops == 1 %}selected{% endif %}>Up to 1 stop</option>
+    </select>
+  </label>
+  <label>
+    Sort by
+    <select name="sort">
+      {% for value, label in sort_options %}
+        <option value="{{ value }}" {% if value == search.sort %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Search</button>
+</form>
+
+{% if error %}
+  <p class="error">{{ error }}</p>
+{% elif searched %}
+  {% if flights %}
+    <p class="count">{{ flights | length }} flight(s) found</p>
+    <div class="table-wrap" style="border-radius: var(--radius); border: 1px solid var(--line);">
+      <table class="fids" id="fids-search">
+        <thead>
+          <tr>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Airline</th>
+            <th>Flight</th>
+            <th>Stops</th>
+            <th>Duration</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flight in flights %}
+            {% set origin_airport = airports_by_code.get(flight.origin) %}
+            {% set dest_airport = airports_by_code.get(flight.destination) %}
+            <tr style="--i: {{ loop.index0 }}">
+              <td class="sta"><span class="flap">{{ flight.departure_time.strftime("%H:%M") }}
+                <span class="sub">{{ flight.departure_time.strftime("%d %b") }}</span>
+              </span></td>
+              <td class="sta"><span class="flap">{{ flight.arrival_time.strftime("%H:%M") }}
+                <span class="sub">{{ flight.arrival_time.strftime("%d %b") }}</span>
+              </span></td>
+              <td>
+                <span class="from-city">{{ flight.origin }}</span>
+                <span class="sub">{{ origin_airport.city ~ ", " ~ origin_airport.country if origin_airport else "—" }}</span>
+              </td>
+              <td>
+                <span class="from-city">{{ flight.destination }}</span>
+                <span class="sub">{{ dest_airport.city ~ ", " ~ dest_airport.country if dest_airport else "—" }}</span>
+              </td>
+              <td>
+                <span class="airline" style="background: {{ airline_colors.get(flight.airline.code, airline_color_default) }}">{{ flight.airline.code }}</span>
+                <span class="airline-name">{{ flight.airline.name }}</span>
+              </td>
+              <td class="flight"><a href="/dashboard/flights/{{ flight.id }}">{{ flight.flight_number }}</a></td>
+              <td>
+                {% if flight.stops == 0 %}
+                  <span class="badge direct">Direct</span>
+                {% else %}
+                  <span class="badge stops">{{ flight.stops }} stop{{ "s" if flight.stops > 1 else "" }}</span>
+                {% endif %}
+              </td>
+              <td>{{ flight.duration_minutes | hm }}</td>
+              <td class="sta">{{ flight.currency }} {{ "%.2f" | format(flight.price) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">
+      <div class="empty-arc" aria-hidden="true">
+        <svg viewBox="0 0 200 56" width="140" height="40">
+          <path d="M 14 46 C 74 6 126 6 186 42" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"/>
+          <circle cx="14" cy="46" r="3.5" fill="var(--accent)"/>
+          <circle cx="186" cy="42" r="3.5" fill="var(--accent)"/>
+        </svg>
+        <span class="empty-arc-plane">✈️</span>
+      </div>
+      <strong>No flights found</strong><br>
+      Nothing matches this route, date, and filters.
+    </div>
+  {% endif %}
+{% else %}
+  <div class="empty" style="border-radius: var(--radius); border: 1px solid var(--line);">
+    <div class="empty-arc" aria-hidden="true">
+      <svg viewBox="0 0 200 56" width="140" height="40">
+        <path d="M 14 46 C 74 6 126 6 186 42" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"/>
+        <circle cx="14" cy="46" r="3.5" fill="var(--accent)"/>
+        <circle cx="186" cy="42" r="3.5" fill="var(--accent)"/>
+      </svg>
+      <span class="empty-arc-plane">✈️</span>
+    </div>
+    <strong>Search flights by route</strong><br>
+    Pick an origin, destination, and date, then hit Search.
+  </div>
+{% endif %}
+
+<style>
+  /* ── Route-arc empty-state motif ──
+     A minimal redraw of the home hero's dashed route-arc + plane, drawn once
+     and fully static (no motion to guard). Lives inside the existing .empty
+     grammar so the friendly copy and structure are unchanged. */
+  .empty-arc { position: relative; width: 140px; height: 40px; margin: 0 auto 14px; }
+  .empty-arc svg { display: block; }
+  .empty-arc-plane {
+    position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    font-size: 1.35rem; line-height: 1;
+  }
+
+  /* ── Results settle (parity with the flights board) ──
+     The departure/arrival time cells flip in once like a Solari board: a
+     two-frame rotateX flip, staggered ~28ms/row, capped ≤600ms. Page-scoped
+     duplication of board.html's pattern — base.html is untouched. Only plays
+     when JS adds .is-settling (once per full navigation); reduced-motion
+     renders the final state instantly. */
+  #fids-search.is-settling td { perspective: 500px; }
+  #fids-search.is-settling .flap {
+    display: inline-block; transform-origin: top center;
+    animation: s-flap-settle .18s cubic-bezier(.3, 1, .4, 1) both;
+    animation-delay: min(calc(var(--i, 0) * 28ms), 400ms);
+  }
+  @keyframes s-flap-settle {
+    from { transform: rotateX(-92deg); opacity: .35; }
+    to   { transform: rotateX(0); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #fids-search.is-settling .flap { animation: none; }
+  }
+</style>
+
+<script>
+  /* One-shot split-flap settle for the search results — mirrors the board's
+     trigger: add the settling class once on a genuine full navigation, skip
+     under reduced-motion and on bfcache restores. */
+  (function () {
+    var table = document.getElementById("fids-search");
+    if (!table) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function play() { table.classList.add("is-settling"); setTimeout(function () { table.classList.remove("is-settling"); }, 650); }
+    if (reduce) return;
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", play);
+    else play();
+    window.addEventListener("pageshow", function (e) { if (e.persisted) table.classList.remove("is-settling"); });
+  })();
+</script>
+{% endblock %}

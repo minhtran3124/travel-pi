@@ -2,132 +2,115 @@
 
 Guidance for Claude Code working in this repo.
 
-## Work in the root project
+## Project
 
-The real codebase is the **Python FastAPI mock backend at the repo root**
-(`app/`, `tests/`, `scripts/`). Run commands from the root, edit the root `app/`.
+FastAPI backend for a Travel Planner agent. Trips, bookings, expenses, hotels, places, and other domain data are real CRUD APIs persisted in SQLite/Postgres. Real external calls: keyless Open-Meteo (`/weather`, `/air-quality`, `/destinations/{city}/climate`), `/*/route` (OpenRouteService, haversine fallback), and the AI agent's LLM calls (real provider via `init_chat_model()` when keys are set; `FakeLLM` in tests). Travel inventory stays synthetic: flight and hotel-availability search is deterministically generated from seed data, and FX is a static snapshot.
 
-Ignore the untracked `apps/` and `packages/` monorepo scaffold — it's incomplete,
-not buildable, and `apps/api/app/` is a stale copy of the root `app/`. Watch out
-for the duplicate `app/` tree and two `travel.db` files so you don't edit the
-wrong one.
+**Monorepo** (pnpm workspaces + Turborepo). The BE lives in `apps/api/` (FastAPI) and the
+Next.js FE in `apps/web/`. Do BE work in `apps/api/`; the single Python venv stays at the
+repo root (`.venv`), referenced by `apps/api/Makefile` via `VENV ?= ../../.venv`. A root
+`Makefile` delegates to both apps: `make api | web | dev | test | lint | seed`.
 
-## What this is
+New here? Start with `AGENTS.md` (orientation), then `TECHSTACKS.md` (stack) and
+`WORKFLOW.md` (the AI agent architecture).
 
-A FastAPI mock backend for a Travel Planner agent: flights, hotels, bookings,
-places, tips, weather, cities. Everything is faked (no keys/payments/external
-calls) **except** `/weather` (Open-Meteo) and `/*/route` (OpenRouteService).
-Current endpoint list lives in `APIS.md`; `mock-api-spec.md` is the original
-contract (now stale on layout).
-
-## Run it
-
-Persistence is dual-engine: SQLite by default (local/tests), Postgres in Docker,
-selected by `DATABASE_URL`. See `README.md` for the full three-path run guide.
+## Run & Test
 
 ```bash
-# Local, on SQLite (zero-config)
-uv venv && source .venv/bin/activate
-uv pip install -r requirements.txt
-make dev                                            # uvicorn, Swagger at /docs
-make test                                           # 663 tests on SQLite
+# Setup (once, from repo root)
+uv venv && source .venv/bin/activate && uv pip install -r apps/api/requirements.txt
 
-make seed                                           # re-seed app/data into DATABASE_URL (idempotent; auto-runs on startup)
+# All BE commands run from apps/api/
+cd apps/api
+make dev          # uvicorn + hot-reload, Swagger at /docs
+make test         # full suite on SQLite (fast, zero-config)
+make test-docker  # same tests on Postgres (cross-engine parity)
+make seed         # re-seed reference data into DATABASE_URL
 
-# Docker + Postgres (migrations run automatically via the entrypoint)
-make up                                             # app at :8000, Postgres in a container
-make test-docker                                    # 663 tests on isolated Postgres (cross-engine parity)
+# Lint / format (from apps/api/)
+ruff check app scripts
+ruff format app scripts
 
-ruff check app scripts && ruff format app scripts
+# Debug: run a single test file (from apps/api/)
+../../.venv/bin/python -m pytest tests/api/trip/test_trip_budget.py -xvs
+
+# Debug: open SQLite shell, check alembic state (from apps/api/)
+sqlite3 travel.db
+../../.venv/bin/alembic current
+../../.venv/bin/alembic upgrade head
 ```
 
 ## Layout
 
 ```
+apps/api/        # FastAPI backend (relocated from repo root)
 app/
-  main.py        # app factory, CORS, exception handlers, request-log middleware
-  exceptions.py  # domain exceptions (AppError + subclasses), no FastAPI deps
-  core/          # config, logging, lifespan, geo (haversine), text (fuzzy match)
-  routers/       # one file per endpoint group (dashboard.py = HTML, not API)
+  main.py        # app factory, CORS, exception handlers, middleware
+  exceptions.py  # domain exceptions (AppError subclasses), no FastAPI deps
+  core/          # config, logging, lifespan, geo, text (fuzzy match)
+  routers/       # one file per endpoint group
   services/      # business logic
-  repositories/  # SQLAlchemy ORM data access (per-entity repos), no logic
-  db/models/     # ORM models package (plain class names, used via `models.` namespace)
+  repositories/  # SQLAlchemy ORM data access only — no logic
+  agents/        # LangGraph supervisor + 5 ReAct sub-agents, nodes, state, checkpointer
+  tools/         # agent tools grouped by domain (registry.py); also exposed via mcp/
+  clients/llm.py # provider-agnostic LLM client (init_chat_model; FakeLLM in tests)
+  memory/        # conversation memory (summarizer/store)
+  db/models/     # ORM models (plain class names, used via `models.` namespace)
   schemas/       # Pydantic v2 models (extend AppBaseModel)
-  data/          # seed source of truth + import-time guards (countries, airlines, …)
-tests/           # pytest, isolated temp SQLite DB per run (conftest.py)
+  data/          # seed source of truth
+tests/           # pytest, isolated temp SQLite DB per run
 ```
 
-## Architecture rules
+## Architecture
 
-- **Layering:** routers → services (rules) → repositories (SQL). Services raise domain
-  exceptions (`NotFoundError`→404, `ConflictError`→409, `UpstreamError`→502) and
-  never import `HTTPException`. `main.py` turns `AppError`, `HTTPException`, and
-  `RequestValidationError` into one JSON envelope
-  (`{error, message, status_code, path, [errors]}`). Routes declare codes via
-  `responses=error_responses(...)`.
-- **Persistence is SQLAlchemy 2.0 ORM (sync) over SQLite-or-Postgres**, chosen
-  by `DATABASE_URL` (default `sqlite:///travel.db` for local/tests; Docker
-  injects `postgresql+psycopg://...`). Schema is versioned by **Alembic**
-  (`alembic upgrade head`, run automatically by the Docker entrypoint). The ORM
-  is confined to `app/repositories/` — services/schemas/routers stay ORM-free. ORM models
-  live in the **`app/db/models/` package** (one file per entity, plain class
-  names like `Hotel`/`City`), referenced via the **`models.` namespace**
-  (`from app.db import models` → `models.Hotel`) to avoid colliding with the
-  identically-named Pydantic response models in `app/schemas/`.
-- **Bookings are the canonical mutable state**; `total_price` is always computed
-  server-side — requests never carry a price. `GET /bookings/{id}` accepts the
-  UUID or the derived `confirmation_code`; `cancel` is a soft, idempotent state
-  change. Trips, saved_places, and the flight_index also persist (same ORM).
-- **Deterministic generation, never stored:** flights and hotel availability are
-  generated from an MD5 seed (flights: `origin-dest-date`; rooms:
-  `hotel.id-check_in-check_out`), so the same query always returns the same
-  result and IDs reverse back into search params. **Changing the seed algorithm
-  breaks existing IDs.**
-- **Async only for real network I/O:** `weather_service` and `routing_service`
-  (and their `httpx.AsyncClient`) are async; everything else is sync. Routing
-  degrades to an offline haversine estimate with no `ORS_API_KEY` (`source` field
-  says which); results are cached in-process.
-- **Seed data is DB-backed.** The 9 reference entity groups (countries, airlines,
-  airports, cities, hotels, places, tips, visa, fx) live in the database and are
-  **read through per-entity repos in `app/repositories/` per request**. `app/data/`
-  REMAINS the guarded source of truth — `data/countries.py` is canonical for
-  countries and the other data files validate against it; those **import-time
-  consistency guards now run at seed time**, so typos still fail loudly on
-  startup. `app/db/seed.py` seeds the DB **idempotently** from `app/data` via
-  `session.merge()` (City uses a natural-key upsert); seeding runs automatically
-  on startup and via `make seed` (seeds the configured `DATABASE_URL`). `from
-  app.data` should appear only in `app/db/seed.py`. Determinism: `Airline.position`
-  / `Country.position` preserve seed order (airline order is load-bearing for
-  seeded flight generation), and tips are positional-ID'd — **append only, never
-  reorder** the `app/data` lists.
-- Routes return typed `response_model`s so the FE can codegen TS types.
+- **Layers:** routers → services → repositories. Services raise domain exceptions (`NotFoundError`→404, `ConflictError`→409, `UpstreamError`→502), never `HTTPException`.
+- **ORM confined to `repositories/`**. Models live in `app/db/models/`, referenced as `models.Hotel` etc. to avoid collision with Pydantic schemas.
+- **Persistence:** SQLite locally, Postgres in Docker — selected by `DATABASE_URL`. Schema versioned by Alembic.
+- **Deterministic generation:** flights and hotel availability seeded from MD5 hash; same query = same result. Don't change the seed algorithm.
+- **Async only for real I/O:** `weather_service`, `routing_service`. Everything else is sync.
+- **Seed data is DB-backed** — seeded idempotently from `app/data/` on startup. `from app.data` appears only in `app/db/seed.py`.
+- **AI agent (`specs/travel-agent/`):** LangGraph graph (supervisor → planner/concierge/journal/booking/budget → reflection), built once in `core/lifespan.py`, served at `/agent/*`. Provider-agnostic via `init_chat_model()`; tests run on `FakeLLM` (no network). Full detail in `WORKFLOW.md`.
 
 ## Conventions
 
-- Python 3.10+ hints (`list[X]`, `X | None`), Pydantic v2.
-- `datetime.now(timezone.utc)`, never `utcnow()`.
+- Python 3.10+ hints, Pydantic v2. `datetime.now(timezone.utc)`, never `utcnow()`.
+- Fuzzy name resolution for free-text city/country (`core/text.py`). Unknown city → `count: 0`, not 404.
 - `logging.getLogger(__name__)`, never `print()`.
-- **Fuzzy name resolution everywhere** free-text city/country is accepted, via
-  `core/text.py` (`best_match` / `fuzzy_filter`). Resource IDs (UUIDs, IATA)
-  stay exact. An unrecognised city/country returns `count: 0`, not 404.
-- Keep it minimal — no auth, pagination, or rate limiting (see
-  `mock-api-spec.md` §1). Console logging is in scope; anything heavier is not.
-  Persistence uses **SQLAlchemy 2.0 ORM (sync)**, engine selected by
-  `DATABASE_URL` (SQLite default for local/tests, Postgres in Docker), schema
-  versioned by **Alembic**; **the ORM is confined to `app/repositories/`** —
-  services/schemas/routers stay ORM-free. (See `docs/decisions/0001-orm-and-postgres.md`.)
+- No auth, pagination, or rate limiting.
 
-## Design Context
+## Design
 
-The `/dashboard/*` HTML pages (Jinja2) have a captured design system. Before
-UI work on them, read `PRODUCT.md` (strategy: register, users, principles,
-anti-references) and `DESIGN.md` (visual: colors, typography, components). The
-CSS tokens and component styles live in `app/templates/base.html` (`:root`
-variables); it's the single source of truth for the dashboard's look — the v2
-**"Sunset"** system: a dark, warm-coral operations board with friendly
-per-topic color-coding. `--ink` = primary text, `--accent`/`--accent-2` = coral
-(brand voice; bright `--accent` takes dark `--on-accent` text, deep `--accent-2`
-takes white), a closed status spectrum (`--green/--yellow/--orange/--cyan/--red`),
-and per-card `--c` hues for topic/type color-coding (tips categories, hotel
-types). Page-specific styles live in each template's `<style>` block. Use
-`/impeccable` for design tasks; `DESIGN.md` documents the full visual system.
+Two design systems, one per surface. Read the matching `DESIGN.md` + `PRODUCT.md` before
+any UI work, and use `/impeccable` for design tasks. **Any new component or element follows
+the system — extend it, never route around it.**
+
+- **Web app (`apps/web/`, Next.js):** repo-root `DESIGN.md` + `PRODUCT.md`. Build from the
+  shared `apps/web/src/components/ui/` primitives (`Button`, `Modal`, `ConfirmDialog`,
+  `Field`, `Select`, `Pill`, …) and the Tailwind `@theme` tokens (`bg-panel`, `border-line`,
+  `text-ink`/`muted`, `xs–xl` spacing, `rounded-{sm,md,lg,pill}`). Never a native
+  `window.confirm`/`alert`/`prompt` or a hand-rolled overlay — use `ConfirmDialog`/`Modal`.
+- **API dashboard (`apps/api/`, `/dashboard/*` templates):** `apps/api/DESIGN.md` +
+  `apps/api/PRODUCT.md`. Tokens live in `app/templates/base.html` `:root`.
+
+## Knowledge Base
+Solved problems, patterns, and architectural decisions: `docs/solutions/`
+Browse the index: `docs/solutions/INDEX.md`
+Critical learnings (read at planning time): `docs/solutions/critical-patterns.md`
+
+## Shell & Git
+
+- **Stage and commit as SEPARATE commands.** A PreToolUse hook blocks compound
+  `git add … && git commit …` (the whole command is denied before the `add` runs).
+  Run `git add <paths>` first, then `git commit …` as its own command.
+- **Working directory after the monorepo move:** run BE commands from `apps/api/`
+  (or via the delegating root `Makefile`), FE commands from `apps/web/`. New
+  root-level docs belong at the repo root, not under `apps/`.
+- **Node:** use **v24** for any FE/pnpm work
+  (`export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`) — the `nvm`
+  default is still 18, and pnpm 11 requires Node ≥22.13. See
+  `docs/solutions/ci/pnpm-node-floor-mismatch.md`.
+- **Shell is zsh:** use literal file lists and quote variables in `git mv`/loops
+  (zsh word-splits; bash associative-array syntax breaks).
+- **Before opening a PR:** confirm head branch, base branch (feature PRs target the
+  latest integration branch, not `main`), and the active `gh` account
+  (`minhtran3124` for this repo).

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Edit · {{ agent_name }}{% endblock %}
+
+{% block content %}
+<style>
+  /* Reflection toggle: horizontal checkbox + label. Overrides form.search's
+     column layout + uppercase label and the full-width/min-width input rule
+     (which would otherwise stretch and centre the checkbox). */
+  form.search label.cb-field {
+    flex-direction: row; align-items: center; gap: 10px;
+    text-transform: none; letter-spacing: normal;
+  }
+  form.search .cb-field input[type="checkbox"] {
+    min-width: 0; width: 18px; height: 18px; flex: 0 0 auto;
+    padding: 0; border: 0; background: none; accent-color: var(--accent);
+  }
+  .cb-field .cb-text {
+    font-size: 0.875rem; font-weight: 600; color: var(--ink);
+    text-transform: none; letter-spacing: normal;
+  }
+</style>
+<a class="back" href="/dashboard/agent-config">← Agent config</a>
+<h1>Edit config · {{ agent_name }}</h1>
+
+{% if error %}
+  <p class="error">{{ error }}</p>
+{% endif %}
+
+<form class="search" id="cfg-form" method="post" action="/dashboard/agent-config/{{ agent_name }}">
+  <label>
+    Provider
+    <select name="provider">
+      <option value="" {% if not provider_value %}selected{% endif %}>(global default)</option>
+      {% for p in providers %}
+      <option value="{{ p }}" {% if provider_value == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Model
+    <input type="text" name="model" value="{{ model_value }}" list="model-hints"
+           placeholder="(global default)">
+    <datalist id="model-hints">
+      {% for m in model_hints %}<option value="{{ m }}">{% endfor %}
+    </datalist>
+  </label>
+  <label>
+    Temperature
+    <input type="text" name="temperature" value="{{ temperature_value }}" placeholder="(default)">
+  </label>
+  <label>
+    Max tokens
+    <input type="text" name="max_tokens" value="{{ max_tokens_value }}" placeholder="(default)">
+  </label>
+  {% if agent_name == 'reflection' %}
+  <label class="cb-field">
+    <input type="hidden" name="enabled_marker" value="1">
+    <input type="checkbox" name="enabled" value="on"
+           {% if enabled_value is not false %}checked{% endif %}>
+    <span class="cb-text">Reflection enabled</span>
+  </label>
+  {% endif %}
+  <button type="submit">Save</button>
+  <a class="fb-link" href="/dashboard/agent-config">Cancel</a>
+</form>
+
+{% if updated_at %}
+  <p class="count">Last updated: {{ updated_at }}</p>
+{% endif %}
+
+<script>
+  // Confirm-before-save via the themed dialog (replaces the native confirm()).
+  // tpDialog (base.html) with danger:false so the OK button isn't red — a Save
+  // isn't a destructive action. Resolves bool; on true, submit the form for real.
+  (function () {
+    var form = document.getElementById('cfg-form');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      window.tpDialog({
+        title: 'Save config for {{ agent_name }}?',
+        message: 'This changes the live agent model. It takes effect on the next agent run.',
+        input: false,
+        okLabel: 'Save',
+        danger: false
+      }).then(function (ok) { if (ok) form.submit(); });
+    });
+  })();
+</script>
+{% endblock %}

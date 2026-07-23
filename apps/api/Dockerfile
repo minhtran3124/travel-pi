@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+WORKDIR /app
+
+# psycopg[binary] ships its own libpq, so no apt postgresql-client needed.
+# requirements.txt pulls in requirements-ai.txt (the LangChain/LangGraph stack).
+COPY requirements.txt requirements-ai.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+RUN chmod +x docker/entrypoint.sh
+
+EXPOSE 8000
+ENTRYPOINT ["docker/entrypoint.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

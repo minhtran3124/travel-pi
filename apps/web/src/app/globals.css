@@ -1,0 +1,359 @@
+@import "tailwindcss";
+
+/* Streamdown ships its own Tailwind classes in its dist bundle; this lets the
+ * Tailwind v4 scanner pick them up so streamed assistant markdown is styled. */
+@source "../../node_modules/streamdown/dist/*.js";
+
+/* Class-based dark variant (Tailwind v4) — `dark:` utilities apply under `.dark`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Travel Planner — light theme.
+ *
+ * Identity: clean white surfaces, near-black ink for primary actions, a single
+ * bright chartreuse accent (`lime`) used sparingly for highlights/active state.
+ * Modeled on the reference travel-app UI: hairline borders, soft shadows,
+ * generous radii. Primary = ink (#1c1c1c); accent = lime (#cbf24a).
+ */
+/*
+ * COLOR + SHADOW tokens flip between themes via `@theme inline` indirection:
+ * each Tailwind token points at a bare CSS var resolved under `:root` (light)
+ * or `.dark` (dark). Radii / spacing / typography do NOT flip — see the plain
+ * `@theme` block below.
+ */
+@theme inline {
+  /* accent — the one brand color; use sparingly (active state, highlights) */
+  --color-lime:       var(--lime);
+  --color-lime-soft:  var(--lime-soft);
+
+  /* warm secondary accent — decorative warmth only (covers, icons, welcome
+   * strip). Never the primary action (that stays ink) and never the "active"
+   * signal (that stays lime). Use the -ink shade for any coral *text*. */
+  --color-coral:      var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-coral-ink:  var(--coral-ink);
+
+  /* on-accent: text on the lime accent fill (dark ink in both themes).
+   * on-ink: text on the ink ACTION fill — ink inverts between themes, so this
+   * must invert too (white in light, near-black in dark) to stay readable. */
+  --color-on-accent:  var(--on-accent);
+  --color-on-ink:     var(--on-ink);
+
+  /* surfaces */
+  --color-void:          var(--void);          /* page background */
+  --color-panel:         var(--panel);         /* cards, header, panels */
+  --color-panel-raised:  var(--panel-raised);  /* inputs, secondary fills */
+  --color-line:          var(--line);          /* hairline borders */
+  --color-line-soft:     var(--line-soft);     /* faint dividers */
+  --color-scrim:         var(--scrim);         /* modal/dialog backdrop dim */
+
+  /* text */
+  --color-ink:        var(--ink);        /* primary text + primary action bg */
+  --color-ink-hover:  var(--ink-hover);  /* hover state for ink fills */
+  --color-muted:      var(--muted);      /* secondary text */
+  --color-faint:      var(--faint);      /* placeholders, tertiary */
+
+  /* status spectrum */
+  --color-status-confirmed: var(--status-confirmed);
+  --color-status-estimated: var(--status-estimated);
+  --color-status-delayed:   var(--status-delayed);
+  --color-status-boarding:  var(--status-boarding);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-status-hotel:     var(--status-hotel);
+
+  /* topic palette */
+  --color-topic-transport:    var(--topic-transport);
+  --color-topic-money:        var(--topic-money);
+  --color-topic-safety:       var(--topic-safety);
+  --color-topic-culture:      var(--topic-culture);
+  --color-topic-food:         var(--topic-food);
+  --color-topic-connectivity: var(--topic-connectivity);
+  --color-topic-health:       var(--topic-health);
+  --color-topic-etiquette:    var(--topic-etiquette);
+  --color-topic-language:     var(--topic-language);
+
+  /* elevation */
+  --shadow-card: var(--shadow-card-v);
+  --shadow-lift: var(--shadow-lift-v);
+}
+
+/* Non-flipping design tokens — identical in both themes. */
+@theme {
+  /* typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Menlo", "Consolas", "SF Mono", monospace;
+
+  /* radii — soft, friendly */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* spacing (extends the default scale with named steps) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+}
+
+/* LIGHT palette — the canonical Travel Planner theme (values unchanged). */
+:root {
+  color-scheme: light;
+
+  /* accent */
+  --lime:       #cbf24a;
+  --lime-soft:  #e6f8a8;
+
+  /* warm secondary accent */
+  --coral:      #fb7755;
+  --coral-soft: #ffe9e2;
+  --coral-ink:  #c2410c;
+
+  /* primary action */
+  --on-accent:  #1c1c1c;
+  --on-ink:     #ffffff;
+
+  /* surfaces */
+  --void:          #f7f7f5;
+  --panel:         #ffffff;
+  --panel-raised:  #f4f4f2;
+  --line:          #ececec;
+  --line-soft:     #f1f0ee;
+  --scrim:         #1c1c1c;   /* modal backdrop — near-black dim (DESIGN.md §Modals) */
+
+  /* text */
+  --ink:        #1c1c1c;
+  --ink-hover:  #2e2e2e;
+  --muted:      #6b6b6b;
+  --faint:      #9a9a9a;
+
+  /* status spectrum (tuned for AA on light surfaces) */
+  --status-confirmed: #16a34a;
+  --status-estimated: #ca8a04;
+  --status-delayed:   #ea580c;
+  --status-boarding:  #0284c7;
+  --status-cancelled: #dc2626;
+  --status-hotel:     #2563eb;
+
+  /* topic palette (darkened for light surfaces; Pill darkens text further) */
+  --topic-transport:    #b45309;
+  --topic-money:        #15803d;
+  --topic-safety:       #b91c1c;
+  --topic-culture:      #7c3aed;
+  --topic-food:         #c2410c;
+  --topic-connectivity: #0369a1;
+  --topic-health:       #be123c;
+  --topic-etiquette:    #0f766e;
+  --topic-language:     #4338ca;
+
+  /* elevation — soft, light-theme shadows.
+   * -v suffix avoids name collision with the @theme inline tokens --shadow-card / --shadow-lift */
+  --shadow-card-v: 0 1px 2px rgba(17, 17, 17, 0.04), 0 6px 20px -8px rgba(17, 17, 17, 0.10);
+  --shadow-lift-v: 0 16px 40px -12px rgba(17, 17, 17, 0.18), 0 4px 12px -6px rgba(17, 17, 17, 0.10);
+
+  /* neutral focus ring (utility in @layer base, below) */
+  --focus-ring: rgba(28, 28, 28, 0.16);
+}
+
+/* DARK palette — hand-tuned for dark surfaces (brighter accents, AA on dark). */
+.dark {
+  color-scheme: dark;
+
+  /* accent */
+  --lime:       #cbf24a;
+  --lime-soft:  #2e3a12;
+
+  /* warm secondary accent */
+  --coral:      #fb7755;
+  --coral-soft: #3a201a;
+  --coral-ink:  #fb9a7e;
+
+  /* primary action */
+  --on-accent:  #15161a;
+  --on-ink:     #15161a;
+
+  /* surfaces — softer charcoal (not near-black), with a clear page→card step
+   * and stronger borders. In dark mode the soft-black card shadow is nearly
+   * invisible, so borders carry the elevation; cards must not blend into the
+   * page. */
+  --void:          #1b1e24; /* page background — soft dark, not black */
+  --panel:         #242832; /* cards, header, chat panel — clearly above void */
+  --panel-raised:  #2e333e; /* inputs, secondary fills */
+  --line:          #3b414d; /* hairline borders — visibly define cards/items */
+  --line-soft:     #2f343f; /* faint dividers */
+  --scrim:         #000000; /* modal backdrop — pure black, stronger over the dark page */
+
+  /* text */
+  --ink:        #f2f2f0;
+  --ink-hover:  #d8d8d4;
+  --muted:      #9aa0a8;
+  --faint:      #6b7079;
+
+  /* status spectrum (brightened for AA on dark surfaces) */
+  --status-confirmed: #4ade80;
+  --status-estimated: #fbbf24;
+  --status-delayed:   #fb923c;
+  --status-boarding:  #38bdf8;
+  --status-cancelled: #f87171;
+  --status-hotel:     #60a5fa;
+
+  /* topic palette */
+  --topic-transport:    #fbbf24;
+  --topic-money:        #4ade80;
+  --topic-safety:       #f87171;
+  --topic-culture:      #c4b5fd;
+  --topic-food:         #fb923c;
+  --topic-connectivity: #38bdf8;
+  --topic-health:       #fb7185;
+  --topic-etiquette:    #2dd4bf;
+  --topic-language:     #a5b4fc;
+
+  /* elevation — deeper shadows for dark surfaces */
+  --shadow-card-v: 0 1px 2px rgba(0,0,0,0.40), 0 6px 20px -8px rgba(0,0,0,0.55);
+  --shadow-lift-v: 0 16px 40px -12px rgba(0,0,0,0.65), 0 4px 12px -6px rgba(0,0,0,0.45);
+
+  /* neutral focus ring */
+  --focus-ring: rgba(242, 242, 240, 0.22);
+}
+
+/* neutral focus ring — outside @theme (it's a utility, not a token) */
+@layer base {
+  *:focus-visible {
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    outline: none;
+  }
+}
+
+/* Native form controls — strip the OS (macOS) default chrome so our own
+ * hairline design shows through instead. Selects render a custom chevron
+ * (see ui/Select.tsx); date/number/search lose their native spinners and
+ * recolor their indicators to match the muted token. */
+@layer base {
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Recolor the date/time picker glyph toward `muted`; brighten on hover. */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="month"]::-webkit-calendar-picker-indicator,
+  input[type="week"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 150ms ease;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+  input[type="month"]::-webkit-calendar-picker-indicator:hover,
+  input[type="week"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  /* Drop the number spinners and the search field's native cancel puck. */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+@keyframes tp-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Staggered card entrance for the trips grid. Pure CSS keyframe on mount —
+ * not class/observer-gated — so it always resolves to the visible end state
+ * (and collapses to instant under prefers-reduced-motion below). */
+@keyframes tp-deal {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-deal {
+  opacity: 0;
+  animation: tp-deal 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* The little plane drifts a touch further along its dotted arc on card hover. */
+.tp-plane { transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1); }
+.group:hover .tp-plane { transform: translate(5px, -4px); }
+
+/* ── Chat (the agent's surface) ───────────────────────────────────────────
+ * The chat is the one place the energetic personality is fully expressed:
+ * the panel springs out of the launcher, bubbles rise in, the agent "thinks"
+ * with bouncing dots, and the launcher waves hello once on mount. */
+
+/* Panel grows out of the launcher (anchored bottom-right). */
+@keyframes tp-chat-in {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-chat-in {
+  transform-origin: bottom right;
+  animation: tp-chat-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Each message settles in as it arrives. */
+@keyframes tp-msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-msg-in { animation: tp-msg-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Staggered row entrance for side-panel lists (hotels / flights / places). Each
+ * row fades + lifts in sequence (delay set inline per index), so a freshly-
+ * streamed panel reveals top-to-bottom instead of snapping every row in at once
+ * — the "jumpy" reflow. The delay is bounded inline (index capped) so the whole
+ * cascade stays under ~0.5s. Pure CSS on mount — not class/observer-gated — so
+ * it always resolves to the visible end state (and collapses to instant under
+ * prefers-reduced-motion below). Mirrors the tp-deal trips-grid pattern: the
+ * entrance lives on a wrapper so the row's own hover-lift transform is unaffected. */
+@keyframes tp-row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-row-in {
+  opacity: 0;
+  animation: tp-row-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* "Thinking" — three dots bounce in sequence (staggered via delay). */
+@keyframes tp-typing {
+  0%, 70%, 100% { transform: translateY(0);   opacity: .35; }
+  35%           { transform: translateY(-4px); opacity: 1; }
+}
+.tp-typing-dot { animation: tp-typing 1.25s ease-in-out infinite; }
+
+/* Launcher attention ring — a couple of soft pulses, then it rests. */
+@keyframes tp-ping {
+  0%   { transform: scale(1);   opacity: .45; }
+  70%  { transform: scale(1.85); opacity: 0; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+.tp-ping { animation: tp-ping 2.4s cubic-bezier(0, 0, 0.2, 1) 1s 2 both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .tp-deal { opacity: 1; }
+  .tp-row-in { opacity: 1; }
+  /* Infinite/looping motion must be silenced outright, not just sped up. */
+  .tp-typing-dot { animation: none; opacity: .6; }
+  .tp-ping { animation: none; opacity: 0; }
+}

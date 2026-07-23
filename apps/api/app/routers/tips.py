@@ -1,0 +1,85 @@
+"""Local tips endpoint: curated, practical destination advice."""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+from app.enums import TipCategory
+from app.routers.tags import Tags
+from app.schemas.error import error_responses
+from app.schemas.tip import TipsResponse
+from app.services.tip_service import TipService, get_tip_service
+
+router = APIRouter(prefix="/tips", tags=[Tags.tips])
+
+TipDep = Annotated[TipService, Depends(get_tip_service)]
+
+
+@router.get(
+    "",
+    response_model=TipsResponse,
+    summary="Get local tips for a city or country",
+    responses=error_responses(422),
+)
+def get_tips(
+    tips: TipDep,
+    city: Annotated[
+        str | None,
+        Query(
+            description=(
+                "City name (fuzzy — typo/case tolerant) — resolves its own country"
+            ),
+            examples=["Hanoi"],
+        ),
+    ] = None,
+    country: Annotated[
+        str | None,
+        Query(
+            description="Country name (fuzzy — typo/case tolerant)",
+            examples=["Vietnam"],
+        ),
+    ] = None,
+    category: Annotated[
+        TipCategory | None,
+        Query(
+            description="Filter by category — Swagger renders the dropdown.",
+            examples=["money"],
+        ),
+    ] = None,
+    essential_only: Annotated[
+        bool,
+        Query(
+            description="Return only the must-know (essential) tips",
+            examples=[True],
+        ),
+    ] = False,
+) -> TipsResponse:
+    """Return country-level tips merged with any city-specific tips.
+
+    Provide either ``city`` or ``country``. Unknown locations return
+    ``count: 0`` (not a 404). Empty-string params are treated as missing so
+    HTML forms don't need to strip blanks.
+
+    :param tips: The tip service.
+    :param city: Optional city name (fuzzy — typo/case tolerant).
+    :param country: Optional country name (fuzzy — typo/case tolerant).
+    :param category: Optional filter by category.
+    :param essential_only: Whether to return only must-know tips.
+    :return: The merged tips for the location.
+    """
+    # Coerce empty strings → None (HTML forms send "" for an unset field).
+    city = city or None
+    country = country or None
+
+    if not city and not country:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Provide either 'city' or 'country'.",
+        )
+
+    return tips.get_tips(
+        city=city,
+        country=country,
+        category=category.value if category else None,
+        essential_only=essential_only,
+    )

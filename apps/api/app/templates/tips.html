@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+{% block title %}Local Tips{% endblock %}
+
+{% block content %}
+{# category → icon for the field-guide section heads #}
+{% set icons = {
+  'transport': '🚕', 'money': '💵', 'safety': '🛡️', 'culture': '🎭',
+  'food': '🍜', 'connectivity': '📶', 'health': '🏥', 'etiquette': '🤝',
+  'best_time': '🗓️', 'language': '💬'
+} %}
+{# category → signature colour (bright, dark-theme friendly) for colour-coding #}
+{% set colors = {
+  'transport': '#fbbf24', 'money': '#34d399', 'safety': '#f87171', 'culture': '#c084fc',
+  'food': '#fb923c', 'connectivity': '#38bdf8', 'health': '#fb7185', 'etiquette': '#2dd4bf',
+  'best_time': '#a3e635', 'language': '#818cf8'
+} %}
+
+<div class="board-head">
+  <h1 class="board-title"><span class="plane">💡</span> Local Tips</h1>
+  <span class="page-meta">
+    {% if view == 'picker' %}
+      {{ destinations | length }} destinations
+    {% elif view == 'browse' %}
+      {{ result.tips | length }} tips · all destinations
+    {% else %}
+      {{ result.tips | length }} tip{{ '' if result.tips | length == 1 else 's' }} ·
+      {{ result.city or result.country }}
+    {% endif %}
+  </span>
+</div>
+
+<form method="get" action="/dashboard/tips" class="filter-bar">
+  <label class="fg">
+    <span class="fl">Country</span>
+    <select name="country" onchange="this.form.city.value=''">
+      <option value="">All countries</option>
+      {% for c in countries %}
+        <option value="{{ c }}" {% if selected_country == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="fg">
+    <span class="fl">City</span>
+    <select name="city">
+      <option value="">{{ "— any city —" if selected_country else "All cities" }}</option>
+      {% for c in cities %}
+        <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="fg">
+    <span class="fl">Category</span>
+    <select name="category">
+      <option value="">All categories</option>
+      {% for key, label in categories.items() %}
+        <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button class="fb-btn" type="submit">Apply</button>
+
+  <div class="fb-sep"></div>
+
+  <label class="toggle-chip {{ 'is-on' if essential_only else '' }}">
+    <input type="checkbox" name="essential_only" value="true" onchange="this.form.submit()"
+           {% if essential_only %}checked{% endif %}>
+    <span class="tc-box">{% if essential_only %}✓{% endif %}</span>
+    Essential only
+  </label>
+
+  {% if selected_country or selected_city or selected_category or essential_only %}
+    <a href="/dashboard/tips" class="fb-link">✕ Clear</a>
+  {% endif %}
+</form>
+
+
+{# ════════════════════ PICKER ════════════════════ #}
+{% if view == 'picker' %}
+  {# regions in seed order (Southeast Asia, then East Asia) #}
+  {% set regions = [] %}
+  {% for d in destinations %}{% if d.region not in regions %}{{ regions.append(d.region) or '' }}{% endif %}{% endfor %}
+
+  <div class="picker">
+    <header class="picker-lead">
+      <h2 class="picker-h">Where are you headed?</h2>
+      <p class="picker-sub">Practical, on-the-ground advice from locals — transport, money,
+        safety, food and more, for {{ destinations | length }} destinations across Asia.</p>
+    </header>
+
+    {% for region in regions %}
+      <section class="picker-region">
+        <h3 class="picker-region-h">{{ region }}</h3>
+        <div class="dest-grid">
+          {% for d in destinations if d.region == region %}
+            <a class="dest" href="/dashboard/tips?country={{ d.name | urlencode }}">
+              <span class="dest-flag" aria-hidden="true">{{ d.flag }}</span>
+              <span class="dest-body">
+                <span class="dest-name">{{ d.name }}</span>
+                <span class="dest-meta">{{ d.count }} tips{% if d.essential %} · <span class="dest-ess">★ {{ d.essential }} essential</span>{% endif %}</span>
+              </span>
+              <span class="dest-go" aria-hidden="true">→</span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+
+    <p class="picker-foot">
+      <a href="/dashboard/tips?browse=all">Or browse every tip by category →</a>
+    </p>
+  </div>
+
+
+{# ════════════════════ FIELD GUIDE (destination / browse) ════════════════════ #}
+{% elif result.tips %}
+  {% set essentials = result.tips | selectattr('is_essential') | list %}
+  <div class="guide">
+
+    {% if view == 'browse' %}
+      <header class="guide-lead">
+        <a class="guide-back" href="/dashboard/tips">← All destinations</a>
+        <p class="guide-dest">Every destination</p>
+        <p class="guide-summary">Browsing all {{ result.tips | length }} tips, grouped by topic.
+          Pick a country above to focus on one place.</p>
+      </header>
+    {% elif result.country or result.summary %}
+      <header class="guide-lead">
+        <a class="guide-back" href="/dashboard/tips">← All destinations</a>
+        {% if result.country %}
+          <p class="guide-dest">{% if result.city %}{{ result.city }} · {% endif %}{{ result.country }}</p>
+        {% endif %}
+        {% if result.summary %}
+          <p class="guide-summary">{{ result.summary }}</p>
+        {% endif %}
+      </header>
+    {% endif %}
+
+    {# Essentials — only in a single-destination view, where the list is short. #}
+    {% if view == 'destination' and essentials and not essential_only %}
+      <section class="essentials" aria-label="Essential tips">
+        <h2 class="essentials-h">★ Essentials — read these first</h2>
+        <ol class="essentials-list">
+          {% for tip in essentials %}
+            <li>
+              <span class="ess-num">{{ loop.index }}</span>
+              <div class="ess-body">
+                <p class="ess-title">{{ tip.title }}</p>
+                <p class="ess-text">{{ tip.content }}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+    {% endif %}
+
+    {# Jump nav #}
+    <nav class="guide-jump" aria-label="Jump to a category">
+      {% for key, label in categories.items() %}
+        {% set group = result.tips | selectattr('category', 'equalto', key) | list %}
+        {% if group %}
+          <a href="#cat-{{ key }}" style="--c: {{ colors.get(key, 'var(--accent)') }}"><span class="j-ico">{{ icons.get(key, '📍') }}</span>{{ label }}<span class="j-n">{{ group | length }}</span></a>
+        {% endif %}
+      {% endfor %}
+    </nav>
+
+    {# Category sections — two columns on wide screens for a single destination #}
+    <div class="cat-cols {{ 'cols-2' if view == 'destination' else '' }}">
+    {% for key, label in categories.items() %}
+      {% set group = result.tips | selectattr('category', 'equalto', key) | list %}
+      {% if group %}
+        <section class="cat" id="cat-{{ key }}" style="--c: {{ colors.get(key, 'var(--accent)') }}">
+          <div class="cat-head">
+            <span class="cat-ico" aria-hidden="true">{{ icons.get(key, '📍') }}</span>
+            <h2 class="cat-name">{{ label }}</h2>
+            <span class="cat-count">{{ group | length }}</span>
+          </div>
+          <div class="cat-tips">
+            {% for tip in group %}
+              <article class="entry {{ 'is-ess' if tip.is_essential else '' }}">
+                <h3 class="entry-title">
+                  {% if tip.is_essential %}
+                    <span class="m-ess" title="Essential">★</span>
+                  {% else %}
+                    <span class="m-dot" aria-hidden="true"></span>
+                  {% endif %}
+                  {{ tip.title }}
+                </h3>
+                <p class="entry-text">{{ tip.content }}</p>
+                {% if view == 'browse' and tip.location %}
+                  <p class="entry-meta">📍 {{ tip.location }}</p>
+                {% elif tip.scope == 'city' and tip.location %}
+                  <p class="entry-meta">📍 {{ tip.location }}</p>
+                {% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    {% endfor %}
+    </div>
+  </div>
+
+{% else %}
+  <div class="empty" style="border-radius: 0 0 var(--radius) var(--radius);">
+    No tips match the current filters.
+    <a href="/dashboard/tips" style="color: var(--accent-dim);">Clear filters</a>
+  </div>
+{% endif %}
+
+<style>
+  /* Brighter body tone than --muted for comfortable long-form reading. */
+  .guide, .picker { --tip-body: #bcc5c3; }
+
+  /* ════════ Picker ════════ */
+  .picker {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 30px 30px 34px;
+  }
+  .picker-lead { max-width: 60ch; margin-bottom: 26px; }
+  .picker-h { margin: 0 0 8px; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+  .picker-sub { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--tip-body); text-wrap: pretty; }
+
+  .picker-region { margin-top: 24px; }
+  .picker-region-h {
+    margin: 0 0 12px; font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-dim);
+  }
+  .dest-grid {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  }
+  .dest {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; text-decoration: none;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: transform .14s, border-color .14s, box-shadow .14s, background .14s;
+  }
+  .dest:hover {
+    transform: translateY(-2px); border-color: var(--accent);
+    box-shadow: var(--shadow-lg); background: var(--accent-glow);
+  }
+  .dest:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+  .dest-flag { font-size: 1.9rem; line-height: 1; flex: 0 0 auto; }
+  .dest-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+  .dest-name { font-size: 1rem; font-weight: 700; color: var(--ink); }
+  .dest-meta { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .dest-ess { color: var(--accent-dim); font-weight: 600; }
+  .dest-go { color: var(--muted); font-size: 1.1rem; transition: transform .14s, color .14s; }
+  .dest:hover .dest-go { color: var(--accent); transform: translateX(3px); }
+
+  .picker-foot { margin: 28px 0 0; }
+  .picker-foot a {
+    font-size: 0.88rem; font-weight: 600; color: var(--accent-dim); text-decoration: none;
+  }
+  .picker-foot a:hover { color: var(--accent); text-decoration: underline; }
+
+  /* ════════ Field guide ════════ */
+  .guide {
+    background: var(--panel);
+    border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 24px 30px 32px;
+  }
+
+  .guide-lead { margin-bottom: 24px; }
+  .guide-back {
+    display: inline-block; margin-bottom: 14px;
+    font-size: 0.82rem; font-weight: 600; color: var(--accent-dim); text-decoration: none;
+  }
+  .guide-back:hover { color: var(--accent); }
+  .guide-dest {
+    margin: 0 0 7px; font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent-dim);
+  }
+  .guide-summary {
+    margin: 0; max-width: 66ch;
+    font-size: 1.08rem; line-height: 1.6; font-weight: 500; color: var(--ink);
+    text-wrap: pretty;
+  }
+
+  /* Essentials lead */
+  .essentials {
+    margin-bottom: 26px; padding: 20px 22px;
+    background: var(--accent-glow);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .essentials-h {
+    margin: 0 0 16px; display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--accent-dim);
+  }
+  .essentials-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .essentials-list li { display: flex; gap: 13px; align-items: flex-start; }
+  .ess-num {
+    flex: 0 0 auto; width: 23px; height: 23px; border-radius: 50%;
+    background: var(--accent-2); color: #fff;
+    font-size: 0.72rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .ess-body { min-width: 0; }
+  .ess-title { margin: 0 0 3px; font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+  .ess-text { margin: 0; font-size: 0.9rem; line-height: 1.55; color: var(--tip-body); }
+
+  /* Jump nav (sticky) */
+  .guide-jump {
+    position: sticky; top: 0; z-index: var(--z-sticky);
+    display: flex; flex-wrap: wrap; gap: 7px;
+    margin: 0 -30px 8px; padding: 13px 30px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .guide-jump a {
+    display: inline-flex; align-items: center; gap: 7px;
+    text-decoration: none; white-space: nowrap;
+    font-size: 0.8rem; font-weight: 600; color: var(--muted);
+    padding: 5px 7px 5px 11px; border-radius: 999px;
+    border: 1px solid var(--line);
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .guide-jump a:hover {
+    color: var(--ink);
+    border-color: var(--c, var(--accent));
+    background: color-mix(in srgb, var(--c, var(--accent)) 14%, transparent);
+  }
+  .guide-jump .j-ico { font-size: 0.92rem; line-height: 1; }
+  .guide-jump .j-n {
+    font-size: 0.68rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--c, var(--muted)) 55%, var(--ink));
+    background: color-mix(in srgb, var(--c, var(--muted)) 16%, var(--panel-2));
+    border-radius: 999px; padding: 1px 7px;
+  }
+
+  /* Category section */
+  .cat {
+    padding: 24px 0;
+    border-top: 1px solid var(--line-soft);
+    scroll-margin-top: 64px;
+  }
+  .cat:first-of-type { border-top: none; padding-top: 18px; }
+
+  /* Two columns for a single destination on wide screens: keeps each tip a
+     readable list entry while halving the scroll. Categories never split. */
+  @media (min-width: 992px) {
+    .cat-cols.cols-2 { column-count: 2; column-gap: 46px; }
+    .cat-cols.cols-2 .cat {
+      break-inside: avoid;
+      border-top: none;
+      padding: 0 0 26px;
+      margin-bottom: 26px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .cat-cols.cols-2 .cat-tips { padding-left: 0; }
+  }
+  .cat-head { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
+  .cat-ico {
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 11px;
+    background: color-mix(in srgb, var(--c, var(--accent)) 18%, var(--panel-2));
+    border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 40%, var(--line));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--c, var(--accent)) 8%, transparent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .cat-name { margin: 0; flex: 1; font-size: 1.16rem; font-weight: 800; letter-spacing: -0.01em; }
+  .cat-count {
+    font-size: 0.72rem; font-weight: 800;
+    color: color-mix(in srgb, var(--c, var(--muted)) 55%, var(--ink));
+    font-variant-numeric: tabular-nums;
+    background: color-mix(in srgb, var(--c, var(--muted)) 15%, var(--panel-2));
+    border: 1px solid color-mix(in srgb, var(--c, var(--muted)) 32%, var(--line));
+    border-radius: 999px; padding: 3px 11px;
+  }
+
+  /* Tip entries — interactive bordered rows */
+  .cat-tips { display: grid; gap: 10px; padding-left: 53px; }
+  .entry {
+    max-width: 76ch;
+    padding: 13px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    transition: background .18s ease, border-color .18s ease,
+                transform .18s ease, box-shadow .18s ease;
+  }
+  .entry:hover {
+    background: color-mix(in srgb, var(--c, var(--accent)) 11%, transparent);
+    border-color: color-mix(in srgb, var(--c, var(--accent)) 55%, var(--line));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  .entry-title {
+    margin: 0 0 5px; display: flex; align-items: baseline; gap: 9px;
+    font-size: 1rem; font-weight: 700; color: var(--ink); line-height: 1.35;
+  }
+  .m-dot {
+    flex: 0 0 auto; width: 7px; height: 7px; margin-top: 1px;
+    background: var(--c, var(--accent)); border-radius: 2px; transform: rotate(45deg);
+    transition: transform .18s ease;
+  }
+  .entry:hover .m-dot { transform: rotate(45deg) scale(1.55); }
+  .m-ess {
+    flex: 0 0 auto; color: var(--yellow); font-size: 0.9rem;
+    transition: transform .18s ease;
+  }
+  .entry:hover .m-ess { transform: scale(1.25); }
+  .entry-text { margin: 0; color: var(--tip-body); font-size: 0.92rem; line-height: 1.62; }
+  .entry-meta {
+    margin: 6px 0 0; font-size: 0.76rem; font-weight: 600; color: var(--accent-dim);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .picker { padding: 20px 14px 24px; }
+    .picker-h { font-size: 1.3rem; }
+    .dest-grid { grid-template-columns: 1fr; }
+    .guide { padding: 18px 14px 22px; }
+    .guide-summary { font-size: 1rem; }
+    .essentials { padding: 16px; }
+    .guide-jump { margin: 0 -14px 6px; padding: 11px 14px; }
+    .cat-tips { padding-left: 0; }
+    .cat-head { gap: 11px; }
+    .cat-ico { width: 34px; height: 34px; font-size: 1.05rem; }
+    .cat-name { font-size: 1.05rem; }
+  }
+
+  /* ── Reduced motion ──
+     Honor prefers-reduced-motion: no hover lift, no marker/scale motion,
+     no colour transitions — every transition/keyframe above resolves to its
+     final state instantly. Matches the defense-in-depth pattern used in base. */
+  @media (prefers-reduced-motion: reduce) {
+    .dest, .dest-go, .guide-jump a, .entry, .m-dot, .m-ess {
+      transition: none;
+    }
+    .dest:hover, .entry:hover { transform: none; }
+    .dest:hover .dest-go { transform: none; }
+    .entry:hover .m-dot { transform: rotate(45deg); }
+    .entry:hover .m-ess { transform: none; }
+  }
+</style>
+{% endblock %}

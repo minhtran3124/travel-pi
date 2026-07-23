@@ -1,0 +1,392 @@
+<title>Path B — Subagent Migration Flow</title>
+<style>
+  :root {
+    --ground:#F5F7F9; --surface:#FFFFFF; --surface-2:#EDF1F5; --panel:#F0F3F7;
+    --ink:#1B2230; --ink-2:#586277; --ink-3:#8A94A6;
+    --line:#D6DDE7; --line-strong:#B9C3D1;
+    --accent:#0E7C77; --accent-ink:#0A5C58; --accent-soft:#D6ECEA;
+    --keep:#6B7688; --keep-soft:#E7EBF1; --keep-line:#C4CCD9;
+    --warn:#9A6512; --warn-soft:#F7ECD6; --warn-line:#E3C583;
+    --danger:#A6412B; --danger-soft:#F6E3DD;
+    --shadow:0 1px 2px rgba(27,34,48,.05), 0 8px 24px -12px rgba(27,34,48,.16);
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --r:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0E1117; --surface:#161B23; --surface-2:#1C2430; --panel:#141A22;
+      --ink:#E8ECF3; --ink-2:#98A3B6; --ink-3:#6A7688;
+      --line:#28313F; --line-strong:#39445470;
+      --accent:#38C4BB; --accent-ink:#7FE0D9; --accent-soft:#0F3230;
+      --keep:#828E9F; --keep-soft:#212A36; --keep-line:#333E4C;
+      --warn:#E0A94A; --warn-soft:#2C2513; --warn-line:#5A4A22;
+      --danger:#E5806A; --danger-soft:#2E1B16;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#F5F7F9; --surface:#FFFFFF; --surface-2:#EDF1F5; --panel:#F0F3F7;
+    --ink:#1B2230; --ink-2:#586277; --ink-3:#8A94A6;
+    --line:#D6DDE7; --line-strong:#B9C3D1;
+    --accent:#0E7C77; --accent-ink:#0A5C58; --accent-soft:#D6ECEA;
+    --keep:#6B7688; --keep-soft:#E7EBF1; --keep-line:#C4CCD9;
+    --warn:#9A6512; --warn-soft:#F7ECD6; --warn-line:#E3C583;
+    --danger:#A6412B; --danger-soft:#F6E3DD;
+    --shadow:0 1px 2px rgba(27,34,48,.05), 0 8px 24px -12px rgba(27,34,48,.16);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E1117; --surface:#161B23; --surface-2:#1C2430; --panel:#141A22;
+    --ink:#E8ECF3; --ink-2:#98A3B6; --ink-3:#6A7688;
+    --line:#28313F; --line-strong:#39445470;
+    --accent:#38C4BB; --accent-ink:#7FE0D9; --accent-soft:#0F3230;
+    --keep:#828E9F; --keep-soft:#212A36; --keep-line:#333E4C;
+    --warn:#E0A94A; --warn-soft:#2C2513; --warn-line:#5A4A22;
+    --danger:#E5806A; --danger-soft:#2E1B16;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:60rem;margin:0 auto;padding:clamp(1.5rem,4vw,4rem) clamp(1.1rem,3vw,2.5rem) 5rem;}
+
+  /* ---- header ---- */
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent-ink);font-weight:600;display:flex;align-items:center;gap:.6rem;}
+  .eyebrow::before{content:"";width:1.6rem;height:2px;background:var(--accent);border-radius:2px;}
+  h1{font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.08;letter-spacing:-.02em;margin:.9rem 0 0;
+    text-wrap:balance;font-weight:700;}
+  .thesis{font-size:clamp(1.02rem,2vw,1.2rem);color:var(--ink-2);margin:.9rem 0 0;max-width:46rem;
+    text-wrap:pretty;}
+  .thesis b{color:var(--ink);font-weight:600;}
+  .meta{margin-top:1.4rem;display:flex;flex-wrap:wrap;gap:.5rem;font-family:var(--mono);font-size:.76rem;}
+  .meta span{background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);
+    padding:.28rem .6rem;border-radius:6px;}
+  .meta span b{color:var(--ink);font-weight:600;}
+
+  /* ---- legend ---- */
+  .legend{display:flex;flex-wrap:wrap;gap:1.1rem;margin:2rem 0 0;padding:.9rem 1.1rem;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);}
+  .legend .li{display:flex;align-items:center;gap:.55rem;font-size:.86rem;color:var(--ink-2);}
+  .legend .li b{color:var(--ink);font-weight:600;}
+  .swatch{width:1.6rem;height:1.05rem;border-radius:4px;flex:none;}
+  .sw-keep{background:var(--keep-soft);border:1.5px solid var(--keep-line);}
+  .sw-change{background:var(--accent-soft);border:1.5px solid var(--accent);}
+  .sw-hitl{background:var(--warn-soft);border:1.5px dashed var(--warn-line);}
+
+  /* ---- section scaffolding ---- */
+  section{margin-top:3.2rem;}
+  .kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;}
+  h2{font-size:clamp(1.25rem,2.6vw,1.6rem);letter-spacing:-.01em;margin:.35rem 0 0;font-weight:680;
+    text-wrap:balance;}
+  .lede{color:var(--ink-2);margin:.5rem 0 1.4rem;max-width:44rem;}
+  code,.m{font-family:var(--mono);font-size:.86em;}
+  p code,td code,li code{background:var(--surface-2);border:1px solid var(--line);
+    padding:.05rem .34rem;border-radius:5px;color:var(--ink);white-space:nowrap;}
+
+  /* ---- flow diagram ---- */
+  .flowcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:clamp(1.1rem,3vw,2rem);overflow-x:auto;}
+  .flow{display:flex;flex-direction:column;align-items:center;gap:0;min-width:340px;}
+  .node{width:100%;max-width:34rem;border-radius:9px;padding:.7rem 1rem;text-align:center;
+    border:1.5px solid var(--keep-line);background:var(--keep-soft);}
+  .node .nm{font-family:var(--mono);font-weight:600;font-size:.92rem;color:var(--ink);}
+  .node .sub{font-size:.78rem;color:var(--ink-2);margin-top:.15rem;}
+  .node.terminal{max-width:9rem;background:transparent;border-style:dashed;border-color:var(--line-strong);}
+  .node.terminal .nm{color:var(--ink-2);font-size:.82rem;letter-spacing:.05em;}
+  .conn{width:2px;height:1.5rem;background:linear-gradient(var(--line-strong),var(--line-strong));position:relative;}
+  .conn::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);
+    border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--line-strong);}
+  .conn.loop{background:repeating-linear-gradient(var(--line-strong) 0 4px,transparent 4px 8px);}
+  .cmd{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);background:var(--ground);
+    padding:.05rem .4rem;border-radius:4px;position:absolute;top:50%;left:calc(50% + 8px);
+    transform:translateY(-50%);white-space:nowrap;}
+
+  /* subagent fan-out */
+  .fan{width:100%;border:1.5px dashed var(--line-strong);border-radius:11px;padding:1rem;
+    background:var(--panel);}
+  .fan-h{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-3);text-align:center;margin-bottom:.85rem;}
+  .subs{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;}
+  .sub{font-family:var(--mono);font-size:.82rem;font-weight:600;padding:.5rem .8rem;border-radius:8px;
+    border:1.5px solid var(--keep-line);background:var(--surface);color:var(--ink-2);}
+  .sub.change{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink);
+    box-shadow:0 0 0 3px var(--accent-soft);}
+  .sub .tag{display:block;font-family:var(--sans);font-size:.62rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;margin-top:.15rem;opacity:.85;}
+  .hitl{margin-top:.7rem;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.78rem;color:var(--warn);background:var(--warn-soft);
+    border:1.5px dashed var(--warn-line);border-radius:8px;padding:.5rem .8rem;}
+  .hitl b{color:var(--warn);}
+
+  /* ---- onion ---- */
+  .onion-wrap{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:clamp(1.1rem,3vw,2rem);overflow-x:auto;}
+  .onion{border:1.5px solid var(--accent);border-radius:12px;padding:1.5rem 1.1rem .95rem;
+    position:relative;background:color-mix(in srgb,var(--accent-soft) 30%,transparent);min-width:300px;}
+  .onion + .onion{margin-top:.4rem;}
+  .lyr{border:1.4px solid var(--accent);border-radius:10px;padding:1.35rem .9rem .8rem;position:relative;
+    margin-top:.55rem;background:color-mix(in srgb,var(--accent-soft) 22%,transparent);}
+  .lyr-lbl{position:absolute;top:-.72rem;left:.7rem;font-family:var(--mono);font-size:.72rem;font-weight:600;
+    color:var(--accent-ink);background:var(--surface);padding:.05rem .5rem;border:1px solid var(--accent);
+    border-radius:5px;}
+  .core{text-align:center;font-family:var(--mono);font-weight:700;color:var(--ink);padding:.75rem;
+    border:1.5px solid var(--line-strong);border-radius:9px;background:var(--surface-2);}
+  .core .sub2{display:block;font-family:var(--sans);font-weight:500;font-size:.74rem;color:var(--ink-2);margin-top:.2rem;}
+  .toolbranch{margin-top:.75rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.82rem;
+    color:var(--ink-2);}
+  .chip{font-family:var(--mono);font-size:.76rem;font-weight:600;padding:.32rem .6rem;border-radius:7px;
+    border:1.5px solid var(--warn-line);background:var(--warn-soft);color:var(--warn);}
+  .onion-note{font-size:.8rem;color:var(--ink-3);margin-top:.9rem;font-family:var(--mono);text-align:center;}
+
+  /* ---- tables ---- */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);
+    box-shadow:var(--shadow);}
+  table{border-collapse:collapse;width:100%;min-width:520px;font-size:.88rem;}
+  th,td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;}
+  thead th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;background:var(--panel);position:sticky;top:0;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+  td .hk{font-family:var(--mono);font-weight:600;color:var(--accent-ink);font-size:.82rem;}
+  .src{font-family:var(--mono);font-size:.74rem;color:var(--ink-3);}
+
+  /* ---- drift cards ---- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;}
+  .card{background:var(--surface);border:1px solid var(--line);
+    border-radius:11px;padding:1.1rem 1.15rem;box-shadow:var(--shadow);}
+  .card h3{margin:0;font-size:.98rem;display:flex;align-items:center;gap:.5rem;}
+  .card .n{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--warn);
+    background:var(--warn-soft);border-radius:5px;padding:.1rem .4rem;}
+  .card p{margin:.55rem 0 0;font-size:.85rem;color:var(--ink-2);}
+  .card .fix{margin-top:.7rem;font-size:.82rem;color:var(--ink);padding-top:.6rem;border-top:1px dashed var(--line);}
+  .card .fix b{font-family:var(--mono);font-size:.76rem;font-weight:600;color:var(--accent-ink);
+    text-transform:uppercase;letter-spacing:.05em;}
+
+  /* ---- forks ---- */
+  .forks{display:flex;flex-direction:column;gap:.7rem;}
+  .fork{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:1rem 1.15rem;
+    box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(6.5rem,auto) 1fr;gap:.3rem 1.2rem;
+    align-items:baseline;}
+  .fork .q{font-weight:600;font-size:.92rem;color:var(--ink);}
+  .fork .pick,.fork .drop{font-size:.85rem;display:flex;gap:.5rem;align-items:baseline;}
+  .fork .pick{color:var(--ink);}
+  .fork .drop{color:var(--ink-3);}
+  .fork .glyph{font-family:var(--mono);font-weight:700;flex:none;}
+  .fork .pick .glyph{color:var(--accent);}
+  .fork .drop .glyph{color:var(--danger);}
+  .fork .grp{grid-column:2;display:flex;flex-direction:column;gap:.3rem;}
+  @media(max-width:34rem){.fork{grid-template-columns:1fr;}.fork .grp{grid-column:1;}}
+
+  /* ---- footer ---- */
+  footer{margin-top:3.5rem;padding-top:1.4rem;border-top:1px solid var(--line);color:var(--ink-3);
+    font-size:.82rem;display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;align-items:center;}
+  footer .m{color:var(--ink-2);}
+  .pill{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    padding:.2rem .5rem;border-radius:5px;background:var(--accent-soft);color:var(--accent-ink);
+    border:1px solid var(--accent);}
+  a{color:var(--accent-ink);}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Architecture design · full flow</div>
+    <h1>Path&nbsp;B — Subagent&nbsp;Migration</h1>
+    <p class="thesis">Mỗi subagent chuyển từ <b>hand-rolled StateGraph</b> sang <b>create_agent nhúng làm một node</b>.
+      Supervisor graph, reflection loop và HITL <b>giữ nguyên</b> — chỉ <b>bên trong</b> một node đổi. Đó là ranh giới
+      phân biệt path&nbsp;B với path&nbsp;C.</p>
+    <div class="meta">
+      <span><b>spec</b>&nbsp;subagent-create-agent-migration</span>
+      <span><b>companion</b>&nbsp;design.md · PLAN.md</span>
+      <span><b>stack</b>&nbsp;langchain 1.3.11</span>
+      <span><b>scope</b>&nbsp;pilot-gated</span>
+    </div>
+  </header>
+
+  <div class="legend" role="group" aria-label="Legend">
+    <div class="li"><span class="swatch sw-keep"></span><b>KEEP</b>&nbsp;— supervisor graph, không đổi</div>
+    <div class="li"><span class="swatch sw-change"></span><b>CHANGE</b>&nbsp;— create_agent node</div>
+    <div class="li"><span class="swatch sw-hitl"></span><b>HITL</b>&nbsp;— interrupt() ở tầng graph</div>
+  </div>
+
+  <!-- ============ FULL FLOW ============ -->
+  <section>
+    <div class="kicker">§1 · End-to-end</div>
+    <h2>Full request flow — một lượt user</h2>
+    <p class="lede">Từ <code>/agent/stream</code> tới lúc trả FE. Node <span class="m">KEEP</span> ở lại graph cha;
+      chỉ subagent node là create_agent. Routing tất định qua <code>Command(goto)</code>.</p>
+
+    <div class="flowcard">
+      <div class="flow">
+        <div class="node terminal"><div class="nm">START · /agent/stream</div></div>
+        <div class="conn"></div>
+        <div class="node"><div class="nm">load_context</div><div class="sub">đọc store: profile · trip snapshot · reset plan_approved</div></div>
+        <div class="conn"></div>
+        <div class="node"><div class="nm">summarize</div><div class="sub">sliding-window nếu should_summarize</div></div>
+        <div class="conn"></div>
+        <div class="node" style="border-color:var(--keep);"><div class="nm">supervisor</div><div class="sub">route theo intent · tier-gate</div></div>
+        <div class="conn"><span class="cmd">Command(goto)</span></div>
+
+        <div class="fan">
+          <div class="fan-h">subagent node · ReAct loop</div>
+          <div class="subs">
+            <div class="sub">planner</div>
+            <div class="sub">concierge</div>
+            <div class="sub change">journal <span class="tag">★ pilot → create_agent</span></div>
+            <div class="sub">budget</div>
+          </div>
+          <div class="hitl">plan_node&nbsp; → &nbsp;⏸ <b>interrupt()</b>&nbsp; → &nbsp;resume(approved)&nbsp; → &nbsp;booking</div>
+        </div>
+
+        <div class="conn"></div>
+        <div class="node"><div class="nm">reflection</div><div class="sub">≤ max_revisions · Command(goto → subagent | END)</div></div>
+        <div class="conn loop"><span class="cmd">loop back → supervisor</span></div>
+        <div class="node terminal"><div class="nm">END → stream</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ONION ============ -->
+  <section>
+    <div class="kicker">§3 · Inside the node</div>
+    <h2>Middleware onion — bên trong một create_agent node</h2>
+    <p class="lede">5 behavior của <code>_base.py::assistant</code> dời thành các lớp middleware bọc quanh model call.
+      Thứ tự ngoài→trong; <code>wrap_model_call</code> bọc kiểu onion (middleware đầu = lớp ngoài).</p>
+
+    <div class="onion-wrap">
+      <div class="onion">
+        <span class="lyr-lbl">① dynamic_model · wrap_model_call</span>
+        <div class="lyr">
+          <span class="lyr-lbl">② dynamic_prompt · wrap_model_call</span>
+          <div class="lyr">
+            <span class="lyr-lbl">③ tool_filter · wrap_model_call</span>
+            <div class="lyr">
+              <span class="lyr-lbl">④ ModelRetryMiddleware · on_failure="error"</span>
+              <div class="core">[ LLM call ]<span class="sub2">handler → model → ModelResponse</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="toolbranch">
+          <span class="m" style="color:var(--ink-3)">tool calls →</span>
+          <span class="chip">⑤ wrap_tool_call</span>
+          <span class="m" style="color:var(--ink-3)">split transient/logic · graceful fallback → loop back ↑</span>
+        </div>
+        <div class="onion-note">state_schema = TravelAgentState · context_schema = AgentContext · store/checkpointer propagate từ graph cha</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BEHAVIOR MAP ============ -->
+  <section>
+    <div class="kicker">§3 · Mapping</div>
+    <h2>5 behavior đặt ở đâu</h2>
+    <p class="lede">Chỉ <b>dời</b> logic từ node assistant sang hook — không đổi ngữ nghĩa. Verify parity từng cái.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Behavior hiện tại</th><th>Hook</th><th>Cơ chế</th></tr></thead>
+        <tbody>
+          <tr><td>Deferred model → <code>get_agent_llm</code></td><td><span class="hk">wrap_model_call</span></td><td><code>request.override(model=…)</code> per call; giữ AgentConfigCache</td></tr>
+          <tr><td>Dynamic prompt <code>system_with_summary</code></td><td><span class="hk">wrap_model_call</span></td><td><code>override(system_prompt=…)</code> đọc <code>request.state</code></td></tr>
+          <tr><td>Tool filter <code>allow_episodic</code></td><td><span class="hk">wrap_model_call</span></td><td><code>override(tools=…)</code> đọc <code>request.runtime.context</code></td></tr>
+          <tr><td>Node retry <code>LLM_RETRY</code></td><td><span class="hk">ModelRetryMiddleware</span></td><td><code>retry_on=_is_retryable_llm</code> · <code>on_failure="error"</code> để propagate</td></tr>
+          <tr><td>Tool-error split · fallback</td><td><span class="hk">wrap_tool_call</span></td><td>transient→retry · logic→msg · bỏ <code>Command(goto)</code>, chỉ construct ToolMessage</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ STATE/CONTEXT ============ -->
+  <section>
+    <div class="kicker">§4 · Threading</div>
+    <h2>State · Context · Store</h2>
+    <p class="lede">Unknown đáng sợ nhất (R1) đã de-risk từ installed source — <code>create_agent</code> chấp nhận cả state &amp; context schema.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Kênh</th><th>Sau migration</th><th>Bằng chứng</th></tr></thead>
+        <tbody>
+          <tr><td>State</td><td><code>state_schema=TravelAgentState</code> — reducer <code>add_messages</code> win</td><td class="src">factory.py:815,1148</td></tr>
+          <tr><td>Context</td><td><code>context_schema=AgentContext</code> → middleware đọc <code>request.runtime.context</code></td><td class="src">factory.py:817,1443</td></tr>
+          <tr><td>Store / checkpointer</td><td>compiled node nhúng → parent propagate (InjectedStore tự chạy)</td><td class="src">_base.py:8-11 · PoC 0.1(3)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ PARITY DRIFT ============ -->
+  <section>
+    <div class="kicker">§5 · Đã biết trước</div>
+    <h2>3 điểm parity drift</h2>
+    <p class="lede"><code>create_agent</code> KHÔNG phải superset của loop tay — "parity" là <b>có kiểm chứng</b>, không mặc định.
+      Panel review đã lôi ra 3 điểm dưới bằng source.</p>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="n">R2</span> Retry exhaustion</h3>
+        <p>Node graph propagate retry; <code>create_agent</code> <b>không có node retry</b> (factory.py:1502). Default middleware <code>on_failure="continue"</code> trả error AIMessage — khác hành vi.</p>
+        <p class="fix"><b>fix</b> · ép <code>on_failure="error"</code>; golden test có case cạn retry assert propagate.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">R3b</span> Streaming shape</h3>
+        <p><code>create_agent</code> stamp <code>AIMessage.name=node</code> + inject ToolCallTransformer (factory.py:1420,1795). Surface FE thật chỉ lộ qua <code>/agent/stream</code>.</p>
+        <p class="fix"><b>fix</b> · case <code>.astream</code> trong harness + verify <code>/agent/stream</code> thủ công ở Wave 3.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">R4</span> Parallel tool</h3>
+        <p><code>wrap_tool_call</code> retry <b>per-call</b>; <code>ToolFaultPolicy</code> hiện retry <b>whole ToolNode</b>. <code>Send</code> per call → ordering ToolMessage có thể trôi.</p>
+        <p class="fix"><b>fix</b> · test 2 tool-call song song +1 transient; concierge migrate on-demand, không ở pilot.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FORKS ============ -->
+  <section>
+    <div class="kicker">§8 · Decisions</div>
+    <h2>Design forks — chọn &amp; bác</h2>
+    <p class="lede">Cái làm doc này là <i>design</i> chứ không chỉ flow: mỗi ngã rẽ có ≥2 phương án, và một lựa chọn có lý do.</p>
+    <div class="forks">
+      <div class="fork">
+        <div class="q">Context channel</div>
+        <div class="grp">
+          <div class="pick"><span class="glyph">✓</span><span><b>context_schema</b> — đúng ngữ nghĩa read-only per-request</span></div>
+          <div class="drop"><span class="glyph">✕</span><span>state — persist vào checkpointer = regression</span></div>
+        </div>
+      </div>
+      <div class="fork">
+        <div class="q">Retry</div>
+        <div class="grp">
+          <div class="pick"><span class="glyph">✓</span><span><b>ModelRetryMiddleware(on_failure="error")</b> — per-model, propagate</span></div>
+          <div class="drop"><span class="glyph">✕</span><span>outer retry node — retry cả tool-loop, khác parity</span></div>
+        </div>
+      </div>
+      <div class="fork">
+        <div class="q">Tool-error</div>
+        <div class="grp">
+          <div class="pick"><span class="glyph">✓</span><span><b>wrap_tool_call</b> per-call + tái dùng <code>retry.py</code> filter</span></div>
+          <div class="drop"><span class="glyph">✕</span><span>create_agent tool config mặc định — mất split transient/logic</span></div>
+        </div>
+      </div>
+      <div class="fork">
+        <div class="q">Migration</div>
+        <div class="grp">
+          <div class="pick"><span class="glyph">✓</span><span><b>factory v1/v2 song song</b>, pilot 1 → STOP gate</span></div>
+          <div class="drop"><span class="glyph">✕</span><span>big-bang cả 5 — parity không kiểm soát</span></div>
+        </div>
+      </div>
+      <div class="fork">
+        <div class="q">PII</div>
+        <div class="grp">
+          <div class="pick"><span class="glyph">✓</span><span><b>Wave A decoupled</b> — ship trên kiến trúc hiện tại, đóng lỗ hổng ngay</span></div>
+          <div class="drop"><span class="glyph">✕</span><span>PII-as-middleware gated sau full migration — lỗ hổng mở 6 wave</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="pill">pilot-gated</span>
+    <span class="m">Committed: Wave&nbsp;A (PII) + Wave&nbsp;0–3 (PoC → middleware+parity → v2 factory → journal → STOP).</span>
+    <span>Wave&nbsp;4+ expand-on-demand.</span>
+  </footer>
+</div>

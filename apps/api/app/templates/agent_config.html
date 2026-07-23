@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+{% block title %}Agent Config{% endblock %}
+
+{% block content %}
+{# per-agent glyph, so the grid reads at a glance (falls back to a gear) #}
+{% set agent_icons = {
+  'supervisor': '🧭', 'planner': '🗺️', 'concierge': '🛎️', 'journal': '📔',
+  'booking': '🎫', 'budget': '💰', 'summarize': '📝', 'reflection': '🔍',
+  'extract_memory': '🧠'
+} %}
+
+{% set section_colors = ['var(--accent)', 'var(--cyan)', 'var(--violet)'] %}
+{% set section_icons = ['🧭', '🧩', '🔧'] %}
+{% set total = groups | map(attribute='configs') | map('length') | sum %}
+
+<div class="board-head">
+  <h1 class="board-title">
+    <span class="plane">🤖</span>
+    <span>Agent LLM configuration</span>
+  </h1>
+  <div class="clock">{{ total }} agents</div>
+</div>
+
+{% if request.query_params.get('saved') %}
+  <p class="ac-saved">✓ Configuration saved.</p>
+{% endif %}
+
+<p class="ac-lead">
+  Per-agent model overrides, grouped by role. A card with no values falls back to the
+  global default. Click a card to edit — changes take effect on the next agent run.
+</p>
+
+{% for g in groups %}
+<section class="ac-section" style="--sec: {{ section_colors[loop.index0 % (section_colors | length)] }}">
+  <header class="ac-sechead">
+    <span class="ac-secglyph" aria-hidden="true">{{ section_icons[loop.index0 % (section_icons | length)] }}</span>
+    <div class="ac-sectitle">
+      <h2>{{ g.title }}</h2>
+      <p>{{ g.blurb }}</p>
+    </div>
+    <span class="ac-seccount">{{ g.configs | length }}</span>
+  </header>
+
+  <div class="agent-grid">
+    {% for c in g.configs %}
+    <article class="agent-card" role="button" tabindex="0"
+             data-agent="{{ c.agent_name }}"
+             data-provider="{{ c.provider or '' }}"
+             data-model="{{ c.model or '' }}"
+             data-temperature="{{ c.temperature if c.temperature is not none else '' }}"
+             data-max-tokens="{{ c.max_tokens if c.max_tokens is not none else '' }}"
+             data-enabled="{{ '' if c.enabled is none else ('true' if c.enabled else 'false') }}"
+             data-updated-at="{{ c.updated_at or '' }}">
+      <div class="ac-top">
+        <span class="ac-ico">{{ agent_icons.get(c.agent_name, '⚙️') }}</span>
+        <span class="ac-name">{{ c.agent_name }}</span>
+        {% if c.provider or c.model or c.temperature is not none or c.max_tokens is not none %}
+          <span class="ac-pill ac-pill-on">custom</span>
+        {% else %}
+          <span class="ac-pill">default</span>
+        {% endif %}
+      </div>
+
+      {% if c.description %}
+      <p class="ac-desc">{{ c.description }}</p>
+      {% endif %}
+
+      <div class="ac-mid">
+        {% if c.provider or c.model %}
+          <span class="ac-prov">{{ c.provider or "—" }}</span>
+          <span class="ac-sep">/</span>
+          <span class="ac-model">{{ c.model or "—" }}</span>
+        {% else %}
+          <span class="ac-muted">Using global default provider &amp; model</span>
+        {% endif %}
+      </div>
+
+      <div class="ac-foot">
+        <span class="ac-stat"><span class="ac-k">temp</span>
+          <span class="ac-v">{{ c.temperature if c.temperature is not none else "—" }}</span></span>
+        <span class="ac-stat"><span class="ac-k">max tokens</span>
+          <span class="ac-v">{{ c.max_tokens if c.max_tokens is not none else "—" }}</span></span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+
+<!-- Edit modal — one form, populated client-side from the clicked card. -->
+<div id="agent-modal" class="agent-modal" aria-hidden="true">
+  <div class="am-backdrop" data-close></div>
+  <div class="am-dialog" role="dialog" aria-modal="true" aria-labelledby="am-title">
+    <button class="am-close" type="button" data-close aria-label="Close">✕</button>
+    <h2 id="am-title" class="am-title">Edit agent</h2>
+    <p class="am-sub" id="am-sub">Overrides for this agent. Leave a field blank to use the global default.</p>
+
+    <form id="agent-form" method="post" action="">
+      <p id="am-error" class="am-error" hidden></p>
+
+      <label class="am-field">
+        <span class="am-label">Provider</span>
+        <select name="provider" id="am-provider">
+          <option value="">(global default)</option>
+          {% for p in providers %}
+          <option value="{{ p }}">{{ p }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="am-field">
+        <span class="am-label">Model</span>
+        <input type="text" name="model" id="am-model"
+               placeholder="(global default)" autocomplete="off">
+        <div class="am-chips" id="am-model-chips" hidden></div>
+      </label>
+
+      <div class="am-row">
+        <label class="am-field">
+          <span class="am-label">Temperature <span class="am-hint">0–2</span></span>
+          <input type="number" name="temperature" id="am-temperature"
+                 min="0" max="2" step="0.1" placeholder="(default)" inputmode="decimal">
+        </label>
+        <label class="am-field">
+          <span class="am-label">Max tokens <span class="am-hint">≥ 1</span></span>
+          <input type="number" name="max_tokens" id="am-max-tokens"
+                 min="1" step="1" placeholder="(default)" inputmode="numeric">
+        </label>
+      </div>
+
+      {# Reflection-only. Inputs inside a `hidden` element still submit, so the
+         fields are `disabled` (never submitted) for non-reflection agents. #}
+      <label class="am-field am-check" id="am-enabled-field" hidden>
+        <input type="checkbox" name="enabled" value="on" id="am-enabled" disabled>
+        <span class="am-check-text">Reflection enabled</span>
+        <input type="hidden" name="enabled_marker" value="1" id="am-enabled-marker" disabled>
+      </label>
+
+      <div class="am-actions">
+        <span class="am-updated" id="am-updated"></span>
+        <span class="spacer"></span>
+        <button type="button" class="fb-link" data-close>Cancel</button>
+        <button type="submit" class="fb-btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm-before-save dialog — a styled replacement for window.confirm(),
+     reusing the same modal tokens so it matches the rest of the dashboard. -->
+<div id="confirm-modal" class="agent-modal" aria-hidden="true">
+  <div class="am-backdrop" data-confirm-cancel></div>
+  <div class="am-dialog cm-dialog" role="alertdialog" aria-modal="true"
+       aria-labelledby="cm-title" aria-describedby="cm-msg">
+    <div class="cm-head">
+      <span class="cm-ico" aria-hidden="true">⚠️</span>
+      <div>
+        <h2 id="cm-title" class="am-title">Save agent config?</h2>
+        <p id="cm-msg" class="am-sub"></p>
+      </div>
+    </div>
+    <div class="am-actions">
+      <span class="spacer"></span>
+      <button type="button" class="fb-link" data-confirm-cancel>Cancel</button>
+      <button type="button" class="fb-btn" id="cm-confirm">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ac-lead { color: var(--muted); font-size: 0.88rem; margin: 0 0 18px; max-width: 60ch; }
+  .ac-saved {
+    padding: 12px 16px; margin: 0 0 16px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); font-weight: 600; font-size: 0.9rem;
+  }
+
+  /* ── Sections (main / sub / support), colour-coded by --sec ── */
+  .ac-section { margin-bottom: 26px; }
+  .ac-sechead { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+  /* Standard glyph + count-chip section header (replaces the banned side-stripe). */
+  .ac-secglyph {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    background: color-mix(in srgb, var(--sec, var(--accent)) 16%, var(--panel-2));
+    border: 1px solid color-mix(in srgb, var(--sec, var(--accent)) 38%, var(--line));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sec, var(--accent)) 7%, transparent);
+  }
+  .ac-sectitle h2 {
+    margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ac-sectitle p { margin: 2px 0 0; color: var(--muted); font-size: 0.8rem; }
+  .ac-seccount {
+    margin-left: auto; font-size: 0.72rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    padding: 4px 11px; border-radius: 999px;
+    color: var(--sec, var(--accent));
+    background: color-mix(in srgb, var(--sec, var(--accent)) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--sec, var(--accent)) 40%, transparent);
+  }
+
+  .agent-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .agent-card {
+    display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px;
+    cursor: pointer; transition: border-color .12s, box-shadow .12s, transform .12s;
+  }
+  /* a thin top accent in the section colour */
+  .agent-card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+    background: linear-gradient(90deg, var(--sec, var(--accent)),
+                color-mix(in srgb, var(--sec, var(--accent)) 25%, transparent));
+    opacity: 0.75;
+  }
+  .agent-card:hover {
+    border-color: var(--sec, var(--accent));
+    box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--sec, var(--accent)) 45%, transparent);
+    transform: translateY(-2px);
+  }
+  .agent-card:focus-visible { outline: 2px solid var(--sec, var(--accent)); outline-offset: 2px; }
+
+  /* Role-hued icon tile on each card (section palette; no new hues),
+     mirroring the bordered glyph tiles used in the tips field guide. */
+  .ac-ico {
+    font-size: 1.1rem; width: 38px; height: 38px; flex-shrink: 0;
+    display: grid; place-items: center; border-radius: 11px;
+    background: color-mix(in srgb, var(--sec, var(--accent)) 17%, var(--panel-2));
+    border: 1px solid color-mix(in srgb, var(--sec, var(--accent)) 40%, var(--line));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sec, var(--accent)) 8%, transparent);
+  }
+  .agent-card[data-agent="supervisor"] {
+    /* Visual seniority for the "flight director": a wider span and a stronger
+       accent border, so the lead agent reads as the head of the roster. */
+    grid-column: span 2;
+    border-width: 2px;
+    border-color: color-mix(in srgb, var(--sec, var(--accent)) 55%, var(--line));
+    box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--sec, var(--accent)) 30%, transparent);
+  }
+  .agent-card[data-agent="supervisor"]::before { height: 4px; opacity: 1; }
+  .ac-name { font-weight: 800; font-size: 0.98rem; letter-spacing: -0.01em; }
+  .ac-pill {
+    margin-left: auto; font-size: 0.64rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted);
+  }
+  .ac-pill-on {
+    background: color-mix(in srgb, var(--sec, var(--accent)) 22%, transparent);
+    color: var(--sec, var(--accent));
+  }
+
+  .ac-desc {
+    margin: -2px 0 0; color: var(--muted); font-size: 0.78rem; line-height: 1.4;
+  }
+
+  .ac-mid { font-size: 0.85rem; min-height: 1.2em; }
+  .ac-prov { font-weight: 700; color: var(--ink); }
+  .ac-sep { color: var(--muted); margin: 0 4px; }
+  .ac-model { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ac-muted { color: var(--muted); font-style: italic; }
+
+  .ac-foot { display: flex; gap: 8px; margin-top: auto; }
+  .ac-stat {
+    flex: 1; display: flex; flex-direction: column; gap: 2px;
+    background: var(--panel-2); border-radius: var(--radius-sm); padding: 7px 10px;
+  }
+  .ac-k { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .ac-v { font-size: 0.95rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* ── Edit modal ─────────────────────────────────────────────────── */
+  .agent-modal {
+    position: fixed; inset: 0; z-index: var(--z-modal);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .agent-modal.show { display: flex; }
+  .am-backdrop { position: absolute; inset: 0; background: var(--scrim); backdrop-filter: blur(3px); }
+  .am-dialog {
+    position: relative; z-index: 1; width: min(460px, 100%);
+    max-height: calc(100vh - 40px); overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    padding: 22px; animation: am-pop .16s ease-out;
+  }
+  .cm-dialog { width: min(400px, 100%); }
+  .cm-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .cm-ico {
+    flex-shrink: 0; width: 38px; height: 38px; display: grid; place-items: center;
+    font-size: 1.1rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .cm-head .am-title { margin-bottom: 5px; }
+  .cm-head .am-sub { margin: 0; }
+  @keyframes am-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .am-dialog { animation: none; }
+    .agent-card, .agent-card::before { transition: none; }
+    .agent-card:hover { transform: none; }
+  }
+  .am-close {
+    position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--muted);
+    border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; line-height: 1;
+  }
+  .am-close:hover { color: var(--ink); border-color: var(--accent); }
+  .am-title { margin: 0 4px 2px 0; font-size: 1.12rem; font-weight: 800; }
+  .am-sub { margin: 0 0 16px; color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
+  .am-error {
+    margin: 0 0 14px; padding: 10px 12px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); font-size: 0.84rem; font-weight: 600;
+  }
+  .am-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  #am-enabled-field[hidden] { display: none; }
+  .am-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+  .am-hint { font-weight: 600; color: var(--muted); opacity: 0.7; }
+  .am-field select, .am-field input {
+    width: 100%; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 10px 12px; font: 0.95rem inherit;
+  }
+  .am-field select:focus, .am-field input:focus {
+    outline: none; border-color: var(--accent); box-shadow: var(--ring);
+  }
+  .am-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* Reflection toggle: horizontal checkbox + label, opted out of the full-width
+     text-input styling above (which would stretch and centre the checkbox). */
+  .am-check { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
+  .am-check input[type="checkbox"] {
+    width: 18px; height: 18px; flex: 0 0 auto; margin: 0; padding: 0;
+    border: 0; background: none; border-radius: 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .am-check-text { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+  .am-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .am-actions .spacer { flex: 1; }
+  .am-updated { font-size: 0.72rem; color: var(--muted); }
+
+  /* Model suggestion chips for the selected provider (styled, in-flow — no
+     native datalist popup that would overlap the fields below). */
+  .am-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .am-chips[hidden] { display: none; }
+  .am-chip {
+    font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted);
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .am-chip:hover { color: var(--accent); border-color: var(--accent); }
+  .am-chip.on { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+  @media (max-width: 480px) { .am-row { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('agent-modal');
+  if (!modal) return;
+  const form = document.getElementById('agent-form');
+  const $ = (id) => document.getElementById(id);
+  const errEl = $('am-error');
+  const PROVIDER_MODELS = {{ provider_models | tojson }};
+
+  function showError(msg) { errEl.textContent = msg; errEl.hidden = false; }
+  function clearError() { errEl.textContent = ''; errEl.hidden = true; }
+
+  // Render clickable model suggestions for the chosen provider (a styled,
+  // in-flow replacement for a native <datalist> popup).
+  function renderModelChips(provider) {
+    const box = $('am-model-chips');
+    const models = PROVIDER_MODELS[provider] || [];
+    box.innerHTML = '';
+    models.forEach(m => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'am-chip' + (m === $('am-model').value ? ' on' : '');
+      chip.textContent = m;
+      chip.addEventListener('click', () => {
+        $('am-model').value = m;
+        box.querySelectorAll('.am-chip').forEach(c => c.classList.toggle('on', c === chip));
+      });
+      box.appendChild(chip);
+    });
+    box.hidden = models.length === 0;
+  }
+
+  function openModal(card) {
+    const d = card.dataset;
+    clearError();
+    form.action = '/dashboard/agent-config/' + encodeURIComponent(d.agent);
+    $('am-title').textContent = 'Edit · ' + d.agent;
+    $('am-provider').value = d.provider || '';
+    $('am-model').value = d.model || '';
+    $('am-temperature').value = d.temperature || '';
+    $('am-max-tokens').value = d.maxTokens || '';
+    $('am-updated').textContent = d.updatedAt ? ('Last updated: ' + d.updatedAt) : '';
+    // Reflection-only "enabled" toggle. Disabled inputs aren't submitted, so
+    // non-reflection saves never carry the flag (preserve-on-absent server-side).
+    const isRefl = d.agent === 'reflection';
+    const enField = $('am-enabled-field');
+    const enBox = $('am-enabled');
+    const enMarker = $('am-enabled-marker');
+    enField.hidden = !isRefl;
+    enBox.disabled = !isRefl;
+    enMarker.disabled = !isRefl;
+    if (isRefl) enBox.checked = (d.enabled !== 'false');  // '' or 'true' → on (NULL/True)
+    renderModelChips(d.provider || '');
+    window.openDialog(modal, { initialFocus: '#am-provider' });
+  }
+
+  function closeModal() {
+    window.closeDialog(modal);
+  }
+
+  document.querySelectorAll('.agent-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card); }
+    });
+  });
+
+  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
+  // Esc handled by openDialog's keydown trap — no duplicate here. When the confirm
+  // dialog is stacked on top, its own openDialog owns Esc (closes confirm, not edit).
+
+  // Re-suggest models when the provider changes.
+  $('am-provider').addEventListener('change', () => renderModelChips($('am-provider').value));
+
+  // Client-side guards mirror the server bounds so most errors never round-trip.
+  form.addEventListener('submit', (e) => {
+    clearError();
+    const t = $('am-temperature').value.trim();
+    if (t !== '') {
+      const n = Number(t);
+      if (!Number.isFinite(n) || n < 0 || n > 2) {
+        e.preventDefault(); showError('Temperature must be a number between 0 and 2.'); return;
+      }
+    }
+    const m = $('am-max-tokens').value.trim();
+    if (m !== '') {
+      if (!/^\d+$/.test(m) || parseInt(m, 10) < 1) {
+        e.preventDefault(); showError('Max tokens must be a positive integer.'); return;
+      }
+    }
+    // Validation passed — hand off to the styled confirm dialog instead of
+    // the native window.confirm() popup.
+    e.preventDefault();
+    openConfirm(decodeURIComponent(form.action.split('/').pop()));
+  });
+
+  // ── Styled save-confirmation dialog (replaces window.confirm) ──────
+  const confirmModal = document.getElementById('confirm-modal');
+  const cmConfirm = $('cm-confirm');
+
+  function openConfirm(agent) {
+    $('cm-msg').textContent =
+      'This updates the live model for “' + agent + '”. It takes effect on the next agent run.';
+    window.openDialog(confirmModal, { initialFocus: '#cm-confirm' });
+  }
+  function closeConfirm() {
+    window.closeDialog(confirmModal);
+    // The edit modal stays open behind it; closeDialog's stacked-dialog guard
+    // keeps body.overflow locked while another .show dialog remains.
+  }
+
+  // form.submit() bypasses the submit event above, so no confirm loop.
+  cmConfirm.addEventListener('click', () => { closeConfirm(); form.submit(); });
+  confirmModal.querySelectorAll('[data-confirm-cancel]')
+    .forEach(el => el.addEventListener('click', closeConfirm));
+  // Esc handled by openDialog's keydown trap — no duplicate here.
+});
+</script>
+{% endblock %}

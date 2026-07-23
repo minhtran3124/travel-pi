@@ -1,59 +1,56 @@
 ---
-name: Travel Planner Dashboard
-description: A dark, warm-coral, friendly operations board for the mock Travel Planner API
+name: Travel Planner
+description: A lively, capable trip-planning app — clean white pages, one electric accent, an AI agent that does the work.
 colors:
-  coral-bright: "#ff6f5e"
-  coral-deep: "#c2410c"
-  coral-soft: "#ffa99c"
-  on-coral: "#3a0f08"
-  void: "#1a1614"
-  panel: "#221d1a"
-  panel-raised: "#2e2723"
-  line: "#3e342e"
-  line-soft: "#2f2823"
-  ink: "#efe9e6"
-  muted: "#a89c96"
-  amber: "#fbbf24"
-  green: "#34d399"
-  orange: "#fb923c"
-  cyan: "#38bdf8"
-  red: "#f87171"
-  hotel-blue: "#2563eb"
+  ink: "#1c1c1c"
+  departure-lime: "#cbf24a"
+  departure-lime-soft: "#e6f8a8"
+  coral: "#fb7755"
+  coral-soft: "#ffe9e2"
+  coral-ink: "#c2410c"
+  on-accent: "#1c1c1c"
+  void: "#f7f7f5"
+  panel: "#ffffff"
+  panel-raised: "#f4f4f2"
+  line: "#ececec"
+  line-soft: "#f1f0ee"
+  muted: "#6b6b6b"
+  faint: "#9a9a9a"
+  status-confirmed: "#16a34a"
+  status-estimated: "#ca8a04"
+  status-delayed: "#ea580c"
+  status-boarding: "#0284c7"
+  status-cancelled: "#dc2626"
+  status-hotel: "#2563eb"
 typography:
-  display:
-    fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "2.4rem"
-    fontWeight: 800
-    lineHeight: 1
-    letterSpacing: "-0.02em"
   headline:
     fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "1.35rem"
+    fontSize: "1.1rem"
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: "-0.01em"
   title:
     fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "1.1rem"
-    fontWeight: 800
+    fontSize: "1rem"
+    fontWeight: 700
     lineHeight: 1.3
+    letterSpacing: "normal"
   body:
     fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "0.9rem"
+    fontSize: "0.875rem"
     fontWeight: 400
-    lineHeight: 1.6
+    lineHeight: 1.5
+    letterSpacing: "normal"
   label:
     fontFamily: "Inter, system-ui, sans-serif"
     fontSize: "0.68rem"
     fontWeight: 700
+    lineHeight: 1.2
     letterSpacing: "0.08em"
-  mono:
-    fontFamily: "Menlo, Consolas, SF Mono, monospace"
-    fontSize: "0.8rem"
-    fontWeight: 400
 rounded:
-  sm: "8px"
-  md: "12px"
+  sm: "10px"
+  md: "16px"
+  lg: "20px"
   pill: "999px"
 spacing:
   xs: "4px"
@@ -63,200 +60,319 @@ spacing:
   xl: "24px"
 components:
   button-primary:
-    backgroundColor: "{colors.coral-deep}"
-    textColor: "#ffffff"
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.panel}"
     rounded: "{rounded.sm}"
     padding: "0 18px"
     height: "34px"
-  input:
-    backgroundColor: "{colors.panel-raised}"
+  button-primary-hover:
+    backgroundColor: "#2e2e2e"
+    textColor: "{colors.panel}"
+  button-ghost:
+    backgroundColor: "{colors.panel}"
     textColor: "{colors.ink}"
     rounded: "{rounded.sm}"
-    padding: "0 10px"
+    padding: "0 18px"
     height: "34px"
+  button-ghost-hover:
+    backgroundColor: "{colors.panel-raised}"
+    textColor: "{colors.ink}"
   card:
     backgroundColor: "{colors.panel}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     padding: "16px"
-  remark-pill:
-    backgroundColor: "rgba(56,189,248,0.14)"
-    textColor: "{colors.cyan}"
+  input:
+    backgroundColor: "{colors.panel-raised}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sm}"
+    padding: "0 8px"
+    height: "34px"
+  pill:
     rounded: "{rounded.pill}"
-    padding: "3px 11px"
-  status-pill:
-    backgroundColor: "rgba(52,211,153,0.13)"
-    textColor: "{colors.green}"
+    padding: "1px 8px"
+  tab-active:
+    textColor: "{colors.ink}"
+  chat-launcher:
+    backgroundColor: "{colors.departure-lime}"
+    textColor: "{colors.on-accent}"
     rounded: "{rounded.pill}"
-    padding: "3px 11px"
+    height: "56px"
+    width: "56px"
+  dialog:
+    backgroundColor: "{colors.panel}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.lg}"
+    padding: "16px"
 ---
 
-# Design System: Travel Planner Dashboard
+# Design System: Travel Planner
 
 ## 1. Overview
 
-**Creative North Star: "Sunset Departures Board"**
+**Creative North Star: "The Lively Field Guide"**
 
-A dark airport flight-information board, evolved into a friendly, color-coded
-operations dashboard for the mock Travel Planner API. The room is dark and
-slightly warm-tinted; surfaces are low-glow cards lifted by soft shadows over a
-deep warm-neutral canvas. A single coral is the system's voice — focus, action,
-active state — while a fixed status spectrum and a per-topic color palette make
-dense travel data (flights, hotels, places, tips, weather, bookings) instantly
-scannable and warm rather than clinical.
+This is a trip-planning app that feels like a fresh field notebook in the hands of a
+well-traveled friend who happens to be brilliant at logistics. Pages are clean white
+spreads; the structure is hairline-thin and quiet, so the content — destinations,
+itineraries, bookings, the AI agent's work — is what carries the energy. A single
+electric chartreuse, **Departure Lime**, is the trail-marker that highlights what's
+active, what's selected, and where to go next. The liveliness comes from that decisive
+accent, from crisp motion, and from the agent visibly doing real work — never from
+clutter, color noise, or decoration.
 
-The system is data-first but deliberately friendly: real emoji icons label
-categories and amenities, content is color-coded by topic (each tips category
-and hotel type carries its own hue), and interactive rows/cards/tiles respond
-with a tinted hover in their own color. Numbers a user compares — times, prices,
-durations, ratings, IDs — are always tabular figures.
+The personality is *energetic, playful, friendly* held inside a *capable, not corporate*
+frame. It is grown-up playful: warm and quick, never juvenile. There are no mascots, no
+confetti, no gamified badges. Delight is earned in small systematic moments — a
+confirmation landing, a card lifting under the cursor, the agent returning a result —
+not sprayed across the page.
 
-It rejects: cream/AI-slop backgrounds and per-section uppercase eyebrows;
-uniform icon+heading+text card grids as a reflex; gradient text; decorative
-glassmorphism; and colored side-stripe borders. Color is functional — it
-encodes status, topic, or scarcity, never decoration for its own sake.
+This system explicitly rejects four neighbors. It is **not a generic SaaS dashboard**
+(no card-grid sea, no gray-on-white, no hero-metric template). It is **not a corporate
+OTA** (no ad banners, no fake-urgency badges, no cluttered density-for-its-own-sake). It
+is **not childish or over-gamified**. And it is **not a cold enterprise tool** (warmth
+and personality are required, not optional).
 
 **Key Characteristics:**
-- Dark warm-neutral surfaces (Void → Panel → Panel Raised) separated by hairlines + soft shadows
-- One coral brand voice; a closed status spectrum; a 10-hue topic palette
-- Friendly emoji iconography for categories, amenities, and empty states
-- Color-coded, interactive rows/cards/tiles with same-hue hover feedback
-- Tabular figures everywhere data is compared
+- Clean white panels (`#ffffff`) on a barely-warm off-white page (`#f7f7f5`).
+- Near-black ink (`#1c1c1c`) for primary text *and* primary actions — one strong voice.
+- Exactly one accent: Departure Lime (`#cbf24a`), used sparingly for active/selected/highlight.
+- Hairline borders, soft two-layer shadows, generous radii (10–20px).
+- One typeface — Inter — across headings, labels, body, and data.
+- Crisp, state-driven motion (150–200ms); nothing choreographed, nothing decorative.
 
 ## 2. Colors
 
-A dark warm-neutral palette: one coral accent and four neutral surface tones,
-plus a fixed status spectrum and a topic-coding palette.
+A near-monochrome ink-and-paper foundation, lit by a single electric accent and a
+disciplined set of semantic status hues.
 
 ### Primary
-- **Coral Bright** (#ff6f5e): Focus rings, active tab underline, table-head rule,
-  hairline accents, the boarding-pass plane. Bright coral takes **dark** text
-  (`On Coral` #3a0f08) on solid fills — never white (white fails AA on it).
-- **Coral Deep** (#c2410c): Solid fills under **white** text — primary buttons,
-  active segmented control, flight type badge.
-- **Coral Soft** (#ffa99c): Text-accent on dark — links, clock, city names,
-  "API Docs", back links.
+- **Departure Lime** (`#cbf24a`): The one brand color and the system's trail-marker. It
+  carries the active tab underline, the floating chat launcher (the agent's "I'm here"
+  signal), selected/active states, and the rare deliberate highlight. **Departure Lime
+  Soft** (`#e6f8a8`) is its pale companion for low-emphasis tints. Lime is a *signal*,
+  never a surface and never decoration.
+
+### Warm secondary
+- **Coral** (`#fb7755`): A warm, friendly secondary that carries *travel warmth* — used
+  only as decoration and tint, never as a signal or an action. Today it appears in the
+  location-pin glyph, the destination-cover trails, and the welcome-strip flight arc.
+  **Coral Soft** (`#ffe9e2`) is its tint; **Coral Ink** (`#c2410c`) is the only shade
+  legible as *text* on white (AA). Coral does **not** compete with lime: lime means
+  *active/selected/go-here*; coral just adds warmth. Keep it off buttons and off any
+  state indicator.
 
 ### Neutral
-- **Void** (#1a1614): App canvas. **Panel** (#221d1a): cards, table, nav.
-  **Panel Raised** (#2e2723): inputs, table head, tiles, insets.
-- **Line** (#3e342e) / **Line Soft** (#2f2823): borders and row dividers.
-- **Ink** (#efe9e6): primary text. **Muted** (#a89c96): secondary text (AA on
-  every surface — verified ≥5.0:1).
+- **Ink** (`#1c1c1c`): Primary text and the primary-action fill. Doing double duty as
+  both "the words" and "the strong button" is intentional — it keeps one confident voice.
+- **Muted** (`#6b6b6b`): Secondary text, inactive nav, captions. AA-safe on white/paper.
+- **Faint** (`#9a9a9a`): Tertiary text and placeholders only. Never body copy.
+- **Void** (`#f7f7f5`): The page background — a barely-warm off-white, *not* cream.
+- **Panel** (`#ffffff`): Pure white for cards, header, modals, and raised panels.
+- **Panel Raised** (`#f4f4f2`): Inputs, selects, and secondary fills — the second neutral
+  layer that separates controls from content.
+- **Line** (`#ececec`) / **Line Soft** (`#f1f0ee`): Hairline borders and faint dividers.
+  Structure is drawn at 1px; it frames, it never shouts.
 
-### Status (closed, fixed-meaning spectrum)
-- **Green** (#34d399) landed / direct / confirmed · **Amber** (#fbbf24)
-  estimated / seats-limited · **Orange** (#fb923c) delayed / stops · **Cyan**
-  (#38bdf8) boarding · **Red** (#f87171) error / cancelled / seats-almost-gone.
-- **Hotel Blue** (#2563eb): tags hotel bookings apart from flights.
-
-### Topic palette (for color-coding)
-Tips categories and hotel types each get a signature hue, applied to icon
-tiles, count chips, jump pills, markers, and same-hue hover tints:
-transport=amber, money=green, safety=red, culture=purple (#c084fc),
-food=orange, connectivity=cyan, health=rose (#fb7185), etiquette=teal (#2dd4bf),
-best_time=lime (#a3e635), language=indigo (#818cf8). Hotels: Hotel=sky (#38bdf8),
-Resort=amber, Villa Resort=rose (#fb7185), Boutique=purple (#c084fc).
-These topic/type hues are deliberately diverse and independent of the coral
-brand voice — teal here is just one topic hue, not the accent.
+### Semantic (status + topic)
+- **Status spectrum** — Confirmed green (`#16a34a`), Estimated amber (`#ca8a04`), Delayed
+  orange (`#ea580c`), Boarding cyan (`#0284c7`), Cancelled red (`#dc2626`), Hotel blue
+  (`#2563eb`). Tuned for AA on light surfaces and rendered only inside Pills (a pale tint
+  of the hue behind a darkened-hue label), never as large fills.
+- **Topic palette** — A parallel nine-hue family (transport, money, safety, culture, food,
+  connectivity, health, etiquette, language) used the same Pill way to tag agent answers
+  by subject. Each is pre-darkened for light surfaces.
 
 ### Named Rules
-**The One Voice Rule.** Coral is the only *brand* color — actions, focus, active
-state. Topic and status hues are a separate, functional vocabulary.
+**The One Signal Rule.** Departure Lime appears on ≤10% of any screen and only where it
+means *active, selected, or go-here*. Its rarity is the entire point — the moment lime
+becomes a background or a decoration, the signal is dead.
 
-**The Functional Color Rule.** Every non-coral hue means something specific
-(status, topic, or scarcity) and is paired with text or an icon — never color
-alone. The status spectrum is closed; don't invent or reuse hues.
+**The Ink-Is-The-Button Rule.** The primary action is ink, not lime. Lime marks state;
+ink commits. Never invert this — a lime "Save" button breaks the whole color logic.
 
-**The Readable-on-Tint Rule.** Colored text on a same-hue tint is lightened
-toward Ink (`color-mix(--c 55%, ink)`) so small count chips still clear AA.
+**The No-Cream Rule.** The page is `#f7f7f5` — a near-neutral off-white. Never warm it
+toward beige/sand/parchment. Warmth lives in copy and content, never in the body fill.
 
 ## 3. Typography
 
-**Font:** Inter (system-ui fallback). **Mono:** Menlo/Consolas for IDs.
+**Body & Display Font:** Inter (with `system-ui, sans-serif` fallback)
+**Mono Font:** Menlo (with `Consolas, "SF Mono", monospace`) — code/data only, rarely surfaced.
 
-**Character:** One family across weights 400–800; personality comes from weight
-contrast and tabular figures, not font pairing.
+**Character:** One humanist sans does everything. Hierarchy is built from *weight and
+size*, not from a second face. This is deliberate product-UI discipline: many type
+elements on a screen, so contrast comes from a tight scale and heavy-vs-regular weight,
+never from display fonts dropped into labels.
 
 ### Hierarchy
-- **Display** (800, ~2.4rem): boarding-pass route codes, big numbers.
-- **Headline** (800, 1.35rem, -0.01em): page titles.
-- **Title** (800, 1.1rem): board/section/card names.
-- **Body** (400, 0.9rem, line-height 1.6): text and table cells; prose ≤74ch.
-- **Label** (700, 0.62–0.72rem, +0.08em, UPPERCASE): control/column labels only.
-- **Mono** (0.8rem): resource IDs.
+- **Headline** (extrabold 800, `1.1rem`, line-height 1.2): Page and modal titles, empty-state
+  headlines. The heaviest weight in the system; this is as loud as type gets.
+- **Title** (bold 700, `1rem`, line-height 1.3): Section headers, card titles, the app
+  wordmark in the nav.
+- **Body** (regular 400, `0.875rem` / `text-sm`, line-height 1.5): Default reading and UI
+  text. Cap prose at 65–75ch; data and compact UI may run denser.
+- **Label** (bold 700, `0.68rem`, uppercase, letter-spacing `0.08em`, color Muted): The
+  small caption above every form control. The *only* place uppercase tracking is allowed.
 
 ### Named Rules
-**The Tabular Figures Rule.** Any compared number uses `tabular-nums`.
-**The Functional Caps Rule.** Uppercase tracking is for control/column labels
-and a single dateline — never per-section eyebrows.
+**The Weight-Not-Face Rule.** Need emphasis? Change weight or size. Never reach for a
+second typeface or a display font — Inter from 400 to 800 covers every need here.
+
+**The Uppercase-Is-For-Labels-Only Rule.** Uppercase + letter-spacing belongs to form
+labels and nothing else. No tracked all-caps eyebrows above sections, ever.
 
 ## 4. Elevation
 
-Hybrid: hairline borders + tonal layering define structure at rest; soft
-shadows appear on state (hover, float). Cards lift on hover; modals float over a
-blurred scrim.
+A hybrid, mostly-flat system: surfaces rest on hairline borders and lift with soft,
+two-layer shadows only in *response to state*. Depth is a reaction, not a default. Cards
+sit flat-with-a-border at rest and rise on hover; modals and the chat launcher carry the
+deeper lift because they genuinely float above the page.
 
 ### Shadow Vocabulary
-- **Resting** (`0 2px 12px rgba(0,0,0,.45)`): standalone cards.
-- **Lifted** (`0 14px 32px -8px rgba(0,0,0,.6), 0 4px 10px -4px rgba(0,0,0,.4)`):
-  hover state, paired with a small translate (+ a same-hue glow ring on hotels).
-- **Focus ring** (`0 0 0 3px rgba(45,212,191,.30)`): every focusable control.
-- **Accent glow** (`rgba(45,212,191,.16)`): hover wash for rows / active chips.
+- **Card** (`box-shadow: 0 1px 2px rgba(17,17,17,0.04), 0 6px 20px -8px rgba(17,17,17,0.10)`):
+  The resting elevation for cards — a near-imperceptible settle, not a drop shadow.
+- **Lift** (`box-shadow: 0 16px 40px -12px rgba(17,17,17,0.18), 0 4px 12px -6px rgba(17,17,17,0.10)`):
+  The raised elevation for hovered cards, modals, and the chat launcher. Soft and wide,
+  never hard or dark.
+
+### Named Rules
+**The Lift-On-State Rule.** Shadows deepen only on hover, float, or focus. A surface that
+is shadowed at rest *and* on hover has nowhere to go — the motion is the meaning.
+
+**The 2014 Test.** If a shadow looks like a hard gray drop shadow, it's wrong: blur is too
+small and the tone is too dark. These shadows are wide, soft, and tinted near-black at low
+opacity — they read as light, not as a border.
 
 ## 5. Components
 
-### Buttons & controls
-Coral-deep primary button (white text), ghost link (muted, hairline border →
-coral on hover), 34px controls, keyboard-accessible toggle chip with a
-visually-hidden checkbox and `:focus-within` ring.
+Components are **crisp and quick**: tight hairline chrome, snappy 150ms transitions, a
+small physical press (`active:translate-y-px`) and a small hover lift. Confident, fast,
+never heavy.
 
-### FIDS table (flights / search / bookings)
-Panel table, raised header with a coral bottom rule. **Status remarks are
-color-coded pills** (boarding/delayed/landed/estimated/departed). Rows are
-clickable to detail (the flight-number link is the keyboard path) and wash coral
-on hover. Airline codes are brand-colored chips. Bookings status pills color by
-state (confirmed=green, cancelled=red).
+### Buttons
+- **Shape:** Small rounded (`10px`, `rounded-sm`), fixed `34px` height, `18px` side padding,
+  bold `text-sm` label.
+- **Primary:** Ink fill (`#1c1c1c`), white text. Hover darkens to `#2e2e2e`. This is the
+  commit action.
+- **Ghost:** White fill, ink text, hairline `line` border. Hover fills to `panel-raised`
+  (`#f4f4f2`). The secondary/cancel action.
+- **States:** `active:translate-y-px` press on both; `disabled` drops to 50% opacity with
+  `not-allowed` cursor. Focus uses the global ring (see Inputs).
 
-### Cards & grids
-Hotel cards color-coded by property type (type pill, score-tiered rating badge,
-emoji amenities, same-hue hover glow). Place cards with category color chips,
-recommended/price overlays, and a detail modal. Tips render as a destination
-**picker** (flag tiles) → field-guide (essentials lead, sticky topic jump-nav,
-two-column category sections, interactive bordered tip rows color-coded by
-topic).
+### Chips / Pills
+- **Style:** Fully rounded (`rounded-pill`), `text-xs` bold. Built from one semantic hue:
+  a 16%-tint background, a 70%-toward-black label of the same hue, and a 28%-tint inset
+  ring. This keeps every status/topic tag AA-legible on white.
+- **Variants:** `status` (booking states) and `topic` (agent-answer subjects); `best_time`
+  is the one topic that borrows Departure Lime.
 
-### Signature: the Boarding Pass (flight detail)
-A ticket: airline-colored side rail + code chip, large route codes with a dashed
-route line and a coral plane, a die-cut **perforation** (notched dashed divider),
-stub cells (price, duration, stops, and **seat-scarcity colored** seats-left),
-and a mono flight ID.
+### Cards / Containers
+- **Corner Style:** Medium rounded (`16px`, `rounded-md`).
+- **Background:** Panel white (`#ffffff`) on the Void page.
+- **Border:** 1px `line` (`#ececec`); hardens slightly to `#e0e0e0` on hover.
+- **Shadow Strategy:** `shadow-card` at rest → `shadow-lift` on hover, paired with a
+  `-translate-y-0.5` rise. See Elevation.
+- **Internal Padding:** `16px` (`p-lg`).
 
-### Empty states
-Friendly: emoji icon + bold headline + a one-line hint/action link
-(`.empty-ico` / `.empty strong` / `.empty-hint`).
+### Destination Covers (trip postcards)
+The Trips grid uses a **postcard** variant of the card: a full-bleed cover band
+(`108px`) carrying a soft 135° gradient, a dotted **flight-path arc + plane** motif, a
+frosted status pill, and a monogram chip straddling the cover seam (avatar-style). With
+no real photos (mock backend), each trip's cover is chosen **deterministically from the
+city/title hash** across six soft "horizon" palettes (sky, coral, sea, dawn, rose,
+sunset) — warmth and variety without imagery. The covers are intentionally light (L
+≈ 0.94–0.97) so the frosted chip and monogram stay legible. A *Happening now* trip
+overrides to the **lime** cover + `ring-2 ring-lime` + lime monogram, so the One Signal
+Rule still carries on the home grid. This is the load-bearing place where the energetic/
+friendly personality lives — keep it a Trips signature, not a per-page default.
 
-### Modals
-Native-feeling dialogs over a blurred dark scrim, `pop` entrance (disabled under
-reduced-motion), Esc/backdrop close.
+### Welcome Strip
+The Trips landing opens with one **welcome strip**: a rounded `lg` band on a soft
+sky→meadow→sunset horizon gradient with a faint coral flight arc, a friendly headline
+("Where to next?"), a data-aware momentum line in the *well-traveled friend* voice
+("Tokyo is happening right now — have a great trip"), and the primary CTA. It is the
+home's single hero — do not repeat a gradient hero on every page (that reads heavy);
+warmth on the other surfaces comes from the covers, copy, and the coral accent instead.
+
+### Inputs / Fields
+- **Style:** `panel-raised` fill (`#f4f4f2`), 1px `line` border, `10px` radius, `text-sm`
+  ink text. Each control wears a uppercase **Label** caption above it (`gap-xs`).
+- **Placeholder:** `muted` (`#6b6b6b`) — never lighter; placeholders must stay readable.
+- **Focus:** Global neutral focus ring — `box-shadow: 0 0 0 3px rgba(28,28,28,0.16)`,
+  `outline: none`. The same ring on every focusable element; the accent is *not* the focus color.
+
+### Modals & Dialogs
+There is **one** modal primitive — `ui/Modal` — and everything overlaying the page is
+built on it. It carries the shared chrome so no screen re-invents it: a dimmed backdrop
+(`#1c1c1c` at 40% + `backdrop-blur-sm`), a centered Panel-white surface with a 1px `line`
+border, large radius (`20px`, `rounded-lg`), `shadow-lift`, and `16px` (`p-lg`) padding,
+entering with the `tp-pop` pop (`0.16s ease-out`). It **traps focus**, restores focus to
+the trigger on close, and dismisses on both Esc and backdrop click. The title is Headline
+(extrabold `1.1rem`). Width is the explicit `max-w-[28rem]` — never `max-w-md`, which the
+`--spacing-md` token collapses to 12px under Tailwind v4.
+- **`ui/ConfirmDialog`:** the yes/no confirmation, composed on `Modal`. Body copy is
+  `text-sm` `muted`; the footer is `flex justify-end gap-sm` with a **ghost Cancel** and a
+  **primary (ink) confirm** — the same two-button footer every modal uses (see
+  `NewTripModal`). Use it for any destructive or irreversible prompt.
+- **Named Rule — The No-Native-Dialog Rule.** `window.confirm`, `window.alert`, and
+  `window.prompt` are **forbidden** in product UI. They render the browser's chrome
+  (unstyled, unbranded, no focus trap, no tokens) — the exact off-brand box this system
+  exists to replace. Reach for `ConfirmDialog` (or `Modal`) instead, always.
+
+### Navigation
+- **Style:** A single top bar — `panel` background, hairline bottom border, `56px` tall,
+  centered to a `max-w-5xl` column. Bold wordmark on the left, bold `text-sm` links beside it.
+- **States:** Active link is ink; inactive is `muted` and brightens to ink on hover.
+  `aria-current="page"` marks the active route.
+- **Tabs:** A bottom-border tablist — the active tab is ink text over a **Departure Lime**
+  2px underline; inactive tabs are muted with a transparent underline. This is one of the
+  few load-bearing uses of lime in the UI.
+
+### Chat Launcher & Panel (signature component)
+- **Launcher:** A `56px` circular **Departure Lime** FAB pinned bottom-right, ink chat
+  icon, `shadow-lift`. Toggles to an × when open; `brightness-105` on hover, press on
+  active. This is the app's single most expressive use of the accent — the agent waving hello.
+- **Panel:** A floating white panel (the agent's surface) carrying the streaming
+  conversation, quick replies, and human-in-the-loop interrupt prompts. It is the
+  product's differentiator: keep it clean, keep the user oriented, keep every agent action
+  visible and reversible.
 
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** keep Coral Bright/Deep for brand actions/focus only; use the topic and
-  status palettes for everything color-coded.
-- **Do** pair every status/topic color with text or an icon (FIDS pill pattern).
-- **Do** set compared numbers in `tabular-nums`.
-- **Do** lighten colored text on same-hue tints toward Ink to hold AA.
-- **Do** keep the coral focus ring on every focusable control, and a
-  `prefers-reduced-motion` alternative for every animation.
+- **Do** keep Departure Lime (`#cbf24a`) to ≤10% of any screen, and only for active /
+  selected / highlight / the chat launcher. Rarity is the signal.
+- **Do** make the primary action ink (`#1c1c1c`) and use lime only to mark state.
+- **Do** build hierarchy from Inter's weights (400→800) and the fixed rem scale — one
+  typeface only.
+- **Do** rest surfaces on hairline `line` borders and reserve `shadow-lift` for hover,
+  modals, and the launcher.
+- **Do** keep body and placeholder text at `muted` (`#6b6b6b`) or darker for AA — never
+  `faint` for anything a user must read.
+- **Do** give every interactive control its full state set (default, hover, focus, active,
+  disabled) and the global focus ring.
+- **Do** keep motion crisp and state-driven (150–200ms); honor `prefers-reduced-motion`
+  on every animation.
+- **Do** build every new component out of the shared `ui/` primitives (`Button`, `Modal`,
+  `ConfirmDialog`, `Field`, `Spinner`, …) and the design tokens (`bg-panel`, `border-line`,
+  `text-ink`/`muted`, the `xs–xl` spacing scale, `rounded-{sm,md,lg,pill}`). Extend the
+  system before inventing a one-off; a new element that doesn't cite this doc is a bug.
 
 ### Don't:
-- **Don't** use cream/parchment backgrounds, gradient text, hero-metric
-  templates, or reflexive identical icon+heading+text card grids.
-- **Don't** put uppercase tracked eyebrows above every section.
-- **Don't** use `border-left/right` > 1px as a colored accent stripe.
-- **Don't** add decorative glassmorphism (the only blurs are over-photo chips
-  and modal scrims).
-- **Don't** introduce a new accent or status hue, or reuse a status hue for a
-  different meaning.
+- **Don't** build a **generic SaaS dashboard** — no card-grid sea, no gray-on-white, no
+  hero-metric template, no identical icon+heading+text tiles.
+- **Don't** drift toward a **corporate OTA** — no ad banners, no fake-urgency badges
+  ("2 left at this price!"), no clutter-for-density.
+- **Don't** go **childish or over-gamified** — no mascots, no confetti, no cartoon badges.
+  Playful stays grown-up.
+- **Don't** ship a **cold enterprise tool** — warmth and personality are required.
+- **Don't** warm the page toward cream/sand/beige. The body is `#f7f7f5`, a near-neutral
+  off-white. (The No-Cream Rule.)
+- **Don't** use a lime fill for a primary button, a lime surface, or lime as decoration.
+- **Don't** use uppercase letter-spacing anywhere but form labels — no tracked eyebrows.
+- **Don't** add a second typeface or a display font for UI labels, buttons, or data.
+- **Don't** put a hard, dark drop shadow on anything (the 2014 Test). Shadows are wide,
+  soft, and low-opacity.
+- **Don't** use `window.confirm` / `alert` / `prompt`, or hand-roll a bespoke overlay.
+  Use `ConfirmDialog` / `Modal` (the No-Native-Dialog Rule) — native browser dialogs are
+  unstyled, unbranded, and break the focus/motion contract.

@@ -1,0 +1,22 @@
+[
+  {
+    "input": "Plan a 3-day itinerary for Tokyo",
+    "expected": "planner"
+  },
+  {
+    "input": "What's the weather like in Hanoi this week?",
+    "expected": "concierge"
+  },
+  {
+    "input": "Log that I paid 50 USD for lunch today",
+    "expected": "budget"
+  },
+  {
+    "input": "Go ahead and book the hotel for those dates",
+    "expected": "booking"
+  },
+  {
+    "input": "Remember that I am vegetarian for next time",
+    "expected": "journal"
+  }
+]

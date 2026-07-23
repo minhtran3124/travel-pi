@@ -1,0 +1,276 @@
+# Prompt Changelog
+
+Versions are selected per name in `active.yaml`; old versions are kept for
+rollback / A-B. Newest first.
+
+## ledger-early-exit — signal "blocked on the traveller" instead of draining the plan
+
+specs/min-68-ledger-early-exit (MIN-68 / #99): when a queued multi-step plan hits a
+specialist that needs a clarifying answer, the remaining steps used to run anyway and
+produce output the traveller never sees. Sub-agents now carry a `needs_clarification`
+tool (control-flow, not registry/MCP-exposed) that sets `awaiting_user`, making
+`dispatch_next` abandon the rest of the ledger; the next turn re-plans.
+
+- **communication_style v7** — appended a `## Blocked on the Traveller` section telling
+  every specialist to call `needs_clarification` once when only the traveller can
+  unblock them, and never for tool failures. Everything else unchanged from v6.
+
+`active.yaml`: communication_style → 7. Others unchanged.
+
+## flight-fare-no-fabrication — forbid derived prices, not just invented ones
+
+specs/flight-fare-no-fabrication (MIN-67 / #98): the agent searched one leg and told the
+traveller "from $136 round-trip total" by doubling a real $68 one-way fare — grounded in a
+tool result, so the prior "never invent" wording didn't catch it. `search_flights` gained an
+optional `return_date` (wave 1) so a round trip's real return-leg fare can actually be
+retrieved; this is the prompt half.
+
+- **planner v11** — extended the existing "Never invent flights, hotels, or prices"
+  Guardrails bullet in place (not a new bullet) to also ban derivation: a stated price must
+  be one a tool returned, never computed, doubled, summed, or extrapolated from one; search
+  the return leg with `return_date` to price a round trip. Everything else unchanged.
+
+`active.yaml`: planner → 11. Others unchanged.
+
+## weather-trip-date-accuracy — climate vs forecast, and matching the tool's dates to the trip
+
+specs/weather-trip-date-accuracy (MIN-66 / #97): `get_weather`/`get_packing` gained an optional
+`date` and now refuse a date beyond the ~2-week forecast horizon instead of silently returning
+today's forecast; a new `get_climate` tool exposes monthly normals for dates further out. The
+prompt half of the fix teaches the model when to use which and to check the covered-dates line
+the weather summary now states, so a trip-date mismatch (the reported bug: a Sep trip answered
+with the Jul forecast) is visible instead of silently wrong.
+
+- **concierge v11** — added a third `## Grounding` bullet: check `get_weather`/`get_packing`'s
+  stated covered dates against the traveller's dates; call `get_climate` for a date beyond the
+  horizon and describe it as typical/average conditions, never a forecast. Extended the
+  `## Example — weather` block with a Don't/Do pair showing a climate-normals reply framed
+  correctly. Everything else (grounding order, shortlist rule, hotels, visa & local advice) is
+  unchanged.
+- **planner v10** — added one Guardrails bullet: a weather-fit itinerary must check
+  `get_weather`/`get_packing`'s covered dates against the trip's actual dates, and use
+  `get_climate` (never as a forecast) for a date beyond the horizon. Planner had no prior
+  weather mention; this is additive, no restructuring.
+
+`active.yaml`: concierge → 11, planner → 10. Others unchanged.
+
+## agent-date-resolution Phase 5 — new `date_resolution` prompt (LLM parses, code computes)
+
+specs/agent-date-resolution §4b: the hardcoded weekday/phrase word tables in
+`app/core/dates.py` are a treadmill — patching one missed phrase at a time
+never converges, and only ever covers the languages we thought to hardcode.
+Replaced with a new `date_resolution` prompt family: a small, fast model
+reads the traveller's date wording and returns a **structured intent**
+(`kind` + kind-specific fields) — never a computed date. All date arithmetic
+stays in code (`app/core/dates.py`, wired in a follow-up task), so a misread
+phrase is visible and testable in the trace, and a wrong `+7` (the earlier
+P0) becomes impossible because the model never does arithmetic at all.
+
+- **date_resolution v1** — new prompt. Covers every intent kind (`absolute`,
+  `relative_day`, `weekday`, `week_start`, `weekend`, `offset`, `ambiguous`)
+  with few-shot `input -> intent` examples spanning Vietnamese (with and
+  without diacritics), English, Japanese, and Spanish. Pins the conventions
+  the model maps onto — bare weekday = next occurrence strictly after today;
+  "this <weekday>" = current calendar week; "next <weekday>" = next calendar
+  week — and is explicit that `ambiguous` is the safe answer for "no date at
+  all" or genuinely multiple readings, not for merely unusual phrasing
+  ("tuần tới" is ordinary, not ambiguous — the old lexicon's failure mode).
+
+`active.yaml`: date_resolution → 1 (new). Added to `FAST_AGENTS`
+(`app/agents/constants.py`) so it resolves to the cheap model, and to
+`AGENT_CONFIG_NODES` / `AGENT_DESCRIPTIONS` (`app/data/agent_config.py`) so
+it is configurable from the dashboard like every other node. Others
+unchanged.
+
+## agent-date-resolution (follow-up) — planner missed by the date rewrite
+
+Code review on `feat/agent-date-resolution` found that the `booking v6` date
+rewrite below was never applied to `planner` — and planner is the dominant
+path for flight/hotel *searches* (the supervisor routes most searches there,
+and `resolve_date` is bound to planner). Planner v6 still told the model to
+"resolve relative dates … to a concrete date yourself" and to "get a single
+yes/no confirmation before you search", directly contradicting the CURRENT
+DATE note (`app/agents/state.py::ground_current_date`) prepended to every
+sub-agent prompt.
+
+- **planner v7** — copied v6, then applied the same date rewrite as
+  `booking v6` to the two date guardrail bullets: any non-ISO date (relative,
+  weekday, partial) MUST go through the `resolve_date` tool — never computed
+  in the model's head — and the agent searches/proposes immediately, stating
+  the resolved date in its answer instead of asking for a yes/no confirmation
+  first. A date question is now asked only when the traveller gave no date
+  signal at all or `resolve_date` reports the expression is ambiguous.
+  Everything else is untouched: "Never invent flights, hotels, or prices",
+  the required-hotel-detail guardrail (rooms/guests/party-size must come from
+  the traveller, never defaulted), and the multi-turn stitching behavior
+  ("combine details the traveller gave across several turns", don't re-ask
+  for something already provided).
+
+`active.yaml`: planner → 7. Others unchanged.
+
+## agent-date-resolution — stop confirming a date before searching
+
+specs/agent-date-resolution: deterministic date resolution (`app/core/dates.py`)
+plus a new `resolve_date` agent tool made the LLM's own date arithmetic and the
+pre-search "please confirm this date" turn redundant — the agent now resolves
+and states the date instead of asking the traveller to pre-approve it.
+
+- **booking v6** — copied v5, then rewrote the date-confirmation part of
+  "## How to Work" step 1: any non-ISO date (relative, weekday, partial) must
+  go through the `resolve_date` tool — never computed in the model's head —
+  and the agent searches/quotes immediately, stating the resolved date in its
+  answer instead of asking for a yes/no confirmation first. A date question is
+  now asked only when the traveller gave no date signal at all or `resolve_date`
+  reports the expression is ambiguous. The non-date "restate + confirm" flow
+  (rooms, guests, party size) is unchanged. Booking-approval language —
+  "Never confirm a booking without explicit approval. Quoting is safe; booking
+  is not." and "Confirm the resolved value once before booking." — is
+  untouched: this only removes the pre-*search*/pre-*quote* date confirmation,
+  not the pre-*booking* approval gate.
+
+`active.yaml`: booking → 6. Others unchanged.
+
+## travel-knowledge-rag — concierge knowledge-search tool
+
+specs/travel-knowledge-rag: re-introduce RAG over visa + local-tips seed content,
+exposed to the concierge as a new `search_travel_knowledge` tool. The concierge
+calls it for free-text visa/entry and local-advice questions and grounds on its
+results (guidance, not a ruling); falls back to `get_local_tips` for practical
+tips when it returns `count: 0` (there is no visa-specific tool).
+
+- **concierge v9** — copied v8, then added a new "## Visa & local advice"
+  section (between Hotels and the weather Example) instructing the model to call
+  `search_travel_knowledge` for free-text visa/local-advice questions, present
+  results as guidance (nationality-dependent, confirm with the official
+  authority), and fall back to `get_local_tips` when retrieval is empty.
+  Existing sections (grounding, shortlist, personalize, hotels, exclude_names)
+  are unchanged, so `test_concierge_prompt_mentions_exclude_names_on_followup`
+  still holds.
+
+`active.yaml`: concierge → 9. Others unchanged.
+
+## v-min-54 — chat formatting polish (emoji + tighter bold)
+
+MIN-54: make replies friendlier and cleaner to scan. Prompt half of the issue
+(the web spacing/line-height half lives in `apps/web`).
+
+- **communication_style v5** — copied v4, then two edits under "## How to Format":
+  (a) sharpened the bold rule so **only the specific value** is bold (a name, number,
+  price, date, place), never a whole sentence or a generic word; (b) added a new
+  "### Emoji" subsection — tasteful, contextual travel emoji (🏨 ✈️ 🌴 💰 📅 …) used
+  sparingly, at the start of a line/term, never on every bullet, and skipped entirely
+  in warnings / disclaimers / tool-failure replies. "## Identity" (name **Tin**) is
+  unchanged, so `test_tin_identity` still holds across all five sub-agents.
+
+`active.yaml`: communication_style → 5. Others unchanged.
+
+## v-min-60 — chatbot branding (name: Tin)
+
+MIN-60: give the assistant a name so it can refer to itself in first person
+instead of sounding like an anonymous tool.
+
+- **communication_style v4** — added an "## Identity" section: the assistant's
+  name is **Tin** (Trợ lý Tìm–Đi–Nghỉ); use it by name once or twice per reply
+  when natural, otherwise "mình"; never call itself a generic "trợ lý ảo".
+  Prepended to every sub-agent prompt via `_base.py`, so all five sub-agents
+  (planner/concierge/journal/booking/budget) pick it up automatically.
+
+`active.yaml`: communication_style → 4. Others unchanged.
+
+## v-min-60-followup — language stickiness + name-capture guard
+
+Two bugs found in a real English conversation (conv `2239214e`): the bot flipped
+to Vietnamese on a trip-action turn, and the memory extractor stored the bot's own
+name ("Tin") as the traveller's name.
+
+- **communication_style v4** (edited in place, unshipped) — rewrote "## Language":
+  reply language is now **sticky** and set by the traveller's most recent *typed*
+  message. Tool results, trip data, and Vietnamese place names (Đà Nẵng, Hà Nội)
+  no longer switch the language; a too-short message ("look good") keeps the
+  language already in use. Fixes the flip-to-Vietnamese on the planner/tool turn.
+- **memory_extraction v4** — added a guard: capture `name` only from the
+  traveller's own words in a *user* message; **never** capture the assistant's
+  name. "Tin" (the assistant's name, any language) is not the traveller's name.
+
+`active.yaml`: memory_extraction → 4. communication_style stays 4 (in-place edit).
+
+## v-min-53 — proactive personalization (name / gender / travel-group)
+
+MIN-53: agent softly, optionally learns who the traveller is and who they travel
+with, to personalize address and suggestions. Stored in the existing prefs store
+under reserved keys (`name`, `gender`, `travel_group`) — no schema. Injected each
+turn via `TravelAgentState.profile` (`app/agents/nodes.py` load_context_node).
+
+- **memory_extraction v3** — capture the three reserved personalization keys when
+  the traveller volunteers them; never infer gender/name/group.
+- **concierge v8 / planner v5** — added "Personalize before suggesting": one light,
+  optional, skippable question about trip company before giving recommendations,
+  plus an optional gentle **name** ask for warmer address; never block on either;
+  **never ask for gender directly** (gender used only if the traveller volunteers
+  it). The gender narrowing was confirmed with the requester on PII grounds.
+
+`active.yaml`: concierge → 8, planner → 5, memory_extraction → 3. Others unchanged.
+
+## v5 — concierge: default to a shortlist
+
+Dumping the full search-results list (e.g. every café in a city) by default was
+overwhelming and buried the actually-useful picks; a Vietnamese-language test
+conversation surfaced this alongside a separate reflection-loop bug where the
+revision prompt (an English `HumanMessage`) got read as "the traveller's latest
+message" and silently flipped the reply language mid-turn (fixed in
+`app/agents/nodes.py`, not a prompt change).
+
+- **concierge v5** — when the traveller doesn't ask for a specific count or
+  "all", present only the top 4–5 (highest-rated first) and offer to show more,
+  instead of presenting every returned item.
+
+`active.yaml`: concierge → 5. Others unchanged.
+
+## v4 — hotel-search detail gathering
+
+Stop the agent from silently guessing hotel-search details. Paired with the
+`search_hotels` tool making `rooms`, `adults`, and `children` required (no
+defaults), so an omitted value can no longer be assumed as 2 adults / 1 room.
+
+- **planner v4** — added a guardrail: collect check-in/check-out, rooms, and
+  guests (adults + children) before searching hotels; never guess or use a
+  default party size; restate any value that only appeared earlier (with the
+  implied nights) and ask the traveller to confirm.
+- **booking v4** — expanded the "How to Work" step 1 to enumerate the required
+  hotel details (dates, rooms, adults, children) and added a guardrail against
+  guessing dates/party size/room count.
+
+`active.yaml`: planner, booking → 4. Others unchanged.
+
+## v3 — apply mizumi-ai patterns (P1 + P2)
+
+Reviewed the mizumi-ai hotel-concierge prompt set and adapted its transferable
+patterns (review: `specs/travel-agent/PROMPT_REVIEW.md`). Channel/tone-specific
+bits (WhatsApp no-markdown, Forbes-luxury vocabulary, guest-name personalization)
+were deliberately **not** adopted — travel-pi is web-markdown and casual-warm.
+
+- **communication_style v3** — promoted language handling to a dedicated, high-priority
+  `## Language` section with ✅/❌ examples (was a single buried bullet).
+- **supervisor v3** — added a `## Routing Examples` few-shot block to disambiguate the
+  commonly-confused cases (journal vs booking, concierge vs planner).
+- **concierge v3** — added an explicit `## Grounding (in order)` hierarchy
+  (retrieved facts → live tools → say-you-don't-know) and a tool-result fidelity rule
+  (present all returned items, keep order, don't shorten).
+- **booking v3** — added a `## How to Work` flow: verify required details before quoting,
+  one-tool-at-a-time, confirm only after explicit approval.
+
+`active.yaml`: communication_style, supervisor, concierge, booking → 3.
+planner, journal, budget stay at 2; reflection at 1.
+
+## v2 — structure pass
+
+Rewrote all seven registry prompts into a consistent structure
+(`# Role` / `## Responsibilities` / `## How to Work` / `## Guardrails`); deduped
+`concierge` against the shared `communication_style`; merged redundant
+option/bold bullets in `communication_style`. No behavioural rule dropped.
+
+## v1 — initial prompts
+
+Original prose prompts shipped with the travel-agent foundation
+(`specs/travel-agent`). `reflection` was added at v1 when its critic prompt was
+moved out of `nodes.py` into the registry.

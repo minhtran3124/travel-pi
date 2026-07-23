@@ -1,46 +1,45 @@
-.PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint
+# Monorepo root Makefile — delegates BE targets into apps/api, FE via pnpm/turbo.
+# BE (apps/api) keeps its own Makefile; this is a thin convenience layer.
+.PHONY: help install dev test test-docker lint seed api fe web up down build diagram
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 	  awk 'BEGIN{FS=":.*?## "}{printf "  %-12s %s\n", $$1, $$2}'
 
-install:        ## Create venv + install deps (local)
-	uv venv && uv pip install -r requirements.txt
+install:        ## Install JS deps (pnpm) — BE deps: see apps/api (uv)
+	pnpm install
 
-dev:            ## Run the app locally on SQLite (no Docker)
-	.venv/bin/uvicorn app.main:app --reload --port 8000
+dev:            ## Run everything (turbo) — BE + FE dev servers
+	pnpm turbo run dev
 
-up:             ## Build + start app + Postgres in Docker
-	docker compose up
+build:          ## Build all apps (turbo)
+	pnpm turbo run build
 
-down:           ## Stop the Docker stack
-	docker compose down
+lint:           ## Lint all apps (turbo)
+	pnpm turbo run lint
 
-logs:           ## Tail Docker logs
-	docker compose logs -f
+test:           ## Run the BE suite (delegates to apps/api)
+	$(MAKE) -C apps/api test
 
-exec-api:       ## Open a shell in the running api container
-	docker compose exec api sh
+test-docker:    ## Run the BE suite on Postgres in Docker
+	$(MAKE) -C apps/api test-docker
 
-exec-db:        ## Open psql in the running db container
-	docker compose exec db psql -U travel travel
+seed:           ## Seed the BE database
+	$(MAKE) -C apps/api seed
 
-migrate:        ## Run Alembic migrations against the configured DATABASE_URL
-	.venv/bin/alembic upgrade head
+api:            ## Run only the BE dev server
+	$(MAKE) -C apps/api dev
 
-seed:           ## Seed the configured DATABASE_URL from app/data
-	.venv/bin/python -c "from app.db.engine import get_session_factory; from app.core.config import get_settings; from app.db.seed import seed_all; seed_all(get_session_factory(get_settings().database_url))"
+fe:             ## Run the FE dev server (cd apps/web → nvm use stable → pnpm run dev)
+	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use stable && pnpm run dev
 
-test:           ## Run the suite locally on SQLite
-	.venv/bin/python -m pytest tests/ -q
+web: fe         ## Alias for `fe`
 
-test-docker:    ## Run the suite in Docker against isolated Postgres
-	docker compose -f docker-compose.test.yml up --build \
-	  --abort-on-container-exit --exit-code-from tests; \
-	  docker compose -f docker-compose.test.yml down -v
+up:             ## Build + start api + Postgres in Docker (delegates to apps/api)
+	$(MAKE) -C apps/api up
 
-fmt:            ## Format
-	.venv/bin/ruff format app scripts
+down:           ## Stop the Docker stack (delegates to apps/api)
+	$(MAKE) -C apps/api down
 
-lint:           ## Lint
-	.venv/bin/ruff check app scripts
+diagram:        ## Render WORKFLOW_DIAGRAM.md → self-contained WORKFLOW_DIAGRAM.html
+	node scripts/render-workflow-diagram.mjs

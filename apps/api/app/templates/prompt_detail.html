@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "_prompt_sidebar.html" import prompt_sidebar %}
+{% block title %}{{ name ~ ' · prompt' if name else 'Prompts' }}{% endblock %}
+{% block wrap_class %}wrap-wide{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title"><span class="icon">📝</span><span>Prompts</span></h1>
+  <div class="page-meta">{{ names_meta | length }} prompt{{ 's' if names_meta | length != 1 else '' }}</div>
+</div>
+
+<div class="prompt-workspace">
+  {{ prompt_sidebar(names_meta, name) }}
+
+  {% if name %}
+  <div class="prompt-main">
+    {# Compare bar — moved to the top of the pane. #}
+    <form method="get" action="/dashboard/prompts/{{ name }}/diff" class="diff-picker">
+      <div class="fg">
+        <span class="fl">Compare</span>
+        <select name="from" aria-label="From version">
+          {% for v in versions %}
+          <option value="v{{ v }}" {% if v == cmp_from %}selected{% endif %}>v{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <span class="diff-picker-arrow" aria-hidden="true">→</span>
+      <div class="fg">
+        <span class="fl">With</span>
+        <select name="to" aria-label="To version">
+          {% for v in versions %}
+          <option value="v{{ v }}" {% if v == cmp_to %}selected{% endif %}>v{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="fb-btn" type="submit">Compare</button>
+    </form>
+
+    <div class="prompt-main-head">
+      <h2 class="prompt-main-title">{{ name }}</h2>
+      <div class="prompt-versions">
+        {% for v in versions %}
+        <a class="version-pill {{ 'is-selected' if v == selected else '' }}"
+           href="/dashboard/prompts/{{ name }}?version=v{{ v }}">
+          v{{ v }}{% if v == active %}<span class="version-active-flag">active</span>{% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card prompt-content-card">
+      <pre class="prompt-content">{{ content }}</pre>
+    </div>
+  </div>
+  {% else %}
+  <div class="prompt-main">
+    <div class="empty"><div class="empty-ico">📝</div><strong>No prompts found</strong></div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .diff-picker {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 16px;
+  }
+  .diff-picker-arrow { color: var(--muted); font-weight: 700; }
+  .prompt-main-head { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .prompt-main-title { margin: 0; font-size: 1.15rem; font-weight: 800; }
+  .prompt-versions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .version-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel-2);
+    color: var(--muted); font-size: 0.83rem; font-weight: 600;
+    text-decoration: none;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .version-pill:hover { border-color: var(--accent); color: var(--ink); }
+  .version-pill.is-selected {
+    border-color: var(--accent); background: var(--accent-glow); color: var(--ink);
+  }
+  .version-active-flag {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--accent-dim);
+  }
+  .prompt-content-card { margin: 0; overflow-x: auto; }
+  .prompt-content {
+    margin: 0; white-space: pre-wrap; word-break: break-word;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem; line-height: 1.6; color: var(--ink);
+  }
+</style>
+{% endblock %}

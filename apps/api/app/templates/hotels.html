@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% from "_explore.html" import explore %}
+{% block title %}Hotels{% if selected_city %} · {{ selected_city }}{% endif %}{% endblock %}
+
+{% block content %}
+{# property type → signature colour + glyph, for friendly colour-coding #}
+{% set type_styles = {
+  'Hotel':         {'c': '#38bdf8', 'i': '🏨'},
+  'Resort':        {'c': '#fbbf24', 'i': '🌴'},
+  'Villa Resort':  {'c': '#fb7185', 'i': '🏝️'},
+  'Boutique Hotel':{'c': '#c084fc', 'i': '✨'}
+} %}
+{# amenity → emoji, so the chips read at a glance #}
+{% set amenity_icons = {
+  'Free WiFi': '📶', 'Pool': '🏊', 'Spa': '💆', 'Gym': '🏋️',
+  'Bar': '🍸', 'Restaurant': '🍽️', 'Beach Access': '🏖️'
+} %}
+
+<div class="board-head">
+  <h1 class="board-title">
+    <span class="plane">🏨</span>
+    <span>Hotels{% if selected_city %} · {{ selected_city }}{% endif %}</span>
+  </h1>
+  <div class="clock">{{ hotels | length }} / {{ total }}</div>
+</div>
+
+<form method="get" action="/dashboard/hotels" class="filter-bar">
+  <label class="fg">
+    <span class="fl">Search</span>
+    <input type="search" name="q" value="{{ query }}" placeholder="Hotel name…">
+  </label>
+
+  <label class="fg">
+    <span class="fl">City</span>
+    <select name="city">
+      <option value="">All cities ({{ total }})</option>
+      {% for c in cities %}
+        <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="fg">
+    <span class="fl">Sort</span>
+    <select name="sort">
+      <option value="featured"    {% if sort == 'featured'    %}selected{% endif %}>Featured</option>
+      <option value="rating_desc" {% if sort == 'rating_desc' %}selected{% endif %}>Rating ↓</option>
+      <option value="rating_asc"  {% if sort == 'rating_asc'  %}selected{% endif %}>Rating ↑</option>
+      <option value="price_asc"   {% if sort == 'price_asc'   %}selected{% endif %}>Price ↑</option>
+      <option value="price_desc"  {% if sort == 'price_desc'  %}selected{% endif %}>Price ↓</option>
+      <option value="name"        {% if sort == 'name'        %}selected{% endif %}>Name A–Z</option>
+    </select>
+  </label>
+
+  <button class="fb-btn" type="submit">Search</button>
+
+  {% if query or selected_city %}
+    <a class="fb-link" href="/dashboard/hotels">✕ Clear</a>
+  {% endif %}
+
+  <span class="spacer"></span>
+  <a class="fb-link hi" href="/dashboard/flights">Flight board →</a>
+</form>
+
+{% if not hotels %}
+  <div class="empty">
+    <div class="empty-ico">🏨</div>
+    <strong>No hotels found</strong><br>
+    Nothing matches
+    {%- if query %} "{{ query }}"{% endif %}
+    {%- if selected_city %} in {{ selected_city }}{% endif %}
+    {%- if not query and not selected_city %} the current filters{% endif %}.<br>
+    <a class="empty-hint" href="/dashboard/hotels">Clear search and filters →</a>
+  </div>
+{% else %}
+<div class="hotel-grid">
+  {% for hotel in hotels %}
+  {% set ts = type_styles.get(hotel.property_type, {'c': '#38bdf8', 'i': '🏨'}) %}
+  {% set rtier = 'rb-exc' if hotel.rating >= 9 else 'rb-great' if hotel.rating >= 8 else 'rb-good' if hotel.rating >= 7 else 'rb-ok' %}
+  <article class="hotel-card" role="button" tabindex="0" style="--c: {{ ts.c }}"
+           aria-haspopup="dialog" aria-label="{{ hotel.name }} — {{ hotel.city }}"
+           data-name="{{ hotel.name }}"
+           data-city="{{ hotel.city }}"
+           data-country="{{ hotel.country }}"
+           data-address="{{ hotel.address }}"
+           data-stars="{{ hotel.star_rating }}"
+           data-rating="{{ '%.1f' | format(hotel.rating) }}"
+           data-reviews="{{ '{:,}'.format(hotel.review_count) }}"
+           data-price="{{ '%.0f' | format(hotel.price_per_night) }}"
+           data-currency="{{ hotel.currency }}"
+           data-type="{{ hotel.property_type }}"
+           data-type-color="{{ ts.c }}"
+           data-chain="{{ hotel.chain }}"
+           data-checkin="{{ hotel.check_in_time }}"
+           data-checkout="{{ hotel.check_out_time }}"
+           data-breakfast="{{ '1' if hotel.breakfast_included else '0' }}"
+           data-cancel="{{ '1' if hotel.free_cancellation else '0' }}"
+           data-desc="{{ hotel.description }}"
+           data-amenities='{{ hotel.amenities | tojson }}'
+           data-languages='{{ hotel.languages_spoken | tojson }}'
+           data-code="{{ hotel.short_code }}"
+           data-image="{{ hotel.image_url }}">
+    <div class="photo">
+      <img src="{{ hotel.image_url }}" alt="{{ hotel.name }}" loading="lazy">
+      <span class="stars" title="{{ hotel.star_rating }}-star">{{ "★" * hotel.star_rating }}</span>
+      <span class="rating-badge {{ rtier }}" title="{{ hotel.review_count }} reviews">
+        {{ "%.1f" | format(hotel.rating) }}
+      </span>
+      <span class="type-tag">{{ ts.i }} {{ hotel.property_type }}</span>
+    </div>
+    <div class="body">
+      <div class="name">{{ hotel.name }}</div>
+      <div class="loc">
+        <span class="city">{{ hotel.city }}</span><br>
+        {{ hotel.address }}
+      </div>
+      <div class="amenities">
+        {% for amenity in hotel.amenities %}
+          <span class="chip">{{ amenity_icons.get(amenity, '•') }} {{ amenity }}</span>
+        {% endfor %}
+      </div>
+      <div class="foot">
+        <div class="price">
+          {{ hotel.currency }} {{ "%.0f" | format(hotel.price_per_night) }}<span> / night</span>
+        </div>
+        <div class="reviews">{{ "{:,}".format(hotel.review_count) }} reviews</div>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if selected_city %}{{ explore(selected_city, 'hotels') }}{% endif %}
+
+<!-- Hotel detail modal — populated client-side from the clicked card. -->
+<div id="hotel-modal" class="hotel-modal" aria-hidden="true">
+  <div class="hm-backdrop" data-close></div>
+  <div class="hm-dialog" role="dialog" aria-modal="true" aria-labelledby="hm-name">
+    <button class="hm-close" type="button" data-close aria-label="Close">✕</button>
+    <div class="hm-photo">
+      <img id="hm-image" src="" alt="">
+      <span id="hm-stars" class="hm-stars"></span>
+      <span id="hm-rating-badge" class="hm-rating-badge"></span>
+    </div>
+    <div class="hm-body">
+      <h2 id="hm-name" class="hm-name"></h2>
+      <div class="hm-loc">
+        <span id="hm-city" class="hm-city"></span> · <span id="hm-country"></span>
+      </div>
+      <div class="hm-meta">
+        <span class="hm-rating-txt"><span class="stars">★</span> <span id="hm-rating"></span>
+          <span class="rev-count">(<span id="hm-reviews"></span> reviews)</span></span>
+        <span id="hm-type" class="hm-tag"></span>
+        <span id="hm-price" class="hm-price"></span>
+      </div>
+      <p id="hm-desc" class="hm-desc"></p>
+      <div class="hm-grid">
+        <div class="hm-cell"><span class="hm-k">Chain</span><span id="hm-chain" class="hm-v"></span></div>
+        <div class="hm-cell"><span class="hm-k">Address</span><span id="hm-address" class="hm-v"></span></div>
+        <div class="hm-cell"><span class="hm-k">Check-in</span><span id="hm-checkin" class="hm-v"></span></div>
+        <div class="hm-cell"><span class="hm-k">Check-out</span><span id="hm-checkout" class="hm-v"></span></div>
+        <div class="hm-cell"><span class="hm-k">Breakfast</span><span id="hm-breakfast" class="hm-v"></span></div>
+        <div class="hm-cell"><span class="hm-k">Free cancellation</span><span id="hm-cancel" class="hm-v"></span></div>
+      </div>
+      <div class="hm-sec">
+        <span class="hm-seclbl">Amenities</span>
+        <div class="hm-chips" id="hm-amenities"></div>
+      </div>
+      <div class="hm-sec">
+        <span class="hm-seclbl">Languages spoken</span>
+        <div class="hm-chips" id="hm-languages"></div>
+      </div>
+      <div class="hm-foot">
+        <span class="hm-code" id="hm-code"></span>
+        <span class="hm-foot-price" id="hm-foot-price"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Cards are clickable → reveal the detail modal. */
+  .hotel-card { cursor: pointer; }
+  .hotel-card:focus-visible { outline: 2px solid var(--c, var(--accent)); outline-offset: 2px; }
+
+  /* ── Colour-coded by property type (--c set per card) ── */
+  .hotel-card:hover {
+    border-color: var(--c, var(--accent));
+    box-shadow: var(--shadow-lg),
+                0 0 0 1px color-mix(in srgb, var(--c, var(--accent)) 45%, transparent);
+  }
+
+  /* Property-type pill on the photo */
+  .type-tag {
+    position: absolute; left: 8px; bottom: 8px;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 0.7rem; font-weight: 800; color: #0b1413;
+    background: color-mix(in srgb, var(--c, var(--accent)) 90%, #fff);
+    box-shadow: 0 2px 8px rgba(0,0,0,.35);
+  }
+
+  /* Rating badge tinted by score tier, dark text for contrast */
+  .hotel-card .rating-badge { color: #0b1413; }
+  .rating-badge.rb-exc   { background: #22c55e; }   /* 9.0+  excellent */
+  .rating-badge.rb-great { background: #2dd4bf; }   /* 8.0+  great     */
+  .rating-badge.rb-good  { background: #60a5fa; }   /* 7.0+  good      */
+  .rating-badge.rb-ok    { background: #fbbf24; }   /* < 7.0 ok        */
+
+  /* Friendlier amenity chips */
+  .amenities .chip { font-weight: 600; }
+
+  /* ── Detail modal ───────────────────────────────────────────────── */
+  .hotel-modal {
+    position: fixed; inset: 0; z-index: 2000;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .hotel-modal.show { display: flex; }
+  .hm-backdrop {
+    position: absolute; inset: 0;
+    background: var(--scrim); backdrop-filter: blur(3px);
+  }
+  .hm-dialog {
+    position: relative; z-index: 1;
+    width: min(660px, 100%); max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    animation: hm-pop .16s ease-out;
+  }
+  @keyframes hm-pop {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .hm-close {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: none; cursor: pointer;
+    background: rgba(8,9,11,.72); color: #fff; backdrop-filter: blur(3px);
+    font-size: 0.9rem; line-height: 1;
+    transition: background .12s;
+  }
+  .hm-close:hover { background: var(--red); }
+
+  .hm-photo { position: relative; aspect-ratio: 16/9; background: var(--photo-bg); overflow: hidden; }
+  .hm-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hm-stars {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(8,9,11,.72); backdrop-filter: blur(3px);
+    border-radius: 5px; padding: 3px 9px;
+    font-size: 0.8rem; color: var(--yellow); letter-spacing: 0.04em;
+  }
+  .hm-rating-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--accent); color: var(--on-accent);
+    border-radius: 999px; padding: 3px 11px;
+    font-size: 0.85rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+
+  .hm-body { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; }
+  .hm-name { margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.25; }
+  .hm-loc { color: var(--muted); font-size: 0.85rem; margin-top: -6px; }
+  .hm-city { color: var(--accent-dim); font-weight: 700; }
+  .hm-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    font-size: 0.9rem; font-weight: 700;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line-soft);
+  }
+  .hm-rating-txt .stars { color: var(--yellow); }
+  .hm-rating-txt .rev-count { color: var(--muted); font-size: 0.78rem; font-weight: 400; }
+  .hm-tag {
+    background: var(--accent-glow); color: var(--accent-dim);
+    border: 1px solid var(--accent); border-radius: 999px;
+    padding: 2px 11px; font-size: 0.74rem; font-weight: 700;
+  }
+  .hm-price { margin-left: auto; color: var(--ink); font-size: 1rem; }
+  .hm-price span { color: var(--muted); font-size: 0.74rem; font-weight: 500; }
+  .hm-desc { margin: 0; color: var(--ink); font-size: 0.9rem; line-height: 1.6; }
+
+  .hm-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  }
+  .hm-cell {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); padding: 9px 12px;
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  }
+  .hm-k {
+    font-size: 0.64rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .hm-v { font-size: 0.86rem; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+  .hm-v.yes { color: var(--green); }
+  .hm-v.no { color: var(--muted); }
+
+  .hm-sec { display: flex; flex-direction: column; gap: 7px; }
+  .hm-seclbl {
+    font-size: 0.64rem; font-weight: 700; color: var(--accent-dim);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .hm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hm-chips .chip {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 11px;
+    font-size: 0.74rem; color: var(--ink); white-space: nowrap;
+  }
+
+  .hm-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-top: 2px; padding-top: 12px; border-top: 1px solid var(--line-soft);
+  }
+  .hm-code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.78rem; color: var(--muted); }
+  .hm-foot-price { font-size: 1.05rem; font-weight: 800; color: var(--ink); }
+  .hm-foot-price span { font-size: 0.72rem; font-weight: 500; color: var(--muted); }
+
+  @media (max-width: 640px) {
+    .hm-grid { grid-template-columns: 1fr; }
+    .hm-price { margin-left: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hm-dialog { animation: none; }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('hotel-modal');
+  if (!modal) return;                       // empty result → no cards/modal
+  const $ = (id) => document.getElementById(id);
+
+  function fillChips(boxId, jsonStr) {
+    const box = $(boxId);
+    box.innerHTML = '';
+    let items = [];
+    try { items = JSON.parse(jsonStr); } catch (e) { items = []; }
+    items.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = t;
+      box.appendChild(span);
+    });
+  }
+
+  function setBool(id, on) {
+    const el = $(id);
+    el.textContent = on ? '✓ Yes' : '— No';
+    el.className = 'hm-v ' + (on ? 'yes' : 'no');
+  }
+
+  function openModal(card) {
+    const d = card.dataset;
+    $('hm-image').src = d.image;
+    $('hm-image').alt = d.name;
+    $('hm-stars').textContent = '★'.repeat(parseInt(d.stars, 10) || 0);
+    // rating badge tinted by score tier (dark text), matching the card
+    const rt = parseFloat(d.rating) || 0;
+    const rbColor = rt >= 9 ? '#22c55e' : rt >= 8 ? '#2dd4bf' : rt >= 7 ? '#60a5fa' : '#fbbf24';
+    const rb = $('hm-rating-badge');
+    rb.textContent = d.rating;
+    rb.style.background = rbColor;
+    rb.style.color = '#0b1413';
+    $('hm-name').textContent = d.name;
+    $('hm-city').textContent = d.city;
+    $('hm-country').textContent = d.country;
+    $('hm-rating').textContent = d.rating;
+    $('hm-reviews').textContent = d.reviews;
+    // type tag in the property-type colour (solid, dark text), matching the card
+    const tc = d.typeColor || '#ff6f5e';
+    const typeEl = $('hm-type');
+    typeEl.textContent = d.type;
+    typeEl.style.background = tc;
+    typeEl.style.borderColor = tc;
+    typeEl.style.color = '#0b1413';
+    $('hm-price').innerHTML = d.currency + ' ' + d.price + '<span> / night</span>';
+    $('hm-desc').textContent = d.desc;
+    $('hm-chain').textContent = d.chain;
+    $('hm-address').textContent = d.address;
+    $('hm-checkin').textContent = d.checkin;
+    $('hm-checkout').textContent = d.checkout;
+    setBool('hm-breakfast', d.breakfast === '1');
+    setBool('hm-cancel', d.cancel === '1');
+    fillChips('hm-amenities', d.amenities);
+    fillChips('hm-languages', d.languages);
+    $('hm-code').textContent = d.code;
+    $('hm-foot-price').innerHTML = d.currency + ' ' + d.price + '<span> / night</span>';
+
+    window.openDialog(modal, { initialFocus: '#hm-name' });
+  }
+
+  function closeModal() {
+    window.closeDialog(modal);
+  }
+
+  document.querySelectorAll('.hotel-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card); }
+    });
+  });
+
+  modal.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', closeModal);
+  });
+  // Esc handled by openDialog's keydown trap — no duplicate here.
+});
+</script>
+{% endblock %}
