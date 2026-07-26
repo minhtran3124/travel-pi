@@ -43,7 +43,7 @@ def test_agent_config_enabled_defaults_null_and_roundtrips(session):
     """`enabled` is nullable (NULL = on) and stores an explicit bool."""
     from app.db import models
 
-    row = models.AgentConfig(agent_name="reflection")
+    row = models.AgentConfig(agent_name="summarize")
     session.add(row)
     session.commit()
     session.refresh(row)

@@ -56,19 +56,19 @@ def test_upsert_persists_temperature_and_max_tokens(repo):
 
 
 def test_upsert_persists_enabled(repo):
-    repo.upsert("reflection", enabled=False)
-    assert repo.get("reflection").enabled is False
+    repo.upsert("summarize", enabled=False)
+    assert repo.get("summarize").enabled is False
 
-    repo.upsert("reflection", enabled=True)
-    assert repo.get("reflection").enabled is True
+    repo.upsert("summarize", enabled=True)
+    assert repo.get("summarize").enabled is True
 
 
 def test_upsert_preserves_enabled_when_omitted(repo):
     # Explicitly disable, then upsert unrelated fields WITHOUT enabled: the
     # flag must be preserved (not clobbered back to the default).
-    repo.upsert("reflection", enabled=False)
-    repo.upsert("reflection", provider="openai")
-    assert repo.get("reflection").enabled is False
+    repo.upsert("summarize", enabled=False)
+    repo.upsert("summarize", provider="openai")
+    assert repo.get("summarize").enabled is False
 
 
 def test_list_all_returns_every_row(repo):

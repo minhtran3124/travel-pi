@@ -1,9 +1,9 @@
 """Single source of truth for the LLM node names seeded into ``agent_config``.
 
 Nodes are grouped for the config dashboard: the main supervisor, the domain
-sub-agents it delegates to, and the support nodes (memory / summarization /
-reflection). ``AGENT_CONFIG_NODES`` is *derived* from the groups so seeding and
-the UI share one source of truth.
+sub-agents it delegates to, and the support nodes (memory / summarization).
+``AGENT_CONFIG_NODES`` is *derived* from the groups so seeding and the UI share
+one source of truth.
 """
 
 # (section title, one-line blurb, [node name, ...])
@@ -20,8 +20,8 @@ AGENT_CONFIG_GROUPS: list[tuple[str, str, list[str]]] = [
     ),
     (
         "Support agents",
-        "Background nodes for memory, summarization and reflection.",
-        ["summarize", "reflection", "extract_memory", "date_resolution"],
+        "Background nodes for memory and summarization.",
+        ["summarize", "extract_memory", "date_resolution"],
     ),
 ]
 
@@ -41,7 +41,6 @@ AGENT_DESCRIPTIONS: dict[str, str] = {
     "booking": "Quotes and confirms flights, hotels, and activities.",
     "budget": "Records expenses and reports on the trip budget.",
     "summarize": "Condenses long conversations to keep the context small.",
-    "reflection": "Reviews the last answer and asks for a fix when it's weak.",
     "extract_memory": "Saves durable traveller preferences to long-term memory.",
     "date_resolution": "Parses a traveller's date wording into a structured intent.",
 }

@@ -14,18 +14,17 @@ from typing import Annotated, Any
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.background import BackgroundTask
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG, REFLECTION_REVISE_NOTE
+from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
-from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
 from app.core.config import get_settings
 from app.core.streaming import sse_response
@@ -219,9 +218,7 @@ def _resolve_context(
         tier = user_repo.get_tier(effective_user_id)
     else:
         tier = Tier.FREE.value
-    refl = AgentConfigCache.get("reflection")
-    allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
-    return resolve_agent_context(tier=tier, allow_reflection=allow_reflection)
+    return resolve_agent_context(tier=tier)
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
@@ -330,23 +327,15 @@ async def agent_chat(
             if isinstance(turn_messages[i], HumanMessage):
                 turn_messages = turn_messages[i:]
                 break
-        # Drop reflection-superseded drafts. A REVISE re-runs the *same*
-        # sub-agent and appends a fresh answer without removing the rejected
-        # one (add_messages appends; nothing emits a RemoveMessage), so joining
-        # blindly would surface the flawed draft next to its correction. The
-        # revise-note SystemMessage marks the boundary — it appears only before
-        # a revision, never between two distinct sub-agents on a multi-intent
-        # turn — so popping the most recent answer on each note keeps the final
-        # answer per sub-agent while preserving both answers of a multi-intent
-        # turn. This mirrors the SSE path's `reset` event. Exclude tool-calling
-        # AIMessages: a model may emit intermediate reasoning content alongside
-        # tool_calls, which is not a user-facing answer.
+        # Exclude tool-calling AIMessages: a model may emit intermediate
+        # reasoning content alongside tool_calls, which is not a user-facing
+        # answer. Nothing supersedes an answer within a turn any more — the
+        # reflection revise loop that used to re-run the same sub-agent and
+        # append a second answer is gone, so every remaining answer belongs to a
+        # distinct sub-agent of a multi-intent turn and all of them are kept.
         answers: list[str] = []
         for m in turn_messages:
-            if isinstance(m, SystemMessage) and m.content == REFLECTION_REVISE_NOTE:
-                if answers:
-                    answers.pop()
-            elif isinstance(m, AIMessage) and m.content and not m.tool_calls:
+            if isinstance(m, AIMessage) and m.content and not m.tool_calls:
                 answers.append(m.content)
         reply = "\n\n".join(answers)
         # Guarantee a user-facing reply even when the graph finished without an

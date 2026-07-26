@@ -18,10 +18,10 @@ extracted in a post-response background task, outside the answer graph.
 |---|---|
 | `routers/agent.py` | `/agent/chat`, `/stream`, `/manifest`, `/conversations*`; turn persistence, quota/context resolution, background extraction scheduling |
 | `core/auth.py`, `services/quota_service.py` | Optional Supabase JWT (`user_id` = subject); server-resolved tier and free-tier quota |
-| `agents/context.py`, `agents/constants.py`, `enums.py` | Frozen per-run `AgentContext`; sub-agent inventory, tier ceiling, ledger/reflection limits |
+| `agents/context.py`, `agents/constants.py`, `enums.py` | Frozen per-run `AgentContext`; sub-agent inventory, tier ceiling, ledger limits |
 | `agents/graph.py` | Wires the parent graph and subgraphs; compiles with the process-lifetime checkpointer/store |
 | `agents/supervisor.py` | Structured routing, ordered task ledger, language detection, raw slot extraction, and tier gating |
-| `agents/nodes.py` | `load_context`, `summarize`, `dispatch_next`, `reflection`, and booking `plan_node` (HITL) |
+| `agents/nodes.py` | `load_context`, `summarize`, `dispatch_next`, and booking `plan_node` (HITL) |
 | `agents/subagents/*.py`, `_base.py` | Five hand-built ReAct subgraphs; model/tool gating, retries, private clarification tool |
 | `agents/state.py` | `TravelAgentState`; reducers and system-context/date/language injection |
 | `tools/registry.py`, `tools/*_tools.py` | Domain tool groups and MCP-style read-only/destructive metadata |
@@ -45,16 +45,16 @@ override this dependency with a `FakeLLM` graph.
 
 1. **Identity** — authenticated requests use the JWT subject and ignore the body `user_id`;
    anonymous requests use the client-supplied id.
-2. **Context** — resolve tier server-side, the reflection enabled flag from `AgentConfigCache`, and
-   the client IANA timezone (invalid/missing → configured fallback). There is no request `mode`.
+2. **Context** — resolve tier server-side and the client IANA timezone (invalid/missing →
+   configured fallback). There is no request `mode`.
 3. **Quota** — `check_quota()` raises 429 when a free user exceeds the daily turn limit.
 4. **Conversation** — get or create the SQL conversation; compose checkpointer thread id
    `user_{uid}_trip_{trip|none}_conv_{conversation_id}`.
 5. **Persist input** — save a new user turn before graph execution (except retry/resume). A null
    request `trip_id` is omitted from graph input so it does not erase a checkpointed active trip.
 6. **Invoke** — `graph.ainvoke(input, cfg, context=ctx)` or `Command(resume=...)` for HITL resume.
-7. **Reply** — assemble the accepted user-facing `AIMessage` content, excluding tool-call messages
-   and reflection-superseded drafts; fall back to `AGENT_ERROR_FALLBACK_MSG` on failure/empty output.
+7. **Reply** — assemble the user-facing `AIMessage` content, excluding tool-call messages; fall
+   back to `AGENT_ERROR_FALLBACK_MSG` on failure/empty output.
 8. **Memory** — if no HITL interrupt is pending, schedule `run_memory_extraction()` after the
    response using the final messages/state and `graph.extract_memory_llm`.
 9. **Response** — return `ChatResponse(conversation_id, reply, trip_id, current_flow, suggestions,
@@ -86,10 +86,7 @@ START → load_context → summarize → supervisor
                                                                              ▼
                                                                       dispatch_next
                                                 ┌─ queued specialist ←───────┤
-                                                └─ queue empty/abandoned → reflection
-                                                                              │
-                                                current_flow ← REVISE ─────────┤
-                                                                    OK/cap/off → END
+                                                └─ queue empty/abandoned → END
 
 AFTER RESPONSE (outside LangGraph): background memory extraction → Store
 ```
@@ -107,17 +104,15 @@ The model extracts raw mentions; Python normalizes dates/counts/budget into `tri
 “LLM parses, code computes” rule). The task ledger is capped at four total specialist runs, removes
 invalid/tier-gated entries, and never queues `booking` because booking must enter through HITL.
 
-### Dispatch, clarification, reflection, and HITL
+### Dispatch, clarification, and HITL
 
-- **`dispatch_next`** is pure code. It pops the next `pending_flows` entry or routes to reflection.
+- **`dispatch_next`** is pure code. It pops the next `pending_flows` entry or ends the turn.
   If any specialist calls the private `needs_clarification` tool, `awaiting_user=True`; the remaining
   ledger is abandoned for that turn.
-- **`reflection`** skips review while awaiting the traveller, when disabled, or after the single
-  revision cap. Otherwise it judges `REVISE`/accept: `REVISE` adds an internal `SystemMessage` and
-  returns to `current_flow`; accepted answers end the graph.
 - **`plan_node`** interrupts before the booking specialist. Resume with `{approved: true}` reaches
   booking and sets `plan_approved=True`; rejection ends with a cancellation message.
-- There is **no `extract_memory` graph node**. Reflection terminal paths go directly to `END`.
+- There is **no `extract_memory` graph node** and **no `reflection` node** (removed in #112);
+  `dispatch_next` terminal paths go directly to `END`.
 
 ### Per-run `AgentContext`
 
@@ -127,10 +122,8 @@ The frozen context is not checkpointed and has no user-selectable mode:
 |---|---|---|
 | `tier` | Server-side user row; anonymous/unknown → `free` | Selects the sub-agent ceiling |
 | `allowed_subagents` | Free excludes `booking`; premium → unrestricted | Supervisor and ledger gate |
-| `allow_reflection` | DB `agent_config[reflection].enabled`; default true | Enables the judge loop |
 | `allow_memory_write` | true | Gates post-turn extraction |
 | `allow_episodic` | true | Keeps/removes `recall_past_trips` from planner tools |
-| `max_revisions` | 1 | Bounds reflection |
 | `response_style` | default | Reserved response-style capability |
 | `timezone` | Request IANA zone; configured fallback | Grounds relative dates |
 
@@ -148,7 +141,7 @@ while configured graph retry policies own transient LLM/tool retries. The parent
 
 ## 4. Sub-agents and tool domains
 
-Model defaults: nodes in `FAST_AGENTS` (`summarize`, `journal`, `budget`, `reflection`,
+Model defaults: nodes in `FAST_AGENTS` (`summarize`, `journal`, `budget`,
 `extract_memory`, `date_resolution`) use `fast_llm_model`; all other nodes use `llm_model`. A DB
 `agent_config` row may override provider/model/base URL/temperature/max tokens per node.
 
@@ -238,7 +231,7 @@ durable job queue.
 ## 7. Streaming, MCP, and observability
 
 - **Streaming** — one canonical `astream` call maps subgraph messages/updates into typed SSE.
-  `reset` removes a superseded reflection draft; panel artifacts are localized before emission;
+  `reset` removes a draft superseded by a later sub-agent; panel artifacts are localized before emission;
   final state drives suggestions, language, trip id, interrupt, and the memory-extraction sink.
 - **MCP** — re-exposes registry tools with read-only/destructive annotations and omits tools that
   require `InjectedStore`.
@@ -271,7 +264,6 @@ durable job queue.
   conflict review, or user-facing view/edit/delete controls.
 - **Non-durable extraction worker** — in-process background work can be lost on process termination
   and may not finish before an immediate next turn.
-- **Coarse reflection** — one fast-model `REVISE` check, no per-criterion rubric.
 - **Anonymous identity trust** — anonymous callers choose the id that scopes thread and memory; the
   claim endpoint migrates it only after login.
 - **Double persistence** — SQL conversation/messages and LangGraph checkpoints can drift when one

@@ -147,11 +147,11 @@ def test_update_accepts_valid_bounds(seeded_session):
 def test_update_config_persists_enabled_and_view_reflects_it(seeded_session):
     svc = AgentConfigService(seeded_session)
     svc.update_config(
-        "reflection",
+        "summarize",
         provider="",
         model="",
         temperature="",
         max_tokens="",
         enabled=False,
     )
-    assert svc.get_config("reflection").enabled is False
+    assert svc.get_config("summarize").enabled is False

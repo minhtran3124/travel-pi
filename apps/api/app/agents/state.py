@@ -64,7 +64,6 @@ class TravelAgentState(MessagesState):
         str  # dominant conversation language code (e.g. "en"/"vi"); set by supervisor
     )
     summary: str  # rolling summary of compressed older turns
-    revisions: int  # reflection self-correction counter (bounds the loop)
     trip_context: str  # active-trip snapshot; injected at model call, not into messages
     instructions: (
         str  # standing procedural instructions; folded into leading system message
@@ -165,8 +164,7 @@ def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemM
     and replies in it — a single detection and a single source of truth, instead
     of each node re-guessing the language from the raw messages. It is the
     deterministic guard behind the ``communication_style`` match-language rule,
-    and it closes the clarification path in particular (MIN-68), which skips
-    reflection and so has no other guard against a language flip.
+    and the only guard on the clarification path in particular (MIN-68).
 
     A no-op until a language has been detected (``state["language"]`` unset) —
     the model then falls back to the prompt's own match-language rule.

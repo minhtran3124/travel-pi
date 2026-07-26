@@ -3,6 +3,13 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## remove-reflection — drop the reflection critic prompt
+
+#112: the reflection node is removed from the graph, so `reflection/v1.md` and its `active.yaml`
+pin are gone. Nothing loads a reflection prompt any more. The old file stays in git history if the
+judge is ever revived; the eval A/B behind the removal is in
+`apps/api/eval/reports/gh-112-ab-reflection-on-vs-off.md`.
+
 ## ledger-early-exit — signal "blocked on the traveller" instead of draining the plan
 
 specs/min-68-ledger-early-exit (MIN-68 / #99): when a queued multi-step plan hits a

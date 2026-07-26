@@ -3,8 +3,8 @@
 Enum-valued *types* live in ``app/enums.py`` (``Tier``, …); this module holds
 the plain constants the agent layer shares across modules: the safe tier
 default, the canonical sub-agent name sets, the fast-tier node set, the RAG
-tool name, the reflection cap, and user-facing copy. Keeping them together
-makes them easy to find and change without hunting through nodes.
+tool name, and user-facing copy. Keeping them together makes them easy to find
+and change without hunting through nodes.
 
 Import from here rather than redefining; the previous home modules now re-export
 these so existing import paths keep working.
@@ -36,7 +36,7 @@ PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 # by ``dispatch_next``. Bounded because each sub-agent is an isolated ReAct
 # subgraph (own recursion budget), so the parent graph spends ~2 super-steps
 # per step (dispatch_next + the subagent node); 4 steps stay well inside
-# ``agent_recursion_limit`` (25) with headroom for the reflection revise loop.
+# ``agent_recursion_limit`` (25).
 # The supervisor truncates an over-long model-emitted plan to this in code.
 MAX_LEDGER_STEPS = 4
 
@@ -47,7 +47,6 @@ FAST_AGENTS: frozenset[str] = frozenset(
         "summarize",
         "journal",
         "budget",
-        "reflection",
         "extract_memory",
         "date_resolution",
     }
@@ -57,20 +56,6 @@ FAST_AGENTS: frozenset[str] = frozenset(
 # Name of the episodic-recall tool (app/tools/memory_tools.py); gated off when
 # ``AgentContext.allow_episodic`` is False (mirrors the RAG filter in _base.py).
 EPISODIC_TOOL_NAME = "recall_past_trips"
-
-# --- reflection -----------------------------------------------------------
-# Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
-DEFAULT_MAX_REVISIONS = 1
-
-# Internal note reflection injects into ``state["messages"]`` when it sends an
-# answer back for revision. Shared so the REST reply-assembly can recognise a
-# superseded draft (the answer immediately before this note) without coupling to
-# the wording. A SystemMessage (never HumanMessage) so language-detection and
-# "the traveller's latest message" prompt rules don't misfire.
-REFLECTION_REVISE_NOTE = (
-    "Please improve your previous answer. This is an internal review note, not "
-    "a message from the traveller — keep replying in the traveller's own language."
-)
 
 # --- user-facing copy -----------------------------------------------------
 # Shown when a free user is routed to a premium-only sub-agent (booking).

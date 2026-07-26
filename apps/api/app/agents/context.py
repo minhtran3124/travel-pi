@@ -32,14 +32,12 @@ class AgentContext:
     """Resolved per-run capabilities. Defaults == today's behavior."""
 
     tier: Tier = DEFAULT_TIER
-    allow_reflection: bool = True
     allow_memory_write: bool = True
     # P2: episodic recall (planner's recall_past_trips). Default ON for everyone.
     allow_episodic: bool = True
     response_style: ResponseStyle = ResponseStyle.DEFAULT
     # None means "all sub-agents allowed"; a frozenset restricts routing (Phase D.1).
     allowed_subagents: frozenset[str] | None = None
-    max_revisions: int = 1
     # Per-request IANA timezone used to ground "today" for relative-date
     # resolution; None keeps the legacy UTC behavior.
     timezone: str | None = None
@@ -48,7 +46,6 @@ class AgentContext:
 def resolve_agent_context(
     *,
     tier: Tier | str | None,
-    allow_reflection: bool = True,
     timezone: str | None = None,
 ) -> AgentContext:
     """Map tier -> concrete ``AgentContext`` (the single policy function).
@@ -64,8 +61,6 @@ def resolve_agent_context(
 
     :param tier: BE-resolved tier (raw string, enum, or None); falls back to
         ``DEFAULT_TIER`` when unknown/None.
-    :param allow_reflection: DB-config-driven reflection gate (from
-        ``agent_config.enabled``); defaults True.
     :param timezone: Per-request IANA timezone for relative-date resolution;
         None keeps the legacy UTC behavior.
     :return: The resolved ``AgentContext`` for this request.
@@ -88,11 +83,9 @@ def resolve_agent_context(
 
     return AgentContext(
         tier=tier,
-        allow_reflection=allow_reflection,
         allow_memory_write=True,
         allow_episodic=True,
         response_style=ResponseStyle.DEFAULT,
         allowed_subagents=allowed_subagents,
-        max_revisions=1,
         timezone=timezone,
     )

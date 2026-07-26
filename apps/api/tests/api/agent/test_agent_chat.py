@@ -332,64 +332,12 @@ def test_stream_emits_sse_events(client):
     text = resp.text
     assert "data:" in text
     assert "event: done" in text
-    # The concierge answer streams; the reflection critic's verdict ("OK", scripted
-    # in the fixture's fast LLM) must NOT leak into the SSE feed (REVIEW.md C4).
+    # Only the concierge answer streams; no background-node chatter may leak
+    # into the SSE feed (REVIEW.md C4).
     assert "Visit Tokyo Tower" in text
     assert "OK" not in text
     # Non-booking flow must NOT emit an interrupt event.
     assert "event: interrupt" not in text
-
-
-def test_stream_emits_reset_on_revised_answer(tmp_path):
-    """When reflection revises (re-runs the sub-agent), a `reset` event must
-    separate the superseded draft from the final answer so the FE can drop it.
-
-    fast LLM says REVISE once (then OK), so the concierge answers twice with two
-    distinct message ids; the stream must carry exactly one `event: reset`.
-    """
-    app = _make_app(
-        tmp_path,
-        "concierge",
-        "unused",
-        responses=[
-            AIMessage(content="DRAFT answer", id="m1"),
-            AIMessage(content="FINAL answer", id="m2"),
-        ],
-        fast_responses=["REVISE", "OK"],
-    )
-    with TestClient(app) as c:
-        resp = c.post("/agent/stream", json={"message": "weather?", "user_id": "u1"})
-    text = resp.text
-    assert "DRAFT answer" in text
-    assert "FINAL answer" in text
-    assert text.count("event: reset") == 1
-    # The reset must come between the draft and the final answer.
-    assert text.index("DRAFT") < text.index("event: reset") < text.index("FINAL")
-
-
-def test_chat_reply_excludes_reflection_rejected_draft(tmp_path):
-    """Regression (ce-code-review P1): when reflection REVISEs, the graph keeps
-    both the superseded draft and the revised answer in state (add_messages
-    appends; nothing removes the draft). The non-streaming REST reply must
-    return ONLY the final answer — not the rejected draft glued to it — mirroring
-    the SSE path's `reset`. Same fixture as the SSE reset test, asserted on the
-    /agent/chat JSON reply instead of the stream."""
-    app = _make_app(
-        tmp_path,
-        "concierge",
-        "unused",
-        responses=[
-            AIMessage(content="DRAFT answer", id="m1"),
-            AIMessage(content="FINAL answer", id="m2"),
-        ],
-        fast_responses=["REVISE", "OK"],
-    )
-    with TestClient(app) as c:
-        resp = c.post("/agent/chat", json={"message": "weather?", "user_id": "u1"})
-    assert resp.status_code == 200
-    reply = resp.json()["reply"]
-    assert "FINAL answer" in reply
-    assert "DRAFT answer" not in reply
 
 
 def test_stream_drops_tool_json_output(tmp_path, monkeypatch):
@@ -727,10 +675,9 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
 
     ``extract_memory`` is a FAST_AGENTS member (app/agents/constants.py), so
     ``graph.extract_memory_llm`` resolves to the same fake `fast_llm` instance
-    used by `summarize`/`reflection`. On a brand-new conversation, `summarize`
-    skips its LLM call (history too short — see make_summarize_node), so the
-    fast-response queue is consumed as: reflection ("OK"), then extraction
-    (scripted JSON) — in that order. TestClient runs BackgroundTasks
+    used by `summarize`. On a brand-new conversation, `summarize` skips its LLM
+    call (history too short — see make_summarize_node), so extraction is the
+    only consumer of the fast-response queue. TestClient runs BackgroundTasks
     synchronously after the response, so the store write is visible immediately.
     """
     from app.memory.store import search_preferences
@@ -740,7 +687,6 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
         "concierge",
         "Visit Tokyo Tower at sunset.",
         fast_responses=[
-            "OK",
             '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],

@@ -6,7 +6,7 @@ langgraph 1.2.x (v1 emission) each item is a ``(namespace, mode, data)`` tuple:
 * ``messages`` → ``data = (message_chunk, metadata)`` — token deltas. Only the
   sub-agent assistant's natural-language reply is user-facing, so we filter on
   the namespace root (the sub-agent name) and on ``AIMessage`` to suppress
-  supervisor/summarizer/reflection chatter and raw ToolNode JSON.
+  supervisor/summarizer chatter and raw ToolNode JSON.
 * ``updates`` → ``data = {node_name: state_delta}`` — completed messages per
   node. Tool calls / results are read **here** (the ``messages`` chunks carry
   only partial tool-call fragments).
@@ -159,8 +159,12 @@ async def stream_agent_events(
                     and msg_id is not None
                     and msg_id != last_msg_id
                 ):
-                    # A new assistant message started (reflection revision) —
-                    # tell the client to drop the superseded draft.
+                    # A new assistant message started — tell the client to drop
+                    # the superseded draft. NOTE: this id-inequality heuristic is
+                    # broader than the contract (it also fires inside one
+                    # sub-agent's ReAct round — see #109) and is replaced by the
+                    # node-keyed signal in the #109 fix; left as-is here so
+                    # removing reflection changes no streaming behavior.
                     yield events.reset()
                 last_msg_id = msg_id
                 emitted_token = True

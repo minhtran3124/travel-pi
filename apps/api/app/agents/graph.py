@@ -7,15 +7,11 @@ Wires the full agentic graph:
                  planner / concierge / journal / booking / budget
                                               v
                                         dispatch_next
-                          Command(goto=<queued sub-agent> | reflection)
-                                              v
-                                         reflection
-                                   Command(goto=<sub-agent> | END)
+                            Command(goto=<queued sub-agent> | END)
 
 The supervisor routes by intent; each sub-agent is a ReAct subgraph that
 self-corrects on tool errors. ``dispatch_next`` (pure code, no LLM call) drains
-at most one queued secondary intent (MIN-65 D4) before reflection reviews the
-final answer; reflection adds a bounded answer-quality loop. Checkpointer +
+the queued secondary intents (MIN-65 D4) and then ends the turn. Checkpointer +
 store make it stateful across turns/sessions.
 """
 
@@ -33,7 +29,6 @@ from app.agents.context import AgentContext
 from app.agents.nodes import (
     dispatch_next,
     load_context_node,
-    make_reflection_node,
     make_summarize_node,
     plan_node,
 )
@@ -77,7 +72,7 @@ def build_graph(
     """
 
     def pick(name: str) -> BaseChatModel:
-        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection).
+        """Fixed model for non-sub-agent nodes (supervisor, summarize, …).
 
         :param name: The node's name, used to check ``FAST_AGENTS`` membership.
         :return: The injected fake when set, else the node's configured chat model.
@@ -140,28 +135,21 @@ def build_graph(
     builder.add_node(
         "dispatch_next",
         dispatch_next,
-        destinations=(*SUBAGENTS, "reflection"),
-    )
-    builder.add_node(
-        "reflection",
-        make_reflection_node(pick("reflection")),
         destinations=(*SUBAGENTS, END),
-        retry_policy=LLM_RETRY,
     )
 
     builder.add_edge(START, "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
     # supervisor -> sub-agent (or plan) is a Command(goto=...) handoff (no static edge).
-    # Every sub-agent -> dispatch_next (MIN-65 D4), which drains at most one queued
-    # secondary intent before reflection reviews the final answer. The plan/HITL
-    # booking detour is untouched — it keeps its own Command(goto="booking"|END)
-    # topology and never passes through dispatch_next.
+    # Every sub-agent -> dispatch_next (MIN-65 D4), which drains the queued
+    # secondary intents and then ends the turn. The plan/HITL booking detour is
+    # untouched — it keeps its own Command(goto="booking"|END) topology and never
+    # passes through dispatch_next.
     for name in SUBAGENTS:
         builder.add_edge(name, "dispatch_next")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
-    # dispatch_next -> <sub-agent> | reflection is a Command(goto=...).
-    # reflection -> sub-agent | END is a Command(goto=...).
+    # dispatch_next -> <sub-agent> | END is a Command(goto=...).
 
     compiled = builder.compile(checkpointer=checkpointer, store=store)
     # Memory extraction no longer runs in-graph (specs/memory-extraction-background);

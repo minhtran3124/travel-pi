@@ -92,7 +92,7 @@ def test_user_id_injected_from_graph_state_not_model():
     store = get_store("sqlite:///:memory:")
     # The supervisor (main LLM) routes to journal; the journal sub-agent runs on the
     # FAST LLM (build_journal(fast_llm)), so the tool-call + final-answer are scripted
-    # there, followed by the reflection critic's "OK".
+    # there.
     main = FakeLLM(structured_responses=[SupervisorIntent(target_agent="journal")])
     fast = FakeLLM(
         responses=[

@@ -11,7 +11,7 @@ Taxonomy
 --------
 * ``start``       — stream opened: ``{conversation_id}``
 * ``token``       — assistant text delta: ``{content}``
-* ``reset``       — discard the superseded draft (reflection revision): ``{}``
+* ``reset``       — discard the superseded draft (a later sub-agent answered): ``{}``
 * ``subagent``    — active specialist changed: ``{name}``
 * ``tool_call``   — a tool invocation started: ``{id, name, args_preview, subagent}``
 * ``tool_result`` — a tool finished: ``{id, status}`` (``status`` ∈ ``ok|error``)

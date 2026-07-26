@@ -14,7 +14,9 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 
 
-def _fake_graph(target="concierge", answer="here you go", checkpointer=None, store=None):
+def _fake_graph(
+    target="concierge", answer="here you go", checkpointer=None, store=None
+):
     main = FakeLLM(
         structured_responses=[SupervisorIntent(target_agent=target)],
         responses=[answer],
@@ -76,7 +78,9 @@ def test_turns_share_one_thread_id_and_checkpoint_accumulates():
 
     # actual_output is the LAST turn's reply
     assert res.test_case.actual_output == "reply"
-    assert res.test_case.input == "Turn 1: turn one\nTurn 2: turn two\nTurn 3: turn three"
+    assert (
+        res.test_case.input == "Turn 1: turn one\nTurn 2: turn two\nTurn 3: turn three"
+    )
 
 
 # --- multi-turn: new_thread_at opens a new thread, same user_id ------------
@@ -104,8 +108,8 @@ def test_new_thread_at_switches_thread_but_keeps_user_id_and_shares_store():
                 ],
             ),
             AIMessage(content="Saved, I'll remember you're vegetarian."),
-            "OK",  # reflection verdict, turn 0 (journal)
-            "OK",  # reflection verdict, turn 1 (concierge)
+            "OK",  # spare fast-LLM responses (summarize is not triggered)
+            "OK",
         ]
     )
     graph = build_graph(
@@ -211,7 +215,9 @@ def test_loader_rejects_non_string_turn(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("new_thread_at", [0, -1, 2])
-def test_loader_rejects_new_thread_at_out_of_range(tmp_path, monkeypatch, new_thread_at):
+def test_loader_rejects_new_thread_at_out_of_range(
+    tmp_path, monkeypatch, new_thread_at
+):
     import eval.loader as loader
 
     ds = tmp_path / "m.json"

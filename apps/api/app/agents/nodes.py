@@ -3,12 +3,10 @@
 - ``load_context_node``: injects the current trip snapshot as context + procedural
   instructions from the store.
 - ``make_summarize_node``: compresses long histories (sliding window).
-- ``make_reflection_node``: bounded self-correction — critiques the last answer
-  and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
 - ``dispatch_next``: pure-code ledger drainer — pops the next queued follow-on
-  sub-agent from the ordered ledger (P1), or goes on to reflection once the
-  ledger is empty (MIN-65 D4).
+  sub-agent from the ordered ledger (P1), or ends the turn once the ledger is
+  empty (MIN-65 D4).
 
 Post-turn memory extraction no longer runs in-graph — see
 ``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
@@ -20,16 +18,12 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 
-from app.agents.constants import (
-    ALL_SUBAGENTS,
-    DEFAULT_MAX_REVISIONS,
-    REFLECTION_REVISE_NOTE,
-)
+from app.agents.constants import ALL_SUBAGENTS
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
@@ -41,7 +35,6 @@ from app.memory.store import (
     search_memory_typed,
 )
 from app.memory.summarizer import should_summarize, summarize_conversation
-from app.prompts.registry import registry
 from app.services.trip_service import TripService
 from app.tools._base import session_scope
 
@@ -150,66 +143,6 @@ def make_summarize_node(llm: BaseChatModel):
     return summarize
 
 
-def make_reflection_node(
-    llm: BaseChatModel, max_revisions: int = DEFAULT_MAX_REVISIONS
-):
-    """Return a bounded reflection node that can loop back once for a revision.
-
-    C.2 (specs/runtime-context-config): reads ``runtime.context.allow_reflection``
-    and ``runtime.context.max_revisions`` when available, replacing the
-    closed-over ``max_revisions`` fallback. Default context (allow_reflection=True,
-    max_revisions=1) preserves today's behavior.
-
-    :param llm: The chat model used to judge whether the last answer needs revision.
-    :param max_revisions: Fallback revision cap used when no runtime context is
-        available.
-    :return: A node function ``reflection(state, runtime) -> Command``.
-    """
-    system = SystemMessage(content=registry.get("reflection"))
-
-    def reflection(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
-        # MIN-68 / #99: a turn blocked on the traveller ends with a clarifying
-        # question — a necessarily "incomplete" answer the reviewer would flag
-        # REVISE, re-running the sub-agent to answer WITHOUT the missing detail
-        # (and, on the REST path, dropping the question for that guess). Such a
-        # turn is terminal and not reviewable; end it here, before the judge call.
-        if state.get("awaiting_user"):
-            logger.info("[agent] reflection → END (awaiting traveller; not reviewable)")
-            return Command(goto=END)
-
-        ctx = runtime.context if runtime.context is not None else None
-        allow_reflection = ctx.allow_reflection if ctx is not None else True
-        effective_max = ctx.max_revisions if ctx is not None else max_revisions
-
-        revisions = state.get("revisions", 0)
-        logger.info("[agent] node=reflection revisions=%d", revisions)
-        if not allow_reflection or revisions >= effective_max:
-            logger.info("[agent] reflection → END (no revision)")
-            return Command(goto=END)
-
-        last = state["messages"][-1]
-        verdict = llm.invoke([system, last]).content
-
-        if "REVISE" in str(verdict).upper():
-            # current_flow is always set by the supervisor before a sub-agent runs
-            # (so reflection is only reachable with one); the END fallback keeps
-            # every emission within the node's declared destinations and routes a
-            # no-flow edge case through the turn-completion path.
-            target = state.get("current_flow") or END
-            logger.info("[agent] reflection → %s (revise)", target)
-            return Command(
-                update={
-                    "revisions": revisions + 1,
-                    "messages": [SystemMessage(content=REFLECTION_REVISE_NOTE)],
-                },
-                goto=target,
-            )
-        logger.info("[agent] reflection → END (answer accepted)")
-        return Command(goto=END)
-
-    return reflection
-
-
 def plan_node(state: TravelAgentState) -> Command:
     """Human-in-the-loop: surface a draft booking plan and wait for approval.
 
@@ -242,24 +175,22 @@ def plan_node(state: TravelAgentState) -> Command:
 
 
 def dispatch_next(state: TravelAgentState) -> Command:
-    """Drain the next step of the task ledger, or on to reflection (MIN-65 D4).
+    """Drain the next step of the task ledger, or end the turn (MIN-65 D4).
 
     Pure-code ledger drainer — no LLM call. Every sub-agent's static edge points
-    here instead of straight to ``reflection``, so a supervisor that queued an
-    ordered ledger of follow-on sub-agents in ``pending_flows`` (P1; capped at
+    here instead of straight to ``END``, so a supervisor that queued an ordered
+    ledger of follow-on sub-agents in ``pending_flows`` (P1; capped at
     ``MAX_LEDGER_STEPS - 1`` entries, never "booking" — see
     ``app.agents.supervisor``) gets each queued sub-agent run in order, in the
-    same turn, before reflection reviews the final answer. Each queued sub-agent
-    sees the previous ones' messages in state, so it naturally continues the
-    thread (e.g. "the flight picked above").
+    same turn. Each queued sub-agent sees the previous ones' messages in state,
+    so it naturally continues the thread (e.g. "the flight picked above").
 
     When ``awaiting_user`` is set (a sub-agent called the ``needs_clarification``
-    tool), the remaining queue is abandoned and the turn goes straight to
-    reflection (MIN-68).
+    tool), the remaining queue is abandoned and the turn ends here (MIN-68).
 
     :param state: The current graph state; reads ``pending_flows``.
     :return: A ``Command`` routing to the next queued sub-agent (draining the
-        queue and updating ``current_flow``), or to ``reflection`` once empty.
+        queue and updating ``current_flow``), or to ``END`` once empty.
     """
     pending = state.get("pending_flows") or []
     # MIN-68: a sub-agent that called needs_clarification is blocked on the
@@ -268,11 +199,11 @@ def dispatch_next(state: TravelAgentState) -> Command:
     # Abandon the rest of the plan; next turn re-plans with the answer.
     if state.get("awaiting_user"):
         logger.info(
-            "[agent] dispatch_next → reflection (awaiting traveller; "
+            "[agent] dispatch_next → END (awaiting traveller; "
             "abandoning %d queued step(s))",
             len(pending),
         )
-        return Command(update={"pending_flows": []}, goto="reflection")
+        return Command(update={"pending_flows": []}, goto=END)
     if pending:
         nxt, rest = pending[0], pending[1:]
         # Fail safe rather than trusting the caller: the supervisor is the
@@ -285,11 +216,11 @@ def dispatch_next(state: TravelAgentState) -> Command:
         if nxt not in ALL_SUBAGENTS or nxt == "booking":
             logger.error(
                 "[agent] dispatch_next refusing illegal queued flow: %r "
-                "(pending_flows should never contain this) → reflection",
+                "(pending_flows should never contain this) → END",
                 nxt,
             )
-            return Command(update={"pending_flows": []}, goto="reflection")
+            return Command(update={"pending_flows": []}, goto=END)
         logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
         return Command(update={"current_flow": nxt, "pending_flows": rest}, goto=nxt)
-    logger.info("[agent] dispatch_next → reflection (queue empty)")
-    return Command(goto="reflection")
+    logger.info("[agent] dispatch_next → END (queue empty)")
+    return Command(goto=END)

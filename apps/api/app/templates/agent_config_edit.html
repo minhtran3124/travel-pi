@@ -52,14 +52,6 @@
     Max tokens
     <input type="text" name="max_tokens" value="{{ max_tokens_value }}" placeholder="(default)">
   </label>
-  {% if agent_name == 'reflection' %}
-  <label class="cb-field">
-    <input type="hidden" name="enabled_marker" value="1">
-    <input type="checkbox" name="enabled" value="on"
-           {% if enabled_value is not false %}checked{% endif %}>
-    <span class="cb-text">Reflection enabled</span>
-  </label>
-  {% endif %}
   <button type="submit">Save</button>
   <a class="fb-link" href="/dashboard/agent-config">Cancel</a>
 </form>

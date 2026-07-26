@@ -10,7 +10,7 @@ request-scoped session is reused. This lets tests override ``get_session`` once
 and have the propagation flow through automatically (instead of reading
 ``get_settings()`` here and hitting the real DB in tests).
 
-On ``reset`` events (reflection revision) the accumulator is cleared so only
+On ``reset`` events (a later sub-agent superseded the answer) the accumulator is cleared so only
 the *final* answer is persisted, mirroring the FE's reset semantics in
 ``streaming/mapper.py``.
 """

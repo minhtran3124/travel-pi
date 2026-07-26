@@ -27,11 +27,11 @@ def test_instructions_reach_system_prompt():
         responses=["Concierge says hello"] * 4,
     )
     # fast: journal, budget, summarize won't be triggered for the concierge
-    # route; only reflection uses fast here (memory extraction now runs as a
+    # route; nothing consumes fast here (memory extraction now runs as a
     # post-response background task, not as an in-graph node).
     fast = FakeLLM(
         responses=[
-            "OK",  # reflection verdict
+            "OK",  # spare fast-LLM response
         ]
     )
     graph = build_graph(

@@ -116,8 +116,8 @@ def build_subagent(
         tz = ctx.timezone if ctx is not None else None
         system_msg = system_with_summary(state, ground_current_date(system, tz))
         # Every sub-agent replies in the supervisor-detected conversation language
-        # (state["language"]) — one detection, one source of truth. Also closes the
-        # clarification path (MIN-68), which skips reflection's language guard.
+        # (state["language"]) — one detection, one source of truth, and the only
+        # language guard on the clarification path (MIN-68).
         system_msg = with_reply_language(system_msg, state)
         response = bound.invoke([system_msg, *state["messages"]])
         tool_calls = getattr(response, "tool_calls", None)

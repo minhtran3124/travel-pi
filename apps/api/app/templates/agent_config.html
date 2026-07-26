@@ -5,7 +5,7 @@
 {# per-agent glyph, so the grid reads at a glance (falls back to a gear) #}
 {% set agent_icons = {
   'supervisor': '🧭', 'planner': '🗺️', 'concierge': '🛎️', 'journal': '📔',
-  'booking': '🎫', 'budget': '💰', 'summarize': '📝', 'reflection': '🔍',
+  'booking': '🎫', 'budget': '💰', 'summarize': '📝',
   'extract_memory': '🧠'
 } %}
 
@@ -127,14 +127,6 @@
                  min="1" step="1" placeholder="(default)" inputmode="numeric">
         </label>
       </div>
-
-      {# Reflection-only. Inputs inside a `hidden` element still submit, so the
-         fields are `disabled` (never submitted) for non-reflection agents. #}
-      <label class="am-field am-check" id="am-enabled-field" hidden>
-        <input type="checkbox" name="enabled" value="on" id="am-enabled" disabled>
-        <span class="am-check-text">Reflection enabled</span>
-        <input type="hidden" name="enabled_marker" value="1" id="am-enabled-marker" disabled>
-      </label>
 
       <div class="am-actions">
         <span class="am-updated" id="am-updated"></span>
@@ -313,7 +305,6 @@
     background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); font-size: 0.84rem; font-weight: 600;
   }
   .am-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-  #am-enabled-field[hidden] { display: none; }
   .am-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
   .am-hint { font-weight: 600; color: var(--muted); opacity: 0.7; }
   .am-field select, .am-field input {
@@ -395,16 +386,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('am-temperature').value = d.temperature || '';
     $('am-max-tokens').value = d.maxTokens || '';
     $('am-updated').textContent = d.updatedAt ? ('Last updated: ' + d.updatedAt) : '';
-    // Reflection-only "enabled" toggle. Disabled inputs aren't submitted, so
-    // non-reflection saves never carry the flag (preserve-on-absent server-side).
-    const isRefl = d.agent === 'reflection';
-    const enField = $('am-enabled-field');
-    const enBox = $('am-enabled');
-    const enMarker = $('am-enabled-marker');
-    enField.hidden = !isRefl;
-    enBox.disabled = !isRefl;
-    enMarker.disabled = !isRefl;
-    if (isRefl) enBox.checked = (d.enabled !== 'false');  // '' or 'true' → on (NULL/True)
     renderModelChips(d.provider || '');
     window.openDialog(modal, { initialFocus: '#am-provider' });
   }

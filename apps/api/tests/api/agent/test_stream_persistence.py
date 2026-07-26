@@ -276,8 +276,8 @@ def test_stream_schedules_memory_extraction_after_drain(tmp_path):
     drains, writing the scripted preference to the graph's store.
 
     ``extract_memory`` is a FAST_AGENTS member (app/agents/constants.py), so
-    ``graph.extract_memory_llm`` resolves to the same fake fast_llm used by
-    reflection. TestClient consumes the full response body — including the
+    ``graph.extract_memory_llm`` resolves to the same fake fast_llm the other
+    background nodes use. TestClient consumes the full response body — including the
     Starlette `background` task — synchronously within `client.post`, so the
     store write is visible immediately after the call returns.
     """
@@ -286,7 +286,6 @@ def test_stream_schedules_memory_extraction_after_drain(tmp_path):
     app, _url = _make_app(
         tmp_path,
         fast_responses=[
-            "OK",
             '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],

@@ -45,8 +45,8 @@ def test_override_carries_enabled_flag():
     from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
 
     assert AgentModelOverride().enabled is None  # unset → None (read side coalesces)
-    AgentConfigCache.sync_from_cache({"reflection": AgentModelOverride(enabled=False)})
-    assert AgentConfigCache.get("reflection").enabled is False
+    AgentConfigCache.sync_from_cache({"summarize": AgentModelOverride(enabled=False)})
+    assert AgentConfigCache.get("summarize").enabled is False
 
 
 def test_clear_empties_cache():
@@ -317,13 +317,13 @@ def test_cache_detects_a_write_made_without_invalidate(tmp_path):
     factory = get_session_factory(url)
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     repo = AgentConfigRepository(factory)
-    repo.upsert("reflection", enabled=True)
+    repo.upsert("summarize", enabled=True)
 
     AgentConfigCache.configure(factory, poll_interval_seconds=3600)
     reload_from_db(factory)
-    assert AgentConfigCache.get("reflection").enabled is True
+    assert AgentConfigCache.get("summarize").enabled is True
 
-    repo.upsert("reflection", enabled=False)  # the "other process"'s write
+    repo.upsert("summarize", enabled=False)  # the "other process"'s write
     AgentConfigCache._loaded_at = time.monotonic() - 10_000  # force past interval
 
-    assert AgentConfigCache.get("reflection").enabled is False  # picked up via poll
+    assert AgentConfigCache.get("summarize").enabled is False  # picked up via poll

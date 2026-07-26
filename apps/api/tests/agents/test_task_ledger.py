@@ -2,7 +2,7 @@
 ``dispatch_next`` drains it in one turn (P1, specs/agent-task-ledger).
 
 Covers:
-- A multi-step ordered plan runs every sub-agent in order, then reflection,
+- A multi-step ordered plan runs every sub-agent in order, then ends the turn,
   leaving ``pending_flows == []`` (graph-level, FakeLLM-driven).
 - A full ledger (target + ``MAX_LEDGER_STEPS - 1`` follow-ons) completes under
   ``recursion_limit=25`` without ``GraphRecursionError``.
@@ -51,7 +51,7 @@ def _runtime(ctx: AgentContext) -> SimpleNamespace:
 
 
 # ---------------------------------------------------------------------------
-# (a) Ordered multi-step plan runs in order, then reflection
+# (a) Ordered multi-step plan runs in order, then ends the turn
 # ---------------------------------------------------------------------------
 
 

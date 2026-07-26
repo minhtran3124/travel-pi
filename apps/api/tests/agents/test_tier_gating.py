@@ -213,15 +213,15 @@ def test_free_tier_secondary_not_in_allowed_subagents_is_dropped(monkeypatch):
 
 
 def test_dispatch_next_refuses_illegal_queued_flow():
-    """dispatch_next must fail safe (→ reflection) rather than trust a
+    """dispatch_next must fail safe (→ END) rather than trust a
     pending_flows entry that names "booking" or an unknown sub-agent —
     the invariant it inherits from the supervisor should not be a single
     point of failure."""
     from app.agents.nodes import dispatch_next
 
     cmd = dispatch_next({"pending_flows": ["booking"]})
-    assert cmd.goto == "reflection"
+    assert cmd.goto == END
     assert cmd.update["pending_flows"] == []
 
     cmd2 = dispatch_next({"pending_flows": ["not_a_real_subagent"]})
-    assert cmd2.goto == "reflection"
+    assert cmd2.goto == END

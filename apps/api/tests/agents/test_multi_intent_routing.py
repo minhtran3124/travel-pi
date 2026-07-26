@@ -1,12 +1,9 @@
 """Multi-intent dispatch node — ``dispatch_next`` (MIN-65 DESIGN D4, PLAN 5.1).
 
 Covers:
-- Two queued intents run sequentially in one turn, then reflection.
+- Two queued intents run sequentially in one turn, then the turn ends.
 - Single-intent (the common case, ``pending_flows == []``) behaves exactly as
-  before this task — straight to reflection.
-- Reflection's REVISE loop-back re-enters ``dispatch_next`` with an already
-  empty queue, so it falls straight through to reflection again (no infinite
-  loop, no re-triggering the drained secondary intent).
+  before this task — straight to the end of the turn.
 - The plan/HITL booking detour keeps its own topology untouched.
 """
 
@@ -37,7 +34,7 @@ def _invoke(graph, msg: str, thread_id: str):
     )
 
 
-def test_two_intents_run_sequentially_then_reflection():
+def test_two_intents_run_sequentially_then_end():
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", secondary_agent="concierge")
@@ -49,8 +46,8 @@ def test_two_intents_run_sequentially_then_reflection():
         graph, "flights to Tokyo and things to do there", thread_id="t-multi-1"
     )
 
-    # Both sub-agents ran, drained the queue, and left the graph at reflection's
-    # END — current_flow reflects the last (secondary) sub-agent to run.
+    # Both sub-agents ran, drained the queue, and ended the turn — current_flow
+    # reflects the last (secondary) sub-agent to run.
     assert out["current_flow"] == "concierge"
     assert out["pending_flows"] == []
 
@@ -62,7 +59,7 @@ def test_two_intents_run_sequentially_then_reflection():
     assert contents.index("flights found") < contents.index("here's what to see")
 
 
-def test_single_intent_goes_straight_to_reflection_unchanged():
+def test_single_intent_goes_straight_to_end_unchanged():
     graph = _build(
         structured_responses=[SupervisorIntent(target_agent="concierge")],
         main_responses=["here you go"],
@@ -76,33 +73,6 @@ def test_single_intent_goes_straight_to_reflection_unchanged():
     # Only one sub-agent answer in the transcript — no secondary intent ran.
     ai_answers = [m.content for m in out["messages"] if m.content == "here you go"]
     assert len(ai_answers) == 1
-
-
-def test_reflection_revise_loop_does_not_retrigger_drained_secondary():
-    # Single intent (no secondary) so pending_flows is drained (stays []) from
-    # the first dispatch_next pass; reflection then REVISEs once before
-    # accepting, and dispatch_next must not re-queue anything on the replay.
-    graph = _build(
-        structured_responses=[SupervisorIntent(target_agent="planner")],
-        main_responses=["first draft", "revised draft"],
-        fast_responses=["REVISE", "OK"],
-    )
-    out = _invoke(graph, "plan my trip", thread_id="t-revise-1")
-
-    assert out["current_flow"] == "planner"
-    assert out["pending_flows"] == []
-    assert out["revisions"] == 1
-
-    contents = [m.content for m in out["messages"]]
-    assert "first draft" in contents
-    assert "revised draft" in contents
-    # Exactly one revise note was injected — the loop ran once, not forever.
-    revise_notes = [
-        m
-        for m in out["messages"]
-        if isinstance(m, SystemMessage) and "improve your previous answer" in m.content
-    ]
-    assert len(revise_notes) == 1
 
 
 def test_booking_hitl_detour_untouched_by_dispatch():
@@ -124,5 +94,5 @@ def test_booking_hitl_detour_untouched_by_dispatch():
     assert not resumed.get("__interrupt__")
     assert any("Hotel booked" in (m.content or "") for m in resumed["messages"])
     # No secondary intent was ever queued for booking — dispatch_next falls
-    # straight through to reflection exactly as the old direct edge did.
+    # straight through to END exactly as the old direct edge did.
     assert resumed["pending_flows"] == []
