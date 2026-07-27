@@ -68,12 +68,31 @@ required user-visible behavior (the agent asks which trip instead of claiming an
 second mechanism to keep in sync with the tool inventory. A pre-flight guard is worth revisiting only
 if the model turns out to ignore the message.
 
+### PR review follow-up (Codex, PR #116)
+
+**F5 (P2) — the `ToolFaultPolicy` path never reached the new classifier. Confirmed and fixed.**
+`planner.py` and `concierge.py` pass `tool_fault=TOOL_FAULT`, so `build_subagent` installs
+`retry._tool_error_logic_only` instead of `_tool_error_to_message`. The planner binds
+`get_trip_budget`, `get_trip_summary`, `list_trip_places` and other `InjectedState` tools, so the
+exact #113 failure routed through the planner still answered "check the arguments and try a corrected
+call" — asking the model to supply something it cannot reach. The first fix covered 3 of 5
+sub-agents.
+
+Fix: the classification moved to `retry.describe_tool_failure()`, the single source of truth both
+hooks delegate to. Each hook keeps its own annotation (and therefore its own catch set — `Exception`
+vs `ToolException`, which is what lets `UpstreamError` still reach the `RetryPolicy`); only the
+wording is shared. The tests now parametrize every shared case over both hooks, which is what makes
+this class of miss impossible to reintroduce.
+
+Worth recording: this gap was named in the issue text ("even `retry.py`'s wording would be wrong
+here") and still shipped unfixed — writing a risk down is not the same as covering it.
+
 ### Verify
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 7 passed — one per failure class, incl. the injected-arg repro |
-| Full backend suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/ -q` | 1 | 1805 passed, 5 failed — the **same 5** fail on unmodified `main` (`.env` supplies real `OPENAI_API_KEY`/`ORS_API_KEY`/Langfuse values, defeating "no key configured" assertions). They pass when run from a directory without `.env`. |
+| New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 15 passed — one per failure class × both `handle_tool_errors` hooks |
+| Full backend suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/ -q` | 1 | 1813 passed, 5 failed — the **same 5** fail on unmodified `main` (`.env` supplies real `OPENAI_API_KEY`/`ORS_API_KEY`/Langfuse values, defeating "no key configured" assertions). They pass when run from a directory without `.env`. |
 | Live behavior, real LLM | `scratchpad/repro_trip_lookup.py` (budget question, `trip_id=None`) | 0 | reply is now *"I couldn't find a trip record for **Tokyo** … if your trip is stored under a different name or ID, send that"* — before it was *"the budget service is temporarily unavailable … try again shortly"* |
 | Lint | `ruff check app scripts` | 0 | clean |
 | Format | `ruff format` on changed files | 0 | unchanged |
