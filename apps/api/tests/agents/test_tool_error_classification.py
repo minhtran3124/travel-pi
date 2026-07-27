@@ -168,3 +168,21 @@ def test_unknown_failure_does_not_claim_an_outage():
     assert "cause is unknown" in msg
     assert "do not claim an outage" in msg
     assert "boom" in msg
+
+
+def test_toolinvocationerror_still_exposes_filtered_errors():
+    """Pin the upstream API this classification depends on.
+
+    `filtered_errors` is what separates "the model passed bad arguments" from
+    "an injected/runtime arg is missing" — the whole #113 distinction. It does
+    not exist before langgraph-prebuilt 1.0.2 (hence the floor in
+    requirements-ai.txt), and if a future version drops or renames it the
+    classifier would silently fall through to the wrong branch. Fail loudly here
+    instead.
+    """
+    err = _invocation_error([])
+    assert hasattr(err, "filtered_errors")
+    assert err.filtered_errors == []
+    assert _invocation_error(
+        [{"loc": ("city",), "msg": "x", "type": "missing"}]
+    ).filtered_errors
