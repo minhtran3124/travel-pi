@@ -98,8 +98,18 @@ and each exception is greppable. Two regression tests: `resolve_date` is served 
 `readOnlyHint` and without `tool_call_id` in its public schema, and no tool with a declared variant
 can go unserved.
 
-F1 (P1, multi-intent `reset`) is **not** addressed here — it questions the fix's core premise
-(whether queued specialists produce distinct answers or restatements) and is awaiting a decision.
+**F1 (P1, multi-intent `reset`) — investigated with a real turn, not accepted.** It questioned this
+fix's core premise, so it was settled empirically rather than by argument. A live
+`planner → concierge` turn produced: planner "Cheapest KE349 US$153 / Earliest KE719 05:30… I
+couldn't pull sightseeing", then concierge **restating that flight block verbatim** plus the
+sightseeing paragraph. The queued specialist regenerates a COMPLETE answer rather than contributing a
+slice, so the `reset` loses nothing — the premise holds and the mapper is unchanged.
+
+The observation behind it was right, with the broken side inverted: SSE and REST *do* disagree, and
+REST is the wrong one. Replaying that message sequence through `routers/agent.py`'s assembly keeps 2
+answers and repeats the flight block twice, the first copy contradicting the second. Filed as **#117**
+rather than widened into this PR — distinct defect, different code path, and this branch already
+carries one escalated scope expansion. Reply posted in the review thread.
 
 ### Verify
 
