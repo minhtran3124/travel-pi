@@ -1,8 +1,13 @@
 # Travel Agent — Chatbot Flow Diagram
 
-Current backend agent flow on `feat/agent-memory-layers`. Companion to `WORKFLOW.md`.
+Backend agent flow. Companion to `WORKFLOW.md`, which is the authoritative text.
 Render with any Mermaid-aware viewer (GitHub, VS Code Mermaid preview, mermaid.live).
-Last verified: 2026-07-01.
+Last verified: 2026-07-01; the reflection node was removed from these diagrams in #112.
+
+> Known drift, pre-dating #112: `extract_memory` is drawn as an in-graph node with a
+> "skipped in FAST" note. It is neither — it runs as a background task after the
+> response (`memory/extraction_runner.py`), and modes were removed in MIN-43. Trust
+> `WORKFLOW.md` where the two disagree.
 
 ---
 
@@ -26,16 +31,16 @@ flowchart LR
 
     subgraph Work["3 · Do the work"]
         Agent["specialist sub-agent<br/>think ⇄ call tools"]
-        Refl{"reflection<br/>good enough?"}
+        Disp{"dispatch_next<br/>another queued intent?"}
     end
 
     subgraph Write["4 · Learn"]
         Ext["extract_memory<br/>save what's durable"]
     end
 
-    Load --> Sup --> Agent --> Refl
-    Refl -->|"needs work"| Agent
-    Refl -->|"ok"| Ext
+    Load --> Sup --> Agent --> Disp
+    Disp -->|"next queued intent"| Agent
+    Disp -->|"queue empty"| Ext
     Ext --> Reply([Reply to user])
 
     Load -. reads .-> Store[("Long-term memory<br/>prefs · instructions · past trips")]
@@ -49,7 +54,8 @@ flowchart LR
 2. **Route** — `supervisor` reads the message and picks one specialist
    (planner / concierge / journal / booking / budget).
 3. **Do the work** — the specialist runs a *think ⇄ use-tools* loop until it has an
-   answer; `reflection` may send it back once to improve a weak answer.
+   answer; `dispatch_next` then runs any further intent the supervisor queued for
+   this turn before the turn ends.
 4. **Learn** — `extract_memory` runs in the background after the turn and saves any
    durable preferences, standing instructions, and trip outcomes for next time.
 
@@ -75,7 +81,7 @@ flowchart TD
         Summ["summarize<br/>compress old turns if long"]
         Sup{"supervisor<br/>structured intent → target"}
         Plan{"plan (HITL)<br/>interrupt → await approval"}
-        Refl{"reflection<br/>REVISE / OK (max 1)"}
+        Disp{"dispatch_next<br/>drain queued intents"}
         Ext["extract_memory<br/>background write (skipped in FAST)"]
 
         START((START)) --> Load --> Summ --> Sup
@@ -89,14 +95,14 @@ flowchart TD
         Plan -->|"approved"| Booking
         Plan -->|"rejected"| END
 
-        Planner --> Refl
-        Concierge --> Refl
-        Journal --> Refl
-        Booking --> Refl
-        Budget --> Refl
+        Planner --> Disp
+        Concierge --> Disp
+        Journal --> Disp
+        Booking --> Disp
+        Budget --> Disp
 
-        Refl -->|"REVISE → goto current_flow"| Sup
-        Refl -->|"OK / limit reached"| Ext
+        Disp -->|"goto = next queued specialist"| Sup
+        Disp -->|"queue empty / abandoned"| Ext
         Ext --> END
     end
 

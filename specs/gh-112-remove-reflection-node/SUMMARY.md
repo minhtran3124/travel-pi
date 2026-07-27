@@ -104,6 +104,19 @@ deterministic twin passes 8/8 in both arms) and `no_hallucination` scores nothin
   Only comments were adjusted; the `pending_reset` removal lands after #114 merges. **Expect a
   conflict in `app/streaming/mapper.py` between this branch and PR #114** (gh-109).
 
+### PR review follow-up (Codex, PR #115)
+
+- **F3 (P1) — no `PLAN.md` for a 38-file change. Confirmed.** `rules/plan-format.md` triggers a plan
+  at >2 files; only `SUMMARY.md` was written. `PLAN.md` added alongside this file, recorded from the
+  implementation as executed (tasks 1.1–4.1) rather than back-dated as a guess.
+- **F4 (P2) — companion docs still described the node. Confirmed.** `WORKFLOW.md` was updated but
+  `CLAUDE.md:72` and `WORKFLOW_DIAGRAM.md` (both mermaid graphs + the prose) still routed every
+  specialist through `reflection`, leaving contradictory architecture guidance for anyone onboarding.
+  Fixed in Task 4.1. While editing the diagram, pre-existing drift was found and flagged in a header
+  note rather than silently rewritten: it still draws `extract_memory` as an in-graph node with a
+  "skipped in FAST" label, though extraction is a post-response background task and modes were
+  removed in MIN-43.
+
 ### Verify
 
 | Check | Command | Exit | Notes |
@@ -113,6 +126,7 @@ deterministic twin passes 8/8 in both arms) and `no_hallucination` scores nothin
 | No extra LLM call on a normal turn | `pytest tests/agents/test_graph.py::test_normal_turn_makes_no_fast_llm_call -q` | 0 | counts fast-model `_generate` calls; would have been ≥1 before |
 | Lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | clean |
 | Format | `ruff format` on all changed `.py` | 0 | 4 files reformatted, then clean |
+| Docs reconciled (F4) | `grep -rn reflection WORKFLOW.md WORKFLOW_DIAGRAM.md CLAUDE.md` | — | only the intentional "removed in #112" notes remain |
 | Reflection references gone | `grep -rn reflection apps/api/app apps/web/src` | — | only `app/data/places.py` ("sunrise reflections", unrelated) and the `agent_config` model comment recording that `enabled` lost its reader |
 
 ### Rollback

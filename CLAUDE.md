@@ -69,7 +69,7 @@ tests/           # pytest, isolated temp SQLite DB per run
 - **Deterministic generation:** flights and hotel availability seeded from MD5 hash; same query = same result. Don't change the seed algorithm.
 - **Async only for real I/O:** `weather_service`, `routing_service`. Everything else is sync.
 - **Seed data is DB-backed** — seeded idempotently from `app/data/` on startup. `from app.data` appears only in `app/db/seed.py`.
-- **AI agent (`specs/travel-agent/`):** LangGraph graph (supervisor → planner/concierge/journal/booking/budget → reflection), built once in `core/lifespan.py`, served at `/agent/*`. Provider-agnostic via `init_chat_model()`; tests run on `FakeLLM` (no network). Full detail in `WORKFLOW.md`.
+- **AI agent (`specs/travel-agent/`):** LangGraph graph (supervisor → planner/concierge/journal/booking/budget → dispatch_next), built once in `core/lifespan.py`, served at `/agent/*`. Provider-agnostic via `init_chat_model()`; tests run on `FakeLLM` (no network). Full detail in `WORKFLOW.md`.
 
 ## Conventions
 
