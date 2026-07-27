@@ -46,7 +46,25 @@ guesses a UUID reaches that trip's itinerary and expenses. `/trips` has no authe
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| _pending_ | | | filled in as waves land |
+| Migration up/down/up | `cd apps/api && alembic upgrade head && alembic downgrade -1 && alembic upgrade head` | 0 | clean on SQLite; `user_id` lands NOT NULL with `ix_trips_user_id`; delete counts logged at WARNING |
+| Trip suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/api/trip -q` | 1 | **52 failed, 36 passed — expected and not yet fixed.** See "Status" below. |
+
+### Status — wave 1 of 6 landed, the branch is RED on purpose
+
+`trips.user_id` is `NOT NULL` but nothing writes it yet, so every trip INSERT fails until wave 2
+threads an owner through `_new_trip_row` / `create_trip`. 52 trip tests fail for that single reason.
+
+This is a deliberate checkpoint, not a finished state: the schema is the piece every later wave
+depends on, and it is verified in isolation. **Do not open a PR from this commit.** The remaining
+waves are specified task-by-task in `PLAN.md`:
+
+- **Wave 2** — scope `TripRepository` / `TripService` (this is what makes the suite green again)
+- **Wave 3** — require `get_current_user` on `routers/trips.py` and `routers/expenses.py`
+- **Wave 4** — validate the agent's `trip_id` against the caller; block anonymous `create_trip`
+- **Wave 5** — cross-user negative tests on both transports
+- **Wave 6** — correct the "No auth" convention in `CLAUDE.md`
+
+Resume by reading `PLAN.md` from Task 2.1; no context beyond it is needed.
 
 ### Rollback
 
