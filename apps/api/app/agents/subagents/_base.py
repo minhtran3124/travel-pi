@@ -19,16 +19,18 @@ hint was removed in MIN-43; model selection now comes from the DB/env-backed
 from __future__ import annotations
 
 import logging
+import typing
 from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, ToolMessage
 from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.prebuilt import InjectedState, ToolNode, tools_condition
 from langgraph.runtime import Runtime
+from langgraph.types import Command
 
-from app.agents.constants import EPISODIC_TOOL_NAME
+from app.agents.constants import EPISODIC_TOOL_NAME, NO_ACTIVE_TRIP_MSG
 from app.agents.context import AgentContext
 from app.agents.retry import LLM_RETRY, ToolFaultPolicy, describe_tool_failure
 from app.agents.state import (
@@ -65,6 +67,92 @@ def _tool_error_to_message(exc: Exception) -> str:
     :return: A user-safe message describing the failure.
     """
     return describe_tool_failure(exc)
+
+
+def _tools_needing_trip(tools: list[BaseTool]) -> frozenset[str]:
+    """Names of tools whose ``trip_id`` comes from ``InjectedState``.
+
+    Derived from the annotations rather than hardcoded, so a new trip-scoped
+    tool is covered the day it is written instead of the day someone remembers
+    to add it to a list.
+
+    :param tools: The sub-agent's bound tools.
+    :return: The names of tools that cannot run without an active trip.
+    """
+    names: set[str] = set()
+    for tool in tools:
+        fn = tool.coroutine or tool.func
+        try:
+            hints = typing.get_type_hints(fn, include_extras=True)
+        except Exception:  # noqa: BLE001 — a tool we cannot introspect is not our concern
+            continue
+        for hint in hints.values():
+            for meta in getattr(hint, "__metadata__", ()):
+                if isinstance(meta, InjectedState) and getattr(meta, "field", None) == (
+                    "trip_id"
+                ):
+                    names.add(tool.name)
+    return frozenset(names)
+
+
+def _make_trip_guard(tools: list[BaseTool], needing_trip: frozenset[str]):
+    """Return the node that stops trip-scoped calls when no trip is selected (#113).
+
+    Without this, the call reaches ``ToolNode`` and fails validation because the
+    injected ``trip_id`` is absent. That failure is only *described* to the model
+    ("ask the traveller which trip") — which leaves the outcome to whether the
+    model obeys prose, and a model that ignores it can call the same tool again.
+    The guard makes it a graph fact instead: ``awaiting_user`` is set exactly as
+    ``needs_clarification`` sets it, so ``dispatch_next`` abandons the rest of the
+    turn and the traveller is asked, deterministically.
+
+    Runs *before* the tools node, so the blocked tool never executes.
+
+    :param tools: The sub-agent's bound tools (unused except for symmetry with
+        the caller; the decision is name-based).
+    :param needing_trip: Names of tools that require an active trip.
+    :return: A node function ``trip_guard(state) -> Command``.
+    """
+
+    def trip_guard(state: TravelAgentState) -> Command:
+        if not needing_trip or state.get("trip_id"):
+            return Command(goto="tools")
+
+        last = state["messages"][-1]
+        calls = list(getattr(last, "tool_calls", None) or [])
+        blocked = [tc for tc in calls if tc.get("name") in needing_trip]
+        if not blocked:
+            return Command(goto="tools")
+
+        logger.info(
+            "[agent] trip_guard → assistant (no active trip; blocked %d call(s))",
+            len(blocked),
+        )
+        # Every pending call needs a paired ToolMessage or the provider rejects
+        # the next assistant turn — including the calls that were not blocked,
+        # which are abandoned with the rest of the turn.
+        messages = [
+            ToolMessage(
+                content=(
+                    NO_ACTIVE_TRIP_MSG
+                    if tc.get("name") in needing_trip
+                    else (
+                        "Not run — this turn is blocked on the traveller "
+                        "identifying which trip they mean."
+                    )
+                ),
+                tool_call_id=tc["id"],
+                name=tc.get("name"),
+                status="error",
+            )
+            for tc in calls
+        ]
+        return Command(
+            goto="assistant",
+            update={"awaiting_user": True, "messages": messages},
+        )
+
+    return trip_guard
 
 
 def build_subagent(
@@ -144,8 +232,20 @@ def build_subagent(
                 retry_policy=tool_fault.retry_policy,
                 error_handler=tool_fault.error_handler,
             )
+        # #113: a trip-scoped tool called with no active trip is stopped here,
+        # before it can fail arg validation and leave the outcome to whether the
+        # model obeys a prose instruction. tools_condition still decides whether
+        # there is tool work at all; the guard decides whether it may run.
+        needing_trip = _tools_needing_trip(tools)
+        builder.add_node(
+            "trip_guard",
+            _make_trip_guard(tools, needing_trip),
+            destinations=("tools", "assistant"),
+        )
         # tools_condition -> "tools" when the last message has tool calls, else END.
-        builder.add_conditional_edges("assistant", tools_condition)
+        builder.add_conditional_edges(
+            "assistant", tools_condition, {"tools": "trip_guard", END: END}
+        )
         builder.add_edge("tools", "assistant")
     else:
         builder.add_edge("assistant", END)

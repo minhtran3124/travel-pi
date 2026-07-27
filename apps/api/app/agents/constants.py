@@ -72,6 +72,21 @@ REFLECTION_REVISE_NOTE = (
     "a message from the traveller — keep replying in the traveller's own language."
 )
 
+# --- trip selection -------------------------------------------------------
+# Emitted by the trip_guard node (app/agents/subagents/_base.py) when the model
+# calls a trip-scoped tool with no active trip in state (#113). Instructions to
+# the MODEL, not text shown verbatim: the reply must be in the traveller's own
+# language. Never asks for the trip id — the traveller has never seen one; the
+# id is a UUID the system assigns, so asking for it is a dead end.
+NO_ACTIVE_TRIP_MSG = (
+    "Not run: no trip is selected for this conversation, and this tool cannot "
+    "run without one. This is NOT an outage and retrying will fail identically. "
+    "Ask the traveller which trip they mean — by destination and rough dates, "
+    "never by id (they have never seen one). Offer to start a new trip if they "
+    "do not have one yet, and confirm the destination and dates back to them "
+    "before acting, so a wrong guess is caught before it reaches their data."
+)
+
 # --- user-facing copy -----------------------------------------------------
 # Shown when a free user is routed to a premium-only sub-agent (booking).
 BOOKING_UPGRADE_MSG = (

@@ -60,13 +60,48 @@ not a formatting bug: *nothing the model controls was wrong*.
 (`app/tools/_base.py`), and `tool_error` already folds `AppError.detail` + `hint` into the text, so
 the recovery pointer reaches the model on the domain-error branch.
 
-### Scope decision
+### Scope decision — reversed after review
 
-The issue listed a third defect — "no `trip_id` selected" should be handled by a pre-flight guard on
-trip-scoped tools. **Not implemented, deliberately.** The classification above already produces the
-required user-visible behavior (the agent asks which trip instead of claiming an outage) without a
-second mechanism to keep in sync with the tool inventory. A pre-flight guard is worth revisiting only
-if the model turns out to ignore the message.
+The issue's third defect (a pre-flight guard for trip-scoped tools) was first deferred on the
+argument that the corrected message already produced the required behavior. The PR #116 review was
+right that this does not hold: a message is advice, and acceptance criterion 1 of #113 ("asks the
+traveller which trip") was therefore left to whether the model obeys prose. One live run behaving
+correctly is not an invariant. Implemented — see "Deterministic trip guard" below.
+
+### Deterministic trip guard (#113 acceptance criterion 1)
+
+A `trip_guard` node sits between `assistant` and `tools`. When the model calls a tool whose `trip_id`
+comes from `InjectedState` and no trip is active, the call never reaches `ToolNode`: the guard emits a
+paired `ToolMessage` per pending call and sets `awaiting_user`, exactly as `needs_clarification` does,
+so `dispatch_next` abandons the rest of the turn. The outcome is a graph fact, not an instruction.
+
+Design notes:
+
+- **Which tools need a trip is derived**, by inspecting `InjectedState(field="trip_id")` annotations
+  — a new trip-scoped tool is covered when it is written, not when someone remembers a list.
+- **Every pending call gets a ToolMessage**, including ones that were not blocked, or the provider
+  rejects the next assistant turn on an unpaired tool call.
+- **Signatures were not changed.** Making `trip_id` optional and returning a `Command` from each tool
+  would have forced an `InjectedToolCallId` parameter onto five tools — and `mcp/server.py` skips any
+  tool carrying one, so it would have silently dropped five tools from the MCP surface. That is the
+  exact regression fixed on PR #114 as F2; a guard node avoids repeating it.
+- **The message never asks for a trip id.** The traveller has never seen one (it is a system UUID),
+  so it asks by destination and rough dates and offers to start a new trip, then confirms back before
+  acting.
+
+Verified non-vacuous: disabling the guard fails 3 of the 7 tests, including the end-to-end graph test.
+
+### Known limitation — the traveller's trips cannot be listed
+
+The reply asks "which trip do you mean" but cannot offer a list, because **`trips` has no owner**:
+the table has no `user_id` column and `TripRepository.list_trips()` returns every trip in the
+database. Listing them would expose other travellers' trips. The only user↔trip link that exists is
+`conversations.user_id` + `conversations.trip_id`.
+
+That blocks the richer flow requested (show the traveller their trips, confirm details, identify them
+by a short human-readable code): a code would label globally-visible rows, which is not the same
+feature. Trip ownership is a schema change and a data-exposure question — out of scope here, filed
+separately.
 
 ### PR review follow-up (Codex, PR #116)
 
@@ -91,8 +126,9 @@ here") and still shipped unfixed — writing a risk down is not the same as cove
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 15 passed — one per failure class × both `handle_tool_errors` hooks |
-| Full backend suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/ -q` | 1 | 1813 passed, 5 failed — the **same 5** fail on unmodified `main` (`.env` supplies real `OPENAI_API_KEY`/`ORS_API_KEY`/Langfuse values, defeating "no key configured" assertions). They pass when run from a directory without `.env`. |
+| New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 16 passed — one per failure class × both `handle_tool_errors` hooks |
+| Trip guard tests | `pytest tests/agents/test_trip_guard.py -q` | 0 | 7 passed; 3 fail with the guard disabled |
+| Full backend suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/ -q` | 1 | 1821 passed, 5 failed — the **same 5** fail on unmodified `main` (`.env` supplies real `OPENAI_API_KEY`/`ORS_API_KEY`/Langfuse values, defeating "no key configured" assertions). They pass when run from a directory without `.env`. |
 | Live behavior, real LLM | `scratchpad/repro_trip_lookup.py` (budget question, `trip_id=None`) | 0 | reply is now *"I couldn't find a trip record for **Tokyo** … if your trip is stored under a different name or ID, send that"* — before it was *"the budget service is temporarily unavailable … try again shortly"* |
 | Lint | `ruff check app scripts` | 0 | clean |
 | Format | `ruff format` on changed files | 0 | unchanged |
