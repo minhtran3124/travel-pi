@@ -223,3 +223,30 @@ def resolve_date(
 
 
 DATE_TOOLS = [resolve_date]
+
+
+def resolve_date_over_mcp(expression: str) -> str:
+    """MCP-servable ``resolve_date``: same resolution, no agent control flow.
+
+    Adding the ``InjectedToolCallId`` parameter to :func:`resolve_date` made
+    ``build_mcp_server`` skip it — that skip is correct in general (an external
+    client has no LangGraph tool-call id to supply), but it silently dropped a
+    read-only date tool that MCP clients could previously list and call, while
+    ``/agent/manifest`` kept advertising it (PR #114 review).
+
+    Delegating to ``resolve_date.func`` keeps one implementation of the
+    resolution rules. The only difference is how "the traveller must
+    disambiguate this" is reported: the agent path returns a ``Command`` that
+    sets ``awaiting_user``, which is meaningless off-graph, so here the same
+    message is raised as a ``ToolException`` the MCP client sees as an error.
+
+    :param expression: The traveller's literal date wording, unmodified.
+    :return: The resolved-date summary, identical to the agent path's.
+    :raises ToolException: When the expression is ambiguous, invalid, or past —
+        carrying the same text the agent would have put in its ``ToolMessage``.
+    """
+    result = resolve_date.func(expression=expression, tool_call_id="mcp")
+    if isinstance(result, Command):
+        # _blocked_on_traveller packs the text into the paired ToolMessage.
+        raise ToolException(result.update["messages"][0].content)
+    return result

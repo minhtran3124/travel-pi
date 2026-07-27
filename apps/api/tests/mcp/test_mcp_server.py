@@ -55,3 +55,38 @@ def test_create_trip_excluded_but_other_trip_tools_exposed():
     # `tool_call_id` — cannot be served over MCP.
     assert "create_trip" not in names
     assert "get_trip_summary" in names
+
+
+def test_resolve_date_stays_on_the_mcp_surface():
+    """Regression for the PR #114 review.
+
+    `resolve_date` gained an `InjectedToolCallId` parameter for the gh-109 fix,
+    which made the generic "skip tools needing agent runtime" rule drop it from
+    MCP — silently, while `/agent/manifest` kept advertising it. A servable
+    variant keeps the read-only capability external clients already had.
+    """
+    from app.mcp.server import build_mcp_server
+
+    tools = {t.name: t for t in _list_tools(build_mcp_server())}
+    assert "resolve_date" in tools, "resolve_date must stay servable over MCP"
+    assert tools["resolve_date"].annotations.readOnlyHint is True
+    # The agent-only plumbing must not leak into the public schema.
+    assert "tool_call_id" not in (
+        tools["resolve_date"].inputSchema.get("properties") or {}
+    )
+
+
+def test_manifest_and_mcp_agree_on_injected_tool_call_id_tools():
+    """Every tool skipped for `tool_call_id` is either served by a variant or
+    genuinely agent-only — never advertised by the manifest while missing here."""
+    import inspect
+
+    from app.mcp.server import _MCP_SERVABLE_VARIANTS, build_mcp_server
+    from app.tools.registry import ALL_TOOLS
+
+    served = {t.name for t in _list_tools(build_mcp_server())}
+    for tool in ALL_TOOLS:
+        fn = tool.coroutine or tool.func
+        params = inspect.signature(fn).parameters
+        if "tool_call_id" in params and tool.name in _MCP_SERVABLE_VARIANTS:
+            assert tool.name in served, f"{tool.name} has a variant but is not served"

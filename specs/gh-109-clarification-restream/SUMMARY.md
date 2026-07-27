@@ -83,6 +83,24 @@ smoothly. To revert just this half, drop the buffering and flush each chunk dire
   permanently. Work paused and the finding was put to the user, who authorized adding the
   prose buffering. No unauthorized widening.
 
+### PR review follow-up (Codex, PR #114)
+
+**F2 (P1) — `resolve_date` silently left the MCP surface. Confirmed and fixed.**
+`mcp/server.py` skips any tool whose signature carries `store` or `tool_call_id`. Adding
+`InjectedToolCallId` to `resolve_date` (needed for the `Command` that sets `awaiting_user`) therefore
+dropped a read-only tool MCP clients could previously list and call — while `/agent/manifest`, built
+from `ALL_TOOLS`, kept advertising it. A silent public-contract regression outside this fix's intent.
+
+Fix: `resolve_date_over_mcp()` delegates to `resolve_date.func` so the resolution rules stay
+single-sourced, and converts the agent-only `Command` into a `ToolException` an external client can
+read. `mcp/server.py` gains an explicit `_MCP_SERVABLE_VARIANTS` map so the generic skip stays intact
+and each exception is greppable. Two regression tests: `resolve_date` is served with
+`readOnlyHint` and without `tool_call_id` in its public schema, and no tool with a declared variant
+can go unserved.
+
+F1 (P1, multi-intent `reset`) is **not** addressed here — it questions the fix's core premise
+(whether queued specialists produce distinct answers or restatements) and is awaiting a decision.
+
 ### Verify
 
 | Check | Command | Exit | Notes |

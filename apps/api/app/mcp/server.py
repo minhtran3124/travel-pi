@@ -16,7 +16,15 @@ import inspect
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
+from app.tools.date_tools import resolve_date_over_mcp
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
+
+#: Tools whose agent signature is unservable over MCP but whose capability is
+#: still wanted there, mapped to a plain callable with the same behavior. Keeps
+#: the generic skip below intact while making each exception explicit and
+#: greppable, instead of quietly shrinking the public MCP surface (PR #114
+#: review). `store` tools have no equivalent — they need the runtime store.
+_MCP_SERVABLE_VARIANTS = {"resolve_date": resolve_date_over_mcp}
 
 
 def build_mcp_server(name: str = "travel-pi") -> FastMCP:
@@ -39,7 +47,10 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         # over MCP (an external client can't supply one).
         params = inspect.signature(fn).parameters
         if "store" in params or "tool_call_id" in params:
-            continue
+            variant = _MCP_SERVABLE_VARIANTS.get(tool.name)
+            if variant is None:
+                continue
+            fn = variant
         server.add_tool(
             fn,
             name=tool.name,
