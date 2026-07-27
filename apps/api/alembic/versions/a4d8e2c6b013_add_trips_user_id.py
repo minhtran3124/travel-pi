@@ -64,10 +64,31 @@ def upgrade() -> None:
     with op.batch_alter_table("trips", schema=None) as batch_op:
         batch_op.add_column(sa.Column("user_id", sa.String(), nullable=False))
         batch_op.create_index("ix_trips_user_id", ["user_id"], unique=False)
+        # Idempotency uniqueness moves from global to per-owner. Left global, two
+        # users sending the same Idempotency-Key collide: the second one's
+        # owner-scoped replay lookup finds nothing, the index still rejects the
+        # INSERT, and the IntegrityError fallback re-runs that same scoped lookup
+        # and re-raises — a 500 instead of the second user's trip.
+        batch_op.drop_index("ix_trips_idempotency_key")
+        batch_op.create_index(
+            "ix_trips_user_idempotency_key",
+            ["user_id", "idempotency_key"],
+            unique=True,
+            sqlite_where=sa.text("idempotency_key IS NOT NULL"),
+            postgresql_where=sa.text("idempotency_key IS NOT NULL"),
+        )
 
 
 def downgrade() -> None:
     """Restore the schema. The deleted trips, items and expenses are NOT restored."""
     with op.batch_alter_table("trips", schema=None) as batch_op:
+        batch_op.drop_index("ix_trips_user_idempotency_key")
+        batch_op.create_index(
+            "ix_trips_idempotency_key",
+            ["idempotency_key"],
+            unique=True,
+            sqlite_where=sa.text("idempotency_key IS NOT NULL"),
+            postgresql_where=sa.text("idempotency_key IS NOT NULL"),
+        )
         batch_op.drop_index("ix_trips_user_id")
         batch_op.drop_column("user_id")
