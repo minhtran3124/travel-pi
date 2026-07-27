@@ -15,13 +15,15 @@ from app.services.trip_service import TripService
 @pytest.fixture()
 def svc(seeded_session):
     """ExpenseService bound to the seeded session (FX rates loaded)."""
-    return ExpenseService(seeded_session)
+    return ExpenseService(seeded_session, "test-user-1")
 
 
 @pytest.fixture()
 def trip_id(seeded_session):
     """Create a minimal trip and return its ID."""
-    trip = TripService(seeded_session).create_trip(TripCreate(title="Test Trip"))
+    trip = TripService(seeded_session, "test-user-1").create_trip(
+        TripCreate(title="Test Trip")
+    )
     return trip.id
 
 

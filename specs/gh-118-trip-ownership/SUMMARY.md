@@ -46,25 +46,47 @@ guesses a UUID reaches that trip's itinerary and expenses. `/trips` has no authe
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| Migration up/down/up | `cd apps/api && alembic upgrade head && alembic downgrade -1 && alembic upgrade head` | 0 | clean on SQLite; `user_id` lands NOT NULL with `ix_trips_user_id`; delete counts logged at WARNING |
-| Trip suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/api/trip -q` | 1 | **52 failed, 36 passed — expected and not yet fixed.** See "Status" below. |
+| Migration up/down/up | `alembic upgrade head && alembic downgrade -1 && alembic upgrade head` | 0 | clean on SQLite; `user_id` lands NOT NULL with `ix_trips_user_id`; delete counts logged at WARNING |
+| Cross-user access | `pytest tests/api/trip/test_trip_ownership.py -q` | 0 | 13 passed — the negative cases are the point: B cannot list, read, update, delete, add items to, budget or detail A's trip, cannot attach an expense to it, and a rejected DELETE does not silently perform the write |
+| Full backend suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/ -q` | 1 | 1811 passed, 5 failed — the **same 5** pre-existing `.env` leaks that fail identically on unmodified `main` |
+| Lint | `ruff check app scripts` | 0 | clean |
+| Format | `ruff format` on every changed `.py` | 0 | 6 files reformatted, then clean |
 
-### Status — wave 1 of 6 landed, the branch is RED on purpose
+### What changed, by wave
 
-`trips.user_id` is `NOT NULL` but nothing writes it yet, so every trip INSERT fails until wave 2
-threads an owner through `_new_trip_row` / `create_trip`. 52 trip tests fail for that single reason.
+1. **Schema** — `trips.user_id` NOT NULL + index; the migration empties `expenses`, `trip_items`,
+   `trip_place_link` and `trips`, and clears `conversations.trip_id`.
+2. **Data access** — the owner is bound to the `TripService` *instance*, not threaded through twenty
+   method signatures. Every read and mutation already funnelled through `get_trip()`, so scoping
+   that one lookup scoped the whole surface and no future method can forget to pass it. A trip owned
+   by someone else raises the same `NotFoundError` as one that does not exist — a distinct
+   "forbidden" would confirm to a probe that a guessed id is real. `get_trip_by_idempotency_key` is
+   scoped too, or a replay could hand one user another's trip on a key collision.
+3. **Routes** — `get_trip_service` and `get_expense_service` now depend on `get_current_user` (the
+   *required* variant), so every route on both routers 401s without a token. They had no
+   authentication at all before.
+4. **Agent** — the five `InjectedState("trip_id")` tools gained an injected `user_id` and construct
+   the scoped service; `load_context` loads the trip snapshot through it, so a foreign `trip_id` in
+   state yields nothing instead of leaking a title and city into the system prompt. `create_trip`
+   refuses an anonymous caller via a new `AgentContext.authenticated` flag, which defaults **False**
+   so any path that forgets to resolve identity is treated as anonymous rather than silently
+   granted.
+5. **Tests** — 13 cross-user cases; the shared `client` fixture authenticates as a fixed traveller,
+   and the four agent tests that open a trip now sign in.
+6. **Docs** — `CLAUDE.md` claimed "No auth, pagination, or rate limiting", which was already partly
+   false and is now clearly false; corrected rather than left contradicting the code.
 
-This is a deliberate checkpoint, not a finished state: the schema is the piece every later wave
-depends on, and it is verified in isolation. **Do not open a PR from this commit.** The remaining
-waves are specified task-by-task in `PLAN.md`:
+### Deviations
 
-- **Wave 2** — scope `TripRepository` / `TripService` (this is what makes the suite green again)
-- **Wave 3** — require `get_current_user` on `routers/trips.py` and `routers/expenses.py`
-- **Wave 4** — validate the agent's `trip_id` against the caller; block anonymous `create_trip`
-- **Wave 5** — cross-user negative tests on both transports
-- **Wave 6** — correct the "No auth" convention in `CLAUDE.md`
-
-Resume by reading `PLAN.md` from Task 2.1; no context beyond it is needed.
+- **Rule 2 (auto-add)** — `AgentContext.authenticated` was not in the plan. Blocking anonymous trip
+  creation needs to distinguish "anonymous id" from "authenticated id", and the agent path had no
+  such signal: `_effective_user_id` returns a client-supplied string for anonymous callers, which is
+  indistinguishable from a real subject downstream.
+- **Plan task 4.1, partially reinterpreted.** The plan said to reject a foreign `trip_id` at the
+  router. It is instead denied at the data layer — every consumer of `state["trip_id"]` is
+  owner-scoped, so a foreign id yields nothing anywhere. A router-side pre-check would add a DB
+  round-trip per request to convert silent emptiness into an explicit error; worth doing, not worth
+  blocking this on. Recorded rather than silently dropped.
 
 ### Rollback
 

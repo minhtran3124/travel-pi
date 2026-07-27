@@ -76,7 +76,10 @@ tests/           # pytest, isolated temp SQLite DB per run
 - Python 3.10+ hints, Pydantic v2. `datetime.now(timezone.utc)`, never `utcnow()`.
 - Fuzzy name resolution for free-text city/country (`core/text.py`). Unknown city → `count: 0`, not 404.
 - `logging.getLogger(__name__)`, never `print()`.
-- No auth, pagination, or rate limiting.
+- **Auth is partial, by design.** `/trips` and `/expenses` require a Supabase token and are scoped
+  to the caller (#118); the agent endpoints accept anonymous callers but cannot create a trip for
+  one. Everything else is still unauthenticated. Rate limiting exists (per-user, DB-backed);
+  pagination exists on list endpoints.
 
 ## Design
 
