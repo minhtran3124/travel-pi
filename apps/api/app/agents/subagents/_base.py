@@ -26,6 +26,7 @@ from langchain_core.messages import SystemMessage
 from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.prebuilt.tool_node import ToolInvocationError
 from langgraph.runtime import Runtime
 
 from app.agents.constants import EPISODIC_TOOL_NAME
@@ -37,6 +38,7 @@ from app.agents.state import (
     system_with_summary,
     with_reply_language,
 )
+from app.exceptions import AppError, UpstreamError
 from app.prompts.registry import registry
 from app.tools.clarification_tools import needs_clarification
 
@@ -54,13 +56,58 @@ def _tool_error_to_message(exc: Exception) -> str:
     ``/agent/stream`` request. Annotating ``exc: Exception`` tells ToolNode's
     ``_infer_handled_types`` to catch every tool error.
 
+    Breadth is deliberate; the *verdict* is not. This used to label every caught
+    failure "a temporary upstream problem … try again shortly", so a
+    deterministic failure was narrated to the traveller as an outage with advice
+    that could never work (#113). Each class now gets the recovery it actually
+    has:
+
+    * ``ToolInvocationError`` with model-fixable errors → correct the arguments.
+    * ``ToolInvocationError`` with none → the only unmet requirements are
+      ``InjectedState``/``InjectedStore`` args, which the model cannot supply, so
+      langgraph filters them out and leaves an empty error list. That means a
+      runtime precondition is missing (typically no active trip), and the fix is
+      to ask the traveller — never to claim an outage.
+    * ``UpstreamError`` cause → genuinely transient; keep the old wording.
+    * any other ``AppError`` cause → a deterministic domain error whose message
+      already carries ``detail`` + ``hint`` from :func:`app.tools._base.tool_error`.
+
     :param exc: The exception raised by a tool call.
     :return: A user-safe message describing the failure.
     """
+    if isinstance(exc, ToolInvocationError):
+        if exc.filtered_errors:
+            return (
+                f"Tool call failed: {exc}. The arguments are invalid — fix them "
+                "and call the tool again, or tell the user what is missing."
+            )
+        return (
+            f"Tool call failed: {exc}. The tool is missing runtime context that "
+            "you cannot supply yourself (most often no trip is selected). This is "
+            "NOT an outage and retrying will fail identically — ask the traveller "
+            "for the missing detail, e.g. which trip they mean."
+        )
+
+    # tool_error() is always raised as `raise tool_error(e) from e`, so the
+    # originating domain error is on __cause__ (app/tools/_base.py).
+    cause = exc.__cause__
+    if isinstance(cause, UpstreamError):
+        return (
+            f"Tool call failed: {exc}. This is a temporary upstream problem, not a "
+            "bad request — do not retry the tool; tell the user the information is "
+            "currently unavailable and to try again shortly."
+        )
+    if isinstance(cause, AppError):
+        return (
+            f"Tool call failed: {exc}. This is a definite answer about the data, "
+            "not an outage — do not tell the user to try again later. Act on the "
+            "message above: use the hint if there is one, otherwise tell the user "
+            "plainly what was not found or not allowed."
+        )
     return (
-        f"Tool call failed: {exc}. This is a temporary upstream problem, not a "
-        "bad request — do not retry the tool; tell the user the information is "
-        "currently unavailable and to try again shortly."
+        f"Tool call failed: {exc}. The cause is unknown — do not claim an outage "
+        "and do not retry blindly; tell the user this step did not work and, if "
+        "you need something from them to proceed, ask for it."
     )
 
 
