@@ -72,11 +72,15 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # last turn must not abandon THIS turn's fresh ledger.
     result: dict = {"plan_approved": False, "awaiting_user": False}
     trip_id = state.get("trip_id")
+    owner = state.get("user_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
-    if trip_id:
+    # #118: the snapshot is loaded through the owner-scoped service, so a
+    # trip_id that is not the caller's yields nothing instead of leaking a
+    # title and city into the system prompt.
+    if trip_id and owner:
         try:
             with session_scope() as s:
-                detail = TripService(s).get_trip_detail(trip_id)
+                detail = TripService(s, owner).get_trip_detail(trip_id)
             result["trip_context"] = (
                 f"Active trip: {detail.title} (city: {detail.city})."
             )

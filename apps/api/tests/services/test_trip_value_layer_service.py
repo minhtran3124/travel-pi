@@ -31,7 +31,7 @@ def svc(tmp_path):
     url = f"sqlite:///{tmp_path / 'value_layer.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     with get_session_factory(url)() as session:
-        yield TripService(session)
+        yield TripService(session, "test-user-1")
 
 
 def _hotel_booking(

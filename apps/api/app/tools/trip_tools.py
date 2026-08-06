@@ -22,19 +22,24 @@ keeping the injected arg out of the model-facing ``tool_call_schema``.
 from __future__ import annotations
 
 import json
+import logging
 from typing import Annotated, Literal
 
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId, ToolException, tool
 from langgraph.prebuilt import InjectedState
+from langgraph.runtime import get_runtime
 from langgraph.types import Command
 from pydantic import Field
 
+from app.agents.context import AgentContext
 from app.enums import TripItemKind, TripItemStatus
 from app.exceptions import AppError
 from app.schemas.trip import TripCreate, TripItemCreate
 from app.services.trip_service import TripService
 from app.tools._base import dump, log_tool_call, session_scope, tool_error
+
+logger = logging.getLogger(__name__)
 
 
 @tool
@@ -43,6 +48,11 @@ def get_trip_summary(
         str,
         InjectedState("trip_id"),
         Field(description="The trip to summarise."),
+    ],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
 ) -> dict:
     """Get a trip's full snapshot: days, items, places, budget rollup, and gaps.
@@ -57,7 +67,7 @@ def get_trip_summary(
     log_tool_call("get_trip_summary", {"trip_id": trip_id})
     with session_scope() as s:
         try:
-            return dump(TripService(s).get_trip_detail(trip_id))
+            return dump(TripService(s, user_id).get_trip_detail(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
@@ -68,6 +78,11 @@ def get_trip_budget(
         str,
         InjectedState("trip_id"),
         Field(description="The trip to get the budget for."),
+    ],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
 ) -> dict:
     """Get the trip's budget: caps, spent-by-category, and remaining amounts.
@@ -80,7 +95,7 @@ def get_trip_budget(
     log_tool_call("get_trip_budget", {"trip_id": trip_id})
     with session_scope() as s:
         try:
-            return dump(TripService(s).get_trip_budget(trip_id))
+            return dump(TripService(s, user_id).get_trip_budget(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
@@ -91,6 +106,11 @@ def list_trip_places(
         str,
         InjectedState("trip_id"),
         Field(description="The trip to list places for."),
+    ],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
 ) -> list:
     """List the places shortlisted onto a trip.
@@ -103,7 +123,7 @@ def list_trip_places(
     log_tool_call("list_trip_places", {"trip_id": trip_id})
     with session_scope() as s:
         try:
-            return dump(TripService(s).list_trip_places(trip_id))
+            return dump(TripService(s, user_id).list_trip_places(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
@@ -117,6 +137,11 @@ def add_place_to_trip(
         str,
         InjectedState("trip_id"),
         Field(description="The trip to shortlist the place onto."),
+    ],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
     source: Annotated[
         Literal["catalog", "saved"],
@@ -140,7 +165,9 @@ def add_place_to_trip(
     )
     with session_scope() as s:
         try:
-            return dump(TripService(s).add_place_to_trip(trip_id, place_id, source))
+            return dump(
+                TripService(s, user_id).add_place_to_trip(trip_id, place_id, source)
+            )
         except AppError as e:
             raise tool_error(e) from e
 
@@ -153,6 +180,11 @@ def add_itinerary_item(
         str,
         InjectedState("trip_id"),
         Field(description="The trip to add the item to."),
+    ],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
     kind: Annotated[
         TripItemKind, Field(description="The kind of itinerary entry.")
@@ -205,7 +237,7 @@ def add_itinerary_item(
                 notes=notes,
                 start_time=start_time,
             )
-            return dump(TripService(s).add_item(trip_id, request))
+            return dump(TripService(s, user_id).add_item(trip_id, request))
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad kind/status
@@ -227,6 +259,11 @@ def create_trip(
         str, Field(description="Trip title, e.g. 'Da Nang long weekend'.")
     ],
     tool_call_id: Annotated[str, InjectedToolCallId],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The new trip's owner. Injected from graph state (#118)."),
+    ],
     city: Annotated[
         str | None, Field(description="Primary destination city (free text).")
     ] = None,
@@ -264,6 +301,39 @@ def create_trip(
             "travelers": travelers,
         },
     )
+    # #118: a trip needs a real owner. On the agent path an anonymous caller's
+    # id is a client-supplied string, so a trip stamped with it belongs to
+    # whoever sends that string next — refuse rather than create something
+    # unownable. Only the agent path is judged here: off-graph (direct call or
+    # MCP) there is no runtime and the caller passed `user_id` explicitly, so
+    # there is nothing to infer. MCP has no caller identity at all, which is
+    # recorded as out of scope on #118.
+    try:
+        runtime = get_runtime(AgentContext)
+    except RuntimeError:
+        runtime = None
+    ctx = runtime.context if runtime is not None else None
+    if ctx is not None and not ctx.authenticated:
+        logger.info("[agent] tool=create_trip refused (anonymous caller)")
+        return Command(
+            update={
+                "awaiting_user": True,
+                "messages": [
+                    ToolMessage(
+                        content=(
+                            "Not created: saving a trip needs a signed-in "
+                            "traveller, and this conversation is anonymous. This "
+                            "is not an outage and retrying will fail identically "
+                            "— tell them their plan is safe in this chat, and "
+                            "that signing in is what lets you save it."
+                        ),
+                        tool_call_id=tool_call_id,
+                        status="error",
+                    )
+                ],
+            }
+        )
+
     with session_scope() as s:
         try:
             kwargs = {
@@ -275,7 +345,7 @@ def create_trip(
             if travelers is not None:
                 kwargs["travelers"] = travelers
             request = TripCreate(**kwargs)
-            trip = TripService(s).create_trip(request)
+            trip = TripService(s, user_id).create_trip(request)
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad dates

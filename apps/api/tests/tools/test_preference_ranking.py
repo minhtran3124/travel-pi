@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.tools._ranking import rank_by_preference
 from app.tools.flight_tools import SearchFlightsArgs, search_flights
@@ -270,10 +270,12 @@ def test_browse_hotels_preference_ranking_is_deterministic(agent_db):
 
 
 def test_search_hotels_wires_preferences_into_summary(agent_db):
+    check_in = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+    check_out = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
     kwargs = {
         "city": "Da Nang",
-        "check_in": "2026-08-01",
-        "check_out": "2026-08-05",
+        "check_in": check_in,
+        "check_out": check_out,
         "rooms": 1,
         "adults": 2,
         "children": 0,
@@ -295,7 +297,8 @@ def test_search_hotels_wires_preferences_into_summary(agent_db):
 
 
 def test_search_flights_prioritizes_time_of_day_preference(agent_db):
-    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": "2026-08-15"}
+    departure = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": departure}
     baseline = search_flights.func(**kwargs)
     boosted = search_flights.func(
         **kwargs, preferences="Traveller prefers evening flights"
@@ -338,7 +341,8 @@ def test_search_flights_prioritizes_time_of_day_preference(agent_db):
 
 
 def test_search_flights_preference_ranking_is_deterministic(agent_db):
-    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": "2026-08-15"}
+    departure = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": departure}
     prefs = "Traveller prefers evening flights"
     first = search_flights.func(**kwargs, preferences=prefs)
     second = search_flights.func(**kwargs, preferences=prefs)
@@ -358,10 +362,12 @@ def test_search_hotels_does_not_log_preferences(agent_db, caplog):
     import logging
 
     with caplog.at_level(logging.INFO, logger="app.tools"):
+        check_in = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+        check_out = (datetime.now() + timedelta(days=15)).strftime("%Y-%m-%d")
         search_hotels.func(
             city="Da Nang",
-            check_in="2026-08-15",
-            check_out="2026-08-20",
+            check_in=check_in,
+            check_out=check_out,
             rooms=1,
             adults=2,
             children=0,
@@ -376,10 +382,11 @@ def test_search_flights_does_not_log_preferences(agent_db, caplog):
     import logging
 
     with caplog.at_level(logging.INFO, logger="app.tools"):
+        departure = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
         search_flights.func(
             origin="HAN",
             destination="SGN",
-            departure_date="2026-08-15",
+            departure_date=departure,
             preferences="- diet: traveller has a severe shellfish allergy",
         )
     logged = "\n".join(r.message for r in caplog.records)

@@ -1,16 +1,17 @@
 import createClient, { type Middleware } from "openapi-fetch";
 
 import type { paths } from "./schema";
+import { authHeader } from "@/lib/supabase/authHeader";
 
 // --- Identity seam -----------------------------------------------------------
 // The FE's own ownership marker for REST calls. The agent `user_id` travels in
 // the request BODY (set by callers); this is a separate `X-User-Id` header that
 // is reserved for scoping REST resource ownership once real auth lands.
 //
-// NOTE: the current mock BE ignores `X-User-Id` entirely (no auth), so the
-// known "first query may fire before IdentityProvider's mount effect sets the
-// id" race is a no-op today. When the BE starts scoping on this header, gate
-// identity-dependent queries on a non-null id (e.g. `enabled: !!userId`).
+// NOTE: `X-User-Id` is NOT what the BE scopes on. Trips and expenses scope on
+// the authenticated subject from the bearer token (#118); this header remains a
+// client-supplied hint only. Trip-backed queries therefore need a session, not
+// just an id — gate them on auth, not on `!!userId`.
 //
 // Kept React-free on purpose: this is the only BE-aware layer. The
 // IdentityProvider imports `setUserId` and calls it on mount/identity change.
@@ -34,10 +35,20 @@ const IDEMPOTENT_POST_PATHS = new Set<string>([
 ]);
 
 const identityMiddleware: Middleware = {
-  onRequest({ request, schemaPath }) {
+  async onRequest({ request, schemaPath }) {
     const userId = getUserId();
     if (userId !== null) {
       request.headers.set("X-User-Id", userId);
+    }
+
+    // Trips and expenses require a real token (#118) — `X-User-Id` alone is a
+    // client-supplied string and the backend no longer trusts it for them.
+    // Attached here rather than per-hook so a new trip-backed query cannot ship
+    // without it; `authHeader()` returns {} when logged out or server-side, so
+    // public endpoints on this client are unaffected.
+    const auth = await authHeader();
+    for (const [key, value] of Object.entries(auth)) {
+      request.headers.set(key, value);
     }
 
     if (request.method === "POST" && IDEMPOTENT_POST_PATHS.has(schemaPath)) {

@@ -118,7 +118,13 @@ def test_load_context_node_returns_trip_context_not_messages():
         mock_scope.return_value.__exit__ = MagicMock(return_value=False)
         mock_svc.return_value.get_trip_detail.return_value = detail
 
-        state = {"messages": [HumanMessage(content="plan my trip")], "trip_id": "t1"}
+        # #118: the snapshot is loaded through the owner-scoped service, so the
+        # node needs a user_id in state as well as a trip_id.
+        state = {
+            "messages": [HumanMessage(content="plan my trip")],
+            "trip_id": "t1",
+            "user_id": "u1",
+        }
         result = load_context_node(state, SimpleNamespace())
 
     # trip_context carries the info

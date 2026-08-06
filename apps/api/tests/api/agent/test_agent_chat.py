@@ -84,6 +84,11 @@ def _make_app(
         return _graph
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = _override_graph
     # Test-only introspection hook: lets tests reach the same store/llm the
     # request handler sees. Deliberately NOT named `app.state.travel_graph` —
@@ -216,6 +221,11 @@ def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
     )
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = lambda: graph
     app.state.test_graph = graph
 
@@ -491,6 +501,12 @@ def test_trip_id_persists_across_turns_after_create_trip(tmp_path, monkeypatch):
         "",
         responses=[create_trip_call, "I've started a new trip for you.", "Sure thing!"],
     )
+    # #118: creating a trip now requires a signed-in traveller — an anonymous id
+    # is client-supplied, so a trip stamped with it would belong to whoever sends
+    # that string next. Act as the same user the request already claims.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     with TestClient(app) as c:
         resp1 = c.post(
             "/agent/chat",
@@ -597,6 +613,11 @@ def test_chat_fallback_reports_checkpointed_trip_id_not_stale_request_value(
             s.close()
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = lambda: wrapped_graph
 
     with TestClient(app) as c:
@@ -696,6 +717,11 @@ def test_chat_returns_fallback_when_graph_raises(tmp_path):
             raise RuntimeError("model provider down")
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
 
     with TestClient(app) as c:
