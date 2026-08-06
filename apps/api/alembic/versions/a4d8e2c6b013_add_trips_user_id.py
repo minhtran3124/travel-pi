@@ -12,9 +12,10 @@ that could have supplied one. Per the decision recorded in
 under a permanently-nullable column, which is what lets ``user_id`` be NOT NULL
 in a single revision.
 
-Deletes, in dependency order: ``expenses`` → ``trip_items`` → ``trips``, and
-clears ``conversations.trip_id`` so no conversation points at a deleted trip.
-``bookings`` and ``saved_places`` carry no ``trip_id`` and are untouched.
+Deletes, in dependency order: ``expenses`` → ``trip_items`` →
+``trip_place_link`` → ``trips``, and clears ``conversations.trip_id`` so no
+conversation points at a deleted trip. ``bookings`` and ``saved_places`` carry
+no ``trip_id`` and are untouched.
 
 ``downgrade()`` restores the schema, NOT the data. Take a backup before running
 this anywhere the rows matter.
@@ -42,13 +43,15 @@ def upgrade() -> None:
     # is not something an operator should have to diff the database to notice.
     counts = {
         table: bind.execute(sa.text(f"SELECT COUNT(*) FROM {table}")).scalar()
-        for table in ("trips", "trip_items", "expenses")
+        for table in ("trips", "trip_items", "expenses", "trip_place_link")
     }
     logger.warning(
-        "gh-118: deleting all ownerless trip data — trips=%s trip_items=%s expenses=%s",
+        "gh-118: deleting all ownerless trip data — "
+        "trips=%s trip_items=%s expenses=%s trip_place_link=%s",
         counts["trips"],
         counts["trip_items"],
         counts["expenses"],
+        counts["trip_place_link"],
     )
 
     # Children first: both reference a trip that is about to disappear.
@@ -80,7 +83,14 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Restore the schema. The deleted trips, items and expenses are NOT restored."""
+    """Restore the schema. The deleted trips, items and expenses are NOT restored.
+
+    Can fail on real post-upgrade data: uniqueness was per-owner while upgraded,
+    so two owners may hold the same ``idempotency_key``. Recreating the *global*
+    unique ``ix_trips_idempotency_key`` below then raises ``IntegrityError`` and
+    aborts the downgrade. De-duplicate ``idempotency_key`` across owners first if
+    you must roll this back on a database that took writes since the upgrade.
+    """
     with op.batch_alter_table("trips", schema=None) as batch_op:
         batch_op.drop_index("ix_trips_user_idempotency_key")
         batch_op.create_index(
