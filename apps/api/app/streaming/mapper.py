@@ -138,8 +138,17 @@ async def stream_agent_events(
 
             # Announce a specialist handoff the moment its namespace appears.
             if root in SUBAGENTS and root != current_subagent:
+                # Each queued sub-agent regenerates the whole turn answer, so a
+                # new specialist supersedes the previous draft. Emit reset so the
+                # FE and the persistence accumulator discard the prior answer.
+                if emitted_token:
+                    yield events.reset()
+                    emitted_token = False
                 current_subagent = root
                 yield events.subagent(root)
+                # A new sub-agent means a new message stream; do not treat its
+                # first chunk as a continuation of the previous message.
+                last_msg_id = None
 
             if mode == "messages":
                 # Only sub-agent assistant prose is user-facing. ToolNode output
