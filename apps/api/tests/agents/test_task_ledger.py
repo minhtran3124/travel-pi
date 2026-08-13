@@ -55,29 +55,33 @@ def _runtime(ctx: AgentContext) -> SimpleNamespace:
 # ---------------------------------------------------------------------------
 
 
-def test_ordered_plan_runs_all_steps_in_order():
+def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
+    # GH-117 Path A: a multi-step plan is dispatched to parallel synthesis
+    # workers; the synthesizer combines all findings into one answer.
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", plan=["concierge", "planner"])
         ],
-        main_responses=["flights found", "weather is clear", "itinerary drafted"],
+        main_responses=[
+            "flights found",
+            "weather is clear",
+            "itinerary drafted",
+            "combined answer",
+        ],
         fast_responses=["OK"],
     )
     out = _invoke(graph, "plan my Tokyo weekend: flights, weather, itinerary", "t-a")
 
-    # All three sub-agents ran and the ledger drained.
-    assert out["pending_flows"] == []
-    assert out["current_flow"] == "planner"  # last step to run
+    # All three specialist tasks ran and produced results.
+    agents = {r["agent"] for r in out.get("task_results", [])}
+    assert agents == {"planner", "concierge"}
 
+    # The graph ended after synthesis.
+    assert out["current_flow"] == "synthesis"
+
+    # The synthesized answer appears in the final messages.
     contents = [m.content for m in out["messages"]]
-    for answer in ("flights found", "weather is clear", "itinerary drafted"):
-        assert answer in contents
-    # Execution order preserved: target first, then each plan step in order.
-    assert (
-        contents.index("flights found")
-        < contents.index("weather is clear")
-        < contents.index("itinerary drafted")
-    )
+    assert "combined answer" in contents
 
 
 # ---------------------------------------------------------------------------
@@ -85,10 +89,13 @@ def test_ordered_plan_runs_all_steps_in_order():
 # ---------------------------------------------------------------------------
 
 
-def test_full_ledger_completes_within_recursion_limit():
-    # target + (MAX_LEDGER_STEPS - 1) follow-ons = MAX_LEDGER_STEPS total runs.
+def test_full_task_list_completes_within_recursion_limit():
+    # GH-117 Path A: target + (MAX_LEDGER_STEPS - 1) follow-ons run as parallel
+    # workers, then synthesize + reflection. The full graph must still complete
+    # under the default recursion limit.
     follow_ons = ["concierge", "journal", "budget"][: MAX_LEDGER_STEPS - 1]
-    answers = [f"answer {i}" for i in range(MAX_LEDGER_STEPS)]
+    worker_count = 1 + len(follow_ons)
+    answers = [f"answer {i}" for i in range(worker_count)] + ["combined answer"]
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", plan=follow_ons)
@@ -101,9 +108,9 @@ def test_full_ledger_completes_within_recursion_limit():
     # this line (invoke returned) is itself the recursion-headroom assertion.
     out = _invoke(graph, "do everything", "t-b", recursion_limit=25)
 
-    # The whole ledger drained, in order, down to the last follow-on.
-    assert out["pending_flows"] == []
-    assert out["current_flow"] == follow_ons[-1]
+    # Every worker produced a result and the graph ended at synthesis.
+    assert len(out.get("task_results", [])) == worker_count
+    assert out["current_flow"] == "synthesis"
 
 
 # ---------------------------------------------------------------------------

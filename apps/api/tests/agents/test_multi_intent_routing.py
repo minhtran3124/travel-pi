@@ -13,7 +13,7 @@ Covers:
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 
@@ -37,29 +37,29 @@ def _invoke(graph, msg: str, thread_id: str):
     )
 
 
-def test_two_intents_run_sequentially_then_reflection():
+def test_two_intents_run_in_parallel_then_synthesize():
+    # GH-117 Path A: two intents are dispatched to parallel synthesis workers,
+    # then a synthesizer combines their findings into one final answer.
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", secondary_agent="concierge")
         ],
-        main_responses=["flights found", "here's what to see"],
+        main_responses=["flights found", "here's what to see", "combined answer"],
         fast_responses=["OK"],
     )
     out = _invoke(
         graph, "flights to Tokyo and things to do there", thread_id="t-multi-1"
     )
 
-    # Both sub-agents ran, drained the queue, and left the graph at reflection's
-    # END — current_flow reflects the last (secondary) sub-agent to run.
-    assert out["current_flow"] == "concierge"
-    assert out["pending_flows"] == []
+    assert out["current_flow"] == "synthesis"
 
-    contents = [m.content for m in out["messages"]]
-    assert "flights found" in contents
-    assert "here's what to see" in contents
-    # Sequential: planner ran (and is visible in state) before concierge ran —
-    # i.e. the second sub-agent saw the first one's message.
-    assert contents.index("flights found") < contents.index("here's what to see")
+    # Both specialists contributed structured findings.
+    agents = {r["agent"] for r in out.get("task_results", [])}
+    assert agents == {"planner", "concierge"}
+
+    # The final assistant message is the synthesized answer.
+    contents = [m.content for m in out["messages"] if isinstance(m, AIMessage)]
+    assert "combined answer" in contents
 
 
 def test_single_intent_goes_straight_to_reflection_unchanged():

@@ -16,6 +16,25 @@ from langchain_core.messages import SystemMessage
 from langgraph.graph import MessagesState
 
 
+def _replace_tasks(old: list[dict] | None, new: list[dict] | None) -> list[dict]:
+    """Reducer for ``TravelAgentState.tasks``.
+
+    Stores tasks as plain dicts to avoid checkpoint serde issues with Pydantic
+    models. Last-write-wins so the supervisor can reset the task list every turn.
+    """
+    return list(new or [])
+
+
+def _append_results(old: list[dict] | None, new: list[dict] | None) -> list[dict]:
+    """Reducer for ``TravelAgentState.task_results``.
+
+    Parallel synthesis workers each append one plain-dict result. The reducer
+    preserves all results so the synthesizer can combine them after every worker
+    finishes.
+    """
+    return list(old or []) + list(new or [])
+
+
 def merge_trip_facts(old: dict | None, new: dict | None) -> dict:
     """Reducer for ``TravelAgentState.trip_facts`` (MIN-65 DESIGN D1).
 
@@ -101,6 +120,12 @@ class TravelAgentState(MessagesState):
         list[str], _replace_message_ids
     ]  # IDs of prior sub-agent prose answers that follow-on sub-agents should
     # not see, so they do not regenerate the same full answer (GH-117 follow-up)
+    tasks: Annotated[
+        list[dict], _replace_tasks
+    ]  # GH-117 Path A: ordered decomposition from supervisor into synthesis workers
+    task_results: Annotated[
+        list[dict], _append_results
+    ]  # GH-117 Path A: structured results gathered by parallel workers
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:

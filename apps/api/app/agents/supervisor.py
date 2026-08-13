@@ -1,8 +1,9 @@
 """Supervisor routing node (specs/travel-agent Task 5.3).
 
-Classifies the user's intent with structured output and hands off to one
-specialist sub-agent via ``Command(goto=...)`` — the inter-agent routing seam.
-Unknown intent ends gracefully with a fallback message.
+Classifies the user's intent with structured output and emits an ordered task
+list. A downstream conditional edge decides whether to route to the existing
+static sub-agent nodes, the HITL plan node, or parallel synthesis workers via
+``Send``. Unknown intent ends gracefully with a fallback message.
 """
 
 from __future__ import annotations
@@ -13,14 +14,14 @@ from datetime import date
 from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
-from langgraph.graph import END
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
 from langgraph.types import Command
 from pydantic import BaseModel, Field
 
 from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
+from app.agents.schemas import AgentTask
 from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
 from app.prompts.registry import registry
@@ -264,8 +265,7 @@ def make_supervisor(llm: BaseChatModel):
                     "messages": [
                         AIMessage(content="I'm not sure how to help with that yet.")
                     ]
-                },
-                goto=END,
+                }
             )
         # Tier gate (D.1): if the resolved context restricts sub-agents and the
         # chosen target is not in the allow-list, degrade gracefully instead of
@@ -274,12 +274,8 @@ def make_supervisor(llm: BaseChatModel):
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
             logger.info("[agent] supervisor → END (tier-gated: %s)", target)
             return Command(
-                update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]},
-                goto=END,
+                update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]}
             )
-        # Route booking through the HITL plan-approval node first.
-        next_node = "plan" if target == "booking" else target
-        logger.info("[agent] supervisor → %s (intent=%s)", next_node, target)
         # Persist the detected language. The `or` fallback fires only when the model
         # returns a falsy/empty code — it does not pin the language, so a genuine,
         # model-reported switch still flows through `intent.language`.
@@ -289,6 +285,10 @@ def make_supervisor(llm: BaseChatModel):
         trip_facts = _normalize_slots(
             getattr(intent, "slots", None), today_in_timezone(ctx.timezone)
         )
+        # GH-117 Path A: build an ordered task list. The primary intent is task 0;
+        # each queued follow-on becomes task 1, 2, etc. Booking as a target still
+        # produces one task so the routing edge can send it through the HITL plan
+        # node, but booking is never queued as a follow-on task.
         # P1 task ledger: the supervisor may emit an ordered ``plan`` of follow-on
         # sub-agents to run this turn after ``target``; fall back to the legacy
         # single ``secondary_agent`` when ``plan`` is absent. An ordered plan is
@@ -309,6 +309,7 @@ def make_supervisor(llm: BaseChatModel):
             legacy = getattr(intent, "secondary_agent", None)
             candidates, drop_target_dup = ([legacy] if legacy else []), True
         pending_flows: list[str] = []
+        task_agents: list[str] = [target]
         if target != "booking":
             for step in candidates:
                 if len(pending_flows) >= MAX_LEDGER_STEPS - 1:
@@ -323,14 +324,27 @@ def make_supervisor(llm: BaseChatModel):
                 ):
                     continue
                 pending_flows.append(step)
+                task_agents.append(step)
+        # Use the last user message as the query for every task. Each worker
+        # prompt narrows the focus to the specialist's domain.
+        last_user_message = ""
+        for msg in reversed(state.get("messages", [])):
+            if isinstance(msg, HumanMessage):
+                last_user_message = str(msg.content or "")
+                break
+        tasks = [
+            AgentTask(agent=agent, query=last_user_message, index=idx).model_dump()
+            for idx, agent in enumerate(task_agents)
+        ]
+        logger.info("[agent] supervisor tasks=%d (intent=%s)", len(tasks), target)
         return Command(
             update={
                 "current_flow": target,
                 "language": lang,
                 "trip_facts": trip_facts,
                 "pending_flows": pending_flows,
-            },
-            goto=next_node,
+                "tasks": tasks,
+            }
         )
 
     return supervisor

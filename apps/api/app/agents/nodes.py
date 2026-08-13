@@ -23,7 +23,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
-from langgraph.types import Command, interrupt
+from langgraph.types import Command, Send, interrupt
 
 from app.agents.constants import (
     ALL_SUBAGENTS,
@@ -72,10 +72,13 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # last turn must not abandon THIS turn's fresh ledger.
     # GH-117 follow-up: the per-turn message-hide list must not leak into the next
     # turn, otherwise the next sub-agent would hide the previous turn's answer.
+    # GH-117 Path A: task state is also per-turn.
     result: dict = {
         "plan_approved": False,
         "awaiting_user": False,
         "superseded_message_ids": [],
+        "tasks": [],
+        "task_results": [],
     }
     trip_id = state.get("trip_id")
     owner = state.get("user_id")
@@ -158,6 +161,48 @@ def make_summarize_node(llm: BaseChatModel):
         return {"summary": summary, "messages": to_remove}
 
     return summarize
+
+
+def make_synthesize_node(llm: BaseChatModel):
+    """Return a node that combines parallel worker results into one answer.
+
+    GH-117 Path A: sorts the structured results from parallel workers and asks
+    the LLM to write a single concise, helpful answer in the traveller's language.
+
+    :param llm: Chat model used for synthesis.
+    :return: A node function ``synthesize(state) -> dict``.
+    """
+    system = SystemMessage(
+        content=(
+            "You are the travel assistant. Combine the specialist findings below "
+            "into one concise, helpful answer in the traveller's own language. "
+            "Do not repeat raw tool data; translate findings into guidance. "
+            "If the findings are empty or unhelpful, say you are still looking into it."
+        )
+    )
+
+    def synthesize(state: TravelAgentState) -> dict:
+        results = sorted(
+            state.get("task_results") or [], key=lambda r: r.get("index", 0)
+        )
+        language = state.get("language", "en")
+        bullets = "\n".join(
+            f"- {r.get('agent', 'specialist')}: {r.get('findings', '')}"
+            for r in results
+        )
+        prompt = (
+            f"Conversation language: {language}\n\n"
+            f"Specialist findings:\n{bullets}\n\n"
+            "Write the final answer."
+        )
+        answer = llm.invoke([system, HumanMessage(content=prompt)]).content
+        return {
+            "messages": [AIMessage(content=str(answer))],
+            "task_results": [],
+            "current_flow": "synthesis",
+        }
+
+    return synthesize
 
 
 def make_reflection_node(
@@ -249,6 +294,57 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
+
+
+def synthesis_worker(state: TravelAgentState) -> Command:
+    """Stub worker that accepts a task via ``Send`` and returns a dummy result.
+
+    GH-117 Path A: wave 2 will replace this with a full ReAct subgraph per
+    specialist. The stub lets the graph compile and the conditional edge route
+    multi-intent turns through ``synthesize``.
+
+    :param state: State slice containing ``task``.
+    :return: ``Command(goto="synthesize")`` with a placeholder result dict.
+    """
+    task = state.get("task") or {}
+    agent = task.get("agent", "unknown")
+    index = task.get("index", 0)
+    return Command(
+        update={
+            "task_results": [
+                {"agent": agent, "index": index, "findings": f"Stub findings from {agent}."}
+            ]
+        },
+        goto="synthesize",
+    )
+
+
+def route_tasks(state: TravelAgentState) -> str | list[Send]:
+    """Route from supervisor to static sub-agent, HITL plan, or parallel workers.
+
+    GH-117 Path A: the supervisor now writes an ordered ``tasks`` list. This
+    edge preserves the existing static sub-agent path for single-intent turns
+    and dispatches multi-intent turns to parallel ``synthesis_worker`` instances
+    via ``Send``.
+
+    :param state: Current graph state; reads ``tasks``.
+    :return: A node name for single-intent / HITL paths, a list of ``Send`` objects
+        for multi-intent parallel dispatch, or ``END`` when no tasks are present.
+    """
+    tasks = state.get("tasks") or []
+    if not tasks:
+        logger.info("[agent] route_tasks → END (no tasks)")
+        return END
+    first = tasks[0]
+    first_agent = first.get("agent", "")
+    if first_agent == "booking":
+        logger.info("[agent] route_tasks → plan (booking HITL)")
+        return "plan"
+    if len(tasks) == 1:
+        logger.info("[agent] route_tasks → %s (single task)", first_agent)
+        return first_agent
+    logger.info("[agent] route_tasks → synthesis_workers (%d parallel)", len(tasks))
+    return [Send("synthesis_worker", {"task": t}) for t in tasks]
 
 
 def _last_subagent_answer_id(state: TravelAgentState) -> str | None:

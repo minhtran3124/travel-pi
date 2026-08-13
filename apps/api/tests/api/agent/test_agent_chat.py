@@ -188,12 +188,10 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
-def test_chat_multi_intent_turn_returns_last_subagent_answer(tmp_path):
-    """Regression (#117): a multi-intent turn (MIN-65 dispatch_next) must return
-    a single, non-duplicated answer from /agent/chat. Each queued sub-agent is a
-    full ReAct loop that regenerates the whole turn, so only the last
-    specialist's answer is kept — matching the SSE path's "last answer wins"
-    semantics."""
+def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
+    """Regression (#117 Path A): a multi-intent turn runs parallel workers and
+    returns a single synthesized answer from /agent/chat — no duplicated prose
+    from intermediate specialists."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -210,12 +208,14 @@ def test_chat_multi_intent_turn_returns_last_subagent_answer(tmp_path):
         finally:
             s.close()
 
+    # Provide enough responses for two workers + synthesizer across both the
+    # /agent/chat and /agent/stream invocations.
     main = FakeLLM(
         structured_responses=[
             SupervisorIntent(target_agent="planner", secondary_agent="concierge")
         ]
         * 6,
-        responses=["flights found", "here's what to see"] * 3,
+        responses=["flights found", "here's what to see", "combined answer"] * 3,
     )
     fast = FakeLLM(responses=["OK"] * 6)
     graph = build_graph(
@@ -241,15 +241,13 @@ def test_chat_multi_intent_turn_returns_last_subagent_answer(tmp_path):
         )
     assert resp.status_code == 200
     reply = resp.json()["reply"]
-    assert "flights found" not in reply
-    assert "here's what to see" in reply
+    # The final answer is the synthesizer's output, not raw worker findings.
+    assert reply == "combined answer"
 
 
 def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
     """Regression (#117 acceptance): /agent/chat and /agent/stream must agree on
-    the final answer text for a multi-intent turn. Both paths are driven by the
-    same scripted FakeLLM so any divergence is in the transport assembly, not the
-    graph output."""
+    the final synthesized answer text for a multi-intent turn."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -271,7 +269,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
             SupervisorIntent(target_agent="planner", secondary_agent="concierge")
         ]
         * 6,
-        responses=["flights found", "here's what to see"] * 3,
+        responses=["flights found", "here's what to see", "combined answer"] * 3,
     )
     fast = FakeLLM(responses=["OK"] * 6)
     graph = build_graph(
@@ -307,8 +305,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
         stream_text = stream_resp.text
 
     # Accumulate tokens like the FE / persistence layer: append token content,
-    # but clear the buffer on every reset event. The final buffer is the answer
-    # from the last sub-agent (the same "last answer wins" rule REST uses).
+    # but clear the buffer on every reset event.
     accumulated = ""
     for raw_event in stream_text.split("\n\n"):
         if not raw_event.strip():
@@ -327,7 +324,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
             accumulated = ""
 
     assert chat_reply == accumulated
-    assert "here's what to see" in chat_reply
+    assert chat_reply == "combined answer"
     assert "flights found" not in chat_reply
 
 

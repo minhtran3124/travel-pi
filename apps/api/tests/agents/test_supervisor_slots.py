@@ -180,10 +180,13 @@ def test_no_slots_mentioned_routing_unchanged():
 
     cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
 
-    assert cmd.goto == "planner"
+    assert cmd.goto == ()
     assert cmd.update["current_flow"] == "planner"
     assert cmd.update["trip_facts"] == {}
     assert cmd.update["pending_flows"] == []
+    assert cmd.update["tasks"] == [
+        {"agent": "planner", "query": "plan my trip", "index": 0}
+    ]
 
 
 # ---------------------------------------------------------------------------
