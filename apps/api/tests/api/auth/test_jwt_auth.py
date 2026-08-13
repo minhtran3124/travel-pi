@@ -71,6 +71,7 @@ class _FakeJWKSClient:
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     settings = Settings(
+        supabase_url=None,
         supabase_project_ref=PROJECT_REF,
         supabase_jwt_audience=AUDIENCE,
     )

@@ -51,6 +51,16 @@ def last_write_wins(old: bool, new: bool) -> bool:
     return new
 
 
+def _replace_message_ids(old: list[str] | None, new: list[str] | None) -> list[str]:
+    """Reducer for ``TravelAgentState.superseded_message_ids``.
+
+    Last-write-wins so ``load_context_node`` can reset the list at the start of
+    every turn, while ``dispatch_next`` can replace it with the accumulated set
+    of hidden messages within the current turn. No parallel writes expected.
+    """
+    return list(new or [])
+
+
 class TravelAgentState(MessagesState):
     """Conversation + working state for the travel agent.
 
@@ -87,6 +97,10 @@ class TravelAgentState(MessagesState):
     # blocked on the traveller; dispatch_next then abandons the remaining
     # ledger for this turn instead of draining it (MIN-68); reducer: duplicate
     # parallel writes must not crash the turn
+    superseded_message_ids: Annotated[
+        list[str], _replace_message_ids
+    ]  # IDs of prior sub-agent prose answers that follow-on sub-agents should
+    # not see, so they do not regenerate the same full answer (GH-117 follow-up)
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:

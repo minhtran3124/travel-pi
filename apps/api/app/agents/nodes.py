@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
@@ -70,7 +70,13 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # snapshot before the *next* turn's load_context clears it.
     # awaiting_user is likewise single-turn (MIN-68): a clarifying question asked
     # last turn must not abandon THIS turn's fresh ledger.
-    result: dict = {"plan_approved": False, "awaiting_user": False}
+    # GH-117 follow-up: the per-turn message-hide list must not leak into the next
+    # turn, otherwise the next sub-agent would hide the previous turn's answer.
+    result: dict = {
+        "plan_approved": False,
+        "awaiting_user": False,
+        "superseded_message_ids": [],
+    }
     trip_id = state.get("trip_id")
     owner = state.get("user_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
@@ -245,6 +251,23 @@ def plan_node(state: TravelAgentState) -> Command:
     )
 
 
+def _last_subagent_answer_id(state: TravelAgentState) -> str | None:
+    """Return the id of the last content-bearing sub-agent answer, if any.
+
+    Tool-call-only AIMessages and intermediate ToolMessages are skipped; we
+    only want to hide the prose answer the traveller saw, so the next queued
+    sub-agent does not regenerate the same full turn answer.
+    """
+    for msg in reversed(state.get("messages", [])):
+        if isinstance(msg, AIMessage) and getattr(msg, "content", None):
+            return getattr(msg, "id", None)
+        # Stop at the traveller's original message or a tool result that is not
+        # part of the answer — the answer is the contiguous trailing AIMessage.
+        if isinstance(msg, (HumanMessage, ToolMessage)):
+            break
+    return None
+
+
 def dispatch_next(state: TravelAgentState) -> Command:
     """Drain the next step of the task ledger, or on to reflection (MIN-65 D4).
 
@@ -294,6 +317,17 @@ def dispatch_next(state: TravelAgentState) -> Command:
             )
             return Command(update={"pending_flows": []}, goto="reflection")
         logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
-        return Command(update={"current_flow": nxt, "pending_flows": rest}, goto=nxt)
+        # GH-117 follow-up: hide the just-finished sub-agent's prose answer from
+        # the follow-on sub-agent so it does not regenerate the same full turn
+        # answer. Tool results remain visible, so the follow-on can build on the
+        # facts already gathered. The reducer is last-write-wins, so emit the
+        # full accumulated list for this turn.
+        update: dict = {"current_flow": nxt, "pending_flows": rest}
+        superseded_id = _last_subagent_answer_id(state)
+        if superseded_id:
+            update["superseded_message_ids"] = list(
+                set(state.get("superseded_message_ids") or []) | {superseded_id}
+            )
+        return Command(update=update, goto=nxt)
     logger.info("[agent] dispatch_next → reflection (queue empty)")
     return Command(goto="reflection")

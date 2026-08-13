@@ -188,10 +188,12 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
-def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
-    """Regression (ce-code-review finding): a multi-intent turn (MIN-65
-    dispatch_next) must not silently drop the first sub-agent's answer from
-    the non-streaming REST reply — both answers must be present."""
+def test_chat_multi_intent_turn_returns_last_subagent_answer(tmp_path):
+    """Regression (#117): a multi-intent turn (MIN-65 dispatch_next) must return
+    a single, non-duplicated answer from /agent/chat. Each queued sub-agent is a
+    full ReAct loop that regenerates the whole turn, so only the last
+    specialist's answer is kept — matching the SSE path's "last answer wins"
+    semantics."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -239,16 +241,97 @@ def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
         )
     assert resp.status_code == 200
     reply = resp.json()["reply"]
-    assert "flights found" in reply
+    assert "flights found" not in reply
     assert "here's what to see" in reply
 
 
-def test_chat_returns_flow_scoped_suggestions(client):
-    """A completed turn returns a `suggestions` list of keys prefixed by the flow.
+def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
+    """Regression (#117 acceptance): /agent/chat and /agent/stream must agree on
+    the final answer text for a multi-intent turn. Both paths are driven by the
+    same scripted FakeLLM so any divergence is in the transport assembly, not the
+    graph output."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
 
-    The `client` fixture routes to `concierge`, so every suggestion key must start
-    with `concierge.` and the list must be non-empty (MIN-55, Task 2.1).
-    """
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    main = FakeLLM(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+        ]
+        * 6,
+        responses=["flights found", "here's what to see"] * 3,
+    )
+    fast = FakeLLM(responses=["OK"] * 6)
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: graph
+    app.state.test_graph = graph
+
+    with TestClient(app) as c:
+        chat_resp = c.post(
+            "/agent/chat",
+            json={
+                "message": "flights to Tokyo and things to do there",
+                "user_id": "u1",
+            },
+        )
+        assert chat_resp.status_code == 200
+        chat_reply = chat_resp.json()["reply"]
+
+        stream_resp = c.post(
+            "/agent/stream",
+            json={
+                "message": "flights to Tokyo and things to do there",
+                "user_id": "u1",
+            },
+        )
+        assert stream_resp.status_code == 200
+        stream_text = stream_resp.text
+
+    # Accumulate tokens like the FE / persistence layer: append token content,
+    # but clear the buffer on every reset event. The final buffer is the answer
+    # from the last sub-agent (the same "last answer wins" rule REST uses).
+    accumulated = ""
+    for raw_event in stream_text.split("\n\n"):
+        if not raw_event.strip():
+            continue
+        lines = raw_event.strip().split("\n")
+        if not lines:
+            continue
+        event_name = lines[0][len("event: "):]
+        data_line = next((ln for ln in lines if ln.startswith("data: ")), None)
+        if data_line is None:
+            continue
+        payload = json.loads(data_line[len("data: "):])
+        if event_name == "token":
+            accumulated += payload.get("content", "")
+        elif event_name == "reset":
+            accumulated = ""
+
+    assert chat_reply == accumulated
+    assert "here's what to see" in chat_reply
+    assert "flights found" not in chat_reply
+
+
+def test_chat_returns_flow_scoped_suggestions(client):
     resp = client.post(
         "/agent/chat",
         json={"message": "What should I see in Tokyo?", "user_id": "u1"},
