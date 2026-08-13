@@ -51,6 +51,21 @@ def last_write_wins(old: bool, new: bool) -> bool:
     return new
 
 
+def _union_message_ids(old: list[str] | None, new: list[str] | None) -> list[str]:
+    """Reducer for ``TravelAgentState.superseded_message_ids``.
+
+    Deduplicated append so multiple nodes can each flag messages to hide from
+    follow-on sub-agents without crashing on parallel writes.
+    """
+    seen = set(old or [])
+    result = list(old or [])
+    for item in new or []:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
 class TravelAgentState(MessagesState):
     """Conversation + working state for the travel agent.
 
@@ -87,6 +102,10 @@ class TravelAgentState(MessagesState):
     # blocked on the traveller; dispatch_next then abandons the remaining
     # ledger for this turn instead of draining it (MIN-68); reducer: duplicate
     # parallel writes must not crash the turn
+    superseded_message_ids: Annotated[
+        list[str], _union_message_ids
+    ]  # IDs of prior sub-agent prose answers that follow-on sub-agents should
+    # not see, so they do not regenerate the same full answer (GH-117 follow-up)
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
