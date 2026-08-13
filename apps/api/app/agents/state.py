@@ -51,19 +51,14 @@ def last_write_wins(old: bool, new: bool) -> bool:
     return new
 
 
-def _union_message_ids(old: list[str] | None, new: list[str] | None) -> list[str]:
+def _replace_message_ids(old: list[str] | None, new: list[str] | None) -> list[str]:
     """Reducer for ``TravelAgentState.superseded_message_ids``.
 
-    Deduplicated append so multiple nodes can each flag messages to hide from
-    follow-on sub-agents without crashing on parallel writes.
+    Last-write-wins so ``load_context_node`` can reset the list at the start of
+    every turn, while ``dispatch_next`` can replace it with the accumulated set
+    of hidden messages within the current turn. No parallel writes expected.
     """
-    seen = set(old or [])
-    result = list(old or [])
-    for item in new or []:
-        if item not in seen:
-            seen.add(item)
-            result.append(item)
-    return result
+    return list(new or [])
 
 
 class TravelAgentState(MessagesState):
@@ -103,7 +98,7 @@ class TravelAgentState(MessagesState):
     # ledger for this turn instead of draining it (MIN-68); reducer: duplicate
     # parallel writes must not crash the turn
     superseded_message_ids: Annotated[
-        list[str], _union_message_ids
+        list[str], _replace_message_ids
     ]  # IDs of prior sub-agent prose answers that follow-on sub-agents should
     # not see, so they do not regenerate the same full answer (GH-117 follow-up)
 
