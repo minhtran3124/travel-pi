@@ -198,7 +198,6 @@ def make_synthesize_node(llm: BaseChatModel):
         answer = llm.invoke([system, HumanMessage(content=prompt)]).content
         return {
             "messages": [AIMessage(content=str(answer))],
-            "task_results": [],
             "current_flow": "synthesis",
         }
 

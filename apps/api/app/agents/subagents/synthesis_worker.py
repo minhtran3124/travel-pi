@@ -41,22 +41,6 @@ _AGENT_BUILDERS: dict[
 }
 
 
-def _resolve_for_agent(
-    name: str,
-    resolve_model: Callable[[str | None], BaseChatModel],
-) -> Callable[[str | None], BaseChatModel]:
-    """Return a resolver that always hands back the model for ``name``.
-
-    The inner sub-agent will call its resolver with its own name, but we want it
-    to use the same model configuration as the worker's requested specialist.
-    """
-
-    def resolve(_hint: str | None = None) -> BaseChatModel:
-        return resolve_model(None)
-
-    return resolve
-
-
 def _last_assistant_content(messages: list[Any]) -> str:
     """Return the content of the last content-bearing AIMessage, or empty."""
     for msg in reversed(messages):
@@ -66,15 +50,15 @@ def _last_assistant_content(messages: list[Any]) -> str:
 
 
 def build_synthesis_worker(
-    llm: BaseChatModel,
+    resolve_model: Callable[[str, str | None], BaseChatModel],
 ) -> Callable[[TravelAgentState, Runtime[AgentContext]], Command]:
     """Return a sync worker node that runs one specialist and returns a result.
 
     The returned node is intended to be added once to the parent graph under the
     name ``synthesis_worker``. It reads ``state["task"]`` to determine which
-    specialist to invoke.
+    specialist to invoke, then resolves that specialist's own model.
 
-    :param llm: Chat model used by every specialist worker.
+    :param resolve_model: Callable ``(agent_name, ctx_model_hint) -> chat_model``.
     :return: A sync node function.
     """
 
@@ -95,7 +79,7 @@ def build_synthesis_worker(
                 goto="synthesize",
             )
 
-        subagent = builder(lambda _hint=None: llm)
+        subagent = builder(lambda hint=None: resolve_model(agent_name, hint))
         # Run the inner sub-agent graph. We pass the current conversation plus
         # the task so the specialist has full context. The inner graph appends
         # its prose answer to its own messages copy; we extract that answer as

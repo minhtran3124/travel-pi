@@ -136,6 +136,7 @@ async def stream_agent_events(
     emitted_tool_calls: set[str] = set()
     emitted_token: bool = False
     pending_flows: list[str] = []
+    synthesize_answer_emitted: bool = False
 
     try:
         async for ns, mode, data in graph.astream(
@@ -180,14 +181,18 @@ async def stream_agent_events(
                     continue
                 node_name = _node_name_from_meta(meta)
                 # Top-level synthesizer is the final answer for multi-intent.
-                # LangGraph emits two message events for the same top-level
-                # assistant call (one from the model, one from the graph); use
-                # the model-originated event (ls_integration == langchain_chat_model)
-                # and skip the duplicate graph event.
+                # LangGraph emits the synthesized message more than once for the
+                # same node execution (model stream + graph update). The
+                # synthesize node currently uses llm.invoke(), so there is exactly
+                # one meaningful answer event per run; emit the first one and
+                # suppress the duplicate without relying on provider-specific
+                # metadata fields.
                 if root is None and node_name == "synthesize":
-                    if meta.get("ls_integration") == "langchain_chat_model":
-                        emitted_token = True
-                        yield events.token(content)
+                    if synthesize_answer_emitted:
+                        continue
+                    synthesize_answer_emitted = True
+                    emitted_token = True
+                    yield events.token(content)
                     continue
                 # Suppress prose from synthesis workers and their inner sub-agents.
                 if root == "synthesis_worker" or (

@@ -144,9 +144,17 @@ def build_graph(
         dispatch_next,
         destinations=(*SUBAGENTS, "reflection"),
     )
+    def worker_resolve(agent_name: str, ctx_model: str | None = None) -> BaseChatModel:
+        """Resolve the per-specialist model for parallel synthesis workers.
+
+        Mirrors ``resolver_for`` but selects the specialist at worker runtime
+        (the worker learns which agent it is running from ``state["task"]``).
+        """
+        return resolver_for(agent_name)(ctx_model)
+
     builder.add_node(
         "synthesis_worker",
-        build_synthesis_worker(pick("supervisor")),
+        build_synthesis_worker(worker_resolve),
     )
     builder.add_node(
         "synthesize",

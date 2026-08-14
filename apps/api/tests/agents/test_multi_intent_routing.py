@@ -126,3 +126,34 @@ def test_booking_hitl_detour_untouched_by_dispatch():
     # No secondary intent was ever queued for booking — dispatch_next falls
     # straight through to reflection exactly as the old direct edge did.
     assert resumed["pending_flows"] == []
+
+
+def test_task_results_cleared_between_turns():
+    # GH-117 Path A regression: task_results must not leak from one turn to the
+    # next. load_context_node resets them at the start of every turn.
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", secondary_agent="concierge"),
+            SupervisorIntent(target_agent="concierge"),
+        ],
+        main_responses=[
+            "flights found",
+            "here's what to see",
+            "combined answer",
+            "sunny today",
+        ],
+        fast_responses=["OK", "OK"],
+    )
+    thread_id = "t-clear-results"
+    first = _invoke(
+        graph, "flights to Tokyo and things to do there", thread_id=thread_id
+    )
+    assert {r["agent"] for r in first.get("task_results", [])} == {
+        "planner",
+        "concierge",
+    }
+
+    second = _invoke(graph, "what's the weather in Tokyo?", thread_id=thread_id)
+    assert second["current_flow"] == "concierge"
+    # Results from the previous multi-intent turn must not survive.
+    assert second.get("task_results") == []

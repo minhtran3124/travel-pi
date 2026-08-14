@@ -30,9 +30,13 @@ def _append_results(old: list[dict] | None, new: list[dict] | None) -> list[dict
 
     Parallel synthesis workers each append one plain-dict result. The reducer
     preserves all results so the synthesizer can combine them after every worker
-    finishes.
+    finishes. An explicit empty list is treated as a reset (used by
+    ``load_context_node`` and ``make_synthesize_node`` between turns); workers
+    always return a non-empty list with one result.
     """
-    return list(old or []) + list(new or [])
+    if not new:
+        return []
+    return list(old or []) + list(new)
 
 
 def merge_trip_facts(old: dict | None, new: dict | None) -> dict:
