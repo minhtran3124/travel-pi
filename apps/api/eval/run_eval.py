@@ -42,8 +42,12 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
         cmd = supervisor({"messages": [HumanMessage(content=item["input"])]}, runtime)
         # Use current_flow (the semantic intent) rather than goto: booking now
         # routes through plan_node first, so goto="plan" but current_flow="booking".
+        # GH-117 Path A: supervisor no longer uses Command(goto=...); an empty
+        # goto (or END) means the turn ends without routing to a sub-agent.
+        goto = cmd.goto
+        has_routing = isinstance(goto, str) and goto != END
         predicted = (cmd.update or {}).get("current_flow") or (
-            "none" if cmd.goto == END else cmd.goto
+            "none" if not has_routing else goto
         )
         results.append(
             {
