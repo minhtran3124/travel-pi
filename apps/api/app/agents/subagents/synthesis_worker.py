@@ -90,11 +90,24 @@ def build_synthesis_worker(
         inner_state["current_flow"] = agent_name
         result = subagent.invoke(inner_state, config=getattr(runtime, "config", None))
         findings = _last_assistant_content(result.get("messages", []))
+
+        # GH-117 Path A / Codex Comment 2: tools inside the worker may mutate
+        # graph state (e.g. create_trip sets trip_id, needs_clarification sets
+        # awaiting_user). Compare the inner result with the input snapshot and
+        # propagate only fields that actually changed. This avoids parallel
+        # workers overwriting a sibling's mutation with an unchanged value.
+        state_updates: dict[str, Any] = {}
+        for key in ("trip_id", "awaiting_user"):
+            new_val = result.get(key)
+            if new_val != inner_state.get(key):
+                state_updates[key] = new_val
+
         return Command(
             update={
                 "task_results": [
                     {"agent": agent_name, "index": index, "findings": findings}
-                ]
+                ],
+                **state_updates,
             },
             goto="synthesize",
         )

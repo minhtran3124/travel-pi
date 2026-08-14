@@ -295,29 +295,6 @@ def plan_node(state: TravelAgentState) -> Command:
     )
 
 
-def synthesis_worker(state: TravelAgentState) -> Command:
-    """Stub worker that accepts a task via ``Send`` and returns a dummy result.
-
-    GH-117 Path A: wave 2 will replace this with a full ReAct subgraph per
-    specialist. The stub lets the graph compile and the conditional edge route
-    multi-intent turns through ``synthesize``.
-
-    :param state: State slice containing ``task``.
-    :return: ``Command(goto="synthesize")`` with a placeholder result dict.
-    """
-    task = state.get("task") or {}
-    agent = task.get("agent", "unknown")
-    index = task.get("index", 0)
-    return Command(
-        update={
-            "task_results": [
-                {"agent": agent, "index": index, "findings": f"Stub findings from {agent}."}
-            ]
-        },
-        goto="synthesize",
-    )
-
-
 def route_tasks(state: TravelAgentState) -> str | list[Send]:
     """Route from supervisor to static sub-agent, HITL plan, or parallel workers.
 
