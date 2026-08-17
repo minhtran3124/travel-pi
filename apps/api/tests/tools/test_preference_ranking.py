@@ -22,6 +22,29 @@ from app.tools.hotel_tools import (
     search_hotels,
 )
 
+
+def _is_evening(flight: dict) -> bool:
+    return datetime.fromisoformat(flight["departure_time"]).hour >= 18
+
+
+def _find_han_sgn_date_with_evening_flight() -> str:
+    """Return a future HAN->SGN date whose fixture includes an evening flight.
+
+    ``generate_flights`` samples hours uniformly from 05-22, so about 20% of
+    dates have no evening departure. Looping forward avoids flaky failures when
+    ``datetime.now() + 10 days`` happens to land on one of those dates.
+    """
+    for days in range(1, 90):
+        departure = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+        _, artifact = search_flights.func(
+            origin="HAN", destination="SGN", departure_date=departure
+        )
+        flights = artifact["data"]["flights"]
+        if any(_is_evening(f) for f in flights):
+            return departure
+    raise RuntimeError("No fixture date with an evening HAN->SGN flight found")
+
+
 # --- rank_by_preference: pure unit tests -----------------------------------
 
 
@@ -297,7 +320,7 @@ def test_search_hotels_wires_preferences_into_summary(agent_db):
 
 
 def test_search_flights_prioritizes_time_of_day_preference(agent_db):
-    departure = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+    departure = _find_han_sgn_date_with_evening_flight()
     kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": departure}
     baseline = search_flights.func(**kwargs)
     boosted = search_flights.func(
@@ -307,32 +330,29 @@ def test_search_flights_prioritizes_time_of_day_preference(agent_db):
     baseline_flights = baseline[1]["data"]["flights"]
     boosted_flights = boosted[1]["data"]["flights"]
 
-    def is_evening(flight: dict) -> bool:
-        return datetime.fromisoformat(flight["departure_time"]).hour >= 18
-
     assert {f["id"] for f in baseline_flights} == {f["id"] for f in boosted_flights}
-    assert any(is_evening(f) for f in boosted_flights), (
+    assert any(_is_evening(f) for f in boosted_flights), (
         "fixture needs an evening flight"
     )
-    assert any(not is_evening(f) for f in boosted_flights), (
+    assert any(not _is_evening(f) for f in boosted_flights), (
         "fixture needs a non-evening flight"
     )
 
     seen_non_evening = False
     for f in boosted_flights:
-        if is_evening(f):
+        if _is_evening(f):
             assert not seen_non_evening, (
                 "an evening flight appeared after a non-evening one"
             )
         else:
             seen_non_evening = True
 
-    baseline_evening = [f["id"] for f in baseline_flights if is_evening(f)]
-    boosted_evening = [f["id"] for f in boosted_flights if is_evening(f)]
+    baseline_evening = [f["id"] for f in baseline_flights if _is_evening(f)]
+    boosted_evening = [f["id"] for f in boosted_flights if _is_evening(f)]
     assert boosted_evening == baseline_evening
 
-    baseline_rest = [f["id"] for f in baseline_flights if not is_evening(f)]
-    boosted_rest = [f["id"] for f in boosted_flights if not is_evening(f)]
+    baseline_rest = [f["id"] for f in baseline_flights if not _is_evening(f)]
+    boosted_rest = [f["id"] for f in boosted_flights if not _is_evening(f)]
     assert boosted_rest == baseline_rest
 
     assert "Prioritized based on your preferences" in boosted[0]
