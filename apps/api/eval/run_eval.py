@@ -18,7 +18,7 @@ from app.agents.context import AgentContext
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END
 
-from eval.metrics import plan_accuracy, routing_accuracy
+from eval.metrics import plan_accuracy, routing_accuracy, task_accuracy
 
 _DATASETS = Path(__file__).resolve().parent / "datasets"
 
@@ -42,8 +42,12 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
         cmd = supervisor({"messages": [HumanMessage(content=item["input"])]}, runtime)
         # Use current_flow (the semantic intent) rather than goto: booking now
         # routes through plan_node first, so goto="plan" but current_flow="booking".
+        # GH-117 Path A: supervisor no longer uses Command(goto=...); an empty
+        # goto (or END) means the turn ends without routing to a sub-agent.
+        goto = cmd.goto
+        has_routing = isinstance(goto, str) and goto != END
         predicted = (cmd.update or {}).get("current_flow") or (
-            "none" if cmd.goto == END else cmd.goto
+            "none" if not has_routing else goto
         )
         results.append(
             {
@@ -55,12 +59,25 @@ def run_routing_eval(llm, dataset: list[dict]) -> list[dict]:
     return results
 
 
-def run_plan_eval(llm, dataset: list[dict]) -> list[dict]:
-    """Route each multi-intent input and capture the ordered ledger (P1).
+def _predicted_agent(cmd) -> str:
+    """Extract the semantic target agent from a supervisor Command.
 
-    Mirrors :func:`run_routing_eval` but also records the ``pending_flows`` the
-    supervisor queued, so :func:`eval.metrics.plan_accuracy` can grade whether
-    the model both routed correctly AND produced the expected ordered plan.
+    GH-117 Path A: the supervisor no longer uses ``Command(goto=...)``.
+    ``current_flow`` is the canonical target; an empty update or empty goto
+    means the turn ends without a specialist.
+    """
+    goto = cmd.goto
+    has_routing = isinstance(goto, str) and goto != END
+    return (cmd.update or {}).get("current_flow") or (
+        "none" if not has_routing else goto
+    )
+
+
+def run_plan_eval(llm, dataset: list[dict]) -> list[dict]:
+    """Route each multi-intent input and capture the ordered plan (P1 / Path A).
+
+    Records both the legacy ``pending_flows`` and the new ``tasks`` emitted by
+    the supervisor, so metrics can grade either decomposition path.
     """
     from app.agents.supervisor import make_supervisor
 
@@ -70,16 +87,17 @@ def run_plan_eval(llm, dataset: list[dict]) -> list[dict]:
     for item in dataset:
         cmd = supervisor({"messages": [HumanMessage(content=item["input"])]}, runtime)
         update = cmd.update or {}
-        predicted = update.get("current_flow") or (
-            "none" if cmd.goto == END else cmd.goto
-        )
+        tasks = update.get("tasks") or []
+        predicted_tasks = [t["agent"] for t in tasks]
         results.append(
             {
                 "input": item["input"],
                 "expected": item["expected"],
-                "predicted": predicted,
+                "predicted": _predicted_agent(cmd),
                 "expected_plan": item.get("expected_plan", []),
                 "predicted_plan": update.get("pending_flows") or [],
+                "expected_tasks": [item["expected"], *item.get("expected_plan", [])],
+                "predicted_tasks": predicted_tasks,
             }
         )
     return results
@@ -94,8 +112,10 @@ def main() -> int:
     acc = routing_accuracy(routing)
     plan = run_plan_eval(llm, load_dataset("multi_intent.json"))
     pacc = plan_accuracy(plan)
+    tacc = task_accuracy(plan)
     print(f"routing_accuracy = {acc:.2f} (threshold {ROUTING_THRESHOLD})")
     print(f"plan_accuracy = {pacc:.2f} (threshold {PLAN_THRESHOLD})")
+    print(f"task_accuracy = {tacc:.2f} (Path A tasks)")
     ok = acc >= ROUTING_THRESHOLD and pacc >= PLAN_THRESHOLD
     return 0 if ok else 1
 

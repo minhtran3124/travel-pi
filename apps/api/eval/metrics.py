@@ -30,3 +30,19 @@ def plan_accuracy(results: list[dict]) -> float:
         if r["predicted"] == r["expected"] and r["predicted_plan"] == r["expected_plan"]
     )
     return correct / len(results)
+
+
+def task_accuracy(results: list[dict]) -> float:
+    """Fraction of multi-intent results whose ordered ``tasks`` match (Path A).
+
+    Same semantics as :func:`plan_accuracy`, but scores the new canonical
+    ``tasks`` decomposition instead of the legacy ``pending_flows`` ledger.
+    """
+    if not results:
+        return 0.0
+    correct = sum(
+        1
+        for r in results
+        if r["predicted_tasks"] == r["expected_tasks"]
+    )
+    return correct / len(results)

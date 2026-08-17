@@ -80,38 +80,32 @@ def _invoke(graph, msg: str, thread_id: str):
     )
 
 
-def test_blocked_subagent_abandons_queued_steps():
-    # Both queued follow-ons are main-tier agents (budget/journal are
-    # FAST_AGENTS and would consume fast_responses, making a sentinel there
-    # dead scripting) — so a regression would surface a NEVER-RUN sentinel.
+def test_blocked_single_intent_subagent_ends_cleanly():
+    # GH-117 Path A: single-intent turns still use the legacy static sub-agent
+    # path; a clarification request sets awaiting_user and ends the turn cleanly.
     graph = _build(
-        structured_responses=[
-            SupervisorIntent(target_agent="planner", plan=["concierge", "planner"])
-        ],
+        structured_responses=[SupervisorIntent(target_agent="planner")],
         main_responses=[
             _CLARIFY_CALL,
             "Which exact date do you want to depart?",
-            "NEVER-RUN concierge answer",
-            "NEVER-RUN planner follow-on answer",
         ],
         fast_responses=["OK"],
     )
     out = _invoke(graph, "plan a trip at the end of this month", "t-blocked")
 
     assert out["awaiting_user"] is True
-    assert out["pending_flows"] == []
-    assert out["current_flow"] == "planner"  # queued steps never ran
+    assert out["current_flow"] == "planner"
 
     contents = [str(m.content) for m in out["messages"]]
     assert "Which exact date do you want to depart?" in contents
-    assert not any("NEVER-RUN" in c for c in contents)
 
 
 def test_awaiting_user_is_single_turn():
-    # Turn 1 blocks; turn 2 (same thread) must drain a fresh ledger normally.
+    # Turn 1 blocks on a single-intent clarification; turn 2 (same thread) runs
+    # a fresh task list normally.
     graph = _build(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", plan=["concierge"]),
+            SupervisorIntent(target_agent="planner"),
             SupervisorIntent(target_agent="planner", plan=["concierge"]),
         ],
         main_responses=[
@@ -119,6 +113,7 @@ def test_awaiting_user_is_single_turn():
             "Which exact date do you want to depart?",
             "flights found",
             "weather is clear",
+            "combined answer",
         ],
         fast_responses=["OK"],
     )
@@ -128,8 +123,7 @@ def test_awaiting_user_is_single_turn():
     out2 = _invoke(graph, "March 3rd", "t-single-turn")
     assert out2["awaiting_user"] is False
     contents = [str(m.content) for m in out2["messages"]]
-    assert "flights found" in contents
-    assert "weather is clear" in contents  # fresh ledger drained
+    assert "combined answer" in contents
 
 
 def test_duplicate_clarification_calls_do_not_crash():
@@ -144,21 +138,18 @@ def test_duplicate_clarification_calls_do_not_crash():
         ],
     }
     graph = _build(
-        structured_responses=[
-            SupervisorIntent(target_agent="planner", plan=["concierge"])
-        ],
+        structured_responses=[SupervisorIntent(target_agent="planner")],
         main_responses=[
             double_call,
             "Which exact date do you want to depart?",
-            "NEVER-RUN concierge answer",
         ],
         fast_responses=["OK"],
     )
     out = _invoke(graph, "plan a trip end of this month", "t-dup-clarify")
 
     assert out["awaiting_user"] is True
-    assert out["pending_flows"] == []
-    assert not any("NEVER-RUN" in str(m.content) for m in out["messages"])
+    contents = [str(m.content) for m in out["messages"]]
+    assert "Which exact date do you want to depart?" in contents
 
 
 def test_blocked_turn_survives_revise_prone_reflection():
@@ -167,13 +158,10 @@ def test_blocked_turn_survives_revise_prone_reflection():
     # missing detail. The awaiting_user guard must end the turn regardless, so
     # the question is not revised away (MIN-68 / #99, PR #105 review).
     graph = _build(
-        structured_responses=[
-            SupervisorIntent(target_agent="planner", plan=["concierge"])
-        ],
+        structured_responses=[SupervisorIntent(target_agent="planner")],
         main_responses=[
             _CLARIFY_CALL,
             "Which exact date do you want to depart?",
-            "NEVER-RUN revised answer",
         ],
         fast_responses=["REVISE"],  # reflection judge would loop if unguarded
     )
@@ -182,4 +170,3 @@ def test_blocked_turn_survives_revise_prone_reflection():
     assert out["awaiting_user"] is True
     contents = [str(m.content) for m in out["messages"]]
     assert "Which exact date do you want to depart?" in contents
-    assert not any("NEVER-RUN" in c for c in contents)
