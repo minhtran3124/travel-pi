@@ -13,6 +13,7 @@ prompts, tools, and tool-fault policies identical to the production sub-agents.
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Callable
 from typing import Any
 
@@ -86,6 +87,10 @@ def build_synthesis_worker(
         # the structured finding and do NOT propagate the inner messages back to
         # the parent state.
         inner_state = dict(state)
+        # The parent state's message list must not be mutated by the inner
+        # subgraph (add_messages reducer appends to it). Deep-copy before handing
+        # it off so the worker's input remains isolated.
+        inner_state["messages"] = copy.deepcopy(inner_state.get("messages", []))
         inner_state["task"] = task
         inner_state["current_flow"] = agent_name
         result = subagent.invoke(inner_state, config=getattr(runtime, "config", None))

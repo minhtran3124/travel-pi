@@ -11,11 +11,13 @@ Covers:
 """
 
 from app.agents.graph import build_graph
+from app.agents.nodes import route_tasks
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
+from langgraph.types import Send
 
 
 def _build(structured_responses, main_responses, fast_responses):
@@ -60,6 +62,32 @@ def test_two_intents_run_in_parallel_then_synthesize():
     # The final assistant message is the synthesized answer.
     contents = [m.content for m in out["messages"] if isinstance(m, AIMessage)]
     assert "combined answer" in contents
+
+
+def test_route_tasks_passes_parent_state_to_parallel_workers():
+    # GH-117 Path A / Codex Comment 1: Send must carry the parent state because
+    # LangGraph does not merge it automatically.
+    state = {
+        "tasks": [
+            {"agent": "planner", "query": "find flights", "index": 0},
+            {"agent": "concierge", "query": "check weather", "index": 1},
+        ],
+        "messages": [HumanMessage(content="flights and weather in Tokyo")],
+        "user_id": "u1",
+        "trip_id": "trip-123",
+        "language": "en",
+        "trip_context": "Active trip: Tokyo",
+    }
+    sends = route_tasks(state)
+    assert len(sends) == 2
+    assert all(isinstance(s, Send) and s.node == "synthesis_worker" for s in sends)
+    for send, task in zip(sends, state["tasks"], strict=True):
+        assert send.arg["task"] == task
+        assert send.arg["messages"] == state["messages"]
+        assert send.arg["user_id"] == state["user_id"]
+        assert send.arg["trip_id"] == state["trip_id"]
+        assert send.arg["language"] == state["language"]
+        assert send.arg["trip_context"] == state["trip_context"]
 
 
 def test_single_intent_goes_straight_to_reflection_unchanged():

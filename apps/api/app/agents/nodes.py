@@ -320,7 +320,13 @@ def route_tasks(state: TravelAgentState) -> str | list[Send]:
         logger.info("[agent] route_tasks → %s (single task)", first_agent)
         return first_agent
     logger.info("[agent] route_tasks → synthesis_workers (%d parallel)", len(tasks))
-    return [Send("synthesis_worker", {"task": t}) for t in tasks]
+    # GH-117 Path A / Codex Comment 1: LangGraph Send does NOT merge the parent
+    # state into the worker input, so the payload must carry the conversation
+    # context and working state the inner specialist needs (messages, user_id,
+    # trip_id, language, trip_context, etc.). We pass a shallow copy of the
+    # parent state plus the task; the worker deep-copies messages before handing
+    # them to the inner subgraph so the parent list is never mutated.
+    return [Send("synthesis_worker", {**state, "task": t}) for t in tasks]
 
 
 def _last_subagent_answer_id(state: TravelAgentState) -> str | None:
