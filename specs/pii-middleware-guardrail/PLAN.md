@@ -1,6 +1,6 @@
 ---
 slug: pii-middleware-guardrail
-status: active
+status: shipped
 owner: agent
 created: 2026-08-18
 ---
