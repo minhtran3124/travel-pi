@@ -5,9 +5,8 @@ replacement. Scope is email + credit card only; names and phones are asserted
 UNTOUCHED (names are owned by MIN-53's post-response extractor).
 """
 
-from langchain_core.messages import AIMessage, HumanMessage
-
 from app.agents.guardrails import pii_guardrail_node, redact_pii
+from langchain_core.messages import AIMessage, HumanMessage
 
 # A Luhn-valid test card (Visa). "1111 1111 1111 1111" is Luhn-INVALID.
 VALID_CARD = "4111 1111 1111 1111"
