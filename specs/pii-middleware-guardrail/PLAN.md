@@ -70,4 +70,4 @@ User PII (email, credit-card numbers) entered in the agent chat currently reache
 ## 6. Status Log
 
 - 2026-08-18 — Intake: high-risk (audit/security hard gate), confidence high. Research brief completed; plan proposed.
-- 2026-08-18 — Implementation complete; correctness + intent reviews passed; plan shipped via `feat/pii-middleware-guardrail`.
+- 2026-08-18 — Implementation complete; correctness + intent reviews passed; plan shipped via `feat/pii-middleware-guardrail` (PR #123).
