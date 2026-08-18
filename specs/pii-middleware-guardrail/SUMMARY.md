@@ -57,6 +57,15 @@ The project uses LangGraph `StateGraph`, not LangChain `create_agent`, so the of
 
 - `git revert 343cbcc` (or the merge commit if squashed)
 
+### Advisory Findings
+
+From the final 6-angle correctness review (HEAD `cd395625`). All scored below the 75 threshold and do not block shipping; they are documented here for future scope decisions.
+
+1. **Internationalized email addresses bypass `_EMAIL_RE`** (`guardrails.py:28`) — Unicode local parts (e.g. `minh.trần@example.com`) and IDN domains are not matched by the ASCII-centric regex. Score: 50. Out of the confirmed MIN-62 scope; fixing it requires a deliberate expansion of PII detector coverage.
+2. **Credit-card separators are limited** (`guardrails.py:34`) — Only spaces, dots, hyphens, and newlines are tolerated. Cards grouped with commas, slashes, or parentheses are not masked. Score: 50. Same scope decision as above.
+3. **`pii_guardrail_node` no-ops when `HumanMessage.id` is `None`** (`guardrails.py:131`) — This is intentional: without an id, `add_messages` would append a duplicate message instead of replacing in place. The normal graph path always assigns an id before this node runs; direct callers without an id are a defense-in-depth gap, not the primary path. Score: 25.
+4. **Email glued to a trailing word character bypasses redaction** (`guardrails.py:28`) — `\b` word boundaries mean `foo@bar.com1` or `foo@bar.com_suffix` are not matched. Score: 25. Standard regex limitation; real users typically separate emails with whitespace or punctuation.
+
 ### Harness-Delta
 
 - Added `.worktrees/` to `.gitignore` (commit `b4c70e6`) to support isolated feature-branch worktrees.

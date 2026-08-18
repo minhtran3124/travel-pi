@@ -1,0 +1,13 @@
+{
+  "reviewed_head_sha": "cd39562534c20d49b7432d1149a55827daa51491",
+  "created": "2026-08-18T10:45:00+07:00",
+  "reviews": [
+    {
+      "reviewer": "correctness-review-6-angle",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "All six FIND angles ran. No P0/P1 blocking defects. Four guard-completeness limitations identified and scored below the 75 threshold; recorded as advisory in SUMMARY.md."
+    }
+  ]
+}
