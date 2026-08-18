@@ -57,6 +57,15 @@ The project uses LangGraph `StateGraph`, not LangChain `create_agent`, so the of
 
 - `git revert 343cbcc` (or the merge commit if squashed)
 
+### Intent Findings
+
+From the final intent review (HEAD `8e16cc6`).
+
+| # | Class | Evidence | Verbatim intent sentence violated | Route |
+|---|---|---|---|---|
+| 1 | drift | `graph.py` wires guardrail as `START -> pii_guardrail -> load_context`; `guardrails.py` docstring calls it a "plain LangGraph node, not PIIMiddleware". | "làm đúng ở lớp middleware (tức là model sẽ ko thấy info này)" | Advisory — behaviorally equivalent. The project compiles a `StateGraph`, not `create_agent`, so there is no native middleware slot; the first pre-processing node is the idiomatic equivalent and the functional outcome (model never sees raw email/card) is satisfied. |
+| 2 | excess | `specs/pii-middleware-guardrail/.review-receipt.json` added. | n/a | Report-only — the receipt is a byproduct of the correctness-review process the user later requested; retained as machine-checkable evidence of the review. |
+
 ### Advisory Findings
 
 From the final 6-angle correctness review (HEAD `cd395625`). All scored below the 75 threshold and do not block shipping; they are documented here for future scope decisions.
