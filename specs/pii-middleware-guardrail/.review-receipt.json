@@ -8,6 +8,13 @@
       "blocking_open": 0,
       "advisory_open": 4,
       "notes": "All six FIND angles ran. No P0/P1 blocking defects. Four guard-completeness limitations identified and scored below the 75 threshold; recorded as advisory in SUMMARY.md."
+    },
+    {
+      "reviewer": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "One behaviorally-equivalent drift (graph node vs PIIMiddleware) and one report-only excess (.review-receipt.json). Both recorded in SUMMARY.md Intent Findings."
     }
   ]
 }
