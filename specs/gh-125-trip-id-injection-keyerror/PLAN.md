@@ -49,12 +49,12 @@ what makes the wording identical across `planner` (`_tool_error_logic_only`) and
 
 | ID | Behavior (observable) | Check (re-runnable) | Expected |
 |---|---|---|---|
-| SC-1 | Invoking any of the five trip tools through a graph whose `trip_id` channel was never written returns the guidance value instead of raising `KeyError: 'trip_id'` | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | exit 0 |
-| SC-2 | The guidance wording survives a `journal`-style `handle_tool_errors` that relabels errors as a transient outage | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q -k handler_independent` | exit 0 |
-| SC-3 | `trip_id` stays out of every model-facing tool schema after gaining a default | `../../.venv/bin/python -m pytest tests/tools/test_tool_registry.py -q` | exit 0 |
-| SC-4 | All five trip tools remain exposed over MCP | `../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | exit 0 |
-| SC-5 | Existing trip-tool happy paths are unchanged by the signature reorder | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools.py -q` | exit 0 |
-| SC-6 | The tolerance also holds on the Docker stack (Python 3.12, langgraph 1.2.11) | `docker compose exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | exit 0 |
+| SC-1 | Invoking any of the five trip tools through a graph whose `trip_id` channel was never written returns the guidance value instead of raising `KeyError: 'trip_id'` | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools_no_active_trip.py -q` | exit 0 |
+| SC-2 | The guidance wording survives a `journal`-style `handle_tool_errors` that relabels errors as a transient outage | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools_no_active_trip.py -q -k handler_independent` | exit 0 |
+| SC-3 | `trip_id` stays out of every model-facing tool schema after gaining a default | `.venv/bin/python -m pytest apps/api/tests/tools/test_tool_registry.py -q` | exit 0 |
+| SC-4 | All five trip tools remain exposed over MCP | `.venv/bin/python -m pytest apps/api/tests/mcp/test_mcp_server.py -q` | exit 0 |
+| SC-5 | Existing trip-tool happy paths are unchanged by the signature reorder | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools.py -q` | exit 0 |
+| SC-6 | The tolerance also holds on the Docker stack (Python 3.12, langgraph 1.2.11) | `docker compose -f apps/api/docker-compose.yml --project-directory apps/api exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | exit 0 |
 
 ## Tasks
 
@@ -110,7 +110,7 @@ what makes the wording identical across `planner` (`_tool_error_logic_only`) and
   issue reports langgraph 1.2.11 / Python 3.12 in Docker. If the module fails there, stop and
   escalate — the fallback is the `load_context_node` channel seeding recorded as a rejected
   alternative in `design.md`, and switching to it is a plan change, not an auto-fix.
-- **Verify:** `docker compose exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q`
+- **Verify:** `docker compose -f apps/api/docker-compose.yml --project-directory apps/api exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q`
 - **Done:** The container run reports 0 failures, and `SUMMARY.md` carries a `### Verify` row with
   that command, its exit code, and `SC-6` in the `Criterion` column.
 - **Criteria:** SC-6

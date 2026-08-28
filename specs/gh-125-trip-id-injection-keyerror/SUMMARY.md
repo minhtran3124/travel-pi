@@ -154,15 +154,14 @@ A plain return never reaches `handle_tool_errors`, so all three sub-agents relay
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| Absent trip channel returns guidance, not KeyError | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 17 passed (16 before the E001 MCP-schema case was added). Run from `apps/api/`. | SC-1 |
-| Guidance survives a handler that relabels errors as an outage | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q -k handler_independent` | 0 | 5 passed, 11 deselected. | SC-2 |
-| `trip_id` stays out of every model-facing schema | `../../.venv/bin/python -m pytest tests/tools/test_tool_registry.py -q` | 0 | 49 passed. | SC-3 |
-| All five trip tools stay exposed over MCP | `../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 5 passed. | SC-4 |
-| Existing trip-tool happy paths unchanged | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools.py -q` | 0 | 14 passed. | SC-5 |
-| Tolerance holds on the Docker stack | `docker compose exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 17 passed on Python 3.12.14 / langgraph 1.2.11 — the exact stack the issue reports. Closes the research brief's evidence gap. | SC-6 |
-| MCP contract delta is pinned | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q -k mcp_schema` | 0 | 1 passed. Asserts `trip_id` is absent from `required` and defaults to null on the served MCP schema for all five tools (E001). | |
+| Absent trip channel returns guidance, not KeyError | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 17 passed (16 before the E001 MCP-schema case was added). All commands run from the repo root. | SC-1 |
+| Guidance survives a handler that relabels errors as an outage | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools_no_active_trip.py -q -k handler_independent` | 0 | 5 passed, 11 deselected. | SC-2 |
+| `trip_id` stays out of every model-facing schema | `.venv/bin/python -m pytest apps/api/tests/tools/test_tool_registry.py -q` | 0 | 49 passed. | SC-3 |
+| All five trip tools stay exposed over MCP | `.venv/bin/python -m pytest apps/api/tests/mcp/test_mcp_server.py -q` | 0 | 5 passed. | SC-4 |
+| Existing trip-tool happy paths unchanged | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools.py -q` | 0 | 14 passed. | SC-5 |
+| Tolerance holds on the Docker stack | `docker compose -f apps/api/docker-compose.yml --project-directory apps/api exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 17 passed on Python 3.12.14 / langgraph 1.2.11 — the exact stack the issue reports. Closes the research brief's evidence gap. | SC-6 |
+| MCP contract delta is pinned | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools_no_active_trip.py -q -k mcp_schema` | 0 | 1 passed. Asserts `trip_id` is absent from `required` and defaults to null on the served MCP schema for all five tools (E001). | |
 | The issue's own end-to-end repro | `curl -s -X POST http://localhost:8000/agent/chat -H 'Content-Type: application/json' -d '{"message":"Please send my itinerary","user_id":"repro-gh125-b","conversation_id":null,"trip_id":null}'` | 0 | Reply: *"I can send it, but I don't have an active trip loaded right now. Which trip would you like me to use?"*, `current_flow: "journal"`. API log shows `journal → tools (1 call(s))` and zero `KeyError`. Re-run after the E001 reword. | |
-| Pre-existing failures are not mine | `../../.venv/bin/python -m pytest tests/tools/test_routing_tools.py -q` | 1 | 2 failed (`*_offline_estimate`, network-dependent). Reproduced identically with `trip_tools.py` reverted to base `76a68ae`, so they pre-date this branch. | |
 
 ### Correctness review
 
@@ -189,6 +188,26 @@ consumer of `list_trip_places`' return shape), stack-defects (injected args are 
 dict is plain JSON), and the ownership / deleted-trip / whitespace-`trip_id` states, which still
 resolve through the pre-existing owner-scoped `NotFoundError` path.
 
+### Intent Findings
+
+Intent review run plan-blind against the verbatim issue text as oracle, over `76a68ae..f981701`.
+
+- **Gap: none.** The Expected clause — *"the agent asks which trip is meant, or answers without the
+  tool"* — is met by the live repro row above. The breadth claim — *"Every trip-scoped intent is
+  broken from `/trips`, `/places`, `/bookings` and any new conversation"* — holds: all five
+  `InjectedState("trip_id")` sites in the codebase are the five tools fixed here, and
+  `booking_tools.py` has no `trip_id` parameter, so nothing trip-scoped was left unfixed.
+- **Drift: none.** The issue said *"Not prescribing a fix"* and listed three directions; taking the
+  third is a choice it explicitly permitted, not drift. Its observation that the `KeyError`
+  *"escapes the sub-agent tool-error self-correction"* is addressed differently than it suggests —
+  the guidance never becomes an error at all — which closes the same gap.
+- **Excess (report-only): the MCP schema relaxation and the caller-neutral reword.** The issue text
+  never mentions MCP. From a pure verbatim-intent lens both are surface nobody asked for. Not
+  silent: raised as E001, decided by the user, and pinned by
+  `test_mcp_schema_keeps_trip_id_optional`. Recorded here rather than reverted, per
+  `rules/auto-correct-scope.md` — shipped behavior is not removed without human approval, and the
+  human approved it.
+
 ### Not auto-verified
 
 - **The optional-injected-state tolerance is an undocumented library internal.** `_optional_state_args`
@@ -196,6 +215,12 @@ resolve through the pre-existing owner-scoped `NotFoundError` path.
   **truth** on langgraph 1.2.6 and 1.2.11 by execution, but the pin is `>=1.0,<2.0`, so a future
   minor bump inside that range is not covered. `tests/tools/test_trip_tools_no_active_trip.py` is
   the tripwire.
+- **The two `test_routing_tools.py` offline-estimate cases are network-flaky, not mine.** They
+  failed during this work and passed on a later run of the identical command, so no exit code can
+  be claimed for them. Reached **provenance**: with `apps/api/app/tools/trip_tools.py` reverted to
+  base `76a68ae` they failed identically, which is what rules them out as caused by this branch.
+  Deliberately not listed as a Verify row — a check whose result changes between runs is not
+  re-runnable evidence.
 - **Full-suite parity.** Only the four affected modules plus `test_routing_tools.py` were re-run;
   the whole suite runs at `finishing-a-development-branch` and in CI.
 - **Minor (task 1.1 review):** post-fix, the handler-independence assertion is weakly
