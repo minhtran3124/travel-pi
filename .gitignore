@@ -55,3 +55,4 @@ specs/**/PLAN.html
 specs/**/.plan-review.json
 WORKFLOW_DIAGRAM.html
 .worktrees/
+CLAUDE.local.md

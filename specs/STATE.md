@@ -963,3 +963,17 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: 707e9ba fix(agents): default English + pin sub-agent replies to detected language
 - user_turns: 0
 
+
+### 2026-08-28T04:09:08Z
+- session_id: 2a88f7b5-b2f3-4335-9c44-bfd95f0ff0ac
+- exit: 
+- last_commit: b4c70e6 chore: ignore .worktrees directory for isolated feature work
+- user_turns: 0
+
+
+### 2026-08-28T04:10:33Z
+- session_id: e916e6d7-234f-4422-8baa-0392b7bd859e
+- exit: 
+- last_commit: b4c70e6 chore: ignore .worktrees directory for isolated feature work
+- user_turns: 0
+
