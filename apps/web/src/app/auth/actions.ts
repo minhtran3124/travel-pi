@@ -11,6 +11,16 @@ export type AuthFormState = { error: string | null; message?: string };
 
 export type OAuthProvider = "google" | "github";
 
+/**
+ * Sanitise the post-sign-in return path. Only same-origin absolute paths are
+ * accepted — anything else (a protocol-relative `//host` or a full URL) would
+ * turn the login form into an open redirect.
+ */
+function safeNext(value: FormDataEntryValue | null): string {
+  const next = typeof value === "string" ? value : "";
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
+}
+
 /** Absolute origin for building email redirect URLs from a Server Action. */
 async function siteOrigin(): Promise<string> {
   const h = await headers();
@@ -27,13 +37,14 @@ export async function signInWithPassword(
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const next = safeNext(formData.get("next"));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect(next);
 }
 
 export async function signUpWithPassword(
@@ -60,12 +71,15 @@ export async function signInWithMagicLink(
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
+  const next = safeNext(formData.get("next"));
 
   const supabase = await createClient();
   const origin = await siteOrigin();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
+    },
   });
   if (error) return { error: error.message };
 
