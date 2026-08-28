@@ -55,11 +55,14 @@ The project uses LangGraph `StateGraph`, not LangChain `create_agent`, so the of
 
 ### Rollback
 
-- `git revert 343cbcc` (or the merge commit if squashed)
+- Revert the PR #123 merge commit: `git revert -m 1 <merge-sha>`.
+- Or revert the four commits that touch `apps/`, newest first:
+  `git revert 9b20698 534b596 30271f3 9e651fd`. Every other branch commit changes
+  only `specs/pii-middleware-guardrail/`, so reverting those is optional.
 
 ### Intent Findings
 
-From the final intent review (HEAD `8e16cc6`).
+From the final intent review (HEAD `75bdcfe`).
 
 | # | Class | Evidence | Verbatim intent sentence violated | Route |
 |---|---|---|---|---|
@@ -68,7 +71,7 @@ From the final intent review (HEAD `8e16cc6`).
 
 ### Advisory Findings
 
-From the final 6-angle correctness review (HEAD `cd395625`). All scored below the 75 threshold and do not block shipping; they are documented here for future scope decisions.
+From the final 6-angle correctness review (HEAD `9b20698`). All scored below the 75 threshold and do not block shipping; they are documented here for future scope decisions.
 
 1. **Internationalized email addresses bypass `_EMAIL_RE`** (`guardrails.py:28`) — Unicode local parts (e.g. `minh.trần@example.com`) and IDN domains are not matched by the ASCII-centric regex. Score: 50. Out of the confirmed MIN-62 scope; fixing it requires a deliberate expansion of PII detector coverage.
 2. **Credit-card separators are limited** (`guardrails.py:34`) — Only spaces, dots, hyphens, and newlines are tolerated. Cards grouped with commas, slashes, or parentheses are not masked. Score: 50. Same scope decision as above.
