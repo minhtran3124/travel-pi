@@ -2,16 +2,18 @@
 
 Wires the full agentic graph:
 
-    START -> load_context -> summarize -> supervisor
-                                              | Command(goto=<sub-agent>)
-                 planner / concierge / journal / booking / budget
-                                              v
-                                        dispatch_next
-                          Command(goto=<queued sub-agent> | reflection)
-                                              v
-                                         reflection
-                                   Command(goto=<sub-agent> | END)
+    START -> pii_guardrail -> load_context -> summarize -> supervisor
+                                                              | Command(goto=<sub-agent>)
+                     planner / concierge / journal / booking / budget
+                                                              v
+                                                        dispatch_next
+                                  Command(goto=<queued sub-agent> | reflection)
+                                                              v
+                                                         reflection
+                                               Command(goto=<sub-agent> | END)
 
+The ``pii_guardrail`` entry node redacts email/credit-card PII from the user's
+turn before any LLM provider, checkpointer, or memory extractor sees it.
 The supervisor routes by intent; each sub-agent is a ReAct subgraph that
 self-corrects on tool errors. ``dispatch_next`` (pure code, no LLM call) drains
 at most one queued secondary intent (MIN-65 D4) before reflection reviews the
@@ -30,6 +32,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
 from app.agents.context import AgentContext
+from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
     dispatch_next,
     load_context_node,
@@ -123,6 +126,10 @@ def build_graph(
         return resolve
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
+    # PII guardrail runs first so email/card are redacted before any model call,
+    # before persistence to the checkpointer, and before the post-response memory
+    # extractor reads the turn.
+    builder.add_node("pii_guardrail", pii_guardrail_node)
     builder.add_node("load_context", load_context_node)
     builder.add_node(
         "summarize", make_summarize_node(pick("summarize")), retry_policy=LLM_RETRY
@@ -168,7 +175,8 @@ def build_graph(
         retry_policy=LLM_RETRY,
     )
 
-    builder.add_edge(START, "load_context")
+    builder.add_edge(START, "pii_guardrail")
+    builder.add_edge("pii_guardrail", "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
     # GH-117 Path A: supervisor emits an ordered task list; a conditional edge

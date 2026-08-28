@@ -22,6 +22,7 @@ from starlette.background import BackgroundTask
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
+from app.agents.guardrails import redact_pii
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
@@ -148,8 +149,13 @@ def _turn_input(message: str, user_id: str, trip_id: str | None) -> dict:
         no active trip context.
     :return: The input dict for ``graph.ainvoke``.
     """
+    # Defense-in-depth: redact email/card PII before the message reaches the
+    # graph, the checkpointer, or the conversation DB. The graph's pii_guardrail
+    # node also redacts, but sanitizing here protects paths that persist the
+    # raw turn before the graph runs.
+    safe_message = redact_pii(message)
     turn_input: dict = {
-        "messages": [HumanMessage(content=message)],
+        "messages": [HumanMessage(content=safe_message)],
         "user_id": user_id,
     }
     if trip_id is not None:
@@ -268,12 +274,14 @@ async def agent_chat(
             # Resume a graph paused at a plan-approval interrupt.
             result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
         else:
+            # Sanitize PII before it touches the conversation store or the graph.
+            safe_message = redact_pii(body.message)
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=safe_message
             )
             session.commit()
             result = await graph.ainvoke(
-                _turn_input(body.message, uid, body.trip_id),
+                _turn_input(safe_message, uid, body.trip_id),
                 cfg,
                 context=ctx,
             )
@@ -415,6 +423,8 @@ async def agent_stream(
         # (thread_id) addresses the checkpoint created during the initial turn.
         stream_input = Command(resume=body.resume)
     else:
+        # Sanitize PII before it touches the conversation store or the graph.
+        safe_message = redact_pii(body.message)
         # Persist the user turn before returning the StreamingResponse so the
         # message row exists even if the stream is abandoned mid-flight. On a
         # retry the user message is already saved (the previous turn was
@@ -422,9 +432,9 @@ async def agent_stream(
         # it to avoid a duplicate question bubble.
         if not body.retry:
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=safe_message
             )
-        stream_input = _turn_input(body.message, uid, body.trip_id)
+        stream_input = _turn_input(safe_message, uid, body.trip_id)
 
     # Commit (and release the SQLite write lock) before streaming begins so
     # the isolated factory session inside persist_assistant_turn can write.

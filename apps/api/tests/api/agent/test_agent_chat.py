@@ -188,6 +188,30 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
+def test_chat_redacts_pii_in_persisted_messages(client):
+    """User input containing email/card PII must be sanitized before it is
+    persisted to the conversations table."""
+    raw = "reach me at secret@leak.com, card 4111 1111 1111 1111"
+    resp = client.post(
+        "/agent/chat",
+        json={"message": raw, "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+
+    history = client.get(
+        f"/agent/conversations/{body['conversation_id']}/messages?user_id=u1"
+    )
+    assert history.status_code == 200
+    msgs = history.json()
+
+    user_contents = [m["content"] for m in msgs if m["role"] == "user"]
+    assert any("secret@leak.com" not in c for c in user_contents)
+    assert any("4111 1111 1111 1111" not in c for c in user_contents)
+    assert any("[REDACTED_EMAIL]" in c for c in user_contents)
+    assert any("****-****-****-1111" in c for c in user_contents)
+
+
 def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
     """Regression (#117 Path A): a multi-intent turn runs parallel workers and
     returns a single synthesized answer from /agent/chat — no duplicated prose
