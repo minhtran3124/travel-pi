@@ -1,5 +1,5 @@
 ---
-status: complete
+status: shipped
 ---
 
 # gh-125 — Trip-scoped tools must tolerate a conversation with no trip
@@ -131,3 +131,4 @@ what makes the wording identical across `planner` (`_tool_error_logic_only`) and
 
 - 2026-08-28 — tasks 1.1, 2.1 complete; commits a5c48ca, 3616338
 - 2026-08-28 — task 3.1 complete; SC-6 verified on Docker (py3.12.14 / langgraph 1.2.11), 16 passed
+- 2026-08-28 — E001 resolved (option B); reviews pinned; branch ready for PR against `main`
