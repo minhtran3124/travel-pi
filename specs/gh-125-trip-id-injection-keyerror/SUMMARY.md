@@ -3,8 +3,8 @@
 Lane: normal
 Confidence: medium
 Reason: Two risk flags fired (existing behavior — the fix must not reintroduce `specs/fix-trip-id-persist-across-turns`; public contract — `/agent/chat` client-visible behavior on a trip-less turn changes from an error fallback to a real reply). No manifest hard gate fires at intake: no auth/authorization, no schema or migration, no external provider, no route/method/envelope change, no high-blast file. Multi-file (router + tools + tests) so `tiny` is not available.
-Flags: existing-behavior, public-contract (behavioral only — no route/method/envelope change)
-Affects: apps/api/app/routers/agent.py (`_turn_input`), apps/api/app/tools/trip_tools.py (5 trip-scoped tools), apps/api/app/agents/state.py (`TravelAgentState.trip_id`)
+Flags: existing-behavior, public-contract (agent behavior, plus an MCP tool-schema relaxation found in review — see E001)
+Affects: apps/api/app/tools/trip_tools.py (5 trip-scoped tools); the MCP tool schema they are served under (apps/api/app/mcp/server.py, unmodified but affected)
 Input-type: change request
 Route: brainstorming (design fork) → xia2 (Standard depth) → writing-plans → using-git-worktrees → subagent-driven-development
 Escalate: no (normal lane + medium confidence → notify-and-proceed; no hard gate at intake)
@@ -154,14 +154,40 @@ A plain return never reaches `handle_tool_errors`, so all three sub-agents relay
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| Absent trip channel returns guidance, not KeyError | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 16 passed. Run from `apps/api/`. | SC-1 |
+| Absent trip channel returns guidance, not KeyError | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 17 passed (16 before the E001 MCP-schema case was added). Run from `apps/api/`. | SC-1 |
 | Guidance survives a handler that relabels errors as an outage | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q -k handler_independent` | 0 | 5 passed, 11 deselected. | SC-2 |
 | `trip_id` stays out of every model-facing schema | `../../.venv/bin/python -m pytest tests/tools/test_tool_registry.py -q` | 0 | 49 passed. | SC-3 |
 | All five trip tools stay exposed over MCP | `../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 5 passed. | SC-4 |
 | Existing trip-tool happy paths unchanged | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools.py -q` | 0 | 14 passed. | SC-5 |
-| Tolerance holds on the Docker stack | `docker compose exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 16 passed on Python 3.12.14 / langgraph 1.2.11 — the exact stack the issue reports. Closes the research brief's evidence gap. | SC-6 |
-| The issue's own end-to-end repro | `curl -s -X POST http://localhost:8000/agent/chat -H 'Content-Type: application/json' -d '{"message":"Please send my itinerary","user_id":"repro-gh125","conversation_id":null,"trip_id":null}'` | 0 | Reply: *"I can send it, but I don't have an active trip loaded for this chat yet. Which trip do you mean?"*, `current_flow: "journal"`. API log shows `journal → tools (1 call(s))` and zero `KeyError`. | |
+| Tolerance holds on the Docker stack | `docker compose exec -T api python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q` | 0 | 17 passed on Python 3.12.14 / langgraph 1.2.11 — the exact stack the issue reports. Closes the research brief's evidence gap. | SC-6 |
+| MCP contract delta is pinned | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py -q -k mcp_schema` | 0 | 1 passed. Asserts `trip_id` is absent from `required` and defaults to null on the served MCP schema for all five tools (E001). | |
+| The issue's own end-to-end repro | `curl -s -X POST http://localhost:8000/agent/chat -H 'Content-Type: application/json' -d '{"message":"Please send my itinerary","user_id":"repro-gh125-b","conversation_id":null,"trip_id":null}'` | 0 | Reply: *"I can send it, but I don't have an active trip loaded right now. Which trip would you like me to use?"*, `current_flow: "journal"`. API log shows `journal → tools (1 call(s))` and zero `KeyError`. Re-run after the E001 reword. | |
 | Pre-existing failures are not mine | `../../.venv/bin/python -m pytest tests/tools/test_routing_tools.py -q` | 1 | 2 failed (`*_offline_estimate`, network-dependent). Reproduced identically with `trip_tools.py` reverted to base `76a68ae`, so they pre-date this branch. | |
+
+### Correctness review
+
+Six angles run over `76a68ae..70db43f` by two independent finders. Two findings, both resolved:
+
+- **removed-behavior — no `[tool]` log line on the no-trip path.** The guard sits above
+  `log_tool_call`, so the path this fix creates is invisible in production logs. Confirmed live in
+  the container: `journal → tools (1 call(s))` appears with no matching `[tool]` entry. Accepted
+  as advisory and recorded below — it changes no returned value, and moving the log above the
+  guard was outside the approved scope.
+- **guard-completeness / prior-art — the MCP tool schema relaxed.** `app/mcp/server.py` derives
+  each tool's MCP `inputSchema` from the raw function signature, so giving `trip_id` a default
+  also removed it from `required` on the served contract — a public-contract change neither
+  `design.md` nor `PLAN.md` reasoned about. Verified by building the server against both
+  revisions: base `76a68ae` required `['trip_id', 'user_id']` for `get_trip_summary`, HEAD requires
+  `['user_id']`. Escalated as E001 and decided by the user (option B): keep the relaxation, which
+  is backward compatible since every previously valid call stays valid; pin it with
+  `test_mcp_schema_keeps_trip_id_optional`; and reword `_no_active_trip()` so it reads correctly
+  for a programmatic caller with no traveller to ask. Fixed in the follow-up commit.
+
+Angles ruled out with evidence: enclosing-function, call-site-impact (no positional callers; no
+consumer of `list_trip_places`' return shape), stack-defects (injected args are stripped from
+`tool_call_schema` regardless of default, so the model still cannot supply `trip_id`; the guidance
+dict is plain JSON), and the ownership / deleted-trip / whitespace-`trip_id` states, which still
+resolve through the pre-existing owner-scoped `NotFoundError` path.
 
 ### Not auto-verified
 

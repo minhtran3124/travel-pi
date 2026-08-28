@@ -129,3 +129,24 @@ def test_trip_id_not_in_model_facing_schema():
     for name, _ in _TOOL_CASES:
         tool = _load_tool(name)
         assert "trip_id" not in tool.tool_call_schema.model_fields, name
+
+
+def test_mcp_schema_keeps_trip_id_optional():
+    """Case 5: pin the MCP contract delta this fix introduced (ESCALATIONS E001).
+
+    ``app/mcp/server.py`` builds each tool's MCP ``inputSchema`` from the raw
+    function signature, not from ``tool_call_schema``. Giving ``trip_id`` a
+    default therefore moved it out of ``required`` on the served schema — a
+    deliberate, backward-compatible relaxation. Assert it, so the change is
+    pinned rather than incidental and a future edit cannot flip it unnoticed.
+    """
+    import asyncio
+
+    from app.mcp.server import build_mcp_server
+
+    served = {t.name: t for t in asyncio.run(build_mcp_server().list_tools())}
+    for name, _ in _TOOL_CASES:
+        schema = served[name].inputSchema
+        assert "trip_id" not in schema.get("required", []), name
+        assert "trip_id" in schema["properties"], name
+        assert schema["properties"]["trip_id"]["default"] is None, name

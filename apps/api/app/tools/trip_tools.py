@@ -49,13 +49,17 @@ def _no_active_trip() -> dict:
     ``ToolNode`` wraps it into a success ``ToolMessage`` that never passes
     through ``handle_tool_errors`` — the wording is identical across every
     sub-agent (specs/gh-125-trip-id-injection-keyerror/design.md).
+
+    Worded for both callers: on the agent path ``trip_id`` is injected from
+    graph state, but an MCP client may also omit it (it is optional in the
+    served schema, ESCALATIONS E001), and that caller has no traveller to ask.
     """
     return {
         "error": "no_active_trip",
-        "message": "There is no active trip for this conversation yet.",
+        "message": "No trip was supplied for this call.",
         "hint": (
-            "Ask the traveller which trip they mean, or call create_trip to "
-            "start one before shortlisting places or adding itinerary items."
+            "Identify the trip first: in a conversation, ask which trip is "
+            "meant or call create_trip to start one; otherwise pass a trip_id."
         ),
     }
 
