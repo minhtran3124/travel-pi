@@ -42,18 +42,36 @@ from app.tools._base import dump, log_tool_call, session_scope, tool_error
 logger = logging.getLogger(__name__)
 
 
+def _no_active_trip() -> dict:
+    """Guidance returned when a trip-scoped tool runs with no active trip.
+
+    A plain dict return (not a raised ``ToolException`` / ``Command``) so
+    ``ToolNode`` wraps it into a success ``ToolMessage`` that never passes
+    through ``handle_tool_errors`` — the wording is identical across every
+    sub-agent (specs/gh-125-trip-id-injection-keyerror/design.md).
+    """
+    return {
+        "error": "no_active_trip",
+        "message": "There is no active trip for this conversation yet.",
+        "hint": (
+            "Ask the traveller which trip they mean, or call create_trip to "
+            "start one before shortlisting places or adding itinerary items."
+        ),
+    }
+
+
 @tool
 def get_trip_summary(
-    trip_id: Annotated[
-        str,
-        InjectedState("trip_id"),
-        Field(description="The trip to summarise."),
-    ],
     user_id: Annotated[
         str,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to summarise."),
+    ] = None,
 ) -> dict:
     """Get a trip's full snapshot: days, items, places, budget rollup, and gaps.
 
@@ -61,9 +79,11 @@ def get_trip_summary(
 
     :param trip_id: The trip to summarise. Injected from graph state on the
         LangGraph agent path (not model-supplied there); a direct/MCP caller
-        must pass it explicitly.
+        must pass it explicitly. When absent, the guidance value is returned.
     :return: The trip's full snapshot.
     """
+    if not trip_id:
+        return _no_active_trip()
     log_tool_call("get_trip_summary", {"trip_id": trip_id})
     with session_scope() as s:
         try:
@@ -74,24 +94,27 @@ def get_trip_summary(
 
 @tool
 def get_trip_budget(
-    trip_id: Annotated[
-        str,
-        InjectedState("trip_id"),
-        Field(description="The trip to get the budget for."),
-    ],
     user_id: Annotated[
         str,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to get the budget for."),
+    ] = None,
 ) -> dict:
     """Get the trip's budget: caps, spent-by-category, and remaining amounts.
 
     :param trip_id: The trip to get the budget for. Injected from graph state
         on the LangGraph agent path (not model-supplied there); a direct/MCP
-        caller must pass it explicitly.
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
     :return: The trip's budget rollup.
     """
+    if not trip_id:
+        return _no_active_trip()
     log_tool_call("get_trip_budget", {"trip_id": trip_id})
     with session_scope() as s:
         try:
@@ -102,24 +125,27 @@ def get_trip_budget(
 
 @tool
 def list_trip_places(
-    trip_id: Annotated[
-        str,
-        InjectedState("trip_id"),
-        Field(description="The trip to list places for."),
-    ],
     user_id: Annotated[
         str,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
-) -> list:
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to list places for."),
+    ] = None,
+) -> list | dict:
     """List the places shortlisted onto a trip.
 
     :param trip_id: The trip to list places for. Injected from graph state on
         the LangGraph agent path (not model-supplied there); a direct/MCP
-        caller must pass it explicitly.
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
     :return: The places shortlisted onto the trip.
     """
+    if not trip_id:
+        return _no_active_trip()
     log_tool_call("list_trip_places", {"trip_id": trip_id})
     with session_scope() as s:
         try:
@@ -133,16 +159,16 @@ def add_place_to_trip(
     place_id: Annotated[
         str, Field(description="The place's id or PLC-XXXX short code.")
     ],
-    trip_id: Annotated[
-        str,
-        InjectedState("trip_id"),
-        Field(description="The trip to shortlist the place onto."),
-    ],
     user_id: Annotated[
         str,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to shortlist the place onto."),
+    ] = None,
     source: Annotated[
         Literal["catalog", "saved"],
         Field(
@@ -155,10 +181,13 @@ def add_place_to_trip(
     :param place_id: The place's id or PLC-XXXX short code.
     :param trip_id: The trip to shortlist the place onto. Injected from graph
         state on the LangGraph agent path (not model-supplied there); a
-        direct/MCP caller must pass it explicitly.
+        direct/MCP caller must pass it explicitly. When absent, the guidance
+        value is returned.
     :param source: 'catalog' (default) or 'saved'.
     :return: The created trip-place record.
     """
+    if not trip_id:
+        return _no_active_trip()
     log_tool_call(
         "add_place_to_trip",
         {"trip_id": trip_id, "place_id": place_id, "source": source},
@@ -176,16 +205,16 @@ def add_place_to_trip(
 def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
     title: Annotated[str, Field(description="The item's title.")],
-    trip_id: Annotated[
-        str,
-        InjectedState("trip_id"),
-        Field(description="The trip to add the item to."),
-    ],
     user_id: Annotated[
         str,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
     ],
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to add the item to."),
+    ] = None,
     kind: Annotated[
         TripItemKind, Field(description="The kind of itinerary entry.")
     ] = TripItemKind.PLACE,
@@ -208,13 +237,16 @@ def add_itinerary_item(
     :param title: The item's title.
     :param trip_id: The trip to add the item to. Injected from graph state on
         the LangGraph agent path (not model-supplied there); a direct/MCP
-        caller must pass it explicitly.
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
     :param kind: One of place|activity|meal|transport|note.
     :param status: One of pending|booked|constraint|optional.
     :param notes: Optional free-text notes for the item.
     :param start_time: Optional start time for the item.
     :return: The created itinerary item.
     """
+    if not trip_id:
+        return _no_active_trip()
     log_tool_call(
         "add_itinerary_item",
         {
