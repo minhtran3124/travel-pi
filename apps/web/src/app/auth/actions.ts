@@ -4,22 +4,13 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
+import { safeNextPath } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/server";
 
 /** Result returned to form components via `useActionState`. */
 export type AuthFormState = { error: string | null; message?: string };
 
 export type OAuthProvider = "google" | "github";
-
-/**
- * Sanitise the post-sign-in return path. Only same-origin absolute paths are
- * accepted — anything else (a protocol-relative `//host` or a full URL) would
- * turn the login form into an open redirect.
- */
-function safeNext(value: FormDataEntryValue | null): string {
-  const next = typeof value === "string" ? value : "";
-  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
-}
 
 /** Absolute origin for building email redirect URLs from a Server Action. */
 async function siteOrigin(): Promise<string> {
@@ -37,7 +28,7 @@ export async function signInWithPassword(
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
-  const next = safeNext(formData.get("next"));
+  const next = safeNextPath(formData.get("next"), await siteOrigin());
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -56,10 +47,13 @@ export async function signUpWithPassword(
 
   const supabase = await createClient();
   const origin = await siteOrigin();
+  const next = safeNextPath(formData.get("next"), origin);
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${origin}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
+    },
   });
   if (error) return { error: error.message };
 
@@ -71,10 +65,9 @@ export async function signInWithMagicLink(
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
-  const next = safeNext(formData.get("next"));
-
   const supabase = await createClient();
   const origin = await siteOrigin();
+  const next = safeNextPath(formData.get("next"), origin);
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {

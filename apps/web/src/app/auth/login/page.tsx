@@ -159,7 +159,11 @@ export default function LoginPage({
           <p className="mt-xl text-center text-sm text-muted">
             New here?{" "}
             <Link
-              href="/auth/sign-up"
+              href={
+                next && next !== "/"
+                  ? `/auth/sign-up?next=${encodeURIComponent(next)}`
+                  : "/auth/sign-up"
+              }
               className="font-bold text-ink underline decoration-lime decoration-2 underline-offset-2 hover:decoration-[3px]"
             >
               Create an account
