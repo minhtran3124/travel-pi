@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { use, useActionState } from "react";
 
 import { AuthHero } from "@/components/auth/AuthHero";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
@@ -14,7 +14,14 @@ import { signUpWithPassword, type AuthFormState } from "../actions";
 const INITIAL: AuthFormState = { error: null };
 const inputClass = cn(controlClass, "h-[38px] w-full px-md");
 
-export default function SignUpPage() {
+export default function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  // Carried over from /auth/login so a visitor bounced off a protected page
+  // still lands there after confirming their email. Re-validated server-side.
+  const { next } = use(searchParams);
   const [state, action, pending] = useActionState(signUpWithPassword, INITIAL);
 
   return (
@@ -56,6 +63,8 @@ export default function SignUpPage() {
             </div>
           ) : (
             <form action={action} className="mt-xl flex flex-col gap-md">
+              <input type="hidden" name="next" value={next ?? "/"} />
+
               <label className="flex flex-col gap-xs">
                 <span className={labelClass}>Email</span>
                 <input
@@ -112,7 +121,11 @@ export default function SignUpPage() {
           <p className="mt-xl text-center text-sm text-muted">
             Already have an account?{" "}
             <Link
-              href="/auth/login"
+              href={
+                next && next !== "/"
+                  ? `/auth/login?next=${encodeURIComponent(next)}`
+                  : "/auth/login"
+              }
               className="font-bold text-ink underline decoration-lime decoration-2 underline-offset-2 hover:decoration-[3px]"
             >
               Sign in
