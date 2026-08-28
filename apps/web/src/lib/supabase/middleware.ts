@@ -3,11 +3,15 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 /**
  * Route prefixes that require a Supabase session. These pages render only
- * trip-backed data, and the API scopes trips/expenses on the subject of the
- * verified bearer token (`apps/api/app/core/auth.py`) — so serving them to a
- * signed-out visitor can only produce 401s, never content.
+ * user-scoped data, and the API scopes trips/expenses/bookings on the subject
+ * of the verified bearer token (`apps/api/app/core/auth.py`) — so serving them
+ * to a signed-out visitor can only produce 401s, never content.
+ *
+ * `/expenses` has no page today (expenses render inside `/trips/[tripId]`,
+ * already covered by the `/trips` prefix); it is listed so the route is gated
+ * from the moment it exists rather than shipping open by default.
  */
-const PROTECTED_PREFIXES = ['/trips'] as const
+const PROTECTED_PREFIXES = ['/trips', '/bookings', '/expenses'] as const
 
 function isProtected(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
