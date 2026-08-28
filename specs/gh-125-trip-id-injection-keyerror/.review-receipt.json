@@ -1,5 +1,5 @@
 {
-  "reviewed_head_sha": "e1ea51f869b7c2f18bf387ae1e125f0469256603",
+  "reviewed_head_sha": "89eecf13fb56600b21459e6ee502479006f197ff",
   "created": "2026-08-28T17:10:00+07:00",
   "reviews": [
     {
@@ -8,7 +8,7 @@
       "blocking_open": 0,
       "advisory_open": 1,
       "notes": "Test-first regression module. spec and quality both pass. One Minor: post-fix the handler-independence assertion is weakly discriminating in isolation; it retains value as a guard against the rejected raise-ToolException design. Recorded in SUMMARY.",
-      "type": "task-review-1.1"
+      "type": "task-1.1"
     },
     {
       "reviewer": "task-review-2.1",
@@ -16,7 +16,7 @@
       "blocking_open": 0,
       "advisory_open": 0,
       "notes": "All five tools fixed, guard above log_tool_call and session_scope, no positional callers, no tool_call_id or Command added, happy path unchanged.",
-      "type": "task-review-2.1"
+      "type": "task-2.1"
     },
     {
       "reviewer": "correctness-review-6-angle",
@@ -24,7 +24,7 @@
       "blocking_open": 0,
       "advisory_open": 1,
       "notes": "Six angles across two independent finders. Two findings: the no-trip path emits no [tool] log line (advisory, recorded in SUMMARY); and the MCP tool schema relaxed trip_id out of required (escalated as E001, decided by the user, fixed in f981701 and pinned by test_mcp_schema_keeps_trip_id_optional). Re-review of that fix passed.",
-      "type": "correctness-review-6-angle"
+      "type": "correctness"
     },
     {
       "reviewer": "intent-review",
@@ -32,7 +32,7 @@
       "blocking_open": 0,
       "advisory_open": 1,
       "notes": "Plan-blind against the verbatim issue text. No gap, no drift. One report-only excess: the MCP schema relaxation and its caller-neutral reword are surface the issue never asked for; raised as E001, approved by the user, recorded in SUMMARY Intent Findings.",
-      "type": "intent-review"
+      "type": "intent"
     }
   ]
 }
