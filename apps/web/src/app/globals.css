@@ -349,6 +349,41 @@ body {
 }
 .tp-ping { animation: tp-ping 2.4s cubic-bezier(0, 0, 0.2, 1) 1s 2 both; }
 
+/* Activity-trail running dot — a soft pulse while a tool step is in flight. */
+@keyframes tp-trail-dot {
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%      { opacity: .4; transform: scale(.7); }
+}
+.tp-trail-dot { animation: tp-trail-dot 1.1s ease-in-out infinite; }
+
+/* Result-card reveal — the inline panel summary lifts in as it attaches. */
+@keyframes tp-card-in {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+.tp-card-in { animation: tp-card-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes tp-panel-swap {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tp-panel-swap { animation: tp-panel-swap 220ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both; }
+
+/* Lime-tinted elevation — the "wow" glow under interactive cards. Uses the
+ * design system's --lime so both themes stay on-brand. */
+.tp-glow {
+  box-shadow:
+    0 1px 2px rgba(17, 17, 17, 0.05),
+    0 6px 16px -8px rgba(17, 17, 17, 0.12),
+    0 18px 44px -14px color-mix(in srgb, var(--lime) 50%, transparent);
+}
+.tp-glow-strong {
+  box-shadow:
+    0 2px 4px rgba(17, 17, 17, 0.06),
+    0 10px 24px -10px rgba(17, 17, 17, 0.16),
+    0 24px 56px -14px color-mix(in srgb, var(--lime) 75%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .tp-deal { opacity: 1; }
@@ -356,4 +391,7 @@ body {
   /* Infinite/looping motion must be silenced outright, not just sped up. */
   .tp-typing-dot { animation: none; opacity: .6; }
   .tp-ping { animation: none; opacity: 0; }
+  .tp-trail-dot { animation: none; opacity: .6; }
+  .tp-card-in { animation: none; opacity: 1; }
+  .tp-panel-swap { animation: none; opacity: 1; }
 }

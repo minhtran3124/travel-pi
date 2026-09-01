@@ -390,7 +390,7 @@
     }
   },
   "Chat": {
-    "headerTitle": "Tin · Travel Assistant",
+    "headerTitle": "Tin",
     "dialogLabel": "Travel Assistant",
     "statusReady": "Ready when you are",
     "statusWorking": "Working on it…",
@@ -465,7 +465,49 @@
     "errorUnavailable": "The travel assistant is unavailable right now. Please try again later.",
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
-    "errorQuota": "You've reached today's free message limit."
+    "errorQuota": "You've reached today's free message limit.",
+    "activity": {
+      "running": "Running",
+      "summary": "Used {count, plural, one {# tool} other {# tools}} · {seconds}s",
+      "expand": "Show details",
+      "collapse": "Hide details",
+      "working": "Working…",
+      "hotels": "Searching hotels",
+      "flights": "Searching flights",
+      "places": "Finding places",
+      "weather": "Checking the weather",
+      "route": "Finding the route",
+      "airQuality": "Checking air quality",
+      "budget": "Checking your budget",
+      "journal": "Updating your trip"
+    },
+    "actions": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "regenerate": "Regenerate"
+    },
+    "result": {
+      "open": "Open",
+      "close": "Close"
+    },
+    "capabilities": {
+      "plan": {
+        "label": "Plan a trip",
+        "subtitle": "Build a day-by-day itinerary"
+      },
+      "nearby": {
+        "label": "Find nearby",
+        "subtitle": "Discover places around you"
+      },
+      "weather": {
+        "label": "Check weather",
+        "subtitle": "Forecasts for your destination"
+      },
+      "budget": {
+        "label": "Track budget",
+        "subtitle": "See how your spending adds up"
+      }
+    }
   },
   "Panel": {
     "detailPanelLabel": "Detail panel",
