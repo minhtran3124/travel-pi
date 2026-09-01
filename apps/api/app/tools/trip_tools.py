@@ -58,8 +58,9 @@ def _no_active_trip() -> dict:
         "error": "no_active_trip",
         "message": "No trip was supplied for this call.",
         "hint": (
-            "Identify the trip first: in a conversation, ask which trip is "
-            "meant or call create_trip to start one; otherwise pass a trip_id."
+            "Identify the trip first: in a conversation, ask the traveller "
+            "which trip is meant (not every assistant can create trips); "
+            "otherwise pass a trip_id."
         ),
     }
 
@@ -67,10 +68,10 @@ def _no_active_trip() -> dict:
 @tool
 def get_trip_summary(
     user_id: Annotated[
-        str,
+        str | None,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
-    ],
+    ] = None,
     trip_id: Annotated[
         str | None,
         InjectedState("trip_id"),
@@ -86,7 +87,12 @@ def get_trip_summary(
         must pass it explicitly. When absent, the guidance value is returned.
     :return: The trip's full snapshot.
     """
-    if not trip_id:
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
         return _no_active_trip()
     log_tool_call("get_trip_summary", {"trip_id": trip_id})
     with session_scope() as s:
@@ -99,10 +105,10 @@ def get_trip_summary(
 @tool
 def get_trip_budget(
     user_id: Annotated[
-        str,
+        str | None,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
-    ],
+    ] = None,
     trip_id: Annotated[
         str | None,
         InjectedState("trip_id"),
@@ -117,7 +123,12 @@ def get_trip_budget(
         returned.
     :return: The trip's budget rollup.
     """
-    if not trip_id:
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
         return _no_active_trip()
     log_tool_call("get_trip_budget", {"trip_id": trip_id})
     with session_scope() as s:
@@ -130,10 +141,10 @@ def get_trip_budget(
 @tool
 def list_trip_places(
     user_id: Annotated[
-        str,
+        str | None,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
-    ],
+    ] = None,
     trip_id: Annotated[
         str | None,
         InjectedState("trip_id"),
@@ -148,7 +159,12 @@ def list_trip_places(
         returned.
     :return: The places shortlisted onto the trip.
     """
-    if not trip_id:
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
         return _no_active_trip()
     log_tool_call("list_trip_places", {"trip_id": trip_id})
     with session_scope() as s:
@@ -164,10 +180,10 @@ def add_place_to_trip(
         str, Field(description="The place's id or PLC-XXXX short code.")
     ],
     user_id: Annotated[
-        str,
+        str | None,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
-    ],
+    ] = None,
     trip_id: Annotated[
         str | None,
         InjectedState("trip_id"),
@@ -190,7 +206,12 @@ def add_place_to_trip(
     :param source: 'catalog' (default) or 'saved'.
     :return: The created trip-place record.
     """
-    if not trip_id:
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
         return _no_active_trip()
     log_tool_call(
         "add_place_to_trip",
@@ -210,10 +231,10 @@ def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
     title: Annotated[str, Field(description="The item's title.")],
     user_id: Annotated[
-        str,
+        str | None,
         InjectedState("user_id"),
         Field(description="The trip's owner. Injected from graph state (#118)."),
-    ],
+    ] = None,
     trip_id: Annotated[
         str | None,
         InjectedState("trip_id"),
@@ -249,7 +270,12 @@ def add_itinerary_item(
     :param start_time: Optional start time for the item.
     :return: The created itinerary item.
     """
-    if not trip_id:
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
         return _no_active_trip()
     log_tool_call(
         "add_itinerary_item",
