@@ -9,7 +9,7 @@ import { AgentActivityTrail } from "./AgentActivityTrail";
 import { AgentAvatar } from "./AgentAvatar";
 import { AssistantMarkdown } from "./AssistantMarkdown";
 import { MessageActions } from "./MessageActions";
-import { ResultCard } from "./ResultCard";
+import { ResultChips } from "./ResultChips";
 import type { ChatMessage } from "./useAgentStream";
 
 export interface MessageListProps {
@@ -21,7 +21,7 @@ export interface MessageListProps {
   onRegenerate?: () => void;
 }
 
-/** Stable no-op so a missing `onOpenPanel` keeps `ResultCard`'s required prop satisfied. */
+/** Stable no-op so a missing `onOpenPanel` keeps `ResultChips`'s required prop satisfied. */
 const noopOpen = () => {};
 
 /** Three bouncing dots — the agent "thinking" before its first token lands. */
@@ -107,13 +107,14 @@ export function MessageList({
                 </div>
               </div>
             ) : null}
-            {m.panels.map((panel) => (
-              <ResultCard
-                key={panel.toolCallId}
-                panel={panel}
-                onOpen={onOpenPanel ?? noopOpen}
-              />
-            ))}
+            {/* Panel events arrive on the wire BEFORE the answer's tokens (tools
+                run first), so revealing chips mid-stream shows results above an
+                empty bubble. Hold them until the turn finishes streaming — the
+                same moment MessageActions appears — so the reading order stays
+                text first, then the entry points to details. */}
+            {!streaming && m.panels.length > 0 ? (
+              <ResultChips panels={m.panels} onOpen={onOpenPanel ?? noopOpen} />
+            ) : null}
             {!streaming && m.content.trim().length > 0 ? (
               <MessageActions
                 content={m.content}

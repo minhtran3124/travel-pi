@@ -20,9 +20,9 @@ vi.mock("./AgentActivityTrail", () => ({
       </div>
     ) : null,
 }));
-vi.mock("./ResultCard", () => ({
-  ResultCard: ({ panel }: { panel: { kind: string } }) => (
-    <div data-testid="card">{panel.kind}</div>
+vi.mock("./ResultChips", () => ({
+  ResultChips: ({ panels }: { panels: { kind: string }[] }) => (
+    <div data-testid="card">{panels.map((p) => p.kind).join(",")}</div>
   ),
 }));
 vi.mock("./MessageActions", () => ({
@@ -108,7 +108,7 @@ describe("MessageList — turn composition", () => {
     expect(actions.getAttribute("data-regen")).toBe("true");
   });
 
-  it("shows no actions while the last assistant message is streaming", () => {
+  it("defers actions AND panel chips while the last assistant message is streaming", () => {
     const messages: ChatMessage[] = [
       { id: "u", role: "user", content: "hi", activity: [], panels: [] },
       {
@@ -116,12 +116,13 @@ describe("MessageList — turn composition", () => {
         role: "assistant",
         content: "partial",
         activity: [step],
-        panels: [],
+        panels: [panel],
       },
     ];
     render(<MessageList messages={messages} isStreaming onRegenerate={() => {}} />);
 
     expect(screen.queryByTestId("actions")).toBeNull();
+    expect(screen.queryByTestId("card")).toBeNull();
     expect(screen.getByTestId("trail").getAttribute("data-streaming")).toBe(
       "true",
     );
