@@ -41,6 +41,8 @@ export interface ChatHeaderProps {
   onToggleFullscreen: () => void;
   onClose: () => void;
   onNewConversation: () => void;
+  /** Compact (mobile sheet) mode: hides the expand toggle and enlarges the close hit target. */
+  isCompact?: boolean;
 }
 
 /** Chat panel title bar: agent identity, live status, settings + expand/shrink + close. */
@@ -50,58 +52,59 @@ export function ChatHeader({
   onToggleFullscreen,
   onClose,
   onNewConversation,
+  isCompact = false,
 }: ChatHeaderProps) {
   const t = useTranslations("Chat");
   return (
-    <header className="flex items-center justify-between border-b border-line bg-gradient-to-r from-lime-soft/55 via-panel to-panel px-lg py-md">
+    <header className="flex items-center justify-between border-b border-line bg-gradient-to-l from-lime-soft via-lime-soft/30 to-panel px-lg py-md">
       <div className="flex items-center gap-sm">
         <AgentAvatar size="sm" />
-        <div className="leading-tight">
-          <h2 className="text-sm font-bold tracking-tight text-ink">
-            {t("headerTitle")}
-          </h2>
-          <p
-            role="status"
-            aria-live="polite"
-            className="flex items-center gap-1.5 text-xs text-muted"
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                "h-1.5 w-1.5 rounded-pill",
-                STATUS_DOT[status],
-                status === "working" && "tp-typing-dot",
-              )}
-            />
-            {t(STATUS_KEY[status])}
-          </p>
-        </div>
+        <h2 className="text-sm font-bold tracking-tight text-ink">
+          {t("headerTitle")}
+        </h2>
+        <span
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-1.5 rounded-pill bg-panel-raised px-2.5 py-0.5 text-xs text-muted"
+        >
+          <span
+            aria-hidden="true"
+            className={cn(
+              "h-1.5 w-1.5 rounded-pill",
+              STATUS_DOT[status],
+              status === "working" && "tp-typing-dot",
+            )}
+          />
+          {t(STATUS_KEY[status])}
+        </span>
       </div>
       <div className="flex items-center gap-xs">
         <ChatSettingsMenu
           onNewConversation={onNewConversation}
           disabled={status !== "ready"}
         />
-        <button
-          type="button"
-          aria-label={fullscreen ? t("shrinkPanel") : t("expandPanel")}
-          aria-pressed={fullscreen}
-          onClick={onToggleFullscreen}
-          className={iconButtonClass}
-        >
-          <svg {...svgProps}>
-            {fullscreen ? (
-              <path d="M9 9 4 4m0 0v4m0-4h4m6 5 5-5m0 0v4m0-4h-4M9 15l-5 5m0 0v-4m0 4h4m6-5 5 5m0 0v-4m0 4h-4" />
-            ) : (
-              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-            )}
-          </svg>
-        </button>
+        {!isCompact && (
+          <button
+            type="button"
+            aria-label={fullscreen ? t("shrinkPanel") : t("expandPanel")}
+            aria-pressed={fullscreen}
+            onClick={onToggleFullscreen}
+            className={iconButtonClass}
+          >
+            <svg {...svgProps}>
+              {fullscreen ? (
+                <path d="M9 9 4 4m0 0v4m0-4h4m6 5 5-5m0 0v4m0-4h-4M9 15l-5 5m0 0v-4m0 4h4m6-5 5 5m0 0v-4m0 4h-4" />
+              ) : (
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              )}
+            </svg>
+          </button>
+        )}
         <button
           type="button"
           aria-label={t("closeAssistant")}
           onClick={onClose}
-          className={iconButtonClass}
+          className={cn(iconButtonClass, isCompact && "h-11 w-11")}
         >
           <svg {...svgProps}>
             <path d="M18 6 6 18M6 6l12 12" />

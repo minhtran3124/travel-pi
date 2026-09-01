@@ -9,7 +9,7 @@ import { fetchClaim, fetchConversationMessages, type ChatRequest } from "@/lib/q
 import type { PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { createClient } from "@/lib/supabase/client";
-import { parseSSE } from "@/lib/stream/parseSSE";
+import { parseSSE, type SSEEvent } from "@/lib/stream/parseSSE";
 import { createSmoothReveal, type SmoothReveal } from "./smoothReveal";
 
 const CONVERSATION_STORAGE_KEY = "travel.conversationId";
@@ -43,11 +43,29 @@ function clearStoredConversationId(): void {
 
 export type ChatRole = "user" | "assistant";
 
+/**
+ * One tool invocation surfaced in an assistant turn's activity trail. `tool` is
+ * the raw wire tool name (the UI resolves it to a localized label); `subagent`
+ * is the active specialist when the call fired, or `null` if none was announced.
+ */
+export type ActivityStep = {
+  id: string;
+  tool: string;
+  subagent: string | null;
+  status: "running" | "ok" | "error";
+};
+
 export interface ChatMessage {
   id: string;
   role: ChatRole;
   /** Grows token-by-token while an assistant turn streams. */
   content: string;
+  /** Tool/subagent steps produced during this turn (assistant turns only). */
+  activity: ActivityStep[];
+  /** Structured panel artifacts produced during this turn, in arrival order. */
+  panels: PanelArtifact[];
+  /** Wall-clock duration of the turn in ms; set once the turn ends. */
+  elapsedMs?: number;
 }
 
 /** Pending HITL interrupt from the agent — shown as an approve/reject prompt. */
@@ -91,6 +109,12 @@ export interface UseAgentStream {
    */
   retry: () => void;
   /**
+   * Regenerates the last completed assistant turn: drops that answer from the
+   * transcript and re-runs the question with `retry:true` (no duplicate user
+   * bubble, no re-saved question row).
+   */
+  regenerate: () => void;
+  /**
    * Clears the current conversation and starts fresh: resets conversationId,
    * clears persisted storage, and empties the message list.
    */
@@ -131,9 +155,9 @@ function newId(): string {
 
 /**
  * Drives a single agent conversation: streams `/agent/stream` direct-to-origin
- * (bypassing the buffering Next proxy). Only the assistant's final answer is
- * rendered — sub-agent/tool activity events on the wire are ignored. Conversation
- * id is persisted across turns for continuity.
+ * (bypassing the buffering Next proxy). The assistant's final answer streams into
+ * the message bubble; sub-agent/tool activity and panel events are surfaced onto
+ * that turn's `activity` / `panels`. Conversation id is persisted across turns.
  *
  * HITL: when the agent emits `event: interrupt`, the hook surfaces an
  * `interrupt` state and a `resume(approved)` action. The UI shows an
@@ -213,7 +237,13 @@ export function useAgentStream(
         .then((msgs) => {
           if (msgs.length > 0) {
             setMessages(
-              msgs.map((m) => ({ id: m.id, role: m.role, content: m.content })),
+              msgs.map((m) => ({
+                id: m.id,
+                role: m.role,
+                content: m.content,
+                activity: [],
+                panels: [],
+              })),
             );
           }
         })
@@ -241,6 +271,81 @@ export function useAgentStream(
       prev.map((m) => (m.id === id ? { ...m, content } : m)),
     );
   }, []);
+
+  // Append a structured panel to the streaming assistant message's own `panels`
+  // (per-turn), alongside the flat `panels` state the drawer consumes.
+  const attachPanelToMessage = useCallback(
+    (id: string, panel: PanelArtifact) => {
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m.id !== id) return m;
+          // The graph can re-emit a panel for the same result (reflection /
+          // revision passes re-run the tool under a fresh call id) — upsert by
+          // kind, mirroring the drawer's upsert-by-kind: one card per result
+          // kind, always carrying the latest payload.
+          const at = m.panels.findIndex(
+            (existing) => existing.kind === panel.kind,
+          );
+          const panels =
+            at === -1
+              ? [...m.panels, panel]
+              : m.panels.map((existing, i) => (i === at ? panel : existing));
+          return { ...m, panels };
+        }),
+      );
+    },
+    [],
+  );
+
+  // Surface subagent/tool_call/tool_result events onto the streaming assistant
+  // message's activity trail. `specialist` is a per-turn holder tracking the
+  // active sub-agent so tool steps can attribute themselves. Returns true when
+  // the event was an activity event (handled here), false otherwise. Shared by
+  // the send / resume / retry loops so all three stay consistent.
+  const handleActivityEvent = useCallback(
+    (
+      id: string,
+      event: SSEEvent,
+      specialist: { current: string | null },
+    ): boolean => {
+      switch (event.type) {
+        case "subagent":
+          specialist.current = event.name || null;
+          return true;
+        case "tool_call": {
+          const step: ActivityStep = {
+            id: event.id,
+            tool: event.name,
+            subagent: specialist.current ?? event.subagent,
+            status: "running",
+          };
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === id ? { ...m, activity: [...m.activity, step] } : m,
+            ),
+          );
+          return true;
+        }
+        case "tool_result":
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === id
+                ? {
+                    ...m,
+                    activity: m.activity.map((s) =>
+                      s.id === event.id ? { ...s, status: event.status } : s,
+                    ),
+                  }
+                : m,
+            ),
+          );
+          return true;
+        default:
+          return false;
+      }
+    },
+    [],
+  );
 
   // Smooth-reveal controller (typewriter drip). Instantiated once — drains
   // buffered wire tokens into the assistant bubble at a bounded char rate so the
@@ -272,6 +377,7 @@ export function useAgentStream(
         return;
       }
       inFlightRef.current = true;
+      const startedAt = Date.now();
       // Finish revealing any leftover from the previous turn before retargeting.
       revealRef.current?.flush();
 
@@ -292,8 +398,8 @@ export function useAgentStream(
       setSuggestions([]);
       setMessages((prev) => [
         ...prev,
-        { id: newId(), role: "user", content: message },
-        { id: assistantId, role: "assistant", content: "" },
+        { id: newId(), role: "user", content: message, activity: [], panels: [] },
+        { id: assistantId, role: "assistant", content: "", activity: [], panels: [] },
       ]);
       setIsStreaming(true);
 
@@ -327,7 +433,9 @@ export function useAgentStream(
             throw new Error(`stream failed: ${res.status}`);
           }
 
+          const specialist = { current: null as string | null };
           for await (const event of parseSSE(res.body)) {
+            if (handleActivityEvent(assistantId, event, specialist)) continue;
             switch (event.type) {
               case "start":
                 // Pin the server's conversation id for turn continuity.
@@ -341,20 +449,22 @@ export function useAgentStream(
               case "reset":
                 // Agent revised its answer (reflection re-ran the sub-agent) —
                 // drop the superseded draft so only the final answer renders.
+                // Activity/panels stay: the work still happened.
                 revealRef.current?.reset(assistantId);
                 break;
-              case "panel":
+              case "panel": {
                 received = true;
                 applyPanelLanguage(event.language);
-                setPanels((prev) =>
-                  upsertPanelByKind(prev, {
-                    toolCallId: event.toolCallId,
-                    kind: event.kind,
-                    data: event.data,
-                    language: event.language,
-                  }),
-                );
+                const panel: PanelArtifact = {
+                  toolCallId: event.toolCallId,
+                  kind: event.kind,
+                  data: event.data,
+                  language: event.language,
+                };
+                setPanels((prev) => upsertPanelByKind(prev, panel));
+                attachPanelToMessage(assistantId, panel);
                 break;
+              }
               case "done":
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
@@ -374,8 +484,8 @@ export function useAgentStream(
               case "error":
                 // In-band backend failure — route through the catch below.
                 throw new Error(`agent error: ${event.code}`);
-              // subagent / tool_call / tool_result: not surfaced — we only
-              // render the assistant's final answer.
+              // subagent / tool_call / tool_result already handled above by
+              // handleActivityEvent (surfaced onto the message's activity trail).
               default:
                 break;
             }
@@ -400,6 +510,13 @@ export function useAgentStream(
         } finally {
           inFlightRef.current = false;
           if (!controller.signal.aborted) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, elapsedMs: Date.now() - startedAt }
+                  : m,
+              ),
+            );
             setIsStreaming(false);
             // Delay onTurnComplete until after the user resolves the interrupt.
             if (!sawInterrupt) {
@@ -410,7 +527,16 @@ export function useAgentStream(
         }
       })();
     },
-    [applyPanelLanguage, interrupt, isStreaming, onTurnComplete, t, userId],
+    [
+      applyPanelLanguage,
+      attachPanelToMessage,
+      handleActivityEvent,
+      interrupt,
+      isStreaming,
+      onTurnComplete,
+      t,
+      userId,
+    ],
   );
 
   const resume = useCallback(
@@ -420,6 +546,7 @@ export function useAgentStream(
       if (!userId || !pendingInterrupt || !assistantId || inFlightRef.current)
         return;
       inFlightRef.current = true;
+      const startedAt = Date.now();
 
       const body: ChatRequest = {
         resume: { approved },
@@ -454,7 +581,9 @@ export function useAgentStream(
             throw new Error(`resume failed: ${res.status}`);
           }
 
+          const specialist = { current: null as string | null };
           for await (const event of parseSSE(res.body)) {
+            if (handleActivityEvent(assistantId, event, specialist)) continue;
             switch (event.type) {
               case "token":
                 revealRef.current?.enqueue(assistantId, event.text);
@@ -462,17 +591,18 @@ export function useAgentStream(
               case "reset":
                 revealRef.current?.reset(assistantId);
                 break;
-              case "panel":
+              case "panel": {
                 applyPanelLanguage(event.language);
-                setPanels((prev) =>
-                  upsertPanelByKind(prev, {
-                    toolCallId: event.toolCallId,
-                    kind: event.kind,
-                    data: event.data,
-                    language: event.language,
-                  }),
-                );
+                const panel: PanelArtifact = {
+                  toolCallId: event.toolCallId,
+                  kind: event.kind,
+                  data: event.data,
+                  language: event.language,
+                };
+                setPanels((prev) => upsertPanelByKind(prev, panel));
+                attachPanelToMessage(assistantId, panel);
                 break;
+              }
               case "done":
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
@@ -480,8 +610,8 @@ export function useAgentStream(
                 break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
-              // Nested interrupts are not expected; start/subagent/tool events
-              // are no-ops here.
+              // subagent/tool events handled above by handleActivityEvent;
+              // nested interrupts and `start` are no-ops on resume.
               default:
                 break;
             }
@@ -496,6 +626,13 @@ export function useAgentStream(
         } finally {
           inFlightRef.current = false;
           if (!controller.signal.aborted) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, elapsedMs: Date.now() - startedAt }
+                  : m,
+              ),
+            );
             setIsStreaming(false);
             onTurnComplete?.();
           }
@@ -503,20 +640,28 @@ export function useAgentStream(
         }
       })();
     },
-    [applyPanelLanguage, interrupt, onTurnComplete, t, userId],
+    [
+      applyPanelLanguage,
+      attachPanelToMessage,
+      handleActivityEvent,
+      interrupt,
+      onTurnComplete,
+      t,
+      userId,
+    ],
   );
 
-  const retry = useCallback(() => {
+  const rerun = useCallback((question: string) => {
     if (inFlightRef.current || isStreaming || interrupt !== null) return;
     if (!userId) {
       setError(t("errorIdentityNotReady"));
       return;
     }
-    const last = messages[messages.length - 1];
     const conversationId = conversationIdRef.current;
-    // Only meaningful for a dangling user turn on an existing conversation.
-    if (!last || last.role !== "user" || !conversationId) return;
+    // Only meaningful on an existing conversation.
+    if (!conversationId) return;
     inFlightRef.current = true;
+    const startedAt = Date.now();
     // Finish revealing any leftover from the previous turn before retargeting.
     revealRef.current?.flush();
 
@@ -527,12 +672,12 @@ export function useAgentStream(
     // No new user bubble — the question is already on screen and in the DB.
     setMessages((prev) => [
       ...prev,
-      { id: assistantId, role: "assistant", content: "" },
+      { id: assistantId, role: "assistant", content: "", activity: [], panels: [] },
     ]);
     setIsStreaming(true);
 
     const body: ChatRequest = {
-      message: last.content,
+      message: question,
       user_id: userId,
       trip_id: tripIdRef.current ?? null,
       conversation_id: conversationId,
@@ -562,7 +707,9 @@ export function useAgentStream(
           throw new Error(`retry failed: ${res.status}`);
         }
 
+        const specialist = { current: null as string | null };
         for await (const event of parseSSE(res.body)) {
+          if (handleActivityEvent(assistantId, event, specialist)) continue;
           switch (event.type) {
             case "start":
               conversationIdRef.current = event.conversationId;
@@ -575,18 +722,19 @@ export function useAgentStream(
             case "reset":
               revealRef.current?.reset(assistantId);
               break;
-            case "panel":
+            case "panel": {
               received = true;
               applyPanelLanguage(event.language);
-              setPanels((prev) =>
-                upsertPanelByKind(prev, {
-                  toolCallId: event.toolCallId,
-                  kind: event.kind,
-                  data: event.data,
-                  language: event.language,
-                }),
-              );
+              const panel: PanelArtifact = {
+                toolCallId: event.toolCallId,
+                kind: event.kind,
+                data: event.data,
+                language: event.language,
+              };
+              setPanels((prev) => upsertPanelByKind(prev, panel));
+              attachPanelToMessage(assistantId, panel);
               break;
+            }
             case "done":
               // Terminal event — capture the turn's language for the panels.
               applyPanelLanguage(event.language);
@@ -622,6 +770,13 @@ export function useAgentStream(
       } finally {
         inFlightRef.current = false;
         if (!controller.signal.aborted) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? { ...m, elapsedMs: Date.now() - startedAt }
+                : m,
+            ),
+          );
           setIsStreaming(false);
           if (!sawInterrupt) {
             onTurnComplete?.();
@@ -630,7 +785,34 @@ export function useAgentStream(
         if (abortRef.current === controller) abortRef.current = null;
       }
     })();
-  }, [applyPanelLanguage, interrupt, isStreaming, messages, onTurnComplete, t, userId]);
+  }, [
+    applyPanelLanguage,
+    attachPanelToMessage,
+    handleActivityEvent,
+    interrupt,
+    isStreaming,
+    onTurnComplete,
+    t,
+    userId,
+  ]);
+
+  const retry = useCallback(() => {
+    const last = messages[messages.length - 1];
+    // Only meaningful for a dangling user turn (the failed send kept the bubble).
+    if (!last || last.role !== "user") return;
+    rerun(last.content);
+  }, [messages, rerun]);
+
+  const regenerate = useCallback(() => {
+    if (inFlightRef.current || isStreaming || interrupt !== null) return;
+    const last = messages[messages.length - 1];
+    const prevUser = messages[messages.length - 2];
+    if (!last || last.role !== "assistant" || prevUser?.role !== "user") return;
+    // Drop the answer being regenerated; the question is already on screen and
+    // saved server-side, so the rerun goes out with retry: true (no re-save).
+    setMessages((prev) => prev.slice(0, -1));
+    rerun(prevUser.content);
+  }, [interrupt, isStreaming, messages, rerun]);
 
   const newConversation = useCallback(() => {
     revealRef.current?.clear();
@@ -658,6 +840,7 @@ export function useAgentStream(
     resume,
     canRetry,
     retry,
+    regenerate,
     newConversation,
     panels,
     panelLanguage,
