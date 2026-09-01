@@ -346,3 +346,39 @@ def test_mcp_surface_unchanged_by_planner_scoping():
 
     all_names = {t.name for t in ALL_TOOLS}
     assert {"book_flight", "book_hotel", "cancel_flight", "cancel_hotel"} <= all_names
+
+
+# --- gh-125 ratchet: injected trip-scoped params must tolerate absent state ---
+
+
+def test_injected_trip_id_params_have_defaults():
+    """Registry-wide gh-125 ratchet: every ``InjectedState("trip_id")`` param on
+    every registered tool must declare a default. A required injected param opts
+    out of ToolNode's ``_optional_state_args`` tolerance, so a conversation with
+    no active trip crashes with ``KeyError: 'trip_id'`` during injection — the
+    exact gh-125 bug. The per-tool tests in
+    ``test_trip_tools_no_active_trip.py`` cover only a hard-coded tool list;
+    this loop catches the sixth trip-scoped tool automatically.
+    """
+    import inspect
+    import typing
+
+    from app.tools.registry import ALL_TOOLS
+    from langgraph.prebuilt import InjectedState
+
+    checked = 0
+    for reg_tool in ALL_TOOLS:
+        fn = reg_tool.coroutine or reg_tool.func
+        hints = typing.get_type_hints(fn, include_extras=True)
+        for pname, param in inspect.signature(fn).parameters.items():
+            metadata = getattr(hints.get(pname), "__metadata__", ())
+            if any(
+                isinstance(m, InjectedState) and m.field == "trip_id"
+                for m in metadata
+            ):
+                assert param.default is not inspect.Parameter.empty, (
+                    f"{reg_tool.name}.{pname}: InjectedState('trip_id') without a "
+                    "default reintroduces the gh-125 injection KeyError"
+                )
+                checked += 1
+    assert checked >= 5  # the five trip tools, at minimum — not vacuous
