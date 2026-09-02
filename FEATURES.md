@@ -34,24 +34,27 @@ and the MCP server.
 
 ### 2.1 Graph architecture
 
-`START → load_context → summarize → supervisor → route_tasks → {sub-agent | plan | parallel synthesis} → dispatch_next → reflection → END`
+`START → load_context → summarize → supervisor → route_tasks → {single sub-agent → reflection | plan (booking HITL) → booking → reflection | parallel Send(synthesis_worker) × N → synthesize → reflection} → END`
 
 - **Supervisor** — a structured-output router that picks a `target_agent`, an optional
-  `secondary_agent`, and an ordered multi-intent `plan`; it also detects the conversation
-  `language` and extracts raw slots (destination, dates, party size, budget…).
-  Slot *extraction* is LLM work; slot *normalization* is plain Python — the model never
-  computes a final date or number.
-- **Task ledger** — the supervisor builds an ordered task list (max 4 steps). `dispatch_next`
-  is pure code with no LLM call: it drains queued flows one at a time, hides the previous
-  sub-agent's prose from the next one while keeping tool results visible, and aborts the queue
-  if the agent needs to ask the user something.
-- **Parallel multi-intent** — more than one task fans out to `synthesis_worker`s via LangGraph
-  `Send`, converging on a single `synthesize` node so REST and SSE emit one aligned final answer.
+  `secondary_agent`, and a `plan` of **additional independent** specialists (slices that don't
+  depend on the primary's result); it also detects the conversation `language` and extracts raw
+  slots (destination, dates, party size, budget…). Slot *extraction* is LLM work; slot
+  *normalization* is plain Python — the model never computes a final date or number.
+- **Parallel task list** — the supervisor builds a `tasks` list deduplicated by agent (primary
+  first, max 4). `route_tasks` is pure code with no LLM call: one task routes to a single specialist,
+  `booking` detours through the HITL `plan` node, and two or more tasks fan out to parallel
+  `synthesis_worker`s via LangGraph `Send`, converging on a single `synthesize` node so REST and SSE
+  emit one aligned final answer. There is no ordered sequential ledger and no `dispatch_next`.
+- **Dependent chains → one specialist** — a chain whose steps all live in one specialist's toolset
+  (flights → hotel → places → weather → itinerary are all planner-owned) routes to that single
+  specialist; its own ReAct loop is the sequential executor and sees its own tool results, staying
+  within `agent_recursion_limit` (25).
 - **Reflection / revision loop** — a bounded LLM self-critique judge can send the answer back to
   its sub-agent once (`max_revisions` default 1); the SSE `reset` event tells the client to
   discard the superseded draft.
-- **Clarification** — a `needs_clarification` tool sets `awaiting_user`, which short-circuits both
-  the task queue and the reflection judge (a question isn't a reviewable answer).
+- **Clarification** — a `needs_clarification` tool sets `awaiting_user`, which makes reflection end
+  the turn early (a question isn't a reviewable answer).
 - **Fault tolerance** — a `RetryPolicy` on every LLM node retries provider-transient failures
   (408/409/429/5xx, timeouts); tool errors are returned to the model as a self-correction hint
   rather than crashing the turn.

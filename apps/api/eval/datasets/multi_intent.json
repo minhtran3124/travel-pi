@@ -23,5 +23,10 @@
     "input": "Move day 2 before day 3",
     "expected": "planner",
     "expected_plan": []
+  },
+  {
+    "input": "Plan everything for a Tokyo weekend: flights, a hotel, places to see, the weather, local tips and a day-by-day plan",
+    "expected": "planner",
+    "expected_plan": ["concierge"]
   }
 ]
