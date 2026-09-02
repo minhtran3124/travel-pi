@@ -75,9 +75,16 @@ def describe_tool_failure(exc: Exception) -> str:
       ``InjectedState``/``InjectedStore`` args, which the model cannot supply, so
       langgraph filters them out and leaves an empty error list. A runtime
       precondition is missing (typically no active trip); ask the traveller.
-    * ``UpstreamError`` cause → genuinely transient.
+    * ``UpstreamError`` (raised bare, or as the cause) → genuinely transient.
+      Bare matters: weather/routing/climate tools re-raise ``UpstreamError``
+      untouched so the node's ``RetryPolicy`` sees it, and the catch-all hook is
+      the backstop for every tool error — so it must not read as unknown there.
     * any other ``AppError`` cause → a deterministic domain error whose message
       already carries ``detail`` + ``hint`` from :func:`app.tools._base.tool_error`.
+    * a causeless ``ToolException`` → a validation message the tool wrote itself
+      (``raise ToolException(...)`` with no ``from``, e.g. date/flight/hotel arg
+      checks). It is a logic error the model can often act on — several name the
+      exact correction — so it must not be filed under "cause unknown".
 
     :param exc: The exception raised by a tool call.
     :return: A user-safe message describing the failure and its recovery.
@@ -98,7 +105,7 @@ def describe_tool_failure(exc: Exception) -> str:
     # tool_error() is always raised as `raise tool_error(e) from e`, so the
     # originating domain error is on __cause__ (app/tools/_base.py).
     cause = exc.__cause__
-    if isinstance(cause, UpstreamError):
+    if isinstance(exc, UpstreamError) or isinstance(cause, UpstreamError):
         return (
             f"Tool call failed: {exc}. This is a temporary upstream problem, not a "
             "bad request — do not retry the tool; tell the user the information is "
@@ -110,6 +117,14 @@ def describe_tool_failure(exc: Exception) -> str:
             "not an outage — do not tell the user to try again later. Act on the "
             "message above: use the hint if there is one, otherwise tell the user "
             "plainly what was not found or not allowed."
+        )
+    if isinstance(exc, ToolException):
+        return (
+            f"Tool call failed: {exc}. That message is the tool's own explanation "
+            "of what is wrong, not an outage — do not tell the user to try again "
+            "later. If it names a correction you can make yourself (including "
+            "calling another tool first), make it and call the tool again; "
+            "otherwise tell the user plainly what is needed."
         )
     return (
         f"Tool call failed: {exc}. The cause is unknown — do not claim an outage "

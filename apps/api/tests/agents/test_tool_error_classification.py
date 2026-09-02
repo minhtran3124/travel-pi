@@ -152,6 +152,81 @@ def test_conflict_is_also_a_definite_answer(hook):
 
 
 # ---------------------------------------------------------------------------
+# Tool-authored validation errors: `raise ToolException(...)` with no `from`
+# ---------------------------------------------------------------------------
+#: Real causeless raises, copied from the tools that make them. `tool_error()`
+#: is not involved, so there is no __cause__ to classify by — the message is all
+#: there is, and it is deliberate.
+CAUSELESS = [
+    # app/tools/date_tools.py — names the exact correction to make.
+    "departure_date 2026-08-15 is in the past (today is 2026-09-01). Do not "
+    "guess or invent dates — call the resolve_date tool on the traveller's "
+    "original date expression to get the correct concrete date.",
+    # app/tools/flight_tools.py — a plain argument rejection.
+    "return_date must be on or after departure_date.",
+]
+
+
+@pytest.mark.parametrize("detail", CAUSELESS, ids=["date_tools", "flight_tools"])
+def test_causeless_toolexception_is_not_filed_as_unknown(hook, detail):
+    """Regression: nine real raise sites land here (#113 follow-up review).
+
+    `date_tools`, `flight_tools`, `hotel_tools`, `booking_tools` and `tip_tools`
+    all `raise ToolException(...)` without `from`, so `__cause__` is None. The
+    classifier used to fall through to "the cause is unknown — do not retry
+    blindly", which contradicts the message it is wrapping: several of these
+    name the correction the model should make.
+    """
+    msg = hook(ToolException(detail))
+
+    assert "cause is unknown" not in msg
+    assert "do not retry blindly" not in msg
+    # No false outage — the whole point of #113.
+    assert "try again shortly" not in msg
+    assert "temporary upstream problem" not in msg
+    # The tool's own words survive; they carry the actual recovery.
+    assert detail in msg
+
+
+def test_causeless_toolexception_allows_self_correction(hook):
+    """The model must stay free to fix it and call again.
+
+    This is the class most able to self-correct, so the verdict must not close
+    that door the way the injected-arg verdict deliberately does.
+    """
+    msg = hook(ToolException("return_date must be on or after departure_date."))
+
+    assert "tool's own explanation" in msg
+    assert "call the tool again" in msg
+    assert "retrying will fail identically" not in msg
+
+
+# ---------------------------------------------------------------------------
+# A bare UpstreamError reaching the catch-all is still transient
+# ---------------------------------------------------------------------------
+
+
+def test_unwrapped_upstream_error_keeps_the_transient_message():
+    """Only the broad hook can receive this (see the unknown-failure test).
+
+    `weather_tools`, `routing_tools` and `climate_tools` re-raise `UpstreamError`
+    untouched (`raise  # transient — let RetryPolicy retry the node`), so it
+    arrives with no __cause__ to classify by. Classifying on `__cause__` alone
+    filed a real outage as "cause unknown", breaking the #113 acceptance
+    criterion that a genuine upstream failure still reads as transient. Latent
+    today — every sub-agent holding an upstream tool has a `ToolFaultPolicy`, so
+    the error reaches `RetryPolicy` instead — but the catch-all is the backstop
+    for *every* tool error, so it must classify this correctly on its own.
+    """
+    msg = _tool_error_to_message(UpstreamError("Open-Meteo timed out"))
+
+    assert "temporary upstream problem" in msg
+    assert "try again shortly" in msg
+    assert "cause is unknown" not in msg
+    assert "Open-Meteo timed out" in msg
+
+
+# ---------------------------------------------------------------------------
 # Unclassifiable failure: still safe, still no false outage claim
 # ---------------------------------------------------------------------------
 

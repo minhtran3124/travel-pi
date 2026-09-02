@@ -122,22 +122,67 @@ this class of miss impossible to reintroduce.
 Worth recording: this gap was named in the issue text ("even `retry.py`'s wording would be wrong
 here") and still shipped unfixed — writing a risk down is not the same as covering it.
 
+### Second review round (deep review, this branch)
+
+**F1 (P2) — a causeless `ToolException` was filed as "cause unknown". Confirmed and fixed.**
+Nine real raise sites (`date_tools`, `flight_tools` ×3, `hotel_tools` ×2, `booking_tools` ×2,
+`tip_tools`) use `raise ToolException(...)` with no `from`, so `__cause__` is `None`. The classifier
+sniffs `__cause__` only, so all nine fell through to *"the cause is unknown — do not retry blindly"*.
+That contradicts the message being wrapped: several name the exact correction to make (`date_tools`
+says "call the resolve_date tool"). It was also a **regression on the `ToolFaultPolicy` path**, which
+previously answered "check the arguments and try a corrected call" — correct for this class.
+Fix: a `ToolException` branch before the unknown fallback, treating the tool's own message as the
+recovery it is.
+
+**F2 (P3, latent) — a bare `UpstreamError` was filed as "cause unknown". Confirmed and fixed.**
+`weather_tools`, `routing_tools` and `climate_tools` re-raise `UpstreamError` untouched
+(`raise  # transient — let RetryPolicy retry the node`), so it arrives with no `__cause__`. Classifying
+on `__cause__` alone broke acceptance criterion 2 (a genuine upstream failure must still read as
+transient) for the catch-all hook. Not reachable today — every sub-agent holding an upstream-capable
+tool (planner, concierge) has a `ToolFaultPolicy`, so the error reaches `RetryPolicy` instead — but the
+catch-all is the documented backstop for *every* tool error, so it must classify this on its own.
+Fix: `isinstance(exc, UpstreamError)` alongside the cause check.
+
+**F3 (P4) — dead parameter. Fixed.** `_make_trip_guard(tools, needing_trip)` never used `tools`; the
+docstring said so. Removed, with its four test call sites.
+
+**Scope probes that came back clean (recorded so they are not re-litigated):** hardcoding `trip_id`
+in the guard is *not* an over-narrow special case — it is the only nullable `InjectedState` field
+(`user_id` is always set by `_turn_input` in `app/routers/agent.py`; `preferences` has defaults), so a
+general "any missing injected field" mechanism would be speculative. Deriving the tool set from
+annotations rather than a hardcoded list is likewise justified and tested.
+
+**Observation, not fixed:** `_tools_needing_trip` swallows introspection failures
+(`except Exception: continue`), so any tool it cannot introspect is silently dropped from the guard —
+it **fails open with no log**. Found the hard way: a UAT probe that monkeypatched `tool.func` stripped
+the annotations and disabled the guard under test, producing a convincing false failure. No registered
+tool is affected today (verified), but a `logger.warning` in that handler would turn a silent hole
+into a visible one.
+
 ### Verify
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 16 passed — one per failure class × both `handle_tool_errors` hooks |
+| New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 23 passed — one per failure class × both `handle_tool_errors` hooks (16 before the second round; +7 for the two classes F1/F2 uncovered) |
 | Trip guard tests | `pytest tests/agents/test_trip_guard.py -q` | 0 | 7 passed; 3 fail with the guard disabled |
+| All agent tests (after F3) | `pytest tests/agents/ -q` | 0 | 273 passed — confirms dropping the dead `tools` param broke no call site |
+| Full suite, second round | `pytest -q` (from `apps/api/`) | 1 | 1821 passed, 12 failed — **the same 12 fail on this branch before these changes** (1814 passed / 12 failed), so the delta is exactly the 7 new tests. All 12 are `.env`-induced (real `OPENAI_API_KEY`/`ORS_API_KEY`/JWT issuer) or a stale hardcoded date in `test_preference_ranking`; **none is under `tests/agents/`**. |
+| UAT-1 — issue repro, offline | `scratchpad/uat1.py` (real compiled `budget` graph, FakeLLM, `trip_id=None`) | 0 | tool never executed, `awaiting_user=True`, model received `NO_ACTIVE_TRIP_MSG`, zero outage language |
+| UAT-2 — issue repro, live LLM | `POST localhost:8000/agent/chat` `{"message":"Break down my Tokyo trip expenses so far","trip_id":null}` | 0 | reply: *"I'm missing the trip record to read from … Which **Tokyo** trip do you mean — and what are the **rough dates**? If you don't have a trip set up yet, I can help you start one."* — the false-outage claim is gone |
+| UAT-3 — criteria 2 & 3, catch-all path | `scratchpad/uat2.py` (sub-agent with no `ToolFaultPolicy`) | 0 | bare `UpstreamError` → transient message (F2); causeless `ToolException` → keeps its own `resolve_date` recovery text, no outage claim (F1); no exception escaped the graph (no 500) |
 | Full backend suite | `DATABASE_URL=sqlite:///<tmp> pytest tests/ -q` | 1 | 1821 passed, 5 failed — the **same 5** fail on unmodified `main` (`.env` supplies real `OPENAI_API_KEY`/`ORS_API_KEY`/Langfuse values, defeating "no key configured" assertions). They pass when run from a directory without `.env`. |
 | Live behavior, real LLM | `scratchpad/repro_trip_lookup.py` (budget question, `trip_id=None`) | 0 | reply is now *"I couldn't find a trip record for **Tokyo** … if your trip is stored under a different name or ID, send that"* — before it was *"the budget service is temporarily unavailable … try again shortly"* |
 | Lint | `ruff check app scripts` | 0 | clean |
 | Format | `ruff format` on changed files | 0 | unchanged |
 
-**Verification gap, stated plainly:** the live re-run took a different tool path than the original
-repro — the model called `expense_summary(trip_id="Tokyo")`, so it exercised the **AppError/NotFound**
-branch, not the **injected-arg** branch. Which tool the model picks is not reproducible on demand, so
-the injected-arg branch is covered by unit test only. Both branches now avoid the false outage claim,
-which is the defect being fixed.
+**Verification gap — narrowed in the second round.** The first live re-run took a different tool path
+than the original repro (the model called `expense_summary(trip_id="Tokyo")`, exercising the
+**AppError/NotFound** branch rather than the **injected-arg** one), so that branch was unit-tested
+only. UAT-1 now closes it deterministically: it drives the **real compiled `budget` graph** with a
+scripted `get_trip_budget` call and `trip_id=None`, and asserts the tool never executes,
+`awaiting_user` is set, and the model receives `NO_ACTIVE_TRIP_MSG` — no dependence on which tool a
+live model happens to pick. What remains model-dependent is only *which* tool it reaches for; every
+branch it can land on is covered, and none of them claims a false outage.
 
 ### Rollback
 

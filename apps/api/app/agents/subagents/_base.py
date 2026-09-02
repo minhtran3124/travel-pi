@@ -95,7 +95,7 @@ def _tools_needing_trip(tools: list[BaseTool]) -> frozenset[str]:
     return frozenset(names)
 
 
-def _make_trip_guard(tools: list[BaseTool], needing_trip: frozenset[str]):
+def _make_trip_guard(needing_trip: frozenset[str]):
     """Return the node that stops trip-scoped calls when no trip is selected (#113).
 
     Without this, the call reaches ``ToolNode`` and fails validation because the
@@ -108,8 +108,6 @@ def _make_trip_guard(tools: list[BaseTool], needing_trip: frozenset[str]):
 
     Runs *before* the tools node, so the blocked tool never executes.
 
-    :param tools: The sub-agent's bound tools (unused except for symmetry with
-        the caller; the decision is name-based).
     :param needing_trip: Names of tools that require an active trip.
     :return: A node function ``trip_guard(state) -> Command``.
     """
@@ -239,7 +237,7 @@ def build_subagent(
         needing_trip = _tools_needing_trip(tools)
         builder.add_node(
             "trip_guard",
-            _make_trip_guard(tools, needing_trip),
+            _make_trip_guard(needing_trip),
             destinations=("tools", "assistant"),
         )
         # tools_condition -> "tools" when the last message has tool calls, else END.

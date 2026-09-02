@@ -56,7 +56,7 @@ def test_detects_injected_trip_id_tools():
 
 
 def test_guard_passes_through_when_a_trip_is_active():
-    guard = _make_trip_guard([], frozenset({"get_trip_budget"}))
+    guard = _make_trip_guard(frozenset({"get_trip_budget"}))
     cmd = guard({"trip_id": "t-1", "messages": [_ai_with_calls("get_trip_budget")]})
 
     assert cmd.goto == "tools"
@@ -64,7 +64,7 @@ def test_guard_passes_through_when_a_trip_is_active():
 
 
 def test_guard_passes_through_when_no_call_needs_a_trip():
-    guard = _make_trip_guard([], frozenset({"get_trip_budget"}))
+    guard = _make_trip_guard(frozenset({"get_trip_budget"}))
     cmd = guard({"trip_id": None, "messages": [_ai_with_calls("search_flights")]})
 
     assert cmd.goto == "tools"
@@ -76,7 +76,7 @@ def test_guard_passes_through_when_no_call_needs_a_trip():
 
 
 def test_guard_blocks_and_sets_awaiting_user():
-    guard = _make_trip_guard([], frozenset({"get_trip_budget"}))
+    guard = _make_trip_guard(frozenset({"get_trip_budget"}))
     cmd = guard({"trip_id": None, "messages": [_ai_with_calls("get_trip_budget")]})
 
     assert cmd.goto == "assistant", "must not reach the tools node"
@@ -99,7 +99,7 @@ def test_blocked_message_never_claims_an_outage_and_never_asks_for_an_id():
 
 def test_every_pending_call_gets_a_paired_tool_message():
     """An unpaired tool call makes the provider reject the next assistant turn."""
-    guard = _make_trip_guard([], frozenset({"get_trip_budget"}))
+    guard = _make_trip_guard(frozenset({"get_trip_budget"}))
     cmd = guard(
         {
             "trip_id": None,
