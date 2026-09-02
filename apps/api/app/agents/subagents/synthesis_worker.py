@@ -22,6 +22,7 @@ from langchain_core.messages import AIMessage
 from langgraph.runtime import Runtime
 from langgraph.types import Command
 
+from app.agents.constants import SYNTHESIZE_NODE
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.agents.subagents.booking import build_booking
@@ -31,9 +32,7 @@ from app.agents.subagents.journal import build_journal
 from app.agents.subagents.planner import build_planner
 
 # Map specialist names to their compiled-subagent builder.
-_AGENT_BUILDERS: dict[
-    str, Callable[[Callable[[str | None], BaseChatModel]], Any]
-] = {
+_AGENT_BUILDERS: dict[str, Callable[[Callable[[str | None], BaseChatModel]], Any]] = {
     "planner": build_planner,
     "concierge": build_concierge,
     "journal": build_journal,
@@ -77,7 +76,7 @@ def build_synthesis_worker(
                         {"agent": agent_name, "index": index, "findings": findings}
                     ]
                 },
-                goto="synthesize",
+                goto=SYNTHESIZE_NODE,
             )
 
         subagent = builder(lambda hint=None: resolve_model(agent_name, hint))
@@ -114,7 +113,7 @@ def build_synthesis_worker(
                 ],
                 **state_updates,
             },
-            goto="synthesize",
+            goto=SYNTHESIZE_NODE,
         )
 
     return worker

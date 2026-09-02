@@ -30,6 +30,15 @@ ALL_SUBAGENTS: tuple[str, ...] = (
 # Sub-agents unavailable on the free tier (routing is restricted to the rest).
 PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 
+# Name of the parallel-synthesis convergence node (GH-117 Path A). Shared so the
+# node registration, reflection's declared destinations, the worker/synthesize
+# edges, and the ``current_flow`` label the synthesize node emits all reference
+# ONE string. They MUST agree: reflection routes a REVISE back via
+# ``goto=current_flow``, and a label that is not a declared destination is
+# silently dropped by LangGraph (the revision is wasted). See
+# specs/fix-reflection-synthesize-goto.
+SYNTHESIZE_NODE = "synthesize"
+
 # --- task ledger (P1) -----------------------------------------------------
 # Max total sub-agent runs the supervisor may schedule in ONE turn — the
 # primary target plus up to ``MAX_LEDGER_STEPS - 1`` ordered follow-ons drained

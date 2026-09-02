@@ -29,6 +29,7 @@ from app.agents.constants import (
     ALL_SUBAGENTS,
     DEFAULT_MAX_REVISIONS,
     REFLECTION_REVISE_NOTE,
+    SYNTHESIZE_NODE,
 )
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
@@ -198,7 +199,9 @@ def make_synthesize_node(llm: BaseChatModel):
         answer = llm.invoke([system, HumanMessage(content=prompt)]).content
         return {
             "messages": [AIMessage(content=str(answer))],
-            "current_flow": "synthesis",
+            # Must equal the synthesize node's own name so a reflection REVISE
+            # (goto=current_flow) re-enters this node instead of being dropped.
+            "current_flow": SYNTHESIZE_NODE,
         }
 
     return synthesize
