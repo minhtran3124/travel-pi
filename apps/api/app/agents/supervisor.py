@@ -67,24 +67,25 @@ class SupervisorIntent(BaseModel):
     secondary_agent: _SecondaryTarget | None = Field(
         default=None,
         description=(
-            "A second, clearly distinct sub-agent to queue for this turn, only "
-            "when the traveller's message contains two separate requests (e.g. "
-            "both a flight and a hotel need). Never 'booking', and never the "
-            "same value as target_agent. Leave null for the common single-intent "
-            "case. Superseded by `plan` when that is set."
+            "A second, INDEPENDENT specialist whose slice does NOT depend on "
+            "target_agent's result — it runs in PARALLEL this turn and sees only "
+            "this message, never target_agent's output. Set it only when the "
+            "message contains two genuinely separate requests (e.g. a flight need "
+            "plus unrelated local tips). Never 'booking', and never the same value "
+            "as target_agent. Leave null for the common single-intent case. "
+            "Superseded by `plan` when that is set."
         ),
     )
     plan: list[_SecondaryTarget] | None = Field(
         default=None,
         description=(
-            "An ORDERED list of follow-on sub-agents to run this turn AFTER "
-            "target_agent, for a request that spans several specialists (e.g. "
-            "'plan my Tokyo weekend: flights + weather + itinerary' → "
-            "target_agent=planner, plan=[concierge, planner]). List only the "
-            "follow-ons, in execution order. A specialist MAY recur when it does "
-            "distinct work at a later stage. Never 'booking'. Leave null for a "
-            "single-domain request (then target_agent alone handles it). Extra "
-            "or invalid steps are dropped in code."
+            "Additional INDEPENDENT specialists whose slice does NOT depend on "
+            "the primary's result; each runs in PARALLEL and sees only this "
+            "message, never the primary's output. Never the primary agent, never "
+            "'booking'. Omit any step that a single specialist can do itself — a "
+            "chain that lives inside one specialist's toolset needs no plan. "
+            "Leave null for the common single-intent case. Duplicate or invalid "
+            "steps are dropped in code."
         ),
     )
     language: str = Field(
@@ -285,45 +286,42 @@ def make_supervisor(llm: BaseChatModel):
         trip_facts = _normalize_slots(
             getattr(intent, "slots", None), today_in_timezone(ctx.timezone)
         )
-        # GH-117 Path A: build an ordered task list. The primary intent is task 0;
-        # each queued follow-on becomes task 1, 2, etc. Booking as a target still
-        # produces one task so the routing edge can send it through the HITL plan
-        # node, but booking is never queued as a follow-on task.
-        # P1 task ledger: the supervisor may emit an ordered ``plan`` of follow-on
-        # sub-agents to run this turn after ``target``; fall back to the legacy
-        # single ``secondary_agent`` when ``plan`` is absent. An ordered plan is
-        # honoured as written — a specialist MAY legitimately recur (e.g. planner
-        # searches flights early, then builds the itinerary later), so steps are
-        # not deduplicated. The queue is still built in plain Python and never
-        # trusts the model blindly: drop anything unknown or "booking" (always
-        # HITL, never queued — defensive; the ``_SecondaryTarget`` type already
-        # forbids it) or a tier-gated agent, and cap the follow-ons at
-        # ``MAX_LEDGER_STEPS - 1``. A booking *target* routes through the HITL
-        # plan node with no queued follow-ons (matches the pre-ledger behavior).
+        # GH-117 Path A: build the parallel task list. The primary intent is
+        # task 0; each additional INDEPENDENT specialist becomes task 1, 2, etc.,
+        # dispatched to a parallel ``synthesis_worker`` via ``Send``. Booking as a
+        # target still produces one task so the routing edge can send it through
+        # the HITL plan node, but booking is never queued as a follow-on task.
+        # The supervisor may emit a ``plan`` of independent specialists to run
+        # this turn alongside ``target``; fall back to the legacy single
+        # ``secondary_agent`` when ``plan`` is absent. The list is built in plain
+        # Python and never trusts the model blindly: it is DEDUPLICATED (primary
+        # first, then each follow-on in order, skipping any agent already queued —
+        # no duplicate specialist workers, since each worker sees only this
+        # message and a repeat would just do the same work twice), drops anything
+        # unknown or "booking" (always HITL, never queued — defensive; the
+        # ``_SecondaryTarget`` type already forbids it) or a tier-gated agent, and
+        # caps the follow-ons at ``MAX_LEDGER_STEPS - 1``. A booking *target*
+        # routes through the HITL plan node with no follow-ons.
         raw_plan = getattr(intent, "plan", None)
         if raw_plan:
-            candidates, drop_target_dup = list(raw_plan), False
+            candidates = list(raw_plan)
         else:
-            # Legacy single-secondary path: a secondary equal to the target was
-            # always a no-op, so preserve that drop for exact backward compat.
             legacy = getattr(intent, "secondary_agent", None)
-            candidates, drop_target_dup = ([legacy] if legacy else []), True
-        pending_flows: list[str] = []
+            candidates = [legacy] if legacy else []
         task_agents: list[str] = [target]
         if target != "booking":
             for step in candidates:
-                if len(pending_flows) >= MAX_LEDGER_STEPS - 1:
+                if len(task_agents) >= MAX_LEDGER_STEPS:
                     break
                 if step not in ALL_SUBAGENTS or step == "booking":
                     continue
-                if drop_target_dup and step == target:
+                if step in task_agents:  # dedupe primary + already-queued specialists
                     continue
                 if (
                     ctx.allowed_subagents is not None
                     and step not in ctx.allowed_subagents
                 ):
                     continue
-                pending_flows.append(step)
                 task_agents.append(step)
         # Use the last user message as the query for every task. Each worker
         # prompt narrows the focus to the specialist's domain.
@@ -342,7 +340,6 @@ def make_supervisor(llm: BaseChatModel):
                 "current_flow": target,
                 "language": lang,
                 "trip_facts": trip_facts,
-                "pending_flows": pending_flows,
                 "tasks": tasks,
             }
         )

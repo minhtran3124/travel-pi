@@ -134,7 +134,8 @@ def test_booking_target_forces_secondary_to_empty_even_if_llm_set_one():
         _runtime(),
     )
 
-    assert cmd.update["pending_flows"] == []
+    # booking target routes to HITL with no follow-on tasks.
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["booking"]
 
 
 def test_valid_distinct_secondary_queues_pending_flow():
@@ -150,7 +151,7 @@ def test_valid_distinct_secondary_queues_pending_flow():
         _runtime(),
     )
 
-    assert cmd.update["pending_flows"] == ["concierge"]
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["planner", "concierge"]
 
 
 def test_secondary_equal_to_target_is_dropped():
@@ -163,7 +164,8 @@ def test_secondary_equal_to_target_is_dropped():
 
     cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
 
-    assert cmd.update["pending_flows"] == []
+    # A secondary equal to the target is deduped away — only the primary task.
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["planner"]
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +185,8 @@ def test_no_slots_mentioned_routing_unchanged():
     assert cmd.goto == ()
     assert cmd.update["current_flow"] == "planner"
     assert cmd.update["trip_facts"] == {}
-    assert cmd.update["pending_flows"] == []
+    # Wave 1: the supervisor no longer writes the sequential ledger.
+    assert "pending_flows" not in cmd.update
     assert cmd.update["tasks"] == [
         {"agent": "planner", "query": "plan my trip", "index": 0}
     ]

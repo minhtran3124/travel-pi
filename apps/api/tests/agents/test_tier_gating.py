@@ -199,7 +199,7 @@ def test_free_tier_secondary_to_premium_only_agent_is_dropped():
 
     # planner IS free-allowed today, so this specific pair should still queue —
     # this test documents the mechanism (not gated), the next one proves the gate.
-    assert cmd.update["pending_flows"] == ["planner"]
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["concierge", "planner"]
 
 
 def test_free_tier_secondary_not_in_allowed_subagents_is_dropped(monkeypatch):
@@ -223,7 +223,8 @@ def test_free_tier_secondary_not_in_allowed_subagents_is_dropped(monkeypatch):
         _runtime(narrow_ctx),
     )
 
-    assert cmd.update["pending_flows"] == []
+    # Only the primary (concierge) survives; the gated secondary is dropped.
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["concierge"]
 
 
 def test_dispatch_next_refuses_illegal_queued_flow():

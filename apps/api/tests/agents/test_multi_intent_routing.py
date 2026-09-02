@@ -136,7 +136,7 @@ def test_single_intent_goes_straight_to_reflection_unchanged():
     out = _invoke(graph, "what to see in Tokyo?", thread_id="t-single-1")
 
     assert out["current_flow"] == "concierge"
-    assert out["pending_flows"] == []
+    assert out.get("pending_flows", []) == []  # wave 1: supervisor no longer writes it
     assert any("here you go" in (m.content or "") for m in out["messages"])
     # Only one sub-agent answer in the transcript — no secondary intent ran.
     ai_answers = [m.content for m in out["messages"] if m.content == "here you go"]
@@ -155,7 +155,7 @@ def test_reflection_revise_loop_does_not_retrigger_drained_secondary():
     out = _invoke(graph, "plan my trip", thread_id="t-revise-1")
 
     assert out["current_flow"] == "planner"
-    assert out["pending_flows"] == []
+    assert out.get("pending_flows", []) == []  # wave 1: supervisor no longer writes it
     assert out["revisions"] == 1
 
     contents = [m.content for m in out["messages"]]
@@ -190,7 +190,7 @@ def test_booking_hitl_detour_untouched_by_dispatch():
     assert any("Hotel booked" in (m.content or "") for m in resumed["messages"])
     # No secondary intent was ever queued for booking — dispatch_next falls
     # straight through to reflection exactly as the old direct edge did.
-    assert resumed["pending_flows"] == []
+    assert resumed.get("pending_flows", []) == []  # wave 1: supervisor no longer writes it
 
 
 def test_task_results_cleared_between_turns():
