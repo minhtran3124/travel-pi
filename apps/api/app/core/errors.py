@@ -118,6 +118,10 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
         return JSONResponse(
             status_code=exc.status_code,
             content=_error_body(label, str(exc.detail), exc.status_code, request),
+            # Forward any challenge/hint headers the raiser attached (e.g. the
+            # dashboard guard's ``WWW-Authenticate: Basic`` on a 401) — Starlette's
+            # own handler does this; the envelope override had dropped them.
+            headers=exc.headers,
         )
 
     # Catch-all for any non-AppError exception that escapes a route. Without

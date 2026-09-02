@@ -9,6 +9,7 @@ from app.db.base import UUIDBase
 class Booking(UUIDBase):
     __tablename__ = "bookings"
 
+    user_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     type: Mapped[str] = mapped_column(String, nullable=False)
     reference_id: Mapped[str] = mapped_column(String, nullable=False)
     customer_name: Mapped[str] = mapped_column(String, nullable=False)

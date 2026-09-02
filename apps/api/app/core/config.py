@@ -196,6 +196,15 @@ class Settings(BaseSettings):
     # when the client does not send a valid timezone (see specs/flight-search-date-context).
     agent_timezone: str = "Asia/Ho_Chi_Minh"
 
+    # --- Dashboard access guard (specs/review-a-security-hardening) ---
+    # The server-rendered /dashboard/* pages are operator tools. When both a
+    # user and password are set, every dashboard route requires HTTP Basic auth
+    # (compared with secrets.compare_digest). With neither set they stay open in
+    # development but return 404 in production, so a prod deploy never exposes
+    # them unauthenticated. See app/core/dashboard_auth.py.
+    dashboard_basic_user: str | None = None
+    dashboard_basic_password: str | None = None
+
     # --- Supabase auth (specs/supabase-auth) ---
     # Verify incoming Supabase access tokens (asymmetric RS256/ES256) against
     # the project's JWKS endpoint. Disabled by default so local dev and the test

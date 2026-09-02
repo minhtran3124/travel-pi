@@ -19,7 +19,12 @@ class ChatRequest(AppBaseModel):
     message: str | None = Field(
         default=None, min_length=1, description="The traveller's message."
     )
-    user_id: str = Field(description="Caller identity (no auth enforced).")
+    user_id: str | None = Field(
+        default=None,
+        description="Deprecated and ignored: identity is taken from the Supabase "
+        "JWT (the `sub` claim), never from this field. Kept optional for one "
+        "release so old clients get 401 rather than 422; will be removed.",
+    )
     trip_id: str | None = Field(
         default=None, description="Optional trip context for the agent."
     )

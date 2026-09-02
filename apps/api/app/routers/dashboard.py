@@ -29,6 +29,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.core.dashboard_auth import require_dashboard_access
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
 from app.db.session import get_session
@@ -59,7 +60,12 @@ from app.services.place_service import PlaceService
 from app.services.tip_service import TipService
 from app.services.visa_service import VisaService
 
-router = APIRouter(prefix="/dashboard", tags=[Tags.dashboard], include_in_schema=False)
+router = APIRouter(
+    prefix="/dashboard",
+    tags=[Tags.dashboard],
+    include_in_schema=False,
+    dependencies=[Depends(require_dashboard_access)],
+)
 
 # Templates live in app/templates/ — resolve the path relative to this file
 # so it works regardless of the current working directory.
