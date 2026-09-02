@@ -31,6 +31,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
+from app.agents.constants import SYNTHESIZE_NODE
 from app.agents.context import AgentContext
 from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
@@ -151,6 +152,7 @@ def build_graph(
         dispatch_next,
         destinations=(*SUBAGENTS, "reflection"),
     )
+
     def worker_resolve(agent_name: str, ctx_model: str | None = None) -> BaseChatModel:
         """Resolve the per-specialist model for parallel synthesis workers.
 
@@ -164,14 +166,14 @@ def build_graph(
         build_synthesis_worker(worker_resolve),
     )
     builder.add_node(
-        "synthesize",
-        make_synthesize_node(pick("synthesize")),
+        SYNTHESIZE_NODE,
+        make_synthesize_node(pick(SYNTHESIZE_NODE)),
         retry_policy=LLM_RETRY,
     )
     builder.add_node(
         "reflection",
         make_reflection_node(pick("reflection")),
-        destinations=(*SUBAGENTS, "synthesize", END),
+        destinations=(*SUBAGENTS, SYNTHESIZE_NODE, END),
         retry_policy=LLM_RETRY,
     )
 
@@ -191,8 +193,8 @@ def build_graph(
     for name in SUBAGENTS:
         builder.add_edge(name, "dispatch_next")
     # GH-117 Path A: parallel workers converge on synthesize, then reflection.
-    builder.add_edge("synthesis_worker", "synthesize")
-    builder.add_edge("synthesize", "reflection")
+    builder.add_edge("synthesis_worker", SYNTHESIZE_NODE)
+    builder.add_edge(SYNTHESIZE_NODE, "reflection")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
     # dispatch_next -> <sub-agent> | reflection is a Command(goto=...).
     # reflection -> sub-agent | END is a Command(goto=...).
