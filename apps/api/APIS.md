@@ -5,6 +5,32 @@ Interactive docs: `http://localhost:8000/docs`
 
 ---
 
+## Authentication
+
+Most endpoints are open, but the owner-scoped and agent surfaces require a
+**Supabase JWT** sent as `Authorization: Bearer <token>`. A missing or invalid
+token yields `401`. Ownership is enforced per caller: another user's resource
+reads as `404` (never `403`), so a guessed id is not confirmed.
+
+Routes that require a token:
+
+| Route(s) | Notes |
+|----------|-------|
+| `GET/POST /bookings`, `GET /bookings/{id}`, `POST /bookings/{id}/cancel` | Scoped to the caller; you only see and cancel your own bookings. |
+| `POST /flights/book`, `POST /hotels/book` | The booking is stamped with the caller as owner. |
+| `GET/POST /places/saved`, `GET/DELETE /places/saved/{id}`, `POST /places/saved/{id}/favorite`, `POST /places/saved/{id}/visited` | Saved places are per-user. |
+| `/agent/*` | The chat agent and its endpoints. |
+
+JWT verification is disabled by default for local dev and tests (set
+`SUPABASE_URL` or `SUPABASE_PROJECT_REF` to enable it — see `.env.example`).
+
+The server-rendered `/dashboard/*` operator pages use a separate **HTTP Basic**
+guard, configured with `DASHBOARD_BASIC_USER` and `DASHBOARD_BASIC_PASSWORD`
+(both required to enable it). When unset, `/dashboard` is open in development
+but returns `404` in production — never reachable in prod without credentials.
+
+---
+
 ## Endpoints
 
 | Method | Path | Description |
