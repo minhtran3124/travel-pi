@@ -48,10 +48,17 @@ def require_dashboard_access(
     password = settings.dashboard_basic_password
 
     if user and password:
-        if credentials is None or not (
-            secrets.compare_digest(credentials.username, user)
-            and secrets.compare_digest(credentials.password, password)
-        ):
+        ok = credentials is not None
+        if ok:
+            # ``secrets.compare_digest`` raises TypeError on non-ASCII str input;
+            # a malformed Basic credential must read as "wrong" (401), never a 500.
+            try:
+                ok = secrets.compare_digest(
+                    credentials.username, user
+                ) and secrets.compare_digest(credentials.password, password)
+            except TypeError:
+                ok = False
+        if not ok:
             # Starlette's HTTPException carries the challenge header straight
             # through the ASGI exception middleware, so the browser prompts.
             raise StarletteHTTPException(

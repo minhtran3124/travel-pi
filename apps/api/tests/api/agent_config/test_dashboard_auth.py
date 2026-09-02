@@ -97,6 +97,19 @@ def test_credentials_configured_but_wrong_returns_401(tmp_db, monkeypatch):
         assert resp2.status_code == 401
 
 
+def test_non_ascii_credentials_return_401_not_500(tmp_db, monkeypatch):
+    # A non-ASCII Basic credential makes secrets.compare_digest raise TypeError;
+    # the guard must read it as "wrong" (401), never surface a 500.
+    settings = Settings(
+        dashboard_basic_user=_USER,
+        dashboard_basic_password=_PW,
+    )
+    with _build_client(tmp_db, monkeypatch, settings) as client:
+        resp = client.get("/dashboard/agent-config", auth=("óps", "pä ss"))
+        assert resp.status_code == 401
+        assert resp.headers["WWW-Authenticate"] == "Basic"
+
+
 def test_valid_basic_credentials_return_200(tmp_db, monkeypatch):
     settings = Settings(
         dashboard_basic_user=_USER,
