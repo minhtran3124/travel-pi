@@ -152,12 +152,25 @@ in the guard is *not* an over-narrow special case — it is the only nullable `I
 general "any missing injected field" mechanism would be speculative. Deriving the tool set from
 annotations rather than a hardcoded list is likewise justified and tested.
 
-**Observation, not fixed:** `_tools_needing_trip` swallows introspection failures
-(`except Exception: continue`), so any tool it cannot introspect is silently dropped from the guard —
-it **fails open with no log**. Found the hard way: a UAT probe that monkeypatched `tool.func` stripped
-the annotations and disabled the guard under test, producing a convincing false failure. No registered
-tool is affected today (verified), but a `logger.warning` in that handler would turn a silent hole
-into a visible one.
+**F4 (P3) — the guard failed open with no log. Fixed.** `_tools_needing_trip` swallowed
+introspection failures, so any tool it could not read was silently dropped from the guard. Found the
+hard way: a UAT probe that monkeypatched `tool.func` stripped the annotations and disabled the guard
+under test, producing a convincing false failure with nothing in the logs to say so. It now warns,
+naming the tool and stating that it will not be blocked.
+
+Two details worth recording, because the obvious implementations are both wrong:
+
+- The alarm fires on **zero readable type hints**, covering both shapes — annotations that will not
+  resolve (a wrapper carries the strings but not the globals defining them) and annotations lost
+  entirely (a plain wrapper). The first raises; the second returns `{}` and would otherwise stay
+  silent, and it is the one that actually bit the UAT.
+- It deliberately does **not** gate on `tool.args`. langchain hides injected params from `.args`, so
+  it is empty for exactly the four trip-scoped tools the guard exists to protect
+  (`get_trip_summary`, `get_trip_budget`, `list_trip_places`, `list_place_categories`) — gating on it
+  would silence the alarm precisely where it matters. A first cut did this and the test caught it.
+
+`test_every_registered_tool_is_introspectable` pins the invariant that keeps "no hints" free of false
+positives: all 33 registered tools currently have readable hints.
 
 ### Verify
 
@@ -165,8 +178,8 @@ into a visible one.
 | --- | --- | --- | --- |
 | New classification tests | `pytest tests/agents/test_tool_error_classification.py -q` | 0 | 23 passed — one per failure class × both `handle_tool_errors` hooks (16 before the second round; +7 for the two classes F1/F2 uncovered) |
 | Trip guard tests | `pytest tests/agents/test_trip_guard.py -q` | 0 | 7 passed; 3 fail with the guard disabled |
-| All agent tests (after F3) | `pytest tests/agents/ -q` | 0 | 273 passed — confirms dropping the dead `tools` param broke no call site |
-| Full suite, second round | `pytest -q` (from `apps/api/`) | 1 | 1821 passed, 12 failed — **the same 12 fail on this branch before these changes** (1814 passed / 12 failed), so the delta is exactly the 7 new tests. All 12 are `.env`-induced (real `OPENAI_API_KEY`/`ORS_API_KEY`/JWT issuer) or a stale hardcoded date in `test_preference_ranking`; **none is under `tests/agents/`**. |
+| All agent tests (after F3/F4) | `pytest tests/agents/ -q` | 0 | 276 passed — confirms dropping the dead `tools` param broke no call site, and covers the F4 warning (both fail-open shapes + the no-false-alarm case) |
+| Full suite, second round | `pytest -q` (from `apps/api/`) | 1 | 1824 passed, 12 failed — **the same 12 fail on this branch before these changes** (1814 passed / 12 failed), so the delta is exactly the 10 new tests (7 classification + 3 fail-open). All 12 are `.env`-induced (real `OPENAI_API_KEY`/`ORS_API_KEY`/JWT issuer) or a stale hardcoded date in `test_preference_ranking`; **none is under `tests/agents/`**. |
 | UAT-1 — issue repro, offline | `scratchpad/uat1.py` (real compiled `budget` graph, FakeLLM, `trip_id=None`) | 0 | tool never executed, `awaiting_user=True`, model received `NO_ACTIVE_TRIP_MSG`, zero outage language |
 | UAT-2 — issue repro, live LLM | `POST localhost:8000/agent/chat` `{"message":"Break down my Tokyo trip expenses so far","trip_id":null}` | 0 | reply: *"I'm missing the trip record to read from … Which **Tokyo** trip do you mean — and what are the **rough dates**? If you don't have a trip set up yet, I can help you start one."* — the false-outage claim is gone |
 | UAT-3 — criteria 2 & 3, catch-all path | `scratchpad/uat2.py` (sub-agent with no `ToolFaultPolicy`) | 0 | bare `UpstreamError` → transient message (F2); causeless `ToolException` → keeps its own `resolve_date` recovery text, no outage claim (F1); no exception escaped the graph (no 500) |

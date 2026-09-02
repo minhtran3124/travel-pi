@@ -11,6 +11,8 @@ Offline: FakeLLM only, no network.
 
 from __future__ import annotations
 
+import logging
+
 from app.agents.constants import NO_ACTIVE_TRIP_MSG
 from app.agents.subagents._base import _make_trip_guard, _tools_needing_trip
 from app.agents.supervisor import SupervisorIntent
@@ -162,3 +164,64 @@ def test_graph_turn_with_no_trip_blocks_the_tool_and_awaits_the_traveller(tmp_pa
     )
     joined = " ".join(str(m.content) for m in out["messages"])
     assert "try again shortly" not in joined, "must never read as an outage"
+
+
+# ---------------------------------------------------------------------------
+# Fail-open is allowed; failing open SILENTLY is not
+# ---------------------------------------------------------------------------
+
+
+def _budget_tool():
+    return next(t for t in get_tools_for("budget") if t.name == "get_trip_budget")
+
+
+def test_unreadable_annotations_are_warned_not_swallowed(caplog):
+    """A wrapped tool drops out of the guard — that must be visible in the logs.
+
+    Found the hard way: a UAT probe wrapped `tool.func` to count executions, which
+    stripped the annotations `_tools_needing_trip` reads. The guard silently
+    stopped covering `get_trip_budget` and the UAT produced a convincing false
+    failure. Nothing in the logs said the guard had been disabled.
+    """
+    tool = _budget_tool()
+    assert tool.name in _tools_needing_trip([tool])  # readable to begin with
+
+    original = tool.func
+    try:
+        tool.func = lambda **kw: original(**kw)  # a wrapper, annotations gone
+        with caplog.at_level(logging.WARNING, logger="app.agents.subagents._base"):
+            needing = _tools_needing_trip([tool])
+    finally:
+        tool.func = original
+
+    assert tool.name not in needing, "precondition: the wrapper defeats detection"
+    assert "cannot read annotations" in caplog.text
+    assert tool.name in caplog.text
+
+
+def test_no_warning_for_a_tool_that_simply_has_no_trip_id(caplog):
+    """The warning must not cry wolf on legitimately non-trip-scoped tools."""
+    tools = [t for t in get_tools_for("planner") if t.name == "create_trip"]
+    assert tools, "fixture assumption: planner binds create_trip"
+
+    with caplog.at_level(logging.WARNING, logger="app.agents.subagents._base"):
+        assert not _tools_needing_trip(tools)
+
+    assert "cannot read annotations" not in caplog.text
+
+
+def test_every_registered_tool_is_introspectable():
+    """The invariant that makes "no hints at all" a safe alarm.
+
+    `_tools_needing_trip` treats zero readable hints as "annotations were
+    stripped" and warns. That is only free of false positives while every real
+    tool has some. If a future tool legitimately has none, this fails here rather
+    than by crying wolf on every graph build.
+    """
+    import typing
+
+    for agent in ("planner", "concierge", "journal", "booking", "budget"):
+        for tool in get_tools_for(agent):
+            fn = tool.coroutine or tool.func
+            hints = typing.get_type_hints(fn, include_extras=True)
+            assert hints, f"{agent}/{tool.name} has no readable type hints"

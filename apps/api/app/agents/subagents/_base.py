@@ -84,7 +84,24 @@ def _tools_needing_trip(tools: list[BaseTool]) -> frozenset[str]:
         fn = tool.coroutine or tool.func
         try:
             hints = typing.get_type_hints(fn, include_extras=True)
-        except Exception:  # noqa: BLE001 — a tool we cannot introspect is not our concern
+        except Exception:  # noqa: BLE001 — never block graph build on one odd tool
+            hints = {}
+        # Fail open, but not silently. A tool we cannot introspect is simply
+        # absent from the guard, so if it *is* trip-scoped the block quietly stops
+        # happening. Both ways that occurs are caught here: annotations that will
+        # not resolve (a wrapper carries the strings but not the globals that
+        # define them), and annotations lost entirely (a plain wrapper). No hints
+        # at all is the tell — @tool needs annotations to build a schema, so every
+        # one of the 33 registered tools has some; zero means they were stripped.
+        # (Not `tool.args`: that hides injected params, so it is empty for exactly
+        # the trip-scoped tools this guard exists to protect.)
+        if not hints:
+            logger.warning(
+                "[agent] cannot read annotations for tool %r — excluded from the "
+                "trip guard; if it is trip-scoped it will NOT be blocked when no "
+                "trip is selected",
+                getattr(tool, "name", fn),
+            )
             continue
         for hint in hints.values():
             for meta in getattr(hint, "__metadata__", ()):
