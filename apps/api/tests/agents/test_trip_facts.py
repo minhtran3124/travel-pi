@@ -83,12 +83,6 @@ def test_preferences_field_in_state_schema():
     assert "preferences" in TravelAgentState.__annotations__
 
 
-def test_pending_flows_field_in_state_schema():
-    from app.agents.state import TravelAgentState
-
-    assert "pending_flows" in TravelAgentState.__annotations__
-
-
 # ---------------------------------------------------------------------------
 # system_with_summary folding
 # ---------------------------------------------------------------------------

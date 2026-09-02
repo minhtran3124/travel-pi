@@ -131,11 +131,9 @@ async def stream_agent_events(
         translator = None
 
     current_subagent: str | None = None
-    suppress_tokens_for_current: bool = False
     last_msg_id: str | None = None
     emitted_tool_calls: set[str] = set()
     emitted_token: bool = False
-    pending_flows: list[str] = []
     synthesize_answer_emitted: bool = False
 
     try:
@@ -157,11 +155,6 @@ async def stream_agent_events(
                     yield events.reset()
                     emitted_token = False
                 current_subagent = root
-                # GH-117 follow-up: when more sub-agents are still queued after
-                # this one, its prose answer is an intermediate draft that the
-                # next specialist will replace. Suppress its tokens to avoid
-                # streaming duplicate content; panels/tool results still stream.
-                suppress_tokens_for_current = len(pending_flows) > 0
                 yield events.subagent(root)
                 # A new sub-agent means a new message stream; do not treat its
                 # first chunk as a continuation of the previous message.
@@ -201,10 +194,6 @@ async def stream_agent_events(
                     continue
                 if root not in SUBAGENTS:
                     continue
-                # Intermediate sub-agents (legacy serial dispatch) must not
-                # stream prose when another queued sub-agent will supersede them.
-                if suppress_tokens_for_current:
-                    continue
                 msg_id = getattr(chunk, "id", None)
                 if (
                     last_msg_id is not None
@@ -228,12 +217,6 @@ async def stream_agent_events(
                     node_lang = delta.get("language")
                     if isinstance(node_lang, str) and node_lang:
                         current_language = node_lang
-                    # Track the supervisor/dispatch_next ledger so we can tell
-                    # whether the currently-starting sub-agent is the final one
-                    # or an intermediate draft that will be superseded.
-                    node_pending = delta.get("pending_flows")
-                    if isinstance(node_pending, list):
-                        pending_flows = node_pending
                     # Cross-cutting terminal nodes (supervisor/plan) in the main
                     # graph end the turn with a content-bearing AIMessage (tier
                     # gate, unknown intent, plan cancel/approve). That message

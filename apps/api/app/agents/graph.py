@@ -2,23 +2,22 @@
 
 Wires the full agentic graph:
 
-    START -> pii_guardrail -> load_context -> summarize -> supervisor
-                                                              | Command(goto=<sub-agent>)
-                     planner / concierge / journal / booking / budget
-                                                              v
-                                                        dispatch_next
-                                  Command(goto=<queued sub-agent> | reflection)
-                                                              v
-                                                         reflection
-                                               Command(goto=<sub-agent> | END)
+    START -> pii_guardrail -> load_context -> summarize -> supervisor -> route_tasks
+        route_tasks fans out to one of:
+          - a single sub-agent -> reflection
+          - plan (booking HITL) -> booking -> reflection
+          - Send(synthesis_worker) x N -> synthesize -> reflection
+        reflection -> <sub-agent> | synthesize | END
 
 The ``pii_guardrail`` entry node redacts email/credit-card PII from the user's
 turn before any LLM provider, checkpointer, or memory extractor sees it.
-The supervisor routes by intent; each sub-agent is a ReAct subgraph that
-self-corrects on tool errors. ``dispatch_next`` (pure code, no LLM call) drains
-at most one queued secondary intent (MIN-65 D4) before reflection reviews the
-final answer; reflection adds a bounded answer-quality loop. Checkpointer +
-store make it stateful across turns/sessions.
+``route_tasks`` routes the supervisor's task list: a single intent goes straight
+to its sub-agent, booking detours through the HITL ``plan`` node, and a
+multi-intent turn is dispatched to parallel ``synthesis_worker`` instances that
+converge on ``synthesize``. Each sub-agent is a ReAct subgraph that self-corrects
+on tool errors and edges directly to ``reflection`` (a clarifying turn ends early
+via reflection's ``awaiting_user`` guard, MIN-68). Reflection adds a bounded
+answer-quality loop. Checkpointer + store make it stateful across turns/sessions.
 """
 
 from __future__ import annotations
@@ -35,7 +34,6 @@ from app.agents.constants import SYNTHESIZE_NODE
 from app.agents.context import AgentContext
 from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
-    dispatch_next,
     load_context_node,
     make_reflection_node,
     make_summarize_node,
@@ -147,11 +145,6 @@ def build_graph(
     builder.add_node("journal", build_journal(resolver_for("journal")))
     builder.add_node("booking", build_booking(resolver_for("booking")))
     builder.add_node("budget", build_budget(resolver_for("budget")))
-    builder.add_node(
-        "dispatch_next",
-        dispatch_next,
-        destinations=(*SUBAGENTS, "reflection"),
-    )
 
     def worker_resolve(agent_name: str, ctx_model: str | None = None) -> BaseChatModel:
         """Resolve the per-specialist model for parallel synthesis workers.
@@ -186,17 +179,15 @@ def build_graph(
     # booking through the HITL plan node, and dispatches multi-intent turns to
     # parallel synthesis workers via Send.
     builder.add_conditional_edges("supervisor", route_tasks)
-    # Every sub-agent -> dispatch_next (MIN-65 D4), which drains at most one queued
-    # secondary intent before reflection reviews the final answer. The plan/HITL
-    # booking detour is untouched — it keeps its own Command(goto="booking"|END)
-    # topology and never passes through dispatch_next.
+    # Every sub-agent edges straight to reflection. A clarifying turn ends early
+    # via reflection's own awaiting_user guard (MIN-68); the plan/HITL booking
+    # detour keeps its own Command(goto="booking"|END) topology.
     for name in SUBAGENTS:
-        builder.add_edge(name, "dispatch_next")
+        builder.add_edge(name, "reflection")
     # GH-117 Path A: parallel workers converge on synthesize, then reflection.
     builder.add_edge("synthesis_worker", SYNTHESIZE_NODE)
     builder.add_edge(SYNTHESIZE_NODE, "reflection")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
-    # dispatch_next -> <sub-agent> | reflection is a Command(goto=...).
     # reflection -> sub-agent | END is a Command(goto=...).
 
     compiled = builder.compile(checkpointer=checkpointer, store=store)

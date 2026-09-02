@@ -6,9 +6,6 @@
 - ``make_reflection_node``: bounded self-correction — critiques the last answer
   and loops back to the active sub-agent once if it judges it inadequate.
 - ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
-- ``dispatch_next``: pure-code ledger drainer — pops the next queued follow-on
-  sub-agent from the ordered ledger (P1), or goes on to reflection once the
-  ledger is empty (MIN-65 D4).
 
 Post-turn memory extraction no longer runs in-graph — see
 ``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
@@ -20,13 +17,12 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, Send, interrupt
 
 from app.agents.constants import (
-    ALL_SUBAGENTS,
     DEFAULT_MAX_REVISIONS,
     REFLECTION_REVISE_NOTE,
     SYNTHESIZE_NODE,
@@ -70,14 +66,11 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # background memory extraction reads the flag from that turn's final-state
     # snapshot before the *next* turn's load_context clears it.
     # awaiting_user is likewise single-turn (MIN-68): a clarifying question asked
-    # last turn must not abandon THIS turn's fresh ledger.
-    # GH-117 follow-up: the per-turn message-hide list must not leak into the next
-    # turn, otherwise the next sub-agent would hide the previous turn's answer.
+    # last turn must not abandon THIS turn's fresh work.
     # GH-117 Path A: task state is also per-turn.
     result: dict = {
         "plan_approved": False,
         "awaiting_user": False,
-        "superseded_message_ids": [],
         "tasks": [],
         "task_results": [],
     }
@@ -330,85 +323,3 @@ def route_tasks(state: TravelAgentState) -> str | list[Send]:
     # parent state plus the task; the worker deep-copies messages before handing
     # them to the inner subgraph so the parent list is never mutated.
     return [Send("synthesis_worker", {**state, "task": t}) for t in tasks]
-
-
-def _last_subagent_answer_id(state: TravelAgentState) -> str | None:
-    """Return the id of the last content-bearing sub-agent answer, if any.
-
-    Tool-call-only AIMessages and intermediate ToolMessages are skipped; we
-    only want to hide the prose answer the traveller saw, so the next queued
-    sub-agent does not regenerate the same full turn answer.
-    """
-    for msg in reversed(state.get("messages", [])):
-        if isinstance(msg, AIMessage) and getattr(msg, "content", None):
-            return getattr(msg, "id", None)
-        # Stop at the traveller's original message or a tool result that is not
-        # part of the answer — the answer is the contiguous trailing AIMessage.
-        if isinstance(msg, (HumanMessage, ToolMessage)):
-            break
-    return None
-
-
-def dispatch_next(state: TravelAgentState) -> Command:
-    """Drain the next step of the task ledger, or on to reflection (MIN-65 D4).
-
-    Pure-code ledger drainer — no LLM call. Every sub-agent's static edge points
-    here instead of straight to ``reflection``, so a supervisor that queued an
-    ordered ledger of follow-on sub-agents in ``pending_flows`` (P1; capped at
-    ``MAX_LEDGER_STEPS - 1`` entries, never "booking" — see
-    ``app.agents.supervisor``) gets each queued sub-agent run in order, in the
-    same turn, before reflection reviews the final answer. Each queued sub-agent
-    sees the previous ones' messages in state, so it naturally continues the
-    thread (e.g. "the flight picked above").
-
-    When ``awaiting_user`` is set (a sub-agent called the ``needs_clarification``
-    tool), the remaining queue is abandoned and the turn goes straight to
-    reflection (MIN-68).
-
-    :param state: The current graph state; reads ``pending_flows``.
-    :return: A ``Command`` routing to the next queued sub-agent (draining the
-        queue and updating ``current_flow``), or to ``reflection`` once empty.
-    """
-    pending = state.get("pending_flows") or []
-    # MIN-68: a sub-agent that called needs_clarification is blocked on the
-    # traveller — running the queued follow-ons would spend LLM/tool calls on
-    # output the traveller never sees (the reply is the clarifying question).
-    # Abandon the rest of the plan; next turn re-plans with the answer.
-    if state.get("awaiting_user"):
-        logger.info(
-            "[agent] dispatch_next → reflection (awaiting traveller; "
-            "abandoning %d queued step(s))",
-            len(pending),
-        )
-        return Command(update={"pending_flows": []}, goto="reflection")
-    if pending:
-        nxt, rest = pending[0], pending[1:]
-        # Fail safe rather than trusting the caller: the supervisor is the
-        # only writer of pending_flows and already excludes "booking" and
-        # tier-restricted agents, but dispatch_next is a second entry point
-        # into every sub-agent and must not blindly honour a queue entry
-        # that would bypass the booking HITL interrupt if that upstream
-        # guard ever regressed (ce-code-review finding, 4 independent
-        # reviewers).
-        if nxt not in ALL_SUBAGENTS or nxt == "booking":
-            logger.error(
-                "[agent] dispatch_next refusing illegal queued flow: %r "
-                "(pending_flows should never contain this) → reflection",
-                nxt,
-            )
-            return Command(update={"pending_flows": []}, goto="reflection")
-        logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
-        # GH-117 follow-up: hide the just-finished sub-agent's prose answer from
-        # the follow-on sub-agent so it does not regenerate the same full turn
-        # answer. Tool results remain visible, so the follow-on can build on the
-        # facts already gathered. The reducer is last-write-wins, so emit the
-        # full accumulated list for this turn.
-        update: dict = {"current_flow": nxt, "pending_flows": rest}
-        superseded_id = _last_subagent_answer_id(state)
-        if superseded_id:
-            update["superseded_message_ids"] = list(
-                set(state.get("superseded_message_ids") or []) | {superseded_id}
-            )
-        return Command(update=update, goto=nxt)
-    logger.info("[agent] dispatch_next → reflection (queue empty)")
-    return Command(goto="reflection")

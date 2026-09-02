@@ -1,12 +1,9 @@
-"""Multi-intent dispatch node — ``dispatch_next`` (MIN-65 DESIGN D4, PLAN 5.1).
+"""Multi-intent routing — ``route_tasks`` (GH-117 Path A).
 
 Covers:
-- Two queued intents run sequentially in one turn, then reflection.
-- Single-intent (the common case, ``pending_flows == []``) behaves exactly as
-  before this task — straight to reflection.
-- Reflection's REVISE loop-back re-enters ``dispatch_next`` with an already
-  empty queue, so it falls straight through to reflection again (no infinite
-  loop, no re-triggering the drained secondary intent).
+- Two intents fan out to parallel synthesis workers, then synthesize.
+- Single-intent (the common case) goes straight to its sub-agent, then reflection.
+- Reflection's REVISE loop-back re-enters synthesize on its declared destination.
 - The plan/HITL booking detour keeps its own topology untouched.
 """
 
@@ -136,7 +133,6 @@ def test_single_intent_goes_straight_to_reflection_unchanged():
     out = _invoke(graph, "what to see in Tokyo?", thread_id="t-single-1")
 
     assert out["current_flow"] == "concierge"
-    assert out.get("pending_flows", []) == []  # wave 1: supervisor no longer writes it
     assert any("here you go" in (m.content or "") for m in out["messages"])
     # Only one sub-agent answer in the transcript — no secondary intent ran.
     ai_answers = [m.content for m in out["messages"] if m.content == "here you go"]
@@ -144,9 +140,9 @@ def test_single_intent_goes_straight_to_reflection_unchanged():
 
 
 def test_reflection_revise_loop_does_not_retrigger_drained_secondary():
-    # Single intent (no secondary) so pending_flows is drained (stays []) from
-    # the first dispatch_next pass; reflection then REVISEs once before
-    # accepting, and dispatch_next must not re-queue anything on the replay.
+    # Single intent goes straight to its sub-agent, then reflection; reflection
+    # REVISEs once before accepting and must re-enter only the same sub-agent —
+    # no secondary intent is queued or re-run.
     graph = _build(
         structured_responses=[SupervisorIntent(target_agent="planner")],
         main_responses=["first draft", "revised draft"],
@@ -155,7 +151,6 @@ def test_reflection_revise_loop_does_not_retrigger_drained_secondary():
     out = _invoke(graph, "plan my trip", thread_id="t-revise-1")
 
     assert out["current_flow"] == "planner"
-    assert out.get("pending_flows", []) == []  # wave 1: supervisor no longer writes it
     assert out["revisions"] == 1
 
     contents = [m.content for m in out["messages"]]
@@ -188,9 +183,6 @@ def test_booking_hitl_detour_untouched_by_dispatch():
     )
     assert not resumed.get("__interrupt__")
     assert any("Hotel booked" in (m.content or "") for m in resumed["messages"])
-    # No secondary intent was ever queued for booking — dispatch_next falls
-    # straight through to reflection exactly as the old direct edge did.
-    assert resumed.get("pending_flows", []) == []  # wave 1: supervisor no longer writes it
 
 
 def test_task_results_cleared_between_turns():

@@ -1,8 +1,9 @@
 """Clarification signal tool (MIN-68, specs/min-68-ledger-early-exit).
 
 Deliberately NOT registered in ``app.tools.registry``: it is graph
-control-flow (state signal consumed by ``dispatch_next``), not a domain
-capability — keeping it out of the registry keeps it off the MCP server and
+control-flow (the ``awaiting_user`` state signal consumed by reflection's
+early-exit guard), not a domain capability — keeping it out of the registry
+keeps it off the MCP server and
 ``/agent/manifest``, which are registry-driven. ``build_subagent``
 (``app.agents.subagents._base``) appends it to every sub-agent's toolset.
 """
