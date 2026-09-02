@@ -1,6 +1,6 @@
 ---
 slug: review-a-security-hardening
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-09-02
 ---
@@ -44,6 +44,7 @@ the reflection routing bug (`specs/fix-reflection-synthesize-goto`).
 | SC-5 | The owner revision applies, downgrades and re-applies cleanly on a fresh SQLite DB | `cd apps/api && env DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db sh -c '../../.venv/bin/alembic upgrade head && ../../.venv/bin/alembic downgrade -1 && ../../.venv/bin/alembic upgrade head'` | exit 0 |
 | SC-6 | Bookings created or cancelled through the agent tools carry the graph's `user_id`; the four tools are absent from the MCP tool list | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_booking_owner.py -q` | exit 0 |
 | SC-7 | Logged-out web users see a sign-in prompt in the chat widget and no request is sent; `X-User-Id` is no longer attached to any request | `cd apps/web && pnpm vitest run src/components/chat/ChatWidget.auth.test.tsx src/lib/api/client.test.ts` | exit 0 |
+| SC-8 | The agent tool `resolve_place(source="saved")` cannot read another user's saved place by id or SPL- short code | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_place_owner.py -q` | exit 0 |
 
 ## 4. Tasks
 
@@ -151,6 +152,24 @@ the reflection routing bug (`specs/fix-reflection-synthesize-goto`).
 - **Verify:** `cd apps/api && ../../.venv/bin/python -m pytest tests/tools -q`
 - **Done:** agent-made bookings carry the owner; MCP manifest excludes the four tools; tool tests pass.
 
+### Task 3.2 — Scope the agent saved-place read (wave 3)
+
+- **Files:** apps/api/app/tools/place_tools.py, apps/api/app/services/place_service.py, apps/api/app/repositories/saved_place.py, apps/api/tests/tools/test_place_owner.py
+- **Action:** Surfaced by the wave-2 review (rev-2-2, Important): `resolve_place(source="saved")` →
+  `PlaceService.resolve` → `SavedPlaceRepository.get(place_id)` runs with no owner, so an LLM-invoked
+  tool with a user-controlled `place_id`/`SPL-` short code reads any user's saved place (name,
+  address, coords, notes = PII); the short-code branch scans all users' rows. Thread
+  `user_id: Annotated[str, InjectedState("user_id")]` into `resolve_place` (annotation-derived schema
+  only — never an explicit `args_schema`) and pass it through `PlaceService.resolve`/`.get` into
+  `SavedPlaceRepository.get(place_id, user_id=...)` for the saved source; the short-code scan must be
+  owner-filtered. The agent runs under the authenticated JWT sub (wave 1), so the owner is always
+  available. Correct the `SavedPlaceRepository.get` docstring (the None path is NOT internal-only).
+  Leave the catalog `source` branch (non-saved) unchanged — it reads public data.
+- **Criteria:** SC-8
+- **Interfaces:** Consumes: `apps/api/app/repositories/saved_place.py` (Task 2.2) and TravelAgentState.user_id (existing). Produces: `apps/api/tests/tools/test_place_owner.py`, `apps/api/app/tools/place_tools.py`.
+- **Verify:** `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL="sqlite:///$(mktemp -d)/t32.db" ../../.venv/bin/python -m pytest tests/tools/test_place_owner.py tests/tools/test_place_tools.py -q`
+- **Done:** user B's agent cannot resolve A's saved place by id or SPL- code; catalog resolves unchanged.
+
 ### Task 4.1 — Cross-user negative tests and API docs (wave 4)
 
 - **Files:** apps/api/tests/api/booking/test_booking_ownership.py, apps/api/tests/api/place/test_saved_place_ownership.py, apps/api/APIS.md, apps/api/.env.example
@@ -176,5 +195,12 @@ the reflection routing bug (`specs/fix-reflection-synthesize-goto`).
   declared `high-risk` in SUMMARY.md so the hook corroborates instead of blocking.
 
 ## 6. Status Log
+- 2026-09-02 — tasks 1.1, 1.2, 1.3 complete; commit 45b1631 (wave 1). travel.db rebuilt to head c7f1a9d4e6b2. Deviations: 1.2 added a one-line HTTPException.headers forward in app/core/errors.py (Rule 2, needed for the 401 Basic challenge); 1.3 also touched app/schemas/agent.py (ChatRequest.user_id deprecated/ignored).
+- 2026-09-02 — wave 1 reviewed: all three tasks SPEC+QUALITY PASS (independent reviewers). Minor fixes in 048fb5e (migration filename → convention; dashboard_auth non-ASCII credential → 401 not 500, +regression test). Deferred minors: prod data-loss runbook note (1.1), deprecated ChatRequest.user_id removal next release (1.3).
 
 - 2026-09-02 — intake complete (feature-intake); E001–E004 decided by the human; plan proposed, not yet executed.
+
+- 2026-09-02 — tasks 2.1, 2.2, 2.3 complete; commit 46614d9 (wave 2). BE combined re-verify 384 passed (booking/flight/hotel/place/trip); FE 162 passed. Deviations: 2.1 threaded owner into trip_service booking reads + added unscoped dashboard reads (plan gap, Harness-Delta backlog); 2.2 left places.py unchanged (auth via service factory, #118 pattern) and kept SavedPlaceRepository.get owner optional for the internal resolve path.
+- 2026-09-02 — wave 2 reviewed: 2.1 SPEC PASS / QUALITY FAIL (Critical = the expected cross-wave breakage: agent booking/cancel tool callsites call the now-owner-required BookingService without user_id → fixed by Task 3.1); 2.2 SPEC PASS / QUALITY PASS-with-Important (agent resolve_place saved-read cross-user leak → new Task 3.2 + SC-8); 2.3 SPEC+QUALITY PASS. Minors deferred: FE legacy-claim clears its key on a transient network error (silent history loss; useAgentStream.ts), stale anon comment in query/agent.ts.
+
+- 2026-09-02 — tasks 3.1, 3.2 complete + review follow-ups; commits 83fbeff (wave 3) and d4397d4 (SC-8 sibling-path fix). Combined re-verify 653 passed (2 pre-existing unrelated test_routing_tools offline failures). Controller fixes folded in: MCP now excludes destructive tools (E004 premise was wrong — InjectedState does not drop a tool off MCP; explicit destructive filter in app/mcp/server.py + tests); a wave-2 service-test mock updated to the owner signature. Wave-3 review (rev-3): SC-6 + E004 PASS, injection hidden-from-model confirmed for all 5 tools, cancel/book/MCP solid; one Important (add_place_to_trip sibling saved-read leak) fixed in d4397d4 with cross-user shortlist tests. Deferred minor: injected user_id defaults to "" — guaranteed non-empty by the wave-1 JWT requirement, worth a guard later.
