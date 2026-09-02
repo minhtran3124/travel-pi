@@ -70,9 +70,10 @@ def _link_to_dict(row: models.TripPlaceLink) -> dict:
     }
 
 
-def _new_trip_row(trip: Trip, idempotency_key: str | None) -> models.Trip:
+def _new_trip_row(trip: Trip, idempotency_key: str | None, user_id: str) -> models.Trip:
     return models.Trip(
         id=trip.id,
+        user_id=user_id,
         title=trip.title,
         city=trip.city,
         start_date=_iso(trip.start_date),
@@ -107,7 +108,9 @@ class TripRepository(Repo):
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
-    def create_trip(self, trip: Trip, idempotency_key: str | None = None) -> Trip:
+    def create_trip(
+        self, trip: Trip, user_id: str, idempotency_key: str | None = None
+    ) -> Trip:
         """Insert a trip and all of its items in one transaction.
 
         ``idempotency_key`` is stored on the trip row so a repeat request can
@@ -116,6 +119,8 @@ class TripRepository(Repo):
         makes this INSERT fail; we return the winner's trip instead of raising.
 
         :param trip: The trip (with items) to insert.
+        :param user_id: The owner (#118) — stamped on the row; every later read
+            is filtered by it.
         :param idempotency_key: Key stored on the trip row for replay detection.
         :return: The inserted trip, or the winning trip from a concurrent
             request that raced on the same ``idempotency_key``.
@@ -123,22 +128,34 @@ class TripRepository(Repo):
         try:
             with self._session() as s:
                 with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
-                    s.add(_new_trip_row(trip, idempotency_key))
+                    s.add(_new_trip_row(trip, idempotency_key, user_id))
                     s.add_all([_new_item_row(item, None) for item in trip.items])
                 self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:
-                existing = self.get_trip_by_idempotency_key(idempotency_key)
+                existing = self.get_trip_by_idempotency_key(idempotency_key, user_id)
                 if existing is not None:
                     return existing
             raise
         return trip
 
-    def get_trip(self, trip_id: str) -> Trip | None:
+    def get_trip(self, trip_id: str, user_id: str) -> Trip | None:
+        """Return the caller's trip, or None.
+
+        A trip owned by someone else returns ``None`` — the same answer as a trip
+        that does not exist. Distinguishing "forbidden" from "not found" would
+        confirm to a probe that a guessed id is real (#118).
+
+        :param trip_id: The trip's UUID.
+        :param user_id: The caller; rows owned by anyone else are invisible.
+        :return: The trip, or None when missing or not the caller's.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
-                    models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
+                    models.Trip.id == trip_id,
+                    models.Trip.user_id == user_id,
+                    models.Trip.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -148,15 +165,19 @@ class TripRepository(Repo):
             ).all()
             return _row_to_trip(row, item_rows)
 
-    def list_trips(self) -> list[Trip]:
-        """Return every trip (newest first) with its items attached.
+    def list_trips(self, user_id: str) -> list[Trip]:
+        """Return the caller's trips (newest first) with their items attached.
 
-        :return: Live trips, ordered newest first, each with its items.
+        :param user_id: The owner whose trips to return.
+        :return: The caller's live trips, newest first, each with its items.
         """
         with self._session() as s:
             trip_rows = s.scalars(
                 select(models.Trip)
-                .where(models.Trip.deleted_at.is_(None))
+                .where(
+                    models.Trip.user_id == user_id,
+                    models.Trip.deleted_at.is_(None),
+                )
                 .order_by(models.Trip.created_at.desc())
             ).all()
             item_rows = s.scalars(select(models.TripItem)).all()
@@ -280,11 +301,23 @@ class TripRepository(Repo):
             raise
         return item
 
-    def get_trip_by_idempotency_key(self, key: str) -> Trip | None:
+    def get_trip_by_idempotency_key(self, key: str, user_id: str) -> Trip | None:
+        """Replay lookup, scoped to the caller (#118).
+
+        The idempotency index is global, so without the owner filter a replay
+        could hand one user another user's trip whenever their keys collided.
+
+        :param key: The idempotency key supplied by the client.
+        :param user_id: The caller; another owner's trip is not a replay of this
+            request.
+        :return: The caller's trip stored under that key, or None.
+        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
-                    models.Trip.idempotency_key == key, models.Trip.deleted_at.is_(None)
+                    models.Trip.idempotency_key == key,
+                    models.Trip.user_id == user_id,
+                    models.Trip.deleted_at.is_(None),
                 )
             ).first()
             if row is None:

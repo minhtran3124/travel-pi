@@ -225,7 +225,15 @@ def build_subagent(
         # (state["language"]) — one detection, one source of truth. Also closes the
         # clarification path (MIN-68), which skips reflection's language guard.
         system_msg = with_reply_language(system_msg, state)
-        response = bound.invoke([system_msg, *state["messages"]])
+        # GH-117 follow-up: follow-on sub-agents must not see prior sub-agents'
+        # prose answers, because each sub-agent regenerates the whole turn answer
+        # and would duplicate content already streamed. Tool results stay visible
+        # so the follow-on can build on facts already gathered.
+        superseded = set(state.get("superseded_message_ids") or [])
+        visible_messages = [
+            m for m in state["messages"] if getattr(m, "id", None) not in superseded
+        ]
+        response = bound.invoke([system_msg, *visible_messages])
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
             logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))

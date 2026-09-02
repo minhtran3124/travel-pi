@@ -199,6 +199,32 @@ def test_mapper_emits_reset_on_new_message_id():
     assert names == ["start", "subagent", "token", "reset", "token", "done"]
 
 
+def test_mapper_emits_reset_on_subagent_handoff():
+    """Regression (#117): when the supervisor queues multiple sub-agents in one
+    turn, the mapper must reset the accumulator on handoff so only the last
+    specialist's answer survives — matching the REST "last answer wins" rule."""
+    items = [
+        (("planner:1",), "messages", (AIMessageChunk(content="flights found", id="m1"), {})),
+        (("concierge:1",), "messages", (AIMessageChunk(content="sights found", id="m2"), {})),
+    ]
+    out = _run(_FakeGraph(items, values={"current_flow": "concierge"}))
+    names = [n for n, _ in out]
+    assert names == [
+        "start",
+        "subagent",
+        "token",
+        "reset",
+        "subagent",
+        "token",
+        "done",
+    ]
+    # The reset must come between the two sub-agent answers.
+    first_token_idx = names.index("token")
+    reset_idx = names.index("reset")
+    second_token_idx = names.index("token", reset_idx)
+    assert first_token_idx < reset_idx < second_token_idx
+
+
 def test_mapper_emits_interrupt_before_done():
     snapshot_interrupt = SimpleNamespace(value={"plan": "approve?"})
     out = _run(_FakeGraph([], interrupts=(snapshot_interrupt,)))

@@ -11,7 +11,6 @@ from types import SimpleNamespace
 
 from app.agents.context import AgentContext, resolve_agent_context
 from langchain_core.messages import AIMessage, HumanMessage
-from langgraph.graph import END
 
 
 def _runtime(ctx: AgentContext) -> SimpleNamespace:
@@ -32,7 +31,7 @@ def _premium_ctx() -> AgentContext:
 
 
 def test_free_booking_intent_degrades_to_end():
-    """Free user asking to book → supervisor returns END with upgrade message."""
+    """Free user asking to book → supervisor emits upgrade message and no tasks."""
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -44,7 +43,8 @@ def test_free_booking_intent_degrades_to_end():
         _runtime(_free_ctx()),
     )
 
-    assert cmd.goto == END
+    assert cmd.goto == ()
+    assert "tasks" not in cmd.update
     msgs = cmd.update.get("messages", [])
     assert msgs, "Expected a degradation message in update"
     assert isinstance(msgs[0], AIMessage)
@@ -52,8 +52,8 @@ def test_free_booking_intent_degrades_to_end():
     assert "premium" in msgs[0].content.lower() or "upgrade" in msgs[0].content.lower()
 
 
-def test_free_booking_does_not_route_to_plan():
-    """Free user → booking intent must NOT route to the plan HITL node."""
+def test_free_booking_does_not_emit_tasks():
+    """Free user → booking intent emits no tasks, so route_tasks will go to END."""
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -65,12 +65,12 @@ def test_free_booking_does_not_route_to_plan():
         _runtime(_free_ctx()),
     )
 
-    assert cmd.goto != "plan"
-    assert cmd.goto != "booking"
+    assert cmd.goto == ()
+    assert "tasks" not in cmd.update
 
 
-def test_free_non_booking_routes_normally():
-    """Free user asking for planning still routes to planner."""
+def test_free_non_booking_emits_planner_task():
+    """Free user asking for planning emits a planner task."""
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -82,8 +82,11 @@ def test_free_non_booking_routes_normally():
         _runtime(_free_ctx()),
     )
 
-    assert cmd.goto == "planner"
+    assert cmd.goto == ()
     assert cmd.update["current_flow"] == "planner"
+    assert cmd.update["tasks"] == [
+        {"agent": "planner", "query": "plan my trip to Paris", "index": 0}
+    ]
 
 
 def test_free_booking_blocked_regardless_of_message_wording():
@@ -99,7 +102,8 @@ def test_free_booking_blocked_regardless_of_message_wording():
         _runtime(_free_ctx()),
     )
 
-    assert cmd.goto == END
+    assert cmd.goto == ()
+    assert "tasks" not in cmd.update
 
 
 # ---------------------------------------------------------------------------
@@ -107,8 +111,8 @@ def test_free_booking_blocked_regardless_of_message_wording():
 # ---------------------------------------------------------------------------
 
 
-def test_premium_booking_routes_to_plan():
-    """Premium user → booking routes through the HITL plan node."""
+def test_premium_booking_emits_booking_task():
+    """Premium user → booking emits a booking task; route_tasks sends it to plan."""
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -120,13 +124,17 @@ def test_premium_booking_routes_to_plan():
         _runtime(_premium_ctx()),
     )
 
-    # Premium: booking is gated through HITL plan approval node
-    assert cmd.goto == "plan"
+    # Premium: booking task is emitted; the graph's route_tasks edge maps it
+    # to the HITL plan approval node.
+    assert cmd.goto == ()
     assert cmd.update["current_flow"] == "booking"
+    assert cmd.update["tasks"] == [
+        {"agent": "booking", "query": "book me a hotel", "index": 0}
+    ]
 
 
-def test_premium_planner_routes_normally():
-    """Premium user → planner routes directly."""
+def test_premium_planner_emits_planner_task():
+    """Premium user → planner emits a planner task."""
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -138,7 +146,10 @@ def test_premium_planner_routes_normally():
         _runtime(_premium_ctx()),
     )
 
-    assert cmd.goto == "planner"
+    assert cmd.goto == ()
+    assert cmd.update["tasks"] == [
+        {"agent": "planner", "query": "plan my trip", "index": 0}
+    ]
 
 
 def test_default_context_is_permissive():
@@ -155,7 +166,10 @@ def test_default_context_is_permissive():
         _runtime(AgentContext()),
     )
 
-    assert cmd.goto == "plan"
+    assert cmd.goto == ()
+    assert cmd.update["tasks"] == [
+        {"agent": "booking", "query": "book me a hotel", "index": 0}
+    ]
 
 
 # ---------------------------------------------------------------------------

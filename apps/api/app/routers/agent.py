@@ -14,14 +14,15 @@ from typing import Annotated, Any
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.background import BackgroundTask
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG, REFLECTION_REVISE_NOTE
+from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
+from app.agents.guardrails import redact_pii
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
@@ -148,8 +149,13 @@ def _turn_input(message: str, user_id: str, trip_id: str | None) -> dict:
         no active trip context.
     :return: The input dict for ``graph.ainvoke``.
     """
+    # Defense-in-depth: redact email/card PII before the message reaches the
+    # graph, the checkpointer, or the conversation DB. The graph's pii_guardrail
+    # node also redacts, but sanitizing here protects paths that persist the
+    # raw turn before the graph runs.
+    safe_message = redact_pii(message)
     turn_input: dict = {
-        "messages": [HumanMessage(content=message)],
+        "messages": [HumanMessage(content=safe_message)],
         "user_id": user_id,
     }
     if trip_id is not None:
@@ -221,7 +227,9 @@ def _resolve_context(
         tier = Tier.FREE.value
     refl = AgentConfigCache.get("reflection")
     allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
-    return resolve_agent_context(tier=tier, allow_reflection=allow_reflection)
+    return resolve_agent_context(
+        tier=tier, allow_reflection=allow_reflection, authenticated=authenticated
+    )
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
@@ -266,12 +274,14 @@ async def agent_chat(
             # Resume a graph paused at a plan-approval interrupt.
             result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
         else:
+            # Sanitize PII before it touches the conversation store or the graph.
+            safe_message = redact_pii(body.message)
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=safe_message
             )
             session.commit()
             result = await graph.ainvoke(
-                _turn_input(body.message, uid, body.trip_id),
+                _turn_input(safe_message, uid, body.trip_id),
                 cfg,
                 context=ctx,
             )
@@ -314,46 +324,29 @@ async def agent_chat(
     if interrupt_pending:
         reply = ""
     else:
-        # Join every *assistant* message produced THIS turn, not just the last
-        # one: a multi-intent turn (MIN-65 dispatch_next) runs two sub-agents
-        # sequentially, each appending its own AIMessage — taking only the
-        # last one silently drops the first sub-agent's entire answer from the
-        # REST response (it would still stream over SSE, and still reach
-        # memory extraction, but never reach this client). Scope to messages
-        # after the last HumanMessage so prior turns' AIMessages in the full
-        # thread history are never included. A ReAct sub-agent that exhausts
-        # the recursion limit can still leave a ToolMessage (raw JSON) as the
-        # final entry, which must never surface as the reply — filtering to
-        # AIMessage already excludes it.
+        # Scope to messages produced THIS turn, after the last HumanMessage, so
+        # prior turns' AIMessages in the full thread history are never included.
+        # A multi-intent turn runs two or more sub-agents sequentially, but each
+        # sub-agent is a full ReAct loop that regenerates the whole answer for
+        # the turn, not a slice. The turn's final user-facing answer is therefore
+        # the last content-bearing, non-tool-calling AIMessage in this turn. A
+        # reflection REVISE appends a fresh AIMessage after the REVISE note, so
+        # the last such message is also the revised answer. A ReAct loop that
+        # exhausted the recursion limit may leave a ToolMessage as the final
+        # entry; filtering to AIMessage excludes it.
         turn_messages = result["messages"]
         for i in range(len(turn_messages) - 1, -1, -1):
             if isinstance(turn_messages[i], HumanMessage):
                 turn_messages = turn_messages[i:]
                 break
-        # Drop reflection-superseded drafts. A REVISE re-runs the *same*
-        # sub-agent and appends a fresh answer without removing the rejected
-        # one (add_messages appends; nothing emits a RemoveMessage), so joining
-        # blindly would surface the flawed draft next to its correction. The
-        # revise-note SystemMessage marks the boundary — it appears only before
-        # a revision, never between two distinct sub-agents on a multi-intent
-        # turn — so popping the most recent answer on each note keeps the final
-        # answer per sub-agent while preserving both answers of a multi-intent
-        # turn. This mirrors the SSE path's `reset` event. Exclude tool-calling
-        # AIMessages: a model may emit intermediate reasoning content alongside
-        # tool_calls, which is not a user-facing answer.
-        answers: list[str] = []
-        for m in turn_messages:
-            if isinstance(m, SystemMessage) and m.content == REFLECTION_REVISE_NOTE:
-                if answers:
-                    answers.pop()
-            elif isinstance(m, AIMessage) and m.content and not m.tool_calls:
-                answers.append(m.content)
-        reply = "\n\n".join(answers)
-        # Guarantee a user-facing reply even when the graph finished without an
-        # assistant message (e.g. a ReAct loop that exhausted the recursion limit
-        # on repeated tool errors). The user must always get a readable message.
-        if not reply:
-            reply = AGENT_ERROR_FALLBACK_MSG
+        reply = next(
+            (
+                m.content
+                for m in reversed(turn_messages)
+                if isinstance(m, AIMessage) and m.content and not m.tool_calls
+            ),
+            AGENT_ERROR_FALLBACK_MSG,
+        )
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
@@ -430,6 +423,8 @@ async def agent_stream(
         # (thread_id) addresses the checkpoint created during the initial turn.
         stream_input = Command(resume=body.resume)
     else:
+        # Sanitize PII before it touches the conversation store or the graph.
+        safe_message = redact_pii(body.message)
         # Persist the user turn before returning the StreamingResponse so the
         # message row exists even if the stream is abandoned mid-flight. On a
         # retry the user message is already saved (the previous turn was
@@ -437,9 +432,9 @@ async def agent_stream(
         # it to avoid a duplicate question bubble.
         if not body.retry:
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=safe_message
             )
-        stream_input = _turn_input(body.message, uid, body.trip_id)
+        stream_input = _turn_input(safe_message, uid, body.trip_id)
 
     # Commit (and release the SQLite write lock) before streaming begins so
     # the isolated factory session inside persist_assistant_turn can write.

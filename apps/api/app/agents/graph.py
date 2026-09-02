@@ -2,16 +2,18 @@
 
 Wires the full agentic graph:
 
-    START -> load_context -> summarize -> supervisor
-                                              | Command(goto=<sub-agent>)
-                 planner / concierge / journal / booking / budget
-                                              v
-                                        dispatch_next
-                          Command(goto=<queued sub-agent> | reflection)
-                                              v
-                                         reflection
-                                   Command(goto=<sub-agent> | END)
+    START -> pii_guardrail -> load_context -> summarize -> supervisor
+                                                              | Command(goto=<sub-agent>)
+                     planner / concierge / journal / booking / budget
+                                                              v
+                                                        dispatch_next
+                                  Command(goto=<queued sub-agent> | reflection)
+                                                              v
+                                                         reflection
+                                               Command(goto=<sub-agent> | END)
 
+The ``pii_guardrail`` entry node redacts email/credit-card PII from the user's
+turn before any LLM provider, checkpointer, or memory extractor sees it.
 The supervisor routes by intent; each sub-agent is a ReAct subgraph that
 self-corrects on tool errors. ``dispatch_next`` (pure code, no LLM call) drains
 at most one queued secondary intent (MIN-65 D4) before reflection reviews the
@@ -30,12 +32,15 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
 from app.agents.context import AgentContext
+from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
     dispatch_next,
     load_context_node,
     make_reflection_node,
     make_summarize_node,
+    make_synthesize_node,
     plan_node,
+    route_tasks,
 )
 from app.agents.retry import LLM_RETRY
 from app.agents.state import TravelAgentState
@@ -44,6 +49,7 @@ from app.agents.subagents.budget import build_budget
 from app.agents.subagents.concierge import build_concierge
 from app.agents.subagents.journal import build_journal
 from app.agents.subagents.planner import build_planner
+from app.agents.subagents.synthesis_worker import build_synthesis_worker
 from app.agents.supervisor import SUBAGENTS, make_supervisor
 from app.clients.llm import FAST_AGENTS, get_agent_llm
 from app.core.agent_config_cache import AgentConfigCache
@@ -120,6 +126,10 @@ def build_graph(
         return resolve
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
+    # PII guardrail runs first so email/card are redacted before any model call,
+    # before persistence to the checkpointer, and before the post-response memory
+    # extractor reads the turn.
+    builder.add_node("pii_guardrail", pii_guardrail_node)
     builder.add_node("load_context", load_context_node)
     builder.add_node(
         "summarize", make_summarize_node(pick("summarize")), retry_policy=LLM_RETRY
@@ -127,7 +137,6 @@ def build_graph(
     builder.add_node(
         "supervisor",
         make_supervisor(pick("supervisor")),
-        destinations=(*SUBAGENTS, "plan", "__end__"),
         retry_policy=LLM_RETRY,
     )
     # HITL plan-approval gate: fires before booking commits anything destructive.
@@ -142,23 +151,48 @@ def build_graph(
         dispatch_next,
         destinations=(*SUBAGENTS, "reflection"),
     )
+    def worker_resolve(agent_name: str, ctx_model: str | None = None) -> BaseChatModel:
+        """Resolve the per-specialist model for parallel synthesis workers.
+
+        Mirrors ``resolver_for`` but selects the specialist at worker runtime
+        (the worker learns which agent it is running from ``state["task"]``).
+        """
+        return resolver_for(agent_name)(ctx_model)
+
+    builder.add_node(
+        "synthesis_worker",
+        build_synthesis_worker(worker_resolve),
+    )
+    builder.add_node(
+        "synthesize",
+        make_synthesize_node(pick("synthesize")),
+        retry_policy=LLM_RETRY,
+    )
     builder.add_node(
         "reflection",
         make_reflection_node(pick("reflection")),
-        destinations=(*SUBAGENTS, END),
+        destinations=(*SUBAGENTS, "synthesize", END),
         retry_policy=LLM_RETRY,
     )
 
-    builder.add_edge(START, "load_context")
+    builder.add_edge(START, "pii_guardrail")
+    builder.add_edge("pii_guardrail", "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
-    # supervisor -> sub-agent (or plan) is a Command(goto=...) handoff (no static edge).
+    # GH-117 Path A: supervisor emits an ordered task list; a conditional edge
+    # routes single-intent turns to the existing static sub-agent nodes, routes
+    # booking through the HITL plan node, and dispatches multi-intent turns to
+    # parallel synthesis workers via Send.
+    builder.add_conditional_edges("supervisor", route_tasks)
     # Every sub-agent -> dispatch_next (MIN-65 D4), which drains at most one queued
     # secondary intent before reflection reviews the final answer. The plan/HITL
     # booking detour is untouched — it keeps its own Command(goto="booking"|END)
     # topology and never passes through dispatch_next.
     for name in SUBAGENTS:
         builder.add_edge(name, "dispatch_next")
+    # GH-117 Path A: parallel workers converge on synthesize, then reflection.
+    builder.add_edge("synthesis_worker", "synthesize")
+    builder.add_edge("synthesize", "reflection")
     # plan -> booking | END is a Command(goto=...) after interrupt resumes.
     # dispatch_next -> <sub-agent> | reflection is a Command(goto=...).
     # reflection -> sub-agent | END is a Command(goto=...).

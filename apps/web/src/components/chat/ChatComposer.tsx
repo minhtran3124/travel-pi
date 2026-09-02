@@ -1,18 +1,28 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 export interface ChatComposerProps {
   /** Blocks input while a turn is streaming or an interrupt is pending. */
   disabled: boolean;
   onSend: (text: string) => void;
+  /**
+   * Optional chip rail (e.g. `<ChatSuggestions />`) rendered as a horizontally
+   * scrollable row inside the composer, above the input. Suppression while
+   * streaming/interrupt is the call site's concern.
+   */
+  suggestions?: ReactNode;
 }
 
 const MAX_TEXTAREA_HEIGHT = 120; // ~5 lines, then it scrolls
 
 /** Auto-growing message input + send button. Owns its own draft state. */
-export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
+export function ChatComposer({
+  disabled,
+  onSend,
+  suggestions,
+}: ChatComposerProps) {
   const t = useTranslations("Chat");
   const [draft, setDraft] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -41,6 +51,14 @@ export function ChatComposer({ disabled, onSend }: ChatComposerProps) {
         submit();
       }}
     >
+      {suggestions ? (
+        <div
+          className="mb-sm flex flex-nowrap gap-sm overflow-x-auto [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {suggestions}
+        </div>
+      ) : null}
       <div className="flex items-end gap-sm rounded-[18px] border border-line bg-void p-1.5 pl-md transition focus-within:border-faint focus-within:shadow-card">
         <textarea
           ref={textareaRef}

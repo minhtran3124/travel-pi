@@ -3,6 +3,18 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## supervisor-expense-logging — disambiguate "log an expense" from journal
+
+GH-117 Path A eval: `gpt-4o-mini` routed "Log that I paid 50 USD for lunch today"
+to **journal** because of the word "log", even though the content is an expense.
+Added an explicit routing example so expense recording always goes to **budget**,
+regardless of "log"/"note" wording.
+
+- **supervisor v8** — identical to v7 plus one new few-shot example:
+  "Log that I paid 50 USD for lunch today" → **budget** (recording an expense).
+
+`active.yaml`: supervisor → 8.
+
 ## ledger-early-exit — signal "blocked on the traveller" instead of draining the plan
 
 specs/min-68-ledger-early-exit (MIN-68 / #99): when a queued multi-step plan hits a

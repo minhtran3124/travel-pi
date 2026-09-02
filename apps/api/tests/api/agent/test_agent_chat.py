@@ -84,6 +84,11 @@ def _make_app(
         return _graph
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = _override_graph
     # Test-only introspection hook: lets tests reach the same store/llm the
     # request handler sees. Deliberately NOT named `app.state.travel_graph` —
@@ -183,10 +188,90 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
-def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
-    """Regression (ce-code-review finding): a multi-intent turn (MIN-65
-    dispatch_next) must not silently drop the first sub-agent's answer from
-    the non-streaming REST reply — both answers must be present."""
+def test_chat_redacts_pii_in_persisted_messages(client):
+    """User input containing email/card PII must be sanitized before it is
+    persisted to the conversations table."""
+    raw = "reach me at secret@leak.com, card 4111 1111 1111 1111"
+    resp = client.post(
+        "/agent/chat",
+        json={"message": raw, "user_id": "u1"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+
+    history = client.get(
+        f"/agent/conversations/{body['conversation_id']}/messages?user_id=u1"
+    )
+    assert history.status_code == 200
+    msgs = history.json()
+
+    user_contents = [m["content"] for m in msgs if m["role"] == "user"]
+    assert any("secret@leak.com" not in c for c in user_contents)
+    assert any("4111 1111 1111 1111" not in c for c in user_contents)
+    assert any("[REDACTED_EMAIL]" in c for c in user_contents)
+    assert any("****-****-****-1111" in c for c in user_contents)
+
+
+def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
+    """Regression (#117 Path A): a multi-intent turn runs parallel workers and
+    returns a single synthesized answer from /agent/chat — no duplicated prose
+    from intermediate specialists."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    # Provide enough responses for two workers + synthesizer across both the
+    # /agent/chat and /agent/stream invocations.
+    main = FakeLLM(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+        ]
+        * 6,
+        responses=["flights found", "here's what to see", "combined answer"] * 3,
+    )
+    fast = FakeLLM(responses=["OK"] * 6)
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+
+    app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: graph
+    app.state.test_graph = graph
+
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={
+                "message": "flights to Tokyo and things to do there",
+                "user_id": "u1",
+            },
+        )
+    assert resp.status_code == 200
+    reply = resp.json()["reply"]
+    # The final answer is the synthesizer's output, not raw worker findings.
+    assert reply == "combined answer"
+
+
+def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
+    """Regression (#117 acceptance): /agent/chat and /agent/stream must agree on
+    the final synthesized answer text for a multi-intent turn."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -208,7 +293,7 @@ def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
             SupervisorIntent(target_agent="planner", secondary_agent="concierge")
         ]
         * 6,
-        responses=["flights found", "here's what to see"] * 3,
+        responses=["flights found", "here's what to see", "combined answer"] * 3,
     )
     fast = FakeLLM(responses=["OK"] * 6)
     graph = build_graph(
@@ -216,29 +301,58 @@ def test_chat_multi_intent_turn_returns_both_subagent_answers(tmp_path):
     )
 
     app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = lambda: graph
     app.state.test_graph = graph
 
     with TestClient(app) as c:
-        resp = c.post(
+        chat_resp = c.post(
             "/agent/chat",
             json={
                 "message": "flights to Tokyo and things to do there",
                 "user_id": "u1",
             },
         )
-    assert resp.status_code == 200
-    reply = resp.json()["reply"]
-    assert "flights found" in reply
-    assert "here's what to see" in reply
+        assert chat_resp.status_code == 200
+        chat_reply = chat_resp.json()["reply"]
+
+        stream_resp = c.post(
+            "/agent/stream",
+            json={
+                "message": "flights to Tokyo and things to do there",
+                "user_id": "u1",
+            },
+        )
+        assert stream_resp.status_code == 200
+        stream_text = stream_resp.text
+
+    # Accumulate tokens like the FE / persistence layer: append token content,
+    # but clear the buffer on every reset event.
+    accumulated = ""
+    for raw_event in stream_text.split("\n\n"):
+        if not raw_event.strip():
+            continue
+        lines = raw_event.strip().split("\n")
+        if not lines:
+            continue
+        event_name = lines[0][len("event: "):]
+        data_line = next((ln for ln in lines if ln.startswith("data: ")), None)
+        if data_line is None:
+            continue
+        payload = json.loads(data_line[len("data: "):])
+        if event_name == "token":
+            accumulated += payload.get("content", "")
+        elif event_name == "reset":
+            accumulated = ""
+
+    assert chat_reply == accumulated
+    assert chat_reply == "combined answer"
+    assert "flights found" not in chat_reply
 
 
 def test_chat_returns_flow_scoped_suggestions(client):
-    """A completed turn returns a `suggestions` list of keys prefixed by the flow.
-
-    The `client` fixture routes to `concierge`, so every suggestion key must start
-    with `concierge.` and the list must be non-empty (MIN-55, Task 2.1).
-    """
     resp = client.post(
         "/agent/chat",
         json={"message": "What should I see in Tokyo?", "user_id": "u1"},
@@ -491,6 +605,12 @@ def test_trip_id_persists_across_turns_after_create_trip(tmp_path, monkeypatch):
         "",
         responses=[create_trip_call, "I've started a new trip for you.", "Sure thing!"],
     )
+    # #118: creating a trip now requires a signed-in traveller — an anonymous id
+    # is client-supplied, so a trip stamped with it would belong to whoever sends
+    # that string next. Act as the same user the request already claims.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     with TestClient(app) as c:
         resp1 = c.post(
             "/agent/chat",
@@ -597,6 +717,11 @@ def test_chat_fallback_reports_checkpointed_trip_id_not_stale_request_value(
             s.close()
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = lambda: wrapped_graph
 
     with TestClient(app) as c:
@@ -696,6 +821,11 @@ def test_chat_returns_fallback_when_graph_raises(tmp_path):
             raise RuntimeError("model provider down")
 
     app.dependency_overrides[get_session] = _override_session
+    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
+    # traveller.
+    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
     app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
 
     with TestClient(app) as c:

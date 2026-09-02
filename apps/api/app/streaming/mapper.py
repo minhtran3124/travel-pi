@@ -59,6 +59,15 @@ def _ns_root(ns: tuple[str, ...] | None) -> str | None:
     return ns[0].split(":", 1)[0]
 
 
+def _node_name_from_meta(meta: dict) -> str | None:
+    """Return the LangGraph node name from message metadata, if present.
+
+    Top-level nodes stream with namespace ``()``; the node name is in the
+    metadata's ``langgraph_node`` key.
+    """
+    return meta.get("langgraph_node") if isinstance(meta, dict) else None
+
+
 def _as_message_list(value: Any) -> list[Any]:
     """Coerce a node's ``messages`` update to a list (it may be a single msg).
 
@@ -122,9 +131,12 @@ async def stream_agent_events(
         translator = None
 
     current_subagent: str | None = None
+    suppress_tokens_for_current: bool = False
     last_msg_id: str | None = None
     emitted_tool_calls: set[str] = set()
     emitted_token: bool = False
+    pending_flows: list[str] = []
+    synthesize_answer_emitted: bool = False
 
     try:
         async for ns, mode, data in graph.astream(
@@ -138,20 +150,60 @@ async def stream_agent_events(
 
             # Announce a specialist handoff the moment its namespace appears.
             if root in SUBAGENTS and root != current_subagent:
+                # Each queued sub-agent regenerates the whole turn answer, so a
+                # new specialist supersedes the previous draft. Emit reset so the
+                # FE and the persistence accumulator discard the prior answer.
+                if emitted_token:
+                    yield events.reset()
+                    emitted_token = False
                 current_subagent = root
+                # GH-117 follow-up: when more sub-agents are still queued after
+                # this one, its prose answer is an intermediate draft that the
+                # next specialist will replace. Suppress its tokens to avoid
+                # streaming duplicate content; panels/tool results still stream.
+                suppress_tokens_for_current = len(pending_flows) > 0
                 yield events.subagent(root)
+                # A new sub-agent means a new message stream; do not treat its
+                # first chunk as a continuation of the previous message.
+                last_msg_id = None
 
             if mode == "messages":
-                # Only sub-agent assistant prose is user-facing. ToolNode output
-                # runs in the same subgraph, so the AIMessage guard keeps raw
-                # JSON out of the feed; AIMessageChunk subclasses AIMessage.
-                if root not in SUBAGENTS:
-                    continue
-                chunk, _meta = data
+                # GH-117 Path A: in multi-intent mode, workers run inside the
+                # synthesis_worker subgraph and must not stream their prose.
+                # The synthesize node at the top level is the only source of
+                # user-facing tokens for these turns. Single-intent turns keep
+                # the existing sub-agent streaming behavior.
+                chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
                 content = getattr(chunk, "content", "")
                 if not content:
+                    continue
+                node_name = _node_name_from_meta(meta)
+                # Top-level synthesizer is the final answer for multi-intent.
+                # LangGraph emits the synthesized message more than once for the
+                # same node execution (model stream + graph update). The
+                # synthesize node currently uses llm.invoke(), so there is exactly
+                # one meaningful answer event per run; emit the first one and
+                # suppress the duplicate without relying on provider-specific
+                # metadata fields.
+                if root is None and node_name == "synthesize":
+                    if synthesize_answer_emitted:
+                        continue
+                    synthesize_answer_emitted = True
+                    emitted_token = True
+                    yield events.token(content)
+                    continue
+                # Suppress prose from synthesis workers and their inner sub-agents.
+                if root == "synthesis_worker" or (
+                    root is not None and root.startswith("synthesis_worker")
+                ):
+                    continue
+                if root not in SUBAGENTS:
+                    continue
+                # Intermediate sub-agents (legacy serial dispatch) must not
+                # stream prose when another queued sub-agent will supersede them.
+                if suppress_tokens_for_current:
                     continue
                 msg_id = getattr(chunk, "id", None)
                 if (
@@ -176,6 +228,12 @@ async def stream_agent_events(
                     node_lang = delta.get("language")
                     if isinstance(node_lang, str) and node_lang:
                         current_language = node_lang
+                    # Track the supervisor/dispatch_next ledger so we can tell
+                    # whether the currently-starting sub-agent is the final one
+                    # or an intermediate draft that will be superseded.
+                    node_pending = delta.get("pending_flows")
+                    if isinstance(node_pending, list):
+                        pending_flows = node_pending
                     # Cross-cutting terminal nodes (supervisor/plan) in the main
                     # graph end the turn with a content-bearing AIMessage (tier
                     # gate, unknown intent, plan cancel/approve). That message

@@ -12,6 +12,8 @@ from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
 
+from app.core.auth import AuthUser, get_current_user
+
 
 @pytest.fixture(autouse=True)
 def _clear_geocode_cache():
@@ -45,6 +47,10 @@ def tmp_db(tmp_path_factory):
     return f"sqlite:///{db_file}"
 
 
+#: The traveller every shared-client test acts as (#118).
+DEFAULT_TEST_USER_ID = "test-user-1"
+
+
 @pytest.fixture(scope="session")
 def client(tmp_db):
     """TestClient bound to an isolated temp DB via a get_session override."""
@@ -75,6 +81,16 @@ def client(tmp_db):
             session.close()
 
     app.dependency_overrides[get_session] = _override_get_session
+
+    # #118: trips and expenses now require a signed-in caller, and Supabase auth
+    # is not configured in tests (every request would 401 on "auth is not
+    # configured" rather than on anything the test is about). Override the
+    # required-auth dependency with a fixed traveller so the suite exercises the
+    # scoped behaviour. Cross-user access is covered separately in
+    # tests/api/trip/test_trip_ownership.py, which overrides this per test.
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id=DEFAULT_TEST_USER_ID, email="test@example.com", role=None, claims={}
+    )
 
     with TestClient(app) as c:
         yield c

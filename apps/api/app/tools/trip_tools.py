@@ -22,28 +22,61 @@ keeping the injected arg out of the model-facing ``tool_call_schema``.
 from __future__ import annotations
 
 import json
+import logging
 from typing import Annotated, Literal
 
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId, ToolException, tool
 from langgraph.prebuilt import InjectedState
+from langgraph.runtime import get_runtime
 from langgraph.types import Command
 from pydantic import Field
 
+from app.agents.context import AgentContext
 from app.enums import TripItemKind, TripItemStatus
 from app.exceptions import AppError
 from app.schemas.trip import TripCreate, TripItemCreate
 from app.services.trip_service import TripService
 from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
+logger = logging.getLogger(__name__)
+
+
+def _no_active_trip() -> dict:
+    """Guidance returned when a trip-scoped tool runs with no active trip.
+
+    A plain dict return (not a raised ``ToolException`` / ``Command``) so
+    ``ToolNode`` wraps it into a success ``ToolMessage`` that never passes
+    through ``handle_tool_errors`` — the wording is identical across every
+    sub-agent (specs/gh-125-trip-id-injection-keyerror/design.md).
+
+    Worded for both callers: on the agent path ``trip_id`` is injected from
+    graph state, but an MCP client may also omit it (it is optional in the
+    served schema, ESCALATIONS E001), and that caller has no traveller to ask.
+    """
+    return {
+        "error": "no_active_trip",
+        "message": "No trip was supplied for this call.",
+        "hint": (
+            "Identify the trip first: in a conversation, ask the traveller "
+            "which trip is meant (not every assistant can create trips); "
+            "otherwise pass a trip_id."
+        ),
+    }
+
 
 @tool
 def get_trip_summary(
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
     trip_id: Annotated[
-        str,
+        str | None,
         InjectedState("trip_id"),
         Field(description="The trip to summarise."),
-    ],
+    ] = None,
 ) -> dict:
     """Get a trip's full snapshot: days, items, places, budget rollup, and gaps.
 
@@ -51,59 +84,92 @@ def get_trip_summary(
 
     :param trip_id: The trip to summarise. Injected from graph state on the
         LangGraph agent path (not model-supplied there); a direct/MCP caller
-        must pass it explicitly.
+        must pass it explicitly. When absent, the guidance value is returned.
     :return: The trip's full snapshot.
     """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
     log_tool_call("get_trip_summary", {"trip_id": trip_id})
     with session_scope() as s:
         try:
-            return dump(TripService(s).get_trip_detail(trip_id))
+            return dump(TripService(s, user_id).get_trip_detail(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
 
 @tool
 def get_trip_budget(
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
     trip_id: Annotated[
-        str,
+        str | None,
         InjectedState("trip_id"),
         Field(description="The trip to get the budget for."),
-    ],
+    ] = None,
 ) -> dict:
     """Get the trip's budget: caps, spent-by-category, and remaining amounts.
 
     :param trip_id: The trip to get the budget for. Injected from graph state
         on the LangGraph agent path (not model-supplied there); a direct/MCP
-        caller must pass it explicitly.
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
     :return: The trip's budget rollup.
     """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
     log_tool_call("get_trip_budget", {"trip_id": trip_id})
     with session_scope() as s:
         try:
-            return dump(TripService(s).get_trip_budget(trip_id))
+            return dump(TripService(s, user_id).get_trip_budget(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
 
 @tool
 def list_trip_places(
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
     trip_id: Annotated[
-        str,
+        str | None,
         InjectedState("trip_id"),
         Field(description="The trip to list places for."),
-    ],
-) -> list:
+    ] = None,
+) -> list | dict:
     """List the places shortlisted onto a trip.
 
     :param trip_id: The trip to list places for. Injected from graph state on
         the LangGraph agent path (not model-supplied there); a direct/MCP
-        caller must pass it explicitly.
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
     :return: The places shortlisted onto the trip.
     """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
     log_tool_call("list_trip_places", {"trip_id": trip_id})
     with session_scope() as s:
         try:
-            return dump(TripService(s).list_trip_places(trip_id))
+            return dump(TripService(s, user_id).list_trip_places(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
@@ -113,11 +179,16 @@ def add_place_to_trip(
     place_id: Annotated[
         str, Field(description="The place's id or PLC-XXXX short code.")
     ],
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
     trip_id: Annotated[
-        str,
+        str | None,
         InjectedState("trip_id"),
         Field(description="The trip to shortlist the place onto."),
-    ],
+    ] = None,
     source: Annotated[
         Literal["catalog", "saved"],
         Field(
@@ -130,17 +201,27 @@ def add_place_to_trip(
     :param place_id: The place's id or PLC-XXXX short code.
     :param trip_id: The trip to shortlist the place onto. Injected from graph
         state on the LangGraph agent path (not model-supplied there); a
-        direct/MCP caller must pass it explicitly.
+        direct/MCP caller must pass it explicitly. When absent, the guidance
+        value is returned.
     :param source: 'catalog' (default) or 'saved'.
     :return: The created trip-place record.
     """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
     log_tool_call(
         "add_place_to_trip",
         {"trip_id": trip_id, "place_id": place_id, "source": source},
     )
     with session_scope() as s:
         try:
-            return dump(TripService(s).add_place_to_trip(trip_id, place_id, source))
+            return dump(
+                TripService(s, user_id).add_place_to_trip(trip_id, place_id, source)
+            )
         except AppError as e:
             raise tool_error(e) from e
 
@@ -149,11 +230,16 @@ def add_place_to_trip(
 def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
     title: Annotated[str, Field(description="The item's title.")],
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
     trip_id: Annotated[
-        str,
+        str | None,
         InjectedState("trip_id"),
         Field(description="The trip to add the item to."),
-    ],
+    ] = None,
     kind: Annotated[
         TripItemKind, Field(description="The kind of itinerary entry.")
     ] = TripItemKind.PLACE,
@@ -176,13 +262,21 @@ def add_itinerary_item(
     :param title: The item's title.
     :param trip_id: The trip to add the item to. Injected from graph state on
         the LangGraph agent path (not model-supplied there); a direct/MCP
-        caller must pass it explicitly.
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
     :param kind: One of place|activity|meal|transport|note.
     :param status: One of pending|booked|constraint|optional.
     :param notes: Optional free-text notes for the item.
     :param start_time: Optional start time for the item.
     :return: The created itinerary item.
     """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
     log_tool_call(
         "add_itinerary_item",
         {
@@ -205,7 +299,7 @@ def add_itinerary_item(
                 notes=notes,
                 start_time=start_time,
             )
-            return dump(TripService(s).add_item(trip_id, request))
+            return dump(TripService(s, user_id).add_item(trip_id, request))
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad kind/status
@@ -227,6 +321,11 @@ def create_trip(
         str, Field(description="Trip title, e.g. 'Da Nang long weekend'.")
     ],
     tool_call_id: Annotated[str, InjectedToolCallId],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The new trip's owner. Injected from graph state (#118)."),
+    ],
     city: Annotated[
         str | None, Field(description="Primary destination city (free text).")
     ] = None,
@@ -264,6 +363,39 @@ def create_trip(
             "travelers": travelers,
         },
     )
+    # #118: a trip needs a real owner. On the agent path an anonymous caller's
+    # id is a client-supplied string, so a trip stamped with it belongs to
+    # whoever sends that string next — refuse rather than create something
+    # unownable. Only the agent path is judged here: off-graph (direct call or
+    # MCP) there is no runtime and the caller passed `user_id` explicitly, so
+    # there is nothing to infer. MCP has no caller identity at all, which is
+    # recorded as out of scope on #118.
+    try:
+        runtime = get_runtime(AgentContext)
+    except RuntimeError:
+        runtime = None
+    ctx = runtime.context if runtime is not None else None
+    if ctx is not None and not ctx.authenticated:
+        logger.info("[agent] tool=create_trip refused (anonymous caller)")
+        return Command(
+            update={
+                "awaiting_user": True,
+                "messages": [
+                    ToolMessage(
+                        content=(
+                            "Not created: saving a trip needs a signed-in "
+                            "traveller, and this conversation is anonymous. This "
+                            "is not an outage and retrying will fail identically "
+                            "— tell them their plan is safe in this chat, and "
+                            "that signing in is what lets you save it."
+                        ),
+                        tool_call_id=tool_call_id,
+                        status="error",
+                    )
+                ],
+            }
+        )
+
     with session_scope() as s:
         try:
             kwargs = {
@@ -275,7 +407,7 @@ def create_trip(
             if travelers is not None:
                 kwargs["travelers"] = travelers
             request = TripCreate(**kwargs)
-            trip = TripService(s).create_trip(request)
+            trip = TripService(s, user_id).create_trip(request)
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad dates

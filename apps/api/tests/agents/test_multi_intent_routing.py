@@ -11,11 +11,13 @@ Covers:
 """
 
 from app.agents.graph import build_graph
+from app.agents.nodes import route_tasks
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
+from langgraph.types import Send
 
 
 def _build(structured_responses, main_responses, fast_responses):
@@ -37,29 +39,55 @@ def _invoke(graph, msg: str, thread_id: str):
     )
 
 
-def test_two_intents_run_sequentially_then_reflection():
+def test_two_intents_run_in_parallel_then_synthesize():
+    # GH-117 Path A: two intents are dispatched to parallel synthesis workers,
+    # then a synthesizer combines their findings into one final answer.
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", secondary_agent="concierge")
         ],
-        main_responses=["flights found", "here's what to see"],
+        main_responses=["flights found", "here's what to see", "combined answer"],
         fast_responses=["OK"],
     )
     out = _invoke(
         graph, "flights to Tokyo and things to do there", thread_id="t-multi-1"
     )
 
-    # Both sub-agents ran, drained the queue, and left the graph at reflection's
-    # END — current_flow reflects the last (secondary) sub-agent to run.
-    assert out["current_flow"] == "concierge"
-    assert out["pending_flows"] == []
+    assert out["current_flow"] == "synthesis"
 
-    contents = [m.content for m in out["messages"]]
-    assert "flights found" in contents
-    assert "here's what to see" in contents
-    # Sequential: planner ran (and is visible in state) before concierge ran —
-    # i.e. the second sub-agent saw the first one's message.
-    assert contents.index("flights found") < contents.index("here's what to see")
+    # Both specialists contributed structured findings.
+    agents = {r["agent"] for r in out.get("task_results", [])}
+    assert agents == {"planner", "concierge"}
+
+    # The final assistant message is the synthesized answer.
+    contents = [m.content for m in out["messages"] if isinstance(m, AIMessage)]
+    assert "combined answer" in contents
+
+
+def test_route_tasks_passes_parent_state_to_parallel_workers():
+    # GH-117 Path A / Codex Comment 1: Send must carry the parent state because
+    # LangGraph does not merge it automatically.
+    state = {
+        "tasks": [
+            {"agent": "planner", "query": "find flights", "index": 0},
+            {"agent": "concierge", "query": "check weather", "index": 1},
+        ],
+        "messages": [HumanMessage(content="flights and weather in Tokyo")],
+        "user_id": "u1",
+        "trip_id": "trip-123",
+        "language": "en",
+        "trip_context": "Active trip: Tokyo",
+    }
+    sends = route_tasks(state)
+    assert len(sends) == 2
+    assert all(isinstance(s, Send) and s.node == "synthesis_worker" for s in sends)
+    for send, task in zip(sends, state["tasks"], strict=True):
+        assert send.arg["task"] == task
+        assert send.arg["messages"] == state["messages"]
+        assert send.arg["user_id"] == state["user_id"]
+        assert send.arg["trip_id"] == state["trip_id"]
+        assert send.arg["language"] == state["language"]
+        assert send.arg["trip_context"] == state["trip_context"]
 
 
 def test_single_intent_goes_straight_to_reflection_unchanged():
@@ -126,3 +154,34 @@ def test_booking_hitl_detour_untouched_by_dispatch():
     # No secondary intent was ever queued for booking — dispatch_next falls
     # straight through to reflection exactly as the old direct edge did.
     assert resumed["pending_flows"] == []
+
+
+def test_task_results_cleared_between_turns():
+    # GH-117 Path A regression: task_results must not leak from one turn to the
+    # next. load_context_node resets them at the start of every turn.
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", secondary_agent="concierge"),
+            SupervisorIntent(target_agent="concierge"),
+        ],
+        main_responses=[
+            "flights found",
+            "here's what to see",
+            "combined answer",
+            "sunny today",
+        ],
+        fast_responses=["OK", "OK"],
+    )
+    thread_id = "t-clear-results"
+    first = _invoke(
+        graph, "flights to Tokyo and things to do there", thread_id=thread_id
+    )
+    assert {r["agent"] for r in first.get("task_results", [])} == {
+        "planner",
+        "concierge",
+    }
+
+    second = _invoke(graph, "what's the weather in Tokyo?", thread_id=thread_id)
+    assert second["current_flow"] == "concierge"
+    # Results from the previous multi-intent turn must not survive.
+    assert second.get("task_results") == []

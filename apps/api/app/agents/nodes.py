@@ -20,10 +20,10 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
-from langgraph.types import Command, interrupt
+from langgraph.types import Command, Send, interrupt
 
 from app.agents.constants import (
     ALL_SUBAGENTS,
@@ -70,13 +70,26 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # snapshot before the *next* turn's load_context clears it.
     # awaiting_user is likewise single-turn (MIN-68): a clarifying question asked
     # last turn must not abandon THIS turn's fresh ledger.
-    result: dict = {"plan_approved": False, "awaiting_user": False}
+    # GH-117 follow-up: the per-turn message-hide list must not leak into the next
+    # turn, otherwise the next sub-agent would hide the previous turn's answer.
+    # GH-117 Path A: task state is also per-turn.
+    result: dict = {
+        "plan_approved": False,
+        "awaiting_user": False,
+        "superseded_message_ids": [],
+        "tasks": [],
+        "task_results": [],
+    }
     trip_id = state.get("trip_id")
+    owner = state.get("user_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
-    if trip_id:
+    # #118: the snapshot is loaded through the owner-scoped service, so a
+    # trip_id that is not the caller's yields nothing instead of leaking a
+    # title and city into the system prompt.
+    if trip_id and owner:
         try:
             with session_scope() as s:
-                detail = TripService(s).get_trip_detail(trip_id)
+                detail = TripService(s, owner).get_trip_detail(trip_id)
             result["trip_context"] = (
                 f"Active trip: {detail.title} (city: {detail.city})."
             )
@@ -148,6 +161,47 @@ def make_summarize_node(llm: BaseChatModel):
         return {"summary": summary, "messages": to_remove}
 
     return summarize
+
+
+def make_synthesize_node(llm: BaseChatModel):
+    """Return a node that combines parallel worker results into one answer.
+
+    GH-117 Path A: sorts the structured results from parallel workers and asks
+    the LLM to write a single concise, helpful answer in the traveller's language.
+
+    :param llm: Chat model used for synthesis.
+    :return: A node function ``synthesize(state) -> dict``.
+    """
+    system = SystemMessage(
+        content=(
+            "You are the travel assistant. Combine the specialist findings below "
+            "into one concise, helpful answer in the traveller's own language. "
+            "Do not repeat raw tool data; translate findings into guidance. "
+            "If the findings are empty or unhelpful, say you are still looking into it."
+        )
+    )
+
+    def synthesize(state: TravelAgentState) -> dict:
+        results = sorted(
+            state.get("task_results") or [], key=lambda r: r.get("index", 0)
+        )
+        language = state.get("language", "en")
+        bullets = "\n".join(
+            f"- {r.get('agent', 'specialist')}: {r.get('findings', '')}"
+            for r in results
+        )
+        prompt = (
+            f"Conversation language: {language}\n\n"
+            f"Specialist findings:\n{bullets}\n\n"
+            "Write the final answer."
+        )
+        answer = llm.invoke([system, HumanMessage(content=prompt)]).content
+        return {
+            "messages": [AIMessage(content=str(answer))],
+            "current_flow": "synthesis",
+        }
+
+    return synthesize
 
 
 def make_reflection_node(
@@ -241,6 +295,57 @@ def plan_node(state: TravelAgentState) -> Command:
     )
 
 
+def route_tasks(state: TravelAgentState) -> str | list[Send]:
+    """Route from supervisor to static sub-agent, HITL plan, or parallel workers.
+
+    GH-117 Path A: the supervisor now writes an ordered ``tasks`` list. This
+    edge preserves the existing static sub-agent path for single-intent turns
+    and dispatches multi-intent turns to parallel ``synthesis_worker`` instances
+    via ``Send``.
+
+    :param state: Current graph state; reads ``tasks``.
+    :return: A node name for single-intent / HITL paths, a list of ``Send`` objects
+        for multi-intent parallel dispatch, or ``END`` when no tasks are present.
+    """
+    tasks = state.get("tasks") or []
+    if not tasks:
+        logger.info("[agent] route_tasks → END (no tasks)")
+        return END
+    first = tasks[0]
+    first_agent = first.get("agent", "")
+    if first_agent == "booking":
+        logger.info("[agent] route_tasks → plan (booking HITL)")
+        return "plan"
+    if len(tasks) == 1:
+        logger.info("[agent] route_tasks → %s (single task)", first_agent)
+        return first_agent
+    logger.info("[agent] route_tasks → synthesis_workers (%d parallel)", len(tasks))
+    # GH-117 Path A / Codex Comment 1: LangGraph Send does NOT merge the parent
+    # state into the worker input, so the payload must carry the conversation
+    # context and working state the inner specialist needs (messages, user_id,
+    # trip_id, language, trip_context, etc.). We pass a shallow copy of the
+    # parent state plus the task; the worker deep-copies messages before handing
+    # them to the inner subgraph so the parent list is never mutated.
+    return [Send("synthesis_worker", {**state, "task": t}) for t in tasks]
+
+
+def _last_subagent_answer_id(state: TravelAgentState) -> str | None:
+    """Return the id of the last content-bearing sub-agent answer, if any.
+
+    Tool-call-only AIMessages and intermediate ToolMessages are skipped; we
+    only want to hide the prose answer the traveller saw, so the next queued
+    sub-agent does not regenerate the same full turn answer.
+    """
+    for msg in reversed(state.get("messages", [])):
+        if isinstance(msg, AIMessage) and getattr(msg, "content", None):
+            return getattr(msg, "id", None)
+        # Stop at the traveller's original message or a tool result that is not
+        # part of the answer — the answer is the contiguous trailing AIMessage.
+        if isinstance(msg, (HumanMessage, ToolMessage)):
+            break
+    return None
+
+
 def dispatch_next(state: TravelAgentState) -> Command:
     """Drain the next step of the task ledger, or on to reflection (MIN-65 D4).
 
@@ -290,6 +395,17 @@ def dispatch_next(state: TravelAgentState) -> Command:
             )
             return Command(update={"pending_flows": []}, goto="reflection")
         logger.info("[agent] dispatch_next → %s (pending=%d)", nxt, len(rest))
-        return Command(update={"current_flow": nxt, "pending_flows": rest}, goto=nxt)
+        # GH-117 follow-up: hide the just-finished sub-agent's prose answer from
+        # the follow-on sub-agent so it does not regenerate the same full turn
+        # answer. Tool results remain visible, so the follow-on can build on the
+        # facts already gathered. The reducer is last-write-wins, so emit the
+        # full accumulated list for this turn.
+        update: dict = {"current_flow": nxt, "pending_flows": rest}
+        superseded_id = _last_subagent_answer_id(state)
+        if superseded_id:
+            update["superseded_message_ids"] = list(
+                set(state.get("superseded_message_ids") or []) | {superseded_id}
+            )
+        return Command(update=update, goto=nxt)
     logger.info("[agent] dispatch_next → reflection (queue empty)")
     return Command(goto="reflection")

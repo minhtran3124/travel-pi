@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { use, useActionState, useState } from "react";
 
 import { AuthHero } from "@/components/auth/AuthHero";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
@@ -20,7 +20,14 @@ const inputClass = cn(controlClass, "h-[38px] w-full px-md");
 
 type Mode = "password" | "magic";
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  // Where the middleware bounced the visitor from — echoed back to the server
+  // action as a hidden field, which re-validates it before redirecting.
+  const { next } = use(searchParams);
   const [mode, setMode] = useState<Mode>("password");
   const [pwState, pwAction, pwPending] = useActionState(
     signInWithPassword,
@@ -75,6 +82,8 @@ export default function LoginPage() {
           </div>
 
           <form action={action} className="mt-lg flex flex-col gap-md">
+            <input type="hidden" name="next" value={next ?? "/"} />
+
             <label className="flex flex-col gap-xs">
               <span className={labelClass}>Email</span>
               <input
@@ -150,7 +159,11 @@ export default function LoginPage() {
           <p className="mt-xl text-center text-sm text-muted">
             New here?{" "}
             <Link
-              href="/auth/sign-up"
+              href={
+                next && next !== "/"
+                  ? `/auth/sign-up?next=${encodeURIComponent(next)}`
+                  : "/auth/sign-up"
+              }
               className="font-bold text-ink underline decoration-lime decoration-2 underline-offset-2 hover:decoration-[3px]"
             >
               Create an account

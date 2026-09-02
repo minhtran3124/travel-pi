@@ -390,7 +390,7 @@
     }
   },
   "Chat": {
-    "headerTitle": "Tin · Trợ lý Du lịch",
+    "headerTitle": "Tin",
     "dialogLabel": "Trợ lý Du lịch",
     "statusReady": "Sẵn sàng khi bạn cần",
     "statusWorking": "Đang xử lý…",
@@ -465,7 +465,49 @@
     "errorUnavailable": "Trợ lý du lịch hiện không khả dụng. Vui lòng thử lại sau.",
     "fallbackCouldNotReach": "Xin lỗi — tôi không thể kết nối tới trợ lý du lịch.",
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
-    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay."
+    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
+    "activity": {
+      "running": "Đang chạy",
+      "summary": "Đã dùng {count, plural, other {# công cụ}} · {seconds}s",
+      "expand": "Xem chi tiết",
+      "collapse": "Ẩn chi tiết",
+      "working": "Đang xử lý…",
+      "hotels": "Đang tìm khách sạn",
+      "flights": "Đang tìm chuyến bay",
+      "places": "Đang tìm địa điểm",
+      "weather": "Đang xem thời tiết",
+      "route": "Đang tìm lộ trình",
+      "airQuality": "Đang kiểm tra chất lượng không khí",
+      "budget": "Đang kiểm tra ngân sách",
+      "journal": "Đang cập nhật chuyến đi"
+    },
+    "actions": {
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "regenerate": "Tạo lại"
+    },
+    "result": {
+      "open": "Mở",
+      "close": "Đóng"
+    },
+    "capabilities": {
+      "plan": {
+        "label": "Lên kế hoạch chuyến đi",
+        "subtitle": "Dựng lịch trình từng ngày"
+      },
+      "nearby": {
+        "label": "Tìm gần đây",
+        "subtitle": "Khám phá địa điểm quanh bạn"
+      },
+      "weather": {
+        "label": "Xem thời tiết",
+        "subtitle": "Dự báo cho điểm đến của bạn"
+      },
+      "budget": {
+        "label": "Theo dõi ngân sách",
+        "subtitle": "Xem chi tiêu của bạn ra sao"
+      }
+    }
   },
   "Panel": {
     "detailPanelLabel": "Bảng chi tiết",

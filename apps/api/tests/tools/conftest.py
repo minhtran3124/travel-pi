@@ -30,7 +30,9 @@ def agent_db(tmp_path, monkeypatch):
 def trip_id(agent_db):
     """Create a trip on the agent DB and return its id."""
     with get_session_factory(agent_db)() as s:
-        trip = TripService(s).create_trip(TripCreate(title="Tokyo trip", city="Tokyo"))
+        trip = TripService(s, "test-user-1").create_trip(
+            TripCreate(title="Tokyo trip", city="Tokyo")
+        )
         s.commit()
         return trip.id
 

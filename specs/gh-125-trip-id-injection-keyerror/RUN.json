@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-08-28T08:55:25Z",
+  "last_event_id": "0c5b65a1-45a3-41fe-bed0-551d00211b6d",
+  "resume_event": null,
+  "run_id": "7600436c-ec41-4c0e-9677-a86def086e75",
+  "seq": 6,
+  "sha": "d0000d7bb4cb02b2da8753cfd8f1fd7896ef914a",
+  "slug": "gh-125-trip-id-injection-keyerror",
+  "state": "ready_to_merge",
+  "updated_at": "2026-08-28T10:07:59Z",
+  "waiting_on": null
+}
