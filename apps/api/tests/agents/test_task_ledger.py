@@ -77,7 +77,7 @@ def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
     assert agents == {"planner", "concierge"}
 
     # The graph ended after synthesis.
-    assert out["current_flow"] == "synthesis"
+    assert out["current_flow"] == "synthesize"
 
     # The synthesized answer appears in the final messages.
     contents = [m.content for m in out["messages"]]
@@ -110,7 +110,7 @@ def test_full_task_list_completes_within_recursion_limit():
 
     # Every worker produced a result and the graph ended at synthesis.
     assert len(out.get("task_results", [])) == worker_count
-    assert out["current_flow"] == "synthesis"
+    assert out["current_flow"] == "synthesize"
 
 
 # ---------------------------------------------------------------------------

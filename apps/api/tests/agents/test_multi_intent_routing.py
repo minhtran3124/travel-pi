@@ -53,7 +53,7 @@ def test_two_intents_run_in_parallel_then_synthesize():
         graph, "flights to Tokyo and things to do there", thread_id="t-multi-1"
     )
 
-    assert out["current_flow"] == "synthesis"
+    assert out["current_flow"] == "synthesize"
 
     # Both specialists contributed structured findings.
     agents = {r["agent"] for r in out.get("task_results", [])}
@@ -62,6 +62,43 @@ def test_two_intents_run_in_parallel_then_synthesize():
     # The final assistant message is the synthesized answer.
     contents = [m.content for m in out["messages"] if isinstance(m, AIMessage)]
     assert "combined answer" in contents
+
+
+def test_reflection_revise_after_synthesis_re_enters_synthesize():
+    # GH-117 Path A regression: when reflection REVISEs the synthesized answer,
+    # it routes back via ``current_flow``. The synthesize node must set
+    # ``current_flow`` to its own node name so the goto lands on a declared
+    # destination; a mismatched label (the old "synthesis") is silently dropped
+    # by LangGraph, the revision is wasted, and the internal revise note is left
+    # as the last message in history.
+    graph = _build(
+        structured_responses=[
+            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+        ],
+        main_responses=[
+            "flights found",
+            "here's what to see",
+            "synth v1",
+            "synth v2",
+        ],
+        fast_responses=["REVISE", "OK"],
+    )
+    out = _invoke(
+        graph, "flights to Tokyo and things to do there", thread_id="t-synth-revise"
+    )
+
+    # The revise loop actually re-ran synthesize (not silently dropped).
+    assert out["current_flow"] == "synthesize"
+    assert out["revisions"] == 1
+
+    ai_contents = [m.content for m in out["messages"] if isinstance(m, AIMessage)]
+    assert "synth v2" in ai_contents  # the revised answer was produced
+
+    # The internal revise note must not be the final persisted message.
+    assert not (
+        isinstance(out["messages"][-1], SystemMessage)
+        and "improve your previous answer" in out["messages"][-1].content
+    )
 
 
 def test_route_tasks_passes_parent_state_to_parallel_workers():
