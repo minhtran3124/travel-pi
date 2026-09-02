@@ -1,6 +1,6 @@
 ---
 slug: review-a-security-hardening
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-02
 ---
@@ -204,3 +204,5 @@ the reflection routing bug (`specs/fix-reflection-synthesize-goto`).
 - 2026-09-02 — wave 2 reviewed: 2.1 SPEC PASS / QUALITY FAIL (Critical = the expected cross-wave breakage: agent booking/cancel tool callsites call the now-owner-required BookingService without user_id → fixed by Task 3.1); 2.2 SPEC PASS / QUALITY PASS-with-Important (agent resolve_place saved-read cross-user leak → new Task 3.2 + SC-8); 2.3 SPEC+QUALITY PASS. Minors deferred: FE legacy-claim clears its key on a transient network error (silent history loss; useAgentStream.ts), stale anon comment in query/agent.ts.
 
 - 2026-09-02 — tasks 3.1, 3.2 complete + review follow-ups; commits 83fbeff (wave 3) and d4397d4 (SC-8 sibling-path fix). Combined re-verify 653 passed (2 pre-existing unrelated test_routing_tools offline failures). Controller fixes folded in: MCP now excludes destructive tools (E004 premise was wrong — InjectedState does not drop a tool off MCP; explicit destructive filter in app/mcp/server.py + tests); a wave-2 service-test mock updated to the owner signature. Wave-3 review (rev-3): SC-6 + E004 PASS, injection hidden-from-model confirmed for all 5 tools, cancel/book/MCP solid; one Important (add_place_to_trip sibling saved-read leak) fixed in d4397d4 with cross-user shortlist tests. Deferred minor: injected user_id defaults to "" — guaranteed non-empty by the wave-1 JWT requirement, worth a guard later.
+
+- 2026-09-02 — task 4.1 complete (commit 9246749); SHIPPED. Final review chain: correctness-review SHIP (677 passed, 2 pre-existing unrelated routing failures; every id-based path owner-scoped, no residual cross-user read), intent-review PASS (items 2-3 delivered, E001-E004 honored, no drift). verify_summary --check: all of SC-1..SC-8 re-run green. Receipt at .review-receipt.json. Documented follow-up: owner-scoped read tools on the stdio-only MCP surface (SUMMARY Not-auto-verified).
