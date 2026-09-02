@@ -168,3 +168,44 @@ def test_catalog_resolve_unchanged(agent_db, saved_places):
         # Same result whoever asks; user_id is irrelevant to the public catalog.
         assert svc.resolve(target.id, "catalog", user_id=USER_B).id == target.id
         assert svc.resolve(target.id, "catalog").id == target.id
+
+
+# ---------------------------------------------------------------------------
+# add_place_to_trip — the sibling agent-reachable path (SC-8 defence-in-depth)
+# ---------------------------------------------------------------------------
+
+
+def _add_saved_place_to_own_trip(agent_db, owner: str, place_id: str):
+    """As ``owner``, create a trip and shortlist ``place_id`` (source='saved')."""
+    from app.schemas.trip import TripCreate
+    from app.services.trip_service import TripService
+
+    with get_session_factory(agent_db)() as s:
+        svc = TripService(s, owner)
+        trip = svc.create_trip(TripCreate(title="My trip"))
+        return svc.add_place_to_trip(trip.id, place_id, source="saved")
+
+
+def test_agent_cannot_shortlist_other_users_saved_place_by_id(agent_db, saved_places):
+    from app.exceptions import NotFoundError
+
+    a, _ = saved_places
+    # B shortlists A's saved place onto B's OWN trip → must not leak A's PII.
+    with pytest.raises(NotFoundError):
+        _add_saved_place_to_own_trip(agent_db, USER_B, a.id)
+
+
+def test_agent_cannot_shortlist_other_users_saved_place_by_short_code(
+    agent_db, saved_places
+):
+    from app.exceptions import NotFoundError
+
+    a, _ = saved_places
+    with pytest.raises(NotFoundError):
+        _add_saved_place_to_own_trip(agent_db, USER_B, a.short_code)
+
+
+def test_owner_can_shortlist_own_saved_place(agent_db, saved_places):
+    a, _ = saved_places
+    entry = _add_saved_place_to_own_trip(agent_db, USER_A, a.id)
+    assert entry.place.name == a.name

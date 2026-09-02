@@ -301,7 +301,13 @@ class TripService:
                 hint="source must be 'catalog' or 'saved'.",
             )
         self.get_trip(trip_id)
-        resolved = PlaceService(self._session).resolve(place_id, source)
+        # Scope the saved resolve to the caller: place_id is a fresh, model-facing
+        # argument (an agent can be steered to another user's saved UUID / SPL-
+        # code), so an unscoped resolve here would shortlist — and echo back — a
+        # foreign saved place's PII onto the caller's own trip.
+        resolved = PlaceService(self._session).resolve(
+            place_id, source, user_id=self._user_id
+        )
         if resolved is None:
             raise NotFoundError(
                 f"Place {place_id!r} not found in source {source!r}.",
@@ -338,7 +344,7 @@ class TripService:
         entries: list[ShortlistEntry] = []
         for row in self._repo.list_trip_places(trip_id):
             resolved = PlaceService(self._session).resolve(
-                row["place_id"], row["source"]
+                row["place_id"], row["source"], user_id=self._user_id
             )
             if resolved is None:
                 continue
