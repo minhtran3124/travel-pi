@@ -410,6 +410,7 @@
     "retryHint": "Câu trả lời trước chưa hoàn tất.",
     "greetingTitle": "Chào bạn! Mình là Tin 👋",
     "greetingBody": "Mình là Tin, trợ lý giúp bạn tìm điểm đến, lên lịch trình và chốt chuyến đi — cứ hỏi mình bất cứ điều gì nhé.",
+    "signInPrompt": "Đăng nhập để trò chuyện với Tin",
     "tryAsking": "Thử hỏi",
     "suggestions": {
       "planWeekendPrompt": "Lên kế hoạch một kỳ nghỉ cuối tuần dài ở Tokyo",

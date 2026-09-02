@@ -29,6 +29,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.core.dashboard_auth import require_dashboard_access
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
 from app.db.session import get_session
@@ -59,7 +60,12 @@ from app.services.place_service import PlaceService
 from app.services.tip_service import TipService
 from app.services.visa_service import VisaService
 
-router = APIRouter(prefix="/dashboard", tags=[Tags.dashboard], include_in_schema=False)
+router = APIRouter(
+    prefix="/dashboard",
+    tags=[Tags.dashboard],
+    include_in_schema=False,
+    dependencies=[Depends(require_dashboard_access)],
+)
 
 # Templates live in app/templates/ — resolve the path relative to this file
 # so it works regardless of the current working directory.
@@ -840,14 +846,16 @@ def bookings_page(
     :return: The rendered bookings ledger page.
     """
     service = BookingService(session)
-    bookings = service.query(q=q, booking_type=booking_type, sort=sort)
+    # Operator dashboard: no signed-in caller (Basic-auth), shows all owners'
+    # bookings — the one place that reads the unscoped ledger (#118).
+    bookings = service.query_unscoped(q=q, booking_type=booking_type, sort=sort)
     selected_type = booking_type if booking_type in ("flight", "hotel") else None
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="bookings.html",
         context={
             "bookings": bookings,
-            "total": len(service.list_all()),
+            "total": len(service.list_all_unscoped()),
             "query": (q or "").strip(),
             "selected_type": selected_type,
             "sort": sort if sort in BOOKING_SORTS else "created_desc",

@@ -27,12 +27,12 @@ from app.agents.observability import callbacks, trace_metadata
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
-from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
+from app.core.auth import CurrentUserDep
 from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.session import get_session
 from app.enums import Tier
-from app.exceptions import DomainValidationError, ForbiddenError, UpstreamError
+from app.exceptions import ForbiddenError, UpstreamError
 from app.memory.extraction_runner import (
     run_memory_extraction,
     run_memory_extraction_from_stream,
@@ -82,21 +82,6 @@ def get_travel_graph(request: Request) -> Any:
 
 GraphDep = Annotated[Any, Depends(get_travel_graph)]
 SessionDep = Annotated[Session, Depends(get_session)]
-OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]
-
-
-def _effective_user_id(auth_user: AuthUser | None, fallback: str | None) -> str | None:
-    """Return the JWT subject when authenticated, else the anonymous fallback.
-
-    When a valid token is present the client-supplied id (``body.user_id`` /
-    query ``user_id``) is intentionally ignored to prevent user-id spoofing.
-    Returns ``None`` only when anonymous *and* no fallback id was supplied.
-
-    :param auth_user: The authenticated user, or None for anonymous callers.
-    :param fallback: The client-supplied id to use when unauthenticated.
-    :return: The effective user id, or None if anonymous with no fallback.
-    """
-    return auth_user.id if auth_user else fallback
 
 
 def _thread_id(user_id: str, trip_id: str | None, conversation_id: str) -> str:
@@ -237,7 +222,7 @@ async def agent_chat(
     body: ChatRequest,
     graph: GraphDep,
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
     background: BackgroundTasks,
 ) -> ChatResponse:
     """Send a chat request to the agent.
@@ -245,14 +230,14 @@ async def agent_chat(
     :param body: The request body.
     :param graph: The compiled LangGraph graph.
     :param session: The request-scoped DB session.
-    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
     :param background: FastAPI background-task queue; used to run memory
         extraction after the reply is returned, off the request's critical path.
     :return: The chat response.
     """
-    uid = _effective_user_id(auth_user, body.user_id)
+    uid = auth_user.id
     repo = ConversationRepository(session)
-    ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = _resolve_context(uid, True, session)
     ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before any work begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
@@ -390,7 +375,7 @@ async def agent_stream(
     body: ChatRequest,
     graph: GraphDep,
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
 ):
     """Stream the agent's reply as Server-Sent Events.
 
@@ -398,12 +383,12 @@ async def agent_stream(
     :param graph: The compiled LangGraph graph.
     :param session: The request-scoped DB session (used to create/look up the
         conversation and append the user message before streaming begins).
-    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
     :return: A streaming response of Server-Sent Events.
     """
-    uid = _effective_user_id(auth_user, body.user_id)
+    uid = auth_user.id
     repo = ConversationRepository(session)
-    ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = _resolve_context(uid, True, session)
     ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before streaming begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
@@ -484,24 +469,21 @@ async def agent_stream(
 )
 def list_conversations(
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
     user_id: str | None = None,
 ) -> list[Conversation]:
-    """Return all conversations for the given user, newest first.
+    """Return all conversations for the authenticated user, newest first.
 
-    When authenticated the JWT sub is used and the ``user_id`` query param is
-    ignored (no enumeration of another user's conversations) and not required.
-    Anonymous callers must supply ``user_id``. Returns an empty list for an
-    unknown user (matches the repo contract).
+    Identity is the JWT sub; the ``user_id`` query param is deprecated and
+    ignored (no enumeration of another user's conversations). Returns an empty
+    list for a user with no conversations (matches the repo contract).
 
     :param session: The request-scoped DB session.
-    :param auth_user: The authenticated user, or None for anonymous callers.
-    :param user_id: The user id to list conversations for (anonymous callers only).
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
+    :param user_id: Deprecated and ignored; identity comes from the JWT.
     :return: The user's conversations, newest first.
     """
-    uid = _effective_user_id(auth_user, user_id)
-    if uid is None:
-        raise DomainValidationError("user_id is required when not authenticated.")
+    uid = auth_user.id
     repo = ConversationRepository(session)
     return repo.list_for_user(uid)
 
@@ -514,26 +496,24 @@ def list_conversations(
 def list_conversation_messages(
     conversation_id: str,
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
     user_id: str | None = None,
 ) -> list[Message]:
     """Return all messages for the given conversation, oldest first.
 
-    Ownership-scoped: the caller must be the conversation's owner. When
-    authenticated the JWT sub is used and the ``user_id`` query param is ignored
-    (no spoofing); anonymous callers must supply their ``user_id``. Returns an
-    empty list for an unknown conversation or one owned by someone else — this
-    neither leaks message contents nor confirms a conversation's existence.
+    Ownership-scoped: the caller must be the conversation's owner. Identity is
+    the JWT sub; the ``user_id`` query param is deprecated and ignored (no
+    spoofing). Returns an empty list for an unknown conversation or one owned by
+    someone else — this neither leaks message contents nor confirms a
+    conversation's existence.
 
     :param conversation_id: The conversation to list messages for.
     :param session: The request-scoped DB session.
-    :param auth_user: The authenticated user, or None for anonymous callers.
-    :param user_id: The user id claiming ownership (anonymous callers only).
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
+    :param user_id: Deprecated and ignored; identity comes from the JWT.
     :return: The conversation's messages, oldest first.
     """
-    uid = _effective_user_id(auth_user, user_id)
-    if uid is None:
-        raise DomainValidationError("user_id is required when not authenticated.")
+    uid = auth_user.id
     repo = ConversationRepository(session)
     conversation = repo.get(conversation_id)
     if conversation is None or conversation.user_id != uid:

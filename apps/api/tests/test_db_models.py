@@ -36,6 +36,7 @@ def test_booking_columns():
     cols = {c.name for c in Base.metadata.tables["bookings"].columns}
     assert cols == {
         "id",
+        "user_id",
         "type",
         "reference_id",
         "customer_name",

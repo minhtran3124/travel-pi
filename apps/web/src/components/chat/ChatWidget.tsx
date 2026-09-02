@@ -1,10 +1,13 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { qk } from "@/lib/api/keys";
+import { useIdentity } from "@/lib/identity/useUserId";
 import { ChatLauncher } from "./ChatLauncher";
 import { ChatPanel } from "./ChatPanel";
 import { PanelIntlProvider } from "./panel/PanelIntlProvider";
@@ -42,6 +45,31 @@ function useIsCompact(): boolean {
 }
 
 /**
+ * Signed-out surface: the agent requires a Supabase session (anonymous chat was
+ * removed), so a logged-out visitor gets a sign-in invitation instead of the
+ * composer — no `/agent/*` request is ever made. Renders a `<section>` so the
+ * compact-sheet wrapper can size it exactly like {@link ChatPanel}.
+ */
+function SignedOutPrompt() {
+  const t = useTranslations("Chat");
+  return (
+    <section
+      role="dialog"
+      aria-label={t("dialogLabel")}
+      className="tp-chat-in relative flex h-[min(70vh,560px)] w-[min(92vw,400px)] flex-col items-center justify-center gap-md rounded-[20px] border border-line bg-panel px-xl text-center text-ink shadow-lift"
+    >
+      <p className="text-lg font-semibold">{t("greetingTitle")}</p>
+      <Link
+        href="/auth/login"
+        className="rounded-pill bg-lime px-lg py-2 text-sm font-medium text-on-accent shadow-lift transition duration-150 hover:brightness-105"
+      >
+        {t("signInPrompt")}
+      </Link>
+    </section>
+  );
+}
+
+/**
  * Kith-style agent co-pilot. Composes the launcher FAB + chat panel, manages
  * open state, derives the active trip from the route, and refreshes the
  * planner's trip queries once an assistant turn completes (the agent may have
@@ -59,6 +87,9 @@ export function ChatWidget() {
   const isCompact = useIsCompact();
   const launcherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  // Only a confirmed signed-out session swaps in the sign-in prompt; `loading`
+  // renders the panel as before so first paint never flashes the prompt.
+  const signedOut = useIdentity().status === "signed-out";
 
   // Restore focus to the launcher when the compact sheet closes (a11y: the
   // trigger regains focus once the modal dialog is dismissed).
@@ -111,7 +142,11 @@ export function ChatWidget() {
           data-testid="chat-sheet"
           className="fixed inset-0 z-50 [&>section]:h-dvh [&>section]:w-full [&>section]:rounded-none [&>section]:border-0"
         >
-          <ChatPanel stream={stream} onClose={closeWidget} isCompact />
+          {signedOut ? (
+            <SignedOutPrompt />
+          ) : (
+            <ChatPanel stream={stream} onClose={closeWidget} isCompact />
+          )}
         </div>
       ) : null}
 
@@ -121,7 +156,8 @@ export function ChatWidget() {
         ref={launcherRef}
         className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-md"
       >
-        {open && !isCompact ? (
+        {open && !isCompact && signedOut ? <SignedOutPrompt /> : null}
+        {open && !isCompact && !signedOut ? (
           <div data-testid="chat-docked" className="flex flex-row items-end gap-md">
             {showDrawer ? (
               <PanelIntlProvider language={stream.panelLanguage}>

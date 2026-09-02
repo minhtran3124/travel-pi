@@ -8,9 +8,10 @@ this is the service's documented behaviour.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from langchain_core.tools import tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.exceptions import AppError
@@ -58,6 +59,14 @@ class ResolvePlaceArgs(AppBaseModel):
     place_id: str = Field(..., description="The place's id or PLC-XXXX short code.")
     source: Literal["catalog", "saved"] = Field(
         "catalog", description="Where to resolve the place from: 'catalog' or 'saved'."
+    )
+    # Injected from graph state (TravelAgentState.user_id), never model-supplied.
+    # Scopes the ``saved`` source to the signed-in traveller so a user-controlled
+    # id/SPL- code can never read another user's saved place (PII). Kept on the
+    # schema so ToolNode still injects it; stripped from the model-facing schema.
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
     )
 
 
@@ -192,17 +201,24 @@ def nearby_places(
 
 
 @tool(args_schema=ResolvePlaceArgs)
-def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
+def resolve_place(
+    place_id: str,
+    source: str = "catalog",
+    user_id: Annotated[str, InjectedState("user_id")] = "",
+) -> dict | None:
     """Resolve a place by id or PLC-XXXX short code.
 
     :param place_id: The place's id or PLC-XXXX short code.
     :param source: Where to resolve the place from: 'catalog' or 'saved'.
+    :param user_id: The signed-in traveller, injected from graph state (not
+        model-supplied). Scopes the ``saved`` source to its owner; ``catalog``
+        reads public data and ignores it.
     :return: The place dict, or None if not found.
     """
     log_tool_call("resolve_place", locals())
     with session_scope() as s:
         try:
-            result = PlaceService(s).resolve(place_id, source)
+            result = PlaceService(s).resolve(place_id, source, user_id=user_id)
             return dump(result)
         except AppError as e:
             raise tool_error(e) from e

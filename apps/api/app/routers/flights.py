@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
+from app.core.auth import CurrentUserDep
 from app.enums import FlightSort
 from app.exceptions import NotFoundError
 from app.routers.tags import Tags
@@ -211,6 +212,7 @@ def get_flight(
 def book_flight(
     request: FlightBookingRequest,
     bookings: BookingsDep,
+    auth_user: CurrentUserDep,
     idempotency_key: Annotated[
         str | None,
         Header(
@@ -229,8 +231,11 @@ def book_flight(
 
     :param request: The booking request body.
     :param bookings: The booking service.
+    :param auth_user: The authenticated caller, stamped as the booking owner.
     :param idempotency_key: Optional client-supplied key that makes this
         POST replay-safe.
     :return: The created (or replayed) booking.
     """
-    return bookings.book_flight(request, idempotency_key=idempotency_key)
+    return bookings.book_flight(
+        request, user_id=auth_user.id, idempotency_key=idempotency_key
+    )

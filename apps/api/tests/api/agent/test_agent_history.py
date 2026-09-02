@@ -1,13 +1,16 @@
 """History read endpoints — Task 2.1 of specs/conversation-persistence.
 
 Verifies:
-- GET /agent/conversations?user_id=... returns the user's conversations (newest first).
+- GET /agent/conversations returns the authed user's conversations (newest first).
 - GET /agent/conversations/{id}/messages returns ordered messages for a conversation.
-- Both endpoints return 200 with [] for unknown user/conversation ids.
+- Both endpoints return 200 with [] for an authed user with no data.
+- Both require a Supabase JWT (401 without one); the identity is the JWT sub and
+  the deprecated ``user_id`` query param is ignored.
 """
 
 from __future__ import annotations
 
+from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
@@ -20,7 +23,13 @@ from fastapi.testclient import TestClient
 # ---------------------------------------------------------------------------
 
 
-def _make_app(tmp_path):
+def _make_app(tmp_path, *, auth_user_id: str | None = None):
+    """Build a history test app.
+
+    When ``auth_user_id`` is given the app authenticates as that user (identity
+    is the JWT sub). When it is ``None`` the real required-auth dependency runs,
+    so an unauthenticated request 401s — used to prove the JWT gate.
+    """
     url = f"sqlite:///{tmp_path / 'history.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -38,6 +47,10 @@ def _make_app(tmp_path):
             s.close()
 
     app.dependency_overrides[get_session] = _override_session
+    if auth_user_id is not None:
+        app.dependency_overrides[get_current_user] = lambda: AuthUser(
+            id=auth_user_id, email=None, role=None, claims={}
+        )
     return app, get_session_factory(url)
 
 
@@ -47,15 +60,15 @@ def _make_app(tmp_path):
 
 
 def test_list_conversations_returns_user_conversations(tmp_path):
-    """GET /agent/conversations?user_id=... returns the user's conversations."""
-    app, factory = _make_app(tmp_path)
+    """GET /agent/conversations returns the authed user's conversations."""
+    app, factory = _make_app(tmp_path, auth_user_id="user-history-1")
     repo = ConversationRepository(factory)
 
     conv1 = repo.create_conversation(user_id="user-history-1", trip_id="trip-a")
     conv2 = repo.create_conversation(user_id="user-history-1")
 
     with TestClient(app) as client:
-        resp = client.get("/agent/conversations", params={"user_id": "user-history-1"})
+        resp = client.get("/agent/conversations")
 
     assert resp.status_code == 200
     data = resp.json()
@@ -68,13 +81,11 @@ def test_list_conversations_returns_user_conversations(tmp_path):
 
 
 def test_list_conversations_unknown_user_returns_empty(tmp_path):
-    """GET /agent/conversations for an unknown user_id returns 200 with []."""
-    app, _ = _make_app(tmp_path)
+    """GET /agent/conversations for a user with no data returns 200 with []."""
+    app, _ = _make_app(tmp_path, auth_user_id="nonexistent-user")
 
     with TestClient(app) as client:
-        resp = client.get(
-            "/agent/conversations", params={"user_id": "nonexistent-user"}
-        )
+        resp = client.get("/agent/conversations")
 
     assert resp.status_code == 200
     assert resp.json() == []
@@ -82,7 +93,7 @@ def test_list_conversations_unknown_user_returns_empty(tmp_path):
 
 def test_list_messages_returns_ordered_messages(tmp_path):
     """GET /agent/conversations/{id}/messages returns messages oldest-first."""
-    app, factory = _make_app(tmp_path)
+    app, factory = _make_app(tmp_path, auth_user_id="user-msgs-1")
     repo = ConversationRepository(factory)
 
     conv = repo.create_conversation(user_id="user-msgs-1")
@@ -92,10 +103,7 @@ def test_list_messages_returns_ordered_messages(tmp_path):
     )
 
     with TestClient(app) as client:
-        resp = client.get(
-            f"/agent/conversations/{conv.id}/messages",
-            params={"user_id": "user-msgs-1"},
-        )
+        resp = client.get(f"/agent/conversations/{conv.id}/messages")
 
     assert resp.status_code == 200
     msgs = resp.json()
@@ -108,21 +116,18 @@ def test_list_messages_returns_ordered_messages(tmp_path):
 
 def test_list_messages_unknown_conversation_returns_empty(tmp_path):
     """GET /agent/conversations/{id}/messages for an unknown id returns 200 with []."""
-    app, _ = _make_app(tmp_path)
+    app, _ = _make_app(tmp_path, auth_user_id="anyone")
 
     with TestClient(app) as client:
-        resp = client.get(
-            "/agent/conversations/does-not-exist/messages",
-            params={"user_id": "anyone"},
-        )
+        resp = client.get("/agent/conversations/does-not-exist/messages")
 
     assert resp.status_code == 200
     assert resp.json() == []
 
 
-def test_list_messages_requires_identity_when_anonymous(tmp_path):
-    """GET messages without a token and without user_id is rejected (422)."""
-    app, factory = _make_app(tmp_path)
+def test_list_messages_requires_jwt(tmp_path):
+    """GET messages without a Supabase JWT is rejected (401)."""
+    app, factory = _make_app(tmp_path)  # no auth override → real JWT gate
     repo = ConversationRepository(factory)
     conv = repo.create_conversation(user_id="user-msgs-anon")
     repo.append_message(conversation_id=conv.id, role="user", content="secret")
@@ -130,22 +135,19 @@ def test_list_messages_requires_identity_when_anonymous(tmp_path):
     with TestClient(app) as client:
         resp = client.get(f"/agent/conversations/{conv.id}/messages")
 
-    assert resp.status_code == 422
+    assert resp.status_code == 401
 
 
 def test_list_messages_scoped_to_owner(tmp_path):
     """A non-owner cannot read another user's conversation messages (IDOR guard)."""
-    app, factory = _make_app(tmp_path)
+    app, factory = _make_app(tmp_path, auth_user_id="attacker-2")
     repo = ConversationRepository(factory)
 
     conv = repo.create_conversation(user_id="owner-1")
     repo.append_message(conversation_id=conv.id, role="user", content="private note")
 
     with TestClient(app) as client:
-        resp = client.get(
-            f"/agent/conversations/{conv.id}/messages",
-            params={"user_id": "attacker-2"},
-        )
+        resp = client.get(f"/agent/conversations/{conv.id}/messages")
 
     # Empty (not 403) so existence of the conversation is not confirmed.
     assert resp.status_code == 200
@@ -153,14 +155,14 @@ def test_list_messages_scoped_to_owner(tmp_path):
 
 
 def test_list_conversations_scoped_to_user(tmp_path):
-    """Conversations for user-A are not returned when querying for user-B."""
-    app, factory = _make_app(tmp_path)
+    """Conversations for user-A are not returned when authed as user-B."""
+    app, factory = _make_app(tmp_path, auth_user_id="user-b")
     repo = ConversationRepository(factory)
 
     repo.create_conversation(user_id="user-a")
 
     with TestClient(app) as client:
-        resp = client.get("/agent/conversations", params={"user_id": "user-b"})
+        resp = client.get("/agent/conversations")
 
     assert resp.status_code == 200
     assert resp.json() == []

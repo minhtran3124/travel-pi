@@ -160,6 +160,10 @@ class BookHotelArgs(AppBaseModel):
             "reservations. Leaving it False (the default) will not book anything."
         ),
     )
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        default="",
+        description="Injected owner id from graph state — never supplied by the model.",
+    )
 
 
 @tool(args_schema=SearchHotelsArgs, response_format="content_and_artifact")
@@ -405,6 +409,7 @@ def book_hotel(
     children: int = 0,
     notes: str | None = None,
     confirm: bool = False,
+    user_id: Annotated[str, InjectedState("user_id")] = "",
 ) -> dict:
     """Book a hotel room. You MUST pass confirm=True to create the reservation.
 
@@ -422,6 +427,8 @@ def book_hotel(
     :param notes: Optional note for the hotel (arrival time, bed type preference).
     :param confirm: Must be True to execute the booking — prevents accidental
         reservations; left False (the default), nothing is booked.
+    :param user_id: The owner id, injected from graph state (not model-supplied);
+        stamped on the booking so it is scoped to the authenticated traveller.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
     # Log only the booking identifiers, never guest name/email/phone
@@ -456,7 +463,7 @@ def book_hotel(
                 guest_phone=guest_phone,
                 notes=notes,
             )
-            result = BookingService(s).book_hotel(request)
+            result = BookingService(s).book_hotel(request, user_id=user_id)
             return dump(result)
         except AppError as e:
             raise tool_error(e) from e

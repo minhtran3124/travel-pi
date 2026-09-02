@@ -12,7 +12,7 @@ import pytest
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
-from app.core.auth import AuthUser, get_current_user_optional
+from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
@@ -86,7 +86,7 @@ def _make_app(
     app.dependency_overrides[get_session] = _override_session
     # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
     # traveller.
-    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = _override_graph
@@ -101,7 +101,7 @@ def _make_app(
     # Simulate being logged in as the first premium user so tier resolves correctly.
     if premium_users:
         _puid = premium_users[0]
-        app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+        app.dependency_overrides[get_current_user] = lambda: AuthUser(
             id=_puid, email=None, role=None, claims={}
         )
 
@@ -249,7 +249,7 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
     app.dependency_overrides[get_session] = _override_session
     # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
     # traveller.
-    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = lambda: graph
@@ -301,7 +301,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
     )
 
     app.dependency_overrides[get_session] = _override_session
-    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = lambda: graph
@@ -608,7 +608,7 @@ def test_trip_id_persists_across_turns_after_create_trip(tmp_path, monkeypatch):
     # #118: creating a trip now requires a signed-in traveller — an anonymous id
     # is client-supplied, so a trip stamped with it would belong to whoever sends
     # that string next. Act as the same user the request already claims.
-    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     with TestClient(app) as c:
@@ -719,7 +719,7 @@ def test_chat_fallback_reports_checkpointed_trip_id_not_stale_request_value(
     app.dependency_overrides[get_session] = _override_session
     # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
     # traveller.
-    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = lambda: wrapped_graph
@@ -823,7 +823,7 @@ def test_chat_returns_fallback_when_graph_raises(tmp_path):
     app.dependency_overrides[get_session] = _override_session
     # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
     # traveller.
-    app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()

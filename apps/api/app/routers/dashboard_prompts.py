@@ -13,16 +13,22 @@ Pages:
 
 from pathlib import Path
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from app.core.dashboard_auth import require_dashboard_access
 from app.core.prompt_diff import build_line_diff
 from app.exceptions import NotFoundError
 from app.prompts.registry import registry
 from app.routers.tags import Tags
 
-router = APIRouter(prefix="/dashboard", tags=[Tags.dashboard], include_in_schema=False)
+router = APIRouter(
+    prefix="/dashboard",
+    tags=[Tags.dashboard],
+    include_in_schema=False,
+    dependencies=[Depends(require_dashboard_access)],
+)
 
 # Templates live in app/templates/ — resolve the path relative to this file
 # so it works regardless of the current working directory.

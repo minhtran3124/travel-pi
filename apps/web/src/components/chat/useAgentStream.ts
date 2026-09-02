@@ -4,16 +4,17 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { streamBaseUrl } from "@/lib/api/client";
-import { useUserId } from "@/lib/identity/useUserId";
+import { useIdentity } from "@/lib/identity/useUserId";
 import { fetchClaim, fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
 import type { PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
-import { createClient } from "@/lib/supabase/client";
 import { parseSSE, type SSEEvent } from "@/lib/stream/parseSSE";
 import { createSmoothReveal, type SmoothReveal } from "./smoothReveal";
 
 const CONVERSATION_STORAGE_KEY = "travel.conversationId";
-const CLAIMED_STORAGE_KEY = "travel.claimed";
+// The pre-auth anonymous id (once minted by IdentityProvider). Its presence is
+// the one-shot signal to claim legacy anonymous history on first sign-in.
+const LEGACY_ANON_STORAGE_KEY = "travel.userId";
 
 // --- Smooth reveal tuning ---------------------------------------------------
 // Base typewriter speed for streaming assistant text (chars/second). Lower =
@@ -174,7 +175,7 @@ export function useAgentStream(
     tripIdRef.current = options.tripId;
   }, [options.tripId]);
 
-  const userId = useUserId();
+  const { userId, status } = useIdentity();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -202,27 +203,26 @@ export function useAgentStream(
     return () => abortRef.current?.abort();
   }, []);
 
-  // On mount (once userId is ready): optionally claim anonymous history into the
-  // logged-in account (once per account/browser), then hydrate prior messages.
-  // Claim completes before hydration so newly-claimed conversations are visible.
-  // Both steps fail silently so new chats are never blocked.
+  // Once signed in: one-shot claim of any legacy anonymous history into the
+  // account, then hydrate prior messages. Neither runs while signed out or
+  // loading (no anonymous streaming survives the auth gate). Claim completes
+  // before hydration so newly-claimed conversations are visible. Both steps fail
+  // silently so new chats are never blocked.
   useEffect(() => {
-    if (!userId || claimedRef.current) return;
+    if (status !== "signed-in" || !userId || claimedRef.current) return;
     claimedRef.current = true; // strict-mode double-invoke guard
 
     void (async () => {
-      // --- Claim step (logged-in users only, once per account/browser) ---
-      if (!localStorage.getItem(CLAIMED_STORAGE_KEY)) {
-        const { data } = await createClient().auth.getSession();
-        const session = data.session;
-        if (session) {
-          try {
-            await fetchClaim(userId);
-            localStorage.setItem(CLAIMED_STORAGE_KEY, session.user.id);
-          } catch {
-            // Fail silently — 403 (source is a registered account) or network error
-          }
+      // --- Legacy claim step (one-shot: the old anon id, if any) ---
+      const anonId = localStorage.getItem(LEGACY_ANON_STORAGE_KEY);
+      if (anonId) {
+        try {
+          await fetchClaim(anonId);
+        } catch {
+          // Fail silently — 403 (source is a registered account) or network error
         }
+        // Clear regardless of outcome so this runs at most once per browser.
+        localStorage.removeItem(LEGACY_ANON_STORAGE_KEY);
       }
 
       // --- Hydrate step ---
@@ -251,7 +251,7 @@ export function useAgentStream(
           // Fail silently — start empty and let the user send a new message.
         });
     })();
-  }, [userId]);
+  }, [status, userId]);
 
   // Carry the panel language from `panel`/`done` events. Called from every panel
   // and done handler across the send/resume/retry flows so the three stay in

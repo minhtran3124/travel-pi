@@ -364,15 +364,19 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
     repo.init_db()
 
     first = repo.add(
-        _sample_booking("11111111-1111-1111-1111-111111111111"), "race-key"
+        _sample_booking("11111111-1111-1111-1111-111111111111"),
+        "race-owner",
+        "race-key",
     )
     second = repo.add(
-        _sample_booking("22222222-2222-2222-2222-222222222222"), "race-key"
+        _sample_booking("22222222-2222-2222-2222-222222222222"),
+        "race-owner",
+        "race-key",
     )
 
     # The loser's INSERT hit the UNIQUE index and we got the winner back instead.
     assert second.id == first.id
-    assert repo.get("22222222-2222-2222-2222-222222222222") is None
+    assert repo.get("22222222-2222-2222-2222-222222222222", "race-owner") is None
 
 
 # ---------------------------------------------------------------------------
@@ -393,13 +397,17 @@ def test_repo_get_by_confirmation_code_resolves(tmp_db):
     url = tmp_db
     repo = BookingRepository(get_session_factory(url))
     repo.init_db()
-    booking = repo.add(_sample_booking("33333333-3333-3333-3333-333333333333"))
+    booking = repo.add(
+        _sample_booking("33333333-3333-3333-3333-333333333333"), "code-owner"
+    )
 
-    found = repo.get_by_confirmation_code(booking.confirmation_code)
+    found = repo.get_by_confirmation_code(booking.confirmation_code, "code-owner")
     assert found is not None and found.id == booking.id
     # Case-insensitive: the helper upper-cases the input before the lookup.
     assert (
-        repo.get_by_confirmation_code(booking.confirmation_code.lower()).id
+        repo.get_by_confirmation_code(
+            booking.confirmation_code.lower(), "code-owner"
+        ).id
         == booking.id
     )
     # The index actually exists on disk.
@@ -442,6 +450,7 @@ def test_duplicate_confirmation_code_rejected_by_unique_index(booking_service, t
     def _row(booking_id):
         return models.Booking(
             id=booking_id,
+            user_id="dup-owner",
             type="flight",
             reference_id="ref",
             customer_name="Dup",
