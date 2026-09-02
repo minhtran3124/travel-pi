@@ -52,6 +52,47 @@ def _new_booking_id() -> str:
     return str(uuid.uuid4())
 
 
+def _filter_and_sort(
+    bookings: list[Booking],
+    *,
+    q: str | None,
+    booking_type: str | None,
+    sort: str,
+) -> list[Booking]:
+    """Filter a booking list by ``q``/``booking_type`` and sort it.
+
+    Shared by the owner-scoped :meth:`BookingService.query` and the dashboard's
+    :meth:`BookingService.query_unscoped`, which differ only in which rows they
+    fetch. ``q`` is a case-insensitive substring over id/confirmation
+    code/customer name/email; ``booking_type`` keeps only ``"flight"`` or
+    ``"hotel"``; unknown ``sort`` falls back to newest-first.
+
+    :param bookings: The bookings to filter and sort.
+    :param q: Case-insensitive substring filter, or ``None``.
+    :param booking_type: Keep only this type, or ``None`` for all.
+    :param sort: Sort key; unknown values fall back to newest-first.
+    :return: The filtered, sorted bookings.
+    """
+    needle = (q or "").strip().lower()
+    if needle:
+        bookings = [
+            booking
+            for booking in bookings
+            if needle in booking.id.lower()
+            or needle in booking.confirmation_code.lower()
+            or needle in booking.customer_name.lower()
+            or needle in booking.customer_email.lower()
+        ]
+
+    if booking_type in (BookingType.FLIGHT.value, BookingType.HOTEL.value):
+        bookings = [b for b in bookings if b.type == booking_type]
+
+    sort_key, reverse = BOOKING_SORTS.get(
+        sort, BOOKING_SORTS[BookingSort.CREATED_DESC.value]
+    )
+    return sorted(bookings, key=sort_key, reverse=reverse)
+
+
 # Bound on confirmation-code collision retries when minting a booking ID. The
 # code is a 6-char hash over a 31-char alphabet (31**6 ≈ 887M), so a collision
 # is astronomically rare; the loop just guards the unique
@@ -72,14 +113,16 @@ class BookingService:
 
         ``confirmation_code`` is unique (``ix_bookings_confirmation_code``) and
         derived deterministically from the ID, so on the rare hash collision we
-        regenerate the UUID rather than let the insert fail.
+        regenerate the UUID rather than let the insert fail. The collision check
+        is deliberately unscoped: the UNIQUE index spans all owners, so an
+        owner-scoped check would miss a cross-user collision.
 
         :return: A UUID string whose derived ``confirmation_code`` is unused.
         """
         for _ in range(_MAX_ID_ATTEMPTS):
             booking_id = _new_booking_id()
             code = confirmation_code_for(booking_id)
-            if self._repo.get_by_confirmation_code(code) is None:
+            if not self._repo.confirmation_code_exists(code):
                 return booking_id
         raise RuntimeError(
             "Could not mint a collision-free booking confirmation_code "
@@ -93,20 +136,21 @@ class BookingService:
         """
         return self._repo.ping()
 
-    def get(self, booking_id: str) -> Booking:
-        """Return a booking by UUID *or* confirmation code.
+    def get(self, booking_id: str, *, user_id: str) -> Booking:
+        """Return the caller's booking by UUID *or* confirmation code.
 
         Callers can use the friendly 6-char ``confirmation_code`` wherever a
         booking UUID is accepted — we try the UUID first, then look up the
         code via the ``ix_bookings_confirmation_code`` index. Both paths are
-        O(log n); no full-table scan. Raises :class:`NotFoundError` if
-        neither matches.
+        O(log n); no full-table scan. A booking owned by someone else raises
+        the same :class:`NotFoundError` as one that does not exist (#118).
 
         :param booking_id: A booking UUID or 6-char confirmation code.
+        :param user_id: The caller who must own the booking.
         :return: The matching booking.
         """
-        booking = self._repo.get(booking_id) or self._repo.get_by_confirmation_code(
-            booking_id
+        booking = self._repo.get(booking_id, user_id) or (
+            self._repo.get_by_confirmation_code(booking_id, user_id)
         )
         if booking is None:
             raise NotFoundError(
@@ -119,45 +163,60 @@ class BookingService:
             )
         return booking
 
-    def list_all(self) -> list[Booking]:
-        """Return every booking, newest first. Used by the dashboard ledger.
+    def list_all(self, *, user_id: str) -> list[Booking]:
+        """Return the caller's bookings, newest first.
+
+        :param user_id: The owner whose bookings to return.
+        :return: The caller's bookings, newest first.
+        """
+        return self._repo.list_all(user_id)
+
+    def list_all_unscoped(self) -> list[Booking]:
+        """Return every booking, newest first — operator dashboard only.
+
+        The dashboard ledger has no signed-in caller (it is Basic-auth
+        operator access) and shows all bookings across users. No user-facing
+        route may call this.
 
         :return: Every booking, newest first.
         """
-        return self._repo.list_all()
+        return self._repo.list_all_unscoped()
 
-    def cancel(self, booking_id: str) -> Booking:
-        """Cancel a booking (by UUID or confirmation code) and return it.
+    def cancel(self, booking_id: str, *, user_id: str) -> Booking:
+        """Cancel the caller's booking (by UUID or confirmation code).
 
         A soft state change — the row is kept, ``status`` becomes
         ``cancelled``. Idempotent: cancelling an already-cancelled booking
         just returns it unchanged. Raises :class:`NotFoundError` if no
-        booking matches.
+        booking matches the caller (#118).
 
         :param booking_id: A booking UUID or confirmation code.
+        :param user_id: The caller who must own the booking.
         :return: The cancelled booking.
         """
-        booking = self.get(booking_id)
+        booking = self.get(booking_id, user_id=user_id)
         if booking.status == BookingStatus.CANCELLED:
             return booking
-        self._repo.update_status(booking.id, BookingStatus.CANCELLED.value)
+        self._repo.update_status(booking.id, user_id, BookingStatus.CANCELLED.value)
         logger.info("Cancelled booking %s", booking.id)
-        return self.get(booking.id)
+        return self.get(booking.id, user_id=user_id)
 
     def query(
         self,
         *,
+        user_id: str,
         q: str | None = None,
         booking_type: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
-        """Return bookings filtered by ``q``/``booking_type`` and sorted.
+        """Return the caller's bookings filtered by ``q``/``booking_type`` and sorted.
 
         ``q`` is a case-insensitive substring matched against the booking ID,
         confirmation code, customer name, and customer email. ``booking_type``
         keeps only ``"flight"`` or ``"hotel"`` rows (other values are
         ignored). Unknown ``sort`` values fall back to newest-first.
 
+        :param user_id: The owner whose bookings to search.
         :param q: Case-insensitive substring filter over the booking ID,
             confirmation code, customer name, and customer email.
         :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows; other
@@ -165,40 +224,47 @@ class BookingService:
         :param sort: Sort key; unknown values fall back to newest-first.
         :return: The filtered, sorted bookings.
         """
-        bookings = self._repo.list_all()
-
-        needle = (q or "").strip().lower()
-        if needle:
-            bookings = [
-                booking
-                for booking in bookings
-                if needle in booking.id.lower()
-                or needle in booking.confirmation_code.lower()
-                or needle in booking.customer_name.lower()
-                or needle in booking.customer_email.lower()
-            ]
-
-        if booking_type in (BookingType.FLIGHT.value, BookingType.HOTEL.value):
-            bookings = [b for b in bookings if b.type == booking_type]
-
-        sort_key, reverse = BOOKING_SORTS.get(
-            sort, BOOKING_SORTS[BookingSort.CREATED_DESC.value]
+        return _filter_and_sort(
+            self._repo.list_all(user_id), q=q, booking_type=booking_type, sort=sort
         )
-        return sorted(bookings, key=sort_key, reverse=reverse)
 
-    def _replay(self, idempotency_key: str | None) -> Booking | None:
-        """Return a prior booking for ``idempotency_key``, if one exists.
+    def query_unscoped(
+        self,
+        *,
+        q: str | None = None,
+        booking_type: str | None = None,
+        sort: str = BookingSort.CREATED_DESC.value,
+    ) -> list[Booking]:
+        """Filter and sort every booking (all owners) — operator dashboard only.
+
+        Same filter/sort semantics as :meth:`query` but over the unscoped
+        ledger. No user-facing route may call this.
+
+        :param q: Case-insensitive substring filter (see :meth:`query`).
+        :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows.
+        :param sort: Sort key; unknown values fall back to newest-first.
+        :return: The filtered, sorted bookings across all owners.
+        """
+        return _filter_and_sort(
+            self._repo.list_all_unscoped(), q=q, booking_type=booking_type, sort=sort
+        )
+
+    def _replay(self, idempotency_key: str | None, user_id: str) -> Booking | None:
+        """Return a prior booking for ``idempotency_key`` owned by the caller.
 
         This is what makes booking POSTs replay-safe: an agent that retries
         after a timeout (or re-runs a plan) sends the same key and gets the
-        original booking back instead of creating a duplicate.
+        original booking back instead of creating a duplicate. Scoped to the
+        owner so a key collision across users never replays another user's
+        booking (#118).
 
         :param idempotency_key: The client-supplied idempotency key, if any.
+        :param user_id: The caller who must own the replayed booking.
         :return: The prior booking for the key, or ``None`` if none exists.
         """
         if not idempotency_key:
             return None
-        existing = self._repo.get_by_idempotency_key(idempotency_key)
+        existing = self._repo.get_by_idempotency_key(idempotency_key, user_id)
         if existing is not None:
             logger.info(
                 "Idempotency-Key %s replayed booking %s",
@@ -208,19 +274,24 @@ class BookingService:
         return existing
 
     def book_flight(
-        self, request: FlightBookingRequest, idempotency_key: str | None = None
+        self,
+        request: FlightBookingRequest,
+        *,
+        user_id: str,
+        idempotency_key: str | None = None,
     ) -> Booking:
-        """Create a flight booking. Raises :class:`NotFoundError` if unknown.
+        """Create a flight booking for the caller. 404 if the flight is unknown.
 
-        When ``idempotency_key`` matches an earlier request, the original
-        booking is returned and nothing new is stored.
+        When ``idempotency_key`` matches an earlier request by the same owner,
+        the original booking is returned and nothing new is stored.
 
         :param request: The flight booking request.
+        :param user_id: The owner stamped on the booking (#118).
         :param idempotency_key: Optional key that replays an earlier booking
             instead of creating a duplicate.
         :return: The created (or replayed) booking.
         """
-        replayed = self._replay(idempotency_key)
+        replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
             return replayed
 
@@ -276,28 +347,33 @@ class BookingService:
                 passenger_phone=request.passenger_phone,
             ),
         )
-        self._repo.add(booking, idempotency_key=idempotency_key)
+        self._repo.add(booking, user_id, idempotency_key=idempotency_key)
         logger.info("Created flight booking %s for flight %s", booking.id, flight.id)
         return booking
 
     def book_hotel(
-        self, request: HotelBookingRequest, idempotency_key: str | None = None
+        self,
+        request: HotelBookingRequest,
+        *,
+        user_id: str,
+        idempotency_key: str | None = None,
     ) -> Booking:
-        """Create a hotel booking.
+        """Create a hotel booking for the caller.
 
         Raises :class:`NotFoundError` if the hotel is unknown, and
         :class:`ConflictError` (409) if the hotel cannot take the requested
         rooms/party for those dates. ``total_price`` is computed server-side
         as ``price_per_night × nights × rooms``. When ``idempotency_key``
-        matches an earlier request, the original booking is returned
-        unchanged.
+        matches an earlier request by the same owner, the original booking is
+        returned unchanged.
 
         :param request: The hotel booking request.
+        :param user_id: The owner stamped on the booking (#118).
         :param idempotency_key: Optional key that replays an earlier booking
             instead of creating a duplicate.
         :return: The created (or replayed) booking.
         """
-        replayed = self._replay(idempotency_key)
+        replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
             return replayed
 
@@ -359,7 +435,7 @@ class BookingService:
                 guest_phone=request.guest_phone,
             ),
         )
-        self._repo.add(booking, idempotency_key=idempotency_key)
+        self._repo.add(booking, user_id, idempotency_key=idempotency_key)
         logger.info(
             "Created hotel booking %s for hotel %s (%d night(s), %d room(s))",
             booking.id,

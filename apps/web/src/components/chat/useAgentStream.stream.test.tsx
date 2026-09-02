@@ -3,7 +3,9 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 // --- mock the hook's collaborators ---------------------------------------
 vi.mock("next-intl", () => ({ useTranslations: () => (k: string) => k }));
-vi.mock("@/lib/identity/useUserId", () => ({ useUserId: () => "u1" }));
+vi.mock("@/lib/identity/useUserId", () => ({
+  useIdentity: () => ({ userId: "u1", status: "signed-in" }),
+}));
 vi.mock("@/lib/api/client", () => ({ streamBaseUrl: () => "" }));
 const chatFallback = vi.fn();
 vi.mock("@/lib/query/agent", () => ({

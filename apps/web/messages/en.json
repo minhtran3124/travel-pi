@@ -410,6 +410,7 @@
     "retryHint": "The previous answer didn't finish.",
     "greetingTitle": "Hi! I'm Tin 👋",
     "greetingBody": "I'm Tin, here to help you find destinations, build itineraries, and lock in your trip — ask me anything.",
+    "signInPrompt": "Sign in to chat with Tin",
     "tryAsking": "Try asking",
     "suggestions": {
       "planWeekendPrompt": "Plan a long weekend in Tokyo",

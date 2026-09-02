@@ -846,14 +846,16 @@ def bookings_page(
     :return: The rendered bookings ledger page.
     """
     service = BookingService(session)
-    bookings = service.query(q=q, booking_type=booking_type, sort=sort)
+    # Operator dashboard: no signed-in caller (Basic-auth), shows all owners'
+    # bookings — the one place that reads the unscoped ledger (#118).
+    bookings = service.query_unscoped(q=q, booking_type=booking_type, sort=sort)
     selected_type = booking_type if booking_type in ("flight", "hotel") else None
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="bookings.html",
         context={
             "bookings": bookings,
-            "total": len(service.list_all()),
+            "total": len(service.list_all_unscoped()),
             "query": (q or "").strip(),
             "selected_type": selected_type,
             "sort": sort if sort in BOOKING_SORTS else "created_desc",

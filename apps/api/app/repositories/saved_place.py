@@ -44,9 +44,10 @@ class SavedPlaceRepository(Repo):
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
-    def add(self, sp: SavedPlace) -> SavedPlace:
+    def add(self, sp: SavedPlace, user_id: str) -> SavedPlace:
         row = models.SavedPlace(
             id=sp.id,
+            user_id=user_id,
             name=sp.name,
             city=sp.city,
             country=sp.country,
@@ -67,25 +68,41 @@ class SavedPlaceRepository(Repo):
             self._commit(s)
         return sp
 
-    def get(self, id_: str) -> SavedPlace | None:
+    def get(self, id_: str, user_id: str | None = None) -> SavedPlace | None:
         """Fetch a live saved place by raw UUID or SPL- short code.
 
         The short code is derived (not stored), so a code lookup scans the
         live rows and matches on the computed ``short_code`` in Python.
 
+        When ``user_id`` is given, a row owned by someone else returns ``None`` —
+        the same answer as a row that does not exist. Distinguishing "forbidden"
+        from "not found" would confirm to a probe that a guessed id is real
+        (#118). ``SavedPlaceService`` always passes the caller, so every
+        ``/places/saved*`` route is owner-scoped; the owner is optional only for
+        the trusted internal resolve path (a trip's own shortlist), which is
+        reached only after its parent trip has been ownership-checked.
+
         :param id_: The raw UUID or ``SPL-...`` short code to look up.
+        :param user_id: The caller; when set, rows owned by anyone else are
+            invisible. ``None`` performs an unscoped lookup (internal use only).
         :return: The matching live saved place, or ``None`` if none matches.
         """
+        owner = (models.SavedPlace.user_id == user_id,) if user_id is not None else ()
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
-                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
+                    models.SavedPlace.id == id_,
+                    *owner,
+                    models.SavedPlace.deleted_at.is_(None),
                 )
             ).first()
             if row is not None:
                 return _row_to_saved_place(row)
             rows = s.scalars(
-                select(models.SavedPlace).where(models.SavedPlace.deleted_at.is_(None))
+                select(models.SavedPlace).where(
+                    *owner,
+                    models.SavedPlace.deleted_at.is_(None),
+                )
             ).all()
             wanted = id_.upper()
             for r in rows:
@@ -96,13 +113,17 @@ class SavedPlaceRepository(Repo):
 
     def list(
         self,
+        user_id: str,
         *,
         city: str | None = None,
         category: str | None = None,
         favorite: bool | None = None,
         visited: bool | None = None,
     ) -> list[SavedPlace]:
-        stmt = select(models.SavedPlace).where(models.SavedPlace.deleted_at.is_(None))
+        stmt = select(models.SavedPlace).where(
+            models.SavedPlace.user_id == user_id,
+            models.SavedPlace.deleted_at.is_(None),
+        )
         if city is not None:
             stmt = stmt.where(func.lower(models.SavedPlace.city) == func.lower(city))
         if category is not None:
@@ -119,10 +140,11 @@ class SavedPlaceRepository(Repo):
         with self._session() as s:
             return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 
-    def soft_delete(self, id_: str, *, when: str) -> bool:
+    def soft_delete(self, id_: str, user_id: str, *, when: str) -> bool:
         """Stamp ``deleted_at`` on a live saved place (soft delete).
 
         :param id_: The saved place UUID to tombstone.
+        :param user_id: The caller; another owner's row is invisible (no-op).
         :param when: The timestamp to stamp as ``deleted_at``.
         :return: ``True`` if a live row existed and was tombstoned, ``False``
             otherwise.
@@ -130,7 +152,9 @@ class SavedPlaceRepository(Repo):
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
-                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
+                    models.SavedPlace.id == id_,
+                    models.SavedPlace.user_id == user_id,
+                    models.SavedPlace.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -139,10 +163,11 @@ class SavedPlaceRepository(Repo):
             self._commit(s)
             return True
 
-    def set_flag(self, id_: str, field: str, value: bool) -> bool:
+    def set_flag(self, id_: str, user_id: str, field: str, value: bool) -> bool:
         """SET favorite/visited on a live row.
 
         :param id_: The saved place UUID to update.
+        :param user_id: The caller; another owner's row is invisible (no-op).
         :param field: The flag field to set; must be ``"favorite"`` or
             ``"visited"``.
         :param value: The new value for ``field``.
@@ -154,7 +179,9 @@ class SavedPlaceRepository(Repo):
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
-                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
+                    models.SavedPlace.id == id_,
+                    models.SavedPlace.user_id == user_id,
+                    models.SavedPlace.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -166,6 +193,7 @@ class SavedPlaceRepository(Repo):
     def find_duplicate(
         self,
         *,
+        user_id: str,
         name: str,
         city: str | None,
         lat: float | None,
@@ -176,8 +204,10 @@ class SavedPlaceRepository(Repo):
 
         Same case-insensitive name AND either: both records have coordinates
         and are within ``radius_km`` (haversine), or coordinates are missing
-        on either side and ``city`` matches.
+        on either side and ``city`` matches. Dedup is scoped to the caller so
+        one user's saved place never blocks another's create (#118).
 
+        :param user_id: The caller; only their rows are dedup candidates.
         :param name: The candidate name, matched case-insensitively.
         :param city: The candidate city, used when coordinates are missing.
         :param lat: The candidate latitude, or ``None`` if unknown.
@@ -193,6 +223,7 @@ class SavedPlaceRepository(Repo):
                 _row_to_saved_place(r)
                 for r in s.scalars(
                     select(models.SavedPlace).where(
+                        models.SavedPlace.user_id == user_id,
                         models.SavedPlace.deleted_at.is_(None),
                         func.lower(models.SavedPlace.name) == func.lower(name),
                     )

@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
+from app.core.auth import CurrentUserDep
 from app.exceptions import NotFoundError
 from app.routers.tags import Tags
 from app.schemas.booking import Booking
@@ -275,6 +276,7 @@ def get_hotel(
 def book_hotel(
     request: HotelBookingRequest,
     bookings: BookingsDep,
+    auth_user: CurrentUserDep,
     idempotency_key: Annotated[
         str | None,
         Header(
@@ -295,8 +297,11 @@ def book_hotel(
 
     :param request: The booking request body.
     :param bookings: The booking service.
+    :param auth_user: The authenticated caller, stamped as the booking owner.
     :param idempotency_key: Optional client-supplied key that makes this
         POST replay-safe.
     :return: The created (or replayed) booking.
     """
-    return bookings.book_hotel(request, idempotency_key=idempotency_key)
+    return bookings.book_hotel(
+        request, user_id=auth_user.id, idempotency_key=idempotency_key
+    )

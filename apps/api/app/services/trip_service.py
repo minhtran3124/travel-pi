@@ -373,7 +373,9 @@ class TripService:
             if item.booking_id is None or item.booking_id in resolved:
                 continue
             try:
-                resolved[item.booking_id] = booking_svc.get(item.booking_id)
+                resolved[item.booking_id] = booking_svc.get(
+                    item.booking_id, user_id=self._user_id
+                )
             except NotFoundError:
                 logger.info(
                     "Booking %r not found for item %s — skipping spend",
@@ -476,7 +478,7 @@ class TripService:
         if not caps:
             return
         try:
-            booking = self._bookings().get(request.booking_id)
+            booking = self._bookings().get(request.booking_id, user_id=self._user_id)
         except NotFoundError:
             return  # unpriceable link — consistent with total_spent skipping it
         if booking.status == BookingStatus.CANCELLED:
