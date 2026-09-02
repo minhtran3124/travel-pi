@@ -40,6 +40,15 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         params = inspect.signature(fn).parameters
         if "store" in params or "tool_call_id" in params:
             continue
+        # Destructive tools (booking/cancellation — real money and reservations)
+        # are NOT exposed over MCP. The MCP surface is unauthenticated and cannot
+        # supply the authenticated owner these actions now require (they inject
+        # user_id from the agent's graph state), so an external client could only
+        # ever book/cancel with no valid owner — or, worse, if that gap were
+        # closed, act without an authorization boundary. Keep destructive actions
+        # to the in-agent HITL path only (specs/review-a-security-hardening E004).
+        if meta["destructive"]:
+            continue
         server.add_tool(
             fn,
             name=tool.name,

@@ -75,16 +75,24 @@ class SavedPlaceRepository(Repo):
         live rows and matches on the computed ``short_code`` in Python.
 
         When ``user_id`` is given, a row owned by someone else returns ``None`` —
-        the same answer as a row that does not exist. Distinguishing "forbidden"
-        from "not found" would confirm to a probe that a guessed id is real
-        (#118). ``SavedPlaceService`` always passes the caller, so every
-        ``/places/saved*`` route is owner-scoped; the owner is optional only for
-        the trusted internal resolve path (a trip's own shortlist), which is
-        reached only after its parent trip has been ownership-checked.
+        the same answer as a row that does not exist — and this owner filter
+        applies to BOTH the direct-id lookup and the ``SPL-`` short-code scan.
+        Distinguishing "forbidden" from "not found" would confirm to a probe that
+        a guessed id is real (#118). ``SavedPlaceService`` always passes the
+        caller, so every ``/places/saved*`` route is owner-scoped, and the agent's
+        ``resolve_place(source="saved")`` tool now passes the injected JWT owner
+        too.
+
+        The ``None`` (unscoped) path is a footgun, NOT internal-only by
+        construction: it once left the agent tool able to read any user's saved
+        place by a user-controlled id/short code. It must only be used by trusted
+        callers that have already ownership-checked the parent context (a trip's
+        own shortlist), never on any id an untrusted caller can influence.
 
         :param id_: The raw UUID or ``SPL-...`` short code to look up.
         :param user_id: The caller; when set, rows owned by anyone else are
-            invisible. ``None`` performs an unscoped lookup (internal use only).
+            invisible (both id and short-code paths). ``None`` performs an
+            unscoped lookup — trusted internal callers only.
         :return: The matching live saved place, or ``None`` if none matches.
         """
         owner = (models.SavedPlace.user_id == user_id,) if user_id is not None else ()

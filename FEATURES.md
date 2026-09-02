@@ -83,6 +83,11 @@ Cancel tools additionally require an explicit `confirm=True`.
 | Flights | `search_flights`, `book_flight` |
 | Hotels | `browse_hotels` (undated), `search_hotels` (dated availability), `book_hotel` |
 | Booking mgmt | `cancel_flight`, `cancel_hotel` |
+
+`book_flight`, `book_hotel`, `cancel_flight` and `cancel_hotel` take the traveller's `user_id` via
+`InjectedState("user_id")` (never model-supplied), so an agent-made booking is stamped with the
+authenticated owner and a cancel of a booking owned by someone else reads as *not found* (#118,
+review-A E004).
 | Places | `search_places`, `nearby_places`, `resolve_place`, `parse_nl_query`, `list_place_categories` |
 | Weather / climate | `get_weather`, `get_packing`, `get_air_quality`, `get_climate` |
 | Routing | `get_route`, `get_city_route` |
@@ -264,6 +269,13 @@ OAuth buttons render but the action is deliberately stubbed — see [gaps](#12-k
 edit. Each tool carries `readOnlyHint` / `destructiveHint` annotations, and destructive tools get
 " Cannot be undone." appended to their description. Tools requiring runtime injection (`store`,
 `tool_call_id`) are skipped because an external MCP client can't supply them.
+
+> **E004 caveat (review-A):** the four booking/cancel tools now take `user_id` via
+> `InjectedState("user_id")`. Unlike `store` / `tool_call_id`, an `InjectedState` arg is **not**
+> skipped by the server — `get_trip_summary` (also `InjectedState("user_id")`) is exposed too — so
+> these tools **remain on the MCP surface**, now with a `user_id` parameter. E004's intent (drop
+> them, since MCP has no auth) is therefore **not yet enforced**; achieving it needs an explicit
+> filter in `app/mcp/server.py`. See `.harness-state/sdd/report-3.1.md`.
 
 ---
 

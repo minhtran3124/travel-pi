@@ -1,7 +1,14 @@
-"""Tests for the book_flight agent tool (MIN-42)."""
+"""Tests for the book_flight agent tool (MIN-42).
+
+``book_flight`` takes ``user_id`` via ``InjectedState`` (review-A hardening,
+E004); it is passed here in the invoke dict the way the graph injects it from
+state (it is hidden from the model-facing schema).
+"""
 
 import pytest
 from langchain_core.tools import ToolException
+
+OWNER = "u_book_owner"
 
 
 def test_book_flight_guard_raises_without_confirm(agent_db):
@@ -17,6 +24,7 @@ def test_book_flight_guard_raises_without_confirm(agent_db):
                 "passenger_name": "Test User",
                 "passenger_email": "test@example.com",
                 "passenger_phone": "+1 555 000 0000",
+                "user_id": OWNER,
             }
         )
 
@@ -32,6 +40,7 @@ def test_book_flight_unknown_flight_raises(agent_db):
                 "passenger_email": "test@example.com",
                 "passenger_phone": "+1 555 000 0000",
                 "confirm": True,
+                "user_id": OWNER,
             }
         )
 
@@ -56,6 +65,7 @@ def test_book_flight_happy_path_returns_booking(agent_db):
             "passenger_email": "test@example.com",
             "passenger_phone": "+1 555 000 0000",
             "confirm": True,
+            "user_id": OWNER,
         }
     )
     assert result["type"] == "flight"
@@ -87,6 +97,7 @@ def test_book_flight_repeated_call_creates_distinct_bookings(agent_db):
         "passenger_email": "test@example.com",
         "passenger_phone": "+1 555 000 0000",
         "confirm": True,
+        "user_id": OWNER,
     }
     first = book_flight.invoke(dict(args))
     second = book_flight.invoke(dict(args))

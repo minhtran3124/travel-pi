@@ -3,6 +3,20 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## booking-tools-owner — agent bookings carry the injected owner (review-A E004)
+
+specs/review-a-security-hardening (E004): `book_flight`, `book_hotel`, `cancel_flight`
+and `cancel_hotel` now take `user_id` via `InjectedState("user_id")` (graph state, never
+model-supplied) and pass it to the owner-scoped `BookingService`, so agent-made bookings
+are stamped with the authenticated traveller and a cancel of a booking owned by someone
+else reads as *not found* (#118). No prompt version changed.
+
+- **MCP caveat:** E004 assumed these tools would drop off MCP because injected-arg tools
+  are skipped. They are **not** — `app/mcp/server.py` skips only `store` / `tool_call_id`,
+  not `InjectedState` (`get_trip_summary` is likewise exposed). The four tools remain on
+  the MCP surface (now with a `user_id` param); enforcing E004's removal needs an explicit
+  server-side filter. See `.harness-state/sdd/report-3.1.md`.
+
 ## supervisor-expense-logging — disambiguate "log an expense" from journal
 
 GH-117 Path A eval: `gpt-4o-mini` routed "Log that I paid 50 USD for lunch today"
