@@ -148,3 +148,19 @@ They do not claim coverage of the later Wave 5 remediation.
 
 - None. Wave 5 changes application code, migration/tests, deployment documentation, and the feature
   audit record only; it does not change hooks, skills, tool registration, or harness policy.
+
+### Verify
+
+<!-- Retrofitted 2026-09-03 when this plan's status was retired from `active`. The rows below
+     were RUN on that date against the shipped code — they are not a record of what was run
+     during the original work, which predates the lane-evidence rule. -->
+
+| Check | Command | Exit | Notes |
+| --- | --- | --- | --- |
+| rate-limit dependency, config and repo | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/x.db ../../.venv/bin/python -m pytest tests/api/test_rate_limit_dependency.py tests/core/test_rate_limit_config.py tests/db/test_rate_limit_repository.py -q` | 0 | 27 passed |
+
+### Not auto-verified
+
+- Task 4.1 (wiring the limiter onto `POST /agent/feedback`) is still BLOCKED on
+  `specs/user-feedback-v1` and is therefore unbuilt, not merely unverified. This is why the plan
+  is `paused` rather than `shipped`.

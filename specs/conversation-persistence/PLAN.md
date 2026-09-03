@@ -1,6 +1,6 @@
 ---
 slug: conversation-persistence
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-27
 ---
@@ -210,3 +210,7 @@ Three user-visible bugs, all from missing persistence *wiring* (the data model a
 | 2 | 2.1 history endpoints | single | shares `agent.py` with 1.1 → after wave 1 |
 | 3 | 3.1 FE fetchers | single | needs 2.1's endpoints to exist |
 | 4 | 4.1 FE persist + hydrate | single | imports 3.1 fetchers |
+
+- 2026-09-03 — status corrected to `shipped`. Verified by artifact on `main`, not by the log:
+  this plan's deliverables are present in the shipped code. It had been left `active`, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.
