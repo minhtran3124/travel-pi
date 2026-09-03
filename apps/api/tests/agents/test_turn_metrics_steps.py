@@ -21,6 +21,7 @@ STEP_KEYS = {
     "status",
     "error_type",
     "tool_name",
+    "specialist",
     "meta",
 }
 
@@ -290,7 +291,10 @@ def test_close_sweeps_a_step_whose_end_hook_never_fired():
     h = TurnMetricsHandler()
     rid = uuid4()
     h.on_chat_model_start(
-        {}, [], run_id=rid, metadata={"langgraph_node": "supervisor", "ls_model_name": "m"}
+        {},
+        [],
+        run_id=rid,
+        metadata={"langgraph_node": "supervisor", "ls_model_name": "m"},
     )
     # no on_llm_end / on_llm_error — the stream was cancelled mid-call
     h.close_if_open()
@@ -298,3 +302,60 @@ def test_close_sweeps_a_step_whose_end_hook_never_fired():
     step = h.steps()[0]
     assert step["status"] == "unfinished"
     assert step["ms"] >= 0
+
+
+def test_llm_step_records_the_specialist_from_metadata():
+    h = TurnMetricsHandler()
+    rid = uuid4()
+    h.on_chat_model_start(
+        {},
+        [],
+        run_id=rid,
+        metadata={
+            "langgraph_node": "assistant",
+            "langgraph_checkpoint_ns": "synthesis_worker:a|assistant:b",
+            "ls_model_name": "gpt-5-mini",
+            "specialist": "concierge",
+        },
+    )
+    h.on_llm_end(_llm_result(), run_id=rid)
+
+    (step,) = h.steps()
+    assert step["specialist"] == "concierge"
+
+
+def test_tool_step_records_the_specialist_from_metadata():
+    h = TurnMetricsHandler()
+    rid = uuid4()
+    h.on_tool_start(
+        {"name": "search_hotels"},
+        "",
+        run_id=rid,
+        metadata={
+            "langgraph_node": "tools",
+            "langgraph_checkpoint_ns": "synthesis_worker:a|tools:b",
+            "specialist": "planner",
+        },
+    )
+    h.on_tool_end("ok", run_id=rid)
+
+    (step,) = h.steps()
+    assert step["specialist"] == "planner"
+
+
+def test_steps_without_the_key_record_no_specialist():
+    h = TurnMetricsHandler()
+    llm_id, tool_id, node_id = uuid4(), uuid4(), uuid4()
+    meta = {"langgraph_node": "supervisor", "langgraph_checkpoint_ns": ""}
+    h.on_chain_start({}, {}, run_id=node_id, metadata=meta)
+    h.on_chat_model_start(
+        {}, [], run_id=llm_id, metadata={**meta, "ls_model_name": "gpt-5"}
+    )
+    h.on_llm_end(_llm_result(model="gpt-5"), run_id=llm_id)
+    h.on_tool_start({"name": "weather"}, "", run_id=tool_id, metadata=meta)
+    h.on_tool_end("ok", run_id=tool_id)
+    h.on_chain_end({}, run_id=node_id)
+
+    steps = h.steps()
+    assert len(steps) == 3
+    assert all(step["specialist"] is None for step in steps)

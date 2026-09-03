@@ -1,0 +1,46 @@
+{
+  "reviewed_head_sha": "4b22f7ba762f1c66d8388f99d2a0a1292fe4eb0e",
+  "created": "2026-09-03T11:05:08+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-wave-1",
+      "type": "task-1.1-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Traced rather than trusted: the specialist entering config metadata is task['agent'] AFTER the _AGENT_BUILDERS unknown-specialist early return, so only a registered static name can reach a step and an unknown one yields [] rather than a KeyError. The merge preserves configurable and the caller's metadata, and that survival is genuinely pinned - a 'specialist is present' assertion alone would pass while a replace-instead-of-merge regression shipped. Re-keying is gated on /assistant so tools and trip_guard stay unattributed. Two Minors raised, both fixed in 0ae1a54 rather than deferred: the node span did not record the specialist so two rows for one node disagreed on the page, and the leak test never drove a specialist value so it covered only the old surface."
+    },
+    {
+      "reviewer": "task-review-wave-2",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "synthesize added to the group list, which drives the seeder, the node inventory and the dashboard grid, so no migration. The coverage guard derives node names from the compiled graph plus a source scan rather than a hand-written list, and a negative control confirmed it fails by name when synthesize is removed - it would have caught the original bug. synthesis_worker's exclusion is asserted in its own test so it cannot rot into a mystery."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Adversarial review over f16544d..HEAD; 435 passed. Verified clean on all five axes: the content boundary (specialist is provably one of five static names, the meta allowlist is untouched, and the repository still drops the field so nothing new is persisted); the config merge (new dicts are allocated so parallel workers cannot see each other's value, configurable and callbacks are preserved, None-config and missing-metadata handled); attribution (gated on /assistant, unknown specialist yields [], a step without one is byte-identical to the old path, node span and inner LLM step now agree); concurrency (the new field is read and written inside the lock, no new shared state); and the config change (the seeded row is all-NULL and synthesize is not in FAST_AGENTS, so no model drift). Advisory: two stale dashboard comments, and no test proved LangGraph actually inherits config metadata into child runs - both addressed in 4b22f7b."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind against the verbatim request. Both asks land. The reviewer independently verified the intake's corrected premise against graph.py and confirmed it: worker_resolve resolves the specialist's own row, so a row for synthesis_worker would be dead config and the narrowed scope is fidelity, not a missing deliverable. Remaining unattributed steps (a worker's tools and trip_guard, plus synthesize and summarize, which build system text outside the registry) are disclosed in the prompt_map docstring rather than hidden. No overreach: the coverage test is regression scaffolding for the reported bug class, not new product scope."
+    },
+    {
+      "reviewer": "end-to-end-verification",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Closes the assumption the final review flagged. A new test drives the compiled graph through a real two-specialist turn with the real handler attached and asserts the specialists arrive at the callback on their own, then that the LLM steps attribute to planner, concierge and communication_style. Negative control: disabling the worker's metadata key makes both tests fail and restoring it makes them pass, so the mechanism - not just the handler's logic - is what is pinned."
+    }
+  ]
+}
