@@ -71,15 +71,6 @@ def run_memory_extraction(
         extracted = extract_memories(
             messages, llm, callbacks=[handler] if handler else None
         )
-        if record_metrics:
-            elapsed_ms = int((time.perf_counter() - started) * 1000)
-            snap = handler.snapshot()
-            AgentRunRepository(session_factory).add_background(
-                run_id,
-                llm_calls=snap["llm_calls"],
-                tokens=snap["input_tokens"] + snap["output_tokens"],
-                ms=elapsed_ms,
-            )
         for pref in extracted.preferences:
             upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
             logger.info(
@@ -130,6 +121,22 @@ def run_memory_extraction(
         )
     except Exception:
         logger.exception("[agent] extract_memory: write failed")
+
+    # Record background metrics AFTER the memory writes, in an isolated try, so a
+    # metrics-DB failure can never starve the primary preference/instruction/episode
+    # upserts above (memory is the point of this task; metrics are secondary).
+    if record_metrics:
+        try:
+            elapsed_ms = int((time.perf_counter() - started) * 1000)
+            snap = handler.snapshot()
+            AgentRunRepository(session_factory).add_background(
+                run_id,
+                llm_calls=snap["llm_calls"],
+                tokens=snap["input_tokens"] + snap["output_tokens"],
+                ms=elapsed_ms,
+            )
+        except Exception:
+            logger.exception("[agent] extract_memory: background metrics record failed")
     return None
 
 
