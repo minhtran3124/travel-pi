@@ -92,7 +92,20 @@ def build_synthesis_worker(
         inner_state["messages"] = copy.deepcopy(inner_state.get("messages", []))
         inner_state["task"] = task
         inner_state["current_flow"] = agent_name
-        result = subagent.invoke(inner_state, config=getattr(runtime, "config", None))
+        # The checkpoint namespace of the inner graph does not carry the
+        # specialist name, so the config metadata is the only channel that
+        # reaches the callback hooks (``on_chat_model_start`` / ``on_tool_start``
+        # both receive ``metadata``). Merge, never replace: the caller's own
+        # metadata carries the node/namespace keys the metrics handler reads.
+        base_config = getattr(runtime, "config", None) or {}
+        inner_config = {
+            **base_config,
+            "metadata": {
+                **(base_config.get("metadata") or {}),
+                "specialist": agent_name,
+            },
+        }
+        result = subagent.invoke(inner_state, config=inner_config)
         findings = _last_assistant_content(result.get("messages", []))
 
         # GH-117 Path A / Codex Comment 2: tools inside the worker may mutate
