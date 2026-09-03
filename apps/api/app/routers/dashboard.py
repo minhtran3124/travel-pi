@@ -15,6 +15,7 @@ Pages:
     GET /dashboard/weather              live city weather lookup (Open-Meteo)
     GET /dashboard/air-quality          live city air-quality lookup (Open-Meteo)
     GET /dashboard/bookings             ledger of every flight/hotel booking
+    GET /dashboard/agent-runs/{run_id}  one turn's call chain (waterfall)
     GET /dashboard/agent-config         list every agent's LLM config
     GET /dashboard/agent-config/{name}  edit form for one agent's LLM config
     POST /dashboard/agent-config/{name} persist one agent's LLM config
@@ -33,10 +34,12 @@ from sqlalchemy.orm import Session
 from app.core.dashboard_auth import require_dashboard_access
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
+from app.db import models
 from app.db.session import get_session
 from app.exceptions import (
     CityNotFoundError,
     DomainValidationError,
+    NotFoundError,
     WeatherUnavailableError,
 )
 from app.repositories.agent_run import AgentRunRepository
@@ -1047,6 +1050,133 @@ def agent_runs_page(
             "totals_7d": totals_7d,
             # Rows started before this cutoff and still "running" are abandoned.
             "abandoned_cutoff": (now - timedelta(minutes=10)).isoformat(),
+        },
+    )
+
+
+#: Minimum bar width (%) so a 0 ms step is still visible in the waterfall.
+_MIN_BAR_PCT = 0.8
+
+
+def _turn_span_ms(run: models.AgentRun, steps: list[models.AgentRunStep]) -> int:
+    """Wall-clock span the waterfall is drawn against.
+
+    ``latency_ms`` when the run recorded one; otherwise the furthest step end
+    (a run that never closed has no latency), and 0 when there is nothing to
+    measure — the caller must not divide by it.
+
+    :param run: The run being rendered.
+    :param steps: The run's steps, in ``seq`` order.
+    :return: The span in milliseconds (0 when unknown).
+    """
+    if run.latency_ms:
+        return run.latency_ms
+    if steps:
+        return max((s.offset_ms or 0) + (s.ms or 0) for s in steps)
+    return 0
+
+
+def _waterfall(run: models.AgentRun, steps: list[models.AgentRunStep]) -> list[dict]:
+    """Position each step's bar as percentages of the turn span (SC-9).
+
+    All arithmetic happens here so the template only prints numbers. A zero
+    span (no latency, no steps with duration) yields left-aligned minimum-width
+    bars rather than a division by zero.
+
+    :param run: The run being rendered.
+    :param steps: The run's steps, in ``seq`` order.
+    :return: One ``{step, left_pct, width_pct, sub}`` dict per step.
+    """
+    span = _turn_span_ms(run, steps)
+    rows: list[dict] = []
+    for step in steps:
+        if span > 0:
+            left = (step.offset_ms or 0) / span * 100
+            width = (step.ms or 0) / span * 100
+        else:
+            left, width = 0.0, 0.0
+        # Clamp so a bar always stays inside the track and stays visible.
+        left = min(max(left, 0.0), 100.0 - _MIN_BAR_PCT)
+        width = min(max(width, _MIN_BAR_PCT), 100.0 - left)
+        ns = step.ns or ""
+        rows.append(
+            {
+                "step": step,
+                "left_pct": round(left, 2),
+                "width_pct": round(width, 2),
+                # A '|' in the checkpoint ns means the node ran in a sub-graph;
+                # its root names which one (see agents/metrics.py:_node_key).
+                "sub": ns.split("|", 1)[0].split(":", 1)[0] if "|" in ns else None,
+            }
+        )
+    return rows
+
+
+def _cost_by_model(
+    run: models.AgentRun, steps: list[models.AgentRunStep]
+) -> list[dict]:
+    """Per-model usage from ``by_model``, priced from the steps that used it.
+
+    ``by_model`` carries calls and tokens only, so cost is summed from the LLM
+    steps of that model; a model with no priced step shows no cost.
+
+    :param run: The run being rendered.
+    :param steps: The run's steps.
+    :return: One row per model, ordered by name.
+    """
+    costs: dict[str, float] = {}
+    for step in steps:
+        if step.model and step.cost_usd is not None:
+            costs[step.model] = costs.get(step.model, 0.0) + step.cost_usd
+    rows = []
+    for model, usage in sorted((run.by_model or {}).items()):
+        rows.append(
+            {
+                "model": model,
+                "calls": usage.get("calls", 0),
+                "input_tokens": usage.get("input_tokens", 0),
+                "output_tokens": usage.get("output_tokens", 0),
+                "cached_tokens": usage.get("cached_tokens", 0),
+                "cost_usd": costs.get(model),
+            }
+        )
+    return rows
+
+
+@router.get("/agent-runs/{run_id}", response_class=HTMLResponse)
+def agent_run_detail_page(
+    request: Request,
+    run_id: str,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """Render one turn's call chain as a waterfall (SC-9).
+
+    Read-only operator view: the run's totals, its steps in ``seq`` order with
+    a server-computed bar per step, the per-model cost split, the tools it
+    called, and the prompt versions the turn actually ran.
+
+    :param request: The incoming request.
+    :param run_id: The agent-run id to show.
+    :param session: The request-scoped DB session.
+    :raises NotFoundError: If no run has that id (renders the 404 page).
+    :return: The rendered run-detail page.
+    """
+    run = session.get(models.AgentRun, run_id)
+    if run is None:
+        raise NotFoundError(f"No agent run with id {run_id!r}")
+    steps = AgentRunRepository(session).steps_for(run_id)
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="agent_run_detail.html",
+        context={
+            "run": run,
+            "chain": _waterfall(run, steps),
+            "span_ms": _turn_span_ms(run, steps),
+            "by_model": _cost_by_model(run, steps),
+            "tools": [s for s in steps if s.kind == "tool"],
+            # The version link is required: without it the prompt page shows
+            # whatever is latest today, not the version this turn ran.
+            "prompts": sorted((run.prompt_versions or {}).items()),
         },
     )
 
