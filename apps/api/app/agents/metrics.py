@@ -341,7 +341,13 @@ class TurnMetricsHandler(BaseCallbackHandler):
                     ns,
                     time.monotonic(),
                 )
-                self._open_step("node", run_id, node=node, ns=ns)
+                # The node span carries the specialist too, so a worker's
+                # `assistant` node row and the LLM row inside it attribute to the
+                # same prompts. Without it the two rows for one node disagree on
+                # the detail page.
+                self._open_step(
+                    "node", run_id, node=node, ns=ns, specialist=meta.get("specialist")
+                )
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chain_start failed", exc_info=True)
 

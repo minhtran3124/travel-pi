@@ -169,3 +169,62 @@ def test_marker_does_not_survive_enrichment_and_persistence(tmp_path):
         default=str,
     )
     assert MARKER not in stored
+
+
+def test_specialist_is_attribution_input_only_and_never_persisted(tmp_path):
+    """The specialist steers prompt attribution but must not reach the database.
+
+    It is a trusted field by contract — the worker only ever sets a registered
+    agent name, after the unknown-specialist early return. This pins the second
+    line of defence: even handed a hostile value, the repository drops it, since
+    ``specialist`` is neither a column nor an allowlisted key. Asserting it here
+    means a future change that adds the column has to justify itself against a
+    failing test rather than silently widening what a step stores.
+    """
+    from app.agents.prompt_map import enrich_steps
+    from app.db.base import Base
+    from app.db.engine import get_engine, get_session_factory
+    from app.repositories.agent_run import AgentRunRepository
+
+    url = f"sqlite:///{tmp_path / 'specialist.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    repo = AgentRunRepository(get_session_factory(url))
+    repo.start(
+        "run-spec",
+        user_id="u1",
+        conversation_id="c1",
+        thread_id="t1",
+        trip_id=None,
+        channel="chat",
+        kind="turn",
+        started_at="2026-09-03T00:00:00+00:00",
+    )
+
+    h = TurnMetricsHandler()
+    rid = uuid4()
+    h.on_chat_model_start(
+        {},
+        [],
+        run_id=rid,
+        metadata={
+            "langgraph_node": "assistant",
+            "langgraph_checkpoint_ns": "synthesis_worker:1|assistant:2",
+            "ls_model_name": "m",
+            "specialist": MARKER,
+        },
+    )
+    h.on_llm_end(
+        LLMResult(generations=[[ChatGeneration(message=AIMessage(content="x"))]]),
+        run_id=rid,
+    )
+    assert h.steps()[0]["specialist"] == MARKER  # in memory, by design
+
+    repo.add_steps("run-spec", enrich_steps(h.steps(), {"concierge": 11}))
+    stored = json.dumps(
+        [
+            {c.name: getattr(row, c.name) for c in row.__table__.columns}
+            for row in repo.steps_for("run-spec")
+        ],
+        default=str,
+    )
+    assert MARKER not in stored
