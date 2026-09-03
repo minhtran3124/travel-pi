@@ -645,6 +645,10 @@
     .explore a[aria-current] { color: var(--muted); border-style: dashed; pointer-events: none; }
 
     footer {
+      /* Same flex-item trap as .wrap: auto margins make it size to its text
+         instead of stretching, so the rule and caption drew ~440px wide and no
+         longer lined up with the content above. */
+      width: 100%;
       max-width: 1140px; margin: 0 auto;
       padding: 18px 20px 0; color: var(--muted); font-size: 0.78rem;
       border-top: 1px solid var(--line);
