@@ -54,7 +54,7 @@
     <tbody>
       {% for run in runs %}
       {% set abandoned = run.status == 'running' and (run.started_at or run.created_at) < abandoned_cutoff %}
-      <tr>
+      <tr class="run-row" data-href="/dashboard/agent-runs/{{ run.id | urlencode }}">
         <td>
           <a class="run-link" href="/dashboard/agent-runs/{{ run.id | urlencode }}">
             <span class="from-city">{{ (run.started_at or run.created_at)[:19] | replace('T', ' ') }}</span>
@@ -111,6 +111,12 @@
   }
   .run-link { color: inherit; text-decoration: none; display: block; }
   .run-link:hover .from-city { color: var(--accent-dim); }
+  /* The whole row opens the run. The anchor above stays the real link (keyboard,
+     middle-click, open-in-new-tab); the row handler only covers the rest of the
+     row, which otherwise looked clickable but did nothing. */
+  .run-row { cursor: pointer; }
+  .run-row:hover { background: var(--row-hover, rgba(255,255,255,.035)); }
+  .run-row:focus-within { background: var(--row-hover, rgba(255,255,255,.05)); }
   /* Run-status pills reuse the ledger palette; running/abandoned add their own. */
   .status-pill.st-running   { background: rgba(56,189,248,.14); color: var(--cyan); }
   .status-pill.st-completed { background: rgba(52,211,153,.13); color: var(--green); }
@@ -118,4 +124,14 @@
   .status-pill.st-failed    { background: rgba(248,113,113,.14); color: var(--red); }
   .status-pill.st-abandoned { background: rgba(147,161,160,.13); color: var(--muted); }
 </style>
+<script>
+  // Row-level navigation. Anything inside a real <a> (or a modified click that
+  // means "open elsewhere") is left alone so keyboard and new-tab still work.
+  document.addEventListener('click', function (e) {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (e.target.closest('a')) return;
+    var row = e.target.closest('.run-row');
+    if (row && row.dataset.href) window.location.assign(row.dataset.href);
+  });
+</script>
 {% endblock %}
