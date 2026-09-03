@@ -101,29 +101,58 @@ production   /dashboard/bookings   -> 404
 The new page inherits the router-level `require_dashboard_access` dependency from PR #129, so it
 hides in production exactly like every other dashboard page.
 
-## What this UAT found (and the branch now fixes)
+## What this UAT found — a regression this branch introduced, now root-caused
 
 Running for real caught a defect no offline test could: **`/agent/chat` answered correctly but its
-`agent_runs` row stayed `running` forever.** Rows `40ab5197` and `889576dc` in the screenshot are
-those turns.
+`agent_runs` row stayed `running` forever, and the assistant reply was never saved.**
 
-The cause is that writes flushed onto the request-scoped session *after* the graph `await` never
-reach the database in the running server. The suite could not see it because `TestClient`'s
-dependency teardown does commit, so the row looked persisted. Two things confirmed the diagnosis:
-the assistant reply written on the same session was **also** missing, and the stream path — which
-persists through an isolated factory — was unaffected.
+An earlier draft of this document blamed a pre-existing bug in `get_session`. **That was wrong.**
+A controlled experiment settled it: running the chat handler with `main`'s exact background-task
+shape (no `run_id` / `session_factory`) persists everything correctly — row `completed`, messages
+`user,assistant`. The regression belongs to this branch.
 
-The fix commits the post-graph writes explicitly in `agent_chat`, mirroring the `session.commit()`
-the stream path already performs. It makes the run row durable **and** repairs a pre-existing
-data-loss bug: `/agent/chat` had never been persisting its assistant replies on `main` either. It
-went unnoticed because the web UI talks to `/agent/stream`.
+### Root cause: an application-level deadlock on the run row
 
-A regression test now pins the invariant with a deliberately non-committing session override
+Instrumenting `get_session` showed its teardown never executed for a failing turn — only
+`CREATE`, then nothing, with no exception. `pg_stat_activity` during a failing run shows why:
+
+| Connection | State | Query |
+|---|---|---|
+| request session | `idle in transaction`, waiting on `ClientRead` | `UPDATE agent_runs SET status=…` |
+| background task | `active`, waiting on `Lock` / `transactionid` | `UPDATE agent_runs SET background_llm_calls=…` |
+
+The cycle:
+
+1. The handler flushes `finish()` onto the request-scoped session. Flush, not commit — so the
+   transaction stays open and **holds a row lock** on that `agent_runs` row.
+2. The handler returns. FastAPI runs the registered background task, which is where this branch
+   newly asked `run_memory_extraction` to write `background_*` columns **on the same row**,
+   through a second connection. It blocks on the row lock.
+3. The dependency teardown that would `COMMIT` and release the lock is only reached after the
+   background task finishes. It never finishes.
+
+Postgres cannot break this: neither side is waiting on the *database* in a way that forms a
+detectable cycle, so it simply waits forever. Every failing turn also leaked one
+`idle in transaction` connection.
+
+### Why the fix is right
+
+Committing the post-graph writes explicitly before the handler returns releases the row lock
+*before* the background task runs. Verified on the live stack after the fix: row `completed`,
+`background_llm_calls=1 / background_tokens=1341 / background_ms=1426` (the write that used to
+deadlock), messages `user,assistant`, and zero lock waits or idle-in-transaction connections.
+
+A regression test pins the invariant with a deliberately non-committing session override
 (`test_run_row_is_durable_without_the_request_session_commit`); it fails without the fix.
 
 Real data also exposed a layout defect the seeded run had hidden: with genuine 36-character UUID
 run and user ids the table overflowed and clipped the latency column. Both ids are now truncated
 to eight characters with the full value in a `title` attribute.
+
+### The general lesson
+
+A background task must not write a row that the request session has flushed but not committed.
+Either commit before returning, or do not touch the same row from a background task.
 
 ## Not covered here
 
@@ -135,8 +164,9 @@ alone:
   access was granted the turn completes, but it silently routes the most expensive node to the
   most expensive model — a 3.2x cost difference for the same request. Seeding an `agent_config`
   row for those nodes is the real fix, and the dashboard is now what makes the case for it.
-- `/agent/chat` still loses nothing now, but the same post-graph durability pattern is worth
-  auditing on any future endpoint that writes after an `await`.
+- `get_session` itself is sound; no other handler needs changing. The pattern to avoid is
+  narrower than first thought: a background task writing a row the request session has flushed
+  but not committed.
 
 Cost accuracy against live provider billing is still unverified: the dashboard shows this
 implementation's estimate from the static price table, not what OpenAI actually invoices.
