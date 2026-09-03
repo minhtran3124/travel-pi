@@ -1,6 +1,6 @@
 ---
 slug: flight-fare-no-fabrication
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-20
 ---
@@ -114,3 +114,7 @@ MIN-67 / GitHub #98. Scope decided in `ESCALATIONS.md` E001 (option A).
 - 2026-07-20 — Intake: high-risk (public-contract hard gate), confidence high.
 - 2026-07-20 — E001 decided by Minh Tran: option A (wire `return_date`).
 - 2026-07-20 — Plan written; branch `fix/flight-fare-no-fabrication` off `v3`.
+
+- 2026-09-03 — status corrected to `shipped`. Verified by artifact on `main`, not by the log:
+  this plan's deliverables are present in the shipped code. It had been left `active`, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.

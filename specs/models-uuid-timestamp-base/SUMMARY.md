@@ -1,7 +1,12 @@
 # SUMMARY — models-uuid-timestamp-base
 
-**Lane:** high-risk (schema change across every model + seeder + data-access).
-**Confidence:** high (design confirmed with user via 3 decisions; full suite green).
+Lane: high-risk
+Confidence: high
+Reason: schema change across every model, the seeder and data-access — the data-model hard gate.
+  Header retrofitted 2026-09-03 from the prose that was already here ("high-risk (schema change
+  across every model + seeder + data-access)"; confidence high, design confirmed with the user via
+  3 decisions, full suite green) into the machine-read form the lane check expects.
+Flags: data model
 
 ## What changed
 Every ORM model now has a uniform **UUID `id` primary key** + **`created_at`/`updated_at`**
@@ -46,3 +51,16 @@ ISO-8601 timestamps, via two mixins in `app/db/base.py` (`UUIDMixin`, `Timestamp
 
 ## Not verified
 - Postgres parity (`make test-docker`) not yet run — local SQLite suite is fully green.
+
+### Not auto-verified
+
+- Postgres parity (`make test-docker`) was recorded as not run at the time and was not re-run at
+  retirement; the row below is SQLite only.
+
+<!-- Retrofitted 2026-09-03 when this plan's status was retired from `active`. The rows below
+     were RUN on that date against the shipped code — they are not a record of what was run
+     during the original work, which predates the lane-evidence rule. -->
+
+| Check | Command | Exit | Notes |
+| --- | --- | --- | --- |
+| model + timestamp base | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/x.db ../../.venv/bin/python -m pytest tests/test_db_models.py tests/db/test_agent_models.py -q` | 0 | 13 passed |

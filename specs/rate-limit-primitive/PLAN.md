@@ -1,6 +1,6 @@
 ---
 slug: rate-limit-primitive
-status: active
+status: paused
 owner: minhtran
 created: 2026-07-21
 ---
@@ -192,3 +192,7 @@ branch before executing.
   formatting, sole Alembic head `f3b7c9d1e5a2`, metadata check, and scoped diff hygiene pass. The
   env-isolated backend suite passes 1802 tests with one pre-existing Open-Meteo-dependent city-route
   case deselected. Task 4.1 remains the only blocked item.
+
+- 2026-09-03 — status corrected to `paused`, not `shipped`. Waves 1-3 and 5 landed, but task 4.1 is
+  still BLOCKED on `POST /agent/feedback` from `specs/user-feedback-v1`. Marking it shipped would
+  bury that. `paused` also stops it shadowing the active-plan lookup.

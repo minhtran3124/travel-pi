@@ -1,6 +1,6 @@
 ---
 slug: weather-trip-date-accuracy
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-20
 ---
@@ -147,3 +147,7 @@ E001 (option B: keep `get_weather` forecast-only, add a separate `get_climate` t
 - 2026-07-20 — Intake: high-risk (public-contract hard gate), confidence low → high after E001.
 - 2026-07-20 — E001 decided by Minh Tran: option B (separate `get_climate`).
 - 2026-07-20 — Plan written; branch `fix/weather-trip-date-accuracy` off `d3acd97`.
+
+- 2026-09-03 — status corrected to `shipped`. Verified by artifact on `main`, not by the log:
+  this plan's deliverables are present in the shipped code. It had been left `active`, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.

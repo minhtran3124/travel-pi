@@ -1,6 +1,6 @@
 ---
 slug: web-trip-planner
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-26
 initiative: monorepo-fe (Phase 1)
@@ -287,3 +287,7 @@ apps/web/
   `cd`-backgrounding bug in 1.1/3.2 verifies → subshell + readiness poll + `$!` PID). Advisories
   applied: per-task `tsc --noEmit` + wave-barrier builds; Inter-only via next/font; ChatWidget in
   1.5 `<files>`; BrowseDrawer prop contract for 2.6 reuse; 3.1 reframed to full-suite gate.
+
+- 2026-09-03 — status corrected to `shipped`. Verified by artifact on `main`, not by the log:
+  this plan's deliverables are present in the shipped code. It had been left `active`, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.

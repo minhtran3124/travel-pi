@@ -50,7 +50,7 @@ tất định (khác C). Đi tăng dần, mỗi subagent verify parity trước 
 
 | Check | Command | Exit | Notes |
 | --- | --- | --- | --- |
-| (planning only — no code) | — | — | Golden parity tests sẽ là verify gate mỗi wave |
+| plan not executed — nothing to verify | `! test -e apps/api/app/agents/middleware.py` | 0 | asserts the migration's first artifact is absent, i.e. no wave has run (retrofitted 2026-09-03) |
 
 ### Rollback
 
@@ -59,3 +59,9 @@ tất định (khác C). Đi tăng dần, mỗi subagent verify parity trước 
 ### Harness-Delta
 
 - none
+
+### Not auto-verified
+
+- Everything this plan proposes. No wave was executed: there is no middleware module and no v2
+  factory on `main`. The row above is a truthful negative check, not evidence of shipped work —
+  adding a passing test row here would claim work that does not exist.
