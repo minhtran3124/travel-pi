@@ -19,11 +19,15 @@ Two independent pieces:
   once when the graph is compiled, so a later ``active.yaml`` edit does not
   change the running graph).
 
-``synthesis_worker`` picks its specialist from ``state["task"]`` at runtime. The
-specialist name *is* present in the checkpoint namespace, but ``_node_key`` keeps
-only the namespace root (the worker), so it does not reach this map and those
-inner nodes map to ``[]``. Recovering it means reading the middle namespace
-segment — a follow-up, noted because this is the busiest LLM path.
+``synthesis_worker`` picks its specialist from ``state["task"]`` at runtime and the
+specialist name never reaches the checkpoint namespace: a live multi-intent turn
+produces ``synthesis_worker:<uuid>|assistant:<uuid>``, with no specialist segment
+anywhere in it. So those inner nodes map to ``[]`` and per-step prompt attribution
+is blank on the multi-intent path, while single-intent turns attribute correctly
+(``concierge:<uuid>|assistant:<uuid>`` -> concierge + communication_style). The
+run-level ``prompt_versions`` still records every active version either way.
+Recovering the specialist would mean plumbing ``state["task"]`` out to the
+callback, which is a bigger change than this spec.
 ``summarize`` and ``synthesize`` build their system text outside the registry.
 """
 
@@ -53,10 +57,10 @@ def _subagent_entries() -> dict[str, list[str]]:
             # Only ``assistant`` builds a system message; ``tools`` /
             # ``trip_guard`` run no model.
             entries[f"{name}/{inner}"] = list(prompts) if inner == "assistant" else []
-    # ``synthesis_worker`` invokes one of these sub-graphs inside its own node, so
-    # the namespace root is the worker rather than the specialist. The specialist
-    # is still in the middle namespace segment; ``_node_key`` just discards it, so
-    # attribution is recoverable later but not available from this key today.
+    # ``synthesis_worker`` invokes one of these sub-graphs inside its own node. The
+    # namespace is ``synthesis_worker:<uuid>|assistant:<uuid>`` — verified against a
+    # live multi-intent turn — so the specialist appears nowhere in it and cannot be
+    # attributed from the node key at all.
     for inner in _SUBGRAPH_NODES:
         entries[f"synthesis_worker/{inner}"] = []
     return entries

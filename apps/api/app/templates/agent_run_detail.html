@@ -132,20 +132,21 @@
 {% endif %}
 
 {# ── Prompts used — the link MUST carry the version this turn ran ── #}
-<h2 class="sec-title">Prompts used</h2>
+<h2 class="sec-title">Prompt versions active for this run</h2>
 {% if not prompts %}
 <p class="note">No prompt versions recorded for this run.</p>
 {% else %}
 <div class="table-wrap">
   <table class="fids ledger">
     <thead>
-      <tr><th>Prompt</th><th>Version</th></tr>
+      <tr><th>Prompt</th><th>Version</th><th>Attributed to a step</th></tr>
     </thead>
     <tbody>
-      {% for name, version in prompts %}
+      {% for name, version, attributed in prompts %}
       <tr>
         <td><a class="prompt-link" href="/dashboard/prompts/{{ name | urlencode }}?version=v{{ version }}">{{ name }}</a></td>
         <td class="sta">v{{ version }}</td>
+        <td class="sta">{{ 'yes' if attributed else '—' }}</td>
       </tr>
       {% endfor %}
     </tbody>

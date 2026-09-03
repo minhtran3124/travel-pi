@@ -1058,6 +1058,22 @@ def agent_runs_page(
 _MIN_BAR_PCT = 0.8
 
 
+
+def _attributed_prompt_names(steps: list) -> set[str]:
+    """Prompt names the run's steps could be attributed to.
+
+    Empty for a multi-intent turn: those sub-agent calls run under
+    ``synthesis_worker`` and the specialist appears nowhere in the checkpoint
+    namespace, so no step carries a prompt pointer.
+    """
+    names: set[str] = set()
+    for step in steps:
+        for entry in step.prompts or []:
+            name = entry.get("name") if isinstance(entry, dict) else None
+            if name:
+                names.add(name)
+    return names
+
 def _turn_span_ms(run: models.AgentRun, steps: list[models.AgentRunStep]) -> int:
     """Wall-clock span the waterfall is drawn against.
 
@@ -1176,7 +1192,16 @@ def agent_run_detail_page(
             "tools": [s for s in steps if s.kind == "tool"],
             # The version link is required: without it the prompt page shows
             # whatever is latest today, not the version this turn ran.
-            "prompts": sorted((run.prompt_versions or {}).items()),
+            # The snapshot is every prompt the compiled graph had active, not only
+            # the ones this turn exercised — label it as such and flag the subset the
+            # steps could actually attribute, so the page does not claim more than it
+            # knows. Per-step attribution is blank on the multi-intent path (the
+            # specialist never reaches the checkpoint namespace), so an unflagged row
+            # means "not attributable", never "not used".
+            "prompts": [
+                (name, version, name in _attributed_prompt_names(steps))
+                for name, version in sorted((run.prompt_versions or {}).items())
+            ],
         },
     )
 
