@@ -158,6 +158,10 @@
       padding: 9px 20px;
       border-bottom: 1px solid var(--line);
       background: var(--panel);
+      /* Stays put while the page scrolls, so search and theme are always one
+         click away — the sidebar beside it is already sticky. */
+      position: sticky; top: 0;
+      z-index: var(--z-sticky);
     }
     .tabs .spacer { flex: 1; }
     .tab-ext { color: var(--accent-dim); }
@@ -660,7 +664,9 @@
       .sidebar {
         flex-direction: row; align-items: center;
         width: auto; height: 52px;
-        position: static;
+        /* Folded nav stays on top as well; the utility strip stacks under it. */
+        position: sticky; top: 0;
+        z-index: calc(var(--z-sticky) + 1);
         padding: 0 14px;
         border-right: none; border-bottom: 1px solid var(--line);
         overflow-x: auto; overflow-y: hidden;
@@ -679,6 +685,7 @@
         width: 20px; height: 2px; border-radius: 2px;
       }
       .app-main { display: block; }
+      .app-topbar { top: 52px; }
     }
 
     /* ── Mobile ≤ 640px ── */
