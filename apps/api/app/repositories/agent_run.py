@@ -106,7 +106,7 @@ class AgentRunRepository(Repo):
         current_flow: str | None,
         finished_at: str,
         metrics: dict,
-        prompt_versions: list | None = None,
+        prompt_versions: dict | None = None,
     ) -> None:
         """Finalize a run: set terminal status and the accumulated metrics.
 
@@ -119,7 +119,7 @@ class AgentRunRepository(Repo):
         :param current_flow: The final flow, if any.
         :param finished_at: ISO-8601 finish timestamp.
         :param metrics: The turn's metric snapshot.
-        :param prompt_versions: The prompt name/version pairs the turn used;
+        :param prompt_versions: Mapping of prompt name to the version the turn used;
             ``None`` leaves the stored value unchanged.
         """
         with self._session() as s:

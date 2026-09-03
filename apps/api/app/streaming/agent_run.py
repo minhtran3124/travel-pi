@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.agents.prompt_map import enrich_steps
 from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
 from app.repositories.agent_run import AgentRunRepository
@@ -37,6 +38,7 @@ async def record_agent_run(
     run_id: str,
     metrics: TurnMetricsHandler,
     session_factory: sessionmaker[Session],
+    prompt_versions: dict | None = None,
 ) -> AsyncIterator[TypedSSEEvent]:
     """Pass every SSE event through unchanged while closing the ``agent_runs`` row.
 
@@ -51,6 +53,8 @@ async def record_agent_run(
     :param run_id: The router-minted ``agent_runs`` id to finalize.
     :param metrics: The turn's ``TurnMetricsHandler`` (its ``snapshot()`` is stored).
     :param session_factory: Isolated sessionmaker used to write the row.
+    :param prompt_versions: The compiled graph's build-time prompt snapshot,
+        stored on the run row and used to attribute prompts to each step.
     """
     saw_interrupt = False
     saw_error = False
@@ -99,8 +103,21 @@ async def record_agent_run(
                 current_flow=current_flow,
                 finished_at=datetime.now(UTC).isoformat(),
                 metrics=metrics.snapshot(),
+                prompt_versions=prompt_versions,
             )
         except Exception as exc:  # noqa: BLE001 — best-effort; never raise into the stream
             logger.error(
                 "[record_agent_run] failed to finish agent_run id=%s: %s", run_id, exc
+            )
+
+        try:
+            # Steps are written here, on the isolated factory, alongside ``finish``
+            # — never from a background task against a row the request session has
+            # flushed but not committed (that deadlocked the parent branch).
+            AgentRunRepository(session_factory).add_steps(
+                run_id, enrich_steps(metrics.steps(), prompt_versions)
+            )
+        except Exception as exc:  # noqa: BLE001 — best-effort; never raise into the stream
+            logger.error(
+                "[record_agent_run] failed to add steps for id=%s: %s", run_id, exc
             )

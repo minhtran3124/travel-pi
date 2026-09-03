@@ -29,6 +29,8 @@ from __future__ import annotations
 from typing import Any
 
 from app.agents.constants import ALL_SUBAGENTS
+from app.agents.metrics import _node_key
+from app.core.pricing import estimate_cost
 
 _STYLE = "communication_style"
 
@@ -92,3 +94,43 @@ def prompts_for(node_key: str, snapshot: dict[str, int]) -> list[dict[str, Any]]
         {"name": name, "version": snapshot.get(name)}
         for name in PROMPTS_FOR_NODE.get(node_key, ())
     ]
+
+
+def enrich_steps(
+    steps: list[dict[str, Any]], snapshot: dict[str, int] | None
+) -> list[dict[str, Any]]:
+    """Attach ``prompts`` and ``cost_usd`` to a ``TurnMetricsHandler.steps()`` list.
+
+    Shared by both persistence sites (``agent_chat._finalize`` and
+    ``record_agent_run``'s finalizer) so the two channels store identical rows.
+    The node key is rebuilt exactly as ``metrics._node_key`` does, from the step's
+    own ``node`` + ``ns``.
+
+    :param steps: Step dicts as returned by ``TurnMetricsHandler.steps()``.
+    :param snapshot: A :func:`prompt_versions_snapshot` result, or ``None`` when
+        the graph exposes none (then every step gets ``prompts = []``).
+    :return: New step dicts with ``prompts`` and ``cost_usd`` filled in.
+    """
+    enriched: list[dict[str, Any]] = []
+    for step in steps:
+        row = dict(step)
+        node = row.get("node")
+        if node and snapshot:
+            row["prompts"] = prompts_for(_node_key(node, row.get("ns") or ""), snapshot)
+        else:
+            row["prompts"] = []
+        model = row.get("model")
+        if row.get("kind") == "llm" and model:
+            row["cost_usd"] = estimate_cost(
+                {
+                    model: {
+                        "input_tokens": row.get("input_tokens", 0),
+                        "output_tokens": row.get("output_tokens", 0),
+                        "cached_tokens": row.get("cached_tokens", 0),
+                    }
+                }
+            )
+        else:
+            row["cost_usd"] = None
+        enriched.append(row)
+    return enriched

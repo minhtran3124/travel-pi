@@ -27,6 +27,7 @@ from app.agents.graph import resolve_travel_graph
 from app.agents.guardrails import redact_pii
 from app.agents.metrics import TurnMetricsHandler
 from app.agents.observability import callbacks, trace_metadata
+from app.agents.prompt_map import enrich_steps
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
@@ -303,6 +304,9 @@ async def agent_chat(
             usage = TurnUsage(**metrics.public())
         except Exception:
             logger.exception("[agent_chat] failed to build usage id=%s", run_id)
+        # The prompt snapshot the *running* graph baked in (build-time), not
+        # whatever `active.yaml` says now.
+        prompt_versions = getattr(graph, "prompt_versions", None)
         try:
             AgentRunRepository(session).finish(
                 run_id,
@@ -310,9 +314,19 @@ async def agent_chat(
                 current_flow=current_flow,
                 finished_at=_utc_now_iso(),
                 metrics=metrics.snapshot(),
+                prompt_versions=prompt_versions,
             )
         except Exception:
             logger.exception("[agent_chat] failed to finish agent_run id=%s", run_id)
+        try:
+            # Steps are written here — on the request session, before its explicit
+            # commit — never from a background task against a row this session has
+            # flushed but not committed (that deadlocked the parent branch).
+            AgentRunRepository(session).add_steps(
+                run_id, enrich_steps(metrics.steps(), prompt_versions)
+            )
+        except Exception:
+            logger.exception("[agent_chat] failed to add steps id=%s", run_id)
         try:
             # Commit the post-graph writes (this run row, and the assistant message
             # appended just above) explicitly, mirroring the stream path's own
@@ -579,6 +593,7 @@ async def agent_stream(
                 run_id=run_id,
                 metrics=metrics,
                 session_factory=factory,
+                prompt_versions=getattr(graph, "prompt_versions", None),
             ),
             conversation_id=conversation_id,
             session_factory=factory,
