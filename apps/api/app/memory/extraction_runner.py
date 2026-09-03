@@ -9,13 +9,17 @@ never breaks the caller.
 from __future__ import annotations
 
 import logging
+import time
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from langgraph.store.base import BaseStore
+from sqlalchemy.orm import sessionmaker
 
+from app.agents.metrics import TurnMetricsHandler
 from app.memory.extractor import extract_memories
 from app.memory.store import upsert_episode, upsert_instruction, upsert_preference
+from app.repositories.agent_run import AgentRunRepository
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +33,8 @@ def run_memory_extraction(
     allow_memory_write: bool,
     store: BaseStore | None,
     llm: BaseChatModel,
+    run_id: str | None = None,
+    session_factory: sessionmaker | None = None,
 ) -> None:
     """Extract preferences/instructions/episodes from *messages* and upsert them.
 
@@ -43,6 +49,11 @@ def run_memory_extraction(
     :param allow_memory_write: Gate — extraction is skipped entirely if False.
     :param store: LangGraph store to write into; extraction is skipped if None.
     :param llm: Chat model used to run the extraction prompt.
+    :param run_id: When set together with *session_factory*, the background LLM
+        calls / tokens / wall-clock of this extraction are recorded onto the
+        ``agent_runs`` row with this id (best-effort).
+    :param session_factory: Session factory used to persist the background
+        metrics; required alongside *run_id* for any DB write to happen.
     """
     if not allow_memory_write:
         logger.info("[agent] extract_memory (skipped — allow_memory_write=False)")
@@ -52,8 +63,23 @@ def run_memory_extraction(
         logger.info("[agent] extract_memory (skipped — no user_id or store)")
         return None
 
+    record_metrics = run_id is not None and session_factory is not None
+    handler = TurnMetricsHandler() if record_metrics else None
+
     try:
-        extracted = extract_memories(messages, llm)
+        started = time.perf_counter()
+        extracted = extract_memories(
+            messages, llm, callbacks=[handler] if handler else None
+        )
+        if record_metrics:
+            elapsed_ms = int((time.perf_counter() - started) * 1000)
+            snap = handler.snapshot()
+            AgentRunRepository(session_factory).add_background(
+                run_id,
+                llm_calls=snap["llm_calls"],
+                tokens=snap["input_tokens"] + snap["output_tokens"],
+                ms=elapsed_ms,
+            )
         for pref in extracted.preferences:
             upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
             logger.info(
@@ -113,6 +139,8 @@ def run_memory_extraction_from_stream(
     allow_memory_write: bool,
     store: BaseStore | None,
     llm: BaseChatModel,
+    run_id: str | None = None,
+    session_factory: sessionmaker | None = None,
 ) -> None:
     """Adapt a streaming turn's post-drain ``sink`` into ``run_memory_extraction``.
 
@@ -128,6 +156,9 @@ def run_memory_extraction_from_stream(
     :param allow_memory_write: Gate forwarded to ``run_memory_extraction``.
     :param store: LangGraph store to write into.
     :param llm: Chat model used to run the extraction prompt.
+    :param run_id: Forwarded to ``run_memory_extraction`` for background metrics.
+    :param session_factory: Forwarded to ``run_memory_extraction`` for background
+        metric persistence.
     """
     if not sink or sink.get("interrupt_pending"):
         return None
@@ -141,5 +172,7 @@ def run_memory_extraction_from_stream(
         allow_memory_write=allow_memory_write,
         store=store,
         llm=llm,
+        run_id=run_id,
+        session_factory=session_factory,
     )
     return None
