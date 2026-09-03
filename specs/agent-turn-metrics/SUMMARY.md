@@ -37,7 +37,32 @@ Escalate: no (fork resolved at intake: record in DB table `agent_runs`; prompt-c
 
 ## What changed
 
-<not started — intake only. Fill at ship.>
+Added per-turn token/cost/latency instrumentation across three waves:
+
+- **Wave 1 (leaf units):** `stream_usage=True` for the OpenAI SDK profile + FakeLLM emitting
+  `usage_metadata` (so no OpenAI call is usage-less and the offline suite exercises the path);
+  `app/agents/metrics.py` `TurnMetricsHandler` (per-model token aggregation, LLM call/error
+  counts, per-node wall-clock deduped on `langgraph_checkpoint_ns`, thread-safe, never raises);
+  `app/core/pricing.py` static price table (12 catalogue models verified 2026-09-03) +
+  `estimate_cost` (None when any model is unpriced); the `agent_runs` table + additive Alembic
+  revision `e3b7c5d9a1f4` + `AgentRunRepository`; `TurnUsage` on `ChatResponse` and a `usage`
+  key on the `done` SSE event (additive; no FE change).
+- **Wave 2 (consumers):** `record_agent_run` stream pass-through closing the row with the
+  status derived from interrupt/error events (failed on cancel), and `done.usage` filled in the
+  mapper; background memory-extraction metrics into `background_*` columns (recorded after the
+  memory writes, own isolated try); the read-only `/dashboard/agent-runs` page behind the HTTP
+  Basic guard (404 in prod) with 24h/7d totals and p50/p95 latency.
+- **Wave 3 (wiring + docs):** `/agent/chat` and `/agent/stream` mint a `run_id`, attach the
+  handler through the graph config, start the row and finish it with the turn's status/cost/
+  latency; WORKFLOW.md + apps/api/README.md document it; no new env var.
+
+Ten tasks, each with a per-task spec+quality review (all pass, zero Critical/Important). Two
+review rounds produced fixes: a task-2.2 Minor (`1a6fad7`, metrics recording moved after the
+memory writes) and the final correctness round (`1a494e9`) which closed four metric-accuracy
+defects — a failed stream turn persisted NULL latency/cost and so dropped out of the dashboard
+rollups; `estimate_cost({})` reported a confident $0.0000 instead of unknown; the
+checkpoint-namespace dedupe swallowed a node retry's timing; and the mapper's metrics block was
+unguarded inside the stream's own try.
 
 ### Intake findings (corrected premises)
 
@@ -104,21 +129,54 @@ the existing Langfuse handler already attaches.
 
 ### Deviations
 
-- none
+- Rule 1 (impl 2.1): `record_agent_run`/mapper use `time.monotonic()` (brief said `perf_counter`)
+  to match `TurnMetricsHandler.close()`; mixing clocks would corrupt `latency_ms`.
+- Rule 2 (impl 1.1): `response_metadata` merged (`{**existing, ...}`) rather than reassigned.
+- Rule 3 (controller): task-2.2 Minor fixed in `1a6fad7` — metrics recording moved after the
+  memory writes into its own try so a metrics-DB failure cannot skip memory persistence.
+
+Carry-over Minor findings (non-blocking, recorded for future tidy):
+- 1.2 `metrics.py`: `_llm_starts` per-call start recorded but per-call latency never surfaced
+  (only turn-level `latency_ms` exposed) — harmless dead in-flight state.
+- Anthropic `cache_creation` (cache-write) tokens are not priced and Gemini 2.5 Pro uses its
+  <=200k tier — both documented in `app/core/pricing.py`; revisit when prompt caching lands.
+- 1.4 repo: `totals()` compares `created_at >= since.isoformat()` lexically (correct while both
+  are tz-aware ISO); `list_recent` newest-first relies on distinct-microsecond `created_at`.
+- 2.3 `agent_runs.html`: dead `or run.created_at` fallback; empty-window totals cost renders
+  `$0.0000` (sum, never None). Cosmetic.
+- 3.1 `agent.py`: imports the private `_utc_now_iso` from `app.db.base` (mirrors `rate_limit.py`).
 
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| intake evidence | `python3 .claude/scripts/verify_summary.py --lane agent-turn-metrics` | 0 | lane/confidence/reason + rollback present | |
+| llm stream_usage + FakeLLM usage | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc1.db ../../.venv/bin/python -m pytest tests/clients/test_llm_stream_usage.py -q` | 0 | openai-only guard; FakeLLM emits usage | SC-1 |
+| TurnMetricsHandler | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc2.db ../../.venv/bin/python -m pytest tests/agents/test_turn_metrics.py -q` | 0 | aggregation, error count, ns dedupe, swallow | SC-2 |
+| pricing formula | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc3.db ../../.venv/bin/python -m pytest tests/core/test_pricing.py -q` | 0 | cost=None on unpriced; snapshot normalise | SC-3 |
+| agent_runs model+migration+repo | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc4.db ../../.venv/bin/python -m pytest tests/test_db_models.py tests/db/test_agent_runs_migration.py tests/repositories/test_agent_run_repo.py -q` | 0 | column set + up/downgrade round trip | SC-4 |
+| /agent/chat records a run | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db ../../.venv/bin/python -m pytest tests/api/agent/test_agent_runs.py -q` | 0 | usage on reply; completed/interrupted/failed rows | SC-5 |
+| stream done.usage + recorder | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc6.db ../../.venv/bin/python -m pytest tests/streaming/test_record_agent_run.py tests/api/agent/test_stream_events.py -q` | 0 | status from events; event order unchanged | SC-6 |
+| background extraction metrics | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc7.db ../../.venv/bin/python -m pytest tests/memory/test_extraction_metrics.py -q` | 0 | background_* set; turn totals untouched | SC-7 |
+| dashboard page + guard | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/sc8.db ../../.venv/bin/python -m pytest tests/api/agent_config/test_agent_runs_dashboard.py -q` | 0 | 200 in dev, 404 in prod | SC-8 |
+| failed turn keeps latency/cost | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/fx1.db ../../.venv/bin/python -m pytest tests/streaming/test_record_agent_run.py -q` | 0 | crashed stream row has non-null latency; explicit close not overwritten | SC-6 |
+| node retry timed, nested still deduped | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/fx2.db ../../.venv/bin/python -m pytest tests/agents/test_turn_metrics.py -q` | 0 | same-ns retry counts twice; nested run ignored | SC-2 |
+| unknown cost is None, not zero | `cd apps/api && env -u OPENAI_API_KEY DATABASE_URL=sqlite:///$(mktemp -d)/fx3.db ../../.venv/bin/python -m pytest tests/core/test_pricing.py -q` | 0 | empty by_model -> None | SC-3 |
 
 ### Not auto-verified
 
-- none yet — intake only; every claim above is a code-reading finding, not a re-run behaviour.
+- Real-provider token/cost accuracy (live OpenAI/Anthropic/Gemini usage_metadata → cost) — reached
+  provenance (price table verified against provider pages 2026-09-03; formula unit-tested with a
+  fake price); not re-run against a live provider (offline suite uses FakeLLM's fixed usage).
+- Postgres path for the migration and the dashboard — reached traceability (SQLite round trip +
+  model/migration column-set agreement verified); the Postgres run happens in CI, not re-run here.
+- Per-turn wall-clock realism — reached traceability (monotonic delta, one clock); not benchmarked.
 
 ### Rollback
 
-- Intake only: `git rm -r specs/agent-turn-metrics`. Implementation rollback (fill at ship): `alembic downgrade -1` from apps/api + `git revert <sha>`.
+- Revert the branch: `git revert e84ec35..569ed7f` (code) plus the earlier feature commits, or
+  drop the branch before merge. The one destructive-capable step is the schema: after deploy,
+  `cd apps/api && ../../.venv/bin/alembic downgrade c7f1a9d4e6b2` drops the additive `agent_runs`
+  table (no other table is touched; no data in existing tables is altered).
 
 ### Harness-Delta
 

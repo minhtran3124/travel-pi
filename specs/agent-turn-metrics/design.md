@@ -147,7 +147,7 @@ trip_id, channel, kind, started_at) -> None` (the id is router-minted, never gen
   = metrics.public()`. The `failed` branch still finishes the row and returns
   `usage` (whatever was collected).
 - **stream:** row started before `session.commit()`; new pass-through
-  `record_agent_run(events_iter, *, run_id, metrics, session_factory, started)` in
+  `record_agent_run(events_iter, *, run_id, metrics, session_factory)` (latency is closed inside `stream_agent_events`, not passed in) in
   `app/streaming/agent_run.py` (sibling of `persist_assistant_turn`): passes events through,
   notes `interrupt` / `error` events for the status, reads `current_flow` from the `done`
   event payload (the only place a pass-through can see it), and on exhaustion (or `finally` on
