@@ -29,6 +29,38 @@ def test_all_tables_registered():
         "users",
         "agent_config",
         "rate_limit_counters",
+        "agent_runs",
+    }
+
+
+def test_agent_runs_columns():
+    cols = {c.name for c in Base.metadata.tables["agent_runs"].columns}
+    assert cols == {
+        "id",
+        "created_at",
+        "updated_at",
+        "user_id",
+        "conversation_id",
+        "thread_id",
+        "trip_id",
+        "channel",
+        "kind",
+        "status",
+        "current_flow",
+        "started_at",
+        "finished_at",
+        "latency_ms",
+        "llm_calls",
+        "llm_errors",
+        "input_tokens",
+        "output_tokens",
+        "cached_tokens",
+        "cost_usd",
+        "by_model",
+        "by_node",
+        "background_llm_calls",
+        "background_tokens",
+        "background_ms",
     }
 
 
