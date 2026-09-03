@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Agent Run{% endblock %}
+
+{% macro fmt_cost(v) %}{% if v is not none %}${{ '%.4f' | format(v) }}{% else %}—{% endif %}{% endmacro %}
+{% macro fmt_ms(v) %}{% if v is not none %}{{ v }} ms{% else %}—{% endif %}{% endmacro %}
+
+{% block content %}
+<div class="board-head">
+  <h1 class="board-title">
+    <span class="plane">🧭</span>
+    <span>Agent Run</span>
+  </h1>
+  <div class="clock"><a class="back-link" href="/dashboard/agent-runs">← All runs</a></div>
+</div>
+
+{# ── Header: identity + the turn totals ── #}
+<div class="totals-card">
+  <div class="run-head">
+    <span class="status-pill st-{{ run.status }}">{{ run.status }}</span>
+    <span class="run-id" title="{{ run.id }}">{{ run.id }}</span>
+  </div>
+  <div class="totals-grid">
+    <div class="tstat"><span class="tk">Started</span><span class="tv">{{ (run.started_at or run.created_at)[:19] | replace('T', ' ') }}</span></div>
+    <div class="tstat"><span class="tk">Channel</span><span class="tv">{{ run.channel }} · {{ run.kind }}</span></div>
+    <div class="tstat"><span class="tk">User</span><span class="tv">{{ run.user_id }}</span></div>
+    <div class="tstat"><span class="tk">Flow</span><span class="tv">{{ run.current_flow or '—' }}</span></div>
+    <div class="tstat"><span class="tk">LLM calls</span><span class="tv">{{ run.llm_calls }}</span></div>
+    <div class="tstat"><span class="tk">Tokens</span><span class="tv">{{ '{:,}'.format(run.input_tokens or 0) }} in · {{ '{:,}'.format(run.output_tokens or 0) }} out · {{ '{:,}'.format(run.cached_tokens or 0) }} cached</span></div>
+    <div class="tstat"><span class="tk">Cost</span><span class="tv">{{ fmt_cost(run.cost_usd) }}</span></div>
+    <div class="tstat"><span class="tk">Latency</span><span class="tv">{{ fmt_ms(run.latency_ms) }}</span></div>
+  </div>
+</div>
+
+{# ── Call chain: one row per step, bar positioned server-side ── #}
+<h2 class="sec-title">Call chain</h2>
+{% if truncated %}
+<p class="note">Chain truncated at the {{ steps|length }}-step cap — later steps of this turn were
+not recorded. The totals above remain exact.</p>
+{% endif %}
+{% if not chain %}
+<div class="empty">
+  <div class="empty-ico">🕳️</div>
+  <strong>No steps recorded for this run</strong><br>
+  Runs created before step capture shipped have no call chain.
+</div>
+{% else %}
+<div class="table-wrap">
+  <table class="fids ledger">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Kind</th>
+        <th>Node</th>
+        <th>Model / Tool</th>
+        <th>Duration</th>
+        <th class="bar-col">Timeline ({{ span_ms }} ms)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in chain %}
+      {% set step = row.step %}
+      <tr class="{% if step.status == 'error' %}row-error{% endif %}">
+        <td class="sta">{{ step.seq }}</td>
+        <td><span class="kind-badge kd-{{ step.kind }}">{{ step.kind }}</span></td>
+        <td>
+          <span class="from-city {% if row.sub %}nested{% endif %}">{{ step.node or '—' }}</span>
+          {% if row.sub %}<span class="sub">in {{ row.sub }}</span>{% endif %}
+        </td>
+        <td>
+          <span class="from-city">{{ step.model or step.tool_name or '—' }}</span>
+          {% if step.status == 'error' %}<span class="sub err">error{% if step.error_type %} · {{ step.error_type }}{% endif %}</span>
+          {% elif step.status != 'ok' %}<span class="sub">{{ step.status }}</span>{% endif %}
+          {# finish_reason is the one meta key captured; surface it or it is dead data. #}
+          {% if step.meta and step.meta.get('finish_reason') %}<span class="sub">stopped: {{ step.meta['finish_reason'] }}</span>{% endif %}
+        </td>
+        <td class="sta">{{ step.ms }} ms</td>
+        <td class="bar-col">
+          <div class="bar-track">
+            <div class="bar {% if step.status == 'error' %}bar-err{% endif %} bk-{{ step.kind }}"
+                 style="left: {{ row.left_pct }}%; width: {{ row.width_pct }}%"></div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── Cost by model ── #}
+<h2 class="sec-title">Cost by model</h2>
+{% if not by_model %}
+<p class="note">No per-model usage recorded.</p>
+{% else %}
+<div class="table-wrap">
+  <table class="fids ledger">
+    <thead>
+      <tr><th>Model</th><th>Calls</th><th>In</th><th>Out</th><th>Cached</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+      {% for m in by_model %}
+      <tr>
+        <td><span class="from-city">{{ m.model }}</span></td>
+        <td class="sta">{{ m.calls }}</td>
+        <td class="sta">{{ '{:,}'.format(m.input_tokens) }}</td>
+        <td class="sta">{{ '{:,}'.format(m.output_tokens) }}</td>
+        <td class="sta">{{ '{:,}'.format(m.cached_tokens) }}</td>
+        <td class="sta">{{ fmt_cost(m.cost_usd) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── Tools called ── #}
+<h2 class="sec-title">Tools</h2>
+{% if not tools %}
+<p class="note">No tools called in this turn.</p>
+{% else %}
+<div class="table-wrap">
+  <table class="fids ledger">
+    <thead>
+      <tr><th>Tool</th><th>Node</th><th>Status</th><th>Duration</th></tr>
+    </thead>
+    <tbody>
+      {% for t in tools %}
+      <tr class="{% if t.status == 'error' %}row-error{% endif %}">
+        <td><span class="from-city">{{ t.tool_name or '—' }}</span></td>
+        <td>{{ t.node or '—' }}</td>
+        <td><span class="status-pill st-{{ 'failed' if t.status == 'error' else 'completed' }}">{{ t.status }}</span></td>
+        <td class="sta">{{ t.ms }} ms</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── Prompts used — the link MUST carry the version this turn ran ── #}
+<h2 class="sec-title">Prompt versions active for this run</h2>
+{% if not prompts %}
+<p class="note">No prompt versions recorded for this run.</p>
+{% else %}
+<div class="table-wrap">
+  <table class="fids ledger">
+    <thead>
+      <tr><th>Prompt</th><th>Version</th><th>Attributed to a step</th></tr>
+    </thead>
+    <tbody>
+      {% for name, version, attributed in prompts %}
+      <tr>
+        <td><a class="prompt-link" href="/dashboard/prompts/{{ name | urlencode }}?version=v{{ version }}">{{ name }}</a></td>
+        <td class="sta">v{{ version }}</td>
+        <td class="sta">{{ 'yes' if attributed else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<style>
+  .totals-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .run-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .run-id { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .totals-grid { display: flex; flex-wrap: wrap; gap: 18px; }
+  .tstat { display: flex; flex-direction: column; gap: 3px; }
+  .tstat .tk {
+    font-size: 0.62rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .tstat .tv {
+    font-size: 0.95rem; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .sec-title {
+    font-size: 0.72rem; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.09em; margin: 22px 0 10px;
+  }
+  .note { color: var(--muted); font-size: 0.85rem; margin: 0 0 8px; }
+  .back-link { color: var(--accent-dim); text-decoration: none; font-size: 0.8rem; }
+  .prompt-link { color: var(--accent-dim); text-decoration: none; font-weight: 600; }
+  .prompt-link:hover { text-decoration: underline; }
+  .kind-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .kd-llm  { background: rgba(56,189,248,.14); color: var(--cyan); }
+  .kd-tool { background: rgba(192,132,252,.14); color: var(--violet); }
+  .kd-node { background: rgba(147,161,160,.13); color: var(--muted); }
+  .nested { padding-left: 14px; border-left: 2px solid var(--line); }
+  .row-error td { background: rgba(248,113,113,.07); }
+  .sub.err { color: var(--red); }
+  .bar-col { width: 42%; min-width: 220px; }
+  .bar-track {
+    position: relative; height: 12px; border-radius: 6px;
+    background: var(--panel-2); overflow: hidden;
+  }
+  .bar { position: absolute; top: 0; height: 12px; border-radius: 6px; background: var(--accent); }
+  .bar.bk-tool { background: var(--violet); }
+  .bar.bk-node { background: var(--muted); }
+  .bar.bar-err { background: var(--red); }
+  .status-pill.st-running   { background: rgba(56,189,248,.14); color: var(--cyan); }
+  .status-pill.st-completed { background: rgba(52,211,153,.13); color: var(--green); }
+  .status-pill.st-interrupted { background: rgba(251,191,36,.14); color: var(--yellow); }
+  .status-pill.st-failed    { background: rgba(248,113,113,.14); color: var(--red); }
+</style>
+{% endblock %}

@@ -26,6 +26,16 @@ from langchain_core.outputs import LLMResult
 
 logger = logging.getLogger(__name__)
 
+#: Hard cap on per-turn step rows (specs/agent-run-trace-detail §4.1). ReAct loops,
+#: reflection revisions and parallel ``synthesis_worker`` fan-out make the step count
+#: unbounded in principle; past the cap the handler stops opening steps and counts the
+#: overflow in ``steps_dropped``. The counters and totals stay exact either way.
+MAX_STEPS_PER_TURN = 200
+
+#: The only ``meta`` keys a step may carry — an explicit scalar allowlist. Nothing from
+#: graph state, tool inputs or model output is admissible (design §4.3, content boundary).
+_META_ALLOWLIST = ("finish_reason",)
+
 
 def _node_key(node: str, checkpoint_ns: str) -> str:
     """Node timing key: ``"<ns_root>/<node>"`` inside a sub-graph, else the bare node.
@@ -42,6 +52,19 @@ def _node_key(node: str, checkpoint_ns: str) -> str:
         ns_root = checkpoint_ns.split("|", 1)[0].split(":", 1)[0]
         return f"{ns_root}/{node}"
     return node
+
+
+def _scalar_meta(candidate: dict[str, Any]) -> dict[str, Any]:
+    """Filter a candidate ``meta`` down to allowlisted keys holding scalars.
+
+    The content boundary is enforced here: an unknown key, or a value that is not a
+    ``str``/``int``/``float``/``bool``, is dropped rather than stored.
+    """
+    return {
+        key: value
+        for key, value in candidate.items()
+        if key in _META_ALLOWLIST and isinstance(value, (str, int, float, bool))
+    }
 
 
 class TurnMetricsHandler(BaseCallbackHandler):
@@ -75,6 +98,71 @@ class TurnMetricsHandler(BaseCallbackHandler):
         # run_id -> (key, checkpoint_ns, start)
         self._node_starts: dict[UUID, tuple[str, str, float]] = {}
         self._seen_ns: set[str] = set()  # deduped checkpoint namespaces
+        # ordered step list (design §4.1): opened at start, closed at end
+        self._steps: list[dict[str, Any]] = []
+        self.steps_dropped = 0
+        self._open_steps: dict[tuple[str, UUID], int] = {}  # (kind, run_id) -> index
+
+    # -- step plumbing ---------------------------------------------------
+
+    def _open_step(self, kind: str, run_id: UUID, **fields: Any) -> None:
+        """Append a step in START order. Caller must hold ``self._lock``.
+
+        ``seq`` and ``offset_ms`` are assigned here so a node span sorts above the
+        children it brackets; closing only fills duration/status/token fields.
+        """
+        if len(self._steps) >= MAX_STEPS_PER_TURN:
+            self.steps_dropped += 1
+            return
+        step: dict[str, Any] = {
+            "seq": len(self._steps),
+            "kind": kind,
+            "node": None,
+            "ns": None,
+            "model": None,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cached_tokens": 0,
+            "offset_ms": int((time.monotonic() - self._created) * 1000),
+            "ms": 0,
+            "status": "open",
+            "error_type": None,
+            "tool_name": None,
+            "meta": {},
+            "_started": time.monotonic(),
+        }
+        step.update(fields)
+        self._open_steps[(kind, run_id)] = len(self._steps)
+        self._steps.append(step)
+
+    def _close_step(
+        self,
+        kind: str,
+        run_id: UUID,
+        *,
+        status: str,
+        error_type: str | None = None,
+        **fields: Any,
+    ) -> None:
+        """Fill ``ms``/``status`` on an open step. Caller must hold ``self._lock``."""
+        index = self._open_steps.pop((kind, run_id), None)
+        if index is None:
+            return
+        step = self._steps[index]
+        step["ms"] = int((time.monotonic() - step["_started"]) * 1000)
+        step["status"] = status
+        step["error_type"] = error_type
+        for key, value in fields.items():
+            if value is not None:
+                step[key] = value
+
+    def steps(self) -> list[dict[str, Any]]:
+        """The turn's steps in start order (design §4.3 keys only)."""
+        with self._lock:
+            return [
+                {k: v for k, v in step.items() if not k.startswith("_")}
+                for step in self._steps
+            ]
 
     # -- LLM hooks -------------------------------------------------------
 
@@ -88,11 +176,19 @@ class TurnMetricsHandler(BaseCallbackHandler):
         **kwargs: Any,
     ) -> None:
         try:
+            meta = metadata or {}
             with self._lock:
                 self._llm_starts[run_id] = time.monotonic()
-                name = (metadata or {}).get("ls_model_name")
+                name = meta.get("ls_model_name")
                 if name:
                     self._run_models[run_id] = name
+                self._open_step(
+                    "llm",
+                    run_id,
+                    node=meta.get("langgraph_node"),
+                    ns=meta.get("langgraph_checkpoint_ns"),
+                    model=name,
+                )
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chat_model_start failed", exc_info=True)
 
@@ -107,9 +203,24 @@ class TurnMetricsHandler(BaseCallbackHandler):
                 except (IndexError, AttributeError):
                     message = None
                 if not isinstance(message, AIMessage):
+                    self._close_step("llm", run_id, status="ok")
                     return
                 model = message.response_metadata.get("model_name") or start_model
                 usage = message.usage_metadata
+                # Close the step before aggregating so a failing aggregate cannot
+                # leave it open. Only allowlisted scalars reach ``meta``.
+                details = (usage or {}).get("input_token_details") or {}
+                finish_reason = message.response_metadata.get("finish_reason")
+                self._close_step(
+                    "llm",
+                    run_id,
+                    status="ok",
+                    model=model,
+                    input_tokens=(usage or {}).get("input_tokens", 0),
+                    output_tokens=(usage or {}).get("output_tokens", 0),
+                    cached_tokens=details.get("cache_read", 0),
+                    meta=_scalar_meta({"finish_reason": finish_reason}),
+                )
                 if not (model and usage):
                     return
                 # compute the aggregate first so a failure leaves state intact
@@ -126,8 +237,78 @@ class TurnMetricsHandler(BaseCallbackHandler):
             with self._lock:
                 self._llm_starts.pop(run_id, None)
                 self.llm_errors += 1
+                self._close_step(
+                    "llm",
+                    run_id,
+                    status="error",
+                    error_type=type(error).__name__,
+                )
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_llm_error failed", exc_info=True)
+
+    # -- tool hooks ------------------------------------------------------
+
+    def on_tool_start(
+        self,
+        serialized: dict[str, Any],
+        input_str: str,
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
+        inputs: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Open a ``tool`` step.
+
+        ``input_str`` and ``inputs`` are the tool's arguments and are deliberately
+        never read (design §4.3, content boundary). Node attribution comes from this
+        hook's own ``metadata``, not ``parent_run_id``: ``on_chain_start`` registers
+        only the outermost run per namespace, so the tool's immediate parent chain is
+        normally absent from that map.
+        """
+        try:
+            meta = metadata or {}
+            name = (serialized or {}).get("name") or kwargs.get("name")
+            with self._lock:
+                self._open_step(
+                    "tool",
+                    run_id,
+                    node=meta.get("langgraph_node"),
+                    ns=meta.get("langgraph_checkpoint_ns"),
+                    tool_name=name,
+                )
+        except Exception:  # pragma: no cover - defensive
+            logger.debug("TurnMetricsHandler.on_tool_start failed", exc_info=True)
+
+    def on_tool_end(self, output: Any, *, run_id: UUID, **kwargs: Any) -> None:
+        """Close the tool step. ``output`` is tool content and is never read."""
+        try:
+            with self._lock:
+                self._close_step("tool", run_id, status="ok")
+        except Exception:  # pragma: no cover - defensive
+            logger.debug("TurnMetricsHandler.on_tool_end failed", exc_info=True)
+
+    def on_tool_error(
+        self, error: BaseException, *, run_id: UUID, **kwargs: Any
+    ) -> None:
+        """Close the tool step as failed.
+
+        This hook carries neither the tool name nor ``metadata``, which is why the
+        ``run_id``-keyed open map is mandatory. Only the exception *type* is recorded —
+        ``str(error)`` can quote user input.
+        """
+        try:
+            with self._lock:
+                self._close_step(
+                    "tool",
+                    run_id,
+                    status="error",
+                    error_type=type(error).__name__,
+                )
+        except Exception:  # pragma: no cover - defensive
+            logger.debug("TurnMetricsHandler.on_tool_error failed", exc_info=True)
 
     # -- graph node hooks ------------------------------------------------
 
@@ -155,11 +336,15 @@ class TurnMetricsHandler(BaseCallbackHandler):
                     ns,
                     time.monotonic(),
                 )
+                self._open_step("node", run_id, node=node, ns=ns)
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chain_start failed", exc_info=True)
 
-    def _close_node(self, run_id: UUID) -> None:
+    def _close_node(
+        self, run_id: UUID, *, status: str, error_type: str | None = None
+    ) -> None:
         with self._lock:
+            self._close_step("node", run_id, status=status, error_type=error_type)
             entry = self._node_starts.pop(run_id, None)
             if entry is None:
                 return
@@ -176,8 +361,10 @@ class TurnMetricsHandler(BaseCallbackHandler):
             slot["runs"] += 1
 
     def on_chain_end(self, outputs: Any, *, run_id: UUID, **kwargs: Any) -> None:
+        """Close the node step. ``outputs`` is graph state (it carries ``messages``)
+        and is never read."""
         try:
-            self._close_node(run_id)
+            self._close_node(run_id, status="ok")
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chain_end failed", exc_info=True)
 
@@ -185,7 +372,7 @@ class TurnMetricsHandler(BaseCallbackHandler):
         self, error: BaseException, *, run_id: UUID, **kwargs: Any
     ) -> None:
         try:
-            self._close_node(run_id)
+            self._close_node(run_id, status="error", error_type=type(error).__name__)
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chain_error failed", exc_info=True)
 
@@ -205,6 +392,30 @@ class TurnMetricsHandler(BaseCallbackHandler):
         """
         if self.latency_ms is None:
             self.latency_ms = int((time.monotonic() - self._created) * 1000)
+        self._sweep_open_steps()
+
+    def _sweep_open_steps(self) -> None:
+        """Close any step still open when the turn ends.
+
+        A step is stranded when its close hook never fires — a cancelled stream,
+        or a reused ``run_id`` whose second open overwrote the first entry. Left
+        alone it would persist with ``status="open"`` and no duration, which the
+        waterfall would render as a zero-width bar of unknown outcome. Give it
+        the duration it had reached and an explicit terminal status instead.
+        """
+        try:
+            with self._lock:
+                now = time.monotonic()
+                for index in self._open_steps.values():
+                    step = self._steps[index]
+                    if step.get("status") == "open":
+                        step["status"] = "unfinished"
+                        step["ms"] = max(
+                            0, int(now * 1000) - int(self._created * 1000) - step["offset_ms"]
+                        )
+                self._open_steps.clear()
+        except Exception:  # pragma: no cover - defensive
+            logger.debug("TurnMetricsHandler._sweep_open_steps failed", exc_info=True)
 
     def snapshot(self) -> dict[str, Any]:
         """Full server-side metrics dict (``cost_usd`` filled by the owner)."""

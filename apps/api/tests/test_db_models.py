@@ -30,6 +30,7 @@ def test_all_tables_registered():
         "agent_config",
         "rate_limit_counters",
         "agent_runs",
+        "agent_run_steps",
     }
 
 
@@ -61,6 +62,33 @@ def test_agent_runs_columns():
         "background_llm_calls",
         "background_tokens",
         "background_ms",
+        "prompt_versions",
+    }
+
+
+def test_agent_run_steps_columns():
+    cols = {c.name for c in Base.metadata.tables["agent_run_steps"].columns}
+    assert cols == {
+        "id",
+        "created_at",
+        "updated_at",
+        "run_id",
+        "seq",
+        "kind",
+        "node",
+        "ns",
+        "model",
+        "prompts",
+        "input_tokens",
+        "output_tokens",
+        "cached_tokens",
+        "cost_usd",
+        "offset_ms",
+        "ms",
+        "status",
+        "error_type",
+        "tool_name",
+        "meta",
     }
 
 

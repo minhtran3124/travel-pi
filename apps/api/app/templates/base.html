@@ -95,21 +95,35 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
 
     /* ── Top nav bar ── */
-    .topbar {
-      display: flex; align-items: center; gap: 0;
-      padding: 0 24px;
+    /* Left sidebar. The nav is a tall column so eleven destinations read as a
+       list instead of a cramped row; the page scrolls independently beside it. */
+    body { display: flex; min-height: 100vh; }
+    .sidebar {
+      display: flex; flex-direction: column;
+      width: 216px; flex-shrink: 0;
+      padding: 14px 12px 12px;
       background: var(--panel);
-      border-bottom: 1px solid var(--line);
-      height: 52px;
+      border-right: 1px solid var(--line);
+      position: sticky; top: 0;
+      height: 100vh;
+      overflow-y: auto;
     }
+    /* min-width:0 lets wide tables scroll inside the column instead of
+       stretching it and pushing the sidebar off-screen. */
+    .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    /* width:100% is load-bearing. As a flex item, `.wrap`'s `margin: 0 auto`
+       makes it size to its content instead of stretching, so pages with little
+       content (weather, agent-config) collapsed to ~570px while content-heavy
+       ones kept the full 1140. Stretch first, then let max-width cap it. */
+    .app-main > .wrap { flex: 1; width: 100%; }
     .topbar-brand {
       display: flex; align-items: center; gap: 9px;
       font-size: 0.95rem; font-weight: 800; letter-spacing: -0.01em;
       color: var(--ink);
       text-decoration: none;
-      padding-right: 28px;
-      border-right: 1px solid var(--line);
-      margin-right: 8px;
+      padding: 2px 8px 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 10px;
       white-space: nowrap;
     }
     .topbar-brand .icon {
@@ -121,12 +135,12 @@
       font-size: 0.88rem;
     }
     .tabs {
-      display: flex; align-items: center; gap: 2px;
+      display: flex; flex-direction: column; align-items: stretch; gap: 1px;
       flex: 1;
     }
     .tab {
       display: flex; align-items: center; gap: 7px;
-      padding: 6px 13px;
+      padding: 8px 11px;
       text-decoration: none;
       color: var(--muted);
       font-size: 0.875rem; font-weight: 600;
@@ -136,9 +150,22 @@
     }
     .tab:hover { color: var(--ink); background: var(--panel-2); }
     .tab.on { color: var(--ink); background: var(--panel-2); position: relative; }
+    /* Active marker sits on the leading edge, the natural place in a column. */
     .tab.on::after {
-      content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
-      width: 20px; height: 2px; background: var(--accent); border-radius: 2px;
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 17px; background: var(--accent); border-radius: 0 2px 2px 0;
+    }
+    /* Utilities live top-right of the content column, where they were before the
+       nav moved left. They keep their existing styling — only the position changed. */
+    .app-topbar {
+      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+      padding: 9px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      /* Stays put while the page scrolls, so search and theme are always one
+         click away — the sidebar beside it is already sticky. */
+      position: sticky; top: 0;
+      z-index: var(--z-sticky);
     }
     .tabs .spacer { flex: 1; }
     .tab-ext { color: var(--accent-dim); }
@@ -618,6 +645,10 @@
     .explore a[aria-current] { color: var(--muted); border-style: dashed; pointer-events: none; }
 
     footer {
+      /* Same flex-item trap as .wrap: auto margins make it size to its text
+         instead of stretching, so the rule and caption drew ~440px wide and no
+         longer lined up with the content above. */
+      width: 100%;
       max-width: 1140px; margin: 0 auto;
       padding: 18px 20px 0; color: var(--muted); font-size: 0.78rem;
       border-top: 1px solid var(--line);
@@ -634,6 +665,35 @@
     @media (max-width: 900px) {
       .detail-grid { grid-template-columns: repeat(2, 1fr); }
       .hotel-grid  { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+      /* Not enough width for a column of labels beside the content: fold the
+         sidebar back into the scrolling top bar it replaced. */
+      body { display: block; }
+      .sidebar {
+        flex-direction: row; align-items: center;
+        width: auto; height: 52px;
+        /* Folded nav stays on top as well; the utility strip stacks under it. */
+        position: sticky; top: 0;
+        z-index: calc(var(--z-sticky) + 1);
+        padding: 0 14px;
+        border-right: none; border-bottom: 1px solid var(--line);
+        overflow-x: auto; overflow-y: hidden;
+        scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .topbar-brand {
+        padding: 0 20px 0 0; margin: 0 8px 0 0;
+        border-bottom: none; border-right: 1px solid var(--line);
+        flex-shrink: 0;
+      }
+      .tabs { flex-direction: row; align-items: center; gap: 2px; }
+      .tab { padding: 6px 12px; flex-shrink: 0; }
+      .tab.on::after {
+        left: 50%; top: auto; bottom: -7px; transform: translateX(-50%);
+        width: 20px; height: 2px; border-radius: 2px;
+      }
+      .app-main { display: block; }
+      .app-topbar { top: 52px; }
     }
 
     /* ── Mobile ≤ 640px ── */
@@ -641,16 +701,13 @@
       /* Page chrome */
       .wrap { padding: 14px 12px 52px; }
 
-      /* ── Topbar: horizontal scroll so all tabs stay reachable ── */
-      .topbar {
+      /* ── Nav bar: horizontal scroll so all tabs stay reachable ── */
+      .sidebar {
         padding: 0 10px;
-        overflow-x: auto; overflow-y: hidden;
-        scrollbar-width: none;          /* Firefox */
         -webkit-overflow-scrolling: touch;
       }
-      .topbar::-webkit-scrollbar { display: none; }
       .topbar-brand {
-        padding-right: 14px;
+        padding: 0 14px 0 0;
         font-size: 0.82rem;
         flex-shrink: 0;
       }
@@ -968,7 +1025,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <div id="nav-progress" aria-hidden="true"></div>
-  <nav class="topbar">
+  <nav class="sidebar">
     <a class="topbar-brand" href="/dashboard">
       <span class="icon">✈</span><span class="brand-label">Travel Mock</span>
     </a>
@@ -985,7 +1042,10 @@
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
       <a href="/dashboard/agent-config" class="tab {{ 'on' if path.startswith('/dashboard/agent-config') else '' }}">Agent Config</a>
       <a href="/dashboard/prompts" class="tab {{ 'on' if path.startswith('/dashboard/prompts') else '' }}">Prompts</a>
-      <span class="spacer"></span>
+    </div>
+  </nav>
+  <div class="app-main">
+    <header class="app-topbar">
       <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
         <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
       </button>
@@ -993,15 +1053,15 @@
         <span class="theme-dot" aria-hidden="true"></span><span class="theme-name">Sunset</span>
       </button>
       <a href="/docs" class="tab tab-ext">API Docs ↗</a>
+    </header>
+    <div id="main" class="wrap {% block wrap_class %}{% endblock %}">
+      {% block content %}{% endblock %}
     </div>
-  </nav>
-  <div id="main" class="wrap {% block wrap_class %}{% endblock %}">
-    {% block content %}{% endblock %}
+    <footer>
+      Mock data · flights are generated, bookings stored locally ·
+      <a href="/docs">API docs</a>
+    </footer>
   </div>
-  <footer>
-    Mock data · flights are generated, bookings stored locally ·
-    <a href="/docs">API docs</a>
-  </footer>
 
   <!-- Command palette -->
   <div id="cmdk" class="cmdk" aria-hidden="true">

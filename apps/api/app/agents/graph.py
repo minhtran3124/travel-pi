@@ -41,6 +41,7 @@ from app.agents.nodes import (
     plan_node,
     route_tasks,
 )
+from app.agents.prompt_map import prompt_versions_snapshot
 from app.agents.retry import LLM_RETRY
 from app.agents.state import TravelAgentState
 from app.agents.subagents.booking import build_booking
@@ -52,6 +53,7 @@ from app.agents.subagents.synthesis_worker import build_synthesis_worker
 from app.agents.supervisor import SUBAGENTS, make_supervisor
 from app.clients.llm import FAST_AGENTS, get_agent_llm
 from app.core.agent_config_cache import AgentConfigCache
+from app.prompts.registry import registry
 
 logger = logging.getLogger(__name__)
 
@@ -199,6 +201,11 @@ def build_graph(
     # Panel-prose translation handle for the streaming layer — reuses the same
     # fast "extract_memory" seam so tests keep injecting FakeLLM offline.
     compiled.translate_llm = pick("extract_memory")
+    # Prompt attribution (specs/agent-run-trace-detail §4.2): the sub-agent prompts
+    # are read once, here, as the graph is compiled — so the snapshot must be taken
+    # here too. Taken per turn instead, it would report whatever `active.yaml` says
+    # now rather than the versions this graph actually baked in.
+    compiled.prompt_versions = prompt_versions_snapshot(registry)
     return compiled
 
 
