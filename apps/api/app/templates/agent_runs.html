@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Agent Runs{% endblock %}
+
+{% macro fmt_cost(v) %}{% if v is not none %}${{ '%.4f' | format(v) }}{% else %}—{% endif %}{% endmacro %}
+{% macro fmt_ms(v) %}{% if v is not none %}{{ v }} ms{% else %}—{% endif %}{% endmacro %}
+
+{% block content %}
+<div class="board-head">
+  <h1 class="board-title">
+    <span class="plane">📊</span>
+    <span>Agent Runs</span>
+  </h1>
+  <div class="clock">{{ runs | length }}</div>
+</div>
+
+{# ── Totals strip: 24h and 7d rollups ── #}
+<div class="totals-strip">
+  {% for label, t in [('Last 24h', totals_24h), ('Last 7d', totals_7d)] %}
+  <div class="totals-card">
+    <div class="totals-head">{{ label }}</div>
+    <div class="totals-grid">
+      <div class="tstat"><span class="tk">Turns</span><span class="tv">{{ t.turns }}</span></div>
+      <div class="tstat"><span class="tk">Tokens</span><span class="tv">{{ '{:,}'.format(t.tokens) }}</span></div>
+      <div class="tstat"><span class="tk">Cost</span><span class="tv">{{ fmt_cost(t.cost) }}</span></div>
+      <div class="tstat"><span class="tk">p50</span><span class="tv">{{ fmt_ms(t.p50) }}</span></div>
+      <div class="tstat"><span class="tk">p95</span><span class="tv">{{ fmt_ms(t.p95) }}</span></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if not runs %}
+<div class="empty">
+  <div class="empty-ico">📊</div>
+  <strong>No agent runs yet</strong><br>
+  Runs appear here once the agent handles a turn.
+</div>
+{% else %}
+<div class="table-wrap">
+  <table class="fids ledger">
+    <thead>
+      <tr>
+        <th>Started</th>
+        <th>User</th>
+        <th>Channel</th>
+        <th>Status</th>
+        <th>Flow</th>
+        <th>LLM calls</th>
+        <th>Tokens</th>
+        <th>Cost</th>
+        <th>Latency</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in runs %}
+      {% set abandoned = run.status == 'running' and (run.started_at or run.created_at) < abandoned_cutoff %}
+      <tr>
+        <td>
+          <span class="from-city">{{ (run.started_at or run.created_at)[:19] | replace('T', ' ') }}</span>
+          <span class="sub">{{ run.id }}</span>
+        </td>
+        <td><span class="ref">{{ run.user_id }}</span></td>
+        <td>
+          <span class="from-city">{{ run.channel }}</span>
+          <span class="sub">{{ run.kind }}</span>
+        </td>
+        <td>
+          {% if abandoned %}
+            <span class="status-pill st-abandoned">abandoned</span>
+          {% else %}
+            <span class="status-pill st-{{ run.status }}">{{ run.status }}</span>
+          {% endif %}
+        </td>
+        <td>{{ run.current_flow or '—' }}</td>
+        <td>{{ run.llm_calls }}</td>
+        <td>
+          <span class="from-city">{{ '{:,}'.format((run.input_tokens or 0) + (run.output_tokens or 0)) }}</span>
+          <span class="sub">{{ '{:,}'.format(run.input_tokens or 0) }} in · {{ '{:,}'.format(run.output_tokens or 0) }} out · {{ '{:,}'.format(run.cached_tokens or 0) }} cached</span>
+        </td>
+        <td class="sta">{{ fmt_cost(run.cost_usd) }}</td>
+        <td>{{ fmt_ms(run.latency_ms) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<style>
+  .totals-strip { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+  .totals-card {
+    flex: 1 1 320px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .totals-head {
+    font-size: 0.7rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+  }
+  .totals-grid { display: flex; flex-wrap: wrap; gap: 18px; }
+  .tstat { display: flex; flex-direction: column; gap: 3px; }
+  .tstat .tk {
+    font-size: 0.62rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .tstat .tv {
+    font-size: 1.05rem; font-weight: 800; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Run-status pills reuse the ledger palette; running/abandoned add their own. */
+  .status-pill.st-running   { background: rgba(56,189,248,.14); color: var(--cyan); }
+  .status-pill.st-completed { background: rgba(52,211,153,.13); color: var(--green); }
+  .status-pill.st-interrupted { background: rgba(251,191,36,.14); color: var(--yellow); }
+  .status-pill.st-failed    { background: rgba(248,113,113,.14); color: var(--red); }
+  .status-pill.st-abandoned { background: rgba(147,161,160,.13); color: var(--muted); }
+</style>
+{% endblock %}

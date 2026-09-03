@@ -20,7 +20,8 @@ Pages:
     POST /dashboard/agent-config/{name} persist one agent's LLM config
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
+from math import ceil
 from pathlib import Path
 from typing import Annotated
 
@@ -38,6 +39,7 @@ from app.exceptions import (
     DomainValidationError,
     WeatherUnavailableError,
 )
+from app.repositories.agent_run import AgentRunRepository
 from app.repositories.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
@@ -981,6 +983,72 @@ def agent_config_save(
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
     return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
+
+
+def _percentile(values: list[int], pct: float) -> int | None:
+    """Nearest-rank percentile of *values* (pure Python, no numpy).
+
+    :param values: Latency samples (any order); empty yields ``None``.
+    :param pct: The percentile in ``0..100`` (e.g. 50, 95).
+    :return: The percentile value, or ``None`` when there are no samples.
+    """
+    if not values:
+        return None
+    ordered = sorted(values)
+    # Nearest-rank: index = ceil(pct/100 * n) - 1, clamped to the last element.
+    idx = min(len(ordered) - 1, max(0, ceil(pct / 100 * len(ordered)) - 1))
+    return ordered[idx]
+
+
+def _run_totals(repo: AgentRunRepository, since: datetime) -> dict:
+    """Aggregate metrics since *since*, with p50 / p95 latency added.
+
+    :param repo: The agent-run repository.
+    :param since: Only runs created at or after this instant are counted.
+    :return: The repo totals plus ``p50`` / ``p95`` latency (ms, or ``None``).
+    """
+    t = repo.totals(since)
+    latencies = t["latencies"]
+    return {
+        "turns": t["turns"],
+        "tokens": t["tokens"],
+        "cost": t["cost"],
+        "p50": _percentile(latencies, 50),
+        "p95": _percentile(latencies, 95),
+    }
+
+
+@router.get("/agent-runs", response_class=HTMLResponse)
+def agent_runs_page(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """Render the recent agent-turn metrics and 24h / 7d rollups (SC-8).
+
+    Read-only operator view: the 100 most recent runs plus token / cost /
+    latency totals over the last 24 hours and 7 days. A ``running`` row whose
+    start is older than ten minutes is treated as abandoned.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :return: The rendered agent-runs page.
+    """
+    repo = AgentRunRepository(session)
+    runs = repo.list_recent(100)
+    now = datetime.now(UTC)
+    totals_24h = _run_totals(repo, now - timedelta(hours=24))
+    totals_7d = _run_totals(repo, now - timedelta(days=7))
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="agent_runs.html",
+        context={
+            "runs": runs,
+            "totals_24h": totals_24h,
+            "totals_7d": totals_7d,
+            # Rows started before this cutoff and still "running" are abandoned.
+            "abandoned_cutoff": (now - timedelta(minutes=10)).isoformat(),
+        },
+    )
 
 
 def _today() -> str:
