@@ -60,6 +60,7 @@ def test_done_factory_shape():
         "suggestions": ["booking.bookThis"],
         "language": "en",
         "trip_id": None,
+        "usage": None,
     }
 
 
@@ -71,7 +72,16 @@ def test_done_factory_empty_suggestions():
         "suggestions": [],
         "language": "en",
         "trip_id": None,
+        "usage": None,
     }
+
+
+def test_done_factory_usage_key_present_and_none_by_default():
+    """The ``usage`` key is ALWAYS present on the done payload, null when unknown."""
+    ev = events.done(conversation_id="c1", current_flow=None, suggestions=[])
+    body = _payload(ev)
+    assert "usage" in body
+    assert body["usage"] is None
 
 
 def test_done_factory_carries_trip_id():

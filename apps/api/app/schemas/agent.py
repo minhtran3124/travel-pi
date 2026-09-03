@@ -57,6 +57,19 @@ class ChatRequest(AppBaseModel):
         return self
 
 
+class TurnUsage(AppBaseModel):
+    """Per-turn token / cost / latency metrics for one agent reply."""
+
+    input_tokens: int
+    output_tokens: int
+    cached_tokens: int
+    total_tokens: int
+    llm_calls: int
+    latency_ms: int | None = None
+    cost_usd: float | None = None
+    models: list[str] = Field(default_factory=list)
+
+
 class ChatResponse(AppBaseModel):
     """The agent's reply for one turn."""
 
@@ -80,6 +93,10 @@ class ChatResponse(AppBaseModel):
     suggestions: list[str] = Field(default_factory=list)
     interrupt_pending: bool = False
     interrupt_payload: dict | None = None
+    usage: TurnUsage | None = Field(
+        default=None,
+        description="Per-turn token/cost/latency metrics; None when unknown.",
+    )
 
 
 class ToolManifestEntry(AppBaseModel):
