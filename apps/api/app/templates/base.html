@@ -151,8 +151,14 @@
       content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
       width: 3px; height: 17px; background: var(--accent); border-radius: 0 2px 2px 0;
     }
-    .sidebar .theme-btn { width: 100%; justify-content: flex-start; }
-    .sidebar .tab-ext { padding-left: 11px; }
+    /* Utilities live top-right of the content column, where they were before the
+       nav moved left. They keep their existing styling — only the position changed. */
+    .app-topbar {
+      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+      padding: 9px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
     .tabs .spacer { flex: 1; }
     .tab-ext { color: var(--accent-dim); }
     .tab-ext:hover { color: var(--ink); background: transparent; }
@@ -672,7 +678,6 @@
         left: 50%; top: auto; bottom: -7px; transform: translateX(-50%);
         width: 20px; height: 2px; border-radius: 2px;
       }
-      .sidebar .theme-btn { width: auto; }
       .app-main { display: block; }
     }
 
@@ -1022,7 +1027,10 @@
       <a href="/dashboard/bookings"class="tab {{ 'on' if path.startswith('/dashboard/bookings')else '' }}">Bookings</a>
       <a href="/dashboard/agent-config" class="tab {{ 'on' if path.startswith('/dashboard/agent-config') else '' }}">Agent Config</a>
       <a href="/dashboard/prompts" class="tab {{ 'on' if path.startswith('/dashboard/prompts') else '' }}">Prompts</a>
-      <span class="spacer"></span>
+    </div>
+  </nav>
+  <div class="app-main">
+    <header class="app-topbar">
       <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
         <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
       </button>
@@ -1030,9 +1038,7 @@
         <span class="theme-dot" aria-hidden="true"></span><span class="theme-name">Sunset</span>
       </button>
       <a href="/docs" class="tab tab-ext">API Docs ↗</a>
-    </div>
-  </nav>
-  <div class="app-main">
+    </header>
     <div id="main" class="wrap {% block wrap_class %}{% endblock %}">
       {% block content %}{% endblock %}
     </div>
