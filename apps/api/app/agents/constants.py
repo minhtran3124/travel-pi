@@ -39,12 +39,11 @@ PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 # specs/fix-reflection-synthesize-goto.
 SYNTHESIZE_NODE = "synthesize"
 
-# --- task ledger (P1) -----------------------------------------------------
-# Max total sub-agent runs the supervisor may schedule in ONE turn — the
-# primary target plus up to ``MAX_LEDGER_STEPS - 1`` ordered follow-ons drained
-# by ``dispatch_next``. Bounded because each sub-agent is an isolated ReAct
-# subgraph (own recursion budget), so the parent graph spends ~2 super-steps
-# per step (dispatch_next + the subagent node); 4 steps stay well inside
+# --- task fan-out (P1) ----------------------------------------------------
+# Max total sub-agent tasks the supervisor may schedule in ONE turn — dispatched
+# as parallel ``synthesis_worker`` instances (GH-117 Path A) that converge on
+# ``synthesize``. Bounded because each worker is an isolated ReAct subgraph (own
+# recursion budget); the cap keeps the parent graph well inside
 # ``agent_recursion_limit`` (25) with headroom for the reflection revise loop.
 # The supervisor truncates an over-long model-emitted plan to this in code.
 MAX_LEDGER_STEPS = 4

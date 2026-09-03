@@ -120,8 +120,8 @@ def _make_trip_guard(needing_trip: frozenset[str]):
     ("ask the traveller which trip") — which leaves the outcome to whether the
     model obeys prose, and a model that ignores it can call the same tool again.
     The guard makes it a graph fact instead: ``awaiting_user`` is set exactly as
-    ``needs_clarification`` sets it, so ``dispatch_next`` abandons the rest of the
-    turn and the traveller is asked, deterministically.
+    ``needs_clarification`` sets it, so reflection ends the turn before judging it
+    and the traveller is asked, deterministically.
 
     Runs *before* the tools node, so the blocked tool never executes.
 
@@ -199,7 +199,7 @@ def build_subagent(
     :return: The compiled ReAct subgraph for this sub-agent.
     """
     # MIN-68: every specialist can signal "blocked on the traveller" so
-    # dispatch_next abandons the remaining ledger instead of draining it.
+    # reflection ends the turn before judging the clarifying question.
     # Appended here (not in the tool registry) so it stays off MCP/manifest.
     tools = [*tools, needs_clarification]
 
@@ -225,15 +225,7 @@ def build_subagent(
         # (state["language"]) — one detection, one source of truth. Also closes the
         # clarification path (MIN-68), which skips reflection's language guard.
         system_msg = with_reply_language(system_msg, state)
-        # GH-117 follow-up: follow-on sub-agents must not see prior sub-agents'
-        # prose answers, because each sub-agent regenerates the whole turn answer
-        # and would duplicate content already streamed. Tool results stay visible
-        # so the follow-on can build on facts already gathered.
-        superseded = set(state.get("superseded_message_ids") or [])
-        visible_messages = [
-            m for m in state["messages"] if getattr(m, "id", None) not in superseded
-        ]
-        response = bound.invoke([system_msg, *visible_messages])
+        response = bound.invoke([system_msg, *state["messages"]])
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
             logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))

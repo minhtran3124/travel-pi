@@ -204,8 +204,16 @@ def test_mapper_emits_reset_on_subagent_handoff():
     turn, the mapper must reset the accumulator on handoff so only the last
     specialist's answer survives — matching the REST "last answer wins" rule."""
     items = [
-        (("planner:1",), "messages", (AIMessageChunk(content="flights found", id="m1"), {})),
-        (("concierge:1",), "messages", (AIMessageChunk(content="sights found", id="m2"), {})),
+        (
+            ("planner:1",),
+            "messages",
+            (AIMessageChunk(content="flights found", id="m1"), {}),
+        ),
+        (
+            ("concierge:1",),
+            "messages",
+            (AIMessageChunk(content="sights found", id="m2"), {}),
+        ),
     ]
     out = _run(_FakeGraph(items, values={"current_flow": "concierge"}))
     names = [n for n, _ in out]
@@ -242,6 +250,62 @@ def test_mapper_suppresses_non_subagent_tokens():
     ]
     out = _run(_FakeGraph(items))
     assert [n for n, _ in out] == ["start", "done"]
+
+
+def test_mapper_multi_intent_streams_single_synthesized_answer():
+    """A two-slice multi-intent turn (planner + concierge → synthesize) emits a
+    single final answer (specs/multi-intent-single-path, SC-5).
+
+    In the single-path parallel model the specialists run as blind
+    ``synthesis_worker`` subgraphs, so their prose must never reach the client;
+    the top-level ``synthesize`` node is the sole source of user-facing tokens.
+    The observable contract: no worker prose token, one synthesized token
+    stream, no reset, and exactly one ``done``. Because the workers stream under
+    the ``synthesis_worker`` namespace root (never a specialist name), no
+    ``subagent`` handoff is announced for this turn.
+    """
+    items = [
+        # Supervisor persists the turn language (top level, no prose).
+        ((), "updates", {"supervisor": {"language": "en"}}),
+        # Two parallel worker slices produce prose inside the synthesis_worker
+        # subgraph — both MUST be suppressed (planner slice, then concierge).
+        (
+            ("synthesis_worker:abc",),
+            "messages",
+            (AIMessageChunk(content="flights + hotel found", id="w1"), {}),
+        ),
+        (
+            ("synthesis_worker:def",),
+            "messages",
+            (AIMessageChunk(content="local tips", id="w2"), {}),
+        ),
+        # The synthesize node combines them into the single final answer. It
+        # arrives twice (model stream + graph update); only the first is emitted.
+        (
+            (),
+            "messages",
+            (
+                AIMessageChunk(content="Here is your trip.", id="s1"),
+                {"langgraph_node": "synthesize"},
+            ),
+        ),
+        (
+            (),
+            "messages",
+            (
+                AIMessageChunk(content="Here is your trip.", id="s1"),
+                {"langgraph_node": "synthesize"},
+            ),
+        ),
+    ]
+    out = _run(_FakeGraph(items, values={"current_flow": "synthesize"}))
+    names = [n for n, _ in out]
+    assert names == ["start", "token", "done"]
+    assert out[1][1] == {"content": "Here is your trip."}
+    assert names.count("token") == 1
+    assert names.count("reset") == 0
+    assert names.count("done") == 1
+    assert "subagent" not in names
 
 
 # --- terminal supervisor/plan messages (specs/agent-flight-routing-stream-gate) ---

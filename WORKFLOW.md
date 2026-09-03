@@ -18,10 +18,10 @@ extracted in a post-response background task, outside the answer graph.
 |---|---|
 | `routers/agent.py` | `/agent/chat`, `/stream`, `/manifest`, `/conversations*`; turn persistence, quota/context resolution, background extraction scheduling |
 | `core/auth.py`, `services/quota_service.py` | Optional Supabase JWT (`user_id` = subject); server-resolved tier and free-tier quota |
-| `agents/context.py`, `agents/constants.py`, `enums.py` | Frozen per-run `AgentContext`; sub-agent inventory, tier ceiling, ledger/reflection limits |
+| `agents/context.py`, `agents/constants.py`, `enums.py` | Frozen per-run `AgentContext`; sub-agent inventory, tier ceiling, task-fan-out/reflection limits |
 | `agents/graph.py` | Wires the parent graph and subgraphs; compiles with the process-lifetime checkpointer/store |
-| `agents/supervisor.py` | Structured routing, ordered task ledger, language detection, raw slot extraction, and tier gating |
-| `agents/nodes.py` | `load_context`, `summarize`, `dispatch_next`, `reflection`, and booking `plan_node` (HITL) |
+| `agents/supervisor.py` | Structured routing, a deduplicated parallel `tasks` list, language detection, raw slot extraction, and tier gating |
+| `agents/nodes.py` | `load_context`, `summarize`, `route_tasks`, `synthesize`, `reflection`, and booking `plan_node` (HITL) |
 | `agents/subagents/*.py`, `_base.py` | Five hand-built ReAct subgraphs; model/tool gating, retries, private clarification tool |
 | `agents/state.py` | `TravelAgentState`; reducers and system-context/date/language injection |
 | `tools/registry.py`, `tools/*_tools.py` | Domain tool groups and MCP-style read-only/destructive metadata |
@@ -76,42 +76,53 @@ the tool/sub-agent manifest.
 ## 3. Parent graph topology (`agents/graph.py`)
 
 ```text
-START → load_context → summarize → supervisor
-                                      │
-                                      ├─ unknown / tier-gated ───────────────→ END
-                                      ├─ booking → plan (interrupt)
-                                      │               ├─ rejected ───────────→ END
-                                      │               └─ approved → booking ─┐
-                                      └─ primary specialist ──────────────────┤
+START → load_context → summarize → supervisor → route_tasks
+                                                    │
+                          ┌─ no tasks / tier-gated ─┴──────────────────────→ END
+                          ├─ booking (tasks[0]) → plan (interrupt)
+                          │                          ├─ rejected ──────────→ END
+                          │                          └─ approved → booking ─┐
+                          ├─ one task → single specialist ───────────────────┤
+                          └─ many tasks → Send(synthesis_worker) × N          │
+                                             └─ all workers → synthesize ─────┤
                                                                              ▼
-                                                                      dispatch_next
-                                                ┌─ queued specialist ←───────┤
-                                                └─ queue empty/abandoned → reflection
-                                                                              │
-                                                current_flow ← REVISE ─────────┤
-                                                                    OK/cap/off → END
+                                                                        reflection
+                                                current_flow ← REVISE ────────┤
+                                                                   OK/cap/off → END
 
 AFTER RESPONSE (outside LangGraph): background memory extraction → Store
 ```
+
+There is one dispatch model: **parallel, independent slices**. `route_tasks` reads the supervisor's
+deduplicated `tasks` list — a single task goes straight to its specialist, `booking` detours through
+the HITL `plan` node, and two or more tasks fan out to parallel `synthesis_worker` instances (one per
+task, via `Send`) that converge on `synthesize`. Every specialist (and `synthesize`) edges directly
+to `reflection`. A **dependent chain** (e.g. flights → hotel → places → weather → itinerary, all
+planner-owned tools) is routed to that **single specialist**, whose own ReAct loop is the sequential
+executor and sees its own tool results — there is no cross-specialist ordered ledger.
 
 ### Supervisor
 
 `SupervisorIntent` contains:
 
 - `target_agent`: primary `planner | concierge | journal | booking | budget`;
-- optional ordered `plan` follow-ons (legacy `secondary_agent` remains supported);
+- optional `plan` of **additional, independent** specialists whose slice does not depend on the
+  primary's result — each runs in parallel and sees only this message (legacy `secondary_agent`
+  remains supported);
 - dominant conversation `language`;
 - optional raw `slots` for destination, origin, date text, party/room counts, budget, cabin, area.
 
 The model extracts raw mentions; Python normalizes dates/counts/budget into `trip_facts` (the
-“LLM parses, code computes” rule). The task ledger is capped at four total specialist runs, removes
-invalid/tier-gated entries, and never queues `booking` because booking must enter through HITL.
+“LLM parses, code computes” rule). `tasks` is deduplicated by agent (primary first, order preserved),
+capped at four total specialist runs, strips invalid/tier-gated entries, and never includes `booking`
+because booking must enter through HITL.
 
 ### Dispatch, clarification, reflection, and HITL
 
-- **`dispatch_next`** is pure code. It pops the next `pending_flows` entry or routes to reflection.
-  If any specialist calls the private `needs_clarification` tool, `awaiting_user=True`; the remaining
-  ledger is abandoned for that turn.
+- **`route_tasks`** is pure code: it maps the `tasks` list to a single specialist, the booking HITL
+  `plan` node, or parallel `synthesis_worker` fan-out. **`synthesize`** merges the workers' structured
+  `task_results` into one answer. If any specialist calls the private `needs_clarification` tool,
+  `awaiting_user=True` and reflection ends the turn early.
 - **`reflection`** skips review while awaiting the traveller, when disabled, or after the single
   revision cap. Otherwise it judges `REVISE`/accept: `REVISE` adds an internal `SystemMessage` and
   returns to `current_flow`; accepted answers end the graph.
@@ -126,7 +137,7 @@ The frozen context is not checkpointed and has no user-selectable mode:
 | Field | Source/default | Effect |
 |---|---|---|
 | `tier` | Server-side user row; anonymous/unknown → `free` | Selects the sub-agent ceiling |
-| `allowed_subagents` | Free excludes `booking`; premium → unrestricted | Supervisor and ledger gate |
+| `allowed_subagents` | Free excludes `booking`; premium → unrestricted | Supervisor and task-list gate |
 | `allow_reflection` | DB `agent_config[reflection].enabled`; default true | Enables the judge loop |
 | `allow_memory_write` | true | Gates post-turn extraction |
 | `allow_episodic` | true | Keeps/removes `recall_past_trips` from planner tools |
@@ -189,7 +200,7 @@ service adapters, open their own `session_scope()` when needed, and map domain e
 - identity/routing: `user_id`, `trip_id`, `current_flow`, `language`;
 - conversation quality: `summary`, `revisions`, `awaiting_user`;
 - injected context: `trip_context`, `profile`, `instructions`, `preferences`;
-- working plan: merge-reduced `trip_facts`, ordered `pending_flows`, `plan_approved`.
+- working plan: merge-reduced `trip_facts`, the deduplicated `tasks` list, `task_results`, `plan_approved`.
 
 `system_with_summary()` folds profile, standing instructions, active trip, rolling summary, known
 trip facts, and preferences into one leading system message. `trip_facts` are thread-scoped working
@@ -276,5 +287,6 @@ durable job queue.
   claim endpoint migrates it only after login.
 - **Double persistence** — SQL conversation/messages and LangGraph checkpoints can drift when one
   persistence path succeeds and the other fails.
-- **Bounded planning** — the supervisor ledger runs at most four specialists in one turn and does
-  not queue booking; this is a deliberate safety/recursion boundary, not an open-ended planner.
+- **Bounded planning** — the supervisor's parallel `tasks` list runs at most four specialists in one
+  turn and never includes booking; this is a deliberate safety/recursion boundary, not an open-ended
+  planner. A dependent chain is executed inside one specialist's own ReAct loop, not fanned out.

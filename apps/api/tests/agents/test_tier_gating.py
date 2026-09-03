@@ -199,7 +199,7 @@ def test_free_tier_secondary_to_premium_only_agent_is_dropped():
 
     # planner IS free-allowed today, so this specific pair should still queue —
     # this test documents the mechanism (not gated), the next one proves the gate.
-    assert cmd.update["pending_flows"] == ["planner"]
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["concierge", "planner"]
 
 
 def test_free_tier_secondary_not_in_allowed_subagents_is_dropped(monkeypatch):
@@ -223,19 +223,5 @@ def test_free_tier_secondary_not_in_allowed_subagents_is_dropped(monkeypatch):
         _runtime(narrow_ctx),
     )
 
-    assert cmd.update["pending_flows"] == []
-
-
-def test_dispatch_next_refuses_illegal_queued_flow():
-    """dispatch_next must fail safe (→ reflection) rather than trust a
-    pending_flows entry that names "booking" or an unknown sub-agent —
-    the invariant it inherits from the supervisor should not be a single
-    point of failure."""
-    from app.agents.nodes import dispatch_next
-
-    cmd = dispatch_next({"pending_flows": ["booking"]})
-    assert cmd.goto == "reflection"
-    assert cmd.update["pending_flows"] == []
-
-    cmd2 = dispatch_next({"pending_flows": ["not_a_real_subagent"]})
-    assert cmd2.goto == "reflection"
+    # Only the primary (concierge) survives; the gated secondary is dropped.
+    assert [t["agent"] for t in cmd.update["tasks"]] == ["concierge"]

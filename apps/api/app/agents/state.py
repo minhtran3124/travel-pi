@@ -74,16 +74,6 @@ def last_write_wins(old: bool, new: bool) -> bool:
     return new
 
 
-def _replace_message_ids(old: list[str] | None, new: list[str] | None) -> list[str]:
-    """Reducer for ``TravelAgentState.superseded_message_ids``.
-
-    Last-write-wins so ``load_context_node`` can reset the list at the start of
-    every turn, while ``dispatch_next`` can replace it with the accumulated set
-    of hidden messages within the current turn. No parallel writes expected.
-    """
-    return list(new or [])
-
-
 class TravelAgentState(MessagesState):
     """Conversation + working state for the travel agent.
 
@@ -110,20 +100,11 @@ class TravelAgentState(MessagesState):
         dict, merge_trip_facts
     ]  # entity/slot memory for this thread (MIN-65 D1); never store PII/secrets here
     preferences: str  # traveller preferences block, formatted text (MIN-65 D2)
-    pending_flows: list[
-        str
-    ]  # ordered ledger of follow-on sub-agents queued for this turn (P1);
-    # drained in order by dispatch_next, never contains "booking" (MIN-65 D4)
     awaiting_user: Annotated[
         bool, last_write_wins
     ]  # set by the needs_clarification tool when a sub-agent is
-    # blocked on the traveller; dispatch_next then abandons the remaining
-    # ledger for this turn instead of draining it (MIN-68); reducer: duplicate
-    # parallel writes must not crash the turn
-    superseded_message_ids: Annotated[
-        list[str], _replace_message_ids
-    ]  # IDs of prior sub-agent prose answers that follow-on sub-agents should
-    # not see, so they do not regenerate the same full answer (GH-117 follow-up)
+    # blocked on the traveller; reflection then ends the turn before judging it
+    # (MIN-68); reducer: duplicate parallel writes must not crash the turn
     tasks: Annotated[
         list[dict], _replace_tasks
     ]  # GH-117 Path A: ordered decomposition from supervisor into synthesis workers

@@ -76,8 +76,9 @@ def _predicted_agent(cmd) -> str:
 def run_plan_eval(llm, dataset: list[dict]) -> list[dict]:
     """Route each multi-intent input and capture the ordered plan (P1 / Path A).
 
-    Records both the legacy ``pending_flows`` and the new ``tasks`` emitted by
-    the supervisor, so metrics can grade either decomposition path.
+    Records the ``tasks`` decomposition the supervisor emits (the primary
+    followed by deduplicated independent follow-ons); ``predicted_plan`` is the
+    follow-ons, i.e. tasks minus the primary.
     """
     from app.agents.supervisor import make_supervisor
 
@@ -95,7 +96,7 @@ def run_plan_eval(llm, dataset: list[dict]) -> list[dict]:
                 "expected": item["expected"],
                 "predicted": _predicted_agent(cmd),
                 "expected_plan": item.get("expected_plan", []),
-                "predicted_plan": update.get("pending_flows") or [],
+                "predicted_plan": predicted_tasks[1:],  # follow-ons = tasks minus the primary (pending_flows removed)
                 "expected_tasks": [item["expected"], *item.get("expected_plan", [])],
                 "predicted_tasks": predicted_tasks,
             }

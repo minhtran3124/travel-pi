@@ -148,14 +148,12 @@ def test_load_context_node_no_trip_id_resets_plan_approved():
     assert load_context_node({"messages": [], "trip_id": None}, SimpleNamespace()) == {
         "plan_approved": False,
         "awaiting_user": False,
-        "superseded_message_ids": [],
         "tasks": [],
         "task_results": [],
     }
     assert load_context_node({"messages": []}, SimpleNamespace()) == {
         "plan_approved": False,
         "awaiting_user": False,
-        "superseded_message_ids": [],
         "tasks": [],
         "task_results": [],
     }

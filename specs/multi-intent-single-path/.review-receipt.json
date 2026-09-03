@@ -1,0 +1,10 @@
+{
+  "reviewed_head_sha": "cdb6d6a31b5c205ec741ad05aab4a7cc61b3c7af",
+  "created": "2026-09-02T23:05:00+07:00",
+  "reviews": [
+    { "reviewer": "task-review-1.1", "type": "task-1.1", "result": "pass", "blocking_open": 0, "advisory_open": 2, "notes": "Supervisor emits deduplicated independent tasks; stops writing pending_flows; plan/secondary_agent descriptions rewritten; v9 active. SPEC+QUALITY pass, 93 tests. Minors: v9 example lists weather under planner though shared with concierge (multi-domain-scoped, guarded by the weather->concierge golden); dispatch_next docstring stale (removed in wave 2)." },
+    { "reviewer": "task-review-2.1-2.2", "type": "task-2.1", "result": "pass", "blocking_open": 0, "advisory_open": 2, "notes": "Dead sequential ledger removed (dispatch_next, _last_subagent_answer_id, pending_flows, superseded_message_ids, mapper suppression); sub-agents edge to reflection; MIN-68 via reflection awaiting_user guard. 432 combined pass; SC-3 satisfied (no app .py refs). Minors: relocated booking-never-a-follow-on guard lacks a direct assertion (type+code enforce it); a multi-intent worker's clarification is folded into synthesize (ends cleanly)." },
+    { "reviewer": "correctness-review-integration", "type": "correctness", "result": "pass", "blocking_open": 0, "advisory_open": 0, "notes": "Full-branch integration pass. 434 passed. No orphan dispatch_next; graph builds+runs for single- and multi-intent; state schema clean; dedupe correct; MIN-68 terminates; SSE emits one synthesized answer. Recursion budget confirmed real: each sub-agent subgraph / worker.invoke() gets a fresh budget, parent superstep ~6-8. Verdict SHIP." },
+    { "reviewer": "intent-review", "type": "intent", "result": "pass", "blocking_open": 0, "advisory_open": 0, "notes": "Plan-blind against the verbatim request (option A). All five deliverables land (dead ledger removed; deduplicated independent tasks; truthful plan description; dependent-chain-in-one-toolset routing rule; plan-everything proven). No missing, no drift, no material excess (the reflection awaiting_user relocation is a necessary consequence of deleting dispatch_next)." }
+  ]
+}

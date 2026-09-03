@@ -3,6 +3,33 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## multi-intent-single-path — `plan` is independent-parallel-only; single-specialist chains stay single (wave 1)
+
+specs/multi-intent-single-path (decision A): the runtime is parallel-only — `route_tasks`
+`Send`s every `len(tasks)>1` to blind `synthesis_worker`s that each see only the last user
+message and cannot read a sibling's result. But `SupervisorIntent.plan` still told the model
+to plan ordered/dependent/recurring follow-ons, so "plan my weekend: flights, weather, then
+itinerary" spawned a blind itinerary worker plus a duplicate planner. Wave 1 fixes the
+supervisor side (wave 2 removes the dead sequential `dispatch_next`/`pending_flows` machinery).
+
+- **supervisor v9** — copied v8, then added one routing rule under rule 3 (and one example):
+  a CHAIN whose steps all live inside ONE specialist's toolset routes to that single
+  specialist with `plan=[]` — the **planner** owns flights (`search_flights`), hotels
+  (`search_hotels`), places (`search_places`), weather (`get_weather`), routing, `create_trip`,
+  `add_itinerary_item` — so "plan my weekend: flights + hotel + places + weather + itinerary"
+  is one planner job, not a fan-out. `plan` is now only for genuinely INDEPENDENT extras a
+  single specialist cannot do itself (local tips / travel knowledge → concierge). The
+  "## Multi-step Plan" section was reframed from ordered/recurring follow-ons to
+  independent-parallel-only; no existing v8 content was removed.
+- **supervisor.py** (code half) — the `plan`/`secondary_agent` field descriptions now read
+  "independent, parallel, sees only this message, never the primary, never booking"; the task
+  list is built from a DEDUPLICATED agent list (primary first, follow-ons in order, skipping any
+  agent already queued — no duplicate specialist workers), keeping the `MAX_LEDGER_STEPS` cap;
+  and the supervisor **stops writing `pending_flows`** in its Command update (the state field
+  stays for wave 2). No graph topology or SSE change.
+
+`active.yaml`: supervisor → 9. Others unchanged.
+
 ## booking-tools-owner — agent bookings carry the injected owner (review-A E004)
 
 specs/review-a-security-hardening (E004): `book_flight`, `book_hotel`, `cancel_flight`
