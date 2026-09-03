@@ -9,8 +9,10 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import replace
 from typing import Annotated, Any
+from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
@@ -23,13 +25,16 @@ from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
 from app.agents.guardrails import redact_pii
+from app.agents.metrics import TurnMetricsHandler
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import CurrentUserDep
 from app.core.config import get_settings
+from app.core.pricing import estimate_cost
 from app.core.streaming import sse_response
+from app.db.base import _utc_now_iso
 from app.db.session import get_session
 from app.enums import Tier
 from app.exceptions import ForbiddenError, UpstreamError
@@ -37,6 +42,7 @@ from app.memory.extraction_runner import (
     run_memory_extraction,
     run_memory_extraction_from_stream,
 )
+from app.repositories.agent_run import AgentRunRepository
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
@@ -49,9 +55,11 @@ from app.schemas.agent import (
     Conversation,
     Message,
     ToolManifestEntry,
+    TurnUsage,
 )
 from app.schemas.error import error_responses
 from app.services.quota_service import check_quota
+from app.streaming.agent_run import record_agent_run
 from app.streaming.mapper import stream_agent_events
 from app.streaming.persistence import persist_assistant_turn
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
@@ -99,19 +107,32 @@ def _thread_id(user_id: str, trip_id: str | None, conversation_id: str) -> str:
     return f"user_{user_id}_trip_{trip_id or 'none'}_conv_{conversation_id}"
 
 
-def _config(thread_id: str, user_id: str, trip_id: str | None) -> dict:
+def _config(
+    thread_id: str,
+    user_id: str,
+    trip_id: str | None,
+    *,
+    run_id: str,
+    metrics: TurnMetricsHandler,
+) -> dict:
     """Build the configuration for the agent.
 
     :param thread_id: The thread id for the conversation.
     :param user_id: The effective user id (JWT sub or anonymous).
     :param trip_id: The trip id, if any.
+    :param run_id: The router-minted run id; set as the LangChain root ``run_id``
+        (langfuse derives its trace id from OTel context, not this) so the turn's
+        metrics correlate with the ``agent_runs`` row.
+    :param metrics: The per-turn ``TurnMetricsHandler``, attached alongside the
+        tracing callbacks so it observes the whole run.
     :return: The configuration for the agent.
     """
     return {
         "configurable": {"thread_id": thread_id},
         "recursion_limit": get_settings().agent_recursion_limit,
-        "callbacks": callbacks(),
+        "callbacks": callbacks() + [metrics],
         "metadata": trace_metadata(user_id, trip_id),
+        "run_id": UUID(run_id),
     }
 
 
@@ -247,7 +268,52 @@ async def agent_chat(
         user_id=uid,
         trip_id=body.trip_id,
     )
-    cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
+    thread_id = _thread_id(uid, body.trip_id, conversation_id)
+
+    # Per-turn metrics: mint the run id up front so the row correlates with the
+    # in-flight turn, attach the handler via cfg, and start the ``agent_runs``
+    # row (committed by the existing session.commit() below). All of this is
+    # best-effort — no metrics failure may raise into the reply path.
+    run_id = str(uuid4())
+    metrics = TurnMetricsHandler()
+    started = time.monotonic()
+    kind = "resume" if body.resume is not None else "turn"
+    try:
+        AgentRunRepository(session).start(
+            run_id,
+            user_id=uid,
+            conversation_id=conversation_id,
+            thread_id=thread_id,
+            trip_id=body.trip_id,
+            channel="chat",
+            kind=kind,
+            started_at=_utc_now_iso(),
+        )
+    except Exception:
+        logger.exception("[agent_chat] failed to start agent_run id=%s", run_id)
+
+    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
+
+    def _finalize(status: str, current_flow: str | None) -> TurnUsage | None:
+        """Close metrics, finalize the run row, and return client usage (best-effort)."""
+        usage: TurnUsage | None = None
+        try:
+            metrics.close(started)
+            metrics.cost_usd = estimate_cost(metrics.snapshot()["by_model"])
+            usage = TurnUsage(**metrics.public())
+        except Exception:
+            logger.exception("[agent_chat] failed to build usage id=%s", run_id)
+        try:
+            AgentRunRepository(session).finish(
+                run_id,
+                status=status,
+                current_flow=current_flow,
+                finished_at=_utc_now_iso(),
+                metrics=metrics.snapshot(),
+            )
+        except Exception:
+            logger.exception("[agent_chat] failed to finish agent_run id=%s", run_id)
+        return usage
 
     try:
         if body.resume is not None:
@@ -292,6 +358,7 @@ async def agent_chat(
                 fallback_trip_id = checkpoint.values.get("trip_id", body.trip_id)
         except Exception:  # noqa: BLE001 — best-effort; fall back to body.trip_id
             pass
+        usage = _finalize("failed", None)
         return ChatResponse(
             conversation_id=conversation_id,
             reply=reply,
@@ -300,6 +367,7 @@ async def agent_chat(
             suggestions=[],
             interrupt_pending=False,
             interrupt_payload=None,
+            usage=usage,
         )
 
     interrupts = result.get("__interrupt__", [])
@@ -348,7 +416,14 @@ async def agent_chat(
             allow_memory_write=ctx.allow_memory_write,
             store=graph.store,
             llm=graph.extract_memory_llm,
+            run_id=run_id,
+            session_factory=_isolated_factory(session),
         )
+
+    usage = _finalize(
+        "interrupted" if interrupt_pending else "completed",
+        result.get("current_flow"),
+    )
 
     return ChatResponse(
         conversation_id=conversation_id,
@@ -367,6 +442,7 @@ async def agent_chat(
         ),
         interrupt_pending=interrupt_pending,
         interrupt_payload=interrupt_payload,
+        usage=usage,
     )
 
 
@@ -401,7 +477,29 @@ async def agent_stream(
         user_id=uid,
         trip_id=body.trip_id,
     )
-    cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
+    thread_id = _thread_id(uid, body.trip_id, conversation_id)
+
+    # Per-turn metrics: mint the run id, attach the handler via cfg, and start the
+    # ``agent_runs`` row before the session.commit() below persists it. The stream
+    # recorder (record_agent_run) finalizes it once the SSE stream drains.
+    run_id = str(uuid4())
+    metrics = TurnMetricsHandler()
+    kind = "resume" if body.resume is not None else "turn"
+    try:
+        AgentRunRepository(session).start(
+            run_id,
+            user_id=uid,
+            conversation_id=conversation_id,
+            thread_id=thread_id,
+            trip_id=body.trip_id,
+            channel="stream",
+            kind=kind,
+            started_at=_utc_now_iso(),
+        )
+    except Exception:
+        logger.exception("[agent_stream] failed to start agent_run id=%s", run_id)
+
+    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt; the same cfg
@@ -443,17 +541,25 @@ async def agent_stream(
         allow_memory_write=ctx.allow_memory_write,
         store=graph.store,
         llm=graph.extract_memory_llm,
+        run_id=run_id,
+        session_factory=factory,
     )
 
     return sse_response(
         persist_assistant_turn(
-            stream_agent_events(
-                graph,
-                stream_input,
-                cfg=cfg,
-                conversation_id=conversation_id,
-                context=ctx,
-                final_state_sink=sink,
+            record_agent_run(
+                stream_agent_events(
+                    graph,
+                    stream_input,
+                    cfg=cfg,
+                    conversation_id=conversation_id,
+                    context=ctx,
+                    final_state_sink=sink,
+                    metrics=metrics,
+                ),
+                run_id=run_id,
+                metrics=metrics,
+                session_factory=factory,
             ),
             conversation_id=conversation_id,
             session_factory=factory,
