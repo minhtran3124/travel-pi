@@ -22,7 +22,18 @@ Escalate: no
 
 ## What changed
 
-<not started — intake only. Fill at ship.>
+Both follow-ups closed, and the second one narrower than the request implied.
+
+- **Attribution.** The synthesis worker merges its specialist into the metadata of the config it
+  invokes the inner sub-graph with — the one channel that reaches the callback hooks, since the
+  checkpoint namespace never carries it. The handler records it on LLM, tool and node steps, and
+  attribution re-keys such a step onto `<specialist>/assistant`. A multi-intent turn's steps now
+  resolve to e.g. concierge + communication_style instead of an empty list.
+- **Config.** `synthesize` joins the configurable node list, so it stops resolving the env default
+  model. `synthesis_worker` deliberately gets no row. A coverage test now asserts every node that
+  resolves a model through `get_agent_llm` has a row, with names derived from the compiled graph
+  and a source scan rather than a hand-written list — removing `synthesize` makes it fail by name,
+  so it would have caught the original bug.
 
 ### Intake findings (one premise corrected)
 
@@ -55,7 +66,15 @@ Out: changing how models are resolved; per-worker prompt overrides; back-filling
 
 ### Rationale
 
-<fill at ship>
+The specialist is threaded through config metadata rather than recovered from the namespace
+because a live turn proved it is not in the namespace at all. The merge is deliberate: replacing
+the config would drop `langgraph_node` and the checkpoint namespace, which the handler keys node
+timing and dedupe on, so a test pins the caller's metadata surviving — a "specialist is present"
+assertion alone would pass while that regression shipped.
+
+`synthesize` is added to the group list rather than seeded directly because the seeder, the node
+inventory and the dashboard grid all derive from that one list, so a single data edit covers all
+three with no migration.
 
 ### Alternatives considered
 
@@ -66,17 +85,35 @@ Out: changing how models are resolved; per-worker prompt overrides; back-filling
 
 ### Deviations
 
-- none
+- Rule 1 (controller, wave-1 review): the node span did not record the specialist, so a worker's
+  `assistant` node row and the LLM row inside it disagreed on the detail page; `on_chain_start`
+  now records it too.
+- Rule 2 (controller, wave-1 review): the leak test was byte-unchanged but never drove a
+  `specialist` value, so it proved the boundary for the old surface only. It now hands the handler
+  a hostile specialist and asserts the stored row is clean.
+- Task 2.1 reported running `git checkout --` on its own file during a negative-control check and
+  re-applying the edit; the controller verified the final file content independently.
 
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| intake evidence | `python3 .claude/scripts/verify_summary.py --lane synthesis-attribution-and-config` | 0 | lane/confidence/reason + rollback present | |
+| worker passes the specialist, merge preserves caller metadata | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/s1.db ../../.venv/bin/python -m pytest tests/agents/test_synthesis_worker_specialist.py -q` | 0 | configurable + caller keys survive; None-config path; unknown specialist untouched | SC-1 |
+| handler records the specialist | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/s2.db ../../.venv/bin/python -m pytest tests/agents/test_turn_metrics_steps.py -q` | 0 | present when given, None when absent | SC-2 |
+| specialist-aware attribution | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/s3.db ../../.venv/bin/python -m pytest tests/agents/test_prompt_map.py -q` | 0 | worker step -> specialist prompts; no specialist -> unchanged | SC-3 |
+| content boundary unchanged | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/s4.db ../../.venv/bin/python -m pytest tests/agents/test_step_content_leak.py -q` | 0 | hostile specialist never reaches the stored row | SC-4 |
+| synthesize is configurable | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/s5.db ../../.venv/bin/python -m pytest tests/scripts tests/api/agent_config -q` | 0 | seeded, listed, described | SC-5 |
+| no node can fall back silently again | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/s6.db ../../.venv/bin/python -m pytest tests/agents/test_agent_config_coverage.py -q` | 0 | derived from the graph + a source scan; negative control fails by name | SC-6 |
 
 ### Not auto-verified
 
-- none yet — intake only; every claim above is a code-reading or live-trace finding.
+- The end-to-end result on a real multi-intent turn — reached traceability (each link is unit
+  tested: the worker sets the metadata, the handler records it, attribution consumes it), but no
+  live turn was driven after the change, so the rendered detail page has not been seen with a
+  populated prompt column on the worker path.
+- The behaviour change from seeding `synthesize` — on an existing deployment that node moves from
+  the env default to the seeded default model. Intended, but it takes effect on the next seed run
+  and was not exercised against a live graph here.
 
 ### Rollback
 
@@ -85,4 +122,9 @@ Out: changing how models are resolved; per-worker prompt overrides; back-filling
 
 ### Harness-Delta
 
-- none
+- Several stale plans still carry `status: active`, so `hooks/lib/lane.sh` resolves the first one
+  lexically (`specs/conversation-persistence`) rather than the spec being worked on. It only warned
+  here because that SUMMARY has no `Lane:` line and the diff trips no hard gate, but it makes the
+  corroboration signal unreliable. Flipping shipped plans to `shipped` would fix it.
+- Implement-only subagents have no documented non-git way to undo an edit for a negative-control
+  check; one reached for `git checkout --` and lost its own work.
