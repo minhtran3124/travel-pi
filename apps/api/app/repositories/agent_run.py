@@ -30,6 +30,29 @@ _FINISH_METRIC_KEYS = (
     "by_node",
 )
 
+#: Columns of ``agent_run_steps`` an ``add_steps`` payload may set. Any other key
+#: in a step dict is ignored, so a caller can pass a superset without raising.
+_STEP_KEYS = frozenset(
+    {
+        "seq",
+        "kind",
+        "node",
+        "ns",
+        "model",
+        "prompts",
+        "input_tokens",
+        "output_tokens",
+        "cached_tokens",
+        "cost_usd",
+        "offset_ms",
+        "ms",
+        "status",
+        "error_type",
+        "tool_name",
+        "meta",
+    }
+)
+
 
 class AgentRunRepository(Repo):
     """ORM-backed store of per-turn agent metrics."""
@@ -83,6 +106,7 @@ class AgentRunRepository(Repo):
         current_flow: str | None,
         finished_at: str,
         metrics: dict,
+        prompt_versions: list | None = None,
     ) -> None:
         """Finalize a run: set terminal status and the accumulated metrics.
 
@@ -95,6 +119,8 @@ class AgentRunRepository(Repo):
         :param current_flow: The final flow, if any.
         :param finished_at: ISO-8601 finish timestamp.
         :param metrics: The turn's metric snapshot.
+        :param prompt_versions: The prompt name/version pairs the turn used;
+            ``None`` leaves the stored value unchanged.
         """
         with self._session() as s:
             row = s.get(models.AgentRun, id)
@@ -107,7 +133,47 @@ class AgentRunRepository(Repo):
             for key in _FINISH_METRIC_KEYS:
                 if key in metrics:
                     setattr(row, key, metrics[key])
+            if prompt_versions is not None:
+                row.prompt_versions = prompt_versions
             self._commit(s)
+
+    def add_steps(self, run_id: str, steps: list[dict]) -> None:
+        """Bulk-insert the per-step call chain of a run.
+
+        Unknown keys in a step dict are ignored (the same tolerance ``finish``
+        applies to its metric snapshot) and an empty list is a no-op. No
+        existence check on *run_id*: steps are supplementary, so a step write for
+        a missing run inserts orphan rows rather than raising into the reply path.
+
+        :param run_id: The run these steps belong to.
+        :param steps: Step payloads; keys outside the step columns are dropped.
+        """
+        if not steps:
+            return
+        rows = [
+            models.AgentRunStep(
+                run_id=run_id,
+                **{k: v for k, v in step.items() if k in _STEP_KEYS},
+            )
+            for step in steps
+        ]
+        with self._session() as s:
+            s.add_all(rows)
+            self._commit(s)
+
+    def steps_for(self, run_id: str) -> list[models.AgentRunStep]:
+        """Return a run's steps in ``seq`` order.
+
+        :param run_id: The run whose steps to load.
+        :return: The run's ``AgentRunStep`` rows ordered by ``seq`` ascending.
+        """
+        stmt = (
+            select(models.AgentRunStep)
+            .where(models.AgentRunStep.run_id == run_id)
+            .order_by(models.AgentRunStep.seq)
+        )
+        with self._session() as s:
+            return list(s.scalars(stmt).all())
 
     def add_background(self, id: str, *, llm_calls: int, tokens: int, ms: int) -> None:
         """Increment the background metric columns after the response is sent.
