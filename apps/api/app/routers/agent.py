@@ -324,6 +324,14 @@ async def agent_chat(
             session.commit()
         except Exception:
             logger.exception("[agent_chat] failed to commit turn id=%s", run_id)
+            # Roll back so the session is usable again. Without this the failed
+            # transaction stays dirty and the dependency's own teardown commit
+            # raises on it — which would defeat the swallow above and surface a
+            # metrics failure as a 500 on an otherwise-good reply.
+            try:
+                session.rollback()
+            except Exception:
+                logger.exception("[agent_chat] rollback failed id=%s", run_id)
         return usage
 
     try:

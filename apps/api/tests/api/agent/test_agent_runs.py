@@ -228,3 +228,12 @@ def test_run_row_is_durable_without_the_request_session_commit(tmp_path):
     assert rows[0].status == "completed"
     assert rows[0].llm_calls >= 1
     assert rows[0].latency_ms is not None
+
+    # The same commit also persists the assistant reply — the other half of the
+    # symptom this UAT found. Pinning it here stops a future change that routes
+    # only the run row through an isolated factory from re-losing the message.
+    from app.db.models import Message
+
+    with get_session_factory(url)() as s:
+        roles = [m.role for m in s.query(Message).all()]
+    assert "assistant" in roles
