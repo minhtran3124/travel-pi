@@ -31,6 +31,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.agents.metrics import MAX_STEPS_PER_TURN as _MAX_STEPS_PER_TURN
 from app.core.dashboard_auth import require_dashboard_access
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
@@ -1181,6 +1182,7 @@ def agent_run_detail_page(
     if run is None:
         raise NotFoundError(f"No agent run with id {run_id!r}")
     steps = AgentRunRepository(session).steps_for(run_id)
+    attributed = _attributed_prompt_names(steps)
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="agent_run_detail.html",
@@ -1199,9 +1201,13 @@ def agent_run_detail_page(
             # specialist never reaches the checkpoint namespace), so an unflagged row
             # means "not attributable", never "not used".
             "prompts": [
-                (name, version, name in _attributed_prompt_names(steps))
+                (name, version, name in attributed)
                 for name, version in sorted((run.prompt_versions or {}).items())
             ],
+            # The handler stops recording past MAX_STEPS_PER_TURN. That counter is
+            # not persisted, so a full page of steps is the only signal the chain
+            # may be incomplete — say so rather than presenting it as the whole run.
+            "truncated": len(steps) >= _MAX_STEPS_PER_TURN,
         },
     )
 

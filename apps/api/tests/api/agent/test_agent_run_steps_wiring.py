@@ -6,6 +6,9 @@ handler's explicit commit; a ``/agent/stream`` turn writes them in
 background task (that deadlocked the parent branch).
 """
 
+import time
+from uuid import uuid4
+
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
@@ -112,3 +115,25 @@ def test_stream_turn_persists_ordered_steps_and_prompt_versions(tmp_path):
         assert resp.status_code == 200
         assert "event: done" in resp.text
     _assert_trace_persisted(tmp_path, "stream")
+
+
+def test_chat_failure_does_not_persist_open_steps(tmp_path):
+    """A failed chat turn must sweep its steps, like the stream path does.
+
+    Only the stream finalizer called close_if_open, so a graph failure on the chat
+    path left steps at status "open" with 0 ms — the zero-width bar the sweep
+    exists to prevent, and a different row shape for the same failure on the two
+    channels.
+    """
+    from app.agents.metrics import TurnMetricsHandler
+
+    h = TurnMetricsHandler()
+    rid = uuid4()
+    h.on_chat_model_start(
+        {}, [], run_id=rid, metadata={"langgraph_node": "supervisor", "ls_model_name": "m"}
+    )
+    # the graph raised before on_llm_end fired
+    h.close(time.monotonic())
+    h.close_if_open()
+
+    assert all(s["status"] != "open" for s in h.steps())

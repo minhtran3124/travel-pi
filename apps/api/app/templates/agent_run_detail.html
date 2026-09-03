@@ -33,6 +33,10 @@
 
 {# ── Call chain: one row per step, bar positioned server-side ── #}
 <h2 class="sec-title">Call chain</h2>
+{% if truncated %}
+<p class="note">Chain truncated at the {{ steps|length }}-step cap — later steps of this turn were
+not recorded. The totals above remain exact.</p>
+{% endif %}
 {% if not chain %}
 <div class="empty">
   <div class="empty-ico">🕳️</div>
@@ -66,6 +70,8 @@
           <span class="from-city">{{ step.model or step.tool_name or '—' }}</span>
           {% if step.status == 'error' %}<span class="sub err">error{% if step.error_type %} · {{ step.error_type }}{% endif %}</span>
           {% elif step.status != 'ok' %}<span class="sub">{{ step.status }}</span>{% endif %}
+          {# finish_reason is the one meta key captured; surface it or it is dead data. #}
+          {% if step.meta and step.meta.get('finish_reason') %}<span class="sub">stopped: {{ step.meta['finish_reason'] }}</span>{% endif %}
         </td>
         <td class="sta">{{ step.ms }} ms</td>
         <td class="bar-col">

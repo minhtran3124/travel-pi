@@ -300,6 +300,12 @@ async def agent_chat(
         usage: TurnUsage | None = None
         try:
             metrics.close(started)
+            # Also sweep steps whose close hook never fired — a graph failure can
+            # leave a cancelled parallel branch open. Without this the chat path
+            # persists `open`/0ms steps while the stream path (which calls
+            # close_if_open) does not, so the two channels would record the same
+            # failure differently. close_if_open is a no-op for latency after close().
+            metrics.close_if_open()
             metrics.cost_usd = estimate_cost(metrics.snapshot()["by_model"])
             usage = TurnUsage(**metrics.public())
         except Exception:

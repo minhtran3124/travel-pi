@@ -32,6 +32,27 @@ _FINISH_METRIC_KEYS = (
 
 #: Columns of ``agent_run_steps`` an ``add_steps`` payload may set. Any other key
 #: in a step dict is ignored, so a caller can pass a superset without raising.
+
+# The handler already allowlists ``meta`` keys, but the content boundary is the
+# point of this table, so it is re-applied here: the boundary should not rest on
+# one caller staying disciplined.
+_META_KEYS = frozenset({"finish_reason"})
+
+
+def _sanitised(step: dict) -> dict:
+    """Keep only known columns, and inside ``meta`` only allowlisted scalar keys."""
+    out = {k: v for k, v in step.items() if k in _STEP_KEYS}
+    meta = out.get("meta")
+    if isinstance(meta, dict):
+        out["meta"] = {
+            k: v
+            for k, v in meta.items()
+            if k in _META_KEYS and isinstance(v, (str, int, float, bool, type(None)))
+        } or None
+    elif meta is not None:
+        out["meta"] = None
+    return out
+
 _STEP_KEYS = frozenset(
     {
         "seq",
@@ -153,7 +174,7 @@ class AgentRunRepository(Repo):
         rows = [
             models.AgentRunStep(
                 run_id=run_id,
-                **{k: v for k, v in step.items() if k in _STEP_KEYS},
+                **_sanitised(step),
             )
             for step in steps
         ]
