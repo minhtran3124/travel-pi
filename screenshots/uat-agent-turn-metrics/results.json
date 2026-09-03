@@ -167,5 +167,14 @@
     "checks": [
       "live run, not a test"
     ]
+  },
+  {
+    "id": "LIVE-07",
+    "name": "With gpt-5 access granted, the previously-403 multi-intent turn completes and its cost is aggregated across TWO models, both dated snapshots",
+    "status": "PASS",
+    "detail": "run 0d4ce5e9: flow=synthesize, 9 calls, 43,132 in / 20,480 cached / 993 out, cost $0.02661, latency 14,272 ms. by_model split: gpt-5-2025-08-07 = 1 call (232 in / 637 out, the synthesize node falling back to the env default) and gpt-5.4-mini-2026-03-17 = 8 calls (42,900 in / 20,480 cached / 356 out). Both names required normalize_model to strip the dated suffix before pricing.",
+    "checks": [
+      "live run, not a test"
+    ]
   }
 ]

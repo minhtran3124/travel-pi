@@ -3,7 +3,7 @@
 **Date:** 2026-09-03 · **Branch:** `feat/agent-turn-metrics` @ `cb55db6` (PR #131)
 **Base:** `main @ 1aee549`. **CI (Postgres):** api pass 11m35s · web pass 1m45s (run 33719713916).
 
-## Result: 18 / 18 PASS (12 offline + 6 against the live stack)
+## Result: 19 / 19 PASS (12 offline + 7 against the live stack)
 
 | # | Test case | Result | Evidence |
 |---|---|---|---|
@@ -30,8 +30,9 @@
 | LIVE-04 | The Alembic revision applies to real Postgres, creating the table and its three indexes | PASS |
 | LIVE-05 | A real dated-snapshot model name (`gpt-5.4-mini-2026-03-17`) resolves to a price | PASS |
 | LIVE-06 | `/agent/*` rejects an unauthenticated call (401) | PASS |
+| LIVE-07 | After gpt-5 access was granted, the previously-403 multi-intent turn completes and its cost is blended across **two** models, both dated snapshots (`0d4ce5e9`: 9 calls, **$0.0266**, 14,272 ms) | PASS |
 
-**Total measured cost of this UAT: $0.0322 across 6 real turns** — measured by the feature itself.
+**Total measured cost of this UAT: $0.0588 across 7 real turns** — measured by the feature itself.
 
 
 Machine-readable: `results.json` (each case lists the exact test node-ids behind it).
@@ -69,6 +70,23 @@ Every row is a real turn, and the screenshot happens to capture this branch's ow
 Cached-token accounting is working against the real provider: 49,152 of 52,322 input tokens were
 served from cache on that turn. That number is what makes the deferred prompt-caching spec
 measurable, which was the point of doing this one first.
+
+The clearest demonstration of why this feature exists is the top two rows. `0d4ce5e9` and
+`bc6d5259` are the *same* multi-intent request, same flow, same nine LLM calls — and they cost
+**$0.0266 and $0.0083**, a 3.2x spread. The only difference is which model answered the
+`synthesize` node: the first fell back to `gpt-5`, the second to `gpt-5.4-mini`. The per-model
+breakdown makes the cause legible — one `gpt-5` call producing 637 output tokens outweighs eight
+`gpt-5.4-mini` calls consuming 42,900 input tokens:
+
+```
+0d4ce5e9 by_model:
+  gpt-5-2025-08-07          1 call    232 in  /   637 out  /      0 cached
+  gpt-5.4-mini-2026-03-17   8 calls  42,900 in /   356 out  / 20,480 cached
+```
+
+Both names carry a dated snapshot suffix, so both had to pass through `normalize_model` before the
+price table could resolve them. Per-node timing on the same turn: `synthesize` 6,749 ms,
+`reflection` 2,418 ms, `supervisor` 961 ms, `load_context` 8 ms.
 
 ## Live guard check (TC10)
 
@@ -112,10 +130,11 @@ to eight characters with the full value in a `title` attribute.
 Two environment issues surfaced that belong to the project, not to this branch, and were left
 alone:
 
-- The account has no access to `gpt-5`, and the multi-intent `synthesize` / `synthesis_worker`
-  nodes have no `agent_config` row, so they fall back to the env default and 403. The live
-  multi-intent turn was run with `LLM_MODEL=gpt-5.4-mini` to work around it. Seeding an
-  `agent_config` row for those nodes is the real fix.
+- The multi-intent `synthesize` / `synthesis_worker` nodes have no `agent_config` row, so they
+  fall back to the env default. That first produced a 403 (the account lacked `gpt-5`); after
+  access was granted the turn completes, but it silently routes the most expensive node to the
+  most expensive model — a 3.2x cost difference for the same request. Seeding an `agent_config`
+  row for those nodes is the real fix, and the dashboard is now what makes the case for it.
 - `/agent/chat` still loses nothing now, but the same post-graph durability pattern is worth
   auditing on any future endpoint that writes after an `await`.
 
