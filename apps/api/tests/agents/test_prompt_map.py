@@ -138,3 +138,57 @@ def test_map_values_are_independent_lists():
         ]
     finally:
         PROMPTS_FOR_NODE["planner"].remove("bogus")
+
+
+def test_worker_step_with_a_specialist_attributes_to_that_subagent():
+    snapshot = prompt_versions_snapshot(registry)
+    assert prompts_for("synthesis_worker/assistant", snapshot, "concierge") == [
+        {"name": "concierge", "version": snapshot["concierge"]},
+        {"name": "communication_style", "version": snapshot["communication_style"]},
+    ]
+
+
+def test_worker_step_without_a_specialist_is_unchanged():
+    snapshot = prompt_versions_snapshot(registry)
+    assert prompts_for("synthesis_worker/assistant", snapshot) == []
+    assert prompts_for("synthesis_worker/assistant", snapshot, None) == []
+
+
+def test_a_specialist_does_not_re_key_a_promptless_inner_node():
+    snapshot = prompt_versions_snapshot(registry)
+    assert prompts_for("synthesis_worker/tools", snapshot, "concierge") == []
+
+
+def test_root_node_steps_are_unaffected_by_a_specialist():
+    snapshot = prompt_versions_snapshot(registry)
+    assert prompts_for("supervisor", snapshot, "concierge") == [
+        {"name": "supervisor", "version": snapshot["supervisor"]}
+    ]
+
+
+def test_enrich_steps_uses_the_step_specialist():
+    from app.agents.prompt_map import enrich_steps
+
+    snapshot = prompt_versions_snapshot(registry)
+    steps = [
+        {
+            "kind": "llm",
+            "node": "assistant",
+            "ns": "synthesis_worker:a|assistant:b",
+            "specialist": "journal",
+            "model": None,
+        },
+        {
+            "kind": "llm",
+            "node": "assistant",
+            "ns": "synthesis_worker:a|assistant:c",
+            "specialist": None,
+            "model": None,
+        },
+    ]
+    with_specialist, without = enrich_steps(steps, snapshot)
+    assert with_specialist["prompts"] == [
+        {"name": "journal", "version": snapshot["journal"]},
+        {"name": "communication_style", "version": snapshot["communication_style"]},
+    ]
+    assert without["prompts"] == []

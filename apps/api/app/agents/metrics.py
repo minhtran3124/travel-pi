@@ -128,6 +128,7 @@ class TurnMetricsHandler(BaseCallbackHandler):
             "status": "open",
             "error_type": None,
             "tool_name": None,
+            "specialist": None,
             "meta": {},
             "_started": time.monotonic(),
         }
@@ -188,6 +189,7 @@ class TurnMetricsHandler(BaseCallbackHandler):
                     node=meta.get("langgraph_node"),
                     ns=meta.get("langgraph_checkpoint_ns"),
                     model=name,
+                    specialist=meta.get("specialist"),
                 )
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chat_model_start failed", exc_info=True)
@@ -263,8 +265,10 @@ class TurnMetricsHandler(BaseCallbackHandler):
         """Open a ``tool`` step.
 
         ``input_str`` and ``inputs`` are the tool's arguments and are deliberately
-        never read (design §4.3, content boundary). Node attribution comes from this
-        hook's own ``metadata``, not ``parent_run_id``: ``on_chain_start`` registers
+        never read (design §4.3, content boundary); ``metadata["specialist"]`` is a
+        static agent name written by ``synthesis_worker``, not user content, so it is
+        recorded. Node attribution comes from this hook's own ``metadata``, not
+        ``parent_run_id``: ``on_chain_start`` registers
         only the outermost run per namespace, so the tool's immediate parent chain is
         normally absent from that map.
         """
@@ -278,6 +282,7 @@ class TurnMetricsHandler(BaseCallbackHandler):
                     node=meta.get("langgraph_node"),
                     ns=meta.get("langgraph_checkpoint_ns"),
                     tool_name=name,
+                    specialist=meta.get("specialist"),
                 )
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_tool_start failed", exc_info=True)
