@@ -20,13 +20,25 @@ from app.streaming.agent_run import record_agent_run
 
 
 class _FakeMetrics:
-    """Stand-in ``TurnMetricsHandler`` exposing only the ``snapshot()`` the recorder uses."""
+    """Stand-in ``TurnMetricsHandler`` with the surface the recorder actually uses.
+
+    ``close_if_open`` / ``cost_usd`` are part of that surface: the recorder closes
+    and prices the turn before persisting so a failed turn is not written with a
+    NULL latency. A stub missing them would silently exercise the recorder's
+    exception fallback and prove nothing.
+    """
 
     def __init__(self, snap: dict | None = None) -> None:
         self._snap = snap or {"llm_calls": 2, "input_tokens": 30, "output_tokens": 8}
+        self.latency_ms: int | None = None
+        self.cost_usd: float | None = None
+
+    def close_if_open(self) -> None:
+        if self.latency_ms is None:
+            self.latency_ms = 7
 
     def snapshot(self) -> dict:
-        return self._snap
+        return {**self._snap, "latency_ms": self.latency_ms, "cost_usd": self.cost_usd}
 
 
 @pytest.fixture
@@ -165,3 +177,46 @@ def test_repo_error_is_swallowed(factory, caplog):
         _drain(_script(items), run_id="run-1", metrics=_BadMetrics(), factory=factory)
     )
     assert [e.event for e in out] == ["start", "done"]
+
+
+def test_failed_turn_still_records_latency(factory):
+    """A crashed stream must not persist a NULL latency.
+
+    The mapper's metrics block only runs on the success path, so without the
+    recorder closing the handler itself every failed turn would drop out of the
+    dashboard's latency and cost rollups. Uses the REAL handler, not the stub.
+    """
+    from app.agents.metrics import TurnMetricsHandler
+
+    _start_row(factory, "run-fail")
+    metrics = TurnMetricsHandler()
+
+    async def _boom():
+        yield events.start("c1")
+        raise RuntimeError("graph exploded")
+
+    with pytest.raises(RuntimeError):
+        asyncio.run(_drain(_boom(), run_id="run-fail", metrics=metrics, factory=factory))
+
+    row = _row(factory, "run-fail")
+    assert row.status == "failed"
+    assert row.latency_ms is not None and row.latency_ms >= 0
+
+
+def test_success_path_keeps_the_owner_latency(factory):
+    """close_if_open must not overwrite a latency the mapper already set."""
+    from app.agents.metrics import TurnMetricsHandler
+
+    _start_row(factory, "run-ok")
+    metrics = TurnMetricsHandler()
+    metrics.latency_ms = 4242  # as the mapper's close(started) would have set it
+
+    asyncio.run(
+        _drain(
+            _script([events.start("c1"), events.done(conversation_id="c1", current_flow="planner", suggestions=[])]),
+            run_id="run-ok",
+            metrics=metrics,
+            factory=factory,
+        )
+    )
+    assert _row(factory, "run-ok").latency_ms == 4242

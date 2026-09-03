@@ -56,6 +56,10 @@ class TurnMetricsHandler(BaseCallbackHandler):
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
+        # Turn start: the handler is built by the owner before the run begins, so
+        # this is the turn's own wall-clock origin. ``close_if_open`` uses it when
+        # a failure path never reached the owner's explicit ``close(started)``.
+        self._created = time.monotonic()
         # counters
         self.llm_calls = 0
         self.llm_errors = 0
@@ -68,7 +72,8 @@ class TurnMetricsHandler(BaseCallbackHandler):
         # in-flight state
         self._llm_starts: dict[UUID, float] = {}  # run_id -> monotonic start
         self._run_models: dict[UUID, str] = {}  # run_id -> model (from start)
-        self._node_starts: dict[UUID, tuple[str, float]] = {}  # run_id -> (key, start)
+        # run_id -> (key, checkpoint_ns, start)
+        self._node_starts: dict[UUID, tuple[str, str, float]] = {}
         self._seen_ns: set[str] = set()  # deduped checkpoint namespaces
 
     # -- LLM hooks -------------------------------------------------------
@@ -145,7 +150,11 @@ class TurnMetricsHandler(BaseCallbackHandler):
                 if ns in self._seen_ns:
                     return
                 self._seen_ns.add(ns)
-                self._node_starts[run_id] = (_node_key(node, ns), time.monotonic())
+                self._node_starts[run_id] = (
+                    _node_key(node, ns),
+                    ns,
+                    time.monotonic(),
+                )
         except Exception:  # pragma: no cover - defensive
             logger.debug("TurnMetricsHandler.on_chain_start failed", exc_info=True)
 
@@ -154,7 +163,13 @@ class TurnMetricsHandler(BaseCallbackHandler):
             entry = self._node_starts.pop(run_id, None)
             if entry is None:
                 return
-            key, started = entry
+            key, ns, started = entry
+            # Release the namespace once the outermost run for this task closes.
+            # Nested runs inherit the ns only while that run is in flight, so they
+            # stay deduped; a genuine re-execution of the same task (a MIN-49
+            # RetryPolicy retry reuses the deterministic checkpoint_ns) is timed
+            # again instead of being silently dropped.
+            self._seen_ns.discard(ns)
             ms = int((time.monotonic() - started) * 1000)
             slot = self._nodes.setdefault(key, {"ms": 0, "runs": 0})
             slot["ms"] += ms
@@ -179,6 +194,17 @@ class TurnMetricsHandler(BaseCallbackHandler):
     def close(self, started: float) -> None:
         """Set turn wall-clock ``latency_ms`` from an owner-held ``time.monotonic()``."""
         self.latency_ms = int((time.monotonic() - started) * 1000)
+
+    def close_if_open(self) -> None:
+        """Close the turn from the handler's own creation time if not closed yet.
+
+        The success path closes explicitly via ``close(started)``. A failed or
+        cancelled turn never reaches that call, so the finalizer uses this to
+        record a real wall-clock instead of leaving ``latency_ms`` NULL (which
+        would silently drop every failed turn out of the latency rollups).
+        """
+        if self.latency_ms is None:
+            self.latency_ms = int((time.monotonic() - self._created) * 1000)
 
     def snapshot(self) -> dict[str, Any]:
         """Full server-side metrics dict (``cost_usd`` filled by the owner)."""

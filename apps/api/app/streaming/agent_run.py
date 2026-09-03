@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
 from app.repositories.agent_run import AgentRunRepository
 
@@ -80,6 +81,17 @@ async def record_agent_run(
             status = "failed"
         else:
             status = "completed"
+        try:
+            # A failed / cancelled turn never reaches the mapper's success-path
+            # metrics block, so close and price here before persisting. Both are
+            # no-ops when the success path already did them: the dashboard's
+            # latency and cost rollups must not silently exclude failed turns.
+            metrics.close_if_open()
+            if metrics.cost_usd is None:
+                metrics.cost_usd = estimate_cost(metrics.snapshot()["by_model"])
+        except Exception:  # noqa: BLE001 — metrics must never break the stream
+            logger.debug("[record_agent_run] metrics finalize failed", exc_info=True)
+
         try:
             AgentRunRepository(session_factory).finish(
                 run_id,

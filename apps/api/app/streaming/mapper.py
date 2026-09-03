@@ -307,13 +307,18 @@ async def stream_agent_events(
                 preferences=(state.values.get("preferences", "") if state else ""),
             )
         )
+        usage = None
         if metrics is not None:
-            metrics.close(started)
-            snap = metrics.snapshot()
-            metrics.cost_usd = estimate_cost(snap["by_model"])
-            usage = metrics.public()
-        else:
-            usage = None
+            # Guarded: this block sits inside the stream's own try, so an
+            # exception here would convert a successful turn's `done` into an
+            # `error` event. Metrics never degrade the reply.
+            try:
+                metrics.close(started)
+                snap = metrics.snapshot()
+                metrics.cost_usd = estimate_cost(snap["by_model"])
+                usage = metrics.public()
+            except Exception:  # noqa: BLE001 — best-effort metrics
+                logger.debug("[stream_agent_events] metrics finalize failed", exc_info=True)
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,

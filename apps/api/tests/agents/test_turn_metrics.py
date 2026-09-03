@@ -1,5 +1,6 @@
 """TurnMetricsHandler unit tests (specs/agent-turn-metrics §4.1, SC-2)."""
 
+import time
 from uuid import uuid4
 
 from app.agents import metrics
@@ -199,3 +200,46 @@ def test_public_keys_are_exactly_the_documented_set():
     }
     assert pub["models"] == ["gpt-5"]
     assert pub["cost_usd"] is None
+
+
+def test_close_if_open_sets_latency_from_creation():
+    """A failed turn never calls close(started); close_if_open still records it."""
+    h = TurnMetricsHandler()
+    assert h.latency_ms is None
+    h.close_if_open()
+    assert h.latency_ms is not None and h.latency_ms >= 0
+
+
+def test_close_if_open_does_not_overwrite_an_explicit_close():
+    h = TurnMetricsHandler()
+    h.close(time.monotonic())
+    first = h.latency_ms
+    h.close_if_open()
+    assert h.latency_ms == first
+
+
+def test_node_retry_with_same_namespace_is_timed_again():
+    """A retried node reuses its deterministic checkpoint_ns; both runs count.
+
+    The namespace dedupe only exists to ignore nested runs that inherit the task
+    metadata while the node is in flight — it must not swallow a genuine
+    re-execution (MIN-49 RetryPolicy).
+    """
+    h = TurnMetricsHandler()
+    meta = {"langgraph_node": "planner", "langgraph_checkpoint_ns": "planner:abc"}
+    for _ in range(2):
+        rid = uuid4()
+        h.on_chain_start({}, {}, run_id=rid, metadata=meta)
+        h.on_chain_end({}, run_id=rid)
+    assert h.snapshot()["by_node"]["planner"]["runs"] == 2
+
+
+def test_nested_run_sharing_the_namespace_is_still_deduped():
+    h = TurnMetricsHandler()
+    meta = {"langgraph_node": "planner", "langgraph_checkpoint_ns": "planner:abc"}
+    outer, inner = uuid4(), uuid4()
+    h.on_chain_start({}, {}, run_id=outer, metadata=meta)
+    h.on_chain_start({}, {}, run_id=inner, metadata=meta)  # nested — ignored
+    h.on_chain_end({}, run_id=inner)
+    h.on_chain_end({}, run_id=outer)
+    assert h.snapshot()["by_node"]["planner"]["runs"] == 1

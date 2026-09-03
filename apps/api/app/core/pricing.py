@@ -87,9 +87,13 @@ def estimate_cost(by_model: dict[str, dict]) -> float | None:
 
     :param by_model: Maps a model name to a dict with ``input_tokens``,
         ``output_tokens`` and ``cached_tokens`` (each defaulting to 0).
-    :return: Total cost in USD, or ``None`` if any model normalises to a name
-        absent from the price table (a partial number is worse than none).
+    :return: Total cost in USD, or ``None`` when the cost is unknown — either
+        no usage was captured at all (empty ``by_model``) or some model
+        normalises to a name absent from the price table. A partial or
+        falsely-confident ``0.0`` is worse than an explicit unknown.
     """
+    if not by_model:
+        return None
     total = 0.0
     for model, usage in by_model.items():
         price = MODEL_PRICES_USD_PER_1M.get(normalize_model(model))

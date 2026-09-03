@@ -66,8 +66,10 @@ def test_any_unknown_model_poisons_the_total(fake_table):
     )
 
 
-def test_empty_by_model_is_zero(fake_table):
-    assert estimate_cost({}) == pytest.approx(0.0)
+def test_empty_by_model_is_unknown_not_zero(fake_table):
+    # No usage captured means the cost is UNKNOWN, not a confident $0.00 — a
+    # falsely-confident zero would silently under-report the cost rollups.
+    assert estimate_cost({}) is None
 
 
 def test_normalize_dated_snapshot():
