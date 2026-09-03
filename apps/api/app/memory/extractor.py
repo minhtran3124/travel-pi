@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass, field
+from typing import Any
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
@@ -99,7 +100,7 @@ def _parse_content(raw: str) -> ExtractedMemories:
 
 
 def extract_memories(
-    messages: list[BaseMessage], llm: BaseChatModel
+    messages: list[BaseMessage], llm: BaseChatModel, *, callbacks: Any = None
 ) -> ExtractedMemories:
     """Extract durable preferences, standing instructions and trip episodes from a
     conversation.
@@ -110,6 +111,8 @@ def extract_memories(
 
     :param messages: Full conversation history to extract from.
     :param llm: Chat model used to run the extraction prompt.
+    :param callbacks: When set, forwarded as ``config={"callbacks": callbacks}``
+        to ``llm.invoke`` so the caller can instrument the extraction call.
     :return: Extracted preferences, instructions, and episodes.
     """
     prompt = registry.get("memory_extraction")
@@ -119,7 +122,10 @@ def extract_memories(
         HumanMessage(content=_serialize(exchange)),
     ]
     try:
-        raw = llm.invoke(msgs).content
+        if callbacks is not None:
+            raw = llm.invoke(msgs, config={"callbacks": callbacks}).content
+        else:
+            raw = llm.invoke(msgs).content
     except Exception:
         logger.exception("memory_extraction: LLM call failed")
         return ExtractedMemories()

@@ -1,0 +1,180 @@
+[
+  {
+    "id": "TC01",
+    "name": "A /agent/chat turn returns per-turn usage (llm_calls, tokens) and leaves exactly one agent_runs row status=completed, kind=turn, by_node containing supervisor",
+    "status": "PASS",
+    "detail": "1 passed, 1 warning in 0.45s",
+    "checks": [
+      "tests/api/agent/test_agent_runs.py::test_chat_turn_returns_usage_and_records_completed_run"
+    ]
+  },
+  {
+    "id": "TC02",
+    "name": "A graph failure still returns the fallback reply (200) and records the row as failed \u2014 metrics never break the answer",
+    "status": "PASS",
+    "detail": "1 passed, 1 warning in 0.39s",
+    "checks": [
+      "tests/api/agent/test_agent_runs.py::test_chat_graph_exception_returns_fallback_and_records_failed_run"
+    ]
+  },
+  {
+    "id": "TC03",
+    "name": "A HITL plan-approval interrupt records status=interrupted; the resume turn opens a second row with kind=resume",
+    "status": "PASS",
+    "detail": "1 passed, 1 warning in 0.45s",
+    "checks": [
+      "tests/api/agent/test_agent_runs.py::test_chat_interrupt_then_resume_records_two_rows"
+    ]
+  },
+  {
+    "id": "TC04",
+    "name": "A /agent/stream turn records a completed row with channel=stream and the done event carries usage",
+    "status": "PASS",
+    "detail": "1 passed, 1 warning in 0.44s",
+    "checks": [
+      "tests/api/agent/test_agent_runs.py::test_stream_turn_records_completed_run"
+    ]
+  },
+  {
+    "id": "TC05",
+    "name": "If the agent_runs insert itself fails, the user still gets their reply (instrumentation is best-effort)",
+    "status": "PASS",
+    "detail": "1 passed, 1 warning in 0.43s",
+    "checks": [
+      "tests/api/agent/test_agent_runs.py::test_chat_failing_start_still_returns_reply"
+    ]
+  },
+  {
+    "id": "TC06",
+    "name": "A crashed or cancelled stream turn still persists a real latency, so failed turns are not silently dropped from the dashboard rollups (fix)",
+    "status": "PASS",
+    "detail": "2 passed, 1 warning in 0.07s",
+    "checks": [
+      "tests/streaming/test_record_agent_run.py::test_failed_turn_still_records_latency",
+      "tests/streaming/test_record_agent_run.py::test_success_path_keeps_the_owner_latency"
+    ]
+  },
+  {
+    "id": "TC07",
+    "name": "A turn whose usage was never captured reports cost as UNKNOWN, not a confident $0.0000; one unpriced model poisons the whole total to None (fix)",
+    "status": "PASS",
+    "detail": "3 passed, 1 warning in 0.01s",
+    "checks": [
+      "tests/core/test_pricing.py::test_empty_by_model_is_unknown_not_zero",
+      "tests/core/test_pricing.py::test_unknown_model_returns_none",
+      "tests/core/test_pricing.py::test_any_unknown_model_poisons_the_total"
+    ]
+  },
+  {
+    "id": "TC08",
+    "name": "A retried graph node is timed again while a nested run sharing the namespace stays deduped (fix)",
+    "status": "PASS",
+    "detail": "2 passed, 1 warning in 0.01s",
+    "checks": [
+      "tests/agents/test_turn_metrics.py::test_node_retry_with_same_namespace_is_timed_again",
+      "tests/agents/test_turn_metrics.py::test_nested_run_sharing_the_namespace_is_still_deduped"
+    ]
+  },
+  {
+    "id": "TC09",
+    "name": "OpenAI models are built asking for usage_metadata; other SDK profiles are left untouched",
+    "status": "PASS",
+    "detail": "2 passed, 1 warning in 0.27s",
+    "checks": [
+      "tests/clients/test_llm_stream_usage.py::test_openai_profile_model_requests_stream_usage",
+      "tests/clients/test_llm_stream_usage.py::test_anthropic_profile_receives_no_stream_usage_kwarg"
+    ]
+  },
+  {
+    "id": "TC10",
+    "name": "/dashboard/agent-runs renders for an operator in dev and is hidden (404) in production without credentials",
+    "status": "PASS",
+    "detail": "2 passed, 1 warning in 0.99s",
+    "checks": [
+      "tests/api/agent_config/test_agent_runs_dashboard.py::test_agent_runs_page_renders_in_dev",
+      "tests/api/agent_config/test_agent_runs_dashboard.py::test_agent_runs_page_404_in_production_without_credentials"
+    ]
+  },
+  {
+    "id": "TC11",
+    "name": "The agent_runs migration applies and rolls back cleanly (additive; no existing table touched)",
+    "status": "PASS",
+    "detail": "1 passed, 1 warning in 0.13s",
+    "checks": [
+      "tests/db/test_agent_runs_migration.py::test_agent_runs_migration_upgrade_downgrade_round_trip"
+    ]
+  },
+  {
+    "id": "TC12",
+    "name": "Background memory extraction reports its own calls/tokens/ms into background_* columns without touching the turn totals",
+    "status": "PASS",
+    "detail": "2 passed, 1 warning in 0.05s",
+    "checks": [
+      "tests/memory/test_extraction_metrics.py::test_records_background_metrics_without_touching_turn_columns",
+      "tests/memory/test_extraction_metrics.py::test_no_run_id_makes_no_db_access"
+    ]
+  },
+  {
+    "id": "LIVE-01",
+    "name": "REAL /agent/chat turn against the live stack (Supabase JWT, real OpenAI, Postgres checkpointer) returns usage and records a completed agent_runs row",
+    "status": "PASS",
+    "detail": "run b4c77b78: 5 LLM calls, 27,195 in / 135 out / 25,600 cached, cost $0.0037, latency 6268 ms, flow=concierge; response usage matched the row exactly",
+    "checks": [
+      "live run, not a test"
+    ]
+  },
+  {
+    "id": "LIVE-02",
+    "name": "REAL multi-intent /agent/stream turn fans out and converges: the done event carries usage and the row closes completed",
+    "status": "PASS",
+    "detail": "run bc6d5259: flow=synthesize, 9 LLM calls, 52,322 in / 486 out / 49,152 cached, cost $0.0083, latency 6881 ms; SSE order start/tool_call*3/tool_result*3/token/done",
+    "checks": [
+      "live run, not a test"
+    ]
+  },
+  {
+    "id": "LIVE-03",
+    "name": "A REAL failing turn (provider 403) still records latency and cost instead of dropping out of the rollups",
+    "status": "PASS",
+    "detail": "run 6e2e2282: status=failed, llm_errors=1, 42,657 in / 23,680 cached, cost $0.0175, latency 6460 ms \u2014 exactly the defect the final correctness review flagged, now proven fixed against a real provider error",
+    "checks": [
+      "live run, not a test"
+    ]
+  },
+  {
+    "id": "LIVE-04",
+    "name": "The new Alembic revision applies to a real Postgres database and creates the table plus its three indexes",
+    "status": "PASS",
+    "detail": "alembic upgrade head on the docker Postgres: c7f1a9d4e6b2 -> e3b7c5d9a1f4; agent_runs present with ix_agent_runs_user_id / _conversation_id / _status",
+    "checks": [
+      "live migration, not a test"
+    ]
+  },
+  {
+    "id": "LIVE-05",
+    "name": "A real dated-snapshot model name resolves to a price (normalize_model in production)",
+    "status": "PASS",
+    "detail": "provider returned model gpt-5.4-mini-2026-03-17; cost was computed, not NULL",
+    "checks": [
+      "live run, not a test"
+    ]
+  },
+  {
+    "id": "LIVE-06",
+    "name": "/agent/* rejects an unauthenticated call on the live stack",
+    "status": "PASS",
+    "detail": "POST /agent/chat without a bearer token -> 401",
+    "checks": [
+      "live run, not a test"
+    ]
+  },
+  {
+    "id": "LIVE-07",
+    "name": "With gpt-5 access granted, the previously-403 multi-intent turn completes and its cost is aggregated across TWO models, both dated snapshots",
+    "status": "PASS",
+    "detail": "run 0d4ce5e9: flow=synthesize, 9 calls, 43,132 in / 20,480 cached / 993 out, cost $0.02661, latency 14,272 ms. by_model split: gpt-5-2025-08-07 = 1 call (232 in / 637 out, the synthesize node falling back to the env default) and gpt-5.4-mini-2026-03-17 = 8 calls (42,900 in / 20,480 cached / 356 out). Both names required normalize_model to strip the dated suffix before pricing.",
+    "checks": [
+      "live run, not a test"
+    ]
+  }
+]

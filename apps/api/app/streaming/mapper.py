@@ -15,17 +15,22 @@ langgraph 1.2.x (v1 emission) each item is a ``(namespace, mode, data)`` tuple:
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import AsyncIterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
 from app.streaming.panel_localizer import localize_panel
+
+if TYPE_CHECKING:
+    from app.agents.metrics import TurnMetricsHandler
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +92,7 @@ async def stream_agent_events(
     conversation_id: str,
     context: Any = None,
     final_state_sink: dict | None = None,
+    metrics: TurnMetricsHandler | None = None,
 ) -> AsyncIterator[TypedSSEEvent]:
     """Yield typed SSE events for one agent turn (or interrupt resume).
 
@@ -101,7 +107,11 @@ async def stream_agent_events(
     :param final_state_sink: When provided, populated with the post-drain
         ``values``/``interrupt_pending`` snapshot so a caller (e.g. a response
         background task) can run memory extraction after the stream completes.
+    :param metrics: Optional per-turn ``TurnMetricsHandler``. When given, its
+        wall-clock is closed just before the ``done`` event and the client-facing
+        ``usage`` subset (with ``cost_usd`` filled) is attached to that event.
     """
+    started = time.monotonic()
     yield events.start(conversation_id)
 
     # Seed the language BEFORE the astream loop so a HITL-resume turn (which
@@ -297,12 +307,25 @@ async def stream_agent_events(
                 preferences=(state.values.get("preferences", "") if state else ""),
             )
         )
+        usage = None
+        if metrics is not None:
+            # Guarded: this block sits inside the stream's own try, so an
+            # exception here would convert a successful turn's `done` into an
+            # `error` event. Metrics never degrade the reply.
+            try:
+                metrics.close(started)
+                snap = metrics.snapshot()
+                metrics.cost_usd = estimate_cost(snap["by_model"])
+                usage = metrics.public()
+            except Exception:  # noqa: BLE001 — best-effort metrics
+                logger.debug("[stream_agent_events] metrics finalize failed", exc_info=True)
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,
             suggestions=suggestions,
             language=current_language,
             trip_id=state.values.get("trip_id") if state else None,
+            usage=usage,
         )
 
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event

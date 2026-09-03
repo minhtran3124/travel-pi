@@ -1,0 +1,62 @@
+{
+  "reviewed_head_sha": "d8f230c657789e8ed106244468f350cec79a82be",
+  "created": "2026-09-03T09:40:04+00:00",
+  "reviews": [
+    {
+      "reviewer": "spec-document-reviewer",
+      "type": "design",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Six issues raised on the design, all addressed before implementation: tool-to-node attribution via parent_run_id is unreliable (on_tool_start carries its own metadata, contradicting the design's claim that only on_chat_model_start does); steps must be ordered at start or a node bar renders below its children; a per-step time origin mixing ISO and monotonic; a content-leak path through meta fed by on_chain_end outputs; prompt attribution needing a list rather than one column; and an unbounded step count. Verified true: registry.active_version, the prompt page URL shape, router-level dashboard guard, alembic head."
+    },
+    {
+      "reviewer": "xia2-deep-research",
+      "type": "research",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Version-matched against installed source. Confirmed on_tool_start carries langgraph metadata and a reliable serialized name while on_tool_error carries neither (so a run_id-keyed open map is mandatory); on_chat_model_start metadata is reliable inside sub-graphs and Send workers; finish_reason reaches response_metadata; hooks fire from multiple threads so the seq counter must be locked. Contradicted three design claims, all corrected: the prompt page renders the LATEST version unless the link pins one; PROMPTS_FOR_NODE keyed on the bare node name collapses all five sub-agents onto 'assistant'; and the prompt snapshot cannot be taken per turn because six prompts are baked at graph build."
+    },
+    {
+      "reviewer": "task-review-wave-1",
+      "type": "task-1.1-1.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Combined review of step capture, prompt map and schema. Traced clean: no hook reads input_str/inputs/output/outputs; error_type is type(exc).__name__ at all three sites; the leak test populates meta with a marker-bearing key that is dropped, so it passes for the right reason; seq and offset_ms assigned at start under one lock; the cap leaves by_node and token totals exact; ORM and migration columns match; single head. One Important fixed in 37a5a9a: the prompt_versions repo tests asserted a list of {name,version} dicts, a shape no producer emits, so the only test guarding that column pinned the wrong contract. Also fixed: the leak test stopped at the handler and now follows enrich_steps -> add_steps -> steps_for; stranded open steps are swept at turn close."
+    },
+    {
+      "reviewer": "task-review-wave-2-3",
+      "type": "task-2.1-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Wiring and page. The build-time snapshot is attached to the compiled graph as designed; both finalizers write steps where finish() already runs, so no step write is issued from a background task against an uncommitted row \u2014 the deadlock this branch's parent fixed is not reachable. The page clamps bars, short-circuits a zero span, 404s an unknown id, keeps autoescape with no |safe, and inherits the router-level dashboard guard. Implementer flagged a wave-1 type error out of its own scope (prompt_versions annotated list while the producer emits a dict); corrected in 74cc359."
+    },
+    {
+      "reviewer": "live-stack-uat",
+      "type": "uat",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Real stack: docker Postgres with AsyncPostgresSaver, a genuine Supabase ES256 token, real OpenAI. A multi-intent stream turn (7 calls, 40,247 in / 18,304 cached, $0.0239, 13,727 ms) rendered its chain with the parallel synthesis_worker fan-out visible as overlapping bars and a genuine resolve_date ToolException captured as an error step. It also disproved a claim the branch had accepted from review: the multi-intent specialist does NOT appear in the checkpoint namespace, so per-step prompt attribution is blank there while single-intent turns attribute correctly (concierge v11 + communication_style v8). The comment and the page's prompts table were corrected in f3d2b1d rather than left overstating. Advisory: attribution on the multi-intent path needs state['task'] plumbed to the callback; alembic upgrade failed on Postgres with DuplicateTable because four repositories call create_all on any backend \u2014 the deep review's schema-ownership item, recorded as a Harness-Delta and not fixed here."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Adversarial review over the full de438f0..f3d2b1d diff; 578 passed. Verified clean: hook payloads never read; error_type is the class name everywhere; locking correct with no re-entrancy and no sweep/close corruption; totals exact under the cap; both step writes inside existing guards with the background-task deadlock unreachable; no div-by-zero, bars clamped, autoescape on, 404 on unknown id; ORM and migration agree column-for-column; single head; finish(prompt_versions=None) leaves the value unchanged. One Important fixed in d8f230c: /agent/chat never called close_if_open, so a chat turn failing mid-graph persisted steps as 'open' with 0 ms while the stream path swept them \u2014 the two channels recorded the same failure differently. Minors also addressed: silent truncation past the cap is now disclosed on the page, the meta allowlist is re-applied at persistence, and the attributed-prompt lookup is hoisted out of the render loop."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind against the verbatim request. Both asks land: 'what is the system prompt' is answered by a build-time name->version snapshot rendered as links that pin ?version=, so the page opens the version that ran; 'how does the chain go' is answered by ordered steps rendered as a waterfall with sub-graph nesting, tools and per-model cost. Click-through from the list is real and behind the dashboard guard. The no-content decision is honoured and proven by a leak test that follows persistence. No overreach. Two gaps raised and fixed: finish_reason was captured but rendered nowhere, and the scope had narrowed to a single meta key without disclosure \u2014 the narrowing was deliberate (the other fields are only reachable through on_chain_end's outputs, which carries messages) and the SUMMARY now records it as a deviation."
+    }
+  ]
+}
