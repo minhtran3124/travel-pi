@@ -129,3 +129,43 @@ def test_steps_are_json_serialisable_without_a_default_encoder():
     """A step must contain only JSON primitives — no message objects sneaking through."""
     h = _drive_handler()
     json.dumps(h.steps())
+
+
+def test_marker_does_not_survive_enrichment_and_persistence(tmp_path):
+    """The boundary must hold through the whole write path, not just the handler.
+
+    The handler-level assertions above prove no hook copies content into a step.
+    This closes the other half: enrichment adds ``prompts``/``cost_usd`` and the
+    repository writes the row, so the marker must be absent from what is actually
+    stored and read back — otherwise the guarantee stops at the object boundary.
+    """
+    from app.agents.prompt_map import enrich_steps
+    from app.db.base import Base
+    from app.db.engine import get_engine, get_session_factory
+    from app.repositories.agent_run import AgentRunRepository
+
+    url = f"sqlite:///{tmp_path / 'leak.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    repo = AgentRunRepository(get_session_factory(url))
+    repo.start(
+        "run-leak",
+        user_id="u1",
+        conversation_id="c1",
+        thread_id="t1",
+        trip_id=None,
+        channel="chat",
+        kind="turn",
+        started_at="2026-09-03T00:00:00+00:00",
+    )
+
+    enriched = enrich_steps(_drive_handler().steps(), {"supervisor": 9})
+    repo.add_steps("run-leak", enriched)
+
+    stored = json.dumps(
+        [
+            {c.name: getattr(row, c.name) for c in row.__table__.columns}
+            for row in repo.steps_for("run-leak")
+        ],
+        default=str,
+    )
+    assert MARKER not in stored

@@ -392,6 +392,30 @@ class TurnMetricsHandler(BaseCallbackHandler):
         """
         if self.latency_ms is None:
             self.latency_ms = int((time.monotonic() - self._created) * 1000)
+        self._sweep_open_steps()
+
+    def _sweep_open_steps(self) -> None:
+        """Close any step still open when the turn ends.
+
+        A step is stranded when its close hook never fires — a cancelled stream,
+        or a reused ``run_id`` whose second open overwrote the first entry. Left
+        alone it would persist with ``status="open"`` and no duration, which the
+        waterfall would render as a zero-width bar of unknown outcome. Give it
+        the duration it had reached and an explicit terminal status instead.
+        """
+        try:
+            with self._lock:
+                now = time.monotonic()
+                for index in self._open_steps.values():
+                    step = self._steps[index]
+                    if step.get("status") == "open":
+                        step["status"] = "unfinished"
+                        step["ms"] = max(
+                            0, int(now * 1000) - int(self._created * 1000) - step["offset_ms"]
+                        )
+                self._open_steps.clear()
+        except Exception:  # pragma: no cover - defensive
+            logger.debug("TurnMetricsHandler._sweep_open_steps failed", exc_info=True)
 
     def snapshot(self) -> dict[str, Any]:
         """Full server-side metrics dict (``cost_usd`` filled by the owner)."""

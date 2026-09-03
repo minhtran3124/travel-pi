@@ -103,11 +103,15 @@ def test_finish_records_prompt_versions(repo):
         current_flow=None,
         finished_at="2026-09-03T00:00:05+00:00",
         metrics={"llm_calls": 1},
-        prompt_versions=[{"name": "communication_style", "version": 9}],
+        # A name -> version mapping, the shape prompt_versions_snapshot actually
+        # produces. An earlier draft asserted a list of {name, version} dicts, a
+        # shape no producer emits — the JSON column hid the mismatch at runtime.
+        prompt_versions={"communication_style": 9, "supervisor": 3},
     )
-    assert repo.list_recent()[0].prompt_versions == [
-        {"name": "communication_style", "version": 9}
-    ]
+    assert repo.list_recent()[0].prompt_versions == {
+        "communication_style": 9,
+        "supervisor": 3,
+    }
 
 
 def test_finish_without_prompt_versions_leaves_value_unchanged(repo):
@@ -118,7 +122,7 @@ def test_finish_without_prompt_versions_leaves_value_unchanged(repo):
         current_flow=None,
         finished_at="2026-09-03T00:00:05+00:00",
         metrics={"llm_calls": 1},
-        prompt_versions=[{"name": "supervisor", "version": 2}],
+        prompt_versions={"supervisor": 2},
     )
     repo.finish(
         "run-1",
@@ -127,6 +131,4 @@ def test_finish_without_prompt_versions_leaves_value_unchanged(repo):
         finished_at="2026-09-03T00:00:06+00:00",
         metrics={"llm_calls": 2},
     )
-    assert repo.list_recent()[0].prompt_versions == [
-        {"name": "supervisor", "version": 2}
-    ]
+    assert repo.list_recent()[0].prompt_versions == {"supervisor": 2}

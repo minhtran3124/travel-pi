@@ -19,8 +19,11 @@ Two independent pieces:
   once when the graph is compiled, so a later ``active.yaml`` edit does not
   change the running graph).
 
-``synthesis_worker`` picks its specialist from ``state["task"]`` at runtime, so
-its inner nodes cannot be attributed statically and map to ``[]``.
+``synthesis_worker`` picks its specialist from ``state["task"]`` at runtime. The
+specialist name *is* present in the checkpoint namespace, but ``_node_key`` keeps
+only the namespace root (the worker), so it does not reach this map and those
+inner nodes map to ``[]``. Recovering it means reading the middle namespace
+segment — a follow-up, noted because this is the busiest LLM path.
 ``summarize`` and ``synthesize`` build their system text outside the registry.
 """
 
@@ -50,9 +53,10 @@ def _subagent_entries() -> dict[str, list[str]]:
             # Only ``assistant`` builds a system message; ``tools`` /
             # ``trip_guard`` run no model.
             entries[f"{name}/{inner}"] = list(prompts) if inner == "assistant" else []
-    # ``synthesis_worker`` invokes one of these sub-graphs inside its own node,
-    # so the checkpoint-namespace root is the worker, not the specialist — which
-    # specialist ran is unknown until runtime, hence no attribution.
+    # ``synthesis_worker`` invokes one of these sub-graphs inside its own node, so
+    # the namespace root is the worker rather than the specialist. The specialist
+    # is still in the middle namespace segment; ``_node_key`` just discards it, so
+    # attribution is recoverable later but not available from this key today.
     for inner in _SUBGRAPH_NODES:
         entries[f"synthesis_worker/{inner}"] = []
     return entries

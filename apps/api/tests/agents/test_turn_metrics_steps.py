@@ -279,3 +279,22 @@ def test_llm_end_without_usage_still_closes_the_step():
     assert step["status"] == "ok"
     assert step["model"] == "gpt-5"
     assert step["meta"] == {}
+
+
+def test_close_sweeps_a_step_whose_end_hook_never_fired():
+    """A cancelled turn must not leave a step stranded as `open`.
+
+    Without the sweep the row persists with status "open" and ms 0, which the
+    waterfall would draw as a zero-width bar of unknown outcome.
+    """
+    h = TurnMetricsHandler()
+    rid = uuid4()
+    h.on_chat_model_start(
+        {}, [], run_id=rid, metadata={"langgraph_node": "supervisor", "ls_model_name": "m"}
+    )
+    # no on_llm_end / on_llm_error — the stream was cancelled mid-call
+    h.close_if_open()
+
+    step = h.steps()[0]
+    assert step["status"] == "unfinished"
+    assert step["ms"] >= 0
