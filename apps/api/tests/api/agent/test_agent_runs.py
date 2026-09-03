@@ -191,3 +191,40 @@ def test_chat_failing_start_still_returns_reply(tmp_path, monkeypatch):
 
     # No row was inserted (start raised); finish on a missing id is a no-op.
     assert _runs(tmp_path) == []
+
+
+def test_run_row_is_durable_without_the_request_session_commit(tmp_path):
+    """The agent_runs row must not depend on the request session being committed.
+
+    Found by a real-server UAT: writes flushed onto the request-scoped session
+    *after* the graph await are not durable in the running app (the same reason
+    the stream path persists its reply through an isolated factory), so a
+    finish() flushed onto that session was lost and every /agent/chat turn stayed
+    `running` forever — while this suite passed, because TestClient's dependency
+    teardown does commit. Pinning the invariant with a NON-committing session
+    override reproduces the production behaviour.
+    """
+    url = _db_url(tmp_path)
+    app = _make_app(tmp_path, "concierge", "Visit Tokyo Tower at sunset.")
+
+    def _no_commit_session():
+        s = get_session_factory(url)()
+        try:
+            yield s  # deliberately never committed
+        finally:
+            s.close()
+
+    app.dependency_overrides[get_session] = _no_commit_session
+
+    with TestClient(app) as c:
+        resp = c.post(
+            "/agent/chat",
+            json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+
+    rows = _runs(tmp_path)
+    assert len(rows) == 1
+    assert rows[0].status == "completed"
+    assert rows[0].llm_calls >= 1
+    assert rows[0].latency_ms is not None

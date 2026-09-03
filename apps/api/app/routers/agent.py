@@ -313,6 +313,17 @@ async def agent_chat(
             )
         except Exception:
             logger.exception("[agent_chat] failed to finish agent_run id=%s", run_id)
+        try:
+            # Commit the post-graph writes (this run row, and the assistant message
+            # appended just above) explicitly, mirroring the stream path's own
+            # `session.commit()`. Flushing alone is not enough here: writes made on
+            # the request-scoped session after the graph `await` do not reach the
+            # database in the running server, so the row stayed `running` forever
+            # and the reply was never persisted. The dependency's cleanup commit is
+            # a no-op after this one.
+            session.commit()
+        except Exception:
+            logger.exception("[agent_chat] failed to commit turn id=%s", run_id)
         return usage
 
     try:

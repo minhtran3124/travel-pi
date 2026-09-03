@@ -57,9 +57,9 @@
       <tr>
         <td>
           <span class="from-city">{{ (run.started_at or run.created_at)[:19] | replace('T', ' ') }}</span>
-          <span class="sub">{{ run.id }}</span>
+          <span class="sub" title="{{ run.id }}">{{ run.id[:8] }}</span>
         </td>
-        <td><span class="ref">{{ run.user_id }}</span></td>
+        <td><span class="ref" title="{{ run.user_id }}">{{ run.user_id[:8] }}</span></td>
         <td>
           <span class="from-city">{{ run.channel }}</span>
           <span class="sub">{{ run.kind }}</span>
