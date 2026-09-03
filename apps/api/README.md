@@ -67,6 +67,7 @@ docker compose restart api      # Docker (re-seeds on restart)
 - **Swagger UI:** http://localhost:8000/docs
 - **Flight board:** http://localhost:8000/dashboard/flights
 - **Air quality:** http://localhost:8000/dashboard/air-quality
+- **Agent runs:** http://localhost:8000/dashboard/agent-runs — per-turn token/cost/latency metrics (`cost_usd` is an estimate from `app/core/pricing.py`, verified 2026-09-03)
 - **Full API reference:** [APIS.md](./APIS.md)
 
 Generate TypeScript types:

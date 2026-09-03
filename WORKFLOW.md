@@ -256,6 +256,17 @@ durable job queue.
 - **Observability** — optional Langfuse callbacks and non-PII trace metadata (`user_id`, `trip_id`);
   disabled by default and fail-open.
 
+### Per-turn metrics
+
+- **What** — a `TurnMetricsHandler` callback (attached beside the Langfuse handler) records per turn:
+  LLM call count, input/output/cached tokens, a USD cost estimate (`app/core/pricing.py`), and
+  turn + per-node wall-clock latency. Best-effort — it never raises into the reply path.
+- **Where** — one `agent_runs` row per turn (running → completed/interrupted/failed, plus
+  `by_model` / `by_node` breakdowns and separate `background_*` columns for memory extraction); the
+  client-facing subset rides the `usage` object on `ChatResponse` and the `done` SSE event.
+- **Depends on** `stream_usage=True` (OpenAI SDK profile only) so `invoke`/`stream` return
+  `usage_metadata`; without it token counts are zero. Browse the rows at `/dashboard/agent-runs`.
+
 ---
 
 ## 8. Configuration
