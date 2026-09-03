@@ -1063,9 +1063,12 @@ _MIN_BAR_PCT = 0.8
 def _attributed_prompt_names(steps: list) -> set[str]:
     """Prompt names the run's steps could be attributed to.
 
-    Empty for a multi-intent turn: those sub-agent calls run under
-    ``synthesis_worker`` and the specialist appears nowhere in the checkpoint
-    namespace, so no step carries a prompt pointer.
+    Multi-intent turns are attributed too: the synthesis worker passes its
+    specialist through the config metadata, so a worker's ``assistant`` steps
+    resolve to that specialist's prompts. What stays unattributed is the handful
+    of steps that compose no registry prompt at all — a worker's ``tools`` and
+    ``trip_guard`` spans, and ``synthesize`` / ``summarize``, which build their
+    system text outside the registry.
     """
     names: set[str] = set()
     for step in steps:
@@ -1196,10 +1199,9 @@ def agent_run_detail_page(
             # whatever is latest today, not the version this turn ran.
             # The snapshot is every prompt the compiled graph had active, not only
             # the ones this turn exercised — label it as such and flag the subset the
-            # steps could actually attribute, so the page does not claim more than it
-            # knows. Per-step attribution is blank on the multi-intent path (the
-            # specialist never reaches the checkpoint namespace), so an unflagged row
-            # means "not attributable", never "not used".
+            # steps could actually attribute, so the page does not claim more than
+            # it knows. An unflagged row means "no step could be attributed to it",
+            # never "not used" — some nodes compose no registry prompt at all.
             "prompts": [
                 (name, version, name in attributed)
                 for name, version in sorted((run.prompt_versions or {}).items())
