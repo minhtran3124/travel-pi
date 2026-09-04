@@ -141,10 +141,9 @@ new job (Node 24).
 ### Intent Findings
 
 Update (2026-09-04, after the intent review ran): both external prerequisites now exist — the
-Supabase e2e user was created and the four repository secrets were set — and the full suite passes
-locally (see `### Verify`). GAP-1 is closed by the new Verify row. GAP-2 (CI job actually green on
-GitHub Actions) is being watched on PR #135; the job structure was already correct, only the
-secrets were missing.
+Supabase e2e user was created and the four repository secrets were set. GAP-1 is closed by the new
+local Verify row (7 passed, 0 failed). GAP-2 is closed by a real GitHub Actions run: `web-e2e`
+passed on PR #135 (run 33861006479, 1m29s). Both gaps closed 2026-09-04.
 
 Intent review verdict at time of review: **gaps found** (proof gaps only — no drift, no excess). Both gaps are
 external-prerequisite blockers already disclosed in this SUMMARY and `design.md` § Human
