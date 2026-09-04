@@ -1,6 +1,9 @@
-import { loadEnvConfig } from "@next/env";
 import { defineConfig, devices } from "@playwright/test";
-import { STORAGE_STATE } from "./playwright/e2e-env";
+
+// Must precede every other local import: it populates process.env from
+// apps/web/.env* before any module reads it.
+import "./playwright/load-env";
+import { STORAGE_STATE } from "./playwright/storage-state";
 
 /**
  * Playwright e2e config — opt-in, NOT part of the fast CI path.
@@ -14,17 +17,14 @@ import { STORAGE_STATE } from "./playwright/e2e-env";
  *   - `chromium` — the actual specs; depends on `setup` and loads its saved
  *     `storageState` so every spec starts already signed in.
  *
- * `loadEnvConfig` (from `@next/env`, resolved against THIS file's directory
- * via `__dirname`, not `process.cwd()`) pulls a local `.env.local` into the
- * runner process the same way `next dev` does; it never overrides an
- * already-set variable, so CI's exported secrets still win.
+ * `./playwright/load-env` pulls a local `.env.local` into the runner process the
+ * same way `next dev` does; it never overrides an already-set variable, so CI's
+ * exported secrets still win.
  *
  * Assumes the FastAPI backend is started separately on :8000 (see the spec
  * file header for the full run recipe). The `webServer` block boots the Next
  * dev server on :3000 and reuses an already-running one when present.
  */
-loadEnvConfig(__dirname);
-
 export default defineConfig({
   testDir: "./playwright",
   fullyParallel: true,

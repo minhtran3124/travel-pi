@@ -19,7 +19,8 @@
  */
 import { test as setup } from "@playwright/test";
 
-import { E2E_USER_EMAIL, E2E_USER_PASSWORD, STORAGE_STATE, hasCreds } from "./e2e-env";
+import { E2E_USER_EMAIL, E2E_USER_PASSWORD, hasCreds } from "./e2e-env";
+import { STORAGE_STATE } from "./storage-state";
 
 setup.skip(!hasCreds, "E2E_USER_EMAIL/E2E_USER_PASSWORD not set");
 
