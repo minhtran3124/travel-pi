@@ -128,7 +128,10 @@ def test_list_messages_unknown_conversation_returns_empty(tmp_path):
         resp = client.get("/agent/conversations/does-not-exist/messages")
 
     assert resp.status_code == 200
-    assert resp.json()["messages"] == []
+    body = resp.json()
+    assert body["messages"] == []
+    assert body["interrupt_pending"] is False
+    assert body["interrupt_payload"] is None
 
 
 def test_list_messages_requires_jwt(tmp_path):
@@ -157,7 +160,10 @@ def test_list_messages_scoped_to_owner(tmp_path):
 
     # Empty (not 403) so existence of the conversation is not confirmed.
     assert resp.status_code == 200
-    assert resp.json()["messages"] == []
+    body = resp.json()
+    assert body["messages"] == []
+    assert body["interrupt_pending"] is False
+    assert body["interrupt_payload"] is None
 
 
 def test_list_messages_reports_pending_interrupt(booking_client):
