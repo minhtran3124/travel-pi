@@ -469,9 +469,10 @@
     "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
     "activity": {
       "running": "Đang chạy",
-      "summary": "Đã dùng {count, plural, other {# công cụ}} · {seconds}s",
+      "summary": "Đã sắp xếp {count, plural, other {# việc}} cho chuyến đi · {seconds}s",
       "expand": "Xem chi tiết",
       "collapse": "Ẩn chi tiết",
+      "retry": "Thử lại",
       "working": "Đang xử lý…",
       "hotels": "Đang tìm khách sạn",
       "flights": "Đang tìm chuyến bay",
@@ -480,7 +481,19 @@
       "route": "Đang tìm lộ trình",
       "airQuality": "Đang kiểm tra chất lượng không khí",
       "budget": "Đang kiểm tra ngân sách",
-      "journal": "Đang cập nhật chuyến đi"
+      "journal": "Đang cập nhật chuyến đi",
+      "error": {
+        "generic": "Không hoàn tất được bước này",
+        "hotels": "Không tìm được khách sạn",
+        "flights": "Không tìm được chuyến bay",
+        "places": "Không tìm được địa điểm",
+        "weather": "Không kiểm tra được thời tiết",
+        "route": "Không tìm được lộ trình",
+        "airQuality": "Không kiểm tra được chất lượng không khí",
+        "budget": "Không kiểm tra được ngân sách",
+        "journal": "Không cập nhật được chuyến đi",
+        "working": "Không hoàn tất được bước này"
+      }
     },
     "actions": {
       "copy": "Sao chép",
