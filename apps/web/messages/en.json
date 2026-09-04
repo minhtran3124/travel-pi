@@ -471,9 +471,10 @@
     "errorQuota": "You've reached today's free message limit.",
     "activity": {
       "running": "Running",
-      "summary": "Used {count, plural, one {# tool} other {# tools}} · {seconds}s",
+      "summary": "Sorted {count, plural, one {# thing} other {# things}} for your trip · {seconds}s",
       "expand": "Show details",
       "collapse": "Hide details",
+      "retry": "Retry",
       "working": "Working…",
       "hotels": "Searching hotels",
       "flights": "Searching flights",
@@ -482,7 +483,19 @@
       "route": "Finding the route",
       "airQuality": "Checking air quality",
       "budget": "Checking your budget",
-      "journal": "Updating your trip"
+      "journal": "Updating your trip",
+      "error": {
+        "generic": "Couldn't finish this step",
+        "hotels": "Couldn't finish the hotel search",
+        "flights": "Couldn't finish the flight search",
+        "places": "Couldn't finish finding places",
+        "weather": "Couldn't check the weather",
+        "route": "Couldn't finish the route",
+        "airQuality": "Couldn't check air quality",
+        "budget": "Couldn't check your budget",
+        "journal": "Couldn't finish updating your trip",
+        "working": "Couldn't finish this step"
+      }
     },
     "actions": {
       "copy": "Copy",
