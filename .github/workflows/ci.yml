@@ -62,29 +62,32 @@ jobs:
     # `secrets` is readable in a job-level `env` but not in a job-level `if`,
     # so gate each step on this flag instead of the job.
     env:
-      HAS_E2E_SECRETS: "${{ secrets.E2E_USER_EMAIL != '' }}"
+      # Every secret the job consumes, not just the first: a half-configured
+      # repository would otherwise run the whole suite and report green having
+      # skipped every test, or crash the dev server on an empty Supabase URL.
+      HAS_E2E_SECRETS: "${{ secrets.E2E_USER_EMAIL != '' && secrets.E2E_USER_PASSWORD != '' && secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY != '' }}"
 
     steps:
       - uses: actions/checkout@v4
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
 
       - name: Set up Python
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install uv
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         uses: astral-sh/setup-uv@v4
 
       - name: Install backend dependencies
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         working-directory: apps/api
         run: uv venv && uv pip install -r requirements.txt
 
       - name: Start backend
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         working-directory: apps/api
         env:
           DATABASE_URL: sqlite:///./e2e.db
@@ -109,26 +112,26 @@ jobs:
           exit 1
 
       - name: Set up pnpm
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         uses: pnpm/action-setup@v4
 
       - name: Set up Node
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: pnpm
 
       - name: Install dependencies
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browser
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         run: pnpm --filter @travel/web exec playwright install --with-deps chromium
 
       - name: Run e2e tests
-        if: env.HAS_E2E_SECRETS == 'true'
+        if: success() && env.HAS_E2E_SECRETS == 'true'
         env:
           E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
           E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
@@ -143,14 +146,16 @@ jobs:
         # and its log would otherwise die with the runner.
         if: failure() && env.HAS_E2E_SECRETS == 'true'
         working-directory: apps/api
-        run: cat uvicorn.log
+        run: cat uvicorn.log || true
 
       - name: Upload Playwright report
         if: failure() && env.HAS_E2E_SECRETS == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: apps/web/playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
 
       - name: Note when e2e was skipped for want of secrets
         run: |

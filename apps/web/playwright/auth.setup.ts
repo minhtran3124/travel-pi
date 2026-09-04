@@ -35,7 +35,12 @@ setup("sign in and save the storage state", async ({ page }) => {
   // the page here and renders a role="alert"; surface its text on timeout so the
   // failure is legible instead of a bare "waitForURL exceeded".
   try {
-    await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
+    // Well inside the 30s test budget, so this rejects and the diagnostic
+    // below runs; without an explicit bound the test deadline would expire
+    // first and the alert text would never be read.
+    await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+      timeout: 10_000,
+    });
   } catch (error) {
     const alert = page.getByRole("alert");
     const detail = (await alert.count())

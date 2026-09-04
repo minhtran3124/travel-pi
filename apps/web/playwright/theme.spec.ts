@@ -19,14 +19,17 @@
  * by next-themes). `/trips` page DATA may need the backend, but the header +
  * toggle + html class always render, so the assertions never depend on it.
  *
- * Under CI `retries: 1`, a pass-on-retry of the "no FOUC" test is NOT a clean
- * pass: that test reads the pre-hydration `dark` class exactly once with no
- * retry window, so a first-attempt failure is a real flash signal worth reading
- * in the trace even when the retry goes green.
+ * This file pins `retries: 0` even under CI. The "no FOUC" test is built on a
+ * single attempt: a retry runs against an already-warm route, so a real flash
+ * regression would be reported as flaky and the run would still exit 0. Keeping
+ * the retry budget at zero here preserves the guarantee; the rest of the suite
+ * keeps the config's CI retry.
  */
 import { expect, test } from "@playwright/test";
 
 import { hasCreds } from "./e2e-env";
+
+test.describe.configure({ retries: 0 });
 
 // File-scope guard: `/trips` needs an authenticated session (see the header).
 // Without e2e credentials the shared storage state is never written, so skip
