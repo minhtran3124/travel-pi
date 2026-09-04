@@ -203,7 +203,7 @@ def test_chat_redacts_pii_in_persisted_messages(client):
         f"/agent/conversations/{body['conversation_id']}/messages?user_id=u1"
     )
     assert history.status_code == 200
-    msgs = history.json()
+    msgs = history.json()["messages"]
 
     user_contents = [m["content"] for m in msgs if m["role"] == "user"]
     assert any("secret@leak.com" not in c for c in user_contents)
@@ -337,11 +337,11 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
         lines = raw_event.strip().split("\n")
         if not lines:
             continue
-        event_name = lines[0][len("event: "):]
+        event_name = lines[0][len("event: ") :]
         data_line = next((ln for ln in lines if ln.startswith("data: ")), None)
         if data_line is None:
             continue
-        payload = json.loads(data_line[len("data: "):])
+        payload = json.loads(data_line[len("data: ") :])
         if event_name == "token":
             accumulated += payload.get("content", "")
         elif event_name == "reset":
