@@ -17,7 +17,7 @@ from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
 from app.main import create_app
-from app.routers.agent import get_travel_graph
+from app.routers.agent import get_travel_graph, get_travel_graph_optional
 from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 from langgraph.checkpoint.memory import MemorySaver
@@ -90,6 +90,7 @@ def _make_app(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = _override_graph
+    app.dependency_overrides[get_travel_graph_optional] = _override_graph
     # Test-only introspection hook: lets tests reach the same store/llm the
     # request handler sees. Deliberately NOT named `app.state.travel_graph` —
     # the real lifespan (app/core/lifespan.py) sets that attribute on startup

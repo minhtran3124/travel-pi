@@ -883,6 +883,12 @@ export function useAgentStream(
     if (!abortRef.current) return;
     userStoppedRef.current = true;
     abortRef.current.abort();
+    // The typewriter reveal buffer drains on its own rAF loop, independent of
+    // the abort signal — without this it would keep visibly "typing" already
+    // received text for up to its max lag after Stop. Flush (not clear) so
+    // every token the server actually sent before Stop still ends up on
+    // screen, just without further delay.
+    revealRef.current?.flush();
   }, []);
 
   const newConversation = useCallback(() => {

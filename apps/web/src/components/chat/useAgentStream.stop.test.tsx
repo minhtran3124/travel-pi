@@ -82,6 +82,14 @@ describe("useAgentStream — user Stop", () => {
 
     // The turn is genuinely in flight (stream is emitting, not yet closed).
     await waitFor(() => expect(result.current.isStreaming).toBe(true));
+    // isStreaming flips true synchronously in send(), before the "token" event
+    // has necessarily been read off the wire — wait for the reveal buffer to
+    // have actually started draining the token before stopping, so this test
+    // exercises "unrevealed text still buffered", not a race against an event
+    // that hasn't arrived yet.
+    await waitFor(() =>
+      expect(result.current.messages.at(-1)?.content.length).toBeGreaterThan(0),
+    );
 
     act(() => {
       result.current.stop();
@@ -91,5 +99,12 @@ describe("useAgentStream — user Stop", () => {
     // error surfaces (the abort is not treated as a stream failure).
     await waitFor(() => expect(result.current.isStreaming).toBe(false));
     expect(result.current.error).toBeNull();
+
+    // The typewriter reveal buffer drains on its own rAF loop, independent of
+    // the abort signal, so stop() must flush it — otherwise the already-sent
+    // "Thinking" token could still be mid-reveal (or entirely unrevealed) even
+    // though isStreaming has already reset to false.
+    const assistant = result.current.messages.at(-1);
+    expect(assistant?.content).toBe("Thinking");
   });
 });
