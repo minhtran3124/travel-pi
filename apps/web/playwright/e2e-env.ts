@@ -10,13 +10,20 @@
  *   export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"
  *   node -e "import('./playwright/e2e-env.ts').then(m => console.log(m.hasCreds, m.STORAGE_STATE))"
  *
- * `STORAGE_STATE` is resolved from THIS file's directory (via
- * `import.meta.url`), never from `process.cwd()`: a cwd-relative storage-state
- * path is the documented cause of the setup project passing locally but failing
- * on a CI runner (microsoft/playwright#32302).
+ * `STORAGE_STATE` is resolved from THIS file's directory, never from
+ * `process.cwd()`: a cwd-relative storage-state path is the documented cause of
+ * the setup project passing locally but failing on a CI runner
+ * (microsoft/playwright#32302).
+ *
+ * This module is loaded two different ways, so it must not mention
+ * `import.meta`: Playwright transpiles it to CommonJS (apps/web deliberately has
+ * no `"type": "module"`, because adding one breaks the Next build), where
+ * `import.meta` is a parse error and `__dirname` is defined; Node's own type
+ * stripping loads the same file as ESM, where `__dirname` is undefined. The
+ * CommonJS branch is the one Playwright takes, so the path Playwright uses is
+ * always anchored to this directory.
  */
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 export const E2E_USER_EMAIL: string | undefined = process.env.E2E_USER_EMAIL;
 export const E2E_USER_PASSWORD: string | undefined =
@@ -24,7 +31,8 @@ export const E2E_USER_PASSWORD: string | undefined =
 
 export const hasCreds: boolean = Boolean(E2E_USER_EMAIL && E2E_USER_PASSWORD);
 
-const here = path.dirname(fileURLToPath(import.meta.url));
+const here =
+  typeof __dirname === "string" ? __dirname : path.resolve("playwright");
 export const STORAGE_STATE: string = path.join(here, ".auth", "user.json");
 
 if (!hasCreds) {
