@@ -406,6 +406,7 @@
     "composerPlaceholder": "Message the travel assistant…",
     "composerAriaLabel": "Message the travel assistant",
     "sendMessage": "Send message",
+    "stopMessage": "Stop generating",
     "retry": "Retry",
     "retryHint": "The previous answer didn't finish.",
     "greetingTitle": "Hi! I'm Tin 👋",
@@ -466,7 +467,10 @@
     "errorUnavailable": "The travel assistant is unavailable right now. Please try again later.",
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
+    "errorClaimFailed": "Couldn't restore your earlier chat history. It'll try again next time you open the app.",
     "errorQuota": "You've reached today's free message limit.",
+    "stoppedEmpty": "You stopped this before it could answer.",
+    "stoppedSuffix": "*(Stopped)*",
     "activity": {
       "running": "Running",
       "summary": "Sorted {count, plural, one {# thing} other {# things}} for your trip · {seconds}s",

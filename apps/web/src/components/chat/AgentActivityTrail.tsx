@@ -241,16 +241,16 @@ export function AgentActivityTrail({
             <span aria-hidden="true" className="flex h-4 w-4 shrink-0 items-center justify-center text-muted">
               {icon}
             </span>
+            <span
+              aria-hidden="true"
+              className={cn("h-1.5 w-1.5 shrink-0 rounded-pill", STATUS_DOT[group.status])}
+            />
             <span className="flex-1">
               {t(`activity.${group.family}`)}
               {group.count > 1 ? (
                 <span className="ml-1 font-semibold text-faint">×{group.count}</span>
               ) : null}
             </span>
-            <span
-              aria-hidden="true"
-              className={cn("h-1.5 w-1.5 shrink-0 rounded-pill", STATUS_DOT[group.status])}
-            />
           </li>
         );
       })}

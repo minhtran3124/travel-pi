@@ -978,6 +978,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - user_turns: 0
 
 
+
 ### 2026-09-03T03:44:45Z
 - session_id: b0534746-575f-46ff-9b2f-314fdef0fa79
 - exit: 
@@ -1367,5 +1368,67 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 801ba9e3-7aae-4147-bccd-1254165c08ef
 - exit: 
 - last_commit: 6f4a2af fix(web): load the dotenv files before anything reads the environment
+
+### 2026-09-04T10:54:46Z
+- session_id: c04d5fc7-2e86-4a5f-9963-ce9d4666568f
+- exit: 
+- last_commit: fb66475 docs(specs): bring section-C intake onto main; split #109 out of c2
+- user_turns: 0
+
+
+### 2026-09-04T10:55:00Z
+- session_id: c0f9f7b7-d496-40b6-8afc-360ec2e492e0
+- exit: 
+- last_commit: fb66475 docs(specs): bring section-C intake onto main; split #109 out of c2
+- user_turns: 0
+
+
+### 2026-09-04T10:56:11Z
+- session_id: f204fd3a-a057-4465-abb2-0821754c598b
+- exit: 
+- last_commit: fb66475 docs(specs): bring section-C intake onto main; split #109 out of c2
+- user_turns: 0
+
+
+### 2026-09-04T11:01:32Z
+- session_id: fb3d3ee2-d6f1-409f-9956-84cef3b2b89b
+- exit: 
+- last_commit: 9a76934 feat(web): ConversationMessages return type and typed ClaimError
+- user_turns: 0
+
+
+### 2026-09-04T11:07:53Z
+- session_id: 33c23c33-5338-49de-ae92-cd024183b060
+- exit: 
+- last_commit: 3aac842 test(api): assert the interrupt-field defaults on the empty-result branches
+- user_turns: 0
+
+
+### 2026-09-04T11:10:58Z
+- session_id: b988486f-d089-4adb-8fc3-f5da14e9ef69
+- exit: 
+- last_commit: 5fd73fd feat(web): Stop, interrupt rehydration, and a safer claim
+- user_turns: 0
+
+
+### 2026-09-04T11:30:59Z
+- session_id: 1d5cd191-8d13-4671-821d-2eaf5fd97147
+- exit: 
+- last_commit: c920133 fix: decouple message history from graph availability, flush the reveal on stop
+- user_turns: 0
+
+
+### 2026-09-04T11:33:28Z
+- session_id: a4f8ade0-b6ae-4efa-ae58-7b944ec008cd
+- exit: 
+- last_commit: c920133 fix: decouple message history from graph availability, flush the reveal on stop
+
+- user_turns: 0
+
+
+### 2026-09-04T12:43:32Z
+- session_id: b61eaf71-0fcc-40e2-8d01-ad94326180c3
+- exit: 
+- last_commit: 3720026 chore(specs): record session-end breadcrumbs in STATE.md
 - user_turns: 0
 

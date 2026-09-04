@@ -132,6 +132,18 @@ class Conversation(AppBaseModel):
     updated_at: str
 
 
+class ConversationMessages(AppBaseModel):
+    """Messages for a conversation, plus any pending HITL interrupt state.
+
+    ``interrupt_pending`` / ``interrupt_payload`` mirror the same-named fields
+    on ``ChatResponse`` for naming consistency across the API surface.
+    """
+
+    messages: list[Message]
+    interrupt_pending: bool = False
+    interrupt_payload: dict | None = None
+
+
 class ClaimRequest(AppBaseModel):
     """Request body for POST /agent/conversations/claim."""
 

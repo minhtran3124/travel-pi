@@ -12,7 +12,11 @@ vi.mock("@/lib/query/agent", () => ({
   chatFallback: (b: unknown) => chatFallback(b),
   // Hydration-on-mount calls this; resolve empty so the live-stream assertions
   // below run against a clean slate (no persisted history to replay).
-  fetchConversationMessages: async () => [],
+  fetchConversationMessages: async () => ({
+    messages: [],
+    interrupt_pending: false,
+    interrupt_payload: null,
+  }),
 }));
 
 import { useAgentStream } from "./useAgentStream";

@@ -5,7 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { streamBaseUrl } from "@/lib/api/client";
 import { useIdentity } from "@/lib/identity/useUserId";
-import { fetchClaim, fetchConversationMessages, type ChatRequest } from "@/lib/query/agent";
+import {
+  ClaimError,
+  fetchClaim,
+  fetchConversationMessages,
+  type ChatRequest,
+} from "@/lib/query/agent";
 import type { PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { parseSSE, type SSEEvent } from "@/lib/stream/parseSSE";
@@ -98,6 +103,13 @@ export interface UseAgentStream {
    */
   resume: (approved: boolean) => void;
   /**
+   * Aborts the in-flight streaming turn on the user's request. Marks the abort
+   * as deliberate so the finally-block still resets `isStreaming`/`elapsedMs`
+   * (and fires `onTurnComplete` unless an interrupt was seen), unlike the
+   * unmount-cleanup abort which leaves state untouched.
+   */
+  stop: () => void;
+  /**
    * True when the last message is an unanswered user turn (e.g. the page was
    * reloaded mid-stream, so the assistant reply was never persisted). The UI
    * surfaces a "retry" affordance in this state.
@@ -154,6 +166,13 @@ function newId(): string {
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+/** Content for a message the user deliberately stopped mid-turn: a friendly
+ * placeholder if nothing arrived yet, else a small note appended to whatever
+ * streamed in before Stop was clicked. */
+function withStoppedContent(content: string, t: (key: string) => string): string {
+  return content.trim() ? `${content}\n\n${t("stoppedSuffix")}` : t("stoppedEmpty");
+}
+
 /**
  * Drives a single agent conversation: streams `/agent/stream` direct-to-origin
  * (bypassing the buffering Next proxy). The assistant's final answer streams into
@@ -198,6 +217,10 @@ export function useAgentStream(
   // both fire a request — producing duplicate turns. This ref flips
   // synchronously, blocking the second call immediately.
   const inFlightRef = useRef(false);
+  // Distinguishes a deliberate user Stop from the unmount-cleanup abort. Only a
+  // user Stop should still run the finally-block's state reset; set true by
+  // stop(), consumed and cleared inside each stream loop's finally.
+  const userStoppedRef = useRef(false);
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -218,11 +241,20 @@ export function useAgentStream(
       if (anonId) {
         try {
           await fetchClaim(anonId);
-        } catch {
-          // Fail silently — 403 (source is a registered account) or network error
+          // Success: the anon history is now migrated — drop the one-shot key.
+          localStorage.removeItem(LEGACY_ANON_STORAGE_KEY);
+        } catch (err) {
+          // 403 = the anon id belongs to a registered account; nothing to claim,
+          // so drop the key. Any other failure (incl. a network TypeError, which
+          // is never a ClaimError) keeps the key so the next open retries — and
+          // surfaces a soft error. Never `return` here: hydration below must
+          // still run in this same IIFE regardless of the claim outcome.
+          if (err instanceof ClaimError && err.status === 403) {
+            localStorage.removeItem(LEGACY_ANON_STORAGE_KEY);
+          } else {
+            setError(t("errorClaimFailed"));
+          }
         }
-        // Clear regardless of outcome so this runs at most once per browser.
-        localStorage.removeItem(LEGACY_ANON_STORAGE_KEY);
       }
 
       // --- Hydrate step ---
@@ -234,17 +266,40 @@ export function useAgentStream(
       conversationIdRef.current = storedId;
 
       fetchConversationMessages(storedId, userId)
-        .then((msgs) => {
-          if (msgs.length > 0) {
-            setMessages(
-              msgs.map((m) => ({
-                id: m.id,
-                role: m.role,
-                content: m.content,
+        .then(({ messages, interrupt_pending, interrupt_payload }) => {
+          const mapped: ChatMessage[] = messages.map((m) => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+            activity: [],
+            panels: [],
+          }));
+
+          if (interrupt_pending) {
+            // Rehydrate the pending HITL prompt so resume() has a target bubble.
+            const last = messages[messages.length - 1];
+            if (last && last.role === "assistant") {
+              assistantIdRef.current = last.id;
+            } else {
+              // No trailing assistant turn (interrupt fired before any tokens):
+              // add a fresh empty bubble for the resumed continuation.
+              const freshId = newId();
+              mapped.push({
+                id: freshId,
+                role: "assistant",
+                content: "",
                 activity: [],
                 panels: [],
-              })),
-            );
+              });
+              assistantIdRef.current = freshId;
+            }
+            setMessages(mapped);
+            setInterrupt({
+              conversationId: storedId,
+              payload: interrupt_payload!,
+            });
+          } else if (mapped.length > 0) {
+            setMessages(mapped);
           }
         })
         .catch(() => {
@@ -509,11 +564,19 @@ export function useAgentStream(
           }
         } finally {
           inFlightRef.current = false;
-          if (!controller.signal.aborted) {
+          // A deliberate Stop aborts the controller too, so also run this block
+          // when the user asked to stop; the unmount-cleanup abort leaves
+          // userStoppedRef false and still skips it.
+          if (!controller.signal.aborted || userStoppedRef.current) {
+            const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantId
-                  ? { ...m, elapsedMs: Date.now() - startedAt }
+                  ? {
+                      ...m,
+                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+                      elapsedMs: Date.now() - startedAt,
+                    }
                   : m,
               ),
             );
@@ -522,6 +585,7 @@ export function useAgentStream(
             if (!sawInterrupt) {
               onTurnComplete?.();
             }
+            userStoppedRef.current = false;
           }
           if (abortRef.current === controller) abortRef.current = null;
         }
@@ -625,16 +689,25 @@ export function useAgentStream(
           }
         } finally {
           inFlightRef.current = false;
-          if (!controller.signal.aborted) {
+          // A deliberate Stop aborts the controller too, so also run this block
+          // when the user asked to stop; the unmount-cleanup abort leaves
+          // userStoppedRef false and still skips it.
+          if (!controller.signal.aborted || userStoppedRef.current) {
+            const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantId
-                  ? { ...m, elapsedMs: Date.now() - startedAt }
+                  ? {
+                      ...m,
+                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+                      elapsedMs: Date.now() - startedAt,
+                    }
                   : m,
               ),
             );
             setIsStreaming(false);
             onTurnComplete?.();
+            userStoppedRef.current = false;
           }
           if (abortRef.current === controller) abortRef.current = null;
         }
@@ -769,11 +842,19 @@ export function useAgentStream(
         }
       } finally {
         inFlightRef.current = false;
-        if (!controller.signal.aborted) {
+        // A deliberate Stop aborts the controller too, so also run this block
+        // when the user asked to stop; the unmount-cleanup abort leaves
+        // userStoppedRef false and still skips it.
+        if (!controller.signal.aborted || userStoppedRef.current) {
+          const wasStopped = controller.signal.aborted && userStoppedRef.current;
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
-                ? { ...m, elapsedMs: Date.now() - startedAt }
+                ? {
+                    ...m,
+                    content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+                    elapsedMs: Date.now() - startedAt,
+                  }
                 : m,
             ),
           );
@@ -781,6 +862,7 @@ export function useAgentStream(
           if (!sawInterrupt) {
             onTurnComplete?.();
           }
+          userStoppedRef.current = false;
         }
         if (abortRef.current === controller) abortRef.current = null;
       }
@@ -814,6 +896,23 @@ export function useAgentStream(
     rerun(prevUser.content);
   }, [interrupt, isStreaming, messages, rerun]);
 
+  const stop = useCallback(() => {
+    // Only flag a deliberate stop when there is an in-flight controller to
+    // abort. Setting the flag unconditionally would leave it stale (true, with
+    // nothing to reset it) if a stream had already finished between render and
+    // click — a later unmount-cleanup abort would then read the stale flag and
+    // wrongly run its state reset on an unmounted component.
+    if (!abortRef.current) return;
+    userStoppedRef.current = true;
+    abortRef.current.abort();
+    // The typewriter reveal buffer drains on its own rAF loop, independent of
+    // the abort signal — without this it would keep visibly "typing" already
+    // received text for up to its max lag after Stop. Flush (not clear) so
+    // every token the server actually sent before Stop still ends up on
+    // screen, just without further delay.
+    revealRef.current?.flush();
+  }, []);
+
   const newConversation = useCallback(() => {
     revealRef.current?.clear();
     clearStoredConversationId();
@@ -838,6 +937,7 @@ export function useAgentStream(
     error,
     interrupt,
     resume,
+    stop,
     canRetry,
     retry,
     regenerate,

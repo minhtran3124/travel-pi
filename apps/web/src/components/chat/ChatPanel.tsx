@@ -58,6 +58,7 @@ export function ChatPanel({
   const {
     messages,
     send,
+    stop,
     isStreaming,
     error,
     interrupt,
@@ -222,6 +223,8 @@ export function ChatPanel({
         <ChatComposer
           disabled={inputBlocked}
           onSend={send}
+          isStreaming={isStreaming}
+          onStop={stop}
           suggestions={
             showRail ? (
               <ChatSuggestions

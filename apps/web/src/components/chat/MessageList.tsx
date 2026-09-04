@@ -103,7 +103,15 @@ export function MessageList({
                   {showTypingDots ? (
                     <TypingDots />
                   ) : (
-                    <AssistantMarkdown content={m.content} isStreaming={streaming} />
+                    <div className="flex items-start gap-xs">
+                      {streaming ? (
+                        <span
+                          aria-hidden="true"
+                          className="tp-trail-dot mt-2 h-1.5 w-1.5 shrink-0 rounded-pill bg-lime"
+                        />
+                      ) : null}
+                      <AssistantMarkdown content={m.content} isStreaming={streaming} />
+                    </div>
                   )}
                 </div>
               </div>

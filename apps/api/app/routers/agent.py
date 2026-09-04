@@ -54,7 +54,7 @@ from app.schemas.agent import (
     ClaimRequest,
     ClaimResult,
     Conversation,
-    Message,
+    ConversationMessages,
     ToolManifestEntry,
     TurnUsage,
 )
@@ -90,6 +90,26 @@ def get_travel_graph(request: Request) -> Any:
 
 
 GraphDep = Annotated[Any, Depends(get_travel_graph)]
+
+
+def get_travel_graph_optional(request: Request) -> Any | None:
+    """Like ``get_travel_graph``, but returns ``None`` instead of raising.
+
+    For a read-only route (message history) that must not couple to
+    agent-runtime availability: a request-scoped ``Depends`` still fails the
+    whole route *before its body runs* if the dependency raises, so a route
+    that wants to degrade gracefully needs a non-raising dependency, not a
+    try/except inside its own body. Overridden in tests alongside
+    ``get_travel_graph`` (see ``_make_app`` in ``tests/api/agent/test_agent_chat.py``)
+    so a fake graph reaches both dependencies identically.
+
+    :param request: The incoming request, used to reach ``app.state``.
+    :return: The shared compiled LangGraph graph, or ``None`` if not built yet.
+    """
+    return resolve_travel_graph(request.app)
+
+
+GraphOptionalDep = Annotated[Any | None, Depends(get_travel_graph_optional)]
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
@@ -636,35 +656,66 @@ def list_conversations(
 
 @router.get(
     "/conversations/{conversation_id}/messages",
-    response_model=list[Message],
+    response_model=ConversationMessages,
     summary="List messages for a conversation",
 )
-def list_conversation_messages(
+async def list_conversation_messages(
     conversation_id: str,
+    graph: GraphOptionalDep,
     session: SessionDep,
     auth_user: CurrentUserDep,
     user_id: str | None = None,
-) -> list[Message]:
+) -> ConversationMessages:
     """Return all messages for the given conversation, oldest first.
 
     Ownership-scoped: the caller must be the conversation's owner. Identity is
     the JWT sub; the ``user_id`` query param is deprecated and ignored (no
-    spoofing). Returns an empty list for an unknown conversation or one owned by
-    someone else — this neither leaks message contents nor confirms a
+    spoofing). Returns an empty result for an unknown conversation or one owned
+    by someone else — this neither leaks message contents nor confirms a
     conversation's existence.
 
+    Alongside the messages, the response carries any pending HITL interrupt
+    state read from the LangGraph checkpoint (``interrupt_pending`` /
+    ``interrupt_payload``) so a client hydrating a reloaded conversation can
+    re-surface a plan-approval prompt that was awaiting the user. This read is
+    best-effort and uses ``GraphOptionalDep``, not ``GraphDep``: the latter
+    raises ``UpstreamError`` at dependency-resolution time whenever the graph
+    isn't built yet, which would couple this previously graph-independent,
+    pure-DB read to agent-runtime availability — including on the early-return
+    path below, since FastAPI resolves declared dependencies before the
+    function body runs. ``GraphOptionalDep`` returns ``None`` instead, so a
+    down or not-yet-built graph degrades to ``interrupt_pending=False`` rather
+    than failing the whole message-history read.
+
     :param conversation_id: The conversation to list messages for.
+    :param graph: The compiled LangGraph graph, or ``None`` if not available.
     :param session: The request-scoped DB session.
     :param auth_user: The authenticated user (a valid Supabase JWT is required).
     :param user_id: Deprecated and ignored; identity comes from the JWT.
-    :return: The conversation's messages, oldest first.
+    :return: The conversation's messages plus any pending interrupt state.
     """
     uid = auth_user.id
     repo = ConversationRepository(session)
     conversation = repo.get(conversation_id)
     if conversation is None or conversation.user_id != uid:
-        return []
-    return repo.list_messages(conversation_id)
+        return ConversationMessages(messages=[])
+
+    interrupt_pending = False
+    interrupt_payload = None
+    if graph is not None:
+        thread_id = _thread_id(uid, conversation.trip_id, conversation_id)
+        cfg = {"configurable": {"thread_id": thread_id}}
+        try:
+            state = await graph.aget_state(cfg)
+            interrupt_pending = bool(state.interrupts)
+            interrupt_payload = state.interrupts[0].value if state.interrupts else None
+        except Exception:  # noqa: BLE001 — best-effort; the message history below still returns
+            pass
+    return ConversationMessages(
+        messages=repo.list_messages(conversation_id),
+        interrupt_pending=interrupt_pending,
+        interrupt_payload=interrupt_payload,
+    )
 
 
 @router.get(

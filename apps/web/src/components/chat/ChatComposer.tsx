@@ -7,6 +7,10 @@ export interface ChatComposerProps {
   /** Blocks input while a turn is streaming or an interrupt is pending. */
   disabled: boolean;
   onSend: (text: string) => void;
+  /** True while a turn is streaming — swaps the send button to a Stop control. */
+  isStreaming: boolean;
+  /** Aborts the in-flight turn; wired to the send button while `isStreaming`. */
+  onStop: () => void;
   /**
    * Optional chip rail (e.g. `<ChatSuggestions />`) rendered as a horizontally
    * scrollable row inside the composer, above the input. Suppression while
@@ -21,6 +25,8 @@ const MAX_TEXTAREA_HEIGHT = 120; // ~5 lines, then it scrolls
 export function ChatComposer({
   disabled,
   onSend,
+  isStreaming,
+  onStop,
   suggestions,
 }: ChatComposerProps) {
   const t = useTranslations("Chat");
@@ -78,9 +84,10 @@ export function ChatComposer({
           className="min-w-0 flex-1 resize-none self-center bg-transparent py-1.5 text-sm leading-relaxed text-ink placeholder:text-muted focus:outline-none focus-visible:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
         />
         <button
-          type="submit"
-          aria-label={t("sendMessage")}
-          disabled={!canSend}
+          type={isStreaming ? "button" : "submit"}
+          aria-label={isStreaming ? t("stopMessage") : t("sendMessage")}
+          onClick={isStreaming ? onStop : undefined}
+          disabled={isStreaming ? false : !canSend}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-ink text-on-ink transition duration-150 hover:bg-ink-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink"
         >
           <svg
@@ -94,7 +101,11 @@ export function ChatComposer({
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            {isStreaming ? (
+              <rect x="6" y="6" width="12" height="12" rx="1.5" />
+            ) : (
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            )}
           </svg>
         </button>
       </div>

@@ -65,6 +65,17 @@ describe("MessageList — partial render during streaming", () => {
     expect(screen.getByText(/Visit Tokyo/)).toBeTruthy();
   });
 
+  it("shows a pulsing dot ahead of the text while streaming with content", () => {
+    const { container, rerender } = render(
+      <MessageList messages={msgs("Visit Tokyo")} isStreaming />,
+    );
+    expect(container.querySelector(".tp-trail-dot")).toBeTruthy();
+
+    // Once the turn finishes, the dot goes away — it marks in-flight streaming only.
+    rerender(<MessageList messages={msgs("Visit Tokyo")} isStreaming={false} />);
+    expect(container.querySelector(".tp-trail-dot")).toBeNull();
+  });
+
   it("grows the painted text as content accumulates", () => {
     const { rerender } = render(
       <MessageList messages={msgs("Visit")} isStreaming />,

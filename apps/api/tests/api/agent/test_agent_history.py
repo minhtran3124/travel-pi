@@ -18,6 +18,12 @@ from app.main import create_app
 from app.repositories.conversation import ConversationRepository
 from fastapi.testclient import TestClient
 
+# Reuse the existing interrupt-driving fixture from the sibling chat test module
+# (no new fixture — see the c2 brief Global Constraints). ``booking_client`` seeds
+# a premium "u1" and routes to the booking sub-agent, which pauses at a real
+# plan-approval interrupt on the message below.
+from test_agent_chat import booking_client  # noqa: F401
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -106,7 +112,7 @@ def test_list_messages_returns_ordered_messages(tmp_path):
         resp = client.get(f"/agent/conversations/{conv.id}/messages")
 
     assert resp.status_code == 200
-    msgs = resp.json()
+    msgs = resp.json()["messages"]
     assert len(msgs) == 2
     assert msgs[0]["role"] == "user"
     assert msgs[0]["content"] == "Hello agent"
@@ -122,7 +128,10 @@ def test_list_messages_unknown_conversation_returns_empty(tmp_path):
         resp = client.get("/agent/conversations/does-not-exist/messages")
 
     assert resp.status_code == 200
-    assert resp.json() == []
+    body = resp.json()
+    assert body["messages"] == []
+    assert body["interrupt_pending"] is False
+    assert body["interrupt_payload"] is None
 
 
 def test_list_messages_requires_jwt(tmp_path):
@@ -151,7 +160,53 @@ def test_list_messages_scoped_to_owner(tmp_path):
 
     # Empty (not 403) so existence of the conversation is not confirmed.
     assert resp.status_code == 200
-    assert resp.json() == []
+    body = resp.json()
+    assert body["messages"] == []
+    assert body["interrupt_pending"] is False
+    assert body["interrupt_payload"] is None
+
+
+def test_list_messages_reports_pending_interrupt(booking_client):
+    """GET messages surfaces the checkpoint's pending HITL interrupt state.
+
+    A booking turn pauses at a real plan-approval interrupt; hydrating the
+    conversation must report ``interrupt_pending`` with the interrupt payload so
+    the FE can re-surface the approval prompt after a reload. A separate, freshly
+    created conversation with no turns reports no pending interrupt.
+    """
+    # Drive a real interrupt on a fresh conversation.
+    chat = booking_client.post(
+        "/agent/chat",
+        json={"message": "book me a hotel in Paris", "user_id": "u1"},
+    )
+    assert chat.status_code == 200
+    conv_id = chat.json()["conversation_id"]
+
+    resp = booking_client.get(f"/agent/conversations/{conv_id}/messages")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["interrupt_pending"] is True
+    assert isinstance(body["interrupt_payload"], dict)
+    assert body["interrupt_payload"]  # non-empty
+
+    # A separate conversation with no turns has no pending interrupt. Create it
+    # (owned by the same authed user) through the app's own session override so
+    # it lives in the same DB the request handler reads.
+    gen = booking_client.app.dependency_overrides[get_session]()
+    session = next(gen)
+    try:
+        conv2 = ConversationRepository(session).create_conversation(user_id="u1")
+        session.commit()
+        conv2_id = conv2.id
+    finally:
+        gen.close()
+
+    resp2 = booking_client.get(f"/agent/conversations/{conv2_id}/messages")
+    assert resp2.status_code == 200
+    body2 = resp2.json()
+    assert body2["messages"] == []
+    assert body2["interrupt_pending"] is False
+    assert body2["interrupt_payload"] is None
 
 
 def test_list_conversations_scoped_to_user(tmp_path):
