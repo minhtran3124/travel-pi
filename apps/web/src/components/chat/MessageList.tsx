@@ -90,6 +90,7 @@ export function MessageList({
               steps={m.activity}
               isStreaming={streaming}
               elapsedMs={m.elapsedMs}
+              onRetry={isLastAssistant ? onRegenerate : undefined}
             />
             {showBubble ? (
               <div className="flex items-end justify-start gap-sm">

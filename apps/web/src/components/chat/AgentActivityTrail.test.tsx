@@ -81,4 +81,76 @@ describe("AgentActivityTrail", () => {
     expect(screen.getByText(en.Chat.activity.hotels)).toBeTruthy();
     expect(screen.getByText(en.Chat.activity.weather)).toBeTruthy();
   });
+
+  it("streaming: collapses 11 consecutive same-family steps into one row with a count", () => {
+    const steps = Array.from({ length: 11 }, (_, i) =>
+      step({ id: `j${i}`, tool: "add_itinerary_item", status: "ok" }),
+    );
+    renderTrail({ steps, isStreaming: true });
+
+    const rows = screen.getAllByText(en.Chat.activity.journal);
+    expect(rows).toHaveLength(1);
+    expect(screen.getByText("×11")).toBeTruthy();
+  });
+
+  it("streaming: does not merge the same family across a different family in between", () => {
+    renderTrail({
+      steps: [
+        step({ id: "a", tool: "search_hotels", status: "ok" }),
+        step({ id: "b", tool: "get_weather", status: "ok" }),
+        step({ id: "c", tool: "book_hotel", status: "ok" }),
+      ],
+      isStreaming: true,
+    });
+
+    expect(screen.getAllByText(en.Chat.activity.hotels)).toHaveLength(2);
+  });
+
+  it("streaming: a group containing an error renders the family error copy and a retry control", () => {
+    const onRetry = () => {};
+    renderTrail({
+      steps: [
+        step({ id: "a", tool: "search_hotels", status: "ok" }),
+        step({ id: "b", tool: "book_hotel", status: "error" }),
+      ],
+      isStreaming: true,
+      onRetry,
+    });
+
+    expect(screen.getByText(en.Chat.activity.error.hotels)).toBeTruthy();
+    expect(screen.getByRole("button", { name: en.Chat.activity.retry })).toBeTruthy();
+  });
+
+  it("streaming: clicking retry invokes onRetry", () => {
+    let called = false;
+    renderTrail({
+      steps: [step({ id: "a", tool: "book_hotel", status: "error" })],
+      isStreaming: true,
+      onRetry: () => {
+        called = true;
+      },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: en.Chat.activity.retry }));
+    expect(called).toBe(true);
+  });
+
+  it("streaming: hides the retry control when onRetry is not provided", () => {
+    renderTrail({
+      steps: [step({ id: "a", tool: "book_hotel", status: "error" })],
+      isStreaming: true,
+    });
+
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("done: the collapsed summary uses the friendly 'sorted' copy", () => {
+    renderTrail({
+      steps: [step({ id: "a", tool: "search_hotels", status: "ok" })],
+      isStreaming: false,
+      elapsedMs: 1000,
+    });
+
+    expect(screen.getByRole("button").textContent).toContain("Sorted");
+  });
 });

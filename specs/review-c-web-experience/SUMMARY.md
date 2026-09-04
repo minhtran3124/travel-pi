@@ -6,7 +6,7 @@ Reason: 5 flags fired (existing behavior, weak proof, multi-domain, cross-platfo
 Flags: existing behavior, weak proof, multi-domain, cross-platform, public contracts, auth (adjacent), external systems (Supabase auth in e2e)
 Affects: apps/web/playwright/*, .github/workflows/ci.yml (web job), apps/web/src/components/chat/useAgentStream.ts + ChatPanel/ChatWidget, apps/api/app/routers/agent.py (conversation read contract, if interrupt-on-reload is in scope), apps/web/src/app/**/loading.tsx, apps/web/src/i18n/*
 Input-type: new initiative
-Route: high-risk parent record — executed as three child specs (E001-A): `review-c1-e2e-auth-ci` → `review-c2-chat-resilience` → `review-c3-web-ssr-i18n`, each with its own SUMMARY/PLAN and the brainstorming → xia2 → writing-plans → using-git-worktrees → subagent-driven-development chain.
+Route: high-risk parent record — executed as four child specs (E001-A, `review-c2` split into two during its own brainstorming on 2026-09-04): `review-c1-e2e-auth-ci` → `review-c2-chat-resilience` (Stop button, interrupt rehydration, side panel, claim-403) → `review-c2b-fix-gh-109` (BE streaming-duplication bug, different subsystem) → `review-c3-web-ssr-i18n`, each with its own SUMMARY/PLAN and the brainstorming → xia2 → writing-plans → using-git-worktrees → subagent-driven-development chain.
 Escalate: no (E001–E003 decided at intake by the human on 2026-09-04; see ESCALATIONS.md)
 
 > `Lane` drives **ceremony** (how much proof). `Confidence` drives **interruption**

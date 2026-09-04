@@ -56,3 +56,6 @@ specs/**/.plan-review.json
 WORKFLOW_DIAGRAM.html
 .worktrees/
 CLAUDE.local.md
+
+# Transient lock file for the specs/ events.jsonl append logger
+specs/**/events.jsonl.lock
