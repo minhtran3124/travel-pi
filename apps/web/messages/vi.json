@@ -466,6 +466,7 @@
     "errorUnavailable": "Trợ lý du lịch hiện không khả dụng. Vui lòng thử lại sau.",
     "fallbackCouldNotReach": "Xin lỗi — tôi không thể kết nối tới trợ lý du lịch.",
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
+    "errorClaimFailed": "Chưa khôi phục được lịch sử trò chuyện trước đó. Ứng dụng sẽ thử lại vào lần mở tiếp theo.",
     "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
     "activity": {
       "running": "Đang chạy",

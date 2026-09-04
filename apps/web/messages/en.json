@@ -466,6 +466,7 @@
     "errorUnavailable": "The travel assistant is unavailable right now. Please try again later.",
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
+    "errorClaimFailed": "Couldn't restore your earlier chat history. It'll try again next time you open the app.",
     "errorQuota": "You've reached today's free message limit.",
     "activity": {
       "running": "Running",
