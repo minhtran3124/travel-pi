@@ -82,6 +82,8 @@ describe("ChatComposer — suggestions rail", () => {
       <ChatComposer
         disabled={false}
         onSend={vi.fn()}
+        isStreaming={false}
+        onStop={vi.fn()}
         suggestions={
           <button type="button" onClick={() => onPick("go")}>
             a chip
