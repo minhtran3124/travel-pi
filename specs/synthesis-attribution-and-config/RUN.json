@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-03T10:47:05Z",
+  "last_event_id": "ad4de41b-15d3-4393-8cd1-45eae392984b",
+  "resume_event": null,
+  "run_id": "a287accb-0bf3-4126-aa1d-96930f15b2c8",
+  "seq": 6,
+  "sha": null,
+  "slug": "synthesis-attribution-and-config",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-03T11:05:17Z",
+  "waiting_on": null
+}
