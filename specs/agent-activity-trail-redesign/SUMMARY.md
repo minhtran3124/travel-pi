@@ -61,8 +61,12 @@ the existing `regenerate()` action.
 
 ### Not auto-verified
 
-- Visual appearance against the mockup — reached traceability only (mockup screenshot
-  compared by eye); not asserted by an automated visual-diff check.
+- Visual appearance against the mockup — reached provenance: manually UAT'd the real
+  `AgentActivityTrail` component (a temporary, uncommitted local page rendering it with
+  representative `ActivityStep` data) on a local `next dev` server, screenshotted with
+  Playwright (grouped/dedup rows, the error+retry alert, and the collapsed/expanded
+  summary), and compared by eye against the approved mockup. Not an automated visual-diff
+  check, so re-running this claim requires repeating the manual UAT steps.
 
 ### Rollback
 
