@@ -52,6 +52,12 @@ change the design ruled out.
 
 ### Deviations
 
+- Rule 1 — `trip-smoke.spec.ts` targeted `getByLabel("Title")` on the New-trip dialog, but that
+  field is labeled "Trip name" (`messages/en.json` `newTripModal.tripNameLabel`) — "Title" only
+  exists in the unrelated itinerary Add-item form. The auth gate always failed the spec before it
+  reached that line, so the mismatch was never exercised; it predates this branch (commit
+  `f22f02a`). Found by running the suite green end to end for the first time; fixed and verified
+  in `9abf0d0`.
 - Rule 3 — Added the devDependency `@next/env@16.2.9` to `apps/web/package.json`, pinned to the
   version `next` already resolves. The package was already in the pnpm store as a transitive of
   `next` but was not linked into `apps/web`, so `playwright.config.ts` could not import
@@ -84,6 +90,7 @@ change the design ruled out.
 | Both specs collect under a chromium project depending on setup | `export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" && pnpm --filter @travel/web exec playwright test --list --project=chromium` | 0 | 7 tests in 3 files, `[setup]` listed first | SC-5 |
 | Web package type-checks, Playwright directory included | `export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" && pnpm --filter @travel/web exec tsc --noEmit` | 0 | | SC-6 |
 | CI job gated on the secrets flag | `python3 -c "import yaml; j=yaml.safe_load(open('.github/workflows/ci.yml'))['jobs']['web-e2e']; s=j['steps']; assert 'web' in j['needs'] and 'HAS_E2E_SECRETS' in j['env']; assert sum(1 for x in s if 'HAS_E2E_SECRETS' in str(x.get('if',''))) == len(s) - 1"` | 0 | exits 1 on the pre-branch tree | SC-7 |
+| Full e2e suite passes with real credentials against a live backend | `pnpm --filter @travel/web e2e` | 0 | Supabase e2e user `e2e-test@travel-pi.local` (id `e1009927-e78b-4afc-9aa4-78c64cbb59cd`), creds in `.env.local`, backend on `:8000`/SQLite: 7 passed (setup + 5 theme + trip-smoke), 0 failed, ~5s | |
 | No regression in the fast runner | `export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" && pnpm --filter @travel/web test` | 0 | 178 passed | |
 | Lint clean | `export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" && pnpm --filter @travel/web lint` | 0 | | |
 E2E_USER_PASSWORD=…
@@ -94,10 +101,11 @@ E2E_USER_PASSWORD=…
 - The intake corroboration of item 10 (Playwright absent from CI, `trip-smoke` opening `/trips`
   unauthenticated) described the pre-branch tree, so it is no longer re-runnable here. It stands
   recorded in `../review-c-web-experience/SUMMARY.md`.
-- The e2e suite has never been run green end to end: no Supabase e2e user exists yet and no
-  repository secrets are set, so SC-1 to SC-7 prove structure, wiring and skip behavior, not a
-  passing sign-in. Reached traceability for the CI job (its YAML shape) and truth for everything
-  runnable locally. The plan's manual acceptance closes this once the human prerequisites exist.
+- The Supabase e2e user was created (`e2e-test@travel-pi.local`, confirmed email) and the four
+  repository secrets were set on 2026-09-04, closing the human prerequisites `design.md` named.
+  The full suite was then run locally against a live backend: 7 passed, 0 failed — see the new
+  `### Verify` row above. This is truth-tier for the local half. The CI half (`web-e2e` actually
+  passing on GitHub Actions) is being watched on PR #135 as of this commit; not yet closed here.
 - "The lockfile diff adds only the `@next/env` link" — reached provenance: every changed line was
   read and no resolved version moves, but `pnpm install` also re-normalized three peer-context keys
   with a `(supports-color@10.2.2)` qualifier and added a `deprecated:` note on the existing
@@ -132,7 +140,13 @@ new job (Node 24).
 
 ### Intent Findings
 
-Intent review verdict: **gaps found** (proof gaps only — no drift, no excess). Both gaps are
+Update (2026-09-04, after the intent review ran): both external prerequisites now exist — the
+Supabase e2e user was created and the four repository secrets were set — and the full suite passes
+locally (see `### Verify`). GAP-1 is closed by the new Verify row. GAP-2 (CI job actually green on
+GitHub Actions) is being watched on PR #135; the job structure was already correct, only the
+secrets were missing.
+
+Intent review verdict at time of review: **gaps found** (proof gaps only — no drift, no excess). Both gaps are
 external-prerequisite blockers already disclosed in this SUMMARY and `design.md` § Human
 prerequisites; deferred rather than escalated because the direction is unambiguous, only blocked on
 state this session cannot create.
