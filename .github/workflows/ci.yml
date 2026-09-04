@@ -56,6 +56,9 @@ jobs:
   web-e2e:
     runs-on: ubuntu-latest
     needs: web
+    # The Next dev server and a browser suite can both hang; fail in minutes
+    # rather than burning the default six-hour ceiling.
+    timeout-minutes: 20
     # `secrets` is readable in a job-level `env` but not in a job-level `if`,
     # so gate each step on this flag instead of the job.
     env:
@@ -133,6 +136,14 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           NEXT_PUBLIC_API_URL: http://localhost:8000
         run: pnpm --filter @travel/web e2e
+
+      - name: Show backend log
+        # The health poll prints this only when the backend never comes up. A
+        # backend that starts and then errors mid-suite is the likelier failure,
+        # and its log would otherwise die with the runner.
+        if: failure() && env.HAS_E2E_SECRETS == 'true'
+        working-directory: apps/api
+        run: cat uvicorn.log
 
       - name: Upload Playwright report
         if: failure() && env.HAS_E2E_SECRETS == 'true'
