@@ -43,7 +43,7 @@ test("create trip → add itinerary item → persists across reload", async ({
 
   const newTripDialog = page.getByRole("dialog", { name: "New trip" });
   await expect(newTripDialog).toBeVisible();
-  await newTripDialog.getByLabel("Title").fill(tripTitle);
+  await newTripDialog.getByLabel("Trip name").fill(tripTitle);
   await newTripDialog.getByRole("button", { name: "Create trip" }).click();
 
   // On success the app navigates to the trip detail page.
