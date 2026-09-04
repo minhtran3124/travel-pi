@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-04T00:02:46Z",
+  "last_event_id": "db76e109-3f64-4749-95f3-49145ffc8e24",
+  "resume_event": null,
+  "run_id": "e9601a12-8c66-44e1-b4a1-d3459efa8c58",
+  "seq": 3,
+  "sha": null,
+  "slug": "review-c2-chat-resilience",
+  "state": "planning",
+  "updated_at": "2026-09-04T00:02:46Z",
+  "waiting_on": null
+}
