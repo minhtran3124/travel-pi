@@ -28,6 +28,7 @@
     "streamdown": "^2.5.0"
   },
   "devDependencies": {
+    "@next/env": "16.2.9",
     "@playwright/test": "^1.49",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6",

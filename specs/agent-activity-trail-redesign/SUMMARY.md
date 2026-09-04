@@ -53,7 +53,8 @@ the existing `regenerate()` action.
 | --- | --- | --- | --- | --- |
 | locale JSON valid | `node -e "JSON.parse(require('fs').readFileSync('apps/web/messages/en.json'))"` | 0 | also ran for vi.json | |
 | unit (dedup + count) | `pnpm --filter web vitest run src/components/chat/AgentActivityTrail.test.tsx` | 0 | 11/11 tests pass | SC-1 |
-| unit (error + retry) | `pnpm --filter web vitest run src/components/chat/AgentActivityTrail.test.tsx` | 0 | includes retry-click and no-onRetry cases | SC-2, SC-3 |
+| unit (error + retry) | `pnpm --filter web vitest run src/components/chat/AgentActivityTrail.test.tsx` | 0 | includes retry-click and no-onRetry cases | SC-2 |
+| unit (error + retry) | `pnpm --filter web vitest run src/components/chat/AgentActivityTrail.test.tsx` | 0 | includes retry-click and no-onRetry cases | SC-3 |
 | unit (summary copy) | `pnpm --filter web vitest run src/components/chat/AgentActivityTrail.test.tsx` | 0 | asserts "Sorted" in collapsed summary | SC-4 |
 | full chat suite (regression) | `pnpm --filter web vitest run src/components/chat` | 0 | 109/109 tests pass, no existing test needed changes | |
 | typecheck (full) | `pnpm --filter web exec tsc --noEmit -p tsconfig.json` | 0 | clean on the rebased branch (the earlier 3 errors belonged to the unrelated commits removed above, not this change) | |

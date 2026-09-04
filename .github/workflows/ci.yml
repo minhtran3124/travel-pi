@@ -52,3 +52,113 @@ jobs:
 
       - name: Build
         run: pnpm --filter @travel/web build
+
+  web-e2e:
+    runs-on: ubuntu-latest
+    needs: web
+    # The Next dev server and a browser suite can both hang; fail in minutes
+    # rather than burning the default six-hour ceiling.
+    timeout-minutes: 20
+    # `secrets` is readable in a job-level `env` but not in a job-level `if`,
+    # so gate each step on this flag instead of the job.
+    env:
+      # Every secret the job consumes, not just the first: a half-configured
+      # repository would otherwise run the whole suite and report green having
+      # skipped every test, or crash the dev server on an empty Supabase URL.
+      HAS_E2E_SECRETS: "${{ secrets.E2E_USER_EMAIL != '' && secrets.E2E_USER_PASSWORD != '' && secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY != '' }}"
+
+    steps:
+      - uses: actions/checkout@v4
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+
+      - name: Set up Python
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install backend dependencies
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        working-directory: apps/api
+        run: uv venv && uv pip install -r requirements.txt
+
+      - name: Start backend
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        working-directory: apps/api
+        env:
+          DATABASE_URL: sqlite:///./e2e.db
+          ENVIRONMENT: development
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          OPENAI_API_KEY: ""
+          ANTHROPIC_API_KEY: ""
+          GOOGLE_API_KEY: ""
+          CLINEPASS_API_KEY: ""
+          CLAUDE_API_KEY: ""
+        run: |
+          nohup .venv/bin/python -m uvicorn app.main:app --port 8000 > uvicorn.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/docs > /dev/null; then
+              echo "backend is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "backend did not become healthy within 60s"
+          cat uvicorn.log
+          exit 1
+
+      - name: Set up pnpm
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        run: pnpm --filter @travel/web exec playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        if: success() && env.HAS_E2E_SECRETS == 'true'
+        env:
+          E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
+          E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+        run: pnpm --filter @travel/web e2e
+
+      - name: Show backend log
+        # The health poll prints this only when the backend never comes up. A
+        # backend that starts and then errors mid-suite is the likelier failure,
+        # and its log would otherwise die with the runner.
+        if: (failure() || cancelled()) && env.HAS_E2E_SECRETS == 'true'
+        working-directory: apps/api
+        run: cat uvicorn.log || true
+
+      - name: Upload Playwright report
+        if: (failure() || cancelled()) && env.HAS_E2E_SECRETS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+
+      - name: Note when e2e was skipped for want of secrets
+        run: |
+          if [ "$HAS_E2E_SECRETS" != "true" ]; then
+            echo "web-e2e: skipped — E2E secrets are not configured on this repository."
+          fi
