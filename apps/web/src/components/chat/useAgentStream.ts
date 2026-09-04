@@ -166,6 +166,13 @@ function newId(): string {
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+/** Content for a message the user deliberately stopped mid-turn: a friendly
+ * placeholder if nothing arrived yet, else a small note appended to whatever
+ * streamed in before Stop was clicked. */
+function withStoppedContent(content: string, t: (key: string) => string): string {
+  return content.trim() ? `${content}\n\n${t("stoppedSuffix")}` : t("stoppedEmpty");
+}
+
 /**
  * Drives a single agent conversation: streams `/agent/stream` direct-to-origin
  * (bypassing the buffering Next proxy). The assistant's final answer streams into
@@ -561,10 +568,15 @@ export function useAgentStream(
           // when the user asked to stop; the unmount-cleanup abort leaves
           // userStoppedRef false and still skips it.
           if (!controller.signal.aborted || userStoppedRef.current) {
+            const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantId
-                  ? { ...m, elapsedMs: Date.now() - startedAt }
+                  ? {
+                      ...m,
+                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+                      elapsedMs: Date.now() - startedAt,
+                    }
                   : m,
               ),
             );
@@ -681,10 +693,15 @@ export function useAgentStream(
           // when the user asked to stop; the unmount-cleanup abort leaves
           // userStoppedRef false and still skips it.
           if (!controller.signal.aborted || userStoppedRef.current) {
+            const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantId
-                  ? { ...m, elapsedMs: Date.now() - startedAt }
+                  ? {
+                      ...m,
+                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+                      elapsedMs: Date.now() - startedAt,
+                    }
                   : m,
               ),
             );
@@ -829,10 +846,15 @@ export function useAgentStream(
         // when the user asked to stop; the unmount-cleanup abort leaves
         // userStoppedRef false and still skips it.
         if (!controller.signal.aborted || userStoppedRef.current) {
+          const wasStopped = controller.signal.aborted && userStoppedRef.current;
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
-                ? { ...m, elapsedMs: Date.now() - startedAt }
+                ? {
+                    ...m,
+                    content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+                    elapsedMs: Date.now() - startedAt,
+                  }
                 : m,
             ),
           );

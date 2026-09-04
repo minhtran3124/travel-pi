@@ -104,7 +104,41 @@ describe("useAgentStream — user Stop", () => {
     // the abort signal, so stop() must flush it — otherwise the already-sent
     // "Thinking" token could still be mid-reveal (or entirely unrevealed) even
     // though isStreaming has already reset to false.
+    //
+    // A deliberate Stop also appends a small "stopped" note to whatever content
+    // had already streamed in, so the bubble never renders empty/unexplained.
     const assistant = result.current.messages.at(-1);
-    expect(assistant?.content).toBe("Thinking");
+    expect(assistant?.content).toBe("Thinking\n\nstoppedSuffix");
+  });
+
+  it("stops before any token arrives: shows a friendly stopped placeholder", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => ({
+        ok: true,
+        body: abortableStream(
+          [sse("start", { conversation_id: "c1" })],
+          init.signal as AbortSignal,
+        ),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+
+    act(() => {
+      result.current.send("plan a long trip");
+    });
+
+    await waitFor(() => expect(result.current.isStreaming).toBe(true));
+
+    act(() => {
+      result.current.stop();
+    });
+
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    expect(result.current.error).toBeNull();
+
+    const assistant = result.current.messages.at(-1);
+    expect(assistant?.content).toBe("stoppedEmpty");
   });
 });

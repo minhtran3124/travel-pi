@@ -469,6 +469,8 @@
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
     "errorClaimFailed": "Chưa khôi phục được lịch sử trò chuyện trước đó. Ứng dụng sẽ thử lại vào lần mở tiếp theo.",
     "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
+    "stoppedEmpty": "Bạn đã dừng trước khi có câu trả lời.",
+    "stoppedSuffix": "*(Đã dừng)*",
     "activity": {
       "running": "Đang chạy",
       "summary": "Đã sắp xếp {count, plural, other {# việc}} cho chuyến đi · {seconds}s",

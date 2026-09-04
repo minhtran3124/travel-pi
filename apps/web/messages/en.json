@@ -469,6 +469,8 @@
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
     "errorClaimFailed": "Couldn't restore your earlier chat history. It'll try again next time you open the app.",
     "errorQuota": "You've reached today's free message limit.",
+    "stoppedEmpty": "You stopped this before it could answer.",
+    "stoppedSuffix": "*(Stopped)*",
     "activity": {
       "running": "Running",
       "summary": "Sorted {count, plural, one {# thing} other {# things}} for your trip · {seconds}s",
