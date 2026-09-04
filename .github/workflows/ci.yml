@@ -144,12 +144,12 @@ jobs:
         # The health poll prints this only when the backend never comes up. A
         # backend that starts and then errors mid-suite is the likelier failure,
         # and its log would otherwise die with the runner.
-        if: failure() && env.HAS_E2E_SECRETS == 'true'
+        if: (failure() || cancelled()) && env.HAS_E2E_SECRETS == 'true'
         working-directory: apps/api
         run: cat uvicorn.log || true
 
       - name: Upload Playwright report
-        if: failure() && env.HAS_E2E_SECRETS == 'true'
+        if: (failure() || cancelled()) && env.HAS_E2E_SECRETS == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
