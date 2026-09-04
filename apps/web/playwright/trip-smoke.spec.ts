@@ -1,8 +1,15 @@
 /**
  * Trip e2e smoke — create a trip, add an itinerary item, reload, assert persist.
  *
+ * Runs already signed in: the `setup` project signs in once and saves the
+ * session, and the chromium project reuses it via `storageState`, so this spec
+ * starts authenticated instead of driving the login form.
+ *
  * Opt-in / local only. NOT in the fast CI path (`pnpm test` = vitest, scoped to
- * src/). Run it explicitly with the FastAPI backend up on :8000:
+ * src/). It still needs the FastAPI backend up on :8000, and the shared e2e
+ * account's `E2E_USER_EMAIL` / `E2E_USER_PASSWORD` in `apps/web/.env.local`
+ * (without both, the setup project and this spec are skipped — see the
+ * file-scope guard below). Run it explicitly:
  *
  *   # from repo root — start the backend on :8000
  *   (cd apps/api && ../../.venv/bin/uvicorn app.main:app --port 8000)
@@ -17,6 +24,10 @@
  * so a reload re-fetches from the backend and proves persistence.
  */
 import { expect, test } from "@playwright/test";
+
+import { hasCreds } from "./e2e-env";
+
+test.skip(!hasCreds, "E2E_USER_EMAIL/E2E_USER_PASSWORD not set");
 
 test("create trip → add itinerary item → persists across reload", async ({
   page,
