@@ -1,6 +1,6 @@
 ---
 slug: review-c2-chat-resilience
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-04
 ---
@@ -255,6 +255,7 @@ LangGraph 1.2.6 source.
 
 | Date | Event |
 |---|---|
+| 2026-09-04 | Shipped — PR opened against main. |
 | 2026-09-04 | Tasks 1.1-4.1 complete across 4 waves; commits 2b4c482..a72c01f. |
 | 2026-09-04 | Correctness review (6 angles, 2 rounds): 2 findings fixed (GraphOptionalDep for graph-availability coupling, revealRef.flush on stop). Commits d8ea6c7, c920133. |
 | 2026-09-04 | Intent review: approved with 4 non-blocking findings (2 disclosed drift, 1 stale-codegen gap, 1 trivial formatter churn). Review chain complete. |
