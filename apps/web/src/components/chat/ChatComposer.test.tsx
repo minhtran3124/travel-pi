@@ -7,7 +7,14 @@ import { ChatComposer } from "./ChatComposer";
 
 describe("ChatComposer — disabled while streaming", () => {
   it("disables the textarea and send button when disabled", () => {
-    render(<ChatComposer disabled onSend={vi.fn()} />);
+    render(
+      <ChatComposer
+        disabled
+        onSend={vi.fn()}
+        isStreaming={false}
+        onStop={vi.fn()}
+      />,
+    );
     expect(
       (screen.getByLabelText("composerAriaLabel") as HTMLTextAreaElement)
         .disabled,
@@ -18,7 +25,14 @@ describe("ChatComposer — disabled while streaming", () => {
   });
 
   it("enables the textarea when not disabled", () => {
-    render(<ChatComposer disabled={false} onSend={vi.fn()} />);
+    render(
+      <ChatComposer
+        disabled={false}
+        onSend={vi.fn()}
+        isStreaming={false}
+        onStop={vi.fn()}
+      />,
+    );
     expect(
       (screen.getByLabelText("composerAriaLabel") as HTMLTextAreaElement)
         .disabled,
@@ -32,6 +46,8 @@ describe("ChatComposer — suggestions rail", () => {
       <ChatComposer
         disabled={false}
         onSend={vi.fn()}
+        isStreaming={false}
+        onStop={vi.fn()}
         suggestions={<button type="button">a chip</button>}
       />,
     );
@@ -48,7 +64,14 @@ describe("ChatComposer — suggestions rail", () => {
   });
 
   it("does not render a rail when no suggestions slot is passed", () => {
-    render(<ChatComposer disabled={false} onSend={vi.fn()} />);
+    render(
+      <ChatComposer
+        disabled={false}
+        onSend={vi.fn()}
+        isStreaming={false}
+        onStop={vi.fn()}
+      />,
+    );
     // Only the send button exists; no chip buttons.
     expect(screen.getAllByRole("button")).toHaveLength(1);
   });
@@ -77,7 +100,14 @@ describe("ChatComposer — suggestions rail", () => {
 describe("ChatComposer — keyboard send unchanged", () => {
   it("Enter sends the trimmed draft and clears it", () => {
     const onSend = vi.fn();
-    render(<ChatComposer disabled={false} onSend={onSend} />);
+    render(
+      <ChatComposer
+        disabled={false}
+        onSend={onSend}
+        isStreaming={false}
+        onStop={vi.fn()}
+      />,
+    );
     const textarea = screen.getByLabelText(
       "composerAriaLabel",
     ) as HTMLTextAreaElement;
@@ -90,10 +120,42 @@ describe("ChatComposer — keyboard send unchanged", () => {
 
   it("Shift+Enter does not send (newline)", () => {
     const onSend = vi.fn();
-    render(<ChatComposer disabled={false} onSend={onSend} />);
+    render(
+      <ChatComposer
+        disabled={false}
+        onSend={onSend}
+        isStreaming={false}
+        onStop={vi.fn()}
+      />,
+    );
     const textarea = screen.getByLabelText("composerAriaLabel");
     fireEvent.change(textarea, { target: { value: "line" } });
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: true });
+    expect(onSend).not.toHaveBeenCalled();
+  });
+});
+
+describe("ChatComposer — Stop button while streaming", () => {
+  it("swaps the send button to a Stop control that stays clickable and calls onStop", () => {
+    const onSend = vi.fn();
+    const onStop = vi.fn();
+    // `disabled` (inputBlocked) is true while streaming — the Stop button must
+    // stay clickable regardless.
+    render(
+      <ChatComposer
+        disabled
+        onSend={onSend}
+        isStreaming
+        onStop={onStop}
+      />,
+    );
+    // Send affordance is gone; Stop affordance is present and enabled.
+    expect(screen.queryByLabelText("sendMessage")).toBeNull();
+    const stopButton = screen.getByLabelText("stopMessage") as HTMLButtonElement;
+    expect(stopButton.disabled).toBe(false);
+    expect(stopButton.getAttribute("type")).toBe("button");
+    fireEvent.click(stopButton);
+    expect(onStop).toHaveBeenCalledTimes(1);
     expect(onSend).not.toHaveBeenCalled();
   });
 });

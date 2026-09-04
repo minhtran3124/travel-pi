@@ -406,6 +406,7 @@
     "composerPlaceholder": "Message the travel assistant…",
     "composerAriaLabel": "Message the travel assistant",
     "sendMessage": "Send message",
+    "stopMessage": "Stop generating",
     "retry": "Retry",
     "retryHint": "The previous answer didn't finish.",
     "greetingTitle": "Hi! I'm Tin 👋",

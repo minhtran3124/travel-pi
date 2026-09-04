@@ -406,6 +406,7 @@
     "composerPlaceholder": "Nhắn tin cho trợ lý du lịch…",
     "composerAriaLabel": "Nhắn tin cho trợ lý du lịch",
     "sendMessage": "Gửi tin nhắn",
+    "stopMessage": "Dừng tạo câu trả lời",
     "retry": "Thử lại",
     "retryHint": "Câu trả lời trước chưa hoàn tất.",
     "greetingTitle": "Chào bạn! Mình là Tin 👋",
