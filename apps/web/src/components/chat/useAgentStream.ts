@@ -875,10 +875,14 @@ export function useAgentStream(
   }, [interrupt, isStreaming, messages, rerun]);
 
   const stop = useCallback(() => {
-    // Flag the abort as deliberate so the stream loop's finally-block still runs
-    // its state reset, then abort the in-flight request.
+    // Only flag a deliberate stop when there is an in-flight controller to
+    // abort. Setting the flag unconditionally would leave it stale (true, with
+    // nothing to reset it) if a stream had already finished between render and
+    // click — a later unmount-cleanup abort would then read the stale flag and
+    // wrongly run its state reset on an unmounted component.
+    if (!abortRef.current) return;
     userStoppedRef.current = true;
-    abortRef.current?.abort();
+    abortRef.current.abort();
   }, []);
 
   const newConversation = useCallback(() => {

@@ -674,9 +674,14 @@ async def list_conversation_messages(
 
     thread_id = _thread_id(uid, conversation.trip_id, conversation_id)
     cfg = {"configurable": {"thread_id": thread_id}}
-    state = await graph.aget_state(cfg)
-    interrupt_pending = bool(state.interrupts)
-    interrupt_payload = state.interrupts[0].value if state.interrupts else None
+    interrupt_pending = False
+    interrupt_payload = None
+    try:
+        state = await graph.aget_state(cfg)
+        interrupt_pending = bool(state.interrupts)
+        interrupt_payload = state.interrupts[0].value if state.interrupts else None
+    except Exception:  # noqa: BLE001 — best-effort; the message history below still returns
+        pass
     return ConversationMessages(
         messages=repo.list_messages(conversation_id),
         interrupt_pending=interrupt_pending,
