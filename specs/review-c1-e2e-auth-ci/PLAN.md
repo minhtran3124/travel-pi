@@ -1,6 +1,6 @@
 ---
 slug: review-c1-e2e-auth-ci
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-04
 ---
@@ -286,6 +286,7 @@ state: with the Supabase e2e user created and `E2E_USER_EMAIL` / `E2E_USER_PASSW
 
 | Date | Event |
 |---|---|
+| 2026-09-04 | Shipped — PR opened against main. |
 | 2026-09-04 | Intake (parent `review-c-web-experience`, E001-A), design approved, Deep research brief written, plan drafted. |
 | 2026-09-04 | Tasks 1.1, 1.2 complete; commits a8b3bf2, 6b3e9ff. Both reviews pass/approved. |
 | 2026-09-04 | Task 2.1 complete; commit de5292c; review pass/approved. Task 2.1's mandated `import.meta.url` then proved to be a parse error under Playwright's CommonJS transpile; the Action is corrected above and the module re-anchored on `__dirname`. |
