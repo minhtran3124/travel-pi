@@ -6,8 +6,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 - **Slug:** agent-budget-trip-context
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** direct implementation (waves 1-4)
-- **Last action:** catalog-content-i18n waves 1-4 on feat/catalog-content-i18n (stacked on PR #140); Task 3.2 hotels deferred (no description in hotel panel); make test 2120 pass / 5 pre-existing; PR pending
+- **Last skill:** subagent-driven-development → finishing-a-development-branch
+- **Last action:** PR #142 open against main; receipt + verify_summary green; main merged into the branch and the worktree removed, so the primary checkout now sits on feat/agent-budget-trip-context. Awaiting human review/merge. Open decisions in SUMMARY Advisory Findings (MCP write exposure, merge-vs-replace caps).
 - **Updated:** 2026-09-05
 
 ## Recent Specs
@@ -16,7 +16,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| catalog-content-i18n | 2026-09-05 | design | paused — design.md has 4 open questions awaiting user approval (superseded as active by agent-budget-trip-context) |
+| agent-budget-trip-context | 2026-09-05 | review | PR #142 open → main |
+| catalog-content-i18n | 2026-09-05 | shipped | merged via PR #141 → main |
 
 ## Notes
 
