@@ -5,9 +5,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 ## Active Spec
 
 - **Slug:** agent-tool-round-budget
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** subagent-driven-development → finishing-a-development-branch
-- **Last action:** PR #143 open against main from worktree .worktrees/feat-agent-tool-round-budget (branch feat/agent-tool-round-budget); receipt + verify_summary green; run_state at ready_to_merge. agent-budget-trip-context (PR #142) still open against main, primary checkout still on that branch — awaiting review/merge on both PRs. Open decisions for #143 in SUMMARY Advisory Findings (retry-induced duplicate writes, batching vs create-trip ordering).
+- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** finishing-a-development-branch
+- **Last action:** PR #143 merged into main (squash, commit 42c57a0); CI (api/web/web-e2e) all green before merge; live UAT screenshots at screenshots/uat-agent-tool-round-budget/ confirmed the fix. agent-budget-trip-context (PR #142) merged earlier (605e158). Primary checkout back on main, both feature branches deleted (local + remote). Open decisions from SUMMARY Advisory Findings (retry-induced duplicate writes, batching vs create-trip ordering) remain unaddressed follow-ups.
 - **Updated:** 2026-09-05
 
 ## Recent Specs
@@ -16,9 +16,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| agent-tool-round-budget | 2026-09-05 | review | PR #143 open → main |
-| agent-budget-trip-context | 2026-09-05 | review | PR #142 open → main |
-| agent-budget-trip-context | 2026-09-05 | review | PR #142 open → main |
+| agent-tool-round-budget | 2026-09-05 | shipped | merged via PR #143 → main |
+| agent-budget-trip-context | 2026-09-05 | shipped | merged via PR #142 → main |
 | catalog-content-i18n | 2026-09-05 | shipped | merged via PR #141 → main |
 
 ## Notes
@@ -1455,5 +1454,19 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 81d007a0-996b-498e-8c45-3b4d837a99b0
 - exit: 
 - last_commit: 9a3c80a docs(specs): point STATE.md at agent-budget-trip-context
+- user_turns: 0
+
+
+### 2026-09-05T12:32:28Z
+- session_id: e4dc6888-0187-496f-b3b4-130192c4282a
+- exit: 
+- last_commit: 2b7492d Merge remote-tracking branch 'github/main' into feat/agent-tool-round-budget
+- user_turns: 0
+
+
+### 2026-09-05T12:38:05Z
+- session_id: 4b749084-37c0-4b83-9ff3-e779905a99e7
+- exit: 
+- last_commit: 42c57a0 fix(agent): raise the tool-round budget — skip the no-op guard step, batch itinerary writes (#143)
 - user_turns: 0
 
