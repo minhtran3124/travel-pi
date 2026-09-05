@@ -74,15 +74,15 @@ Default direction (medium confidence — confirm before planning):
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| budget domain binding + metadata | `../../.venv/bin/python -m pytest tests/tools/test_tool_registry.py -q` | 0 | run from apps/api at 625d9b2 (re-run after fix round 3) | SC-1 |
-| set_trip_budget persists / replaces caps | `../../.venv/bin/python -m pytest tests/tools/test_trip_budget_tools.py -q -k set_trip_budget` | 0 | | SC-2 |
-| estimate derives nights/travelers, caps sum to total | `../../.venv/bin/python -m pytest tests/tools/test_trip_budget_tools.py -q -k derive` | 0 | | SC-3 |
-| estimate on undated trip returns guidance | `../../.venv/bin/python -m pytest tests/tools/test_trip_budget_tools.py -q -k no_dates` | 0 | | SC-4 |
-| absent-trip guidance + trip guard coverage | `../../.venv/bin/python -m pytest tests/tools/test_trip_tools_no_active_trip.py tests/agents/test_trip_guard.py -q` | 0 | | SC-5 |
-| budget v3 / supervisor v10 content | `../../.venv/bin/python -m pytest tests/prompts/test_budget_prompt.py tests/prompts/test_active_versions_load.py -q` | 0 | | SC-6 |
-| MCP exposes both tools, set non-destructive | `../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | | SC-7 |
-| eval datasets validate with new goldens | `../../.venv/bin/python -m pytest tests/eval/test_datasets.py tests/eval/test_run_deepeval.py -q` | 0 | | SC-8 |
-| lint | `ruff check app tests/tools tests/mcp tests/prompts tests/agents/test_trip_guard.py` | 0 | whole `tests/` has pre-existing B017/F811 on main | SC-9 |
+| budget domain binding + metadata | `.venv/bin/python -m pytest apps/api/tests/tools/test_tool_registry.py -q` | 0 | run from repo root at 625d9b2 (re-run after fix round 3; PLAN §3 lists the same checks apps/api-relative) | SC-1 |
+| set_trip_budget persists / replaces caps | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_budget_tools.py -q -k set_trip_budget` | 0 | | SC-2 |
+| estimate derives nights/travelers, caps sum to total | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_budget_tools.py -q -k derive` | 0 | | SC-3 |
+| estimate on undated trip returns guidance | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_budget_tools.py -q -k no_dates` | 0 | | SC-4 |
+| absent-trip guidance + trip guard coverage | `.venv/bin/python -m pytest apps/api/tests/tools/test_trip_tools_no_active_trip.py apps/api/tests/agents/test_trip_guard.py -q` | 0 | | SC-5 |
+| budget v3 / supervisor v10 content | `.venv/bin/python -m pytest apps/api/tests/prompts/test_budget_prompt.py apps/api/tests/prompts/test_active_versions_load.py -q` | 0 | | SC-6 |
+| MCP exposes both tools, set non-destructive | `.venv/bin/python -m pytest apps/api/tests/mcp/test_mcp_server.py -q` | 0 | | SC-7 |
+| eval datasets validate with new goldens | `.venv/bin/python -m pytest apps/api/tests/eval/test_datasets.py apps/api/tests/eval/test_run_deepeval.py -q` | 0 | | SC-8 |
+| lint | `ruff check apps/api/app apps/api/tests/tools apps/api/tests/mcp apps/api/tests/prompts apps/api/tests/agents/test_trip_guard.py` | 0 | whole `tests/` has pre-existing B017/F811 on main | SC-9 |
 | intake evidence | `grep -n '"budget"' apps/api/app/tools/registry.py` | 0 | pre-change: budget domain = EXPENSE_TOOLS + get_trip_budget only | |
 
 ### Advisory Findings (correctness review, below threshold — not auto-fixed)
