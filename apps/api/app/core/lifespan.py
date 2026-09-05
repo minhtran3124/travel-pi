@@ -12,6 +12,7 @@ from fastapi import FastAPI
 
 from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 from app.core.config import get_settings
+from app.core.dashboard_auth import missing_credentials
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
@@ -30,6 +31,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     settings = get_settings()
     logger.info("Database URL: %s", settings.database_url)
+    missing = missing_credentials()
+    if missing:
+        logger.warning(
+            "Dashboard login disabled: set %s to enable /dashboard", ", ".join(missing)
+        )
     engine = get_engine(settings.database_url)
     # SQLite (local/dev/test) self-creates its schema; Postgres schema is
     # managed by Alembic (alembic upgrade head, run by the container entrypoint).
