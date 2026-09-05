@@ -108,6 +108,12 @@ the no-trip path must still block, deterministically, exactly as GH-113 establis
   (`fn = tool.coroutine or tool.func`) sits outside its nearby try/except; a plain `BaseTool`
   subclass with neither attribute would crash `build_subagent` at startup. Entirely pre-existing,
   not triggered or made more likely by this diff.
+- **Timestamp-format tiebreak assumes ISO strings from `_utc_now_iso()` (re-review P3, advisory)** —
+  the new `created_at` tiebreak compares timestamp strings lexically; a row whose `created_at` was
+  written in a different format (a legacy/manual/external insert) could sort out of true
+  chronological order, though still deterministically. Not observed in any current write path
+  (`grep -rn "TripItem(" app scripts tests` shows only the mixin default); legacy DB row content
+  is unknown, not checked. `app/repositories/trip.py`.
 - **Test measures 10 rounds, claim was "up to 12" (intent review, advisory)** — the round-budget
   test proves 10 sequential rounds fit; the arithmetic ceiling (`2N+1≤25`) is 12, but nothing pins
   12 specifically. `tests/agents/test_trip_guard.py`.
