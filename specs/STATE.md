@@ -1447,3 +1447,59 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: 8458a8f Merge pull request #139 from minhtran3124/chore/backfill-spec-bookkeeping
 - user_turns: 0
 
+
+### 2026-09-05T04:32:16Z
+- session_id: 4c0c5e0d-b8df-4642-bfd6-38079fbdee71
+- exit: 
+- last_commit: c284221 docs(specs): dashboard-auth-required intake, escalation, design, research brief and plan
+- user_turns: 0
+
+
+### 2026-09-05T04:33:07Z
+- session_id: 1959a24a-6a16-4f59-ad7c-0091ff3819bb
+- exit: 
+- last_commit: c284221 docs(specs): dashboard-auth-required intake, escalation, design, research brief and plan
+- user_turns: 0
+
+
+### 2026-09-05T08:43:58Z
+- session_id: 283f2b3e-a9f2-416b-b84d-de8bbb59aa53
+- exit: 
+- last_commit: 6b4ae86 docs(specs): record wave 1 completion in the plan status log
+- user_turns: 0
+
+
+### 2026-09-05T08:46:10Z
+- session_id: aaaf63ec-b01c-4fb6-984b-ddbbc1a653b3
+- exit: 
+- last_commit: 6b4ae86 docs(specs): record wave 1 completion in the plan status log
+- user_turns: 0
+
+
+### 2026-09-05T08:49:56Z
+- session_id: aa7913c9-7798-4356-8846-3227c0bcf72f
+- exit: 
+- last_commit: 2272eb5 docs(specs): record wave 2 completion in the plan status log
+- user_turns: 0
+
+
+### 2026-09-05T08:52:51Z
+- session_id: 62ccee85-c985-426c-8b97-0f7ca8deaba7
+- exit: 
+- last_commit: 2272eb5 docs(specs): record wave 2 completion in the plan status log
+- user_turns: 0
+
+
+### 2026-09-05T09:16:18Z
+- session_id: 587cc145-7989-40d3-8cd3-547d5e399da3
+- exit: 
+- last_commit: 6fbde44 docs(specs): update SUMMARY with final Verify results and shipped changes
+- user_turns: 0
+
+
+### 2026-09-05T09:21:51Z
+- session_id: 326fe8e8-3f3e-497b-a68d-96cb87c8bbf6
+- exit: 
+- last_commit: 0de4b53 docs(specs): route and record intent-review findings
+- user_turns: 0
+
