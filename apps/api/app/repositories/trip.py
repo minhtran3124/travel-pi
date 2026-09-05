@@ -44,9 +44,14 @@ def _row_to_item(row: models.TripItem) -> TripItem:
 
 
 def _row_to_trip(row: models.Trip, item_rows: list[models.TripItem]) -> Trip:
-    items = sorted(
-        (_row_to_item(r) for r in item_rows), key=lambda i: (i.day, i.sort_order)
+    # Sort ORM rows (not the converted pydantic items) so ties on
+    # (day, sort_order) — the common case, since add_itinerary_item never sets
+    # sort_order — break on created_at/id instead of DB-query return order,
+    # which is nondeterministic when concurrent tool calls commit independently.
+    sorted_rows = sorted(
+        item_rows, key=lambda r: (r.day, r.sort_order, r.created_at, r.id)
     )
+    items = [_row_to_item(r) for r in sorted_rows]
     return Trip(
         id=row.id,
         title=row.title,
