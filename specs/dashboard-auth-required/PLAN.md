@@ -1,6 +1,6 @@
 ---
 slug: dashboard-auth-required
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-09-05
 ---
@@ -208,3 +208,6 @@ renaming the existing env vars, fail-fast on missing credentials.
 ## 6. Status Log
 
 - 2026-09-05 — plan written (proposed).
+- 2026-09-05 — tasks 1.1, 1.2 complete; commits 10dc7a1, c35f01e; review fixes 49bdc2a.
+  Task 1.1 spec pass / quality approved (2 Minor, both fixed). Task 1.2 spec pass /
+  quality needs_fixes (invalid `font:` shorthand) — fixed in 49bdc2a and re-verified.
