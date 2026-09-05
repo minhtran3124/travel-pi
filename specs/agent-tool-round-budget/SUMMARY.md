@@ -69,7 +69,7 @@ the no-trip path must still block, deterministically, exactly as GH-113 establis
 
 ### Deviations
 
-- none
+- Rule 1 — Task 1.1: implementer moved `InMemoryStore`'s import to module scope, touching a line inside the pre-existing test the brief said to keep unmodified (it was only used by that one test, not the new ones). Controller reverted the import to its original local scope before commit. `tests/agents/test_trip_guard.py`. Commit `759876a`.
 
 ### Verify
 
