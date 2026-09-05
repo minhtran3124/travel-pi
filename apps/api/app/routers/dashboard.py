@@ -33,6 +33,7 @@ from sqlalchemy.orm import Session
 
 from app.agents.metrics import MAX_STEPS_PER_TURN as _MAX_STEPS_PER_TURN
 from app.core.dashboard_auth import require_dashboard_access
+from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
 from app.db import models
@@ -60,11 +61,13 @@ from app.services.agent_config_service import AgentConfigService
 from app.services.airport_service import AirportService
 from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
+from app.services.content_translation_service import ContentTranslationService
 from app.services.flight_service import FlightService
 from app.services.hotel_service import HotelService
 from app.services.place_service import PlaceService
 from app.services.tip_service import TipService
 from app.services.visa_service import VisaService
+from app.streaming.panels.places import CATEGORY_VI
 
 router = APIRouter(
     prefix="/dashboard",
@@ -82,6 +85,34 @@ _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:0
 
 # The board defaults to this airport when none is given (busiest hub).
 _DEFAULT_AIRPORT = "SGN"
+
+# Catalog text language for the hotel/place pages (specs/catalog-content-i18n):
+# ``?lang=`` wins, else the cookie set by an earlier choice, else the default.
+_LANG_COOKIE = "dashboard_lang"
+_TEMPLATES.env.globals["supported_languages"] = SUPPORTED_LANGUAGES
+
+
+def _dashboard_language(request: Request, lang: str | None) -> str:
+    """Resolve the catalog language for this request.
+
+    :param request: The incoming request (cookie fallback).
+    :param lang: The ``?lang=`` query value, if any.
+    :return: A supported language code.
+    """
+    return normalize(lang or request.cookies.get(_LANG_COOKIE))
+
+
+def _remember_language(response: Response, lang: str | None, resolved: str) -> None:
+    """Persist an explicit ``?lang=`` choice so the next page keeps it.
+
+    :param response: The response to set the cookie on.
+    :param lang: The raw ``?lang=`` value (``None`` when absent → no cookie).
+    :param resolved: The normalized code to store.
+    """
+    if lang:
+        response.set_cookie(
+            _LANG_COOKIE, resolved, max_age=365 * 24 * 3600, samesite="lax"
+        )
 
 
 @router.get("", response_class=HTMLResponse, include_in_schema=False)
@@ -314,6 +345,7 @@ def hotel_list_page(
     city: str | None = Query(None, description="Filter the grid to one city"),
     q: str | None = Query(None, description="Case-insensitive hotel name search"),
     sort: str = Query("featured", description="Sort order; see _HOTEL_SORTS keys"),
+    lang: str | None = Query(None, description="Catalog text language (en/vi)"),
 ) -> HTMLResponse:
     """Render the browsable hotel grid.
 
@@ -350,7 +382,13 @@ def hotel_list_page(
     if sort_key is not None:
         hotels = sorted(hotels, key=sort_key)
 
-    return _TEMPLATES.TemplateResponse(
+    language = _dashboard_language(request, lang)
+    # Stored translations only: the dashboard never triggers a translator call.
+    hotels = ContentTranslationService(session).localize(
+        "hotel", hotels, ["description"], language, fill_misses=False
+    )
+
+    response = _TEMPLATES.TemplateResponse(
         request=request,
         name="hotels.html",
         context={
@@ -360,8 +398,11 @@ def hotel_list_page(
             "query": query,
             "sort": sort,
             "total": len(all_hotels),
+            "lang": language,
         },
     )
+    _remember_language(response, lang, language)
+    return response
 
 
 _PLACE_SORTS = {
@@ -395,6 +436,7 @@ def places_page(
     price_level: str | None = Query(None, description="Price level 1–4"),
     recommended: bool = Query(False, description="Recommended only"),
     sort: str = Query("rating_desc"),
+    lang: str | None = Query(None, description="Catalog text language (en/vi)"),
 ) -> HTMLResponse:
     """Render the browsable places/attractions grid.
 
@@ -443,14 +485,25 @@ def places_page(
         )
     )
 
-    return _TEMPLATES.TemplateResponse(
+    language = _dashboard_language(request, lang)
+    results = ContentTranslationService(session).localize(
+        "place", results, ["description"], language, fill_misses=False
+    )
+    categories = (
+        {k: CATEGORY_VI.get(k, v) for k, v in _PLACE_CATEGORIES.items()}
+        if language != DEFAULT_LANGUAGE
+        else _PLACE_CATEGORIES
+    )
+
+    response = _TEMPLATES.TemplateResponse(
         request=request,
         name="places.html",
         context={
             "places": results,
             "total": len(all_places),
             "cities": cities,
-            "categories": _PLACE_CATEGORIES,
+            "categories": categories,
+            "lang": language,
             "price_labels": _PRICE_LABELS,
             "sort_options": _PLACE_SORTS,
             "selected_city": city or None,
@@ -462,6 +515,8 @@ def places_page(
             "error": error,
         },
     )
+    _remember_language(response, lang, language)
+    return response
 
 
 def _city_country_map(session: Session) -> dict[str, str]:
@@ -1059,7 +1114,6 @@ def agent_runs_page(
 _MIN_BAR_PCT = 0.8
 
 
-
 def _attributed_prompt_names(steps: list) -> set[str]:
     """Prompt names the run's steps could be attributed to.
 
@@ -1077,6 +1131,7 @@ def _attributed_prompt_names(steps: list) -> set[str]:
             if name:
                 names.add(name)
     return names
+
 
 def _turn_span_ms(run: models.AgentRun, steps: list[models.AgentRunStep]) -> int:
     """Wall-clock span the waterfall is drawn against.

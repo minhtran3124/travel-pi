@@ -186,6 +186,8 @@
       white-space: nowrap; transition: color .15s, border-color .15s;
     }
     .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
+    .lang-switch { display: inline-flex; gap: 4px; }
+    .lang-switch .theme-btn.on { color: var(--ink); border-color: var(--accent); }
     .theme-btn:focus-visible { outline: none; box-shadow: var(--ring); }
     .theme-dot {
       width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
@@ -1049,6 +1051,15 @@
       <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
         <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
       </button>
+      {% if lang is defined %}
+      <span class="lang-switch" role="group" aria-label="Catalog language">
+        {% for code in supported_languages %}
+          <a href="{{ request.url.include_query_params(lang=code) }}"
+             class="theme-btn{{ ' on' if code == lang else '' }}"
+             aria-current="{{ 'true' if code == lang else 'false' }}">{{ code | upper }}</a>
+        {% endfor %}
+      </span>
+      {% endif %}
       <button type="button" id="theme-btn" class="theme-btn" title="Switch theme" aria-label="Switch theme">
         <span class="theme-dot" aria-hidden="true"></span><span class="theme-name">Sunset</span>
       </button>

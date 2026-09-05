@@ -53,6 +53,7 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
 | SC-5 | `search_hotels` and `browse_hotels` with injected `language="vi"` return a panel whose hotel `description`s are Vietnamese (new panel field, rendered in the expanded FE card), a second call makes zero LLM calls, and a call without `language` is unchanged | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools_language.py tests/streaming/test_hotels_panel.py -q` | exit 0 |
 | SC-6 | The SSE path no longer calls an LLM for panels: `panel_localizer` keeps bounded swaps only, `mapper` has no translator, the compiled graph exposes no `translate_llm`; existing language/e2e stream tests pass | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc6.db ../../.venv/bin/python -m pytest tests/streaming/test_panel_localizer.py tests/streaming/test_mapper_language.py tests/streaming/test_panel_language_e2e.py tests/streaming/test_places_panel.py tests/streaming/test_hotels_panel.py tests/agents/test_graph_translate_handle.py -q` | exit 0 |
 | SC-7 | `seed_all` loads `app/data/content_translations.vi.json` when present (idempotent), and the generator script writes that file's shape from a fake translator | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc7.db ../../.venv/bin/python -m pytest tests/db/test_seed_translations.py -q` | exit 0 |
+| SC-9 | Dashboard `/dashboard/hotels` and `/dashboard/places` render catalog text in `?lang=` (remembered in a cookie, unknown → `en`), swap bounded category labels, and never call the translator | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc9.db ../../.venv/bin/python -m pytest tests/api/routes/test_dashboard_language.py -q` | exit 0 |
 | SC-8 | No `"vi"` / `"en"` literal remains in supervisor / state / events / mapper / panel_localizer | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc8.db ../../.venv/bin/python -m pytest tests/architecture/test_language_literals.py -q` | exit 0 |
 
 ## 4. Tasks
@@ -176,6 +177,20 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
 - **Criteria:** SC-7
 - **Interfaces:** Consumes: `apps/api/app/repositories/content_translation.py`, `apps/api/app/services/content_translation_service.py`. Produces: `apps/api/app/data/content_translations.vi.json`, `apps/api/scripts/generate_translations.py`.
 
+### Task 5.1 — Dashboard language switch for hotels / places (wave 5)
+
+- **Files:** apps/api/app/routers/dashboard.py, apps/api/app/templates/base.html, apps/api/app/templates/hotels.html, apps/api/app/templates/places.html, apps/api/app/services/content_translation_service.py, apps/api/tests/api/routes/test_dashboard_language.py
+- **Action:** Added on user request after wave 4. `localize(..., fill_misses=False)` lets a caller
+  read stored rows only. `_dashboard_language(request, lang)` resolves `?lang=` → cookie
+  `dashboard_lang` → default; `_remember_language` sets the cookie on an explicit choice. Both
+  routes localize `description` with `fill_misses=False`; places swap category labels via
+  `CATEGORY_VI` under `vi`. `base.html` shows an EN/VI toggle (links keep the current query
+  params) whenever the page passes `lang`; both filter forms carry a hidden `lang` input.
+- **Verify:** `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/t51.db ../../.venv/bin/python -m pytest tests/api/routes/test_dashboard_language.py tests/services/test_content_translation_service.py -q`
+- **Done:** toggle renders, cookie persists, unknown code falls back, translator never called from the dashboard
+- **Criteria:** SC-9
+- **Interfaces:** Consumes: `apps/api/app/services/content_translation_service.py`, `apps/api/app/core/languages.py`. Produces: `apps/api/app/routers/dashboard.py` (`_dashboard_language`, `_remember_language`), `apps/api/app/templates/base.html` (lang switch).
+
 ## 5. Risks
 
 - Double translation if 3.1/3.2 land without 3.3 → same wave, shipped together.
@@ -188,3 +203,4 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
 
 - 2026-09-05 — plan written after design approval.
 - 2026-09-05 — waves 1–4 implemented directly (single session); Task 3.2 first deferred (hotel panel carried no description), then done on user request with the panel field + FE card. vi seed file generated: 506 places + 183 hotels.
+- 2026-09-05 — Task 5.1 dashboard EN/VI switch added on user request.

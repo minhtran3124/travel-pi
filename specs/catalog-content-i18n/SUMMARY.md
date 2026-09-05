@@ -42,6 +42,9 @@ Branch `feat/catalog-content-i18n` (stacked on `fix/sse-tool-event-thread-replay
 - `search_places` receives `language` via `InjectedState` and localizes the panel's
   descriptions before building it (model and traveller see the same text). No `language`
   (MCP / direct) → unchanged English output.
+- Dashboard `/dashboard/hotels` + `/dashboard/places`: EN/VI toggle in the top bar (`?lang=`,
+  remembered in the `dashboard_lang` cookie), descriptions from the stored translations only
+  (`fill_misses=False`, never a translator call), place category labels swapped under `vi`.
 - SSE path is LLM-free: `panel_localizer` / panels keep only bounded `vi` swaps; the mapper
   translator closure and `graph.translate_llm` are gone.
 - `seed_all` upserts `app/data/content_translations.<lang>.json` (`source="seed"`);
@@ -88,6 +91,7 @@ the durable store and treats the LLM translator as its miss-path filler.
 | seed pre-fill + generator | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc7.db ../../.venv/bin/python -m pytest tests/db/test_seed_translations.py -q` | 0 | 3 passed (8 with test_seed) | SC-7 |
 | no language literals | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc8.db ../../.venv/bin/python -m pytest tests/architecture/test_language_literals.py -q` | 0 | 1 passed | SC-8 |
 | generate vi translations (dev container) | `docker exec api-api-1 python -m scripts.generate_translations --language vi` | 0 | re-run after hotels: wrote 689 rows; DB check: places 506 + hotels 183 = rows 689 / untranslated 0 | SC-7 |
+| dashboard language switch | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc9.db ../../.venv/bin/python -m pytest tests/api/routes/test_dashboard_language.py -q` | 0 | 4 passed; live check `curl localhost:8000/dashboard/places?lang=vi` shows Vietnamese data-desc | SC-9 |
 | full BE suite | `make test` | 2 | 2120 passed, 5 failed — identical pre-existing set on `main` (local `.env` provider keys: langfuse/openai/openrouteservice) | |
 
 ### Not auto-verified

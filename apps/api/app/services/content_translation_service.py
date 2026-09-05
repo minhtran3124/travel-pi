@@ -86,6 +86,8 @@ class ContentTranslationService:
         items: Sequence[M],
         fields: Sequence[str],
         language: str | None,
+        *,
+        fill_misses: bool = True,
     ) -> list[M]:
         """Return ``items`` with ``fields`` in ``language``.
 
@@ -94,6 +96,8 @@ class ContentTranslationService:
         :param items: Pydantic entities carrying an ``id`` and the ``fields``.
         :param fields: Free-form text fields to localize (e.g. ``["description"]``).
         :param language: Target language code; unknown/empty → default → no-op.
+        :param fill_misses: When ``False`` (e.g. the dashboard), never call the
+            translator — a missing row simply keeps the source text.
         :return: The same objects for the default language; otherwise copies
             with every available translation applied. Never raises.
         """
@@ -114,7 +118,7 @@ class ContentTranslationService:
                 if isinstance(source, str) and source:
                     misses.append((item.id, field, source))
 
-        if misses:
+        if misses and fill_misses:
             stored = {**stored, **self._fill(entity_type, misses, lang)}
 
         return [
