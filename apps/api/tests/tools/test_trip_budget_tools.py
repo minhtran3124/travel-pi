@@ -149,7 +149,7 @@ def test_estimate_trip_budget_derives_nights_and_travelers(dated_trip_id):
     assert out["travelers"] == 2
     assert out["city"] == "Da Nang"
     caps = out["suggested_caps"]
-    # Only the hotel price was given: flights stay uncapped (key absent), never 0.
+    # No flight price → flights estimate 0 → uncapped (key absent), never 0.
     assert set(caps) == {"hotels", "activities", "buffer"}
     assert caps["hotels"] == out["breakdown"]["accommodation"]
     assert caps["activities"] == out["breakdown"]["activities"]
@@ -183,6 +183,36 @@ def test_estimate_trip_budget_known_prices_cap_all_four(dated_trip_id):
     assert caps["flights"] == 300.0
     assert caps["hotels"] == 80.0 * out["nights"]
     assert sum(caps.values()) == pytest.approx(out["total_estimate"])
+
+
+def test_estimate_trip_budget_activity_none_omits_activities(dated_trip_id):
+    from app.tools.trip_tools import estimate_trip_budget
+
+    out = estimate_trip_budget.invoke(
+        {"trip_id": dated_trip_id, "user_id": USER, "activity_level": "none"}
+    )
+    caps = out["suggested_caps"]
+    # activity_level none estimates 0.0 → left uncapped, never a 0.0 cap.
+    assert "activities" not in caps
+    assert sum(caps.values()) == pytest.approx(out["total_estimate"])
+
+
+def test_estimate_trip_budget_zero_flight_total_omits_flights(dated_trip_id):
+    from app.tools.trip_tools import estimate_trip_budget
+
+    out = estimate_trip_budget.invoke(
+        {"trip_id": dated_trip_id, "user_id": USER, "flight_total_usd": 0.0}
+    )
+    assert "flights" not in out["suggested_caps"]
+
+
+def test_estimate_trip_budget_positive_flight_total_caps_flights(dated_trip_id):
+    from app.tools.trip_tools import estimate_trip_budget
+
+    out = estimate_trip_budget.invoke(
+        {"trip_id": dated_trip_id, "user_id": USER, "flight_total_usd": 300}
+    )
+    assert out["suggested_caps"]["flights"] == 300.0
 
 
 def test_estimate_trip_budget_explicit_args_override_derived(dated_trip_id):

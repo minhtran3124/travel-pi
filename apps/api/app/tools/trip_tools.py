@@ -536,11 +536,10 @@ def estimate_trip_budget(
     """Estimate a trip's budget and propose per-category caps (read-only).
 
     Derives ``nights`` and ``travelers`` from the trip when not supplied. Returns
-    the line-item estimate plus ``suggested_caps`` covering only the categories
-    whose price is known: ``activities`` and ``buffer`` are always present;
-    ``flights`` / ``hotels`` are omitted (left uncapped) when no
-    ``flight_total_usd`` / ``hotel_price_per_night_usd`` was given. The caps
-    present still sum to ``total_estimate``; confirm them with the traveller,
+    the line-item estimate plus ``suggested_caps``; categories whose estimated
+    amount is zero — e.g. no price given for ``flights`` / ``hotels``, or
+    ``activity_level`` none — are omitted and left uncapped. The caps present
+    still sum to ``total_estimate``; confirm them with the traveller,
     then call ``set_trip_budget``. When the trip has no dates and ``nights`` is
     not given, a guidance value is returned instead — ask, never guess.
 
@@ -594,17 +593,19 @@ def estimate_trip_budget(
         raise ToolException(str(e)) from e
     estimate = estimate_trip(request)
     b = estimate.breakdown
-    # Only cap categories with a known price: ``estimate_trip`` sets flights /
-    # accommodation to 0.0 when excluded, and a 0.0 cap would be stored as a
-    # real cap that rejects the first booking.
-    suggested_caps: dict[str, float] = {}
-    if flight_total_usd is not None:
-        suggested_caps["flights"] = round(b.flights, 2)
-    if hotel_price_per_night_usd is not None:
-        suggested_caps["hotels"] = round(b.accommodation, 2)
-    suggested_caps["activities"] = round(b.activities, 2)
-    suggested_caps["buffer"] = round(
-        b.meals + b.local_transport + (estimate.total_estimate - estimate.subtotal),
-        2,
-    )
+    # Only cap categories whose estimated amount is > 0: a 0.0 cap (no price
+    # given, ``flight_total_usd=0`` for already-paid flights, activity_level
+    # none) would be stored as a real cap that rejects the first booking.
+    # ``buffer`` is always > 0 (local transport is charged per night), so the
+    # mapping is never empty.
+    amounts = {
+        "flights": round(b.flights, 2),
+        "hotels": round(b.accommodation, 2),
+        "activities": round(b.activities, 2),
+        "buffer": round(
+            b.meals + b.local_transport + (estimate.total_estimate - estimate.subtotal),
+            2,
+        ),
+    }
+    suggested_caps = {k: v for k, v in amounts.items() if v > 0}
     return dump(estimate) | {"suggested_caps": suggested_caps}
