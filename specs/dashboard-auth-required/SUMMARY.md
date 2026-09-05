@@ -161,4 +161,4 @@ repeated here.
 
 ### Harness-Delta
 
-- none
+- backlog — `.claude/scripts/verify_summary.py`'s single-target modes (bare `<slug>` and `--check`) resolve `specs_root` from the script's own file location, which `Path.resolve()` follows through the `.claude/scripts` symlink back to the main checkout — so they cannot see a spec that exists only in an isolated worktree's `specs/` tree (`--lane <path> --plan-dir <dir>` works around it by accepting an explicit path; single-target mode has no such override). Hit here because this worktree's `.claude` is entirely symlinked, per `worktree-isolation-use-in-place-branch`'s cousin setup. Worked around by running every Verify-table command directly and by using `--lane` with explicit paths for SC-coverage. Fix direction: give single-target mode the same `--plan-dir`-style override for `summary_path`.
