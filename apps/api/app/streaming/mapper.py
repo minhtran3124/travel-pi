@@ -24,6 +24,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.core.languages import DEFAULT_LANGUAGE
 from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
@@ -117,7 +118,7 @@ async def stream_agent_events(
     # Seed the language BEFORE the astream loop so a HITL-resume turn (which
     # skips the supervisor and never emits a language delta) still tags its
     # panels/done with the persisted language. Best-effort — default en.
-    current_language = "en"
+    current_language = DEFAULT_LANGUAGE
     # Ids of every message (and tool call) already on the thread BEFORE this
     # turn. A sub-agent shares the parent's state schema, so the parent-level
     # update for its node carries the thread's WHOLE ``messages`` list — every

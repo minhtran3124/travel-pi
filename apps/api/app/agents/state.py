@@ -83,9 +83,7 @@ class TravelAgentState(MessagesState):
     user_id: str
     trip_id: str | None
     current_flow: str  # which sub-agent the supervisor routed to
-    language: (
-        str  # dominant conversation language code (e.g. "en"/"vi"); set by supervisor
-    )
+    language: str  # dominant conversation language code (app.core.languages); supervisor
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
     trip_context: str  # active-trip snapshot; injected at model call, not into messages

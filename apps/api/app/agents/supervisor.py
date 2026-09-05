@@ -24,6 +24,7 @@ from app.agents.context import AgentContext
 from app.agents.schemas import AgentTask
 from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
+from app.core.languages import DEFAULT_LANGUAGE, LANGUAGE_NAMES, SUPPORTED_LANGUAGES
 from app.prompts.registry import registry
 
 # Re-exported for callers that do `from app.agents.supervisor import SUBAGENTS`.
@@ -89,11 +90,12 @@ class SupervisorIntent(BaseModel):
         ),
     )
     language: str = Field(
-        default="en",
+        default=DEFAULT_LANGUAGE,
         description=(
             "The traveller's PRIMARY/DOMINANT language across the whole "
-            "conversation (code, e.g. 'en'/'vi'). Default to English ('en') when "
-            "the language is unclear or ambiguous. Ignore lone interjections and "
+            f"conversation (code, one of {'/'.join(SUPPORTED_LANGUAGES)}). Default "
+            f"to {LANGUAGE_NAMES[DEFAULT_LANGUAGE]} ('{DEFAULT_LANGUAGE}') when the "
+            "language is unclear or ambiguous. Ignore lone interjections and "
             "loanwords ('ok','fine','good'); only report a different code on a "
             "clear, sustained switch."
         ),
@@ -241,10 +243,10 @@ def make_supervisor(llm: BaseChatModel):
         # Feed the already-established conversation language into the router so the
         # model itself returns the sticky value and does not flip on a lone English
         # interjection in an otherwise Vietnamese thread. English is the default
-        # baseline on the first turn: the router keeps "en" unless the traveller
+        # baseline on the first turn: the router keeps the default unless the traveller
         # clearly writes in another language, so an ambiguous/short opener stays
         # English instead of drifting.
-        established = state.get("language") or "en"
+        established = state.get("language") or DEFAULT_LANGUAGE
         base = SystemMessage(
             content=(
                 f"{system.content}\n\n"
@@ -280,7 +282,9 @@ def make_supervisor(llm: BaseChatModel):
         # Persist the detected language. The `or` fallback fires only when the model
         # returns a falsy/empty code — it does not pin the language, so a genuine,
         # model-reported switch still flows through `intent.language`.
-        lang = getattr(intent, "language", None) or state.get("language", "en")
+        lang = getattr(intent, "language", None) or state.get(
+            "language", DEFAULT_LANGUAGE
+        )
         # MIN-65 D3: normalize raw slots in code (never trust the LLM to resolve
         # a date/number itself).
         trip_facts = _normalize_slots(

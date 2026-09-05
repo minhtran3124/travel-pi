@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import copy
 
+from app.core.languages import DEFAULT_LANGUAGE, normalize
 from app.streaming.panels.base import Translator, get_panel
 
 
@@ -45,7 +46,7 @@ async def localize_panel(
         text in place.
     :return: The (possibly localized) panel data.
     """
-    if language != "vi" or not isinstance(data, dict):
+    if normalize(language) == DEFAULT_LANGUAGE or not isinstance(data, dict):
         return data
 
     out = copy.deepcopy(data)
