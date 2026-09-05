@@ -1,6 +1,6 @@
 ---
 slug: dashboard-auth-required
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-05
 ---
@@ -215,3 +215,7 @@ renaming the existing env vars, fail-fast on missing credentials.
   quality approved, zero findings.
 - 2026-09-05 — tasks 3.1, 3.2 complete; commits 5058fa1, 9390162. Both spec pass /
   quality approved, zero findings. All plan tasks done; proceeding to final review chain.
+- 2026-09-05 — correctness-review: 0 blocking, 4 advisory (all below threshold 75).
+  intent-review: 8 findings first pass, 6 fixed (7d5c9b9), 3 more found on re-review and
+  fixed (bde7aa2, a0c2dc0, 9d75738, dcee157); final re-review ✅ zero code divergence.
+  Receipt written f059ad8. Ready for finishing-a-development-branch.
