@@ -1,6 +1,6 @@
 {
-  "reviewed_head_sha": "dcee1579909592ad0f18c03f155e94ae4fad407c",
-  "created": "2026-09-05T16:30:42+07:00",
+  "reviewed_head_sha": "bcc81b469bdd99ef4981b9bc2f50cdc805dfa847",
+  "created": "2026-09-05T19:45:35+07:00",
   "reviews": [
     {
       "reviewer": "task-review-1.1",
@@ -65,6 +65,14 @@
       "blocking_open": 0,
       "advisory_open": 1,
       "notes": "Plan-blind against the verbatim request plus the user's C / approach-3 / fastapi-correctness clarifications. First pass found 8 divergences; 6 fixed (host-header form action, DI-based already-signed-in dependency, authenticate() timing side-channel, stale APIS.md, missing SUMMARY note, dead next context key) in 7d5c9b9. Re-review found 3 more low-severity record/wording issues (dead next query param, misleading lockout-warning wording, a SUMMARY paragraph that pre-asserted its own verdict), fixed in bde7aa2/a0c2dc0/9d75738/dcee157. Final holistic re-review: zero remaining code divergence from intent. One item (OAuth2PasswordRequestForm for an HTML form) left as advisory -- deliberate design-review choice, behaviorally equivalent. One item (prod now shows a locked page instead of 404) is documented design decision D1/D4, not a defect."
+    },
+    {
+      "reviewer": "merge-advance",
+      "type": "merge",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Merged github/main (8f84da6, brings in agent-budget-trip-context + agent-tool-round-budget, #142/#143) into feat/dashboard-auth-required at bcc81b4. `git diff 7a37714 bcc81b4 -- <every feature file>` is empty -- the merge changed zero lines in any file this feature owns; the only conflict was an append-only breadcrumb log (specs/STATE.md), resolved by interleaving both sides' entries. All prior correctness/intent verdicts hold unchanged for the feature diff itself; make test rerun after merge: 2244 passed (was 2205 pre-merge, +39 from the merged-in work)."
     }
   ]
 }
