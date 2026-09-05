@@ -1,0 +1,46 @@
+{
+  "reviewed_head_sha": "625d9b2af635647d61351979ad104c1b02e1e54b",
+  "created": "2026-09-05T04:00:26+00:00",
+  "reviews": [
+    {
+      "reviewer": "plan-advisory-review",
+      "type": "plan",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "REVISE with 6 text objections (both-dates rule, trip-guard mechanism in the eval golden, content-only prompt tests, ValueError handling, described schema fields, machine-decidable prompt diffs); all applied before execution."
+    },
+    {
+      "reviewer": "task-review-wave-1",
+      "type": "task-1.1-1.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5,
+      "notes": "1.1 tools: signatures, injected-arg pattern, no-active-trip guidance, ValueError->ToolException, docstring replace semantics all verbatim; Minor: buffer docstring omits contingency fold-in, inverted dates (TripCreate already rejects). 1.2 prompts: v3 additive-only, v10 one bullet + one example, content-only tests; Minor: unbolded clause, v2/v3 guardrail tension, harmless [1,2] prefix pin. 1.3 goldens: exact entries, no new metric keys."
+    },
+    {
+      "reviewer": "task-review-wave-2",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Budget domain = expense tools + get_trip_budget + get_trip_summary + estimate_trip_budget + set_trip_budget; new tools absent from other domains; set_trip_budget in _WRITE only; absent-trip, MCP and trip-guard tests extended. Minor: one ruff-format reflow hunk. Controller re-ran Verify: 94 passed."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5,
+      "notes": "Six FIND angles over b7518b1..eff78c5, deduped to 6 locations, scored independently. Fixed (score 75, Rule 1): suggested_caps copied the estimate's 0.0 flights/accommodation into real $0 caps that _enforce_budget would then use to 409 the first booking (be6a715, hardened to a value-based gate in 30c7a2a after re-review found activity_level none / explicit 0.0 price still produced a $0 cap). Fixed (Rule 2 guard, score 50): set_trip_budget with no cap cleared every cap silently (be6a715). Fixed (prior-art F4, Rule 1): budget v3 step 3 also reads get_trip_budget since TripDetail has no per-category caps; step 4 explains zero-estimate categories (be6a715, 625d9b2). Advisory (recorded in SUMMARY): partial-update replace semantics (merge-vs-replace decision), set_trip_budget served on the unauthenticated MCP surface (same class as add_expense; Rule 4 policy), agent path cannot clear all caps, same-day trip floors to 1 night, caps rollup ignores logged expenses (unmodified-line), eval golden cannot exercise estimate/set (harness has no trip_id)."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Plan-blind against the verbatim request across two passes. Clauses delivered: budget agent fetches the trip (get_trip_summary bound), derives nights from dates instead of asking, makes the simple budget (estimate -> per-category caps -> set on confirmation), 'per-category caps from estimate' default honoured. Drift #1 (default path proposed $0 flights/hotels caps) fixed in be6a715/30c7a2a; residual 1b accepted: with no known prices the default caps only activities + buffer and explains the rest. Recorded: gap #2 the originating 'how many days' symptom is proven at unit/prompt level only (no live/eval run); excess #3 write tool auto-exposed on MCP; #4 supervisor v10 pre-emptive routing bump; #5 meal/activity tier pass-through params."
+    }
+  ]
+}
