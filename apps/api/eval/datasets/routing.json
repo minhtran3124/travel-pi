@@ -18,5 +18,13 @@
   {
     "input": "Remember that I am vegetarian for next time",
     "expected": "journal"
+  },
+  {
+    "input": "Set a simple budget for my trip",
+    "expected": "budget"
+  },
+  {
+    "input": "Đặt ngân sách đơn giản cho chuyến đi của mình",
+    "expected": "budget"
   }
 ]
