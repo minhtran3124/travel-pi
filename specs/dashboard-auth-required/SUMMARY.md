@@ -95,6 +95,7 @@ unrequested surface.
 - the `lifespan` startup warning fires when `DASHBOARD_BASIC_USER`/`PASSWORD`/`DASHBOARD_SECRET_KEY` is missing — reached traceability (Task 3.2 review confirmed the call site and `ruff check`/`import` pass); not exercised by an automated test, since it requires observing a log line at app startup.
 - manual browser verification of the login/logout flow — not run in this session; the developer must add `DASHBOARD_BASIC_USER`, `DASHBOARD_BASIC_PASSWORD`, `DASHBOARD_SECRET_KEY` to `apps/api/.env` first (see Global Constraints in PLAN.md).
 - `app/core/errors.py`'s `_handle_http_exception` comment still references "the dashboard guard's `WWW-Authenticate: Basic`" — that guard no longer exists (replaced by the cookie session), but the header-forwarding behaviour it documents is still correct for other 401 raisers (e.g. Supabase auth). Left untouched per the surgical-change rule; design.md flagged it as a known-stale comment.
+- `app/routers/dashboard.py:910` and `app/services/booking_service.py:177` also carry stale comments describing the removed HTTP Basic guard — found by intent re-review, outside this feature's file set (Files in `PLAN.md` Global Constraints did not name them); left unfixed to keep this change surgical.
 
 ### Advisory Findings
 
@@ -134,8 +135,16 @@ fastapi. simple but follow correct rule." Routed and closed:
 | 7 | excess (dead code) | `dashboard_login.py` passed an unused `"next"` key into every `login.html` template context (the real `next` round-trips via the form's `action` URL) | fix | Fixed, commit `7d5c9b9` (context key removed) |
 | 8 | drift (design, not code) | Before this change, production with no dashboard credentials returned 404 (surface hidden); now it renders a "not configured" login page (surface visible, just unusable) | informational | This is decision D1/D4 in `design.md`, explicitly chosen over the fail-fast alternatives and approved by the user during design review. Not re-litigated; flagged here for the record. |
 
-Re-review confirmed ✅ after the fixes (commit `7d5c9b9`); see the finishing summary for the
-re-run verdict.
+Re-review (fresh intent-reviewer pass, blind to `PLAN.md`, over `0f9d2ed..0de4b53`) confirmed
+findings 1, 2, 4, 5, 6, 7 above are genuinely fixed (each re-checked for a concrete trigger of
+the original bug; none remained) and found 3 more low-severity issues, all fixed in commit
+`bde7aa2`: an unused `next` query parameter left on `GET /dashboard/login` after fix #7
+removed its only use; the startup warning wording ("Dashboard login disabled") read as the
+opposite of the actual behaviour (locked, not open) — reworded to "Dashboard locked"; and
+this paragraph itself, which had asserted a re-review verdict before the re-review ran —
+corrected here. Two more stale "Basic auth" comments were found outside this feature's file
+set (`app/routers/dashboard.py:910`, `app/services/booking_service.py:177`) and are listed
+below alongside the `errors.py` one.
 
 ### Rollback
 
