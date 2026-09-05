@@ -81,9 +81,11 @@ def authenticate(username: str, password: str) -> bool:
     # ``secrets.compare_digest`` raises TypeError on non-ASCII str input; a
     # malformed credential must read as "wrong", never a 500.
     try:
-        return secrets.compare_digest(
-            username, settings.dashboard_basic_user
-        ) and secrets.compare_digest(password, settings.dashboard_basic_password)
+        username_ok = secrets.compare_digest(username, settings.dashboard_basic_user)
+        password_ok = secrets.compare_digest(
+            password, settings.dashboard_basic_password
+        )
+        return username_ok and password_ok
     except TypeError:
         return False
 
@@ -128,6 +130,21 @@ def get_current_dashboard_user(
     if claims["sub"] != settings.dashboard_basic_user:
         raise DashboardLoginRequired()
     return DashboardUser(username=claims["sub"])
+
+
+def is_already_signed_in(
+    token: Annotated[str | None, Depends(_cookie_scheme)],
+) -> bool:
+    """Optional-auth variant of :func:`get_current_dashboard_user` for the login page.
+
+    Unlike the router guard, a missing/invalid session is not an error here — it
+    just means "show the login form" rather than "redirect to it".
+    """
+    try:
+        get_current_dashboard_user(token)
+    except DashboardLoginRequired:
+        return False
+    return True
 
 
 def safe_next(value: str | None) -> str:

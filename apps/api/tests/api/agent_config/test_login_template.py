@@ -17,8 +17,9 @@ _NOT_CONFIGURED = "Dashboard login is not configured on this server"
 
 def _render_login(**overrides: object) -> str:
     context = {
-        "request": SimpleNamespace(url="/dashboard/login?next=%2Fdashboard"),
-        "next": "/dashboard",
+        "request": SimpleNamespace(
+            url=SimpleNamespace(path="/dashboard/login", query="next=%2Fdashboard")
+        ),
         "error": None,
         "configured": True,
     }

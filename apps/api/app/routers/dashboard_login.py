@@ -14,13 +14,11 @@ from fastapi.templating import Jinja2Templates
 
 from app.core.dashboard_auth import (
     LOGIN_PATH,
-    DashboardLoginRequired,
-    _cookie_scheme,
     authenticate,
     clear_session_cookie,
     create_session_token,
     credentials_configured,
-    get_current_dashboard_user,
+    is_already_signed_in,
     safe_next,
     set_session_cookie,
 )
@@ -34,20 +32,15 @@ _TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templ
 @router.get("/login")
 def login_form(
     request: Request,
-    token: Annotated[str | None, Depends(_cookie_scheme)],
+    already_signed_in: Annotated[bool, Depends(is_already_signed_in)],
     next: str = "/dashboard",
 ):
-    try:
-        get_current_dashboard_user(token)
-    except DashboardLoginRequired:
-        pass
-    else:
+    if already_signed_in:
         return RedirectResponse("/dashboard", status_code=303)
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="login.html",
         context={
-            "next": safe_next(next),
             "error": None,
             "configured": credentials_configured(),
         },
@@ -65,7 +58,6 @@ def login_submit(
             request=request,
             name="login.html",
             context={
-                "next": safe_next(next),
                 "error": "Dashboard login is not configured on this server",
                 "configured": False,
             },
@@ -79,7 +71,6 @@ def login_submit(
         request=request,
         name="login.html",
         context={
-            "next": safe_next(next),
             "error": "Invalid username or password",
             "configured": True,
         },
