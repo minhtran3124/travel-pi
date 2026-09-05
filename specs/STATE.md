@@ -4,11 +4,11 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** review-c1-e2e-auth-ci
+- **Slug:** sse-tool-event-thread-replay
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** intent-review
-- **Last action:** subagent-driven-development complete on branch test/review-c1-e2e-auth-ci: 8 tasks, correctness + intent review clean (2 external-prerequisite gaps deferred); ready for finishing-a-development-branch
-- **Updated:** 2026-09-04
+- **Last skill:** direct patch (tiny-style, user-requested)
+- **Last action:** mapper patched + regression test on branch fix/sse-tool-event-thread-replay; make test 2096 pass / 5 pre-existing env failures; uncommitted, awaiting commit/PR
+- **Updated:** 2026-09-05
 
 ## Recent Specs
 
@@ -1430,5 +1430,19 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: b61eaf71-0fcc-40e2-8d01-ad94326180c3
 - exit: 
 - last_commit: 3720026 chore(specs): record session-end breadcrumbs in STATE.md
+- user_turns: 0
+
+
+### 2026-09-04T22:50:09Z
+- session_id: 876251f8-cb15-456b-95d1-ab5f2f924ae4
+- exit: 
+- last_commit: 8458a8f Merge pull request #139 from minhtran3124/chore/backfill-spec-bookkeeping
+- user_turns: 0
+
+
+### 2026-09-04T22:50:11Z
+- session_id: d68b2f39-6251-4dc5-9b95-7a6a7efecb8a
+- exit: 
+- last_commit: 8458a8f Merge pull request #139 from minhtran3124/chore/backfill-spec-bookkeeping
 - user_turns: 0
 
