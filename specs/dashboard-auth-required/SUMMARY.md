@@ -73,6 +73,7 @@ unrequested surface.
   commit `49bdc2a`.
 - Rule 1 — hoisted a function-local `from app.exceptions import AuthError` to the module header
   in `tests/core/test_dashboard_auth.py`. Found during Task 1.1 per-task review, commit `49bdc2a`.
+- Design note — `design.md`'s Components section (lines ~103, 114) still describes the `GET /login` template context as including a `next` key, and the startup-warning string as "Dashboard login disabled: missing %s". Intent-review fixes `7d5c9b9`/`bde7aa2` deliberately dropped the unused `next` context key and reworded the warning to "Dashboard locked" (the original wording read as the opposite of the actual, locked-shut behaviour). `design.md` itself was not updated to match; left as-is per the surgical-change rule, noted here per the same pattern as the `errors.py` comment above.
 
 ### Verify
 
@@ -137,18 +138,26 @@ fastapi. simple but follow correct rule." Routed and closed:
 
 Re-review (fresh intent-reviewer pass, blind to `PLAN.md`, over `0f9d2ed..0de4b53`) confirmed
 findings 1, 2, 4, 5, 6, 7 above are genuinely fixed (each re-checked for a concrete trigger of
-the original bug; none remained) and found 3 more low-severity issues, all fixed in commit
-`bde7aa2`: an unused `next` query parameter left on `GET /dashboard/login` after fix #7
-removed its only use; the startup warning wording ("Dashboard login disabled") read as the
-opposite of the actual behaviour (locked, not open) — reworded to "Dashboard locked"; and
-this paragraph itself, which had asserted a re-review verdict before the re-review ran —
-corrected here. Two more stale "Basic auth" comments were found outside this feature's file
-set (`app/routers/dashboard.py:910`, `app/services/booking_service.py:177`) and are listed
-below alongside the `errors.py` one.
+the original bug; none remained) and found 3 more low-severity issues:
+
+- an unused `next` query parameter left on `GET /dashboard/login` after fix #7 removed its
+  only use, and the startup warning wording ("Dashboard login disabled") reading as the
+  opposite of the actual behaviour (locked, not open) — both fixed in commit `bde7aa2`
+  ("Dashboard locked: set %s to enable login at /dashboard");
+- this paragraph itself, which had asserted a re-review verdict before the re-review ran —
+  corrected in commit `a0c2dc0`.
+
+Two more stale "Basic auth" comments were found outside this feature's file set
+(`app/routers/dashboard.py:910`, `app/services/booking_service.py:177`) and are listed below
+alongside the `errors.py` one. A final holistic re-review over the whole diff
+(`0f9d2ed..a0c2dc0`) confirmed all three of the above and found zero remaining code
+divergence from intent; its own two residual findings (a `design.md` staleness note and this
+Rollback section) are folded into `### Deviations` and `### Rollback` below rather than
+repeated here.
 
 ### Rollback
 
-- none yet (intake only). Any implementation: `git revert <sha>`; option A is undone by unsetting the two env vars.
+- `git revert --no-commit 10dc7a1..a0c2dc0 && git commit` restores the pre-feature HTTP Basic guard on `main`'s history shape (or `git reset --hard 0f9d2ed` on this branch before it merges). Reverting brings back the "open in development, 404 in production without credentials" behaviour — the safety-relevant fact for a high-risk auth change. Short of a full revert, unsetting all three `DASHBOARD_*` env vars locks the dashboard immediately without any code change.
 
 ### Harness-Delta
 
