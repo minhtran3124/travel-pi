@@ -89,6 +89,19 @@ def test_set_trip_budget_persists_caps_and_replaces(trip_id):
     assert shown["categories"]["buffer"]["cap"] is None
 
 
+def test_set_trip_budget_no_caps_raises_and_leaves_existing_untouched(trip_id):
+    from app.tools.trip_tools import get_trip_budget, set_trip_budget
+
+    set_trip_budget.invoke(
+        {"trip_id": trip_id, "user_id": USER, "flights": 300.0, "hotels": 450.0}
+    )
+    with pytest.raises(ToolException, match="No cap supplied"):
+        set_trip_budget.invoke({"trip_id": trip_id, "user_id": USER})
+    shown = get_trip_budget.invoke({"trip_id": trip_id, "user_id": USER})
+    assert shown["categories"]["flights"]["cap"] == 300.0
+    assert shown["categories"]["hotels"]["cap"] == 450.0
+
+
 def test_set_trip_budget_not_found_raises(agent_db):
     from app.tools.trip_tools import set_trip_budget
 
@@ -136,10 +149,39 @@ def test_estimate_trip_budget_derives_nights_and_travelers(dated_trip_id):
     assert out["travelers"] == 2
     assert out["city"] == "Da Nang"
     caps = out["suggested_caps"]
-    assert set(caps) == {"flights", "hotels", "activities", "buffer"}
+    # Only the hotel price was given: flights stay uncapped (key absent), never 0.
+    assert set(caps) == {"hotels", "activities", "buffer"}
     assert caps["hotels"] == out["breakdown"]["accommodation"]
-    assert caps["flights"] == out["breakdown"]["flights"]
     assert caps["activities"] == out["breakdown"]["activities"]
+    assert sum(caps.values()) == pytest.approx(out["total_estimate"])
+
+
+def test_estimate_trip_budget_no_prices_omits_flights_and_hotels(dated_trip_id):
+    from app.tools.trip_tools import estimate_trip_budget
+
+    out = estimate_trip_budget.invoke({"trip_id": dated_trip_id, "user_id": USER})
+    caps = out["suggested_caps"]
+    assert "flights" not in caps
+    assert "hotels" not in caps
+    assert set(caps) == {"activities", "buffer"}
+    assert sum(caps.values()) == pytest.approx(out["total_estimate"])
+
+
+def test_estimate_trip_budget_known_prices_cap_all_four(dated_trip_id):
+    from app.tools.trip_tools import estimate_trip_budget
+
+    out = estimate_trip_budget.invoke(
+        {
+            "trip_id": dated_trip_id,
+            "user_id": USER,
+            "flight_total_usd": 300.0,
+            "hotel_price_per_night_usd": 80.0,
+        }
+    )
+    caps = out["suggested_caps"]
+    assert set(caps) == {"flights", "hotels", "activities", "buffer"}
+    assert caps["flights"] == 300.0
+    assert caps["hotels"] == 80.0 * out["nights"]
     assert sum(caps.values()) == pytest.approx(out["total_estimate"])
 
 

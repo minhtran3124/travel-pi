@@ -482,6 +482,11 @@ def set_trip_budget(
         )
     if trip_id is None:
         return _no_active_trip()
+    if flights is None and hotels is None and activities is None and buffer is None:
+        raise ToolException(
+            "No cap supplied — nothing changed. set_trip_budget replaces ALL caps: "
+            "pass every cap you want to keep, e.g. the confirmed suggested_caps."
+        )
     log_tool_call("set_trip_budget", {"trip_id": trip_id})
     with session_scope() as s:
         try:
@@ -531,10 +536,13 @@ def estimate_trip_budget(
     """Estimate a trip's budget and propose per-category caps (read-only).
 
     Derives ``nights`` and ``travelers`` from the trip when not supplied. Returns
-    the line-item estimate plus ``suggested_caps`` (flights, hotels, activities,
-    buffer) that sum to ``total_estimate``; confirm them with the traveller, then
-    call ``set_trip_budget``. When the trip has no dates and ``nights`` is not
-    given, a guidance value is returned instead — ask, never guess.
+    the line-item estimate plus ``suggested_caps`` covering only the categories
+    whose price is known: ``activities`` and ``buffer`` are always present;
+    ``flights`` / ``hotels`` are omitted (left uncapped) when no
+    ``flight_total_usd`` / ``hotel_price_per_night_usd`` was given. The caps
+    present still sum to ``total_estimate``; confirm them with the traveller,
+    then call ``set_trip_budget``. When the trip has no dates and ``nights`` is
+    not given, a guidance value is returned instead — ask, never guess.
 
     :param nights: Number of nights; derived from the trip's dates when omitted.
     :param travelers: Number of travelers; the trip's value when omitted.
@@ -586,16 +594,17 @@ def estimate_trip_budget(
         raise ToolException(str(e)) from e
     estimate = estimate_trip(request)
     b = estimate.breakdown
-    return dump(estimate) | {
-        "suggested_caps": {
-            "flights": round(b.flights, 2),
-            "hotels": round(b.accommodation, 2),
-            "activities": round(b.activities, 2),
-            "buffer": round(
-                b.meals
-                + b.local_transport
-                + (estimate.total_estimate - estimate.subtotal),
-                2,
-            ),
-        }
-    }
+    # Only cap categories with a known price: ``estimate_trip`` sets flights /
+    # accommodation to 0.0 when excluded, and a 0.0 cap would be stored as a
+    # real cap that rejects the first booking.
+    suggested_caps: dict[str, float] = {}
+    if flight_total_usd is not None:
+        suggested_caps["flights"] = round(b.flights, 2)
+    if hotel_price_per_night_usd is not None:
+        suggested_caps["hotels"] = round(b.accommodation, 2)
+    suggested_caps["activities"] = round(b.activities, 2)
+    suggested_caps["buffer"] = round(
+        b.meals + b.local_transport + (estimate.total_estimate - estimate.subtotal),
+        2,
+    )
+    return dump(estimate) | {"suggested_caps": suggested_caps}
