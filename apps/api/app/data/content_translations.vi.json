@@ -1,5 +1,1103 @@
 [
   {
+    "entity_type": "hotel",
+    "entity_id": "00f67c33-9e38-5a9b-8c68-527317d7eac0",
+    "field": "description",
+    "text": "The Hermitage, a Tribute Portfolio Hotel mang đến sự tiện nghi 5 sao cho Jakarta, Indonesia, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,5/5 qua 1.980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "04263f23-9363-5163-b2c5-c0771955bc69",
+    "field": "description",
+    "text": "Nằm ở Phuket, Thailand, Amanpuri là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển và nhà hàng. Du khách đánh giá nơi này 4,9/5 từ 1.180 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "052e3816-f35d-5c57-8aa2-5fd05809a2c3",
+    "field": "description",
+    "text": "Midori Clark Hotel and Casino là khách sạn 4 sao ở Angeles, Philippines, cung cấp hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nơi đây nhận được đánh giá của khách là 4,4/5 qua 1.890 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "05710542-5b92-54c8-bd93-ffac4a75ef38",
+    "field": "description",
+    "text": "The Sukhothai Bangkok là một khách sạn 5 sao ở Bangkok, Thailand, cung cấp hồ bơi, spa, nhà hàng và phòng tập gym. Khách lưu trú đánh giá nơi này 4,7/5 dựa trên 2.670 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "082eac08-3290-54a5-865e-22381c342869",
+    "field": "description",
+    "text": "Nằm ở Kota Kinabalu, Malaysia, Le Meridien Kota Kinabalu là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá 4,4/5 từ 2.980 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "099614e2-2f01-53c5-981e-222a5d791e99",
+    "field": "description",
+    "text": "Centara Grand Beach Resort & Villas Krabi là khu nghỉ dưỡng biệt thự 5 sao ở Krabi, Thái Lan, có hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Khu nghỉ dưỡng đạt đánh giá 4,5/5 từ 3.380 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0a00052f-c305-5204-b253-bbe45cdfeae9",
+    "field": "description",
+    "text": "Radisson Hotel Brunei Darussalam mang đến sự thoải mái 4 sao cho Bandar Seri Begawan, Brunei, với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Khách sạn đạt 4,3/5 trên 1.510 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0a035577-5d55-5b68-9352-c46fb74a5093",
+    "field": "description",
+    "text": "Homestay Thu Ha là một homestay 2 sao ở My Son, Vietnam, cung cấp wifi miễn phí và điều hòa không khí. Khách sạn đạt 4,3/5 trên 85 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0acc4018-3bb2-5760-8101-630dda1d011a",
+    "field": "description",
+    "text": "InterContinental Da Nang Sun Peninsula Resort là khu nghỉ dưỡng 5 sao tại Da Nang, Vietnam, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Nơi đây có điểm đánh giá của khách là 4,8/5 từ 2.341 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0bf6ad5d-9643-5348-92fb-8c60ab7665e5",
+    "field": "description",
+    "text": "Muong Thanh Luxury Song Lam Hotel mang đến sự thoải mái 5 sao cho Vinh, Vietnam, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,3/5 từ 1.140 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0c70579a-c4a6-5bac-9c78-da508b35ac37",
+    "field": "description",
+    "text": "Hilton Garden Inn Da Nang mang đến sự thoải mái 4 sao tại Da Nang, Vietnam, với hồ bơi, nhà hàng, quầy bar, wifi miễn phí và phòng gym. Nơi đây đạt 4,4/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0c75b175-519d-5724-9416-5454faca960e",
+    "field": "description",
+    "text": "Nằm ở Bali, Indonesia, AYANA Resort Bali là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách đánh giá nơi này 4,7/5 từ 3.890 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0d5a6026-acb8-5fdc-8a3e-4abdbcbea095",
+    "field": "description",
+    "text": "Six Senses Ninh Van Bay mang đến sự thoải mái 5 sao tại Nha Trang, Vietnam, với hồ bơi, spa, lối ra bãi biển và nhà hàng. Khách sạn đạt 4,9/5 từ hơn 1.180 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0f3aef0d-7496-5b08-be37-b80ecd9b0c13",
+    "field": "description",
+    "text": "Fusion Resort & Villas Da Nang là khu nghỉ dưỡng 5 sao tại Da Nang, Vietnam, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Nơi đây có điểm đánh giá của khách là 4,7/5 từ 1.100 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "105bf43e-e3b0-5012-8017-d9dc9dc96e83",
+    "field": "description",
+    "text": "Tọa lạc tại Makassar, Indonesia, Hotel Melia Makassar là khách sạn 4 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá 4,5/5 từ 1.780 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "10bf483d-9df3-5f64-9ab1-1897a51897f4",
+    "field": "description",
+    "text": "Shinta Mani Angkor mang đến sự tiện nghi 5 sao cho Siem Reap, Cambodia, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,8/5 qua 1.540 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1156f8e3-efcd-51e7-a95c-e4aac2f508d1",
+    "field": "description",
+    "text": "Nằm ở Vientiane, Laos, Crowne Plaza Vientiane là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Du khách đánh giá nơi này 4,5/5 từ 2.110 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "132e9555-4ed2-5321-a7cc-456797c0dbfd",
+    "field": "description",
+    "text": "The Reverie Saigon mang đến sự thoải mái 5 sao tại Ho Chi Minh City, Vietnam, với hồ bơi, spa, nhà hàng và phòng gym. Khách sạn đạt 4,7/5 từ 1.950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1465130a-567a-5301-ba6e-c95368f94359",
+    "field": "description",
+    "text": "Pelangi Beach Resort & Spa Langkawi mang đến sự thoải mái 4 sao tại Langkawi, Malaysia, với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Khách sạn đạt 4,3/5 qua 2.540 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1468272d-4a62-5353-8777-75730fac8293",
+    "field": "description",
+    "text": "Premier Village Phu Quoc Resort mang đến sự tiện nghi 5 sao cho Phu Quoc, Vietnam, với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Khách sạn đạt 4,7/5 qua 2.655 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "15533147-14aa-5ce5-b04a-c1005497a7bc",
+    "field": "description",
+    "text": "Shangri-La Boracay Resort & Spa là khu nghỉ dưỡng 5 sao tại Kalibo (Boracay), Philippines, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Nơi này có đánh giá của khách là 4,8/5 qua 4.120 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1667810c-6914-5863-998e-b2b6f35d26b4",
+    "field": "description",
+    "text": "Nằm ở Langkawi, Malaysia, The Westin Langkawi Resort & Spa là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách đánh giá 4,6/5 từ 3.210 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "16c1f817-61b3-5418-b0fc-d150c1d12bdf",
+    "field": "description",
+    "text": "Nằm ở Johor Bahru, Malaysia, DoubleTree by Hilton Johor Bahru là khách sạn 5 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Du khách đánh giá 4,4/5 từ 1.870 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "174dafb1-cf8a-510d-bf0b-49ea31935d8f",
+    "field": "description",
+    "text": "Pullman Haiphong Grand Hotel là khách sạn 5 sao ở Hai Phong, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar và phòng gym. Khách sạn có đánh giá 4,4/5 từ 1.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1c0b6d53-704a-5a6e-93cb-f4e2f634a6ab",
+    "field": "description",
+    "text": "Amantaka mang đến sự tiện nghi 5 sao cho Luang Prabang, Laos, với hồ bơi, spa, nhà hàng và quầy bar. Khách sạn đạt 4,9/5 qua 680 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "20d0145c-3e7a-5575-968a-fc3a4772d2f0",
+    "field": "description",
+    "text": "Rayavadee Krabi là khu nghỉ dưỡng 5 sao ở Krabi, Thái Lan, có hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Khu nghỉ dưỡng đạt đánh giá 4,8/5 từ 2.450 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "225604fa-b459-5f56-a432-4e1d9d0a73b2",
+    "field": "description",
+    "text": "Park Hyatt Siem Reap là một khách sạn 5 sao ở Siem Reap, Cambodia, cung cấp hồ bơi, spa, nhà hàng và phòng gym. Khách lưu trú chấm 4,8/5 trên tổng số 1.890 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "22df6a5d-ceb2-55a0-99e4-860de2bd5a8a",
+    "field": "description",
+    "text": "La Siesta Premium Hang Be là khách sạn 4 sao ở Hanoi, Vietnam, cung cấp nhà hàng, quầy bar, spa và wifi miễn phí. Khách sạn nhận được đánh giá 4,7/5 từ 1.640 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "246f4fb4-81ce-5b68-bb19-5ffeb1fd38ac",
+    "field": "description",
+    "text": "Mercure Mandalay Hill Resort mang đến sự thoải mái 5 sao cho Mandalay, Myanmar, với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Nơi này đạt 4,4/5 từ hơn 1.290 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "25549efc-29aa-5fec-b2e5-f1e5233faf48",
+    "field": "description",
+    "text": "Danang Boutique Hotel mang đến sự thoải mái 3 sao tại Da Nang, Vietnam, với hồ bơi, nhà hàng và wifi miễn phí. Khách sạn đạt 4,2/5 từ 500 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "25819b30-e29c-5895-a65c-6e04d8b454a1",
+    "field": "description",
+    "text": "Sandy Beach Non Nuoc Resort mang đến sự thoải mái 4 sao tại Da Nang, Vietnam, với hồ bơi, lối ra bãi biển, nhà hàng và quầy bar. Khách sạn đạt 4,2/5 từ hơn 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "26dd7bc6-59ab-5ccd-b3e1-5116d7923293",
+    "field": "description",
+    "text": "Nằm ở Da Nang, Vietnam, Grand Mercure Danang là khách sạn 4 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Du khách đánh giá nơi đây 4,3/5 từ 1.600 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2808533d-1023-5a68-bb93-8239148714dd",
+    "field": "description",
+    "text": "Tọa lạc tại Surabaya, Indonesia, Hotel Majapahit Surabaya là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Du khách đánh giá 4,6/5 từ 2.950 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "283b7bf4-9d78-5bfe-8d51-3918efde77e6",
+    "field": "description",
+    "text": "Shangri-La Rasa Sayang Resort & Spa là khu nghỉ dưỡng 5 sao ở Penang, Malaysia, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Nơi đây nhận được đánh giá của khách là 4,7/5 qua 4.120 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "291ceea0-4da2-57f2-8c4b-32d789a94be0",
+    "field": "description",
+    "text": "The Waterfront Hotel Kuching mang đến sự thoải mái 4 sao tại Kuching, Malaysia, với hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt 4,1/5 qua 1.290 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "294cffda-d50a-5bfe-a868-2178070b9d1a",
+    "field": "description",
+    "text": "Sheraton Surabaya Hotel & Towers mang đến sự tiện nghi 5 sao tại Surabaya, Indonesia, với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt 4,6/5 qua 3.120 bài đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2a2e436c-9225-5c94-a7b7-d53e1fa1b554",
+    "field": "description",
+    "text": "Tọa lạc tại Yangon, Myanmar, The Strand Yangon là một khách sạn 5 sao nổi tiếng với spa, nhà hàng, quầy bar và wifi miễn phí. Du khách đánh giá nơi đây 4,6/5 từ 1.240 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2c636f55-809a-50d7-806b-f48d3927be7d",
+    "field": "description",
+    "text": "JW Marriott Hotel Hanoi mang đến sự thoải mái 5 sao tại Hanoi, Vietnam, với hồ bơi, spa, nhà hàng và phòng gym. Khách sạn đạt 4,7/5 từ 3.201 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2cfd6b58-3cce-5e2d-9e78-692f0b59b678",
+    "field": "description",
+    "text": "Ban Thach Riverside Hotel & Resort là một khách sạn 3 sao ở Tam Ky, Vietnam, cung cấp nhà hàng, wifi miễn phí và tầm nhìn sông. Khách sạn đạt 4,1/5 trên 340 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2eece9af-bc20-578e-a79b-5340d56cc61c",
+    "field": "description",
+    "text": "The Ritz-Carlton Jakarta, Pacific Place là một khách sạn 5 sao ở Jakarta, Indonesia, cung cấp hồ bơi, spa, nhà hàng và phòng gym. Khách lưu trú chấm 4,6/5 trên tổng số 2.450 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "32a154e0-1b54-597c-aa6d-86171804b765",
+    "field": "description",
+    "text": "Park Hyatt Saigon mang đến sự thoải mái 5 sao tại Ho Chi Minh City, Vietnam, với hồ bơi, spa, nhà hàng và quầy bar. Khách sạn đạt 4,8/5 từ 2.890 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "32b349fb-b370-5d5b-b25d-56a191d69f42",
+    "field": "description",
+    "text": "A La Carte Da Nang Beach là khách sạn 4 sao tại Da Nang, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nơi đây có điểm đánh giá của khách là 4,3/5 từ 2.500 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "347dddc1-28a3-5d47-b3ef-41468b452387",
+    "field": "description",
+    "text": "Park Hyatt Tokyo mang đến sự thoải mái 5 sao cho Tokyo, Japan, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,8/5 trên 3.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3499a2f0-62e0-5e3e-8865-3136ad0262ed",
+    "field": "description",
+    "text": "Sala Danang Beach Hotel mang đến sự thoải mái 4 sao tại Da Nang, Vietnam, với hồ bơi, nhà hàng và wifi miễn phí. Nơi đây đạt 4,3/5 từ 980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3515ea2e-2321-5c00-a4e9-1eb92e5fe2fb",
+    "field": "description",
+    "text": "Sofitel Luang Prabang là một khách sạn 5 sao ở Luang Prabang, Laos, cung cấp hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách lưu trú chấm 4,7/5 trên tổng số 980 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "362ea206-cafe-56b3-843a-f07735e77bbe",
+    "field": "description",
+    "text": "Tọa lạc tại Makassar, Indonesia, Aston Makassar Hotel & Convention Center là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, phòng gym và wifi miễn phí. Du khách đánh giá 4,4/5 từ 2.010 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "36fd0e7c-3d30-5130-b619-b66e6ca8f15d",
+    "field": "description",
+    "text": "Nằm ở Singapore, Singapore, Marina Bay Sands là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng tập gym. Du khách đánh giá nơi này 4,6/5 từ 4.990 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3809c083-95da-54a7-8be3-1154f54b033c",
+    "field": "description",
+    "text": "Tọa lạc tại Hai Phong, Vietnam, Vinpearl Hotel Imperia Hai Phong là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách chấm điểm 4,5/5 từ 1.890 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "39f41790-856c-5f1d-a208-734a04f55b29",
+    "field": "description",
+    "text": "Nằm ở Da Nang, Vietnam, Muong Thanh Grand Da Nang Hotel là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Du khách đánh giá nơi đây 4,1/5 từ 1.400 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3c90ac4f-c696-5274-9bf0-3b55f2961ba8",
+    "field": "description",
+    "text": "Radisson Blu Cebu mang đến sự thoải mái 5 sao cho Cebu, Philippines, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,5/5 từ 2.870 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3da97dcc-3267-53a1-be7b-b4e87799a17a",
+    "field": "description",
+    "text": "Saigon Kim Lien Hotel mang đến sự thoải mái 4 sao cho Vinh, Vietnam, với nhà hàng, quầy bar, phòng gym và wifi miễn phí. Khách sạn đạt 4,1/5 từ 560 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3dbca2d9-3d2f-59f0-94a0-aab9fc73d0f5",
+    "field": "description",
+    "text": "Furama Resort Da Nang là khu nghỉ dưỡng 5 sao tại Da Nang, Vietnam, cung cấp hồ bơi, lối ra bãi biển, nhà hàng và spa. Nơi đây có điểm đánh giá của khách là 4,5/5 từ 1.820 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3f245aba-01fb-5601-b836-42908d5090e2",
+    "field": "description",
+    "text": "Anantara Hoi An Resort là khu nghỉ dưỡng 5 sao ở Hoi An, Vietnam, cung cấp hồ bơi, spa, nhà hàng và quầy bar. Khách sạn nhận được đánh giá 4,7/5 từ 2.210 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "40af44a9-be84-5f01-be83-ae4b4f35fa6d",
+    "field": "description",
+    "text": "Tọa lạc tại Phu Quoc, Vietnam, JW Marriott Phu Quoc Emerald Bay Resort là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển và nhà hàng. Du khách đánh giá 4,8/5 từ 1.820 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "41b27c10-835b-5cad-b5a8-3ff0ac4b4de0",
+    "field": "description",
+    "text": "Sofitel Phnom Penh Phokeethra mang đến sự thoải mái 5 sao cho Phnom Penh, Cambodia, với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Nơi này đạt 4,6/5 từ hơn 4.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "456aa459-818f-5849-8e61-bdbba05127e6",
+    "field": "description",
+    "text": "Nằm ở Da Nang, Vietnam, Nesta Da Nang là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Du khách đánh giá nơi đây 4,4/5 từ 800 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "46db2039-b2c8-5bab-9e77-9eca06c3c3d5",
+    "field": "description",
+    "text": "BP Grand Tower Hotel là khách sạn 3 sao ở Hat Yai, Thái Lan, có hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt đánh giá 4,0/5 từ 1.340 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "483e07c5-4ec6-50ff-8139-48b979c51156",
+    "field": "description",
+    "text": "Tọa lạc tại Seoul, South Korea, Lotte Hotel Seoul là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Du khách đánh giá khách sạn 4,6/5 từ 4.520 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "4a04d208-0014-5b43-a6f3-c315d51774b4",
+    "field": "description",
+    "text": "Tọa lạc tại Cebu, Philippines, Shangri-La Mactan, Cebu là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách đánh giá nơi đây 4,7/5 từ 4.210 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5043303d-c8f7-5bd8-beca-206cb7e1860e",
+    "field": "description",
+    "text": "Tọa lạc tại Quy Nhon, Vietnam, Anantara Quy Nhon Villas là khu nghỉ dưỡng biệt thự 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách chấm điểm 4,8/5 từ 720 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5391871e-d954-57b3-a32d-e8717cdc54bf",
+    "field": "description",
+    "text": "Swiss-Belhotel Makassar mang đến sự tiện nghi 4 sao tại Makassar, Indonesia, với hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt 4,3/5 qua 1.450 bài đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "53ae9e8f-06a8-5e97-9c9a-16d0b69a6c33",
+    "field": "description",
+    "text": "Melia Vinpearl Hue mang đến sự thoải mái 5 sao cho Hue, Vietnam, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,5/5 từ 2.230 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "53b10693-1685-58b5-96e0-1f6cf2de89ac",
+    "field": "description",
+    "text": "Settha Palace Hotel mang đến sự thoải mái 5 sao cho Vientiane, Laos, với hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Nơi này đạt 4,6/5 từ hơn 1.320 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "57263c9b-1fcc-5c26-874b-9a8142b1266f",
+    "field": "description",
+    "text": "Nằm ở Bandar Seri Begawan, Brunei, The Empire Brunei là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách đánh giá nơi này 4,7/5 từ 2.630 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5983282e-4a38-5f5d-b104-e8e1aec785e3",
+    "field": "description",
+    "text": "TMS Hotel Da Nang Beach mang đến sự thoải mái 4 sao tại Da Nang, Vietnam, với hồ bơi, nhà hàng, phòng gym và wifi miễn phí. Nơi đây đạt 4,3/5 từ 950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "59b3037c-b022-565e-adad-8b94ef2cd67a",
+    "field": "description",
+    "text": "Nằm ở Phuket, Thailand, Trisara Phuket là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách đánh giá nơi này 4,8/5 từ 1.420 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5a5e4574-7d14-5f4e-899b-edfe7a25f3d1",
+    "field": "description",
+    "text": "Mandarin Oriental Bangkok là khách sạn 5 sao ở Bangkok, Thailand, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn nhận được đánh giá 4,9/5 từ 4.820 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5b4e062a-15da-5572-ba36-a83dcd72338d",
+    "field": "description",
+    "text": "HAIAN Riverfront Hotel Da Nang mang đến sự thoải mái 4 sao tại Da Nang, Vietnam, với hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Nơi đây đạt 4,4/5 từ 600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5d82a70b-fec6-55ec-9932-0e5e586d52b9",
+    "field": "description",
+    "text": "Nằm ở Chiang Mai, Thailand, Anantara Chiang Mai Resort là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng tập gym. Du khách đánh giá nơi này 4,7/5 từ 2.540 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5ee4e3a9-4fcf-583c-b8f8-7208b09edbfa",
+    "field": "description",
+    "text": "Tọa lạc tại Can Tho, Vietnam, Vinpearl Hotel Can Tho là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách chấm điểm 4,5/5 từ 1.430 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5fbd8e52-6e5c-59b6-9132-c706db3b8e50",
+    "field": "description",
+    "text": "Grand Hyatt Seoul là một khách sạn 5 sao ở Seoul, South Korea, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,7/5 trên 2.980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6391bea5-637a-5bfb-b56e-475e10018158",
+    "field": "description",
+    "text": "The Fullerton Hotel Singapore mang đến sự thoải mái chuẩn 5 sao cho Singapore, Singapore, với hồ bơi, spa, nhà hàng và phòng tập gym. Nơi này đạt 4,7/5 qua 2.880 đánh giá của khách lưu trú."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "63c2c7a6-f2a4-5764-ad4d-6e79a131d6ff",
+    "field": "description",
+    "text": "Grand Senyiur Hotel mang đến sự tiện nghi 4 sao tại Balikpapan, Indonesia, với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt 4,4/5 qua 1.560 bài đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "653cb957-f83e-5d15-b968-20c559274421",
+    "field": "description",
+    "text": "The Surin Phuket là một khu nghỉ dưỡng 5 sao ở Phuket, Thailand, cung cấp hồ bơi, lối ra bãi biển, nhà hàng và quầy bar. Khách lưu trú đánh giá nơi này 4,5/5 dựa trên 1.760 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "66fc6c03-815d-5171-b220-46b964a22150",
+    "field": "description",
+    "text": "The Mulia Bali mang đến sự thoải mái chuẩn 5 sao cho Bali, Indonesia, với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng tập gym. Nơi này đạt 4,8/5 qua 4.670 đánh giá của khách lưu trú."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "689404c1-5b48-5dd0-a350-43efd8d05d1d",
+    "field": "description",
+    "text": "Novo Turismo Resort & Spa là một khu nghỉ dưỡng 5 sao ở Dili, Timor-Leste, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Khách sạn đạt 4,4/5 trên 690 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6a696821-eda0-5f31-a552-f618f7395a04",
+    "field": "description",
+    "text": "Chaweng Regent Beach Resort là khu nghỉ dưỡng 4 sao ở Koh Samui, Thái Lan, có hồ bơi, lối ra bãi biển, nhà hàng, quầy bar và wifi miễn phí. Khu nghỉ dưỡng đạt đánh giá 4,2/5 từ 3.120 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6c6788e9-c1be-5ea3-8a06-0f753ee4feed",
+    "field": "description",
+    "text": "Nằm ở Johor Bahru, Malaysia, Renaissance Johor Bahru Hotel là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Du khách đánh giá 4,3/5 từ 1.490 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6e392487-7d1a-5c2b-8070-59f10c0c374c",
+    "field": "description",
+    "text": "Tọa lạc tại Davao, Philippines, Marco Polo Davao là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá 4,7/5 từ 3.040 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6e8339d6-1c8d-5ef1-9646-a48eae57eb54",
+    "field": "description",
+    "text": "Discovery Shores Boracay là khu nghỉ dưỡng 5 sao tại Kalibo (Boracay), Philippines, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Nơi này có đánh giá của khách là 4,7/5 qua 3.560 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6fd2febc-1dfc-578e-bd54-8f76c17699b1",
+    "field": "description",
+    "text": "Tọa lạc tại Da Lat, Vietnam, Terracotta Hotel & Resort Dalat là khu nghỉ dưỡng 4 sao nổi tiếng với hồ bơi, spa, nhà hàng và phòng gym. Du khách chấm điểm 4,2/5 từ 760 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "70c831af-4a31-5165-b3ab-7cf5b2f91f3e",
+    "field": "description",
+    "text": "Tọa lạc tại Quy Nhon, Vietnam, FLC Luxury Hotel Quy Nhon là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách chấm điểm 4,4/5 từ 1.560 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "70f86d58-7361-54a6-a2ca-ec10ab2ef182",
+    "field": "description",
+    "text": "Mandarin Oriental Hong Kong mang đến sự thoải mái 5 sao cho Hong Kong, Hong Kong, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,8/5 trên 3.940 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "71926d8e-235d-5c9d-8bda-61db8f38765e",
+    "field": "description",
+    "text": "The Shilla Seoul mang đến sự thoải mái 5 sao cho Seoul, South Korea, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,8/5 trên 3.650 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "731c027c-ef28-5533-8124-9825a6fdcde0",
+    "field": "description",
+    "text": "Four Seasons Resort Koh Samui là khu nghỉ dưỡng 5 sao ở Koh Samui, Thái Lan, có hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Khu nghỉ dưỡng đạt đánh giá 4,8/5 từ 2.670 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7338498d-2555-504b-b2ea-07371b5888ea",
+    "field": "description",
+    "text": "JW Marriott Hotel Surabaya là khách sạn 5 sao ở Surabaya, Indonesia, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Nơi đây nhận được đánh giá của khách là 4,7/5 qua 3.680 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "748df9f1-1d15-55be-b34b-505e964b01e0",
+    "field": "description",
+    "text": "Viet Thanh Hotel là một khách sạn 2 sao ở Tam Ky, Vietnam, cung cấp wifi miễn phí và điều hòa không khí. Khách sạn đạt 4,0/5 trên 210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "75d461c6-ef14-513d-8403-5513483cb507",
+    "field": "description",
+    "text": "Raffles Grand Hotel d'Angkor là một khách sạn 5 sao ở Siem Reap, Cambodia, cung cấp hồ bơi, spa, nhà hàng và quầy bar. Khách lưu trú chấm 4,8/5 trên tổng số 2.760 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "77a8ed7c-78d0-5eb2-82e5-cf29d90c8705",
+    "field": "description",
+    "text": "Tọa lạc tại Da Nang, Vietnam, Cham Hotel Danang là khách sạn 3 sao nổi tiếng với nhà hàng và wifi miễn phí. Du khách đánh giá 4,0/5 từ 400 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "78679324-505a-5056-ac01-dfa9af45287d",
+    "field": "description",
+    "text": "Amiana Resort Nha Trang mang đến sự thoải mái 5 sao tại Nha Trang, Vietnam, với hồ bơi, lối ra bãi biển, spa và nhà hàng. Khách sạn đạt 4,5/5 từ hơn 2.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7bd9e97a-4b34-5de3-989b-003b24abc86b",
+    "field": "description",
+    "text": "Princesa Garden Island Resort and Spa mang đến sự thoải mái 5 sao cho Puerto Princesa, Philippines, với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Nơi này đạt 4,6/5 từ hơn 1.940 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7cd1149e-9675-5e52-a75b-6bd5c137cb5b",
+    "field": "description",
+    "text": "Quest Plus Conference Center Clark là khách sạn 4 sao ở Angeles, Philippines, cung cấp hồ bơi, nhà hàng, phòng gym và wifi miễn phí. Nơi đây nhận được đánh giá của khách là 4,3/5 qua 1.520 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7d6b0616-7154-59f5-aab1-9da75d5702a1",
+    "field": "description",
+    "text": "Tọa lạc tại Balikpapan, Indonesia, Swiss-Belhotel Balikpapan là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar và phòng gym. Du khách đánh giá 4,3/5 từ 1.340 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7f4feda7-d375-511d-9412-f649ba944d3c",
+    "field": "description",
+    "text": "Tọa lạc tại Dili, Timor-Leste, The Esplanade Hotel là một khu nghỉ dưỡng 4 sao nổi tiếng với hồ bơi, nhà hàng, lối ra bãi biển và wifi miễn phí. Du khách đánh giá khách sạn 4,0/5 từ 470 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "800dbd4e-819e-5edb-a3a0-632210d908de",
+    "field": "description",
+    "text": "Tọa lạc tại Manila, Philippines, Shangri-La at the Fort, Manila là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và phòng gym. Du khách đánh giá nơi đây 4,7/5 từ 2.680 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8065f70d-238e-533a-844f-227647be9f70",
+    "field": "description",
+    "text": "Tọa lạc tại Manila, Philippines, Conrad Manila là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá nơi đây 4,6/5 từ 3.120 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "830f53ad-f3d5-543c-bb7e-a9486d68467a",
+    "field": "description",
+    "text": "Clark Marriott Hotel là khách sạn 5 sao ở Angeles, Philippines, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Nơi đây nhận được đánh giá của khách là 4,6/5 qua 2.480 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "86a3c8b4-06ef-50bd-a279-b721a4e3be34",
+    "field": "description",
+    "text": "Mercure Haiphong là khách sạn 4 sao ở Hai Phong, Vietnam, cung cấp nhà hàng, quầy bar, phòng gym và wifi miễn phí. Khách sạn có đánh giá 4,2/5 từ 640 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "86cc6517-7971-5aac-8cc2-41f6e82e2126",
+    "field": "description",
+    "text": "Tọa lạc tại Penang, Malaysia, G Hotel Gurney là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Du khách đánh giá 4,4/5 từ 2.970 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "87d00bd2-5d85-5efb-b019-0ef6cd5cb8f6",
+    "field": "description",
+    "text": "Henann Regency Resort & Spa mang đến sự thoải mái 4 sao cho Kalibo (Boracay), Philippines, với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Nơi này đạt 4,5/5 từ hơn 4.890 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8a436580-5f62-54ae-a8c2-cc9e4fc4fc52",
+    "field": "description",
+    "text": "Hyatt Regency Danang Resort & Spa là khu nghỉ dưỡng 5 sao tại Da Nang, Vietnam, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Nơi đây có điểm đánh giá của khách là 4,6/5 từ 4.200 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8b706d2e-8835-5283-af78-ab8c234a4d34",
+    "field": "description",
+    "text": "Tọa lạc tại Dili, Timor-Leste, Hotel Timor là một khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Du khách đánh giá khách sạn 4,1/5 từ 540 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8ed9e8cb-8df9-5fc7-84cc-44d50b3538d3",
+    "field": "description",
+    "text": "Ren Resort mang đến sự thoải mái 4 sao cho Sihanoukville, Cambodia, với hồ bơi, nhà hàng, lối ra bãi biển và wifi miễn phí. Nơi này đạt 4,4/5 từ hơn 920 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8f311fa2-d8cd-5bc4-8c1d-1f0079bb871f",
+    "field": "description",
+    "text": "Melia Danang Beach Resort mang đến sự thoải mái 5 sao tại Da Nang, Vietnam, với hồ bơi, spa, lối ra bãi biển, nhà hàng và wifi miễn phí. Nơi đây đạt 4,5/5 từ 2.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8f4bf72d-871b-5e28-9ab8-96453cdfb1c8",
+    "field": "description",
+    "text": "Nằm ở Kuala Lumpur, Malaysia, Mandarin Oriental Kuala Lumpur là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và phòng tập gym. Du khách đánh giá nơi này 4,7/5 từ 3.640 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9054a9da-2448-5af5-b945-ae5cdbdf227e",
+    "field": "description",
+    "text": "Four Points by Sheraton Danang là khách sạn 4 sao tại Da Nang, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nơi đây có điểm đánh giá của khách là 4,4/5 từ 2.100 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "911bd4ed-8851-597c-b8ee-89c1722028a6",
+    "field": "description",
+    "text": "Tọa lạc tại Medan, Indonesia, JW Marriott Hotel Medan là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá 4,7/5 từ 3.210 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "926f438e-b24e-5e19-8ce4-35043bcbf35f",
+    "field": "description",
+    "text": "Hilton Kuching mang đến sự thoải mái 5 sao tại Kuching, Malaysia, với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt 4,3/5 qua 2.640 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "93e898f6-f31a-557a-921b-a1c174801d3f",
+    "field": "description",
+    "text": "Nằm ở Da Nang, Vietnam, Vinpearl Resort & Spa Da Nang là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách đánh giá nơi đây 4,4/5 từ 2.600 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "98a0eeb7-7ef0-54b1-87a2-d6a5cbcca7e5",
+    "field": "description",
+    "text": "Tọa lạc tại Bangkok, Thailand, The Siam là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và quầy bar. Du khách đánh giá 4,9/5 từ 1.540 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9a2bbe8b-2377-5d6d-8312-cc7949751f6a",
+    "field": "description",
+    "text": "Nằm ở Kota Kinabalu, Malaysia, Shangri-La Tanjung Aru Resort & Spa là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách đánh giá 4,6/5 từ 3.450 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9a9fb788-b23a-5846-9b39-07e4d083d9ff",
+    "field": "description",
+    "text": "Hammock Homestay là một homestay 2 sao ở Cu Lao Cham, Vietnam, cung cấp wifi miễn phí, võng và bếp chung. Nơi này có đánh giá 4,3/5 từ khách hàng trên tổng số 95 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9ce0a8d6-d219-5c06-882d-a2cb731cb9bd",
+    "field": "description",
+    "text": "Mandarin Oriental Jakarta mang đến sự tiện nghi 5 sao cho Jakarta, Indonesia, với hồ bơi, spa, nhà hàng và quầy bar. Khách sạn đạt 4,7/5 qua 2.980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9dc28979-59cc-57bd-9952-00420e04a1f6",
+    "field": "description",
+    "text": "Bulgari Resort Bali là một khu nghỉ dưỡng 5 sao ở Bali, Indonesia, cung cấp hồ bơi, spa, lối ra bãi biển và nhà hàng. Khách lưu trú đánh giá nơi này 4,9/5 dựa trên 1.340 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a410157b-d049-59dd-a5d5-9bc0f5601f99",
+    "field": "description",
+    "text": "Astoria Palawan mang đến sự thoải mái 4 sao cho Puerto Princesa, Philippines, với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Nơi này đạt 4,5/5 từ hơn 2.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a49eaf55-1643-5eec-877e-84ad2100eb78",
+    "field": "description",
+    "text": "Shangri-La Mactan, Cebu là một khu nghỉ dưỡng 5 sao ở Cebu, Philippines, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Khách lưu trú chấm 4,7/5 trên tổng số 4.120 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a5714e69-629c-59f3-ab70-4691d70bff48",
+    "field": "description",
+    "text": "Nằm ở Langkawi, Malaysia, The Datai Langkawi là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách đánh giá 4,9/5 từ 2.890 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a57736b1-b934-5571-a2a6-6c57383e5c4b",
+    "field": "description",
+    "text": "Hyatt Regency Kinabalu mang đến sự thoải mái 4 sao tại Kota Kinabalu, Malaysia, với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Khách sạn đạt 4,2/5 qua 1.760 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a5ca1548-d400-51d1-a3f5-b3d4f1128430",
+    "field": "description",
+    "text": "Novotel Balikpapan mang đến sự tiện nghi 4 sao tại Balikpapan, Indonesia, với hồ bơi, nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt 4,5/5 qua 1.820 bài đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a617b3d1-e213-52cd-8ab6-d5f13f746a38",
+    "field": "description",
+    "text": "Nằm ở Kuala Lumpur, Malaysia, The Ritz-Carlton Kuala Lumpur là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và quầy bar. Du khách đánh giá nơi này 4,6/5 từ 1.980 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a6addcc4-ad59-5dc6-80ff-23a9eececc27",
+    "field": "description",
+    "text": "Brilliant Hotel Da Nang mang đến sự thoải mái 4 sao tại Da Nang, Vietnam, với nhà hàng, quầy bar, wifi miễn phí và phòng gym. Khách sạn đạt 4,3/5 từ hơn 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a958c380-a2e5-59af-8916-df205c49b802",
+    "field": "description",
+    "text": "Tọa lạc tại Ho Chi Minh City, Vietnam, Liberty Central Saigon Citypoint là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng và phòng gym. Du khách đánh giá 4,4/5 từ 2.103 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "abed9b5c-1ba0-5eec-a3de-fbde12376466",
+    "field": "description",
+    "text": "Hotel New Otani Tokyo mang đến sự thoải mái 5 sao cho Tokyo, Japan, với hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt 4,6/5 trên 4.990 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "afea3c28-7739-59c1-b066-882c03aa8a8b",
+    "field": "description",
+    "text": "Pan Pacific Yangon là một khách sạn 5 sao ở Yangon, Myanmar, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách lưu trú chấm 4,6/5 trên tổng số 1.610 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b00f6341-5b97-5568-b1ad-a577966edf7a",
+    "field": "description",
+    "text": "Four Seasons Resort Bali at Sayan là một khu nghỉ dưỡng 5 sao ở Bali, Indonesia, cung cấp hồ bơi, spa, nhà hàng và quầy bar. Khách lưu trú đánh giá nơi này 4,9/5 dựa trên 2.120 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b1291505-833b-5847-af0a-73c68fe4cdfa",
+    "field": "description",
+    "text": "Tọa lạc tại Hat Yai, Thailand, Centara Hotel Hat Yai là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, phòng gym và wifi miễn phí. Du khách chấm điểm 4,3/5 từ 1.820 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b4b5d786-6fc1-540f-8ae0-022869b0a26b",
+    "field": "description",
+    "text": "Nằm ở Phuket, Thailand, Rosewood Phuket là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển và nhà hàng. Du khách đánh giá nơi này 4,8/5 từ 2.030 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b5372cf4-32f6-54a5-afa6-251f2a342469",
+    "field": "description",
+    "text": "Chatrium Hotel Royal Lake Yangon mang đến sự tiện nghi 5 sao cho Yangon, Myanmar, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,5/5 qua 1.320 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b55e320e-196c-5aec-a5a4-18effe34ccd2",
+    "field": "description",
+    "text": "Ao Nang Cliff Beach Resort là khu nghỉ dưỡng 4 sao ở Krabi, Thái Lan, có hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Khu nghỉ dưỡng đạt đánh giá 4,2/5 từ 1.560 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b6b7d573-8240-5822-aa00-41f4e35b96b4",
+    "field": "description",
+    "text": "The Peninsula Bangkok là khách sạn 5 sao ở Bangkok, Thailand, cung cấp hồ bơi, spa, nhà hàng và phòng gym. Khách sạn nhận được đánh giá 4,8/5 từ 3.960 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b6e160d0-efd8-51b8-9372-a736d09b9c84",
+    "field": "description",
+    "text": "Nằm ở Da Nang, Vietnam, Naman Retreat là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và wifi miễn phí. Du khách đánh giá nơi đây 4,6/5 từ 1.900 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b904d166-0885-52f8-8029-d49fc5c86957",
+    "field": "description",
+    "text": "Salinda Resort Phu Quoc Island là khu nghỉ dưỡng 5 sao ở Phu Quoc, Vietnam, cung cấp hồ bơi, lối ra bãi biển, spa và nhà hàng. Khách sạn nhận được đánh giá 4,6/5 từ 1.450 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bb39b3ba-a9b0-55a3-b868-daeda3f23c55",
+    "field": "description",
+    "text": "Azerai Can Tho là khách sạn 5 sao ở Can Tho, Vietnam, cung cấp hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách sạn có đánh giá 4,7/5 từ 1.120 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bd71f4de-9352-528a-b748-33d2581a94f2",
+    "field": "description",
+    "text": "Nằm ở Chiang Mai, Thailand, 137 Pillars House Chiang Mai là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và quầy bar. Du khách đánh giá nơi này 4,9/5 từ 1.320 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bdb4da97-c4c7-577a-a7d5-447fcf289581",
+    "field": "description",
+    "text": "Lee Gardens Plaza Hotel là khách sạn 4 sao ở Hat Yai, Thái Lan, có hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt đánh giá 4,1/5 từ 980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bf490478-8165-519d-876f-2aedf932ea0b",
+    "field": "description",
+    "text": "Muong Thanh Grand Phuong Dong Hotel là khách sạn 4 sao ở Vinh, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar và phòng gym. Khách sạn có đánh giá 4,2/5 từ 870 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c1bd7a19-fcb1-5faf-9437-afe371ae3f0f",
+    "field": "description",
+    "text": "Muong Thanh Luxury Can Tho Hotel là khách sạn 5 sao ở Can Tho, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar và phòng gym. Khách sạn có đánh giá 4,3/5 từ 980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c2a5d7e8-6d13-54bf-8e3b-9b8e63b793fd",
+    "field": "description",
+    "text": "The Puteri Pacific Johor Bahru là khách sạn 4 sao ở Johor Bahru, Malaysia, có hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt đánh giá 4,2/5 từ 2.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c2c2219e-448a-5b2c-bf92-0ffb899d1e47",
+    "field": "description",
+    "text": "Rosewood Phnom Penh mang đến sự thoải mái 5 sao cho Phnom Penh, Cambodia, với hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Nơi này đạt 4,8/5 từ hơn 2.480 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c3bfd283-197b-5472-ae18-60abdf460cd1",
+    "field": "description",
+    "text": "Nằm ở Singapore, Singapore, Raffles Hotel Singapore là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và quầy bar. Du khách đánh giá nơi này 4,8/5 từ 3.470 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c3e2e160-55ee-5c0d-a89b-0057ad623283",
+    "field": "description",
+    "text": "Tọa lạc tại Hong Kong, Hong Kong, The Peninsula Hong Kong là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá khách sạn 4,9/5 từ 4.870 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c5c93f53-c32f-5b2d-8dac-3583ef4f1ccb",
+    "field": "description",
+    "text": "InterContinental Nha Trang là khu nghỉ dưỡng 5 sao ở Nha Trang, Vietnam, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Khách sạn nhận được đánh giá 4,6/5 từ 3.340 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c79aac18-9843-5d1d-9efa-0378bd721599",
+    "field": "description",
+    "text": "Tọa lạc tại Quy Nhon, Vietnam, Avani Quy Nhon Resort là khu nghỉ dưỡng 4 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách chấm điểm 4,5/5 từ 1.080 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c8b905fe-b5b8-588a-adfd-009a49ea660e",
+    "field": "description",
+    "text": "Tọa lạc tại Medan, Indonesia, Grand City Hall Hotel Medan là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Du khách đánh giá 4,5/5 từ 2.240 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c9dd07ae-f6d1-5453-a95d-c347fa620386",
+    "field": "description",
+    "text": "The Brunei Hotel là một khách sạn 4 sao ở Bandar Seri Begawan, Brunei, cung cấp nhà hàng, phòng gym và wifi miễn phí. Khách sạn đạt 4,2/5 trên 880 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "cb52c260-6d1a-557e-8854-8b59db6fa70c",
+    "field": "description",
+    "text": "Muong Thanh Grand Quang Nam Hotel là một khách sạn 4 sao ở Tam Ky, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar, wifi miễn phí và phòng gym. Khách sạn đạt 4,3/5 trên 620 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "cccf0f89-a4ae-5f7d-80d2-68990551734e",
+    "field": "description",
+    "text": "Wyndham Danang Golden Bay là khách sạn 5 sao tại Da Nang, Vietnam, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Nơi đây có điểm đánh giá của khách là 4,3/5 từ 3.100 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "cd5e2648-7206-503f-a692-bb61001e0aa4",
+    "field": "description",
+    "text": "Allegro Hoi An là một khách sạn 4 sao ở Hoi An, Vietnam, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách lưu trú chấm 4,6/5 trên tổng số 1.820 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "cf87e293-382f-5128-9c35-f7b3916d9e67",
+    "field": "description",
+    "text": "Nằm ở Da Nang, Vietnam, Pullman Da Nang Beach Resort là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách đánh giá nơi đây 4,5/5 từ 3.500 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d199742b-37b3-508d-9e51-647f0e8f4f5a",
+    "field": "description",
+    "text": "My Son Heritage Resort And Spa là một khách sạn 4 sao ở My Son, Vietnam, cung cấp hồ bơi, spa, nhà hàng và wifi miễn phí. Khách sạn đạt 4,4/5 trên 380 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d23dccdf-5a0a-5457-86be-de425f4e34ac",
+    "field": "description",
+    "text": "Hue Hotels and Resorts Puerto Princesa mang đến sự thoải mái 4 sao cho Puerto Princesa, Philippines, với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nơi này đạt 4,4/5 từ hơn 1.670 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d2748cd5-82b0-59e9-8084-eaa3939de40c",
+    "field": "description",
+    "text": "Sunbay Homestay Cu Lao Cham là một homestay 3 sao ở Cu Lao Cham, Vietnam, cung cấp nhà hàng, wifi miễn phí và tầm nhìn ra biển. Nơi này có đánh giá 4,5/5 từ khách hàng trên tổng số 260 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d2af9a58-4b01-570f-a764-e01ecae5f8d5",
+    "field": "description",
+    "text": "Trang Vu Homestay Cu Lao Cham là một homestay 2 sao ở Cu Lao Cham, Vietnam, cung cấp wifi miễn phí và lối ra bãi biển. Nơi này có đánh giá 4,4/5 từ khách hàng trên tổng số 140 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d48eb6ea-f1bc-5800-908f-6bc2b5a0bda1",
+    "field": "description",
+    "text": "Nằm ở Chiang Mai, Thailand, Four Seasons Resort Chiang Mai là một khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, nhà hàng và phòng tập gym. Du khách đánh giá nơi này 4,8/5 từ 1.890 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "daf82516-ecda-53cb-8b37-3793d6e3c7c2",
+    "field": "description",
+    "text": "The Langham Hong Kong là một khách sạn 5 sao ở Hong Kong, Hong Kong, cung cấp hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt 4,7/5 trên 2.760 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "db466cbc-b0ab-5727-ab17-21c5391eca88",
+    "field": "description",
+    "text": "Luna Hotel Duy Xuyen là một khách sạn 3 sao ở My Son, Vietnam, cung cấp nhà hàng, wifi miễn phí và điều hòa không khí. Khách sạn đạt 4,2/5 trên 190 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "dd3cf5ed-0903-57c5-af71-dc0608688655",
+    "field": "description",
+    "text": "Hilton Mandalay là khách sạn 5 sao ở Mandalay, Myanmar, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Nơi này có đánh giá của khách là 4,5/5 qua 1.840 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "de3fc2fc-ed7d-564d-9bb8-65ddab0e77f1",
+    "field": "description",
+    "text": "The Peninsula Manila mang đến sự tiện nghi 5 sao cho Manila, Philippines, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,6/5 qua 3.210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "de432c96-2376-50c3-a8d3-db16623fbd24",
+    "field": "description",
+    "text": "Dalat Palace Heritage Hotel là khách sạn 5 sao ở Da Lat, Vietnam, cung cấp spa, nhà hàng, quầy bar và phòng gym. Khách sạn có đánh giá 4,4/5 từ 1.670 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "df474129-9c59-5c1f-a3db-c42a7733642f",
+    "field": "description",
+    "text": "Pullman Kuching là khách sạn 5 sao ở Kuching, Malaysia, có hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt đánh giá 4,4/5 từ 2.180 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e3ba7de2-8aa0-5867-a77f-cf81718b2af0",
+    "field": "description",
+    "text": "Tọa lạc tại Penang, Malaysia, Eastern & Oriental Hotel là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách đánh giá 4,6/5 từ 3.680 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e41ad6e4-4a7f-5aae-9a74-8e016e839175",
+    "field": "description",
+    "text": "Dusit Thani Residence Davao mang đến sự thoải mái 5 sao cho Davao, Philippines, với hồ bơi, spa, nhà hàng, phòng gym và wifi miễn phí. Nơi này đạt 4,6/5 từ hơn 1.980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e628ac64-2419-537a-acfc-cba0589e6373",
+    "field": "description",
+    "text": "Seda Abreeza là khách sạn 4 sao ở Davao, Philippines, cung cấp hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nơi đây nhận được đánh giá của khách là 4,6/5 qua 2.630 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e6ff3af1-fd02-5b64-afba-983f19d325b1",
+    "field": "description",
+    "text": "Pilgrimage Village Boutique Resort & Spa là khách sạn boutique 4 sao ở Hue, Vietnam, cung cấp hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách sạn có đánh giá 4,6/5 từ 1.450 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e85fb53f-3dea-5a79-890a-19df4b0b82bc",
+    "field": "description",
+    "text": "Tọa lạc tại Medan, Indonesia, Adimulia Hotel Medan là khách sạn 4 sao nổi tiếng với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Du khách đánh giá 4,4/5 từ 1.670 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e97bf2c6-92d1-5100-9a67-fde1a06c45ca",
+    "field": "description",
+    "text": "Lao Plaza Hotel là khách sạn 4 sao ở Vientiane, Laos, cung cấp hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nơi này có đánh giá của khách là 4,2/5 qua 1.670 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ec027296-0141-5ba1-8313-ce67a0a979ed",
+    "field": "description",
+    "text": "Four Seasons Hotel Kuala Lumpur là một khách sạn 5 sao ở Kuala Lumpur, Malaysia, cung cấp hồ bơi, spa, nhà hàng và phòng tập gym. Khách lưu trú đánh giá nơi này 4,8/5 dựa trên 1.450 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ed87eeb6-5ad2-5e4b-a448-eaf9ad6a4caf",
+    "field": "description",
+    "text": "Four Seasons Resort The Nam Hai là khu nghỉ dưỡng 5 sao ở Hoi An, Vietnam, cung cấp hồ bơi, spa, lối ra bãi biển và nhà hàng. Khách sạn nhận được đánh giá 4,9/5 từ 1.340 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "edec3849-566d-50a2-8375-59b4eebf0b24",
+    "field": "description",
+    "text": "Rosewood Luang Prabang mang đến sự tiện nghi 5 sao cho Luang Prabang, Laos, với hồ bơi, spa và nhà hàng. Khách sạn đạt 4,9/5 qua 920 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ee550a87-f43b-5fba-8df7-fd26f3c30f89",
+    "field": "description",
+    "text": "Da Nang Marriott Resort & Spa là khu nghỉ dưỡng 5 sao tại Da Nang, Vietnam, cung cấp hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Nơi đây có điểm đánh giá của khách là 4,6/5 từ 3.800 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ee694d56-5bdf-565c-976e-e87e8b5861bf",
+    "field": "description",
+    "text": "Nằm ở Sihanoukville, Cambodia, Sokha Beach Resort là khu nghỉ dưỡng 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và phòng gym. Du khách đánh giá nơi này 4,3/5 từ 1.980 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "efaa08e4-89a9-54c0-8d2c-249b0afb0951",
+    "field": "description",
+    "text": "The Ritz-Carlton Tokyo mang đến sự thoải mái 5 sao cho Tokyo, Japan, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,9/5 trên 2.870 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "efaca957-54be-5385-9f9a-290aac4b58a7",
+    "field": "description",
+    "text": "Banyan Tree Bangkok là một khách sạn 5 sao ở Bangkok, Thailand, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng tập gym. Khách lưu trú đánh giá nơi này 4,6/5 dựa trên 4.210 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f14a6146-8444-5794-ad52-bbd54584cd4c",
+    "field": "description",
+    "text": "Tọa lạc tại Bali, Indonesia, COMO Uma Ubud là một khách sạn 4 sao nổi tiếng với hồ bơi, spa, nhà hàng và phòng gym. Du khách đánh giá nơi đây 4,7/5 từ 1.620 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f20f3797-b212-51b7-9368-612d16fad386",
+    "field": "description",
+    "text": "Banyan Tree Samui là khu nghỉ dưỡng 5 sao ở Koh Samui, Thái Lan, có hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Khu nghỉ dưỡng đạt đánh giá 4,7/5 từ 1.990 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f36ff86f-9f3d-52f4-bec5-80bc324b080f",
+    "field": "description",
+    "text": "Nằm ở Sihanoukville, Cambodia, The Independence Hotel Resort & Spa là khu nghỉ dưỡng 4 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách đánh giá nơi này 4,2/5 từ 1.450 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f4d2d8d6-cc08-5c0b-a5b9-a95a0d864a99",
+    "field": "description",
+    "text": "Nằm ở Mandalay, Myanmar, Hotel by the Red Canal là khách sạn 4 sao nổi tiếng với hồ bơi, spa, nhà hàng và wifi miễn phí. Du khách đánh giá nơi này 4,6/5 từ 760 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f549a231-d769-50c4-abac-24de34f935e2",
+    "field": "description",
+    "text": "Nằm ở Singapore, Singapore, Mandarin Oriental Singapore là một khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng tập gym. Du khách đánh giá nơi này 4,7/5 từ 2.310 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f59c85a5-d17d-5f0c-830a-aeb1f26e61bf",
+    "field": "description",
+    "text": "Sofitel Legend Metropole Hanoi là khách sạn 5 sao ở Hanoi, Vietnam, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn nhận được đánh giá 4,9/5 từ 4.502 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f5ed6932-0d5c-5526-ad2d-f057365bbb35",
+    "field": "description",
+    "text": "Raffles Hotel Le Royal mang đến sự thoải mái 5 sao cho Phnom Penh, Cambodia, với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Nơi này đạt 4,7/5 từ hơn 3.120 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f61995de-230d-5eae-a17b-be178ef84c9d",
+    "field": "description",
+    "text": "Novotel Da Nang Premier Han River mang đến sự thoải mái 5 sao tại Da Nang, Vietnam, với hồ bơi, nhà hàng, phòng gym và quầy bar. Nơi đây đạt 4,6/5 từ 3.104 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f9810ddf-94ac-5567-87ce-896ec63df891",
+    "field": "description",
+    "text": "Ana Mandara Villas Dalat Resort & Spa mang đến sự thoải mái 4 sao cho Da Lat, Vietnam, với hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt 4,5/5 từ 1.340 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "fa389ece-9c6c-58f8-b359-c8d3e090c23e",
+    "field": "description",
+    "text": "Tọa lạc tại Hue, Vietnam, Azerai La Residence, Hue là khách sạn 5 sao nổi tiếng với hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Du khách chấm điểm 4,7/5 từ 1.980 đánh giá."
+  },
+  {
     "entity_type": "place",
     "entity_id": "0044f7ff-20c7-500a-ac3c-a901a662b64f",
     "field": "description",

@@ -50,6 +50,7 @@ class HotelsPanelHotel(AppBaseModel):
     rating: float
     review_count: int
     amenities: list[str]
+    description: str
 
 
 class HotelsPanel(AppBaseModel):
@@ -110,6 +111,7 @@ class HotelsPanel(AppBaseModel):
                     rating=h.rating,
                     review_count=h.review_count,
                     amenities=h.amenities,
+                    description=h.description,
                 )
                 for h in hotels
             ],
@@ -153,6 +155,7 @@ class HotelsPanel(AppBaseModel):
                     rating=h.rating,
                     review_count=h.review_count,
                     amenities=h.amenities,
+                    description=h.description,
                 )
                 for h in hotels
             ],

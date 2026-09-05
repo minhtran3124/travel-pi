@@ -155,6 +155,7 @@ export interface HotelsPanelHotel {
   rating: number;
   review_count: number;
   amenities: string[];
+  description: string;
 }
 
 export interface HotelsPanelData {

@@ -2,11 +2,23 @@
 
 import json
 
+import pytest
+from app.db import models
+from app.db.engine import get_session_factory
 from app.services import content_translation_service as mod
 from app.tools.place_tools import search_places
 from tests.tools.conftest import (
     agent_db,  # noqa: F401 — fixture not visible cross-package
 )
+
+
+@pytest.fixture(autouse=True)
+def _no_seeded_translations(agent_db):  # noqa: F811
+    """Start from an empty store: seed_all pre-fills content_translations from
+    the checked-in vi file, which would hide the miss path these tests cover."""
+    with get_session_factory(agent_db)() as s:
+        s.query(models.ContentTranslation).delete()
+        s.commit()
 
 
 def _call(args: dict):

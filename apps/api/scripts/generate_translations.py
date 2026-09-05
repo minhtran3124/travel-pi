@@ -2,7 +2,7 @@
 """Pre-fill ``app/data/content_translations.<lang>.json`` for the seeded catalog.
 
 Runs the same ``ContentTranslationService.localize`` the tools use, over every
-seeded place (``description``), against the configured LLM, and writes the
+seeded place and hotel (``description``), against the configured LLM, and writes the
 resulting ``content_translations`` rows for ``--language`` to the checked-in JSON
 so a fresh deployment never pays a runtime translation for seed data. Rows that
 already exist (from an earlier run or a lazy tool-time fill) are reused, so
@@ -27,6 +27,7 @@ from app.core.config import get_settings
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 from app.db import models
 from app.db.engine import get_session_factory
+from app.repositories.hotel_ref import HotelRepository
 from app.repositories.place_ref import PlaceRepository
 from app.services.content_translation_service import (
     ContentTranslationService,
@@ -39,6 +40,7 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "app" / "data"
 #: entity_type -> (loader(session) -> list[BaseModel], fields)
 _CATALOG = {
     "place": (lambda s: PlaceRepository(s).all(), ["description"]),
+    "hotel": (lambda s: HotelRepository(s).all(), ["description"]),
 }
 
 

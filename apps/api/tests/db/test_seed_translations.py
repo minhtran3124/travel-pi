@@ -68,7 +68,7 @@ def test_seed_without_translation_files_seeds_nothing(tmp_path, monkeypatch):
     assert _count(sf) == 0
 
 
-def test_generator_writes_rows_for_every_seeded_place(tmp_path, monkeypatch):
+def test_generator_writes_rows_for_every_seeded_place_and_hotel(tmp_path, monkeypatch):
     monkeypatch.setattr(seed_mod, "_TRANSLATIONS_DIR", tmp_path)  # no pre-fill
     sf = _fresh(tmp_path)
     seed_all(sf)
@@ -81,14 +81,16 @@ def test_generator_writes_rows_for_every_seeded_place(tmp_path, monkeypatch):
     rows = generate(sf, "vi", translator=fake, batch=50)
     with sf() as s:
         n_places = s.scalar(select(func.count()).select_from(models.Place))
+        n_hotels = s.scalar(select(func.count()).select_from(models.Hotel))
+    n_total = n_places + n_hotels
 
-    assert len(rows) == n_places
-    assert all(
-        r["entity_type"] == "place" and r["field"] == "description" for r in rows
-    )
+    assert len(rows) == n_total
+    assert {r["entity_type"] for r in rows} == {"place", "hotel"}
+    assert all(r["field"] == "description" for r in rows)
     assert all(r["text"].startswith("VI:") for r in rows)
     assert rows == sorted(rows, key=lambda r: (r["entity_type"], r["entity_id"]))
-    assert sum(calls) == n_places and len(calls) == -(-n_places // 50)
+    assert sum(calls) == n_total
+    assert len(calls) == -(-n_places // 50) + -(-n_hotels // 50)
 
     out = tmp_path / "out"
     out.mkdir()
@@ -101,7 +103,7 @@ def test_generator_writes_rows_for_every_seeded_place(tmp_path, monkeypatch):
     (tmp_path / "second").mkdir()
     sf2 = _fresh(tmp_path / "second")
     seed_all(sf2)
-    assert _count(sf2) == n_places
+    assert _count(sf2) == n_total
     calls.clear()
     assert generate(sf2, "vi", translator=fake) == rows
     assert calls == []

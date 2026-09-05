@@ -64,3 +64,4 @@ def test_from_hotels_projects_all_fields_and_cheapest():
     assert row.rating == 4.5 and row.review_count == 120
     assert row.amenities == ["wifi", "pool"]
     assert row.image_url == "https://example.com/img.jpg"
+    assert row.description == "A nice hotel."

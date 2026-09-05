@@ -50,7 +50,7 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
 | SC-2 | The `content_translations` table is registered with a unique key on (entity_type, entity_id, field, language); the revision upgrades from empty and downgrades cleanly on SQLite; the repo can get_many / upsert_many | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc2.db ../../.venv/bin/python -m pytest tests/db/test_content_translations_migration.py tests/repositories/test_content_translation_repo.py -q` | exit 0 |
 | SC-3 | `localize()` overlays stored text, translates only the missing rows in ONE batched LLM call, writes them back, is a no-op for the default language, and keeps source text when the translator fails | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc3.db ../../.venv/bin/python -m pytest tests/services/test_content_translation_service.py -q` | exit 0 |
 | SC-4 | `search_places` with injected `language="vi"` returns a panel whose descriptions are Vietnamese, a second identical call makes zero LLM calls, and a call without `language` is byte-identical to today | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc4.db ../../.venv/bin/python -m pytest tests/tools/test_place_tools_language.py -q` | exit 0 |
-| SC-5 | Hotel tools are deliberately unchanged (neither `HotelsPanelHotel` nor the FE hotel card carries a description, so tool-time localization would be unseen LLM cost); `search_hotels` / `browse_hotels` behave exactly as before | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools.py -q` | exit 0 |
+| SC-5 | `search_hotels` and `browse_hotels` with injected `language="vi"` return a panel whose hotel `description`s are Vietnamese (new panel field, rendered in the expanded FE card), a second call makes zero LLM calls, and a call without `language` is unchanged | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools_language.py tests/streaming/test_hotels_panel.py -q` | exit 0 |
 | SC-6 | The SSE path no longer calls an LLM for panels: `panel_localizer` keeps bounded swaps only, `mapper` has no translator, the compiled graph exposes no `translate_llm`; existing language/e2e stream tests pass | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc6.db ../../.venv/bin/python -m pytest tests/streaming/test_panel_localizer.py tests/streaming/test_mapper_language.py tests/streaming/test_panel_language_e2e.py tests/streaming/test_places_panel.py tests/streaming/test_hotels_panel.py tests/agents/test_graph_translate_handle.py -q` | exit 0 |
 | SC-7 | `seed_all` loads `app/data/content_translations.vi.json` when present (idempotent), and the generator script writes that file's shape from a fake translator | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc7.db ../../.venv/bin/python -m pytest tests/db/test_seed_translations.py -q` | exit 0 |
 | SC-8 | No `"vi"` / `"en"` literal remains in supervisor / state / events / mapper / panel_localizer | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc8.db ../../.venv/bin/python -m pytest tests/architecture/test_language_literals.py -q` | exit 0 |
@@ -129,19 +129,21 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
 - **Criteria:** SC-4
 - **Interfaces:** Consumes: `apps/api/app/services/content_translation_service.py` and LangGraph InjectedState (existing). Produces: `apps/api/app/tools/place_tools.py` (language-aware `search_places`).
 
-### Task 3.2 — Hotel tools: deferred, verified unchanged (wave 3)
+### Task 3.2 — Hotel panel gains `description`; `search_hotels` / `browse_hotels` localize at tool time (wave 3)
 
-- **Files:** apps/api/tests/tools/test_hotel_tools.py
-- **Action:** DEFERRED by decision during execution (SUMMARY § Deviations): the hotels panel
-  has no free-form text (`HotelsPanelHotel` and `HotelsPanel.tsx` both omit `description`), so
-  localizing it at tool time would spend LLM calls on text nobody sees. The store, service and
-  seed already accept `entity_type="hotel"`; wire `language` into `SearchHotelsArgs` /
-  `BrowseHotelsArgs` (pattern: Task 3.1) once the hotel panel shows a description. This task
-  only re-runs the existing hotel tool tests to prove nothing changed.
-- **Verify:** `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/t32.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools.py -q`
-- **Done:** hotel tool tests green; no hotel tool file touched
+- **Files:** apps/api/app/streaming/panels/hotels.py, apps/api/app/tools/hotel_tools.py, apps/api/scripts/generate_translations.py, apps/api/tests/streaming/test_hotels_panel.py, apps/api/tests/tools/test_hotel_tools_language.py, apps/web/src/lib/stream/panel.ts, apps/web/src/components/chat/panel/HotelsPanel.tsx, apps/web/src/components/chat/panel/HotelsPanel.test.tsx
+- **Action:** Initially deferred (the hotel panel carried no free-form text); the user then asked
+  for it. Add `description: str` to `HotelsPanelHotel` (both `from_hotels` / `from_catalog`) and
+  to the FE type; render it at the top of the expanded row in `HotelsPanel.tsx`. Add the
+  injected `language` to `SearchHotelsArgs` / `BrowseHotelsArgs` and both tools (pattern: Task
+  3.1); localize `["description"]` AFTER `rank_by_preference` (keyword features match English)
+  and before the panel projection. Add `"hotel"` to the generator's catalog map. Tool tests wipe
+  the seeded `content_translations` first (the checked-in vi file would otherwise hide the miss
+  path).
+- **Verify:** `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/t32.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools_language.py tests/tools/test_hotel_tools.py tests/streaming/test_hotels_panel.py -q`
+- **Done:** both tools localize; panel carries description; FE test shows it on expand; existing hotel tests green
 - **Criteria:** SC-5
-- **Interfaces:** Consumes: existing hotel tool tests. Produces: `apps/api/tests/tools/test_hotel_tools.py` (unchanged, re-run as proof).
+- **Interfaces:** Consumes: `apps/api/app/services/content_translation_service.py`. Produces: `apps/api/app/tools/hotel_tools.py` (language-aware `search_hotels`, `browse_hotels`), `apps/api/app/streaming/panels/hotels.py` (`description` field), `apps/web/src/components/chat/panel/HotelsPanel.tsx`.
 
 ### Task 3.3 — Remove the SSE-side translator; panels keep bounded swaps (wave 3)
 
@@ -185,4 +187,4 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
 ## 6. Status Log
 
 - 2026-09-05 — plan written after design approval.
-- 2026-09-05 — waves 1–4 implemented directly (single session); Task 3.2 deferred (hotel panel carries no description). `make test` 2120 passed / 5 pre-existing env failures.
+- 2026-09-05 — waves 1–4 implemented directly (single session); Task 3.2 first deferred (hotel panel carried no description), then done on user request with the panel field + FE card. vi seed file generated: 506 places + 183 hotels.

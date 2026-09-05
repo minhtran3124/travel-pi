@@ -62,11 +62,13 @@ the durable store and treats the LLM translator as its miss-path filler.
 
 ### Deviations
 
-- **Task 3.2 (hotel tools) not implemented — needs a user decision.** Neither
-  `HotelsPanelHotel` nor the FE `HotelsPanel.tsx` carries a `description`, so localizing it at
-  tool time would spend LLM calls on text nobody sees (rules/behavior.md §2, no speculative
-  code). The store/service/seed already accept `entity_type="hotel"`; wiring is a ~20-line
-  follow-up once the hotel panel shows a description (BE field + FE card).
+- **Task 3.2 was first deferred, then done on the user's request.** The hotel panel carried no
+  free-form text, so the first pass skipped it; the user asked to add `description` to the panel
+  and wire the tools. `HotelsPanelHotel.description` (BE + FE type), rendered in the expanded FE
+  row; `search_hotels` / `browse_hotels` localize after preference ranking. Generator now covers
+  hotels: 183/183 translated (689 rows total).
+- Rule 1: the tool language tests assumed an empty store; once the checked-in vi file was filled,
+  `seed_all` pre-populated it and hid the miss path. They now wipe `content_translations` first.
 - Rule 1: migration `down_revision` pointed at `f3b7c9d1e5a2` while main's head was `b2d9f4a7c1e8` (two heads); fixed to `b2d9f4a7c1e8` before merge. The offline round-trip test could not see it (it upgrades from the declared parent only) — `alembic heads` is now part of the deploy note.
 - Rule 2: `generate_translations.py` calls `reload_from_db` first; outside the app lifespan `AgentConfigCache` is empty and `get_agent_llm` would fall back to the env model.
 - Rule 3: `apps/api/scripts/` is gitignored; `generate_translations.py` added with `git add -f`
@@ -80,17 +82,18 @@ the durable store and treats the LLM translator as its miss-path filler.
 | table / migration round-trip / repo | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc2.db ../../.venv/bin/python -m pytest tests/db/test_content_translations_migration.py tests/repositories/test_content_translation_repo.py -q` | 0 | 5 passed (+ test_db_models table registry) | SC-2 |
 | localize service (batch, write-back, no-op, failure) | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc3.db ../../.venv/bin/python -m pytest tests/services/test_content_translation_service.py -q` | 0 | 8 passed | SC-3 |
 | search_places tool-time localization | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc4.db ../../.venv/bin/python -m pytest tests/tools/test_place_tools_language.py -q` | 0 | 4 passed (23 with existing place tool tests) | SC-4 |
-| hotel tools unchanged (Task 3.2 deferred) | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools.py -q` | 0 | existing suite, no hotel file touched | SC-5 |
+| hotel tools tool-time localization + panel description | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc5.db ../../.venv/bin/python -m pytest tests/tools/test_hotel_tools_language.py tests/streaming/test_hotels_panel.py -q` | 0 | 43 passed with the place/hotel tool suites | SC-5 |
+| FE hotel card shows description on expand | `cd apps/web && pnpm exec vitest run src/components/chat/panel/HotelsPanel.test.tsx` | 0 | 5 passed; `tsc --noEmit` and eslint exit 0 | SC-5 |
 | SSE path LLM-free, streaming suites | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc6.db ../../.venv/bin/python -m pytest tests/streaming/test_panel_localizer.py tests/streaming/test_mapper_language.py tests/streaming/test_panel_language_e2e.py tests/streaming/test_places_panel.py tests/streaming/test_hotels_panel.py tests/agents/test_graph_translate_handle.py -q` | 0 | part of 63 passed (tests/streaming + stream events) | SC-6 |
 | seed pre-fill + generator | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc7.db ../../.venv/bin/python -m pytest tests/db/test_seed_translations.py -q` | 0 | 3 passed (8 with test_seed) | SC-7 |
 | no language literals | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc8.db ../../.venv/bin/python -m pytest tests/architecture/test_language_literals.py -q` | 0 | 1 passed | SC-8 |
-| generate vi translations (dev container) | `docker exec api-api-1 python -m scripts.generate_translations --language vi` | 0 | wrote 506 rows; DB check: places 506 / rows 506 / untranslated 0 | SC-7 |
+| generate vi translations (dev container) | `docker exec api-api-1 python -m scripts.generate_translations --language vi` | 0 | re-run after hotels: wrote 689 rows; DB check: places 506 + hotels 183 = rows 689 / untranslated 0 | SC-7 |
 | full BE suite | `make test` | 2 | 2120 passed, 5 failed — identical pre-existing set on `main` (local `.env` provider keys: langfuse/openai/openrouteservice) | |
 
 ### Not auto-verified
 
 - Postgres: `alembic upgrade head` on a DB whose lifespan `create_all` already created the table fails with DuplicateTable — `alembic stamp head` there (done on the dev container). A fresh prod DB migrating before first boot upgrades cleanly (revision chain re-verified after fixing `down_revision` → `b2d9f4a7c1e8`; SQLite round-trip re-run).
-- Vietnamese text quality of the 506 generated rows — reached provenance (every row differs from its English source, none kept the source on failure); not reviewed by a human. The file is data: hand-edit and re-seed.
+- Vietnamese text quality of the 689 generated rows — reached provenance (every row differs from its English source, none kept the source on failure); not reviewed by a human. The file is data: hand-edit and re-seed.
 
 ### Rollback
 
