@@ -20,10 +20,10 @@ To add a panel kind — create ONE file, ``panels/<kind>.py``:
    projects the *service* response into it. Keep it lean: only what the drawer draws —
    the full tool result would bloat the persisted checkpoint.
 2. If it carries bounded English strings (categories, descriptions, amenities), add the
-   ``*_VI`` lookup table and an ``async def _localize_vi(data, translator) -> None`` that
+   ``*_VI`` lookup table and an ``async def _localize_vi(data) -> None`` that
    mutates ``data`` in place. Comment each table with the source of truth it must stay in
-   parity with — the parity tests key off that. Free-form prose goes through the injected
-   ``translator``; never call ``get_fast_llm()`` here.
+   parity with — the parity tests key off that. Free-form prose is NOT translated here:
+   the tool localizes it from the ``content_translations`` store before the panel is built.
 3. Call ``register_panel(PanelSpec(kind=..., localize_vi=...))`` at module scope
    (omit ``localize_vi`` when the panel has no translatable strings — it then deep-copies
    and localizes nothing).

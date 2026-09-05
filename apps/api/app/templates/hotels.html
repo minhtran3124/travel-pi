@@ -25,6 +25,7 @@
 </div>
 
 <form method="get" action="/dashboard/hotels" class="filter-bar">
+  <input type="hidden" name="lang" value="{{ lang }}">
   <label class="fg">
     <span class="fl">Search</span>
     <input type="search" name="q" value="{{ query }}" placeholder="Hotel name…">

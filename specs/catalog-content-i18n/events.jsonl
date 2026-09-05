@@ -1,0 +1,1 @@
+{"event": "run.init", "event_id": "73b38785-affb-4275-b03f-67f31870dae0", "from_state": null, "metadata": {}, "resume_event": null, "run_id": "eadafd6f-e388-4f42-b534-795716d05a4c", "seq": 1, "sha": null, "slug": "catalog-content-i18n", "to_state": "queued", "ts": "2026-09-05T03:07:59Z", "waiting_on": null}

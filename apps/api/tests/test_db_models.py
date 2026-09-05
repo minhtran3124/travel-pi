@@ -31,6 +31,7 @@ def test_all_tables_registered():
         "rate_limit_counters",
         "agent_runs",
         "agent_run_steps",
+        "content_translations",
     }
 
 

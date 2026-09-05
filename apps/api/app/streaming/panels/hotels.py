@@ -5,7 +5,7 @@ from __future__ import annotations
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import Hotel, HotelAvailability
 from app.services.hotel_service import total_rooms
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
 # Hotel amenity → Vietnamese. One entry per distinct seeded amenity in
 # ``app/data/hotels.py`` (parity-tested).
@@ -25,11 +25,10 @@ AMENITY_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
+async def _localize_vi(data: dict) -> None:
     """Swap each hotel's ``amenities`` list to Vietnamese in place.
 
     :param data: The already-deep-copied ``hotels`` panel data dict.
-    :param translator: Unused — ``hotels`` has no free-form prose.
     """
     for hotel in data.get("hotels") or []:
         if isinstance(hotel, dict) and isinstance(hotel.get("amenities"), list):
@@ -51,6 +50,7 @@ class HotelsPanelHotel(AppBaseModel):
     rating: float
     review_count: int
     amenities: list[str]
+    description: str
 
 
 class HotelsPanel(AppBaseModel):
@@ -111,6 +111,7 @@ class HotelsPanel(AppBaseModel):
                     rating=h.rating,
                     review_count=h.review_count,
                     amenities=h.amenities,
+                    description=h.description,
                 )
                 for h in hotels
             ],
@@ -154,6 +155,7 @@ class HotelsPanel(AppBaseModel):
                     rating=h.rating,
                     review_count=h.review_count,
                     amenities=h.amenities,
+                    description=h.description,
                 )
                 for h in hotels
             ],

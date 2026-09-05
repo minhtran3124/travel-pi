@@ -11,6 +11,7 @@ from app.db.models.airline import Airline
 from app.db.models.airport import Airport
 from app.db.models.booking import Booking
 from app.db.models.city import City
+from app.db.models.content_translation import ContentTranslation
 from app.db.models.conversation import Conversation
 from app.db.models.country import Country
 from app.db.models.expense import Expense
@@ -32,6 +33,7 @@ __all__ = [
     "AgentRun",
     "AgentRunStep",
     "Booking",
+    "ContentTranslation",
     "Conversation",
     "Message",
     "Job",

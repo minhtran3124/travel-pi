@@ -19,14 +19,13 @@ from langchain_core.messages import HumanMessage, ToolMessage
 
 
 class _FakeGraph:
-    """Replays scripted (ns, mode, data) tuples through ``astream`` and exposes
-    the ``translate_llm`` handle plus a persisted-state ``aget_state`` seed —
-    mirrors ``tests/streaming/test_mapper_language._FakeGraph``."""
+    """Replays scripted (ns, mode, data) tuples through ``astream`` with a
+    persisted-state ``aget_state`` seed — mirrors
+    ``tests/streaming/test_mapper_language._FakeGraph``."""
 
-    def __init__(self, items, *, values=None, translate_llm=None):
+    def __init__(self, items, *, values=None):
         self._items = items
         self._values = values or {}
-        self.translate_llm = translate_llm
 
     async def astream(self, stream_input, cfg, *, stream_mode, subgraphs, context=None):
         for item in self._items:
@@ -60,18 +59,10 @@ def _places_tool_msg() -> ToolMessage:
     )
 
 
-class _FakeTranslateLLM:
-    """Async stand-in for ``graph.translate_llm``: returns a ``VI:``-prefixed
-    echo of the last message content, exercising the ``ainvoke`` path."""
-
-    async def ainvoke(self, messages):
-        return SimpleNamespace(content="VI:" + messages[-1].content)
-
-
-def test_e2e_vi_full_path_translates_and_tags_language():
+def test_e2e_vi_full_path_localizes_and_tags_language():
     # Supervisor persists language=vi + concierge flow, then the sub-agent emits a
     # places panel. Bounded category swaps via the vi table; the free-form place
-    # description flows through the injected async translator.
+    # description passes through (search_places localized it at tool time).
     items = [
         (
             (),
@@ -83,7 +74,6 @@ def test_e2e_vi_full_path_translates_and_tags_language():
     graph = _FakeGraph(
         items,
         values={"language": "vi", "current_flow": "concierge"},
-        translate_llm=_FakeTranslateLLM(),
     )
     out = _run(graph)
 
@@ -91,7 +81,7 @@ def test_e2e_vi_full_path_translates_and_tags_language():
     assert len(panels) == 1
     panel = panels[0]
     place = panel["data"]["places"][0]
-    assert place["description"] == "VI:A cozy cafe."  # translated free-form prose
+    assert place["description"] == "A cozy cafe."  # prose untouched here
     assert place["category"] == CATEGORY_VI["cafe"]  # bounded lookup
     assert panel["language"] == "vi"
 
@@ -109,7 +99,6 @@ def test_e2e_en_path_is_byte_identical_and_tags_en():
     graph = _FakeGraph(
         items,
         values={"current_flow": "concierge"},
-        translate_llm=None,
     )
     out = _run(graph)
 
