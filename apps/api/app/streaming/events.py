@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from app.core.languages import DEFAULT_LANGUAGE
 from app.core.streaming import TypedSSEEvent
 
 #: Max length of the JSON-serialised tool args echoed to the client.
@@ -70,7 +71,7 @@ def tool_result(*, id: str, status: str) -> TypedSSEEvent:
 
 
 def panel(
-    *, tool_call_id: str, kind: str, data: Any, language: str = "en"
+    *, tool_call_id: str, kind: str, data: Any, language: str = DEFAULT_LANGUAGE
 ) -> TypedSSEEvent:
     return _event(
         "panel",
@@ -92,7 +93,7 @@ def done(
     conversation_id: str,
     current_flow: str | None,
     suggestions: list[str],
-    language: str = "en",
+    language: str = DEFAULT_LANGUAGE,
     trip_id: str | None = None,
     usage: dict | None = None,
 ) -> TypedSSEEvent:

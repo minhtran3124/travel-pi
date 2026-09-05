@@ -186,6 +186,12 @@
       white-space: nowrap; transition: color .15s, border-color .15s;
     }
     .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
+    /* Language switch in the top bar: the shared segmented pill, sized to the
+       30px theme buttons and tightened for two-letter labels. */
+    .seg.lang-seg { margin-left: 6px; height: 30px; }
+    .seg.lang-seg a { height: 30px; padding: 0 10px; font-size: 0.75rem; letter-spacing: .04em; }
+    /* Every control on the top bar shares the 30px theme-button height. */
+    .app-topbar .tab-ext { display: inline-flex; align-items: center; height: 30px; padding-top: 0; padding-bottom: 0; }
     .theme-btn:focus-visible { outline: none; box-shadow: var(--ring); }
     .theme-dot {
       width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
@@ -1049,6 +1055,16 @@
       <button type="button" id="palette-btn" class="theme-btn" title="Search & jump (⌘K)" aria-label="Open command palette">
         <span aria-hidden="true">⌘</span><span class="theme-name">K</span>
       </button>
+      {% if lang is defined %}
+      <nav class="seg lang-seg" aria-label="Catalog language">
+        {% for code in supported_languages %}
+          <a href="{{ request.url.include_query_params(lang=code) }}"
+             class="{{ 'on' if code == lang else '' }}"
+             aria-current="{{ 'true' if code == lang else 'false' }}"
+             title="{{ 'Tiếng Việt' if code == 'vi' else 'English' }}">{{ code | upper }}</a>
+        {% endfor %}
+      </nav>
+      {% endif %}
       <button type="button" id="theme-btn" class="theme-btn" title="Switch theme" aria-label="Switch theme">
         <span class="theme-dot" aria-hidden="true"></span><span class="theme-name">Sunset</span>
       </button>

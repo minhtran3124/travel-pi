@@ -1,8 +1,8 @@
 """Unit tests for the deterministic side-panel localizer (Task 1.3).
 
 Covers the ``en``/unknown identity no-op, ``vi`` deep-copy localization of the
-bounded lookup tables, the injected-translator path for free-form place prose
-(including its error fallback), and parity guards that keep each ``vi`` table
+bounded lookup tables, the pass-through of free-form place prose (localized at
+tool time, not here), and parity guards that keep each ``vi`` table
 complete against its English source.
 """
 
@@ -50,33 +50,20 @@ def test_vi_unknown_bounded_value_passes_through():
     assert out["current"]["description"] == "??"
 
 
-def test_vi_places_description_uses_translator():
-    calls = []
-
-    async def translator(text):
-        calls.append(text)
-        return "TRANSLATED:" + text
-
-    data = {"places": [{"description": "A cozy cafe.", "category": "cafe"}]}
-    out = asyncio.run(localize_panel("places", data, "vi", translator=translator))
-    assert out["places"][0]["description"] == "TRANSLATED:A cozy cafe."
+def test_vi_places_description_passes_through_untouched():
+    # Free-form prose is localized by search_places (content_translations
+    # store); the panel localizer only swaps the bounded category.
+    data = {"places": [{"description": "Quán cà phê ấm cúng.", "category": "cafe"}]}
+    out = asyncio.run(localize_panel("places", data, "vi"))
+    assert out["places"][0]["description"] == "Quán cà phê ấm cúng."
     assert out["places"][0]["category"] == CATEGORY_VI["cafe"]
-    assert calls == ["A cozy cafe."]
+    assert data["places"][0]["category"] == "cafe"  # deep-copied, source untouched
 
 
 def test_vi_places_top_level_category_localized():
     data = {"category": "restaurant", "places": []}
     out = asyncio.run(localize_panel("places", data, "vi"))
     assert out["category"] == CATEGORY_VI["restaurant"]
-
-
-def test_translator_error_falls_back_to_english():
-    async def boom(text):
-        raise RuntimeError("no llm")
-
-    data = {"places": [{"description": "A cozy cafe.", "category": "cafe"}]}
-    out = asyncio.run(localize_panel("places", data, "vi", translator=boom))
-    assert out["places"][0]["description"] == "A cozy cafe."
 
 
 def test_vi_air_quality_uses_forecast_key():

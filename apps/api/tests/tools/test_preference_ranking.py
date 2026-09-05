@@ -171,14 +171,21 @@ def test_search_hotels_preferences_hidden_from_schema():
     # state lacks the key (e.g. a bare subgraph invoke, or a future MCP-exposed
     # call that never went through load_context_node) — see MIN-65 task 6.2
     # follow-up fix. It must still be excluded from the model-facing schema.
-    assert set(fields) == set(SearchHotelsArgs.model_fields) - {"preferences"}
+    # `language` is injected the same way (specs/catalog-content-i18n).
+    assert set(fields) == set(SearchHotelsArgs.model_fields) - {
+        "preferences",
+        "language",
+    }
     assert "preferences" not in search_hotels.args
 
 
 def test_browse_hotels_preferences_hidden_from_schema():
     fields = _facing(browse_hotels)
     assert "preferences" not in fields
-    assert set(fields) == set(BrowseHotelsArgs.model_fields) - {"preferences"}
+    assert set(fields) == set(BrowseHotelsArgs.model_fields) - {
+        "preferences",
+        "language",
+    }
     assert "preferences" not in browse_hotels.args
 
 

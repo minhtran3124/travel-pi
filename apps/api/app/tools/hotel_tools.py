@@ -27,6 +27,7 @@ from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
+from app.services.content_translation_service import ContentTranslationService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
@@ -105,6 +106,12 @@ class SearchHotelsArgs(AppBaseModel):
         default="",
         description="Injected — never supplied by the model.",
     )
+    # Injected conversation language (TravelAgentState.language); hotel
+    # descriptions are localized to it at tool time (specs/catalog-content-i18n).
+    language: Annotated[str, InjectedState("language")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class BrowseHotelsArgs(AppBaseModel):
@@ -127,6 +134,12 @@ class BrowseHotelsArgs(AppBaseModel):
         ),
     )
     preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
+    # Injected conversation language (TravelAgentState.language); hotel
+    # descriptions are localized to it at tool time (specs/catalog-content-i18n).
+    language: Annotated[str, InjectedState("language")] = Field(
         default="",
         description="Injected — never supplied by the model.",
     )
@@ -178,6 +191,7 @@ def search_hotels(
     max_price: float | None = None,
     amenities: list[str] | None = None,
     preferences: Annotated[str, InjectedState("preferences")] = "",
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Search hotels in a city with room availability for specific dates.
 
@@ -286,6 +300,10 @@ def search_hotels(
             )
             if matched_reasons:
                 summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
+            # After ranking (keyword features match the English text), before the panel.
+            results = ContentTranslationService(s).localize(
+                "hotel", results, ["description"], language
+            )
             return panel_result(
                 summary,
                 kind="hotels",
@@ -306,6 +324,7 @@ def browse_hotels(
     max_price: float | None = None,
     amenities: list[str] | None = None,
     preferences: Annotated[str, InjectedState("preferences")] = "",
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Answer hotel info/search questions — price, location, amenities, rating — with no dates.
 
@@ -385,6 +404,9 @@ def browse_hotels(
             )
             if matched_reasons:
                 summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
+            results = ContentTranslationService(s).localize(
+                "hotel", results, ["description"], language
+            )
             return panel_result(
                 summary,
                 kind="hotels",

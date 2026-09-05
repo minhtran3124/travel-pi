@@ -4,8 +4,7 @@ A sub-agent shares the parent's state schema, so ``astream(subgraphs=True)``
 surfaces its ``ToolMessage`` twice per turn (subgraph ``tools`` node + parent
 sub-agent node) and the parent-level delta carries the thread's WHOLE
 ``messages`` list — prior turns' tool calls/results included. Each replay used
-to become a fresh ``tool_call`` activity step, a ``panel`` (with one translator
-call per place under ``vi``) and a ``tool_result``.
+to become a fresh ``tool_call`` activity step, a ``panel`` and a ``tool_result``.
 """
 
 from __future__ import annotations
@@ -19,10 +18,9 @@ from langchain_core.messages import AIMessage, ToolMessage
 
 
 class _FakeGraph:
-    def __init__(self, items, *, values=None, translate_llm=None):
+    def __init__(self, items, *, values=None):
         self._items = items
         self._values = values or {}
-        self.translate_llm = translate_llm
 
     async def astream(self, stream_input, cfg, *, stream_mode, subgraphs, context=None):
         for item in self._items:
@@ -30,15 +28,6 @@ class _FakeGraph:
 
     async def aget_state(self, cfg):
         return SimpleNamespace(interrupts=(), values=self._values)
-
-
-class _CountingTranslator:
-    def __init__(self):
-        self.calls = 0
-
-    async def ainvoke(self, messages):
-        self.calls += 1
-        return SimpleNamespace(content="VI:" + messages[-1].content)
 
 
 def _run(graph):
@@ -109,17 +98,13 @@ def test_thread_history_is_not_replayed_as_new_tool_events():
         ),
     ]
     graph = _FakeGraph(
-        items,
-        values={"messages": [old_call, old_result], "language": "vi"},
-        translate_llm=_CountingTranslator(),
+        items, values={"messages": [old_call, old_result], "language": "vi"}
     )
     out = _run(graph)
 
     assert _counts(out) == {"tool_call": 1, "panel": 1, "tool_result": 1}
     assert [d["id"] for e, d in out if e == "tool_call"] == ["c-new"]
     assert [d["tool_call_id"] for e, d in out if e == "panel"] == ["c-new"]
-    # One translator call per place of the NEW panel — not multiplied by replays.
-    assert graph.translate_llm.calls == 4
 
 
 def test_history_message_without_id_is_still_deduped_by_tool_call_id():

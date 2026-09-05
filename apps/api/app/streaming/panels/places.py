@@ -2,13 +2,9 @@
 
 from __future__ import annotations
 
-import logging
-
 from app.schemas.base import AppBaseModel
 from app.schemas.place import Place
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
-
-logger = logging.getLogger(__name__)
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
 # Place category → Vietnamese. One entry per KEY of ``CATEGORY_META`` in
 # ``app/services/place_service.py`` (parity-tested).
@@ -22,29 +18,20 @@ CATEGORY_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
-    """Swap ``category`` fields to Vietnamese and translate free-form ``description``.
+async def _localize_vi(data: dict) -> None:
+    """Swap ``category`` fields to Vietnamese.
 
-    An absent ``translator`` leaves the English ``description`` in place; a
-    translator failure is logged and also leaves the English text in place
-    (never crashes the panel emission on a translation failure).
+    Free-form ``description`` is NOT touched here: ``search_places`` localizes
+    it at tool time from the ``content_translations`` store
+    (specs/catalog-content-i18n), so the panel already carries the right text.
 
     :param data: The already-deep-copied ``places`` panel data dict.
-    :param translator: Injected translator for free-form place prose; never
-        falls back to an LLM call here.
     """
     if isinstance(data.get("category"), str):
         data["category"] = _swap(data["category"], CATEGORY_VI)
     for place in data.get("places") or []:
-        if not isinstance(place, dict):
-            continue
-        place["category"] = _swap(place.get("category"), CATEGORY_VI)
-        desc = place.get("description")
-        if translator and isinstance(desc, str) and desc:
-            try:
-                place["description"] = await translator(desc)
-            except Exception as e:  # noqa: BLE001
-                logger.error("[PANELS_PLACES] translate failed: %s", e)
+        if isinstance(place, dict):
+            place["category"] = _swap(place.get("category"), CATEGORY_VI)
 
 
 class PlacesPanelPlace(AppBaseModel):

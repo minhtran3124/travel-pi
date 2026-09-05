@@ -4,10 +4,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** sse-tool-event-thread-replay
+- **Slug:** agent-budget-trip-context
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** direct patch (tiny-style, user-requested)
-- **Last action:** mapper patched + regression test on branch fix/sse-tool-event-thread-replay; make test 2096 pass / 5 pre-existing env failures; uncommitted, awaiting commit/PR
+- **Last skill:** direct implementation (waves 1-4)
+- **Last action:** catalog-content-i18n waves 1-4 on feat/catalog-content-i18n (stacked on PR #140); Task 3.2 hotels deferred (no description in hotel panel); make test 2120 pass / 5 pre-existing; PR pending
 - **Updated:** 2026-09-05
 
 ## Recent Specs
@@ -16,6 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
+| catalog-content-i18n | 2026-09-05 | design | paused — design.md has 4 open questions awaiting user approval (superseded as active by agent-budget-trip-context) |
 
 ## Notes
 
