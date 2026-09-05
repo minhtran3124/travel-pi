@@ -1,0 +1,70 @@
+{
+  "reviewed_head_sha": "dcee1579909592ad0f18c03f155e94ae4fad407c",
+  "created": "2026-09-05T16:30:42+07:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "JWT session module + guard swap. 2 Minor found (create_session_token missing configured-gate; stray function-local import), both fixed 49bdc2a."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "login.html + logout form. Spec pass; quality needs_fixes on first pass (invalid `font: <weight> <size> inherit` CSS shorthand, dropped by the browser) -- fixed and re-verified 49bdc2a."
+    },
+    {
+      "reviewer": "task-review-2.1",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "DashboardLoginRequired handler + shared client fixture override + two per-Settings test rewrites. Zero findings."
+    },
+    {
+      "reviewer": "task-review-2.2",
+      "type": "task-2.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Login/logout router. Zero findings; SC-3's own -k selector deselected everything pending Task 3.1, as designed."
+    },
+    {
+      "reviewer": "task-review-3.1",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Ten-case guard test rewrite (24 tests). All five PLAN -k selectors collect >=1 test, no naming leakage. Zero findings."
+    },
+    {
+      "reviewer": "task-review-3.2",
+      "type": "task-3.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Startup warning + .env.example docs. Zero findings."
+    },
+    {
+      "reviewer": "correctness-review",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Six-angle find (enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art) + independent score, threshold 75. 4 deduplicated candidates, all scored below threshold (25, 25, 25, 50) -- none entered the fix loop. The two highest-value ones (login.html Host-header form action, login_form dependency-override bypass) were independently re-raised and fixed by intent-review instead; recorded in SUMMARY ### Advisory Findings."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Plan-blind against the verbatim request plus the user's C / approach-3 / fastapi-correctness clarifications. First pass found 8 divergences; 6 fixed (host-header form action, DI-based already-signed-in dependency, authenticate() timing side-channel, stale APIS.md, missing SUMMARY note, dead next context key) in 7d5c9b9. Re-review found 3 more low-severity record/wording issues (dead next query param, misleading lockout-warning wording, a SUMMARY paragraph that pre-asserted its own verdict), fixed in bde7aa2/a0c2dc0/9d75738/dcee157. Final holistic re-review: zero remaining code divergence from intent. One item (OAuth2PasswordRequestForm for an HTML form) left as advisory -- deliberate design-review choice, behaviorally equivalent. One item (prod now shows a locked page instead of 404) is documented design decision D1/D4, not a defect."
+    }
+  ]
+}
