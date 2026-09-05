@@ -51,3 +51,14 @@ def test_create_trip_excluded_but_other_trip_tools_exposed():
     # `tool_call_id` — cannot be served over MCP.
     assert "create_trip" not in names
     assert "get_trip_summary" in names
+
+
+def test_budget_tools_exposed():
+    """estimate_trip_budget (readOnly) and set_trip_budget (write, non-destructive)
+    are served over MCP (specs/agent-budget-trip-context SC-7)."""
+    from app.mcp.server import build_mcp_server
+
+    tools = {t.name: t for t in _list_tools(build_mcp_server())}
+    assert tools["estimate_trip_budget"].annotations.readOnlyHint is True
+    assert tools["set_trip_budget"].annotations.readOnlyHint is False
+    assert tools["set_trip_budget"].annotations.destructiveHint is False

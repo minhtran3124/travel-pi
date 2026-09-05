@@ -45,6 +45,8 @@ _TOOL_CASES = [
     ("list_trip_places", {}),
     ("add_place_to_trip", {"place_id": "PLC-0001"}),
     ("add_itinerary_item", {"day": 1, "title": "x"}),
+    ("estimate_trip_budget", {}),
+    ("set_trip_budget", {"flights": 100}),
 ]
 
 
