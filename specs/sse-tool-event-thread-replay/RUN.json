@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-04T22:56:33Z",
+  "last_event_id": "e4a20881-cbcb-4c15-86aa-fe776711ba3b",
+  "resume_event": null,
+  "run_id": "b4f397f4-a874-4ba4-ad05-ac90135a4bd0",
+  "seq": 3,
+  "sha": null,
+  "slug": "sse-tool-event-thread-replay",
+  "state": "planning",
+  "updated_at": "2026-09-04T22:56:36Z",
+  "waiting_on": null
+}

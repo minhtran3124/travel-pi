@@ -118,11 +118,26 @@ async def stream_agent_events(
     # skips the supervisor and never emits a language delta) still tags its
     # panels/done with the persisted language. Best-effort — default en.
     current_language = "en"
+    # Ids of every message (and tool call) already on the thread BEFORE this
+    # turn. A sub-agent shares the parent's state schema, so the parent-level
+    # update for its node carries the thread's WHOLE ``messages`` list — every
+    # prior turn's tool calls and tool results would otherwise be re-emitted as
+    # new ``tool_call`` / ``panel`` / ``tool_result`` events on every turn
+    # (one extra activity step + one extra panel localization per past search).
+    prior_msg_ids: set[str] = set()
+    prior_tool_call_ids: set[str] = set()
     try:
         _pre = await graph.aget_state(cfg)
         pre_lang = _pre.values.get("language") if _pre and _pre.values else None
         if isinstance(pre_lang, str) and pre_lang:
             current_language = pre_lang
+        for m in _as_message_list((_pre.values or {}).get("messages")) if _pre else []:
+            mid = getattr(m, "id", None)
+            if isinstance(mid, str) and mid:
+                prior_msg_ids.add(mid)
+            for tc in getattr(m, "tool_calls", None) or []:
+                if tc.get("id"):
+                    prior_tool_call_ids.add(tc["id"])
     except Exception:  # noqa: BLE001 — best-effort seed; default en
         pass
 
@@ -142,7 +157,11 @@ async def stream_agent_events(
 
     current_subagent: str | None = None
     last_msg_id: str | None = None
-    emitted_tool_calls: set[str] = set()
+    emitted_tool_calls: set[str] = set(prior_tool_call_ids)
+    # The same ToolMessage is seen twice per turn (the subgraph's ``tools`` node
+    # and the parent's sub-agent node); emit its panel/result once, like
+    # ``emitted_tool_calls`` does for the call.
+    emitted_tool_results: set[str] = set(prior_tool_call_ids)
     emitted_token: bool = False
     synthesize_answer_emitted: bool = False
 
@@ -238,6 +257,8 @@ async def stream_agent_events(
                         node_name in _TERMINAL_TEXT_NODES and not subagent_name
                     )
                     for msg in _as_message_list(delta.get("messages")):
+                        if getattr(msg, "id", None) in prior_msg_ids:
+                            continue  # thread history replayed by a subgraph update
                         if isinstance(msg, AIMessage) and msg.tool_calls:
                             for tc in msg.tool_calls:
                                 tc_id = tc.get("id") or ""
@@ -251,6 +272,9 @@ async def stream_agent_events(
                                     subagent=subagent_name,
                                 )
                         elif isinstance(msg, ToolMessage):
+                            if msg.tool_call_id in emitted_tool_results:
+                                continue
+                            emitted_tool_results.add(msg.tool_call_id)
                             # Panel-capable tools (response_format=content_and_artifact)
                             # carry a {"kind","data"} artifact for the side-panel drawer;
                             # surface it before the status pill. Plain tools have none.
