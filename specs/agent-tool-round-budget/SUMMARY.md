@@ -75,13 +75,14 @@ the no-trip path must still block, deterministically, exactly as GH-113 establis
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| guard skipped when it cannot block | `.venv/bin/python -m pytest apps/api/tests/agents/test_trip_guard.py -q -k skips_guard` | 0 | run from repo root at 0f99ade | SC-1 |
+| guard skipped when it cannot block | `.venv/bin/python -m pytest apps/api/tests/agents/test_trip_guard.py -q -k skips_guard` | 0 | run from repo root at fec810d (final, after fix-loop) | SC-1 |
 | no-trip blocking path unchanged | `.venv/bin/python -m pytest apps/api/tests/agents/test_trip_guard.py -q` | 0 | 15 tests, includes 2 new | SC-2 |
 | 10-round turn fits recursion budget | `.venv/bin/python -m pytest apps/api/tests/agents/test_trip_guard.py -q -k round_budget` | 0 | inline test tool, no DB | SC-3 |
 | existing 7-tool-chain headroom golden | `.venv/bin/python -m pytest apps/api/tests/agents/test_plan_everything.py -q` | 0 | unmodified | SC-4 |
 | planner v12 batching instruction | `.venv/bin/python -m pytest apps/api/tests/prompts/test_planner_prompt.py -q` | 0 | content-only, no version pin | SC-5 |
 | static node-name coverage unaffected | `.venv/bin/python -m pytest apps/api/tests/agents/test_prompt_map.py apps/api/tests/agents/test_agent_config_coverage.py -q` | 0 | 27 tests | SC-6 |
 | lint | `ruff check apps/api/app/agents/subagents/_base.py apps/api/app/prompts/planner apps/api/tests/agents/test_trip_guard.py apps/api/tests/prompts/test_planner_prompt.py` | 0 | | SC-7 |
+| deterministic item order regression | `.venv/bin/python -m pytest apps/api/tests/repositories/test_trip_repository.py apps/api/tests/api/trip apps/api/tests/tools/test_trip_tools.py -q` | 0 | 169+ passed | |
 | intake evidence | `grep -n "trip_guard" apps/api/app/agents/subagents/_base.py` | 0 | pre-change: guard was a node visited every round | |
 
 ### Advisory Findings (correctness review, below threshold or unmodified-line — not auto-fixed)
