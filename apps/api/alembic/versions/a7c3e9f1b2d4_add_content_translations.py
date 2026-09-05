@@ -1,7 +1,7 @@
 """add content_translations — language-keyed catalog text
 
 Revision ID: a7c3e9f1b2d4
-Revises: f3b7c9d1e5a2
+Revises: b2d9f4a7c1e8
 Create Date: 2026-09-05 06:30:00.000000
 
 Additive. Creates the ``content_translations`` table (specs/catalog-content-i18n)
@@ -15,7 +15,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "a7c3e9f1b2d4"
-down_revision: str | Sequence[str] | None = "f3b7c9d1e5a2"
+down_revision: str | Sequence[str] | None = "b2d9f4a7c1e8"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

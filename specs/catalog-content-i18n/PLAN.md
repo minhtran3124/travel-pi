@@ -16,7 +16,7 @@ Decisions in `design.md` (§ Decisions, user-approved 2026-09-05); local map in 
   guard `OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/<x>.db ../../.venv/bin/python -m pytest … -q`
   (empty key, not `env -u`: dotenv would win). Never the whole suite in a row.
 - Additive schema only: one new table `content_translations`, one Alembic revision with
-  `down_revision = "f3b7c9d1e5a2"`, `downgrade` drops the table. No existing column touched.
+  `down_revision = "b2d9f4a7c1e8"`, `downgrade` drops the table. No existing column touched.
 - Language codes come only from `app/core/languages.py`; no new `"en"` / `"vi"` literal outside
   that module, its tests, and the `vi` lookup tables already in `app/streaming/panels/*.py`.
 - The translator LLM is resolved with `get_agent_llm("extract_memory")` (existing config name);
@@ -82,7 +82,7 @@ languages beyond `en`/`vi` (the table supports them, nothing else is wired).
   `language: str`, `text: Text`, `source: str` (`"seed" | "llm"`), `updated_at: str`, with
   `UniqueConstraint("entity_type","entity_id","field","language", name="uq_content_translations_key")`
   and an index on `(entity_type, language)`. Export from `models/__init__.py`. Alembic revision
-  `a7c3e9f1b2d4` (`down_revision="f3b7c9d1e5a2"`), additive, mirrors `e3b7c5d9a1f4` style; downgrade
+  `a7c3e9f1b2d4` (`down_revision="b2d9f4a7c1e8"`), additive, mirrors `e3b7c5d9a1f4` style; downgrade
   drops the table. Repo `ContentTranslationRepo(Repo)`: `get_many(entity_type, entity_ids, fields, language) -> dict[tuple[str,str], str]`
   keyed `(entity_id, field)` (single `IN` query) and `upsert_many(rows: list[dict])` (merge by the unique
   key; flush in live-session mode, commit in factory mode per `Repo`). Migration test follows

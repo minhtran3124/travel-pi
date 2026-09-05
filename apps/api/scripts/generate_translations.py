@@ -22,6 +22,7 @@ import argparse
 import json
 from pathlib import Path
 
+from app.core.agent_config_cache import reload_from_db
 from app.core.config import get_settings
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 from app.db import models
@@ -100,6 +101,9 @@ def main() -> None:
     )
     args = parser.parse_args()
     factory = get_session_factory(get_settings().database_url)
+    # Outside the app lifespan the per-agent config cache is empty and
+    # get_agent_llm would fall back to the env model; load the DB rows first.
+    reload_from_db(factory)
     rows = generate(factory, args.language)
     path = write(rows, args.language)
     print(f"wrote {len(rows)} rows to {path}")

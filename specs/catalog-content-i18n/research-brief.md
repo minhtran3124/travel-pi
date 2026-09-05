@@ -19,7 +19,7 @@ Depth: **Deep** (intake lane high-risk: additive schema via Alembic). No upgrade
 | Tool-side LLM call | `app/tools/date_tools.py::_parse_via_llm` → `get_agent_llm("date_resolution")` | precedent for an LLM call inside a tool; **a NEW agent-config name must be seeded with a model or it 403s in Docker** (`docs/solutions/agent/new-agent-config-node-seeds-null-model.md`) → reuse `extract_memory` |
 | Sessions in tools | `app/tools/_base.py::session_scope` | tool owns a short-lived session; write-back of translations fits here |
 | Repo conventions | `app/repositories/base.py::Repo` (Session or sessionmaker) | new repo follows it |
-| Migrations | `alembic/versions/` head `f3b7c9d1e5a2`; additive template `e3b7c5d9a1f4_add_agent_runs.py` | new revision `down_revision="f3b7c9d1e5a2"`, String ids/timestamps like siblings |
+| Migrations | `alembic/versions/` head `b2d9f4a7c1e8`; additive template `e3b7c5d9a1f4_add_agent_runs.py` | new revision `down_revision="b2d9f4a7c1e8"`, String ids/timestamps like siblings |
 | Seed | `app/db/seed.py::seed_all` (idempotent `merge`) | add an optional translations pass reading a checked-in JSON |
 | FE locales | `apps/web/src/i18n/config.ts` `locales = ["en","vi"]` | BE constant must parity-test against this file |
 | Panel parity tests | `tests/streaming/test_places_panel.py` (CATEGORY_VI ↔ CATEGORY_META) | pattern for the languages parity test |

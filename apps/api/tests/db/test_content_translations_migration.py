@@ -13,7 +13,7 @@ from sqlalchemy.engine import make_url
 API_ROOT = Path(__file__).resolve().parents[2]
 TABLE = "content_translations"
 REVISION = "a7c3e9f1b2d4"
-DOWN_REVISION = "f3b7c9d1e5a2"
+DOWN_REVISION = "b2d9f4a7c1e8"
 
 
 def _isolated_migration_url(

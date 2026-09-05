@@ -46,7 +46,7 @@ Branch `feat/catalog-content-i18n` (stacked on `fix/sse-tool-event-thread-replay
   translator closure and `graph.translate_llm` are gone.
 - `seed_all` upserts `app/data/content_translations.<lang>.json` (`source="seed"`);
   `scripts/generate_translations.py --language vi` fills that file from the seeded catalog
-  (manual step, needs a real key — NOT run here; the checked-in file is `[]`).
+  — run in the dev container on 2026-09-05: 506/506 place descriptions translated by `gpt-5.4-mini` (extract_memory config), 0 translator failures; the file is checked in.
 
 ### Rationale
 
@@ -67,6 +67,8 @@ the durable store and treats the LLM translator as its miss-path filler.
   tool time would spend LLM calls on text nobody sees (rules/behavior.md §2, no speculative
   code). The store/service/seed already accept `entity_type="hotel"`; wiring is a ~20-line
   follow-up once the hotel panel shows a description (BE field + FE card).
+- Rule 1: migration `down_revision` pointed at `f3b7c9d1e5a2` while main's head was `b2d9f4a7c1e8` (two heads); fixed to `b2d9f4a7c1e8` before merge. The offline round-trip test could not see it (it upgrades from the declared parent only) — `alembic heads` is now part of the deploy note.
+- Rule 2: `generate_translations.py` calls `reload_from_db` first; outside the app lifespan `AgentConfigCache` is empty and `get_agent_llm` would fall back to the env model.
 - Rule 3: `apps/api/scripts/` is gitignored; `generate_translations.py` added with `git add -f`
   like the sibling scripts.
 
@@ -82,16 +84,17 @@ the durable store and treats the LLM translator as its miss-path filler.
 | SSE path LLM-free, streaming suites | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc6.db ../../.venv/bin/python -m pytest tests/streaming/test_panel_localizer.py tests/streaming/test_mapper_language.py tests/streaming/test_panel_language_e2e.py tests/streaming/test_places_panel.py tests/streaming/test_hotels_panel.py tests/agents/test_graph_translate_handle.py -q` | 0 | part of 63 passed (tests/streaming + stream events) | SC-6 |
 | seed pre-fill + generator | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc7.db ../../.venv/bin/python -m pytest tests/db/test_seed_translations.py -q` | 0 | 3 passed (8 with test_seed) | SC-7 |
 | no language literals | `cd apps/api && OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/sc8.db ../../.venv/bin/python -m pytest tests/architecture/test_language_literals.py -q` | 0 | 1 passed | SC-8 |
+| generate vi translations (dev container) | `docker exec api-api-1 python -m scripts.generate_translations --language vi` | 0 | wrote 506 rows; DB check: places 506 / rows 506 / untranslated 0 | SC-7 |
 | full BE suite | `make test` | 2 | 2120 passed, 5 failed — identical pre-existing set on `main` (local `.env` provider keys: langfuse/openai/openrouteservice) | |
 
 ### Not auto-verified
 
-- Docker/Postgres: `alembic upgrade head` applies `a7c3e9f1b2d4` — reached traceability (revision chain checked, SQLite round-trip re-run); not re-run on Postgres (`make test-docker` tears down the running dev stack).
-- `scripts/generate_translations.py` against a real LLM — reached traceability (shape-tested with a fake translator); not run (needs a provider key; the checked-in `vi` file is empty, so prod pays one batched call per cold place set until it is run).
+- Postgres: `alembic upgrade head` on a DB whose lifespan `create_all` already created the table fails with DuplicateTable — `alembic stamp head` there (done on the dev container). A fresh prod DB migrating before first boot upgrades cleanly (revision chain re-verified after fixing `down_revision` → `b2d9f4a7c1e8`; SQLite round-trip re-run).
+- Vietnamese text quality of the 506 generated rows — reached provenance (every row differs from its English source, none kept the source on failure); not reviewed by a human. The file is data: hand-edit and re-seed.
 
 ### Rollback
 
-- `cd apps/api && ../../.venv/bin/alembic downgrade f3b7c9d1e5a2` (drops `content_translations` only; no existing column touched), then `git revert` the branch commits (e5f3543, bffc378, and the wave-4 commit).
+- `cd apps/api && ../../.venv/bin/alembic downgrade b2d9f4a7c1e8` (drops `content_translations` only; no existing column touched), then `git revert` the branch commits (e5f3543, bffc378, and the wave-4 commit).
 
 ### Harness-Delta
 
