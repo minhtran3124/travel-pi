@@ -89,7 +89,13 @@ def authenticate(username: str, password: str) -> bool:
 
 
 def create_session_token(username: str, now: datetime | None = None) -> str:
-    """Issue the session JWT for ``username`` (``exp`` = ``iat`` + 12 h)."""
+    """Issue the session JWT for ``username`` (``exp`` = ``iat`` + 12 h).
+
+    :raises DashboardLoginRequired: when credentials are not configured, so a
+        weak or missing secret never reaches ``jwt.encode``.
+    """
+    if not credentials_configured():
+        raise DashboardLoginRequired("Dashboard login is not configured.")
     issued = now or datetime.now(UTC)
     claims = {"sub": username, "iat": issued, "exp": issued + SESSION_TTL}
     return jwt.encode(claims, get_settings().dashboard_secret_key, algorithm=_ALGORITHM)

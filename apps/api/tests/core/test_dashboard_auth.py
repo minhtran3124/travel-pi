@@ -12,6 +12,7 @@ import jwt
 import pytest
 from app.core import dashboard_auth as da
 from app.core.config import Settings
+from app.exceptions import AuthError
 from fastapi import Response
 from starlette.requests import Request
 
@@ -212,7 +213,6 @@ def test_malformed_token_rejected(configured, raw):
 
 
 def test_login_required_is_an_auth_error():
-    from app.exceptions import AuthError
 
     assert issubclass(da.DashboardLoginRequired, AuthError)
     assert da.DashboardLoginRequired().status_code == 401
