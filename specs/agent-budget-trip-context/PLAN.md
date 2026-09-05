@@ -1,6 +1,6 @@
 ---
 slug: agent-budget-trip-context
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-05
 ---
@@ -215,3 +215,4 @@ resolved by the user at intake):
 - 2026-09-05 — tasks 1.1, 1.2, 1.3 complete; commits 2540922, 9714e88, 2105241. Per-task reviews: all spec pass / quality approved. Minor findings (non-blocking, forwarded to final review): 1.1 buffer cap docstring does not say the contingency % is folded in; 1.1 inverted dates map to 1 night (TripCreate._check_dates already rejects end<start); 1.2 v10 budget clause unbolded vs brief; 1.2 v2 "Don't estimate totals" vs v3 "estimate tool does it" guardrail tension (plan artefact — merge in v4 if goldens show reluctance); 1.2 versions test keeps a harmless `[1, 2]` prefix pin.
 - 2026-09-05 — task 2.1 complete; commit eff78c5. Review: spec pass / quality approved. Minor: one ruff-format reflow hunk in test_tool_registry.py (formatter-induced, accepted); registry.py diff is 12+/2− (formatter wrap) with exactly the 3 mandated semantic hunks. Controller re-ran Verify: 94 passed. Final review chain started over b7518b1..eff78c5.
 - 2026-09-05 — final review chain complete. Correctness: 6 FIND angles, 6 deduped locations, 1 fix-loop finding (score 75) + 1 Rule-2 guard + 1 prior-art prompt fix across 3 rounds (be6a715, 30c7a2a, 625d9b2), re-reviewed clean. Intent: pass after drift #1 fixed; 4 advisory recorded in SUMMARY. Receipt written at 625d9b2. Next: finishing-a-development-branch.
+- 2026-09-05 — shipped: full BE suite 2132 passed (3 failures in tests/core are .env artefacts: pass with .env removed; files untouched by this branch); receipt gate green; PR opened against main.
