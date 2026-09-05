@@ -3,6 +3,33 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-budget-trip-context — budget agent reads the trip and sets caps
+
+specs/agent-budget-trip-context: "pls set simple budget for trip" made the **budget** agent
+ask "how many days is your trip?" — it was bound to `EXPENSE_TOOLS + get_trip_budget` only,
+could not read the trip's dates/travelers, and no agent tool set a budget, so the model
+improvised per-day arithmetic (breaking its own "Don't estimate totals" guardrail). The
+code half binds `get_trip_summary` into the budget domain and adds two tools:
+`estimate_trip_budget` (read-only; derives `nights` from the trip's dates, returns
+`suggested_caps` per category + `assumptions`, or `{"error": "trip_dates_unknown"}` when
+the trip has no dates) and `set_trip_budget` (write; REPLACES all four caps
+flights/hotels/activities/buffer).
+
+- **budget v3** — copied v2, then extended "## How to Work": call `get_trip_summary`
+  first (dates, travelers, existing caps); for "set / plan a (simple) budget" call
+  `estimate_trip_budget` (pass `nights` only if the traveller stated it), present the
+  `suggested_caps` with the `assumptions` and ask to confirm or adjust; call
+  `set_trip_budget` only after explicit confirmation and say it replaces all caps; ask
+  "how many nights / what dates" ONLY on `trip_dates_unknown`. One guardrail added:
+  "Never compute per-day or total figures yourself — the estimate tool does it." No v2
+  content was removed.
+- **supervisor v10** — copied v9; the **budget** bullet now also covers "setting /
+  estimating the trip's budget caps" (previously planner v11's "budget caps" wording could
+  attract the request), plus one routing example: "Set a simple budget for my trip" →
+  **budget**. No other edits.
+
+`active.yaml`: budget → 3, supervisor → 10. Others unchanged.
+
 ## multi-intent-single-path — `plan` is independent-parallel-only; single-specialist chains stay single (wave 1)
 
 specs/multi-intent-single-path (decision A): the runtime is parallel-only — `route_tasks`

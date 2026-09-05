@@ -52,6 +52,15 @@ def test_detects_injected_trip_id_tools():
     assert "search_flights" not in needing
 
 
+def test_budget_agent_guards_new_budget_tools():
+    """The budget agent's guard covers estimate_trip_budget / set_trip_budget
+    (specs/agent-budget-trip-context SC-5) — the agent path, not only ToolNode."""
+    needing = _tools_needing_trip(get_tools_for("budget"))
+
+    assert "estimate_trip_budget" in needing
+    assert "set_trip_budget" in needing
+
+
 # ---------------------------------------------------------------------------
 # Pass-through cases
 # ---------------------------------------------------------------------------

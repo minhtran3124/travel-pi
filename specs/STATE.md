@@ -4,10 +4,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** agent-budget-trip-context
+- **Slug:** agent-tool-round-budget
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** direct implementation (waves 1-4)
-- **Last action:** catalog-content-i18n waves 1-4 on feat/catalog-content-i18n (stacked on PR #140); Task 3.2 hotels deferred (no description in hotel panel); make test 2120 pass / 5 pre-existing; PR pending
+- **Last skill:** subagent-driven-development → finishing-a-development-branch
+- **Last action:** PR #143 open against main from worktree .worktrees/feat-agent-tool-round-budget (branch feat/agent-tool-round-budget); receipt + verify_summary green; run_state at ready_to_merge. agent-budget-trip-context (PR #142) still open against main, primary checkout still on that branch — awaiting review/merge on both PRs. Open decisions for #143 in SUMMARY Advisory Findings (retry-induced duplicate writes, batching vs create-trip ordering).
 - **Updated:** 2026-09-05
 
 ## Recent Specs
@@ -16,7 +16,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| catalog-content-i18n | 2026-09-05 | design | paused — design.md has 4 open questions awaiting user approval (superseded as active by agent-budget-trip-context) |
+| agent-tool-round-budget | 2026-09-05 | review | PR #143 open → main |
+| agent-budget-trip-context | 2026-09-05 | review | PR #142 open → main |
+| agent-budget-trip-context | 2026-09-05 | review | PR #142 open → main |
+| catalog-content-i18n | 2026-09-05 | shipped | merged via PR #141 → main |
 
 ## Notes
 
@@ -1445,5 +1448,12 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: d68b2f39-6251-4dc5-9b95-7a6a7efecb8a
 - exit: 
 - last_commit: 8458a8f Merge pull request #139 from minhtran3124/chore/backfill-spec-bookkeeping
+- user_turns: 0
+
+
+### 2026-09-05T08:41:10Z
+- session_id: 81d007a0-996b-498e-8c45-3b4d837a99b0
+- exit: 
+- last_commit: 9a3c80a docs(specs): point STATE.md at agent-budget-trip-context
 - user_turns: 0
 

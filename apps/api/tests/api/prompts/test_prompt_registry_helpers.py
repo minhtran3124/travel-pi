@@ -6,7 +6,10 @@ from app.prompts.registry import _ACTIVE_FILE, PromptRegistry, registry
 
 
 def test_versions_returns_sorted_ints():
-    assert registry.versions("budget") == [1, 2]
+    versions = registry.versions("budget")
+    assert all(isinstance(v, int) for v in versions)
+    assert versions == sorted(versions)
+    assert versions[:2] == [1, 2]
 
 
 def test_active_version_matches_active_yaml():
