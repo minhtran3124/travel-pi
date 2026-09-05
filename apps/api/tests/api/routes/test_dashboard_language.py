@@ -5,6 +5,8 @@ translations (never a translator call). The seeded ``content_translations``
 come from the checked-in ``app/data/content_translations.vi.json``.
 """
 
+import re
+
 from app.services import content_translation_service as mod
 from app.streaming.panels.places import CATEGORY_VI
 from fastapi.testclient import TestClient
@@ -26,7 +28,7 @@ def test_places_vi_uses_seeded_translations_and_sets_cookie(
     assert CATEGORY_VI["restaurant"] in vi.text  # bounded category label swapped
     # Descriptions differ between the two renders (seeded vi rows applied).
     assert en.text != vi.text
-    assert 'aria-current="true">VI' in vi.text
+    assert re.search(r'aria-current="true"[^>]*>VI<', vi.text)
 
 
 def test_cookie_keeps_language_without_query_param(client: TestClient):
@@ -34,7 +36,7 @@ def test_cookie_keeps_language_without_query_param(client: TestClient):
     page = client.get("/dashboard/hotels")
     assert page.status_code == 200
     assert 'name="lang" value="vi"' in page.text
-    assert 'aria-current="true">VI' in page.text
+    assert re.search(r'aria-current="true"[^>]*>VI<', page.text)
 
 
 def test_unknown_language_falls_back_to_default(client: TestClient):
