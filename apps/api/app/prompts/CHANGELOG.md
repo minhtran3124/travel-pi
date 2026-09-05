@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-tool-round-budget — skip the no-op trip_guard step; planner batches itinerary writes
+
+specs/agent-tool-round-budget: a single agent turn has a bounded number of tool-call rounds,
+so a step that adds nothing to the plan and a planner that writes one itinerary item per turn
+both burn rounds a full itinerary needs.
+
+- **planner v12** — copied v11, then added one sentence under "How to Work" step 4: when
+  several itinerary items are ready at once (e.g. filling out multiple days), call
+  `add_itinerary_item` more than once in the same response instead of one item per turn, so a
+  full itinerary does not exhaust the turn's tool-call budget. No existing v11 line was removed.
+- **`_base.py`** (code half) — `trip_guard` no longer routes to itself when the trip is already
+  known; the router goes straight to `tools`, skipping the no-op guard step.
+
+`active.yaml`: planner → 12.
+
 ## multi-intent-single-path — `plan` is independent-parallel-only; single-specialist chains stay single (wave 1)
 
 specs/multi-intent-single-path (decision A): the runtime is parallel-only — `route_tasks`
