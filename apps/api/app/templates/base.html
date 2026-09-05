@@ -188,8 +188,10 @@
     .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
     /* Language switch in the top bar: the shared segmented pill, sized to the
        30px theme buttons and tightened for two-letter labels. */
-    .lang-seg { margin-left: 6px; }
-    .lang-seg a { height: 30px; padding: 0 10px; font-size: 0.75rem; letter-spacing: .04em; }
+    .seg.lang-seg { margin-left: 6px; height: 30px; }
+    .seg.lang-seg a { height: 30px; padding: 0 10px; font-size: 0.75rem; letter-spacing: .04em; }
+    /* Every control on the top bar shares the 30px theme-button height. */
+    .app-topbar .tab-ext { display: inline-flex; align-items: center; height: 30px; padding-top: 0; padding-bottom: 0; }
     .theme-btn:focus-visible { outline: none; box-shadow: var(--ring); }
     .theme-dot {
       width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
