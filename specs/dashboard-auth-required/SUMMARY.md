@@ -4,7 +4,7 @@ Lane: high-risk
 Confidence: low
 Reason: Manifest hard gate `auth` (login/password/sessions) fires by definition; the request has three materially different readings against a guard that already exists (see ESCALATIONS.md E001).
 Flags: auth, audit/security, existing behavior
-Affects: app/core/dashboard_auth.py (require_dashboard_access), app/routers/dashboard.py, app/routers/dashboard_prompts.py, app/core/config.py (dashboard_basic_user/password), .env.example
+Affects: app/core/dashboard_auth.py, app/routers/dashboard.py, app/routers/dashboard_prompts.py, app/routers/dashboard_login.py (new), app/core/errors.py, app/core/lifespan.py, app/core/config.py, app/templates/login.html (new), app/templates/base.html, .env.example
 Input-type: change request
 Route: brainstorming → xia2 → writing-plans → using-git-worktrees → subagent-driven-development (E001 decided: C)
 Escalate: yes (hard gate `auth` + low confidence — direction ambiguous)
@@ -19,18 +19,33 @@ plan to add simple authentication (username/pass) for the dashboard. Require aut
 
 ## What changed
 
-Intake only — no code changed. Finding: the dashboard is **already** guarded by HTTP Basic
-username/password (shipped in `specs/review-a-security-hardening`, PR #129):
+Replaced the HTTP Basic guard on `/dashboard/*` (shipped in `specs/review-a-security-hardening`,
+PR #129) with a login page backed by a signed session cookie, per escalation E001 → option C:
 
-- `app/core/dashboard_auth.py::require_dashboard_access` is attached as a router-level
-  `dependencies=[Depends(...)]` on both `/dashboard` routers (`dashboard.py`,
-  `dashboard_prompts.py`), which are the only routes under the `/dashboard` prefix.
-- Behaviour is opt-in via `DASHBOARD_BASIC_USER` + `DASHBOARD_BASIC_PASSWORD`: both set →
-  401 + `WWW-Authenticate: Basic` on any `/dashboard/*` request without valid creds (browser
-  prompts); neither set → open in development, 404 in production (`ENVIRONMENT=production`).
-- Covered by `tests/api/agent_config/test_dashboard_auth.py` (4 states).
-- The local `apps/api/.env` does not set the two vars, so the dev dashboard currently opens
-  without a prompt — which is most likely why the request was raised.
+- `app/core/dashboard_auth.py` rewritten around FastAPI's `APIKeyCookie` and a PyJWT HS256
+  session token (`sub`/`iat`/`exp`, `algorithms=["HS256"]`, `leeway=60`,
+  `options={"require": ["exp", "iat", "sub"]}`), signed with a new `DASHBOARD_SECRET_KEY`
+  setting (≥32 bytes, or the dashboard is treated as unconfigured).
+- New router `app/routers/dashboard_login.py`: `GET/POST /dashboard/login`,
+  `POST /dashboard/logout`, unguarded, using `OAuth2PasswordRequestForm` for the credential
+  fields.
+- `DashboardLoginRequired` (an `AuthError` subclass) is handled inside
+  `register_exception_handlers` (`app/core/errors.py`): an HTML request gets a `303` to the
+  login page; any other request gets the existing 401 JSON envelope.
+- Both dashboard routers now guard with `get_current_dashboard_user` instead of
+  `require_dashboard_access`.
+- Auth is **always required**: the old "open in development" and "404 in production without
+  creds" branches are gone. With any of the three env vars missing (or a secret under 32
+  bytes) the dashboard is locked — every page redirects to the login screen, which shows a
+  "not configured" notice — and `lifespan` logs a startup warning naming the missing vars.
+  The server does not refuse to start.
+- New `app/templates/login.html` and a logout button in `base.html`'s topbar.
+- `.env.example` documents all three vars and `openssl rand -hex 32`.
+- `tests/conftest.py`'s shared `client` fixture and two per-`Settings` dashboard-page test
+  modules were updated to authenticate via a session cookie instead of relying on the removed
+  open/404 branches; `tests/api/agent_config/test_dashboard_auth.py` was rewritten as ten
+  cases covering unconfigured credentials, unauthenticated HTML vs JSON requests, login,
+  rejection/forgery/expiry, `next`-url sanitisation, logout, and the `Secure` flag.
 
 ### Rationale
 
@@ -48,17 +63,37 @@ unrequested surface.
 
 ### Deviations
 
-- none
+- Rule 2 — `create_session_token` refuses to issue a token when credentials are unconfigured
+  (guards against `jwt.encode` ever seeing a sub-32-byte or missing secret). Found during
+  Task 1.1 per-task review. `app/core/dashboard_auth.py`, commit `49bdc2a`.
+- Rule 1 — two invalid `font: <weight> <size> inherit` CSS shorthands in `login.html`/`base.html`
+  (a CSS-wide keyword cannot be a shorthand component; the browser drops the whole declaration)
+  replaced with explicit longhands, and the topbar logout button sized to match its neighbours.
+  Found during Task 1.2 per-task review. `app/templates/login.html`, `app/templates/base.html`,
+  commit `49bdc2a`.
+- Rule 1 — hoisted a function-local `from app.exceptions import AuthError` to the module header
+  in `tests/core/test_dashboard_auth.py`. Found during Task 1.1 per-task review, commit `49bdc2a`.
 
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| existing guard suite | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_dashboard_auth.py -q` | 0 | 8 passed (pre-existing coverage of the current guard) | |
+| token/cookie unit tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_dashboard_auth.py -q` | 0 | 51 passed | SC-1 |
+| unauthenticated redirect/JSON | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_dashboard_auth.py -q -k test_unauth` | 0 | 2 passed | SC-2 |
+| login sets session cookie | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_dashboard_auth.py -q -k test_login` | 0 | 2 passed | SC-3 |
+| rejected/forged sessions + next sanitisation | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_dashboard_auth.py -q -k "test_reject or test_next"` | 0 | 13 passed | SC-4 |
+| unconfigured credentials lock the dashboard | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_dashboard_auth.py -q -k test_unconfigured` | 0 | 4 passed | SC-5 |
+| logout + Secure-by-environment | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_dashboard_auth.py -q -k "test_logout or test_secure"` | 0 | 3 passed | SC-6 |
+| existing dashboard pages still render | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_agent_config_dashboard.py tests/api/prompts/test_dashboard_prompts.py tests/api/agent_config/test_agent_runs_dashboard.py tests/api/agent_config/test_agent_run_detail_page.py -q` | 0 | 38 passed | SC-7 |
+| login/logout templates render | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_login_template.py -q` | 0 | 5 passed | SC-8 |
+| lint | `cd apps/api && ../../.venv/bin/ruff check app/core/dashboard_auth.py app/core/errors.py app/core/config.py app/core/lifespan.py app/routers/dashboard_login.py app/routers/main.py app/routers/dashboard.py app/routers/dashboard_prompts.py tests/core/test_dashboard_auth.py tests/api/agent_config/test_dashboard_auth.py tests/api/agent_config/test_login_template.py tests/conftest.py` | 0 | All checks passed | SC-9 |
+| targeted regression (dashboard + core, superset of the above) | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config tests/api/prompts/test_dashboard_prompts.py tests/core -q` | 0 | 273 passed | |
 
 ### Not auto-verified
 
 - "both `/dashboard` routers are the only `/dashboard` routes" — reached traceability (grep of `prefix="/dashboard"` in `app/routers/`); not re-run against the live route table.
+- the `lifespan` startup warning fires when `DASHBOARD_BASIC_USER`/`PASSWORD`/`DASHBOARD_SECRET_KEY` is missing — reached traceability (Task 3.2 review confirmed the call site and `ruff check`/`import` pass); not exercised by an automated test, since it requires observing a log line at app startup.
+- manual browser verification of the login/logout flow — not run in this session; the developer must add `DASHBOARD_BASIC_USER`, `DASHBOARD_BASIC_PASSWORD`, `DASHBOARD_SECRET_KEY` to `apps/api/.env` first (see Global Constraints in PLAN.md).
 
 ### Advisory Findings
 
