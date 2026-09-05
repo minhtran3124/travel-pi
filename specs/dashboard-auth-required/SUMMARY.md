@@ -94,6 +94,7 @@ unrequested surface.
 - "both `/dashboard` routers are the only `/dashboard` routes" — reached traceability (grep of `prefix="/dashboard"` in `app/routers/`); not re-run against the live route table.
 - the `lifespan` startup warning fires when `DASHBOARD_BASIC_USER`/`PASSWORD`/`DASHBOARD_SECRET_KEY` is missing — reached traceability (Task 3.2 review confirmed the call site and `ruff check`/`import` pass); not exercised by an automated test, since it requires observing a log line at app startup.
 - manual browser verification of the login/logout flow — not run in this session; the developer must add `DASHBOARD_BASIC_USER`, `DASHBOARD_BASIC_PASSWORD`, `DASHBOARD_SECRET_KEY` to `apps/api/.env` first (see Global Constraints in PLAN.md).
+- `app/core/errors.py`'s `_handle_http_exception` comment still references "the dashboard guard's `WWW-Authenticate: Basic`" — that guard no longer exists (replaced by the cookie session), but the header-forwarding behaviour it documents is still correct for other 401 raisers (e.g. Supabase auth). Left untouched per the surgical-change rule; design.md flagged it as a known-stale comment.
 
 ### Advisory Findings
 
@@ -108,10 +109,33 @@ threshold and were NOT auto-fixed, per the pipeline's below-threshold routing ru
 | `app/core/dashboard_auth.py` `missing_credentials` | `secret.encode()` on a `DASHBOARD_SECRET_KEY` containing lone surrogate codepoints (invalid UTF-8 injected directly into `os.environ`, bypassing `.env`) raises an uncaught `UnicodeEncodeError` → 500 instead of the documented locked/notice behaviour | 25 | Requires an OS-level env injection that bypasses `.env`'s own UTF-8 decoding; exotic and unverifiable from this repo |
 | `app/templates/login.html` form `action="{{ request.url }}"` | Reflects the incoming `Host` header (no `TrustedHostMiddleware` is registered anywhere in `apps/api`); an attacker-controlled `Host` could point the submitted username/password at a different origin | 50 | Mechanism is real and verifiable in-repo (no trusted-host guard exists); capped because exploitability depends on unverifiable deployment/proxy topology |
 
-None reached the 75 threshold, so none entered the fix loop. Recorded here per the pipeline's
-"nothing is silently dropped" rule. The `login.html` finding (score 50) is the one worth acting
-on if the dashboard is ever exposed without a reverse proxy that normalizes `Host` — swap
-`action="{{ request.url }}"` for a relative path/query.
+None reached the 75 threshold, so none entered the fix loop under correctness-review's own
+rules. The `login.html` (score 50) and `login_form` dependency-override (score 25) rows were
+independently re-raised by intent-review against the "follow correct fastapi implementation"
+clause of the user's request and were fixed there instead — see `### Intent Findings` below,
+commit `7d5c9b9`. The trailing-slash `safe_next` and `UnicodeEncodeError` rows (both 25) remain
+open advisories; no further action planned.
+
+### Intent Findings
+
+Intent-review (`specs/dashboard-auth-required/SUMMARY.md` → `### Intent`, blind to `PLAN.md`)
+ran over the full diff after correctness-review and found 8 divergences, all against the final
+user clause "make sure we are following correct authentication concept and implementation from
+fastapi. simple but follow correct rule." Routed and closed:
+
+| # | Class | Finding | Route | Outcome |
+|---|---|---|---|---|
+| 1 | gap | Login form posted to the absolute, `Host`-header-derived `request.url` — no `TrustedHostMiddleware` guards it, so a spoofed `Host` could redirect submitted credentials to a foreign origin | fix | Fixed, commit `7d5c9b9` (relative `action`; test stub updated to a realistic `URL`-shaped object) |
+| 2 | drift | `login_form` called `get_current_dashboard_user` as a plain function instead of via `Depends(...)`, so `app.dependency_overrides` couldn't reach the login page | fix | Fixed, commit `7d5c9b9` (`is_already_signed_in` dependency) |
+| 3 | drift | `OAuth2PasswordRequestForm` (an OAuth2 token-endpoint class carrying unused `grant_type`/`scope`/`client_id`/`client_secret` fields) is used for a plain HTML login form; FastAPI's documented building block for that is `Form(...)` | advisory | Not changed — `design.md`'s FastAPI-alignment table chose this deliberately and it was approved at design review; behaviorally equivalent (the extra fields are never read). Recorded for a future simplification pass. |
+| 4 | drift | `authenticate()` short-circuited `compare_digest(username) and compare_digest(password)`, a timing side-channel revealing username validity | fix | Fixed, commit `7d5c9b9` (both compared unconditionally) |
+| 5 | gap | `apps/api/APIS.md` still described the removed HTTP Basic guard (open-in-dev / 404-in-prod) | fix | Fixed, commit `7d5c9b9` |
+| 6 | gap (secondary-oracle) | `design.md` promised the stale `WWW-Authenticate: Basic` comment in `errors.py` would be noted in `SUMMARY.md`; it wasn't | fix | Added above under `### Not auto-verified`; comment itself left untouched per the surgical-change rule |
+| 7 | excess (dead code) | `dashboard_login.py` passed an unused `"next"` key into every `login.html` template context (the real `next` round-trips via the form's `action` URL) | fix | Fixed, commit `7d5c9b9` (context key removed) |
+| 8 | drift (design, not code) | Before this change, production with no dashboard credentials returned 404 (surface hidden); now it renders a "not configured" login page (surface visible, just unusable) | informational | This is decision D1/D4 in `design.md`, explicitly chosen over the fail-fast alternatives and approved by the user during design review. Not re-litigated; flagged here for the record. |
+
+Re-review confirmed ✅ after the fixes (commit `7d5c9b9`); see the finishing summary for the
+re-run verdict.
 
 ### Rollback
 
