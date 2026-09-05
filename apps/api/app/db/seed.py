@@ -22,7 +22,9 @@ collision still fails loudly — now at seed time rather than at service import.
 
 from __future__ import annotations
 
+import json
 import logging
+from pathlib import Path
 
 from sqlalchemy import select
 
@@ -303,6 +305,41 @@ def _check_short_code_collisions(session) -> None:
         place_index[place.short_code] = place.id
 
 
+#: Checked-in translations of free-form catalog text, one file per language:
+#: ``content_translations.<lang>.json`` = ``[{"entity_type","entity_id","field","text"}]``.
+#: Optional — an absent or empty file seeds nothing; the tool path fills misses lazily.
+_TRANSLATIONS_DIR = Path(__file__).resolve().parent.parent / "data"
+_TRANSLATIONS_GLOB = "content_translations.*.json"
+
+
+def _seed_content_translations(session) -> int:
+    """Upsert every checked-in catalog translation (specs/catalog-content-i18n).
+
+    :param session: The active SQLAlchemy session.
+    :return: The number of rows written.
+    """
+    from app.core.languages import normalize
+    from app.repositories.content_translation import ContentTranslationRepo
+
+    rows: list[dict] = []
+    for path in sorted(_TRANSLATIONS_DIR.glob(_TRANSLATIONS_GLOB)):
+        language = path.name.split(".")[1]
+        if normalize(language) != language:
+            raise RuntimeError(f"unsupported translation language file: {path.name}")
+        for rec in json.loads(path.read_text()):
+            rows.append(
+                {
+                    "entity_type": rec["entity_type"],
+                    "entity_id": rec["entity_id"],
+                    "field": rec["field"],
+                    "language": language,
+                    "text": rec["text"],
+                    "source": "seed",
+                }
+            )
+    return ContentTranslationRepo(session).upsert_many(rows)
+
+
 def seed_all(session_factory) -> None:
     """Seed every reference entity into the DB behind ``session_factory``.
 
@@ -322,6 +359,7 @@ def seed_all(session_factory) -> None:
         _seed_visa(session)
         _seed_fx(session)
         _seed_agent_config(session)
+        _seed_content_translations(session)
         session.flush()
         _check_short_code_collisions(session)
         session.commit()
