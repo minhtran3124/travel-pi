@@ -32,5 +32,12 @@
     "metrics": [
       "response_language"
     ]
+  },
+  {
+    "input": "Set a simple budget for my trip",
+    "expected_flow": "budget",
+    "expected_tools": [
+      "get_trip_summary"
+    ]
   }
 ]

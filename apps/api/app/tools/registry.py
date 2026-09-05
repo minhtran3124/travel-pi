@@ -25,7 +25,12 @@ from app.tools.place_tools import PLACE_TOOLS
 from app.tools.rag_tools import KNOWLEDGE_TOOLS
 from app.tools.routing_tools import ROUTING_TOOLS
 from app.tools.tip_tools import TIP_TOOLS
-from app.tools.trip_tools import TRIP_TOOLS, create_trip
+from app.tools.trip_tools import (
+    TRIP_TOOLS,
+    create_trip,
+    estimate_trip_budget,
+    set_trip_budget,
+)
 from app.tools.weather_tools import WEATHER_TOOLS
 
 # Tools grouped by the sub-agent that should bind them.
@@ -56,7 +61,11 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
     ),
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
     "booking": FLIGHT_TOOLS + HOTEL_TOOLS + BOOKING_TOOLS + DATE_TOOLS,
-    "budget": EXPENSE_TOOLS + [t for t in TRIP_TOOLS if t.name == "get_trip_budget"],
+    "budget": (
+        EXPENSE_TOOLS
+        + [t for t in TRIP_TOOLS if t.name in {"get_trip_budget", "get_trip_summary"}]
+        + [estimate_trip_budget, set_trip_budget]
+    ),
 }
 
 # Every distinct tool, de-duplicated by name (a tool may appear in >1 domain).
@@ -77,6 +86,7 @@ _WRITE = {
     "cancel_flight",
     "cancel_hotel",
     "create_trip",
+    "set_trip_budget",
 }
 
 

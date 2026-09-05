@@ -33,10 +33,15 @@ from langgraph.types import Command
 from pydantic import Field
 
 from app.agents.context import AgentContext
-from app.enums import TripItemKind, TripItemStatus
+from app.enums import ActivityLevel, MealStyle, TripItemKind, TripItemStatus
 from app.exceptions import AppError
-from app.schemas.trip import TripCreate, TripItemCreate
-from app.services.trip_service import TripService
+from app.schemas.trip import (
+    TripBudgetSet,
+    TripCreate,
+    TripEstimateRequest,
+    TripItemCreate,
+)
+from app.services.trip_service import TripService, estimate_trip
 from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 logger = logging.getLogger(__name__)
@@ -424,3 +429,183 @@ def create_trip(
             ],
         }
     )
+
+
+@tool
+def set_trip_budget(
+    flights: Annotated[
+        float | None, Field(ge=0, description="Flights cap in USD.")
+    ] = None,
+    hotels: Annotated[
+        float | None, Field(ge=0, description="Hotels cap in USD.")
+    ] = None,
+    activities: Annotated[
+        float | None, Field(ge=0, description="Activities cap in USD.")
+    ] = None,
+    buffer: Annotated[
+        float | None,
+        Field(
+            ge=0, description="Buffer cap in USD (meals, local transport, incidentals)."
+        ),
+    ] = None,
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to set the budget on."),
+    ] = None,
+) -> dict:
+    """Set the trip's per-category budget caps (USD).
+
+    Replace semantics: every call replaces ALL caps — omitted categories become
+    uncapped. Call only after the traveller confirms the proposed caps (e.g. the
+    ``suggested_caps`` from ``estimate_trip_budget``).
+
+    :param flights: Flights cap in USD.
+    :param hotels: Hotels cap in USD.
+    :param activities: Activities cap in USD.
+    :param buffer: Buffer cap in USD.
+    :param trip_id: The trip to set the budget on. Injected from graph state on
+        the LangGraph agent path (not model-supplied there); a direct/MCP
+        caller must pass it explicitly. When absent, the guidance value is
+        returned.
+    :return: The resulting trip budget rollup.
+    """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
+    if flights is None and hotels is None and activities is None and buffer is None:
+        raise ToolException(
+            "No cap supplied — nothing changed. set_trip_budget replaces ALL caps: "
+            "pass every cap you want to keep, e.g. the confirmed suggested_caps."
+        )
+    log_tool_call("set_trip_budget", {"trip_id": trip_id})
+    with session_scope() as s:
+        try:
+            request = TripBudgetSet(
+                flights=flights, hotels=hotels, activities=activities, buffer=buffer
+            )
+            return dump(TripService(s, user_id).set_trip_budget(trip_id, request))
+        except AppError as e:
+            raise tool_error(e) from e
+
+
+@tool
+def estimate_trip_budget(
+    nights: Annotated[
+        int | None,
+        Field(description="Number of nights. Omit to derive from the trip's dates."),
+    ] = None,
+    travelers: Annotated[
+        int | None,
+        Field(description="Number of travelers. Omit to use the trip's value."),
+    ] = None,
+    meal_style: Annotated[
+        MealStyle, Field(description="Meal-spend tier: budget|mid|fine.")
+    ] = MealStyle.MID,
+    activity_level: Annotated[
+        ActivityLevel, Field(description="Activity-spend tier: none|some|lots.")
+    ] = ActivityLevel.SOME,
+    flight_total_usd: Annotated[
+        float | None,
+        Field(description="Known total flight cost in USD. Omit to exclude."),
+    ] = None,
+    hotel_price_per_night_usd: Annotated[
+        float | None,
+        Field(description="Known room price per night in USD. Omit to exclude."),
+    ] = None,
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ] = None,
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip to estimate a budget for."),
+    ] = None,
+) -> dict:
+    """Estimate a trip's budget and propose per-category caps (read-only).
+
+    Derives ``nights`` and ``travelers`` from the trip when not supplied. Returns
+    the line-item estimate plus ``suggested_caps``; categories whose estimated
+    amount is zero — e.g. no price given for ``flights`` / ``hotels``, or
+    ``activity_level`` none — are omitted and left uncapped. The caps present
+    still sum to ``total_estimate``; confirm them with the traveller,
+    then call ``set_trip_budget``. When the trip has no dates and ``nights`` is
+    not given, a guidance value is returned instead — ask, never guess.
+
+    :param nights: Number of nights; derived from the trip's dates when omitted.
+    :param travelers: Number of travelers; the trip's value when omitted.
+    :param meal_style: Meal-spend tier.
+    :param activity_level: Activity-spend tier.
+    :param flight_total_usd: Known total flight cost in USD.
+    :param hotel_price_per_night_usd: Known room price per night in USD.
+    :param trip_id: The trip to estimate for. Injected from graph state on the
+        LangGraph agent path (not model-supplied there); a direct/MCP caller
+        must pass it explicitly. When absent, the guidance value is returned.
+    :return: The estimate with ``suggested_caps``, or a guidance value.
+    """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    if trip_id is None:
+        return _no_active_trip()
+    log_tool_call("estimate_trip_budget", {"trip_id": trip_id})
+    with session_scope() as s:
+        try:
+            trip = TripService(s, user_id).get_trip(trip_id)
+        except AppError as e:
+            raise tool_error(e) from e
+    if nights is None and trip.start_date is not None and trip.end_date is not None:
+        nights = max(1, (trip.end_date - trip.start_date).days)
+    if nights is None:
+        return {
+            "error": "trip_dates_unknown",
+            "hint": (
+                "Ask the traveller how many nights the trip is (or its dates); "
+                "do not guess."
+            ),
+        }
+    if travelers is None:
+        travelers = trip.travelers
+    try:
+        request = TripEstimateRequest(
+            city=trip.city,
+            nights=nights,
+            travelers=travelers,
+            flight_total_usd=flight_total_usd,
+            hotel_price_per_night_usd=hotel_price_per_night_usd,
+            meal_style=meal_style,
+            activity_level=activity_level,
+        )
+    except ValueError as e:  # pydantic validation on nights=0 / negative price
+        raise ToolException(str(e)) from e
+    estimate = estimate_trip(request)
+    b = estimate.breakdown
+    # Only cap categories whose estimated amount is > 0: a 0.0 cap (no price
+    # given, ``flight_total_usd=0`` for already-paid flights, activity_level
+    # none) would be stored as a real cap that rejects the first booking.
+    # ``buffer`` is always > 0 (local transport is charged per night), so the
+    # mapping is never empty.
+    amounts = {
+        "flights": round(b.flights, 2),
+        "hotels": round(b.accommodation, 2),
+        "activities": round(b.activities, 2),
+        "buffer": round(
+            b.meals + b.local_transport + (estimate.total_estimate - estimate.subtotal),
+            2,
+        ),
+    }
+    suggested_caps = {k: v for k, v in amounts.items() if v > 0}
+    return dump(estimate) | {"suggested_caps": suggested_caps}

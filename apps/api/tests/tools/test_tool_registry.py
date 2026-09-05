@@ -18,10 +18,36 @@ def test_get_tools_for_groups():
     assert "save_user_preference" in journal
 
     budget = {t.name for t in get_tools_for("budget")}
-    assert "add_expense" in budget
-    assert "get_trip_budget" in budget
+    assert {
+        "add_expense",
+        "get_trip_budget",
+        "get_trip_summary",
+        "estimate_trip_budget",
+        "set_trip_budget",
+    } <= budget
 
     assert get_tools_for("nope") == []
+
+
+def test_budget_tools_bound_to_budget_only():
+    """estimate_trip_budget / set_trip_budget (specs/agent-budget-trip-context)
+    live in the budget domain only."""
+    from app.tools.registry import get_tools_for
+
+    for domain in ("planner", "journal", "concierge", "booking"):
+        names = {t.name for t in get_tools_for(domain)}
+        assert "estimate_trip_budget" not in names, domain
+        assert "set_trip_budget" not in names, domain
+
+
+def test_budget_tools_metadata():
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["set_trip_budget"] == {"readOnly": False, "destructive": False}
+    assert TOOL_METADATA["estimate_trip_budget"] == {
+        "readOnly": True,
+        "destructive": False,
+    }
 
 
 # --- P2: episodic recall tool (Task 2.4) ---
@@ -373,8 +399,7 @@ def test_injected_trip_id_params_have_defaults():
         for pname, param in inspect.signature(fn).parameters.items():
             metadata = getattr(hints.get(pname), "__metadata__", ())
             if any(
-                isinstance(m, InjectedState) and m.field == "trip_id"
-                for m in metadata
+                isinstance(m, InjectedState) and m.field == "trip_id" for m in metadata
             ):
                 assert param.default is not inspect.Parameter.empty, (
                     f"{reg_tool.name}.{pname}: InjectedState('trip_id') without a "

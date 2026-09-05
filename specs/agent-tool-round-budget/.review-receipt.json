@@ -1,0 +1,46 @@
+{
+  "reviewed_head_sha": "6cd38453980007301fd22a096bcedc55dcbb12df",
+  "created": "2026-09-05T09:18:24+00:00",
+  "reviews": [
+    {
+      "reviewer": "plan-advisory-review",
+      "type": "plan",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "REVISE with 3 objections: two false references to files that belong to an unmerged sibling branch (budget/v3.md, tests/prompts/test_budget_prompt.py \u2014 this worktree is off main, which does not have that work), and an unpicked fixture-cost tradeoff for the round-budget test. All three corrected before execution (pointed to the real concierge/booking v3 CHANGELOG precedent and test_booking_prompt.py; picked the DB-free inline test tool)."
+    },
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Router equivalence to trip_guard's own predicate confirmed for END, empty tool_calls, mixed trip-scoped/plain calls, TypedDict access. Round-budget test genuinely avoids DB/fixture cost (inline @tool, FakeLLM only). One unreported deviation found and fixed before commit: implementer moved an import to module scope inside a test the brief said to keep unmodified; reverted to local scope, amended into the same commit. Minor: router and trip_guard duplicate the same decision with no test pinning they agree (optional follow-up, not required by GH-113's existing coverage)."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "v12 = v11 plus exactly 3 inserted lines (0 lines starting with '<'); new test is genuinely content-pinning, no version literal. Minors: shipped sentence uses lowercase 'same response' per the machine-checked test contract (cosmetic); the new batching rule isn't explicitly scoped to 'once a trip exists' relative to the pre-existing create-trip-first rule (later covered by correctness review's finding B, scored low); one substring assertion could theoretically match elsewhere in the file (not observed)."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5,
+      "notes": "Six FIND angles over 0f9d2ed..bf802c2, deduplicated to 5 locations, scored independently (score-A1..E). Router change verified decision-equivalent to trip_guard's original predicate by 4 of 6 angles via direct case enumeration and live probes \u2014 GH-113's blocking property (awaiting_user, paired ToolMessages, NO_ACTIVE_TRIP_MSG) is unmodified and re-verified. Fixed (score 75, Rule 1): _row_to_trip's stable sort on (day, sort_order) fell back to nondeterministic DB row order once batched add_itinerary_item writes commit concurrently (every agent-added item has sort_order=0); now sorts ORM rows on (day, sort_order, created_at, id) before converting, no schema/contract change (commit 3125d2e, re-reviewed clean apart from one P3 advisory on mixed-format legacy timestamps). Advisory (below threshold, recorded in SUMMARY): retry-policy-induced duplicate writes on a batched round mixing a write with a transiently-failing upstream tool (score 50); batching may collaterally block create_trip when no trip is active (score 25 \u2014 the pre-existing, more specific create-trip-first rule already forbids the triggering combination); SQLite lock under concurrent batched writes (score 25 \u2014 busy-timeout likely absorbs it, prod runs Postgres); an unrelated pre-existing AttributeError risk at _base.py:84, not triggered or made more likely by this diff (score 0, unmodified-line)."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Plan-blind against the verbatim two-option investigation reply and the intake argument 'g\u1ed9p 2 h\u01b0\u1edbng 1 + 2'. Both directions delivered in one branch: direction 1 (skip trip_guard's super-step when it cannot block, edge-level router, no node added) verified byte-for-byte equivalent to trip_guard's own predicate; direction 2 (planner batches same-turn add_itinerary_item calls) is the only delta between v11 and v12, zero lines removed. GH-113 safety property not regressed. No excess scope (4 source/test files + spec docs only); recursion_limit correctly left untouched (rejected direction 3). One advisory: the round-budget test measures 10 sequential rounds while the arithmetic ceiling asserted in prose is 12 \u2014 nothing pins 12 specifically."
+    }
+  ]
+}

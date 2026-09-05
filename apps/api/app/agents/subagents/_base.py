@@ -170,6 +170,34 @@ def _make_trip_guard(needing_trip: frozenset[str]):
     return trip_guard
 
 
+def _route_after_assistant(needing_trip: frozenset[str]):
+    """Route ``assistant`` to ``tools`` directly unless a call actually needs the guard.
+
+    ``trip_guard`` only ever does two things: pass through, or block. Visiting it
+    when it can only pass through wastes a super-step every round, which is what
+    caps a turn's round budget under ``agent_recursion_limit`` (3 steps/round vs
+    2). This decides the same thing ``trip_guard`` would decide, one edge earlier,
+    so the guard is only entered when it can genuinely block.
+
+    :param needing_trip: Names of tools that require an active trip.
+    :return: A router ``route(state) -> str`` for ``add_conditional_edges``.
+    """
+
+    def route(state: TravelAgentState) -> str:
+        dest = tools_condition(state)
+        if dest == END:
+            return END
+        if not needing_trip or state.get("trip_id"):
+            return "tools"
+        last = state["messages"][-1]
+        calls = getattr(last, "tool_calls", None) or []
+        if any(tc.get("name") in needing_trip for tc in calls):
+            return "trip_guard"
+        return "tools"
+
+    return route
+
+
 def build_subagent(
     name: str,
     tools: list[BaseTool],
@@ -258,8 +286,13 @@ def build_subagent(
             destinations=("tools", "assistant"),
         )
         # tools_condition -> "tools" when the last message has tool calls, else END.
+        # _route_after_assistant only detours through trip_guard when a call
+        # genuinely needs it, so a round with no trip-scoped call (or an active
+        # trip) skips straight to "tools" instead of spending a super-step there.
         builder.add_conditional_edges(
-            "assistant", tools_condition, {"tools": "trip_guard", END: END}
+            "assistant",
+            _route_after_assistant(needing_trip),
+            {"tools": "tools", "trip_guard": "trip_guard", END: END},
         )
         builder.add_edge("tools", "assistant")
     else:
