@@ -19,7 +19,7 @@ import time
 from collections.abc import AsyncIterator
 from typing import TYPE_CHECKING, Any
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
@@ -34,17 +34,6 @@ if TYPE_CHECKING:
     from app.agents.metrics import TurnMetricsHandler
 
 logger = logging.getLogger(__name__)
-
-#: System instruction for the panel-prose translator. Kept minimal and imperative
-#: so the model translates the place description into Vietnamese rather than
-#: answering or echoing it, while leaving proper nouns intact.
-_TRANSLATE_SYSTEM = SystemMessage(
-    content=(
-        "You are a translator. Translate the user's text into Vietnamese. "
-        "Keep proper nouns (place names, brands, cities, landmarks) unchanged. "
-        "Return ONLY the translated text — no preamble, quotes, or explanation."
-    )
-)
 
 #: Main-graph nodes that end a turn with a content-bearing AIMessage (tier gate,
 #: unknown intent, plan cancel/approve). Their message never streams via the
@@ -141,20 +130,6 @@ async def stream_agent_events(
                     prior_tool_call_ids.add(tc["id"])
     except Exception:  # noqa: BLE001 — best-effort seed; default en
         pass
-
-    # Translator closure for free-form panel prose; only invoked by
-    # localize_panel under vi. Async end-to-end so the SSE event loop is never
-    # blocked. Never call get_fast_llm() here.
-    _tl = getattr(graph, "translate_llm", None)
-    if _tl is not None:
-
-        async def _translate(text: str) -> str:
-            resp = await _tl.ainvoke([_TRANSLATE_SYSTEM, HumanMessage(content=text)])
-            return resp.content
-
-        translator = _translate
-    else:
-        translator = None
 
     current_subagent: str | None = None
     last_msg_id: str | None = None
@@ -285,7 +260,6 @@ async def stream_agent_events(
                                     artifact["kind"],
                                     artifact.get("data"),
                                     current_language,
-                                    translator=translator,
                                 )
                                 yield events.panel(
                                     tool_call_id=msg.tool_call_id,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from app.schemas.air_quality import AirQualityResponse
 from app.schemas.base import AppBaseModel
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
 # US-AQI category → presentation, mirroring the dashboard's aqi_* macros
 # (templates/air_quality.html). Band keys the FE gradient/glow; emoji + advice
@@ -78,11 +78,10 @@ AQI_ADVICE_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
+async def _localize_vi(data: dict) -> None:
     """Swap ``category``/``advice``/``forecast[*].category`` to Vietnamese in place.
 
     :param data: The already-deep-copied ``air_quality`` panel data dict.
-    :param translator: Unused — ``air_quality`` has no free-form prose.
     """
     if isinstance(data.get("category"), str):
         data["category"] = _swap(data["category"], AQI_CATEGORY_VI)

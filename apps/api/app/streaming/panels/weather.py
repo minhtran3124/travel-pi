@@ -5,7 +5,7 @@ from __future__ import annotations
 from app.schemas.base import AppBaseModel
 from app.schemas.weather import WeatherResponse
 from app.services.weather_service import emoji_for_code
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
 # WMO code → sky-mood bucket, mirroring the dashboard's ``cond_class`` macro
 # (templates/weather.html). Drives the hero gradient + card tint on the FE.
@@ -47,11 +47,10 @@ WEATHER_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
+async def _localize_vi(data: dict) -> None:
     """Swap ``current``/``daily`` weather descriptions to Vietnamese in place.
 
     :param data: The already-deep-copied ``weather`` panel data dict.
-    :param translator: Unused — ``weather`` has no free-form prose.
     """
     cur = data.get("current")
     if isinstance(cur, dict):

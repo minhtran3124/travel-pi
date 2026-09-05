@@ -18,15 +18,10 @@ from __future__ import annotations
 import copy
 
 from app.core.languages import DEFAULT_LANGUAGE, normalize
-from app.streaming.panels.base import Translator, get_panel
+from app.streaming.panels.base import get_panel
 
 
-async def localize_panel(
-    kind: str,
-    data: dict,
-    language: str,
-    translator: Translator | None = None,
-) -> dict:
+async def localize_panel(kind: str, data: dict, language: str) -> dict:
     """Localize a side-panel ``data`` dict to ``language``.
 
     ``en`` / any non-``vi`` language (and a non-dict ``data``) is an identity
@@ -40,10 +35,6 @@ async def localize_panel(
         nothing.
     :param data: The panel ``data`` projection to localize.
     :param language: The conversation language (only ``vi`` triggers work).
-    :param translator: Callable used to translate free-form prose; only
-        consulted by kinds that accept it (currently ``places``). Never
-        falls back to an LLM here — an absent translator leaves the English
-        text in place.
     :return: The (possibly localized) panel data.
     """
     if normalize(language) == DEFAULT_LANGUAGE or not isinstance(data, dict):
@@ -53,6 +44,6 @@ async def localize_panel(
 
     spec = get_panel(kind)
     if spec is not None and spec.localize_vi is not None:
-        await spec.localize_vi(out, translator)
+        await spec.localize_vi(out)
 
     return out

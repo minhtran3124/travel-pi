@@ -198,9 +198,6 @@ def build_graph(
     # single existing injection seam (llm=/fast_llm= override + get_agent_llm) by
     # attaching it to the compiled graph, alongside the already-exposed `.store`.
     compiled.extract_memory_llm = pick("extract_memory")
-    # Panel-prose translation handle for the streaming layer — reuses the same
-    # fast "extract_memory" seam so tests keep injecting FakeLLM offline.
-    compiled.translate_llm = pick("extract_memory")
     # Prompt attribution (specs/agent-run-trace-detail §4.2): the sub-agent prompts
     # are read once, here, as the graph is compiled — so the snapshot must be taken
     # here too. Taken per turn instead, it would report whatever `active.yaml` says

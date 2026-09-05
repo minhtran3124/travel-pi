@@ -16,6 +16,7 @@ from pydantic import Field
 
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
+from app.services.content_translation_service import ContentTranslationService
 from app.services.place_service import PlaceService
 from app.streaming.panels import PlacesPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
@@ -40,6 +41,14 @@ class SearchPlacesArgs(AppBaseModel):
             "this conversation when the traveller asks for other/different options, "
             "instead of repeating the same search."
         ),
+    )
+    # Injected from graph state (TravelAgentState.language), never model-supplied:
+    # the conversation language the supervisor detected. Free-form place text is
+    # localized to it at tool time so the model and the Places panel see the same
+    # words. Absent (MCP / direct calls) → default language, no translation.
+    language: Annotated[str, InjectedState("language")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
     )
 
 
@@ -91,6 +100,7 @@ def search_places(
     min_rating: float | None = None,
     price_level: int | None = None,
     exclude_names: list[str] | None = None,
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Search places by city, category, minimum rating, or price level (1–4).
 
@@ -105,6 +115,8 @@ def search_places(
     :param min_rating: Keep only places at or above this rating.
     :param price_level: Price level filter (1-4).
     :param exclude_names: Place names to omit — pass prior suggestions on a follow-up.
+    :param language: Conversation language, injected from graph state (not
+        model-supplied); place descriptions are localized to it.
     :return: A (summary, artifact) tuple. On matches the artifact is a
         ``{"kind": "places", "data": ...}`` side-panel payload capped at 4 places;
         on no match the artifact is ``None`` (no panel) and the summary explains
@@ -135,7 +147,9 @@ def search_places(
                     None,
                 )
             total_count = len(results)
-            top_results = results[:_PLACES_PANEL_CAP]
+            top_results = ContentTranslationService(s).localize(
+                "place", results[:_PLACES_PANEL_CAP], ["description"], language
+            )
             canonical_city = top_results[0].city if city else None
             canonical_category = top_results[0].category if category else None
             where = f" in {canonical_city}" if canonical_city else ""
