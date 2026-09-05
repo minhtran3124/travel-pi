@@ -32,7 +32,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.agents.metrics import MAX_STEPS_PER_TURN as _MAX_STEPS_PER_TURN
-from app.core.dashboard_auth import require_dashboard_access
+from app.core.dashboard_auth import get_current_dashboard_user
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
@@ -73,7 +73,7 @@ router = APIRouter(
     prefix="/dashboard",
     tags=[Tags.dashboard],
     include_in_schema=False,
-    dependencies=[Depends(require_dashboard_access)],
+    dependencies=[Depends(get_current_dashboard_user)],
 )
 
 # Templates live in app/templates/ — resolve the path relative to this file
