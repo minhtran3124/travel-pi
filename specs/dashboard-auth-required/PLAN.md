@@ -213,3 +213,5 @@ renaming the existing env vars, fail-fast on missing credentials.
   quality needs_fixes (invalid `font:` shorthand) — fixed in 49bdc2a and re-verified.
 - 2026-09-05 — tasks 2.1, 2.2 complete; commits d790739, 687bb98. Both spec pass /
   quality approved, zero findings.
+- 2026-09-05 — tasks 3.1, 3.2 complete; commits 5058fa1, 9390162. Both spec pass /
+  quality approved, zero findings. All plan tasks done; proceeding to final review chain.
