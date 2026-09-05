@@ -61,7 +61,7 @@ Default direction (medium confidence — confirm before planning):
 
 ### Deviations
 
-- none
+- Rule 1 — Task 1.2: `tests/api/prompts/test_prompt_registry_helpers.py::test_versions_returns_sorted_ints` pinned `registry.versions("budget") == [1, 2]` and broke on the v3 bump; Files set extended by controller, assertion changed to sorted ints with `[1, 2]` prefix. Commit `9714e88`.
 
 ### Verify
 

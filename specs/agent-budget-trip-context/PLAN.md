@@ -1,6 +1,6 @@
 ---
 slug: agent-budget-trip-context
-status: proposed
+status: active
 owner: minhtran3124
 created: 2026-09-05
 ---
@@ -212,3 +212,4 @@ resolved by the user at intake):
 - 2026-09-05 — advisory plan review: REVISE (6 text objections, all applied: both-dates rule, trip-guard
   mechanism in Task 1.3, content-only prompt tests, ValueError handling, described schema fields,
   machine-decidable prompt diffs) → re-checked with `check_plan_contract.py`.
+- 2026-09-05 — tasks 1.1, 1.2, 1.3 complete; commits 2540922, 9714e88, 2105241. Per-task reviews: all spec pass / quality approved. Minor findings (non-blocking, forwarded to final review): 1.1 buffer cap docstring does not say the contingency % is folded in; 1.1 inverted dates map to 1 night (TripCreate._check_dates already rejects end<start); 1.2 v10 budget clause unbolded vs brief; 1.2 v2 "Don't estimate totals" vs v3 "estimate tool does it" guardrail tension (plan artefact — merge in v4 if goldens show reluctance); 1.2 versions test keeps a harmless `[1, 2]` prefix pin.
