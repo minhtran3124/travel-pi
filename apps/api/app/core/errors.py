@@ -16,10 +16,11 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import Settings
+from app.core.dashboard_auth import DashboardLoginRequired, login_redirect_url
 from app.exceptions import AppError, RateLimitError
 
 logger = logging.getLogger(__name__)
@@ -109,6 +110,19 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
             ),
             headers=headers,
         )
+
+    # DashboardLoginRequired is an AuthError, so its MRO already matches the
+    # handler above; Starlette dispatches to the most specific registered
+    # handler and never falls through, so this one must produce both
+    # responses itself (never re-raise) — HTML requests get a 303 to the
+    # login page, everything else gets the standard 401 JSON envelope.
+    @app.exception_handler(DashboardLoginRequired)
+    async def _handle_dashboard_login_required(
+        request: Request, exc: DashboardLoginRequired
+    ) -> JSONResponse | RedirectResponse:
+        if "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse(login_redirect_url(request), status_code=303)
+        return await _handle_app_error(request, exc)
 
     @app.exception_handler(StarletteHTTPException)
     async def _handle_http_exception(

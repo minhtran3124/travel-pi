@@ -3,6 +3,8 @@
 import os
 
 import pytest
+from app.core.auth import AuthUser, get_current_user
+from app.core.dashboard_auth import DashboardUser, get_current_dashboard_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
@@ -11,8 +13,6 @@ from app.main import create_app
 from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
-
-from app.core.auth import AuthUser, get_current_user
 
 
 @pytest.fixture(autouse=True)
@@ -90,6 +90,12 @@ def client(tmp_db):
     # tests/api/trip/test_trip_ownership.py, which overrides this per test.
     app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id=DEFAULT_TEST_USER_ID, email="test@example.com", role=None, claims={}
+    )
+
+    # specs/dashboard-auth-required (D9): dashboard login is not configured in
+    # tests either, so override the guard the same way #118 overrides auth.
+    app.dependency_overrides[get_current_dashboard_user] = lambda: DashboardUser(
+        username="test-ops"
     )
 
     with TestClient(app) as c:
