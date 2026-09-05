@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     missing = missing_credentials()
     if missing:
         logger.warning(
-            "Dashboard login disabled: set %s to enable /dashboard", ", ".join(missing)
+            "Dashboard locked: set %s to enable login at /dashboard", ", ".join(missing)
         )
     engine = get_engine(settings.database_url)
     # SQLite (local/dev/test) self-creates its schema; Postgres schema is

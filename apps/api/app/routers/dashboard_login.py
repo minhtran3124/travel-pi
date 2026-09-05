@@ -33,7 +33,6 @@ _TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templ
 def login_form(
     request: Request,
     already_signed_in: Annotated[bool, Depends(is_already_signed_in)],
-    next: str = "/dashboard",
 ):
     if already_signed_in:
         return RedirectResponse("/dashboard", status_code=303)
