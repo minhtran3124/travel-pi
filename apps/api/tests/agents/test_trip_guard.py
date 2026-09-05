@@ -12,13 +12,21 @@ Offline: FakeLLM only, no network.
 from __future__ import annotations
 
 import logging
+from typing import Annotated
 
 from app.agents.constants import NO_ACTIVE_TRIP_MSG
-from app.agents.subagents._base import _make_trip_guard, _tools_needing_trip
+from app.agents.subagents._base import (
+    _make_trip_guard,
+    _tools_needing_trip,
+    build_subagent,
+)
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
+from app.core.config import get_settings
 from app.tools.registry import get_tools_for
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.tools import tool as tool_decorator
+from langgraph.prebuilt import InjectedState
 
 _BUDGET_CALL = {
     "content": "",
@@ -173,6 +181,76 @@ def test_graph_turn_with_no_trip_blocks_the_tool_and_awaits_the_traveller(tmp_pa
     )
     joined = " ".join(str(m.content) for m in out["messages"])
     assert "try again shortly" not in joined, "must never read as an outage"
+
+
+# ---------------------------------------------------------------------------
+# Routing: the guard is only visited when it can actually block (SC-1, SC-3)
+# ---------------------------------------------------------------------------
+
+
+def test_trip_scoped_call_skips_guard_when_trip_active():
+    """SC-1: with an active trip, `assistant` routes straight to `tools` — the
+    compiled subgraph never visits `trip_guard` for that round."""
+
+    @tool_decorator
+    def trip_scoped_tool(
+        trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
+    ) -> str:
+        """A trip-scoped tool used only to exercise routing."""
+        return "ok"
+
+    llm = FakeLLM(
+        responses=[
+            {"tool_calls": [{"name": "trip_scoped_tool", "args": {}, "id": "call-0"}]},
+            "done",
+        ]
+    )
+    agent = build_subagent("test_agent", [trip_scoped_tool], lambda _: llm, "you test")
+
+    node_keys: set[str] = set()
+    for chunk in agent.stream(
+        {"messages": [HumanMessage(content="go")], "trip_id": "t-1"},
+        stream_mode="updates",
+    ):
+        node_keys.update(chunk.keys())
+
+    assert "trip_guard" not in node_keys, "guard must be skipped with an active trip"
+    assert "tools" in node_keys
+
+
+def test_sequential_ten_round_budget_fits_recursion_limit():
+    """SC-3: 10 sequential trip-scoped tool rounds complete under the unchanged
+    ``agent_recursion_limit`` (25).
+
+    Old topology (assistant, trip_guard, tools per round): 3*10+1 = 31 super-steps
+    — over budget. New topology (assistant, tools per round, guard skipped when a
+    trip is active): 2*10+1 = 21 <= 25.
+    """
+
+    @tool_decorator
+    def trip_scoped_tool(
+        trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
+    ) -> str:
+        """A trip-scoped tool used only to exercise the round budget."""
+        return "ok"
+
+    responses: list[dict | str] = [
+        {"tool_calls": [{"name": "trip_scoped_tool", "args": {}, "id": f"call-{i}"}]}
+        for i in range(10)
+    ]
+    responses.append("all done")
+    llm = FakeLLM(responses=responses)
+    agent = build_subagent("test_agent", [trip_scoped_tool], lambda _: llm, "you test")
+
+    limit = get_settings().agent_recursion_limit
+    out = agent.invoke(
+        {"messages": [HumanMessage(content="go")], "trip_id": "t-1"},
+        {"recursion_limit": limit},
+    )
+
+    final = out["messages"][-1]
+    assert isinstance(final, AIMessage) and not getattr(final, "tool_calls", None)
+    assert final.content == "all done"
 
 
 # ---------------------------------------------------------------------------
