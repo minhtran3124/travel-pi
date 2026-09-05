@@ -84,6 +84,34 @@ the no-trip path must still block, deterministically, exactly as GH-113 establis
 | lint | `ruff check apps/api/app/agents/subagents/_base.py apps/api/app/prompts/planner apps/api/tests/agents/test_trip_guard.py apps/api/tests/prompts/test_planner_prompt.py` | 0 | | SC-7 |
 | intake evidence | `grep -n "trip_guard" apps/api/app/agents/subagents/_base.py` | 0 | pre-change: guard was a node visited every round | |
 
+### Advisory Findings (correctness review, below threshold or unmodified-line — not auto-fixed)
+
+- **Retry-induced duplicate itinerary writes (score 50, Rule 1-3)** — the planner's `tools` node
+  runs under `TRANSIENT_RETRY` (retries on `UpstreamError`); planner also binds weather/routing
+  tools that re-raise bare `UpstreamError`. A batched round mixing an `add_itinerary_item` write
+  with a call that then fails transiently causes LangGraph to retry the WHOLE node, re-executing
+  already-committed writes (`add_itinerary_item` has no `idempotency_key` param). Pre-existing
+  mechanism; v12's batching instruction raises how many writes one retry can duplicate (1 → N).
+  Follow-up: pass an `idempotency_key` derived from the tool_call_id, or scope the retry policy
+  away from non-idempotent writes. `app/tools/trip_tools.py`, `app/agents/retry.py`.
+- **Batching may collaterally block `create_trip` (score 25, Rule 1-3)** — v12's new step-4
+  sentence is not explicitly scoped to "once a trip exists"; if a compliant-but-imprecise model
+  combines `create_trip` with `add_itinerary_item` in one response despite the pre-existing,
+  more specific "No active trip yet" rule forbidding exactly that, `trip_guard` blocks the whole
+  batch including `create_trip`. Scored low because the existing rule already forbids the
+  triggering behavior; no evidence of it firing in practice. `app/prompts/planner/v12.md`.
+- **SQLite lock under concurrent batched writes (score 25, Rule 1-3)** — batched `add_itinerary_item`
+  calls open separate DB sessions/transactions concurrently; against local dev SQLite this could
+  raise `database is locked`. Scored low: sqlite3's default busy timeout likely absorbs a brief
+  single-INSERT lock, and Docker/prod run Postgres. `app/tools/trip_tools.py` (unmodified).
+- **Introspection guard AttributeError (score 0, unmodified-line, pre-existing)** — `app/agents/subagents/_base.py:84`
+  (`fn = tool.coroutine or tool.func`) sits outside its nearby try/except; a plain `BaseTool`
+  subclass with neither attribute would crash `build_subagent` at startup. Entirely pre-existing,
+  not triggered or made more likely by this diff.
+- **Test measures 10 rounds, claim was "up to 12" (intent review, advisory)** — the round-budget
+  test proves 10 sequential rounds fit; the arithmetic ceiling (`2N+1≤25`) is 12, but nothing pins
+  12 specifically. `tests/agents/test_trip_guard.py`.
+
 ### Not auto-verified
 
 - The user-visible symptom (a long itinerary turn completing instead of 500-ing) — reached
