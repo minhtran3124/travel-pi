@@ -48,6 +48,7 @@ A crash on a legitimate multi-intent phrasing is a Rule-1-class defect; the v10 
 | SC-3 v11 active + rule text | `cd apps/api && ../../.venv/bin/python -c "from app.prompts.registry import registry;assert registry.active_version('supervisor')==11;t=open('app/prompts/supervisor/v11.md').read();assert 'secondary_agent' not in t;assert 'never' in t"` | 0 | | SC-3 |
 | SC-4 chat router two-intent path | `cd apps/api && DASHBOARD_BASIC_USER= DASHBOARD_BASIC_PASSWORD= ../../.venv/bin/python -m pytest tests/api/agent/test_agent_chat.py -q -k multi_intent` | 0 | 2 passed | SC-4 |
 | SC-5 registry + dashboard | `cd apps/api && DASHBOARD_BASIC_USER= DASHBOARD_BASIC_PASSWORD= ../../.venv/bin/python -m pytest tests/api/prompts tests/agents/test_prompt_map.py -q` | 0 | 47 passed | SC-5 |
+| Full BE suite at finish (fresh SQLite) | `<not re-run under --check (174s): cd apps/api && DATABASE_URL=sqlite:////tmp/x.db ../../.venv/bin/python -m pytest tests/ -q>` | 1 | 2186 passed, 1 failed: `test_config_llm.py::test_llm_defaults_require_no_key` — caused by an `OPENAI_API_KEY=` (empty) override in the harness command, not by the branch (passes without overrides; no diff vs main under tests/core, app/core) | |
 | tests/agents whole (cited) | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents -q` | 0 | 396 passed | |
 
 ### Not auto-verified
