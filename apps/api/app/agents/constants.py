@@ -96,10 +96,19 @@ NO_ACTIVE_TRIP_MSG = (
 )
 
 # --- user-facing copy -----------------------------------------------------
+# English SOURCE text only. Emit through ``app.agents.copy.system_reply`` so
+# the traveller gets it in the conversation language (translated once, cached).
 # Shown when a free user is routed to a premium-only sub-agent (booking).
 BOOKING_UPGRADE_MSG = (
     "Booking is a premium feature. Please upgrade your plan to book trips."
 )
+
+# Supervisor could not map the message to any specialist.
+NOT_SURE_MSG = "I'm not sure how to help with that yet."
+
+# HITL plan node outcomes (app/agents/nodes.py).
+PLAN_CANCELLED_MSG = "Booking cancelled as requested."
+PLAN_APPROVED_MSG = "Plan approved. Proceeding with booking."
 
 # Always-on safety net: returned to the user when the agent run fails before it
 # could produce any reply (tool outage, LLM error, or a ReAct loop that exhausted

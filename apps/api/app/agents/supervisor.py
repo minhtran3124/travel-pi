@@ -19,8 +19,9 @@ from langgraph.runtime import Runtime
 from langgraph.types import Command
 from pydantic import BaseModel, Field
 
-from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG, MAX_LEDGER_STEPS
+from app.agents.constants import ALL_SUBAGENTS, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
+from app.agents.copy import system_reply
 from app.agents.schemas import AgentTask
 from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
@@ -261,13 +262,23 @@ def make_supervisor(llm: BaseChatModel):
             ]
         )
         target = getattr(intent, "target_agent", None)
+        # Detected language, resolved BEFORE the terminal branches below so a
+        # code-authored reply (unknown intent / tier gate) is served in the
+        # language of THIS turn, not the pre-turn default. The `or` fallback
+        # fires only when the model returns a falsy/empty code — it does not pin
+        # the language, so a genuine, model-reported switch still flows through
+        # `intent.language`.
+        lang = getattr(intent, "language", None) or state.get(
+            "language", DEFAULT_LANGUAGE
+        )
         if target not in SUBAGENTS:
             logger.info("[agent] supervisor → END (unknown intent: %s)", target)
             return Command(
                 update={
                     "messages": [
-                        AIMessage(content="I'm not sure how to help with that yet.")
-                    ]
+                        AIMessage(content=system_reply("unknown_intent", lang))
+                    ],
+                    "language": lang,
                 }
             )
         # Tier gate (D.1): if the resolved context restricts sub-agents and the
@@ -277,14 +288,13 @@ def make_supervisor(llm: BaseChatModel):
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
             logger.info("[agent] supervisor → END (tier-gated: %s)", target)
             return Command(
-                update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]}
+                update={
+                    "messages": [
+                        AIMessage(content=system_reply("booking_upgrade", lang))
+                    ],
+                    "language": lang,
+                }
             )
-        # Persist the detected language. The `or` fallback fires only when the model
-        # returns a falsy/empty code — it does not pin the language, so a genuine,
-        # model-reported switch still flows through `intent.language`.
-        lang = getattr(intent, "language", None) or state.get(
-            "language", DEFAULT_LANGUAGE
-        )
         # MIN-65 D3: normalize raw slots in code (never trust the LLM to resolve
         # a date/number itself).
         trip_facts = _normalize_slots(

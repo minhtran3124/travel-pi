@@ -21,8 +21,8 @@ from langgraph.types import Command
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.background import BackgroundTask
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
+from app.agents.copy import system_reply
 from app.agents.graph import resolve_travel_graph
 from app.agents.guardrails import redact_pii
 from app.agents.metrics import TurnMetricsHandler
@@ -401,7 +401,13 @@ async def agent_chat(
         # instead of 500ing, and persist it so the conversation history stays
         # consistent. See AGENT_ERROR_FALLBACK_MSG (app/agents/constants.py).
         logger.exception("[agent_chat] graph run failed for conv=%s", conversation_id)
-        reply = AGENT_ERROR_FALLBACK_MSG
+        # Language from the pre-turn checkpoint (best-effort; default English).
+        try:
+            _pre = await graph.aget_state(cfg)
+            _lang = (_pre.values or {}).get("language") if _pre else None
+        except Exception:  # noqa: BLE001 — fallback must never fail
+            _lang = None
+        reply = system_reply("agent_error_fallback", _lang)
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
@@ -457,8 +463,8 @@ async def agent_chat(
                 for m in reversed(turn_messages)
                 if isinstance(m, AIMessage) and m.content and not m.tool_calls
             ),
-            AGENT_ERROR_FALLBACK_MSG,
-        )
+            None,
+        ) or system_reply("agent_error_fallback", result.get("language"))
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )

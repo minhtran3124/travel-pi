@@ -1,0 +1,140 @@
+"""system_reply — code-authored replies served in the conversation language.
+
+English is the single source; other languages are translated once by the
+content-translation service and cached; any failure serves English.
+"""
+
+from __future__ import annotations
+
+import re
+from contextlib import contextmanager
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+from app.agents import copy as mod
+from app.agents.constants import BOOKING_UPGRADE_MSG, NOT_SURE_MSG
+from app.agents.context import resolve_agent_context
+from app.agents.copy import SYSTEM_COPY, system_reply
+from app.agents.supervisor import SupervisorIntent, make_supervisor
+from app.clients.llm import FakeLLM
+from app.db import models  # noqa: F401 — registers models on Base
+from app.db.base import Base
+from langchain_core.messages import HumanMessage
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+class Spy:
+    def __init__(self, fail: bool = False):
+        self.calls: list[tuple[list[str], str]] = []
+        self.fail = fail
+
+    def __call__(self, texts, language):
+        self.calls.append((list(texts), language))
+        if self.fail:
+            raise RuntimeError("boom")
+        return [f"{language.upper()}:{t}" for t in texts]
+
+
+@pytest.fixture
+def scope(tmp_path, monkeypatch):
+    """Point ``system_reply`` at an isolated SQLite translation store."""
+    engine = create_engine(f"sqlite:///{tmp_path / 'copy.db'}", future=True)
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, future=True)
+
+    @contextmanager
+    def _scope():
+        s = factory()
+        try:
+            yield s
+            s.commit()
+        finally:
+            s.close()
+
+    monkeypatch.setattr(mod, "session_scope", _scope)
+    yield
+    engine.dispose()
+
+
+def test_every_key_has_non_empty_english_source():
+    assert SYSTEM_COPY and all(v.strip() for v in SYSTEM_COPY.values())
+
+
+def test_default_language_is_identity_no_session(monkeypatch):
+    def boom():
+        raise AssertionError("DB must not be opened for the default language")
+
+    monkeypatch.setattr(mod, "session_scope", boom)
+    assert system_reply("booking_upgrade", "en") == BOOKING_UPGRADE_MSG
+    assert system_reply("booking_upgrade", None) == BOOKING_UPGRADE_MSG
+    assert system_reply("booking_upgrade", "xx") == BOOKING_UPGRADE_MSG
+
+
+def test_vi_is_translated_once_then_served_from_cache(scope):
+    spy = Spy()
+    first = system_reply("booking_upgrade", "vi", translator=spy)
+    assert first == f"VI:{BOOKING_UPGRADE_MSG}"
+    assert spy.calls == [([BOOKING_UPGRADE_MSG], "vi")]
+
+    second = system_reply("booking_upgrade", "vi", translator=spy)
+    assert second == first
+    assert len(spy.calls) == 1  # cache hit — zero translator calls
+
+
+def test_translator_failure_serves_english(scope):
+    assert (
+        system_reply("unknown_intent", "vi", translator=Spy(fail=True)) == NOT_SURE_MSG
+    )
+
+
+def test_no_session_serves_english(monkeypatch):
+    def boom():
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(mod, "session_scope", boom)
+    assert (
+        system_reply("agent_error_fallback", "vi")
+        == SYSTEM_COPY["agent_error_fallback"]
+    )
+
+
+def test_supervisor_tier_gate_replies_in_the_detected_language(monkeypatch):
+    """A first-turn Vietnamese booking request from a free user gets the
+    upgrade notice in Vietnamese (this turn's detected language), not English."""
+    seen: list[tuple[str, str | None]] = []
+
+    def fake_reply(key, language, **_):
+        seen.append((key, language))
+        return f"[{language}] {SYSTEM_COPY[key]}"
+
+    monkeypatch.setattr("app.agents.supervisor.system_reply", fake_reply)
+    supervisor = make_supervisor(
+        FakeLLM(
+            structured_responses=[
+                SupervisorIntent(target_agent="booking", language="vi")
+            ]
+        )
+    )
+    cmd = supervisor(
+        {"messages": [HumanMessage(content="book cho mình cái rẻ nhất đi")]},
+        SimpleNamespace(context=resolve_agent_context(tier="free")),
+    )
+    assert seen == [("booking_upgrade", "vi")]
+    assert cmd.update["messages"][0].content.startswith("[vi]")
+    assert cmd.update["language"] == "vi"
+
+
+def test_no_literal_user_facing_aimessage_outside_copy_helper():
+    """Convention: every code-authored reply goes through ``system_reply`` so it
+    is localized. A new literal here would leak English to non-English users."""
+    root = Path(__file__).resolve().parents[2] / "app"
+    files = [
+        *root.joinpath("agents").rglob("*.py"),
+        *root.joinpath("streaming").rglob("*.py"),
+        root / "routers" / "agent.py",
+    ]
+    pattern = re.compile(r'AIMessage\(\s*content="')
+    offenders = [str(f) for f in files if pattern.search(f.read_text())]
+    assert offenders == [], offenders

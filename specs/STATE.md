@@ -4,11 +4,11 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** agent-tool-round-budget
-- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** finishing-a-development-branch
-- **Last action:** PR #143 merged into main (squash, commit 42c57a0); CI (api/web/web-e2e) all green before merge; live UAT screenshots at screenshots/uat-agent-tool-round-budget/ confirmed the fix. agent-budget-trip-context (PR #142) merged earlier (605e158). Primary checkout back on main, both feature branches deleted (local + remote). Open decisions from SUMMARY Advisory Findings (retry-induced duplicate writes, batching vs create-trip ordering) remain unaddressed follow-ups.
-- **Updated:** 2026-09-05
+- **Slug:** agent-system-copy-i18n
+- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** subagent-driven-development
+- **Last action:** Implemented app/agents/copy.py (system_reply: English source, translate-once-and-cache via ContentTranslationService, failure → English) and routed the 5 code-authored reply sites through it; 7 new tests green; independent review in progress on branch feat/agent-system-copy-i18n.
+- **Updated:** 2026-09-07
 
 ## Recent Specs
 
@@ -16,6 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
+| agent-system-copy-i18n | 2026-09-07 | review | branch feat/agent-system-copy-i18n |
 | agent-tool-round-budget | 2026-09-05 | shipped | merged via PR #143 → main |
 | agent-budget-trip-context | 2026-09-05 | shipped | merged via PR #142 → main |
 | catalog-content-i18n | 2026-09-05 | shipped | merged via PR #141 → main |
@@ -1468,5 +1469,33 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 4b749084-37c0-4b83-9ff3-e779905a99e7
 - exit: 
 - last_commit: 42c57a0 fix(agent): raise the tool-round budget — skip the no-op guard step, batch itinerary writes (#143)
+- user_turns: 0
+
+
+### 2026-09-05T12:46:08Z
+- session_id: 5c7731a5-df9b-4c6b-b75f-64e24cc770ca
+- exit: 
+- last_commit: 8f84da6 docs(specs): mark agent-tool-round-budget and agent-budget-trip-context shipped in STATE.md
+- user_turns: 0
+
+
+### 2026-09-05T15:53:53Z
+- session_id: c532a90a-2328-47ae-aacf-5940b351d6fb
+- exit: 
+- last_commit: 8f84da6 docs(specs): mark agent-tool-round-budget and agent-budget-trip-context shipped in STATE.md
+- user_turns: 0
+
+
+### 2026-09-05T15:53:53Z
+- session_id: aa489a6c-f164-42c2-be46-98b4b40c901e
+- exit: 
+- last_commit: b551cc3 docs(specs): record post-merge receipt advance and two harness gotchas
+- user_turns: 0
+
+
+### 2026-09-07T03:33:44Z
+- session_id: ba623323-4cd5-4114-9965-633a356f3c8f
+- exit: 
+- last_commit: 4e032c7 docs(specs): commit RUN.json and events.jsonl for agent-budget-trip-context
 - user_turns: 0
 
