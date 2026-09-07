@@ -29,6 +29,7 @@ CAPABILITIES: list[str] = [
     "dates",
     "errors",
     "routing",
+    "suggestions",
 ]
 
 SCENARIOS: list[str] = [

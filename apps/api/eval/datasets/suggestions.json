@@ -1,0 +1,142 @@
+[
+  {
+    "id": "suggestions-happy-vi-01",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Lên lịch trình 5 ngày ở Đà Nẵng giúp mình",
+    "expected_flow": "planner",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-en-01",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Give me a 3-day itinerary for Hanoi",
+    "expected_flow": "planner",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-vi-02",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tokyo có gì chơi vào tháng 9?",
+    "expected_flow": "concierge",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-en-02",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "What's the weather like in Bangkok this weekend?",
+    "expected_flow": "concierge",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-vi-03",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Nhớ giúp mình là mình ăn chay nhé",
+    "expected_flow": "journal",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-en-03",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Add a note: I want to visit the beach on day 2",
+    "expected_flow": "journal",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-vi-04",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Đặt khách sạn ở Hội An cho tôi",
+    "expected_flow": "booking",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-en-04",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Book the cheapest flight from SGN to Da Nang next Friday",
+    "expected_flow": "booking",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-vi-05",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Chuyến đi Phú Quốc của mình còn bao nhiêu ngân sách?",
+    "expected_flow": "budget",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  },
+  {
+    "id": "suggestions-happy-en-05",
+    "capability": "suggestions",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Break down my Tokyo trip expenses so far",
+    "expected_flow": "budget",
+    "metrics": [
+      "flow_match",
+      "suggestion_relevance"
+    ],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+  }
+]

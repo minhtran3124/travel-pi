@@ -34,6 +34,7 @@ CAPABILITIES = [
     "dates",
     "errors",
     "routing",
+    "suggestions",
 ]
 SCENARIOS = ["happy", "ambiguous", "multi_turn", "tool_failure", "adversarial"]
 
@@ -50,7 +51,7 @@ def test_real_dataset_directory_loads_without_error():
 
 
 def test_total_case_count_at_least_60():
-    assert len(_real_store().load()) >= 60
+    assert len(_real_store().load()) == 102
 
 
 def test_every_taxonomy_capability_has_at_least_one_case():
@@ -83,6 +84,41 @@ def test_smoke_suite_never_declares_a_judged_metric():
             f"smoke golden {case.id!r} declares judged metric(s) "
             f"{declared & judged_metrics}"
         )
+
+
+def test_suggestions_capability_has_ten_full_suite_cases():
+    cases = _real_store().load(capability="suggestions")
+    assert len(cases) == 10
+    for case in cases:
+        assert case.suite == "full"
+
+
+def test_multi_intent_goldens_declare_tasks_expected():
+    """Multi-domain-phrased routing goldens (`routing-multi-*`) are re-derived
+    from supervisor v10 (brief-2.1 Evidence/Inference row), not copied from
+    the legacy `multi_intent.json`. v10 fans out to two sub-agents only when
+    the phrasing spans two genuinely distinct domains (budget+concierge,
+    planner+concierge) — those declare `expected_tasks` (>=2 entries) and the
+    `tasks_expected` metric, with no `expected_flow`. Phrasings that mention
+    multiple topics but resolve to one flow (planner owns flights+weather)
+    keep `expected_flow`/`flow_match` and no `expected_tasks`, even though
+    they're still id-prefixed `routing-multi-` for the phrasing shape.
+    """
+    store = _real_store()
+    multi_intent_cases = [
+        case
+        for case in store.load(capability="routing")
+        if case.id.startswith("routing-multi-")
+    ]
+    assert multi_intent_cases
+    for case in multi_intent_cases:
+        if case.expected_tasks is not None:
+            assert len(case.expected_tasks) >= 2
+            assert "tasks_expected" in (case.metrics or [])
+            assert case.expected_flow is None
+        else:
+            assert case.expected_flow is not None
+            assert "flow_match" in (case.metrics or [])
 
 
 def test_filter_by_language_returns_only_that_language():
