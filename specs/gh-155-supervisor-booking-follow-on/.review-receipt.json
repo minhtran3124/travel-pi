@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "slug": "gh-155-supervisor-booking-follow-on",
+  "reviewed_head_sha": "62f8f773bfc47dc1e88eb3767f871af6fe560f97",
+  "reviewed_at": "2026-09-07T11:25:58+00:00",
+  "base_sha": "44f0769",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "1.1, 1.2, wave 2 (2.1\u20132.3) pass/approved; Minor findings in ledger"
+    },
+    {
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "3 angles over 44f0769..d25c2af, 0 candidates"
+    },
+    {
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "1 labelling note recorded in SUMMARY Intent Findings"
+    }
+  ]
+}
