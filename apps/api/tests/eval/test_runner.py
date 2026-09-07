@@ -103,19 +103,20 @@ def test_golden_explicit_metrics_win_over_capability_default():
     golden = _golden(metrics=["explicit-only"], capability="flight_search")
 
     assert resolve_metric_names(golden, {"flight_search": ["cap-default-not-run"]}) == [
-        "explicit-only"
+        "explicit-only",
+        "non_empty_reply",
     ]
 
 
 def test_capability_default_used_when_golden_has_no_explicit_metrics():
     golden = _golden(metrics=None, capability="hotels")
     names = resolve_metric_names(golden, {"hotels": ["cap-default-metric"]})
-    assert names == ["cap-default-metric"]
+    assert names == ["cap-default-metric", "non_empty_reply"]
 
 
 def test_falls_back_to_generic_default_metric_names_for_unlisted_capability():
     golden = _golden(metrics=None, capability="routing")
-    assert resolve_metric_names(golden, {}) == DEFAULT_METRIC_NAMES
+    assert list(resolve_metric_names(golden, {})) == list(DEFAULT_METRIC_NAMES)
 
 
 def test_explicit_empty_metrics_list_is_respected_not_defaulted():
@@ -136,7 +137,7 @@ def test_run_eval_runs_only_the_selected_metrics():
     report = run_eval([golden], _FakeAgentRunner(), {}, TAXONOMY)
 
     names_ran = {c.name for c in report.per_case[0].checks}
-    assert names_ran == {"only-explicit"}
+    assert names_ran == {"only-explicit", "non_empty_reply"}  # always-on check
     assert m_unused.call_count == 0
 
 
@@ -173,7 +174,9 @@ def test_judged_metric_skipped_when_no_judge_key_and_recorded_in_run_meta():
     report = run_eval([golden], _FakeAgentRunner(), {}, TAXONOMY, judge_available=False)
 
     case = report.per_case[0]
-    assert case.checks == [], "a skipped judged metric must be visibly absent"
+    assert [c.name for c in case.checks] == ["non_empty_reply"], (
+        "a skipped judged metric must be visibly absent (only the always-on check ran)"
+    )
     assert judged.seen_k == [], "a skipped judged metric must never be invoked"
     assert report.run_meta["skipped_judged_metrics"] == ["fake-judged-skip"]
 
@@ -293,3 +296,16 @@ def test_cli_repeat_flag_reaches_judged_metric_k():
     )
 
     assert judged.seen_k == [5]
+
+
+def test_empty_reply_fails_even_when_the_golden_omits_non_empty_reply():
+    """Reply-dependent metrics report not_applicable (passed) on an empty
+    reply, so `non_empty_reply` is always on: an agent that says nothing must
+    never score all-green just because the golden did not list that check."""
+    golden = _golden(metrics=["flow_match"], expected_flow="concierge")
+    report = run_eval([golden], _FakeAgentRunner(reply=""), {}, TAXONOMY)
+    case = report.per_case[0]
+    assert case.passed is False
+    names = {check.name: check for check in case.checks}
+    assert names["flow_match"].passed is True
+    assert names["non_empty_reply"].passed is False

@@ -49,6 +49,15 @@ DEFAULT_METRIC_NAMES: tuple[str, ...] = (
 )
 
 
+# Always evaluated alongside whatever a golden or capability default names
+# (unless the golden opts out of checking entirely with ``metrics: []``).
+# Every reply-dependent metric reports ``not_applicable`` (passed) on an empty
+# reply, so without this an empty reply would score all-green for any golden
+# that did not list ``non_empty_reply`` itself; this is the one check that
+# owns "the agent said nothing". Deterministic and keyless, so it costs nothing.
+ALWAYS_ON_METRIC_NAMES: tuple[str, ...] = ("non_empty_reply",)
+
+
 def resolve_metric_names(
     golden: Golden, default_metrics_by_capability: Mapping[str, Sequence[str]]
 ) -> Sequence[str]:
@@ -56,11 +65,18 @@ def resolve_metric_names(
 
     ``golden.metrics`` wins when set (even an explicit empty list — an
     intentional "check nothing" opt-out, not a signal to fall back). Otherwise
-    the caller's per-capability default, else `DEFAULT_METRIC_NAMES`.
+    the caller's per-capability default, else `DEFAULT_METRIC_NAMES`. Any
+    non-empty result additionally carries `ALWAYS_ON_METRIC_NAMES`.
     """
     if golden.metrics is not None:
-        return golden.metrics
-    return default_metrics_by_capability.get(golden.capability, DEFAULT_METRIC_NAMES)
+        names: Sequence[str] = golden.metrics
+    else:
+        names = default_metrics_by_capability.get(
+            golden.capability, DEFAULT_METRIC_NAMES
+        )
+    if not names:
+        return names
+    return list(names) + [n for n in ALWAYS_ON_METRIC_NAMES if n not in names]
 
 
 def run_eval(
