@@ -37,3 +37,22 @@ Two run-1 crashes fixed before the run completed: `Settings.agent_config_cache_t
 Golden edits: 6 flow re-derivations + 4 date moves (10 goldens). Eval code edits in this task: `evalkit/metrics/judged.py` (empty-reply guard, planned contingency) and `evalkit/metrics/deterministic.py` (`reply_language` empty-reply guard — same defect class, one file beyond the task's Files line; recorded as a Rule-1 deviation in SUMMARY).
 
 Run 2: see SUMMARY `### Verify` (re-run after the edits above; loop capped at two runs by the plan).
+
+## Run 2 (after the edits above) — the baseline
+
+`make eval-full`, same settings. 84 cases, **65 passed**, 19 failed. Capabilities below threshold: budget 4/6, errors 4/6, flight_search 3/6, hotels 2/6, journal 2/4.
+
+Fixed by the golden/eval edits (fail → pass): booking-happy-vi-01, booking-ambiguous-vi-01, dates-ambiguous-vi-01, dates-multi_turn-vi-01, dates-multi_turn-en-01, errors-multi_turn-en-01, memory-multi_turn-vi-06, routing-ambiguous-en-02. Passed on run 2 without any edit (run-to-run variance, tracked issue stays open): flight_search-ambiguous-en-01, journal-multi_turn-vi-01, language-ambiguous-en-01, language-multi_turn-vi-01.
+
+New failures on run 2 (pass → fail), all agent-side, goldens kept:
+
+| golden_id | failing checks | class | action |
+| --- | --- | --- | --- |
+| routing-multi_turn-en-01 | agent_run: `ValidationError` — supervisor emitted `secondary_agent='booking'`, which `SupervisorIntent` forbids; the turn crashed | agent-defect | #155 |
+| flight_search-ambiguous-vi-02 | search_vs_booking 0.43 | agent-defect (judged) | folded into #154 |
+| hotels-ambiguous-vi-01 | search_vs_booking 0.58 | agent-defect (judged) | folded into #154 |
+| journal-ambiguous-vi-01 | flow_match (journal vs planner) | agent-defect / variance | routing flip vs run 1; folded into #150 |
+
+Changed failure mode on run 2: flight_search-multi_turn-vi-01 now calls `create_trip` + `resolve_date` instead of `search_flights` (→ #156); hotels-happy-en-02 now routes to planner (v10 both says planner owns `search_hotels` and that concierge does hotel availability lookups — the prompt contradicts itself, golden kept; flip is variance).
+
+Loop capped at two runs by PLAN.md Task 3.2 → run 2 is committed as `eval/baselines/main.json`. The 19 baseline failures are all tracked: #146 #147 #149 #150 #151 #152 #153 #154 #155 #156 (see the per-golden `notes`).

@@ -64,7 +64,7 @@
     "input": "Cho tôi xem các chuyến bay từ TP.HCM đi Tokyo tuần sau",
     "expected_flow": "planner",
     "metrics": ["flow_match", "search_vs_booking", "reply_language"],
-    "notes": "Migrated verbatim from legacy intent.json; 'tuần sau' (next week) is a relative range, not an exact date."
+    "notes": "Migrated verbatim from legacy intent.json; 'tuần sau' (next week) is a relative range, not an exact date. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#154"
   },
   {
     "id": "flight_search-ambiguous-en-02",
@@ -96,7 +96,7 @@
       }
     ],
     "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
-    "notes": "review-b7 re-validate 2026-09-07: date moved to 2027 (the 2026 date had passed; the agent refuses past dates)"
+    "notes": "review-b7 re-validate 2026-09-07: date moved to 2027 (the 2026 date had passed; the agent refuses past dates) | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#156"
   },
   {
     "id": "flight_search-multi_turn-en-01",

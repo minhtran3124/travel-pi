@@ -126,7 +126,7 @@
     ],
     "expected_flow": "booking",
     "metrics": ["flow_match"],
-    "notes": "Multi-intent case (booking + a secondary journal/packing-note intent) — same multi-intent gap as routing-multi_turn-vi-01."
+    "notes": "Multi-intent case (booking + a secondary journal/packing-note intent) — same multi-intent gap as routing-multi_turn-vi-01. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#155"
   },
   {
     "id": "routing-happy-en-05",

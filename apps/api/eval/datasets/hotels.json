@@ -50,7 +50,7 @@
       }
     ],
     "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
-    "notes": "Dated availability/booking-flow search — search_hotels, not browse_hotels. New case (not a legacy migration) added for oracle_checks coverage. | review-b7 re-validate 2026-09-07: dates moved to 2027 (the 2026 dates had passed)"
+    "notes": "Dated availability/booking-flow search — search_hotels, not browse_hotels. New case (not a legacy migration) added for oracle_checks coverage. | review-b7 re-validate 2026-09-07: dates moved to 2027 (the 2026 dates had passed) | review-b7 run 2: routed to planner (v10 assigns search_hotels to planner but hotel availability lookups to concierge — prompt contradiction, flip is variance); golden kept"
   },
   {
     "id": "hotels-ambiguous-vi-01",
@@ -61,7 +61,7 @@
     "input": "Có phòng nào ở Hội An gần biển không?",
     "expected_flow": "concierge",
     "metrics": ["flow_match", "search_vs_booking", "reply_language"],
-    "notes": "Amenity-based, date-less ask — a good answer stays in search mode even with no exact match."
+    "notes": "Amenity-based, date-less ask — a good answer stays in search mode even with no exact match. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#154"
   },
   {
     "id": "hotels-ambiguous-en-01",

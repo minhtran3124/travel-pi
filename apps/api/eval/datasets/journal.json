@@ -30,7 +30,7 @@
     "input": "Cho tôi xem lịch trình chuyến đi Đà Lạt của tôi",
     "expected_flow": "journal",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "No trip_id given — ambiguous which trip outside a live session."
+    "notes": "No trip_id given — ambiguous which trip outside a live session. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#150"
   },
   {
     "id": "journal-ambiguous-en-01",
