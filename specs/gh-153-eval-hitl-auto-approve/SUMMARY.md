@@ -57,6 +57,7 @@ The interrupt is the product's HITL design, not a bug; the eval harness simply l
 | SC-8 The gate accepts the regenerated baseline | `cd apps/api && mkdir -p eval/reports && cp eval/baselines/main.json eval/reports/latest.json && make eval-compare` | 0 | tolerance=5.0%  exit_code=0 | SC-8 |
 | SC-9 README documents `hitl` and `meta.interrupts` | `grep -c -e "hitl" -e "meta.interrupts" apps/api/eval/README.md` | 0 | 11 | SC-9 |
 | Task 3.1 paid run (attempt 2; attempt 1 aborted when the Docker stack was stopped externally) | `<paid run, not re-run under --check: cd apps/api && make eval-full>` | 2 | 67/84; make exits 2 while budget/hotels/journal sit below threshold; report is the new baseline | SC-7 |
+| Full BE suite at finish (fresh SQLite, `.env` present) | `<not re-run under --check (314s): cd apps/api && DATABASE_URL=sqlite:////tmp/x.db DASHBOARD_BASIC_USER= DASHBOARD_BASIC_PASSWORD= LANGFUSE_ENABLED=false ../../.venv/bin/python -m pytest tests/ -q>` | 1 | 2271 passed, 5 failed — all five (`test_config_llm` ×2, `test_embeddings`, `test_routing_tools` ×2) are the known `.env`-real-key group (memory: env-openai-key-test-breaks-llm-tests); with `.env` renamed they pass: 21 passed; no diff vs main under tests/core, tests/tools, app/core, app/tools | |
 | tests/eval whole (cited) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | see status log | |
 
 ### Not auto-verified
