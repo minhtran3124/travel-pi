@@ -33,6 +33,7 @@ from evalkit.types import Golden, Trace
 from evalkit.types import ToolCall as EvalToolCall
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
+from langgraph.types import Command
 
 logger = logging.getLogger(__name__)
 
@@ -183,6 +184,7 @@ class LangGraphRunner:
 
         start = time.monotonic()
         out: dict[str, Any] = {}
+        interrupts: list[dict[str, Any]] = []
         for i, turn in enumerate(turns):
             payload: dict[str, Any] = {"messages": [HumanMessage(content=turn)]}
             if i == 0:
@@ -191,6 +193,29 @@ class LangGraphRunner:
                 payload["user_id"] = "eval"
                 payload["trip_id"] = None
             out = self._graph.invoke(payload, cfg, context=self._context)
+
+            pending = [
+                iv.value
+                for iv in out.get("__interrupt__", ())
+                if isinstance(getattr(iv, "value", None), dict)
+                and iv.value.get("type") == "plan_approval"
+            ]
+            if pending:
+                # At most one resume per turn.
+                interrupts.append(
+                    {
+                        "type": pending[0]["type"],
+                        "draft": pending[0]["draft"],
+                        "turn": i,
+                    }
+                )
+                hitl = getattr(golden, "hitl", None)
+                if hitl is not None:
+                    out = self._graph.invoke(
+                        Command(resume={"approved": hitl == "approve"}),
+                        cfg,
+                        context=self._context,
+                    )
         elapsed = time.monotonic() - start
 
         messages = out.get("messages", [])
@@ -208,5 +233,6 @@ class LangGraphRunner:
                 "suggestions": suggestions_for_flow(
                     out.get("current_flow"), trip_facts=out.get("trip_facts")
                 ),
+                "interrupts": interrupts,
             },
         )

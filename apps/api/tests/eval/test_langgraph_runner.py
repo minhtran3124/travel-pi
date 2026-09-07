@@ -16,6 +16,7 @@ from eval.adapters.langgraph_runner import (
 )
 from evalkit.types import Golden
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+
 from tests.tools.conftest import (
     agent_db,  # noqa: F401 — fixture not visible cross-package
 )
@@ -29,6 +30,15 @@ def _golden(**overrides):
         "language": "en",
         "suite": "smoke",
         "input": "hi",
+        "turns": None,
+        "expected_flow": None,
+        "expected_tools": None,
+        "expected_tasks": None,
+        "hitl": None,
+        "expected_trajectory": None,
+        "oracle_checks": None,
+        "metrics": None,
+        "notes": None,
     }
     defaults.update(overrides)
     return Golden(**defaults)
@@ -219,3 +229,40 @@ def test_run_meta_single_intent_has_one_task(agent_db):
     assert trace.meta["tasks"] == ["concierge"]
     assert trace.meta["suggestions"], "known flow must yield non-empty suggestions"
     assert all(isinstance(s, str) for s in trace.meta["suggestions"])
+
+
+# --- HITL plan-approval resume (task 1.2) -----------------------------------
+
+
+def test_booking_interrupt_is_recorded_without_hitl():
+    runner = _build_runner(target="booking", answer="Hotel booked!")
+    golden = _golden(id="hitl-1", input="book me a hotel in Paris")
+
+    trace = runner.run(golden)
+
+    assert trace.reply == ""
+    assert trace.meta["interrupts"] == [
+        {"type": "plan_approval", "draft": golden.input, "turn": 0}
+    ]
+
+
+def test_hitl_approve_resumes_and_captures_reply():
+    runner = _build_runner(target="booking", answer="Hotel booked!")
+    golden = _golden(id="hitl-2", input="book me a hotel in Paris", hitl="approve")
+
+    trace = runner.run(golden)
+
+    assert "Hotel booked" in trace.reply
+    assert trace.meta["interrupts"] == [
+        {"type": "plan_approval", "draft": golden.input, "turn": 0}
+    ]
+
+
+def test_hitl_reject_captures_cancellation():
+    runner = _build_runner(target="booking", answer="Hotel booked!")
+    golden = _golden(id="hitl-3", input="book me a hotel in Paris", hitl="reject")
+
+    trace = runner.run(golden)
+
+    assert "cancelled" in trace.reply.lower()
+    assert "Hotel booked" not in trace.reply
