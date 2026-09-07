@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any
 
 from langchain_core.messages import AIMessage, ToolMessage
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.copy import system_reply
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.languages import DEFAULT_LANGUAGE
@@ -317,7 +317,9 @@ async def stream_agent_events(
                 metrics.cost_usd = estimate_cost(snap["by_model"])
                 usage = metrics.public()
             except Exception:  # noqa: BLE001 — best-effort metrics
-                logger.debug("[stream_agent_events] metrics finalize failed", exc_info=True)
+                logger.debug(
+                    "[stream_agent_events] metrics finalize failed", exc_info=True
+                )
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,
@@ -343,5 +345,9 @@ async def stream_agent_events(
         # turn is persisted; the terminal error event still signals the failure
         # downstream (e.g. the FE retry affordance).
         if not emitted_token:
-            yield events.token(AGENT_ERROR_FALLBACK_MSG)
+            yield events.token(
+                await asyncio.to_thread(
+                    system_reply, "agent_error_fallback", current_language
+                )
+            )
         yield events.error(code="internal", message=str(exc))

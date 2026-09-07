@@ -48,19 +48,26 @@ class TranslationBatch(BaseModel):
     items: list[str] = Field(..., description="Translations, one per input, in order.")
 
 
-def llm_translator(texts: list[str], language: str) -> list[str]:
+def llm_translator(
+    texts: list[str], language: str, *, instructions: str | None = None
+) -> list[str]:
     """Translate ``texts`` in one structured LLM call.
 
     :param texts: Source strings (non-empty list).
     :param language: Target language code (used to name the language in the prompt).
+    :param instructions: Extra system-prompt guidance for this batch (e.g. the
+        assistant persona for system copy); ``None`` for plain catalog text.
     :return: Translations in input order.
     :raises ValueError: If the model returns a different number of items.
     """
     llm = get_agent_llm(TRANSLATOR_AGENT).with_structured_output(TranslationBatch)
     numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(texts))
+    system = _SYSTEM.format(language=LANGUAGE_NAMES[language])
+    if instructions:
+        system = f"{system} {instructions}"
     result = llm.invoke(
         [
-            SystemMessage(content=_SYSTEM.format(language=LANGUAGE_NAMES[language])),
+            SystemMessage(content=system),
             HumanMessage(content=numbered),
         ]
     )
@@ -70,7 +77,12 @@ def llm_translator(texts: list[str], language: str) -> list[str]:
             f"translator returned {0 if items is None else len(items)} items "
             f"for {len(texts)} inputs"
         )
-    return items
+    # The model sometimes echoes the input numbering ("1. …"); strip a prefix
+    # that matches the item's own index — a genuine leading number would not.
+    return [
+        item[len(f"{i + 1}. ") :] if item.startswith(f"{i + 1}. ") else item
+        for i, item in enumerate(items)
+    ]
 
 
 class ContentTranslationService:

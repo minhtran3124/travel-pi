@@ -28,6 +28,7 @@ from app.agents.constants import (
     SYNTHESIZE_NODE,
 )
 from app.agents.context import AgentContext
+from app.agents.copy import system_reply
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
 from app.memory.store import (
@@ -274,16 +275,19 @@ def plan_node(state: TravelAgentState) -> Command:
     draft = state["messages"][-1].content if state["messages"] else ""
     decision = interrupt({"type": "plan_approval", "draft": draft})
     approved = not (isinstance(decision, dict) and not decision.get("approved", True))
+    lang = state.get("language")
     if not approved:
         logger.info("[agent] plan → END (booking cancelled)")
         return Command(
-            update={"messages": [AIMessage(content="Booking cancelled as requested.")]},
+            update={
+                "messages": [AIMessage(content=system_reply("booking_cancelled", lang))]
+            },
             goto=END,
         )
     logger.info("[agent] plan → booking (approved)")
     return Command(
         update={
-            "messages": [AIMessage(content="Plan approved. Proceeding with booking.")],
+            "messages": [AIMessage(content=system_reply("plan_approved", lang))],
             # P2: signal approval so extract_memory records outcome="approved".
             "plan_approved": True,
         },
