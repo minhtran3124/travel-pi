@@ -71,7 +71,7 @@ Convention for the future: no user-facing literal `AIMessage(content="...")` out
 
 ### Not auto-verified
 
-- Real Vietnamese wording of the cached translation (LLM output quality) — reached traceability; not re-run because the suite uses FakeLLM; verify once in the dev stack by sending "book cho mình cái rẻ nhất đi" as a free user.
+- Real Vietnamese wording + live behaviour — reached **truth** via UAT on the dev stack (2026-09-07, `screenshots/uat-agent-system-copy-i18n/README.md`): free-user tier gate (the reported screenshot case), HITL cancel, HITL approve all served in Vietnamese; `unknown_intent` / `agent_error_fallback` not reachable from the UI (unit-tested; LLM-translated in the container).
 - Independent review (general-purpose reviewer, read-only): Spec PASS / Quality PASS; major finding (sync translation on the event loop in async REST/SSE fallbacks) fixed with `asyncio.to_thread`; minor findings (stale cache on source edit → row id now carries a source digest; grep guard widened to `'`/f-strings/`*_MSG` constants; plan-node `vi` test added) fixed in the follow-up commit.
 
 ### Rollback
