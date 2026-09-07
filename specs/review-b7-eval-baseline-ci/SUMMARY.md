@@ -59,7 +59,10 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 
 ### Deviations
 
-- none
+- Design component 8 — two legacy multi-intent cases ("Find flights to Tokyo and tell me the weather there", "Plan my Tokyo weekend: find flights, check the weather, then draft an itinerary") were ported as planner-only `flow_match` goldens (`routing-multi-en-01/02`) instead of `expected_tasks` fan-outs, per research-brief.md's supervisor-v10 Inference row (planner owns flights + weather). Commit `4003892`.
+- Rule 1 — Task 2.1: `test_multi_intent_goldens_declare_tasks_expected` accepts either shape for `routing-multi-*` ids (fan-out with `expected_tasks`, or single-flow with `expected_flow`) because PLAN.md's one-line test description contradicted its own Inference row. `apps/api/tests/eval/test_datasets.py`. Commit `4003892`.
+- Rule 1 — Task 1.7: reworded one unrelated README line ("optional extras" → "extras") so the whole-file substring Verify passes. `apps/api/evalkit/README.md:150`. Commit `873a487`.
+- Rule 1 — Task 1.5: the multi-intent runner test asserts `suggestions` is a list rather than non-empty, because a multi-intent turn ends at `current_flow == "synthesize"`, which has no static suggestion map. `apps/api/tests/eval/test_langgraph_runner.py`. Commit `1ff23e4`. Product gap noted for backlog: real multi-intent turns surface zero suggestion chips.
 
 ### Verify
 
