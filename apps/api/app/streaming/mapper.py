@@ -345,5 +345,9 @@ async def stream_agent_events(
         # turn is persisted; the terminal error event still signals the failure
         # downstream (e.g. the FE retry affordance).
         if not emitted_token:
-            yield events.token(system_reply("agent_error_fallback", current_language))
+            yield events.token(
+                await asyncio.to_thread(
+                    system_reply, "agent_error_fallback", current_language
+                )
+            )
         yield events.error(code="internal", message=str(exc))

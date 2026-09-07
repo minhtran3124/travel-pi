@@ -8,6 +8,7 @@ owns the live thread state).
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 from dataclasses import replace
@@ -407,7 +408,8 @@ async def agent_chat(
             _lang = (_pre.values or {}).get("language") if _pre else None
         except Exception:  # noqa: BLE001 — fallback must never fail
             _lang = None
-        reply = system_reply("agent_error_fallback", _lang)
+        # Off the loop: a first miss per language runs a blocking translation.
+        reply = await asyncio.to_thread(system_reply, "agent_error_fallback", _lang)
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
@@ -464,7 +466,9 @@ async def agent_chat(
                 if isinstance(m, AIMessage) and m.content and not m.tool_calls
             ),
             None,
-        ) or system_reply("agent_error_fallback", result.get("language"))
+        ) or await asyncio.to_thread(
+            system_reply, "agent_error_fallback", result.get("language")
+        )
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )

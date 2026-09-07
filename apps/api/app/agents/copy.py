@@ -12,6 +12,7 @@ error, LLM outage — serves the English source; this never raises.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 
 from pydantic import BaseModel
@@ -60,14 +61,18 @@ def system_reply(
     :param language: Conversation language; unknown/empty → default → English.
     :param translator: Test seam; ``None`` uses the LLM translator.
     :return: The translated text, or the English source on any failure.
+    :raises KeyError: For a key missing from ``SYSTEM_COPY`` (programmer error).
     """
     source = SYSTEM_COPY[key]
     if normalize(language) == DEFAULT_LANGUAGE:
         return source
+    # The cache row is keyed by key + a digest of the English source, so editing
+    # a constant invalidates its translations instead of serving a stale one.
+    row_id = f"{key}:{hashlib.sha1(source.encode()).hexdigest()[:10]}"
     try:
         with session_scope() as s:
             [out] = ContentTranslationService(s, translator).localize(
-                ENTITY_TYPE, [_Copy(id=key, text=source)], ["text"], language
+                ENTITY_TYPE, [_Copy(id=row_id, text=source)], ["text"], language
             )
         return out.text
     except Exception as e:  # noqa: BLE001 — serve English, never raise

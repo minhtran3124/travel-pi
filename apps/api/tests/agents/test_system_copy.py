@@ -126,6 +126,39 @@ def test_supervisor_tier_gate_replies_in_the_detected_language(monkeypatch):
     assert cmd.update["language"] == "vi"
 
 
+def test_editing_the_english_source_invalidates_the_cached_translation(
+    scope, monkeypatch
+):
+    spy = Spy()
+    system_reply("plan_approved", "vi", translator=spy)
+    monkeypatch.setitem(SYSTEM_COPY, "plan_approved", "Approved. Booking now.")
+    assert (
+        system_reply("plan_approved", "vi", translator=spy)
+        == "VI:Approved. Booking now."
+    )
+    assert len(spy.calls) == 2  # new source text → fresh translation, not stale
+
+
+def test_plan_node_outcomes_use_the_conversation_language(monkeypatch):
+    from app.agents import nodes as nodes_mod
+
+    seen: list[tuple[str, str | None]] = []
+    monkeypatch.setattr(
+        nodes_mod,
+        "system_reply",
+        lambda key, lang, **_: seen.append((key, lang)) or key,
+    )
+    monkeypatch.setattr(nodes_mod, "interrupt", lambda _payload: {"approved": False})
+    cmd = nodes_mod.plan_node({"messages": [], "language": "vi"})
+    assert seen == [("booking_cancelled", "vi")]
+    assert cmd.update["messages"][0].content == "booking_cancelled"
+
+    monkeypatch.setattr(nodes_mod, "interrupt", lambda _payload: {"approved": True})
+    cmd = nodes_mod.plan_node({"messages": [], "language": "vi"})
+    assert seen[-1] == ("plan_approved", "vi")
+    assert cmd.update["plan_approved"] is True
+
+
 def test_no_literal_user_facing_aimessage_outside_copy_helper():
     """Convention: every code-authored reply goes through ``system_reply`` so it
     is localized. A new literal here would leak English to non-English users."""
@@ -135,6 +168,6 @@ def test_no_literal_user_facing_aimessage_outside_copy_helper():
         *root.joinpath("streaming").rglob("*.py"),
         root / "routers" / "agent.py",
     ]
-    pattern = re.compile(r'AIMessage\(\s*content="')
+    pattern = re.compile(r"""AIMessage\(\s*content=(?:f?["']|[A-Z_]+_MSG\b)""")
     offenders = [str(f) for f in files if pattern.search(f.read_text())]
     assert offenders == [], offenders

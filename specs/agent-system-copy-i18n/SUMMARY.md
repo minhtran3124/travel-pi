@@ -59,20 +59,20 @@ Convention for the future: no user-facing literal `AIMessage(content="...")` out
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| helper unit tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q` | 0 | 7 passed | |
+| helper unit tests | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q` | 0 | 9 passed | |
 | SC-1 en no-op | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q -k default` | 0 | | SC-1 |
 | SC-2 cache | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q -k cache` | 0 | | SC-2 |
 | SC-3 failure→en | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q -k fail` | 0 | | SC-3 |
 | SC-4 supervisor lang | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q -k supervisor` | 0 | | SC-4 |
 | SC-5 no literal | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_system_copy.py -q -k no_literal` | 0 | | SC-5 |
-| agent suites | `cd apps/api && DATABASE_URL="sqlite:///$(mktemp -d)/t.db" ../../.venv/bin/python -m pytest tests/agents tests/api/agent -q` | 0 | 502 passed (without the override, `.env` points at a stopped Postgres and TestClient-lifespan tests error at setup — pre-existing) | |
+| agent suites | `cd apps/api && DATABASE_URL="sqlite:///$(mktemp -d)/t.db" ../../.venv/bin/python -m pytest tests/agents tests/api/agent -q` | 0 | 504 passed (without the override, `.env` points at a stopped Postgres and TestClient-lifespan tests error at setup — pre-existing) | |
 | full BE suite (SQLite) | `cd apps/api && DATABASE_URL="sqlite:///$(mktemp -d)/t.db" ../../.venv/bin/python -m pytest -q` | 1 | 59 failed / 2120 passed; the identical 59 (dashboard/prompts/info/config, env-related) fail on `main` with the same command — pre-existing, not introduced | |
 | lint | `cd apps/api && ruff check app tests/agents/test_system_copy.py` | 0 | (`scripts/seed_supabase_user.py` I001 is pre-existing on main) | |
 
 ### Not auto-verified
 
 - Real Vietnamese wording of the cached translation (LLM output quality) — reached traceability; not re-run because the suite uses FakeLLM; verify once in the dev stack by sending "book cho mình cái rẻ nhất đi" as a free user.
-- Event-loop blocking on the FIRST miss per (key, language) in the async REST/SSE fallback paths — accepted: one-time per language, then a DB read.
+- Independent review (general-purpose reviewer, read-only): Spec PASS / Quality PASS; major finding (sync translation on the event loop in async REST/SSE fallbacks) fixed with `asyncio.to_thread`; minor findings (stale cache on source edit → row id now carries a source digest; grep guard widened to `'`/f-strings/`*_MSG` constants; plan-node `vi` test added) fixed in the follow-up commit.
 
 ### Rollback
 
