@@ -43,6 +43,7 @@ The repo already has one mechanism for reply language (memory: agent-reply-langu
 | Trigger corroborated (intake) | `<intake-era: grep -n with_reply_language apps/api/app/agents/nodes.py returned exit 1 before the fix>` | 1 | the synthesize node never applied the guard | |
 | SC-1 unit test | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_synthesize_node.py -q` | 0 | 2 passed | SC-1 |
 | SC-2 graph-level unchanged | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_multi_intent_routing.py tests/agents/test_task_ledger.py tests/agents/test_plan_everything.py -q` | 0 | 18 passed | SC-2 |
+| Full BE suite at finish (fresh SQLite) | `<not re-run under --check (179s): cd apps/api && DATABASE_URL=sqlite:////tmp/x.db ../../.venv/bin/python -m pytest tests/ -q>` | 1 | 2185 passed, 1 failed: `test_config_llm.py::test_llm_defaults_require_no_key` — caused by an `OPENAI_API_KEY=` (empty) override in the harness command, not by the branch (`pytest tests/core/test_config_llm.py -q` without overrides → 14 passed; no diff vs main under tests/core, app/core) | |
 | SC-3 lint (PLAN §3 SC-3) | `cd apps/api && ../../.venv/bin/ruff check app/agents/nodes.py tests/agents/test_synthesize_node.py` | 0 | PLAN.md's SC-3 is the lint gate; design.md's optional keyed budget run is deferred (Not auto-verified) | SC-3 |
 
 ### Not auto-verified
