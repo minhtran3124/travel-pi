@@ -1,11 +1,12 @@
 name: Agent Eval
 
-# Two gates, deliberately asymmetric on cost (research-brief.md §5, decision
-# fork 2): the judge is a real paid LLM call per case, so it NEVER runs on a
-# PR — only L0 (deterministic) + L2 (trajectory) checks run there, both
-# free/offline. The judged matrix (L1 G-Eval + Oracle fact-check) runs once
-# a night on a schedule, so judge spend and judge-variance stay bounded and
-# predictable instead of scaling with PR volume.
+# Decision E002 (specs/review-b7-eval-baseline-ci/ESCALATIONS.md): the judge
+# is a real paid LLM call per case, so the judged suite NEVER runs on CI —
+# only L0 (deterministic) + L2 (trajectory) checks run here, both
+# free/offline. The judged matrix (L1 G-Eval + Oracle fact-check) runs
+# locally via `make eval-check`, so judge spend and judge-variance stay
+# bounded and are gated by a human before merge instead of scaling with PR
+# volume.
 
 on:
   pull_request:
@@ -15,8 +16,6 @@ on:
       - apps/api/app/tools/**
       - apps/api/eval/**
       - apps/api/evalkit/**
-  schedule:
-    - cron: "0 3 * * *" # 03:00 UTC nightly
   workflow_dispatch: {}
 
 jobs:
@@ -67,78 +66,3 @@ jobs:
 
       - name: Dataset + CLI wiring sanity (dry-run, no agent invocation)
         run: .venv/bin/python -m eval --suite smoke --dry-run
-
-  # ---------------------------------------------------------------------
-  # eval-nightly — full judged matrix + baseline regression gate.
-  #
-  # Needs `secrets.OPENAI_API_KEY` (the real judge + agent LLM key). When
-  # the secret is absent (e.g. a fork, or before it's been provisioned),
-  # this job logs loudly and exits 0 (neutral) rather than failing the
-  # schedule or silently reporting green as if a judged run happened.
-  eval-nightly:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check for judge key
-        id: check_key
-        run: |
-          if [ -z "$OPENAI_API_KEY" ]; then
-            echo "has_key=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::OPENAI_API_KEY secret is not set - nightly judged eval SKIPPED (no judged run happened; this is not a pass). Configure the secret to enable full judged runs + baseline regression gating."
-          else
-            echo "has_key=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python
-        if: steps.check_key.outputs.has_key == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install uv
-        if: steps.check_key.outputs.has_key == 'true'
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install dependencies
-        if: steps.check_key.outputs.has_key == 'true'
-        run: uv venv && uv pip install -r requirements.txt
-
-      - name: Run full judged suite (temp-0, k=3 repeats)
-        if: steps.check_key.outputs.has_key == 'true'
-        run: .venv/bin/python -m eval --suite full --repeat 3 --out report.json
-
-      - name: Compare against baseline
-        if: steps.check_key.outputs.has_key == 'true'
-        run: |
-          if [ ! -f eval/baselines/main.json ]; then
-            echo "::warning::No baseline at eval/baselines/main.json yet - skipping regression compare (first judged run). Save one with \`make eval-baseline\` (or the equivalent evalkit.baseline.JsonBaselineStore.save call) once this run is trusted."
-            exit 0
-          fi
-          .venv/bin/python - <<'PY'
-          import sys
-
-          from evalkit.baseline import compare, render_table
-          from evalkit.report import load_report
-
-          report = load_report("report.json")
-          baseline = load_report("eval/baselines/main.json")
-          diff = compare(report, baseline, tolerance=0.05)
-          print(render_table(diff))
-          sys.exit(diff.exit_code())
-          PY
-
-      - name: Upload report artifact
-        if: steps.check_key.outputs.has_key == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: eval-report-${{ github.run_id }}
-          path: apps/api/report.json
-          retention-days: 90
