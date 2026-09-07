@@ -4,10 +4,10 @@ TAXONOMY -> evalkit.cli.main() (agent-eval-pipeline task 3.1).
 The only place that glues `eval/adapters` (the travel-pi binding) to
 `evalkit`'s framework-free CLI. ``python -m eval --suite smoke --dry-run``
 must work with zero keys/DB/network: dry-run never calls
-`agent_runner.run()`, and constructing `LangGraphRunner()` only compiles the
-graph — each node resolves its LLM lazily on invocation (see
-`app.agents.graph.build_graph`), so no provider key is needed just to list
-goldens.
+`agent_runner.run()`, and it is never handed a `LangGraphRunner` at all —
+constructing one calls `build_graph`, which resolves `get_agent_llm` eagerly
+and raises without a provider key. A private `_DryRunRunner` stands in
+instead, listing goldens with no agent runner touched.
 """
 
 from __future__ import annotations
@@ -29,6 +29,21 @@ from eval.adapters.config import DATASET_DIR, TAXONOMY
 from eval.adapters.langgraph_runner import LangGraphRunner
 
 logger = logging.getLogger(__name__)
+
+
+class _DryRunRunner:
+    """Stand-in `AgentRunner` for `--dry-run`: never touches the agent.
+
+    `cli.main` returns right after listing goldens on `--dry-run`
+    (evalkit/cli.py lines 99-100) without calling `run()`, so this only
+    exists to avoid constructing a real `LangGraphRunner` (which resolves
+    `get_agent_llm` eagerly and needs a provider key) for a path that never
+    invokes it.
+    """
+
+    def run(self, golden):
+        raise RuntimeError("--dry-run never invokes the agent")
+
 
 # Same placeholder set the legacy `eval/run_deepeval.has_real_openai_key` used
 # (that module is removed in task 4.1's cleanup) — this repo ships a fake
@@ -122,11 +137,16 @@ def main() -> int:
     # this is still safe for `--dry-run`, which never reaches the oracle.
     session_factory = get_session_factory(get_settings().database_url)
 
-    # `--dry-run` must stay DB-free (module docstring), and it never invokes the
-    # agent — so the DB-backed per-agent config is only loaded for a real run.
+    # `--dry-run` must stay DB-free and key-free (module docstring): it never
+    # invokes the agent, so it gets `_DryRunRunner` instead of a real
+    # `LangGraphRunner` — constructing the latter resolves `get_agent_llm`
+    # eagerly and needs a provider key. The DB-backed per-agent config is
+    # likewise only loaded for a real run.
     dry_run = "--dry-run" in sys.argv[1:]
-    agent_runner = LangGraphRunner(
-        context=None if dry_run else _prod_agent_context(session_factory)
+    agent_runner = (
+        _DryRunRunner()
+        if dry_run
+        else LangGraphRunner(context=_prod_agent_context(session_factory))
     )
 
     with session_factory() as session:
