@@ -63,6 +63,17 @@ The interrupt is the product's HITL design, not a bug; the eval harness simply l
 
 - `dates-multi_turn-vi-01` still fails (`flow_match` booking vs concierge) — routing variance, not a resume defect; kept with its issue note. Judged variance beyond k=3 (two pass↔fail flips vs the previous baseline) is absorbed by the tolerance gate. The `reject` path is covered only by the FakeLLM test (no golden uses `hitl: reject`).
 
+### Advisory Findings
+
+Correctness review (b8404a8..9e77dd6; enclosing-function, guard-completeness, stack-defects angles), independent scoring, threshold 75:
+
+- score 25 — `apps/api/eval/adapters/langgraph_runner.py:188-218`: a multi-turn golden whose NON-final turn interrupts with `hitl` unset sends the next turn onto a parked thread; LangGraph abandons the paused step and the trace grades a post-abandon conversation (reproduced by the finder with a FakeLLM). Not silent (`meta.interrupts` lists both turns), documented as the README caveat, and no current golden has a mid-sequence booking intent. Follow-up: `break` out of the turn loop when an interrupt is pending and `hitl` is unset.
+- score 0 (unmodified line) — `apps/api/evalkit/types.py:50-58`: the input/turns xor validator accepts `turns: []`, which then yields an empty trace as if the golden ran. Pre-existing; reject empty lists in a later pass.
+
+### Intent Findings
+
+Intent review (plan-blind): no gap/drift/excess. One doc note — design.md SC-1..SC-4 map onto PLAN/SUMMARY rows as: design SC-1 → SC-1/2/3 (runner tests); design SC-2 → SC-6 dry-run + `tests/eval` whole; design SC-3 → SC-7 baseline (booking 6/8, was 2/8); design SC-4 → SC-8 compare exit 0.
+
 ### Rollback
 
 - `git revert` the branch commits on `fix/gh-153-eval-hitl-auto-approve` (baseline commit first, then af27f9b 7df9785 4eff7fe 076f3ac bab3557); the previous baseline is `eval/reports/baseline-before-153.json` (untracked) or `main.json` at f94e52b on `feat/agent-eval-pipeline`.
