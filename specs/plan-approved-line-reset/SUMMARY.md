@@ -65,7 +65,7 @@ Recommendation: **B** if the approve line is only a status (likely — the FE al
 
 ### Not auto-verified
 
-- Live approve flow in the browser (activity step visible, booking reply intact) — reached traceability; UAT pending (see screenshots/uat-plan-approved-line-reset once captured).
+- Live approve flow in the browser — reached **truth** via UAT (2026-09-07, `screenshots/uat-plan-approved-line-reset/README.md`): approval step rendered in the trail, booking reply intact, old line absent.
 
 ### Rollback
 
