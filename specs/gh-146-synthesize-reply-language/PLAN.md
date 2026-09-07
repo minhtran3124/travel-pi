@@ -65,3 +65,4 @@ A keyed `python -m eval --suite full --capability budget` run (evalkit branch, u
 
 - 2026-09-07 — plan written after design.md approval and a Standard research brief; not yet executed.
 - 2026-09-07 — design approved (spec reviewer ✅), research-brief Standard, PLAN reviewed ✅ (independent pass); not yet executed
+- 2026-09-07 — tasks 1.1, 1.2 complete; commits 5fcab8f, b548859 (review pass/approved)

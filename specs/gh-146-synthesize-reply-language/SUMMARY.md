@@ -21,7 +21,7 @@ Issue #146 (opened 2026-09-07 from the review-b7 eval run): golden `budget-ambig
 
 ## What changed
 
-Intake only. No implementation edits.
+`make_synthesize_node` now applies `with_reply_language(system, state)` inside `synthesize()` on every call, so the multi-intent synthesis reply carries the same system-level language directive every sub-agent gets (`app/agents/nodes.py`, +6/−2). New `tests/agents/test_synthesize_node.py` captures the outgoing messages with a `CapturingLLM(FakeLLM)` and asserts the directive is present when `state["language"] == "en"` and absent when no language was detected. No prompt registry change, no post-hoc detection.
 
 ### Rationale
 
@@ -40,15 +40,18 @@ The repo already has one mechanism for reply language (memory: agent-reply-langu
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| Trigger corroborated | `grep -n 'with_reply_language' apps/api/app/agents/nodes.py` | 0 | exit 1 today — the synthesize node never applies the guard (grep in app/agents: only state.py defines it and subagents/_base.py:255 uses it) | |
+| Trigger corroborated (intake) | `<intake-era: grep -n with_reply_language apps/api/app/agents/nodes.py returned exit 1 before the fix>` | 1 | the synthesize node never applied the guard | |
+| SC-1 unit test | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_synthesize_node.py -q` | 0 | 2 passed | SC-1 |
+| SC-2 graph-level unchanged | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_multi_intent_routing.py tests/agents/test_task_ledger.py tests/agents/test_plan_everything.py -q` | 0 | 18 passed | SC-2 |
+| SC-3 lint | `cd apps/api && ../../.venv/bin/ruff check app/agents/nodes.py tests/agents/test_synthesize_node.py` | 0 | | SC-3 |
 
 ### Not auto-verified
 
-- Language of a real multi-intent reply — proven only by a FakeLLM test asserting the system message the synthesize node sends contains the language directive, plus one keyed run of `--capability budget` after the fix (user spend).
+- Language of a real multi-intent reply — reached traceability (the directive is now in the system message, proven by the FakeLLM test); a keyed `--capability budget` run to watch `budget-ambiguous-en-02` flip is user spend and not run here.
 
 ### Rollback
 
-- Intake only: `rm -rf specs/gh-146-synthesize-reply-language/`. Implementation: `git revert <sha>` on the fix branch.
+- `git revert b548859 5fcab8f` on `fix/gh-146-synthesize-reply-language`.
 
 ### Harness-Delta
 
