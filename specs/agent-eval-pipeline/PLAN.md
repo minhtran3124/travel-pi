@@ -1,6 +1,6 @@
 ---
 slug: agent-eval-pipeline
-status: proposed
+status: shipped
 owner: minhtran
 created: 2026-07-13
 ---
@@ -197,3 +197,5 @@ Scenarios: `happy`, `ambiguous`, `multi_turn`, `tool_failure`, `adversarial`.
   does not exist and `eval-compare` has nothing to gate against; the nightly CI job needs the
   `OPENAI_API_KEY` repo secret. Phase 2 (Langfuse tracing + failure-mining agent) and phase 3
   (MCP server) remain proposed — see `design-agentic-evolution.md`, `design-portability.md`.
+
+- 2026-09-07 — shipped with specs/review-b7-eval-baseline-ci: main merged into the branch (1092ccf), baseline committed, PR opened → main

@@ -110,12 +110,13 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 | SC-11 eval-check resolves | `cd apps/api && make -n eval-check` | 0 | eval-full then eval-compare | SC-11 |
 | SC-12 compare without baseline | `cd apps/api && env BASELINE=eval/baselines/does-not-exist.json make eval-compare` | 2 | message names `make eval-baseline` | SC-12 |
 | SC-13 README cleaned | `grep -n -i "Optional extras" apps/api/evalkit/README.md` | 1 | no match | SC-13 |
+| Full BE suite at finish (HEAD b4337a3, fresh SQLite, `.env` secrets neutralised) | `<not re-run under --check (183s): cd apps/api && DATABASE_URL=sqlite:////tmp/x.db OPENAI_API_KEY= ANTHROPIC_API_KEY= GOOGLE_API_KEY= ORS_API_KEY= DASHBOARD_BASIC_USER= DASHBOARD_BASIC_PASSWORD= LANGFUSE_ENABLED=false ../../.venv/bin/python -m pytest tests/ -q>` | 1 | 2268 passed, 3 failed — all three (`test_config_llm.py::test_llm_defaults_require_no_key`, `::test_langfuse_disabled_by_default`, `test_embeddings.py::test_get_embeddings_fake_without_key`) use `monkeypatch.delenv`, which loses to the copied `apps/api/.env` (memory: env-u-does-not-neutralize-dotenv-secrets); re-run with `.env` renamed → 15 passed. Code is green. | |
 | tests/eval whole (cited, not a task Verify) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | 153 passed | |
 
 ### Not auto-verified
 
 - The 26 baseline failures are agent defects or the HITL eval gap (issues #146–#156) — reached traceability (report + issue), not re-run beyond k=3; 4 goldens flipped pass/fail between run 1 and run 2 without any edit (language ×2, journal-multi_turn-vi-01, flight_search-ambiguous-en-01), so judged and routing variance is real and only the tolerance gate absorbs it.
-- Full BE suite (`pytest tests/`, 2257 passed at the merge commit 1092ccf) — not re-run after waves 1–5; only `tests/eval` (153) and `tests/api/prompts` were; the branch finish runs the full suite.
+- Full BE suite re-run at finish (2268 passed; the 3 `.env`-dependent failures pass with `.env` absent — see Verify) — the 3 are pre-existing dotenv-vs-monkeypatch tests, not touched by this branch.
 - `no_hallucination` is wired (`build_retrieval_context`) but unused — no golden declares it, so the baseline has no such check; deferred (see Intent Findings).
 - "`active.yaml` sửa 32 lần" — not re-derived; cosmetic.
 

@@ -1,6 +1,6 @@
 ---
 slug: review-b7-eval-baseline-ci
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-07
 ---
@@ -177,3 +177,4 @@ The full BE suite (`pytest tests/`, ~3 min) and `tests/eval` as a whole run at `
 - 2026-09-07 — tasks 2.1, 2.2 complete; commits 4003892, c17c44a (deviations recorded in 2287da8; reviews pass/approved)
 - 2026-09-07 — tasks 3.1, 3.2, 3.3 complete; commits 864d892, a51b28d, 6b66399 (+ baseline commit); run 1 57/84 → run 2 65/84 baseline; issues #146–#156
 - 2026-09-07 — correctness review: 1 finding fixed (12a9fe5, always-on non_empty_reply), 5 advisory; run 3 (user-authorised) regenerated the baseline 58/84
+- 2026-09-07 — shipped: review chain complete (receipt at 96892ef), PR opened from feat/agent-eval-pipeline → main
