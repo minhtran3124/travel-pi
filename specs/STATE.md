@@ -5,9 +5,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 ## Active Spec
 
 - **Slug:** agent-system-copy-i18n
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** subagent-driven-development
-- **Last action:** PR #145 opened (feat/agent-system-copy-i18n → main): system_reply translate-once-and-cache for the 5 code-authored replies; review findings fixed in 24f504e; 504 agent tests green. Awaiting merge.
+- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** finishing-a-development-branch
+- **Last action:** PR #145 merged into main (squash, commit 1301b9e); CI api/web/web-e2e green; Vietnamese UAT at screenshots/uat-agent-system-copy-i18n/ PASS. Branch deleted local + remote. Open: B3 plan_approved line is overwritten by the booking agent's reply in the same turn (pre-existing presentation); unknown_intent/error_fallback not UI-reachable.
 - **Updated:** 2026-09-07
 
 ## Recent Specs
@@ -16,7 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| agent-system-copy-i18n | 2026-09-07 | review | PR #145 → main |
+| agent-system-copy-i18n | 2026-09-07 | shipped | merged via PR #145 → main |
 | agent-tool-round-budget | 2026-09-05 | shipped | merged via PR #143 → main |
 | agent-budget-trip-context | 2026-09-05 | shipped | merged via PR #142 → main |
 | catalog-content-i18n | 2026-09-05 | shipped | merged via PR #141 → main |
