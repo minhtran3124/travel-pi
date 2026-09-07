@@ -1,7 +1,7 @@
 """Code-authored agent replies, served in the conversation language.
 
 A handful of replies are written by Python, not the LLM (the tier-gate upgrade
-notice, unknown intent, HITL cancel/approve, the error fallback), so they bypass
+notice, unknown intent, HITL cancel, the error fallback), so they bypass
 the prompt-level language rule. ``system_reply`` closes that gap: English (the
 default language) is the single source text in ``app/agents/constants.py``;
 any other language is translated ONCE by ``ContentTranslationService`` and
@@ -23,7 +23,6 @@ from app.agents.constants import (
     ASSISTANT_NAME,
     BOOKING_UPGRADE_MSG,
     NOT_SURE_MSG,
-    PLAN_APPROVED_MSG,
     PLAN_CANCELLED_MSG,
 )
 from app.core.languages import DEFAULT_LANGUAGE, normalize
@@ -45,7 +44,6 @@ SYSTEM_COPY: dict[str, str] = {
     "booking_upgrade": BOOKING_UPGRADE_MSG,
     "unknown_intent": NOT_SURE_MSG,
     "booking_cancelled": PLAN_CANCELLED_MSG,
-    "plan_approved": PLAN_APPROVED_MSG,
     "agent_error_fallback": AGENT_ERROR_FALLBACK_MSG,
 }
 

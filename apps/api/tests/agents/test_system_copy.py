@@ -148,16 +148,21 @@ def test_editing_the_english_source_invalidates_the_cached_translation(
     scope, monkeypatch
 ):
     spy = Spy()
-    system_reply("plan_approved", "vi", translator=spy)
-    monkeypatch.setitem(SYSTEM_COPY, "plan_approved", "Approved. Booking now.")
+    system_reply("booking_cancelled", "vi", translator=spy)
+    monkeypatch.setitem(SYSTEM_COPY, "booking_cancelled", "Cancelled. Nothing booked.")
     assert (
-        system_reply("plan_approved", "vi", translator=spy)
-        == "VI:Approved. Booking now."
+        system_reply("booking_cancelled", "vi", translator=spy)
+        == "VI:Cancelled. Nothing booked."
     )
     assert len(spy.calls) == 2  # new source text → fresh translation, not stale
 
 
-def test_plan_node_outcomes_use_the_conversation_language(monkeypatch):
+def test_plan_node_reject_uses_the_conversation_language_and_approve_is_silent(
+    monkeypatch,
+):
+    """Reject replies in the conversation language; approve emits NO message —
+    approval is state (plan_approved) so the booking reply is the only bubble
+    text and the mapper never resets it (specs/plan-approved-line-reset)."""
     from app.agents import nodes as nodes_mod
 
     seen: list[tuple[str, str | None]] = []
@@ -173,8 +178,10 @@ def test_plan_node_outcomes_use_the_conversation_language(monkeypatch):
 
     monkeypatch.setattr(nodes_mod, "interrupt", lambda _payload: {"approved": True})
     cmd = nodes_mod.plan_node({"messages": [], "language": "vi"})
-    assert seen[-1] == ("plan_approved", "vi")
+    assert seen == [("booking_cancelled", "vi")]  # no copy call on approve
+    assert "messages" not in cmd.update
     assert cmd.update["plan_approved"] is True
+    assert cmd.goto == "booking"
 
 
 def test_no_literal_user_facing_aimessage_outside_copy_helper():

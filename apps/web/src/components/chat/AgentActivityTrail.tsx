@@ -48,6 +48,8 @@ const TOOL_FAMILY: Record<string, string> = {
   add_itinerary_item: "journal",
   get_local_tips: "journal",
   get_packing: "journal",
+  // HITL plan approval — a client-side status step, not a wire tool
+  plan_approved: "approved",
 };
 
 function familyKey(tool: string): string {
@@ -63,6 +65,11 @@ const STATUS_DOT: Record<ActivityStep["status"], string> = {
 
 /** One glyph per tool family — 14px, currentColor, no new color tokens. */
 const FAMILY_ICON: Record<string, ReactElement> = {
+  approved: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  ),
   flights: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M22 2 11 13" />

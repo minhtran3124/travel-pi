@@ -486,6 +486,7 @@
       "airQuality": "Checking air quality",
       "budget": "Checking your budget",
       "journal": "Updating your trip",
+      "approved": "Plan approved · booking now",
       "error": {
         "generic": "Couldn't finish this step",
         "hotels": "Couldn't finish the hotel search",
@@ -496,6 +497,7 @@
         "airQuality": "Couldn't check air quality",
         "budget": "Couldn't check your budget",
         "journal": "Couldn't finish updating your trip",
+        "approved": "Couldn't record the approval",
         "working": "Couldn't finish this step"
       }
     },

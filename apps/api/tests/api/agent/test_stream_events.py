@@ -646,3 +646,24 @@ def test_mapper_no_duplicate_fallback_when_tokens_already_streamed():
     assert out[2][1] == {"content": "partial answer"}
     # The fallback must NOT have been emitted alongside the partial answer.
     assert AGENT_ERROR_FALLBACK_MSG not in json.dumps([d for _, d in out])
+
+
+def test_mapper_does_not_reset_after_a_silent_plan_approval():
+    """Approving a plan emits no message from the ``plan`` node, so the booking
+    sub-agent's handoff must NOT emit ``reset`` (nothing to supersede) and its
+    reply is the turn's only bubble text (specs/plan-approved-line-reset).
+    """
+    items = [
+        ((), "updates", {"plan": {"plan_approved": True}}),
+        (
+            ("booking:abc",),
+            "messages",
+            (
+                AIMessageChunk(content="Need passenger details.", id="m1"),
+                {"langgraph_node": "agent"},
+            ),
+        ),
+    ]
+    out = _run(_FakeGraph(items))
+    assert [n for n, _ in out] == ["start", "subagent", "token", "done"]
+    assert out[2][1] == {"content": "Need passenger details."}
