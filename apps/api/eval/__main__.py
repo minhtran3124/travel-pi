@@ -100,7 +100,13 @@ def _prod_agent_context(session_factory) -> AgentContext:
     logger.warning(
         "[EVAL] agent config loaded from DB (allow_reflection=%s)", allow_reflection
     )
-    return resolve_agent_context(tier=None, allow_reflection=allow_reflection)
+    # The baseline grades the agent at full capability (premium tier, signed-in
+    # caller) — decided at review-b7 task 3.1: a free/anonymous context routes
+    # every booking golden to a dead end (booking is premium-only, trip creation
+    # needs an authenticated caller), which measures the tier gate, not the agent.
+    return resolve_agent_context(
+        tier="premium", authenticated=True, allow_reflection=allow_reflection
+    )
 
 
 def main() -> int:

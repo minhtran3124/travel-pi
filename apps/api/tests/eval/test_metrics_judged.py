@@ -302,3 +302,23 @@ def test_evaluate_uses_last_turn_for_multi_turn_goldens():
     metric.evaluate(golden, _trace(), None)
     seen_case = factory.judge.calls[0]  # type: ignore[attr-defined]
     assert seen_case.input == "book me a hotel in Hue"
+
+
+# --- empty reply (HITL interrupt) -------------------------------------------
+
+
+def test_empty_reply_is_not_applicable_and_never_calls_the_judge():
+    """A booking golden stops at the HITL interrupt with no AIMessage text;
+    GEval would raise MissingTestCaseParamsError on the empty actual_output."""
+    factory = _stub_factory([0.9])
+    metric = GEvalJudgedMetric(
+        "suggestion_relevance",
+        RUBRICS["suggestion_relevance"],
+        k=3,
+        geval_factory=factory,
+    )
+    result = metric.evaluate(_golden(), _trace(reply="   "), None)
+    assert result.passed is True
+    assert result.score is None
+    assert result.detail.startswith("not_applicable: empty reply")
+    assert factory.judge.calls == []

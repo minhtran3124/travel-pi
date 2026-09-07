@@ -242,6 +242,17 @@ class GEvalJudgedMetric:
     def evaluate(
         self, golden: Golden, trace: Trace, oracle: Oracle | None = None
     ) -> CheckResult:
+        if not trace.reply.strip():
+            # DeepEval's GEval raises MissingTestCaseParamsError on an empty
+            # actual_output. An empty reply is a legitimate trace here (a booking
+            # golden stops at the HITL plan-approval interrupt), so there is
+            # nothing for a rubric to grade — report not_applicable instead of
+            # aborting the whole run minutes into a paid full suite.
+            return CheckResult(
+                name=self.name,
+                passed=True,
+                detail="not_applicable: empty reply (e.g. HITL interrupt) — judged metric skipped",
+            )
         judge = self._get_judge()
         test_case = LLMTestCase(
             input=self._golden_input(golden),
