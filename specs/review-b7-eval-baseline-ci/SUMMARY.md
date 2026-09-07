@@ -62,6 +62,7 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 - Design component 8 — two legacy multi-intent cases ("Find flights to Tokyo and tell me the weather there", "Plan my Tokyo weekend: find flights, check the weather, then draft an itinerary") were ported as planner-only `flow_match` goldens (`routing-multi-en-01/02`) instead of `expected_tasks` fan-outs, per research-brief.md's supervisor-v10 Inference row (planner owns flights + weather). Commit `4003892`.
 - Rule 1 — Task 2.1: `test_multi_intent_goldens_declare_tasks_expected` accepts either shape for `routing-multi-*` ids (fan-out with `expected_tasks`, or single-flow with `expected_flow`) because PLAN.md's one-line test description contradicted its own Inference row. `apps/api/tests/eval/test_datasets.py`. Commit `4003892`.
 - Rule 1 — Task 1.7: reworded one unrelated README line ("optional extras" → "extras") so the whole-file substring Verify passes. `apps/api/evalkit/README.md:150`. Commit `873a487`.
+- Rule 3 — Task 3.1: `eval/__main__.py::_prod_agent_context` called `settings.agent_config_cache_ttl_seconds`, renamed on main to `agent_config_poll_interval_seconds` (`app/core/lifespan.py:52`); fixed in the eval entrypoint only. Blocking for every real run; untested path.
 - Rule 1 — Task 1.5: the multi-intent runner test asserts `suggestions` is a list rather than non-empty, because a multi-intent turn ends at `current_flow == "synthesize"`, which has no static suggestion map. `apps/api/tests/eval/test_langgraph_runner.py`. Commit `1ff23e4`. Product gap noted for backlog: real multi-intent turns surface zero suggestion chips.
 
 ### Verify
@@ -78,6 +79,9 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 | Merge: full BE suite on fresh SQLite | `cd apps/api && DATABASE_URL=sqlite:////tmp/x.db ../../.venv/bin/python -m pytest tests/ -q` | 0 | 2257 passed in 175s | |
 | Merge: eval CLI wiring | `cd apps/api && OPENAI_API_KEY=test ../../.venv/bin/python -m eval --suite smoke --dry-run` | 0 | lists 18 smoke goldens; fails without any key (pre-existing) | |
 | Merge: no conflict markers | `git diff --name-only --diff-filter=U` | 0 | empty | |
+| 3.1 seed synthesize model (data) | `docker exec -w /app -e PYTHONPATH=/app api-api-1 python scripts/seed_agent_config.py --provider openai --model gpt-5.4-mini --nodes synthesize` | 0 | row now openai/gpt-5.4-mini; `docker exec api-api-1 touch app/main.py` to reload | SC-3 |
+| 3.1 pre-flight real run (routing, k=1) | `cd apps/api && ../../.venv/bin/python -m eval --suite full --capability routing --out eval/reports/preflight.json` | 0 | 17 cases, 12 passed (70.6%); multi-task goldens routing-multi-en-03/04 PASS (parallel synthesize works); first attempt crashed on stale `settings.agent_config_cache_ttl_seconds` (Rule 3 fix below) | SC-3 |
+| 3.1 Verify | `cd apps/api && ../../.venv/bin/python -c "import json;r=json.load(open('eval/reports/preflight.json'));assert r['run_meta']['summary']['total_cases']==17;bad=[c['golden_id'] for c in r['per_case'] for k in c['checks'] if '403' in (k.get('detail') or '')];assert not bad,bad"` | 0 | no 403 in any check | SC-3 |
 
 ### Not auto-verified
 

@@ -90,7 +90,9 @@ def _prod_agent_context(session_factory) -> AgentContext:
     from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 
     settings = get_settings()
-    AgentConfigCache.configure(session_factory, settings.agent_config_cache_ttl_seconds)
+    AgentConfigCache.configure(
+        session_factory, settings.agent_config_poll_interval_seconds
+    )
     reload_from_db(session_factory)
 
     refl = AgentConfigCache.get("reflection")
