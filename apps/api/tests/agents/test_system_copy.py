@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from contextlib import contextmanager
+from functools import partial
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -81,6 +82,23 @@ def test_vi_is_translated_once_then_served_from_cache(scope):
     second = system_reply("booking_upgrade", "vi", translator=spy)
     assert second == first
     assert len(spy.calls) == 1  # cache hit — zero translator calls
+
+
+def test_default_translator_carries_the_assistant_persona(scope, monkeypatch):
+    seen: list[dict] = []
+
+    def fake_llm_translator(texts, language, **kw):
+        seen.append(kw)
+        return [f"VI:{t}" for t in texts]
+
+    monkeypatch.setattr(
+        mod,
+        "_translate_copy",
+        partial(fake_llm_translator, instructions=mod.TRANSLATOR_INSTRUCTIONS),
+    )
+    assert system_reply("unknown_intent", "vi").startswith("VI:")
+    assert seen == [{"instructions": mod.TRANSLATOR_INSTRUCTIONS}]
+    assert "Tin" in mod.TRANSLATOR_INSTRUCTIONS
 
 
 def test_translator_failure_serves_english(scope):

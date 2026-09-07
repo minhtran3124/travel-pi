@@ -96,6 +96,10 @@ NO_ACTIVE_TRIP_MSG = (
 )
 
 # --- user-facing copy -----------------------------------------------------
+# The assistant's name (persona lives in prompts/communication_style; this is
+# the code-side handle for text produced outside the LLM reply path).
+ASSISTANT_NAME = "Tin"
+
 # English SOURCE text only. Emit through ``app.agents.copy.system_reply`` so
 # the traveller gets it in the conversation language (translated once, cached).
 # Shown when a free user is routed to a premium-only sub-agent (booking).

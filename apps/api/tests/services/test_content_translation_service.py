@@ -151,3 +151,24 @@ def test_default_translator_strips_echoed_input_numbering(factory, monkeypatch):
     fake = FakeLLM(structured_responses=[TranslationBatch(items=["1. một", "2. hai"])])
     monkeypatch.setattr(mod, "get_agent_llm", lambda _name: fake)
     assert mod.llm_translator(["one", "two"], "vi") == ["một", "hai"]
+
+
+def test_default_translator_appends_instructions_to_system_prompt(monkeypatch):
+    from langchain_core.runnables import RunnableLambda
+
+    seen: list[str] = []
+
+    class Capture(FakeLLM):
+        def with_structured_output(self, schema, **kwargs):
+            inner = super().with_structured_output(schema, **kwargs)
+
+            def _call(messages):
+                seen.append(messages[0].content)
+                return inner.invoke(messages)
+
+            return RunnableLambda(_call)
+
+    fake = Capture(structured_responses=[TranslationBatch(items=["một"])])
+    monkeypatch.setattr(mod, "get_agent_llm", lambda _name: fake)
+    mod.llm_translator(["one"], "vi", instructions="Speak as Tin.")
+    assert seen and seen[0].endswith("Speak as Tin.")
