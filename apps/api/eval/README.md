@@ -262,9 +262,11 @@ capability (`eval/datasets/suggestions.json`, 10 goldens) exercises this end to 
 ## `meta.interrupts` and the `hitl` opt-in
 
 `Trace.meta["interrupts"]` (`eval/adapters/langgraph_runner.py`) is always recorded — regardless
-of `hitl` — as a list of `{"type", "draft", "turn"}` entries, one per `plan_approval` interrupt
+of `hitl` — as a list of `{"type", "draft", "turn"}` entries, one per turn that stopped at a `plan_approval` interrupt (the runner records the first pending interrupt of a turn and resumes at most once per turn)
 the graph raised during the run (`turn` is the 0-based index of the turn that hit it). This is
 what makes an interrupted golden's outcome legible in the report even when nothing was resumed.
+
+A multi-turn golden whose earlier turn interrupts must set `hitl`: without it the next turn's plain message lands on a thread parked at the interrupt, LangGraph starts a fresh step and abandons the pending approval, and the trace would grade a post-abandon conversation.
 
 Booking goldens that need the booking tools to actually run opt in with `hitl: "approve"`
 (`booking-happy-*`, `booking-multi_turn-*`, `booking-tool_failure-*`, `errors-tool_failure-*`,
