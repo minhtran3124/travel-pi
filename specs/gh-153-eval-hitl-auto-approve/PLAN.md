@@ -101,3 +101,4 @@ Seventeen booking-flow goldens stop at `plan_node`'s `plan_approval` interrupt: 
 - 2026-09-07 — plan written (writing-plans) from the approved design and Standard research brief; not yet executed.
 - 2026-09-07 — design approved (spec reviewer ✅), research-brief Standard, PLAN reviewed ✅ (independent pass); not yet executed
 - 2026-09-07 — tasks 1.1, 1.2, 1.3, 2.1 complete; commits bab3557, 4eff7fe, 076f3ac, af27f9b (1.x reviews pass/approved; 2.1 review pending); README tweak 7df9785
+- 2026-09-07 — task 3.1 complete: paid run 67/84 (attempt 2 after an external Docker stop), baseline regenerated, TRIAGE.md; 2.1 review pass/approved (af27f9b)

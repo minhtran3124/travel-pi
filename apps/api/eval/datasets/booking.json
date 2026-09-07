@@ -9,7 +9,7 @@
     "expected_flow": "booking",
     "hitl": "approve",
     "metrics": ["flow_match", "suggestion_relevance", "reply_language"],
-    "notes": "Ported from MIN-65 eval/datasets/suggestions.json (commit fa8c9a1, branch tranhuuminh3124/min-65-..., not yet merged to v3). | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+    "notes": "Ported from MIN-65 eval/datasets/suggestions.json (commit fa8c9a1, branch tranhuuminh3124/min-65-..., not yet merged to v3). | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "booking-happy-en-02",
@@ -21,7 +21,7 @@
     "expected_flow": "booking",
     "hitl": "approve",
     "metrics": ["flow_match", "suggestion_relevance", "reply_language"],
-    "notes": "Ported from MIN-65 suggestions.json. No book_flight tool in the agent's own registry (app/tools/registry.py) — expected_tools intentionally unset. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+    "notes": "Ported from MIN-65 suggestions.json. No book_flight tool in the agent's own registry (app/tools/registry.py) — expected_tools intentionally unset. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "booking-happy-en-01",
@@ -34,7 +34,7 @@
     "hitl": "approve",
     "expected_tools": ["book_hotel"],
     "metrics": ["flow_match", "tools_expected", "reply_language"],
-    "notes": "Full booking details in one turn, explicit confirm intent — book_hotel requires confirm=True to execute. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+    "notes": "Full booking details in one turn, explicit confirm intent — book_hotel requires confirm=True to execute. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "booking-ambiguous-vi-01",
@@ -98,6 +98,6 @@
     "expected_flow": "booking",
     "hitl": "approve",
     "metrics": ["flow_match", "non_empty_reply", "reply_language"],
-    "notes": "Nonexistent hotel_id — book_hotel should raise NotFoundError; the agent must surface a graceful failure, not crash or invent a hotel. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+    "notes": "Nonexistent hotel_id — book_hotel should raise NotFoundError; the agent must surface a graceful failure, not crash or invent a hotel. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   }
 ]
