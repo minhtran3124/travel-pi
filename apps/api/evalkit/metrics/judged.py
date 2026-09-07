@@ -29,14 +29,10 @@ captured `Trace.tool_calls[].output` into a readable string, and
 ``no_hallucination``'s rubric lists `RETRIEVAL_CONTEXT` in its
 `evaluation_params` so the judge actually reads it.
 
-Known gap: ``suggestion_relevance`` also requests `RETRIEVAL_CONTEXT` (its
-MIN-65 criteria expects it to carry the reply's follow-up *suggestion keys*),
-but `build_retrieval_context()` here only ever serializes tool-call outputs
-— nothing in `evalkit`/`eval/adapters` today attaches suggestion keys to a
-`Trace`. Until a runner wires that (a `Trace` field + adapter change, outside
-this task's scope), the judge sees tool-call context instead of suggestion
-keys for this rubric — a quality gap, not a crash: `evaluate()` still runs
-and returns a score.
+``suggestion_relevance`` also requests `RETRIEVAL_CONTEXT`: the runner now
+supplies the reply's follow-up suggestion keys via `Trace.meta["suggestions"]`,
+and `build_retrieval_context()` appends one ``"suggestion: <key>"`` line per
+entry alongside the serialized tool-call lines.
 
 Import-time safety: constructing a `GEvalJudgedMetric` (and therefore
 importing/registering this module) never builds a DeepEval `GEval` or
@@ -168,14 +164,17 @@ class Judge(Protocol):
 
 def build_retrieval_context(trace: Trace) -> list[str] | None:
     """Serialize every captured `Trace.tool_calls[].output` into a readable
-    retrieval_context entry, e.g. ``"search_flights({...}) -> {...}"``.
+    retrieval_context entry, e.g. ``"search_flights({...}) -> {...}"``, then
+    append one ``"suggestion: <key>"`` entry per item in
+    `trace.meta["suggestions"]` (the runner-supplied follow-up suggestion
+    keys `suggestion_relevance` judges).
 
-    Returns `None` (not `[]`) when there were no tool calls, so an unrelated
+    Returns `None` (not `[]`) only when both are empty, so an unrelated
     conversational golden doesn't get an empty-but-present retrieval_context.
     """
-    if not trace.tool_calls:
-        return None
-    return [_tool_call_to_context_line(tc) for tc in trace.tool_calls]
+    lines = [_tool_call_to_context_line(tc) for tc in trace.tool_calls]
+    lines.extend(f"suggestion: {key}" for key in trace.meta.get("suggestions") or [])
+    return lines or None
 
 
 def _tool_call_to_context_line(tool_call: ToolCall) -> str:

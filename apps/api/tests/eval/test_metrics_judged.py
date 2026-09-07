@@ -259,6 +259,19 @@ def test_build_retrieval_context_is_none_with_no_tool_calls():
     assert build_retrieval_context(_trace(tool_calls=[])) is None
 
 
+def test_build_retrieval_context_includes_suggestion_keys():
+    trace = _trace(meta={"suggestions": ["planner.checkWeather", "planner.addPlace"]})
+    context = build_retrieval_context(trace)
+    assert context == [
+        "suggestion: planner.checkWeather",
+        "suggestion: planner.addPlace",
+    ]
+
+
+def test_build_retrieval_context_still_none_without_tools_or_suggestions():
+    assert build_retrieval_context(_trace(tool_calls=[], meta={})) is None
+
+
 def test_evaluate_passes_retrieval_context_into_the_test_case():
     trace = _trace(
         reply="The Sunrise Hotel costs $80/night.",
