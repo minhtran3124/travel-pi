@@ -34,7 +34,7 @@ The repo already has one mechanism for reply language (memory: agent-reply-langu
 
 ### Deviations
 
-- none
+- Task 1.2 Verify ran three named graph-test files instead of design.md's `-k "synth or multi_intent"` selector — a superset, deterministic; PLAN §3 SC-2 is written that way.
 
 ### Verify
 
@@ -43,11 +43,19 @@ The repo already has one mechanism for reply language (memory: agent-reply-langu
 | Trigger corroborated (intake) | `<intake-era: grep -n with_reply_language apps/api/app/agents/nodes.py returned exit 1 before the fix>` | 1 | the synthesize node never applied the guard | |
 | SC-1 unit test | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_synthesize_node.py -q` | 0 | 2 passed | SC-1 |
 | SC-2 graph-level unchanged | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_multi_intent_routing.py tests/agents/test_task_ledger.py tests/agents/test_plan_everything.py -q` | 0 | 18 passed | SC-2 |
-| SC-3 lint | `cd apps/api && ../../.venv/bin/ruff check app/agents/nodes.py tests/agents/test_synthesize_node.py` | 0 | | SC-3 |
+| SC-3 lint (PLAN §3 SC-3) | `cd apps/api && ../../.venv/bin/ruff check app/agents/nodes.py tests/agents/test_synthesize_node.py` | 0 | PLAN.md's SC-3 is the lint gate; design.md's optional keyed budget run is deferred (Not auto-verified) | SC-3 |
 
 ### Not auto-verified
 
 - Language of a real multi-intent reply — reached traceability (the directive is now in the system message, proven by the FakeLLM test); a keyed `--capability budget` run to watch `budget-ambiguous-en-02` flip is user spend and not run here.
+
+### Advisory Findings
+
+Correctness review (39ca2c1..fe8b60b, enclosing-function + guard-completeness angles): one candidate, `apps/api/app/agents/nodes.py:184` — the human prompt's `language = state.get("language", "en")` asserts `en` when no language was detected while the new guard is deliberately a no-op there; the line is unmodified by this diff (score 0 by the unmodified-line rule → advisory). Pre-existing; a follow-up could drop the `"en"` default so both surfaces agree.
+
+### Intent Findings
+
+Intent review (plan-blind): 2 documentation drifts, no behavioural gap/drift/excess — (1) design.md's optional keyed `--capability budget` run vs PLAN SC-3 = lint: relabelled above, keyed run deferred as user spend; (2) SC-2 selector broadened to named files: recorded under Deviations.
 
 ### Rollback
 
