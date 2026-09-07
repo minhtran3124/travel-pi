@@ -13,6 +13,16 @@
 langgraph>=1.0,<2.0
 langchain>=1.0,<2.0
 
+# Transitive via langgraph, but pinned explicitly because we import from it:
+# app/agents/retry.py uses `ToolInvocationError` and reads its `filtered_errors`
+# to tell "the model passed bad arguments" apart from "an injected/runtime arg is
+# missing" (#113). Neither exists before 1.0.2 — verified by unpacking the wheels:
+# 1.0.0 and 1.0.1 have no `ToolInvocationError` and no `filtered_errors`, 1.0.2+
+# have both. Without this floor, `langgraph>=1.0` can legally resolve to a build
+# where importing the app raises ImportError at startup. There is no lockfile, so
+# the range is the only guard.
+langgraph-prebuilt>=1.0.2,<2.0
+
 # langchain-core's DeterministicFakeEmbedding (used by app/core/embeddings.py
 # whenever no LLM provider key is set — the default in tests/CI) calls
 # numpy.random at runtime but langchain-core does not declare numpy as a

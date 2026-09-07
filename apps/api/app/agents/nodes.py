@@ -17,16 +17,26 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
-from langgraph.types import Command, interrupt
+from langgraph.types import Command, Send, interrupt
 
-from app.agents.constants import DEFAULT_MAX_REVISIONS
+from app.agents.constants import (
+    DEFAULT_MAX_REVISIONS,
+    REFLECTION_REVISE_NOTE,
+    SYNTHESIZE_NODE,
+)
 from app.agents.context import AgentContext
 from app.agents.state import TravelAgentState
 from app.exceptions import AppError
-from app.memory.store import get_instructions, get_profile
+from app.memory.store import (
+    PROFILE_KEYS,
+    MemoryKind,
+    get_instructions,
+    get_profile,
+    search_memory_typed,
+)
 from app.memory.summarizer import should_summarize, summarize_conversation
 from app.prompts.registry import registry
 from app.services.trip_service import TripService
@@ -55,16 +65,27 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     # does NOT re-enter load_context, so the approving turn keeps plan_approved=True;
     # background memory extraction reads the flag from that turn's final-state
     # snapshot before the *next* turn's load_context clears it.
-    result: dict = {"plan_approved": False}
+    # awaiting_user is likewise single-turn (MIN-68): a clarifying question asked
+    # last turn must not abandon THIS turn's fresh work.
+    # GH-117 Path A: task state is also per-turn.
+    result: dict = {
+        "plan_approved": False,
+        "awaiting_user": False,
+        "tasks": [],
+        "task_results": [],
+    }
     trip_id = state.get("trip_id")
+    owner = state.get("user_id")
     logger.info("[agent] node=load_context trip_id=%s", trip_id)
-    if trip_id:
+    # #118: the snapshot is loaded through the owner-scoped service, so a
+    # trip_id that is not the caller's yields nothing instead of leaking a
+    # title and city into the system prompt.
+    if trip_id and owner:
         try:
             with session_scope() as s:
-                detail = TripService(s).get_trip_detail(trip_id)
+                detail = TripService(s, owner).get_trip_detail(trip_id)
             result["trip_context"] = (
-                f"Active trip: {detail.title} (city: {detail.city}). "
-                f"Use the trip tools with trip_id={trip_id} for details."
+                f"Active trip: {detail.title} (city: {detail.city})."
             )
         except AppError:
             pass
@@ -95,6 +116,25 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
                 logger.info("[agent] node=load_context profile=%d", len(profile))
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
+
+        # Best-effort: recency-ordered full-read of traveller preferences (MIN-65
+        # DESIGN D2 — bounded full-read beats semantic search at this store size),
+        # excluding PROFILE_KEYS since those already surface via the profile block
+        # above. search_memory_typed (not search_preferences) is used because it
+        # preserves each preference's store key, needed both to filter and to
+        # format the "- {key}: {value}" lines below.
+        try:
+            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
+            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
+            if non_profile:
+                result["preferences"] = "\n".join(
+                    f"- {p.key}: {p.text}" for p in non_profile
+                )
+                logger.info(
+                    "[agent] node=load_context preferences=%d", len(non_profile)
+                )
+        except Exception:
+            logger.exception("[agent] load_context: preferences load failed")
     return result
 
 
@@ -117,6 +157,49 @@ def make_summarize_node(llm: BaseChatModel):
     return summarize
 
 
+def make_synthesize_node(llm: BaseChatModel):
+    """Return a node that combines parallel worker results into one answer.
+
+    GH-117 Path A: sorts the structured results from parallel workers and asks
+    the LLM to write a single concise, helpful answer in the traveller's language.
+
+    :param llm: Chat model used for synthesis.
+    :return: A node function ``synthesize(state) -> dict``.
+    """
+    system = SystemMessage(
+        content=(
+            "You are the travel assistant. Combine the specialist findings below "
+            "into one concise, helpful answer in the traveller's own language. "
+            "Do not repeat raw tool data; translate findings into guidance. "
+            "If the findings are empty or unhelpful, say you are still looking into it."
+        )
+    )
+
+    def synthesize(state: TravelAgentState) -> dict:
+        results = sorted(
+            state.get("task_results") or [], key=lambda r: r.get("index", 0)
+        )
+        language = state.get("language", "en")
+        bullets = "\n".join(
+            f"- {r.get('agent', 'specialist')}: {r.get('findings', '')}"
+            for r in results
+        )
+        prompt = (
+            f"Conversation language: {language}\n\n"
+            f"Specialist findings:\n{bullets}\n\n"
+            "Write the final answer."
+        )
+        answer = llm.invoke([system, HumanMessage(content=prompt)]).content
+        return {
+            "messages": [AIMessage(content=str(answer))],
+            # Must equal the synthesize node's own name so a reflection REVISE
+            # (goto=current_flow) re-enters this node instead of being dropped.
+            "current_flow": SYNTHESIZE_NODE,
+        }
+
+    return synthesize
+
+
 def make_reflection_node(
     llm: BaseChatModel, max_revisions: int = DEFAULT_MAX_REVISIONS
 ):
@@ -135,6 +218,15 @@ def make_reflection_node(
     system = SystemMessage(content=registry.get("reflection"))
 
     def reflection(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
+        # MIN-68 / #99: a turn blocked on the traveller ends with a clarifying
+        # question — a necessarily "incomplete" answer the reviewer would flag
+        # REVISE, re-running the sub-agent to answer WITHOUT the missing detail
+        # (and, on the REST path, dropping the question for that guess). Such a
+        # turn is terminal and not reviewable; end it here, before the judge call.
+        if state.get("awaiting_user"):
+            logger.info("[agent] reflection → END (awaiting traveller; not reviewable)")
+            return Command(goto=END)
+
         ctx = runtime.context if runtime.context is not None else None
         allow_reflection = ctx.allow_reflection if ctx is not None else True
         effective_max = ctx.max_revisions if ctx is not None else max_revisions
@@ -158,13 +250,7 @@ def make_reflection_node(
             return Command(
                 update={
                     "revisions": revisions + 1,
-                    "messages": [
-                        SystemMessage(
-                            content="Please improve your previous answer. This is an "
-                            "internal review note, not a message from the traveller — "
-                            "keep replying in the traveller's own language."
-                        )
-                    ],
+                    "messages": [SystemMessage(content=REFLECTION_REVISE_NOTE)],
                 },
                 goto=target,
             )
@@ -203,3 +289,37 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
+
+
+def route_tasks(state: TravelAgentState) -> str | list[Send]:
+    """Route from supervisor to static sub-agent, HITL plan, or parallel workers.
+
+    GH-117 Path A: the supervisor now writes an ordered ``tasks`` list. This
+    edge preserves the existing static sub-agent path for single-intent turns
+    and dispatches multi-intent turns to parallel ``synthesis_worker`` instances
+    via ``Send``.
+
+    :param state: Current graph state; reads ``tasks``.
+    :return: A node name for single-intent / HITL paths, a list of ``Send`` objects
+        for multi-intent parallel dispatch, or ``END`` when no tasks are present.
+    """
+    tasks = state.get("tasks") or []
+    if not tasks:
+        logger.info("[agent] route_tasks → END (no tasks)")
+        return END
+    first = tasks[0]
+    first_agent = first.get("agent", "")
+    if first_agent == "booking":
+        logger.info("[agent] route_tasks → plan (booking HITL)")
+        return "plan"
+    if len(tasks) == 1:
+        logger.info("[agent] route_tasks → %s (single task)", first_agent)
+        return first_agent
+    logger.info("[agent] route_tasks → synthesis_workers (%d parallel)", len(tasks))
+    # GH-117 Path A / Codex Comment 1: LangGraph Send does NOT merge the parent
+    # state into the worker input, so the payload must carry the conversation
+    # context and working state the inner specialist needs (messages, user_id,
+    # trip_id, language, trip_context, etc.). We pass a shallow copy of the
+    # parent state plus the task; the worker deep-copies messages before handing
+    # them to the inner subgraph so the parent list is never mutated.
+    return [Send("synthesis_worker", {**state, "task": t}) for t in tasks]

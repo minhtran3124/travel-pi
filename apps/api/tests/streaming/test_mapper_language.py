@@ -21,14 +21,12 @@ from langchain_core.messages import ToolMessage
 class _FakeGraph:
     """Replays scripted (ns, mode, data) tuples through ``astream``.
 
-    Mirrors ``tests/api/agent/test_stream_events._FakeGraph`` but adds the
-    ``translate_llm`` handle the mapper reads for the panel-prose translator.
+    Mirrors ``tests/api/agent/test_stream_events._FakeGraph``.
     """
 
-    def __init__(self, items, *, values=None, translate_llm=None):
+    def __init__(self, items, *, values=None):
         self._items = items
         self._values = values or {}
-        self.translate_llm = translate_llm
 
     async def astream(self, stream_input, cfg, *, stream_mode, subgraphs, context=None):
         for item in self._items:
@@ -74,19 +72,6 @@ def _places_tool_msg() -> ToolMessage:
     )
 
 
-class _FakeTranslateLLM:
-    """Async stand-in for ``graph.translate_llm`` — echoes a ``VI:``-prefixed
-    translation of the last (human) message, exercising the ``ainvoke`` path."""
-
-    def __init__(self):
-        self.calls: list[str] = []
-
-    async def ainvoke(self, messages):
-        text = messages[-1].content
-        self.calls.append(text)
-        return SimpleNamespace(content="VI:" + text)
-
-
 def test_mapper_localizes_and_tags_panel_and_done_vi():
     # Supervisor persists language=vi (top-level namespace), then a concierge
     # sub-agent emits a weather panel tool result.
@@ -94,7 +79,7 @@ def test_mapper_localizes_and_tags_panel_and_done_vi():
         ((), "updates", {"supervisor": {"language": "vi"}}),
         (("concierge:1",), "updates", {"tools": {"messages": [_weather_tool_msg()]}}),
     ]
-    graph = _FakeGraph(items, values={"current_flow": "concierge"}, translate_llm=None)
+    graph = _FakeGraph(items, values={"current_flow": "concierge"})
     out = _run(graph)
 
     panels = [d for n, d in out if n == "panel"]
@@ -114,7 +99,7 @@ def test_mapper_en_path_is_identity_and_tags_en():
     items = [
         (("concierge:1",), "updates", {"tools": {"messages": [_weather_tool_msg()]}}),
     ]
-    graph = _FakeGraph(items, values={"current_flow": "concierge"}, translate_llm=None)
+    graph = _FakeGraph(items, values={"current_flow": "concierge"})
     out = _run(graph)
 
     panels = [d for n, d in out if n == "panel"]
@@ -127,15 +112,14 @@ def test_mapper_en_path_is_identity_and_tags_en():
     assert done["language"] == "en"
 
 
-def test_mapper_translates_place_prose_via_async_llm():
-    # Supervisor persists language=vi, then a concierge sub-agent emits a places
-    # panel whose free-form description flows through the async translate_llm.
-    tl = _FakeTranslateLLM()
+def test_mapper_places_prose_passes_through_and_category_localized():
+    # Free-form place descriptions are localized at tool time (content
+    # translations store); the mapper only swaps bounded fields and tags vi.
     items = [
         ((), "updates", {"supervisor": {"language": "vi"}}),
         (("concierge:1",), "updates", {"tools": {"messages": [_places_tool_msg()]}}),
     ]
-    graph = _FakeGraph(items, values={"current_flow": "concierge"}, translate_llm=tl)
+    graph = _FakeGraph(items, values={"current_flow": "concierge"})
     out = _run(graph)
 
     panels = [d for n, d in out if n == "panel"]
@@ -143,10 +127,8 @@ def test_mapper_translates_place_prose_via_async_llm():
     panel = panels[0]
     assert panel["language"] == "vi"
     place = panel["data"]["places"][0]
-    # Prose translated through the async LLM; bounded category via the vi table.
-    assert place["description"] == "VI:A cozy cafe."
+    assert place["description"] == "A cozy cafe."
     assert place["category"] == CATEGORY_VI["cafe"]
-    assert tl.calls == ["A cozy cafe."]
 
 
 def test_mapper_seeds_language_from_state_on_hitl_resume():
@@ -159,7 +141,6 @@ def test_mapper_seeds_language_from_state_on_hitl_resume():
     graph = _FakeGraph(
         items,
         values={"language": "vi", "current_flow": "concierge"},
-        translate_llm=None,
     )
     out = _run(graph)
 

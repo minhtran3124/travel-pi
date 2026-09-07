@@ -25,13 +25,40 @@ def test_memory_tools_excluded():
     assert "get_user_preferences" not in names
 
 
-def test_destructive_tool_annotations():
+def test_read_only_annotation_preserved():
     from app.mcp.server import build_mcp_server
 
     tools = {t.name: t for t in _list_tools(build_mcp_server())}
-    book = tools["book_hotel"]
-    assert "Cannot be undone." in book.description
-    assert book.annotations.destructiveHint is True
-
     summary = tools["get_trip_summary"]
     assert summary.annotations.readOnlyHint is True
+
+
+def test_destructive_book_and_cancel_tools_excluded():
+    # specs/review-a-security-hardening E004: destructive booking/cancellation
+    # tools are NOT exposed over the unauthenticated MCP surface.
+    from app.mcp.server import build_mcp_server
+
+    names = {t.name for t in _list_tools(build_mcp_server())}
+    for name in ("book_flight", "book_hotel", "cancel_flight", "cancel_hotel"):
+        assert name not in names, f"{name} must not be exposed over MCP"
+
+
+def test_create_trip_excluded_but_other_trip_tools_exposed():
+    from app.mcp.server import build_mcp_server
+
+    names = {t.name for t in _list_tools(build_mcp_server())}
+    # create_trip returns a langgraph Command and takes an InjectedToolCallId
+    # `tool_call_id` — cannot be served over MCP.
+    assert "create_trip" not in names
+    assert "get_trip_summary" in names
+
+
+def test_budget_tools_exposed():
+    """estimate_trip_budget (readOnly) and set_trip_budget (write, non-destructive)
+    are served over MCP (specs/agent-budget-trip-context SC-7)."""
+    from app.mcp.server import build_mcp_server
+
+    tools = {t.name: t for t in _list_tools(build_mcp_server())}
+    assert tools["estimate_trip_budget"].annotations.readOnlyHint is True
+    assert tools["set_trip_budget"].annotations.readOnlyHint is False
+    assert tools["set_trip_budget"].annotations.destructiveHint is False

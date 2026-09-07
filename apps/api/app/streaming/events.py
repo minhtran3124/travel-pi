@@ -18,7 +18,9 @@ Taxonomy
 * ``panel``       — structured side-panel payload from a tool's artifact:
   ``{tool_call_id, kind, data, language}`` (``kind`` ∈ ``route|places|weather``)
 * ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
-* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language}``
+* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language, trip_id, usage}``
+  (``trip_id`` is informational — see ``ChatResponse.trip_id``'s field description
+  for why the client must not resend it as the next request's ``trip_id``)
 * ``error``       — terminal failure: ``{code, message}``
 """
 
@@ -27,6 +29,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from app.core.languages import DEFAULT_LANGUAGE
 from app.core.streaming import TypedSSEEvent
 
 #: Max length of the JSON-serialised tool args echoed to the client.
@@ -68,7 +71,7 @@ def tool_result(*, id: str, status: str) -> TypedSSEEvent:
 
 
 def panel(
-    *, tool_call_id: str, kind: str, data: Any, language: str = "en"
+    *, tool_call_id: str, kind: str, data: Any, language: str = DEFAULT_LANGUAGE
 ) -> TypedSSEEvent:
     return _event(
         "panel",
@@ -90,7 +93,9 @@ def done(
     conversation_id: str,
     current_flow: str | None,
     suggestions: list[str],
-    language: str = "en",
+    language: str = DEFAULT_LANGUAGE,
+    trip_id: str | None = None,
+    usage: dict | None = None,
 ) -> TypedSSEEvent:
     return _event(
         "done",
@@ -99,6 +104,8 @@ def done(
             "current_flow": current_flow,
             "suggestions": suggestions,
             "language": language,
+            "trip_id": trip_id,
+            "usage": usage,
         },
     )
 

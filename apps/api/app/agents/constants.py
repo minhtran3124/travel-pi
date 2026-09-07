@@ -30,6 +30,24 @@ ALL_SUBAGENTS: tuple[str, ...] = (
 # Sub-agents unavailable on the free tier (routing is restricted to the rest).
 PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 
+# Name of the parallel-synthesis convergence node (GH-117 Path A). Shared so the
+# node registration, reflection's declared destinations, the worker/synthesize
+# edges, and the ``current_flow`` label the synthesize node emits all reference
+# ONE string. They MUST agree: reflection routes a REVISE back via
+# ``goto=current_flow``, and a label that is not a declared destination is
+# silently dropped by LangGraph (the revision is wasted). See
+# specs/fix-reflection-synthesize-goto.
+SYNTHESIZE_NODE = "synthesize"
+
+# --- task fan-out (P1) ----------------------------------------------------
+# Max total sub-agent tasks the supervisor may schedule in ONE turn — dispatched
+# as parallel ``synthesis_worker`` instances (GH-117 Path A) that converge on
+# ``synthesize``. Bounded because each worker is an isolated ReAct subgraph (own
+# recursion budget); the cap keeps the parent graph well inside
+# ``agent_recursion_limit`` (25) with headroom for the reflection revise loop.
+# The supervisor truncates an over-long model-emitted plan to this in code.
+MAX_LEDGER_STEPS = 4
+
 # Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
 # config omits ``model``. Everything else defaults to the main ``llm_model``.
 FAST_AGENTS: frozenset[str] = frozenset(
@@ -51,6 +69,31 @@ EPISODIC_TOOL_NAME = "recall_past_trips"
 # --- reflection -----------------------------------------------------------
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
 DEFAULT_MAX_REVISIONS = 1
+
+# Internal note reflection injects into ``state["messages"]`` when it sends an
+# answer back for revision. Shared so the REST reply-assembly can recognise a
+# superseded draft (the answer immediately before this note) without coupling to
+# the wording. A SystemMessage (never HumanMessage) so language-detection and
+# "the traveller's latest message" prompt rules don't misfire.
+REFLECTION_REVISE_NOTE = (
+    "Please improve your previous answer. This is an internal review note, not "
+    "a message from the traveller — keep replying in the traveller's own language."
+)
+
+# --- trip selection -------------------------------------------------------
+# Emitted by the trip_guard node (app/agents/subagents/_base.py) when the model
+# calls a trip-scoped tool with no active trip in state (#113). Instructions to
+# the MODEL, not text shown verbatim: the reply must be in the traveller's own
+# language. Never asks for the trip id — the traveller has never seen one; the
+# id is a UUID the system assigns, so asking for it is a dead end.
+NO_ACTIVE_TRIP_MSG = (
+    "Not run: no trip is selected for this conversation, and this tool cannot "
+    "run without one. This is NOT an outage and retrying will fail identically. "
+    "Ask the traveller which trip they mean — by destination and rough dates, "
+    "never by id (they have never seen one). Offer to start a new trip if they "
+    "do not have one yet, and confirm the destination and dates back to them "
+    "before acting, so a wrong guess is caught before it reaches their data."
+)
 
 # --- user-facing copy -----------------------------------------------------
 # Shown when a free user is routed to a premium-only sub-agent (booking).

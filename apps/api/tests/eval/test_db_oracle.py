@@ -97,14 +97,16 @@ def test_trip_budget_resolves_against_a_trip_seeded_by_this_test(seeded_session)
     from app.schemas.trip import TripBudgetSet, TripCreate
     from app.services.trip_service import TripService
 
-    trips = TripService(seeded_session)
+    trips = TripService(seeded_session, "eval-oracle-owner")
     trip = trips.create_trip(TripCreate(title="Oracle test trip"))
     trips.set_trip_budget(trip.id, TripBudgetSet(flights=1000.0, hotels=500.0))
 
     oracle = DbOracle(seeded_session)
     assert oracle.supports("trip_budget")
 
-    result = oracle.lookup("trip_budget", {"trip_id": trip.id})
+    result = oracle.lookup(
+        "trip_budget", {"trip_id": trip.id, "user_id": "eval-oracle-owner"}
+    )
 
     assert result["total_cap"] == 1500.0
     assert result["total_spent"] == 0.0

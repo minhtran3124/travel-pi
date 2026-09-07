@@ -15,12 +15,14 @@ Pages:
     GET /dashboard/weather              live city weather lookup (Open-Meteo)
     GET /dashboard/air-quality          live city air-quality lookup (Open-Meteo)
     GET /dashboard/bookings             ledger of every flight/hotel booking
+    GET /dashboard/agent-runs/{run_id}  one turn's call chain (waterfall)
     GET /dashboard/agent-config         list every agent's LLM config
     GET /dashboard/agent-config/{name}  edit form for one agent's LLM config
     POST /dashboard/agent-config/{name} persist one agent's LLM config
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
+from math import ceil
 from pathlib import Path
 from typing import Annotated
 
@@ -29,14 +31,20 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.agents.metrics import MAX_STEPS_PER_TURN as _MAX_STEPS_PER_TURN
+from app.core.dashboard_auth import require_dashboard_access
+from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
+from app.db import models
 from app.db.session import get_session
 from app.exceptions import (
     CityNotFoundError,
     DomainValidationError,
+    NotFoundError,
     WeatherUnavailableError,
 )
+from app.repositories.agent_run import AgentRunRepository
 from app.repositories.airline import AIRLINE_COLOR_DEFAULT, AirlineRepository
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
@@ -53,13 +61,20 @@ from app.services.agent_config_service import AgentConfigService
 from app.services.airport_service import AirportService
 from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
+from app.services.content_translation_service import ContentTranslationService
 from app.services.flight_service import FlightService
 from app.services.hotel_service import HotelService
 from app.services.place_service import PlaceService
 from app.services.tip_service import TipService
 from app.services.visa_service import VisaService
+from app.streaming.panels.places import CATEGORY_VI
 
-router = APIRouter(prefix="/dashboard", tags=[Tags.dashboard], include_in_schema=False)
+router = APIRouter(
+    prefix="/dashboard",
+    tags=[Tags.dashboard],
+    include_in_schema=False,
+    dependencies=[Depends(require_dashboard_access)],
+)
 
 # Templates live in app/templates/ — resolve the path relative to this file
 # so it works regardless of the current working directory.
@@ -70,6 +85,34 @@ _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:0
 
 # The board defaults to this airport when none is given (busiest hub).
 _DEFAULT_AIRPORT = "SGN"
+
+# Catalog text language for the hotel/place pages (specs/catalog-content-i18n):
+# ``?lang=`` wins, else the cookie set by an earlier choice, else the default.
+_LANG_COOKIE = "dashboard_lang"
+_TEMPLATES.env.globals["supported_languages"] = SUPPORTED_LANGUAGES
+
+
+def _dashboard_language(request: Request, lang: str | None) -> str:
+    """Resolve the catalog language for this request.
+
+    :param request: The incoming request (cookie fallback).
+    :param lang: The ``?lang=`` query value, if any.
+    :return: A supported language code.
+    """
+    return normalize(lang or request.cookies.get(_LANG_COOKIE))
+
+
+def _remember_language(response: Response, lang: str | None, resolved: str) -> None:
+    """Persist an explicit ``?lang=`` choice so the next page keeps it.
+
+    :param response: The response to set the cookie on.
+    :param lang: The raw ``?lang=`` value (``None`` when absent → no cookie).
+    :param resolved: The normalized code to store.
+    """
+    if lang:
+        response.set_cookie(
+            _LANG_COOKIE, resolved, max_age=365 * 24 * 3600, samesite="lax"
+        )
 
 
 @router.get("", response_class=HTMLResponse, include_in_schema=False)
@@ -302,6 +345,7 @@ def hotel_list_page(
     city: str | None = Query(None, description="Filter the grid to one city"),
     q: str | None = Query(None, description="Case-insensitive hotel name search"),
     sort: str = Query("featured", description="Sort order; see _HOTEL_SORTS keys"),
+    lang: str | None = Query(None, description="Catalog text language (en/vi)"),
 ) -> HTMLResponse:
     """Render the browsable hotel grid.
 
@@ -338,7 +382,13 @@ def hotel_list_page(
     if sort_key is not None:
         hotels = sorted(hotels, key=sort_key)
 
-    return _TEMPLATES.TemplateResponse(
+    language = _dashboard_language(request, lang)
+    # Stored translations only: the dashboard never triggers a translator call.
+    hotels = ContentTranslationService(session).localize(
+        "hotel", hotels, ["description"], language, fill_misses=False
+    )
+
+    response = _TEMPLATES.TemplateResponse(
         request=request,
         name="hotels.html",
         context={
@@ -348,8 +398,11 @@ def hotel_list_page(
             "query": query,
             "sort": sort,
             "total": len(all_hotels),
+            "lang": language,
         },
     )
+    _remember_language(response, lang, language)
+    return response
 
 
 _PLACE_SORTS = {
@@ -383,6 +436,7 @@ def places_page(
     price_level: str | None = Query(None, description="Price level 1–4"),
     recommended: bool = Query(False, description="Recommended only"),
     sort: str = Query("rating_desc"),
+    lang: str | None = Query(None, description="Catalog text language (en/vi)"),
 ) -> HTMLResponse:
     """Render the browsable places/attractions grid.
 
@@ -431,14 +485,25 @@ def places_page(
         )
     )
 
-    return _TEMPLATES.TemplateResponse(
+    language = _dashboard_language(request, lang)
+    results = ContentTranslationService(session).localize(
+        "place", results, ["description"], language, fill_misses=False
+    )
+    categories = (
+        {k: CATEGORY_VI.get(k, v) for k, v in _PLACE_CATEGORIES.items()}
+        if language != DEFAULT_LANGUAGE
+        else _PLACE_CATEGORIES
+    )
+
+    response = _TEMPLATES.TemplateResponse(
         request=request,
         name="places.html",
         context={
             "places": results,
             "total": len(all_places),
             "cities": cities,
-            "categories": _PLACE_CATEGORIES,
+            "categories": categories,
+            "lang": language,
             "price_labels": _PRICE_LABELS,
             "sort_options": _PLACE_SORTS,
             "selected_city": city or None,
@@ -450,6 +515,8 @@ def places_page(
             "error": error,
         },
     )
+    _remember_language(response, lang, language)
+    return response
 
 
 def _city_country_map(session: Session) -> dict[str, str]:
@@ -840,14 +907,16 @@ def bookings_page(
     :return: The rendered bookings ledger page.
     """
     service = BookingService(session)
-    bookings = service.query(q=q, booking_type=booking_type, sort=sort)
+    # Operator dashboard: no signed-in caller (Basic-auth), shows all owners'
+    # bookings — the one place that reads the unscoped ledger (#118).
+    bookings = service.query_unscoped(q=q, booking_type=booking_type, sort=sort)
     selected_type = booking_type if booking_type in ("flight", "hotel") else None
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="bookings.html",
         context={
             "bookings": bookings,
-            "total": len(service.list_all()),
+            "total": len(service.list_all_unscoped()),
             "query": (q or "").strip(),
             "selected_type": selected_type,
             "sort": sort if sort in BOOKING_SORTS else "created_desc",
@@ -973,6 +1042,231 @@ def agent_config_save(
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
     return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
+
+
+def _percentile(values: list[int], pct: float) -> int | None:
+    """Nearest-rank percentile of *values* (pure Python, no numpy).
+
+    :param values: Latency samples (any order); empty yields ``None``.
+    :param pct: The percentile in ``0..100`` (e.g. 50, 95).
+    :return: The percentile value, or ``None`` when there are no samples.
+    """
+    if not values:
+        return None
+    ordered = sorted(values)
+    # Nearest-rank: index = ceil(pct/100 * n) - 1, clamped to the last element.
+    idx = min(len(ordered) - 1, max(0, ceil(pct / 100 * len(ordered)) - 1))
+    return ordered[idx]
+
+
+def _run_totals(repo: AgentRunRepository, since: datetime) -> dict:
+    """Aggregate metrics since *since*, with p50 / p95 latency added.
+
+    :param repo: The agent-run repository.
+    :param since: Only runs created at or after this instant are counted.
+    :return: The repo totals plus ``p50`` / ``p95`` latency (ms, or ``None``).
+    """
+    t = repo.totals(since)
+    latencies = t["latencies"]
+    return {
+        "turns": t["turns"],
+        "tokens": t["tokens"],
+        "cost": t["cost"],
+        "p50": _percentile(latencies, 50),
+        "p95": _percentile(latencies, 95),
+    }
+
+
+@router.get("/agent-runs", response_class=HTMLResponse)
+def agent_runs_page(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """Render the recent agent-turn metrics and 24h / 7d rollups (SC-8).
+
+    Read-only operator view: the 100 most recent runs plus token / cost /
+    latency totals over the last 24 hours and 7 days. A ``running`` row whose
+    start is older than ten minutes is treated as abandoned.
+
+    :param request: The incoming request.
+    :param session: The request-scoped DB session.
+    :return: The rendered agent-runs page.
+    """
+    repo = AgentRunRepository(session)
+    runs = repo.list_recent(100)
+    now = datetime.now(UTC)
+    totals_24h = _run_totals(repo, now - timedelta(hours=24))
+    totals_7d = _run_totals(repo, now - timedelta(days=7))
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="agent_runs.html",
+        context={
+            "runs": runs,
+            "totals_24h": totals_24h,
+            "totals_7d": totals_7d,
+            # Rows started before this cutoff and still "running" are abandoned.
+            "abandoned_cutoff": (now - timedelta(minutes=10)).isoformat(),
+        },
+    )
+
+
+#: Minimum bar width (%) so a 0 ms step is still visible in the waterfall.
+_MIN_BAR_PCT = 0.8
+
+
+def _attributed_prompt_names(steps: list) -> set[str]:
+    """Prompt names the run's steps could be attributed to.
+
+    Multi-intent turns are attributed too: the synthesis worker passes its
+    specialist through the config metadata, so a worker's ``assistant`` steps
+    resolve to that specialist's prompts. What stays unattributed is the handful
+    of steps that compose no registry prompt at all — a worker's ``tools`` and
+    ``trip_guard`` spans, and ``synthesize`` / ``summarize``, which build their
+    system text outside the registry.
+    """
+    names: set[str] = set()
+    for step in steps:
+        for entry in step.prompts or []:
+            name = entry.get("name") if isinstance(entry, dict) else None
+            if name:
+                names.add(name)
+    return names
+
+
+def _turn_span_ms(run: models.AgentRun, steps: list[models.AgentRunStep]) -> int:
+    """Wall-clock span the waterfall is drawn against.
+
+    ``latency_ms`` when the run recorded one; otherwise the furthest step end
+    (a run that never closed has no latency), and 0 when there is nothing to
+    measure — the caller must not divide by it.
+
+    :param run: The run being rendered.
+    :param steps: The run's steps, in ``seq`` order.
+    :return: The span in milliseconds (0 when unknown).
+    """
+    if run.latency_ms:
+        return run.latency_ms
+    if steps:
+        return max((s.offset_ms or 0) + (s.ms or 0) for s in steps)
+    return 0
+
+
+def _waterfall(run: models.AgentRun, steps: list[models.AgentRunStep]) -> list[dict]:
+    """Position each step's bar as percentages of the turn span (SC-9).
+
+    All arithmetic happens here so the template only prints numbers. A zero
+    span (no latency, no steps with duration) yields left-aligned minimum-width
+    bars rather than a division by zero.
+
+    :param run: The run being rendered.
+    :param steps: The run's steps, in ``seq`` order.
+    :return: One ``{step, left_pct, width_pct, sub}`` dict per step.
+    """
+    span = _turn_span_ms(run, steps)
+    rows: list[dict] = []
+    for step in steps:
+        if span > 0:
+            left = (step.offset_ms or 0) / span * 100
+            width = (step.ms or 0) / span * 100
+        else:
+            left, width = 0.0, 0.0
+        # Clamp so a bar always stays inside the track and stays visible.
+        left = min(max(left, 0.0), 100.0 - _MIN_BAR_PCT)
+        width = min(max(width, _MIN_BAR_PCT), 100.0 - left)
+        ns = step.ns or ""
+        rows.append(
+            {
+                "step": step,
+                "left_pct": round(left, 2),
+                "width_pct": round(width, 2),
+                # A '|' in the checkpoint ns means the node ran in a sub-graph;
+                # its root names which one (see agents/metrics.py:_node_key).
+                "sub": ns.split("|", 1)[0].split(":", 1)[0] if "|" in ns else None,
+            }
+        )
+    return rows
+
+
+def _cost_by_model(
+    run: models.AgentRun, steps: list[models.AgentRunStep]
+) -> list[dict]:
+    """Per-model usage from ``by_model``, priced from the steps that used it.
+
+    ``by_model`` carries calls and tokens only, so cost is summed from the LLM
+    steps of that model; a model with no priced step shows no cost.
+
+    :param run: The run being rendered.
+    :param steps: The run's steps.
+    :return: One row per model, ordered by name.
+    """
+    costs: dict[str, float] = {}
+    for step in steps:
+        if step.model and step.cost_usd is not None:
+            costs[step.model] = costs.get(step.model, 0.0) + step.cost_usd
+    rows = []
+    for model, usage in sorted((run.by_model or {}).items()):
+        rows.append(
+            {
+                "model": model,
+                "calls": usage.get("calls", 0),
+                "input_tokens": usage.get("input_tokens", 0),
+                "output_tokens": usage.get("output_tokens", 0),
+                "cached_tokens": usage.get("cached_tokens", 0),
+                "cost_usd": costs.get(model),
+            }
+        )
+    return rows
+
+
+@router.get("/agent-runs/{run_id}", response_class=HTMLResponse)
+def agent_run_detail_page(
+    request: Request,
+    run_id: str,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """Render one turn's call chain as a waterfall (SC-9).
+
+    Read-only operator view: the run's totals, its steps in ``seq`` order with
+    a server-computed bar per step, the per-model cost split, the tools it
+    called, and the prompt versions the turn actually ran.
+
+    :param request: The incoming request.
+    :param run_id: The agent-run id to show.
+    :param session: The request-scoped DB session.
+    :raises NotFoundError: If no run has that id (renders the 404 page).
+    :return: The rendered run-detail page.
+    """
+    run = session.get(models.AgentRun, run_id)
+    if run is None:
+        raise NotFoundError(f"No agent run with id {run_id!r}")
+    steps = AgentRunRepository(session).steps_for(run_id)
+    attributed = _attributed_prompt_names(steps)
+    return _TEMPLATES.TemplateResponse(
+        request=request,
+        name="agent_run_detail.html",
+        context={
+            "run": run,
+            "chain": _waterfall(run, steps),
+            "span_ms": _turn_span_ms(run, steps),
+            "by_model": _cost_by_model(run, steps),
+            "tools": [s for s in steps if s.kind == "tool"],
+            # The version link is required: without it the prompt page shows
+            # whatever is latest today, not the version this turn ran.
+            # The snapshot is every prompt the compiled graph had active, not only
+            # the ones this turn exercised — label it as such and flag the subset the
+            # steps could actually attribute, so the page does not claim more than
+            # it knows. An unflagged row means "no step could be attributed to it",
+            # never "not used" — some nodes compose no registry prompt at all.
+            "prompts": [
+                (name, version, name in attributed)
+                for name, version in sorted((run.prompt_versions or {}).items())
+            ],
+            # The handler stops recording past MAX_STEPS_PER_TURN. That counter is
+            # not persisted, so a full page of steps is the only signal the chain
+            # may be incomplete — say so rather than presenting it as the whole run.
+            "truncated": len(steps) >= _MAX_STEPS_PER_TURN,
+        },
+    )
 
 
 def _today() -> str:

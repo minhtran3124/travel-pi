@@ -16,6 +16,7 @@ from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.auth import AuthUser, get_current_user
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
 from app.db.session import get_session
@@ -72,9 +73,20 @@ def _new_id() -> str:
 class TripService:
     """Business logic over the trip store."""
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, user_id: str) -> None:
+        """Bind the store to one owner (#118).
+
+        The owner is a property of the service instance rather than a parameter
+        on twenty methods, because every read and mutation already funnels
+        through :meth:`get_trip` — scoping that one lookup scopes the whole
+        surface, and no future method can forget to pass it.
+
+        :param session: The request-scoped DB session.
+        :param user_id: The caller who owns the trips this instance may touch.
+        """
         self._session = session
         self._repo = TripRepository(session)
+        self._user_id = user_id
 
     def _bookings(self) -> BookingService:
         """Return a booking store bound to this trip's request session (shared txn).
@@ -86,10 +98,14 @@ class TripService:
     def get_trip(self, trip_id: str) -> Trip:
         """Return a trip by UUID, or raise :class:`NotFoundError`.
 
+        A trip owned by someone else raises the same ``NotFoundError`` as one
+        that does not exist — a distinct "forbidden" would confirm to a probe
+        that a guessed id is real (#118).
+
         :param trip_id: The trip's UUID.
         :return: The matching trip.
         """
-        trip = self._repo.get_trip(trip_id)
+        trip = self._repo.get_trip(trip_id, self._user_id)
         if trip is None:
             raise NotFoundError(
                 f"Trip {trip_id!r} not found",
@@ -98,11 +114,11 @@ class TripService:
         return trip
 
     def list_trips(self) -> list[Trip]:
-        """Return every trip, newest first.
+        """Return the caller's trips, newest first.
 
-        :return: All trips, newest first.
+        :return: The caller's trips, newest first.
         """
-        return self._repo.list_trips()
+        return self._repo.list_trips(self._user_id)
 
     def create_trip(
         self, request: TripCreate, idempotency_key: str | None = None
@@ -117,7 +133,9 @@ class TripService:
         :return: The stored trip.
         """
         if idempotency_key:
-            existing = self._repo.get_trip_by_idempotency_key(idempotency_key)
+            existing = self._repo.get_trip_by_idempotency_key(
+                idempotency_key, self._user_id
+            )
             if existing is not None:
                 logger.info(
                     "Idempotency-Key %s replayed trip %s",
@@ -142,9 +160,11 @@ class TripService:
             created_at=datetime.now(timezone.utc),
             items=items,
         )
-        stored = self._repo.create_trip(trip, idempotency_key=idempotency_key)
+        stored = self._repo.create_trip(
+            trip, self._user_id, idempotency_key=idempotency_key
+        )
         logger.info("Created trip %s with %d item(s)", stored.id, len(items))
-        return self._repo.get_trip(stored.id)
+        return self._repo.get_trip(stored.id, self._user_id)
 
     def update_trip(self, trip_id: str, request: TripUpdate) -> Trip:
         """Replace a trip's top-level fields. 404 if it does not exist.
@@ -166,7 +186,7 @@ class TripService:
         )
         self._repo.update_trip(updated)
         logger.info("Updated trip %s", trip_id)
-        return self._repo.get_trip(trip_id)
+        return self._repo.get_trip(trip_id, self._user_id)
 
     def delete_trip(self, trip_id: str) -> None:
         """Soft-delete a trip (stamp deleted_at, keep the row). 404 if missing
@@ -281,7 +301,13 @@ class TripService:
                 hint="source must be 'catalog' or 'saved'.",
             )
         self.get_trip(trip_id)
-        resolved = PlaceService(self._session).resolve(place_id, source)
+        # Scope the saved resolve to the caller: place_id is a fresh, model-facing
+        # argument (an agent can be steered to another user's saved UUID / SPL-
+        # code), so an unscoped resolve here would shortlist — and echo back — a
+        # foreign saved place's PII onto the caller's own trip.
+        resolved = PlaceService(self._session).resolve(
+            place_id, source, user_id=self._user_id
+        )
         if resolved is None:
             raise NotFoundError(
                 f"Place {place_id!r} not found in source {source!r}.",
@@ -318,7 +344,7 @@ class TripService:
         entries: list[ShortlistEntry] = []
         for row in self._repo.list_trip_places(trip_id):
             resolved = PlaceService(self._session).resolve(
-                row["place_id"], row["source"]
+                row["place_id"], row["source"], user_id=self._user_id
             )
             if resolved is None:
                 continue
@@ -353,7 +379,9 @@ class TripService:
             if item.booking_id is None or item.booking_id in resolved:
                 continue
             try:
-                resolved[item.booking_id] = booking_svc.get(item.booking_id)
+                resolved[item.booking_id] = booking_svc.get(
+                    item.booking_id, user_id=self._user_id
+                )
             except NotFoundError:
                 logger.info(
                     "Booking %r not found for item %s — skipping spend",
@@ -456,7 +484,7 @@ class TripService:
         if not caps:
             return
         try:
-            booking = self._bookings().get(request.booking_id)
+            booking = self._bookings().get(request.booking_id, user_id=self._user_id)
         except NotFoundError:
             return  # unpriceable link — consistent with total_spent skipping it
         if booking.status == BookingStatus.CANCELLED:
@@ -659,13 +687,22 @@ def init_db() -> None:
     TripRepository(get_session_factory(get_settings().database_url)).init_db()
 
 
-def get_trip_service(session: Annotated[Session, Depends(get_session)]) -> TripService:
-    """FastAPI dependency: a trip store bound to the request session.
+def get_trip_service(
+    session: Annotated[Session, Depends(get_session)],
+    auth_user: Annotated[AuthUser, Depends(get_current_user)],
+) -> TripService:
+    """FastAPI dependency: a trip store bound to the request session AND caller.
+
+    ``get_current_user`` is the *required* variant, so every route depending on
+    this now 401s without a valid token. Before #118 these routes had no
+    authentication at all and the store was unscoped, which is what made every
+    trip readable by anyone.
 
     :param session: The request-scoped DB session.
-    :return: A ``TripService`` bound to the request session.
+    :param auth_user: The authenticated caller; supplies the owner filter.
+    :return: A ``TripService`` bound to the request session and caller.
     """
-    return TripService(session)
+    return TripService(session, auth_user.id)
 
 
 # --------------------------------------------------------------------------- #

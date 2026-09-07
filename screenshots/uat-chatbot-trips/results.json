@@ -1,0 +1,56 @@
+[
+  {
+    "id": "TC01",
+    "name": "/trips renders for a signed-in user (no login redirect)",
+    "status": "PASS",
+    "detail": "url=http://localhost:3000/trips"
+  },
+  {
+    "id": "TC02",
+    "name": "Chat launcher opens the assistant panel",
+    "status": "PASS",
+    "detail": ""
+  },
+  {
+    "id": "TC03",
+    "name": "Assistant answers an ordinary question with a complete, non-truncated reply",
+    "status": "PASS",
+    "detail": "reply=\"T I can help you find places, check weather, compare hotels, and get practical travel tips for your trip 🌍\""
+  },
+  {
+    "id": "TC04",
+    "name": "Email never persisted; stored + reloaded as [REDACTED_EMAIL]",
+    "status": "PASS",
+    "detail": "db rows w/ raw email=0, db rows redacted=7, ui leak=false"
+  },
+  {
+    "id": "TC05",
+    "name": "Credit card never persisted; stored + reloaded as ****-****-****-1111",
+    "status": "PASS",
+    "detail": "db rows w/ raw card=0, db rows masked=3, ui leak=false"
+  },
+  {
+    "id": "TC06",
+    "name": "Email + card in one turn: neither persisted, both redacted on reload",
+    "status": "PASS",
+    "detail": "db rows w/ raw pii=0"
+  },
+  {
+    "id": "TC07",
+    "name": "Non-Luhn digit run is NOT masked (no over-redaction)",
+    "status": "PASS",
+    "detail": "db rows w/ order ref=4"
+  },
+  {
+    "id": "TC08",
+    "name": "No raw PII anywhere in the reloaded transcript",
+    "status": "PASS",
+    "detail": ""
+  },
+  {
+    "id": "TC09",
+    "name": "Pre-reload UI echoes the raw typed text (client-side optimistic bubble, useAgentStream.ts:295) — browser-local only, never stored",
+    "status": "PASS",
+    "detail": "observed in TC04a/TC05a/TC06a screenshots"
+  }
+]

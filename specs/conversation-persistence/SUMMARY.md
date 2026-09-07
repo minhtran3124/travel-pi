@@ -1,5 +1,12 @@
 # Summary — conversation-persistence
 
+Lane: normal
+Confidence: high
+Reason: retrofitted at status retirement — no hard gate in the shipped diff (no migration,
+  no auth change); flags existing behavior and multi-domain (agent router, streaming, FE).
+Flags: existing behavior, multi-domain
+
+
 - **Lane:** normal
 - **Confidence:** high
 - **Reason:** Root cause precisely located (FE uses only `/agent/stream`, which never persists;
@@ -39,3 +46,23 @@ the three reported bugs. Chosen continuity approach: durable **Postgres checkpoi
 
 - Commit authorization for Task 2.1: `RISK_WARN_CATEGORIES="public-contract"` (memory
   `public-contract-hard-gate`).
+
+### Verify
+
+<!-- Retrofitted 2026-09-03 when this plan's status was retired from `active`. The rows below
+     were RUN on that date against the shipped code — they are not a record of what was run
+     during the original work, which predates the lane-evidence rule. -->
+
+| Check | Command | Exit | Notes |
+| --- | --- | --- | --- |
+| chat + streaming persistence | `cd apps/api && env OPENAI_API_KEY= DATABASE_URL=sqlite:///$(mktemp -d)/x.db ../../.venv/bin/python -m pytest tests/api/agent/test_agent_chat.py tests/streaming -q` | 0 | 58 passed |
+
+### Not auto-verified
+
+- The FE hydrate/persist behaviour — the shipped code is on `main`, but no browser check was
+  re-run at retirement.
+
+### Rollback
+
+- `git revert <sha>` of the phase's commits. No schema to undo beyond the conversations/messages
+  tables, which later work depends on.

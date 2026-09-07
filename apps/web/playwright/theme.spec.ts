@@ -1,21 +1,40 @@
 /**
  * Theme e2e — light/dark toggle, OS default, and persistence.
  *
- * Unlike `trip-smoke.spec.ts`, this spec does NOT need the FastAPI backend: it
- * only exercises the `next-themes` ThemeProvider + the header ThemeToggle, which
- * render purely client-side. The Next dev server (:3000) is booted by
- * playwright.config.ts (reused if already running).
+ * This spec exercises the `next-themes` ThemeProvider + the header ThemeToggle,
+ * which render purely client-side — it needs NO FastAPI backend. It does,
+ * however, need an authenticated session: every test navigates to `/trips`
+ * because there is no public URL that renders the theme toggle. `/` is
+ * `redirect("/trips")`, and `AppShell` renders bare children under `/auth*`, so
+ * an unauthenticated visit never shows the header + toggle. The session is
+ * produced once by the `setup` project and reused; without e2e credentials the
+ * whole file is skipped via the file-scope `test.skip(!hasCreds, …)` below.
  *
  *   # from apps/web — install the browser once, then run only this spec
  *   export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"
  *   pnpm exec playwright install chromium
- *   pnpm e2e -g "theme"
+ *   E2E_USER_EMAIL=… E2E_USER_PASSWORD=… pnpm e2e -g "theme"
  *
  * We assert on `<html class="dark">` and the `localStorage` key `"theme"` (set
  * by next-themes). `/trips` page DATA may need the backend, but the header +
  * toggle + html class always render, so the assertions never depend on it.
+ *
+ * This file pins `retries: 0` even under CI. The "no FOUC" test is built on a
+ * single attempt: a retry runs against an already-warm route, so a real flash
+ * regression would be reported as flaky and the run would still exit 0. Keeping
+ * the retry budget at zero here preserves the guarantee; the rest of the suite
+ * keeps the config's CI retry.
  */
 import { expect, test } from "@playwright/test";
+
+import { hasCreds } from "./e2e-env";
+
+test.describe.configure({ retries: 0 });
+
+// File-scope guard: `/trips` needs an authenticated session (see the header).
+// Without e2e credentials the shared storage state is never written, so skip
+// the whole file rather than fail on a missing session.
+test.skip(!hasCreds, "E2E_USER_EMAIL/E2E_USER_PASSWORD not set");
 
 const html = (page: import("@playwright/test").Page) => page.locator("html");
 const toggle = (page: import("@playwright/test").Page) =>

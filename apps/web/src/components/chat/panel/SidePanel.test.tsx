@@ -73,6 +73,45 @@ describe("SidePanel", () => {
     expect(screen.getByText("weather-body")).toBeInTheDocument();
   });
 
+  it("switches to the kind requested by an external focus nonce", () => {
+    const { rerender } = render(
+      <SidePanel panels={[route, weather]} onClose={() => undefined} />,
+      { wrapper: Intl },
+    );
+    // Newest (weather) is active by default.
+    expect(screen.getByText("weather-body")).toBeInTheDocument();
+
+    // An inline result card asks for the route panel.
+    rerender(
+      <SidePanel
+        panels={[route, weather]}
+        onClose={() => undefined}
+        focus={{ kind: "route", nonce: 1 }}
+      />,
+    );
+    expect(screen.getByText("route-body")).toBeInTheDocument();
+
+    // Same nonce again is not a new request — the pinned tab survives rerenders.
+    rerender(
+      <SidePanel
+        panels={[route, weather]}
+        onClose={() => undefined}
+        focus={{ kind: "route", nonce: 1 }}
+      />,
+    );
+    expect(screen.getByText("route-body")).toBeInTheDocument();
+
+    // A new nonce for weather switches back.
+    rerender(
+      <SidePanel
+        panels={[route, weather]}
+        onClose={() => undefined}
+        focus={{ kind: "weather", nonce: 2 }}
+      />,
+    );
+    expect(screen.getByText("weather-body")).toBeInTheDocument();
+  });
+
   it("labels the tabs in the streamed panel language", () => {
     // English catalog → "Route" / "Weather" tab labels.
     const { unmount } = render(

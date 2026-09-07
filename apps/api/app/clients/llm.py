@@ -85,7 +85,16 @@ def _build_chat_model(
     if temperature is not None:
         kwargs["temperature"] = temperature
 
-    kwargs.setdefault("max_retries", 0)  # graph owns retry (MIN-49); avoid SDK double-retry
+    kwargs.setdefault(
+        "max_retries", 0
+    )  # graph owns retry (MIN-49); avoid SDK double-retry
+
+    if profile.sdk == "openai":
+        # streaming=True routes invoke through _stream, and langchain-openai
+        # 0.3.34 defaults stream_usage=False, so without this no OpenAI call
+        # returns usage_metadata. Scoped to the OpenAI SDK: other SDKs keep
+        # their own defaults and never receive this kwarg.
+        kwargs["stream_usage"] = True
 
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
@@ -174,6 +183,20 @@ class FakeLLM(BaseChatModel):
         return "fake-llm"
 
     def _next(self) -> AIMessage:
+        msg = self._build_next()
+        # Deterministic usage so offline turns exercise the token/cost/latency
+        # metrics path; scripted AIMessages that already carry usage are left
+        # untouched.
+        if not msg.usage_metadata:
+            msg.usage_metadata = {
+                "input_tokens": 10,
+                "output_tokens": 5,
+                "total_tokens": 15,
+            }
+            msg.response_metadata = {**msg.response_metadata, "model_name": "fake-llm"}
+        return msg
+
+    def _build_next(self) -> AIMessage:
         if not self.responses:
             return AIMessage(content="")
         item = self.responses[self._cursor % len(self.responses)]

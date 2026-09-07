@@ -3,6 +3,152 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## agent-tool-round-budget — skip the no-op trip_guard step; planner batches itinerary writes
+
+specs/agent-tool-round-budget: a single agent turn has a bounded number of tool-call rounds,
+so a step that adds nothing to the plan and a planner that writes one itinerary item per turn
+both burn rounds a full itinerary needs.
+
+- **planner v12** — copied v11, then added one sentence under "How to Work" step 4: when
+  several itinerary items are ready at once (e.g. filling out multiple days), call
+  `add_itinerary_item` more than once in the same response instead of one item per turn, so a
+  full itinerary does not exhaust the turn's tool-call budget. No existing v11 line was removed.
+- **`_base.py`** (code half) — `trip_guard` no longer routes to itself when the trip is already
+  known; the router goes straight to `tools`, skipping the no-op guard step.
+
+`active.yaml`: planner → 12.
+
+## agent-budget-trip-context — budget agent reads the trip and sets caps
+
+specs/agent-budget-trip-context: "pls set simple budget for trip" made the **budget** agent
+ask "how many days is your trip?" — it was bound to `EXPENSE_TOOLS + get_trip_budget` only,
+could not read the trip's dates/travelers, and no agent tool set a budget, so the model
+improvised per-day arithmetic (breaking its own "Don't estimate totals" guardrail). The
+code half binds `get_trip_summary` into the budget domain and adds two tools:
+`estimate_trip_budget` (read-only; derives `nights` from the trip's dates, returns
+`suggested_caps` per category + `assumptions`, or `{"error": "trip_dates_unknown"}` when
+the trip has no dates) and `set_trip_budget` (write; REPLACES all four caps
+flights/hotels/activities/buffer).
+
+- **budget v3** — copied v2, then extended "## How to Work": call `get_trip_summary`
+  first (dates, travelers, existing caps); for "set / plan a (simple) budget" call
+  `estimate_trip_budget` (pass `nights` only if the traveller stated it), present the
+  `suggested_caps` with the `assumptions` and ask to confirm or adjust; call
+  `set_trip_budget` only after explicit confirmation and say it replaces all caps; ask
+  "how many nights / what dates" ONLY on `trip_dates_unknown`. One guardrail added:
+  "Never compute per-day or total figures yourself — the estimate tool does it." No v2
+  content was removed.
+- **supervisor v10** — copied v9; the **budget** bullet now also covers "setting /
+  estimating the trip's budget caps" (previously planner v11's "budget caps" wording could
+  attract the request), plus one routing example: "Set a simple budget for my trip" →
+  **budget**. No other edits.
+
+`active.yaml`: budget → 3, supervisor → 10. Others unchanged.
+
+## multi-intent-single-path — `plan` is independent-parallel-only; single-specialist chains stay single (wave 1)
+
+specs/multi-intent-single-path (decision A): the runtime is parallel-only — `route_tasks`
+`Send`s every `len(tasks)>1` to blind `synthesis_worker`s that each see only the last user
+message and cannot read a sibling's result. But `SupervisorIntent.plan` still told the model
+to plan ordered/dependent/recurring follow-ons, so "plan my weekend: flights, weather, then
+itinerary" spawned a blind itinerary worker plus a duplicate planner. Wave 1 fixes the
+supervisor side (wave 2 removes the dead sequential `dispatch_next`/`pending_flows` machinery).
+
+- **supervisor v9** — copied v8, then added one routing rule under rule 3 (and one example):
+  a CHAIN whose steps all live inside ONE specialist's toolset routes to that single
+  specialist with `plan=[]` — the **planner** owns flights (`search_flights`), hotels
+  (`search_hotels`), places (`search_places`), weather (`get_weather`), routing, `create_trip`,
+  `add_itinerary_item` — so "plan my weekend: flights + hotel + places + weather + itinerary"
+  is one planner job, not a fan-out. `plan` is now only for genuinely INDEPENDENT extras a
+  single specialist cannot do itself (local tips / travel knowledge → concierge). The
+  "## Multi-step Plan" section was reframed from ordered/recurring follow-ons to
+  independent-parallel-only; no existing v8 content was removed.
+- **supervisor.py** (code half) — the `plan`/`secondary_agent` field descriptions now read
+  "independent, parallel, sees only this message, never the primary, never booking"; the task
+  list is built from a DEDUPLICATED agent list (primary first, follow-ons in order, skipping any
+  agent already queued — no duplicate specialist workers), keeping the `MAX_LEDGER_STEPS` cap;
+  and the supervisor **stops writing `pending_flows`** in its Command update (the state field
+  stays for wave 2). No graph topology or SSE change.
+
+`active.yaml`: supervisor → 9. Others unchanged.
+
+## booking-tools-owner — agent bookings carry the injected owner (review-A E004)
+
+specs/review-a-security-hardening (E004): `book_flight`, `book_hotel`, `cancel_flight`
+and `cancel_hotel` now take `user_id` via `InjectedState("user_id")` (graph state, never
+model-supplied) and pass it to the owner-scoped `BookingService`, so agent-made bookings
+are stamped with the authenticated traveller and a cancel of a booking owned by someone
+else reads as *not found* (#118). No prompt version changed.
+
+- **MCP caveat:** E004 assumed these tools would drop off MCP because injected-arg tools
+  are skipped. They are **not** — `app/mcp/server.py` skips only `store` / `tool_call_id`,
+  not `InjectedState` (`get_trip_summary` is likewise exposed). The four tools remain on
+  the MCP surface (now with a `user_id` param); enforcing E004's removal needs an explicit
+  server-side filter. See `.harness-state/sdd/report-3.1.md`.
+
+## supervisor-expense-logging — disambiguate "log an expense" from journal
+
+GH-117 Path A eval: `gpt-4o-mini` routed "Log that I paid 50 USD for lunch today"
+to **journal** because of the word "log", even though the content is an expense.
+Added an explicit routing example so expense recording always goes to **budget**,
+regardless of "log"/"note" wording.
+
+- **supervisor v8** — identical to v7 plus one new few-shot example:
+  "Log that I paid 50 USD for lunch today" → **budget** (recording an expense).
+
+`active.yaml`: supervisor → 8.
+
+## ledger-early-exit — signal "blocked on the traveller" instead of draining the plan
+
+specs/min-68-ledger-early-exit (MIN-68 / #99): when a queued multi-step plan hits a
+specialist that needs a clarifying answer, the remaining steps used to run anyway and
+produce output the traveller never sees. Sub-agents now carry a `needs_clarification`
+tool (control-flow, not registry/MCP-exposed) that sets `awaiting_user`, making
+`dispatch_next` abandon the rest of the ledger; the next turn re-plans.
+
+- **communication_style v7** — appended a `## Blocked on the Traveller` section telling
+  every specialist to call `needs_clarification` once when only the traveller can
+  unblock them, and never for tool failures. Everything else unchanged from v6.
+
+`active.yaml`: communication_style → 7. Others unchanged.
+
+## flight-fare-no-fabrication — forbid derived prices, not just invented ones
+
+specs/flight-fare-no-fabrication (MIN-67 / #98): the agent searched one leg and told the
+traveller "from $136 round-trip total" by doubling a real $68 one-way fare — grounded in a
+tool result, so the prior "never invent" wording didn't catch it. `search_flights` gained an
+optional `return_date` (wave 1) so a round trip's real return-leg fare can actually be
+retrieved; this is the prompt half.
+
+- **planner v11** — extended the existing "Never invent flights, hotels, or prices"
+  Guardrails bullet in place (not a new bullet) to also ban derivation: a stated price must
+  be one a tool returned, never computed, doubled, summed, or extrapolated from one; search
+  the return leg with `return_date` to price a round trip. Everything else unchanged.
+
+`active.yaml`: planner → 11. Others unchanged.
+
+## weather-trip-date-accuracy — climate vs forecast, and matching the tool's dates to the trip
+
+specs/weather-trip-date-accuracy (MIN-66 / #97): `get_weather`/`get_packing` gained an optional
+`date` and now refuse a date beyond the ~2-week forecast horizon instead of silently returning
+today's forecast; a new `get_climate` tool exposes monthly normals for dates further out. The
+prompt half of the fix teaches the model when to use which and to check the covered-dates line
+the weather summary now states, so a trip-date mismatch (the reported bug: a Sep trip answered
+with the Jul forecast) is visible instead of silently wrong.
+
+- **concierge v11** — added a third `## Grounding` bullet: check `get_weather`/`get_packing`'s
+  stated covered dates against the traveller's dates; call `get_climate` for a date beyond the
+  horizon and describe it as typical/average conditions, never a forecast. Extended the
+  `## Example — weather` block with a Don't/Do pair showing a climate-normals reply framed
+  correctly. Everything else (grounding order, shortlist rule, hotels, visa & local advice) is
+  unchanged.
+- **planner v10** — added one Guardrails bullet: a weather-fit itinerary must check
+  `get_weather`/`get_packing`'s covered dates against the trip's actual dates, and use
+  `get_climate` (never as a forecast) for a date beyond the horizon. Planner had no prior
+  weather mention; this is additive, no restructuring.
+
+`active.yaml`: concierge → 11, planner → 10. Others unchanged.
+
 ## agent-date-resolution Phase 5 — new `date_resolution` prompt (LLM parses, code computes)
 
 specs/agent-date-resolution §4b: the hardcoded weekday/phrase word tables in

@@ -22,7 +22,8 @@ seeded DB today, without duplicating a service's own math:
   is HTTP-only, `app/routers/currency.py`), but the fact is genuinely
   DB-computable and the plan names this kind explicitly.
 - ``trip_budget`` — `TripService.get_trip_budget`: per-category caps/spend
-  for a seeded trip_id.
+  for a seeded trip_id. Trips are owner-scoped (#118), so params must also
+  carry the ``user_id`` that owns the trip.
 
   CONSTRAINT (per `specs/agent-eval-pipeline/PLAN.md` task 3.2, and the
   dataset task before it): the single-shot eval harness has no live
@@ -64,7 +65,7 @@ class DbOracle:
         self._flights = FlightService(session)
         self._hotels = HotelService(session)
         self._currency = CurrencyService(session)
-        self._trips = TripService(session)
+        self._session = session
 
     def supports(self, kind: str) -> bool:
         """Whether this oracle can compute ground truth for *kind*."""
@@ -139,7 +140,8 @@ class DbOracle:
         yet; it is exercised only by `tests/eval/test_db_oracle.py`, which
         seeds the trip it checks against.
         """
-        budget = self._trips.get_trip_budget(params["trip_id"])
+        trips = TripService(self._session, params["user_id"])
+        budget = trips.get_trip_budget(params["trip_id"])
         return {
             "total_cap": budget.total_cap,
             "total_spent": budget.total_spent,

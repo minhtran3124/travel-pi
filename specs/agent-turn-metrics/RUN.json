@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-03T03:37:40Z",
+  "last_event_id": "efc25a69-e0ae-4d9b-a1b1-2822ffd8a326",
+  "resume_event": null,
+  "run_id": "9100a443-c08b-4bb3-b02f-326445387d3a",
+  "seq": 6,
+  "sha": null,
+  "slug": "agent-turn-metrics",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-03T05:38:34Z",
+  "waiting_on": null
+}

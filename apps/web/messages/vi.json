@@ -390,7 +390,7 @@
     }
   },
   "Chat": {
-    "headerTitle": "Tin · Trợ lý Du lịch",
+    "headerTitle": "Tin",
     "dialogLabel": "Trợ lý Du lịch",
     "statusReady": "Sẵn sàng khi bạn cần",
     "statusWorking": "Đang xử lý…",
@@ -406,10 +406,12 @@
     "composerPlaceholder": "Nhắn tin cho trợ lý du lịch…",
     "composerAriaLabel": "Nhắn tin cho trợ lý du lịch",
     "sendMessage": "Gửi tin nhắn",
+    "stopMessage": "Dừng tạo câu trả lời",
     "retry": "Thử lại",
     "retryHint": "Câu trả lời trước chưa hoàn tất.",
     "greetingTitle": "Chào bạn! Mình là Tin 👋",
     "greetingBody": "Mình là Tin, trợ lý giúp bạn tìm điểm đến, lên lịch trình và chốt chuyến đi — cứ hỏi mình bất cứ điều gì nhé.",
+    "signInPrompt": "Đăng nhập để trò chuyện với Tin",
     "tryAsking": "Thử hỏi",
     "suggestions": {
       "planWeekendPrompt": "Lên kế hoạch một kỳ nghỉ cuối tuần dài ở Tokyo",
@@ -446,7 +448,15 @@
         "addExpense": { "label": "Thêm chi phí ➕", "prompt": "Thêm một khoản chi vào ngân sách của tôi" },
         "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
         "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
-      }
+      },
+      "book_hotel_next": { "label": "Tìm khách sạn tiếp 🏨", "prompt": "Tìm khách sạn cho chuyến đi này" },
+      "transport_to_hotel": { "label": "Đến khách sạn thế nào 🚕", "prompt": "Làm sao để đến khách sạn từ sân bay?" },
+      "activities_near_destination": { "label": "Hoạt động gần đó 🎟️", "prompt": "Có gì để làm gần điểm đến của tôi?" },
+      "weather_before_trip": { "label": "Xem thời tiết ⛅", "prompt": "Thời tiết vào ngày đi chuyến này thế nào?" },
+      "packing_tips": { "label": "Mẹo đóng gói 🎒", "prompt": "Tôi nên mang theo gì cho chuyến đi này?" },
+      "family_activities": { "label": "Gợi ý cho gia đình 👨‍👩‍👧", "prompt": "Gợi ý hoạt động phù hợp cho gia đình trong chuyến đi này" },
+      "budget_check": { "label": "Kiểm tra ngân sách 💰", "prompt": "Ngân sách chuyến đi của tôi đang thế nào?" },
+      "local_tips_destination": { "label": "Mẹo địa phương 🧭", "prompt": "Chia sẻ vài mẹo địa phương cho điểm đến của tôi" }
     },
     "interruptTitle": "Sẵn sàng khi bạn cần",
     "approve": "Đồng ý",
@@ -457,7 +467,65 @@
     "errorUnavailable": "Trợ lý du lịch hiện không khả dụng. Vui lòng thử lại sau.",
     "fallbackCouldNotReach": "Xin lỗi — tôi không thể kết nối tới trợ lý du lịch.",
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
-    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay."
+    "errorClaimFailed": "Chưa khôi phục được lịch sử trò chuyện trước đó. Ứng dụng sẽ thử lại vào lần mở tiếp theo.",
+    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
+    "stoppedEmpty": "Bạn đã dừng trước khi có câu trả lời.",
+    "stoppedSuffix": "*(Đã dừng)*",
+    "activity": {
+      "running": "Đang chạy",
+      "summary": "Đã sắp xếp {count, plural, other {# việc}} cho chuyến đi · {seconds}s",
+      "expand": "Xem chi tiết",
+      "collapse": "Ẩn chi tiết",
+      "retry": "Thử lại",
+      "working": "Đang xử lý…",
+      "hotels": "Đang tìm khách sạn",
+      "flights": "Đang tìm chuyến bay",
+      "places": "Đang tìm địa điểm",
+      "weather": "Đang xem thời tiết",
+      "route": "Đang tìm lộ trình",
+      "airQuality": "Đang kiểm tra chất lượng không khí",
+      "budget": "Đang kiểm tra ngân sách",
+      "journal": "Đang cập nhật chuyến đi",
+      "error": {
+        "generic": "Không hoàn tất được bước này",
+        "hotels": "Không tìm được khách sạn",
+        "flights": "Không tìm được chuyến bay",
+        "places": "Không tìm được địa điểm",
+        "weather": "Không kiểm tra được thời tiết",
+        "route": "Không tìm được lộ trình",
+        "airQuality": "Không kiểm tra được chất lượng không khí",
+        "budget": "Không kiểm tra được ngân sách",
+        "journal": "Không cập nhật được chuyến đi",
+        "working": "Không hoàn tất được bước này"
+      }
+    },
+    "actions": {
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "regenerate": "Tạo lại"
+    },
+    "result": {
+      "open": "Mở",
+      "close": "Đóng"
+    },
+    "capabilities": {
+      "plan": {
+        "label": "Lên kế hoạch chuyến đi",
+        "subtitle": "Dựng lịch trình từng ngày"
+      },
+      "nearby": {
+        "label": "Tìm gần đây",
+        "subtitle": "Khám phá địa điểm quanh bạn"
+      },
+      "weather": {
+        "label": "Xem thời tiết",
+        "subtitle": "Dự báo cho điểm đến của bạn"
+      },
+      "budget": {
+        "label": "Theo dõi ngân sách",
+        "subtitle": "Xem chi tiêu của bạn ra sao"
+      }
+    }
   },
   "Panel": {
     "detailPanelLabel": "Bảng chi tiết",

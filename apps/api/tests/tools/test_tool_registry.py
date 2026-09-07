@@ -18,10 +18,36 @@ def test_get_tools_for_groups():
     assert "save_user_preference" in journal
 
     budget = {t.name for t in get_tools_for("budget")}
-    assert "add_expense" in budget
-    assert "get_trip_budget" in budget
+    assert {
+        "add_expense",
+        "get_trip_budget",
+        "get_trip_summary",
+        "estimate_trip_budget",
+        "set_trip_budget",
+    } <= budget
 
     assert get_tools_for("nope") == []
+
+
+def test_budget_tools_bound_to_budget_only():
+    """estimate_trip_budget / set_trip_budget (specs/agent-budget-trip-context)
+    live in the budget domain only."""
+    from app.tools.registry import get_tools_for
+
+    for domain in ("planner", "journal", "concierge", "booking"):
+        names = {t.name for t in get_tools_for(domain)}
+        assert "estimate_trip_budget" not in names, domain
+        assert "set_trip_budget" not in names, domain
+
+
+def test_budget_tools_metadata():
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["set_trip_budget"] == {"readOnly": False, "destructive": False}
+    assert TOOL_METADATA["estimate_trip_budget"] == {
+        "readOnly": True,
+        "destructive": False,
+    }
 
 
 # --- P2: episodic recall tool (Task 2.4) ---
@@ -106,7 +132,10 @@ def test_every_tool_has_explicit_described_schema(tool):
       ``args_schema`` that omits the injected args would break ToolNode injection,
       so they keep the auto-derived schema but attach model-facing descriptions
       inline via ``Annotated[..., Field(description=...)]``. We require every
-      model-facing field to carry a description instead.
+      model-facing field to carry a description instead. A tool whose only
+      arg(s) are injected (e.g. ``get_trip_summary`` after the InjectedState
+      refactor, specs/agent-trip-context) has an empty model-facing schema —
+      that trivially satisfies "every field is described" and must pass, not fail.
 
     This guard blocks a future tool (e.g. from MIN-42) shipping with an
     undocumented, auto-derived schema.
@@ -114,7 +143,8 @@ def test_every_tool_has_explicit_described_schema(tool):
     assert tool.args_schema is not None
     if _has_injected_args(tool):
         facing = tool.tool_call_schema.model_fields
-        assert facing, f"{tool.name} exposes no model-facing args"
+        if not facing:
+            return  # no model-facing args left to describe — nothing to check
         for name, field in facing.items():
             assert field.description, (
                 f"{tool.name}.{name} has no description — add "
@@ -292,3 +322,88 @@ def test_hotel_tool_split():
     assert TOOL_METADATA["browse_hotels"]["destructive"] is False
     assert TOOL_METADATA["browse_hotels"]["readOnly"] is True
     assert TOOL_METADATA["search_hotels"]["destructive"] is False
+
+
+def test_planner_never_binds_destructive_tools():
+    """The planner must never hold money/irreversible tools: only the booking
+    route passes through the HITL plan_node gate, so a destructive tool bound
+    to planner would execute without human approval. Booking owns them all.
+    Guards against a shared tool list leaking a new destructive tool into the
+    planner again (it happened twice: book_hotel at registry birth, book_flight
+    in MIN-42)."""
+    from app.tools.registry import TOOL_METADATA, get_tools_for
+
+    planner = {t.name for t in get_tools_for("planner")}
+    destructive_in_planner = {n for n in planner if TOOL_METADATA[n]["destructive"]}
+    assert not destructive_in_planner, (
+        f"planner binds destructive tools {destructive_in_planner} — move them "
+        "to the booking domain (HITL-gated) instead"
+    )
+
+    # Planner keeps its search tools; booking keeps the full lifecycle.
+    assert {"search_flights", "search_hotels"} <= planner
+    booking = {t.name for t in get_tools_for("booking")}
+    assert {"book_flight", "book_hotel", "cancel_flight", "cancel_hotel"} <= booking
+
+
+def test_create_trip_bound_to_planner_only():
+    """create_trip (specs/agent-trip-context) is scoped to the planner domain
+    only — it is not part of the shared TRIP_TOOLS list, so it must be added
+    explicitly and must not leak into the other sub-agents."""
+    from app.tools.registry import get_tools_for
+
+    planner = {t.name for t in get_tools_for("planner")}
+    assert "create_trip" in planner
+
+    for domain in ("concierge", "journal", "booking", "budget"):
+        assert "create_trip" not in {t.name for t in get_tools_for(domain)}
+
+
+def test_create_trip_metadata_is_write_not_destructive():
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["create_trip"] == {"readOnly": False, "destructive": False}
+
+
+def test_mcp_surface_unchanged_by_planner_scoping():
+    """ALL_TOOLS dedupes across domains, so scoping planner to search-only must
+    not remove the booking tools from the MCP/manifest surface."""
+    from app.tools.registry import ALL_TOOLS
+
+    all_names = {t.name for t in ALL_TOOLS}
+    assert {"book_flight", "book_hotel", "cancel_flight", "cancel_hotel"} <= all_names
+
+
+# --- gh-125 ratchet: injected trip-scoped params must tolerate absent state ---
+
+
+def test_injected_trip_id_params_have_defaults():
+    """Registry-wide gh-125 ratchet: every ``InjectedState("trip_id")`` param on
+    every registered tool must declare a default. A required injected param opts
+    out of ToolNode's ``_optional_state_args`` tolerance, so a conversation with
+    no active trip crashes with ``KeyError: 'trip_id'`` during injection — the
+    exact gh-125 bug. The per-tool tests in
+    ``test_trip_tools_no_active_trip.py`` cover only a hard-coded tool list;
+    this loop catches the sixth trip-scoped tool automatically.
+    """
+    import inspect
+    import typing
+
+    from app.tools.registry import ALL_TOOLS
+    from langgraph.prebuilt import InjectedState
+
+    checked = 0
+    for reg_tool in ALL_TOOLS:
+        fn = reg_tool.coroutine or reg_tool.func
+        hints = typing.get_type_hints(fn, include_extras=True)
+        for pname, param in inspect.signature(fn).parameters.items():
+            metadata = getattr(hints.get(pname), "__metadata__", ())
+            if any(
+                isinstance(m, InjectedState) and m.field == "trip_id" for m in metadata
+            ):
+                assert param.default is not inspect.Parameter.empty, (
+                    f"{reg_tool.name}.{pname}: InjectedState('trip_id') without a "
+                    "default reintroduces the gh-125 injection KeyError"
+                )
+                checked += 1
+    assert checked >= 5  # the five trip tools, at minimum — not vacuous

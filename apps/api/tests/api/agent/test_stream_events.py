@@ -59,6 +59,8 @@ def test_done_factory_shape():
         "current_flow": "booking",
         "suggestions": ["booking.bookThis"],
         "language": "en",
+        "trip_id": None,
+        "usage": None,
     }
 
 
@@ -69,7 +71,24 @@ def test_done_factory_empty_suggestions():
         "current_flow": None,
         "suggestions": [],
         "language": "en",
+        "trip_id": None,
+        "usage": None,
     }
+
+
+def test_done_factory_usage_key_present_and_none_by_default():
+    """The ``usage`` key is ALWAYS present on the done payload, null when unknown."""
+    ev = events.done(conversation_id="c1", current_flow=None, suggestions=[])
+    body = _payload(ev)
+    assert "usage" in body
+    assert body["usage"] is None
+
+
+def test_done_factory_carries_trip_id():
+    ev = events.done(
+        conversation_id="c1", current_flow=None, suggestions=[], trip_id="trip-1"
+    )
+    assert _payload(ev)["trip_id"] == "trip-1"
 
 
 # --- mapper ----------------------------------------------------------------
@@ -190,6 +209,40 @@ def test_mapper_emits_reset_on_new_message_id():
     assert names == ["start", "subagent", "token", "reset", "token", "done"]
 
 
+def test_mapper_emits_reset_on_subagent_handoff():
+    """Regression (#117): when the supervisor queues multiple sub-agents in one
+    turn, the mapper must reset the accumulator on handoff so only the last
+    specialist's answer survives — matching the REST "last answer wins" rule."""
+    items = [
+        (
+            ("planner:1",),
+            "messages",
+            (AIMessageChunk(content="flights found", id="m1"), {}),
+        ),
+        (
+            ("concierge:1",),
+            "messages",
+            (AIMessageChunk(content="sights found", id="m2"), {}),
+        ),
+    ]
+    out = _run(_FakeGraph(items, values={"current_flow": "concierge"}))
+    names = [n for n, _ in out]
+    assert names == [
+        "start",
+        "subagent",
+        "token",
+        "reset",
+        "subagent",
+        "token",
+        "done",
+    ]
+    # The reset must come between the two sub-agent answers.
+    first_token_idx = names.index("token")
+    reset_idx = names.index("reset")
+    second_token_idx = names.index("token", reset_idx)
+    assert first_token_idx < reset_idx < second_token_idx
+
+
 def test_mapper_emits_interrupt_before_done():
     snapshot_interrupt = SimpleNamespace(value={"plan": "approve?"})
     out = _run(_FakeGraph([], interrupts=(snapshot_interrupt,)))
@@ -207,6 +260,126 @@ def test_mapper_suppresses_non_subagent_tokens():
     ]
     out = _run(_FakeGraph(items))
     assert [n for n, _ in out] == ["start", "done"]
+
+
+def test_mapper_multi_intent_streams_single_synthesized_answer():
+    """A two-slice multi-intent turn (planner + concierge → synthesize) emits a
+    single final answer (specs/multi-intent-single-path, SC-5).
+
+    In the single-path parallel model the specialists run as blind
+    ``synthesis_worker`` subgraphs, so their prose must never reach the client;
+    the top-level ``synthesize`` node is the sole source of user-facing tokens.
+    The observable contract: no worker prose token, one synthesized token
+    stream, no reset, and exactly one ``done``. Because the workers stream under
+    the ``synthesis_worker`` namespace root (never a specialist name), no
+    ``subagent`` handoff is announced for this turn.
+    """
+    items = [
+        # Supervisor persists the turn language (top level, no prose).
+        ((), "updates", {"supervisor": {"language": "en"}}),
+        # Two parallel worker slices produce prose inside the synthesis_worker
+        # subgraph — both MUST be suppressed (planner slice, then concierge).
+        (
+            ("synthesis_worker:abc",),
+            "messages",
+            (AIMessageChunk(content="flights + hotel found", id="w1"), {}),
+        ),
+        (
+            ("synthesis_worker:def",),
+            "messages",
+            (AIMessageChunk(content="local tips", id="w2"), {}),
+        ),
+        # The synthesize node combines them into the single final answer. It
+        # arrives twice (model stream + graph update); only the first is emitted.
+        (
+            (),
+            "messages",
+            (
+                AIMessageChunk(content="Here is your trip.", id="s1"),
+                {"langgraph_node": "synthesize"},
+            ),
+        ),
+        (
+            (),
+            "messages",
+            (
+                AIMessageChunk(content="Here is your trip.", id="s1"),
+                {"langgraph_node": "synthesize"},
+            ),
+        ),
+    ]
+    out = _run(_FakeGraph(items, values={"current_flow": "synthesize"}))
+    names = [n for n, _ in out]
+    assert names == ["start", "token", "done"]
+    assert out[1][1] == {"content": "Here is your trip."}
+    assert names.count("token") == 1
+    assert names.count("reset") == 0
+    assert names.count("done") == 1
+    assert "subagent" not in names
+
+
+# --- done.usage from a live TurnMetricsHandler (specs/agent-turn-metrics) ------
+
+
+def test_mapper_done_carries_usage_from_metrics_handler():
+    """Running a FakeLLM graph through ``stream_agent_events(..., metrics=handler)``
+    attaches the handler's client-facing ``usage`` subset to the ``done`` event.
+
+    ``llm_calls >= 1`` is loose on purpose: ``FakeLLM.with_structured_output``
+    returns a ``RunnableLambda`` so supervisor/reflection structured calls never
+    fire ``on_llm_end`` offline — only the concierge ``_generate`` reply counts.
+    """
+    from app.agents.graph import build_graph
+    from app.agents.metrics import TurnMetricsHandler
+    from app.agents.supervisor import SupervisorIntent
+    from app.clients.llm import FakeLLM
+    from langchain_core.messages import HumanMessage
+    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.store.memory import InMemoryStore
+
+    main_llm = FakeLLM(
+        structured_responses=[SupervisorIntent(target_agent="concierge")] * 4,
+        responses=["Here is your travel advice."] * 4,
+    )
+    fast_llm = FakeLLM(responses=["OK"] * 4)
+    graph = build_graph(
+        llm=main_llm,
+        fast_llm=fast_llm,
+        checkpointer=MemorySaver(),
+        store=InMemoryStore(),
+    )
+
+    handler = TurnMetricsHandler()
+    cfg = {"configurable": {"thread_id": "t-metrics"}, "callbacks": [handler]}
+
+    async def collect():
+        out = []
+        async for ev in stream_agent_events(
+            graph,
+            {"messages": [HumanMessage(content="What should I visit in Kyoto?")]},
+            cfg=cfg,
+            conversation_id="c1",
+            metrics=handler,
+        ):
+            out.append((ev.event, json.loads(ev.data)))
+        return out
+
+    out = asyncio.run(collect())
+    done = [d for n, d in out if n == "done"]
+    assert done, "expected a done event"
+    usage = done[0]["usage"]
+    assert usage is not None
+    assert usage["llm_calls"] >= 1
+    assert {
+        "input_tokens",
+        "output_tokens",
+        "total_tokens",
+        "cached_tokens",
+        "llm_calls",
+        "latency_ms",
+        "cost_usd",
+        "models",
+    } <= usage.keys()
 
 
 # --- terminal supervisor/plan messages (specs/agent-flight-routing-stream-gate) ---

@@ -162,7 +162,7 @@ def test_get_packing_overall_low_high_and_rainy_days(monkeypatch):
     ]
     fake_resp = _fake_weather_response(daily)
 
-    async def _mock_get_weather(city, days=None):
+    async def _mock_get_weather(city, days=None, date=None):
         return fake_resp
 
     monkeypatch.setattr(weather_service, "get_weather", _mock_get_weather)
@@ -188,7 +188,7 @@ def test_get_packing_rain_gear_category_present(monkeypatch):
     ]
     fake_resp = _fake_weather_response(daily)
 
-    async def _mock_get_weather(city, days=None):
+    async def _mock_get_weather(city, days=None, date=None):
         return fake_resp
 
     monkeypatch.setattr(weather_service, "get_weather", _mock_get_weather)
@@ -213,7 +213,7 @@ def test_get_packing_no_rain_gear_when_dry(monkeypatch):
     ]
     fake_resp = _fake_weather_response(daily)
 
-    async def _mock_get_weather(city, days=None):
+    async def _mock_get_weather(city, days=None, date=None):
         return fake_resp
 
     monkeypatch.setattr(weather_service, "get_weather", _mock_get_weather)
@@ -237,7 +237,7 @@ def test_get_packing_essentials_always_present(monkeypatch):
     ]
     fake_resp = _fake_weather_response(daily)
 
-    async def _mock_get_weather(city, days=None):
+    async def _mock_get_weather(city, days=None, date=None):
         return fake_resp
 
     monkeypatch.setattr(weather_service, "get_weather", _mock_get_weather)
@@ -262,7 +262,7 @@ def test_get_packing_hot_days_cold_nights_suggests_both(monkeypatch):
     ]
     fake_resp = _fake_weather_response(daily)
 
-    async def _mock_get_weather(city, days=None):
+    async def _mock_get_weather(city, days=None, date=None):
         return fake_resp
 
     monkeypatch.setattr(weather_service, "get_weather", _mock_get_weather)

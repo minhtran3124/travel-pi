@@ -8,16 +8,18 @@ this is the service's documented behaviour.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from langchain_core.tools import ToolException, tool
+from langchain_core.tools import tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
+from app.services.content_translation_service import ContentTranslationService
 from app.services.place_service import PlaceService
 from app.streaming.panels import PlacesPanel
-from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
 
 
 class SearchPlacesArgs(AppBaseModel):
@@ -40,6 +42,14 @@ class SearchPlacesArgs(AppBaseModel):
             "instead of repeating the same search."
         ),
     )
+    # Injected from graph state (TravelAgentState.language), never model-supplied:
+    # the conversation language the supervisor detected. Free-form place text is
+    # localized to it at tool time so the model and the Places panel see the same
+    # words. Absent (MCP / direct calls) → default language, no translation.
+    language: Annotated[str, InjectedState("language")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class NearbyPlacesArgs(AppBaseModel):
@@ -58,6 +68,14 @@ class ResolvePlaceArgs(AppBaseModel):
     place_id: str = Field(..., description="The place's id or PLC-XXXX short code.")
     source: Literal["catalog", "saved"] = Field(
         "catalog", description="Where to resolve the place from: 'catalog' or 'saved'."
+    )
+    # Injected from graph state (TravelAgentState.user_id), never model-supplied.
+    # Scopes the ``saved`` source to the signed-in traveller so a user-controlled
+    # id/SPL- code can never read another user's saved place (PII). Kept on the
+    # schema so ToolNode still injects it; stripped from the model-facing schema.
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
     )
 
 
@@ -82,6 +100,7 @@ def search_places(
     min_rating: float | None = None,
     price_level: int | None = None,
     exclude_names: list[str] | None = None,
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Search places by city, category, minimum rating, or price level (1–4).
 
@@ -96,6 +115,8 @@ def search_places(
     :param min_rating: Keep only places at or above this rating.
     :param price_level: Price level filter (1-4).
     :param exclude_names: Place names to omit — pass prior suggestions on a follow-up.
+    :param language: Conversation language, injected from graph state (not
+        model-supplied); place descriptions are localized to it.
     :return: A (summary, artifact) tuple. On matches the artifact is a
         ``{"kind": "places", "data": ...}`` side-panel payload capped at 4 places;
         on no match the artifact is ``None`` (no panel) and the summary explains
@@ -126,7 +147,9 @@ def search_places(
                     None,
                 )
             total_count = len(results)
-            top_results = results[:_PLACES_PANEL_CAP]
+            top_results = ContentTranslationService(s).localize(
+                "place", results[:_PLACES_PANEL_CAP], ["description"], language
+            )
             canonical_city = top_results[0].city if city else None
             canonical_category = top_results[0].category if category else None
             where = f" in {canonical_city}" if canonical_city else ""
@@ -159,7 +182,7 @@ def search_places(
                 ),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=NearbyPlacesArgs)
@@ -188,24 +211,31 @@ def nearby_places(
             )
             return {"origin": dump(origin), "nearby": dump(results)}
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ResolvePlaceArgs)
-def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
+def resolve_place(
+    place_id: str,
+    source: str = "catalog",
+    user_id: Annotated[str, InjectedState("user_id")] = "",
+) -> dict | None:
     """Resolve a place by id or PLC-XXXX short code.
 
     :param place_id: The place's id or PLC-XXXX short code.
     :param source: Where to resolve the place from: 'catalog' or 'saved'.
+    :param user_id: The signed-in traveller, injected from graph state (not
+        model-supplied). Scopes the ``saved`` source to its owner; ``catalog``
+        reads public data and ignores it.
     :return: The place dict, or None if not found.
     """
     log_tool_call("resolve_place", locals())
     with session_scope() as s:
         try:
-            result = PlaceService(s).resolve(place_id, source)
+            result = PlaceService(s).resolve(place_id, source, user_id=user_id)
             return dump(result)
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ParseNlQueryArgs)
@@ -223,7 +253,7 @@ def parse_nl_query(query: str) -> dict:
         try:
             return dump(PlaceService(s).parse_nl_query(query))
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 @tool(args_schema=ListPlaceCategoriesArgs)
@@ -237,7 +267,7 @@ def list_place_categories() -> list:
         try:
             return dump(PlaceService(s).categories())
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
 
 
 PLACE_TOOLS = [

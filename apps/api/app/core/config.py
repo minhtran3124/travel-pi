@@ -8,7 +8,7 @@ for local development. See ``.env.example`` for the available knobs.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.core.llm_providers import PROVIDER_NAMES
@@ -121,6 +121,13 @@ class Settings(BaseSettings):
     # Advertised so agents can self-throttle.
     rate_limit_nominal: int = 1000
 
+    # Feedback abuse rate limit (specs/rate-limit-primitive) — ENFORCED, unlike
+    # rate_limit_nominal above. A DB-backed fixed-window counter caps how many
+    # feedback actions one effective user may take per window. Distinct from the
+    # per-day agent quota (agent_free_daily_turn_limit). Env-overridable.
+    feedback_rate_limit_max: int = Field(default=30, gt=0)
+    feedback_rate_limit_window_seconds: int = Field(default=60, gt=0)
+
     # --- AI / Agent layer (specs/travel-agent) ---
     # Provider-agnostic: the agent layer builds models via init_chat_model(),
     # so switching provider is an env change, not a code change. Every value
@@ -171,12 +178,32 @@ class Settings(BaseSettings):
     summarize_threshold: int = 20  # compress history once messages exceed this
     agent_free_daily_turn_limit: int = 20  # max user turns per day for the free tier
     # How long the DB-backed per-agent config cache may serve before a read
-    # reloads it from the DB (MIN-47). Default ~1h: config edits take effect
-    # within this window without a restart; normal reads stay in-memory.
-    agent_config_cache_ttl_seconds: int = 3600
+    # polls the DB for a change (GH-106: a cheap MAX(updated_at) check, not a
+    # full reload — the full reload only happens if that value changed).
+    # Default a few seconds: cross-process config edits become visible without
+    # a restart and without an expensive reload on every poll.
+    # Accepts the pre-rename env var (AGENT_CONFIG_CACHE_TTL_SECONDS) as a
+    # fallback so deployments that already set it keep working; the new name
+    # wins if both are set (GH-106 PR #107 review).
+    agent_config_poll_interval_seconds: int = Field(
+        default=5,
+        validation_alias=AliasChoices(
+            "AGENT_CONFIG_POLL_INTERVAL_SECONDS",
+            "AGENT_CONFIG_CACHE_TTL_SECONDS",
+        ),
+    )
     # Default IANA timezone used to ground "today" for relative-date resolution
     # when the client does not send a valid timezone (see specs/flight-search-date-context).
     agent_timezone: str = "Asia/Ho_Chi_Minh"
+
+    # --- Dashboard access guard (specs/review-a-security-hardening) ---
+    # The server-rendered /dashboard/* pages are operator tools. When both a
+    # user and password are set, every dashboard route requires HTTP Basic auth
+    # (compared with secrets.compare_digest). With neither set they stay open in
+    # development but return 404 in production, so a prod deploy never exposes
+    # them unauthenticated. See app/core/dashboard_auth.py.
+    dashboard_basic_user: str | None = None
+    dashboard_basic_password: str | None = None
 
     # --- Supabase auth (specs/supabase-auth) ---
     # Verify incoming Supabase access tokens (asymmetric RS256/ES256) against

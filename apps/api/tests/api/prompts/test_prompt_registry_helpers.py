@@ -1,15 +1,33 @@
 """Tests for PromptRegistry.versions() / active_version() (additive read helpers)."""
 
 import pytest
-from app.prompts.registry import PromptRegistry, registry
+import yaml
+from app.prompts.registry import _ACTIVE_FILE, PromptRegistry, registry
 
 
 def test_versions_returns_sorted_ints():
-    assert registry.versions("budget") == [1, 2]
+    versions = registry.versions("budget")
+    assert all(isinstance(v, int) for v in versions)
+    assert versions == sorted(versions)
+    assert versions[:2] == [1, 2]
 
 
 def test_active_version_matches_active_yaml():
-    assert registry.active_version("supervisor") == 6
+    """Every name in active.yaml resolves to that exact version, and the
+    corresponding vN.md exists.
+
+    Asserted against active.yaml itself rather than a hardcoded number so a
+    legitimate prompt bump doesn't fail the suite — while still catching the
+    real failure mode: active.yaml pointing at a version that has no file.
+    """
+    active = yaml.safe_load(_ACTIVE_FILE.read_text(encoding="utf-8"))
+
+    assert active, "active.yaml is empty"
+    for name, version in active.items():
+        assert registry.active_version(name) == version
+        assert version in registry.versions(name), (
+            f"active.yaml pins {name} to v{version} but no v{version}.md exists"
+        )
 
 
 def test_active_version_falls_back_to_max_when_absent_from_active_yaml(tmp_path):

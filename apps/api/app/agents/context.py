@@ -32,6 +32,10 @@ class AgentContext:
     """Resolved per-run capabilities. Defaults == today's behavior."""
 
     tier: Tier = DEFAULT_TIER
+    # #118: trips need a real owner, so an anonymous caller cannot create one.
+    # Defaults False so any path that forgets to resolve identity is treated as
+    # anonymous — a missing flag must not silently grant trip creation.
+    authenticated: bool = False
     allow_reflection: bool = True
     allow_memory_write: bool = True
     # P2: episodic recall (planner's recall_past_trips). Default ON for everyone.
@@ -48,6 +52,7 @@ class AgentContext:
 def resolve_agent_context(
     *,
     tier: Tier | str | None,
+    authenticated: bool = False,
     allow_reflection: bool = True,
     timezone: str | None = None,
 ) -> AgentContext:
@@ -64,6 +69,7 @@ def resolve_agent_context(
 
     :param tier: BE-resolved tier (raw string, enum, or None); falls back to
         ``DEFAULT_TIER`` when unknown/None.
+    :param authenticated: Whether the caller presented a valid token (#118).
     :param allow_reflection: DB-config-driven reflection gate (from
         ``agent_config.enabled``); defaults True.
     :param timezone: Per-request IANA timezone for relative-date resolution;
@@ -88,6 +94,7 @@ def resolve_agent_context(
 
     return AgentContext(
         tier=tier,
+        authenticated=authenticated,
         allow_reflection=allow_reflection,
         allow_memory_write=True,
         allow_episodic=True,

@@ -28,6 +28,68 @@ def test_all_tables_registered():
         "jobs",
         "users",
         "agent_config",
+        "rate_limit_counters",
+        "agent_runs",
+        "agent_run_steps",
+        "content_translations",
+    }
+
+
+def test_agent_runs_columns():
+    cols = {c.name for c in Base.metadata.tables["agent_runs"].columns}
+    assert cols == {
+        "id",
+        "created_at",
+        "updated_at",
+        "user_id",
+        "conversation_id",
+        "thread_id",
+        "trip_id",
+        "channel",
+        "kind",
+        "status",
+        "current_flow",
+        "started_at",
+        "finished_at",
+        "latency_ms",
+        "llm_calls",
+        "llm_errors",
+        "input_tokens",
+        "output_tokens",
+        "cached_tokens",
+        "cost_usd",
+        "by_model",
+        "by_node",
+        "background_llm_calls",
+        "background_tokens",
+        "background_ms",
+        "prompt_versions",
+    }
+
+
+def test_agent_run_steps_columns():
+    cols = {c.name for c in Base.metadata.tables["agent_run_steps"].columns}
+    assert cols == {
+        "id",
+        "created_at",
+        "updated_at",
+        "run_id",
+        "seq",
+        "kind",
+        "node",
+        "ns",
+        "model",
+        "prompts",
+        "input_tokens",
+        "output_tokens",
+        "cached_tokens",
+        "cost_usd",
+        "offset_ms",
+        "ms",
+        "status",
+        "error_type",
+        "tool_name",
+        "meta",
     }
 
 
@@ -35,6 +97,7 @@ def test_booking_columns():
     cols = {c.name for c in Base.metadata.tables["bookings"].columns}
     assert cols == {
         "id",
+        "user_id",
         "type",
         "reference_id",
         "customer_name",

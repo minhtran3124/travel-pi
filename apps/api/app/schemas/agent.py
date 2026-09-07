@@ -19,7 +19,12 @@ class ChatRequest(AppBaseModel):
     message: str | None = Field(
         default=None, min_length=1, description="The traveller's message."
     )
-    user_id: str = Field(description="Caller identity (no auth enforced).")
+    user_id: str | None = Field(
+        default=None,
+        description="Deprecated and ignored: identity is taken from the Supabase "
+        "JWT (the `sub` claim), never from this field. Kept optional for one "
+        "release so old clients get 401 rather than 422; will be removed.",
+    )
     trip_id: str | None = Field(
         default=None, description="Optional trip context for the agent."
     )
@@ -52,15 +57,46 @@ class ChatRequest(AppBaseModel):
         return self
 
 
+class TurnUsage(AppBaseModel):
+    """Per-turn token / cost / latency metrics for one agent reply."""
+
+    input_tokens: int
+    output_tokens: int
+    cached_tokens: int
+    total_tokens: int
+    llm_calls: int
+    latency_ms: int | None = None
+    cost_usd: float | None = None
+    models: list[str] = Field(default_factory=list)
+
+
 class ChatResponse(AppBaseModel):
     """The agent's reply for one turn."""
 
     conversation_id: str
     reply: str
+    trip_id: str | None = Field(
+        default=None,
+        description="The active trip after this turn — echoes the request's "
+        "trip_id, or a new id when the agent opened one via create_trip. "
+        "Informational only (e.g. to display or link to the trip) — do NOT "
+        "resend this as the next request's trip_id just because it changed "
+        "here: the server derives the LangGraph thread key from the "
+        "request's trip_id, so echoing a create_trip-opened id back would "
+        "fork the conversation onto a fresh, empty thread. Only pass an "
+        "explicit trip_id when the user has actually navigated to that "
+        "trip's own page; otherwise keep sending whatever this "
+        "conversation started with (including null) and the server keeps "
+        "the active trip current on its own.",
+    )
     current_flow: str | None = None
     suggestions: list[str] = Field(default_factory=list)
     interrupt_pending: bool = False
     interrupt_payload: dict | None = None
+    usage: TurnUsage | None = Field(
+        default=None,
+        description="Per-turn token/cost/latency metrics; None when unknown.",
+    )
 
 
 class ToolManifestEntry(AppBaseModel):
@@ -94,6 +130,18 @@ class Conversation(AppBaseModel):
     domain: str | None = None
     created_at: str
     updated_at: str
+
+
+class ConversationMessages(AppBaseModel):
+    """Messages for a conversation, plus any pending HITL interrupt state.
+
+    ``interrupt_pending`` / ``interrupt_payload`` mirror the same-named fields
+    on ``ChatResponse`` for naming consistency across the API surface.
+    """
+
+    messages: list[Message]
+    interrupt_pending: bool = False
+    interrupt_payload: dict | None = None
 
 
 class ClaimRequest(AppBaseModel):

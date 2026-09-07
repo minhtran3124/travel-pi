@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 
+from app.core.auth import CurrentUserDep
 from app.enums import BookingSort, BookingType
 from app.routers.tags import Tags
 from app.schemas.booking import Booking, BookingListResponse
@@ -25,6 +26,7 @@ BookingsDep = Annotated[BookingService, Depends(get_booking_service)]
 )
 def list_bookings(
     bookings: BookingsDep,
+    auth_user: CurrentUserDep,
     pagination: PaginationDep,
     q: Annotated[
         str | None,
@@ -61,6 +63,7 @@ def list_bookings(
     """
     page, total = pagination.page_of(
         bookings.query(
+            user_id=auth_user.id,
             q=q,
             booking_type=booking_type.value if booking_type else None,
             sort=sort.value,
@@ -79,6 +82,7 @@ def list_bookings(
 )
 def get_booking(
     bookings: BookingsDep,
+    auth_user: CurrentUserDep,
     booking_id: Annotated[
         str,
         Path(
@@ -87,15 +91,17 @@ def get_booking(
         ),
     ],
 ) -> Booking:
-    """Return a booking by its UUID *or* its friendly confirmation code.
+    """Return the caller's booking by its UUID *or* friendly confirmation code.
 
-    Both identifiers are accepted interchangeably; 404 if neither matches.
+    Both identifiers are accepted interchangeably; 404 if neither matches a
+    booking owned by the caller.
 
     :param bookings: The booking service.
+    :param auth_user: The authenticated caller.
     :param booking_id: The booking UUID or confirmation code.
     :return: The matching booking.
     """
-    return bookings.get(booking_id)
+    return bookings.get(booking_id, user_id=auth_user.id)
 
 
 @router.post(
@@ -106,6 +112,7 @@ def get_booking(
 )
 def cancel_booking(
     bookings: BookingsDep,
+    auth_user: CurrentUserDep,
     booking_id: Annotated[
         str,
         Path(
@@ -114,14 +121,16 @@ def cancel_booking(
         ),
     ],
 ) -> Booking:
-    """Cancel a booking and return it with ``status: "cancelled"``.
+    """Cancel the caller's booking and return it with ``status: "cancelled"``.
 
     Accepts the UUID or the confirmation code. A soft change — the booking
     is kept and still retrievable. Idempotent: cancelling an
-    already-cancelled booking is a no-op. 404 if no booking matches.
+    already-cancelled booking is a no-op. 404 if no booking owned by the
+    caller matches.
 
     :param bookings: The booking service.
+    :param auth_user: The authenticated caller.
     :param booking_id: The booking UUID or confirmation code.
     :return: The cancelled booking.
     """
-    return bookings.cancel(booking_id)
+    return bookings.cancel(booking_id, user_id=auth_user.id)

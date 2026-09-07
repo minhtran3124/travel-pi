@@ -16,9 +16,16 @@ import { PANEL_LABEL_KEYS, PANEL_RENDERERS } from "./registry";
 export function SidePanel({
   panels,
   onClose,
+  focus,
 }: {
   panels: PanelArtifact[];
   onClose: () => void;
+  /**
+   * Optional external tab request: when `nonce` changes, the tab for `kind`
+   * becomes active (an inline result card asking the drawer to show its
+   * result). Uncontrolled otherwise.
+   */
+  focus?: { kind: string; nonce: number };
 }) {
   const t = useTranslations("Panel");
   const renderable = useMemo(
@@ -39,6 +46,15 @@ export function SidePanel({
     setSeenNewestId(newestId);
     setActiveKind(null);
     resolvedKind = null;
+  }
+
+  // External focus request (same render-phase adjust-on-change pattern):
+  // a changed nonce pins the requested kind, winning over the newest-panel rule.
+  const [seenFocusNonce, setSeenFocusNonce] = useState(focus?.nonce ?? null);
+  if (focus && focus.nonce !== seenFocusNonce) {
+    setSeenFocusNonce(focus.nonce);
+    setActiveKind(focus.kind);
+    resolvedKind = focus.kind;
   }
 
   const active =
@@ -80,7 +96,9 @@ export function SidePanel({
           ✕
         </button>
       </header>
-      <div className="min-h-0 flex-1">
+      {/* Keyed by kind so a tab switch remounts the body and replays the
+          short swap-in animation (a no-op under prefers-reduced-motion). */}
+      <div key={active.kind} className="tp-panel-swap min-h-0 flex-1">
         <Renderer data={active.data} />
       </div>
     </section>

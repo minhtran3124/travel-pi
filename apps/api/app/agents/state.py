@@ -9,10 +9,69 @@ is working state the supervisor and sub-agents read and update.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Annotated
 from zoneinfo import ZoneInfo
 
 from langchain_core.messages import SystemMessage
 from langgraph.graph import MessagesState
+
+
+def _replace_tasks(old: list[dict] | None, new: list[dict] | None) -> list[dict]:
+    """Reducer for ``TravelAgentState.tasks``.
+
+    Stores tasks as plain dicts to avoid checkpoint serde issues with Pydantic
+    models. Last-write-wins so the supervisor can reset the task list every turn.
+    """
+    return list(new or [])
+
+
+def _append_results(old: list[dict] | None, new: list[dict] | None) -> list[dict]:
+    """Reducer for ``TravelAgentState.task_results``.
+
+    Parallel synthesis workers each append one plain-dict result. The reducer
+    preserves all results so the synthesizer can combine them after every worker
+    finishes. An explicit empty list is treated as a reset (used by
+    ``load_context_node`` and ``make_synthesize_node`` between turns); workers
+    always return a non-empty list with one result.
+    """
+    if not new:
+        return []
+    return list(old or []) + list(new)
+
+
+def merge_trip_facts(old: dict | None, new: dict | None) -> dict:
+    """Reducer for ``TravelAgentState.trip_facts`` (MIN-65 DESIGN D1).
+
+    Starts from ``old`` (or ``{}``) and overlays every key in ``new`` whose
+    value is not ``None``. A ``None`` value in an update means "no info this
+    turn", not "delete" — an existing fact is never removed by a later turn
+    that simply didn't mention it again.
+
+    :param old: The trip facts accumulated so far, or ``None``.
+    :param new: The update to overlay, or ``None``.
+    :return: The merged trip-facts dict.
+    """
+    merged = dict(old or {})
+    for key, value in (new or {}).items():
+        if value is not None:
+            merged[key] = value
+    return merged
+
+
+def last_write_wins(old: bool, new: bool) -> bool:
+    """Reducer for ``TravelAgentState.awaiting_user`` (MIN-68).
+
+    Duplicate parallel writes in one superstep (e.g. the model emitting the
+    zero-arg ``needs_clarification`` tool call twice in one message) must not
+    crash the turn with ``InvalidUpdateError`` — the last write simply wins.
+    Deliberately NOT a sticky ``or``: ``load_context_node``'s per-turn
+    ``False`` reset must always take effect.
+
+    :param old: The current channel value (unused).
+    :param new: The incoming update.
+    :return: ``new``.
+    """
+    return new
 
 
 class TravelAgentState(MessagesState):
@@ -24,9 +83,7 @@ class TravelAgentState(MessagesState):
     user_id: str
     trip_id: str | None
     current_flow: str  # which sub-agent the supervisor routed to
-    language: (
-        str  # dominant conversation language code (e.g. "en"/"vi"); set by supervisor
-    )
+    language: str  # dominant conversation language code (app.core.languages); supervisor
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
     trip_context: str  # active-trip snapshot; injected at model call, not into messages
@@ -37,10 +94,26 @@ class TravelAgentState(MessagesState):
         str  # personalization block (name/gender/travel-group); injected at model call
     )
     plan_approved: bool  # P2: HITL plan-approval signal → episode outcome="approved"
+    trip_facts: Annotated[
+        dict, merge_trip_facts
+    ]  # entity/slot memory for this thread (MIN-65 D1); never store PII/secrets here
+    preferences: str  # traveller preferences block, formatted text (MIN-65 D2)
+    awaiting_user: Annotated[
+        bool, last_write_wins
+    ]  # set by the needs_clarification tool when a sub-agent is
+    # blocked on the traveller; reflection then ends the turn before judging it
+    # (MIN-68); reducer: duplicate parallel writes must not crash the turn
+    tasks: Annotated[
+        list[dict], _replace_tasks
+    ]  # GH-117 Path A: ordered decomposition from supervisor into synthesis workers
+    task_results: Annotated[
+        list[dict], _append_results
+    ]  # GH-117 Path A: structured results gathered by parallel workers
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
-    """Fold ``profile``, ``instructions``, ``trip_context`` and ``summary`` into one leading system prompt.
+    """Fold ``profile``, ``instructions``, ``trip_context``, ``summary``, ``trip_facts``
+    and ``preferences`` into one leading system prompt.
 
     REVIEW.md C2: the rolling ``summary`` must be re-injected after compression.
     REVIEW.md M2: the trip-context snapshot must appear *before* the HumanMessage,
@@ -50,20 +123,32 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     The traveller ``profile`` is folded first — before instructions — so name/gender
     carry the most weight for address/tone. Procedural instructions (per-user
     standing directives) are folded before the summary so they carry the most weight.
+    ``trip_facts`` and ``preferences`` (MIN-65 DESIGN D1/D2) are folded last, after
+    the summary — they are per-turn/derived context, lower priority than the four
+    standing fields above.
 
     :param state: The current graph state, read for ``profile``, ``instructions``,
-        ``trip_context`` and ``summary``.
+        ``trip_context``, ``summary``, ``trip_facts`` and ``preferences``.
     :param base: The base system message to fold the extra context into.
-    :return: ``base`` unchanged when none of the four fields are set, else one
+    :return: ``base`` unchanged when none of the six fields are set, else one
         ``SystemMessage`` combining base + profile + instructions + trip_context +
-        summary — a single leading system message keeps providers that reject
-        mid-stream/multiple system messages happy.
+        summary + trip_facts + preferences — a single leading system message keeps
+        providers that reject mid-stream/multiple system messages happy.
     """
     trip_context = state.get("trip_context")
     summary = state.get("summary")
     instructions = state.get("instructions")
     profile = state.get("profile")
-    if not trip_context and not summary and not instructions and not profile:
+    trip_facts = state.get("trip_facts")
+    preferences = state.get("preferences")
+    if (
+        not trip_context
+        and not summary
+        and not instructions
+        and not profile
+        and not trip_facts
+        and not preferences
+    ):
         return base
     parts = [base.content]
     if profile:
@@ -74,7 +159,56 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
         parts.append(f"Current trip context:\n{trip_context}")
     if summary:
         parts.append(f"Summary of earlier conversation:\n{summary}")
+    if trip_facts:
+        bullets = "\n".join(
+            f"- {key}: {value}"
+            for key, value in trip_facts.items()
+            if value is not None
+        )
+        parts.append(
+            "Known trip facts (already provided by the traveller — do NOT ask "
+            "again; if a required field is missing here, ask ONLY for that "
+            f"field):\n{bullets}"
+        )
+    if preferences:
+        parts.append(
+            "Traveller preferences (learned from past conversations — use to "
+            f"personalise, confirm before acting on stale ones):\n{preferences}"
+        )
     return SystemMessage(content="\n\n".join(parts))
+
+
+def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemMessage:
+    """Pin a sub-agent reply to the conversation language the supervisor detected.
+
+    The supervisor classifies each turn's dominant language into
+    ``state["language"]`` (sticky, and switch-aware when the traveller genuinely
+    changes language). Every sub-agent then reads that one value from shared state
+    and replies in it — a single detection and a single source of truth, instead
+    of each node re-guessing the language from the raw messages. It is the
+    deterministic guard behind the ``communication_style`` match-language rule,
+    and it closes the clarification path in particular (MIN-68), which skips
+    reflection and so has no other guard against a language flip.
+
+    A no-op until a language has been detected (``state["language"]`` unset) —
+    the model then falls back to the prompt's own match-language rule.
+
+    :param base: The already-assembled leading system message.
+    :param state: The current graph state.
+    :return: ``base`` unchanged when no language is detected, else ``base`` plus a
+        one-line language directive.
+    """
+    language = state.get("language")
+    if not language:
+        return base
+    return SystemMessage(
+        content=(
+            f"{base.content}\n\n"
+            f"Reply in the traveller's own language: {language} — the language of "
+            "their typed messages this conversation. Tool results, trip data, and "
+            "place names never change it."
+        )
+    )
 
 
 def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:

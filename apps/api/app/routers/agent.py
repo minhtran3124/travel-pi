@@ -9,8 +9,10 @@ owns the live thread state).
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import replace
 from typing import Annotated, Any
+from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
@@ -22,20 +24,26 @@ from starlette.background import BackgroundTask
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.graph import resolve_travel_graph
+from app.agents.guardrails import redact_pii
+from app.agents.metrics import TurnMetricsHandler
 from app.agents.observability import callbacks, trace_metadata
-from app.agents.suggestions import suggestions_for_flow
+from app.agents.prompt_map import enrich_steps
+from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.agent_config_cache import AgentConfigCache
-from app.core.auth import AuthUser, CurrentUserDep, get_current_user_optional
+from app.core.auth import CurrentUserDep
 from app.core.config import get_settings
+from app.core.pricing import estimate_cost
 from app.core.streaming import sse_response
+from app.db.base import _utc_now_iso
 from app.db.session import get_session
 from app.enums import Tier
-from app.exceptions import DomainValidationError, ForbiddenError, UpstreamError
+from app.exceptions import ForbiddenError, UpstreamError
 from app.memory.extraction_runner import (
     run_memory_extraction,
     run_memory_extraction_from_stream,
 )
+from app.repositories.agent_run import AgentRunRepository
 from app.repositories.conversation import ConversationRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
@@ -46,11 +54,13 @@ from app.schemas.agent import (
     ClaimRequest,
     ClaimResult,
     Conversation,
-    Message,
+    ConversationMessages,
     ToolManifestEntry,
+    TurnUsage,
 )
 from app.schemas.error import error_responses
 from app.services.quota_service import check_quota
+from app.streaming.agent_run import record_agent_run
 from app.streaming.mapper import stream_agent_events
 from app.streaming.persistence import persist_assistant_turn
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
@@ -80,22 +90,27 @@ def get_travel_graph(request: Request) -> Any:
 
 
 GraphDep = Annotated[Any, Depends(get_travel_graph)]
-SessionDep = Annotated[Session, Depends(get_session)]
-OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]
 
 
-def _effective_user_id(auth_user: AuthUser | None, fallback: str | None) -> str | None:
-    """Return the JWT subject when authenticated, else the anonymous fallback.
+def get_travel_graph_optional(request: Request) -> Any | None:
+    """Like ``get_travel_graph``, but returns ``None`` instead of raising.
 
-    When a valid token is present the client-supplied id (``body.user_id`` /
-    query ``user_id``) is intentionally ignored to prevent user-id spoofing.
-    Returns ``None`` only when anonymous *and* no fallback id was supplied.
+    For a read-only route (message history) that must not couple to
+    agent-runtime availability: a request-scoped ``Depends`` still fails the
+    whole route *before its body runs* if the dependency raises, so a route
+    that wants to degrade gracefully needs a non-raising dependency, not a
+    try/except inside its own body. Overridden in tests alongside
+    ``get_travel_graph`` (see ``_make_app`` in ``tests/api/agent/test_agent_chat.py``)
+    so a fake graph reaches both dependencies identically.
 
-    :param auth_user: The authenticated user, or None for anonymous callers.
-    :param fallback: The client-supplied id to use when unauthenticated.
-    :return: The effective user id, or None if anonymous with no fallback.
+    :param request: The incoming request, used to reach ``app.state``.
+    :return: The shared compiled LangGraph graph, or ``None`` if not built yet.
     """
-    return auth_user.id if auth_user else fallback
+    return resolve_travel_graph(request.app)
+
+
+GraphOptionalDep = Annotated[Any | None, Depends(get_travel_graph_optional)]
+SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def _thread_id(user_id: str, trip_id: str | None, conversation_id: str) -> str:
@@ -113,20 +128,66 @@ def _thread_id(user_id: str, trip_id: str | None, conversation_id: str) -> str:
     return f"user_{user_id}_trip_{trip_id or 'none'}_conv_{conversation_id}"
 
 
-def _config(thread_id: str, user_id: str, trip_id: str | None) -> dict:
+def _config(
+    thread_id: str,
+    user_id: str,
+    trip_id: str | None,
+    *,
+    run_id: str,
+    metrics: TurnMetricsHandler,
+) -> dict:
     """Build the configuration for the agent.
 
     :param thread_id: The thread id for the conversation.
     :param user_id: The effective user id (JWT sub or anonymous).
     :param trip_id: The trip id, if any.
+    :param run_id: The router-minted run id; set as the LangChain root ``run_id``
+        (langfuse derives its trace id from OTel context, not this) so the turn's
+        metrics correlate with the ``agent_runs`` row.
+    :param metrics: The per-turn ``TurnMetricsHandler``, attached alongside the
+        tracing callbacks so it observes the whole run.
     :return: The configuration for the agent.
     """
     return {
         "configurable": {"thread_id": thread_id},
         "recursion_limit": get_settings().agent_recursion_limit,
-        "callbacks": callbacks(),
+        "callbacks": callbacks() + [metrics],
         "metadata": trace_metadata(user_id, trip_id),
+        "run_id": UUID(run_id),
     }
+
+
+def _turn_input(message: str, user_id: str, trip_id: str | None) -> dict:
+    """Build the graph-invocation input for a new user turn.
+
+    ``trip_id`` is included only when the client supplied one. LangGraph
+    merges an invocation's input into the loaded checkpoint state per
+    channel; ``TravelAgentState.trip_id`` has no reducer, so a channel key
+    absent from the input keeps its checkpointed value, while an explicit
+    ``None`` would overwrite it. The web client has no way to learn a
+    trip_id the ``create_trip`` tool set mid-conversation, so it keeps
+    sending ``trip_id: null`` on every later turn — passing that through
+    unconditionally clobbered the checkpoint's trip_id back to ``None`` on
+    the very next turn (specs/fix-trip-id-persist-across-turns).
+
+    :param message: The traveller's message for this turn.
+    :param user_id: The effective user id (JWT sub or anonymous).
+    :param trip_id: The client-declared trip id, or None if the client has
+        no active trip context.
+    :return: The input dict for ``graph.ainvoke``.
+    """
+    # Defense-in-depth: redact email/card PII before the message reaches the
+    # graph, the checkpointer, or the conversation DB. The graph's pii_guardrail
+    # node also redacts, but sanitizing here protects paths that persist the
+    # raw turn before the graph runs.
+    safe_message = redact_pii(message)
+    turn_input: dict = {
+        "messages": [HumanMessage(content=safe_message)],
+        "user_id": user_id,
+    }
+    if trip_id is not None:
+        turn_input["trip_id"] = trip_id
+    return turn_input
 
 
 def _isolated_factory(session: Session) -> sessionmaker[Session]:
@@ -193,7 +254,9 @@ def _resolve_context(
         tier = Tier.FREE.value
     refl = AgentConfigCache.get("reflection")
     allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
-    return resolve_agent_context(tier=tier, allow_reflection=allow_reflection)
+    return resolve_agent_context(
+        tier=tier, allow_reflection=allow_reflection, authenticated=authenticated
+    )
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
@@ -201,7 +264,7 @@ async def agent_chat(
     body: ChatRequest,
     graph: GraphDep,
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
     background: BackgroundTasks,
 ) -> ChatResponse:
     """Send a chat request to the agent.
@@ -209,14 +272,14 @@ async def agent_chat(
     :param body: The request body.
     :param graph: The compiled LangGraph graph.
     :param session: The request-scoped DB session.
-    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
     :param background: FastAPI background-task queue; used to run memory
         extraction after the reply is returned, off the request's critical path.
     :return: The chat response.
     """
-    uid = _effective_user_id(auth_user, body.user_id)
+    uid = auth_user.id
     repo = ConversationRepository(session)
-    ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = _resolve_context(uid, True, session)
     ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before any work begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
@@ -226,22 +289,109 @@ async def agent_chat(
         user_id=uid,
         trip_id=body.trip_id,
     )
-    cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
+    thread_id = _thread_id(uid, body.trip_id, conversation_id)
+
+    # Per-turn metrics: mint the run id up front so the row correlates with the
+    # in-flight turn, attach the handler via cfg, and start the ``agent_runs``
+    # row (committed by the existing session.commit() below). All of this is
+    # best-effort — no metrics failure may raise into the reply path.
+    run_id = str(uuid4())
+    metrics = TurnMetricsHandler()
+    started = time.monotonic()
+    kind = "resume" if body.resume is not None else "turn"
+    try:
+        AgentRunRepository(session).start(
+            run_id,
+            user_id=uid,
+            conversation_id=conversation_id,
+            thread_id=thread_id,
+            trip_id=body.trip_id,
+            channel="chat",
+            kind=kind,
+            started_at=_utc_now_iso(),
+        )
+    except Exception:
+        logger.exception("[agent_chat] failed to start agent_run id=%s", run_id)
+
+    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
+
+    def _finalize(status: str, current_flow: str | None) -> TurnUsage | None:
+        """Close metrics, finalize the run row, and return client usage (best-effort)."""
+        usage: TurnUsage | None = None
+        try:
+            metrics.close(started)
+            # Also sweep steps whose close hook never fired — a graph failure can
+            # leave a cancelled parallel branch open. Without this the chat path
+            # persists `open`/0ms steps while the stream path (which calls
+            # close_if_open) does not, so the two channels would record the same
+            # failure differently. close_if_open is a no-op for latency after close().
+            metrics.close_if_open()
+            metrics.cost_usd = estimate_cost(metrics.snapshot()["by_model"])
+            usage = TurnUsage(**metrics.public())
+        except Exception:
+            logger.exception("[agent_chat] failed to build usage id=%s", run_id)
+        # The prompt snapshot the *running* graph baked in (build-time), not
+        # whatever `active.yaml` says now.
+        prompt_versions = getattr(graph, "prompt_versions", None)
+        try:
+            AgentRunRepository(session).finish(
+                run_id,
+                status=status,
+                current_flow=current_flow,
+                finished_at=_utc_now_iso(),
+                metrics=metrics.snapshot(),
+                prompt_versions=prompt_versions,
+            )
+        except Exception:
+            logger.exception("[agent_chat] failed to finish agent_run id=%s", run_id)
+        try:
+            # Steps are written here — on the request session, before its explicit
+            # commit — never from a background task against a row this session has
+            # flushed but not committed (that deadlocked the parent branch).
+            AgentRunRepository(session).add_steps(
+                run_id, enrich_steps(metrics.steps(), prompt_versions)
+            )
+        except Exception:
+            logger.exception("[agent_chat] failed to add steps id=%s", run_id)
+        try:
+            # Commit the post-graph writes (this run row, and the assistant message
+            # appended just above) explicitly, mirroring the stream path's own
+            # `session.commit()`. Flushing alone is not enough here: writes made on
+            # the request-scoped session after the graph `await` do not reach the
+            # database in the running server, so the row stayed `running` forever
+            # and the reply was never persisted. The dependency's cleanup commit is
+            # a no-op after this one.
+            session.commit()
+        except Exception:
+            logger.exception("[agent_chat] failed to commit turn id=%s", run_id)
+            # Roll back so the session is usable again. Without this the failed
+            # transaction stays dirty and the dependency's own teardown commit
+            # raises on it — which would defeat the swallow above and surface a
+            # metrics failure as a 500 on an otherwise-good reply.
+            try:
+                session.rollback()
+            except Exception:
+                logger.exception("[agent_chat] rollback failed id=%s", run_id)
+        return usage
 
     try:
         if body.resume is not None:
+            # Commit (and release the SQLite write lock) before the graph runs
+            # so a tool's own session_scope() (e.g. create_trip) can write.
+            # For Postgres this is harmless; for SQLite it prevents "database
+            # is locked" — mirrors the /stream handler below.
+            session.commit()
             # Resume a graph paused at a plan-approval interrupt.
             result = await graph.ainvoke(Command(resume=body.resume), cfg, context=ctx)
         else:
+            # Sanitize PII before it touches the conversation store or the graph.
+            safe_message = redact_pii(body.message)
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=safe_message
             )
+            session.commit()
             result = await graph.ainvoke(
-                {
-                    "messages": [HumanMessage(content=body.message)],
-                    "user_id": uid,
-                    "trip_id": body.trip_id,
-                },
+                _turn_input(safe_message, uid, body.trip_id),
                 cfg,
                 context=ctx,
             )
@@ -255,13 +405,28 @@ async def agent_chat(
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
+        # The failed graph run may still have left a checkpointed trip_id from
+        # an earlier turn's create_trip (this turn's own state update, if any,
+        # never committed). Report that instead of the request's trip_id —
+        # which _turn_input intentionally omits/leaves stale — so a client
+        # reading this field doesn't see a spurious null. Best-effort.
+        fallback_trip_id = body.trip_id
+        try:
+            checkpoint = await graph.aget_state(cfg)
+            if checkpoint and checkpoint.values:
+                fallback_trip_id = checkpoint.values.get("trip_id", body.trip_id)
+        except Exception:  # noqa: BLE001 — best-effort; fall back to body.trip_id
+            pass
+        usage = _finalize("failed", None)
         return ChatResponse(
             conversation_id=conversation_id,
             reply=reply,
+            trip_id=fallback_trip_id,
             current_flow=None,
             suggestions=[],
             interrupt_pending=False,
             interrupt_payload=None,
+            usage=usage,
         )
 
     interrupts = result.get("__interrupt__", [])
@@ -271,16 +436,29 @@ async def agent_chat(
     if interrupt_pending:
         reply = ""
     else:
-        # Pick the last *assistant* message, not result["messages"][-1] blindly: a
-        # ReAct sub-agent that exhausts the recursion limit can leave a ToolMessage
-        # (raw JSON) as the final entry, which must never surface as the reply.
-        ai_messages = [m for m in result["messages"] if isinstance(m, AIMessage)]
-        reply = ai_messages[-1].content if ai_messages else ""
-        # Guarantee a user-facing reply even when the graph finished without an
-        # assistant message (e.g. a ReAct loop that exhausted the recursion limit
-        # on repeated tool errors). The user must always get a readable message.
-        if not reply:
-            reply = AGENT_ERROR_FALLBACK_MSG
+        # Scope to messages produced THIS turn, after the last HumanMessage, so
+        # prior turns' AIMessages in the full thread history are never included.
+        # A multi-intent turn runs two or more sub-agents sequentially, but each
+        # sub-agent is a full ReAct loop that regenerates the whole answer for
+        # the turn, not a slice. The turn's final user-facing answer is therefore
+        # the last content-bearing, non-tool-calling AIMessage in this turn. A
+        # reflection REVISE appends a fresh AIMessage after the REVISE note, so
+        # the last such message is also the revised answer. A ReAct loop that
+        # exhausted the recursion limit may leave a ToolMessage as the final
+        # entry; filtering to AIMessage excludes it.
+        turn_messages = result["messages"]
+        for i in range(len(turn_messages) - 1, -1, -1):
+            if isinstance(turn_messages[i], HumanMessage):
+                turn_messages = turn_messages[i:]
+                break
+        reply = next(
+            (
+                m.content
+                for m in reversed(turn_messages)
+                if isinstance(m, AIMessage) and m.content and not m.tool_calls
+            ),
+            AGENT_ERROR_FALLBACK_MSG,
+        )
         repo.append_message(
             conversation_id=conversation_id, role="assistant", content=reply
         )
@@ -297,19 +475,33 @@ async def agent_chat(
             allow_memory_write=ctx.allow_memory_write,
             store=graph.store,
             llm=graph.extract_memory_llm,
+            run_id=run_id,
+            session_factory=_isolated_factory(session),
         )
+
+    usage = _finalize(
+        "interrupted" if interrupt_pending else "completed",
+        result.get("current_flow"),
+    )
 
     return ChatResponse(
         conversation_id=conversation_id,
         reply=reply,
+        trip_id=result.get("trip_id"),
         current_flow=result.get("current_flow"),
         suggestions=(
             []
             if interrupt_pending
-            else suggestions_for_flow(result.get("current_flow"))
+            else suggestions_for_flow(
+                result.get("current_flow"),
+                trip_facts=result.get("trip_facts"),
+                profile=profile_for_suggestions(graph.store, uid),
+                preferences=result.get("preferences", ""),
+            )
         ),
         interrupt_pending=interrupt_pending,
         interrupt_payload=interrupt_payload,
+        usage=usage,
     )
 
 
@@ -318,7 +510,7 @@ async def agent_stream(
     body: ChatRequest,
     graph: GraphDep,
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
 ):
     """Stream the agent's reply as Server-Sent Events.
 
@@ -326,12 +518,12 @@ async def agent_stream(
     :param graph: The compiled LangGraph graph.
     :param session: The request-scoped DB session (used to create/look up the
         conversation and append the user message before streaming begins).
-    :param auth_user: The authenticated user, or None for anonymous callers.
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
     :return: A streaming response of Server-Sent Events.
     """
-    uid = _effective_user_id(auth_user, body.user_id)
+    uid = auth_user.id
     repo = ConversationRepository(session)
-    ctx = _resolve_context(uid, auth_user is not None, session)
+    ctx = _resolve_context(uid, True, session)
     ctx = replace(ctx, timezone=_resolve_timezone(body.timezone))
     # Quota guard — raises QuotaExceededError (429) before streaming begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
@@ -344,13 +536,37 @@ async def agent_stream(
         user_id=uid,
         trip_id=body.trip_id,
     )
-    cfg = _config(_thread_id(uid, body.trip_id, conversation_id), uid, body.trip_id)
+    thread_id = _thread_id(uid, body.trip_id, conversation_id)
+
+    # Per-turn metrics: mint the run id, attach the handler via cfg, and start the
+    # ``agent_runs`` row before the session.commit() below persists it. The stream
+    # recorder (record_agent_run) finalizes it once the SSE stream drains.
+    run_id = str(uuid4())
+    metrics = TurnMetricsHandler()
+    kind = "resume" if body.resume is not None else "turn"
+    try:
+        AgentRunRepository(session).start(
+            run_id,
+            user_id=uid,
+            conversation_id=conversation_id,
+            thread_id=thread_id,
+            trip_id=body.trip_id,
+            channel="stream",
+            kind=kind,
+            started_at=_utc_now_iso(),
+        )
+    except Exception:
+        logger.exception("[agent_stream] failed to start agent_run id=%s", run_id)
+
+    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
 
     if body.resume is not None:
         # Resume a graph paused at a plan-approval interrupt; the same cfg
         # (thread_id) addresses the checkpoint created during the initial turn.
         stream_input = Command(resume=body.resume)
     else:
+        # Sanitize PII before it touches the conversation store or the graph.
+        safe_message = redact_pii(body.message)
         # Persist the user turn before returning the StreamingResponse so the
         # message row exists even if the stream is abandoned mid-flight. On a
         # retry the user message is already saved (the previous turn was
@@ -358,13 +574,9 @@ async def agent_stream(
         # it to avoid a duplicate question bubble.
         if not body.retry:
             repo.append_message(
-                conversation_id=conversation_id, role="user", content=body.message
+                conversation_id=conversation_id, role="user", content=safe_message
             )
-        stream_input = {
-            "messages": [HumanMessage(content=body.message)],
-            "user_id": uid,
-            "trip_id": body.trip_id,
-        }
+        stream_input = _turn_input(safe_message, uid, body.trip_id)
 
     # Commit (and release the SQLite write lock) before streaming begins so
     # the isolated factory session inside persist_assistant_turn can write.
@@ -388,17 +600,26 @@ async def agent_stream(
         allow_memory_write=ctx.allow_memory_write,
         store=graph.store,
         llm=graph.extract_memory_llm,
+        run_id=run_id,
+        session_factory=factory,
     )
 
     return sse_response(
         persist_assistant_turn(
-            stream_agent_events(
-                graph,
-                stream_input,
-                cfg=cfg,
-                conversation_id=conversation_id,
-                context=ctx,
-                final_state_sink=sink,
+            record_agent_run(
+                stream_agent_events(
+                    graph,
+                    stream_input,
+                    cfg=cfg,
+                    conversation_id=conversation_id,
+                    context=ctx,
+                    final_state_sink=sink,
+                    metrics=metrics,
+                ),
+                run_id=run_id,
+                metrics=metrics,
+                session_factory=factory,
+                prompt_versions=getattr(graph, "prompt_versions", None),
             ),
             conversation_id=conversation_id,
             session_factory=factory,
@@ -414,61 +635,87 @@ async def agent_stream(
 )
 def list_conversations(
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
     user_id: str | None = None,
 ) -> list[Conversation]:
-    """Return all conversations for the given user, newest first.
+    """Return all conversations for the authenticated user, newest first.
 
-    When authenticated the JWT sub is used and the ``user_id`` query param is
-    ignored (no enumeration of another user's conversations) and not required.
-    Anonymous callers must supply ``user_id``. Returns an empty list for an
-    unknown user (matches the repo contract).
+    Identity is the JWT sub; the ``user_id`` query param is deprecated and
+    ignored (no enumeration of another user's conversations). Returns an empty
+    list for a user with no conversations (matches the repo contract).
 
     :param session: The request-scoped DB session.
-    :param auth_user: The authenticated user, or None for anonymous callers.
-    :param user_id: The user id to list conversations for (anonymous callers only).
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
+    :param user_id: Deprecated and ignored; identity comes from the JWT.
     :return: The user's conversations, newest first.
     """
-    uid = _effective_user_id(auth_user, user_id)
-    if uid is None:
-        raise DomainValidationError("user_id is required when not authenticated.")
+    uid = auth_user.id
     repo = ConversationRepository(session)
     return repo.list_for_user(uid)
 
 
 @router.get(
     "/conversations/{conversation_id}/messages",
-    response_model=list[Message],
+    response_model=ConversationMessages,
     summary="List messages for a conversation",
 )
-def list_conversation_messages(
+async def list_conversation_messages(
     conversation_id: str,
+    graph: GraphOptionalDep,
     session: SessionDep,
-    auth_user: OptionalUserDep,
+    auth_user: CurrentUserDep,
     user_id: str | None = None,
-) -> list[Message]:
+) -> ConversationMessages:
     """Return all messages for the given conversation, oldest first.
 
-    Ownership-scoped: the caller must be the conversation's owner. When
-    authenticated the JWT sub is used and the ``user_id`` query param is ignored
-    (no spoofing); anonymous callers must supply their ``user_id``. Returns an
-    empty list for an unknown conversation or one owned by someone else — this
-    neither leaks message contents nor confirms a conversation's existence.
+    Ownership-scoped: the caller must be the conversation's owner. Identity is
+    the JWT sub; the ``user_id`` query param is deprecated and ignored (no
+    spoofing). Returns an empty result for an unknown conversation or one owned
+    by someone else — this neither leaks message contents nor confirms a
+    conversation's existence.
+
+    Alongside the messages, the response carries any pending HITL interrupt
+    state read from the LangGraph checkpoint (``interrupt_pending`` /
+    ``interrupt_payload``) so a client hydrating a reloaded conversation can
+    re-surface a plan-approval prompt that was awaiting the user. This read is
+    best-effort and uses ``GraphOptionalDep``, not ``GraphDep``: the latter
+    raises ``UpstreamError`` at dependency-resolution time whenever the graph
+    isn't built yet, which would couple this previously graph-independent,
+    pure-DB read to agent-runtime availability — including on the early-return
+    path below, since FastAPI resolves declared dependencies before the
+    function body runs. ``GraphOptionalDep`` returns ``None`` instead, so a
+    down or not-yet-built graph degrades to ``interrupt_pending=False`` rather
+    than failing the whole message-history read.
 
     :param conversation_id: The conversation to list messages for.
+    :param graph: The compiled LangGraph graph, or ``None`` if not available.
     :param session: The request-scoped DB session.
-    :param auth_user: The authenticated user, or None for anonymous callers.
-    :param user_id: The user id claiming ownership (anonymous callers only).
-    :return: The conversation's messages, oldest first.
+    :param auth_user: The authenticated user (a valid Supabase JWT is required).
+    :param user_id: Deprecated and ignored; identity comes from the JWT.
+    :return: The conversation's messages plus any pending interrupt state.
     """
-    uid = _effective_user_id(auth_user, user_id)
-    if uid is None:
-        raise DomainValidationError("user_id is required when not authenticated.")
+    uid = auth_user.id
     repo = ConversationRepository(session)
     conversation = repo.get(conversation_id)
     if conversation is None or conversation.user_id != uid:
-        return []
-    return repo.list_messages(conversation_id)
+        return ConversationMessages(messages=[])
+
+    interrupt_pending = False
+    interrupt_payload = None
+    if graph is not None:
+        thread_id = _thread_id(uid, conversation.trip_id, conversation_id)
+        cfg = {"configurable": {"thread_id": thread_id}}
+        try:
+            state = await graph.aget_state(cfg)
+            interrupt_pending = bool(state.interrupts)
+            interrupt_payload = state.interrupts[0].value if state.interrupts else None
+        except Exception:  # noqa: BLE001 — best-effort; the message history below still returns
+            pass
+    return ConversationMessages(
+        messages=repo.list_messages(conversation_id),
+        interrupt_pending=interrupt_pending,
+        interrupt_payload=interrupt_payload,
+    )
 
 
 @router.get(

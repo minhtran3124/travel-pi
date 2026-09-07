@@ -2,45 +2,72 @@
 
 import { createContext, useEffect, useState, type ReactNode } from "react";
 
-import { setUserId } from "@/lib/api/client";
+import { createClient } from "@/lib/supabase/client";
 
-const STORAGE_KEY = "travel.userId";
+/** Where the browser stands with respect to a Supabase session. */
+export type IdentityStatus = "loading" | "signed-out" | "signed-in";
 
-// The single auth seam: a local pseudo-identity. Swappable for real auth later
-// (replace the localStorage read with a session lookup) without touching callers.
-export const IdentityContext = createContext<string | null>(null);
+export interface Identity {
+  /** The authenticated Supabase user id, or `null` while loading / signed out. */
+  userId: string | null;
+  status: IdentityStatus;
+}
+
+// The single auth seam. Identity now derives from the Supabase session — there
+// is no anonymous pseudo-identity. `status` starts as `loading` until the first
+// session lookup resolves, then tracks sign-in/out live.
+export const IdentityContext = createContext<Identity>({
+  userId: null,
+  status: "loading",
+});
 
 /**
- * Establishes the local pseudo-identity for this browser.
+ * Publishes the Supabase session identity through context.
  *
- * On mount it reads `localStorage["travel.userId"]`, generating and persisting a
- * UUID if absent, then publishes it through context AND to the React-free API
- * client via `setUserId` (so the request middleware can attach `X-User-Id`).
+ * On mount it resolves the current session and then subscribes to
+ * `onAuthStateChange`, so sign-in/sign-out (in this tab or another) updates
+ * `{ userId, status }` live. When signed out, `userId` is `null` and `status`
+ * is `signed-out`; consumers gate authed work on `status === "signed-in"`.
  *
- * Hydration: the id starts as `null` and is only set inside the mount effect.
- * The server has no localStorage, so rendering `null` on both server and the
- * first client tick avoids a hydration mismatch; the real id appears on the
- * effect-driven re-render.
+ * Hydration: the server has no session, so both the server render and the first
+ * client tick see `status: "loading"` / `userId: null`, avoiding a mismatch; the
+ * real identity appears on the effect-driven re-render.
  */
 export function IdentityProvider({ children }: { children: ReactNode }) {
-  const [userId, setUserIdState] = useState<string | null>(null);
+  const [identity, setIdentity] = useState<Identity>({
+    userId: null,
+    status: "loading",
+  });
 
   useEffect(() => {
-    let id = localStorage.getItem(STORAGE_KEY);
-    if (id === null) {
-      id = crypto.randomUUID();
-      localStorage.setItem(STORAGE_KEY, id);
-    }
-    // Intentional client-only state set: localStorage is unavailable during SSR,
-    // so the id can only be resolved post-mount. This drives the single
-    // hydration-safe re-render from `null` to the real id.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setUserIdState(id);
-    setUserId(id);
+    const supabase = createClient();
+    let active = true;
+
+    const publish = (userId: string | null) =>
+      setIdentity(
+        userId
+          ? { userId, status: "signed-in" }
+          : { userId: null, status: "signed-out" },
+      );
+
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active) publish(data.session?.user.id ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      publish(session?.user.id ?? null);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
-    <IdentityContext.Provider value={userId}>
+    <IdentityContext.Provider value={identity}>
       {children}
     </IdentityContext.Provider>
   );

@@ -61,3 +61,8 @@ WORKFLOW_DIAGRAM.html
 # Eval reports are derived per-run (make eval-full); baselines under
 # eval/baselines/ ARE committed — do not add those here.
 apps/api/eval/reports/
+.worktrees/
+CLAUDE.local.md
+
+# Transient lock file for the specs/ events.jsonl append logger
+specs/**/events.jsonl.lock

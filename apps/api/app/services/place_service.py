@@ -193,19 +193,28 @@ class PlaceService:
             return self._place.by_short_code(normalised)
         return self._place.get(normalised)
 
-    def resolve(self, place_id: str, source: str) -> Place | SavedPlace | None:
+    def resolve(
+        self, place_id: str, source: str, user_id: str | None = None
+    ) -> Place | SavedPlace | None:
         """Resolve a shortlisted place to its body. ``source``: 'catalog' | 'saved'.
 
         Returns ``None`` when the place is unknown (catalog miss, or a missing /
         soft-deleted saved place). The ``saved`` branch reads the saved store on
-        the service's request ``session`` (shared unit-of-work).
+        the service's request ``session`` (shared unit-of-work) and is scoped to
+        ``user_id`` when given: a saved place owned by anyone else resolves to
+        ``None`` (the same answer as a miss), so a user-controlled id/SPL- code
+        can never read another user's saved place. ``catalog`` reads public seed
+        data and ignores ``user_id``.
 
         :param place_id: The place ID to resolve.
         :param source: Either ``'catalog'`` or ``'saved'``.
+        :param user_id: The caller; scopes the ``saved`` lookup to its owner.
+            ``None`` performs an unscoped saved lookup (trusted internal callers
+            that have already ownership-checked the parent trip).
         :return: The resolved place, or ``None`` if unknown.
         """
         if source == "saved":
-            return SavedPlaceRepository(self._session).get(place_id)
+            return SavedPlaceRepository(self._session).get(place_id, user_id=user_id)
         return self.get_place(place_id)
 
     def nearby_places(

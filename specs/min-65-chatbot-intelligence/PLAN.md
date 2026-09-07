@@ -10,37 +10,40 @@ ticket: MIN-65
 
 ## 1. Motivation
 
-Xem `HLD.md` §1 — 3 pillar của ticket; nền memory dài hạn đã ship, plan này đắp đúng gap:
-entity/slot tracking, preference injection rộng, multi-intent routing, suggestion rule
-engine + preference re-rank, và eval-first để đo được cải thiện (AC ticket).
+See `HLD.md` §1 — the ticket's 3 pillars; the long-term memory foundation is already
+shipped, this plan patches exactly the gaps: entity/slot tracking, wider preference
+injection, multi-intent routing, a suggestion rule engine + preference re-rank, and
+eval-first so the improvement is measurable (ticket AC).
 
 ## 2. Non-goals
 
-Theo `HLD.md` §6: không adopt Mem0/LangMem/Letta; không LLM free-text suggestions; không
-nâng reflection rubric (MIN-59); booking không làm secondary intent; không memory cho
-anonymous user; không đổi public contract `/agent/*`.
+Per `HLD.md` §6: not adopting Mem0/LangMem/Letta; no LLM free-text suggestions; not
+upgrading the reflection rubric (MIN-59); booking never becomes a secondary intent; no
+memory for anonymous users; no change to the public `/agent/*` contract.
 
 ## 3. Success Criteria
 
-- User không phải lặp lại thông tin đã cung cấp trong cùng conversation (eval `memory_recall` cải thiện vs baseline).
-- Preferences nhớ qua session mới (case `new_thread_at` pass).
-- ≥80% câu trả lời có suggestion liên quan (deterministic layer của `suggestion_relevance`).
-- Routing eval (`routing.json`) không regress sau khi supervisor schema mở rộng.
-- `make test` xanh (SQLite) + `make test-docker` xanh (Postgres parity) ở cuối.
+- The user doesn't have to repeat information already given within the same conversation
+  (eval `memory_recall` improves vs baseline).
+- Preferences are remembered across a new session (the `new_thread_at` case passes).
+- ≥80% of replies carry a relevant suggestion (the deterministic layer of
+  `suggestion_relevance`).
+- Routing eval (`routing.json`) doesn't regress after the supervisor schema grows.
+- `make test` green (SQLite) + `make test-docker` green (Postgres parity) at the end.
 
 ## 4. Tasks
 
-> Wave = phase HLD: W1-2 = P0 eval-first · W3-5 = P1 memory + P2 reasoning · W6 = P3 suggestions · W7-8 = prompt pass + đo lường.
-> Mọi verify chạy từ repo root trừ khi ghi khác; `PY=.venv/bin/python`, BE tests chạy trong `apps/api/`.
+> Wave = HLD phase: W1-2 = P0 eval-first · W3-5 = P1 memory + P2 reasoning · W6 = P3 suggestions · W7-8 = prompt pass + measurement.
+> Every verify runs from the repo root unless noted otherwise; `PY=.venv/bin/python`, BE tests run inside `apps/api/`.
 
-### Task 1.1 — Multi-turn eval harness + datasets mới
+### Task 1.1 — Multi-turn eval harness + new datasets
 
 ```xml
 <task id="1.1" wave="1">
   <files>apps/api/eval/harness.py, apps/api/eval/loader.py, apps/api/eval/datasets/memory.json, apps/api/eval/datasets/suggestions.json, apps/api/tests/eval/test_harness_multiturn.py</files>
-  <action>Mở rộng run_case hỗ trợ case shape {"turns": [...], "new_thread_at": int|null} (DESIGN D9): các turn dùng chung thread_id trên compiled graph; new_thread_at mở thread_id mới cùng user_id (cross-session, cùng store); actual_output = reply cuối; back-compat hoàn toàn với case "input" đơn. Sau invoke cuối, gọi suggestions_for_flow trên final state và gắn kết quả vào test case (field/metadata cho metric 1.2 — hiện tại là chữ ký cũ flow-only, wave 6 sẽ giàu hơn). Viết eval/datasets/memory.json (≥8 case: recall ngày/số người/điểm đến trong thread; ≥2 case cross-session preference qua new_thread_at) và suggestions.json (≥8 case phủ các flow), khai báo trong loader.load_all() với validation shape mới. Test bằng FakeLLM graph fixture như tests/agents hiện có: chung thread giữ state, new_thread_at tách thread cùng user.</action>
+  <action>Extend run_case to support the case shape {"turns": [...], "new_thread_at": int|null} (DESIGN D9): turns share one thread_id on the compiled graph; new_thread_at opens a new thread_id with the same user_id (cross-session, same store); actual_output = the last reply; fully back-compatible with the plain "input" case shape. After the final invoke, call suggestions_for_flow on the final state and attach the result to the test case (a field/metadata for metric 1.2 — currently the old flow-only signature, wave 6 will make it richer). Write eval/datasets/memory.json (≥8 cases: recall of dates/party-size/destination within a thread; ≥2 cross-session preference cases via new_thread_at) and suggestions.json (≥8 cases covering the flows), register both in loader.load_all() with the new shape's validation. Test with the existing FakeLLM graph fixture pattern from tests/agents: a shared thread keeps state, new_thread_at splits the thread while keeping the same user.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/eval/test_harness_multiturn.py -x -q</verify>
-  <done>run_case chạy được cả case đơn lẫn multi-turn/cross-session; 2 dataset mới load + validate; tests pass, không chạm LLM thật</done>
+  <done>run_case runs both single and multi-turn/cross-session cases; the 2 new datasets load + validate; tests pass without touching a real LLM</done>
 </task>
 ```
 
@@ -49,20 +52,20 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="1.2" wave="1">
   <files>apps/api/eval/metrics_geval.py, apps/api/eval/run_deepeval.py, apps/api/tests/eval/test_metrics_registry.py</files>
-  <action>Thêm GEval factory memory_recall (rubric DESIGN D9: reuse facts đã cung cấp, không re-ask; hỏi field mới là hợp lệ) và suggestion_relevance (GEval trên label EN của suggestion keys so với ngữ cảnh) vào GEVAL_METRICS; thêm lớp deterministic cho suggestion_relevance trong run_deepeval (suggestions non-empty + key thuộc catalog — đo AC ≥80%). Nối per-case rubric filter qua LLMTestCase.metadata như MIN-58 calibration. Gotcha deepeval 4.0.7: judge-key check là eager — test registry chạy với OPENAI_API_KEY=dummy và không execute metric.</action>
+  <action>Add a memory_recall GEval factory (rubric per DESIGN D9: reuse facts already given, don't re-ask; asking about a genuinely new field is fine) and suggestion_relevance (GEval over the suggestion keys' EN labels vs context) to GEVAL_METRICS; add a deterministic layer for suggestion_relevance in run_deepeval (suggestions non-empty + key in the catalog — measures the ≥80% AC). Wire the per-case rubric filter through LLMTestCase.metadata as in the MIN-58 calibration. Gotcha in deepeval 4.0.7: the judge-key check is eager — the registry test must run with OPENAI_API_KEY=dummy and never actually execute a metric.</action>
   <verify>cd apps/api && OPENAI_API_KEY=dummy DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_registry.py -x -q</verify>
-  <done>2 metric mới đăng ký + filter đúng theo metadata; deterministic layer tính tỉ lệ có-suggestion; tests pass không cần key thật</done>
+  <done>2 new metrics registered + filter correctly by metadata; the deterministic layer computes the has-a-suggestion rate; tests pass without needing a real key</done>
 </task>
 ```
 
-### Task 2.1 — Baseline trước khi thay đổi hành vi
+### Task 2.1 — Baseline before any behavior changes
 
 ```xml
 <task id="2.1" wave="2">
   <files>specs/min-65-chatbot-intelligence/BASELINE.md</files>
-  <action>Chạy eval mới trên code hiện tại để có mốc so sánh: theo memory repo (eval-harness-bypasses-db-config-and-context) — chạy TRONG container api, configure agent_config + reload_from_db trước, cần OPENAI_API_KEY judge thật. Ghi BASELINE.md: bảng score memory_recall / suggestion_relevance (+ routing hiện hành), lệnh chạy chính xác, ngày chạy. Kỳ vọng baseline thấp ở memory_recall (chưa có trip_facts) — đó là mốc đo cải thiện. Nếu không có key: ghi documented-skip + lệnh để user chạy, KHÔNG silent-pass.</action>
+  <action>Run the new eval against the current code to get a comparison baseline: per project memory (eval-harness-bypasses-db-config-and-context) — run INSIDE the api container, configure agent_config + reload_from_db first, needs a real OPENAI_API_KEY judge. Write BASELINE.md: a score table for memory_recall / suggestion_relevance (+ current routing), the exact command used, the run date. Expect memory_recall to score low (no trip_facts yet) — that's the improvement baseline. If no key is available: write a documented-skip + the command for the user to run, NEVER a silent pass.</action>
   <verify>test -s specs/min-65-chatbot-intelligence/BASELINE.md</verify>
-  <done>BASELINE.md có score thật hoặc documented-skip kèm lệnh tái chạy</done>
+  <done>BASELINE.md has real scores or a documented-skip with the re-run command</done>
 </task>
 ```
 
@@ -71,9 +74,9 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="3.1" wave="3">
   <files>apps/api/app/agents/state.py, apps/api/tests/agents/test_trip_facts.py</files>
-  <action>Thêm vào TravelAgentState: trip_facts (Annotated[dict, merge_trip_facts] — reducer DESIGN D1: non-None ghi đè, không xoá), preferences: str, pending_flows: list[str]. system_with_summary fold thêm 2 block theo đúng thứ tự và wording DESIGN D1/D2 ("Known trip facts — do NOT ask again…", "Traveller preferences…"); mọi field rỗng → trả base không đổi (giữ hành vi hiện tại cho user mới). Không sửa call site (supervisor/_base đi qua cùng hàm). Test: reducer merge các nhánh; fold đúng nội dung/thứ tự; rỗng → identity.</action>
+  <action>Add to TravelAgentState: trip_facts (Annotated[dict, merge_trip_facts] — reducer per DESIGN D1: a non-None value overwrites, never deletes), preferences: str, pending_flows: list[str]. system_with_summary folds in 2 more blocks in the exact order and wording from DESIGN D1/D2 ("Known trip facts — do NOT ask again…", "Traveller preferences…"); every field empty → returns base unchanged (keeps current behavior for new users). Do not change the call sites (supervisor/_base go through the same function). Test: reducer merge across branches; fold has the right content/order; empty → identity.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_trip_facts.py -x -q</verify>
-  <done>3 field mới + reducer + injection block hoạt động; toàn bộ test agents hiện có vẫn xanh (chạy tests/agents -q nếu nghi ngờ)</done>
+  <done>3 new fields + reducer + injection block work; the full existing agents test suite stays green (run tests/agents -q if unsure)</done>
 </task>
 ```
 
@@ -82,20 +85,20 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="4.1" wave="4">
   <files>apps/api/app/agents/supervisor.py, apps/api/app/prompts/supervisor/v6.md, apps/api/app/prompts/active.yaml, apps/api/tests/agents/test_supervisor_slots.py</files>
-  <action>Mở rộng SupervisorIntent theo DESIGN D3: ExtractedSlots (raw verbatim, all-optional) + secondary_agent (Literal không có booking) + slots. Sau LLM call, normalize trong code: date qua core.dates.resolve_travel_date với today(ctx.timezone) — fail thì DROP (never guess); duration cần start_date; int cast adults/children/rooms; budget regex đơn giản; destination/origin giữ raw. Command update thêm trip_facts=normalized và pending_flows=[secondary] (bỏ secondary khi target là booking hoặc trùng target). Tạo prompts/supervisor/v6.md MỚI (copy v5 + quy tắc slots verbatim-or-null + quy tắc secondary) và flip active.yaml supervisor: 6 — KHÔNG sửa v5 (critical pattern supervisor-active-yaml-is-a-pointer). Test FakeLLM: slots resolve đúng/drop đúng, secondary hợp lệ → pending_flows, booking → secondary bị bỏ, routing cũ không đổi khi slots null.</action>
+  <action>Extend SupervisorIntent per DESIGN D3: ExtractedSlots (raw verbatim, all-optional) + secondary_agent (a Literal without booking) + slots. After the LLM call, normalize in code: dates via core.dates.resolve_travel_date with today(ctx.timezone) — on failure, DROP (never guess); a duration needs a start_date; int-cast adults/children/rooms; a simple budget regex; destination/origin stay raw. Extend the Command update with trip_facts=normalized and pending_flows=[secondary] (drop the secondary when the target is booking or duplicates the target). Create a NEW prompts/supervisor/v6.md (copy v5 + the verbatim-or-null slot rule + the secondary rule) and flip active.yaml supervisor: 6 — do NOT edit v5 (critical pattern supervisor-active-yaml-is-a-pointer). Test with FakeLLM: slots resolve/drop correctly, a valid secondary → pending_flows, booking → secondary dropped, old routing unchanged when slots are null.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_supervisor_slots.py -x -q</verify>
-  <done>Supervisor 1 LLM call trả routing + slots; normalization thuần code có test; active.yaml trỏ v6</done>
+  <done>The supervisor's 1 LLM call returns routing + slots; the pure-code normalization has tests; active.yaml points at v6</done>
 </task>
 ```
 
-### Task 4.2 — Preference auto-injection tại `load_context`
+### Task 4.2 — Preference auto-injection at `load_context`
 
 ```xml
 <task id="4.2" wave="4">
   <files>apps/api/app/agents/nodes.py, apps/api/tests/agents/test_preferences_injection.py</files>
-  <action>load_context_node đọc thêm search_preferences(store, user_id, limit=8) (recency full-read, không query semantic — DESIGN D2), LOẠI các PROFILE_KEYS (đã có block profile), format block "Traveller preferences…" → state["preferences"]. Best-effort như profile: store miss / no user_id / lỗi → "". Test: prefs trong store → block đúng nội dung, profile keys bị loại, store rỗng → "", lỗi store không raise.</action>
+  <action>load_context_node also reads search_preferences(store, user_id, limit=8) (recency full-read, not a semantic query — DESIGN D2), EXCLUDES PROFILE_KEYS (already has its own profile block), formats the "Traveller preferences…" block → state["preferences"]. Best-effort like profile: store miss / no user_id / error → "". Test: prefs in the store → correct block content, profile keys excluded, empty store → "", a store error doesn't raise.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_preferences_injection.py -x -q</verify>
-  <done>Mọi sub-agent thấy preferences qua system message mỗi turn; user mới không đổi hành vi</done>
+  <done>Every sub-agent sees preferences via the system message every turn; behavior is unchanged for new users</done>
 </task>
 ```
 
@@ -104,9 +107,9 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="5.1" wave="5">
   <files>apps/api/app/agents/graph.py, apps/api/app/agents/nodes.py, apps/api/tests/agents/test_multi_intent_routing.py</files>
-  <action>Thêm node dispatch_next (DESIGN D4, pure code không LLM): pending_flows non-empty → Command(update={current_flow: next, pending_flows: rest}, goto=next); rỗng → goto reflection. Rewire static edge của cả 5 sub-agent: sub-agent → dispatch_next (thay vì → reflection). Nhánh plan/HITL giữ nguyên topology. Test với FakeLLM graph: (a) 2 intent chạy đúng thứ tự rồi mới reflection, sub-agent 2 thấy messages của sub-agent 1; (b) single intent → thẳng reflection (hành vi cũ); (c) reflection REVISE loop-back qua dispatch_next không lặp vô hạn (pending đã rỗng).</action>
+  <action>Add the dispatch_next node (DESIGN D4, pure code, no LLM): pending_flows non-empty → Command(update={current_flow: next, pending_flows: rest}, goto=next); empty → goto reflection. Rewire all 5 sub-agents' static edges: sub-agent → dispatch_next (instead of → reflection). The plan/HITL branch keeps its existing topology. Test with a FakeLLM graph: (a) 2 intents run in order before reflection, the second sub-agent sees the first one's messages; (b) a single intent → straight to reflection (old behavior); (c) reflection's REVISE loop-back through dispatch_next doesn't infinite-loop (queue already empty).</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_multi_intent_routing.py -x -q</verify>
-  <done>Query đa ý định được xử lý tuần tự trong 1 turn, tối đa 2 sub-agent; hành vi single-intent và revise không đổi</done>
+  <done>Multi-intent queries are handled sequentially in one turn, up to 2 sub-agents; single-intent and revise behavior are unchanged</done>
 </task>
 ```
 
@@ -115,9 +118,9 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="5.2" wave="5">
   <files>apps/api/app/memory/store.py, apps/api/app/prompts/memory_extraction/v5.md, apps/api/app/prompts/active.yaml, apps/api/tests/memory/test_store_timestamps.py</files>
-  <action>upsert_preference/upsert_instruction/upsert_episode ghi thêm updated_at (UTC ISO — dùng datetime.now(timezone.utc), không utcnow()) vào value dict; đọc back-compat với value cũ không có field; KHÔNG đổi index config (text vẫn là field embed). Tạo prompts/memory_extraction/v5.md (copy v4 + danh mục canonical keys DESIGN D5 + quy tắc reuse-key-on-update), flip active.yaml memory_extraction: 5. Test: upsert ghi timestamp, get/search đọc được record cũ lẫn mới; extractor test mở rộng với FakeLLM trả canonical key.</action>
+  <action>upsert_preference/upsert_instruction/upsert_episode also write updated_at (UTC ISO — use datetime.now(timezone.utc), not utcnow()) into the value dict; back-compat reads for old values missing the field; do NOT change the index config (text stays the embedded field). Create prompts/memory_extraction/v5.md (copy v4 + the canonical-key vocabulary from DESIGN D5 + the reuse-key-on-update rule), flip active.yaml memory_extraction: 5. Test: upsert writes a timestamp, get/search read both old and new records; extend the extractor test with a FakeLLM returning a canonical key.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/memory/test_store_timestamps.py tests/memory/test_extractor.py -x -q</verify>
-  <done>Value có updated_at, back-compat; prompt v5 active; key-drift giảm qua canonical vocabulary</done>
+  <done>Values carry updated_at, back-compat holds; prompt v5 active; key-drift reduced via the canonical vocabulary</done>
 </task>
 ```
 
@@ -126,20 +129,20 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="6.1" wave="6">
   <files>apps/api/app/agents/suggestions.py, apps/api/app/routers/agent.py, apps/api/app/streaming/mapper.py, apps/web/messages/en.json, apps/web/messages/vi.json, apps/api/tests/agents/test_suggestions_engine.py</files>
-  <action>Thay _FLOW_SUGGESTIONS tĩnh bằng rule engine DESIGN D6: signature suggestions_for_flow(current_flow, *, trip_facts=None, profile=None, preferences="") trả list key MAX 3, bảng rule ordered specific→generic, fallback cuối là map tĩnh hiện tại (không bao giờ ít suggestion hơn hiện trạng). Catalog thêm ~8 key (book_hotel_next, transport_to_hotel, activities_near_destination, weather_before_trip, packing_tips, family_activities, budget_check, local_tips_destination) + entry Chat.followups.<key>.{label,prompt} trong CẢ en.json và vi.json (FE resolve động, không sửa component). Non-stream: routers/agent.py truyền final state. Stream: lấy trip_facts/profile lúc drain theo cùng cơ chế sink như run_memory_extraction_from_stream; nếu điểm build done-event không chạm được final state → fallback flow-only (degrade an toàn về MIN-55). Giữ suppress khi interrupt pending. Test: từng rule, fallback, MAX 3, key luôn thuộc catalog.</action>
+  <action>Replace the static _FLOW_SUGGESTIONS with the DESIGN D6 rule engine: signature suggestions_for_flow(current_flow, *, trip_facts=None, profile=None, preferences="") returning a list of keys, MAX 3, an ordered specific→generic rule table, final fallback is the current static map (never fewer suggestions than today). Add ~8 catalog keys (book_hotel_next, transport_to_hotel, activities_near_destination, weather_before_trip, packing_tips, family_activities, budget_check, local_tips_destination) + a Chat.followups.<key>.{label,prompt} entry in BOTH en.json and vi.json (FE resolves dynamically, no component change). Non-stream: routers/agent.py passes the final state. Streaming: get trip_facts/profile at drain time via the same sink mechanism as run_memory_extraction_from_stream; if the done-event build point can't reach the final state → fall back to flow-only (safely degrades to MIN-55). Keep suppressing when an interrupt is pending. Test: each rule, the fallback, MAX 3, key always in the catalog.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_suggestions_engine.py -x -q && node -e "const en=require('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/apps/web/messages/en.json'),vi=require('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/apps/web/messages/vi.json');for(const k of ['book_hotel_next','transport_to_hotel','activities_near_destination','weather_before_trip','packing_tips','family_activities','budget_check','local_tips_destination']){if(!en.Chat.followups[k]||!vi.Chat.followups[k])throw new Error(k)};console.log('i18n ok')"</verify>
-  <done>Suggestions state-aware + cá nhân hoá theo profile/prefs; cả 2 locale đủ key; contract ChatResponse.suggestions không đổi</done>
+  <done>Suggestions are state-aware + personalized by profile/prefs; both locales have all keys; the ChatResponse.suggestions contract is unchanged</done>
 </task>
 ```
 
-### Task 6.2 — Preference-aware re-rank trong hotel/flight tools
+### Task 6.2 — Preference-aware re-rank in hotel/flight tools
 
 ```xml
 <task id="6.2" wave="6">
   <files>apps/api/app/tools/_ranking.py, apps/api/app/tools/hotel_tools.py, apps/api/app/tools/flight_tools.py, apps/api/tests/tools/test_preference_ranking.py</files>
-  <action>Tạo tools/_ranking.py: rank_by_preference(items, preferences, ...) -> (ranked, reasons) — keyword matcher deterministic (fold diacritics qua core/text), STABLE sort boost-only (không lọc bỏ item nào) theo DESIGN D7: hotel (star/khu vực/type), flight (airline, khung giờ sáng/tối theo departure hour). Wire vào search_hotels/browse_hotels/search_flights: nhận preferences qua Annotated[str, InjectedState("preferences")] — inline Annotated, TUYỆT ĐỐI không dùng @tool(args_schema=) (gotcha explicit-args-schema-breaks-langgraph-injection); re-rank trước khi build summary + panel_result; có match → summary nối "Đã ưu tiên theo sở thích: <reasons>". Test: boost đúng, stable, prefs rỗng → thứ tự nguyên trạng, injected arg không lộ vào model schema, determinism giữ nguyên với cùng input+prefs.</action>
+  <action>Create tools/_ranking.py: rank_by_preference(items, preferences, ...) -> (ranked, reasons) — a deterministic keyword matcher (fold diacritics via core/text), a STABLE, boost-only sort (never filters any item out) per DESIGN D7: hotel (star/area/type), flight (airline, morning/evening time-of-day via departure hour). Wire into search_hotels/browse_hotels/search_flights: receive preferences via Annotated[str, InjectedState("preferences")] — inline Annotated, ABSOLUTELY do not use @tool(args_schema=) (the explicit-args-schema-breaks-langgraph-injection gotcha); re-rank before building the summary + panel_result; on a match → append "Prioritized based on your preferences: <reasons>" to the summary. Test: correct boost, stable, empty prefs → unchanged order, the injected arg never leaks into the model schema, determinism holds for the same input+prefs.</action>
   <verify>cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_preference_ranking.py -x -q</verify>
-  <done>Kết quả hotel/flight xếp theo preference đã học, panel + summary nhất quán, deterministic</done>
+  <done>Hotel/flight results are ordered by learned preference, the panel + summary stay consistent, deterministic</done>
 </task>
 ```
 
@@ -148,33 +151,34 @@ anonymous user; không đổi public contract `/agent/*`.
 ```xml
 <task id="7.1" wave="7">
   <files>apps/api/app/prompts/communication_style/v6.md, apps/api/app/prompts/concierge/v10.md, apps/api/app/prompts/planner/v8.md, apps/api/app/prompts/booking/v7.md, apps/api/app/prompts/active.yaml</files>
-  <action>Một task một giọng văn (DESIGN D8): communication_style v6 — mọi recommendation kèm 1 dòng lý do gắn với facts/preferences của traveller, kết thúc list-answer bằng next step liên quan nhất; concierge v10 — intent inference chủ động (mùa cao điểm/thời tiết/sự kiện), ask-only-missing đối chiếu Known trip facts; planner v8 — ask-only-missing + default-with-confirm cho field không bị tool signature bắt buộc; booking v7 — ask-only-missing, tool args vẫn là hard gate. Tất cả tạo FILE MỚI + flip active.yaml, không sửa version cũ. Cẩn trọng ngôn ngữ: không hardcode tagline/nội dung tiếng Việt vào prompt (gotcha MIN-60 language-mixing).</action>
+  <action>One task, one voice (DESIGN D8): communication_style v6 — every recommendation carries a one-line reason tied to the traveller's facts/preferences, list-answers end with the single most relevant next step; concierge v10 — proactive intent inference (peak season/weather/events), ask-only-missing checked against Known trip facts; planner v8 — ask-only-missing + default-with-confirm for fields the tool signature doesn't require; booking v7 — ask-only-missing, tool args remain a hard gate. All of these: create a NEW file + flip active.yaml, never edit the old version. Language care: do not hardcode a Vietnamese tagline/content into the prompt (the MIN-60 language-mixing gotcha).</action>
   <verify>cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -c "from app.prompts.registry import registry; assert 'reason' in registry.get('communication_style').lower(); [registry.get(n) for n in ('supervisor','concierge','planner','booking','memory_extraction')]; print('prompts ok')"</verify>
-  <done>4 prompt version mới active, registry load sạch; guardrail quality phủ cả 5 đường trả lời</done>
+  <done>4 new prompt versions active, the registry loads cleanly; the quality guardrail covers all 5 reply paths</done>
 </task>
 ```
 
-### Task 8.1 — Đo lường: re-run eval vs baseline + RESULTS
+### Task 8.1 — Measurement: re-run eval vs baseline + RESULTS
 
 ```xml
 <task id="8.1" wave="8">
   <files>specs/min-65-chatbot-intelligence/RESULTS.md</files>
-  <action>Chạy lại toàn bộ eval (memory, suggestions, routing, và các dataset MIN-58 cũ) cùng điều kiện với 2.1 (trong container, key thật); ghi RESULTS.md: bảng delta vs BASELINE.md từng metric, đạt/không đạt AC (memory_recall cải thiện, suggestion ≥80%, routing không regress), phân tích ngắn case fail. Chạy full make test (SQLite) và make test-docker (Postgres parity — nhớ gotcha docker-py312 + stale travel.db sau schema-less change vẫn nên mktemp DB). Không có key → documented-skip như 2.1.</action>
+  <action>Re-run the full eval (memory, suggestions, routing, and the old MIN-58 datasets) under the same conditions as 2.1 (in the container, real key); write RESULTS.md: a delta table vs BASELINE.md per metric, AC met/not-met (memory_recall improved, suggestion ≥80%, routing not regressed), a short analysis of any failing case. Run the full make test (SQLite) and make test-docker (Postgres parity — remember the docker-py312 gotcha + a stale travel.db after a schema-less change still needs a fresh mktemp DB). No key → documented-skip as in 2.1.</action>
   <verify>test -s specs/min-65-chatbot-intelligence/RESULTS.md && cd apps/api && ../../.venv/bin/python -m pytest tests/agents tests/memory -q</verify>
-  <done>RESULTS.md có delta thật vs baseline; suite agents+memory xanh; AC ticket được đánh giá tường minh từng mục</done>
+  <done>RESULTS.md has a real delta vs baseline; the agents+memory suite is green; every ticket AC is explicitly assessed</done>
 </task>
 ```
 
 ## 5. Risks
 
-Chi tiết tại `DESIGN.md` §Risks. Tóm tắt: routing degrade do schema supervisor phình
-(mitigate: optional fields + routing eval); slot normalize sai (tái dùng `core/dates`,
-drop-on-fail); streaming path không lấy được final state cho suggestions (fallback
-flow-only); keyword ranking thô (boost-only, không lọc); hook risk-corroboration
-false-positive trên từ `session`/xoá assert trong test refactor (dùng
-`RISK_WARN_CATEGORIES` đúng cách khi bị chặn). Prompt mới → dev phải rebuild graph
-(`docker exec api-api-1 touch app/main.py`) khi verify tay.
+Details in `DESIGN.md` §Risks. Summary: routing degradation from a larger supervisor
+schema (mitigation: optional fields + routing eval); a slot normalization date error
+(reuse `core/dates`, drop-on-fail); the streaming path can't obtain the final state for
+suggestions (flow-only fallback); a crude keyword ranker (boost-only, never filters); the
+`risk-corroboration` hook false-positiving on the word `session`/removing an assert
+during test refactors (use `RISK_WARN_CATEGORIES` correctly when blocked). New prompts →
+dev needs a graph rebuild (`docker exec api-api-1 touch app/main.py`) for manual
+verification.
 
 ## 6. Status Log
 
-- 2026-07-12 — Plan drafted (HLD.md + DESIGN.md + PLAN.md). Chưa execute.
+- 2026-07-12 — Plan drafted (HLD.md + DESIGN.md + PLAN.md). Not yet executed.

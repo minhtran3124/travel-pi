@@ -10,7 +10,7 @@ import type { HotelsPanelData, HotelsPanelHotel } from "@/lib/stream/panel";
  * Hotels side-panel (specs/hotels-side-panel) — a compact list so every result is
  * visible without scrolling the chat. One row per hotel: a thumbnail, name, stars,
  * guest rating, nightly rate, all-in total, and an availability badge; click a row
- * to expand detail (rating/reviews, amenities). The cheapest all-in stay is
+ * to expand detail (description, rating/reviews, amenities). The cheapest all-in stay is
  * ringed in lime. Read-only (no booking tool). Pure render + local expand state.
  */
 
@@ -85,6 +85,9 @@ function Row({ h, cheapest }: { h: HotelsPanelHotel; cheapest: boolean }) {
       </button>
       {open && (
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-line px-3 py-2.5 text-[12px]">
+          {h.description && (
+            <p className="col-span-2 mb-1 text-[12px] text-ink">{h.description}</p>
+          )}
           <Detail k={t("hotels.stars")} v={stars(h.star_rating)} />
           <Detail
             k={t("hotels.guestRating")}

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "TC01",
+    "name": "Independent multi-intent 'flights + weather' → parallel [planner, concierge], one synthesized answer (no #117 duplicate)",
+    "status": "PASS",
+    "detail": "tasks=['planner', 'concierge']; emits_dead_pending_flows=False"
+  },
+  {
+    "id": "TC02",
+    "name": "Dependent chain 'plan my weekend: flights, weather, then itinerary' → recurring planner collapsed",
+    "status": "PASS",
+    "detail": "tasks=['planner', 'concierge'] (duplicate planner removed)"
+  },
+  {
+    "id": "TC03",
+    "name": "plan step equal to the primary is dropped (no duplicate specialist)",
+    "status": "PASS",
+    "detail": "tasks=['planner']"
+  },
+  {
+    "id": "TC04",
+    "name": "booking target emits exactly one task (routes to HITL plan node, never a parallel follow-on)",
+    "status": "PASS",
+    "detail": "tasks=['booking']"
+  },
+  {
+    "id": "TC05",
+    "name": "Single-intent turn routes to one sub-agent and answers (unchanged)",
+    "status": "PASS",
+    "detail": "answer='here is what to see'"
+  },
+  {
+    "id": "TC06",
+    "name": "Multi-intent END-TO-END: parallel workers converge on ONE synthesized answer, no duplicated block (#117 fixed)",
+    "status": "PASS",
+    "detail": "worker_agents=['concierge', 'planner']; final='Your Tokyo trip: cheapest flight KE349 ($153); must-see Senso-ji and Shibuya.'; flight_block_repeated=False"
+  },
+  {
+    "id": "TC07",
+    "name": "SC-1..SC-6 acceptance suite re-runs green (verify_summary --check)",
+    "status": "PASS",
+    "detail": "6/6 SC pass: dedupe+route-to-one, independent fan-out, no dead-code refs, MIN-68 preserved, SSE single answer, plan-everything in budget"
+  },
+  {
+    "id": "TC08",
+    "name": "'Plan everything' dependent chain completes in one planner ReAct loop under the recursion budget",
+    "status": "PASS",
+    "detail": "measured 22 super-steps of the configured agent_recursion_limit=25; each sub-agent subgraph gets an independent budget so the parent stays ~6-8"
+  }
+]

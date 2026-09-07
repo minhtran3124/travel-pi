@@ -111,9 +111,10 @@ def _make_trip(trip_id="t1", items=()):
 
 def test_repo_create_and_get_trip(repo):
     repo.create_trip(
-        _make_trip(items=[(2, 0, "meal", "Dinner"), (1, 0, "place", "Bridge")])
+        _make_trip(items=[(2, 0, "meal", "Dinner"), (1, 0, "place", "Bridge")]),
+        "test-user-1",
     )
-    got = repo.get_trip("t1")
+    got = repo.get_trip("t1", "test-user-1")
     assert got is not None
     assert got.title == "Trip"
     # items come back sorted by (day, sort_order)
@@ -121,20 +122,20 @@ def test_repo_create_and_get_trip(repo):
 
 
 def test_repo_get_missing_returns_none(repo):
-    assert repo.get_trip("nope") is None
+    assert repo.get_trip("nope", "test-user-1") is None
 
 
 def test_repo_soft_delete_trip(repo):
-    repo.create_trip(_make_trip(items=[(1, 0, "place", "Bridge")]))
+    repo.create_trip(_make_trip(items=[(1, 0, "place", "Bridge")]), "test-user-1")
     assert repo.delete_trip("t1", when="2026-06-17T00:00:00+00:00") is True
     # trip is filtered out of reads...
-    assert repo.get_trip("t1") is None
+    assert repo.get_trip("t1", "test-user-1") is None
     # ...but its items are retained (data not destroyed).
     assert repo.get_item("i0") is not None
 
 
 def test_repo_add_update_delete_item(repo):
-    repo.create_trip(_make_trip())
+    repo.create_trip(_make_trip(), "test-user-1")
     from app.schemas.trip import TripItem
 
     repo.add_item(TripItem(id="x1", trip_id="t1", day=1, kind="activity", title="Surf"))
@@ -169,7 +170,7 @@ def test_repo_persists_item_status_roundtrip(repo):
         title="Anchor",
         status=TripItemStatus.CONSTRAINT,
     )
-    repo.create_trip(trip)
+    repo.create_trip(trip, "test-user-1")
     repo.add_item(item)
 
     got = repo.get_item("i-1")
@@ -192,7 +193,7 @@ def test_repo_item_defaults_status_pending_when_unset(repo):
         travelers=1,
         created_at=datetime.now(timezone.utc),
     )
-    repo.create_trip(trip)
+    repo.create_trip(trip, "test-user-1")
     repo.add_item(
         TripItem(id="i-2", trip_id="t-def", day=1, sort_order=0, kind="note", title="x")
     )
@@ -213,7 +214,7 @@ def svc(tmp_path):
     url = f"sqlite:///{tmp_path / 'svc.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     with get_session_factory(url)() as session:
-        yield TripService(session)
+        yield TripService(session, "test-user-1")
 
 
 def test_service_create_returns_trip_with_ids(svc):

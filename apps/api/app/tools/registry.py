@@ -10,26 +10,41 @@ from __future__ import annotations
 
 from langchain_core.tools import BaseTool
 
+from app.tools.booking_tools import BOOKING_TOOLS
+from app.tools.climate_tools import CLIMATE_TOOLS
 from app.tools.date_tools import DATE_TOOLS
 from app.tools.expense_tools import EXPENSE_TOOLS
-from app.tools.flight_tools import FLIGHT_TOOLS
-from app.tools.hotel_tools import HOTEL_SEARCH_TOOLS, HOTEL_TOOLS
+from app.tools.flight_tools import FLIGHT_SEARCH_TOOLS, FLIGHT_TOOLS
+from app.tools.hotel_tools import (
+    HOTEL_AVAILABILITY_TOOLS,
+    HOTEL_SEARCH_TOOLS,
+    HOTEL_TOOLS,
+)
 from app.tools.memory_tools import EPISODE_TOOLS, MEMORY_TOOLS
 from app.tools.place_tools import PLACE_TOOLS
 from app.tools.rag_tools import KNOWLEDGE_TOOLS
 from app.tools.routing_tools import ROUTING_TOOLS
 from app.tools.tip_tools import TIP_TOOLS
-from app.tools.trip_tools import TRIP_TOOLS
+from app.tools.trip_tools import (
+    TRIP_TOOLS,
+    create_trip,
+    estimate_trip_budget,
+    set_trip_budget,
+)
 from app.tools.weather_tools import WEATHER_TOOLS
 
 # Tools grouped by the sub-agent that should bind them.
 TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
+    # Planner searches flights/hotels but never books — the money tools live in
+    # the booking domain only, whose route is HITL-gated via plan_node.
     "planner": (
         TRIP_TOOLS
+        + [create_trip]
         + PLACE_TOOLS
-        + FLIGHT_TOOLS
-        + HOTEL_TOOLS
+        + FLIGHT_SEARCH_TOOLS
+        + HOTEL_AVAILABILITY_TOOLS
         + WEATHER_TOOLS
+        + CLIMATE_TOOLS
         + ROUTING_TOOLS
         + EPISODE_TOOLS
         + DATE_TOOLS
@@ -37,6 +52,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
     "concierge": (
         PLACE_TOOLS
         + WEATHER_TOOLS
+        + CLIMATE_TOOLS
         + ROUTING_TOOLS
         + TIP_TOOLS
         + HOTEL_SEARCH_TOOLS
@@ -44,8 +60,12 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + DATE_TOOLS
     ),
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
-    "booking": FLIGHT_TOOLS + HOTEL_TOOLS + DATE_TOOLS,
-    "budget": EXPENSE_TOOLS + [t for t in TRIP_TOOLS if t.name == "get_trip_budget"],
+    "booking": FLIGHT_TOOLS + HOTEL_TOOLS + BOOKING_TOOLS + DATE_TOOLS,
+    "budget": (
+        EXPENSE_TOOLS
+        + [t for t in TRIP_TOOLS if t.name in {"get_trip_budget", "get_trip_summary"}]
+        + [estimate_trip_budget, set_trip_budget]
+    ),
 }
 
 # Every distinct tool, de-duplicated by name (a tool may appear in >1 domain).
@@ -55,13 +75,18 @@ ALL_TOOLS: list[BaseTool] = list(
 
 # MCP-style annotations per tool name. readOnly=True => safe GET-like call;
 # destructive=True => irreversible side effect (money / cancellation).
-_DESTRUCTIVE = {"book_hotel"}
+_DESTRUCTIVE = {"book_hotel", "book_flight", "cancel_flight", "cancel_hotel"}
 _WRITE = {
     "add_place_to_trip",
     "add_itinerary_item",
     "add_expense",
     "save_user_preference",
     "book_hotel",
+    "book_flight",
+    "cancel_flight",
+    "cancel_hotel",
+    "create_trip",
+    "set_trip_budget",
 }
 
 

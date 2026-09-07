@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { safeNextPath } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -10,7 +11,9 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  // Resolved against this origin, never concatenated onto it: a raw
+  // `@evil.example` would otherwise slide the host into the userinfo slot.
+  const next = safeNextPath(searchParams.get("next"), origin);
 
   if (code) {
     const supabase = await createClient();

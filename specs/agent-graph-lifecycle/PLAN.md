@@ -1,6 +1,6 @@
 ---
 slug: agent-graph-lifecycle
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-26
 ---

@@ -1,3 +1,5 @@
+import re
+
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.services.agent_config_service import AgentConfigService
@@ -185,6 +187,19 @@ def test_modal_exposes_reflection_toggle(client):
     assert "data-enabled" in r.text
     assert 'id="am-enabled"' in r.text
     assert 'id="am-enabled-marker"' in r.text
+
+
+def test_reflection_checkbox_has_hidden_override_rule(client):
+    # GH-106: `.am-field { display: flex }` overrode the `hidden` attribute on
+    # #am-enabled-field, so the checkbox rendered visible on every agent, not
+    # just `reflection`. An ID-scoped rule (specificity beats the .am-field
+    # class rule without !important) fixes it.
+    r = client.get("/dashboard/agent-config")
+    assert r.status_code == 200
+    rule = re.search(
+        r"#am-enabled-field\[hidden\]\s*\{\s*display:\s*none;?\s*\}", r.text
+    )
+    assert rule is not None
 
 
 def test_modal_save_preserves_null_for_non_reflection(client, tmp_db):

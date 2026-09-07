@@ -14,17 +14,19 @@ book, and keep a trip journal — through a natural conversation.
 
 Two halves, one monorepo:
 
-- **`apps/api`** — a **FastAPI mock backend**. Everything is faked *except* real keyless
-  weather/air-quality/climate (Open-Meteo), routing (OpenRouteService, with a haversine
-  fallback), and the agent's **LLM calls** (a real provider when keys are set; `FakeLLM`
-  in tests). It also hosts the **agentic brain**: a multi-agent LangGraph chatbot
-  (supervisor → specialist sub-agents → tools).
+- **`apps/api`** — a **FastAPI backend** with full CRUD APIs (trips, bookings,
+  expenses, hotels, places, …) persisted in SQLite/Postgres. Real external calls:
+  keyless weather/air-quality/climate (Open-Meteo), routing (OpenRouteService, with a
+  haversine fallback), and the agent's **LLM calls** (a real provider when keys are
+  set; `FakeLLM` in tests). It also hosts the **agentic brain**: a multi-agent
+  LangGraph chatbot (supervisor → specialist sub-agents → tools).
 - **`apps/web`** — a **Next.js + TypeScript frontend** (in active build-out) that
   consumes the backend and surfaces the planner UI.
 
-The backend is intentionally a *mock*: deterministic, dependency-light, zero real
-money or auth. It exists so the **agent and product experience** can be built and
-demoed without standing up real travel inventory.
+Travel *inventory* stays synthetic on purpose: flights and hotel availability are
+generated deterministically from seed data, and FX is a static snapshot — zero real
+money and no external booking providers. Everything the user creates (trips, bookings,
+expenses, journals) is real, persisted CRUD.
 
 ---
 
@@ -33,7 +35,7 @@ demoed without standing up real travel inventory.
 ```
   ┌────────────┐        /api/be/*         ┌──────────────────────────────┐
   │  apps/web  │  ───────proxy──────────▶ │           apps/api           │
-  │  Next.js   │                          │  FastAPI mock backend        │
+  │  Next.js   │                          │  FastAPI backend             │
   │  (UI)      │ ◀───────JSON──────────── │                              │
   └────────────┘                          │  routers → services → repos  │
                                           │  ───────────────────────────│
@@ -111,8 +113,8 @@ single root `.venv`.
 
 ## The 60-second orientation
 
-1. It's a **monorepo**: `apps/web` (UI) + `apps/api` (mock backend + AI agent).
-2. The backend is **faked on purpose** — only weather/air-quality/climate, routing, and the agent's LLM calls are real.
+1. It's a **monorepo**: `apps/web` (UI) + `apps/api` (CRUD backend + AI agent).
+2. CRUD (trips, bookings, expenses, …) is **real and persisted**; only travel inventory (flights, hotel availability, FX) is synthetic/seeded. Weather, routing, and the agent's LLM calls hit real services.
 3. The interesting part is the **LangGraph agent** in `apps/api/app/agents/`.
 4. Features live in **`specs/<slug>/`** with a PLAN + SUMMARY; read the relevant one first.
 5. Read **`CLAUDE.md`** before touching backend code, and follow **`.claude/rules/`**.

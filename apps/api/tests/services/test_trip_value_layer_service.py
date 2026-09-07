@@ -31,7 +31,7 @@ def svc(tmp_path):
     url = f"sqlite:///{tmp_path / 'value_layer.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     with get_session_factory(url)() as session:
-        yield TripService(session)
+        yield TripService(session, "test-user-1")
 
 
 def _hotel_booking(
@@ -58,7 +58,7 @@ def _flight_booking(booking_id: str, price: float):
 def _mock_booking_svc(bookings_by_id: dict):
     """Return a mock BookingService whose .get() resolves from bookings_by_id."""
 
-    def _get(bid):
+    def _get(bid, *, user_id=None):
         if bid not in bookings_by_id:
             raise NotFoundError(f"Booking {bid!r} not found")
         return bookings_by_id[bid]

@@ -390,7 +390,7 @@
     }
   },
   "Chat": {
-    "headerTitle": "Tin · Travel Assistant",
+    "headerTitle": "Tin",
     "dialogLabel": "Travel Assistant",
     "statusReady": "Ready when you are",
     "statusWorking": "Working on it…",
@@ -406,10 +406,12 @@
     "composerPlaceholder": "Message the travel assistant…",
     "composerAriaLabel": "Message the travel assistant",
     "sendMessage": "Send message",
+    "stopMessage": "Stop generating",
     "retry": "Retry",
     "retryHint": "The previous answer didn't finish.",
     "greetingTitle": "Hi! I'm Tin 👋",
     "greetingBody": "I'm Tin, here to help you find destinations, build itineraries, and lock in your trip — ask me anything.",
+    "signInPrompt": "Sign in to chat with Tin",
     "tryAsking": "Try asking",
     "suggestions": {
       "planWeekendPrompt": "Plan a long weekend in Tokyo",
@@ -446,7 +448,15 @@
         "addExpense": { "label": "Add expense ➕", "prompt": "Add an expense to my budget" },
         "remaining": { "label": "Remaining 💵", "prompt": "How much budget do I have left?" },
         "breakdown": { "label": "Breakdown 📊", "prompt": "Show me the budget breakdown" }
-      }
+      },
+      "book_hotel_next": { "label": "Find a hotel next 🏨", "prompt": "Find a hotel for this trip now" },
+      "transport_to_hotel": { "label": "Get to my hotel 🚕", "prompt": "How do I get to my hotel from the airport?" },
+      "activities_near_destination": { "label": "Things to do there 🎟️", "prompt": "What can I do near my destination?" },
+      "weather_before_trip": { "label": "Check the weather ⛅", "prompt": "What's the weather like for my trip dates?" },
+      "packing_tips": { "label": "Packing tips 🎒", "prompt": "What should I pack for this trip?" },
+      "family_activities": { "label": "Family-friendly ideas 👨‍👩‍👧", "prompt": "Suggest family-friendly activities for this trip" },
+      "budget_check": { "label": "Check my budget 💰", "prompt": "How is my trip budget looking?" },
+      "local_tips_destination": { "label": "Local tips 🧭", "prompt": "Share some local tips for my destination" }
     },
     "interruptTitle": "Ready when you are",
     "approve": "Approve",
@@ -457,7 +467,65 @@
     "errorUnavailable": "The travel assistant is unavailable right now. Please try again later.",
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
-    "errorQuota": "You've reached today's free message limit."
+    "errorClaimFailed": "Couldn't restore your earlier chat history. It'll try again next time you open the app.",
+    "errorQuota": "You've reached today's free message limit.",
+    "stoppedEmpty": "You stopped this before it could answer.",
+    "stoppedSuffix": "*(Stopped)*",
+    "activity": {
+      "running": "Running",
+      "summary": "Sorted {count, plural, one {# thing} other {# things}} for your trip · {seconds}s",
+      "expand": "Show details",
+      "collapse": "Hide details",
+      "retry": "Retry",
+      "working": "Working…",
+      "hotels": "Searching hotels",
+      "flights": "Searching flights",
+      "places": "Finding places",
+      "weather": "Checking the weather",
+      "route": "Finding the route",
+      "airQuality": "Checking air quality",
+      "budget": "Checking your budget",
+      "journal": "Updating your trip",
+      "error": {
+        "generic": "Couldn't finish this step",
+        "hotels": "Couldn't finish the hotel search",
+        "flights": "Couldn't finish the flight search",
+        "places": "Couldn't finish finding places",
+        "weather": "Couldn't check the weather",
+        "route": "Couldn't finish the route",
+        "airQuality": "Couldn't check air quality",
+        "budget": "Couldn't check your budget",
+        "journal": "Couldn't finish updating your trip",
+        "working": "Couldn't finish this step"
+      }
+    },
+    "actions": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "regenerate": "Regenerate"
+    },
+    "result": {
+      "open": "Open",
+      "close": "Close"
+    },
+    "capabilities": {
+      "plan": {
+        "label": "Plan a trip",
+        "subtitle": "Build a day-by-day itinerary"
+      },
+      "nearby": {
+        "label": "Find nearby",
+        "subtitle": "Discover places around you"
+      },
+      "weather": {
+        "label": "Check weather",
+        "subtitle": "Forecasts for your destination"
+      },
+      "budget": {
+        "label": "Track budget",
+        "subtitle": "See how your spending adds up"
+      }
+    }
   },
   "Panel": {
     "detailPanelLabel": "Detail panel",

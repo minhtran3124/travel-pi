@@ -34,7 +34,20 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         fn = tool.coroutine or tool.func
         # InjectedStore tools carry a runtime-only `store` param in their
         # signature (hidden from the LLM schema) — they can't be served over MCP.
-        if "store" in inspect.signature(fn).parameters:
+        # Tools with an InjectedToolCallId `tool_call_id` param return a langgraph
+        # `Command` and need the agent's runtime tool-call id — also not servable
+        # over MCP (an external client can't supply one).
+        params = inspect.signature(fn).parameters
+        if "store" in params or "tool_call_id" in params:
+            continue
+        # Destructive tools (booking/cancellation — real money and reservations)
+        # are NOT exposed over MCP. The MCP surface is unauthenticated and cannot
+        # supply the authenticated owner these actions now require (they inject
+        # user_id from the agent's graph state), so an external client could only
+        # ever book/cancel with no valid owner — or, worse, if that gap were
+        # closed, act without an authorization boundary. Keep destructive actions
+        # to the in-agent HITL path only (specs/review-a-security-hardening E004).
+        if meta["destructive"]:
             continue
         server.add_tool(
             fn,

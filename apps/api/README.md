@@ -1,6 +1,6 @@
-# Travel Planner Mock API
+# Travel Planner API
 
-A fake travel-booking backend — flights, hotels, and bookings — for frontend development. No API keys, no payments, no real data.
+A travel-planning backend with full CRUD APIs — trips, bookings, expenses, hotels, places — persisted in SQLite/Postgres, plus a LangGraph AI agent. Flights and hotel availability are generated deterministically from seed data (no external booking providers, no payments); weather/air-quality/climate and routing call real keyless services.
 
 ## Run
 
@@ -67,6 +67,7 @@ docker compose restart api      # Docker (re-seeds on restart)
 - **Swagger UI:** http://localhost:8000/docs
 - **Flight board:** http://localhost:8000/dashboard/flights
 - **Air quality:** http://localhost:8000/dashboard/air-quality
+- **Agent runs:** http://localhost:8000/dashboard/agent-runs — per-turn token/cost/latency metrics (`cost_usd` is an estimate from `app/core/pricing.py`, verified 2026-09-03)
 - **Full API reference:** [APIS.md](./APIS.md)
 
 Generate TypeScript types:
@@ -99,7 +100,7 @@ tests/             # pytest suite
 scripts/           # data generators
 ```
 
-Add mock hotels:
+Add seed hotels:
 
 ```bash
 python scripts/generate_data.py hotels --city "Da Nang" --count 3

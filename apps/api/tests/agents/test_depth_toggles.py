@@ -117,6 +117,29 @@ def test_reflection_loops_on_revise_verdict():
     assert result.update["revisions"] == 1
 
 
+def test_reflection_skips_when_awaiting_user():
+    """A turn blocked on the traveller ends at END, unreviewable (MIN-68 / #99).
+
+    The reply is a clarifying question — a necessarily "incomplete" answer the
+    reviewer would flag REVISE, which would re-run the sub-agent to answer
+    WITHOUT the missing detail. Reflection must short-circuit before the judge
+    call so the question is not revised away.
+    """
+    llm = FakeLLM(responses=["REVISE this answer"])  # would loop if reflection ran
+    reflect = make_reflection_node(llm)
+
+    state = _base_state(
+        messages=[AIMessage(content="Which exact date do you want to depart?")],
+        revisions=0,
+        current_flow="planner",
+        awaiting_user=True,
+    )
+    ctx = AgentContext(allow_reflection=True, max_revisions=1)
+    result = reflect(state, _runtime(ctx))
+
+    assert result.goto == END
+
+
 # ---------------------------------------------------------------------------
 # Response style — system prompt directive injection
 # ---------------------------------------------------------------------------

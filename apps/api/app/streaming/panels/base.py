@@ -11,8 +11,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-Translator = Callable[[str], Awaitable[str]]
-Localizer = Callable[[dict, "Translator | None"], Awaitable[None]]
+Localizer = Callable[[dict], Awaitable[None]]
 
 
 class UnknownPanelKind(Exception):

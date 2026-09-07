@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-03T08:44:26Z",
+  "last_event_id": "3cf98e96-2f61-46b3-9e8d-99da3b720aef",
+  "resume_event": null,
+  "run_id": "4bae58c6-3764-4b1c-958a-7a77882274ec",
+  "seq": 6,
+  "sha": null,
+  "slug": "agent-run-trace-detail",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-03T09:40:11Z",
+  "waiting_on": null
+}

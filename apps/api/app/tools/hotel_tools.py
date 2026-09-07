@@ -14,19 +14,46 @@ drawer).
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from typing import Annotated
 
 from langchain_core.tools import ToolException, tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.core.config import get_settings
 from app.core.dates import resolve_travel_date, today_in_timezone
+from app.core.text import fold_diacritics
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
+from app.services.content_translation_service import ContentTranslationService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
-from app.tools._base import dump, log_tool_call, panel_result, session_scope
+from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
+from app.tools._ranking import rank_by_preference
+
+
+def _hotel_keyword_features(hotel) -> list[tuple[list[str], str]]:
+    """Preference-matchable features for one hotel search result (DESIGN.md D7).
+
+    Star rating and property type are matched by exact keyword; the beach/area
+    check only fires when the hotel's own address/description actually mentions
+    a beach — a keyword heuristic, not semantic understanding of "beachfront",
+    so paraphrases can be missed (v1 trade-off, boost-only so it never hides a
+    hotel that doesn't match).
+    """
+    stars = hotel.star_rating
+    features: list[tuple[list[str], str]] = [
+        ([f"{stars} sao", f"{stars}-star", f"{stars} star"], f"{stars}-star"),
+        ([hotel.property_type], hotel.property_type),
+    ]
+    own_text = fold_diacritics(f"{hotel.description} {hotel.address}".lower())
+    if "beach" in own_text or "bien" in own_text:
+        features.append(
+            (["beach", "beachfront", "biển", "gần biển", "bờ biển"], "beachfront")
+        )
+    return features
 
 
 class SearchHotelsArgs(AppBaseModel):
@@ -75,6 +102,16 @@ class SearchHotelsArgs(AppBaseModel):
             "separate `breakfast_included` field on the hotel, not an amenity tag."
         ),
     )
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
+    # Injected conversation language (TravelAgentState.language); hotel
+    # descriptions are localized to it at tool time (specs/catalog-content-i18n).
+    language: Annotated[str, InjectedState("language")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class BrowseHotelsArgs(AppBaseModel):
@@ -95,6 +132,16 @@ class BrowseHotelsArgs(AppBaseModel):
             "(case/typo/substring tolerant). Does not include breakfast — that's a "
             "separate `breakfast_included` field on the hotel, not an amenity tag."
         ),
+    )
+    preferences: Annotated[str, InjectedState("preferences")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
+    # Injected conversation language (TravelAgentState.language); hotel
+    # descriptions are localized to it at tool time (specs/catalog-content-i18n).
+    language: Annotated[str, InjectedState("language")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
     )
 
 
@@ -126,6 +173,10 @@ class BookHotelArgs(AppBaseModel):
             "reservations. Leaving it False (the default) will not book anything."
         ),
     )
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        default="",
+        description="Injected owner id from graph state — never supplied by the model.",
+    )
 
 
 @tool(args_schema=SearchHotelsArgs, response_format="content_and_artifact")
@@ -139,6 +190,8 @@ def search_hotels(
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
+    preferences: Annotated[str, InjectedState("preferences")] = "",
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Search hotels in a city with room availability for specific dates.
 
@@ -233,6 +286,9 @@ def search_hotels(
                     "do not invent hotels.",
                     None,
                 )
+            results, matched_reasons = rank_by_preference(
+                results, preferences, keyword_fn=_hotel_keyword_features
+            )
             cheapest = min(results, key=lambda h: h.total_price)
             top_rated = max(results, key=lambda h: h.rating)
             summary = (
@@ -242,6 +298,12 @@ def search_hotels(
                 f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
                 "The full comparison is in the Hotels panel."
             )
+            if matched_reasons:
+                summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
+            # After ranking (keyword features match the English text), before the panel.
+            results = ContentTranslationService(s).localize(
+                "hotel", results, ["description"], language
+            )
             return panel_result(
                 summary,
                 kind="hotels",
@@ -250,7 +312,7 @@ def search_hotels(
                 ),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
@@ -261,6 +323,8 @@ def browse_hotels(
     min_stars: int | None = None,
     max_price: float | None = None,
     amenities: list[str] | None = None,
+    preferences: Annotated[str, InjectedState("preferences")] = "",
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Answer hotel info/search questions — price, location, amenities, rating — with no dates.
 
@@ -271,8 +335,11 @@ def browse_hotels(
     ``book_hotel`` handle that.
 
     Returns up to 12 hotels, sorted cheapest nightly rate first (best value on
-    top). On success the model sees a short summary and the full comparison is
-    sent to the Hotels side panel. If no hotels match — either the city was not
+    top) — unless the traveller's known preferences (star rating, hotel type,
+    beachfront) boost a better match to the top, in which case cheapest-price
+    order is kept only as the tiebreaker. On success the model sees a short
+    summary and the full comparison is sent to the Hotels side panel. If no
+    hotels match — either the city was not
     recognized or the filters left nothing — returns a short message and no
     panel; tell the user none were found and never invent hotels. It is not an
     error.
@@ -319,7 +386,15 @@ def browse_hotels(
             # Default sort: cheapest nightly rate first, so the panel leads with
             # the best-value option (ties keep the seed order — sorted() is stable).
             results = sorted(results, key=lambda h: h.price_per_night)
-            cheapest = results[0]
+            # Preference boost layers on top, stably — cheapest-first is preserved
+            # as the tiebreaker among hotels with equal preference-match scores.
+            results, matched_reasons = rank_by_preference(
+                results, preferences, keyword_fn=_hotel_keyword_features
+            )
+            # Re-ranking can move a pricier preferred hotel to position 0, so the
+            # "cheapest" callout must still look up the actual min price — not
+            # just index 0 — regardless of preference re-order.
+            cheapest = min(results, key=lambda h: h.price_per_night)
             top_rated = max(results, key=lambda h: h.rating)
             summary = (
                 f"{len(results)} hotels in {results[0].city}. "
@@ -327,13 +402,18 @@ def browse_hotels(
                 f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
                 "The full comparison is in the Hotels panel."
             )
+            if matched_reasons:
+                summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
+            results = ContentTranslationService(s).localize(
+                "hotel", results, ["description"], language
+            )
             return panel_result(
                 summary,
                 kind="hotels",
                 data=HotelsPanel.from_catalog(results[0].city, results),
             )
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
@@ -351,6 +431,7 @@ def book_hotel(
     children: int = 0,
     notes: str | None = None,
     confirm: bool = False,
+    user_id: Annotated[str, InjectedState("user_id")] = "",
 ) -> dict:
     """Book a hotel room. You MUST pass confirm=True to create the reservation.
 
@@ -368,9 +449,24 @@ def book_hotel(
     :param notes: Optional note for the hotel (arrival time, bed type preference).
     :param confirm: Must be True to execute the booking — prevents accidental
         reservations; left False (the default), nothing is booked.
+    :param user_id: The owner id, injected from graph state (not model-supplied);
+        stamped on the booking so it is scoped to the authenticated traveller.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
-    log_tool_call("book_hotel", locals())
+    # Log only the booking identifiers, never guest name/email/phone
+    # (guidelines: never log sensitive contact details).
+    log_tool_call(
+        "book_hotel",
+        {
+            "hotel_id": hotel_id,
+            "check_in": check_in,
+            "check_out": check_out,
+            "rooms": rooms,
+            "adults": adults,
+            "children": children,
+            "confirm": confirm,
+        },
+    )
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
@@ -389,16 +485,18 @@ def book_hotel(
                 guest_phone=guest_phone,
                 notes=notes,
             )
-            result = BookingService(s).book_hotel(request)
+            result = BookingService(s).book_hotel(request, user_id=user_id)
             return dump(result)
         except AppError as e:
-            raise ToolException(str(e)) from e
+            raise tool_error(e) from e
         except ValueError as e:
             raise ToolException(str(e)) from e
 
 
 # Concierge's dateless catalog browse (MIN-51) — never asks for dates/occupancy.
 HOTEL_SEARCH_TOOLS = [browse_hotels]
+# Planner's dated availability search (no reservation power — booking owns the money tools).
+HOTEL_AVAILABILITY_TOOLS = [search_hotels]
 HOTEL_BOOKING_TOOLS = [book_hotel]
 # Booking's dated availability search + the actual reservation.
-HOTEL_TOOLS = [search_hotels] + HOTEL_BOOKING_TOOLS
+HOTEL_TOOLS = HOTEL_AVAILABILITY_TOOLS + HOTEL_BOOKING_TOOLS

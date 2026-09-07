@@ -14,7 +14,7 @@ need to POST 20 times.
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
-from app.core.auth import AuthUser, get_current_user_optional
+from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
@@ -31,8 +31,19 @@ from langgraph.store.memory import InMemoryStore
 _LIMIT = 2  # patched value; avoids 20 real POSTs
 
 
-def _make_app(tmp_path, *, premium_users: list[str] | None = None):
-    """Build a test app with an isolated SQLite DB and FakeLLM graph."""
+def _make_app(
+    tmp_path,
+    *,
+    premium_users: list[str] | None = None,
+    auth_user_id: str = "u_free",
+):
+    """Build a test app with an isolated SQLite DB and FakeLLM graph.
+
+    Every ``/agent/*`` route now requires a Supabase JWT, so the app always
+    authenticates as ``auth_user_id`` (the first premium user, when seeded, so
+    tier resolution matches). The body ``user_id`` is ignored — identity is the
+    JWT sub.
+    """
     from app.repositories.user import UserRepository
 
     url = f"sqlite:///{tmp_path / 'quota_test.db'}"
@@ -72,13 +83,12 @@ def _make_app(tmp_path, *, premium_users: list[str] | None = None):
     app.dependency_overrides[get_session] = _override_session
     app.dependency_overrides[get_travel_graph] = lambda: _graph
 
-    # Premium requires authentication (anonymous is always free under hybrid identity).
-    # Simulate being logged in as the first premium user so tier resolves correctly.
-    if premium_users:
-        _puid = premium_users[0]
-        app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
-            id=_puid, email=None, role=None, claims={}
-        )
+    # Every /agent/* route requires a JWT. Authenticate as the seeded premium
+    # user when present (so tier resolves to premium), else as auth_user_id.
+    _uid = premium_users[0] if premium_users else auth_user_id
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id=_uid, email=None, role=None, claims={}
+    )
 
     return app, url
 

@@ -67,6 +67,35 @@ def test_method_not_allowed_envelope_label(client):
     assert resp.json()["error"] == "MethodNotAllowed"
 
 
+def test_non_enforced_error_keeps_nominal_rate_limit_headers(client):
+    from app.core.config import get_settings
+
+    response = client.get("/this/route/does/not/exist")
+    nominal = str(get_settings().rate_limit_nominal)
+    assert response.headers["x-ratelimit-limit"] == nominal
+    assert response.headers["x-ratelimit-remaining"] == nominal
+
+
+def test_metadata_less_rate_limit_error_omits_unknown_capacity_headers():
+    from app.exceptions import RateLimitError
+    from app.main import create_app
+    from fastapi.testclient import TestClient
+
+    app = create_app()
+
+    @app.get("/__manual-rate-limit")
+    def _manual_rate_limit():
+        raise RateLimitError(retry_after=7)
+
+    response = TestClient(app).get("/__manual-rate-limit")
+    assert response.status_code == 429
+    assert response.headers["retry-after"] == "7"
+    assert "x-ratelimit-limit" not in response.headers
+    assert "x-ratelimit-remaining" not in response.headers
+    assert "x-ratelimit-reset" not in response.headers
+    assert response.json()["error"] == "RateLimitError"
+
+
 # --- Request validation (422) ------------------------------------------------
 
 

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
+import { safeNextPath } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/server";
 
 /** Result returned to form components via `useActionState`. */
@@ -27,13 +28,14 @@ export async function signInWithPassword(
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const next = safeNextPath(formData.get("next"), await siteOrigin());
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect(next);
 }
 
 export async function signUpWithPassword(
@@ -45,10 +47,13 @@ export async function signUpWithPassword(
 
   const supabase = await createClient();
   const origin = await siteOrigin();
+  const next = safeNextPath(formData.get("next"), origin);
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${origin}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
+    },
   });
   if (error) return { error: error.message };
 
@@ -60,12 +65,14 @@ export async function signInWithMagicLink(
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
-
   const supabase = await createClient();
   const origin = await siteOrigin();
+  const next = safeNextPath(formData.get("next"), origin);
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/confirm` },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
+    },
   });
   if (error) return { error: error.message };
 

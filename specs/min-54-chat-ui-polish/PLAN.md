@@ -1,6 +1,6 @@
 ---
 slug: min-54-chat-ui-polish
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-07-06
 ---
@@ -66,3 +66,7 @@ Wave 1 has two tasks touching disjoint apps (`apps/web` ⟂ `apps/api`) → run 
 
 - 2026-07-06 — intake (normal lane, medium confidence); research done; plan written; branch `feat/min-54-chat-ui-polish` off v3.
 - 2026-07-06 — Wave 1 done (1.1 web spacing + 1.2 prompt v5). Verify: `pytest tests/prompts` 11 passed, web `tsc --noEmit` clean. Independent reviewer: no issues. Naming out of scope (Tin/MIN-60).
+
+- 2026-09-03 — status corrected to `shipped`. Verified by artifact on `main`, not by the log:
+  this plan's deliverables are present in the shipped code. It had been left `active`, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.

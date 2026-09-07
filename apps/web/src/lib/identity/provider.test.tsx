@@ -1,105 +1,109 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as apiClient from "@/lib/api/client";
-
 import { IdentityProvider } from "./provider";
-import { useUserId } from "./useUserId";
+import { useIdentity } from "./useUserId";
 
-const STORAGE_KEY = "travel.userId";
+// --- Supabase client mock ----------------------------------------------------
+// The provider derives identity from the Supabase session: an initial
+// getSession() resolve, then live updates via onAuthStateChange. We drive both
+// from the test.
+let sessionUser: { id: string } | null = null;
+let authCallback: ((event: string, session: unknown) => void) | null = null;
+const unsubscribe = vi.fn();
+
+vi.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({
+    auth: {
+      getSession: async () => ({
+        data: { session: sessionUser ? { user: sessionUser } : null },
+      }),
+      onAuthStateChange: (cb: (event: string, session: unknown) => void) => {
+        authCallback = cb;
+        return { data: { subscription: { unsubscribe } } };
+      },
+    },
+  }),
+}));
 
 function Probe() {
-  const id = useUserId();
-  return <span data-testid="uid">{id ?? "null"}</span>;
+  const { userId, status } = useIdentity();
+  return (
+    <span data-testid="probe">
+      {status}:{userId ?? "null"}
+    </span>
+  );
+}
+
+function probeText() {
+  return screen.getByTestId("probe").textContent;
 }
 
 describe("IdentityProvider", () => {
   beforeEach(() => {
-    localStorage.clear();
-    apiClient.setUserId(null);
-    vi.restoreAllMocks();
+    sessionUser = null;
+    authCallback = null;
+    unsubscribe.mockClear();
   });
 
   afterEach(() => {
-    localStorage.clear();
+    vi.restoreAllMocks();
   });
 
-  it("generates and persists a UUID when none exists", async () => {
+  it("resolves to signed-out when there is no session", async () => {
     render(
       <IdentityProvider>
         <Probe />
       </IdentityProvider>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("uid").textContent).not.toBe("null");
-    });
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    expect(stored).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-    );
-    expect(screen.getByTestId("uid").textContent).toBe(stored);
+    await waitFor(() => expect(probeText()).toBe("signed-out:null"));
   });
 
-  it("reuses the same id across remounts", async () => {
+  it("resolves to signed-in with the session user id", async () => {
+    sessionUser = { id: "user-123" };
+
+    render(
+      <IdentityProvider>
+        <Probe />
+      </IdentityProvider>,
+    );
+
+    await waitFor(() => expect(probeText()).toBe("signed-in:user-123"));
+  });
+
+  it("tracks live sign-in via onAuthStateChange", async () => {
+    render(
+      <IdentityProvider>
+        <Probe />
+      </IdentityProvider>,
+    );
+
+    await waitFor(() => expect(probeText()).toBe("signed-out:null"));
+
+    act(() => {
+      authCallback?.("SIGNED_IN", { user: { id: "user-456" } });
+    });
+
+    await waitFor(() => expect(probeText()).toBe("signed-in:user-456"));
+
+    // …and back to signed-out on sign-out.
+    act(() => {
+      authCallback?.("SIGNED_OUT", null);
+    });
+    await waitFor(() => expect(probeText()).toBe("signed-out:null"));
+  });
+
+  it("unsubscribes from auth changes on unmount", async () => {
     const { unmount } = render(
       <IdentityProvider>
         <Probe />
       </IdentityProvider>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("uid").textContent).not.toBe("null");
-    });
-    const firstId = localStorage.getItem(STORAGE_KEY);
-    expect(firstId).not.toBeNull();
-
+    await waitFor(() => expect(probeText()).toBe("signed-out:null"));
     unmount();
-
-    render(
-      <IdentityProvider>
-        <Probe />
-      </IdentityProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("uid").textContent).toBe(firstId);
-    });
-    expect(localStorage.getItem(STORAGE_KEY)).toBe(firstId);
-  });
-
-  it("seeds the id from existing localStorage", async () => {
-    const seeded = "11111111-2222-3333-4444-555555555555";
-    localStorage.setItem(STORAGE_KEY, seeded);
-
-    render(
-      <IdentityProvider>
-        <Probe />
-      </IdentityProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("uid").textContent).toBe(seeded);
-    });
-    expect(localStorage.getItem(STORAGE_KEY)).toBe(seeded);
-  });
-
-  it("pushes the id to the api client via setUserId", async () => {
-    const spy = vi.spyOn(apiClient, "setUserId");
-
-    render(
-      <IdentityProvider>
-        <Probe />
-      </IdentityProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("uid").textContent).not.toBe("null");
-    });
-
-    const id = localStorage.getItem(STORAGE_KEY);
-    expect(spy).toHaveBeenCalledWith(id);
-    expect(apiClient.getUserId()).toBe(id);
+    expect(unsubscribe).toHaveBeenCalledTimes(1);
   });
 });

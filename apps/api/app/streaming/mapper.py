@@ -15,30 +15,25 @@ langgraph 1.2.x (v1 emission) each item is a ``(namespace, mode, data)`` tuple:
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import AsyncIterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
 from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
-from app.agents.suggestions import suggestions_for_flow
+from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.core.languages import DEFAULT_LANGUAGE
+from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
 from app.streaming.panel_localizer import localize_panel
 
-logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from app.agents.metrics import TurnMetricsHandler
 
-#: System instruction for the panel-prose translator. Kept minimal and imperative
-#: so the model translates the place description into Vietnamese rather than
-#: answering or echoing it, while leaving proper nouns intact.
-_TRANSLATE_SYSTEM = SystemMessage(
-    content=(
-        "You are a translator. Translate the user's text into Vietnamese. "
-        "Keep proper nouns (place names, brands, cities, landmarks) unchanged. "
-        "Return ONLY the translated text — no preamble, quotes, or explanation."
-    )
-)
+logger = logging.getLogger(__name__)
 
 #: Main-graph nodes that end a turn with a content-bearing AIMessage (tier gate,
 #: unknown intent, plan cancel/approve). Their message never streams via the
@@ -57,6 +52,15 @@ def _ns_root(ns: tuple[str, ...] | None) -> str | None:
     if not ns:
         return None
     return ns[0].split(":", 1)[0]
+
+
+def _node_name_from_meta(meta: dict) -> str | None:
+    """Return the LangGraph node name from message metadata, if present.
+
+    Top-level nodes stream with namespace ``()``; the node name is in the
+    metadata's ``langgraph_node`` key.
+    """
+    return meta.get("langgraph_node") if isinstance(meta, dict) else None
 
 
 def _as_message_list(value: Any) -> list[Any]:
@@ -78,6 +82,7 @@ async def stream_agent_events(
     conversation_id: str,
     context: Any = None,
     final_state_sink: dict | None = None,
+    metrics: TurnMetricsHandler | None = None,
 ) -> AsyncIterator[TypedSSEEvent]:
     """Yield typed SSE events for one agent turn (or interrupt resume).
 
@@ -92,39 +97,49 @@ async def stream_agent_events(
     :param final_state_sink: When provided, populated with the post-drain
         ``values``/``interrupt_pending`` snapshot so a caller (e.g. a response
         background task) can run memory extraction after the stream completes.
+    :param metrics: Optional per-turn ``TurnMetricsHandler``. When given, its
+        wall-clock is closed just before the ``done`` event and the client-facing
+        ``usage`` subset (with ``cost_usd`` filled) is attached to that event.
     """
+    started = time.monotonic()
     yield events.start(conversation_id)
 
     # Seed the language BEFORE the astream loop so a HITL-resume turn (which
     # skips the supervisor and never emits a language delta) still tags its
     # panels/done with the persisted language. Best-effort — default en.
-    current_language = "en"
+    current_language = DEFAULT_LANGUAGE
+    # Ids of every message (and tool call) already on the thread BEFORE this
+    # turn. A sub-agent shares the parent's state schema, so the parent-level
+    # update for its node carries the thread's WHOLE ``messages`` list — every
+    # prior turn's tool calls and tool results would otherwise be re-emitted as
+    # new ``tool_call`` / ``panel`` / ``tool_result`` events on every turn
+    # (one extra activity step + one extra panel localization per past search).
+    prior_msg_ids: set[str] = set()
+    prior_tool_call_ids: set[str] = set()
     try:
         _pre = await graph.aget_state(cfg)
         pre_lang = _pre.values.get("language") if _pre and _pre.values else None
         if isinstance(pre_lang, str) and pre_lang:
             current_language = pre_lang
+        for m in _as_message_list((_pre.values or {}).get("messages")) if _pre else []:
+            mid = getattr(m, "id", None)
+            if isinstance(mid, str) and mid:
+                prior_msg_ids.add(mid)
+            for tc in getattr(m, "tool_calls", None) or []:
+                if tc.get("id"):
+                    prior_tool_call_ids.add(tc["id"])
     except Exception:  # noqa: BLE001 — best-effort seed; default en
         pass
 
-    # Translator closure for free-form panel prose; only invoked by
-    # localize_panel under vi. Async end-to-end so the SSE event loop is never
-    # blocked. Never call get_fast_llm() here.
-    _tl = getattr(graph, "translate_llm", None)
-    if _tl is not None:
-
-        async def _translate(text: str) -> str:
-            resp = await _tl.ainvoke([_TRANSLATE_SYSTEM, HumanMessage(content=text)])
-            return resp.content
-
-        translator = _translate
-    else:
-        translator = None
-
     current_subagent: str | None = None
     last_msg_id: str | None = None
-    emitted_tool_calls: set[str] = set()
+    emitted_tool_calls: set[str] = set(prior_tool_call_ids)
+    # The same ToolMessage is seen twice per turn (the subgraph's ``tools`` node
+    # and the parent's sub-agent node); emit its panel/result once, like
+    # ``emitted_tool_calls`` does for the call.
+    emitted_tool_results: set[str] = set(prior_tool_call_ids)
     emitted_token: bool = False
+    synthesize_answer_emitted: bool = False
 
     try:
         async for ns, mode, data in graph.astream(
@@ -138,20 +153,51 @@ async def stream_agent_events(
 
             # Announce a specialist handoff the moment its namespace appears.
             if root in SUBAGENTS and root != current_subagent:
+                # Each queued sub-agent regenerates the whole turn answer, so a
+                # new specialist supersedes the previous draft. Emit reset so the
+                # FE and the persistence accumulator discard the prior answer.
+                if emitted_token:
+                    yield events.reset()
+                    emitted_token = False
                 current_subagent = root
                 yield events.subagent(root)
+                # A new sub-agent means a new message stream; do not treat its
+                # first chunk as a continuation of the previous message.
+                last_msg_id = None
 
             if mode == "messages":
-                # Only sub-agent assistant prose is user-facing. ToolNode output
-                # runs in the same subgraph, so the AIMessage guard keeps raw
-                # JSON out of the feed; AIMessageChunk subclasses AIMessage.
-                if root not in SUBAGENTS:
-                    continue
-                chunk, _meta = data
+                # GH-117 Path A: in multi-intent mode, workers run inside the
+                # synthesis_worker subgraph and must not stream their prose.
+                # The synthesize node at the top level is the only source of
+                # user-facing tokens for these turns. Single-intent turns keep
+                # the existing sub-agent streaming behavior.
+                chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
                 content = getattr(chunk, "content", "")
                 if not content:
+                    continue
+                node_name = _node_name_from_meta(meta)
+                # Top-level synthesizer is the final answer for multi-intent.
+                # LangGraph emits the synthesized message more than once for the
+                # same node execution (model stream + graph update). The
+                # synthesize node currently uses llm.invoke(), so there is exactly
+                # one meaningful answer event per run; emit the first one and
+                # suppress the duplicate without relying on provider-specific
+                # metadata fields.
+                if root is None and node_name == "synthesize":
+                    if synthesize_answer_emitted:
+                        continue
+                    synthesize_answer_emitted = True
+                    emitted_token = True
+                    yield events.token(content)
+                    continue
+                # Suppress prose from synthesis workers and their inner sub-agents.
+                if root == "synthesis_worker" or (
+                    root is not None and root.startswith("synthesis_worker")
+                ):
+                    continue
+                if root not in SUBAGENTS:
                     continue
                 msg_id = getattr(chunk, "id", None)
                 if (
@@ -187,6 +233,8 @@ async def stream_agent_events(
                         node_name in _TERMINAL_TEXT_NODES and not subagent_name
                     )
                     for msg in _as_message_list(delta.get("messages")):
+                        if getattr(msg, "id", None) in prior_msg_ids:
+                            continue  # thread history replayed by a subgraph update
                         if isinstance(msg, AIMessage) and msg.tool_calls:
                             for tc in msg.tool_calls:
                                 tc_id = tc.get("id") or ""
@@ -200,6 +248,9 @@ async def stream_agent_events(
                                     subagent=subagent_name,
                                 )
                         elif isinstance(msg, ToolMessage):
+                            if msg.tool_call_id in emitted_tool_results:
+                                continue
+                            emitted_tool_results.add(msg.tool_call_id)
                             # Panel-capable tools (response_format=content_and_artifact)
                             # carry a {"kind","data"} artifact for the side-panel drawer;
                             # surface it before the status pill. Plain tools have none.
@@ -209,7 +260,6 @@ async def stream_agent_events(
                                     artifact["kind"],
                                     artifact.get("data"),
                                     current_language,
-                                    translator=translator,
                                 )
                                 yield events.panel(
                                     tool_call_id=msg.tool_call_id,
@@ -243,12 +293,38 @@ async def stream_agent_events(
             )
 
         current_flow = state.values.get("current_flow") if state else None
-        suggestions = [] if interrupts else suggestions_for_flow(current_flow)
+        suggestions = (
+            []
+            if interrupts
+            else suggestions_for_flow(
+                current_flow,
+                trip_facts=state.values.get("trip_facts") if state else None,
+                profile=profile_for_suggestions(
+                    getattr(graph, "store", None),
+                    state.values.get("user_id") if state else None,
+                ),
+                preferences=(state.values.get("preferences", "") if state else ""),
+            )
+        )
+        usage = None
+        if metrics is not None:
+            # Guarded: this block sits inside the stream's own try, so an
+            # exception here would convert a successful turn's `done` into an
+            # `error` event. Metrics never degrade the reply.
+            try:
+                metrics.close(started)
+                snap = metrics.snapshot()
+                metrics.cost_usd = estimate_cost(snap["by_model"])
+                usage = metrics.public()
+            except Exception:  # noqa: BLE001 — best-effort metrics
+                logger.debug("[stream_agent_events] metrics finalize failed", exc_info=True)
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,
             suggestions=suggestions,
             language=current_language,
+            trip_id=state.values.get("trip_id") if state else None,
+            usage=usage,
         )
 
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event

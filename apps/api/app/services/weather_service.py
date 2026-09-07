@@ -13,12 +13,17 @@ best practice for routes that do real network I/O.
 Tests monkeypatch ``_fetch_json`` to avoid hitting the network.
 """
 
+import datetime
 import logging
 
 import httpx
 
 from app.core.config import get_settings
-from app.exceptions import CityNotFoundError, WeatherUnavailableError
+from app.exceptions import (
+    CityNotFoundError,
+    DomainValidationError,
+    WeatherUnavailableError,
+)
 from app.schemas.weather import (
     CurrentWeather,
     DailyForecast,
@@ -179,23 +184,63 @@ async def geocode_city(city: str) -> dict | None:
     return location
 
 
-async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
-    """Return current conditions plus a ``days``-long forecast for ``city``.
+# Open-Meteo's forecast endpoint only accepts a dated (start_date/end_date)
+# query within this many days of today; requesting further out is rejected by
+# the upstream API itself. Verified live against Open-Meteo's own
+# range-exceeded error. Computed relative to "now" (never hardcoded) so the
+# horizon rolls forward every day.
+_FORECAST_HORIZON_DAYS = 15
 
-    ``days`` defaults to the configured ``weather_forecast_days`` and is
-    clamped to the 1-16 range Open-Meteo supports.
+
+async def get_weather(
+    city: str,
+    days: int | None = None,
+    date: datetime.date | None = None,
+) -> WeatherResponse:
+    """Return current conditions plus a forecast for ``city``.
+
+    Without ``date``, returns a ``days``-long forecast starting today (``days``
+    defaults to the configured ``weather_forecast_days`` and is clamped to the
+    1-16 range Open-Meteo supports) — unchanged from before ``date`` existed.
+
+    With ``date``, returns the single-day forecast for that date instead,
+    provided it falls within :data:`_FORECAST_HORIZON_DAYS` of today. A date
+    beyond that horizon raises :class:`DomainValidationError` rather than
+    silently falling back to today's forecast — Open-Meteo has no per-day
+    forecast that far out; use ``get_climate`` for monthly normals instead.
 
     Raises :class:`CityNotFoundError` if the name cannot be geocoded, and
     :class:`WeatherUnavailableError` if Open-Meteo is unreachable.
 
     :param city: The city name to look up.
     :param days: The number of forecast days; defaults to ``weather_forecast_days``.
+        Ignored when ``date`` is set.
+    :param date: An optional specific date to fetch the forecast for, instead
+        of the rolling ``days``-long window from today.
     :return: The current conditions and daily forecast.
     """
     settings = get_settings()
 
-    forecast_days = days if days is not None else settings.weather_forecast_days
-    forecast_days = max(1, min(forecast_days, 16))
+    if date is not None:
+        today = datetime.datetime.now(datetime.timezone.utc).date()
+        horizon = today + datetime.timedelta(days=_FORECAST_HORIZON_DAYS)
+        if date > horizon:
+            # The get_climate pointer lives in the DETAIL, not only the hint:
+            # agent tools surface errors as ``ToolException(str(e))`` and
+            # ``AppError.__str__`` returns ``detail`` alone, so a hint-only
+            # pointer never reaches the model. The hint is kept for the HTTP
+            # error envelope, which does carry it.
+            raise DomainValidationError(
+                f"'{date.isoformat()}' is beyond the {_FORECAST_HORIZON_DAYS}-day "
+                "weather forecast horizon. Call get_climate for typical/average "
+                "conditions (monthly normals) instead — there is no per-day "
+                "forecast that far out.",
+                hint=(
+                    "Open-Meteo has no per-day forecast that far out. Call "
+                    "get_climate for typical/average conditions (monthly "
+                    "normals) instead."
+                ),
+            )
 
     location = await geocode_city(city)
     if location is None:
@@ -207,23 +252,27 @@ async def get_weather(city: str, days: int | None = None) -> WeatherResponse:
             ),
         )
 
-    data = await _fetch_json(
-        settings.weather_forecast_url,
-        {
-            "latitude": location["latitude"],
-            "longitude": location["longitude"],
-            "current": (
-                "temperature_2m,apparent_temperature,relative_humidity_2m,"
-                "wind_speed_10m,weather_code"
-            ),
-            "daily": (
-                "temperature_2m_max,temperature_2m_min,"
-                "precipitation_probability_max,weather_code"
-            ),
-            "forecast_days": forecast_days,
-            "timezone": "auto",
-        },
-    )
+    params = {
+        "latitude": location["latitude"],
+        "longitude": location["longitude"],
+        "current": (
+            "temperature_2m,apparent_temperature,relative_humidity_2m,"
+            "wind_speed_10m,weather_code"
+        ),
+        "daily": (
+            "temperature_2m_max,temperature_2m_min,"
+            "precipitation_probability_max,weather_code"
+        ),
+        "timezone": "auto",
+    }
+    if date is not None:
+        params["start_date"] = date.isoformat()
+        params["end_date"] = date.isoformat()
+    else:
+        forecast_days = days if days is not None else settings.weather_forecast_days
+        params["forecast_days"] = max(1, min(forecast_days, 16))
+
+    data = await _fetch_json(settings.weather_forecast_url, params)
 
     # Walk the response defensively: ``_fetch_json`` already turns transport
     # and HTTP errors into ``WeatherUnavailableError`` (502), but a 200 with
@@ -375,14 +424,21 @@ def _is_rainy(day: DailyForecast) -> bool:
     ) >= 40 or day.weather_code in _PRECIP_CODES
 
 
-async def get_packing(city: str, days: int | None = None) -> PackingResponse:
+async def get_packing(
+    city: str,
+    days: int | None = None,
+    date: datetime.date | None = None,
+) -> PackingResponse:
     """Return packing suggestions for ``city`` based on the weather forecast.
 
     :param city: The city name to look up.
     :param days: The number of forecast days; defaults to ``weather_forecast_days``.
+        Ignored when ``date`` is set.
+    :param date: An optional specific date to base suggestions on, instead of
+        the rolling ``days``-long window from today. See :func:`get_weather`.
     :return: The packing suggestions for the forecast window.
     """
-    resp = await get_weather(city, days=days)
+    resp = await get_weather(city, days=days, date=date)
     daily = resp.daily
 
     if not daily:

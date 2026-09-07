@@ -1,6 +1,6 @@
 ---
 slug: models-uuid-timestamp-base
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-19
 ---
@@ -80,3 +80,7 @@ natural/int PKs, `Base` is an empty `DeclarativeBase`, and there is no
 ## 6. Status Log
 - 2026-06-19: plan created; executing.
 - 2026-06-19: shipped. All 18 models on uuid id + timestamps; migration `7b300c56abff` drift-clean; seed idempotent; `make test` 665 passed. See SUMMARY.md. Postgres parity (`make test-docker`) not yet run.
+
+- 2026-09-03 — status corrected to `shipped`. Verified by artifact on `main`, not by the log:
+  this plan's deliverables are present in the shipped code. It had been left `active`, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.

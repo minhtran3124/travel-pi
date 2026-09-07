@@ -1,0 +1,126 @@
+{
+  "reviewed_head_sha": "7ec5280f0ee8b1323802e0006e6d60d53c343d32",
+  "created": "2026-09-03T07:31:58+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "stream_usage=True gated to the openai SDK profile only; FakeLLM emits usage_metadata + response_metadata.model_name only when absent (scripted usage untouched); response_metadata merged, not clobbered. SPEC+QUALITY pass, 27 tests."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "TurnMetricsHandler: llm_calls counted always; model from response_metadata else the on_chat_model_start map (on_llm_end has no metadata kwarg); node timing deduped on checkpoint_ns; run_inline/raise_error/lock present; every hook swallows. 10 tests. Minors: _llm_starts per-call latency never surfaced; ls_model_name-only start fallback."
+    },
+    {
+      "reviewer": "task-review-1.3",
+      "type": "task-1.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "estimate_cost matches the design formula; None when any model is unpriced; normalize_model strips models//openai/ prefix + dated snapshot; all 12 catalogue models priced (verified 2026-09-03) and cross-checked against the research brief. Formula pinned with a monkeypatched price, not the published numbers. 13 tests."
+    },
+    {
+      "reviewer": "task-review-1.4",
+      "type": "task-1.4",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Load-bearing check: model columns and migration columns agree exactly (25), so SQLite create_all and Postgres Alembic yield identical schemas; 3 indexes; single head e3b7c5d9a1f4; genuine upgrade->downgrade round trip; repo start(id)/finish/add_background/list_recent/totals on session-or-factory. 12 tests. Minors: totals() lexical ISO compare; list_recent microsecond tie-break."
+    },
+    {
+      "reviewer": "task-review-1.5",
+      "type": "task-1.5",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "TurnUsage 8 fields with correct optionals/default_factory; ChatResponse.usage optional; done() always emits the usage key (null when unknown); event NAME order lists unchanged; FE parseSSE ignores unknown keys so no frontend change. 24 tests."
+    },
+    {
+      "reviewer": "task-review-2.1",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "record_agent_run passes events through unchanged, derives interrupted>failed>completed, re-raises CancelledError, reads current_flow from the done payload, swallows repo errors in finally. Clock gate: mapper's started and close() both time.monotonic() (Rule-1 deviation from the brief's perf_counter was the correctness fix). 31 tests."
+    },
+    {
+      "reviewer": "task-review-2.2",
+      "type": "task-2.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "extract_memories forwards a callbacks config only when set; run_id+session_factory gate the handler and add_background; callers without the kwargs do no DB access (asserted with a raising stub). Minor found and FIXED in 1a6fad7: metrics recording moved after the memory upserts into its own try so a metrics-DB failure cannot skip memory persistence. 26 tests."
+    },
+    {
+      "reviewer": "task-review-2.3",
+      "type": "task-2.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "New route inherits the router-level require_dashboard_access dependency (no per-route opt-out); the test asserts BOTH dev-200 and prod-404; percentile nearest-rank correct at empty/single/n=100; Jinja autoescape on, no safe filter; abandoned-label ISO comparison type-correct. 10 tests. Minors: dead created_at fallback; empty-window cost renders $0.0000."
+    },
+    {
+      "reviewer": "task-review-3.1",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Both endpoints mint run_id (real uuid4->UUID), start/finish the row for all outcomes, expose usage on the normal AND the exception-fallback ChatResponse; no metrics call can raise into the reply; no double-finish; thread_id identical to _thread_id; record_agent_run called with its shipped signature. 5 new + 48 regression tests. Minors: private _utc_now_iso import (mirrors rate_limit.py); design prose drift since corrected."
+    },
+    {
+      "reviewer": "task-review-3.2",
+      "type": "task-3.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "WORKFLOW.md Per-turn metrics subsection and the README /dashboard/agent-runs entry are accurate against shipped code; .env.example unchanged (no new var); additive +12 lines, no unrelated reflow."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Adversarial runtime review over the full 1aee549..e84ec35 diff across six angles. Verified correct: exception-fallback reply, HITL interrupt->resume, all six changed signatures' call sites, UUID(run_id), per-hook exception containment, CancelledError/GeneratorExit, start-row visibility to the isolated factory, router-level dashboard guard, percentile edges, lock coverage, migration/model column parity. Raised 2 Important + 2 Minor metric-accuracy defects, ALL FIXED in 1a494e9 and re-reviewed pass (failed turns kept NULL latency/cost; estimate_cost({}) returned 0.0; ns dedupe swallowed node retries; unguarded mapper metrics block). Advisory: the stream error event carries no usage for the client; a failed turn's latency origin is handler construction."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind against the verbatim request and the two human intake forks. All promised pieces land: agent_runs DB table (not logs-only), in-house handler on BOTH /agent/chat and /agent/stream, static price table with NULL on unknown, usage on ChatResponse + done, dashboard page behind the existing guard, stream_usage prerequisite. Deferred scope verified ABSENT: no prefix/cache_control work, supervisor and prompts untouched, no feedback-v1 attachment. No gaps, no overreach."
+    },
+    {
+      "reviewer": "live-stack-uat",
+      "type": "uat",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "18/18 (12 offline + 6 live). Real stack: docker Postgres with AsyncPostgresSaver, a genuine Supabase ES256 token, real OpenAI; 6 real turns, $0.0322 measured by the feature itself. Proved in production: chat turn usage matches its row; multi-intent stream converges on synthesize with usage on the done event (49,152/52,322 input tokens served from cache); a real provider 403 still recorded latency 6460ms + cost $0.0175 (the 1a494e9 fix under a real failure); the migration applied to real Postgres with its 3 indexes; a dated snapshot model name priced correctly; unauthenticated /agent/* -> 401. Found a defect no offline test could: /agent/chat left every row running and lost the assistant reply - fixed in bffdf44. ROOT-CAUSED afterwards and the first attribution CORRECTED: this is a regression introduced by this branch, NOT a pre-existing bug (main's exact background-task shape persists everything). It is an application-level deadlock: the handler flushes finish() onto the request session, holding an uncommitted row lock on agent_runs; the background task this branch added then UPDATEs the same row on a second connection and blocks; the dependency teardown that would COMMIT only runs after background tasks. pg_stat_activity shows the pair (request: idle in transaction/ClientRead on UPDATE status; background: active/Lock:transactionid on UPDATE background_*). Each failing turn also leaked an idle-in-transaction connection. Committing before returning releases the lock first; verified live with background_llm_calls=1/tokens=1341/ms=1426 and zero lock waits. Real UUIDs also overflowed the dashboard table; ids truncated to 8 with the full value in title. Advisory: the root cause of the missing teardown commit is unproven and may affect other handlers; title on a span is weak for accessibility/copy."
+    },
+    {
+      "reviewer": "review-uatfix",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Independent review of bffdf44 (spec pass / quality approved). Commit placement correct on all three _finalize call sites: interrupt commits only the run row, the exception path only the deliberate fallback reply plus the failed row (user message and start() already committed pre-graph; graph tools use their own session_scope). No double-commit with the pre-graph commit, no SQLite lock contention, and add_background now updates an already-committed row instead of racing the teardown. Two gaps raised, both fixed in 7ec5280: a failed commit left the session dirty so the teardown commit would raise (rollback added), and the regression test pinned only the row, not the assistant reply (assertion added). Advisory: why the teardown commit did not reach Postgres is still unproven - other handlers relying solely on it share the exposure."
+    },
+    {
+      "reviewer": "root-cause-investigation",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Controlled live-server experiments isolating why the run row stayed running. get_session instrumented: teardown never executed for a failing turn (CREATE only, no exception). Variables isolated one at a time - custom BaseHTTPMiddleware disabled (still failed), no-op background task (passed), 3s sleep background task (passed, and teardown ran before the sleep finished), _isolated_factory(session) alone (passed), main's exact background-task shape without run_id/session_factory (passed, assistant message persisted). Only passing run_id+session_factory reproduced it. pg_stat_activity confirmed the app-level deadlock on the agent_runs row. Conclusion: get_session is sound and main is unaffected; the defect was introduced by this branch and is fixed by committing before the handler returns. Verified post-fix on the live stack: background columns written, reply persisted, zero lock waits."
+    }
+  ]
+}

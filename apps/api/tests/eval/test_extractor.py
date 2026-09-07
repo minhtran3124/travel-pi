@@ -143,11 +143,15 @@ def test_schema_field_names_line_up_with_dboracle_lookup_keys(seeded_session):
     from app.schemas.trip import TripBudgetSet, TripCreate
     from app.services.trip_service import TripService
 
-    trips = TripService(seeded_session)
+    trips = TripService(seeded_session, "eval-oracle-owner")
     trip = trips.create_trip(TripCreate(title="extractor wiring test trip"))
     trips.set_trip_budget(trip.id, TripBudgetSet(flights=1000.0, hotels=500.0))
 
-    oracle_keys = set(oracle.lookup("trip_budget", {"trip_id": trip.id}).keys())
+    oracle_keys = set(
+        oracle.lookup(
+            "trip_budget", {"trip_id": trip.id, "user_id": "eval-oracle-owner"}
+        ).keys()
+    )
     schema_fields = set(_SCHEMAS["trip_budget"].model_fields.keys())
     assert schema_fields <= oracle_keys, (
         f"trip_budget: extractor schema fields {schema_fields} are not all "
