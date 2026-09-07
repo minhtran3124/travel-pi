@@ -101,6 +101,14 @@ the capability is new — see "add a capability" below). Required fields (`evalk
   module docstring for the `{"kind": ..., "params": {...}}` shape; `kind` must be one
   `eval/adapters/db_oracle.py::DbOracle` actually supports (`flight_offers`,
   `hotel_availability`, `fx_rate`, `trip_budget`).
+- `hitl` (`"approve"` | `"reject"`, optional) — when the graph stops at the `plan` node's
+  `plan_approval` interrupt, the runner resumes the same thread with
+  `Command(resume={"approved": hitl == "approve"})`, exactly like the chat API
+  (`app/routers/agent.py`) does. Without `hitl` the trace keeps the empty reply the interrupt
+  left behind, so `non_empty_reply` reports the interrupt honestly instead of masking it.
+  Setting `hitl` on a golden that never interrupts is harmless — there's nothing to resume.
+  Changing `hitl` on an existing golden changes what gets graded, so it requires a baseline
+  refresh (`make eval-baseline`).
 
 ## Add a metric
 
@@ -250,6 +258,20 @@ follow-up suggestion keys the reply offered (`app/agents/suggestions.py::suggest
 The runner feeds these into the judge's retrieval context as one `"suggestion: <key>"` line per
 item, which is what the `suggestion_relevance` rubric grades against. The `suggestions`
 capability (`eval/datasets/suggestions.json`, 10 goldens) exercises this end to end.
+
+## `meta.interrupts` and the `hitl` opt-in
+
+`Trace.meta["interrupts"]` (`eval/adapters/langgraph_runner.py`) is always recorded — regardless
+of `hitl` — as a list of `{"type", "draft", "turn"}` entries, one per `plan_approval` interrupt
+the graph raised during the run (`turn` is the 0-based index of the turn that hit it). This is
+what makes an interrupted golden's outcome legible in the report even when nothing was resumed.
+
+Booking goldens that need the booking tools to actually run opt in with `hitl: "approve"`
+(`booking-happy-*`, `booking-multi_turn-*`, `booking-tool_failure-*`, `errors-tool_failure-*`,
+`dates-multi_turn-*`, `routing-ambiguous-en-01`, `suggestions-happy-*-04`). `booking-ambiguous-*`
+and `errors-ambiguous-en-01` deliberately do **not** set `hitl`: their pass condition is a
+clarifying reply, not an approved booking — resuming past the interrupt would grade the wrong
+behaviour (see `specs/gh-153-eval-hitl-auto-approve/design.md`).
 
 ## CI: the local gate ritual
 
