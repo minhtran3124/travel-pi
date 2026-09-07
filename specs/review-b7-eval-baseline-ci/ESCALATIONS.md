@@ -52,3 +52,20 @@ Default: **deny-on-no-response**. No recorded decision → work stays blocked.
 - decision: A — committed baseline JSON + tolerance regression gate (per-metric / per-capability floors, k-repeat averaged), refreshed only by an explicit `make eval-baseline` commit.
 - decided_by: Minh Tran (user, AskUserQuestion at intake)
 - decided_at: 2026-09-07
+
+## E004
+
+- raised_by: intent-review (final review chain)
+- date: 2026-09-07
+- trigger: ambiguous-direction
+- question: The review's "Sửa:" line asks to "chạy FakeLLM routing smoke trong CI với threshold"; intake recorded it as a false premise (a scripted FakeLLM proves plumbing, not routing) and the plan omitted it, and the legacy `tests/eval/test_eval_smoke.py` that asserted `ROUTING_THRESHOLD` was retired by the evalkit merge. Accept the omission, restore a plumbing smoke, or run a keyed smoke on CI?
+- context: intent-review gap #1; E002 covers only the judged eval, not this clause.
+- options:
+  - A) accept the omission — keyless PR job stays `pytest tests/eval` + `--dry-run`; routing quality is measured only by the keyed `make eval-check`
+  - B) restore a scripted FakeLLM smoke over routing.json with a threshold (plumbing proof only)
+  - C) keyed smoke suite on PRs (contradicts E002)
+- default_if_no_response: BLOCK
+- decision: A — accept the omission (premise correction ratified by the user).
+- decided_by: Minh Tran (user, AskUserQuestion)
+- decided_at: 2026-09-07
+

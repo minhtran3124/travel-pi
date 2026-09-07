@@ -81,11 +81,11 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 | --- | --- | --- | --- | --- |
 | CI has no eval step | `grep -n -i eval .github/workflows/ci.yml` | 1 | no match | |
 | Reports untracked | `git ls-files apps/api/eval/reports` | 0 | empty output; `git status --short apps/api/eval` shows `?? apps/api/eval/reports/` | |
-| Existing smoke is scripted | `sed -n 8,25p apps/api/tests/eval/test_eval_smoke.py` | 0 | `FakeLLM(structured_responses=[SupervisorIntent(target_agent=item["expected"]) …])` | |
+| Existing smoke is scripted (intake-era; file retired in merge 1092ccf) | `<not re-runnable: sed -n 8,25p apps/api/tests/eval/test_eval_smoke.py — file deleted by the merge>` | 0 | `FakeLLM(structured_responses=[SupervisorIntent(target_agent=item["expected"]) …])` | |
 | evalkit drift | `git rev-list --count f8b3b72..main` | 0 | 335 | |
 | evalkit merge conflicts | `git merge-tree --write-tree --name-only main github/feat/agent-eval-pipeline` | 1 | CONFLICT lines for .gitignore, eval/README.md, datasets/{memory,routing,tools}.json, harness.py, loader.py, metrics.py, … | |
-| Lane evidence | `python3 .claude/scripts/verify_summary.py --lane review-b7-eval-baseline-ci` | 0 | see intake run | |
-| Merge: eval + prompt tests (post-resolution) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval tests/api/prompts -q` | 0 | 164 passed (pre-merge tip 77b1105: 140 passed) | |
+| Lane evidence | `python3 ../../../.claude/scripts/verify_summary.py --lane specs/review-b7-eval-baseline-ci/SUMMARY.md` | 0 | see intake run | |
+| Merge: eval + prompt tests (post-resolution) | `cd apps/api && DASHBOARD_BASIC_USER= DASHBOARD_BASIC_PASSWORD= ../../.venv/bin/python -m pytest tests/eval tests/api/prompts -q` | 0 | 164 passed at the merge (pre-merge tip 77b1105: 140); env override because the copied `.env` enables dashboard basic auth (401s) | |
 | Merge: full BE suite on fresh SQLite | `<not re-run under --check (175s): cd apps/api && DATABASE_URL=sqlite:////tmp/x.db ../../.venv/bin/python -m pytest tests/ -q>` | 0 | 2257 passed in 175s | |
 | Merge: eval CLI wiring | `cd apps/api && OPENAI_API_KEY=test ../../.venv/bin/python -m eval --suite smoke --dry-run` | 0 | lists 18 smoke goldens; fails without any key (pre-existing) | |
 | Merge: no conflict markers | `git diff --name-only --diff-filter=U` | 0 | empty | |
@@ -116,7 +116,7 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 
 - The 26 baseline failures are agent defects or the HITL eval gap (issues #146–#156) — reached traceability (report + issue), not re-run beyond k=3; 4 goldens flipped pass/fail between run 1 and run 2 without any edit (language ×2, journal-multi_turn-vi-01, flight_search-ambiguous-en-01), so judged and routing variance is real and only the tolerance gate absorbs it.
 - Full BE suite (`pytest tests/`, 2257 passed at the merge commit 1092ccf) — not re-run after waves 1–5; only `tests/eval` (153) and `tests/api/prompts` were; the branch finish runs the full suite.
-- `no_hallucination` still lacks `retrieval_context` wiring — reached traceability (memory note only); not re-run because it does not change the lane or the escalation questions.
+- `no_hallucination` is wired (`build_retrieval_context`) but unused — no golden declares it, so the baseline has no such check; deferred (see Intent Findings).
 - "`active.yaml` sửa 32 lần" — not re-derived; cosmetic.
 
 ### Advisory Findings
@@ -129,6 +129,13 @@ Correctness review (35b392e..edc3534, six FIND angles, independent scoring, thre
 - score 0 — `apps/api/eval/adapters/langgraph_runner.py:207` `t.get("agent")` on a non-dict task item; every writer of `state["tasks"]` stores dicts (`AgentTask.model_dump()`), production does the same `.get`.
 - score 25 — `apps/api/eval/adapters/langgraph_runner.py:207` on a resume/interrupt turn `state["tasks"]` is not reset, so `meta["tasks"]` could describe the previous turn; latent — the runner never resumes an interrupt and no golden combines `turns` with `expected_tasks`.
 - Per-task Minor findings (ledger `.harness-state/sdd/ledger.md`): `_DryRunRunner.run` unannotated; `eval-baseline` hardcodes `mkdir -p eval/baselines`; either/or test shape for `routing-multi-*`; legacy `expected` key on 11 older routing goldens now disagrees with `expected_flow` on `routing-ambiguous-en-02` (inert, no consumer); README wording (suggestion lines are built in `judged.py`, `expected_tasks` is a list compared as a set); product gap — `synthesize` has no static suggestion map so real multi-intent turns surface zero chips.
+
+### Intent Findings
+
+Intent review (35b392e..75e8b0c, plan-blind, verbatim `### Intent` as oracle): 2 gaps, 0 drift, no untraceable excess.
+
+- gap (decided) — "chạy FakeLLM routing smoke trong CI với threshold" is not delivered and the legacy scripted smoke was retired by the merge. Escalated as E004; the user ratified the intake premise correction (a scripted FakeLLM proves plumbing only). The keyless PR job stays `pytest tests/eval` + `--dry-run`.
+- gap (deferred) — "`no_hallucination` chưa dùng được vì tool output chưa wire thành retrieval_context": the wiring exists (`build_retrieval_context` serialises tool outputs and now suggestion keys), but no golden names `no_hallucination`, so the baseline carries zero such checks. Deferred: adding `no_hallucination` to grounded goldens is a dataset change for a later eval pass.
 
 ### Rollback
 
