@@ -83,6 +83,39 @@ class ToolsExpectedMetric:
         )
 
 
+class TasksExpectedMetric:
+    """Compares the set of sub-agents the supervisor fanned out to against
+    `Golden.expected_tasks`, using `Trace.meta["tasks"]` as the source of
+    what actually ran.
+    """
+
+    name = "tasks_expected"
+
+    def evaluate(
+        self, golden: Golden, trace: Trace, oracle: Oracle | None = None
+    ) -> CheckResult:
+        if golden.expected_tasks is None:
+            return CheckResult(
+                name=self.name,
+                passed=True,
+                detail="not_applicable: golden has no expected_tasks",
+            )
+        expected = set(golden.expected_tasks)
+        if "tasks" not in trace.meta:
+            return CheckResult(
+                name=self.name,
+                passed=False,
+                detail=f"no meta.tasks: expected={sorted(expected)}",
+            )
+        got = set(trace.meta["tasks"])
+        passed = got == expected
+        return CheckResult(
+            name=self.name,
+            passed=passed,
+            detail=f"expected={sorted(expected)} got={sorted(got)}",
+        )
+
+
 def _has_vietnamese_diacritics(text: str) -> bool:
     """True if *text* carries a Vietnamese tone/diacritic mark or 'đ'/'Đ'.
 
@@ -302,6 +335,7 @@ def make_tool_args_shape_metric(
 
 
 register_metric(FlowMatchMetric())
+register_metric(TasksExpectedMetric())
 register_metric(ToolsExpectedMetric(mode="subset"))
 register_metric(ToolsExpectedMetric(mode="exact"))
 register_metric(ReplyLanguageMetric())

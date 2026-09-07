@@ -8,6 +8,7 @@ from evalkit.metrics.deterministic import (
     FlowMatchMetric,
     NonEmptyReplyMetric,
     ReplyLanguageMetric,
+    TasksExpectedMetric,
     ToolArgsShapeMetric,
     ToolsExpectedMetric,
     make_tool_args_shape_metric,
@@ -246,3 +247,38 @@ def test_tool_args_shape_ignores_tool_without_configured_schema():
     result = metric.evaluate(_golden(), trace, None)
     assert result.passed
     assert result.detail.startswith("not_applicable")
+
+
+# --- tasks_expected -------------------------------------------------------
+
+
+def test_tasks_expected_passes_order_independent():
+    golden = _golden(expected_tasks=["budget", "concierge"])
+    trace = _trace(meta={"tasks": ["concierge", "budget"]})
+    result = TasksExpectedMetric().evaluate(golden, trace, None)
+    assert result.passed
+
+
+def test_tasks_expected_fails_on_mismatch():
+    golden = _golden(expected_tasks=["planner"])
+    trace = _trace(meta={"tasks": ["planner", "concierge"]})
+    result = TasksExpectedMetric().evaluate(golden, trace, None)
+    assert not result.passed
+    assert "expected=" in result.detail
+    assert "got=" in result.detail
+
+
+def test_tasks_expected_fails_when_meta_has_no_tasks():
+    golden = _golden(expected_tasks=["planner"])
+    trace = _trace(meta={})
+    result = TasksExpectedMetric().evaluate(golden, trace, None)
+    assert not result.passed
+    assert "no meta.tasks" in result.detail
+
+
+def test_tasks_expected_not_applicable_when_unconfigured():
+    golden = _golden()  # no expected_tasks
+    trace = _trace(meta={"tasks": ["planner"]})
+    result = TasksExpectedMetric().evaluate(golden, trace, None)
+    assert result.passed
+    assert result.detail.startswith("not_applicable:")

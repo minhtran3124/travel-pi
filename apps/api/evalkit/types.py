@@ -38,6 +38,8 @@ class Golden(BaseModel):
     turns: list[str] | None = None
     expected_flow: str | None = None
     expected_tools: list[str] | None = None
+    # Agent names the supervisor fans out to; order-free because tasks run in parallel.
+    expected_tasks: list[str] | None = None
     expected_trajectory: list[str] | None = None
     oracle_checks: list[dict[str, Any]] | None = None
     metrics: list[str] | None = None
