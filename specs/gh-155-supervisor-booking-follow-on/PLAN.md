@@ -106,3 +106,5 @@ The full BE suite (`pytest tests/`, ~3 min) runs at `finishing-a-development-bra
 
 - 2026-09-07 — plan written (xia2 Standard + writing-plans) after design approval; contract checker passed; self-reviewed against the plan-reviewer checklist (fork could not dispatch an independent reviewer — see §5); not yet executed.
 - 2026-09-07 — design approved (spec reviewer ✅), research-brief Standard, PLAN reviewed ✅ (independent pass); not yet executed
+- 2026-09-07 — tasks 1.1, 1.2 complete; commits 75011f0, a719bde (reviews pass/approved)
+- 2026-09-07 — tasks 2.1, 2.2, 2.3 complete; commit 4aa0354 (review pass/approved); task 3.1 SUMMARY evidence written
