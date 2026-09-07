@@ -174,3 +174,4 @@ The full BE suite (`pytest tests/`, ~3 min) and `tests/eval` as a whole run at `
 
 - 2026-09-07 — plan written (writing-plans) after design.md approval and Deep research brief; two reviewer passes fixed exit codes, run counts (84 full / 17 routing), script paths; not yet executed.
 - 2026-09-07 — tasks 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7 complete; commits 04ec68e, de64ba4, 5d79fad, 3114808, 1ff23e4, c600a54, 873a487 (all reviews pass/approved; Minor findings in .harness-state/sdd/ledger.md)
+- 2026-09-07 — tasks 2.1, 2.2 complete; commits 4003892, c17c44a (deviations recorded in 2287da8; reviews pass/approved)
