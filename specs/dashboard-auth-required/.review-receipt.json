@@ -73,6 +73,14 @@
       "blocking_open": 0,
       "advisory_open": 0,
       "notes": "Merged github/main (8f84da6, brings in agent-budget-trip-context + agent-tool-round-budget, #142/#143) into feat/dashboard-auth-required at bcc81b4. `git diff 7a37714 bcc81b4 -- <every feature file>` is empty -- the merge changed zero lines in any file this feature owns; the only conflict was an append-only breadcrumb log (specs/STATE.md), resolved by interleaving both sides' entries. All prior correctness/intent verdicts hold unchanged for the feature diff itself; make test rerun after merge: 2244 passed (was 2205 pre-merge, +39 from the merged-in work)."
+    },
+    {
+      "reviewer": "uat-live",
+      "type": "uat",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Live UAT 2026-09-07 against two local uvicorn servers (configured / unconfigured): 12 use cases (redirect, wrong password, login, already-signed-in bounce, logout, deep-link next, open-redirect, forged cookie, JSON 401, locked server) all pass; evidence in screenshots/authentication/README.md. No app code changed; the commit adds only screenshots/ and the README."
     }
   ]
 }
