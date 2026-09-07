@@ -54,6 +54,14 @@ A crash on a legitimate multi-intent phrasing is a Rule-1-class defect; the v10 
 
 - The original trigger (model emits `secondary_agent='booking'`) is proven closed by SC-1 (raw payload ignored). The residual `plan=["booking"]` ValidationError is documented by `test_plan_with_booking_still_rejected`, not fixed. The running dev container must be rebuilt (`docker exec api-api-1 touch app/main.py`) for v11 to take effect — not done from this branch. A keyed re-run of `routing-multi_turn-en-01` is user spend, not run.
 
+### Advisory Findings
+
+Correctness review (44f0769..d25c2af; removed-behavior, call-site-impact, enclosing-function angles): 0 candidates — no production code outside `supervisor.py` referenced `secondary_agent`; the structured-output schema is built fresh per `make_supervisor()`.
+
+### Intent Findings
+
+Intent review (plan-blind): no gap/drift/excess in code. One labelling note: design.md's SC-4 ("dev container rebuilt before any live check") is N/A on this branch — no live check was run — and PLAN §3 renumbered the criteria (its SC-4/SC-5 are the router-path and registry tests proven above). Recorded here rather than remapped.
+
 ### Rollback
 
 - `git revert 4aa0354 a719bde 75011f0` on `fix/gh-155-supervisor-booking-follow-on` (restores the field, the fallback, the tests and points active.yaml back at v10).
