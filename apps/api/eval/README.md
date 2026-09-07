@@ -205,8 +205,46 @@ fails (non-zero exit) on either: a capability's pass rate dropping more than the
 whose rate also dropped by any amount (catches a regression an unrelated same-run fix would
 otherwise cancel out in the aggregate). A capability with no entry in the baseline yet (a
 newly added one) is reported but never fails the gate — there's nothing to regress against on
-its first run.
+its first run. If `eval-compare` can't find a baseline file, it fails naming the fix directly:
+run `make eval-baseline` first.
 
-There is no CI workflow wired up for this suite yet (`.github/workflows/ci.yml` only runs
-`pytest tests/`) — a keyless PR gate + a nightly judged run with baseline comparison is a
-separate, not-yet-landed task (`specs/agent-eval-pipeline/PLAN.md` task 4.2).
+To refresh the baseline after an intentional agent/prompt/tool change: run `make eval-full`,
+inspect `eval/reports/latest.html` to confirm the new numbers are trustworthy (not a silent
+regression you're about to bless), then `make eval-baseline` and commit the updated
+`eval/baselines/main.json` with the reason for the change in the commit message.
+
+## `expected_tasks` and the `tasks_expected` metric
+
+`Golden.expected_tasks` (`evalkit/types.py`) is an optional set of sub-agent names the
+supervisor is expected to fan out to for that golden. The `tasks_expected` metric
+(`evalkit/metrics/deterministic.py::TasksExpectedMetric`) compares that set against
+`Trace.meta["tasks"]` — the sub-agents that actually ran — by set equality; a golden without
+`expected_tasks` reports `not_applicable` and always passes. Multi-intent turns (the supervisor
+fanning out to more than one sub-agent in one turn) end with `current_flow == "synthesize"`,
+not the fanned-out sub-agent's own flow name, so `flow_match` does not apply to them — use
+`tasks_expected` instead for those goldens.
+
+`Trace.meta` (populated by `eval/adapters/langgraph_runner.py`) also carries `suggestions`: the
+follow-up suggestion keys the reply offered (`app/agents/suggestions.py::suggestions_for_flow`).
+The runner feeds these into the judge's retrieval context as one `"suggestion: <key>"` line per
+item, which is what the `suggestion_relevance` rubric grades against. The `suggestions`
+capability (`eval/datasets/suggestions.json`, 10 goldens) exercises this end to end.
+
+## CI: the local gate ritual
+
+`.github/workflows/eval.yml` runs exactly one job, `eval-smoke` — keyless, no DB, no network:
+`pytest tests/eval` (boundary + dataset + deterministic/trajectory metric tests, all offline)
+followed by `python -m eval --suite smoke --dry-run` (dataset load + CLI wiring sanity, zero
+agent invocation). It proves the pipeline is wired correctly; it does not prove the real agent
+passes any golden.
+
+The judged suite — G-Eval rubrics plus the DB-Oracle fact-check, real judge key required —
+**never runs on CI** (decision E002, `specs/review-b7-eval-baseline-ci/ESCALATIONS.md`): no
+`OPENAI_API_KEY` secret is provisioned, and no other workflow trigger runs it. The regression gate
+is **local and manual**: run `make eval-check` (`eval-full` then `eval-compare`) yourself before
+merging any change that touches `app/agents/`, `app/prompts/`, `app/tools/`, `eval/`, or
+`evalkit/` — the same paths `eval.yml`'s `pull_request` trigger watches. One `eval-check` run is
+84 agent turns plus about 105 judge calls at k=3 (the full suite; the exact `--suite` filter in
+`JsonDatasetStore.load` excludes the 18 smoke goldens, which are the keyless PR set, not part of
+the baseline). Revisit the cadence decision if/when Langfuse/LangSmith online eval is chosen —
+see E002 for the alternatives that were considered and declined.
