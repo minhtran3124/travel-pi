@@ -70,7 +70,12 @@ def llm_translator(texts: list[str], language: str) -> list[str]:
             f"translator returned {0 if items is None else len(items)} items "
             f"for {len(texts)} inputs"
         )
-    return items
+    # The model sometimes echoes the input numbering ("1. …"); strip a prefix
+    # that matches the item's own index — a genuine leading number would not.
+    return [
+        item[len(f"{i + 1}. ") :] if item.startswith(f"{i + 1}. ") else item
+        for i, item in enumerate(items)
+    ]
 
 
 class ContentTranslationService:

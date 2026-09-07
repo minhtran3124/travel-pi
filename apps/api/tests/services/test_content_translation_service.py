@@ -145,3 +145,9 @@ def test_default_translator_rejects_wrong_count(factory, monkeypatch):
             "place", ITEMS, ["description"], "vi"
         )
     assert [t.description for t in out] == ["cozy cafe", "old temple"]
+
+
+def test_default_translator_strips_echoed_input_numbering(factory, monkeypatch):
+    fake = FakeLLM(structured_responses=[TranslationBatch(items=["1. một", "2. hai"])])
+    monkeypatch.setattr(mod, "get_agent_llm", lambda _name: fake)
+    assert mod.llm_translator(["one", "two"], "vi") == ["một", "hai"]
