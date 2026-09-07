@@ -147,22 +147,14 @@ concrete metric module itself. Four families ship in `evalkit/metrics/`:
 A registered metric with a mutable `k` attribute is the *entire* signal the runner uses to
 know "this is a judged metric" (`hasattr(metric, "k")`) — deterministic/trajectory metrics
 never define one. This is how `run_eval`'s `repeat=k` and `judge_available=False` skip logic
-stay agnostic to which optional extras are even installed.
-
-## Optional extras
-
-```toml
-# evalkit/pyproject.toml
-[project.optional-dependencies]
-trajectory = ["agentevals>=0.0.9,<0.1"]
-judged = ["deepeval>=4.0,<5"]
-all = ["agentevals>=0.0.9,<0.1", "deepeval>=4.0,<5"]
-```
+stay agnostic to which extras are even installed.
 
 `evalkit/metrics/__init__.py` imports each family in its own `try/except ImportError`: the
 judge-free layer (`deterministic`) always registers; `trajectory`/`judged`/`oracle` degrade
 gracefully (a logged warning, metrics simply absent from the registry) when their extra isn't
-installed — the engine still runs, it just can't score what it wasn't given the tools for.
+installed — the engine still runs, it just can't score what it wasn't given the tools for. The
+package is imported in-repo, not installed standalone; extras (`agentevals`, `deepeval`) are
+pinned in `apps/api/requirements-ai.txt`.
 
 ## The runner (`evalkit/runner.py`, `evalkit/cli.py`)
 
