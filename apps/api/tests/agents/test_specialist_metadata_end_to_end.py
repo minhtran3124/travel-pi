@@ -26,7 +26,7 @@ def _run_multi_intent_turn() -> TurnMetricsHandler:
     """Drive one real two-specialist turn with the metrics handler attached."""
     main = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ],
         responses=["flights found", "here's what to see", "combined answer"],
     )
@@ -52,7 +52,9 @@ def _run_multi_intent_turn() -> TurnMetricsHandler:
 def test_worker_steps_carry_their_specialist_from_a_real_run():
     steps = _run_multi_intent_turn().steps()
 
-    worker_steps = [s for s in steps if (s.get("ns") or "").startswith("synthesis_worker")]
+    worker_steps = [
+        s for s in steps if (s.get("ns") or "").startswith("synthesis_worker")
+    ]
     assert worker_steps, "the turn produced no synthesis_worker steps"
 
     specialists = {s["specialist"] for s in worker_steps if s.get("specialist")}

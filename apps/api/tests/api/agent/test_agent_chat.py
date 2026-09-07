@@ -237,7 +237,7 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
     # /agent/chat and /agent/stream invocations.
     main = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ]
         * 6,
         responses=["flights found", "here's what to see", "combined answer"] * 3,
@@ -291,7 +291,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
 
     main = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ]
         * 6,
         responses=["flights found", "here's what to see", "combined answer"] * 3,

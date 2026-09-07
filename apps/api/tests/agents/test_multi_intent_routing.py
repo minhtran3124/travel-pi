@@ -41,7 +41,7 @@ def test_two_intents_run_in_parallel_then_synthesize():
     # then a synthesizer combines their findings into one final answer.
     graph = _build(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ],
         main_responses=["flights found", "here's what to see", "combined answer"],
         fast_responses=["OK"],
@@ -70,7 +70,7 @@ def test_reflection_revise_after_synthesis_re_enters_synthesize():
     # as the last message in history.
     graph = _build(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ],
         main_responses=[
             "flights found",
@@ -190,7 +190,7 @@ def test_task_results_cleared_between_turns():
     # next. load_context_node resets them at the start of every turn.
     graph = _build(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge"),
+            SupervisorIntent(target_agent="planner", plan=["concierge"]),
             SupervisorIntent(target_agent="concierge"),
         ],
         main_responses=[
