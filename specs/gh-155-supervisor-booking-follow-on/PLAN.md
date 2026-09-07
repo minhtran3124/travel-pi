@@ -1,6 +1,6 @@
 ---
 slug: gh-155-supervisor-booking-follow-on
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-07
 ---
@@ -108,3 +108,4 @@ The full BE suite (`pytest tests/`, ~3 min) runs at `finishing-a-development-bra
 - 2026-09-07 — design approved (spec reviewer ✅), research-brief Standard, PLAN reviewed ✅ (independent pass); not yet executed
 - 2026-09-07 — tasks 1.1, 1.2 complete; commits 75011f0, a719bde (reviews pass/approved)
 - 2026-09-07 — tasks 2.1, 2.2, 2.3 complete; commit 4aa0354 (review pass/approved); task 3.1 SUMMARY evidence written
+- 2026-09-07 — shipped: review chain complete, receipt at 62f8f77, PR opened → main
