@@ -75,7 +75,8 @@
     "input": "Go ahead and book the hotel for those dates",
     "expected_flow": "booking",
     "expected": "booking",
-    "metrics": ["flow_match"]
+    "metrics": ["flow_match"],
+    "notes": "review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
   },
   {
     "id": "routing-ambiguous-vi-01",

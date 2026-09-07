@@ -9,12 +9,13 @@
     "skipped_judged_metrics": [],
     "summary": {
       "total_cases": 84,
-      "total_passed": 65,
-      "overall_pass_rate": 0.7738095238095238,
+      "total_passed": 58,
+      "overall_pass_rate": 0.6904761904761905,
       "capabilities_below_threshold": [
+        "booking",
         "budget",
+        "dates",
         "errors",
-        "flight_search",
         "hotels",
         "journal"
       ]
@@ -44,9 +45,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "booking-happy-en-02",
@@ -71,9 +78,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "booking-happy-en-01",
@@ -98,6 +111,12 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
       "passed": false
@@ -119,9 +138,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "booking-ambiguous-en-01",
@@ -140,9 +165,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "booking-multi_turn-vi-01",
@@ -161,6 +192,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -182,6 +219,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -230,6 +273,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -251,6 +300,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -270,14 +325,20 @@
         {
           "name": "format_quality",
           "passed": true,
-          "score": 0.8178659914780054,
-          "detail": "k=3 scores=[0.815, 0.819, 0.819] avg=0.818 threshold=0.7"
+          "score": 0.8931232250682773,
+          "detail": "k=3 scores=[0.894, 0.894, 0.892] avg=0.893 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": false,
           "score": null,
           "detail": "expected='en' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -297,14 +358,20 @@
         {
           "name": "format_quality",
           "passed": false,
-          "score": 0.38510446680273236,
-          "detail": "k=3 scores=[0.383, 0.384, 0.388] avg=0.385 threshold=0.7"
+          "score": 0.5393000296557174,
+          "detail": "k=3 scores=[0.544, 0.532, 0.542] avg=0.539 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -326,6 +393,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -347,6 +420,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -368,6 +447,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -389,6 +474,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -410,9 +501,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "dates-multi_turn-en-01",
@@ -431,9 +528,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "errors-ambiguous-vi-01",
@@ -512,6 +615,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -533,6 +642,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -600,14 +715,20 @@
         {
           "name": "search_vs_booking",
           "passed": true,
-          "score": 0.780040361902767,
-          "detail": "k=3 scores=[0.783, 0.78, 0.778] avg=0.780 threshold=0.7"
+          "score": 0.7302190163431593,
+          "detail": "k=3 scores=[0.723, 0.734, 0.734] avg=0.730 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -626,18 +747,24 @@
         },
         {
           "name": "search_vs_booking",
-          "passed": true,
-          "score": 0.7618718577095155,
-          "detail": "k=3 scores=[0.781, 0.726, 0.778] avg=0.762 threshold=0.7"
+          "passed": false,
+          "score": 0.460176138025379,
+          "detail": "k=3 scores=[0.437, 0.47, 0.474] avg=0.460 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "flight_search-ambiguous-vi-02",
@@ -653,18 +780,24 @@
         },
         {
           "name": "search_vs_booking",
-          "passed": false,
-          "score": 0.429341710804547,
-          "detail": "k=3 scores=[0.422, 0.447, 0.419] avg=0.429 threshold=0.7"
+          "passed": true,
+          "score": 0.7359912819213436,
+          "detail": "k=3 scores=[0.747, 0.723, 0.738] avg=0.736 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
-      "passed": false
+      "passed": true
     },
     {
       "golden_id": "flight_search-ambiguous-en-02",
@@ -681,14 +814,20 @@
         {
           "name": "search_vs_booking",
           "passed": true,
-          "score": 0.8723424625258795,
-          "detail": "k=3 scores=[0.878, 0.869, 0.869] avg=0.872 threshold=0.7"
+          "score": 0.8783059225457682,
+          "detail": "k=3 scores=[0.881, 0.872, 0.882] avg=0.878 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -707,9 +846,9 @@
         },
         {
           "name": "tools_expected",
-          "passed": false,
+          "passed": true,
           "score": null,
-          "detail": "expected=['search_flights'] called=['create_trip', 'resolve_date']"
+          "detail": "expected=['search_flights'] called=['needs_clarification', 'recall_past_trips', 'resolve_date', 'search_flights']"
         },
         {
           "name": "reply_language",
@@ -719,12 +858,18 @@
         },
         {
           "name": "oracle_fact_check",
-          "passed": false,
+          "passed": true,
           "score": null,
-          "detail": "[0] flight_offers: extractor found no claimed value for oracle={'count': 5, 'min_price': 123.13, 'max_price': 751.37, 'currency': 'USD'} in reply 'Đã rõ — mình sẽ tìm chuyến bay cho **25/03/2027** cho **2 người lớn** 🛫\\n\\nMình chưa thể săn chuyến ngay vì bạn chưa cho mình **thời gian khởi hành mong muốn** hoặc **ngày về** nếu cần khứ hồi. Nếu bạn muốn, mình có thể tìm:\\n- **một chiều** vào **25/03/2027**\\n- hoặc **khứ hồi** nếu bạn cho thêm ngày về\\n\\nBạn muốn bay **một chiều hay khứ hồi**?'"
+          "detail": "[0] flight_offers: oracle={'count': 5, 'min_price': 123.13, 'max_price': 751.37, 'currency': 'USD'} claimed={'min_price': 123.0} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
-      "passed": false
+      "passed": true
     },
     {
       "golden_id": "flight_search-multi_turn-en-01",
@@ -752,12 +897,18 @@
         },
         {
           "name": "oracle_fact_check",
-          "passed": false,
+          "passed": true,
           "score": null,
-          "detail": "[0] flight_offers: extractor found no claimed value for oracle={'count': 5, 'min_price': 76.58, 'max_price': 726.55, 'currency': 'USD'} in reply 'Got it — **5 March 2027** is a Friday 📅\\n\\nI can search flights for that date now. If you’d like, I can also look for a **return flight** so I can show you round-trip options instead of just one-way.'"
+          "detail": "[0] flight_offers: oracle={'count': 5, 'min_price': 76.58, 'max_price': 726.55, 'currency': 'USD'} claimed={'min_price': 77.0} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
-      "passed": false
+      "passed": true
     },
     {
       "golden_id": "hotels-happy-vi-02",
@@ -774,14 +925,20 @@
         {
           "name": "search_vs_booking",
           "passed": true,
-          "score": 0.8984825518389336,
-          "detail": "k=3 scores=[0.9, 0.895, 0.9] avg=0.898 threshold=0.7"
+          "score": 0.9052212995906537,
+          "detail": "k=3 scores=[0.907, 0.905, 0.905] avg=0.905 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -794,15 +951,15 @@
       "checks": [
         {
           "name": "flow_match",
-          "passed": false,
+          "passed": true,
           "score": null,
-          "detail": "expected='concierge' got='planner'"
+          "detail": "expected='concierge' got='concierge'"
         },
         {
           "name": "tools_expected",
-          "passed": true,
+          "passed": false,
           "score": null,
-          "detail": "expected=['search_hotels'] called=['search_hotels']"
+          "detail": "expected=['search_hotels'] called=['browse_hotels']"
         },
         {
           "name": "reply_language",
@@ -814,7 +971,13 @@
           "name": "oracle_fact_check",
           "passed": true,
           "score": null,
-          "detail": "[0] hotel_availability: oracle={'nights': 2, 'hotel_count': 3, 'available_count': 3, 'min_total_price': 190.0} claimed={'nights': 2} OK"
+          "detail": "[0] hotel_availability: oracle={'nights': 2, 'hotel_count': 3, 'available_count': 3, 'min_total_price': 190.0} claimed={'nights': 2, 'hotel_count': 3} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -833,18 +996,24 @@
         },
         {
           "name": "search_vs_booking",
-          "passed": false,
-          "score": 0.5815470116557607,
-          "detail": "k=3 scores=[0.598, 0.534, 0.612] avg=0.582 threshold=0.7"
+          "passed": true,
+          "score": 0.847521002244855,
+          "detail": "k=3 scores=[0.839, 0.851, 0.852] avg=0.848 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
-      "passed": false
+      "passed": true
     },
     {
       "golden_id": "hotels-ambiguous-en-01",
@@ -861,14 +1030,20 @@
         {
           "name": "search_vs_booking",
           "passed": true,
-          "score": 0.8407565855986093,
-          "detail": "k=3 scores=[0.844, 0.841, 0.838] avg=0.841 threshold=0.7"
+          "score": 0.734960005776101,
+          "detail": "k=3 scores=[0.735, 0.735, 0.735] avg=0.735 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -889,7 +1064,7 @@
           "name": "tools_expected",
           "passed": false,
           "score": null,
-          "detail": "expected=['search_hotels'] called=['browse_hotels']"
+          "detail": "expected=['search_hotels'] called=['browse_hotels', 'resolve_date']"
         },
         {
           "name": "reply_language",
@@ -901,7 +1076,13 @@
           "name": "oracle_fact_check",
           "passed": false,
           "score": null,
-          "detail": "[0] hotel_availability: extractor found no claimed value for oracle={'nights': 4, 'hotel_count': 3, 'available_count': 3, 'min_total_price': 560.0} in reply 'Bạn đã có ngày rồi nhé: **1/3/2027 → 5/3/2027** cho **2 người lớn** 📅\\n\\nMình vẫn chỉ xem và so sánh khách sạn ở **Nha Trang** được thôi, chưa kiểm tra được phòng trống theo ngày. Nếu muốn, mình có thể lọc lại cho bạn theo:\\n\\n- **ngân sách**\\n- **hạng sao**\\n- **tiện ích** như hồ bơi, gần biển, có ăn sáng\\n\\nChọn một tiêu chí là Tin sẽ gợi ý ngay.'"
+          "detail": "[0] hotel_availability: extractor found no claimed value for oracle={'nights': 4, 'hotel_count': 3, 'available_count': 3, 'min_total_price': 560.0} in reply 'Ngày bạn muốn là **1/3/2027** đến **5/3/2027**, cho **2 người lớn** — mình đã ghi nhận rồi. 😊\\n\\nBạn muốn Tin hỗ trợ tìm khách sạn theo **ngân sách** hoặc **hạng sao** nào không?'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -934,7 +1115,13 @@
           "name": "oracle_fact_check",
           "passed": false,
           "score": null,
-          "detail": "[0] hotel_availability: extractor found no claimed value for oracle={'nights': 4, 'hotel_count': 24, 'available_count': 24, 'min_total_price': 140.0} in reply 'Got it — for **10 Sep 2026 to 14 Sep 2026**, with **2 adults and 1 child**. 🏨\\n\\nI can help with hotel options, but I don’t book or check live availability here. If you want, I can still narrow down the best **Da Nang** hotels by **budget**, **star rating**, or **family-friendly** features, and then help you choose one to book.'"
+          "detail": "[0] hotel_availability: extractor found no claimed value for oracle={'nights': 4, 'hotel_count': 24, 'available_count': 24, 'min_total_price': 140.0} in reply 'I can help with hotel browsing, but I can’t check date-specific availability here. For **Da Nang**, I can still show you the best hotels to consider for **10–14 Sep 2026** for **2 adults and 1 child** 🏨\\n\\nIf you want, I can narrow the shortlist by:\\n\\n- **Budget**\\n- **Star rating**\\n- **Beachfront vs city center**\\n- **Family-friendly amenities**\\n\\nAlso, early September is still a busy travel period in Da Nang, so it’s worth booking soon. What kind of hotel are you after?'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -956,6 +1143,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -975,14 +1168,20 @@
         {
           "name": "format_quality",
           "passed": true,
-          "score": 0.8632091173355368,
-          "detail": "k=3 scores=[0.862, 0.865, 0.862] avg=0.863 threshold=0.7"
+          "score": 0.8520725500295265,
+          "detail": "k=3 scores=[0.85, 0.856, 0.85] avg=0.852 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1004,6 +1203,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1023,14 +1228,20 @@
         {
           "name": "format_quality",
           "passed": false,
-          "score": 0.5414463148256189,
-          "detail": "k=3 scores=[0.532, 0.551, 0.541] avg=0.541 threshold=0.7"
+          "score": 0.4275129818902081,
+          "detail": "k=3 scores=[0.427, 0.427, 0.428] avg=0.428 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -1058,6 +1269,12 @@
           "passed": true,
           "score": 1.0,
           "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1085,6 +1302,12 @@
           "passed": true,
           "score": 1.0,
           "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1112,6 +1335,12 @@
           "passed": true,
           "score": 1.0,
           "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1137,8 +1366,14 @@
         {
           "name": "response_language",
           "passed": true,
-          "score": 1.0,
-          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+          "score": 0.9984387603045732,
+          "detail": "k=3 scores=[0.998, 0.998, 1.0] avg=0.998 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1157,18 +1392,24 @@
         },
         {
           "name": "reply_language",
-          "passed": true,
+          "passed": false,
           "score": null,
-          "detail": "expected='en' detected='en'"
+          "detail": "expected='en' detected='vi'"
         },
         {
           "name": "response_language",
+          "passed": false,
+          "score": 0.19035473890442475,
+          "detail": "k=3 scores=[0.19, 0.187, 0.194] avg=0.190 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
           "passed": true,
-          "score": 0.9478148065084432,
-          "detail": "k=3 scores=[0.93, 0.979, 0.935] avg=0.948 threshold=0.7"
+          "score": null,
+          "detail": null
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "language-multi_turn-vi-01",
@@ -1193,6 +1434,12 @@
           "passed": true,
           "score": 1.0,
           "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1220,6 +1467,12 @@
           "passed": true,
           "score": 1.0,
           "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1241,6 +1494,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1262,6 +1521,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1281,14 +1546,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 0.9956798211701363,
-          "detail": "k=3 scores=[0.997, 0.997, 0.993] avg=0.996 threshold=0.7"
+          "score": 0.902407354016329,
+          "detail": "k=3 scores=[0.896, 0.904, 0.907] avg=0.902 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1308,14 +1579,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 0.9066656382889452,
-          "detail": "k=3 scores=[0.908, 0.908, 0.904] avg=0.907 threshold=0.7"
+          "score": 0.8592764239849799,
+          "detail": "k=3 scores=[0.876, 0.851, 0.851] avg=0.859 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1335,14 +1612,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 0.8954589216582315,
-          "detail": "k=3 scores=[0.864, 0.918, 0.904] avg=0.895 threshold=0.7"
+          "score": 0.8220043374206888,
+          "detail": "k=3 scores=[0.823, 0.823, 0.82] avg=0.822 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1362,14 +1645,20 @@
         {
           "name": "memory_recall",
           "passed": false,
-          "score": 0.46984767257669846,
-          "detail": "k=3 scores=[0.483, 0.463, 0.464] avg=0.470 threshold=0.7"
+          "score": 0.39059561497118844,
+          "detail": "k=3 scores=[0.391, 0.384, 0.397] avg=0.391 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -1389,14 +1678,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 1.0,
-          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+          "score": 0.9846842808171955,
+          "detail": "k=3 scores=[0.99, 0.982, 0.982] avg=0.985 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1416,14 +1711,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 0.9691873943671586,
-          "detail": "k=3 scores=[0.969, 0.968, 0.97] avg=0.969 threshold=0.7"
+          "score": 0.9289197825056185,
+          "detail": "k=3 scores=[0.939, 0.926, 0.922] avg=0.929 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1443,14 +1744,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 1.0,
-          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+          "score": 0.9334473398567088,
+          "detail": "k=3 scores=[0.932, 0.936, 0.932] avg=0.933 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1470,14 +1777,20 @@
         {
           "name": "memory_recall",
           "passed": true,
-          "score": 0.972963878099737,
-          "detail": "k=3 scores=[0.976, 0.976, 0.968] avg=0.973 threshold=0.7"
+          "score": 0.9342672452531002,
+          "detail": "k=3 scores=[0.932, 0.935, 0.936] avg=0.934 threshold=0.7"
         },
         {
           "name": "reply_language",
           "passed": true,
           "score": null,
           "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1493,6 +1806,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1508,6 +1827,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1523,6 +1848,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1538,6 +1869,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1553,9 +1890,15 @@
           "passed": true,
           "score": null,
           "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "routing-ambiguous-vi-01",
@@ -1568,6 +1911,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1583,6 +1932,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1598,6 +1953,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1609,10 +1970,16 @@
       "suite": "full",
       "checks": [
         {
-          "name": "agent_run",
+          "name": "flow_match",
           "passed": false,
           "score": null,
-          "detail": "agent run raised ValidationError: 1 validation error for SupervisorIntent\nsecondary_agent\n  Input should be 'planner', 'concierge', 'journal' or 'budget' [type=literal_error, input_value='booking', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+          "detail": "expected='booking' got='journal'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -1628,6 +1995,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1643,6 +2016,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1658,6 +2037,12 @@
           "passed": false,
           "score": null,
           "detail": "expected='planner' got='synthesize'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -1673,6 +2058,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1688,6 +2079,12 @@
           "passed": true,
           "score": null,
           "detail": "expected=['budget', 'concierge'] got=['budget', 'concierge']"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1703,6 +2100,12 @@
           "passed": true,
           "score": null,
           "detail": "expected=['concierge', 'planner'] got=['concierge', 'planner']"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1718,6 +2121,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1733,6 +2142,12 @@
           "passed": true,
           "score": null,
           "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1752,8 +2167,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.8625888004457279,
-          "detail": "k=3 scores=[0.862, 0.863, 0.863] avg=0.863 threshold=0.7"
+          "score": 0.8006938179413616,
+          "detail": "k=3 scores=[0.801, 0.801, 0.801] avg=0.801 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1773,8 +2194,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.7865103974502232,
-          "detail": "k=3 scores=[0.79, 0.78, 0.789] avg=0.787 threshold=0.7"
+          "score": 0.7481221597532702,
+          "detail": "k=3 scores=[0.746, 0.745, 0.753] avg=0.748 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1794,8 +2221,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.8169207292100094,
-          "detail": "k=3 scores=[0.818, 0.816, 0.816] avg=0.817 threshold=0.7"
+          "score": 0.8973519204439535,
+          "detail": "k=3 scores=[0.898, 0.897, 0.897] avg=0.897 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1815,8 +2248,14 @@
         {
           "name": "suggestion_relevance",
           "passed": false,
-          "score": 0.5713667159277304,
-          "detail": "k=3 scores=[0.577, 0.564, 0.572] avg=0.571 threshold=0.7"
+          "score": 0.5802603002571727,
+          "detail": "k=3 scores=[0.582, 0.575, 0.584] avg=0.580 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": false
@@ -1836,8 +2275,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.9197223670425836,
-          "detail": "k=3 scores=[0.929, 0.909, 0.922] avg=0.920 threshold=0.7"
+          "score": 0.9568723160337038,
+          "detail": "k=3 scores=[0.956, 0.959, 0.956] avg=0.957 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1857,8 +2302,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.7655058063252757,
-          "detail": "k=3 scores=[0.77, 0.761, 0.766] avg=0.766 threshold=0.7"
+          "score": 0.8118635315971847,
+          "detail": "k=3 scores=[0.806, 0.815, 0.815] avg=0.812 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1880,9 +2331,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply (e.g. HITL interrupt) — judged metric skipped"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "suggestions-happy-en-04",
@@ -1901,9 +2358,15 @@
           "passed": true,
           "score": null,
           "detail": "not_applicable: empty reply (e.g. HITL interrupt) — judged metric skipped"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "suggestions-happy-vi-05",
@@ -1920,8 +2383,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.8032024321223075,
-          "detail": "k=3 scores=[0.804, 0.803, 0.804] avg=0.803 threshold=0.7"
+          "score": 0.7862552582796557,
+          "detail": "k=3 scores=[0.786, 0.788, 0.785] avg=0.786 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1941,8 +2410,14 @@
         {
           "name": "suggestion_relevance",
           "passed": true,
-          "score": 0.7661150814804527,
-          "detail": "k=3 scores=[0.766, 0.767, 0.765] avg=0.766 threshold=0.7"
+          "score": 0.7399730263631702,
+          "detail": "k=3 scores=[0.744, 0.737, 0.739] avg=0.740 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
         }
       ],
       "passed": true
@@ -1950,11 +2425,11 @@
   ],
   "per_capability": {
     "booking": {
-      "passed": 6,
+      "passed": 2,
       "total": 8,
-      "pass_rate": 0.75,
+      "pass_rate": 0.25,
       "threshold": 0.7,
-      "meets_threshold": true
+      "meets_threshold": false
     },
     "budget": {
       "passed": 4,
@@ -1964,11 +2439,11 @@
       "meets_threshold": false
     },
     "dates": {
-      "passed": 4,
+      "passed": 2,
       "total": 4,
-      "pass_rate": 1.0,
+      "pass_rate": 0.5,
       "threshold": 0.7,
-      "meets_threshold": true
+      "meets_threshold": false
     },
     "errors": {
       "passed": 4,
@@ -1978,16 +2453,16 @@
       "meets_threshold": false
     },
     "flight_search": {
+      "passed": 5,
+      "total": 6,
+      "pass_rate": 0.8333333333333334,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "hotels": {
       "passed": 3,
       "total": 6,
       "pass_rate": 0.5,
-      "threshold": 0.7,
-      "meets_threshold": false
-    },
-    "hotels": {
-      "passed": 2,
-      "total": 6,
-      "pass_rate": 0.3333333333333333,
       "threshold": 0.7,
       "meets_threshold": false
     },
@@ -1999,9 +2474,9 @@
       "meets_threshold": false
     },
     "language": {
-      "passed": 7,
+      "passed": 6,
       "total": 7,
-      "pass_rate": 1.0,
+      "pass_rate": 0.8571428571428571,
       "threshold": 0.7,
       "meets_threshold": true
     },
@@ -2013,16 +2488,16 @@
       "meets_threshold": true
     },
     "routing": {
-      "passed": 15,
+      "passed": 14,
       "total": 17,
-      "pass_rate": 0.8823529411764706,
+      "pass_rate": 0.8235294117647058,
       "threshold": 0.7,
       "meets_threshold": true
     },
     "suggestions": {
-      "passed": 9,
+      "passed": 7,
       "total": 10,
-      "pass_rate": 0.9,
+      "pass_rate": 0.7,
       "threshold": 0.7,
       "meets_threshold": true
     }

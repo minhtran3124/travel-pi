@@ -56,3 +56,13 @@ New failures on run 2 (pass → fail), all agent-side, goldens kept:
 Changed failure mode on run 2: flight_search-multi_turn-vi-01 now calls `create_trip` + `resolve_date` instead of `search_flights` (→ #156); hotels-happy-en-02 now routes to planner (v10 both says planner owns `search_hotels` and that concierge does hotel availability lookups — the prompt contradicts itself, golden kept; flip is variance).
 
 Loop capped at two runs by PLAN.md Task 3.2 → run 2 is committed as `eval/baselines/main.json`. The 19 baseline failures are all tracked: #146 #147 #149 #150 #151 #152 #153 #154 #155 #156 (see the per-golden `notes`).
+
+## Run 3 (after the correctness-review fix 12a9fe5) — the committed baseline
+
+The correctness review found that the empty-reply guards let goldens without `non_empty_reply` score all-green on an empty reply (score 75). Fix: the runner always evaluates `non_empty_reply` (commit 12a9fe5). Because the run-2 baseline predated that rule, the user authorised a third run.
+
+`make eval-full`, same settings. 84 cases, **58 passed**, 26 failed. Below threshold: booking 2/8, budget 4/6, dates 2/4, errors 4/6, hotels 3/6, journal 2/4.
+
+vs run 2 — pass → fail (11): nine are the always-on check reporting the HITL interrupt honestly (`booking-happy-vi-01`, `booking-happy-en-02`, `booking-ambiguous-vi-01`, `booking-ambiguous-en-01`, `dates-multi_turn-vi-01`, `dates-multi_turn-en-01`, `routing-ambiguous-en-01`, `suggestions-happy-vi-04`, `suggestions-happy-en-04` → all #153); two are run-to-run variance on already-tracked issues (`flight_search-ambiguous-en-01` #154, `language-ambiguous-en-01` #148). fail → pass (4): `flight_search-ambiguous-vi-02`, `flight_search-multi_turn-vi-01` (#156 did not reproduce this run), `flight_search-multi_turn-en-01`, `hotels-ambiguous-vi-01` — variance; their issues stay open.
+
+Run 3 is `eval/baselines/main.json`. Every one of the 26 baseline failures carries an issue reference in its golden `notes` (#146–#156).

@@ -31,7 +31,7 @@ Item 7 of the Travel-Pi Deep Review (artifact above, §3.B "Kiến trúc agent";
 - 16 legacy cases from `main` ported as goldens (6 multi-intent with v10-derived expectations, 10 `suggestions`); dataset total 102 (84 full + 18 smoke).
 - `make eval-check` (full run → compare), guarded `eval-compare`, `BASELINE` override; standalone `pyproject.toml` dropped; README documents the ritual.
 - The eval grades the agent at **premium + authenticated** (user decision at task 3.1; a free/anonymous context cannot reach booking or create trips).
-- Re-validation: run 1 57/84 → 10 stale goldens fixed, 2 eval defects fixed (empty-reply guards), 11 GitHub issues (#146–#156) for agent defects and the HITL eval gap → run 2 **65/84**, committed as `apps/api/eval/baselines/main.json`. Full triage in `TRIAGE.md`.
+- Re-validation: run 1 57/84 → 10 stale goldens fixed, 2 eval defects fixed (empty-reply guards), 11 GitHub issues (#146–#156) for agent defects and the HITL eval gap → run 2 65/84. The correctness review then found the empty-reply guards masking failures (fixed: `non_empty_reply` is always on, `12a9fe5`), so a user-authorised run 3 regenerated the baseline: **58/84**, committed as `apps/api/eval/baselines/main.json`; all 26 failures carry an issue reference (#146–#156). Full triage in `TRIAGE.md`.
 
 **Step 0 done (2026-09-07): `main` merged into `feat/agent-eval-pipeline`** in worktree `.claude/worktrees/feat-agent-eval-pipeline`. 19 conflicts resolved:
 - Legacy MIN-58 modules the branch retired (`eval/{harness,loader,metrics,metrics_geval,run_deepeval,run_eval}.py`, `datasets/tools.json`, `tests/eval/{test_eval_smoke,test_metrics_geval,test_run_deepeval}.py`) → deleted (branch side kept). Main-only legacy additions that import them or use the legacy case shape (`tests/eval/{test_harness_multiturn,test_metrics_registry}.py`, `datasets/{multi_intent,suggestions}.json`) → deleted too; **to port as goldens in the plan**: 6 multi-intent cases (primary + `expected_plan`) and 10 `suggestion_relevance` cases (recover from `main` at `4e032c7`).
@@ -86,16 +86,17 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 | evalkit merge conflicts | `git merge-tree --write-tree --name-only main github/feat/agent-eval-pipeline` | 1 | CONFLICT lines for .gitignore, eval/README.md, datasets/{memory,routing,tools}.json, harness.py, loader.py, metrics.py, … | |
 | Lane evidence | `python3 .claude/scripts/verify_summary.py --lane review-b7-eval-baseline-ci` | 0 | see intake run | |
 | Merge: eval + prompt tests (post-resolution) | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval tests/api/prompts -q` | 0 | 164 passed (pre-merge tip 77b1105: 140 passed) | |
-| Merge: full BE suite on fresh SQLite | `cd apps/api && DATABASE_URL=sqlite:////tmp/x.db ../../.venv/bin/python -m pytest tests/ -q` | 0 | 2257 passed in 175s | |
+| Merge: full BE suite on fresh SQLite | `<not re-run under --check (175s): cd apps/api && DATABASE_URL=sqlite:////tmp/x.db ../../.venv/bin/python -m pytest tests/ -q>` | 0 | 2257 passed in 175s | |
 | Merge: eval CLI wiring | `cd apps/api && OPENAI_API_KEY=test ../../.venv/bin/python -m eval --suite smoke --dry-run` | 0 | lists 18 smoke goldens; fails without any key (pre-existing) | |
 | Merge: no conflict markers | `git diff --name-only --diff-filter=U` | 0 | empty | |
-| 3.1 seed synthesize model (data) | `docker exec -w /app -e PYTHONPATH=/app api-api-1 python scripts/seed_agent_config.py --provider openai --model gpt-5.4-mini --nodes synthesize` | 0 | row now openai/gpt-5.4-mini; `docker exec api-api-1 touch app/main.py` to reload | SC-3 |
-| 3.1 pre-flight real run (routing, k=1) | `cd apps/api && ../../.venv/bin/python -m eval --suite full --capability routing --out eval/reports/preflight.json` | 0 | 17 cases, 12 passed (70.6%); multi-task goldens routing-multi-en-03/04 PASS (parallel synthesize works); first attempt crashed on stale `settings.agent_config_cache_ttl_seconds` (Rule 3 fix below) | SC-3 |
+| 3.1 seed synthesize model (data) | `<dev-DB write, not re-run under --check: docker exec -w /app -e PYTHONPATH=/app api-api-1 python scripts/seed_agent_config.py --provider openai --model gpt-5.4-mini --nodes synthesize>` | 0 | row now openai/gpt-5.4-mini; `docker exec api-api-1 touch app/main.py` to reload | SC-3 |
+| 3.1 pre-flight real run (routing, k=1) | `<paid run, not re-run under --check: cd apps/api && ../../.venv/bin/python -m eval --suite full --capability routing --out eval/reports/preflight.json>` | 0 | 17 cases, 12 passed (70.6%); multi-task goldens routing-multi-en-03/04 PASS (parallel synthesize works); first attempt crashed on stale `settings.agent_config_cache_ttl_seconds` (Rule 3 fix below) | SC-3 |
 | 3.1 Verify | `cd apps/api && ../../.venv/bin/python -c "import json;r=json.load(open('eval/reports/preflight.json'));assert r['run_meta']['summary']['total_cases']==17;bad=[c['golden_id'] for c in r['per_case'] for k in c['checks'] if '403' in (k.get('detail') or '')];assert not bad,bad"` | 0 | no 403 in any check | SC-3 |
-| 3.2 run 1 (full, k=3, premium+auth) | `cd apps/api && make eval-full` | 2 | 57/84; make exits 2 because capabilities sit below threshold — report written; see TRIAGE.md | |
-| 3.2 run 2 (after golden/eval fixes) | `cd apps/api && make eval-full` | 2 | 65/84; same exit semantics; this report is the baseline | SC-3 |
+| 3.2 run 1 (full, k=3, premium+auth) | `<paid run, not re-run under --check: cd apps/api && make eval-full>` | 2 | 57/84; make exits 2 because capabilities sit below threshold — report written; see TRIAGE.md | |
+| 3.2 run 2 (after golden/eval fixes) | `<paid run, not re-run under --check: cd apps/api && make eval-full>` | 2 | 65/84; superseded as baseline by run 3 | |
+| run 3 (after correctness fix 12a9fe5, always-on non_empty_reply) | `<paid run, not re-run under --check: cd apps/api && make eval-full>` | 2 | 58/84; this report is the committed baseline (paid run — not re-runnable under a 60s check) | SC-3 |
 | 3.2 Verify | `cd apps/api && ../../.venv/bin/python -c "import json;r=json.load(open('eval/reports/latest.json'));m=r['run_meta'];assert m['suite']=='full' and m['repeat']==3 and m['judge_available'] is True and m['summary']['total_cases']==84,m"` | 0 | | SC-3 |
-| 3.3 degraded compare rejects | `cd apps/api && make eval-compare` (after flipping every routing case to failed in latest.json) | 2 | table prints `routing … -88.2% REGRESSED` + 15 pass→fail ids, `exit_code=1`, make Error 1; latest.json restored from the baseline afterwards | SC-5 |
+| 3.3 degraded compare rejects | `<mutates latest.json, not re-run under --check: cd apps/api && make eval-compare after flipping every routing case to failed>` | 2 | table prints `routing … -88.2% REGRESSED` + 15 pass→fail ids, `exit_code=1`, make Error 1; latest.json restored from the baseline afterwards | SC-5 |
 | SC-1 keyless dry-run | `cd apps/api && OPENAI_API_KEY= ../../.venv/bin/python -m eval --suite smoke --dry-run` | 0 | 18 goldens listed | SC-1 |
 | SC-2 no schedule/secrets | `grep -n -e "schedule:" -e "secrets\." .github/workflows/eval.yml` | 1 | no match | SC-2 |
 | SC-3 baseline shape | `cd apps/api && ../../.venv/bin/python -c "import json;r=json.load(open('eval/baselines/main.json'));m=r['run_meta'];assert m['suite']=='full' and m['repeat']==3 and m['summary']['total_cases']==84,m"` | 0 | | SC-3 |
@@ -113,10 +114,21 @@ The lane is high-risk because the chosen path retires the MIN-58 harness modules
 
 ### Not auto-verified
 
-- The 19 baseline failures are agent defects or the HITL eval gap (issues #146–#156) — reached traceability (report + issue), not re-run beyond k=3; 4 goldens flipped pass/fail between run 1 and run 2 without any edit (language ×2, journal-multi_turn-vi-01, flight_search-ambiguous-en-01), so judged and routing variance is real and only the tolerance gate absorbs it.
+- The 26 baseline failures are agent defects or the HITL eval gap (issues #146–#156) — reached traceability (report + issue), not re-run beyond k=3; 4 goldens flipped pass/fail between run 1 and run 2 without any edit (language ×2, journal-multi_turn-vi-01, flight_search-ambiguous-en-01), so judged and routing variance is real and only the tolerance gate absorbs it.
 - Full BE suite (`pytest tests/`, 2257 passed at the merge commit 1092ccf) — not re-run after waves 1–5; only `tests/eval` (153) and `tests/api/prompts` were; the branch finish runs the full suite.
 - `no_hallucination` still lacks `retrieval_context` wiring — reached traceability (memory note only); not re-run because it does not change the lane or the escalation questions.
 - "`active.yaml` sửa 32 lần" — not re-derived; cosmetic.
+
+### Advisory Findings
+
+Correctness review (35b392e..edc3534, six FIND angles, independent scoring, threshold 75). One finding scored 75 and was fixed in `12a9fe5` (always-on `non_empty_reply`; baseline regenerated in run 3). Below threshold, recorded, not auto-fixed:
+
+- score 25 — `apps/api/evalkit/metrics/deterministic.py:108` `tasks_expected` uses set equality, so a duplicated agent in `expected_tasks` would be collapsed; the supervisor dedupes `tasks` and no golden repeats an agent, so there is no trigger today.
+- score 25 — `apps/api/evalkit/metrics/deterministic.py:104-111` a `meta["tasks"]` value that is present but not an iterable of hashables would raise inside the metric and abort the run; the only producer always writes a list of strings.
+- score 25 — `apps/api/Makefile:68` `eval-compare` guards only for a missing baseline; a corrupt committed baseline surfaces as a `load_report` traceback rather than the friendly message.
+- score 0 — `apps/api/eval/adapters/langgraph_runner.py:207` `t.get("agent")` on a non-dict task item; every writer of `state["tasks"]` stores dicts (`AgentTask.model_dump()`), production does the same `.get`.
+- score 25 — `apps/api/eval/adapters/langgraph_runner.py:207` on a resume/interrupt turn `state["tasks"]` is not reset, so `meta["tasks"]` could describe the previous turn; latent — the runner never resumes an interrupt and no golden combines `turns` with `expected_tasks`.
+- Per-task Minor findings (ledger `.harness-state/sdd/ledger.md`): `_DryRunRunner.run` unannotated; `eval-baseline` hardcodes `mkdir -p eval/baselines`; either/or test shape for `routing-multi-*`; legacy `expected` key on 11 older routing goldens now disagrees with `expected_flow` on `routing-ambiguous-en-02` (inert, no consumer); README wording (suggestion lines are built in `judged.py`, `expected_tasks` is a list compared as a set); product gap — `synthesize` has no static suggestion map so real multi-intent turns surface zero chips.
 
 ### Rollback
 

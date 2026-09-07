@@ -19,7 +19,7 @@
     "input": "Book the cheapest flight from SGN to Da Nang next Friday",
     "expected_flow": "booking",
     "metrics": ["flow_match", "suggestion_relevance", "reply_language"],
-    "notes": "Ported from MIN-65 suggestions.json. No book_flight tool in the agent's own registry (app/tools/registry.py) — expected_tools intentionally unset."
+    "notes": "Ported from MIN-65 suggestions.json. No book_flight tool in the agent's own registry (app/tools/registry.py) — expected_tools intentionally unset. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
   },
   {
     "id": "booking-happy-en-01",
@@ -53,7 +53,7 @@
     "input": "Go ahead and book the hotel for those dates",
     "expected_flow": "booking",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "Referential 'those dates'/'the hotel' with no prior turn — tests the same clarify-don't-hallucinate behavior."
+    "notes": "Referential 'those dates'/'the hotel' with no prior turn — tests the same clarify-don't-hallucinate behavior. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
   },
   {
     "id": "booking-multi_turn-vi-01",
