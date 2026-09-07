@@ -199,6 +199,15 @@ class ReplyLanguageMetric:
     def evaluate(
         self, golden: Golden, trace: Trace, oracle: Oracle | None = None
     ) -> CheckResult:
+        if not (trace.reply or "").strip():
+            # Nothing to detect — e.g. a booking golden stops at the HITL
+            # plan-approval interrupt with no reply. `non_empty_reply` is the
+            # metric that reports that; a language verdict on "" is noise.
+            return CheckResult(
+                name=self.name,
+                passed=True,
+                detail="not_applicable: empty reply — no language to detect",
+            )
         detected = _detect_language(trace.reply)
         passed = detected == golden.language
         return CheckResult(

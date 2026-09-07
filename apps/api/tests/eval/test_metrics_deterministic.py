@@ -282,3 +282,12 @@ def test_tasks_expected_not_applicable_when_unconfigured():
     result = TasksExpectedMetric().evaluate(golden, trace, None)
     assert result.passed
     assert result.detail.startswith("not_applicable:")
+
+
+def test_reply_language_empty_reply_is_not_applicable():
+    """A HITL interrupt leaves reply == ""; that is non_empty_reply's job to
+    report, not a language mismatch."""
+    metric = ReplyLanguageMetric()
+    result = metric.evaluate(_golden(language="vi"), _trace(reply=""), None)
+    assert result.passed is True
+    assert result.detail.startswith("not_applicable: empty reply")

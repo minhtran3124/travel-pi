@@ -70,7 +70,7 @@
     "input": "Can you switch to English? Tôi muốn hỏi về khách sạn",
     "expected_flow": "concierge",
     "metrics": ["flow_match", "reply_language", "response_language"],
-    "notes": "User explicitly requests a language switch mid-sentence — the reply should honor it and answer in English."
+    "notes": "User explicitly requests a language switch mid-sentence — the reply should honor it and answer in English. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#148"
   },
   {
     "id": "language-multi_turn-vi-01",
@@ -84,7 +84,7 @@
     ],
     "expected_flow": "concierge",
     "metrics": ["flow_match", "reply_language", "response_language"],
-    "notes": "language=en is the EXPECTED reply language after the turn-2 switch request, not the language of turn 1."
+    "notes": "language=en is the EXPECTED reply language after the turn-2 switch request, not the language of turn 1. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#148"
   },
   {
     "id": "language-multi_turn-en-01",

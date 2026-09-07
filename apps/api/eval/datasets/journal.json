@@ -55,7 +55,7 @@
     ],
     "expected_flow": "planner",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "capability=journal (itinerary/notes content) even though the routed sub-agent flow is 'planner' — capability is an orthogonal reporting bucket, not the routing target."
+    "notes": "capability=journal (itinerary/notes content) even though the routed sub-agent flow is 'planner' — capability is an orthogonal reporting bucket, not the routing target. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#150"
   },
   {
     "id": "journal-multi_turn-en-01",
@@ -69,6 +69,6 @@
     ],
     "expected_flow": "planner",
     "metrics": ["flow_match", "format_quality", "reply_language"],
-    "notes": "Migrated from legacy format.json (MIN-54), extended to multi_turn with a follow-up edit."
+    "notes": "Migrated from legacy format.json (MIN-54), extended to multi_turn with a follow-up edit. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#154"
   }
 ]

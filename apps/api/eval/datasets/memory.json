@@ -96,7 +96,7 @@
     ],
     "expected_flow": "planner",
     "metrics": ["flow_match", "memory_recall", "reply_language"],
-    "notes": "Ported from MIN-65 memory.json. Budget (~20 triệu VND) and destination Phú Quốc were already stated — the itinerary should respect the stated budget, not ask for it again."
+    "notes": "Ported from MIN-65 memory.json. Budget (~20 triệu VND) and destination Phú Quốc were already stated — the itinerary should respect the stated budget, not ask for it again. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#152"
   },
   {
     "id": "memory-multi_turn-en-01",
@@ -137,9 +137,9 @@
       "Tôi ăn chay, nhớ giúp mình nhé",
       "Gợi ý nhà hàng ở Đà Nẵng cho tôi"
     ],
-    "expected_flow": "journal",
+    "expected_flow": "concierge",
     "metrics": ["flow_match", "memory_recall", "reply_language"],
-    "notes": "Ported from MIN-65 memory.json, originally a cross-session case (new_thread_at=1): turn 2 was meant to run on a NEW thread_id to test long-term store recall (vegetarian preference) vs checkpoint history. Golden.turns (evalkit/types.py) has no thread-reset marker, so this is APPROXIMATED as same-thread multi-turn here — a known schema gap flagged for a future Golden field, not fixed in this task (types.py is out of scope, owned by task 1.1)."
+    "notes": "Ported from MIN-65 memory.json, originally a cross-session case (new_thread_at=1): turn 2 was meant to run on a NEW thread_id to test long-term store recall (vegetarian preference) vs checkpoint history. Golden.turns (evalkit/types.py) has no thread-reset marker, so this is APPROXIMATED as same-thread multi-turn here — a known schema gap flagged for a future Golden field, not fixed in this task (types.py is out of scope, owned by task 1.1). | review-b7 re-validate 2026-09-07: expected_flow journal→concierge (last turn is a restaurant ask → concierge; recall is graded by memory_recall)"
   },
   {
     "id": "memory-multi_turn-vi-07",

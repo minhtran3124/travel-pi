@@ -30,9 +30,9 @@
     "language": "vi",
     "suite": "full",
     "input": "Cho tôi xem chuyến bay đi Nha Trang cuối tuần này",
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "'Cuối tuần này' (this weekend) is a relative range, not a single date — a good answer resolves it (resolve_date) or asks which day, rather than guessing."
+    "notes": "'Cuối tuần này' (this weekend) is a relative range, not a single date — a good answer resolves it (resolve_date) or asks which day, rather than guessing. | review-b7 re-validate 2026-09-07: expected_flow concierge→planner (v10: flight search always routes to planner)"
   },
   {
     "id": "dates-ambiguous-en-01",
@@ -55,9 +55,9 @@
       "Tôi muốn đặt khách sạn ở Phú Quốc",
       "Khoảng cuối tuần sau, 3 đêm"
     ],
-    "expected_flow": "concierge",
+    "expected_flow": "booking",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "Relative date ('cuối tuần sau') plus a duration ('3 đêm') instead of explicit check-in/check-out — tests relative-range resolution across turns."
+    "notes": "Relative date ('cuối tuần sau') plus a duration ('3 đêm') instead of explicit check-in/check-out — tests relative-range resolution across turns. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'đặt khách sạn' is an explicit book intent → booking)"
   },
   {
     "id": "dates-multi_turn-en-01",
@@ -69,8 +69,8 @@
       "I want to book a flight to Singapore",
       "Let's say in 2 weeks from today"
     ],
-    "expected_flow": "concierge",
+    "expected_flow": "booking",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "'In 2 weeks from today' — tests relative-date resolution anchored to the current date."
+    "notes": "'In 2 weeks from today' — tests relative-date resolution anchored to the current date. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'I want to book a flight' is an explicit book intent → booking)"
   }
 ]

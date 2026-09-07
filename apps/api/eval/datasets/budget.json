@@ -50,7 +50,7 @@
     "input": "Compare Hanoi and Ho Chi Minh City for a 5-day trip: food, culture, and budget",
     "expected_flow": "concierge",
     "metrics": ["flow_match", "format_quality", "reply_language"],
-    "notes": "Migrated from legacy format.json (MIN-54); judges presentation only, not completeness/scope per MIN-58 calibration."
+    "notes": "Migrated from legacy format.json (MIN-54); judges presentation only, not completeness/scope per MIN-58 calibration. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#146"
   },
   {
     "id": "budget-ambiguous-en-03",
@@ -61,7 +61,7 @@
     "input": "Break down a typical daily budget for backpacking in Vietnam by category",
     "expected_flow": "concierge",
     "metrics": ["flow_match", "format_quality", "reply_language"],
-    "notes": "Migrated from legacy format.json (MIN-54); general advice, not trip-specific."
+    "notes": "Migrated from legacy format.json (MIN-54); general advice, not trip-specific. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#151"
   },
   {
     "id": "budget-multi_turn-vi-01",

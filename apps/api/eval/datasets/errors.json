@@ -43,7 +43,7 @@
     "input": "Book something for me",
     "expected_flow": "booking",
     "metrics": ["flow_match", "non_empty_reply", "reply_language"],
-    "notes": "Extremely vague booking request — no hotel/flight specified at all."
+    "notes": "Extremely vague booking request — no hotel/flight specified at all. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153"
   },
   {
     "id": "errors-multi_turn-vi-01",
@@ -70,9 +70,9 @@
       "Search flights to Narnia",
       "Sorry, I meant Nha Trang from Ho Chi Minh City, any date next month"
     ],
-    "expected_flow": "concierge",
+    "expected_flow": "planner",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "'Narnia' is fictional; turn 2 corrects to the real, seeded Nha Trang/Ho Chi Minh City route."
+    "notes": "'Narnia' is fictional; turn 2 corrects to the real, seeded Nha Trang/Ho Chi Minh City route. | review-b7 re-validate 2026-09-07: expected_flow concierge→planner (v10: flight search always routes to planner)"
   },
   {
     "id": "errors-tool_failure-vi-01",
@@ -83,7 +83,7 @@
     "input": "Đặt phòng khách sạn mã HTL-999999 giúp tôi, nhận phòng ngày mai",
     "expected_flow": "booking",
     "metrics": ["flow_match", "non_empty_reply", "reply_language"],
-    "notes": "Same nonexistent hotel_id scenario as booking-tool_failure-vi-01, tagged here under 'errors' for the error-handling capability lens (the two capability tags are an intentional double-count of one real behavior, not a duplicate id)."
+    "notes": "Same nonexistent hotel_id scenario as booking-tool_failure-vi-01, tagged here under 'errors' for the error-handling capability lens (the two capability tags are an intentional double-count of one real behavior, not a duplicate id). | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153"
   },
   {
     "id": "errors-adversarial-en-01",

@@ -7,10 +7,7 @@
     "suite": "full",
     "input": "Lên lịch trình 5 ngày ở Đà Nẵng giúp mình",
     "expected_flow": "planner",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -21,10 +18,7 @@
     "suite": "full",
     "input": "Give me a 3-day itinerary for Hanoi",
     "expected_flow": "planner",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -35,10 +29,7 @@
     "suite": "full",
     "input": "Tokyo có gì chơi vào tháng 9?",
     "expected_flow": "concierge",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -49,11 +40,8 @@
     "suite": "full",
     "input": "What's the weather like in Bangkok this weekend?",
     "expected_flow": "concierge",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
-    "notes": "Ported from main@4e032c7 legacy suggestions.json"
+    "metrics": ["flow_match", "suggestion_relevance"],
+    "notes": "Ported from main@4e032c7 legacy suggestions.json | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#154"
   },
   {
     "id": "suggestions-happy-vi-03",
@@ -63,10 +51,7 @@
     "suite": "full",
     "input": "Nhớ giúp mình là mình ăn chay nhé",
     "expected_flow": "journal",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -77,10 +62,7 @@
     "suite": "full",
     "input": "Add a note: I want to visit the beach on day 2",
     "expected_flow": "journal",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -91,10 +73,7 @@
     "suite": "full",
     "input": "Đặt khách sạn ở Hội An cho tôi",
     "expected_flow": "booking",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -105,10 +84,7 @@
     "suite": "full",
     "input": "Book the cheapest flight from SGN to Da Nang next Friday",
     "expected_flow": "booking",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -119,10 +95,7 @@
     "suite": "full",
     "input": "Chuyến đi Phú Quốc của mình còn bao nhiêu ngân sách?",
     "expected_flow": "budget",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   },
   {
@@ -133,10 +106,7 @@
     "suite": "full",
     "input": "Break down my Tokyo trip expenses so far",
     "expected_flow": "budget",
-    "metrics": [
-      "flow_match",
-      "suggestion_relevance"
-    ],
+    "metrics": ["flow_match", "suggestion_relevance"],
     "notes": "Ported from main@4e032c7 legacy suggestions.json"
   }
 ]
