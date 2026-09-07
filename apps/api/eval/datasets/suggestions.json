@@ -73,8 +73,9 @@
     "suite": "full",
     "input": "Đặt khách sạn ở Hội An cho tôi",
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "suggestion_relevance"],
-    "notes": "Ported from main@4e032c7 legacy suggestions.json | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
+    "notes": "Ported from main@4e032c7 legacy suggestions.json | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "suggestions-happy-en-04",
@@ -84,8 +85,9 @@
     "suite": "full",
     "input": "Book the cheapest flight from SGN to Da Nang next Friday",
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "suggestion_relevance"],
-    "notes": "Ported from main@4e032c7 legacy suggestions.json | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
+    "notes": "Ported from main@4e032c7 legacy suggestions.json | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "suggestions-happy-vi-05",

@@ -56,8 +56,9 @@
       "Khoảng cuối tuần sau, 3 đêm"
     ],
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "Relative date ('cuối tuần sau') plus a duration ('3 đêm') instead of explicit check-in/check-out — tests relative-range resolution across turns. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'đặt khách sạn' is an explicit book intent → booking) | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
+    "notes": "Relative date ('cuối tuần sau') plus a duration ('3 đêm') instead of explicit check-in/check-out — tests relative-range resolution across turns. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'đặt khách sạn' is an explicit book intent → booking) | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "dates-multi_turn-en-01",
@@ -70,7 +71,8 @@
       "Let's say in 2 weeks from today"
     ],
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "'In 2 weeks from today' — tests relative-date resolution anchored to the current date. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'I want to book a flight' is an explicit book intent → booking) | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
+    "notes": "'In 2 weeks from today' — tests relative-date resolution anchored to the current date. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'I want to book a flight' is an explicit book intent → booking) | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   }
 ]
