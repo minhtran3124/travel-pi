@@ -29,7 +29,7 @@ from app.agents.constants import (
 )
 from app.agents.context import AgentContext
 from app.agents.copy import system_reply
-from app.agents.state import TravelAgentState
+from app.agents.state import TravelAgentState, with_reply_language
 from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
@@ -190,7 +190,11 @@ def make_synthesize_node(llm: BaseChatModel):
             f"Specialist findings:\n{bullets}\n\n"
             "Write the final answer."
         )
-        answer = llm.invoke([system, HumanMessage(content=prompt)]).content
+        # Every reply reflects the supervisor-detected conversation language
+        # (state["language"]) — one detection, one source of truth. Also covers
+        # a reflection REVISE re-entering this node.
+        system_msg = with_reply_language(system, state)
+        answer = llm.invoke([system_msg, HumanMessage(content=prompt)]).content
         return {
             "messages": [AIMessage(content=str(answer))],
             # Must equal the synthesize node's own name so a reflection REVISE
