@@ -185,3 +185,37 @@ def test_run_accepts_injected_context():
     )
     trace = runner.run(_golden())
     assert trace.reply == "answer"
+
+
+def test_run_meta_records_tasks_and_suggestions(agent_db):
+    # A multi-intent turn (target + one independent follow-on) dispatches two
+    # parallel synthesis workers and ends at the "synthesize" flow — not a
+    # key in suggestions.py's static per-flow map, so `suggestions` legitimately
+    # comes back empty here without trip_facts/profile/preferences context to
+    # trigger a D6 rule (see test_run_meta_single_intent_has_one_task below for
+    # the non-empty case). `tasks` still reflects both dispatched agents.
+    main = FakeLLM(
+        structured_responses=[
+            SupervisorIntent(target_agent="budget", plan=["concierge"])
+        ],
+        responses=["budget findings", "concierge findings", "combined answer"],
+    )
+    fast = FakeLLM(responses=["OK"])
+    runner = LangGraphRunner(llm=main, fast_llm=fast)
+
+    trace = runner.run(
+        _golden(id="multi-intent-1", input="plan my trip: budget and local tips")
+    )
+
+    assert trace.meta["tasks"] == ["budget", "concierge"]
+    assert isinstance(trace.meta["suggestions"], list)
+    assert all(isinstance(s, str) for s in trace.meta["suggestions"])
+
+
+def test_run_meta_single_intent_has_one_task(agent_db):
+    runner = _build_runner(target="concierge", answer="here you go")
+    trace = runner.run(_golden(id="single-intent-1", input="find me a hotel"))
+
+    assert trace.meta["tasks"] == ["concierge"]
+    assert trace.meta["suggestions"], "known flow must yield non-empty suggestions"
+    assert all(isinstance(s, str) for s in trace.meta["suggestions"])

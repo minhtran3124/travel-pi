@@ -28,6 +28,7 @@ import uuid
 from typing import Any
 
 from app.agents.context import AgentContext
+from app.agents.suggestions import suggestions_for_flow
 from evalkit.types import Golden, Trace
 from evalkit.types import ToolCall as EvalToolCall
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -203,5 +204,9 @@ class LangGraphRunner:
                 "model": self._model,
                 "elapsed_s": elapsed,
                 "n_turns": len(turns),
+                "tasks": [t.get("agent") for t in out.get("tasks") or []],
+                "suggestions": suggestions_for_flow(
+                    out.get("current_flow"), trip_facts=out.get("trip_facts")
+                ),
             },
         )
