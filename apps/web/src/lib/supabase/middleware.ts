@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { requireSupabaseEnv } from '@/lib/env'
 
 /**
  * Route prefixes that require a Supabase session. These pages render only
@@ -13,7 +14,7 @@ import { NextResponse, type NextRequest } from 'next/server'
  */
 const PROTECTED_PREFIXES = ['/trips', '/bookings', '/expenses', '/places'] as const
 
-function isProtected(pathname: string): boolean {
+export function isProtected(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   )
@@ -26,9 +27,10 @@ export async function updateSession(request: NextRequest) {
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
+  const { url, key } = requireSupabaseEnv()
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    url,
+    key,
     {
       cookies: {
         getAll() {
