@@ -5,10 +5,10 @@ import { useMemo, useState } from "react";
 
 import { BookingDetailModal } from "@/components/bookings/BookingDetailModal";
 import { BookingTable } from "@/components/bookings/BookingTable";
+import { BookingsTableSkeleton } from "@/components/skeletons/BookingsTableSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
-import { Spinner } from "@/components/ui/Spinner";
 import {
   useBookings,
   useCancelBooking,
@@ -117,9 +117,12 @@ export default function BookingsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-xl">
-          <Spinner label={t("loadingLabel")} />
-        </div>
+        <>
+          <span role="status" className="sr-only">
+            {t("loadingLabel")}
+          </span>
+          <BookingsTableSkeleton />
+        </>
       ) : isError ? (
         <EmptyState
           icon="⚠️"
