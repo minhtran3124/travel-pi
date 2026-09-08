@@ -318,6 +318,24 @@ must finish in under 60 s and must never be a whole suite. They run at
 
 ## 7. Status Log
 
+- 2026-09-08 — tasks 6.1, 6.2 complete; commits e922573, 62a625f, plus a8e24b1 applying review
+  findings. Suite 47 files / 246 tests, `tsc` exit 0, `pnpm lint` 0 errors, `pnpm build` still
+  lists the Proxy entry. All 12 success criteria hold. Review: pass/approved.
+  The reviewer replicated both detector regexes in a scratch script and ran 15 realistic
+  TS/JSX constructs against the generics strip — nested generics, `<T,>`, `<Select<Option>/>`,
+  `title="a > b"`, `a.length<b.length && c>d` — and every one still flags a leak, so the
+  false-positive fix is a precision fix and not a blind spot. It also injected real leaks into two
+  real files and ran three mutations against the proxy test, including unwiring `proxy.ts`.
+  Three Minors, all fixed in a8e24b1. The substantive one: the proxy cases named for rows 1-3
+  asserted only that the session cookie survived, which row 5 also satisfies — so a guard falling
+  through would have left them green while the named branch was never taken. They now assert no
+  redirect was built, proven by making the row-2 guard fall through.
+  Declined, with reason: widening the string gate to all of `components/auth/` (the reviewer's
+  first option for the SignOutButton gap). That directory holds `AuthHero.tsx` and
+  `OAuthButtons.tsx`, both with zero `useTranslations`, belonging to the auth surface owned by
+  `auth-pages-redesign` behind an Auth hard gate. Widening would make the gate fire on files this
+  slice must not touch. The gap is documented in the test instead.
+
 - 2026-09-08 — task 5.1 complete; commit 74ffd25 (3 lines). Verify exit 0, suite 45/235,
   `pnpm build` still lists the Proxy entry, `config.matcher` byte-identical to its pre-rename
   value. Review: pass/approved, no findings — the reviewer mocked `@supabase/ssr` and traced a
