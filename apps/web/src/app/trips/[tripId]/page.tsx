@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
-import { TripHeaderSkeleton } from "@/components/skeletons/TripHeaderSkeleton";
+import { TripDetailPageSkeleton } from "@/components/skeletons/TripDetailPageSkeleton";
 import { BudgetTab } from "@/components/trips/budget/BudgetTab";
 import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
@@ -29,7 +29,14 @@ export default function TripDetailPage() {
   ];
 
   if (isPending) {
-    return <TripHeaderSkeleton />;
+    return (
+      <>
+        <span role="status" className="sr-only">
+          {t("loadingLabel")}
+        </span>
+        <TripDetailPageSkeleton />
+      </>
+    );
   }
 
   if (isError || !trip) {
