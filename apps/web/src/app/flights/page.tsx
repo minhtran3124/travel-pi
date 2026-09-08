@@ -74,7 +74,11 @@ export default function FlightsPage() {
     ? Math.min(...results.map((f) => f.price))
     : null;
 
-  const { data: tripsData } = useTrips();
+  // The whole list, not the default first page of 20: the derivation below
+  // treats an id that is absent from `trips` as "no trip", so a short page
+  // would silently drop a valid ?tripId= for anyone with more than 20 trips.
+  // 500 is the server's maximum page size.
+  const { data: tripsData } = useTrips({ limit: 500 });
   const trips = tripsData?.results ?? [];
 
   const [bookTarget, setBookTarget] = useState<Flight | null>(null);

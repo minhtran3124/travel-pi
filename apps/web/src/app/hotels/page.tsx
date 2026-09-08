@@ -26,7 +26,7 @@ import {
 
 type HotelAvailability = components["schemas"]["HotelAvailability"];
 
-// /hotels/search (Task 4.2's useHotelSearch) has no dates/party-size params —
+// /hotels/search has no dates/party-size params —
 // it's the date-less browse endpoint. This page needs `available`/`total_price`
 // for specific dates and a party, which only /hotels/availability returns, so
 // it queries that endpoint directly rather than adding a new lib/query hook
@@ -75,7 +75,11 @@ export default function HotelsPage() {
     ? Math.min(...results.map((h) => h.total_price))
     : null;
 
-  const { data: tripsData } = useTrips();
+  // The whole list, not the default first page of 20: the derivation below
+  // treats an id that is absent from `trips` as "no trip", so a short page
+  // would silently drop a valid ?tripId= for anyone with more than 20 trips.
+  // 500 is the server's maximum page size.
+  const { data: tripsData } = useTrips({ limit: 500 });
   const trips = tripsData?.results ?? [];
 
   const [bookTarget, setBookTarget] = useState<HotelAvailability | null>(null);

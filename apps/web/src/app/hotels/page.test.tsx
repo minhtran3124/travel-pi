@@ -2,11 +2,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
+const mockSearchParams = vi.fn(() => new URLSearchParams());
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockSearchParams(),
 }));
+
+afterEach(() => {
+  mockSearchParams.mockReturnValue(new URLSearchParams());
+});
 
 import { server } from "@/test/msw";
 import en from "../../../messages/en.json";
@@ -176,6 +181,42 @@ describe("HotelsPage", () => {
     expect(screen.getByRole("link", { name: "View all bookings" })).toHaveAttribute(
       "href",
       "/bookings",
+    );
+  });
+
+  it("clears a prefilled ?tripId that isn't among the user's trips", async () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams("tripId=deleted-trip"));
+    mockTrips();
+    server.use(
+      http.get("/api/be/hotels/availability", () =>
+        HttpResponse.json({
+          total: 1,
+          limit: 20,
+          offset: 0,
+          results: [HOTEL],
+          search: {
+            city: "Da Nang",
+            check_in: "2026-06-01",
+            check_out: "2026-06-03",
+            nights: 2,
+            rooms: 1,
+            adults: 2,
+            children: 0,
+          },
+        }),
+      ),
+    );
+
+    renderPage();
+    await search();
+    fireEvent.click(screen.getByRole("button", { name: "Book" }));
+
+    // Trips load (empty — the prefilled trip has since been deleted or
+    // isn't owned by this user), so the dialog's trip select must fall
+    // back to "no trip" rather than silently carrying a dangling id into
+    // the submit (#164).
+    await waitFor(() =>
+      expect(screen.getByLabelText("Trip (optional)")).toHaveValue(""),
     );
   });
 
