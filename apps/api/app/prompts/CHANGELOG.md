@@ -3,6 +3,17 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-156-flight-search-before-create-trip — planner searches first; a bare search never opens a trip
+
+- **planner v13** — copied v12; added four edits: the Responsibilities bullet and "How to Work"
+  step 1 now gate `create_trip` on the traveller wanting to build/save an itinerary (a search
+  alone never needs a trip), the "No active trip yet" opening sentence excludes a bare search,
+  and a new "Search first, save later" section instructs running the search tool straight away
+  and never calling `create_trip` before a search.
+- **code half** (Task 1.2) — `create_trip` docstring updated.
+
+`active.yaml`: planner → 13.
+
 ## gh-155-supervisor-booking-follow-on — booking is never a follow-on; legacy secondary_agent retired
 
 - **supervisor v11** — copied v10; removed the "legacy `secondary_agent` field still works" bullet
