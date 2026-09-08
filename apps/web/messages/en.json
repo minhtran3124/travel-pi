@@ -101,6 +101,7 @@
       "itinerary": "Itinerary",
       "budget": "Budget",
       "expenses": "Expenses",
+      "bookings": "Bookings",
       "shortlist": "Shortlist"
     },
     "stats": {
@@ -139,6 +140,10 @@
     "tableSpent": "Spent",
     "tableLeft": "Left",
     "total": "Total",
+    "totalSpentLabel": "Total spent",
+    "totalSpentHint": "What's counted in the itinerary — sums per itinerary item, so a booking no item references is missed, and one referenced by two items counts twice.",
+    "bookedTotalLabel": "Booked total",
+    "bookedTotalHint": "What's booked for this trip — every non-cancelled booking carrying this trip, counted once.",
     "editForm": {
       "modalTitle": "Edit budget caps",
       "intro": "Set a cap per category, in USD. Leave a field blank to leave it uncapped. Saving replaces all caps.",
@@ -325,6 +330,17 @@
       "noResultsTitle": "No places found",
       "noResultsHint": "Try a different city or category."
     }
+  },
+  "TripBookings": {
+    "title": "Bookings",
+    "searchFlights": "Search flights",
+    "searchHotels": "Search hotels",
+    "loading": "Loading bookings…",
+    "loadingLabel": "Loading bookings",
+    "errorTitle": "Couldn't load bookings",
+    "errorHint": "Something went wrong fetching this trip's bookings.",
+    "emptyTitle": "No bookings yet",
+    "emptyHint": "Book a flight or hotel for this trip and it will show up here."
   },
   "Bookings": {
     "title": "Bookings",
