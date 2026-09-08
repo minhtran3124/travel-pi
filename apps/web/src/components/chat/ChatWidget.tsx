@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { qk } from "@/lib/api/keys";
 import { useIdentity } from "@/lib/identity/useUserId";
+import { panelKey } from "@/lib/stream/panel";
 import { ChatLauncher } from "./ChatLauncher";
 import { ChatPanel } from "./ChatPanel";
 import { PanelIntlProvider } from "./panel/PanelIntlProvider";
@@ -83,7 +84,7 @@ export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [mapHidden, setMapHidden] = useState(false);
   // Tab request for the drawer: set when an inline result card is clicked.
-  const [panelFocus, setPanelFocus] = useState<{ kind: string; nonce: number } | null>(null);
+  const [panelFocus, setPanelFocus] = useState<{ key: string; nonce: number } | null>(null);
   const isCompact = useIsCompact();
   const launcherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -173,7 +174,7 @@ export function ChatWidget() {
               onClose={() => setOpen(false)}
               onOpenPanel={(panel) => {
                 setMapHidden(false);
-                setPanelFocus((f) => ({ kind: panel.kind, nonce: (f?.nonce ?? 0) + 1 }));
+                setPanelFocus((f) => ({ key: panelKey(panel), nonce: (f?.nonce ?? 0) + 1 }));
               }}
             />
           </div>

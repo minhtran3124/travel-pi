@@ -17,10 +17,33 @@ vi.mock("./useAgentStream", () => ({
 
 // Light child stubs — the widget's layout is the unit under test, not the panel.
 vi.mock("./ChatPanel", () => ({
-  ChatPanel: () => <section data-testid="chat-panel">panel</section>,
+  ChatPanel: ({
+    onOpenPanel,
+  }: {
+    onOpenPanel?: (panel: { toolCallId: string; kind: string; data: unknown }) => void;
+  }) => (
+    <section data-testid="chat-panel">
+      panel
+      <button
+        type="button"
+        aria-label="open-cafe-panel"
+        onClick={() =>
+          onOpenPanel?.({
+            toolCallId: "p1",
+            kind: "places",
+            data: { category: "cafe" },
+          })
+        }
+      />
+    </section>
+  ),
 }));
 vi.mock("./panel/SidePanel", () => ({
-  SidePanel: () => <div data-testid="side-panel">drawer</div>,
+  SidePanel: ({ focus }: { focus?: { key: string; nonce: number } }) => (
+    <div data-testid="side-panel" data-focus-key={focus?.key} data-focus-nonce={focus?.nonce}>
+      drawer
+    </div>
+  ),
 }));
 vi.mock("./panel/PanelIntlProvider", () => ({
   PanelIntlProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -82,5 +105,17 @@ describe("ChatWidget — responsive shell", () => {
 
     // No full-viewport sheet at desktop width.
     expect(screen.queryByTestId("chat-sheet")).toBeNull();
+  });
+
+  it("opening a places chip focuses the drawer tab by panel key", () => {
+    setViewport(false);
+    render(<ChatWidget />);
+    open();
+
+    fireEvent.click(screen.getByLabelText("open-cafe-panel"));
+
+    const sidePanel = screen.getByTestId("side-panel");
+    expect(sidePanel.dataset.focusKey).toBe("places:cafe");
+    expect(sidePanel.dataset.focusNonce).toBe("1");
   });
 });
