@@ -11,7 +11,7 @@ import {
   fetchConversationMessages,
   type ChatRequest,
 } from "@/lib/query/agent";
-import type { PanelArtifact } from "@/lib/stream/panel";
+import { panelKey, type PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { parseSSE, type SSEEvent } from "@/lib/stream/parseSSE";
 import { createSmoothReveal, type SmoothReveal } from "./smoothReveal";
@@ -134,8 +134,8 @@ export interface UseAgentStream {
   newConversation: () => void;
   /**
    * Structured side-panel payloads emitted by tools this conversation, latest
-   * per `kind` (a new route query replaces the prior route panel). The chat
-   * drawer renders these by `kind`.
+   * per panel key: kind + places category (a new route query replaces the
+   * prior route panel). The chat drawer renders these by key.
    */
   panels: PanelArtifact[];
   /**
@@ -152,12 +152,12 @@ export interface UseAgentStream {
   suggestions: string[];
 }
 
-/** Replace any existing panel of the same kind — latest wins, newest last. */
-function upsertPanelByKind(
+/** Replace any existing panel of the same key — latest wins, newest last. */
+function upsertPanelByKey(
   prev: PanelArtifact[],
   next: PanelArtifact,
 ): PanelArtifact[] {
-  return [...prev.filter((p) => p.kind !== next.kind), next];
+  return [...prev.filter((p) => panelKey(p) !== panelKey(next)), next];
 }
 
 function newId(): string {
@@ -336,10 +336,10 @@ export function useAgentStream(
           if (m.id !== id) return m;
           // The graph can re-emit a panel for the same result (reflection /
           // revision passes re-run the tool under a fresh call id) — upsert by
-          // kind, mirroring the drawer's upsert-by-kind: one card per result
-          // kind, always carrying the latest payload.
+          // key, mirroring the drawer's upsert-by-key: one card per panel key,
+          // always carrying the latest payload.
           const at = m.panels.findIndex(
-            (existing) => existing.kind === panel.kind,
+            (existing) => panelKey(existing) === panelKey(panel),
           );
           const panels =
             at === -1
@@ -516,7 +516,7 @@ export function useAgentStream(
                   data: event.data,
                   language: event.language,
                 };
-                setPanels((prev) => upsertPanelByKind(prev, panel));
+                setPanels((prev) => upsertPanelByKey(prev, panel));
                 attachPanelToMessage(assistantId, panel);
                 break;
               }
@@ -680,7 +680,7 @@ export function useAgentStream(
                   data: event.data,
                   language: event.language,
                 };
-                setPanels((prev) => upsertPanelByKind(prev, panel));
+                setPanels((prev) => upsertPanelByKey(prev, panel));
                 attachPanelToMessage(assistantId, panel);
                 break;
               }
@@ -821,7 +821,7 @@ export function useAgentStream(
                 data: event.data,
                 language: event.language,
               };
-              setPanels((prev) => upsertPanelByKind(prev, panel));
+              setPanels((prev) => upsertPanelByKey(prev, panel));
               attachPanelToMessage(assistantId, panel);
               break;
             }
