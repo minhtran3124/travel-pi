@@ -4,10 +4,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** gh-156-flight-search-before-create-trip
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** finishing-a-development-branch
-- **Last action:** PR #165 open → main (HEAD ec46c43): main merged in, browser UAT 2/2 with screenshots committed, receipt re-pinned, PR description rewritten decision-first. Awaiting human review/merge.
+- **Slug:** close-product-loop-s1-booking-ui
+- **Phase:** plan  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** writing-plans
+- **Last action:** Umbrella design approved by user; S1 intake (high-risk/high), Deep research brief written, PLAN.md written (10 tasks, 7 waves, 14 SC), plan-contract clean, independently reviewed twice and APPROVED. Next: using-git-worktrees → subagent-driven-development.
 - **Updated:** 2026-09-08
 
 ## Recent Specs
@@ -16,7 +16,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| gh-156-flight-search-before-create-trip | 2026-09-08 | review | PR open → main, awaiting merge |
+| close-product-loop-s1-booking-ui | 2026-09-08 | plan | PLAN.md approved (10 tasks/7 waves); ready to execute |
+| close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 in flight |
+| gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
 | agent-system-copy-i18n | 2026-09-07 | shipped | merged via PR #145 → main |
@@ -1556,5 +1558,68 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 28128cda-0dfd-424f-a3c1-266ece937e6b
 - exit: 
 - last_commit: d539377 docs(specs): gh-156 run state at ready_to_merge
+- user_turns: 0
+
+
+### 2026-09-08T09:49:29Z
+- session_id: 450c93b3-e681-4dc4-af81-492a74aa813a
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T11:35:10Z
+- session_id: a8fa06be-8cb6-42a2-9314-93ee302f793f
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T11:54:31Z
+- session_id: e2f1dace-7205-44cf-951e-c4e8bd2da8b7
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T11:54:33Z
+- session_id: 8c233b07-b113-4f4b-bce5-7171088913e0
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:32:15Z
+- session_id: 04aed54e-168a-4968-8692-41b5b9f59169
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:32:46Z
+- session_id: b7adfe82-85f5-44b0-99ab-625d8159af8d
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:43:49Z
+- session_id: 2c17ce0b-e5a1-48de-973f-f2974ca5f6cd
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:46:01Z
+- session_id: c04e7536-3670-400d-9410-f9d10d694b8e
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:49:56Z
+- session_id: 781b17b9-71a5-40c6-aebb-bdd26ed85056
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
 - user_turns: 0
 
