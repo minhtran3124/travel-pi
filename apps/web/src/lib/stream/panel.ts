@@ -189,6 +189,8 @@ export interface PlacesPanelPlace {
 export interface PlacesPanelData {
   city: string | null;
   category: string | null;
+  /** Canonical category slug, never localized — panel identity. Missing → null. */
+  category_key?: string | null;
   results_count: number;
   places: PlacesPanelPlace[];
 }
@@ -209,13 +211,25 @@ function placesCategory(p: PanelArtifact): string | null {
   return typeof category === "string" && category.length > 0 ? category : null;
 }
 
+/**
+ * Panel-identity category slug: prefers the canonical, never-localized
+ * `category_key` (falls back to `category` when absent, e.g. older payloads)
+ * so a language switch mid-conversation can't split one category into two tabs.
+ */
+function placesCategoryKey(p: PanelArtifact): string | null {
+  if (p.kind !== "places" || typeof p.data !== "object" || p.data === null) return null;
+  const categoryKey = (p.data as PlacesPanelData).category_key;
+  if (typeof categoryKey === "string" && categoryKey.length > 0) return categoryKey;
+  return placesCategory(p);
+}
+
 /** Identity key for a panel: `kind:category` for a places panel with a category, else bare `kind`. */
 export function panelKey(p: PanelArtifact): string {
-  const category = placesCategory(p);
+  const category = placesCategoryKey(p);
   return category ? `${p.kind}:${category}` : p.kind;
 }
 
-/** Human-readable sub-label for a panel's tab, e.g. the places category; `null` when there isn't one. */
+/** Human-readable sub-label for a panel's tab, e.g. the (localized) places category; `null` when there isn't one. */
 export function panelSubLabel(p: PanelArtifact): string | null {
   return placesCategory(p);
 }

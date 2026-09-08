@@ -166,6 +166,33 @@ describe("SidePanel", () => {
     expect(screen.getByText("places-body-cafe")).toBeInTheDocument();
   });
 
+  it("applies a focus already present on the very first render (drawer remount)", () => {
+    // Simulates a chip click while the drawer was hidden: ChatWidget batches
+    // setMapHidden(false) + setPanelFocus, so SidePanel mounts with `focus`
+    // already set — the cafe tab (clicked), not the newest restaurant tab,
+    // must be shown.
+    const cafe: PanelArtifact = {
+      toolCallId: "p1",
+      kind: "places",
+      data: { category: "cafe" },
+    };
+    const restaurant: PanelArtifact = {
+      toolCallId: "p2",
+      kind: "places",
+      data: { category: "restaurant" },
+    };
+    render(
+      <SidePanel
+        panels={[cafe, restaurant]}
+        onClose={() => undefined}
+        focus={{ key: "places:cafe", nonce: 1 }}
+      />,
+      { wrapper: Intl },
+    );
+
+    expect(screen.getByText("places-body-cafe")).toBeInTheDocument();
+  });
+
   it("labels the tabs in the streamed panel language", () => {
     // English catalog → "Route" / "Weather" tab labels.
     const { unmount } = render(

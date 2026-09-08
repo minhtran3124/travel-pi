@@ -22,6 +22,16 @@ describe("panelKey", () => {
   it("returns bare kind for non-places kinds", () => {
     expect(panelKey(artifact("weather", {}))).toBe("weather");
   });
+
+  it("keys off category_key, not the (possibly localized) category", () => {
+    expect(
+      panelKey(artifact("places", { category_key: "cafe", category: "quán cà phê" })),
+    ).toBe("places:cafe");
+  });
+
+  it("falls back to category when category_key is absent", () => {
+    expect(panelKey(artifact("places", { category: "cafe" }))).toBe("places:cafe");
+  });
 });
 
 describe("panelSubLabel", () => {
@@ -35,5 +45,11 @@ describe("panelSubLabel", () => {
 
   it("returns null for non-places kinds", () => {
     expect(panelSubLabel(artifact("weather", {}))).toBeNull();
+  });
+
+  it("returns the display category even when category_key differs", () => {
+    expect(
+      panelSubLabel(artifact("places", { category_key: "cafe", category: "quán cà phê" })),
+    ).toBe("quán cà phê");
   });
 });

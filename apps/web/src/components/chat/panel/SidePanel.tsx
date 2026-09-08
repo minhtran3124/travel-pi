@@ -55,7 +55,11 @@ export function SidePanel({
 
   // External focus request (same render-phase adjust-on-change pattern):
   // a changed nonce pins the requested key, winning over the newest-panel rule.
-  const [seenFocusNonce, setSeenFocusNonce] = useState(focus?.nonce ?? null);
+  // Seeded with `null` (not `focus?.nonce`) so a focus already present on the
+  // very first render — e.g. the drawer mounting because a chip click batched
+  // setMapHidden(false) with setPanelFocus — still gets applied once, instead
+  // of being mistaken for an already-seen nonce and silently dropped.
+  const [seenFocusNonce, setSeenFocusNonce] = useState<number | null>(null);
   if (focus && focus.nonce !== seenFocusNonce) {
     setSeenFocusNonce(focus.nonce);
     setActiveKey(focus.key);
@@ -73,8 +77,8 @@ export function SidePanel({
       aria-label={t("detailPanelLabel")}
       className="tp-chat-in flex h-[min(70vh,560px)] w-[min(92vw,440px)] flex-col overflow-hidden rounded-[20px] border border-line bg-panel text-ink shadow-lift"
     >
-      <header className="flex items-center justify-between border-b border-line px-lg py-sm">
-        <div className="flex gap-xs">
+      <header className="flex items-start justify-between border-b border-line px-lg py-sm">
+        <div className="flex min-w-0 flex-wrap gap-xs">
           {renderable.map((p) => {
             const key = panelKey(p);
             const subLabel = panelSubLabel(p);
@@ -105,7 +109,7 @@ export function SidePanel({
           type="button"
           onClick={onClose}
           aria-label={t("hidePanel")}
-          className="text-sm text-muted transition hover:text-ink"
+          className="shrink-0 text-sm text-muted transition hover:text-ink"
         >
           ✕
         </button>
