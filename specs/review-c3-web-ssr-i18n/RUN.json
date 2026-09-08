@@ -1,12 +1,12 @@
 {
   "created_at": "2026-09-04T00:02:46Z",
-  "last_event_id": "07a48501-1f0b-47d0-9120-ffd0c8ebd478",
-  "resume_event": null,
+  "last_event_id": "2c3c7ad8-50db-413e-9bdf-73f2f7f8b9bf",
+  "resume_event": "human_decision_recorded",
   "run_id": "7ec0f613-c8bb-45c2-9163-aeb928ef47fd",
-  "seq": 4,
+  "seq": 6,
   "sha": null,
   "slug": "review-c3-web-ssr-i18n",
-  "state": "implementing",
-  "updated_at": "2026-09-08T13:12:58Z",
-  "waiting_on": null
+  "state": "escalated",
+  "updated_at": "2026-09-08T15:44:28Z",
+  "waiting_on": "E001"
 }
