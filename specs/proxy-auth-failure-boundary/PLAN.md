@@ -1,6 +1,6 @@
 ---
 slug: proxy-auth-failure-boundary
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-09-08
 ---
@@ -33,6 +33,9 @@ by user decision. The defect predates that branch.
 - The failure path must import `isProtected`, never re-list the prefixes. Two copies will drift and
   the outage path would then protect a different route set than the success path.
 - This branch is stacked on `feat/review-c3-web-ssr-i18n`; its PR targets that branch, not `main`.
+- Gates use `grep -q` (0 = found), never `grep -L`/`-l` exit codes: those differ between this
+  machine's interactive `grep` wrapper and the `/usr/bin/grep` a script resolves, so the same
+  command means different things depending on who runs it.
 - Stage and commit as separate commands. No `Co-Authored-By: Claude` trailers.
 
 ## 3. Success Criteria
@@ -43,11 +46,11 @@ filter exits 0 on a partial match, and `-t` exits 0 when it matches nothing.
 | ID | Behavior (observable) | Check (re-runnable) | Expected |
 |------|-------------------------|-----------------------|------------|
 | SC-1 | `requireSupabaseEnv()` returns both values when set and throws naming the absent variable when either is missing; `env.ts` reads both variables through literal `process.env.NAME` access | `cd apps/web && pnpm exec vitest run src/lib/env.test.ts` | exit 0 |
-| SC-2 | No Supabase client is constructed from a bare non-null assertion any more | `grep -rL "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts apps/web/src/lib/supabase/server.ts apps/web/src/lib/supabase/client.ts` | exit 1 — every file matches, so none is listed |
+| SC-2 | Every Supabase client is constructed through the env contract | `grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts && grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/server.ts && grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/client.ts` | exit 0 |
 | SC-3 | `register()` is exported from the instrumentation file and actually validates — it throws when the variables are absent | `cd apps/web && pnpm exec vitest run src/instrumentation.test.ts` | exit 0 |
 | SC-4 | During an auth outage a protected path redirects to the login page and an unprotected path still renders; no path throws | `cd apps/web && pnpm exec vitest run src/proxy.test.ts` | exit 0 |
 | SC-5 | The workspace type-checks with the three call sites rewired | `cd apps/web && pnpm exec tsc --noEmit` | exit 0 |
-| SC-6 | No bare non-null assertion on either Supabase variable survives under `lib/supabase/` | `grep -rl "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/` | exit 1 — no file matches |
+| SC-6 | No bare non-null assertion on either Supabase variable survives under `lib/supabase/` | `! grep -rq "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/` | exit 0 |
 
 ## 4. Tasks
 
@@ -89,8 +92,8 @@ filter exits 0 on a partial match, and `-t` exits 0 when it matches nothing.
   In `middleware.ts`, also export `isProtected` — task 3.1 needs it and must not re-list the
   prefixes. Do not change the prefix list, and do not otherwise touch `updateSession`: the warning
   block about running code between `createServerClient` and `getClaims()` still governs this file.
-- **Verify:** `! grep -rL "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts apps/web/src/lib/supabase/server.ts apps/web/src/lib/supabase/client.ts && ! grep -rq "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/`
-- **Done:** All three files call `requireSupabaseEnv()`; no `NEXT_PUBLIC_SUPABASE` non-null assertion remains under `apps/web/src/lib/supabase/`; `isProtected` is exported; `PROTECTED_PREFIXES` membership is byte-identical. The Verify is negated with `!` deliberately: `grep -rL` exits 1 when every file matches, which is the success state, and a task `Verify` has no Expected column — it must exit 0 to pass, and wave 3 is gated on that.
+- **Verify:** `grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts && grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/server.ts && grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/client.ts && ! grep -rq "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/`
+- **Done:** All three files call `requireSupabaseEnv()`; no `NEXT_PUBLIC_SUPABASE` non-null assertion remains under `apps/web/src/lib/supabase/`; `isProtected` is exported; `PROTECTED_PREFIXES` membership is byte-identical. The checks use `grep -q`, not `grep -rL`. Measured on this machine: `-L`'s exit code differs between the interactive shell's `grep` wrapper function and the `/usr/bin/grep` that `subprocess(shell=True)` resolves — the same command returned 1 in one and 0 in the other, so a `-L`-based gate means different things depending on who runs it. `-q` is 0-on-match everywhere.
 - **Criteria:** SC-2, SC-5, SC-6
 - **Interfaces:** Consumes `apps/web/src/lib/env.ts`. Produces the rewired `apps/web/src/lib/supabase/middleware.ts` with an exported `isProtected`.
 
