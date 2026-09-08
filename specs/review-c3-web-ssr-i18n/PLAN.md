@@ -67,6 +67,7 @@ matches no file exits **1**. `--passWithNoTests` is set only on the `test` npm s
 | SC-9 | All six new keys are present in **both** catalogs, and the two catalogs carry identical key sets | `cd apps/web && node -e "const f=require('fs'),n=['Nav.menuOpen','Nav.menuClose','Account.signIn','Account.menuLabel','Account.signOut','TripDetail.loadingLabel'];for(const p of ['messages/en.json','messages/vi.json']){const j=JSON.parse(f.readFileSync(p));for(const k of n){const s=k.split('.');if(!j[s[0]]||!j[s[0]][s[1]])throw new Error(p+' missing '+k)}}" && pnpm exec vitest run src/messages.parity.test.ts` | exit 0 |
 | SC-10 | The hardcoded-string gate scans a non-zero number of files, passes on the tree, and rejects a known-bad fixture | `cd apps/web && pnpm exec vitest run src/i18n/no-hardcoded-strings.test.ts` | exit 0 |
 | SC-11 | No `Spinner` caller omits `label`, and the whole workspace type-checks | `cd apps/web && pnpm exec tsc --noEmit` | exit 0 |
+| SC-12 | The composed proxy preserves rotated Supabase session cookies on every branch of `applyLangParam`, including the one that returns a new response | `cd apps/web && pnpm exec vitest run src/proxy.test.ts` | exit 0 |
 
 ## 4. Tasks
 
@@ -261,6 +262,33 @@ matches no file exits **1**. `--passWithNoTests` is set only on the `test` npm s
 - **Criteria:** SC-10
 - **Interfaces:** Consumes the chrome i18n keys added to both catalogs in Task 2.2. Produces `apps/web/src/i18n/no-hardcoded-strings.test.ts`.
 
+### Task 6.2 — Standing test for the proxy composition (wave 6)
+
+- **Files:** apps/web/src/proxy.test.ts
+- **Action:** Add the first test that actually loads `src/proxy.ts`, so the composition is covered
+  by something other than a grep.
+  Mock `@supabase/ssr` so `getClaims()` invokes `setAll()` with rotated `sb-*-auth-token` cookies,
+  then call `proxy()` directly and assert those cookies survive on **every** branch of
+  `applyLangParam`: no `lang`; an unknown `lang`; a non-document request; the auth-gate 307; and
+  the row-5 case that builds a **new** `NextResponse.redirect`. The last one is the point of the
+  test — it is the only path that discards the object `updateSession` returned.
+  Assert attributes, not just name/value: a copy that drops `HttpOnly` or `Max-Age` is still a
+  broken session.
+  The file needs `// @vitest-environment node`. Under jsdom, `NextResponse.next({ request })`
+  throws on `Headers`.
+  **Added mid-execution** under `rules/auto-correct-scope.md` Rule 2: the plan's §5 names session
+  loss as the top risk and claimed SC-3 covered it, but SC-3 exercises `langParam.ts` in isolation.
+  The three `langParam.*.test.ts` files import that module directly and never load the proxy, so
+  they pass identically whether or not the wiring exists. A task-5.1 reviewer proved the
+  composition correct at runtime, but deleted the proof.
+- **Verify:** `cd apps/web && pnpm exec vitest run src/proxy.test.ts`
+- **Done:** The file exists, declares the node environment, and contains five cases — one per
+  `applyLangParam` branch — each asserting a rotated `sb-` cookie is present on the returned
+  response with its `HttpOnly` and `Max-Age` attributes intact. Removing the cookie-copy loop from
+  `langParam.ts` turns the row-5 case red.
+- **Criteria:** SC-12
+- **Interfaces:** Consumes `apps/web/src/proxy.ts`. Produces `apps/web/src/proxy.test.ts`.
+
 ## 5. Risks
 
 - **Session loss.** `applyLangParam` returns a new response object in row 5. Missing the cookie
@@ -289,6 +317,15 @@ must finish in under 60 s and must never be a whole suite. They run at
   adds or edits a spec; the plan's claim is that they still pass, not that they cover new ground.
 
 ## 7. Status Log
+
+- 2026-09-08 — task 5.1 complete; commit 74ffd25 (3 lines). Verify exit 0, suite 45/235,
+  `pnpm build` still lists the Proxy entry, `config.matcher` byte-identical to its pre-rename
+  value. Review: pass/approved, no findings — the reviewer mocked `@supabase/ssr` and traced a
+  rotated session cookie through all five `applyLangParam` branches, including the row-5 path that
+  returns a new response; attributes survive, not just name/value.
+  That review also surfaced a coverage boundary rather than a defect: nothing checked in loads
+  `src/proxy.ts`, so the composition was protected only by the Verify grep. Task 6.2 was added to
+  close it (Rule 2, declared).
 
 - 2026-09-08 — tasks 4.1, 4.2, 4.3 complete; commits f058cd8, 669703f, 95045ad, plus 82b8274
   applying review findings. Suite 45 files / 235 tests, `tsc --noEmit` exit 0; SC-5 to SC-8 each
