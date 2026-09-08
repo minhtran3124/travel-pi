@@ -7,7 +7,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - **Slug:** close-product-loop-s1-booking-ui
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
 - **Last skill:** subagent-driven-development
-- **Last action:** All 10 tasks across 7 waves executed on feat/close-product-loop-s1-booking-ui (8 commits, HEAD 9f643de). verify_summary --check re-ran all 15 Verify commands, every one exit 0. Not run: make test-docker (Postgres), browser UAT. Next: final review chain → finishing-a-development-branch.
+- **Last action:** All 10 tasks executed plus a post-review fix pass (10 commits, HEAD 889b189). Correctness and intent reviews both pass, zero blocking open. verify_summary --check: 15/15 exit 0. Postgres suite run in an isolated compose project: 2252 passed, no failure in this slice's areas. Known limitation recorded: chatbot bookings still carry no trip_id (agent path out of scope for S1). Not done: browser UAT. Next: finishing-a-development-branch.
 - **Updated:** 2026-09-08
 
 ## Recent Specs
@@ -1712,5 +1712,26 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: c11915f1-08c9-478f-83d3-cf3c64af5bff
 - exit: 
 - last_commit: 9f643de test(web): add an opt-in booking end-to-end smoke
+- user_turns: 0
+
+
+### 2026-09-08T14:13:02Z
+- session_id: 1dc8e712-c686-4f83-b6ff-a73c9dc492a1
+- exit: 
+- last_commit: 5d7f16a docs(specs): record the S1 booking-UI slice as executed
+- user_turns: 0
+
+
+### 2026-09-08T14:15:26Z
+- session_id: 25798fa0-e867-4d3e-a892-c19fdd205cdd
+- exit: 
+- last_commit: 5d7f16a docs(specs): record the S1 booking-UI slice as executed
+- user_turns: 0
+
+
+### 2026-09-08T14:27:13Z
+- session_id: faeb7093-561f-444a-8681-50521defda6a
+- exit: 
+- last_commit: 889b189 fix(web): make booking idempotent per attempt, not per request
 - user_turns: 0
 

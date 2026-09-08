@@ -333,6 +333,7 @@ day after research). Research: `specs/close-product-loop-s1-booking-ui/research-
 | 2026-09-08 | Wave 1 executed: tasks 1.1, 1.2 complete; commit 2c828ea. Both Verify commands re-run by the controller, exit 0; alembic reports one head. |
 | 2026-09-08 | Task 1.3 complete; commit e3ba3cd. All nine test files that post a book route pass (228 tests). Remaining tests/api failures are pre-existing dashboard basic-auth 401s from `apps/api/.env`. |
 | 2026-09-08 | Wave 2 complete: task 2.1; commit 179a428. |
+| 2026-09-08 | Final review chain: correctness pass (7 findings, none blocking), intent pass (all 12 design items shipped, no drift). Fixes in commit 889b189, incl. a real double-booking path. Postgres suite run: 2252 passed, zero failures in this slice's areas. Receipt pinned at 889b189. |
 | 2026-09-08 | Wave 7 complete: task 7.1; commit 9f643de. All 10 tasks done. `verify_summary.py --check` re-ran all 15 SUMMARY Verify commands: every one exit 0. |
 | 2026-09-08 | Wave 6 complete: task 6.1; commit 4767b16. 242 frontend tests green, typecheck clean. |
 | 2026-09-08 | Wave 5 complete: task 5.1; commit c95a90e. 237 frontend tests green, typecheck clean. |

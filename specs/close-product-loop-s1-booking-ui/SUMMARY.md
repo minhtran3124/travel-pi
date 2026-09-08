@@ -87,6 +87,12 @@ under distinct labels rather than change the older maths.
   ledger page. Commit `4767b16`.
 - Task 1.3 was added to the plan mid-flight, after the wave-1 review found the premium gate had
   regressed 89 pre-existing tests. See Harness-Delta.
+- Post-review fixes in commit `889b189`, from the final correctness and intent reviews: the
+  Idempotency-Key was minted per HTTP request rather than per booking attempt, so a retry after a
+  lost response would have double-booked; a stale `?tripId=` rendered as "no trip" but was still
+  submitted; the Bookings tab could show fewer bookings than the budget counted; the book mutations
+  invalidated nothing; an unused hotel search hook and query key were removed; and an unrelated
+  reformat in `app/schemas/booking.py` was reverted.
 
 ### Verify
 
@@ -106,7 +112,7 @@ under distinct labels rather than change the older maths.
 | Typecheck | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run against the regenerated `schema.d.ts` | SC-12 |
 | Backend lint | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | All checks passed | SC-13 |
 | E2E spec collectable | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec playwright test --list playwright/booking-smoke.spec.ts` | 0 | lists 2 tests; skips without credentials | SC-14 |
-| Whole frontend suite | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test` | 0 | 242 passed across 45 files | |
+| Whole frontend suite | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test` | 0 | 248 passed across 45 files | |
 
 ### Not auto-verified
 
@@ -116,9 +122,21 @@ under distinct labels rather than change the older maths.
 - **The visual result** — not checked. No screenshots were taken of `/flights`, `/hotels`, or the
   new trip tabs, so nothing verifies the pages read well or that the two budget labels are
   distinguishable at a glance.
-- **Postgres** — not checked. Every backend run above used SQLite. `make test-docker` (Python 3.12,
-  Postgres) has not been run on this branch, so migration behaviour and ordering under Postgres are
-  unverified.
+- **Postgres** — checked, but deliberately not a `### Verify` row: the run takes about eight
+  minutes, far over the 60-second limit a re-runnable row must meet, so listing it there would
+  only ever time out. The command was:
+  `cd apps/api && docker compose -p apitest -f docker-compose.test.yml run --rm --entrypoint sh tests -c "alembic upgrade head && python -m pytest tests/ -q --ignore=tests/core/test_languages.py"`.
+  The suite ran on Python 3.12 against Postgres 17 in an isolated compose project (`-p apitest`, so the running dev stack was untouched): 2252 passed, 59
+  failed, and the `bookings.trip_id` migration applied cleanly. No failure touches booking, trip,
+  flight, hotel, budget, premium or migration. The 59 are environmental: `.dockerignore` does not
+  exclude `apps/api/.env`, so `COPY . .` carries real dashboard credentials and API keys into the
+  image, which turns every dashboard page into a 401 and breaks the tests that assert no key is
+  configured. Confirmed locally: rerunning the dashboard tests with `DASHBOARD_BASIC_USER=` and
+  `DASHBOARD_BASIC_PASSWORD=` empty turns 26 of them green. Not caused by this branch and not
+  fixed here.
+- **`tests/core/test_languages.py` was excluded from the Postgres run.** It computes a repo root with
+  `parents[4]`, which raises `IndexError` inside the container's flatter layout. Pre-existing and
+  unrelated; it passes locally.
 - **The Vietnamese copy** — reached traceability. The parity test proves every key exists in both
   locales; it compares key paths only and never values, so nothing here says the translations read
   correctly.
@@ -134,6 +152,22 @@ under distinct labels rather than change the older maths.
   `cd apps/api && ../../.venv/bin/alembic downgrade a7c3e9f1b2d4`
 - The column add is additive and nullable, so the downgrade drops `bookings.trip_id` and its index
   without touching any other data.
+
+### Known limitations (found by review, deliberately not fixed here)
+
+- **A booking made through the chatbot never carries a `trip_id`.** The agent's `book_flight` and
+  `book_hotel` tools build their request without one and their signatures do not accept one
+  (`app/tools/flight_tools.py:373`, `hotel_tools.py:476`). So a booking made in chat — the product's
+  main booking channel today — does not appear in the new trip Bookings tab and contributes 0 to
+  `booked_total`, while the same booking made from `/flights` does. The approved design forbids
+  touching the agent path in this slice, so this is recorded rather than fixed. It should be the
+  first item of a follow-up: the trip page shows an incomplete picture until it is closed.
+- **The flights booking request carries no party size.** Searching for three adults and booking
+  creates one seat at a one-adult fare, because `FlightBookingRequest` has no passenger count. Adding
+  one is a public-contract change outside this slice. The dialog now says plainly that it books one
+  seat at the fare shown, so the UI no longer implies otherwise.
+- **An idempotent replay ignores a differing `trip_id`.** By design (design §5 S1 item 2): the
+  original booking wins, matching existing replay semantics.
 
 ### Harness-Delta
 
