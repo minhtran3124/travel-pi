@@ -290,6 +290,16 @@ must finish in under 60 s and must never be a whole suite. They run at
 
 ## 7. Status Log
 
+- 2026-09-08 — task 3.1 complete; commit 4aed124 (11 files, +178/-50). `tsc --noEmit` exit 0,
+  suite 41 files / 228 tests. Review: spec pass / quality approved.
+  One Minor accepted as-is: the moved `TripCardSkeleton` doc comment changed
+  `{@link TripCard}` to plain `TripCard`, so the move is not byte-for-byte. The edit is correct —
+  `TripCard` is not imported in the new file, so the link would dangle — but the implementer
+  report's claim that the only delta was `data-testid` was inaccurate, and the controller's own
+  spot-check could not have caught it: its `sed` range began at the `export` line, placing the
+  preceding doc comment outside the compared text. Recorded so the next reviewer of a "verbatim
+  move" compares whole files, not symbol bodies.
+
 - 2026-09-08 — tasks 2.1, 2.2, 2.3 complete; commits 1554be7, c4f69ba, 3d14594, plus b1850d5
   applying review findings. Suite after the wave: 41 files / 228 tests pass, `tsc --noEmit`
   exit 0 (closes the reviewer's Minor note on SC-11 at task scope).
