@@ -125,9 +125,14 @@ under distinct labels rather than change the older maths.
 
 ### Not auto-verified
 
-- **The booking flow in a real browser** — reached traceability only. `playwright/booking-smoke.spec.ts`
-  is collectable but was never executed: it skips at file scope without credentials, and the
-  booking step needs a premium account. No row here proves a human can complete the flow.
+- **The premium booking flow in a real browser** — not proven. CI does run `playwright/booking-smoke.spec.ts`
+  (the `web-e2e` job; an earlier note that Playwright was outside CI was wrong), but its backend
+  starts on a fresh `sqlite:///./e2e.db` where the e2e user has no tier row, so the account resolves
+  to **free** and the spec exercises the refusal path, not the booking path. What CI proves is that a
+  free user is refused with the upgrade dialog and that nothing is attached to the trip. Pointing the
+  e2e secrets at a premium account makes the same spec cover the booking half. Running it locally was
+  not possible: the dev server on :3000 is serving another session's branch and its login page no
+  longer matches `auth.setup.ts`.
 - **The visual result** — not checked. No screenshots were taken of `/flights`, `/hotels`, or the
   new trip tabs, so nothing verifies the pages read well or that the two budget labels are
   distinguishable at a glance.
