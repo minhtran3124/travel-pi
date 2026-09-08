@@ -13,17 +13,53 @@ cd apps/web && node ../../specs/close-product-loop-s1-booking-ui/uat/run-uat.mjs
 
 Every case below was captured from a real browser against a real backend. Nothing here is mocked.
 
-| # | Case | Screenshot | Result |
-|---|---|---|---|
-| 1 | Flights and Hotels reachable from the app nav | [01-nav-flights-hotels.png](01-nav-flights-hotels.png) | Both entries present |
-| 2 | Flight search returns bookable fares (DAD → SGN) | [02-flights-search-results.png](02-flights-search-results.png) | 5 fares, cheapest marked |
-| 3 | Book dialog: one-seat notice, trip preselected from `?tripId=` | [03-flight-book-dialog.png](03-flight-book-dialog.png) | Notice shown, trip preselected |
-| 4a | **Free account** books → refused | [04-free-tier-upgrade-dialog.png](04-free-tier-upgrade-dialog.png) | Upgrade dialog, nothing booked |
-| 4b | **Premium account** books → confirmed | [04-premium-booking-confirmed.png](04-premium-booking-confirmed.png) | Confirmation code returned |
-| 5 | The booking appears on the trip's Bookings tab | [05-trip-bookings-tab.png](05-trip-bookings-tab.png) | `PTW5DF`, confirmed, $277.78 |
-| 6 | Budget shows both totals, labelled | [06-trip-budget-two-totals.png](06-trip-budget-two-totals.png) | Total spent $0.00 · Booked total $277.78 |
-| 7 | Hotel availability for the chosen dates | [07-hotels-search-results.png](07-hotels-search-results.png) | Da Nang results with nightly rates |
-| 8 | Hotel book dialog, trip preselected | [08-hotel-book-dialog.png](08-hotel-book-dialog.png) | Dialog opens with the trip set |
+| # | Case | Result |
+|---|---|---|
+| 1 | Flights and Hotels reachable from the app nav | Both entries present |
+| 2 | Flight search returns bookable fares (DAD → SGN) | 5 fares, cheapest marked |
+| 3 | Book dialog: one-seat notice, trip preselected from `?tripId=` | Notice shown, trip preselected |
+| 4a | **Free account** books → refused | Upgrade dialog, nothing booked |
+| 4b | **Premium account** books → confirmed | Confirmation code returned |
+| 5 | The booking appears on the trip's Bookings tab | `PTW5DF`, confirmed, $277.78 |
+| 6 | Budget shows both totals, labelled | Total spent $0.00 · Booked total $277.78 |
+| 7 | Hotel availability for the chosen dates | Da Nang results with nightly rates |
+| 8 | Hotel book dialog, trip preselected | Dialog opens with the trip set |
+
+### 1 — Flights and Hotels in the nav
+
+![Flights and Hotels in the app nav](01-nav-flights-hotels.png)
+
+### 2 — Flight search results
+
+![DAD to SGN search results](02-flights-search-results.png)
+
+### 3 — Book dialog
+
+![Book dialog with the one-seat notice and the trip preselected](03-flight-book-dialog.png)
+
+### 4a — Free account is refused
+
+![The 403 opens the upgrade dialog](04-free-tier-upgrade-dialog.png)
+
+### 4b — Premium account books
+
+![The booking is confirmed](04-premium-booking-confirmed.png)
+
+### 5 — The booking on its trip
+
+![The booking listed on the trip's Bookings tab](05-trip-bookings-tab.png)
+
+### 6 — Both budget totals
+
+![Total spent beside booked total, each with its own explanation](06-trip-budget-two-totals.png)
+
+### 7 — Hotel availability
+
+![Da Nang availability results](07-hotels-search-results.png)
+
+### 8 — Hotel book dialog
+
+![Hotel book dialog with the trip preselected](08-hotel-book-dialog.png)
 
 ## What case 6 is showing
 
