@@ -5,9 +5,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 ## Active Spec
 
 - **Slug:** close-product-loop-s1-booking-ui
-- **Phase:** plan  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** writing-plans
-- **Last action:** Umbrella design approved by user; S1 intake (high-risk/high), Deep research brief written, PLAN.md written (10 tasks, 7 waves, 14 SC), plan-contract clean, independently reviewed twice and APPROVED. Next: using-git-worktrees → subagent-driven-development.
+- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** subagent-driven-development
+- **Last action:** All 10 tasks across 7 waves executed on feat/close-product-loop-s1-booking-ui (8 commits, HEAD 9f643de). verify_summary --check re-ran all 15 Verify commands, every one exit 0. Not run: make test-docker (Postgres), browser UAT. Next: final review chain → finishing-a-development-branch.
 - **Updated:** 2026-09-08
 
 ## Recent Specs
@@ -16,7 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| close-product-loop-s1-booking-ui | 2026-09-08 | plan | PLAN.md approved (10 tasks/7 waves); ready to execute |
+| close-product-loop-s1-booking-ui | 2026-09-08 | review | all waves executed, 8 commits; awaiting final review chain |
 | close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 in flight |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
@@ -1621,5 +1621,96 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 781b17b9-71a5-40c6-aebb-bdd26ed85056
 - exit: 
 - last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:54:39Z
+- session_id: 1095abd2-54dc-4820-aca9-52cfedd1fc2b
+- exit: 
+- last_commit: c657142 docs(specs): approve the close-product-loop umbrella design
+- user_turns: 0
+
+
+### 2026-09-08T12:56:30Z
+- session_id: 194e1b2c-90a0-4771-94b1-3048c3fd90fa
+- exit: 
+- last_commit: 2c828ea feat(api): premium gate on booking routes and a trip link on bookings
+- user_turns: 0
+
+
+### 2026-09-08T12:56:30Z
+- session_id: 31aa4dd3-746b-4873-940d-74665df41664
+- exit: 
+- last_commit: 2c828ea feat(api): premium gate on booking routes and a trip link on bookings
+- user_turns: 0
+
+
+### 2026-09-08T13:01:22Z
+- session_id: 3660edd1-1bb8-4eff-8b95-e2666bedb901
+- exit: 
+- last_commit: 2c828ea feat(api): premium gate on booking routes and a trip link on bookings
+- user_turns: 0
+
+
+### 2026-09-08T13:27:33Z
+- session_id: 407ae4bc-1bbb-48c5-a939-7620975da722
+- exit: 
+- last_commit: e3ba3cd test(api): give booking tests an entitled caller after the premium gate
+- user_turns: 0
+
+
+### 2026-09-08T13:38:14Z
+- session_id: dfd983cc-1e6c-4072-833e-6a98e4bed410
+- exit: 
+- last_commit: 179a428 feat(api): accept an optional trip_id when booking a flight or hotel
+- user_turns: 0
+
+
+### 2026-09-08T13:42:05Z
+- session_id: bd366d4f-00f7-4a23-ab2c-59acb705ce9b
+- exit: 
+- last_commit: 179a428 feat(api): accept an optional trip_id when booking a flight or hotel
+- user_turns: 0
+
+
+### 2026-09-08T13:44:47Z
+- session_id: e6711c84-29f3-481a-929f-59e949d18662
+- exit: 
+- last_commit: 2b5d574 feat(api): filter bookings by trip and report what a trip has booked
+- user_turns: 0
+
+
+### 2026-09-08T13:48:14Z
+- session_id: fa23e2b7-291a-4f4d-b649-fdc21cad1ad8
+- exit: 
+- last_commit: 2b5d574 feat(api): filter bookings by trip and report what a trip has booked
+- user_turns: 0
+
+
+### 2026-09-08T13:48:58Z
+- session_id: 566e457c-96c3-4608-81da-ec614a34fce0
+- exit: 
+- last_commit: 3edf18b feat(web): reusable result cards and a data layer for booking
+- user_turns: 0
+
+
+### 2026-09-08T13:58:16Z
+- session_id: 2effe677-a476-4669-bb7f-75d7dadc1bf6
+- exit: 
+- last_commit: c95a90e feat(web): add /flights and /hotels search and booking pages
+- user_turns: 0
+
+
+### 2026-09-08T14:02:56Z
+- session_id: 7d7d70d0-25ae-4b28-bd89-2934602f84cf
+- exit: 
+- last_commit: 4767b16 feat(web): show a trip's bookings and what it has booked
+- user_turns: 0
+
+
+### 2026-09-08T14:05:20Z
+- session_id: c11915f1-08c9-478f-83d3-cf3c64af5bff
+- exit: 
+- last_commit: 9f643de test(web): add an opt-in booking end-to-end smoke
 - user_turns: 0
 
