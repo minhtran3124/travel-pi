@@ -92,4 +92,8 @@ Re-run 2026-09-08 on `main` @ 0a7b6d7 — every intake count is unchanged since 
 
 ### Harness-Delta
 
-- none
+- **backlog** — the `state-breadcrumb.sh` SessionEnd hook fires for every *subagent* that exits,
+  appending a `### <timestamp>` block to the tracked `specs/STATE.md` with `user_turns: 0` and no
+  exit reason. One wave of this run added 56 such lines. They carry no information a reader can
+  act on and they put a tracked file into every feature diff, so they were reverted by hand here.
+  The hook should either skip subagent sessions or write to an untracked location.

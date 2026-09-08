@@ -290,6 +290,20 @@ must finish in under 60 s and must never be a whole suite. They run at
 
 ## 7. Status Log
 
+- 2026-09-08 — tasks 2.1, 2.2, 2.3 complete; commits 1554be7, c4f69ba, 3d14594, plus b1850d5
+  applying review findings. Suite after the wave: 41 files / 228 tests pass, `tsc --noEmit`
+  exit 0 (closes the reviewer's Minor note on SC-11 at task scope).
+  Reviews: 2.2 pass/approved with no findings; 2.3 pass/approved (11 Spinner call sites
+  independently recounted, plus a repo-wide sweep for non-JSX consumers — none).
+  2.1 first pass returned quality `needs_fixes`: SC-2 claims the cookie carries `setUserLocale`'s
+  attributes but only its value was asserted, and the suppression cases asserted response identity
+  only, which an implementation that set the cookie and returned the same instance would satisfy.
+  Both closed in b1850d5 and mutation-proven on re-review (max-age, sameSite, path, and an
+  identity-preserving impostor implementation each turn a test red); `langParam.ts` itself was
+  never edited. Re-review: pass/approved, no findings.
+  Accepted as-is: the row-1 `lang === undefined` guard is behaviourally redundant with
+  `isLocale(undefined)` but is mandated verbatim by design §4.3's row ordering.
+
 - 2026-09-08 — task 1.1 complete; commit 72f50ad. Verify exit 0; `pnpm build` clean and the
   Next deprecation warning is gone. Reviewer: spec pass / quality approved. One Minor finding
   (review-package hunk header) dismissed as a false positive — `review_package.py` renders
