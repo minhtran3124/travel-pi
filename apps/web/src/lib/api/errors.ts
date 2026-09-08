@@ -34,9 +34,6 @@ export class DuplicatePlaceError extends ConflictError {}
 /** The place is already on the trip's shortlist (POST /trips/{id}/places). */
 export class AlreadyShortlistedError extends ConflictError {}
 
-/** The caller's tier does not allow booking (POST /flights/book, /hotels/book). */
-export class PremiumRequiredError extends HintedError {}
-
 /**
  * Throw `Ctor` when `response` is a 409, carrying the BE message + hint.
  * No-op for any other status, so callers fall through to their generic
@@ -48,21 +45,6 @@ export function throwOn409(
   Ctor: new (message: string, hint?: string) => ConflictError,
 ): void {
   if (response.status === 409) {
-    throw new Ctor(error.message, error.hint ?? undefined);
-  }
-}
-
-/**
- * Throw `Ctor` when `response` is a 403, carrying the BE message + hint.
- * No-op for any other status, so callers fall through to their generic
- * `throw error`. Mirrors `throwOn409`.
- */
-export function throwOn403(
-  response: Response,
-  error: ApiError,
-  Ctor: new (message: string, hint?: string) => PremiumRequiredError,
-): void {
-  if (response.status === 403) {
     throw new Ctor(error.message, error.hint ?? undefined);
   }
 }

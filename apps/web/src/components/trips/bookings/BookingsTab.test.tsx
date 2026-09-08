@@ -56,7 +56,7 @@ function renderTab() {
 }
 
 describe("BookingsTab", () => {
-  it("shows an empty state with links carrying tripId when there are no bookings", async () => {
+  it("shows an empty state with links to the browse-only search pages when there are no bookings", async () => {
     server.use(
       http.get(`${BASE}/bookings`, ({ request }) => {
         const url = new URL(request.url);
@@ -76,9 +76,11 @@ describe("BookingsTab", () => {
 
     const flightLinks = screen.getAllByRole("link", { name: "Search flights" });
     const hotelLinks = screen.getAllByRole("link", { name: "Search hotels" });
-    for (const link of [...flightLinks, ...hotelLinks]) {
-      expect(link.getAttribute("href")).toContain(`tripId=${TRIP_ID}`);
-    }
+    // Booking now happens via the chat assistant, not by prefilling a trip
+    // into the browse-only /flights and /hotels pages, so these links carry
+    // no ?tripId= any more.
+    expect(flightLinks[0]).toHaveAttribute("href", "/flights");
+    expect(hotelLinks[0]).toHaveAttribute("href", "/hotels");
   });
 
   it("lists only this trip's bookings and cancels one via the detail modal", async () => {

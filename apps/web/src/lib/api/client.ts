@@ -11,8 +11,6 @@ import { authHeader } from "@/lib/supabase/authHeader";
 const IDEMPOTENT_POST_PATHS = new Set<string>([
   "/trips",
   "/trips/{trip_id}/items",
-  "/flights/book",
-  "/hotels/book",
 ]);
 
 const identityMiddleware: Middleware = {
@@ -31,9 +29,7 @@ const identityMiddleware: Middleware = {
       IDEMPOTENT_POST_PATHS.has(schemaPath) &&
       !request.headers.has("Idempotency-Key")
     ) {
-      // Only mint one when the caller hasn't already supplied one (the two
-      // booking mutations mint their own so a resubmit of the same attempt
-      // reuses it instead of getting a fresh key every request — see #164).
+      // Only mint one when the caller hasn't already supplied one.
       request.headers.set("Idempotency-Key", crypto.randomUUID());
     }
 

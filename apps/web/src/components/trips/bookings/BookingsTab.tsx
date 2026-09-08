@@ -41,10 +41,10 @@ export function BookingsTab({ tripId }: { tripId: string }) {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-extrabold text-ink">{t("title")}</h2>
         <div className="flex gap-sm">
-          <Link href={`/flights?tripId=${tripId}`} className={linkClass}>
+          <Link href="/flights" className={linkClass}>
             {t("searchFlights")}
           </Link>
-          <Link href={`/hotels?tripId=${tripId}`} className={linkClass}>
+          <Link href="/hotels" className={linkClass}>
             {t("searchHotels")}
           </Link>
         </div>

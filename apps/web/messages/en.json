@@ -424,23 +424,7 @@
     "promptHint": "Enter a route and date to see available flights.",
     "emptyTitle": "No flights found",
     "emptyHint": "Try a different route, date, or fewer filters.",
-    "bookButton": "Book",
-    "bookModalTitle": "Book flight",
-    "oneSeatNotice": "This books one seat at the fare shown, regardless of the adults entered in your search. To book more travellers, search and book each seat separately.",
-    "nameLabel": "Traveller name",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone",
-    "tripLabel": "Trip (optional)",
-    "tripNone": "No trip",
-    "cancel": "Cancel",
-    "submitButton": "Confirm booking",
-    "submitting": "Booking…",
-    "bookError": "Couldn't complete the booking. Try again.",
-    "successTitle": "Booking confirmed",
-    "successHint": "Your flight is booked. Confirmation {code}.",
-    "viewBookings": "View all bookings",
-    "viewTrip": "View trip",
-    "close": "Close"
+    "bookViaAssistantHint": "Ask the assistant in chat to book this for you."
   },
   "Hotels": {
     "title": "Search hotels",
@@ -459,29 +443,7 @@
     "promptHint": "Enter a city and dates to see available hotels.",
     "emptyTitle": "No hotels found",
     "emptyHint": "Try a different city, dates, or fewer filters.",
-    "bookButton": "Book",
-    "bookModalTitle": "Book hotel",
-    "nameLabel": "Guest name",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone",
-    "tripLabel": "Trip (optional)",
-    "tripNone": "No trip",
-    "cancel": "Cancel",
-    "submitButton": "Confirm booking",
-    "submitting": "Booking…",
-    "bookError": "Couldn't complete the booking. Try again.",
-    "successTitle": "Booking confirmed",
-    "successHint": "Your hotel is booked. Confirmation {code}.",
-    "viewBookings": "View all bookings",
-    "viewTrip": "View trip",
-    "close": "Close"
-  },
-  "Booking": {
-    "upgrade": {
-      "title": "Upgrade required",
-      "message": "Booking is a premium feature. Upgrade your plan to complete this booking.",
-      "close": "Got it"
-    }
+    "bookViaAssistantHint": "Ask the assistant in chat to book this for you."
   },
   "Chat": {
     "headerTitle": "Tin",

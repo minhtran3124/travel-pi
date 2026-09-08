@@ -424,23 +424,7 @@
     "promptHint": "Nhập tuyến bay và ngày để xem các chuyến bay khả dụng.",
     "emptyTitle": "Không tìm thấy chuyến bay nào",
     "emptyHint": "Hãy thử tuyến bay, ngày khác, hoặc bớt bộ lọc.",
-    "bookButton": "Đặt",
-    "bookModalTitle": "Đặt chuyến bay",
-    "oneSeatNotice": "Lượt đặt này chỉ giữ một chỗ với mức giá hiển thị, bất kể số người lớn bạn đã nhập khi tìm kiếm. Để đặt cho nhiều hành khách hơn, hãy tìm và đặt riêng từng chỗ.",
-    "nameLabel": "Tên hành khách",
-    "emailLabel": "Email",
-    "phoneLabel": "Số điện thoại",
-    "tripLabel": "Chuyến đi (tùy chọn)",
-    "tripNone": "Không gắn chuyến đi",
-    "cancel": "Hủy",
-    "submitButton": "Xác nhận đặt chỗ",
-    "submitting": "Đang đặt…",
-    "bookError": "Không thể hoàn tất đặt chỗ. Vui lòng thử lại.",
-    "successTitle": "Đã xác nhận đặt chỗ",
-    "successHint": "Chuyến bay của bạn đã được đặt. Mã xác nhận {code}.",
-    "viewBookings": "Xem tất cả đặt chỗ",
-    "viewTrip": "Xem chuyến đi",
-    "close": "Đóng"
+    "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
   },
   "Hotels": {
     "title": "Tìm khách sạn",
@@ -459,29 +443,7 @@
     "promptHint": "Nhập thành phố và ngày để xem các khách sạn còn phòng.",
     "emptyTitle": "Không tìm thấy khách sạn nào",
     "emptyHint": "Hãy thử thành phố, ngày khác, hoặc bớt bộ lọc.",
-    "bookButton": "Đặt",
-    "bookModalTitle": "Đặt khách sạn",
-    "nameLabel": "Tên khách",
-    "emailLabel": "Email",
-    "phoneLabel": "Số điện thoại",
-    "tripLabel": "Chuyến đi (tùy chọn)",
-    "tripNone": "Không gắn chuyến đi",
-    "cancel": "Hủy",
-    "submitButton": "Xác nhận đặt chỗ",
-    "submitting": "Đang đặt…",
-    "bookError": "Không thể hoàn tất đặt chỗ. Vui lòng thử lại.",
-    "successTitle": "Đã xác nhận đặt chỗ",
-    "successHint": "Khách sạn của bạn đã được đặt. Mã xác nhận {code}.",
-    "viewBookings": "Xem tất cả đặt chỗ",
-    "viewTrip": "Xem chuyến đi",
-    "close": "Đóng"
-  },
-  "Booking": {
-    "upgrade": {
-      "title": "Cần nâng cấp",
-      "message": "Đặt chỗ là tính năng trả phí. Hãy nâng cấp gói của bạn để hoàn tất đặt chỗ này.",
-      "close": "Đã hiểu"
-    }
+    "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
   },
   "Chat": {
     "headerTitle": "Tin",

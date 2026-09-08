@@ -2,16 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { NextIntlClientProvider } from "next-intl";
-import { afterEach, describe, expect, it, vi } from "vitest";
-
-const mockSearchParams = vi.fn(() => new URLSearchParams());
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => mockSearchParams(),
-}));
-
-afterEach(() => {
-  mockSearchParams.mockReturnValue(new URLSearchParams());
-});
+import { describe, expect, it } from "vitest";
 
 import { server } from "@/test/msw";
 import en from "../../../messages/en.json";
@@ -45,14 +36,6 @@ const FLIGHT = {
   stops: 0,
 };
 
-function mockTrips() {
-  server.use(
-    http.get("/api/be/trips", () =>
-      HttpResponse.json({ total: 0, limit: 20, offset: 0, results: [] }),
-    ),
-  );
-}
-
 async function search() {
   fireEvent.change(screen.getByLabelText("Origin"), { target: { value: "dad" } });
   fireEvent.change(screen.getByLabelText("Destination"), {
@@ -69,13 +52,11 @@ async function search() {
 
 describe("FlightsPage", () => {
   it("shows a prompt before any search", () => {
-    mockTrips();
     renderPage();
     expect(screen.getByText("Search for a flight")).toBeInTheDocument();
   });
 
-  it("searches and lists results, then opens the book dialog", async () => {
-    mockTrips();
+  it("searches and lists results, with no booking control on the page", async () => {
     server.use(
       http.get("/api/be/flights/search", () =>
         HttpResponse.json({
@@ -94,152 +75,63 @@ describe("FlightsPage", () => {
     renderPage();
     await search();
 
-    fireEvent.click(screen.getByRole("button", { name: "Book" }));
-    expect(screen.getByRole("dialog", { name: "Book flight" })).toBeInTheDocument();
-    // The search collected "adults", but a booking is one seat at the fare
-    // shown — the dialog must say so plainly rather than imply the party
-    // size carries through (see #164 review).
+    // Booking now happens through the chat assistant, not on this page.
     expect(
-      screen.getByText(en.Flights.oneSeatNotice),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Book" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(en.Flights.bookViaAssistantHint)).toBeInTheDocument();
   });
 
-  it("books a flight and shows the success state", async () => {
-    mockTrips();
+  it("shows an error state when the search fails", async () => {
+    server.use(
+      http.get("/api/be/flights/search", () =>
+        HttpResponse.json({ message: "boom" }, { status: 500 }),
+      ),
+    );
+
+    renderPage();
+    fireEvent.change(screen.getByLabelText("Origin"), { target: { value: "dad" } });
+    fireEvent.change(screen.getByLabelText("Destination"), {
+      target: { value: "sgn" },
+    });
+    fireEvent.change(screen.getByLabelText("Departure date"), {
+      target: { value: "2026-06-01" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Search flights" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Couldn't search flights")).toBeInTheDocument(),
+    );
+  });
+
+  it("shows an empty state when there are no results", async () => {
     server.use(
       http.get("/api/be/flights/search", () =>
         HttpResponse.json({
-          count: 1,
+          count: 0,
           search: {
             origin: "DAD",
             destination: "SGN",
             departure_date: "2026-06-01",
             adults: 1,
           },
-          results: [FLIGHT],
-        }),
-      ),
-      http.post("/api/be/flights/book", () =>
-        HttpResponse.json({
-          id: "booking-1",
-          type: "flight",
-          reference_id: "flight-1",
-          customer_name: "Nguyen Van A",
-          customer_email: "nguyen.a@example.com",
-          total_price: 120,
-          currency: "USD",
-          status: "confirmed",
-          created_at: "2026-01-01T00:00:00Z",
-          details: { kind: "flight", flight_id: "flight-1" },
-          trip_id: null,
-          confirmation_code: "ABC123",
-          summary: "Flight DAD → SGN",
+          results: [],
         }),
       ),
     );
 
     renderPage();
-    await search();
-    fireEvent.click(screen.getByRole("button", { name: "Book" }));
-
-    fireEvent.change(screen.getByLabelText("Traveller name"), {
-      target: { value: "Nguyen Van A" },
+    fireEvent.change(screen.getByLabelText("Origin"), { target: { value: "dad" } });
+    fireEvent.change(screen.getByLabelText("Destination"), {
+      target: { value: "sgn" },
     });
-    fireEvent.change(screen.getByLabelText("Email"), {
-      target: { value: "nguyen.a@example.com" },
+    fireEvent.change(screen.getByLabelText("Departure date"), {
+      target: { value: "2026-06-01" },
     });
-    fireEvent.change(screen.getByLabelText("Phone"), {
-      target: { value: "+84 901 234 567" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Confirm booking" }));
+    fireEvent.click(screen.getByRole("button", { name: "Search flights" }));
 
     await waitFor(() =>
-      expect(screen.getByText("Booking confirmed")).toBeInTheDocument(),
-    );
-    expect(screen.getByText(/ABC123/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View all bookings" })).toHaveAttribute(
-      "href",
-      "/bookings",
-    );
-  });
-
-  it("clears a prefilled ?tripId that isn't among the user's trips", async () => {
-    mockSearchParams.mockReturnValue(new URLSearchParams("tripId=deleted-trip"));
-    mockTrips();
-    server.use(
-      http.get("/api/be/flights/search", () =>
-        HttpResponse.json({
-          count: 1,
-          search: {
-            origin: "DAD",
-            destination: "SGN",
-            departure_date: "2026-06-01",
-            adults: 1,
-          },
-          results: [FLIGHT],
-        }),
-      ),
-    );
-
-    renderPage();
-    await search();
-    fireEvent.click(screen.getByRole("button", { name: "Book" }));
-
-    // Trips load (empty — the prefilled trip has since been deleted or
-    // isn't owned by this user), so the dialog's trip select must fall
-    // back to "no trip" rather than silently carrying a dangling id into
-    // the submit (#164).
-    await waitFor(() =>
-      expect(screen.getByLabelText("Trip (optional)")).toHaveValue(""),
-    );
-  });
-
-  it("opens the upgrade dialog on a 403", async () => {
-    mockTrips();
-    server.use(
-      http.get("/api/be/flights/search", () =>
-        HttpResponse.json({
-          count: 1,
-          search: {
-            origin: "DAD",
-            destination: "SGN",
-            departure_date: "2026-06-01",
-            adults: 1,
-          },
-          results: [FLIGHT],
-        }),
-      ),
-      http.post("/api/be/flights/book", () =>
-        HttpResponse.json(
-          {
-            error: "PremiumRequiredError",
-            message: "Booking requires a premium plan",
-            status_code: 403,
-            path: "/flights/book",
-            hint: "Upgrade to book flights",
-          },
-          { status: 403 },
-        ),
-      ),
-    );
-
-    renderPage();
-    await search();
-    fireEvent.click(screen.getByRole("button", { name: "Book" }));
-
-    fireEvent.change(screen.getByLabelText("Traveller name"), {
-      target: { value: "Nguyen Van A" },
-    });
-    fireEvent.change(screen.getByLabelText("Email"), {
-      target: { value: "nguyen.a@example.com" },
-    });
-    fireEvent.change(screen.getByLabelText("Phone"), {
-      target: { value: "+84 901 234 567" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Confirm booking" }));
-
-    await waitFor(() =>
-      expect(screen.getByText("Upgrade to book flights")).toBeInTheDocument(),
+      expect(screen.getByText("No flights found")).toBeInTheDocument(),
     );
   });
 });
