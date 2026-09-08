@@ -103,13 +103,11 @@ export default function TripsPage() {
         </div>
       </section>
 
+      <span role="status" className="sr-only">
+        {isPending ? t("loadingTripsStatus") : ""}
+      </span>
       {isPending ? (
-        <>
-          <span role="status" className="sr-only">
-            {t("loadingTripsStatus")}
-          </span>
-          <TripsGridSkeleton />
-        </>
+        <TripsGridSkeleton />
       ) : isError ? (
         <EmptyState
           icon="⚠️"

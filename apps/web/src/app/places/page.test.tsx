@@ -44,3 +44,19 @@ describe("PlacesPage — loading state", () => {
     expect(status.textContent).toBe("loadingLabel");
   });
 });
+
+describe("PlacesPage — loaded state", () => {
+  it("keeps the sr-only live region mounted (with empty text) once loaded", () => {
+    savedPlacesState.data = { results: [] } as never;
+    savedPlacesState.isLoading = false;
+    try {
+      render(<PlacesPage />);
+      const status = screen.getByRole("status");
+      expect(status.className).toContain("sr-only");
+      expect(status.textContent).toBe("");
+    } finally {
+      savedPlacesState.data = undefined;
+      savedPlacesState.isLoading = true;
+    }
+  });
+});

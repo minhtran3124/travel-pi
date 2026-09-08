@@ -182,13 +182,11 @@ export default function PlacesPage() {
         </Button>
       </div>
 
+      <span role="status" className="sr-only">
+        {isLoading ? t("loadingLabel") : ""}
+      </span>
       {isLoading ? (
-        <>
-          <span role="status" className="sr-only">
-            {t("loadingLabel")}
-          </span>
-          <SavedPlacesGridSkeleton />
-        </>
+        <SavedPlacesGridSkeleton />
       ) : isError ? (
         <EmptyState
           icon="⚠️"

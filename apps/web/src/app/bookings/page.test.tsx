@@ -45,3 +45,19 @@ describe("BookingsPage loading state", () => {
     expect(status.textContent).toBe("loadingLabel");
   });
 });
+
+describe("BookingsPage loaded state", () => {
+  it("keeps the sr-only live region mounted (with empty text) once loaded", () => {
+    h.useBookings.mockReturnValue({
+      data: { results: [] },
+      isLoading: false,
+      isError: false,
+    });
+    h.useCancelBooking.mockReturnValue({ mutate: vi.fn(), isPending: false });
+    render(<BookingsPage />);
+
+    const status = screen.getByRole("status");
+    expect(status).toHaveClass("sr-only");
+    expect(status.textContent).toBe("");
+  });
+});

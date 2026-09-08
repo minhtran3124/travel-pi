@@ -8,6 +8,7 @@ const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 function isDocumentNavigation(request: NextRequest): boolean {
   if (request.method !== "GET") return false;
   if (request.nextUrl.pathname.startsWith("/api/")) return false;
+  if (request.nextUrl.pathname.startsWith("/auth/")) return false;
   const dest = request.headers.get("sec-fetch-dest");
   return dest === "document" || dest === null;
 }
@@ -42,8 +43,12 @@ export function applyLangParam(
     return response;
   }
 
-  // Row 5: build a redirect to the same URL with only `lang` removed, carry
-  // over every cookie already on `response`, then set the locale cookie.
+  // Row 5: build a redirect to the same URL with its query re-normalised via
+  // URLSearchParams and `lang` removed (e.g. `?flag&q=a b&lang=vi` becomes
+  // `?flag=&q=a+b`; a consumer reading the raw query string would see a
+  // different URL than the original — every consumer here reads through
+  // URLSearchParams and round-trips correctly), carry over every cookie
+  // already on `response`, then set the locale cookie.
   const redirectUrl = new URL(request.nextUrl);
   redirectUrl.searchParams.delete("lang");
   const redirectResponse = NextResponse.redirect(redirectUrl);

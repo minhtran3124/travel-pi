@@ -34,7 +34,12 @@ function toPosixRelative(path: string): string {
 
 // --- Detector 1: bare-string aria-label="…" -------------------------------
 
-const ARIA_LABEL_LITERAL_RE = /aria-label\s*=\s*"[^"]*"/g;
+// Matches a plain-string literal (bare or brace-wrapped, any of the three
+// quote styles). A brace-wrapped template literal is only a violation when
+// it has no `${...}` interpolation — one that interpolates (e.g. a `t(...)`
+// call) is not a hardcoded string.
+const ARIA_LABEL_LITERAL_RE =
+  /aria-label\s*=\s*(?:"[^"]*"|\{"[^"]*"\}|\{'[^']*'\}|\{`(?:(?!\$\{)[^`])*`\})/g;
 
 function ariaLabelViolations(source: string): string[] {
   return source.match(ARIA_LABEL_LITERAL_RE) ?? [];
@@ -90,6 +95,7 @@ function jsxTextViolations(source: string): string[] {
 // — but a future reader must not read this narrow scope as full coverage of
 // `components/auth/`.
 function isJsxTextScanned(relPath: string): boolean {
+  if (relPath.includes(".test.")) return false; // fixture selectors, correct as-is
   return (
     relPath.startsWith("components/app-shell/") ||
     relPath === "components/auth/UserMenu.tsx"
@@ -118,6 +124,21 @@ describe("hardcoded-string gate", () => {
 
   it("detector 1 (aria-label): rejects an inline known-bad fixture", () => {
     const fixture = `<button aria-label="Close menu">`;
+    expect(ariaLabelViolations(fixture)).toHaveLength(1);
+  });
+
+  it("detector 1 (aria-label): rejects a brace-double-quote fixture", () => {
+    const fixture = `<button aria-label={"Close menu"}>`;
+    expect(ariaLabelViolations(fixture)).toHaveLength(1);
+  });
+
+  it("detector 1 (aria-label): rejects a brace-single-quote fixture", () => {
+    const fixture = `<button aria-label={'Close menu'}>`;
+    expect(ariaLabelViolations(fixture)).toHaveLength(1);
+  });
+
+  it("detector 1 (aria-label): rejects a brace-template-literal fixture", () => {
+    const fixture = "<button aria-label={`Close menu`}>";
     expect(ariaLabelViolations(fixture)).toHaveLength(1);
   });
 

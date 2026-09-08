@@ -6,11 +6,11 @@ import { LOCALE_COOKIE } from "@/i18n/config";
 
 import { applyLangParam } from "./langParam";
 
-// Row 3 — a request must be a document navigation (GET, not /api/*, and
-// sec-fetch-dest is "document" or absent) or applyLangParam is a no-op.
-// Exactly six cases, per the task brief: (a)-(e) are suppressed and returned
-// by identity; (f) is the one case with no sec-fetch-dest header, which is
-// still a genuine navigation (curl, link unfurlers) and must redirect.
+// Row 3 — a request must be a document navigation (GET, not /api/* or
+// /auth/*, and sec-fetch-dest is "document" or absent) or applyLangParam is
+// a no-op. (a)-(e) and (g) are suppressed and returned by identity; (f) is
+// the one case with no sec-fetch-dest header, which is still a genuine
+// navigation (curl, link unfurlers) and must redirect.
 describe("applyLangParam — row 3: document-navigation suppression", () => {
   it("(a) POST to a page URL is returned untouched", () => {
     const request = new NextRequest("https://example.com/trips?lang=vi", {
@@ -85,5 +85,21 @@ describe("applyLangParam — row 3: document-navigation suppression", () => {
 
     expect(getRedirectUrl(result)).not.toBeNull();
     expect(result.cookies.get(LOCALE_COOKIE)?.value).toBe("vi");
+  });
+
+  it("(g) GET /auth/callback?lang=vi is returned untouched", () => {
+    const request = new NextRequest(
+      "https://example.com/auth/callback?lang=vi&code=abc123",
+      {
+        method: "GET",
+        headers: { "sec-fetch-dest": "document" },
+      },
+    );
+    const response = NextResponse.next();
+
+    const result = applyLangParam(request, response);
+
+    expect(result).toBe(response);
+    expect(result.cookies.get(LOCALE_COOKIE)).toBeUndefined();
   });
 });

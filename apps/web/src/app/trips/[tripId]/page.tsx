@@ -28,42 +28,36 @@ export default function TripDetailPage() {
     { id: "shortlist", label: t("tabs.shortlist") },
   ];
 
-  if (isPending) {
-    return (
-      <>
-        <span role="status" className="sr-only">
-          {t("loadingLabel")}
-        </span>
-        <TripDetailPageSkeleton />
-      </>
-    );
-  }
-
-  if (isError || !trip) {
-    return (
-      <div className="flex flex-col items-start gap-md rounded-lg border border-line bg-panel px-xl py-xl shadow-card">
-        <h1 className="text-lg font-extrabold text-ink">{t("errorTitle")}</h1>
-        <p className="max-w-[48ch] text-sm text-muted">{t("errorHint")}</p>
-        <Link
-          href="/trips"
-          className="inline-flex h-[34px] items-center rounded-sm bg-ink px-[18px] text-sm font-bold text-on-ink transition hover:bg-ink-hover active:translate-y-px"
-        >
-          {t("backToAllTrips")}
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-lg">
-      <TripHeader trip={trip} />
-      <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
-      <div>
-        {activeTab === "itinerary" ? <ItineraryTab tripId={tripId} /> : null}
-        {activeTab === "budget" ? <BudgetTab tripId={tripId} /> : null}
-        {activeTab === "expenses" ? <ExpensesTab tripId={tripId} /> : null}
-        {activeTab === "shortlist" ? <ShortlistTab tripId={tripId} /> : null}
-      </div>
-    </div>
+    <>
+      <span role="status" className="sr-only">
+        {isPending ? t("loadingLabel") : ""}
+      </span>
+      {isPending ? (
+        <TripDetailPageSkeleton />
+      ) : isError || !trip ? (
+        <div className="flex flex-col items-start gap-md rounded-lg border border-line bg-panel px-xl py-xl shadow-card">
+          <h1 className="text-lg font-extrabold text-ink">{t("errorTitle")}</h1>
+          <p className="max-w-[48ch] text-sm text-muted">{t("errorHint")}</p>
+          <Link
+            href="/trips"
+            className="inline-flex h-[34px] items-center rounded-sm bg-ink px-[18px] text-sm font-bold text-on-ink transition hover:bg-ink-hover active:translate-y-px"
+          >
+            {t("backToAllTrips")}
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-lg">
+          <TripHeader trip={trip} />
+          <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
+          <div>
+            {activeTab === "itinerary" ? <ItineraryTab tripId={tripId} /> : null}
+            {activeTab === "budget" ? <BudgetTab tripId={tripId} /> : null}
+            {activeTab === "expenses" ? <ExpensesTab tripId={tripId} /> : null}
+            {activeTab === "shortlist" ? <ShortlistTab tripId={tripId} /> : null}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

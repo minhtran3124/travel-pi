@@ -116,13 +116,11 @@ export default function BookingsPage() {
         </Select>
       </div>
 
+      <span role="status" className="sr-only">
+        {isLoading ? t("loadingLabel") : ""}
+      </span>
       {isLoading ? (
-        <>
-          <span role="status" className="sr-only">
-            {t("loadingLabel")}
-          </span>
-          <BookingsTableSkeleton />
-        </>
+        <BookingsTableSkeleton />
       ) : isError ? (
         <EmptyState
           icon="⚠️"
