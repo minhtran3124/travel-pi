@@ -26,7 +26,14 @@ const identityMiddleware: Middleware = {
       request.headers.set(key, value);
     }
 
-    if (request.method === "POST" && IDEMPOTENT_POST_PATHS.has(schemaPath)) {
+    if (
+      request.method === "POST" &&
+      IDEMPOTENT_POST_PATHS.has(schemaPath) &&
+      !request.headers.has("Idempotency-Key")
+    ) {
+      // Only mint one when the caller hasn't already supplied one (the two
+      // booking mutations mint their own so a resubmit of the same attempt
+      // reuses it instead of getting a fresh key every request — see #164).
       request.headers.set("Idempotency-Key", crypto.randomUUID());
     }
 

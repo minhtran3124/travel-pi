@@ -2,11 +2,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
+const mockSearchParams = vi.fn(() => new URLSearchParams());
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockSearchParams(),
 }));
+
+afterEach(() => {
+  mockSearchParams.mockReturnValue(new URLSearchParams());
+});
 
 import { server } from "@/test/msw";
 import en from "../../../messages/en.json";
@@ -91,6 +96,12 @@ describe("FlightsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Book" }));
     expect(screen.getByRole("dialog", { name: "Book flight" })).toBeInTheDocument();
+    // The search collected "adults", but a booking is one seat at the fare
+    // shown — the dialog must say so plainly rather than imply the party
+    // size carries through (see #164 review).
+    expect(
+      screen.getByText(en.Flights.oneSeatNotice),
+    ).toBeInTheDocument();
   });
 
   it("books a flight and shows the success state", async () => {
@@ -149,6 +160,37 @@ describe("FlightsPage", () => {
     expect(screen.getByRole("link", { name: "View all bookings" })).toHaveAttribute(
       "href",
       "/bookings",
+    );
+  });
+
+  it("clears a prefilled ?tripId that isn't among the user's trips", async () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams("tripId=deleted-trip"));
+    mockTrips();
+    server.use(
+      http.get("/api/be/flights/search", () =>
+        HttpResponse.json({
+          count: 1,
+          search: {
+            origin: "DAD",
+            destination: "SGN",
+            departure_date: "2026-06-01",
+            adults: 1,
+          },
+          results: [FLIGHT],
+        }),
+      ),
+    );
+
+    renderPage();
+    await search();
+    fireEvent.click(screen.getByRole("button", { name: "Book" }));
+
+    // Trips load (empty — the prefilled trip has since been deleted or
+    // isn't owned by this user), so the dialog's trip select must fall
+    // back to "no trip" rather than silently carrying a dangling id into
+    // the submit (#164).
+    await waitFor(() =>
+      expect(screen.getByLabelText("Trip (optional)")).toHaveValue(""),
     );
   });
 

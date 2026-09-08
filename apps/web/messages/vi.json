@@ -426,6 +426,7 @@
     "emptyHint": "Hãy thử tuyến bay, ngày khác, hoặc bớt bộ lọc.",
     "bookButton": "Đặt",
     "bookModalTitle": "Đặt chuyến bay",
+    "oneSeatNotice": "Lượt đặt này chỉ giữ một chỗ với mức giá hiển thị, bất kể số người lớn bạn đã nhập khi tìm kiếm. Để đặt cho nhiều hành khách hơn, hãy tìm và đặt riêng từng chỗ.",
     "nameLabel": "Tên hành khách",
     "emailLabel": "Email",
     "phoneLabel": "Số điện thoại",

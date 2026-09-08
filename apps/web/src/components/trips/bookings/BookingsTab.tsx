@@ -20,7 +20,15 @@ const linkClass =
 
 export function BookingsTab({ tripId }: { tripId: string }) {
   const t = useTranslations("TripBookings");
-  const { data, isPending, isError } = useBookings({ trip_id: tripId });
+  // `booked_total` on the Budget tab sums *every* non-cancelled booking for
+  // this trip (no pagination); without an explicit limit this list would
+  // default to the server's page size (20) and could silently disagree with
+  // it past that many bookings. 500 is the server's max page size — well
+  // past what one trip realistically books — so the two can't diverge.
+  const { data, isPending, isError } = useBookings({
+    trip_id: tripId,
+    limit: 500,
+  });
   const cancel = useCancelBooking();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 

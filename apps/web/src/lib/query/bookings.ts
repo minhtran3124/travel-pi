@@ -16,6 +16,7 @@ export type HotelBookingDetails = components["schemas"]["HotelBookingDetails"];
 
 export type BookingFilters = {
   trip_id?: string;
+  limit?: number;
 };
 
 /**

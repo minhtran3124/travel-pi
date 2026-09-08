@@ -61,6 +61,9 @@ describe("BookingsTab", () => {
       http.get(`${BASE}/bookings`, ({ request }) => {
         const url = new URL(request.url);
         expect(url.searchParams.get("trip_id")).toBe(TRIP_ID);
+        // Requests the server's max page size so this list can never
+        // disagree with the Budget tab's unpaginated booked_total (#164).
+        expect(url.searchParams.get("limit")).toBe("500");
         return HttpResponse.json({ total: 0, limit: 20, offset: 0, results: [] });
       }),
     );

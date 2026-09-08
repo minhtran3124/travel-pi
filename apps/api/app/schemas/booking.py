@@ -67,9 +67,7 @@ class HotelBookingDetails(AppBaseModel):
     adults: int = Field(description="Adults in the party.")
     children: int = Field(description="Children in the party.")
     price_per_night: float = Field(description="Locked nightly rate at booking time.")
-    guest_phone: str | None = Field(
-        default=None, description="Contact phone for the hotel."
-    )
+    guest_phone: str | None = Field(default=None, description="Contact phone for the hotel.")
 
 
 BookingDetails = Annotated[

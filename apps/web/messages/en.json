@@ -426,6 +426,7 @@
     "emptyHint": "Try a different route, date, or fewer filters.",
     "bookButton": "Book",
     "bookModalTitle": "Book flight",
+    "oneSeatNotice": "This books one seat at the fare shown, regardless of the adults entered in your search. To book more travellers, search and book each seat separately.",
     "nameLabel": "Traveller name",
     "emailLabel": "Email",
     "phoneLabel": "Phone",

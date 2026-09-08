@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { UpgradeDialog } from "@/components/booking/UpgradeDialog";
 import { FlightResultCard } from "@/components/flights/FlightResultCard";
@@ -80,6 +80,17 @@ export default function FlightsPage() {
   const [bookTarget, setBookTarget] = useState<Flight | null>(null);
   const [bookForm, setBookForm] = useState(EMPTY_BOOK_FORM);
   const [tripId, setTripId] = useState("");
+
+  // A `?tripId=` link can point at a trip that's since been deleted, or one
+  // the current user doesn't own — once trips have loaded, drop a prefilled
+  // selection that isn't among them so the form doesn't silently submit an
+  // id that 404s instead of showing "no trip" as it should.
+  useEffect(() => {
+    if (!prefilledTripId || tripsData === undefined) return;
+    if (!trips.some((trip) => trip.id === prefilledTripId)) {
+      setTripId((current) => (current === prefilledTripId ? "" : current));
+    }
+  }, [tripsData, prefilledTripId, trips]);
   const [bookResult, setBookResult] = useState<Booking | null>(null);
   const [bookError, setBookError] = useState<string | null>(null);
   const bookFlight = useBookFlight();
@@ -244,6 +255,7 @@ export default function FlightsPage() {
           </div>
         ) : (
           <form onSubmit={submitBook} className="flex flex-col gap-md">
+            <p className="text-sm text-muted">{t("oneSeatNotice")}</p>
             <Field
               label={t("nameLabel")}
               required
