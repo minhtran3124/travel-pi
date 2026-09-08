@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "slug": "side-panel-multi-category-tabs",
+  "reviewed_head_sha": "ba78360927ae314adf78ac5675c928c4db76bc9a",
+  "reviewed_at": "2026-09-08T07:12:54+00:00",
+  "base_sha": "8d830d9d74175bd2f50a776539fba5a4bb1068d0",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 7,
+      "notes": "1.1, 2.1, 2.2, 2.3 spec pass / quality approved (Minor only: reviewers read-only so controller re-ran every SC command; whitespace category; tabs assume unique panelKey; category label bypasses t(); chip aria-label loses 'Places'; blank line). 3.1 verify-only gate run by controller (tsc 0 / lint 0)."
+    },
+    {
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 7,
+      "notes": "Six FIND angles over 8d830d9..7d8bd27, 5 locations deduped, scored independently: A localized category as identity (100), B focus swallowed on drawer mount (75), C tab strip overflow (75) fixed in f76155f (A = user-approved additive category_key on the places panel); D duplicate tab keys (0, producer guarantees uniqueness). Re-review rounds: e8f2e81 (stale focus re-pinned on remount) and ba78360 (nonce restarted after clear) — round 3 pass. Advisory in SUMMARY: sheetPanel frozen, old-turn chip shows latest payload (unmodified-line), legacy payloads without category_key, single-tab ✕ alignment, batched click+SSE (latent), focus not cleared on widget close."
+    },
+    {
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind, four passes (7d8bd27, f76155f, e8f2e81, ba78360): no gap / drift / excess against the verbatim request and the four user-confirmed decisions; category plumbing traced place_tools → mapper → PlacesPanelData."
+    }
+  ]
+}

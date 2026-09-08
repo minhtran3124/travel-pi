@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { qk } from "@/lib/api/keys";
 import { useIdentity } from "@/lib/identity/useUserId";
+import { panelKey } from "@/lib/stream/panel";
 import { ChatLauncher } from "./ChatLauncher";
 import { ChatPanel } from "./ChatPanel";
 import { PanelIntlProvider } from "./panel/PanelIntlProvider";
@@ -83,7 +84,10 @@ export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [mapHidden, setMapHidden] = useState(false);
   // Tab request for the drawer: set when an inline result card is clicked.
-  const [panelFocus, setPanelFocus] = useState<{ kind: string; nonce: number } | null>(null);
+  const [panelFocus, setPanelFocus] = useState<{ key: string; nonce: number } | null>(null);
+  // Monotonic and independent of panelFocus so a chip click after a cleared
+  // focus (a new panel streamed in) never restarts the nonce SidePanel saw.
+  const focusNonce = useRef(0);
   const isCompact = useIsCompact();
   const launcherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -116,12 +120,17 @@ export function ChatWidget() {
 
   // Re-surface the drawer when a new panel streams in: a prior "Hide" must not
   // latch it shut against a freshly-produced panel (e.g. weather after a route).
+  // Also clear any stale chip focus — a freshly streamed panel wins over an
+  // earlier chip request; a later chip click sets a new focus anyway.
   // Render-phase adjust-on-change (no effect) — the React-recommended pattern.
   const newestPanelId = stream.panels[stream.panels.length - 1]?.toolCallId ?? null;
   const [seenPanelId, setSeenPanelId] = useState(newestPanelId);
   if (newestPanelId !== seenPanelId) {
     setSeenPanelId(newestPanelId);
-    if (newestPanelId) setMapHidden(false);
+    if (newestPanelId) {
+      setMapHidden(false);
+      setPanelFocus(null);
+    }
   }
 
   // The agent co-pilot is part of the app shell, not the auth surfaces.
@@ -173,7 +182,8 @@ export function ChatWidget() {
               onClose={() => setOpen(false)}
               onOpenPanel={(panel) => {
                 setMapHidden(false);
-                setPanelFocus((f) => ({ kind: panel.kind, nonce: (f?.nonce ?? 0) + 1 }));
+                focusNonce.current += 1;
+                setPanelFocus({ key: panelKey(panel), nonce: focusNonce.current });
               }}
             />
           </div>
