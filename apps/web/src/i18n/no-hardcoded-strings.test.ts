@@ -52,6 +52,11 @@ function isAriaLabelScanned(relPath: string): boolean {
 // Text strictly between `>` and `<` with no interpolation braces in between,
 // containing at least one letter — i.e. a literal JSX text child, not a
 // `{t("key")}` expression or an aria-hidden icon's whitespace-only gap.
+//
+// Known limit, not a defect: any node containing a brace is skipped whole, so
+// a mixed node like `<p>Signed in as {name}</p>` is not detected — the same
+// rule that lets `{t("key")}` through also lets untranslated text sharing a
+// node with an expression through.
 const JSX_TEXT_RE = />([^<>{}]*[A-Za-z][^<>{}]*)</g;
 
 // A TS generic argument list (`useState<string | null>`, `useRef<HTMLDivElement>`)
@@ -72,6 +77,18 @@ function jsxTextViolations(source: string): string[] {
   return matches;
 }
 
+// Scope is deliberately narrow: `components/app-shell/**` plus
+// `UserMenu.tsx` only, NOT the rest of `components/auth/`. That directory
+// (AuthHero.tsx, OAuthButtons.tsx, SignOutButton.tsx, ...) is the auth
+// surface owned by a different spec, currently blocked behind an Auth hard
+// gate that this slice must not touch — widening the glob there would fire
+// the gate on files this slice deliberately excludes.
+//
+// Known gap this leaves uncovered: `SignOutButton.tsx` has a bare "Sign out"
+// JSX text node (detector 2's exact target class) and is not scanned. It is
+// verified dead code (zero importers), so nothing untranslated renders today
+// — but a future reader must not read this narrow scope as full coverage of
+// `components/auth/`.
 function isJsxTextScanned(relPath: string): boolean {
   return (
     relPath.startsWith("components/app-shell/") ||

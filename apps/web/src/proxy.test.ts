@@ -66,6 +66,14 @@ function expectRotatedCookieSurvives(response: NextResponse): void {
   expect(cookie?.maxAge).toBe(3600);
 }
 
+// Rows 1-3 must prove their own guard was the one that returned early —
+// not just that the cookie survived, which row 5 (a real redirect) would
+// also satisfy. `getRedirectUrl` returning null is the unambiguous signal
+// that no redirect was built (NextResponse.next() carries no Location).
+function expectNoRedirectBuilt(response: NextResponse): void {
+  expect(getRedirectUrl(response)).toBeNull();
+}
+
 describe("proxy — updateSession + applyLangParam composition", () => {
   beforeEach(() => {
     hasClaims = true;
@@ -79,6 +87,7 @@ describe("proxy — updateSession + applyLangParam composition", () => {
     const result = await proxy(request);
 
     expectRotatedCookieSurvives(result);
+    expectNoRedirectBuilt(result);
   });
 
   it("row 2: lang present but not a known locale — rotated cookie still lands on the response", async () => {
@@ -89,6 +98,7 @@ describe("proxy — updateSession + applyLangParam composition", () => {
     const result = await proxy(request);
 
     expectRotatedCookieSurvives(result);
+    expectNoRedirectBuilt(result);
   });
 
   it("row 3: non-document request — rotated cookie still lands on the response", async () => {
@@ -99,6 +109,7 @@ describe("proxy — updateSession + applyLangParam composition", () => {
     const result = await proxy(request);
 
     expectRotatedCookieSurvives(result);
+    expectNoRedirectBuilt(result);
   });
 
   it("row 4: updateSession itself returns the auth-gate 307 — rotated cookie carried onto it", async () => {
