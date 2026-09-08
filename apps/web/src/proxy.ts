@@ -1,8 +1,10 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { applyLangParam } from '@/lib/i18n/langParam'
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request)
+  const response = await updateSession(request)
+  return applyLangParam(request, response)
 }
 
 export const config = {
