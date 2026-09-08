@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { UpgradeDialog } from "@/components/booking/UpgradeDialog";
 import { FlightResultCard } from "@/components/flights/FlightResultCard";
@@ -79,18 +79,19 @@ export default function FlightsPage() {
 
   const [bookTarget, setBookTarget] = useState<Flight | null>(null);
   const [bookForm, setBookForm] = useState(EMPTY_BOOK_FORM);
-  const [tripId, setTripId] = useState("");
+  const [selectedTripId, setSelectedTripId] = useState("");
 
   // A `?tripId=` link can point at a trip that's since been deleted, or one
-  // the current user doesn't own — once trips have loaded, drop a prefilled
-  // selection that isn't among them so the form doesn't silently submit an
-  // id that 404s instead of showing "no trip" as it should.
-  useEffect(() => {
-    if (!prefilledTripId || tripsData === undefined) return;
-    if (!trips.some((trip) => trip.id === prefilledTripId)) {
-      setTripId((current) => (current === prefilledTripId ? "" : current));
-    }
-  }, [tripsData, prefilledTripId, trips]);
+  // the current user doesn't own. Derive the selection during render rather
+  // than correcting it in an effect: until trips load we trust the id, and
+  // once they have, an id that isn't among them reads as "no trip" — which
+  // is what the select shows and what the form submits.
+  const tripId =
+    selectedTripId &&
+    (tripsData === undefined ||
+      trips.some((trip) => trip.id === selectedTripId))
+      ? selectedTripId
+      : "";
   const [bookResult, setBookResult] = useState<Booking | null>(null);
   const [bookError, setBookError] = useState<string | null>(null);
   const bookFlight = useBookFlight();
@@ -114,7 +115,7 @@ export default function FlightsPage() {
   function openBook(flight: Flight) {
     setBookTarget(flight);
     setBookForm(EMPTY_BOOK_FORM);
-    setTripId(prefilledTripId);
+    setSelectedTripId(prefilledTripId);
     setBookResult(null);
     setBookError(null);
   }
@@ -284,7 +285,7 @@ export default function FlightsPage() {
             <Select
               label={t("tripLabel")}
               value={tripId}
-              onChange={(e) => setTripId(e.target.value)}
+              onChange={(e) => setSelectedTripId(e.target.value)}
             >
               <option value="">{t("tripNone")}</option>
               {trips.map((trip) => (
