@@ -137,3 +137,14 @@ A filtered grep returned nothing, so the scope was set to one prompt file. The r
 
 **Full doc:** docs/solutions/harness/negative-grep-is-not-absence.md
 ---
+
+## [2026-09-08] planner-search-first-save-later
+**Type:** decision
+**Module:** agent/planner
+**Tags:** prompts, planner, create_trip, search_flights, tool-ordering, intent-scoping, eval
+**Applicable when:** Writing or reviewing any prompt, tool docstring, or routing rule that makes a setup/write step ("no active trip → create one") a precondition of a turn, or adding a search tool to the planner.
+
+Planner v12 made `create_trip` step one of every trip-less turn, so a bare flight search became `create_trip → resolve_date` and never reached `search_flights` (GH-156, golden `flight_search-multi_turn-vi-01`); the baseline "pass" still carried the unrequested trip in its trace. Decision: **search first, save later** — search tools never need a trip; `create_trip` only when the traveller wants to build or save an itinerary. General rule: **gate a setup/write step on the intent that needs it, never on the absence of state**, and state the rule in BOTH the prompt and the tool description, because the model reads each independently.
+
+**Full doc:** docs/solutions/agent/planner-search-first-save-later.md
+---

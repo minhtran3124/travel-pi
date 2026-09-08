@@ -4,10 +4,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** side-panel-multi-category-tabs
-- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
+- **Slug:** gh-156-flight-search-before-create-trip
+- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
 - **Last skill:** finishing-a-development-branch
-- **Last action:** 7 commits on feat/side-panel-multi-category-tabs (panel key = kind + places category_key; drawer tabs/chips/focus by key; 3 correctness fix rounds); receipt at ba78360; PR opened → main. Next: human review + merge; UAT in browser (cafe + restaurant → 2 tabs).
+- **Last action:** PR #165 open → main (HEAD ec46c43): main merged in, browser UAT 2/2 with screenshots committed, receipt re-pinned, PR description rewritten decision-first. Awaiting human review/merge.
 - **Updated:** 2026-09-08
 
 ## Recent Specs
@@ -16,7 +16,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| side-panel-multi-category-tabs | 2026-09-08 | shipped | PR from feat/side-panel-multi-category-tabs → main |
+| gh-156-flight-search-before-create-trip | 2026-09-08 | review | PR open → main, awaiting merge |
+| side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
 | agent-system-copy-i18n | 2026-09-07 | shipped | merged via PR #145 → main |
 | agent-tool-round-budget | 2026-09-05 | shipped | merged via PR #143 → main |
@@ -1534,5 +1535,26 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: c5ff8680-8349-4ac1-b82b-e97965c1efb1
 - exit: 
 - last_commit: aa36da6 docs(specs): mark agent-system-copy-i18n shipped in STATE.md
+- user_turns: 0
+
+
+### 2026-09-08T08:50:38Z
+- session_id: 44be981d-95b4-4383-a008-827f6eb376af
+- exit: 
+- last_commit: d539377 docs(specs): gh-156 run state at ready_to_merge
+- user_turns: 0
+
+
+### 2026-09-08T09:04:00Z
+- session_id: b102f110-2491-4412-9cce-4179545e06b3
+- exit: 
+- last_commit: d539377 docs(specs): gh-156 run state at ready_to_merge
+- user_turns: 0
+
+
+### 2026-09-08T09:04:05Z
+- session_id: 28128cda-0dfd-424f-a3c1-266ece937e6b
+- exit: 
+- last_commit: d539377 docs(specs): gh-156 run state at ready_to_merge
 - user_turns: 0
 

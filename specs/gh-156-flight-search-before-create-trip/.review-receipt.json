@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "slug": "gh-156-flight-search-before-create-trip",
+  "reviewed_head_sha": "0d82a216c69d0aea7aa9471b6c8053d6f60c1b96",
+  "reviewed_at": "2026-09-08T09:17:23+00:00",
+  "base_sha": "9114bac",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "1.1, 1.2 spec pass / quality approved; 1.1 Minor fixed in 5c6f574, 1.2 Minor recorded in SUMMARY Advisory Findings"
+    },
+    {
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "6 angles over 8d830d9..5c6f574, 1 candidate scored 50 (< 75) recorded as advisory"
+    },
+    {
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "no gap/drift; 1 excess report-only (INDEX.md regeneration churn) recorded in SUMMARY Intent Findings"
+    },
+    {
+      "type": "repin-after-merge",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "github/main (9114bac, PR #164) merged in at 42592db; `git diff 8d830d9..5c6f574 -- apps docs` is byte-identical to `git diff 9114bac..HEAD -- apps docs`, so no gh-156 code or docs changed after the three reviews. Later commits are specs/ only (UAT screenshots + spec, harness deltas, run state)."
+    }
+  ]
+}
