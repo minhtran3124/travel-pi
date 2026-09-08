@@ -1,90 +1,103 @@
 # Browser UAT — S1 booking slice
 
-Run 2026-09-08 against the branch `feat/close-product-loop-s1-booking-ui` at `fbf39ad`, with the
-Next dev server on `:3001` and the API on `:8000` (Docker, dev Postgres).
-
-Driven by [`run-uat.mjs`](run-uat.mjs) — playwright-core under Node 24, because the Playwright MCP
-server is broken in this environment. Re-run it with:
+Run 2026-09-08 against `feat/close-product-loop-s1-booking-ui`, with the Next dev server on `:3001`
+and the API on `:8000` (Docker, dev Postgres). Driven by [`run-uat.mjs`](run-uat.mjs) —
+playwright-core under Node 24, because the Playwright MCP server is broken in this environment.
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"
 cd apps/web && node ../../specs/close-product-loop-s1-booking-ui/uat/run-uat.mjs
 ```
 
-Every case below was captured from a real browser against a real backend. Nothing here is mocked.
+The product shape under test: `/flights` and `/hotels` are **browse-only**, and every booking goes
+through the chatbot, which stamps the active trip onto the booking.
 
 | # | Case | Result |
 |---|---|---|
-| 1 | Flights and Hotels reachable from the app nav | Both entries present |
-| 2 | Flight search returns bookable fares (DAD → SGN) | 5 fares, cheapest marked |
-| 3 | Book dialog: one-seat notice, trip preselected from `?tripId=` | Notice shown, trip preselected |
-| 4a | **Free account** books → refused | Upgrade dialog, nothing booked |
-| 4b | **Premium account** books → confirmed | Confirmation code returned |
-| 5 | The booking appears on the trip's Bookings tab | `PTW5DF`, confirmed, $277.78 |
-| 6 | Budget shows both totals, labelled | Total spent $0.00 · Booked total $277.78 |
-| 7 | Hotel availability for the chosen dates | Da Nang results with nightly rates |
-| 8 | Hotel book dialog, trip preselected | Dialog opens with the trip set |
+| 1 | Flights and Hotels reachable from the app nav | Both present |
+| 2 | `/flights` searches and shows results, with **no** booking control | 0 Book buttons; assistant hint shown |
+| 3 | `/hotels` the same | 0 Book buttons; assistant hint shown |
+| 4 | Asking the assistant to book, from the trip's own page | Request accepted, plan proposed |
+| 5 | The assistant asks before spending money | Approval gate shown |
+| 6 | After approving | **Blocked — see below** |
+| 7 | The trip's Bookings tab | Empty, because nothing was booked |
+| 8 | The trip's Budget tab | Booked total $0, for the same reason |
 
 ### 1 — Flights and Hotels in the nav
 
 ![Flights and Hotels in the app nav](01-nav-flights-hotels.png)
 
-### 2 — Flight search results
+### 2 — `/flights` is browse-only
 
-![DAD to SGN search results](02-flights-search-results.png)
+![Flight results with no Book control](02-flights-browse-only.png)
 
-### 3 — Book dialog
+### 3 — `/hotels` is browse-only
 
-![Book dialog with the one-seat notice and the trip preselected](03-flight-book-dialog.png)
+![Hotel results with no Book control](03-hotels-browse-only.png)
 
-### 4a — Free account is refused
+### 4 — Asking the assistant to book
 
-![The 403 opens the upgrade dialog](04-free-tier-upgrade-dialog.png)
+![The booking request sent to the assistant](04-chat-booking-asked.png)
 
-### 4b — Premium account books
+### 5 — The assistant asks first
 
-![The booking is confirmed](04-premium-booking-confirmed.png)
+![The approval gate before booking](05-chat-booking-approval-gate.png)
 
-### 5 — The booking on its trip
+### 6 — After approval, the booking does not happen
 
-![The booking listed on the trip's Bookings tab](05-trip-bookings-tab.png)
+![The assistant asks for a valid email it can never receive](06-chat-booking-done.png)
 
-### 6 — Both budget totals
+### 7 and 8 — The trip stays empty
 
-![Total spent beside booked total, each with its own explanation](06-trip-budget-two-totals.png)
+![Bookings tab, empty](07-trip-bookings-after-chat.png)
 
-### 7 — Hotel availability
+![Budget tab, booked total zero](08-trip-budget-after-chat.png)
 
-![Da Nang availability results](07-hotels-search-results.png)
+## The blocker this UAT found
 
-### 8 — Hotel book dialog
+**Booking through the chatbot cannot currently complete, for any user.**
 
-![Hotel book dialog with the trip preselected](08-hotel-book-dialog.png)
+The assistant searched, proposed the cheapest fare, asked for approval, and then stopped with:
 
-## What case 6 is showing
+> I can confirm the booking as soon as you send a valid email address for UAT Tester. The airline
+> needs a real email with an @ sign.
 
-`Total spent $0.00` next to `Booked total $277.78` is **correct, not a bug**. They answer different
-questions and the tab says so on screen: total spent is what is counted in the itinerary, summed per
-itinerary item, so it misses a booking no item references; booked total is every non-cancelled
-booking carrying this trip, counted once. The booking here was made from `/flights` and was never
-added as an itinerary item, so only the second number sees it.
+The email *was* supplied — `uat-<stamp>@example.com`. The approval card shows what the assistant
+actually received: `email [REDACTED_EMAIL]`.
 
-## Both tiers, in one run
+Three facts meet here, and only the third is new:
 
-The script branches on whatever the server answers, so a single run covers whichever tier the
-account has. Case 4a came from the account as it normally is (free). For 4b the account was
-temporarily set to premium with `scripts/set_tier.py`, the run repeated, **and the tier set back to
-free afterwards** — the dev database is shared, so it was left as found.
+1. `pii_guardrail_node` (`apps/api/app/agents/guardrails.py:98-112`) is the graph's entry node and
+   replaces **every** email in the user's message with `[REDACTED_EMAIL]` before any model call.
+2. `passenger_email` and `guest_email` are **required** on the booking tools
+   (`flight_tools.py:297`, `hotel_tools.py:158`), and nothing in `TravelAgentState` carries the
+   account's email — state has `user_id` and a `profile` string of name/gender/travel-group
+   (`agents/state.py:83,93`).
+3. The web pages no longer book, so chat is the only path left.
 
-## One real defect this UAT found
+Points 1 and 2 predate this branch and have always been in tension; point 3 is what turns that
+tension into a dead end. Nothing on this branch caused it, and nothing on this branch can be blamed
+for it, but the branch's stated direction does not work until it is resolved.
 
-The first premium attempt failed with the generic "Couldn't complete the booking" message. The API
-log gave the cause: `column bookings.trip_id does not exist`. The dev Postgres was still at
-`a7c3e9f1b2d4` — the migration had never been applied there, only in the test databases the suite
-creates from scratch. Running `alembic upgrade head` from `apps/api` fixed it, and the run above is
-post-upgrade.
+The obvious fix is to supply the email the same way `user_id` and `trip_id` are supplied: injected
+server-side from the account, never model-supplied and therefore never redacted. That is a product
+decision about using someone's account email as the booking contact, so it is written down here
+rather than made unilaterally.
 
-Worth noting for whoever deploys this: **the migration has to run**, and until it does, every
-booking attempt fails with a message that does not say why. No automated check on this branch would
-have caught it, because both the SQLite suite and the Docker Postgres suite build their schema from
-the migrations rather than against a long-lived database.
+## What was verified instead
+
+That the trip actually gets stamped onto a chat booking is covered at the tool level by
+`apps/api/tests/tools/test_booking_trip_id.py`, which invokes both booking tools the way the graph
+does — with and without a trip in state — and asserts the stamped `trip_id`. The browser cannot
+demonstrate it end to end until the email blocker above is resolved.
+
+## Environment notes
+
+- The chat booking case needs a premium account; the booking sub-agent is premium-only. The UAT
+  account was temporarily set to premium with `scripts/set_tier.py` and **set back to free
+  afterwards** — the dev database is shared, so it was left as found.
+- An earlier run of this UAT found the dev Postgres had never had the migration applied: every
+  booking failed with a generic message while the API log said `column bookings.trip_id does not
+  exist`. **The migration has to run on deploy.** No test on this branch could have caught it —
+  both the SQLite and Docker Postgres suites build their schema from the migrations against a fresh
+  database, so only a long-lived one can lag.
