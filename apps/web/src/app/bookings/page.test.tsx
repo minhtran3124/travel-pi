@@ -42,5 +42,6 @@ describe("BookingsPage loading state", () => {
 
     const status = screen.getByRole("status");
     expect(status).toHaveClass("sr-only");
+    expect(status.textContent).toBe("loadingLabel");
   });
 });

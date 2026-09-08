@@ -23,9 +23,12 @@ describe("PlacesPage — loading state", () => {
     expect(screen.getByTestId("saved-places-grid-skeleton")).toBeTruthy();
   });
 
-  it("renders no spinner (animate-spin) while isLoading", () => {
-    const { container } = render(<PlacesPage />);
-    expect(container.querySelector(".animate-spin")).toBeNull();
+  it("renders no spinner (animate-spin) within the loading skeleton", () => {
+    render(<PlacesPage />);
+    const skeleton = screen.getByTestId("saved-places-grid-skeleton");
+    expect(skeleton.querySelector(".animate-spin")).toBeNull();
+    const status = screen.getByRole("status");
+    expect(status.querySelector(".animate-spin")).toBeNull();
   });
 
   it("keeps the filter row live while isLoading", () => {
@@ -38,5 +41,6 @@ describe("PlacesPage — loading state", () => {
     render(<PlacesPage />);
     const status = screen.getByRole("status");
     expect(status.className).toContain("sr-only");
+    expect(status.textContent).toBe("loadingLabel");
   });
 });

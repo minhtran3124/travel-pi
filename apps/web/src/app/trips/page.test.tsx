@@ -28,5 +28,6 @@ describe("TripsPage", () => {
 
     const status = screen.getByRole("status");
     expect(status.className).toContain("sr-only");
+    expect(status.textContent).toBe("loadingTripsStatus");
   });
 });
