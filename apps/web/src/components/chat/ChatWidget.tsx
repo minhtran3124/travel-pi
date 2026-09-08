@@ -85,6 +85,9 @@ export function ChatWidget() {
   const [mapHidden, setMapHidden] = useState(false);
   // Tab request for the drawer: set when an inline result card is clicked.
   const [panelFocus, setPanelFocus] = useState<{ key: string; nonce: number } | null>(null);
+  // Monotonic and independent of panelFocus so a chip click after a cleared
+  // focus (a new panel streamed in) never restarts the nonce SidePanel saw.
+  const focusNonce = useRef(0);
   const isCompact = useIsCompact();
   const launcherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -179,7 +182,8 @@ export function ChatWidget() {
               onClose={() => setOpen(false)}
               onOpenPanel={(panel) => {
                 setMapHidden(false);
-                setPanelFocus((f) => ({ key: panelKey(panel), nonce: (f?.nonce ?? 0) + 1 }));
+                focusNonce.current += 1;
+                setPanelFocus({ key: panelKey(panel), nonce: focusNonce.current });
               }}
             />
           </div>

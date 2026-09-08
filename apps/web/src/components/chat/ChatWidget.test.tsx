@@ -147,4 +147,22 @@ describe("ChatWidget — responsive shell", () => {
 
     expect(screen.getByTestId("side-panel").dataset.focusKey).toBeUndefined();
   });
+
+  it("the first chip click after a new panel streams in still focuses the drawer", () => {
+    setViewport(false);
+    const { rerender } = render(<ChatWidget />);
+    open();
+
+    fireEvent.click(screen.getByLabelText("open-cafe-panel"));
+    expect(screen.getByTestId("side-panel").dataset.focusNonce).toBe("1");
+
+    mockPanels.push({ toolCallId: "t2", kind: "weather", data: {} });
+    rerender(<ChatWidget />);
+    expect(screen.getByTestId("side-panel").dataset.focusKey).toBeUndefined();
+
+    fireEvent.click(screen.getByLabelText("open-cafe-panel"));
+    const sidePanel = screen.getByTestId("side-panel");
+    expect(sidePanel.dataset.focusKey).toBe("places:cafe");
+    expect(sidePanel.dataset.focusNonce).toBe("2");
+  });
 });
