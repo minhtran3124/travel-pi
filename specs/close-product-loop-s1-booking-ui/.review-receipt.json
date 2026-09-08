@@ -1,12 +1,12 @@
 {
-  "reviewed_head_sha": "889b1895d91f9a8cb268870766f0422ab02bbb43",
+  "reviewed_head_sha": "032aa96a6a02d1d5d4085ec5fb4366b7f4b77da3",
   "reviews": [
     {
       "type": "correctness",
       "reviewer": "independent-adversarial",
       "result": "pass",
       "blocking_open": 0,
-      "advisory_open": 3
+      "advisory_open": 5
     },
     {
       "type": "intent",
@@ -16,5 +16,5 @@
       "advisory_open": 0
     }
   ],
-  "created": "2026-09-08T14:32:40Z"
+  "created": "2026-09-08T15:48:24Z"
 }

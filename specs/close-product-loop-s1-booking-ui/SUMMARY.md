@@ -93,6 +93,13 @@ under distinct labels rather than change the older maths.
   submitted; the Bookings tab could show fewer bookings than the budget counted; the book mutations
   invalidated nothing; an unused hotel search hook and query key were removed; and an unrelated
   reformat in `app/schemas/booking.py` was reverted.
+- Commit `7b7bc87`: the stale-`tripId` fix above cleared state from inside a `useEffect`, which lint
+  rejects (a synchronous `setState` in an effect causes cascading renders). Replaced with a
+  render-time derivation.
+- Commit `032aa96`: that derivation then validated against the default first page of 20 trips, so a
+  user with more than 20 trips could have a valid prefilled `tripId` silently dropped — worse than
+  the bug it replaced. Both pages now request the full list. Also added the hotels-side test for
+  that path, which only the flights page had.
 
 ### Verify
 
@@ -112,7 +119,9 @@ under distinct labels rather than change the older maths.
 | Typecheck | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run against the regenerated `schema.d.ts` | SC-12 |
 | Backend lint | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | All checks passed | SC-13 |
 | E2E spec collectable | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec playwright test --list playwright/booking-smoke.spec.ts` | 0 | lists 2 tests; skips without credentials | SC-14 |
-| Whole frontend suite | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test` | 0 | 248 passed across 45 files | |
+| Whole frontend suite | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test` | 0 | 249 passed across 45 files | |
+| Frontend lint | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec eslint .` | 0 | 0 errors; 1 warning, pre-existing in `useAgentStream.ts` | |
+| Backend suite, areas this branch touches | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/booking tests/api/trip tests/api/flight tests/api/hotel tests/db tests/infra -q -p no:randomly` | 0 | 387 passed | |
 
 ### Not auto-verified
 
@@ -154,6 +163,13 @@ under distinct labels rather than change the older maths.
   without touching any other data.
 
 ### Known limitations (found by review, deliberately not fixed here)
+
+- **The idempotency key is per booking attempt, not per request body.** If a booking fails with the
+  response lost, the dialog stays open; editing the form and resubmitting replays the ORIGINAL
+  booking with the old data and reports success. Accepted as the trade-off for closing the
+  double-booking path; keying on a body hash would reopen it.
+- **The Bookings tab requests the server's maximum page size of 500.** A trip with more than 500
+  bookings would still show fewer rows than `booked_total` counts.
 
 - **A booking made through the chatbot never carries a `trip_id`.** The agent's `book_flight` and
   `book_hotel` tools build their request without one and their signatures do not accept one
