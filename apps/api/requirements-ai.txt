@@ -67,3 +67,14 @@ mcp>=1.2,<2.0
 # OpenAI-native LLM judge. Verified not to force the fastapi/starlette/pydantic
 # caps above (pip check clean at pin time).
 deepeval>=4.0,<5
+
+# Deterministic tool-call trajectory matching for the eval pipeline
+# (agent-eval-pipeline task 2.2; MIT, langchain-ai/agentevals). Eval-only —
+# not imported by the runtime app. Pinned to the exact version its API was
+# verified against (`agentevals.trajectory.match.create_trajectory_match_evaluator`,
+# modes strict/unordered/superset — see evalkit/metrics/trajectory.py for the
+# strict<->superset naming gotcha). Depends only on `openevals>=0.0.20`, which
+# resolves against the langchain/langgraph pins above with no forced bump;
+# pulls in `langchain_core` at runtime as its own dependency, not ours —
+# `evalkit/` itself never imports langchain directly (test_boundary.py).
+agentevals==0.0.9

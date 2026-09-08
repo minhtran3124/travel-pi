@@ -88,6 +88,7 @@ origin with `NEXT_PUBLIC_API_URL` in `apps/web/.env.local` when needed.
 | Build the frontend only | `pnpm --filter @travel/web build` |
 | Seed the local backend database | `make seed` |
 | Start / stop API + Postgres with Docker | `make up` / `make down` |
+| Run the agent eval locally (smoke / full judged / regression gate) | `make eval-smoke` / `make eval-full` / `make eval-check` |
 
 For backend-specific commands, migrations, database behavior, and API endpoints, see
 [apps/api/README.md](apps/api/README.md). Swagger is available at
@@ -137,6 +138,7 @@ They cover planning thresholds, scope control, verification, and documentation r
 ## More documentation
 
 - [API reference](apps/api/APIS.md)
+- [Agent eval: how to run it locally](apps/api/eval/README.md)
 - [Agent workflow diagram](WORKFLOW_DIAGRAM.md)
 - [Technology stack](TECHSTACKS.md)
 - [Feature specs](specs/README.md)
