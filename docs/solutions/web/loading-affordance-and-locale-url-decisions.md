@@ -77,6 +77,28 @@ that nobody requested; it stays the upgrade path if SEO becomes a requirement.
   address bar shares a locale-less URL. "Hand someone a built link" works; "share the page I am
   looking at" does not. Accepted, not solved.
 
+## Revisit Condition
+
+The RSC conversion was **declined on 2026-09-08**, after weighing it rather than deferring it by
+default. Reasons, so this is not re-argued from scratch:
+
+- **SEO gain is zero.** All four routes (`/trips`, `/trips/[tripId]`, `/bookings`, `/places`) sit
+  behind the auth gate in `lib/supabase/middleware.ts`. No crawler reaches them. That is normally
+  the headline reason to adopt RSC and it does not apply here.
+- **Bundle gain is small.** These pages are filter/sort/modal/tab-heavy; that code stays on the
+  client either way. Only the outer fetch layer moves.
+- **In-app navigation barely changes.** After first load the bundle is cached, so the win is
+  concentrated in cold load, hard refresh, slow network and slow device.
+- **The cost is an auth hard gate.** It needs a server-side Supabase session → FastAPI bearer path
+  that `authHeader()` deliberately does not provide, plus two data paths maintained in parallel
+  through a `HydrationBoundary`.
+
+**Reopen only on a measurement, not on the metric in the review.** "53/72 client components" is a
+proxy, not a goal; lowering it does not by itself make the app better. Run Lighthouse against
+`/trips` cold, throttled to 4G, and read LCP. A bad LCP is the evidence that justifies a
+`high-risk` lane and gives a baseline to prove the change worked. A fine LCP means the conversion
+would trade an auth-path architecture change for something no user can feel.
+
 ## Related
 - docs/solutions/web/nextjs-16-proxy-and-loading-boundaries.md
 - docs/solutions/agent/side-panel-language-decisions.md
