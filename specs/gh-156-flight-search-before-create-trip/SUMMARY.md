@@ -104,4 +104,8 @@ The defect is an instruction-ordering problem in the planner prompt, not a graph
 
 ### Harness-Delta
 
-- none
+- backlog — `.claude/scripts/rebuild_solution_index.py` indexes `docs/solutions/README.md` as an entry under a `## —` category; it should skip README.md like INDEX.md/critical-patterns.md.
+- backlog — `verify_summary.py --check` re-runs every Verify command, including a paid multi-minute eval; the sibling convention (`<paid run, not re-run under --check: …>`) is the only escape and is undocumented in the template.
+- backlog — `finishing-a-development-branch/SKILL.md` says `--require correctness,intent`, but receipt types are `correctness-review` / `intent-review` (exact match in `check_review_receipt.py`); the documented command fails with missing-required-type.
+- backlog — `render_skill_prompt.py --fragment` needs the `.claude/`-prefixed path, but `correctness-reviewer-prompt.md` documents the bare `skills/...` form (fails with "missing fragment").
+- backlog — the full BE suite cannot be trusted from the main checkout: `apps/api/.env` (real keys + dashboard basic-auth) makes ~59 unrelated tests fail; proof has to run in a `.env`-less worktree.
