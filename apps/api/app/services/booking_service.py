@@ -21,6 +21,7 @@ from app.db.session import get_session
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
 from app.repositories.booking import BookingRepository
+from app.repositories.trip import TripRepository
 from app.schemas.booking import (
     Booking,
     FlightBookingDetails,
@@ -273,6 +274,26 @@ class BookingService:
             )
         return existing
 
+    def _verify_trip_ownership(self, trip_id: str | None, user_id: str) -> None:
+        """Raise :class:`NotFoundError` if ``trip_id`` is set but not the caller's.
+
+        Mirrors the ``_validate_trip`` check in ``expense_service.py``: both a
+        missing and a foreign trip answer the same ``NotFoundError`` so this
+        route can't become an oracle for whether a guessed trip id exists
+        (#118). ``None`` (no trip requested) is a no-op.
+
+        :param trip_id: The trip id to attach the booking to, or ``None``.
+        :param user_id: The caller who must own the trip.
+        """
+        if trip_id is None:
+            return
+        trip = TripRepository(self._session).get_trip(trip_id, user_id)
+        if trip is None:
+            raise NotFoundError(
+                f"Trip {trip_id!r} not found",
+                hint="Use GET /trips to list existing trips.",
+            )
+
     def book_flight(
         self,
         request: FlightBookingRequest,
@@ -294,6 +315,8 @@ class BookingService:
         replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
             return replayed
+
+        self._verify_trip_ownership(request.trip_id, user_id)
 
         if request.flight_id:
             flight = FlightService(self._session).find_flight_by_id(request.flight_id)
@@ -346,6 +369,7 @@ class BookingService:
                 passenger_name=request.passenger_name,
                 passenger_phone=request.passenger_phone,
             ),
+            trip_id=request.trip_id,
         )
         self._repo.add(booking, user_id, idempotency_key=idempotency_key)
         logger.info("Created flight booking %s for flight %s", booking.id, flight.id)
@@ -376,6 +400,8 @@ class BookingService:
         replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
             return replayed
+
+        self._verify_trip_ownership(request.trip_id, user_id)
 
         hotel = HotelService(self._session).get_hotel(request.hotel_id)
         if hotel is None:
@@ -434,6 +460,7 @@ class BookingService:
                 price_per_night=hotel.price_per_night,
                 guest_phone=request.guest_phone,
             ),
+            trip_id=request.trip_id,
         )
         self._repo.add(booking, user_id, idempotency_key=idempotency_key)
         logger.info(

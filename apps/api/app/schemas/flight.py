@@ -201,6 +201,13 @@ class FlightBookingRequest(AppBaseModel):
         ),
         examples=["Window seat preferred"],
     )
+    trip_id: str | None = Field(
+        default=None,
+        description=(
+            "Attach this booking to a trip you own (from POST /trips). "
+            "Optional; a trip_id you do not own is refused with 404."
+        ),
+    )
 
     @field_validator("departure_date")
     @classmethod

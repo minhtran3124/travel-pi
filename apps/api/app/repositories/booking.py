@@ -199,7 +199,7 @@ class BookingRepository(Repo):
             notes=booking.notes,
             idempotency_key=idempotency_key,
             confirmation_code=booking.confirmation_code,
-            trip_id=getattr(booking, "trip_id", None),
+            trip_id=booking.trip_id,
         )
         try:
             with self._session() as s:

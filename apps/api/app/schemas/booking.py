@@ -67,7 +67,9 @@ class HotelBookingDetails(AppBaseModel):
     adults: int = Field(description="Adults in the party.")
     children: int = Field(description="Children in the party.")
     price_per_night: float = Field(description="Locked nightly rate at booking time.")
-    guest_phone: str | None = Field(default=None, description="Contact phone for the hotel.")
+    guest_phone: str | None = Field(
+        default=None, description="Contact phone for the hotel."
+    )
 
 
 BookingDetails = Annotated[
@@ -136,6 +138,10 @@ class Booking(AppBaseModel):
     notes: str | None = Field(
         default=None,
         description="Free-form note an agent or user attached at booking time.",
+    )
+    trip_id: str | None = Field(
+        default=None,
+        description="The trip this booking is attached to, if any.",
     )
 
     @computed_field  # type: ignore[prop-decorator]
