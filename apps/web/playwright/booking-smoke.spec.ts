@@ -95,7 +95,11 @@ test("search a flight, then either book it against a trip or be refused as free 
   if (await upgradeDialog.isVisible()) {
     // Free tier: the route refused the booking with 403 and the app offered
     // the upgrade instead of failing silently or looking like it worked.
-    await expect(upgradeDialog).toContainText("premium feature");
+    // The dialog renders the BE's `hint` when there is one ("Upgrade to premium
+    // to book flights and hotels.") and its own copy otherwise ("Booking is a
+    // premium feature."), so match the word both share rather than either
+    // sentence.
+    await expect(upgradeDialog).toContainText(/premium/i);
     await upgradeDialog.getByRole("button", { name: "Got it" }).click();
 
     // ...and nothing was booked against the trip.

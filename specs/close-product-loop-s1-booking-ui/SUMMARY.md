@@ -125,7 +125,13 @@ under distinct labels rather than change the older maths.
 
 ### Not auto-verified
 
-- **The premium booking flow in a real browser** — not proven. CI does run `playwright/booking-smoke.spec.ts`
+- **The premium booking flow in a real browser** — **now proven.** See
+  `specs/close-product-loop-s1-booking-ui/uat/` for a browser UAT run on 2026-09-08 against the
+  running dev stack: eight screenshots covering both tiers, including a confirmed booking appearing
+  on the trip's Bookings tab and both budget totals side by side. That run also found a real
+  deployment hazard, recorded below. The paragraph that follows describes what CI alone covers.
+
+- **What CI alone covers** — not the booking half. CI does run `playwright/booking-smoke.spec.ts`
   (the `web-e2e` job; an earlier note that Playwright was outside CI was wrong), but its backend
   starts on a fresh `sqlite:///./e2e.db` where the e2e user has no tier row, so the account resolves
   to **free** and the spec exercises the refusal path, not the booking path. What CI proves is that a
@@ -166,6 +172,15 @@ under distinct labels rather than change the older maths.
   `cd apps/api && ../../.venv/bin/alembic downgrade a7c3e9f1b2d4`
 - The column add is additive and nullable, so the downgrade drops `bookings.trip_id` and its index
   without touching any other data.
+
+### Deployment note
+
+The migration **must be applied** before this ships. The browser UAT hit exactly this: the dev
+Postgres was still at `a7c3e9f1b2d4`, and every booking failed with the generic "Couldn't complete
+the booking" message while the API log showed `column bookings.trip_id does not exist`. Nothing on
+this branch would have caught it — both the SQLite suite and the Docker Postgres suite build their
+schema from the migrations against a fresh database, so only a long-lived one can be behind.
+`cd apps/api && alembic upgrade head`.
 
 ### Known limitations (found by review, deliberately not fixed here)
 
