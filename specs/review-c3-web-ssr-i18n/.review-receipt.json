@@ -1,0 +1,20 @@
+{
+  "reviewed_head_sha": "4315e3b5212aa520f6a9003e8f4d50b2391552d8",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "six-angle blind FIND over main..HEAD",
+      "result": "pass",
+      "blocking_open": 1,
+      "advisory_open": 3
+    },
+    {
+      "type": "intent",
+      "reviewer": "plan-blind oracle against SUMMARY ### Intent",
+      "result": "fail",
+      "blocking_open": 2,
+      "advisory_open": 3
+    }
+  ],
+  "created": "2026-09-08T15:43:32Z"
+}
