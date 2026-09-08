@@ -175,6 +175,3 @@ def require_premium(session: _SessionDep, auth_user: CurrentUserDep) -> None:
         raise PremiumRequiredError(
             hint="Upgrade to premium to book flights and hotels."
         )
-
-
-RequirePremiumDep = Depends(require_premium)

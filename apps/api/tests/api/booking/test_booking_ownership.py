@@ -20,6 +20,7 @@ from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.db.session import get_session
 from app.main import create_app
+from app.repositories.user import UserRepository
 from app.services import hotel_service
 from fastapi.testclient import TestClient
 
@@ -39,6 +40,12 @@ def _client_as(tmp_db, user_id: str | None) -> TestClient:
     """A TestClient acting as ``user_id``, or unauthenticated when None."""
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
     seed_all(get_session_factory(tmp_db))
+    if user_id is not None:
+        # The premium gate (Task 1.1) applies to POST /flights/book and
+        # POST /hotels/book; this file's clients authenticate as their own
+        # (non-default) users, so seed each one premium the same way the
+        # shared conftest fixture does for DEFAULT_TEST_USER_ID.
+        UserRepository(get_session_factory(tmp_db)).upsert_tier(user_id, "premium")
     app = create_app()
 
     def _session():

@@ -3,16 +3,16 @@
 import os
 
 import pytest
+from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.db.session import get_session
 from app.main import create_app
+from app.repositories.user import UserRepository
 from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
-
-from app.core.auth import AuthUser, get_current_user
 
 
 @pytest.fixture(autouse=True)
@@ -63,6 +63,14 @@ def client(tmp_db):
     # Every service/router now resolves its repos from the request session, so
     # the get_session override below is the single seam — no per-service repointing.
     seed_all(get_session_factory(tmp_db))
+
+    # #164: the premium gate (Task 1.1) resolves tier via UserRepository, and no
+    # ``users`` row exists for the shared test caller — seed one as premium so
+    # the suite exercises the real dependency as an entitled caller instead of
+    # every pre-existing book-route test regressing to 403.
+    UserRepository(get_session_factory(tmp_db)).upsert_tier(
+        DEFAULT_TEST_USER_ID, "premium"
+    )
 
     app = create_app()
 
