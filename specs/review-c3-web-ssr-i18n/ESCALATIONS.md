@@ -18,6 +18,9 @@ Default: **deny-on-no-response**. No recorded decision → work stays blocked.
   - B) **Fix here.** Add the boundary in this branch. Faster, but puts an unreviewed auth-behaviour decision inside a PR nobody will read for that.
   - C) **Accept as-is.** Record that an auth-backend outage 500s the site. Defensible only if the deploy pipeline guarantees the env vars and the Supabase host is treated as a hard dependency.
 - default_if_no_response: BLOCK
-- decision: pending
-- decided_by: <name once decided>
-- decided_at: <YYYY-MM-DD>
+- decision: **A — fix in a separate spec.** The boundary is not added to this branch. Intake for the
+  follow-up is recorded at `specs/proxy-auth-failure-boundary/SUMMARY.md`, lane `high-risk` (the
+  `auth` hard gate fires). This slice keeps its boundary: it renamed the convention file, it did not
+  take ownership of the session-refresh failure path.
+- decided_by: Minh Tran
+- decided_at: 2026-09-08

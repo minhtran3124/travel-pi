@@ -132,6 +132,13 @@ because it is correct and load-bearing:
   two gaps close together or not at all — with no async server work, a `loading.tsx` has nothing to
   wait on. **Closing it requires the RSC fork: a separate spec, `high-risk` lane, needing a
   server-side auth path.** Not fixed here, by decision.
+
+  **Decision of record (standing, 2026-09-08).** The user was shown the measurement at design time
+  — `loading.tsx` never painting for a client-fetch page — and chose "bỏ loading.tsx, giữ phần còn
+  lại". The oracle re-surfaced it independently, blind to that reasoning, which is the point of the
+  oracle; it does not overturn the decision. Deep-review item 12 therefore stays **open**, and
+  closing it means the RSC fork as its own `high-risk` spec. Recorded here so the next reader finds
+  the reason attached to the gap rather than having to reconstruct it.
 - **gap, advisory — one hardcoded `aria-label` survives.** `app/auth/login/page.tsx:70`
   ("Sign-in method"), and the new gate excludes `app/auth/` by design. Legitimate as a boundary,
   but it is a named instance of the requested defect deferred to `auth-pages-redesign`, not a

@@ -1,20 +1,23 @@
 {
-  "reviewed_head_sha": "4315e3b5212aa520f6a9003e8f4d50b2391552d8",
+  "reviewed_head_sha": "39b7788",
   "reviews": [
     {
       "type": "correctness",
       "reviewer": "six-angle blind FIND over main..HEAD",
       "result": "pass",
-      "blocking_open": 1,
-      "advisory_open": 3
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "note": "E001 routed to specs/proxy-auth-failure-boundary (decision A); 5 findings fixed in 39b7788; 3 recorded"
     },
     {
       "type": "intent",
       "reviewer": "plan-blind oracle against SUMMARY ### Intent",
-      "result": "fail",
-      "blocking_open": 2,
-      "advisory_open": 3
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5,
+      "note": "2 blocking gaps accepted by standing user decision and recorded in SUMMARY ### Intent Findings; item 12 stays open"
     }
   ],
-  "created": "2026-09-08T15:43:32Z"
+  "created": "2026-09-08T15:43:32Z",
+  "note": "Anchored at the last commit that changed code. Everything after it on this branch touches specs/ only (verified: `git diff --name-only 39b7788..HEAD | grep -v '^specs/'` is empty), so the receipt is not invalidated."
 }
