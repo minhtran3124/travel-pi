@@ -110,9 +110,9 @@ BOOKING_UPGRADE_MSG = (
 # Supervisor could not map the message to any specialist.
 NOT_SURE_MSG = "I'm not sure how to help with that yet."
 
-# HITL plan node outcomes (app/agents/nodes.py).
+# HITL plan node reject outcome (app/agents/nodes.py). Approval has no reply
+# line: it is state (plan_approved) shown by the client as an activity step.
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."
-PLAN_APPROVED_MSG = "Plan approved. Proceeding with booking."
 
 # Always-on safety net: returned to the user when the agent run fails before it
 # could produce any reply (tool outage, LLM error, or a ReAct loop that exhausted

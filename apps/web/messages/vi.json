@@ -486,6 +486,7 @@
       "airQuality": "Đang kiểm tra chất lượng không khí",
       "budget": "Đang kiểm tra ngân sách",
       "journal": "Đang cập nhật chuyến đi",
+      "approved": "Đã duyệt · Tin đang tiến hành đặt chỗ",
       "error": {
         "generic": "Không hoàn tất được bước này",
         "hotels": "Không tìm được khách sạn",
@@ -496,6 +497,7 @@
         "airQuality": "Không kiểm tra được chất lượng không khí",
         "budget": "Không kiểm tra được ngân sách",
         "journal": "Không cập nhật được chuyến đi",
+        "approved": "Không ghi nhận được lượt duyệt",
         "working": "Không hoàn tất được bước này"
       }
     },

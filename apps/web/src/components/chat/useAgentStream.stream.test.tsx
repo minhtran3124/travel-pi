@@ -357,6 +357,12 @@ describe("useAgentStream — per-turn activity + panels", () => {
     const assistant = result.current.messages.find((m) => m.role === "assistant");
     // The resume loop appended its tool step to the same assistant turn.
     expect(assistant?.activity.some((step) => step.id === "t5" && step.status === "ok")).toBe(true);
+    // Approval itself is recorded as a status step ahead of the resumed work.
+    const approvedIdx = assistant?.activity.findIndex((step) => step.tool === "plan_approved") ?? -1;
+    const toolIdx = assistant?.activity.findIndex((step) => step.id === "t5") ?? -1;
+    expect(approvedIdx).toBeGreaterThanOrEqual(0);
+    expect(approvedIdx).toBeLessThan(toolIdx);
+    expect(assistant?.activity[approvedIdx]?.status).toBe("ok");
   });
 });
 

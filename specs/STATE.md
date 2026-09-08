@@ -4,10 +4,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** agent-system-copy-i18n
-- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** finishing-a-development-branch
-- **Last action:** PR #145 merged into main (squash, commit 1301b9e); CI api/web/web-e2e green; Vietnamese UAT at screenshots/uat-agent-system-copy-i18n/ PASS. Branch deleted local + remote. Open: B3 plan_approved line is overwritten by the booking agent's reply in the same turn (pre-existing presentation); unknown_intent/error_fallback not UI-reachable.
+- **Slug:** plan-approved-line-reset
+- **Phase:** implement  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** subagent-driven-development
+- **Last action:** Option B implemented on fix/plan-approved-line-reset: plan approve emits no AIMessage (no mapper reset), FE records approval as an activity step; BE 564 / FE 198 tests green. Next: commit, PR, UAT screenshot of the approve flow.
 - **Updated:** 2026-09-07
 
 ## Recent Specs
@@ -16,6 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
+| plan-approved-line-reset | 2026-09-07 | implement | branch fix/plan-approved-line-reset |
 | agent-system-copy-i18n | 2026-09-07 | shipped | merged via PR #145 → main |
 | agent-tool-round-budget | 2026-09-05 | shipped | merged via PR #143 → main |
 | agent-budget-trip-context | 2026-09-05 | shipped | merged via PR #142 → main |
@@ -1497,5 +1498,40 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: ba623323-4cd5-4114-9965-633a356f3c8f
 - exit: 
 - last_commit: 4e032c7 docs(specs): commit RUN.json and events.jsonl for agent-budget-trip-context
+- user_turns: 0
+
+
+### 2026-09-07T10:28:58Z
+- session_id: 97540a26-037d-4c7c-bdb0-aca4bc0edc69
+- exit: 
+- last_commit: aa36da6 docs(specs): mark agent-system-copy-i18n shipped in STATE.md
+- user_turns: 0
+
+
+### 2026-09-07T10:29:10Z
+- session_id: 4d1eb0b0-15d8-49ee-a3de-6b5f67fd4b26
+- exit: 
+- last_commit: aa36da6 docs(specs): mark agent-system-copy-i18n shipped in STATE.md
+- user_turns: 0
+
+
+### 2026-09-07T10:30:45Z
+- session_id: 93f198b5-7a1a-4613-84a1-bd945f73ce39
+- exit: 
+- last_commit: f94e52b docs(specs): mark agent-eval-pipeline and review-b7-eval-baseline-ci shipped; finish-time full-suite evidence
+- user_turns: 0
+
+
+### 2026-09-07T10:36:51Z
+- session_id: f314716a-7972-414f-b892-719622b6f032
+- exit: 
+- last_commit: aa36da6 docs(specs): mark agent-system-copy-i18n shipped in STATE.md
+- user_turns: 0
+
+
+### 2026-09-07T10:36:56Z
+- session_id: c5ff8680-8349-4ac1-b82b-e97965c1efb1
+- exit: 
+- last_commit: aa36da6 docs(specs): mark agent-system-copy-i18n shipped in STATE.md
 - user_turns: 0
 

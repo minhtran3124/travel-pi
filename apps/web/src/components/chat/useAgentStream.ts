@@ -626,6 +626,23 @@ export function useAgentStream(
       setError(null);
       setSuggestions([]);
 
+      // Approval is state on the server (no reply line — it would be wiped by
+      // the booking hand-off `reset`); surface it here as an activity step so
+      // the trail records the decision before the booking reply streams in.
+      if (approved) {
+        const step: ActivityStep = {
+          id: `plan-approved:${assistantId}`,
+          tool: "plan_approved",
+          subagent: "booking",
+          status: "ok",
+        };
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId ? { ...m, activity: [...m.activity, step] } : m,
+          ),
+        );
+      }
+
       const controller = new AbortController();
       abortRef.current = controller;
 

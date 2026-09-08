@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-07T10:29:45Z",
+  "last_event_id": "427cb2e9-4013-48d0-aba7-52e4883fd71e",
+  "resume_event": null,
+  "run_id": "53934c79-3778-4099-b298-dc510533f3e6",
+  "seq": 3,
+  "sha": null,
+  "slug": "plan-approved-line-reset",
+  "state": "planning",
+  "updated_at": "2026-09-07T10:32:11Z",
+  "waiting_on": null
+}

@@ -285,9 +285,13 @@ def plan_node(state: TravelAgentState) -> Command:
             goto=END,
         )
     logger.info("[agent] plan → booking (approved)")
+    # Approval is state, not a reply: no AIMessage here. A "plan approved" line
+    # would be emitted as a token and then wiped by the mapper's sub-agent
+    # handoff `reset` (specs/plan-approved-line-reset); the client shows the
+    # approval as an activity step instead, and the booking reply is the only
+    # bubble text — matching what the router persists.
     return Command(
         update={
-            "messages": [AIMessage(content=system_reply("plan_approved", lang))],
             # P2: signal approval so extract_memory records outcome="approved".
             "plan_approved": True,
         },
