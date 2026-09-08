@@ -58,19 +58,22 @@ def _filter_and_sort(
     *,
     q: str | None,
     booking_type: str | None,
+    trip_id: str | None,
     sort: str,
 ) -> list[Booking]:
-    """Filter a booking list by ``q``/``booking_type`` and sort it.
+    """Filter a booking list by ``q``/``booking_type``/``trip_id`` and sort it.
 
     Shared by the owner-scoped :meth:`BookingService.query` and the dashboard's
     :meth:`BookingService.query_unscoped`, which differ only in which rows they
     fetch. ``q`` is a case-insensitive substring over id/confirmation
     code/customer name/email; ``booking_type`` keeps only ``"flight"`` or
-    ``"hotel"``; unknown ``sort`` falls back to newest-first.
+    ``"hotel"``; ``trip_id`` keeps only bookings linked to that trip; unknown
+    ``sort`` falls back to newest-first.
 
     :param bookings: The bookings to filter and sort.
     :param q: Case-insensitive substring filter, or ``None``.
     :param booking_type: Keep only this type, or ``None`` for all.
+    :param trip_id: Keep only bookings linked to this trip, or ``None`` for all.
     :param sort: Sort key; unknown values fall back to newest-first.
     :return: The filtered, sorted bookings.
     """
@@ -87,6 +90,11 @@ def _filter_and_sort(
 
     if booking_type in (BookingType.FLIGHT.value, BookingType.HOTEL.value):
         bookings = [b for b in bookings if b.type == booking_type]
+
+    # Filtered in Python because it mirrors q and type, not because the
+    # scale demands it.
+    if trip_id is not None:
+        bookings = [b for b in bookings if b.trip_id == trip_id]
 
     sort_key, reverse = BOOKING_SORTS.get(
         sort, BOOKING_SORTS[BookingSort.CREATED_DESC.value]
@@ -208,25 +216,33 @@ class BookingService:
         user_id: str,
         q: str | None = None,
         booking_type: str | None = None,
+        trip_id: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
-        """Return the caller's bookings filtered by ``q``/``booking_type`` and sorted.
+        """Return the caller's bookings filtered by ``q``/``booking_type``/``trip_id`` and sorted.
 
         ``q`` is a case-insensitive substring matched against the booking ID,
         confirmation code, customer name, and customer email. ``booking_type``
         keeps only ``"flight"`` or ``"hotel"`` rows (other values are
-        ignored). Unknown ``sort`` values fall back to newest-first.
+        ignored). ``trip_id`` keeps only bookings linked to that trip. Unknown
+        ``sort`` values fall back to newest-first.
 
         :param user_id: The owner whose bookings to search.
         :param q: Case-insensitive substring filter over the booking ID,
             confirmation code, customer name, and customer email.
         :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows; other
             values are ignored.
+        :param trip_id: Keep only bookings linked to this trip, or ``None``
+            for all.
         :param sort: Sort key; unknown values fall back to newest-first.
         :return: The filtered, sorted bookings.
         """
         return _filter_and_sort(
-            self._repo.list_all(user_id), q=q, booking_type=booking_type, sort=sort
+            self._repo.list_all(user_id),
+            q=q,
+            booking_type=booking_type,
+            trip_id=trip_id,
+            sort=sort,
         )
 
     def query_unscoped(
@@ -234,6 +250,7 @@ class BookingService:
         *,
         q: str | None = None,
         booking_type: str | None = None,
+        trip_id: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
         """Filter and sort every booking (all owners) — operator dashboard only.
@@ -243,11 +260,17 @@ class BookingService:
 
         :param q: Case-insensitive substring filter (see :meth:`query`).
         :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows.
+        :param trip_id: Keep only bookings linked to this trip, or ``None``
+            for all.
         :param sort: Sort key; unknown values fall back to newest-first.
         :return: The filtered, sorted bookings across all owners.
         """
         return _filter_and_sort(
-            self._repo.list_all_unscoped(), q=q, booking_type=booking_type, sort=sort
+            self._repo.list_all_unscoped(),
+            q=q,
+            booking_type=booking_type,
+            trip_id=trip_id,
+            sort=sort,
         )
 
     def _replay(self, idempotency_key: str | None, user_id: str) -> Booking | None:

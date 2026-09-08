@@ -39,6 +39,10 @@ def list_bookings(
         BookingType | None,
         Query(alias="type", description="Filter by booking type", examples=["flight"]),
     ] = None,
+    trip_id: Annotated[
+        str | None,
+        Query(description="Filter by linked trip id", examples=["t_123"]),
+    ] = None,
     sort: Annotated[
         BookingSort,
         Query(
@@ -58,6 +62,7 @@ def list_bookings(
     :param q: Optional case-insensitive match on booking id, confirmation
         code, customer name, or email.
     :param booking_type: Optional filter by booking type.
+    :param trip_id: Optional filter by linked trip id.
     :param sort: The sort order to apply.
     :return: The matching bookings, sorted and paginated.
     """
@@ -66,6 +71,7 @@ def list_bookings(
             user_id=auth_user.id,
             q=q,
             booking_type=booking_type.value if booking_type else None,
+            trip_id=trip_id,
             sort=sort.value,
         )
     )

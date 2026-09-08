@@ -411,6 +411,25 @@ class TripService:
             spend[category] += booking.total_price
         return {c: _money(v) for c, v in spend.items()}
 
+    def _booked_total(self, trip_id: str) -> float:
+        """Sum every non-cancelled booking carrying this trip_id, once each.
+
+        Independent of :meth:`_spend_by_category`/``total_spent``, which walk
+        itinerary items instead: a booking no item references contributes
+        nothing there, and one referenced by two items is counted twice
+        there. This counts by booking existence, not item references, so a
+        booking counts exactly once here regardless of how many (if any)
+        items reference it.
+
+        :param trip_id: The trip whose linked bookings to sum.
+        :return: Sum of non-cancelled linked bookings' total_price (USD).
+        """
+        bookings = self._bookings().query(user_id=self._user_id, trip_id=trip_id)
+        total = sum(
+            b.total_price for b in bookings if b.status != BookingStatus.CANCELLED
+        )
+        return _money(total)
+
     def get_trip_budget(self, trip_id: str) -> TripBudget:
         """Return per-category caps vs spend for a trip. 404 if unknown.
 
@@ -420,7 +439,8 @@ class TripService:
         trip = self.get_trip(trip_id)
         caps = self._repo.get_budget_caps(trip_id)
         spend = self._spend_by_category(trip)
-        return self._build_budget(trip_id, caps, spend)
+        booked_total = self._booked_total(trip_id)
+        return self._build_budget(trip_id, caps, spend, booked_total)
 
     def set_trip_budget(self, trip_id: str, request: TripBudgetSet) -> TripBudget:
         """Replace the trip's caps and return the resulting budget. 404 if unknown.
@@ -441,7 +461,10 @@ class TripService:
 
     @staticmethod
     def _build_budget(
-        trip_id: str, caps: dict[str, float], spend: dict[BudgetCategory, float]
+        trip_id: str,
+        caps: dict[str, float],
+        spend: dict[BudgetCategory, float],
+        booked_total: float,
     ) -> TripBudget:
         cat_models: dict[str, CategoryBudget] = {}
         total_cap = 0.0
@@ -465,6 +488,7 @@ class TripService:
             categories=BudgetCategories(**cat_models),
             total_cap=_money(total_cap) if any_cap else None,
             total_spent=total_spent,
+            booked_total=booked_total,
             total_remaining=_money(total_cap - total_spent) if any_cap else None,
             over_budget=over,
         )
