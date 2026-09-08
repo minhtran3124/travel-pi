@@ -6,6 +6,27 @@ data model, metric registry). This document is the **travel-pi-specific** half: 
 matrix, how to add a golden/metric/capability, how to run it, and the gotchas that are real in
 this codebase today (not aspirational — everything below was read from the current code).
 
+## Quick start (local)
+
+From `apps/api/`, with the root `.venv` installed and Docker running:
+
+```bash
+docker compose up -d db            # eval reads agent_config + seed data from the dev Postgres
+cp .env.example .env               # once; then set OPENAI_API_KEY (real) and EVAL_EXTRACTOR_MODEL=gpt-5.4-mini
+
+OPENAI_API_KEY= ../../.venv/bin/python -m eval --suite smoke --dry-run   # list goldens, no key, no agent
+make eval-smoke                    # 18 cases, real agent, no judge — a couple of minutes
+make eval-full                     # 84 cases, judge k=3 — ~10–15 min, paid
+make eval-compare                  # diff reports/latest.json vs baselines/main.json; exit 1 on regression
+make eval-check                    # eval-full + eval-compare: run this before merging prompt/agent/tool changes
+```
+
+Open `eval/reports/latest.html` to see every case and check. `make eval-full` exits 2 while any
+capability sits below its 70% threshold — the report is still written; only `eval-compare` is
+the gate. To adopt a run as the new baseline: `make eval-baseline`, then commit
+`eval/baselines/main.json`. Narrow a run with `--capability booking` or `--language vi`
+(`../../.venv/bin/python -m eval --suite full --capability booking --out eval/reports/booking.json`).
+
 ## Structure
 
 ```
