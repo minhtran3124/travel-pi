@@ -21,6 +21,7 @@ describe("applyLangParam — row 3: document-navigation suppression", () => {
     const result = applyLangParam(request, response);
 
     expect(result).toBe(response);
+    expect(result.cookies.get(LOCALE_COOKIE)).toBeUndefined();
   });
 
   it("(b) HEAD is returned untouched", () => {
@@ -32,6 +33,7 @@ describe("applyLangParam — row 3: document-navigation suppression", () => {
     const result = applyLangParam(request, response);
 
     expect(result).toBe(response);
+    expect(result.cookies.get(LOCALE_COOKIE)).toBeUndefined();
   });
 
   it("(c) GET /api/be/trips?lang=vi is returned untouched", () => {
@@ -44,6 +46,7 @@ describe("applyLangParam — row 3: document-navigation suppression", () => {
     const result = applyLangParam(request, response);
 
     expect(result).toBe(response);
+    expect(result.cookies.get(LOCALE_COOKIE)).toBeUndefined();
   });
 
   it("(d) GET with sec-fetch-dest: empty is returned untouched", () => {
@@ -56,6 +59,7 @@ describe("applyLangParam — row 3: document-navigation suppression", () => {
     const result = applyLangParam(request, response);
 
     expect(result).toBe(response);
+    expect(result.cookies.get(LOCALE_COOKIE)).toBeUndefined();
   });
 
   it("(e) GET with sec-fetch-dest: image is returned untouched", () => {
@@ -68,6 +72,7 @@ describe("applyLangParam — row 3: document-navigation suppression", () => {
     const result = applyLangParam(request, response);
 
     expect(result).toBe(response);
+    expect(result.cookies.get(LOCALE_COOKIE)).toBeUndefined();
   });
 
   it("(f) GET with no sec-fetch-dest header still redirects with the cookie set", () => {

@@ -48,6 +48,11 @@ describe("applyLangParam — row 5: valid lang on a normal response", () => {
     expect(url.searchParams.get("foo")).toBe("bar");
 
     const cookie = result.cookies.get(LOCALE_COOKIE);
-    expect(cookie?.value).toBe("vi");
+    expect(cookie).toMatchObject({
+      value: "vi",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
   });
 });
