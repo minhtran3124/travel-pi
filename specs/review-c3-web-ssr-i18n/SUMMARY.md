@@ -56,7 +56,17 @@ holds on `main` at 0a7b6d7 — see the refreshed `### Verify` table.
 
 ### Deviations
 
-- none
+- **Rule 3 (task 1.1)** — `@next/codemod middleware-to-proxy` refused to run against a dirty
+  worktree and was re-run with `--force`. The tree was dirty only with this spec's own files and
+  untracked harness state. Verified harmless: `git diff a4c3b37..72f50ad` is a single rename,
+  1 insertion / 1 deletion, and a byte-level diff of the base blob against `proxy.ts` shows
+  exactly one changed line (the export name).
+- **Controller (wave 1 setup)** — creating the isolated worktree required `rsync`-ing `.claude/`
+  because the harness is untracked, and that carried in a *tracked* file another session was
+  editing (`.claude/settings.json`, a 4-hooks-into-one-dispatcher refactor). Reverted with
+  `git checkout -- .claude/settings.json` before the first commit, so none of it reached this
+  branch. Recorded because the failure mode is silent: rsync of a mostly-untracked directory also
+  copies tracked in-flight edits.
 
 ### Verify
 

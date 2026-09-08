@@ -1,6 +1,6 @@
 ---
 slug: review-c3-web-ssr-i18n
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-09-08
 ---
@@ -290,5 +290,10 @@ must finish in under 60 s and must never be a whole suite. They run at
 
 ## 7. Status Log
 
+- 2026-09-08 — task 1.1 complete; commit 72f50ad. Verify exit 0; `pnpm build` clean and the
+  Next deprecation warning is gone. Reviewer: spec pass / quality approved. One Minor finding
+  (review-package hunk header) dismissed as a false positive — `review_package.py` renders
+  `git diff -U10`, so a 12-line file legitimately shows `@@ -1,12 +1,12 @@`; changed lines match
+  `git diff -U10` exactly.
 - 2026-09-08 — Plan written. Intake `normal` / `medium`; design approved and then amended after
   xia2 research removed the `loading.tsx` half on measured evidence.
