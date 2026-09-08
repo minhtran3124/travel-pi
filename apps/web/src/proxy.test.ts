@@ -180,6 +180,18 @@ describe("proxy — auth backend outage (getClaims() rejects)", () => {
     );
   });
 
+  it("fails closed: a protected path's redirect carries next back to the originally requested path", async () => {
+    const request = new NextRequest("https://example.com/trips?lang=vi", {
+      headers: { "sec-fetch-dest": "document" },
+    });
+
+    const result = await proxy(request);
+
+    const location = new URL(result.headers.get("location")!);
+    expect(location.pathname).toBe("/auth/login");
+    expect(location.searchParams.get("next")).toBe("/trips?lang=vi");
+  });
+
   it("fails open: an unprotected path still renders", async () => {
     const request = new NextRequest("https://example.com/", {
       headers: { "sec-fetch-dest": "document" },
