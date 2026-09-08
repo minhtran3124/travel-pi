@@ -314,6 +314,14 @@ class BookFlightArgs(AppBaseModel):
         default="",
         description="Injected owner id from graph state — never supplied by the model.",
     )
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = Field(
+        default=None,
+        description=(
+            "Injected active trip id from graph state — never supplied by "
+            "the model. None when there is no active trip; the booking is "
+            "then created unattached."
+        ),
+    )
 
 
 @tool(args_schema=BookFlightArgs)
@@ -329,6 +337,7 @@ def book_flight(
     notes: str | None = None,
     confirm: bool = False,
     user_id: Annotated[str, InjectedState("user_id")] = "",
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
 ) -> dict:
     """Book a flight. You MUST pass confirm=True to create the reservation.
 
@@ -349,6 +358,9 @@ def book_flight(
     :param confirm: Must be True to execute the booking; left False, nothing books.
     :param user_id: The owner id, injected from graph state (not model-supplied);
         stamped on the booking so it is scoped to the authenticated traveller.
+    :param trip_id: The active trip id, injected from graph state (not
+        model-supplied). None when there is no active trip — the booking is
+        then created unattached, not refused.
     :return: The confirmed Booking with id, confirmation_code, status, total_price.
     """
     # Log only the non-PII flight identifiers, not passenger name/email/phone
@@ -380,6 +392,7 @@ def book_flight(
                 passenger_email=passenger_email,
                 passenger_phone=passenger_phone,
                 notes=notes,
+                trip_id=trip_id,
             )
             result = BookingService(s).book_flight(request, user_id=user_id)
             return dump(result)
