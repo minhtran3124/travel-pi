@@ -344,8 +344,11 @@ def create_trip(
 ) -> Command:
     """Create a new trip and make it the active trip for the rest of this turn.
 
-    Call this when there is no active trip, before shortlisting places or
-    adding itinerary items.
+    Call this only when the traveller wants to build or save an itinerary and
+    there is no active trip yet — before shortlisting places or adding
+    itinerary items. Never call it for a search on its own (flights, hotels,
+    places): the search tools do not need a trip, so search first and open a
+    trip only once the traveller wants to keep a result.
 
     :param title: Trip title, e.g. 'Da Nang long weekend'.
     :param tool_call_id: The originating tool call id, injected by LangGraph
