@@ -63,6 +63,10 @@ class PlacesPanel(AppBaseModel):
 
     city: str | None = None
     category: str | None = None
+    # Canonical category slug, never localized — the frontend's panel identity
+    # (``category`` above gets rewritten to Vietnamese by ``_localize_vi``, which
+    # would otherwise split one category into two drawer tabs mid-conversation).
+    category_key: str | None = None
     results_count: int
     places: list[PlacesPanelPlace]
 
@@ -83,6 +87,7 @@ class PlacesPanel(AppBaseModel):
         return cls(
             city=city,
             category=category,
+            category_key=category,
             results_count=len(places),
             places=[
                 PlacesPanelPlace(

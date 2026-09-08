@@ -13,8 +13,11 @@ vi.mock("./registry", () => ({
   PANEL_RENDERERS: {
     route: () => <div>route-body</div>,
     weather: () => <div>weather-body</div>,
+    places: ({ data }: { data: { category?: string } }) => (
+      <div>{`places-body-${data.category}`}</div>
+    ),
   },
-  PANEL_LABEL_KEYS: { route: "tabs.route", weather: "tabs.weather" },
+  PANEL_LABEL_KEYS: { route: "tabs.route", weather: "tabs.weather", places: "tabs.places" },
 }));
 
 // SidePanel reads its labels via `useTranslations`, so it must render inside a
@@ -30,7 +33,7 @@ describe("SidePanel", () => {
   it("renders nothing when no panel has a registered renderer (forward-compat)", () => {
     const { container } = render(
       <SidePanel
-        panels={[{ toolCallId: "t1", kind: "places", data: {} }]}
+        panels={[{ toolCallId: "t1", kind: "flights", data: {} }]}
         onClose={() => undefined}
       />,
       { wrapper: Intl },
@@ -73,7 +76,7 @@ describe("SidePanel", () => {
     expect(screen.getByText("weather-body")).toBeInTheDocument();
   });
 
-  it("switches to the kind requested by an external focus nonce", () => {
+  it("switches to the key requested by an external focus nonce", () => {
     const { rerender } = render(
       <SidePanel panels={[route, weather]} onClose={() => undefined} />,
       { wrapper: Intl },
@@ -86,7 +89,7 @@ describe("SidePanel", () => {
       <SidePanel
         panels={[route, weather]}
         onClose={() => undefined}
-        focus={{ kind: "route", nonce: 1 }}
+        focus={{ key: "route", nonce: 1 }}
       />,
     );
     expect(screen.getByText("route-body")).toBeInTheDocument();
@@ -96,7 +99,7 @@ describe("SidePanel", () => {
       <SidePanel
         panels={[route, weather]}
         onClose={() => undefined}
-        focus={{ kind: "route", nonce: 1 }}
+        focus={{ key: "route", nonce: 1 }}
       />,
     );
     expect(screen.getByText("route-body")).toBeInTheDocument();
@@ -106,10 +109,88 @@ describe("SidePanel", () => {
       <SidePanel
         panels={[route, weather]}
         onClose={() => undefined}
-        focus={{ kind: "weather", nonce: 2 }}
+        focus={{ key: "weather", nonce: 2 }}
       />,
     );
     expect(screen.getByText("weather-body")).toBeInTheDocument();
+  });
+
+  it("renders one tab per places category, newest active, click switches", () => {
+    const cafe: PanelArtifact = {
+      toolCallId: "p1",
+      kind: "places",
+      data: { category: "cafe" },
+    };
+    const restaurant: PanelArtifact = {
+      toolCallId: "p2",
+      kind: "places",
+      data: { category: "restaurant" },
+    };
+    render(
+      <SidePanel panels={[cafe, restaurant]} onClose={() => undefined} />,
+      { wrapper: Intl },
+    );
+
+    expect(screen.getByRole("button", { name: "cafe" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "restaurant" })).toBeInTheDocument();
+    expect(screen.getByText("places-body-restaurant")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "cafe" }));
+    expect(screen.getByText("places-body-cafe")).toBeInTheDocument();
+  });
+
+  it("focus by panel key activates the matching places category tab", () => {
+    const cafe: PanelArtifact = {
+      toolCallId: "p1",
+      kind: "places",
+      data: { category: "cafe" },
+    };
+    const restaurant: PanelArtifact = {
+      toolCallId: "p2",
+      kind: "places",
+      data: { category: "restaurant" },
+    };
+    const { rerender } = render(
+      <SidePanel panels={[cafe, restaurant]} onClose={() => undefined} />,
+      { wrapper: Intl },
+    );
+    expect(screen.getByText("places-body-restaurant")).toBeInTheDocument();
+
+    rerender(
+      <SidePanel
+        panels={[cafe, restaurant]}
+        onClose={() => undefined}
+        focus={{ key: "places:cafe", nonce: 1 }}
+      />,
+    );
+    expect(screen.getByText("places-body-cafe")).toBeInTheDocument();
+  });
+
+  it("applies a focus already present on the very first render (drawer remount)", () => {
+    // Simulates a chip click while the drawer was hidden: ChatWidget batches
+    // setMapHidden(false) + setPanelFocus, so SidePanel mounts with `focus`
+    // already set — the cafe tab (clicked), not the newest restaurant tab,
+    // must be shown.
+    const cafe: PanelArtifact = {
+      toolCallId: "p1",
+      kind: "places",
+      data: { category: "cafe" },
+    };
+    const restaurant: PanelArtifact = {
+      toolCallId: "p2",
+      kind: "places",
+      data: { category: "restaurant" },
+    };
+    render(
+      <SidePanel
+        panels={[cafe, restaurant]}
+        onClose={() => undefined}
+        focus={{ key: "places:cafe", nonce: 1 }}
+      />,
+      { wrapper: Intl },
+    );
+
+    expect(screen.getByText("places-body-cafe")).toBeInTheDocument();
   });
 
   it("labels the tabs in the streamed panel language", () => {

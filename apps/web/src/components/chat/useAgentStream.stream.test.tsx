@@ -204,6 +204,81 @@ describe("useAgentStream — per-turn activity + panels", () => {
     expect(assistant?.panels[0]?.data).toEqual({ v: 3 });
   });
 
+  it("keeps distinct places-category panels as separate cards, cafe first", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("panel", {
+            tool_call_id: "t1",
+            kind: "places",
+            data: { category: "cafe", places: [] },
+          }),
+          sse("panel", {
+            tool_call_id: "t2",
+            kind: "places",
+            data: { category: "restaurant", places: [] },
+          }),
+          sse("token", { content: "Here you go" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("cafes and restaurants?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // The streaming assistant reply is the last message of the turn.
+    const assistant = result.current.messages.at(-1);
+    expect(result.current.panels).toHaveLength(2);
+    expect(assistant?.panels).toHaveLength(2);
+    expect((assistant?.panels[0]?.data as { category: string }).category).toBe(
+      "cafe",
+    );
+  });
+
+  it("upserts a re-emitted places panel of the same category instead of duplicating the card", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("panel", {
+            tool_call_id: "t1",
+            kind: "places",
+            data: { category: "cafe", places: [] },
+          }),
+          sse("panel", {
+            tool_call_id: "t2",
+            kind: "places",
+            data: { category: "cafe", places: [] },
+          }),
+          sse("token", { content: "Here you go" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("cafes?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // The streaming assistant reply is the last message of the turn.
+    const assistant = result.current.messages.at(-1);
+    expect(result.current.panels).toHaveLength(1);
+    expect(assistant?.panels).toHaveLength(1);
+    expect(result.current.panels[0]?.toolCallId).toBe("t2");
+    expect(assistant?.panels[0]?.toolCallId).toBe("t2");
+  });
+
   it("keeps a turn's activity across a reset", async () => {
     vi.stubGlobal(
       "fetch",

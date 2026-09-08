@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
-import type { PanelArtifact } from "@/lib/stream/panel";
+import { panelSubLabel, type PanelArtifact } from "@/lib/stream/panel";
 import { PANEL_LABEL_KEYS, PANEL_RENDERERS } from "./panel/registry";
 
 export interface ResultChipsProps {
@@ -71,7 +71,8 @@ export function ResultChips({ panels, onOpen }: ResultChipsProps) {
     <div className="tp-card-in flex flex-wrap items-center gap-xs">
       {renderable.map((panel) => {
         const labelKey = PANEL_LABEL_KEYS[panel.kind];
-        const title = labelKey ? tPanel(labelKey) : panel.kind;
+        const subLabel = panelSubLabel(panel);
+        const title = subLabel ?? (labelKey ? tPanel(labelKey) : panel.kind);
         const count = itemCount(panel);
         // `Panel.places.results` is the catalog's generic "# result(s)" plural;
         // reused as the accessible count for any list-like kind (en + vi).
@@ -103,7 +104,7 @@ export function ResultChips({ panels, onOpen }: ResultChipsProps) {
                 {KIND_ICONS[panel.kind] ?? KIND_ICONS.places}
               </svg>
             </span>
-            {title}
+            {subLabel ? <span className="capitalize">{title}</span> : title}
             {count !== null ? (
               <span className="text-muted" aria-hidden="true">
                 {count}

@@ -189,15 +189,47 @@ export interface PlacesPanelPlace {
 export interface PlacesPanelData {
   city: string | null;
   category: string | null;
+  /** Canonical category slug, never localized — panel identity. Missing → null. */
+  category_key?: string | null;
   results_count: number;
   places: PlacesPanelPlace[];
 }
 
-/** One side-panel payload, as accumulated by the stream hook. */
+/** One side-panel payload, as accumulated by the stream hook. Identity is `panelKey`, not `kind`. */
 export interface PanelArtifact {
   toolCallId: string;
   kind: string;
   data: unknown;
   /** Traveller's language the payload was localized to (e.g. "vi"). Absent → "en". */
   language?: string;
+}
+
+/** Places-category sub-key, or `null` when the panel has no (or an unset) category. */
+function placesCategory(p: PanelArtifact): string | null {
+  if (p.kind !== "places" || typeof p.data !== "object" || p.data === null) return null;
+  const category = (p.data as PlacesPanelData).category;
+  return typeof category === "string" && category.length > 0 ? category : null;
+}
+
+/**
+ * Panel-identity category slug: prefers the canonical, never-localized
+ * `category_key` (falls back to `category` when absent, e.g. older payloads)
+ * so a language switch mid-conversation can't split one category into two tabs.
+ */
+function placesCategoryKey(p: PanelArtifact): string | null {
+  if (p.kind !== "places" || typeof p.data !== "object" || p.data === null) return null;
+  const categoryKey = (p.data as PlacesPanelData).category_key;
+  if (typeof categoryKey === "string" && categoryKey.length > 0) return categoryKey;
+  return placesCategory(p);
+}
+
+/** Identity key for a panel: `kind:category` for a places panel with a category, else bare `kind`. */
+export function panelKey(p: PanelArtifact): string {
+  const category = placesCategoryKey(p);
+  return category ? `${p.kind}:${category}` : p.kind;
+}
+
+/** Human-readable sub-label for a panel's tab, e.g. the (localized) places category; `null` when there isn't one. */
+export function panelSubLabel(p: PanelArtifact): string | null {
+  return placesCategory(p);
 }

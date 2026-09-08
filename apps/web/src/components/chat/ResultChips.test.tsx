@@ -33,7 +33,60 @@ const flights: PanelArtifact = {
 
 const weather: PanelArtifact = { toolCallId: "w1", kind: "weather", data: {} };
 
+// Two places panels, distinguished only by category — the multi-category-tabs
+// case ResultChips must title distinctly rather than collapsing both to "Places".
+const cafes: PanelArtifact = {
+  toolCallId: "p1",
+  kind: "places",
+  data: {
+    city: "Hanoi",
+    category: "cafe",
+    results_count: 2,
+    places: [{ id: "c1" }, { id: "c2" }],
+  },
+};
+
+const restaurants: PanelArtifact = {
+  toolCallId: "p2",
+  kind: "places",
+  data: {
+    city: "Hanoi",
+    category: "restaurant",
+    results_count: 3,
+    places: [{ id: "r1" }, { id: "r2" }, { id: "r3" }],
+  },
+};
+
+const placesNoCategory: PanelArtifact = {
+  toolCallId: "p3",
+  kind: "places",
+  data: {
+    city: "Hanoi",
+    category: null,
+    results_count: 1,
+    places: [{ id: "n1" }],
+  },
+};
+
 describe("ResultChips", () => {
+  it("titles each places chip by its category, with matching count badges", () => {
+    render(<ResultChips panels={[cafes, restaurants]} onOpen={() => undefined} />, {
+      wrapper: Intl,
+    });
+    expect(screen.getByText("cafe")).toBeInTheDocument();
+    expect(screen.getByText("restaurant")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it("falls back to the 'Places' title when the panel has no category", () => {
+    render(<ResultChips panels={[placesNoCategory]} onOpen={() => undefined} />, {
+      wrapper: Intl,
+    });
+    expect(screen.getByText("Places")).toBeInTheDocument();
+  });
+
+
   it("renders a titled chip for a registered kind and fires onOpen on click", () => {
     const onOpen = vi.fn();
     render(<ResultChips panels={[flights]} onOpen={onOpen} />, {
