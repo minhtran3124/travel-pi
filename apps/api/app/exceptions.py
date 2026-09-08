@@ -94,6 +94,17 @@ class ForbiddenError(AppError):
     default_detail = "Forbidden"
 
 
+class PremiumRequiredError(ForbiddenError):
+    """The caller's tier does not permit this action (HTTP 403).
+
+    Raised by ``app.core.auth.require_premium`` when a free-tier caller hits a
+    route gated to premium accounts (e.g. ``POST /flights/book``,
+    ``POST /hotels/book``).
+    """
+
+    default_detail = "This action requires a premium account."
+
+
 class QuotaExceededError(AppError):
     """The user has exceeded their daily usage quota (HTTP 429).
 

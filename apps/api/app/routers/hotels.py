@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
-from app.core.auth import CurrentUserDep
+from app.core.auth import CurrentUserDep, require_premium
 from app.exceptions import NotFoundError
 from app.routers.tags import Tags
 from app.schemas.booking import Booking
@@ -271,7 +271,8 @@ def get_hotel(
     "/book",
     response_model=Booking,
     summary="Create a hotel booking",
-    responses=error_responses(404, 409),
+    responses=error_responses(403, 404, 409),
+    dependencies=[Depends(require_premium)],
 )
 def book_hotel(
     request: HotelBookingRequest,

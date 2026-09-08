@@ -111,6 +111,7 @@ def test_booking_columns():
         "notes",
         "idempotency_key",
         "confirmation_code",
+        "trip_id",
     }
 
 

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
-from app.core.auth import CurrentUserDep
+from app.core.auth import CurrentUserDep, require_premium
 from app.enums import FlightSort
 from app.exceptions import NotFoundError
 from app.routers.tags import Tags
@@ -207,7 +207,8 @@ def get_flight(
     "/book",
     response_model=Booking,
     summary="Create a flight booking",
-    responses=error_responses(404),
+    responses=error_responses(403, 404),
+    dependencies=[Depends(require_premium)],
 )
 def book_flight(
     request: FlightBookingRequest,
