@@ -290,6 +290,18 @@ must finish in under 60 s and must never be a whole suite. They run at
 
 ## 7. Status Log
 
+- 2026-09-08 — tasks 4.1, 4.2, 4.3 complete; commits f058cd8, 669703f, 95045ad, plus 82b8274
+  applying review findings. Suite 45 files / 235 tests, `tsc --noEmit` exit 0; SC-5 to SC-8 each
+  pass as a single-file run.
+  Reviews: all three pass/approved. Reviewers ran 16 mutations between them and 15 bit.
+  The one that did not is the finding that mattered: replacing `t("loadingLabel")` with a
+  hardcoded English string left the trip-detail test green, because `next-intl` is mocked as an
+  identity function and no test asserted on the rendered text. Fixing it revealed the gap was on
+  all four pages, not only the page that happened to be mutated — each is now negative-controlled.
+  Second Minor, accepted and fixed: the places spinner assertion was page-wide and passed only
+  because `BrowseDrawer` was closed; it is now scoped to the loading region. The bookings query
+  stays page-wide by choice — that page has no second spinner, so it is not brittle.
+
 - 2026-09-08 — task 3.1 complete; commit 4aed124 (11 files, +178/-50). `tsc --noEmit` exit 0,
   suite 41 files / 228 tests. Review: spec pass / quality approved.
   One Minor accepted as-is: the moved `TripCardSkeleton` doc comment changed
