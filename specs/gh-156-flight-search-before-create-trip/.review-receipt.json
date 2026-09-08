@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "slug": "gh-156-flight-search-before-create-trip",
+  "reviewed_head_sha": "22e4181815e44fd23d128510913155378ce72d18",
+  "reviewed_at": "2026-09-08T07:25:19+00:00",
+  "base_sha": "8d830d9",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "1.1, 1.2 spec pass / quality approved; 1.1 Minor fixed in 5c6f574, 1.2 Minor recorded in SUMMARY Advisory Findings"
+    },
+    {
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "6 angles over 8d830d9..5c6f574, 1 candidate scored 50 (< 75) recorded as advisory"
+    },
+    {
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "no gap/drift; 1 excess report-only (INDEX.md regeneration churn) recorded in SUMMARY Intent Findings"
+    }
+  ]
+}
