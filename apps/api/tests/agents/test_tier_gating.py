@@ -187,7 +187,7 @@ def test_free_tier_secondary_to_premium_only_agent_is_dropped():
     # must be dropped even though the primary target passes the gate.
     llm = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="concierge", secondary_agent="planner")
+            SupervisorIntent(target_agent="concierge", plan=["planner"])
         ]
     )
     supervisor = make_supervisor(llm)
@@ -212,7 +212,7 @@ def test_free_tier_secondary_not_in_allowed_subagents_is_dropped(monkeypatch):
 
     llm = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="concierge", secondary_agent="planner")
+            SupervisorIntent(target_agent="concierge", plan=["planner"])
         ]
     )
     supervisor = make_supervisor(llm)

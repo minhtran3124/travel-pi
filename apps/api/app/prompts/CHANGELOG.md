@@ -3,6 +3,16 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-155-supervisor-booking-follow-on — booking is never a follow-on; legacy secondary_agent retired
+
+- **supervisor v11** — copied v10; removed the "legacy `secondary_agent` field still works" bullet
+  and added a bullet under "Multi-step Plan": a booking wish inside a multi-intent message is
+  never a follow-on — route `target_agent=booking` when reserving is the main ask, otherwise leave
+  the booking out of `plan` entirely.
+- **code half** (Task 1.2) — the `secondary_agent` field and its fallback are removed.
+
+`active.yaml`: supervisor → 11.
+
 ## agent-tool-round-budget — skip the no-op trip_guard step; planner batches itinerary writes
 
 specs/agent-tool-round-budget: a single agent turn has a bounded number of tool-call rounds,

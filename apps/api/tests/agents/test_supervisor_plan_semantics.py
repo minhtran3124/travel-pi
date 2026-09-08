@@ -20,11 +20,13 @@ from __future__ import annotations
 from dataclasses import replace
 from types import SimpleNamespace
 
+import pytest
 from app.agents.constants import MAX_LEDGER_STEPS
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.supervisor import SupervisorIntent, make_supervisor
 from app.clients.llm import FakeLLM
 from langchain_core.messages import HumanMessage
+from pydantic import ValidationError
 
 
 def _runtime(ctx: AgentContext) -> SimpleNamespace:
@@ -86,12 +88,31 @@ def test_independent_secondary_is_kept():
     assert agents == ["planner", "concierge"]
 
 
-def test_legacy_secondary_agent_is_kept():
-    agents = _agents_for(
-        SupervisorIntent(target_agent="planner", secondary_agent="budget"),
-        AgentContext(),
+def test_legacy_secondary_agent_is_ignored():
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "secondary_agent": "budget"}
     )
-    assert agents == ["planner", "budget"]
+    agents = _agents_for(intent, AgentContext())
+    assert agents == ["planner"]
+
+
+def test_supervisor_intent_has_no_secondary_agent_field():
+    assert "secondary_agent" not in SupervisorIntent.model_fields
+
+
+def test_raw_payload_with_secondary_booking_does_not_raise():
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "secondary_agent": "booking"}
+    )
+    assert intent.plan is None
+
+
+def test_plan_with_booking_still_rejected():
+
+    with pytest.raises(ValidationError):
+        SupervisorIntent.model_validate(
+            {"target_agent": "planner", "plan": ["booking"]}
+        )
 
 
 # ---------------------------------------------------------------------------

@@ -9,8 +9,7 @@ Covers:
 - Supervisor-level task-list normalization: ``booking``, a duplicate of the
   target or an earlier step, and a tier-gated agent are dropped; the follow-on
   count is capped at ``MAX_LEDGER_STEPS - 1``.
-- Backward compatibility: a null/one-item ``plan`` yields the same task agents
-  as the legacy ``secondary_agent`` path.
+- A one-item ``plan`` yields the target plus the single follow-on task agent.
 
 Wave 1 (specs/multi-intent-single-path): the supervisor emits a DEDUPLICATED
 ``tasks`` list and no longer writes ``pending_flows``; these tests read the task
@@ -190,19 +189,16 @@ def test_booking_target_queues_no_followons():
 
 
 # ---------------------------------------------------------------------------
-# (d) Backward compatibility with the legacy secondary_agent path
+# (d) One-item plan yields two task agents
 # ---------------------------------------------------------------------------
 
 
-def test_null_plan_falls_back_to_legacy_secondary():
+def test_one_item_plan_yields_two_tasks():
     ctx = AgentContext()
-    legacy = _task_agents_for(
-        SupervisorIntent(target_agent="planner", secondary_agent="concierge"), ctx
-    )
     one_item_plan = _task_agents_for(
         SupervisorIntent(target_agent="planner", plan=["concierge"]), ctx
     )
-    assert legacy == ["planner", "concierge"] == one_item_plan
+    assert one_item_plan == ["planner", "concierge"]
 
 
 def test_no_plan_no_secondary_is_empty():

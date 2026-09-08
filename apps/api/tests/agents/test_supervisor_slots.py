@@ -121,11 +121,11 @@ def test_children_zero_is_kept_unlike_adults_and_rooms():
 # ---------------------------------------------------------------------------
 
 
-def test_booking_target_forces_secondary_to_empty_even_if_llm_set_one():
+def test_booking_target_forces_plan_to_empty_even_if_llm_set_one():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
-    intent = SupervisorIntent(target_agent="booking", secondary_agent="concierge")
+    intent = SupervisorIntent(target_agent="booking", plan=["concierge"])
     llm = FakeLLM(structured_responses=[intent])
     supervisor = make_supervisor(llm)
 
@@ -142,7 +142,7 @@ def test_valid_distinct_secondary_queues_pending_flow():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
-    intent = SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+    intent = SupervisorIntent(target_agent="planner", plan=["concierge"])
     llm = FakeLLM(structured_responses=[intent])
     supervisor = make_supervisor(llm)
 
@@ -154,17 +154,17 @@ def test_valid_distinct_secondary_queues_pending_flow():
     assert [t["agent"] for t in cmd.update["tasks"]] == ["planner", "concierge"]
 
 
-def test_secondary_equal_to_target_is_dropped():
+def test_plan_step_equal_to_target_is_dropped():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
-    intent = SupervisorIntent(target_agent="planner", secondary_agent="planner")
+    intent = SupervisorIntent(target_agent="planner", plan=["planner"])
     llm = FakeLLM(structured_responses=[intent])
     supervisor = make_supervisor(llm)
 
     cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
 
-    # A secondary equal to the target is deduped away — only the primary task.
+    # A plan step equal to the target is deduped away — only the primary task.
     assert [t["agent"] for t in cmd.update["tasks"]] == ["planner"]
 
 

@@ -66,18 +66,6 @@ class SupervisorIntent(BaseModel):
     """Structured routing decision."""
 
     target_agent: _Target = Field(description="Which specialist should handle this.")
-    secondary_agent: _SecondaryTarget | None = Field(
-        default=None,
-        description=(
-            "A second, INDEPENDENT specialist whose slice does NOT depend on "
-            "target_agent's result — it runs in PARALLEL this turn and sees only "
-            "this message, never target_agent's output. Set it only when the "
-            "message contains two genuinely separate requests (e.g. a flight need "
-            "plus unrelated local tips). Never 'booking', and never the same value "
-            "as target_agent. Leave null for the common single-intent case. "
-            "Superseded by `plan` when that is set."
-        ),
-    )
     plan: list[_SecondaryTarget] | None = Field(
         default=None,
         description=(
@@ -87,7 +75,8 @@ class SupervisorIntent(BaseModel):
             "'booking'. Omit any step that a single specialist can do itself — a "
             "chain that lives inside one specialist's toolset needs no plan. "
             "Leave null for the common single-intent case. Duplicate or invalid "
-            "steps are dropped in code."
+            "steps are dropped in code. The only follow-on channel — there is no "
+            "other way to queue an additional specialist this turn."
         ),
     )
     language: str = Field(
@@ -306,8 +295,7 @@ def make_supervisor(llm: BaseChatModel):
         # target still produces one task so the routing edge can send it through
         # the HITL plan node, but booking is never queued as a follow-on task.
         # The supervisor may emit a ``plan`` of independent specialists to run
-        # this turn alongside ``target``; fall back to the legacy single
-        # ``secondary_agent`` when ``plan`` is absent. The list is built in plain
+        # this turn alongside ``target``. The list is built in plain
         # Python and never trusts the model blindly: it is DEDUPLICATED (primary
         # first, then each follow-on in order, skipping any agent already queued —
         # no duplicate specialist workers, since each worker sees only this
@@ -317,11 +305,7 @@ def make_supervisor(llm: BaseChatModel):
         # caps the follow-ons at ``MAX_LEDGER_STEPS - 1``. A booking *target*
         # routes through the HITL plan node with no follow-ons.
         raw_plan = getattr(intent, "plan", None)
-        if raw_plan:
-            candidates = list(raw_plan)
-        else:
-            legacy = getattr(intent, "secondary_agent", None)
-            candidates = [legacy] if legacy else []
+        candidates = list(raw_plan or [])
         task_agents: list[str] = [target]
         if target != "booking":
             for step in candidates:
