@@ -97,7 +97,7 @@ Full suites (cited, not Verify rows): FE `vitest run src/components/chat src/lib
 
 ### Not auto-verified
 
-- End-to-end browser behaviour (ask the live agent "cafes and restaurants in Da Nang", see two tabs) — reached traceability via unit tests on the hook, drawer and chips; not re-run in a browser (needs dev stack + LLM key).
+- End-to-end browser behaviour — reached **truth** 2026-09-08: Playwright UAT (`uat/uat-side-panel.spec.ts`, run against the branch's own servers on :3001/:8001 with the real agent) sent "Find me good cafes and restaurants in Da Nang"; the agent made two `search_places` calls (cafe, restaurant); the drawer showed the Cafe tab first, then both tabs with the first one still present, clicking Cafe rendered "Da Nang · cafe · 4 results" (stable at 0/500/1500 ms), and the chip row showed "Cafe 4" + "Restaurant 4". Screenshots in `uat/`. Not a Verify row because it needs a live LLM key and a signed-in Supabase user.
 - Vietnamese tab label ("quán cà phê") — reached provenance (backend `CATEGORY_VI` swap already existed, label reuses `data.category` verbatim); not re-run.
 
 ### Rollback
