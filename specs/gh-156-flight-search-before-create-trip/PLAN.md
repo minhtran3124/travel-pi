@@ -70,3 +70,4 @@ The full BE suite (`pytest tests/`, ~3 min) and the keyed eval run (`python -m e
 - 2026-09-08 — tasks 1.1, 1.2 complete; commits 3aaefdf, b8c50b1 (verify green; per-task reviews dispatched)
 - 2026-09-08 — per-task reviews 1.1, 1.2: spec pass / quality approved; 1.1 Minor (hotel "straight away" tension) fixed in 5th commit; 1.2 Minor (pre-existing reST noise in create_trip description) recorded, no change
 - 2026-09-08 — final chain: correctness-review 6 angles → 1 candidate scored 50 (advisory, recorded); intent-review no gap/drift, 1 excess report-only (INDEX churn); narrowed eval flight_search/vi k=3 3/3 pass twice (trace resolve_date → search_flights). Ready for finishing-a-development-branch.
+- 2026-09-08 — browser UAT green (2/2, `uat/uat-gh156.spec.ts`): bare search runs `resolve_date → search_flights` with no `create_trip`; itinerary request still calls `create_trip` + 5× `add_itinerary_item`. Screenshots committed under `uat/`.

@@ -83,7 +83,8 @@ The defect is an instruction-ordering problem in the planner prompt, not a graph
 
 - run-2 failure mechanism (which round ended the turn) — reached traceability only; the eval run-2 transcript was not preserved, only the tool-name list in TRIAGE.md.
 - the final wording of commit 5c6f574 ("as soon as you have its required arguments") — reached provenance (pin tests + SC-1 re-run); the paid eval ran against the pre-5c6f574 v13 text and was not re-run for a one-sentence change.
-- goldens that expect `create_trip` for "plan my trip" phrasing keep passing — reached traceability only; not re-run (only the flight_search/vi slice was run).
+- goldens that expect `create_trip` for "plan my trip" phrasing keep passing — reached traceability only; not re-run (only the flight_search/vi slice was run). Partly closed by the browser UAT below, which exercises the itinerary path live.
+- End-to-end browser behaviour — reached **truth** 2026-09-08: Playwright UAT (`uat/uat-gh156.spec.ts`, live agent, web dev server + Docker api :8000 with the graph rebuilt on v13). Case 1 "Tôi muốn bay từ Hà Nội đi Phú Quốc" → "Ngày 25 tháng 3 năm 2027 nhé, cho 2 người lớn": the activity trail read "Searching flights" with no "Updating your trip", the Flights panel showed HAN → PQC 2027-03-25 with 5 fares from $123, and the dashboard run (flow `planner`) lists exactly `resolve_date` then `search_flights` — no `create_trip`. Case 2 "Lên kế hoạch 3 ngày ở Đà Nẵng … lưu thành chuyến đi": `recall_past_trips`, `create_trip`, then five `add_itinerary_item` calls, so the save path still opens a trip. Screenshots in `uat/`. Not a Verify row: it needs a live LLM key, a signed-in Supabase user and dashboard basic-auth credentials.
 
 ### Advisory Findings
 
