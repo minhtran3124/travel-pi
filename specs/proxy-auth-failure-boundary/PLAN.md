@@ -42,11 +42,12 @@ filter exits 0 on a partial match, and `-t` exits 0 when it matches nothing.
 
 | ID | Behavior (observable) | Check (re-runnable) | Expected |
 |------|-------------------------|-----------------------|------------|
-| SC-1 | `requireSupabaseEnv()` returns both values when set and throws naming the absent variable when either is missing; `env.ts` contains no dynamic `process.env[...]` access | `cd apps/web && pnpm exec vitest run src/lib/env.test.ts` | exit 0 |
+| SC-1 | `requireSupabaseEnv()` returns both values when set and throws naming the absent variable when either is missing; `env.ts` reads both variables through literal `process.env.NAME` access | `cd apps/web && pnpm exec vitest run src/lib/env.test.ts` | exit 0 |
 | SC-2 | No Supabase client is constructed from a bare non-null assertion any more | `grep -rL "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts apps/web/src/lib/supabase/server.ts apps/web/src/lib/supabase/client.ts` | exit 1 — every file matches, so none is listed |
-| SC-3 | The server validates the Supabase env once at startup | `grep -q "export function register" apps/web/src/instrumentation.ts && grep -q "requireSupabaseEnv" apps/web/src/instrumentation.ts` | exit 0 |
+| SC-3 | `register()` is exported from the instrumentation file and actually validates — it throws when the variables are absent | `cd apps/web && pnpm exec vitest run src/instrumentation.test.ts` | exit 0 |
 | SC-4 | During an auth outage a protected path redirects to the login page and an unprotected path still renders; no path throws | `cd apps/web && pnpm exec vitest run src/proxy.test.ts` | exit 0 |
 | SC-5 | The workspace type-checks with the three call sites rewired | `cd apps/web && pnpm exec tsc --noEmit` | exit 0 |
+| SC-6 | No bare non-null assertion on either Supabase variable survives under `lib/supabase/` | `grep -rl "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/` | exit 1 — no file matches |
 
 ## 4. Tasks
 
@@ -61,9 +62,19 @@ filter exits 0 on a partial match, and `-t` exits 0 when it matches nothing.
   `next build` and cannot be supplied later.
   Add a comment above the reads explaining why a loop is forbidden here; the next reader will
   otherwise "tidy" it into one.
-  Include the grep gate as a test in the same file: `env.ts` must contain no `process.env[`
-  occurrence. This is a source-text assertion on purpose — jsdom performs no inlining, so no runtime
-  test can observe the defect it prevents.
+  Include a source-text gate in the same file, written as a **positive** assertion: `env.ts` must
+  contain both literal strings `process.env.NEXT_PUBLIC_SUPABASE_URL` and
+  `process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Keep a negative `process.env[` check as a
+  cheap extra, but the positive one is what makes the gate defeat-proof: the Next docs name **two**
+  non-inlined forms, and a negative gate for one of them still passes
+  `const { NEXT_PUBLIC_SUPABASE_URL } = process.env`, which ships `undefined` to the browser just
+  the same. Requiring the literal text covers every variant at once.
+  This is a source-text assertion on purpose — jsdom performs no inlining, so no runtime test can
+  observe the defect it prevents.
+  **Test mechanics you will otherwise lose time on:** the module reads both variables at module
+  scope, so `vi.stubEnv` after import has no effect. Each missing-variable case needs
+  `vi.resetModules()` plus a dynamic `await import("./env")`, and `src/test/setup.ts` sets both
+  variables for every test file, so the case must delete them explicitly first.
 - **Verify:** `cd apps/web && pnpm exec vitest run src/lib/env.test.ts`
 - **Done:** Both values returned when set; each missing variable produces an error whose message contains that variable's name; the gate test fails if `process.env[` is introduced into `env.ts`.
 - **Criteria:** SC-1
@@ -78,23 +89,23 @@ filter exits 0 on a partial match, and `-t` exits 0 when it matches nothing.
   In `middleware.ts`, also export `isProtected` — task 3.1 needs it and must not re-list the
   prefixes. Do not change the prefix list, and do not otherwise touch `updateSession`: the warning
   block about running code between `createServerClient` and `getClaims()` still governs this file.
-- **Verify:** `grep -rL "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts apps/web/src/lib/supabase/server.ts apps/web/src/lib/supabase/client.ts`
-- **Done:** All three files call `requireSupabaseEnv()`; no `NEXT_PUBLIC_SUPABASE` non-null assertion remains under `apps/web/src/lib/supabase/`; `isProtected` is exported; `PROTECTED_PREFIXES` membership is byte-identical.
-- **Criteria:** SC-2, SC-5
+- **Verify:** `! grep -rL "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts apps/web/src/lib/supabase/server.ts apps/web/src/lib/supabase/client.ts && ! grep -rq "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/`
+- **Done:** All three files call `requireSupabaseEnv()`; no `NEXT_PUBLIC_SUPABASE` non-null assertion remains under `apps/web/src/lib/supabase/`; `isProtected` is exported; `PROTECTED_PREFIXES` membership is byte-identical. The Verify is negated with `!` deliberately: `grep -rL` exits 1 when every file matches, which is the success state, and a task `Verify` has no Expected column — it must exit 0 to pass, and wave 3 is gated on that.
+- **Criteria:** SC-2, SC-5, SC-6
 - **Interfaces:** Consumes `apps/web/src/lib/env.ts`. Produces the rewired `apps/web/src/lib/supabase/middleware.ts` with an exported `isProtected`.
 
 ### Task 2.2 — Validate at server startup (wave 2)
 
-- **Files:** apps/web/src/instrumentation.ts
+- **Files:** apps/web/src/instrumentation.ts, apps/web/src/instrumentation.test.ts
 - **Action:** Add the Next instrumentation file with an exported `register()` that calls
   `requireSupabaseEnv()`. Next runs `register` once on server startup, so a deploy built or promoted
   without the variables fails loudly at boot instead of returning 500 on every user request.
   Note in a comment what this cannot do: a **client** bundle built without the variables already has
   `undefined` inlined and nothing at runtime can recover it — this guards the server half only.
-- **Verify:** `grep -q "export function register" apps/web/src/instrumentation.ts && grep -q "requireSupabaseEnv" apps/web/src/instrumentation.ts`
-- **Done:** `src/instrumentation.ts` exports `register` and calls `requireSupabaseEnv()`; the comment states the client-bundle limit.
+- **Verify:** `cd apps/web && pnpm exec vitest run src/instrumentation.test.ts`
+- **Done:** `register` is exported and is a function; invoking it with both variables deleted throws an error naming the missing variable; invoking it with them set returns without throwing. Greps were rejected for this: two independent `grep -q` calls are satisfied by an import sitting above an empty `register() {}`, and they break on the equally natural `export async function register`.
 - **Criteria:** SC-3
-- **Interfaces:** Consumes `apps/web/src/lib/env.ts`. Produces `apps/web/src/instrumentation.ts`.
+- **Interfaces:** Consumes `apps/web/src/lib/env.ts`. Produces `apps/web/src/instrumentation.ts`, `apps/web/src/instrumentation.test.ts`.
 
 ### Task 3.1 — The outage boundary (wave 3)
 
@@ -110,8 +121,18 @@ filter exits 0 on a partial match, and `-t` exits 0 when it matches nothing.
   itself throw.
   Extend `src/proxy.test.ts` with outage cases; keep all five existing branch cases passing
   unchanged — they are the proof the success path did not move.
+  **Do NOT mock `@/lib/supabase/middleware` to force the rejection.** That is the same module
+  `proxy.ts` now imports `isProtected` from, so the mock would replace the real prefix logic and the
+  test would prove nothing about which routes fail closed — `/trips` would redirect and `/` would
+  not purely because the mock said so. Instead reuse the file-level `@supabase/ssr` mock already in
+  `proxy.test.ts` and add a mutable per-test knob beside the existing `hasClaims` that makes
+  `getClaims()` reject. That runs the real `updateSession` and the real `isProtected`, and it
+  composes with the five existing rows without editing them.
+  `await proxy(request)` directly in the outage cases — do not wrap it in a `try`. An escaped
+  rejection must fail the test; that is what distinguishes "failed closed" from "threw and something
+  swallowed it".
 - **Verify:** `cd apps/web && pnpm exec vitest run src/proxy.test.ts`
-- **Done:** With `updateSession` mocked to reject, a request to `/trips` returns 307 to `/auth/login` and a request to `/` returns a non-redirect response; neither throws. The five pre-existing success-path cases still pass. A grep in the test asserts `proxy.ts` imports `isProtected` rather than containing the string `'/bookings'`.
+- **Done:** With `getClaims()` made to reject, a request to `/trips` returns 307 with `Location` ending `/auth/login`, and a request to `/` returns a response whose status is not in 300-399; neither call throws. The five pre-existing success-path cases still pass unedited. A source-text assertion in the test requires `proxy.ts` to contain the literal `from "@/lib/supabase/middleware"` with `isProtected` in the import — a positive check, because asserting the absence of `'/bookings'` would let a duplicated list starting at `/trips` slip through.
 - **Criteria:** SC-4, SC-5
 - **Interfaces:** Consumes the exported `isProtected` from `apps/web/src/lib/supabase/middleware.ts`. Produces the guarded `apps/web/src/proxy.ts`.
 

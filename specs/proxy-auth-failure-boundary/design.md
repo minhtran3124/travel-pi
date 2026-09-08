@@ -121,8 +121,9 @@ Not in scope: retry/backoff on the auth call, a health probe, caching claims, or
 
 ## 5. Error behaviour
 
-- A missing variable at build: `pnpm build` fails via `instrumentation.ts` on server start, or at
-  first server use, with a message naming the variable.
+- A missing variable: `register()` throws at **server start**, which is a different moment from
+  `next build` — do not expect the build step itself to catch it. A client bundle built without the
+  variables already has `undefined` inlined and nothing at runtime can recover it.
 - A missing variable at runtime on the server: same message, at startup rather than per request.
 - An auth outage: §3.3. No path returns 500.
 - `authUnavailable` itself performs no I/O and reads only `request.nextUrl.pathname`, so it cannot
