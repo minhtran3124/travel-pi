@@ -4,11 +4,11 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** plan-approved-line-reset
-- **Phase:** implement  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** subagent-driven-development
-- **Last action:** Option B implemented on fix/plan-approved-line-reset: plan approve emits no AIMessage (no mapper reset), FE records approval as an activity step; BE 564 / FE 198 tests green. Next: commit, PR, UAT screenshot of the approve flow.
-- **Updated:** 2026-09-07
+- **Slug:** side-panel-multi-category-tabs
+- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** finishing-a-development-branch
+- **Last action:** 7 commits on feat/side-panel-multi-category-tabs (panel key = kind + places category_key; drawer tabs/chips/focus by key; 3 correctness fix rounds); receipt at ba78360; PR opened → main. Next: human review + merge; UAT in browser (cafe + restaurant → 2 tabs).
+- **Updated:** 2026-09-08
 
 ## Recent Specs
 
@@ -16,7 +16,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| plan-approved-line-reset | 2026-09-07 | implement | branch fix/plan-approved-line-reset |
+| side-panel-multi-category-tabs | 2026-09-08 | shipped | PR from feat/side-panel-multi-category-tabs → main |
+| plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
 | agent-system-copy-i18n | 2026-09-07 | shipped | merged via PR #145 → main |
 | agent-tool-round-budget | 2026-09-05 | shipped | merged via PR #143 → main |
 | agent-budget-trip-context | 2026-09-05 | shipped | merged via PR #142 → main |
