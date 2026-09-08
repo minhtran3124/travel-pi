@@ -5,16 +5,17 @@
     "scenario": "happy",
     "language": "vi",
     "suite": "smoke",
-    "input": "Tìm chuyến bay từ TP.HCM đi Đà Nẵng ngày 20/8/2026 cho 1 người",
+    "input": "Tìm chuyến bay từ TP.HCM đi Đà Nẵng ngày 20/3/2027 cho 1 người",
     "expected_flow": "planner",
     "expected_tools": ["search_flights"],
     "oracle_checks": [
       {
         "kind": "flight_offers",
-        "params": {"origin": "SGN", "destination": "DAD", "departure_date": "2026-08-20"}
+        "params": {"origin": "SGN", "destination": "DAD", "departure_date": "2027-03-20"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
+    "notes": "2026-09-08: date moved to 2027 (the 2026 date had passed; the agent refuses past dates)"
   },
   {
     "id": "flight_search-happy-en-01",
@@ -22,16 +23,17 @@
     "scenario": "happy",
     "language": "en",
     "suite": "smoke",
-    "input": "Show me flight options from Hanoi to Ho Chi Minh City on 2026-08-15",
+    "input": "Show me flight options from Hanoi to Ho Chi Minh City on 2027-03-15",
     "expected_flow": "planner",
     "expected_tools": ["search_flights"],
     "oracle_checks": [
       {
         "kind": "flight_offers",
-        "params": {"origin": "HAN", "destination": "SGN", "departure_date": "2026-08-15"}
+        "params": {"origin": "HAN", "destination": "SGN", "departure_date": "2027-03-15"}
       }
     ],
-    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"]
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
+    "notes": "2026-09-08: date moved to 2027 (the 2026 date had passed; the agent refuses past dates)"
   },
   {
     "id": "flight_search-ambiguous-vi-01",
