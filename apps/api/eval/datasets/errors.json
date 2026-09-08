@@ -82,8 +82,9 @@
     "suite": "full",
     "input": "Đặt phòng khách sạn mã HTL-999999 giúp tôi, nhận phòng ngày mai",
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "non_empty_reply", "reply_language"],
-    "notes": "Same nonexistent hotel_id scenario as booking-tool_failure-vi-01, tagged here under 'errors' for the error-handling capability lens (the two capability tags are an intentional double-count of one real behavior, not a duplicate id). | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153"
+    "notes": "Same nonexistent hotel_id scenario as booking-tool_failure-vi-01, tagged here under 'errors' for the error-handling capability lens (the two capability tags are an intentional double-count of one real behavior, not a duplicate id). | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
   },
   {
     "id": "errors-adversarial-en-01",

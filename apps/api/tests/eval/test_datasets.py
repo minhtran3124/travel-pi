@@ -229,6 +229,25 @@ def test_real_dataset_metrics_are_all_registered():
     assert len(store.load()) > 0
 
 
+def test_hitl_accepts_approve_and_reject():
+    approve = Golden(
+        **{**_case("hitl-approve", "flight_search", "happy"), "hitl": "approve"}
+    )
+    reject = Golden(
+        **{**_case("hitl-reject", "flight_search", "happy"), "hitl": "reject"}
+    )
+    assert approve.hitl == "approve"
+    assert reject.hitl == "reject"
+
+
+def test_hitl_rejects_unknown_value(tmp_path):
+    case = _case("bad-01", "flight_search", "happy")
+    case["hitl"] = "aprove"
+    _write(tmp_path, "bad.json", [case])
+    with pytest.raises(ValueError, match="bad.json.*bad-01"):
+        JsonDatasetStore(tmp_path, TAXONOMY)
+
+
 def test_save_round_trips_through_the_store(tmp_path):
     store = JsonDatasetStore(tmp_path, TAXONOMY)
     assert store.load() == []

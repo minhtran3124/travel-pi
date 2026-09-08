@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-07T10:21:55Z",
+  "last_event_id": "320ec919-ed0b-4da3-a2f6-5d79f10a6524",
+  "resume_event": null,
+  "run_id": "a544b818-c037-4f0e-a46e-f30cb1f3fad1",
+  "seq": 3,
+  "sha": null,
+  "slug": "gh-153-eval-hitl-auto-approve",
+  "state": "planning",
+  "updated_at": "2026-09-07T10:21:55Z",
+  "waiting_on": null
+}

@@ -7,7 +7,7 @@ dependency (`specs/agent-eval-pipeline/design-portability.md`).
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -40,6 +40,8 @@ class Golden(BaseModel):
     expected_tools: list[str] | None = None
     # Agent names the supervisor fans out to; order-free because tasks run in parallel.
     expected_tasks: list[str] | None = None
+    # Opt-in resume of the plan-approval interrupt; the adapter owns the mechanics.
+    hitl: Literal["approve", "reject"] | None = None
     expected_trajectory: list[str] | None = None
     oracle_checks: list[dict[str, Any]] | None = None
     metrics: list[str] | None = None
