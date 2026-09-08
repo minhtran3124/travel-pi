@@ -18,7 +18,14 @@
     "appName": "Travel Planner",
     "trips": "Chuyến đi",
     "places": "Địa điểm",
-    "bookings": "Đặt chỗ"
+    "bookings": "Đặt chỗ",
+    "menuOpen": "Mở menu",
+    "menuClose": "Đóng menu"
+  },
+  "Account": {
+    "signIn": "Đăng nhập",
+    "menuLabel": "Menu tài khoản",
+    "signOut": "Đăng xuất"
   },
   "LocaleSwitcher": {
     "label": "Ngôn ngữ"
@@ -91,6 +98,7 @@
     }
   },
   "TripDetail": {
+    "loadingLabel": "Đang tải chuyến đi",
     "errorTitle": "Không thể tải chuyến đi này",
     "errorHint": "Chuyến đi có thể đã bị xóa hoặc kết nối bị gián đoạn. Hãy quay lại chọn chuyến khác, hoặc thử lại sau giây lát.",
     "backToAllTrips": "Quay lại tất cả chuyến đi",

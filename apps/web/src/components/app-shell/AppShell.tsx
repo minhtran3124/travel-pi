@@ -82,7 +82,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* Mobile hamburger */}
             <button
               type="button"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-label={menuOpen ? t("menuClose") : t("menuOpen")}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((o) => !o)}
               className="grid size-8 place-items-center rounded-md text-ink transition hover:bg-panel-raised sm:hidden"
