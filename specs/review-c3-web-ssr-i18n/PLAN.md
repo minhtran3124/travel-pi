@@ -1,6 +1,6 @@
 ---
 slug: review-c3-web-ssr-i18n
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-08
 ---
@@ -317,6 +317,14 @@ must finish in under 60 s and must never be a whole suite. They run at
   adds or edits a spec; the plan's claim is that they still pass, not that they cover new ground.
 
 ## 7. Status Log
+
+- 2026-09-08 — branch complete, PR opened. All 12 SC pass; `verify_summary --check` re-ran all 15
+  Verify rows green. Suite 47 files / 254 tests from a 38/217 baseline; tsc, lint and build clean.
+  Correctness review: 9 locations over six blind angles — 5 fixed in 39b7788, E001 escalated and
+  decided (split to `specs/proxy-auth-failure-boundary/`), 3 recorded. Intent review: gaps-found,
+  both blocking gaps accepted by standing user decision; deep-review item 12 stays open by design.
+  `pnpm e2e` could not run — port 3000 is held by an unrelated app and the config reuses it; see
+  SUMMARY `### Not auto-verified`.
 
 - 2026-09-08 — tasks 6.1, 6.2 complete; commits e922573, 62a625f, plus a8e24b1 applying review
   findings. Suite 47 files / 246 tests, `tsc` exit 0, `pnpm lint` 0 errors, `pnpm build` still

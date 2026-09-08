@@ -185,6 +185,16 @@ Recorded, not fixed:
 
 ### Not auto-verified
 
+- **The Playwright regression did not run.** `PLAN.md` §6 names `pnpm e2e` as a finish step. It
+  could not be executed here: `playwright.config.ts` hardcodes `baseURL: http://localhost:3000`
+  with `reuseExistingServer: !CI`, and port 3000 on this machine is held by an unrelated
+  application. Playwright attached to that app and failed in `auth.setup.ts` on a strict-mode
+  violation whose captured DOM carries Clerk class names (`cl-formFieldInput`,
+  `cl-formFieldInputShowPasswordButton`) — this repository uses Supabase, so the run never reached
+  our app. Nothing about this branch is implicated: it changes no file under `app/auth/`. Reported
+  as **not run**, not as a pass and not as a failure. A reviewer on a clean machine, or CI (where
+  `reuseExistingServer` is false), should run it.
+
 - "The loading announcement is actually spoken by a screen reader" — reached **traceability**: the
   live region is now hoisted so its content changes after it exists, which is the shape assistive
   technology requires, and a test asserts the region exists in both states. No screen reader was
