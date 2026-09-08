@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { TripCardSkeleton } from "@/components/skeletons/TripCardSkeleton";
 import { NewTripModal } from "@/components/trips/NewTripModal";
-import { TripCard, TripCardSkeleton } from "@/components/trips/TripCard";
+import { TripCard } from "@/components/trips/TripCard";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useTrips, type Trip } from "@/lib/query/trips";

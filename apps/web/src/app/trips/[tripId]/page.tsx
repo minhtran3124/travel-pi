@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { TripHeaderSkeleton } from "@/components/skeletons/TripHeaderSkeleton";
 import { BudgetTab } from "@/components/trips/budget/BudgetTab";
 import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
 import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
-import { TripHeader, TripHeaderSkeleton } from "@/components/trips/TripHeader";
+import { TripHeader } from "@/components/trips/TripHeader";
 import { Tabs, type Tab } from "@/components/ui/Tabs";
 import { useTrip } from "@/lib/query/trips";
 
