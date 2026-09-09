@@ -214,6 +214,26 @@ states `rooms`, yet the model called `search_hotels` rather than stopping to ask
 `search_hotels` docstring's "never guess or assume / restate and confirm" clause did not block the
 search on this golden. It stays unedited and the risk stays recorded, not closed.
 
+### Browser UAT (2026-09-09, signed-in `e2e-test`, Docker api :8000)
+
+Driven with Playwright against the running travel-pi web app; spec + screenshots in
+`uat/` (`uat-hotel-dates.spec.ts`, run recipe in its header). Both turns of the reported
+conversation, in one thread:
+
+| Turn | Input | Result | Screenshot |
+| --- | --- | --- | --- |
+| 1 | "I'm looking for a hotel in Da Nang" (no dates) | "Here are a few good Da Nang hotel picks" + the **catalog** panel: `→ · 0 nights · 1 room · 24 results · cheapest $35`. **No date interrogation** — the assistant did not ask for check-in/check-out to browse. | `uat/1-no-dates-browse.png` |
+| 2 | "Check-in March 10 2027, check-out March 14 2027, 2 adults, 1 child" | "for **10 Mar 2027 to 14 Mar 2027** with **2 adults and 1 child**, I found **24 hotels in Da Nang**" + the **dated** panel: `2027-03-10 → 2027-03-14 · 4 nights · 1 room · 24 results · cheapest $140`, every row badged **available**. The sentence issue #147 reported ("I can't check real room availability") is asserted absent. | `uat/2-dated-availability.png`, `uat/3-dated-panel.png` |
+
+The panel numbers match the DB oracle for that stay (24 hotels, 24 available, min $140), which is
+the same fact the eval's `oracle_fact_check` grades. The spec asserts the dated panel's exact
+stay (`2027-03-10`, `2027-03-14`, `4 nights`) rather than a bare year, so a trip card on the page
+behind the drawer cannot satisfy it.
+
+Environment note: `:3000` was another project's app on this machine — travel-pi's dev server was
+on `:3001`, and `playwright.config.ts` hardcodes the base URL, so the run needed a temporary
+config edit (reverted; `apps/web` is clean).
+
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
@@ -252,8 +272,8 @@ The full BE suite and `make eval-check` run at delivery, not here.
 - **The committed baseline was not refreshed.** `eval/baselines/main.json` still records the
   pre-fix failures for these goldens; it is refreshed only by the full judged `make eval-check`
   run at delivery.
-- **No browser UAT.** The dated hotels panel from a concierge turn was asserted in-process
-  (`nights > 0`), not opened in the web drawer.
+- **The UAT ran against local Docker + a signed-in `e2e-test` account**, one pass, not k=3 — it
+  is a demonstration that the path works end to end in the browser, not a statistical claim.
 
 ### Rollback
 
