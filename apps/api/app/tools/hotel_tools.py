@@ -329,10 +329,11 @@ def browse_hotels(
     """Answer hotel info/search questions — price, location, amenities, rating — with no dates.
 
     Use this to browse what's in a city (e.g. "hotels in Da Nang under $100",
-    "any 4-star places with a pool?"). It does **not** check date-specific
-    availability and does **not** book — for a real reservation with exact
-    dates, the booking flow's ``search_hotels`` (availability) and
-    ``book_hotel`` handle that.
+    "any 4-star places with a pool?"). Use it when the traveller has given
+    **no dates** — it does not check date-specific availability and does not
+    book. As soon as they give check-in and check-out, use ``search_hotels``
+    instead, which checks real availability for those dates; ``book_hotel``
+    (the actual reservation) stays with the booking flow.
 
     Returns up to 12 hotels, sorted cheapest nightly rate first (best value on
     top) — unless the traveller's known preferences (star rating, hotel type,

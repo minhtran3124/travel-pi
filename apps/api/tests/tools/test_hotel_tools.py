@@ -182,3 +182,15 @@ def test_search_hotels_invalid_rooms_type_raises_validation_error(agent_db):
                 },
             }
         )
+
+
+def test_browse_hotels_description_points_at_search_hotels():
+    description = " ".join(browse_hotels.description.split())
+    assert "no dates" in description
+    assert "search_hotels" in description
+    assert "for a real reservation with exact dates" not in description
+
+
+def test_search_hotels_description_unchanged():
+    description = " ".join(search_hotels.description.split())
+    assert "collect every one from the traveller and never guess" in description
