@@ -6,10 +6,14 @@ guessed. This check cannot prove provenance — that stays in the SUMMARY's
 `### Not auto-verified` section — but it does prove the value is present and
 is a flow the supervisor can route to.
 
-`TOOLS_BY_DOMAIN`'s keys are the only canonical set of sub-agent names:
-`TravelAgentState.current_flow` is a plain `str`, so there is no enum to read.
-Deriving the set here rather than restating it means a renamed or added
-sub-agent cannot leave this check asserting against a stale list.
+The valid set is `ALL_SUBAGENTS` (`app/agents/constants.py`, which calls itself
+the single source of truth) plus `SYNTHESIZE_NODE`. The latter matters: on the
+multi-intent fan-out path `nodes.py` sets `current_flow` to the synthesize
+node's own name, and the eval runner copies `current_flow` straight into the
+`Trace.flow` that `expected_flow` is compared against — so "synthesize" is a
+value an honest observation can legitimately produce. Deriving the set rather
+than restating it means a renamed or added sub-agent cannot leave this check
+asserting against a stale list.
 """
 
 from __future__ import annotations
@@ -24,9 +28,9 @@ DATASET = Path(__file__).resolve().parent.parent / "eval" / "datasets" / "journa
 
 def main() -> int:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from app.tools.registry import TOOLS_BY_DOMAIN
+    from app.agents.constants import ALL_SUBAGENTS, SYNTHESIZE_NODE
 
-    known = set(TOOLS_BY_DOMAIN)
+    known = {*ALL_SUBAGENTS, SYNTHESIZE_NODE}
     cases = json.loads(DATASET.read_text())
     match = [c for c in cases if c.get("id") == GOLDEN_ID]
     if not match:

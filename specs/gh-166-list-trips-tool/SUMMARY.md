@@ -172,6 +172,75 @@ provider, EN-only, `repeat: 1`. Reasoning under Not auto-verified.
 - The lane's `public-contract` claim — reached traceability (registry → `ALL_TOOLS` → the manifest
   is read from source); `hooks/risk-corroboration.sh` scored the real diff at commit time.
 
+### Advisory Findings
+
+Independent correctness review (six find angles, 8 candidate locations, independent scorer per
+location on a different model). **No finding reached the blocking threshold.** Two were defects in
+this work's own success-criteria checks and were fixed rather than recorded; the rest stand.
+
+**Fixed in `bf2e4d6`:**
+
+- `check_gh166_golden_flow.py` asserted the observed flow against `TOOLS_BY_DOMAIN`'s keys, and
+  its docstring claimed there was "no enum to read". Both wrong: `ALL_SUBAGENTS`
+  (`app/agents/constants.py`) calls itself the single source of truth, and the multi-intent
+  fan-out path sets `current_flow` to `SYNTHESIZE_NODE`, which the eval runner copies into the
+  very field `expected_flow` is compared against. A future honest observation of `synthesize`
+  would have been rejected as "not a sub-agent the supervisor can route to". Now derived from
+  `ALL_SUBAGENTS` + `SYNTHESIZE_NODE`.
+- `check_gh166_baseline_note.py`'s decision regex had no word boundary and no `IGNORECASE`:
+  `Baseline decision: acceptedly unresolved — 0.5 and 0.3` PASSED as "accepted", and a naturally
+  capitalised `Accepted` FAILED a correctly recorded decision — the same wrong-branch class the
+  script's own comment calls "worse than no check". Both probes re-run after the fix: the first
+  no longer matches, the second does.
+
+**Recorded, not fixed:**
+
+- `list_trips` is uncapped while the REST equivalent (`GET /trips`) paginates the same service
+  call, and the payload persists as ToolMessage content in the checkpoint for the rest of the
+  thread. An account with hundreds of trips costs tokens, not correctness. Seven scalar fields per
+  entry keeps it modest; capping belongs with the pagination question, not here.
+- `check_gh166_prompt_wiring.py` tests for the bare substring `list_trips`, so a future prompt
+  mentioning the tool only in a negation would still pass. Correct on this branch — both prompt
+  diffs are pure appends carrying the real two-trigger rule.
+- The MCP exclusion is name-keyed and its test asserts absence by the same name, so a rename would
+  re-expose the tool with both passing vacuously. No wrong behavior today.
+- `TripRepo.list_trips` runs `select(models.TripItem)` with no filter — every itinerary item of
+  every user, bucketed in Python. Pre-existing (that file has zero diff on this branch), but this
+  change newly wires an LLM-triggered, per-utterance caller into it. Worth fixing when someone
+  next touches that file.
+
+Clean on the areas flagged for scrutiny: owner scoping (no IDOR path), the `trip_id is None`
+branch, the `dump()` projection against null city/dates/no items, MCP reachability (the exclusion
+is checked unconditionally before the only `add_tool` call site), and the shared label (every
+consumer uses substring/split, none exact equality).
+
+### Intent Findings
+
+Independent plan-blind review against issue #166 verbatim. Verdict PASS; three items recorded.
+
+- **Drift (accepted, equivalent-or-better).** Suggestion 2 asked for `(id, title, city, dates,
+  status)`. Shipped: `title, city, start_date, end_date, travelers, items, is_active`. `id` is
+  dropped deliberately — under E001-A nothing can consume it and the planner prompt forbids
+  showing one. `status` does not exist on the `Trip` schema at all (only `TripItem` has one);
+  `is_active` serves the stated purpose ("count and disambiguate") instead. `travelers` and the
+  `items` count are additive.
+- **Gap (deferred, not fixed).** Suggestion 5 asked for a golden with 2+ trips. The golden ships,
+  but the runner hardcodes `user_id = "eval"` with no seeded trips, so it proves routing and tool
+  selection, not the count. Unit tests cover the count. Closing it needs a seeded-trip eval
+  fixture — separate work, already recorded above and in `eval/adapters/db_oracle.py`.
+- **Excess (kept, with a follow-up).** Three permanent slug-named scripts under
+  `apps/api/scripts/` that the issue did not ask for. They exist because SC-6, SC-10 and SC-11
+  must stay re-runnable. `check_gh166_baseline_note.py` in particular asserts on the *text* of
+  this SUMMARY, so a permanent check is coupled to a spec document that will outlive the spec.
+  Worth folding into `tests/` or deleting after merge; not removed here because that would leave
+  three success criteria unverifiable.
+
+**Residual risk the reviewer named and this work does not close:** the naming trigger lives only
+in the planner and journal prompts. A "what about my Da Nang trip" utterance that the supervisor
+routes to `concierge` is defended only by the shared trip-context label, since concierge binds no
+trip tools. It also holds no `create_trip`, so it cannot open a duplicate trip — the failure mode
+there is a vaguer answer, not the original bug.
+
 ### Rollback
 
 - `git revert 15d5b07 28bb989 027cb67 6747754 9ff37a4 92227be 8ed14d9` — every commit is additive

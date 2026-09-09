@@ -39,7 +39,12 @@ def main() -> int:
     # The token must be the word the line LEADS with, not merely present in it:
     # "accepted, not refreshed" contains both, and a check that reports the
     # wrong branch is worse than no check.
-    decision = re.compile(r"Baseline decision:\s*\**(" + "|".join(TOKENS) + r")\**")
+    # \b so "acceptedly" cannot pass as "accepted", IGNORECASE so a naturally
+    # capitalised "Accepted" is not rejected. Both were live defects.
+    decision = re.compile(
+        r"Baseline decision:\s*\**(" + "|".join(TOKENS) + r")\b",
+        re.IGNORECASE,
+    )
     for line in lines:
         found = decision.search(line)
         numbers = re.findall(r"\d+\.\d+", line)
