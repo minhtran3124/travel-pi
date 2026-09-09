@@ -159,3 +159,14 @@ Supervisor v11 already routed hotel *availability* to the concierge and three ev
 
 **Full doc:** docs/solutions/agent/concierge-hotel-tool-choice.md
 ---
+
+## [2026-09-09] commit-gate-audits-main-checkout-index
+**Type:** bug
+**Module:** harness/hooks
+**Tags:** hooks, commit-gate, git-worktree, claude-project-dir, cross-session, false-block
+**Applicable when:** A commit from a linked git worktree is blocked by a gate complaining about a file the commit does not touch, especially another branch's `specs/<slug>/SUMMARY.md`.
+
+`commit-quality-gate.sh` resolves its repository as `${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}` and cds there, so the env var wins and every `git diff --cached` reads the MAIN checkout's index. From a linked worktree the gate both fails on staged work outside the commit and would pass work inside it — the second half being the dangerous one, since a worktree commit slips through unaudited and nothing says so. One half-finished staged SUMMARY in the main checkout blocks every worktree in the repo at once. There is no agent-side workaround: the gate is a PreToolUse hook running in the session's environment, so `CLAUDE_PROJECT_DIR=... git commit` reaches git but never the hook, and the variable appearing unset inside a Bash call is not evidence it is unset for the hook. Fix is to invert the precedence — prefer the committing repo's toplevel, fall back to the env var.
+
+**Full doc:** docs/solutions/harness/commit-gate-audits-main-checkout-index.md
+---
