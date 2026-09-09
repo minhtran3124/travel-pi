@@ -3,6 +3,8 @@
 import { useMessages, useTranslations } from "next-intl";
 
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Spinner } from "@/components/ui/Spinner";
 import type { WeatherResponse } from "@/lib/query/today";
 
 type CurrentWeather = WeatherResponse["current"];
@@ -19,19 +21,49 @@ function useWmoMap(): Record<string, string> {
 }
 
 /**
- * Presentational current-conditions card. Takes the weather response's `current`
- * block (or nothing) and makes no request of its own. The condition string is the
+ * Presentational current-conditions card. Takes the weather query's `current`
+ * block plus its `isPending` / `isError` flags and makes no request of its own,
+ * so it owns the same spinner / error / empty ladder as `MapTab`: a pending
+ * query shows a spinner, a failed one shows an error — a slow or failed
+ * `/weather` never silently renders nothing. The condition string is the
  * localized WMO entry for `weather_code`, falling back to the response's own
  * `description` when the code is not in the map — never an empty condition.
  */
 export function TodayWeatherCard({
   current,
+  isPending = false,
+  isError = false,
 }: {
   current: CurrentWeather | undefined;
+  isPending?: boolean;
+  isError?: boolean;
 }) {
   const t = useTranslations("Today.weather");
   const tWmo = useTranslations("Today.weather.wmo");
+  const tCommon = useTranslations("Common");
+  const tErr = useTranslations("Errors");
   const wmoMap = useWmoMap();
+
+  if (isPending) {
+    return (
+      <Card className="flex max-w-[28rem] items-center gap-sm text-sm text-muted">
+        <Spinner label={t("title")} />
+        <span>{tCommon("loading")}</span>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="max-w-[28rem]">
+        <EmptyState
+          icon="⚠️"
+          title={tErr("somethingWentWrongTitle")}
+          hint={tErr("somethingWentWrongHint")}
+        />
+      </Card>
+    );
+  }
 
   if (!current) return null;
 

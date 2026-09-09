@@ -152,6 +152,68 @@ describe("TodayTab", () => {
     expect(screen.queryByText(today.notInProgress.title)).not.toBeInTheDocument();
   });
 
+  it("renders the no-destination state when trip.city is null", async () => {
+    serveTrip(tripResponse({ city: null }));
+    server.use(
+      http.get("*/trips/:tripId/day-plan", () =>
+        HttpResponse.json({
+          trip_id: TRIP_ID,
+          date: "2026-09-15",
+          day: 1,
+          items: [],
+        }),
+      ),
+    );
+
+    renderTab();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(today.noDestination.title),
+      ).toBeInTheDocument(),
+    );
+    // No city means no weather or air-quality card at all.
+    expect(screen.queryByText(today.weather.title)).not.toBeInTheDocument();
+    expect(screen.queryByText(today.air.title)).not.toBeInTheDocument();
+  });
+
+  it("shows the plan error state, not the empty state, when the day plan fails", async () => {
+    serveTrip(tripResponse());
+    server.use(
+      http.get("*/trips/:tripId/day-plan", () =>
+        HttpResponse.json({ detail: "boom" }, { status: 500 }),
+      ),
+      // Weather/air succeed so the only error on screen is the day plan's.
+      http.get("*/weather", () =>
+        HttpResponse.json({
+          city: "Da Nang",
+          current: {
+            time: "2026-09-15T12:00",
+            temperature_c: 30,
+            apparent_temperature_c: 34,
+            relative_humidity: 70,
+            wind_speed_kmh: 10,
+            weather_code: 1,
+            description: "Mainly clear",
+          },
+        }),
+      ),
+      http.get("*/air-quality", () =>
+        HttpResponse.json({ city: "Da Nang", us_aqi: 42, category: "Good", pm2_5: 8 }),
+      ),
+    );
+
+    renderTab();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(en.Errors.somethingWentWrongTitle),
+      ).toBeInTheDocument(),
+    );
+    // A failed fetch must never read as a genuinely empty day.
+    expect(screen.queryByText(today.plan.emptyTitle)).not.toBeInTheDocument();
+  });
+
   it("renders the dated not-in-progress state outside the trip window", async () => {
     serveTrip(
       tripResponse({ start_date: "2026-10-01", end_date: "2026-10-10" }),

@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { NextIntlClientProvider } from "next-intl";
-import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { server } from "@/test/msw";
@@ -83,6 +82,7 @@ const ROUTE = {
 };
 
 const UNAVAILABLE = en.Today.directions.unavailable;
+const ERROR_TITLE = en.Errors.somethingWentWrongTitle;
 
 describe("TodayDirections", () => {
   it("renders a route through RoutePanel when both items have a place", async () => {
@@ -125,5 +125,24 @@ describe("TodayDirections", () => {
   it("renders the unavailable note when previous is null", () => {
     renderDirections(null, item("place-b"));
     expect(screen.getByText(UNAVAILABLE)).toBeInTheDocument();
+  });
+
+  it("renders an error state, not a spinner, when the route request fails", async () => {
+    // react-query v5: a failed query settles with isPending=false and
+    // data=undefined, so the old `isPending || !data` branch span-forever'd.
+    server.use(
+      http.get("*/places/route", () =>
+        HttpResponse.json({ detail: "upstream 502" }, { status: 502 }),
+      ),
+    );
+
+    renderDirections(item("place-a"), item("place-b"));
+
+    await waitFor(() =>
+      expect(screen.getByText(ERROR_TITLE)).toBeInTheDocument(),
+    );
+    // The permanent spinner is gone: no live status role remains.
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText("Hotel → Dragon Bridge")).not.toBeInTheDocument();
   });
 });

@@ -29,6 +29,7 @@ import { useTrip } from "@/lib/query/trips";
  */
 export function TodayTab({ tripId }: { tripId: string }) {
   const t = useTranslations("Today");
+  const tErr = useTranslations("Errors");
   const { data: trip, isPending, isError } = useTrip(tripId);
 
   const today = todayIso(new Date());
@@ -83,6 +84,14 @@ export function TodayTab({ tripId }: { tripId: string }) {
               <div className="flex items-center gap-sm text-sm text-muted">
                 <Spinner label={t("plan.title")} />
               </div>
+            ) : dayPlan.isError ? (
+              // An errored day plan is not an empty day: show the error state so a
+              // failed fetch never reads as "Nothing planned for today".
+              <EmptyState
+                icon="⚠️"
+                title={tErr("somethingWentWrongTitle")}
+                hint={tErr("somethingWentWrongHint")}
+              />
             ) : items.length === 0 ? (
               <EmptyState
                 icon="🗓️"
@@ -114,8 +123,16 @@ export function TodayTab({ tripId }: { tripId: string }) {
 
           {city ? (
             <>
-              <TodayWeatherCard current={weather.data?.current} />
-              <TodayAirQualityCard data={airQuality.data} />
+              <TodayWeatherCard
+                current={weather.data?.current}
+                isPending={weather.isPending}
+                isError={weather.isError}
+              />
+              <TodayAirQualityCard
+                data={airQuality.data}
+                isPending={airQuality.isPending}
+                isError={airQuality.isError}
+              />
             </>
           ) : (
             <Card>

@@ -8,10 +8,13 @@ import { TodayWeatherCard } from "./TodayWeatherCard";
 
 type CurrentWeather = WeatherResponse["current"];
 
-function renderCard(current: CurrentWeather | undefined) {
+function renderCard(
+  current: CurrentWeather | undefined,
+  flags: { isPending?: boolean; isError?: boolean } = {},
+) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <TodayWeatherCard current={current} />
+      <TodayWeatherCard current={current} {...flags} />
     </NextIntlClientProvider>,
   );
 }
@@ -65,5 +68,21 @@ describe("TodayWeatherCard", () => {
   it("renders nothing when no current reading is supplied", () => {
     const { container } = renderCard(undefined);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows a spinner while the weather query is pending", () => {
+    // No `current` yet, but the query is in flight — a spinner, not blank.
+    renderCard(undefined, { isPending: true });
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByText(en.Common.loading)).toBeTruthy();
+  });
+
+  it("shows an error state when the weather query fails", () => {
+    // Failed query: isError true, no data. It must not render blank.
+    renderCard(undefined, { isError: true });
+    expect(
+      screen.getByText(en.Errors.somethingWentWrongTitle),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });

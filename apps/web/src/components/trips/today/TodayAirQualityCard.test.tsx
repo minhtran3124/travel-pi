@@ -18,10 +18,13 @@ function makeAir(overrides: Partial<AirQualityResponse> = {}): AirQualityRespons
   } as AirQualityResponse;
 }
 
-function renderCard(data: AirQualityResponse | undefined) {
+function renderCard(
+  data: AirQualityResponse | undefined,
+  flags: { isPending?: boolean; isError?: boolean } = {},
+) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <TodayAirQualityCard data={data} />
+      <TodayAirQualityCard data={data} {...flags} />
     </NextIntlClientProvider>,
   );
 }
@@ -94,5 +97,19 @@ describe("TodayAirQualityCard", () => {
   it("renders nothing when the data prop is undefined", () => {
     const { container } = renderCard(undefined);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows a spinner while the air-quality query is pending", () => {
+    renderCard(undefined, { isPending: true });
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByText(en.Common.loading)).toBeInTheDocument();
+  });
+
+  it("shows an error state when the air-quality query fails", () => {
+    renderCard(undefined, { isError: true });
+    expect(
+      screen.getByText(en.Errors.somethingWentWrongTitle),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });

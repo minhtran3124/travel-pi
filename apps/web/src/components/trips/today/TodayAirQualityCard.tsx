@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Spinner } from "@/components/ui/Spinner";
 import type { AirQualityResponse } from "@/lib/query/today";
 
 export type AqiBand =
@@ -29,17 +31,48 @@ export function aqiBand(usAqi: number): AqiBand {
 }
 
 /**
- * Presentational air-quality card. Renders a localized band derived from the
- * `us_aqi` integer; when `us_aqi` is null it falls back to the API's own
- * `category` string and omits the numeric reading. PM2.5 shows only when the
- * response carries it. Takes its data as a prop and makes no request.
+ * Presentational air-quality card. Takes the air-quality query's `data` plus its
+ * `isPending` / `isError` flags and makes no request of its own, so it owns the
+ * same spinner / error / empty ladder as the weather card: a pending query shows
+ * a spinner, a failed one shows an error — a slow or failed `/air-quality` never
+ * silently renders nothing. Renders a localized band derived from the `us_aqi`
+ * integer; when `us_aqi` is null it falls back to the API's own `category` string
+ * and omits the numeric reading. PM2.5 shows only when the response carries it.
  */
 export function TodayAirQualityCard({
   data,
+  isPending = false,
+  isError = false,
 }: {
   data: AirQualityResponse | undefined;
+  isPending?: boolean;
+  isError?: boolean;
 }) {
   const t = useTranslations("Today.air");
+  const tCommon = useTranslations("Common");
+  const tErr = useTranslations("Errors");
+
+  if (isPending) {
+    return (
+      <Card className="flex max-w-[28rem] items-center gap-sm text-sm text-muted">
+        <Spinner label={t("title")} />
+        <span>{tCommon("loading")}</span>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="max-w-[28rem]">
+        <EmptyState
+          icon="⚠️"
+          title={tErr("somethingWentWrongTitle")}
+          hint={tErr("somethingWentWrongHint")}
+        />
+      </Card>
+    );
+  }
+
   if (!data) return null;
 
   const { us_aqi, category, pm2_5 } = data;

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Spinner } from "@/components/ui/Spinner";
 import { RoutePanel } from "@/components/chat/panel/RoutePanel";
 import type { RoutePanelData } from "@/lib/stream/panel";
@@ -74,10 +75,11 @@ export function TodayDirections({
   next: DayPlanItem | null;
 }) {
   const t = useTranslations("Today.directions");
+  const tErr = useTranslations("Errors");
 
   const fromId = previous?.item.place_id ?? "";
   const toId = next?.item.place_id ?? "";
-  const { data, isPending } = useRoute(fromId, toId);
+  const { data, isPending, isError } = useRoute(fromId, toId);
 
   const canRoute = fromId.length > 0 && toId.length > 0;
 
@@ -87,10 +89,19 @@ export function TodayDirections({
       <Card className="flex flex-col">
         {!canRoute ? (
           <p className="text-sm text-muted">{t("unavailable")}</p>
-        ) : isPending || !data ? (
+        ) : isPending ? (
           <div className="flex items-center gap-sm text-sm text-muted">
             <Spinner label={t("title")} />
           </div>
+        ) : isError || !data ? (
+          // A failed route (react-query v5: isPending false, data undefined) must
+          // not fall through to the spinner above — `!data` here means the query
+          // settled without a body, i.e. an error, not "still loading".
+          <EmptyState
+            icon="⚠️"
+            title={tErr("somethingWentWrongTitle")}
+            hint={tErr("somethingWentWrongHint")}
+          />
         ) : (
           <div className="h-[26rem] overflow-hidden rounded-sm">
             <RoutePanel data={toPanelData(data)} />
