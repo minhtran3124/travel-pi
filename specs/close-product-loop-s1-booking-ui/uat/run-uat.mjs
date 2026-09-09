@@ -123,8 +123,16 @@ try {
   await shot(page, "05-chat-booking-approval-gate", "the assistant asks before booking");
   await approve.click();
 
+  await page.waitForTimeout(60_000);
+
+  // The plan-approval gate is not the booking confirmation: the assistant still
+  // asks for an explicit go-ahead before it spends money, which is the
+  // "never confirm a booking without explicit approval" guardrail doing its job.
+  // Answer it, the way a traveller would.
+  await composer.fill("Yes, book it.");
+  await page.getByRole("button", { name: /send message/i }).click();
   await page.waitForTimeout(90_000);
-  await shot(page, "06-chat-booking-done", "the assistant's reply after approval");
+  await shot(page, "06-chat-booking-done", "the assistant's reply after confirming");
 
   // --- Case 5: does the trip now show it? ------------------------------------
   await page.goto(`${BASE}/trips/${tripId}`, { waitUntil: "networkidle" });

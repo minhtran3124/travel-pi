@@ -3,6 +3,20 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## close-product-loop-s1-booking-ui — booking can now identify the flight
+
+Second blocker on the same path, found by browser UAT. With the email fixed, the
+assistant searched, was approved, called `book_flight` with `flight_id='VN407'` and
+got back an invalid reference. It was not the model guessing: `search_flights`
+reports flights to the model by **flight number only** — the `id` goes to the
+Flights panel and never reaches the model — so the number was the only handle it
+had, and `flight_id` was the wrong field for it.
+
+- **booking v9** — copied v8; added "How to Work" step 5: never put a flight number
+  in `flight_id`, and book by `flight_number` + `origin` + `destination` +
+  `departure_date` instead, which the tool already accepts and the assistant already
+  knows from the search it just ran.
+
 ## close-product-loop-s1-booking-ui — booking can now collect an email at all
 
 Booking through the chatbot could never complete: email was redacted before any model

@@ -1,6 +1,6 @@
 # Browser UAT — S1 booking slice
 
-Run 2026-09-08 against `feat/close-product-loop-s1-booking-ui`, with the Next dev server on `:3001`
+Run 2026-09-09 against `feat/close-product-loop-s1-booking-ui`, with the Next dev server on `:3001`
 and the API on `:8000` (Docker, dev Postgres). Driven by [`run-uat.mjs`](run-uat.mjs) —
 playwright-core under Node 24, because the Playwright MCP server is broken in this environment.
 
@@ -17,11 +17,13 @@ through the chatbot, which stamps the active trip onto the booking.
 | 1 | Flights and Hotels reachable from the app nav | Both present |
 | 2 | `/flights` searches and shows results, with **no** booking control | 0 Book buttons; assistant hint shown |
 | 3 | `/hotels` the same | 0 Book buttons; assistant hint shown |
-| 4 | Asking the assistant to book, from the trip's own page | Request accepted, plan proposed |
+| 4 | Asking the assistant to book, from the trip's own page | Request accepted, fare proposed |
 | 5 | The assistant asks before spending money | Approval gate shown |
-| 6 | After approving | **Blocked — see below** |
-| 7 | The trip's Bookings tab | Empty, because nothing was booked |
-| 8 | The trip's Budget tab | Booked total $0, for the same reason |
+| 6 | Confirming, then the assistant books | Booked, confirmation `WCMCRD` |
+| 7 | The trip's Bookings tab | Shows the booking, $50.61, confirmed |
+| 8 | The trip's Budget tab | Booked total picks it up |
+
+The whole loop closes here: a booking made **in chat** carries the trip and appears on it.
 
 ### 1 — Flights and Hotels in the nav
 
@@ -39,65 +41,72 @@ through the chatbot, which stamps the active trip onto the booking.
 
 ![The booking request sent to the assistant](04-chat-booking-asked.png)
 
-### 5 — The assistant asks first
+### 5 — The assistant asks before spending money
 
 ![The approval gate before booking](05-chat-booking-approval-gate.png)
 
-### 6 — After approval, the booking does not happen
+Note this gate is the *plan* approval. The assistant still asks for an explicit go-ahead after it,
+which is the "never confirm a booking without explicit approval" guardrail doing its job. The
+script answers it the way a traveller would.
 
-![The assistant asks for a valid email it can never receive](06-chat-booking-done.png)
+### 6 — Booked
 
-### 7 and 8 — The trip stays empty
+![The assistant confirms the booking](06-chat-booking-done.png)
 
-![Bookings tab, empty](07-trip-bookings-after-chat.png)
+### 7 — The booking is on the trip
 
-![Budget tab, booked total zero](08-trip-budget-after-chat.png)
+![Bookings tab showing the chat booking](07-trip-bookings-after-chat.png)
 
-## The blocker this UAT found
+### 8 — And in the trip's budget
 
-**Booking through the chatbot cannot currently complete, for any user.**
+![Budget tab with the booked total](08-trip-budget-after-chat.png)
 
-The assistant searched, proposed the cheapest fare, asked for approval, and then stopped with:
+## Three blockers this UAT found, in order
 
-> I can confirm the booking as soon as you send a valid email address for UAT Tester. The airline
-> needs a real email with an @ sign.
+Each was found by running the flow, not by reading the code, and each hid the next.
 
-The email *was* supplied — `uat-<stamp>@example.com`. The approval card shows what the assistant
-actually received: `email [REDACTED_EMAIL]`.
+**1. The migration had never been applied to the dev database.** Every booking failed with a
+generic "Couldn't complete the booking" while the API log said `column bookings.trip_id does not
+exist`. **The migration has to run on deploy.** No test on this branch could have caught it: both
+the SQLite and the Docker Postgres suites build their schema from the migrations against a fresh
+database, so only a long-lived one can lag.
 
-Three facts meet here, and only the third is new:
+**2. The assistant could never receive an email.** `pii_guardrail_node` is the graph's entry node
+and replaced every email in the user's message with `[REDACTED_EMAIL]` before any model call, while
+both booking tools require one and nothing in state carried the account's. The assistant asked for
+"a real email with an @ sign" that it had just been handed. Fixed by the product decision recorded
+in the changelog: email is no longer redacted, the signed-in address is folded into the system
+message, and booking prompt v8 has the assistant offer it and ask the traveller to confirm.
 
-1. `pii_guardrail_node` (`apps/api/app/agents/guardrails.py:98-112`) is the graph's entry node and
-   replaces **every** email in the user's message with `[REDACTED_EMAIL]` before any model call.
-2. `passenger_email` and `guest_email` are **required** on the booking tools
-   (`flight_tools.py:297`, `hotel_tools.py:158`), and nothing in `TravelAgentState` carries the
-   account's email — state has `user_id` and a `profile` string of name/gender/travel-group
-   (`agents/state.py:83,93`).
-3. The web pages no longer book, so chat is the only path left.
+**3. The assistant had no way to name the flight.** With the email fixed, it called `book_flight`
+with `flight_id='VN407'` and got an invalid reference. That was not the model guessing:
+`search_flights` reports flights to the model by **flight number only** — the `id` goes to the
+Flights panel and never reaches the model — so the number was the only handle it had, and
+`flight_id` was the wrong field for it. Booking prompt v9 tells it to book by `flight_number` plus
+origin, destination and departure date, which the tool already accepts.
 
-Points 1 and 2 predate this branch and have always been in tension; point 3 is what turns that
-tension into a dead end. Nothing on this branch caused it, and nothing on this branch can be blamed
-for it, but the branch's stated direction does not work until it is resolved.
+After all three, the booking goes through and lands on the trip:
 
-The obvious fix is to supply the email the same way `user_id` and `trip_id` are supplied: injected
-server-side from the account, never model-supplied and therefore never redacted. That is a product
-decision about using someone's account email as the booking contact, so it is written down here
-rather than made unilaterally.
+```
+[tool] book_flight called
+  flight_id      = None
+  flight_number  = 'VN407'
+  origin         = 'DAD'
+  destination    = 'SGN'
+  departure_date = '2026-10-09'
+  confirm        = True
+Created flight booking 70351409-… for flight 7719fd71-…
+```
 
-## What was verified instead
-
-That the trip actually gets stamped onto a chat booking is covered at the tool level by
-`apps/api/tests/tools/test_booking_trip_id.py`, which invokes both booking tools the way the graph
-does — with and without a trip in state — and asserts the stamped `trip_id`. The browser cannot
-demonstrate it end to end until the email blocker above is resolved.
+and the row carries the trip: `('70351409-…', 'flight', '6f6f7ef3-…', 50.61, 'confirmed')`.
 
 ## Environment notes
 
 - The chat booking case needs a premium account; the booking sub-agent is premium-only. The UAT
   account was temporarily set to premium with `scripts/set_tier.py` and **set back to free
   afterwards** — the dev database is shared, so it was left as found.
-- An earlier run of this UAT found the dev Postgres had never had the migration applied: every
-  booking failed with a generic message while the API log said `column bookings.trip_id does not
-  exist`. **The migration has to run on deploy.** No test on this branch could have caught it —
-  both the SQLite and Docker Postgres suites build their schema from the migrations against a fresh
-  database, so only a long-lived one can lag.
+- Prompt changes do not reach a running server on their own: the registry is a singleton and the
+  graph is built at lifespan startup, and uvicorn's reloader only watches `.py`. Force a rebuild
+  with `docker exec api-api-1 touch app/main.py` after editing a prompt or `active.yaml`.
+- The trip-stamping is also covered at the tool level by `apps/api/tests/tools/test_booking_trip_id.py`,
+  which invokes both booking tools the way the graph does, with and without a trip in state.
