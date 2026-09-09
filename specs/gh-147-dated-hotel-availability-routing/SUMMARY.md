@@ -179,8 +179,34 @@ The golden flips at roughly the same rate with and without the change, with an i
 signature on both sides — so it is pre-existing flakiness on that golden, not a regression this
 edit introduced. Mechanically that also fits: the edit *removed* a reason to ask and added none.
 
-So the shared-description change now has eval coverage on both capabilities that read it, and
-neither moved.
+**The planner path, measured on request (2026-09-09, after the `main` merge).** The third agent
+that reads this description was the one gap left; it is now closed:
+
+| Capability | Baseline | Now | Reading |
+| --- | --- | --- | --- |
+| `flight_search` | 83.3% | **6/6 = 100.0%** | zero failures; `flight_search-ambiguous-en-01`, red in the baseline, passes |
+| `routing` | 88.2% | **15/17, 16/17, 15/17** across three runs | at or above baseline every time |
+
+`routing`'s failing *set* shifted even though its rate did not: `routing-multi-en-04` ("Plan
+everything for a Tokyo weekend: flights, **a hotel**, places to see, the weather, local tips…",
+expecting a planner + concierge fan-out) went red, while `routing-multi_turn-en-01` (#155's
+crash) went green. Because that golden mentions a hotel, it was isolated rather than reasoned
+about: **the `search_hotels` paragraph alone was reverted on top of the same HEAD** and `routing`
+re-run twice.
+
+| State | Runs | `routing-multi-en-04` |
+| --- | --- | --- |
+| branch HEAD (with the edit) | 3 | red, red, red |
+| HEAD with **only that paragraph reverted** | 2 | red, green |
+
+It is red on both sides, so the edit did not cause it. Its own `notes` field explains why it is
+red at all: the golden was "re-derived from supervisor **v10** … re-derive here if the v10 prompt
+changes", and the supervisor has been **v11** since gh-155 — v11's single-specialist rule sends a
+one-toolset chain to the planner alone, which is exactly what the agent did. That is a stale
+golden, tracked separately, not a defect from this branch.
+
+So the shared-description change now has eval coverage on **all three** agents that read it —
+concierge (`hotels`), booking (`booking`), planner (`flight_search`, `routing`) — and none moved.
 
 ### Eval acceptance (wave 3, 2026-09-09, k=3, premium + authenticated)
 
@@ -357,9 +383,9 @@ The full BE suite and `make eval-check` run at delivery, not here.
   run at delivery.
 - **The UAT ran against local Docker + a signed-in `e2e-test` account**, one pass, not k=3 — it
   is a demonstration that the path works end to end in the browser, not a statistical claim.
-- **Task 6.1's shared-docstring change was measured on hotels and booking, not on the planner.**
-  `flight_search` and `routing` goldens exercise the planner but were not re-run after the edit;
-  the planner's use of `search_hotels` is reasoned, not measured.
+- **`routing-multi-en-04` looks stale rather than broken**, but that was inferred from the
+  golden's own `notes` (derived from supervisor v10; the supervisor is v11) plus the control runs
+  — no one re-derived the golden against v11 to confirm it. Worth its own issue, not this branch.
 - **`hotels-happy-en-01` is flaky on both sides of the edit** (1 fail in 3 control runs, 2 in 4
   branch runs). Those are small samples — enough to say the change did not cause it, not enough to
   quantify the rate.

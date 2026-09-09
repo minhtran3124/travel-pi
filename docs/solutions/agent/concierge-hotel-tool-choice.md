@@ -155,8 +155,13 @@ without stopping to ask. Measuring before editing was the right order.
 
 Two things remain unproven after the edit:
 
-- **The planner was not re-measured.** `hotels` and `booking` were; `flight_search` / `routing`
-  exercise the planner's use of this tool and were not re-run after the edit.
+- **All three readers are now measured** — `hotels` 5/6, `booking` 6/8 (baseline rate),
+  `flight_search` 6/6, `routing` at or above baseline in three runs. A routing golden that
+  mentions a hotel went red and was isolated by reverting only the edited paragraph on the same
+  HEAD: red on both sides, and its own notes mark it as derived from a superseded supervisor
+  version. Method worth copying: when a shared description changes, re-measure every agent bound
+  to the tool, and isolate a suspicious golden by reverting the single paragraph rather than
+  arguing from mechanism.
 - **The booking prompt still says the opposite for its own path.** `app/prompts/booking/v7.md`
   tells the booking agent to restate a non-date detail that appeared in an earlier turn and get a
   yes/no *before* calling the tool. The tool description now says to search with what the
