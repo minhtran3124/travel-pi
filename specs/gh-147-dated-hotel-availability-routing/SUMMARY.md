@@ -154,9 +154,9 @@ them — a plan gap caught during execution (SC-10 corrected).
 
 | Golden | Before (`eval/baselines/main.json`) | After | Tools called | Note |
 | --- | --- | --- | --- | --- |
-| `hotels-multi_turn-en-01` (#147) | **FAIL** | **PASS** | `search_hotels` | the reported defect; oracle fact-check green |
-| `hotels-multi_turn-vi-01` | **FAIL** | **PASS** | `search_hotels` | |
-| `hotels-happy-en-02` | **FAIL** | FAIL — `reply_language` only | `search_hotels` | `flow_match`, `tools_expected`, `oracle_fact_check`, `non_empty_reply` all pass; the reply came back `vi` for an `en` turn = **#148**, unrelated to this change |
+| `hotels-multi_turn-en-01` (#147) | **FAIL** | **PASS** | `browse_hotels`, `resolve_date`, `search_hotels` | the reported defect; oracle fact-check green. The trace is cumulative over both turns: `browse_hotels` is turn 1 ("a hotel in Da Nang", no dates) and `search_hotels` is turn 2 once the dates arrive — exactly the v12 rule, not a stray extra call |
+| `hotels-multi_turn-vi-01` | **FAIL** | **PASS** | `browse_hotels`, `search_hotels` | same two-turn shape: dateless browse on turn 1, dated search on turn 2 |
+| `hotels-happy-en-02` | **FAIL** | FAIL — `reply_language` only | `search_hotels` (single turn) | `flow_match`, `tools_expected`, `oracle_fact_check`, `non_empty_reply` all pass; the reply came back `vi` for an `en` turn = **#148**, unrelated to this change |
 | `hotels-happy-vi-01` | pass | **PASS** | `browse_hotels` | dateless — no regression |
 | `hotels-happy-en-01` | pass | **PASS** | `browse_hotels` | dateless — no regression |
 | `errors-happy-vi-01` | pass | **PASS** | `browse_hotels` | dateless — no regression |
@@ -203,8 +203,11 @@ The full BE suite and `make eval-check` run at delivery, not here.
   the wave-3 table exist only in this working copy. The per-golden table above was transcribed
   from them, not hand-written — but SC-10 reaches **traceability** tier for anyone else: they must
   re-run the two `--suite full` and two `--suite smoke` commands (paid, k=3) to re-derive it.
-- **Prompt compliance is probabilistic** — reached **truth** tier at k=3 on 12 goldens, which is
-  evidence, not a guarantee. A future model or prompt change can re-open the MIN-51 failure; the
+- **Prompt compliance is probabilistic.** The four runs were launched with `--repeat 3` and cover
+  16 distinct goldens, but each report records one boolean per golden, not per-repeat outcomes — so
+  the aggregation behind a PASS is **not** re-derivable from the artifact. Treat the table as
+  **provenance** tier (re-derived from the report files) rather than truth tier, and the underlying
+  behaviour as evidence, not a guarantee. A future model or prompt change can re-open the MIN-51 failure; the
   code-gate fallback (PLAN Task 4.1) stays specified and unbuilt for that case.
 - **`hotels-happy-en-02` is still red** on `reply_language` (#148) and `errors-ambiguous-en-01` on
   `non_empty_reply` (#153). Both were red before this branch; neither was re-tested against a fix,
