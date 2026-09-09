@@ -182,6 +182,31 @@ this branch would have caught it — both the SQLite suite and the Docker Postgr
 schema from the migrations against a fresh database, so only a long-lived one can be behind.
 `cd apps/api && alembic upgrade head`.
 
+### Direction change, after the slice was first built
+
+The product owner reversed part of it: `/flights` and `/hotels` are **browse-only**, and all
+booking happens through the chatbot. Every booking control came out of both pages, along with what
+that orphaned — the upgrade dialog, both book mutations, the frontend 403 error type, the two book
+paths in the idempotency list and 36 message keys. The premium gate on the REST routes stays: no
+page calls them now, but it is what stops a free account calling them directly.
+
+Making chat the only path meant making it work. Browser UAT found three blockers, each hiding the
+next, all with screenshots in `uat/`:
+
+1. The migration had never been applied to the dev database, so every booking failed with a generic
+   message. **It has to run on deploy.**
+2. The PII guardrail redacted every email before any model call, while both booking tools require
+   one — the assistant asked for an address it had just been handed. Resolved by decision: email is
+   no longer redacted, the signed-in address reaches the model, and booking prompt v8 has the
+   assistant offer it and ask the traveller to confirm or give another.
+3. `search_flights` reports flights to the model by number only — the id goes to the side panel —
+   so `book_flight` was called with a flight number in `flight_id`. Booking prompt v9 books by
+   number plus route and date instead.
+
+**Weigh this one:** real email addresses now flow into the model, the checkpointer and the
+conversation history, where two separate points used to redact them. That is the intended effect of
+the decision, not a side effect of it.
+
 ### Known limitations (found by review, deliberately not fixed here)
 
 - **The idempotency key is per booking attempt, not per request body.** If a booking fails with the
@@ -191,17 +216,15 @@ schema from the migrations against a fresh database, so only a long-lived one ca
 - **The Bookings tab requests the server's maximum page size of 500.** A trip with more than 500
   bookings would still show fewer rows than `booked_total` counts.
 
-- **A booking made through the chatbot never carries a `trip_id`.** The agent's `book_flight` and
-  `book_hotel` tools build their request without one and their signatures do not accept one
-  (`app/tools/flight_tools.py:373`, `hotel_tools.py:476`). So a booking made in chat — the product's
-  main booking channel today — does not appear in the new trip Bookings tab and contributes 0 to
-  `booked_total`, while the same booking made from `/flights` does. The approved design forbids
-  touching the agent path in this slice, so this is recorded rather than fixed. It should be the
-  first item of a follow-up: the trip page shows an incomplete picture until it is closed.
-- **The flights booking request carries no party size.** Searching for three adults and booking
-  creates one seat at a one-adult fare, because `FlightBookingRequest` has no passenger count. Adding
-  one is a public-contract change outside this slice. The dialog now says plainly that it books one
-  seat at the fare shown, so the UI no longer implies otherwise.
+- ~~**A booking made through the chatbot never carries a `trip_id`.**~~ **Fixed.** Both tools now
+  take `trip_id` injected from graph state, declared inside the explicit `args_schema` beside
+  `user_id` so ToolNode injection keeps working, and absent from the model-facing schema so the
+  assistant cannot pick a trip of its own. Verified end to end in a browser: a flight booked in
+  chat appears on that trip's Bookings tab.
+- **The flights booking request carries no party size.** Booking creates one seat at a one-adult
+  fare, because `FlightBookingRequest` has no passenger count. Adding
+  one is a public-contract change outside this slice. The page that used to say so is gone; the
+  assistant does not mention it either, so a traveller asking for three seats in chat gets one.
 - **An idempotent replay ignores a differing `trip_id`.** By design (design §5 S1 item 2): the
   original booking wins, matching existing replay semantics.
 
