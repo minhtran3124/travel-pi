@@ -97,6 +97,7 @@
     "errorHint": "Chuyến đi có thể đã bị xóa hoặc kết nối bị gián đoạn. Hãy quay lại chọn chuyến khác, hoặc thử lại sau giây lát.",
     "backToAllTrips": "Quay lại tất cả chuyến đi",
     "allTrips": "Tất cả chuyến đi",
+    "guideLink": "Cẩm nang điểm đến",
     "tabs": {
       "itinerary": "Lịch trình",
       "budget": "Ngân sách",
@@ -329,6 +330,43 @@
       "searchFailedHint": "Không thể kết nối tới danh mục. Thử lại.",
       "noResultsTitle": "Không tìm thấy địa điểm",
       "noResultsHint": "Hãy thử thành phố hoặc hạng mục khác."
+    }
+  },
+  "Guide": {
+    "back": "Quay lại",
+    "title": "Cẩm nang {city}",
+    "linkLabel": "Cẩm nang điểm đến",
+    "visa": {
+      "title": "Thị thực & nhập cảnh",
+      "loadingLabel": "Đang tải thông tin thị thực",
+      "errorTitle": "Không thể tải thông tin thị thực",
+      "errorHint": "Đã xảy ra lỗi khi kết nối tới máy chủ.",
+      "notFoundTitle": "Chưa có thông tin thị thực",
+      "notFoundHint": "Chúng tôi chưa có yêu cầu nhập cảnh cho {country}.",
+      "visaFreeDays": "Miễn thị thực",
+      "visaFreeDaysValue": "{count, plural, other {# ngày}}",
+      "visaRequired": "Yêu cầu thị thực",
+      "visaOnArrival": "Thị thực tại cửa khẩu",
+      "eVisa": "Thị thực điện tử",
+      "passportValidity": "Hộ chiếu còn hạn tối thiểu",
+      "passportValidityValue": "{count, plural, other {# tháng sau khi lưu trú}}",
+      "passportValidityDuration": "Còn hạn trong suốt thời gian lưu trú",
+      "yes": "Có",
+      "no": "Không"
+    },
+    "tips": {
+      "title": "Mẹo địa phương",
+      "loadingLabel": "Đang tải mẹo địa phương",
+      "errorTitle": "Không thể tải mẹo địa phương",
+      "errorHint": "Đã xảy ra lỗi khi kết nối tới máy chủ.",
+      "emptyTitle": "Chưa có mẹo nào",
+      "emptyHint": "Chúng tôi chưa có mẹo địa phương cho điểm đến này."
+    },
+    "climate": {
+      "title": "Khí hậu",
+      "loadingLabel": "Đang tải dữ liệu khí hậu",
+      "errorTitle": "Không thể tải dữ liệu khí hậu",
+      "errorHint": "Đã xảy ra lỗi khi kết nối tới máy chủ."
     }
   },
   "TripBookings": {

@@ -97,6 +97,7 @@
     "errorHint": "The trip may have been removed, or the connection dropped. Head back and pick another, or try again in a moment.",
     "backToAllTrips": "Back to all trips",
     "allTrips": "All trips",
+    "guideLink": "Destination guide",
     "tabs": {
       "itinerary": "Itinerary",
       "budget": "Budget",
@@ -329,6 +330,43 @@
       "searchFailedHint": "Could not reach the catalog. Try again.",
       "noResultsTitle": "No places found",
       "noResultsHint": "Try a different city or category."
+    }
+  },
+  "Guide": {
+    "back": "Back",
+    "title": "{city} guide",
+    "linkLabel": "Destination guide",
+    "visa": {
+      "title": "Visa & entry",
+      "loadingLabel": "Loading visa guidance",
+      "errorTitle": "Could not load visa guidance",
+      "errorHint": "Something went wrong reaching the server.",
+      "notFoundTitle": "No visa guidance available",
+      "notFoundHint": "We don't have entry requirements for {country} yet.",
+      "visaFreeDays": "Visa-free stay",
+      "visaFreeDaysValue": "{count, plural, one {# day} other {# days}}",
+      "visaRequired": "Visa required",
+      "visaOnArrival": "Visa on arrival",
+      "eVisa": "E-visa",
+      "passportValidity": "Passport validity needed",
+      "passportValidityValue": "{count, plural, one {# month beyond stay} other {# months beyond stay}}",
+      "passportValidityDuration": "Valid for the duration of stay",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "tips": {
+      "title": "Local tips",
+      "loadingLabel": "Loading local tips",
+      "errorTitle": "Could not load local tips",
+      "errorHint": "Something went wrong reaching the server.",
+      "emptyTitle": "No tips yet",
+      "emptyHint": "We don't have local tips for this destination yet."
+    },
+    "climate": {
+      "title": "Climate",
+      "loadingLabel": "Loading climate data",
+      "errorTitle": "Could not load climate data",
+      "errorHint": "Something went wrong reaching the server."
     }
   },
   "TripBookings": {
