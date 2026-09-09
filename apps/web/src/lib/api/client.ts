@@ -4,9 +4,10 @@ import type { paths } from "./schema";
 import { authHeader } from "@/lib/supabase/authHeader";
 
 // --- Idempotency-Key targeting ----------------------------------------------
-// Only `POST /trips` and `POST /trips/{trip_id}/items` are mutation-creating
-// endpoints that need client-generated idempotency keys. Match on the templated
-// schema path so concrete ids (e.g. /trips/abc-123/items) are handled uniformly.
+// Mutation-creating POST endpoints that need client-generated idempotency keys,
+// so a retried request (or a double-click) replays instead of double-booking.
+// Match on the templated schema path so concrete ids (e.g. /trips/abc-123/items)
+// are handled uniformly.
 const IDEMPOTENT_POST_PATHS = new Set<string>([
   "/trips",
   "/trips/{trip_id}/items",
@@ -23,7 +24,12 @@ const identityMiddleware: Middleware = {
       request.headers.set(key, value);
     }
 
-    if (request.method === "POST" && IDEMPOTENT_POST_PATHS.has(schemaPath)) {
+    if (
+      request.method === "POST" &&
+      IDEMPOTENT_POST_PATHS.has(schemaPath) &&
+      !request.headers.has("Idempotency-Key")
+    ) {
+      // Only mint one when the caller hasn't already supplied one.
       request.headers.set("Idempotency-Key", crypto.randomUUID());
     }
 

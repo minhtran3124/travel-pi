@@ -158,7 +158,9 @@ def _config(
     }
 
 
-def _turn_input(message: str, user_id: str, trip_id: str | None) -> dict:
+def _turn_input(
+    message: str, user_id: str, trip_id: str | None, account_email: str | None
+) -> dict:
     """Build the graph-invocation input for a new user turn.
 
     ``trip_id`` is included only when the client supplied one. LangGraph
@@ -175,16 +177,21 @@ def _turn_input(message: str, user_id: str, trip_id: str | None) -> dict:
     :param user_id: The effective user id (JWT sub or anonymous).
     :param trip_id: The client-declared trip id, or None if the client has
         no active trip context.
+    :param account_email: The signed-in caller's email (``AuthUser.email``),
+        or None for an anonymous caller — folded into state so the model can
+        offer/confirm it for a booking (close-product-loop-s1-booking-ui).
     :return: The input dict for ``graph.ainvoke``.
     """
-    # Defense-in-depth: redact email/card PII before the message reaches the
+    # Defense-in-depth: mask credit-card PII before the message reaches the
     # graph, the checkpointer, or the conversation DB. The graph's pii_guardrail
-    # node also redacts, but sanitizing here protects paths that persist the
-    # raw turn before the graph runs.
+    # node also masks, but sanitizing here protects paths that persist the
+    # raw turn before the graph runs. Email is no longer redacted here (see
+    # app.agents.guardrails module docstring).
     safe_message = redact_pii(message)
     turn_input: dict = {
         "messages": [HumanMessage(content=safe_message)],
         "user_id": user_id,
+        "account_email": account_email,
     }
     if trip_id is not None:
         turn_input["trip_id"] = trip_id
@@ -392,7 +399,7 @@ async def agent_chat(
             )
             session.commit()
             result = await graph.ainvoke(
-                _turn_input(safe_message, uid, body.trip_id),
+                _turn_input(safe_message, uid, body.trip_id, auth_user.email),
                 cfg,
                 context=ctx,
             )
@@ -586,7 +593,7 @@ async def agent_stream(
             repo.append_message(
                 conversation_id=conversation_id, role="user", content=safe_message
             )
-        stream_input = _turn_input(safe_message, uid, body.trip_id)
+        stream_input = _turn_input(safe_message, uid, body.trip_id, auth_user.email)
 
     # Commit (and release the SQLite write lock) before streaming begins so
     # the isolated factory session inside persist_assistant_turn can write.

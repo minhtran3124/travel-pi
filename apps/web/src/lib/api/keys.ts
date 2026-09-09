@@ -22,5 +22,7 @@ export const qk = {
   bookings: (filters?: Record<string, unknown>) =>
     (filters ? (["bookings", filters] as const) : (["bookings"] as const)),
   booking: (id: string) => ["booking", id] as const,
+  flightSearch: (filters: Record<string, unknown>) =>
+    ["flightSearch", filters] as const,
   manifest: () => ["manifest"] as const,
 } as const;

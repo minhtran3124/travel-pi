@@ -177,6 +177,14 @@ class BookHotelArgs(AppBaseModel):
         default="",
         description="Injected owner id from graph state — never supplied by the model.",
     )
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = Field(
+        default=None,
+        description=(
+            "Injected active trip id from graph state — never supplied by "
+            "the model. None when there is no active trip; the booking is "
+            "then created unattached."
+        ),
+    )
 
 
 @tool(args_schema=SearchHotelsArgs, response_format="content_and_artifact")
@@ -461,6 +469,7 @@ def book_hotel(
     notes: str | None = None,
     confirm: bool = False,
     user_id: Annotated[str, InjectedState("user_id")] = "",
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
 ) -> dict:
     """Book a hotel room. You MUST pass confirm=True to create the reservation.
 
@@ -480,6 +489,9 @@ def book_hotel(
         reservations; left False (the default), nothing is booked.
     :param user_id: The owner id, injected from graph state (not model-supplied);
         stamped on the booking so it is scoped to the authenticated traveller.
+    :param trip_id: The active trip id, injected from graph state (not
+        model-supplied). None when there is no active trip — the booking is
+        then created unattached, not refused.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
     # Log only the booking identifiers, never guest name/email/phone
@@ -513,6 +525,7 @@ def book_hotel(
                 guest_email=guest_email,
                 guest_phone=guest_phone,
                 notes=notes,
+                trip_id=trip_id,
             )
             result = BookingService(s).book_hotel(request, user_id=user_id)
             return dump(result)

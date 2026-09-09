@@ -319,6 +319,12 @@ class TripBudget(AppBaseModel):
         description="Sum of set caps (USD), or null if no cap is set anywhere.",
     )
     total_spent: float = Field(description="Sum of category spend (USD).")
+    booked_total: float = Field(
+        description="Sum of every non-cancelled booking carrying this trip's "
+        "trip_id, counted once each — independent of total_spent, which "
+        "walks itinerary items instead (an unreferenced booking contributes "
+        "nothing there; a booking referenced by two items counts twice)."
+    )
     total_remaining: float | None = Field(
         default=None,
         description="total_cap - total_spent (USD); null when no cap is set.",

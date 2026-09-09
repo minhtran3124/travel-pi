@@ -18,6 +18,8 @@
     "appName": "Travel Planner",
     "trips": "Chuyến đi",
     "places": "Địa điểm",
+    "flights": "Chuyến bay",
+    "hotels": "Khách sạn",
     "bookings": "Đặt chỗ"
   },
   "LocaleSwitcher": {
@@ -99,6 +101,7 @@
       "itinerary": "Lịch trình",
       "budget": "Ngân sách",
       "expenses": "Chi tiêu",
+      "bookings": "Đặt chỗ",
       "shortlist": "Danh sách yêu thích"
     },
     "stats": {
@@ -137,6 +140,10 @@
     "tableSpent": "Đã chi",
     "tableLeft": "Còn lại",
     "total": "Tổng cộng",
+    "totalSpentLabel": "Tổng đã chi",
+    "totalSpentHint": "Số tiền được tính trong lịch trình — cộng theo từng mục lịch trình, nên một khoản đặt chỗ không mục nào tham chiếu sẽ bị bỏ sót, còn một khoản được hai mục tham chiếu sẽ bị tính hai lần.",
+    "bookedTotalLabel": "Tổng đã đặt",
+    "bookedTotalHint": "Số tiền đã đặt cho chuyến đi này — mọi đặt chỗ chưa hủy gắn với chuyến đi này, mỗi khoản tính một lần.",
     "editForm": {
       "modalTitle": "Sửa giới hạn ngân sách",
       "intro": "Đặt giới hạn cho từng hạng mục, theo USD. Để trống một ô nếu không muốn giới hạn. Lưu sẽ thay thế toàn bộ giới hạn.",
@@ -324,6 +331,17 @@
       "noResultsHint": "Hãy thử thành phố hoặc hạng mục khác."
     }
   },
+  "TripBookings": {
+    "title": "Đặt chỗ",
+    "searchFlights": "Tìm chuyến bay",
+    "searchHotels": "Tìm khách sạn",
+    "loading": "Đang tải các đặt chỗ…",
+    "loadingLabel": "Đang tải các đặt chỗ",
+    "errorTitle": "Không thể tải các đặt chỗ",
+    "errorHint": "Đã xảy ra lỗi khi lấy các đặt chỗ của chuyến đi này.",
+    "emptyTitle": "Chưa có đặt chỗ nào",
+    "emptyHint": "Đặt một chuyến bay hoặc khách sạn cho chuyến đi này và nó sẽ xuất hiện ở đây."
+  },
   "Bookings": {
     "title": "Đặt chỗ",
     "countSummary": "{visible} trên {all}",
@@ -360,6 +378,7 @@
     "pillCancelled": "Đã hủy",
     "viewBookingAria": "Xem đặt chỗ {code}",
     "departsLabel": "Khởi hành {date}",
+    "seatsCount": "{count, plural, other {# chỗ}}",
     "nightsCount": "{count, plural, other {# đêm}}",
     "roomsGuests": "{rooms, plural, other {# phòng}}, {guests, plural, other {# khách}}",
     "confirmedTotal": "Tổng đã xác nhận",
@@ -388,6 +407,44 @@
       "cancelBooking": "Hủy đặt chỗ",
       "cancellingLabel": "Đang hủy"
     }
+  },
+  "Flights": {
+    "title": "Tìm chuyến bay",
+    "originLabel": "Điểm đi",
+    "originPlaceholder": "VD: DAD",
+    "destinationLabel": "Điểm đến",
+    "destinationPlaceholder": "VD: SGN",
+    "departureDateLabel": "Ngày khởi hành",
+    "returnDateLabel": "Ngày về (tùy chọn)",
+    "adultsLabel": "Người lớn",
+    "searchButton": "Tìm chuyến bay",
+    "loadingLabel": "Đang tìm chuyến bay",
+    "errorTitle": "Không thể tìm chuyến bay",
+    "errorHint": "Đã có lỗi khi tìm chuyến bay. Vui lòng thử lại.",
+    "promptTitle": "Tìm một chuyến bay",
+    "promptHint": "Nhập tuyến bay và ngày để xem các chuyến bay khả dụng.",
+    "emptyTitle": "Không tìm thấy chuyến bay nào",
+    "emptyHint": "Hãy thử tuyến bay, ngày khác, hoặc bớt bộ lọc.",
+    "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
+  },
+  "Hotels": {
+    "title": "Tìm khách sạn",
+    "cityLabel": "Thành phố",
+    "cityPlaceholder": "VD: Đà Nẵng",
+    "checkInLabel": "Nhận phòng",
+    "checkOutLabel": "Trả phòng",
+    "roomsLabel": "Số phòng",
+    "adultsLabel": "Người lớn",
+    "childrenLabel": "Trẻ em",
+    "searchButton": "Tìm khách sạn",
+    "loadingLabel": "Đang tìm khách sạn",
+    "errorTitle": "Không thể tìm khách sạn",
+    "errorHint": "Đã có lỗi khi tìm khách sạn. Vui lòng thử lại.",
+    "promptTitle": "Tìm một khách sạn",
+    "promptHint": "Nhập thành phố và ngày để xem các khách sạn còn phòng.",
+    "emptyTitle": "Không tìm thấy khách sạn nào",
+    "emptyHint": "Hãy thử thành phố, ngày khác, hoặc bớt bộ lọc.",
+    "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
   },
   "Chat": {
     "headerTitle": "Tin",

@@ -51,7 +51,9 @@ def test_graph_persists_across_turns():
     assert len(second["messages"]) > n_after_first
 
 
-def test_graph_redacts_user_input_before_persisting():
+def test_graph_masks_card_but_not_email_before_persisting():
+    # Email is no longer redacted (close-product-loop-s1-booking-ui) — booking
+    # needs the real address; only the credit card is still masked.
     graph = _build(intent_target="concierge", answer="acknowledged")
     cfg = {"configurable": {"thread_id": "u1_pii"}}
     out = graph.invoke(
@@ -65,7 +67,6 @@ def test_graph_redacts_user_input_before_persisting():
         cfg,
     )
     human = next(m for m in out["messages"] if isinstance(m, HumanMessage))
-    assert "secret@leak.com" not in human.content
+    assert "secret@leak.com" in human.content
     assert "4111 1111 1111 1111" not in human.content
-    assert "[REDACTED_EMAIL]" in human.content
     assert "****-****-****-1111" in human.content

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-08T12:27:05Z",
+  "last_event_id": "cd7c4d4a-5306-4cc7-bbb9-dc93f24d94a8",
+  "resume_event": null,
+  "run_id": "6216a20c-2bfe-4f1b-bfd2-8f56ec3994da",
+  "seq": 6,
+  "sha": null,
+  "slug": "close-product-loop-s1-booking-ui",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-08T15:49:18Z",
+  "waiting_on": null
+}

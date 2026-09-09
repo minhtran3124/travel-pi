@@ -17,7 +17,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
 | gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | PR open → main; hotels eval 50% → 83.3% |
-| gh-156-flight-search-before-create-trip | 2026-09-08 | review | PR open → main, awaiting merge |
+| close-product-loop-s1-booking-ui | 2026-09-08 | review | all waves executed, 8 commits; awaiting final review chain |
+| close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 in flight |
+| gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
 | agent-system-copy-i18n | 2026-09-07 | shipped | merged via PR #145 → main |
@@ -1560,6 +1562,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - user_turns: 0
 
 
+### 2026-09-08T09:49:29Z
+- session_id: 450c93b3-e681-4dc4-af81-492a74aa813a
 ### 2026-09-09T02:39:27Z
 - session_id: 923204a5-3ed5-49e7-882c-a67b5b27f2b7
 - exit: 
@@ -1567,6 +1571,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - user_turns: 0
 
 
+### 2026-09-08T11:35:10Z
+- session_id: a8fa06be-8cb6-42a2-9314-93ee302f793f
 ### 2026-09-09T02:41:13Z
 - session_id: b0d3231a-9b55-43e6-827f-5509aa6b5d2c
 - exit: 
@@ -1574,6 +1580,206 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - user_turns: 0
 
 
+### 2026-09-08T11:54:31Z
+- session_id: e2f1dace-7205-44cf-951e-c4e8bd2da8b7
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T11:54:33Z
+- session_id: 8c233b07-b113-4f4b-bce5-7171088913e0
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:32:15Z
+- session_id: 04aed54e-168a-4968-8692-41b5b9f59169
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:32:46Z
+- session_id: b7adfe82-85f5-44b0-99ab-625d8159af8d
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:43:49Z
+- session_id: 2c17ce0b-e5a1-48de-973f-f2974ca5f6cd
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:46:01Z
+- session_id: c04e7536-3670-400d-9410-f9d10d694b8e
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:49:56Z
+- session_id: 781b17b9-71a5-40c6-aebb-bdd26ed85056
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-08T12:54:39Z
+- session_id: 1095abd2-54dc-4820-aca9-52cfedd1fc2b
+- exit: 
+- last_commit: c657142 docs(specs): approve the close-product-loop umbrella design
+- user_turns: 0
+
+
+### 2026-09-08T12:56:30Z
+- session_id: 194e1b2c-90a0-4771-94b1-3048c3fd90fa
+- exit: 
+- last_commit: 2c828ea feat(api): premium gate on booking routes and a trip link on bookings
+- user_turns: 0
+
+
+### 2026-09-08T12:56:30Z
+- session_id: 31aa4dd3-746b-4873-940d-74665df41664
+- exit: 
+- last_commit: 2c828ea feat(api): premium gate on booking routes and a trip link on bookings
+- user_turns: 0
+
+
+### 2026-09-08T13:01:22Z
+- session_id: 3660edd1-1bb8-4eff-8b95-e2666bedb901
+- exit: 
+- last_commit: 2c828ea feat(api): premium gate on booking routes and a trip link on bookings
+- user_turns: 0
+
+
+### 2026-09-08T13:27:33Z
+- session_id: 407ae4bc-1bbb-48c5-a939-7620975da722
+- exit: 
+- last_commit: e3ba3cd test(api): give booking tests an entitled caller after the premium gate
+- user_turns: 0
+
+
+### 2026-09-08T13:38:14Z
+- session_id: dfd983cc-1e6c-4072-833e-6a98e4bed410
+- exit: 
+- last_commit: 179a428 feat(api): accept an optional trip_id when booking a flight or hotel
+- user_turns: 0
+
+
+### 2026-09-08T13:42:05Z
+- session_id: bd366d4f-00f7-4a23-ab2c-59acb705ce9b
+- exit: 
+- last_commit: 179a428 feat(api): accept an optional trip_id when booking a flight or hotel
+- user_turns: 0
+
+
+### 2026-09-08T13:44:47Z
+- session_id: e6711c84-29f3-481a-929f-59e949d18662
+- exit: 
+- last_commit: 2b5d574 feat(api): filter bookings by trip and report what a trip has booked
+- user_turns: 0
+
+
+### 2026-09-08T13:48:14Z
+- session_id: fa23e2b7-291a-4f4d-b649-fdc21cad1ad8
+- exit: 
+- last_commit: 2b5d574 feat(api): filter bookings by trip and report what a trip has booked
+- user_turns: 0
+
+
+### 2026-09-08T13:48:58Z
+- session_id: 566e457c-96c3-4608-81da-ec614a34fce0
+- exit: 
+- last_commit: 3edf18b feat(web): reusable result cards and a data layer for booking
+- user_turns: 0
+
+
+### 2026-09-08T13:58:16Z
+- session_id: 2effe677-a476-4669-bb7f-75d7dadc1bf6
+- exit: 
+- last_commit: c95a90e feat(web): add /flights and /hotels search and booking pages
+- user_turns: 0
+
+
+### 2026-09-08T14:02:56Z
+- session_id: 7d7d70d0-25ae-4b28-bd89-2934602f84cf
+- exit: 
+- last_commit: 4767b16 feat(web): show a trip's bookings and what it has booked
+- user_turns: 0
+
+
+### 2026-09-08T14:05:20Z
+- session_id: c11915f1-08c9-478f-83d3-cf3c64af5bff
+- exit: 
+- last_commit: 9f643de test(web): add an opt-in booking end-to-end smoke
+- user_turns: 0
+
+
+### 2026-09-08T14:13:02Z
+- session_id: 1dc8e712-c686-4f83-b6ff-a73c9dc492a1
+- exit: 
+- last_commit: 5d7f16a docs(specs): record the S1 booking-UI slice as executed
+- user_turns: 0
+
+
+### 2026-09-08T14:15:26Z
+- session_id: 25798fa0-e867-4d3e-a892-c19fdd205cdd
+- exit: 
+- last_commit: 5d7f16a docs(specs): record the S1 booking-UI slice as executed
+- user_turns: 0
+
+
+### 2026-09-08T14:27:13Z
+- session_id: faeb7093-561f-444a-8681-50521defda6a
+- exit: 
+- last_commit: 889b189 fix(web): make booking idempotent per attempt, not per request
+- user_turns: 0
+
+
+### 2026-09-08T15:48:18Z
+- session_id: 07471ffe-ff50-4567-8606-fe7d020d80ee
+- exit: 
+- last_commit: 032aa96 fix(web): load every trip before deciding a prefilled tripId is stale
+- user_turns: 0
+
+
+### 2026-09-08T16:32:29Z
+- session_id: b1070d04-5955-4cb0-af4d-907aea1849ac
+- exit: 
+- last_commit: 64b7b0e docs(uat): embed the screenshots in the UAT README
+- user_turns: 0
+
+
+### 2026-09-08T16:42:56Z
+- session_id: 8d938691-e1c3-4f7c-9e77-2dd1db3ac073
+- exit: 
+- last_commit: 64b7b0e docs(uat): embed the screenshots in the UAT README
+- user_turns: 0
+
+
+### 2026-09-09T01:52:10Z
+- session_id: 7733b503-fb3b-45fd-8f0c-e65d17ad901d
+- exit: 
+- last_commit: 564ad7c chore(specs): record the S1 run as ready to merge
+- user_turns: 0
+
+
+### 2026-09-09T01:57:53Z
+- session_id: b0a5e1ca-adf3-45bd-ab54-363f50a8c3dc
+- exit: 
+- last_commit: bee98f4 feat(api): price a flight booking for the seats actually asked for
+- user_turns: 0
+
+
+### 2026-09-09T02:01:19Z
+- session_id: 6d0e51bb-fcf9-46ae-9fe8-e0803c12708a
+- exit: 
+- last_commit: 76b44c1 feat(agent): let the assistant book more than one seat
 ### 2026-09-09T02:44:11Z
 - session_id: 05bd4253-2dcc-4c01-b836-5781d80a4b56
 - exit: 

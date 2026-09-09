@@ -22,6 +22,7 @@ from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
+from pydantic import PrivateAttr
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -189,9 +190,10 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
-def test_chat_redacts_pii_in_persisted_messages(client):
-    """User input containing email/card PII must be sanitized before it is
-    persisted to the conversations table."""
+def test_chat_masks_card_but_keeps_email_in_persisted_messages(client):
+    """Card PII must still be sanitized before persisting. Email is no longer
+    redacted (close-product-loop-s1-booking-ui) — booking needs the real
+    address, and it must survive into the conversation history."""
     raw = "reach me at secret@leak.com, card 4111 1111 1111 1111"
     resp = client.post(
         "/agent/chat",
@@ -207,10 +209,92 @@ def test_chat_redacts_pii_in_persisted_messages(client):
     msgs = history.json()["messages"]
 
     user_contents = [m["content"] for m in msgs if m["role"] == "user"]
-    assert any("secret@leak.com" not in c for c in user_contents)
-    assert any("4111 1111 1111 1111" not in c for c in user_contents)
-    assert any("[REDACTED_EMAIL]" in c for c in user_contents)
+    assert any("secret@leak.com" in c for c in user_contents)
+    assert all("4111 1111 1111 1111" not in c for c in user_contents)
     assert any("****-****-****-1111" in c for c in user_contents)
+
+
+class _RecordingLLM(FakeLLM):
+    """FakeLLM that also records the messages of every ``_generate`` call, so a
+    test can assert what the leading system message actually contained."""
+
+    _seen: list = PrivateAttr(default_factory=list)
+
+    def _generate(self, messages, stop=None, run_manager=None, **kwargs):
+        self._seen.append(list(messages))
+        return super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+
+
+def _make_recording_app(tmp_path, *, email: str | None):
+    """Like ``_make_app`` (concierge intent), but with a signed-in caller whose
+    email is ``email``, and a recording LLM so the test can inspect the system
+    message the model actually saw (close-product-loop-s1-booking-ui)."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    main = _RecordingLLM(
+        structured_responses=[SupervisorIntent(target_agent="concierge")] * 6,
+        responses=["Visit Tokyo Tower at sunset."] * 6,
+    )
+    fast = FakeLLM(responses=["OK"] * 6)
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id="u1", email=email, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: graph
+    app.dependency_overrides[get_travel_graph_optional] = lambda: graph
+    app.state.test_graph = graph
+    return app, main
+
+
+def test_chat_folds_account_email_into_system_message_the_model_sees(tmp_path):
+    """The signed-in account email must reach the leading system message so the
+    model can offer/confirm it for booking, not just live in state unused."""
+    app, main = _make_recording_app(tmp_path, email="traveller@example.com")
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/chat",
+            json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    assert main._seen, "the LLM must have been invoked at least once"
+    system_contents = [
+        m.content for call in main._seen for m in call if m.type == "system"
+    ]
+    assert any("traveller@example.com" in c for c in system_contents)
+
+
+def test_chat_anonymous_caller_with_no_email_does_not_break_the_turn(tmp_path):
+    """An anonymous/no-email caller must not crash the turn or leak a stray
+    'None' into the system message."""
+    app, main = _make_recording_app(tmp_path, email=None)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/chat",
+            json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    system_contents = [
+        m.content for call in main._seen for m in call if m.type == "system"
+    ]
+    assert not any("Signed-in account email" in c for c in system_contents)
 
 
 def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):

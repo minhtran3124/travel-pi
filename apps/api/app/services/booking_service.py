@@ -21,6 +21,7 @@ from app.db.session import get_session
 from app.enums import BookingSort, BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
 from app.repositories.booking import BookingRepository
+from app.repositories.trip import TripRepository
 from app.schemas.booking import (
     Booking,
     FlightBookingDetails,
@@ -57,19 +58,22 @@ def _filter_and_sort(
     *,
     q: str | None,
     booking_type: str | None,
+    trip_id: str | None,
     sort: str,
 ) -> list[Booking]:
-    """Filter a booking list by ``q``/``booking_type`` and sort it.
+    """Filter a booking list by ``q``/``booking_type``/``trip_id`` and sort it.
 
     Shared by the owner-scoped :meth:`BookingService.query` and the dashboard's
     :meth:`BookingService.query_unscoped`, which differ only in which rows they
     fetch. ``q`` is a case-insensitive substring over id/confirmation
     code/customer name/email; ``booking_type`` keeps only ``"flight"`` or
-    ``"hotel"``; unknown ``sort`` falls back to newest-first.
+    ``"hotel"``; ``trip_id`` keeps only bookings linked to that trip; unknown
+    ``sort`` falls back to newest-first.
 
     :param bookings: The bookings to filter and sort.
     :param q: Case-insensitive substring filter, or ``None``.
     :param booking_type: Keep only this type, or ``None`` for all.
+    :param trip_id: Keep only bookings linked to this trip, or ``None`` for all.
     :param sort: Sort key; unknown values fall back to newest-first.
     :return: The filtered, sorted bookings.
     """
@@ -86,6 +90,11 @@ def _filter_and_sort(
 
     if booking_type in (BookingType.FLIGHT.value, BookingType.HOTEL.value):
         bookings = [b for b in bookings if b.type == booking_type]
+
+    # Filtered in Python because it mirrors q and type, not because the
+    # scale demands it.
+    if trip_id is not None:
+        bookings = [b for b in bookings if b.trip_id == trip_id]
 
     sort_key, reverse = BOOKING_SORTS.get(
         sort, BOOKING_SORTS[BookingSort.CREATED_DESC.value]
@@ -207,25 +216,33 @@ class BookingService:
         user_id: str,
         q: str | None = None,
         booking_type: str | None = None,
+        trip_id: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
-        """Return the caller's bookings filtered by ``q``/``booking_type`` and sorted.
+        """Return the caller's bookings filtered by ``q``/``booking_type``/``trip_id`` and sorted.
 
         ``q`` is a case-insensitive substring matched against the booking ID,
         confirmation code, customer name, and customer email. ``booking_type``
         keeps only ``"flight"`` or ``"hotel"`` rows (other values are
-        ignored). Unknown ``sort`` values fall back to newest-first.
+        ignored). ``trip_id`` keeps only bookings linked to that trip. Unknown
+        ``sort`` values fall back to newest-first.
 
         :param user_id: The owner whose bookings to search.
         :param q: Case-insensitive substring filter over the booking ID,
             confirmation code, customer name, and customer email.
         :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows; other
             values are ignored.
+        :param trip_id: Keep only bookings linked to this trip, or ``None``
+            for all.
         :param sort: Sort key; unknown values fall back to newest-first.
         :return: The filtered, sorted bookings.
         """
         return _filter_and_sort(
-            self._repo.list_all(user_id), q=q, booking_type=booking_type, sort=sort
+            self._repo.list_all(user_id),
+            q=q,
+            booking_type=booking_type,
+            trip_id=trip_id,
+            sort=sort,
         )
 
     def query_unscoped(
@@ -233,6 +250,7 @@ class BookingService:
         *,
         q: str | None = None,
         booking_type: str | None = None,
+        trip_id: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
         """Filter and sort every booking (all owners) — operator dashboard only.
@@ -242,11 +260,17 @@ class BookingService:
 
         :param q: Case-insensitive substring filter (see :meth:`query`).
         :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows.
+        :param trip_id: Keep only bookings linked to this trip, or ``None``
+            for all.
         :param sort: Sort key; unknown values fall back to newest-first.
         :return: The filtered, sorted bookings across all owners.
         """
         return _filter_and_sort(
-            self._repo.list_all_unscoped(), q=q, booking_type=booking_type, sort=sort
+            self._repo.list_all_unscoped(),
+            q=q,
+            booking_type=booking_type,
+            trip_id=trip_id,
+            sort=sort,
         )
 
     def _replay(self, idempotency_key: str | None, user_id: str) -> Booking | None:
@@ -273,6 +297,26 @@ class BookingService:
             )
         return existing
 
+    def _verify_trip_ownership(self, trip_id: str | None, user_id: str) -> None:
+        """Raise :class:`NotFoundError` if ``trip_id`` is set but not the caller's.
+
+        Mirrors the ``_validate_trip`` check in ``expense_service.py``: both a
+        missing and a foreign trip answer the same ``NotFoundError`` so this
+        route can't become an oracle for whether a guessed trip id exists
+        (#118). ``None`` (no trip requested) is a no-op.
+
+        :param trip_id: The trip id to attach the booking to, or ``None``.
+        :param user_id: The caller who must own the trip.
+        """
+        if trip_id is None:
+            return
+        trip = TripRepository(self._session).get_trip(trip_id, user_id)
+        if trip is None:
+            raise NotFoundError(
+                f"Trip {trip_id!r} not found",
+                hint="Use GET /trips to list existing trips.",
+            )
+
     def book_flight(
         self,
         request: FlightBookingRequest,
@@ -294,6 +338,8 @@ class BookingService:
         replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
             return replayed
+
+        self._verify_trip_ownership(request.trip_id, user_id)
 
         if request.flight_id:
             flight = FlightService(self._session).find_flight_by_id(request.flight_id)
@@ -331,7 +377,7 @@ class BookingService:
             reference_id=flight.id,
             customer_name=request.passenger_name,
             customer_email=request.passenger_email,
-            total_price=flight.price,
+            total_price=flight.price * request.passengers,
             currency=flight.currency,
             created_at=datetime.now(timezone.utc),
             notes=request.notes,
@@ -343,9 +389,11 @@ class BookingService:
                 destination=flight.destination,
                 departure_time=flight.departure_time.isoformat(),
                 arrival_time=flight.arrival_time.isoformat(),
+                passengers=request.passengers,
                 passenger_name=request.passenger_name,
                 passenger_phone=request.passenger_phone,
             ),
+            trip_id=request.trip_id,
         )
         self._repo.add(booking, user_id, idempotency_key=idempotency_key)
         logger.info("Created flight booking %s for flight %s", booking.id, flight.id)
@@ -376,6 +424,8 @@ class BookingService:
         replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
             return replayed
+
+        self._verify_trip_ownership(request.trip_id, user_id)
 
         hotel = HotelService(self._session).get_hotel(request.hotel_id)
         if hotel is None:
@@ -434,6 +484,7 @@ class BookingService:
                 price_per_night=hotel.price_per_night,
                 guest_phone=request.guest_phone,
             ),
+            trip_id=request.trip_id,
         )
         self._repo.add(booking, user_id, idempotency_key=idempotency_key)
         logger.info(

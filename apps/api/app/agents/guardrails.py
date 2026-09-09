@@ -5,13 +5,19 @@ reaches any LLM provider, and — because it runs as the graph's entry node and
 replaces the message in place (same id via the ``add_messages`` reducer) — before
 it is persisted to the checkpointer or read by the background memory extractor.
 
-Scope is deliberately narrow: **email** and **credit card** only. Names are NOT
-redacted — the personalization flow (MIN-53) captures the user's name via the
-post-response memory extractor, which reads these same messages; redacting names
-would silently break it. Phone numbers are also left untouched because booking
-tools need the raw contact number. This is a plain LangGraph node, not
-``PIIMiddleware`` (that path requires ``create_agent``, which this project does
-not use).
+Scope is deliberately narrow: **credit card only**. Names are NOT redacted — the
+personalization flow (MIN-53) captures the user's name via the post-response
+memory extractor, which reads these same messages; redacting names would
+silently break it. Phone numbers are also left untouched because booking tools
+need the raw contact number. **Email is no longer redacted** (product decision,
+close-product-loop-s1-booking-ui): booking cannot complete without an email, and
+the assistant now offers the traveller's account email and asks them to confirm
+it rather than collecting one blind — a masked ``[REDACTED_EMAIL]`` made that
+impossible. Real email addresses therefore now flow into the model, the
+checkpointer, and the conversation history, where before they were redacted at
+this node and again in the router's ``_turn_input``. This is a plain LangGraph
+node, not ``PIIMiddleware`` (that path requires ``create_agent``, which this
+project does not use).
 """
 
 from __future__ import annotations
@@ -25,7 +31,6 @@ from app.agents.state import TravelAgentState
 
 logger = logging.getLogger(__name__)
 
-_EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
 # A run of 13–19 digits, optionally grouped by single spaces or hyphens (card
 # formats). Deliberately broad — spaces, dots, hyphens, and newlines are all
 # tolerated as separators; the Luhn window search below is what distinguishes a
@@ -96,17 +101,19 @@ def _mask_card(match: re.Match[str]) -> str:
 
 
 def redact_pii(text: str) -> str:
-    """Redact email and credit-card PII from free text.
+    """Redact credit-card PII from free text.
 
-    Email → ``[REDACTED_EMAIL]``; credit card → ``****-****-****-<last4>``.
-    Phone numbers and names are intentionally left untouched (see module docstring).
+    Credit card → ``****-****-****-<last4>``. Email is intentionally left
+    untouched (product decision: booking needs a real email, and the assistant
+    now offers/confirms the traveller's account email instead of collecting one
+    blind — see module docstring). Phone numbers and names are also left
+    untouched (see module docstring).
 
     :param text: The raw user text.
-    :return: The text with email and card PII redacted/masked.
+    :return: The text with credit-card PII masked.
     """
     if not text:
         return text
-    text = _EMAIL_RE.sub("[REDACTED_EMAIL]", text)
     text = _CARD_RUN_RE.sub(_mask_card, text)
     return text
 
