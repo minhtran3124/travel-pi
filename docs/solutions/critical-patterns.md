@@ -148,3 +148,14 @@ Planner v12 made `create_trip` step one of every trip-less turn, so a bare fligh
 
 **Full doc:** docs/solutions/agent/planner-search-first-save-later.md
 ---
+
+## [2026-09-09] concierge-hotel-tool-choice
+**Type:** decision
+**Module:** agent/concierge
+**Tags:** langgraph, prompts, concierge, hotels, tool-choice, tool-binding, eval, min-51, gh-147
+**Applicable when:** Writing or reviewing a prompt, routing rule, or eval golden that promises a specialist a capability, or binding a second overlapping tool to an agent that already holds one.
+
+Supervisor v11 already routed hotel *availability* to the concierge and three eval goldens pinned `concierge` + `search_hotels`, but the concierge's bound toolset held only the dateless `browse_hotels` — the agent's "I can't check real room availability" reply (GH-147) was a truthful report of the wiring, not a prompt-obedience miss. Decision: bind `search_hotels` alongside `browse_hotels` (no `book_hotel`), then state the choice mechanically in concierge v12 **and** in `browse_hotels`'s own model-visible description, pinned by content tests. General rule: **a prompt or routing rule that promises a capability must be corroborated against the toolset that executes it**, and an eval golden pinning both `expected_flow` and `expected_tools` must be checked against `TOOLS_BY_DOMAIN` when it is written, or it fails forever for a reason no prompt fix reaches. MIN-51's date-interrogation regression (same binding, failed live review once) did not recur at k=3 on every dateless golden — but `search_hotels`'s shared "never guess or assume" docstring was left unedited by decision and stays an open, unclosed risk. Gotcha: `--suite full` silently skips `suite: smoke` goldens, which is exactly where three of this fix's regression guards live.
+
+**Full doc:** docs/solutions/agent/concierge-hotel-tool-choice.md
+---
