@@ -3,6 +3,16 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-147-dated-hotel-availability-routing — the concierge searches hotels with and without dates
+
+- **concierge v12** — copied v11; `## Hotels` rewritten to route between the two hotel tools:
+  `browse_hotels` for a dateless city-level lookup, `search_hotels` for real availability once
+  the traveller has given check-in/check-out; the "does not quote date-specific availability"
+  rule is dropped because the concierge now holds the dated tool.
+- **code half** (Tasks 1.1–1.2) — registry binding + `browse_hotels` description.
+
+`active.yaml`: concierge → 12.
+
 ## gh-156-flight-search-before-create-trip — planner searches first; a bare search never opens a trip
 
 - **planner v13** — copied v12; added four edits: the Responsibilities bullet and "How to Work"
