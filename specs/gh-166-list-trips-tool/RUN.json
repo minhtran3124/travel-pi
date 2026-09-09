@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-09T07:00:27Z",
+  "last_event_id": "f5e29f16-a880-4f52-a10f-46a68c34dbed",
+  "resume_event": null,
+  "run_id": "6a216b9f-e5e8-45c9-a6ae-a0b22e52fafc",
+  "seq": 4,
+  "sha": null,
+  "slug": "gh-166-list-trips-tool",
+  "state": "implementing",
+  "updated_at": "2026-09-09T08:08:52Z",
+  "waiting_on": null
+}
