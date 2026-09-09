@@ -1,32 +1,18 @@
 "use client";
 
-import "maplibre-gl/dist/maplibre-gl.css";
-
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
 
 import type { RoutePanelData } from "@/lib/stream/panel";
+import { TripMap, type TripMapPosition } from "@/components/map/TripMap";
 
-/** Keyless raster OSM style — no API key, dev-friendly tile source. */
-const OSM_STYLE = {
-  version: 8 as const,
-  sources: {
-    osm: {
-      type: "raster" as const,
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-    },
-  },
-  layers: [{ id: "osm", type: "raster" as const, source: "osm" }],
-};
-
-/** [lng, lat] line for the route: the real ORS road path, or a straight fallback. */
-function routeLine(d: RoutePanelData): [number, number][] {
-  if (d.geometry && d.geometry.length > 1) return d.geometry;
+/** Route line points: the real ORS road path, or a straight fallback. */
+function routeLine(d: RoutePanelData): TripMapPosition[] {
+  if (d.geometry && d.geometry.length > 1) {
+    return d.geometry.map(([lng, lat]) => ({ lat, lng }));
+  }
   return [
-    [d.origin.lng, d.origin.lat],
-    [d.destination.lng, d.destination.lat],
+    { lat: d.origin.lat, lng: d.origin.lng },
+    { lat: d.destination.lat, lng: d.destination.lng },
   ];
 }
 
@@ -43,78 +29,28 @@ function recommendedLeg(d: RoutePanelData) {
  */
 export function RoutePanel({ data }: { data: RoutePanelData }) {
   const t = useTranslations("Panel");
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const leg = recommendedLeg(data);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    let cancelled = false;
-    // maplibre-gl is loaded lazily and used dynamically — treat as untyped here.
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    let map: any;
-
-    void (async () => {
-      const maplibre: any = (await import("maplibre-gl")).default;
-      if (cancelled || !containerRef.current) return;
-
-      const line = routeLine(data);
-      const isEstimate = !(data.geometry && data.geometry.length > 1);
-
-      map = new maplibre.Map({
-        container: containerRef.current,
-        style: OSM_STYLE,
-        attributionControl: { compact: true },
-        center: line[0],
-        zoom: 11,
-      });
-
-      map.on("load", () => {
-        map.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            geometry: { type: "LineString", coordinates: line },
-            properties: {},
-          },
-        });
-        map.addLayer({
-          id: "route-line",
-          type: "line",
-          source: "route",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": "#2563eb",
-            "line-width": 5,
-            ...(isEstimate ? { "line-dasharray": [2, 2] } : {}),
-          },
-        });
-
-        new maplibre.Marker({ color: "#0f172a" })
-          .setLngLat([data.origin.lng, data.origin.lat])
-          .setPopup(new maplibre.Popup().setText(data.origin.name))
-          .addTo(map);
-        new maplibre.Marker({ color: "#dc2626" })
-          .setLngLat([data.destination.lng, data.destination.lat])
-          .setPopup(new maplibre.Popup().setText(data.destination.name))
-          .addTo(map);
-
-        const bounds = new maplibre.LngLatBounds(line[0], line[0]);
-        for (const c of line) bounds.extend(c);
-        map.fitBounds(bounds, { padding: 48, maxZoom: 15, duration: 0 });
-      });
-    })();
-
-    return () => {
-      cancelled = true;
-      if (map) map.remove();
-    };
-    /* eslint-enable @typescript-eslint/no-explicit-any */
-  }, [data]);
+  const isEstimate = !(data.geometry && data.geometry.length > 1);
 
   return (
     <div className="flex h-full flex-col">
-      <div ref={containerRef} className="min-h-0 flex-1" aria-label={t("route.mapLabel")} />
+      <TripMap
+        className="min-h-0 flex-1"
+        ariaLabel={t("route.mapLabel")}
+        route={{ line: routeLine(data), dashed: isEstimate }}
+        markers={[
+          {
+            position: { lat: data.origin.lat, lng: data.origin.lng },
+            label: data.origin.name,
+            color: "#0f172a",
+          },
+          {
+            position: { lat: data.destination.lat, lng: data.destination.lng },
+            label: data.destination.name,
+            color: "#dc2626",
+          },
+        ]}
+      />
 
       <div className="border-t border-line bg-panel px-lg py-md">
         <div className="flex items-center justify-between gap-md">
