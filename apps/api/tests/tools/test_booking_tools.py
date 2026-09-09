@@ -245,29 +245,71 @@ def test_book_hotel_does_not_log_guest_pii(agent_db, caplog):
     assert "+1 555 987 6543" not in caplog.text
     assert hotel_id in caplog.text  # the plain booking identifier IS logged
 
+_STAY = {
+    "city": "Da Nang",
+    "check_in": "2027-03-15",
+    "check_out": "2027-03-17",
+    "rooms": 1,
+    "adults": 2,
+    "children": 0,
+}
 
-def test_search_hotels_summary_counts_only_available_rooms(agent_db):
-    """The model-visible summary must name available hotels, not every match.
 
-    ``HotelService.check_availability`` returns every hotel matching the city and
-    filters, flagging each one, so a summary built from the whole list can quote a
-    sold-out property as the cheapest option (#147: the concierge now quotes dated
-    availability, and has no booking step to catch the mistake later).
+def _sell_out(monkeypatch, hotel_ids):
+    """Make the named hotels report zero free rooms, leaving the rest untouched.
+
+    Patches the per-hotel room count `HotelService` consults, so the real catalog,
+    pricing and ranking all still run — only the availability answer is staged.
+    The seeded fixture books nothing, so without this every hotel is available and
+    the sold-out path is unreachable.
     """
-    msg = _invoke_hotel(
-        {
-            "city": "Da Nang",
-            "check_in": "2027-03-15",
-            "check_out": "2027-03-18",
-            "rooms": 1,
-            "adults": 2,
-            "children": 0,
-        }
+    from app.services import hotel_service as svc
+
+    real = svc.available_rooms
+    monkeypatch.setattr(
+        svc,
+        "available_rooms",
+        lambda hotel, check_in, check_out: (
+            0 if hotel.id in hotel_ids else real(hotel, check_in, check_out)
+        ),
     )
-    hotels = msg.artifact["data"]["hotels"]
-    available = [h for h in hotels if h["available"]]
-    assert available, "fixture must have at least one bookable hotel"
-    # The named cheapest must be bookable, not merely the cheapest row returned.
-    cheapest = min(available, key=lambda h: h["total_price"])
-    assert cheapest["name"] in msg.content
-    assert f"${cheapest['total_price']:.0f}" in msg.content
+
+
+def test_search_hotels_summary_never_names_a_sold_out_hotel(agent_db, monkeypatch):
+    """The cheapest hotel the model is told about must be one that can be booked.
+
+    ``check_availability`` returns every hotel matching the city and filters, each
+    carrying an ``available`` flag, so the cheapest row is not necessarily the
+    cheapest *bookable* room. #147: the concierge now quotes dated availability and
+    has no booking step to catch the mistake later.
+    """
+    panel = _invoke_hotel(_STAY).artifact["data"]["hotels"]
+    cheapest = min(panel, key=lambda h: h["total_price"])
+    runner_up = min(
+        (h for h in panel if h["id"] != cheapest["id"]),
+        key=lambda h: h["total_price"],
+    )
+
+    _sell_out(monkeypatch, {cheapest["id"]})
+    msg = _invoke_hotel(_STAY)
+
+    assert cheapest["name"] not in msg.content, (
+        "a hotel with no free room must never be named as the cheapest option"
+    )
+    assert runner_up["name"] in msg.content
+    assert f"${runner_up['total_price']:.0f}" in msg.content
+    assert "1 of them have no room free" in msg.content
+    # The panel still carries every row, so the traveller sees the full picture.
+    assert len(msg.artifact["data"]["hotels"]) == len(panel)
+
+
+def test_search_hotels_summary_when_nothing_is_available(agent_db, monkeypatch):
+    """Every hotel sold out: say so plainly instead of listing them as options."""
+    panel = _invoke_hotel(_STAY).artifact["data"]["hotels"]
+
+    _sell_out(monkeypatch, {h["id"] for h in panel})
+    msg = _invoke_hotel(_STAY)
+
+    assert "none has a room free" in msg.content
+    assert "Cheapest" not in msg.content
+    assert all(not h["available"] for h in msg.artifact["data"]["hotels"])

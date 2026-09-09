@@ -179,13 +179,20 @@ Fixing it took three attempts, and the eval is what caught the two bad ones:
 | `gh147-hotels.json` | wave 1–2 as shipped | 5/6 | `hotels-multi_turn-en-01` (#147) passes; only `reply_language` red (#148) |
 | `gh147-hotels-v2.json` | summary rewritten to "N of M have a room free" + a v12 rule to shortlist only available ones | **3/6** | the model narrated its own 4-hotel shortlist as the search result — "4 hotels available at $560" against 24 from $140 — and the oracle read it as a false claim |
 | `gh147-hotels-v3.json` | counts dropped from the summary, v12 rule kept | 4/6 | better, but any availability sentence in the prompt still made the model narrate availability counts |
-| `gh147-hotels-v4.json` | guard lives only in the tool; v12's Hotels section back to its shipped text | **5/6** | `hotels-multi_turn-en-01` **and** `hotels-happy-en-02` both pass |
+| `gh147-hotels-v4.json` | **identical code and prompt to v3** — the intended prompt revert silently did not apply (a failed `cd` in the edit command; caught by the post-review re-check) | **5/6** | `hotels-multi_turn-en-01` **and** `hotels-happy-en-02` both pass |
 
-The lesson is the repo's own `llm-parses-code-computes` principle: the availability guard belongs
-in the deterministic tool output (the cheapest and top-rated it names come from the bookable
-subset; a sold-out note appears only when some hotel actually is), **not** in a prompt rule the
-model restates. When every hotel is available — the common case — the summary string is now
-byte-identical to what shipped in wave 2.
+What actually moved the score was the **tool summary**, not the prompt. v2's "N of M hotels have a
+room free … present only the available ones" gave the model counts to repeat, and it repeated them
+about its own shortlist. v3 removed those counts and kept the short prompt sentence; **v4 ran on
+byte-identical code and prompt and scored 5/6 instead of 4/6**, so that difference is run-to-run
+variance, not a fix. The shipped state keeps both halves: the short v12 sentence (pinned by
+`test_concierge_prompt_never_shortlists_a_sold_out_hotel`) and the deterministic guard in the tool
+output, whose summary is byte-identical to wave 2's whenever every hotel is available.
+
+This correction exists because the re-check caught the record claiming a revert that never
+happened: the commit meant to remove the v12 sentence deleted only its pin test, because a `cd`
+in the edit command failed and took the prompt edit with it. The prompt sentence was present for
+v3 **and** v4 — which is what makes them a clean variance comparison.
 
 **Final state (v4 runs):** `hotels` full 5/6, `hotels` smoke 2/2, `errors` full 5/6. The one red
 is `hotels-multi_turn-vi-01` on `oracle_fact_check`, and only on `available_count` (oracle 3,
