@@ -1,5 +1,5 @@
 {
-  "reviewed_head_sha": "2989de904feb606e0a880548a04a195d9c6f728e",
+  "reviewed_head_sha": "3e2f3ab3d64f0dade7efb921a5646854869f72f3",
   "reviews": [
     {
       "type": "correctness",
@@ -16,6 +16,14 @@
       "blocking_open": 0,
       "advisory_open": 0,
       "note": "No missing behaviour, no drift, no unapproved scope. Concierge searches with and without dates and cannot book. Two record-honesty nits fixed in 4f13f42."
+    },
+    {
+      "type": "acceptance",
+      "reviewer": "full judged eval (84 cases, k=3) + browser UAT",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "note": "hotels 50.0%->83.3%; flight_search +16.7%; suggestions +10.0%. eval-compare exits 1 on  (-14.3%), but both flagged goldens fail at base 0a7b6d7 as well (two control runs recorded in SUMMARY), so the flag is baseline staleness plus known #148/#150 flakiness, not this diff. Baseline deliberately not refreshed - that is a separate decision. Browser UAT green, screenshots in uat/. Advisory open: the  capability is flaky at 4-6/7 on main and its committed baseline overstates it."
     }
   ],
   "created": "2026-09-09T03:44:56Z"
