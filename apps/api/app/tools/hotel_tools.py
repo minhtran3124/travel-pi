@@ -308,13 +308,18 @@ def search_hotels(
             else:
                 cheapest = min(free, key=lambda h: h.total_price)
                 top_rated = max(free, key=lambda h: h.rating)
+                sold_out = len(results) - len(free)
                 summary = (
-                    f"{len(free)} of {len(results)} hotels in {stay} have a room free. "
-                    f"Cheapest available {cheapest.name} ${cheapest.total_price:.0f}; "
-                    f"top-rated available {top_rated.name} ({top_rated.rating:.1f}★). "
-                    "Present only the available ones. The full comparison is in the "
-                    "Hotels panel."
+                    f"{len(results)} hotels in {stay}. "
+                    f"Cheapest {cheapest.name} ${cheapest.total_price:.0f}; "
+                    f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
                 )
+                if sold_out:
+                    summary += (
+                        f"{sold_out} of them have no room free for these dates — "
+                        "do not offer those. "
+                    )
+                summary += "The full comparison is in the Hotels panel."
             if matched_reasons:
                 summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             # After ranking (keyword features match the English text), before the panel.

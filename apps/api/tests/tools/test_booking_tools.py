@@ -267,7 +267,7 @@ def test_search_hotels_summary_counts_only_available_rooms(agent_db):
     hotels = msg.artifact["data"]["hotels"]
     available = [h for h in hotels if h["available"]]
     assert available, "fixture must have at least one bookable hotel"
-    assert f"{len(available)} of {len(hotels)} hotels" in msg.content
-    assert "Cheapest available" in msg.content
+    # The named cheapest must be bookable, not merely the cheapest row returned.
     cheapest = min(available, key=lambda h: h["total_price"])
     assert cheapest["name"] in msg.content
+    assert f"${cheapest['total_price']:.0f}" in msg.content

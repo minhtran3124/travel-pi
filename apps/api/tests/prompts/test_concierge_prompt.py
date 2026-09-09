@@ -21,4 +21,4 @@ def test_concierge_prompt_shortlists_only_available_hotels():
     from app.prompts.registry import registry
 
     text = " ".join(registry.get("concierge").split())
-    assert "only the hotels the tool reported as available" in text
+    assert "never shortlist a hotel the tool marked as having no free room" in text
