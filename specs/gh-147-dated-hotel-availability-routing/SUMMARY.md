@@ -214,6 +214,53 @@ states `rooms`, yet the model called `search_hotels` rather than stopping to ask
 `search_hotels` docstring's "never guess or assume / restate and confirm" clause did not block the
 search on this golden. It stays unedited and the risk stays recorded, not closed.
 
+### Full judged eval + regression gate (2026-09-09)
+
+`python -m eval --suite full --repeat 3` inside `api-api-1` (84 cases, judged), then
+`evalkit.baseline.compare` against `eval/baselines/main.json`. **The gate exits 1**, and the
+reason is not this change:
+
+| Capability | Baseline | This branch | Delta |
+| --- | --- | --- | --- |
+| **hotels** | 50.0% | **83.3%** | **+33.3%** |
+| flight_search | 83.3% | 100.0% | +16.7% |
+| suggestions | 90.0% | 100.0% | +10.0% |
+| language | 85.7% | 71.4% | **−14.3% → REGRESSED** |
+| booking, budget, dates, errors, journal, memory, routing | — | — | ±0.0% |
+
+Fixed (fail → pass): `hotels-happy-en-02`, `hotels-multi_turn-vi-01`,
+`flight_search-ambiguous-en-01`, `language-multi_turn-vi-01`, `suggestions-happy-en-05`.
+
+**The two goldens the gate flags — `language-ambiguous-en-01` and `language-ambiguous-vi-01` —
+fail at base too.** Measured, not assumed: the `language` capability was re-run twice on a
+detached checkout of base `0a7b6d7` with the same command and container.
+
+| Run | Code | `ambiguous-vi-01` | `ambiguous-en-01` | `multi_turn-vi-01` | Score |
+| --- | --- | --- | --- | --- | --- |
+| `gh147-language-base.json` | **base** `0a7b6d7` | FAIL | pass | pass | 6/7 |
+| `gh147-language-base2.json` | **base** `0a7b6d7` | FAIL | FAIL | pass | 5/7 |
+| `latest.json` (full run) | branch | FAIL | FAIL | pass | 5/7 |
+| `gh147-language-recheck.json` | branch | FAIL | FAIL | FAIL | 4/7 |
+
+`language-ambiguous-vi-01` fails on `flow_match` (journal vs planner) in **every** run including
+both base runs — it is red on `main` today, and the baseline's record of it passing is a stale
+snapshot. `language-ambiguous-en-01` flips between runs on **base** as well, with #148's exact
+signature (`reply_language` en→vi, `response_language` ≈0.20–0.23); `specs/review-b7-eval-baseline-ci/TRIAGE.md`
+already records it flipping across baseline runs. Nothing in this diff touches language detection,
+reply language or routing.
+
+So: `language` measures 4–6/7 on both base and branch, the two flagged goldens are red at base,
+and the baseline's 85.7% is an optimistic snapshot of a flaky capability. **The baseline was
+deliberately NOT refreshed** — doing so would bury both the real `hotels` gain and the pre-existing
+`language` flakiness in one commit. Refreshing it is a separate decision.
+
+`hotels-multi_turn-en-01` (#147's own golden) reads FAIL in this run on `oracle_fact_check`
+alone, and only on the counts: `flow_match`, `tools_expected` (`search_hotels` called),
+`reply_language` and `min_total_price` ($140, correct) all pass; the model described its 4-hotel
+shortlist where the oracle wanted the 24 the search found. The browser UAT below shows the same
+turn replying "I found 24 hotels in Da Nang" — the count claim is phrasing variance, not a
+capability failure. This golden passed in the first targeted run and in the v4 run.
+
 ### Browser UAT (2026-09-09, signed-in `e2e-test`, Docker api :8000)
 
 Driven with Playwright against the running travel-pi web app; spec + screenshots in
