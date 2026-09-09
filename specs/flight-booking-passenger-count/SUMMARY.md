@@ -98,10 +98,8 @@ files and a handful of tests.
   a browser.** See `uat/`: asked for three seats in chat, the assistant stated "Passengers: 3,
   Total: USD 151.83" before booking, the tool call logged `passengers = 3`, and the row holds
   `total_price` 151.83 with `details.passengers` 3 at 50.61 a seat, stamped with the trip.
-- **`apps/web/src/lib/api/schema.d.ts` is now stale.** It is a checked-in `pnpm gen:api` artifact
-  containing `FlightBookingRequest`, and it does not have `passengers`. Deliberate: no web code calls
-  `/flights/book` since the pages became browse-only, and no CI gate checks the drift. The next slice
-  that touches the web client regenerates it.
+- ~~`apps/web/src/lib/api/schema.d.ts` is now stale.~~ **Regenerated in `fff9e4e`**, because showing
+  the seat count required the frontend to read the field.
 - **The full `tests/api/booking` directory** — not run here. It sits at about 60s, over the limit a
   re-runnable row must meet, so two of its files are left to `finishing-a-development-branch`.
 
@@ -112,13 +110,17 @@ files and a handful of tests.
   written before the revert keep their stored `total_price`, which stays correct for the seats they
   recorded.
 
-### Follow-up worth a decision
+### Follow-up, raised and then approved
 
-The Bookings tab shows the party total but not the party. The row reads
-`Vietnam Airlines · DAD → SGN — Departs Oct 9, 6:15 AM · UAT Tester` at `$151.83`, and nothing on
-that line explains why it is three times the fare. The assistant says "Passengers: 3" in chat, so the
-information exists; it just does not reach the trip page. Adding `· 3 seats` to the summary is small
-but is UI work nobody asked for, so it is recorded rather than done.
+The Bookings tab showed the party total but not the party, so a three-seat row read as one seat at
+triple the fare. Raised for a decision, approved, and done in `fff9e4e`: the flight subline now
+carries a plural seat count beside the departure and passenger name, mirroring how the hotel subline
+already carries nights and rooms. It shows only above one seat — single-seat is the common case, and
+bookings written before the field have nothing to show.
+
+That commit also regenerated `apps/web/src/lib/api/schema.d.ts`, which closes the staleness this
+summary had listed as deliberate: the frontend could not read `passengers` until the generated type
+had it. The diff is exactly the new field and the docstring beside it.
 
 ### Harness-Delta
 
