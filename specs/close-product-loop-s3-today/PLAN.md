@@ -242,3 +242,10 @@ Every check names a file rather than a directory. The full frontend suite belong
 - 2026-09-09 — tasks 2.1, 2.2, 2.3 complete; commits 1b1ae05, 96c5099, c58b58a. Wave 2 green:
   34 tests pass across the two cards and the directions adapter; the chat Route panel is unchanged
   and its own tests still pass. No backend change needed.
+- 2026-09-09 — task 3.1 complete; commit 7bbb148. All seven tasks done; branch rebased onto main
+  at 20f3c79.
+- 2026-09-09 — independent review: intent PASS, plan PASS, two Important findings. Both error
+  branches were unwired — the directions card spun forever on a route failure, and the weather and
+  air cards vanished silently. Fixed with the MapTab ladder; 71 tests pass. SUMMARY closed with the
+  full Verify table.
+

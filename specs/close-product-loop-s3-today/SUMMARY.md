@@ -28,11 +28,17 @@ fixed by the approved design `specs/close-product-loop/design.md` §5 S3.
 
 ## What changed
 
-Nothing yet — this is the intake record. Planned delta: a **Today** tab on
-`/trips/[tripId]`, visible only while `start_date ≤ today ≤ end_date` and otherwise showing a
-"trip not in progress" empty state carrying the trip dates. The tab renders today's ordered
-day plan with its travel-time annotations, current weather and air quality for the
-destination, and walking/driving directions from the previous item to the next unstarted one.
+A **Today** tab on `/trips/[tripId]`, always visible. Inside the trip window it renders today's
+ordered day plan with the travel-time annotations the backend already computes, current weather and
+air quality for the trip's city, and directions from the previous item to the next unstarted one.
+Outside the window it renders a "trip not in progress" state carrying the trip's dates, or a
+no-dates variant. Zero backend: every data source was already a REST route and already typed in the
+generated frontend schema.
+
+Weather and air quality are localized from the numbers the responses already carry — the WMO
+`weather_code` and the `us_aqi` integer — rather than from the API's English prose. Both are
+published standards, so the frontend maps cannot drift from the backend's, and the tab speaks
+Vietnamese without a `lang` parameter that would have made this a public-contract change.
 
 ### Rationale
 
@@ -73,19 +79,49 @@ directions to. `start_time` may be displayed, never used to select.
 
 ### Deviations
 
-- none
+- Rule 1 — Task 1.1 mirrors the local-date mechanism in `tripVisuals` instead of importing its
+  `todayUTC` helper as the plan directed. That helper is module-private, reads the clock internally
+  and returns a UTC timestamp rather than a date string, so it can neither be imported nor accept a
+  supplied `now`. Exporting it would have meant editing a file outside the task's Files set.
+  Commit `effd159`.
+- Rule 2 — Task 1.3 added `Today.plan.travelToNext` for the day plan's `travel_to_next_minutes`
+  annotation. It was not in the plan's key enumeration, but task 3.1 renders that field and the
+  unit needs translating; omitting it would have forced a wave-3 catalog edit and a same-file
+  conflict. Commit `f4eae36`.
 
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| Intake evidence complete | `python3 .claude/scripts/verify_summary.py --lane close-product-loop-s3-today` | 0 | run at intake, before any implementation | |
+| Intake evidence complete | `python3 .claude/scripts/verify_summary.py --lane close-product-loop-s3-today` | 0 | run at intake, before implementation | |
+| Plan contract | `python3 .claude/scripts/check_plan_contract.py specs/close-product-loop-s3-today/PLAN.md` | 0 | | |
+| Date and ordering rules across every anchor | `cd apps/web && pnpm test src/components/trips/today/todaySelectors.test.ts` | 0 | 16 tests | SC-1 |
+| A constraint item can be next, an optional one never is | `cd apps/web && pnpm test -t "next unstarted" src/components/trips/today/todaySelectors.test.ts` | 0 | | SC-2 |
+| Hooks call the right routes and stay disabled without input | `cd apps/web && pnpm test src/lib/query/today.test.ts` | 0 | 10 tests | SC-3 |
+| Weather localizes from the WMO code, falls back on unknown | `cd apps/web && pnpm test src/components/trips/today/TodayWeatherCard.test.tsx` | 0 | | SC-4 |
+| Air quality derives its band from us_aqi, falls back on null | `cd apps/web && pnpm test src/components/trips/today/TodayAirQualityCard.test.tsx` | 0 | every band boundary pinned at both edges | SC-5 |
+| Directions render via RoutePanel, and fire no request without a place | `cd apps/web && pnpm test src/components/trips/today/TodayDirections.test.tsx` | 0 | | SC-6 |
+| The tab shows the plan inside the window and the dated state outside | `cd apps/web && pnpm test src/components/trips/today/TodayTab.test.tsx` | 0 | | SC-7 |
+| The chat Route panel is unchanged | `cd apps/web && pnpm test src/components/chat/panel/RoutePanel.test.tsx` | 0 | consumed, never modified | SC-8 |
+| Both locales carry the same keys | `cd apps/web && pnpm test src/messages.parity.test.ts` | 0 | 54 leaf keys each | SC-9 |
+| Frontend typechecks | `cd apps/web && pnpm exec tsc --noEmit` | 0 | | SC-10 |
+| Frontend lint | `cd apps/web && pnpm exec eslint src` | 0 | one pre-existing warning outside this slice | SC-11 |
+
+Every frontend command above is prefixed with `PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`.
+Run together, the slice's eight test files total 71 passing tests.
 
 ### Not auto-verified
 
 - The "unstarted" decision matches traveller expectation — reached traceability; the rule is
   grounded in the schema and the day-plan ordering, but no user has exercised the tab yet.
-  Browser UAT at `finishing-a-development-branch` is what raises this to truth.
+- Seven tab labels read acceptably at 390px — not reached. The tablist carries `overflow-x-auto`
+  with `shrink-0` buttons so the page cannot widen the way it did at six tabs, but legibility is a
+  browser question. Deliberately left to UAT.
+- The Vietnamese WMO and AQI strings read naturally to a native speaker — reached traceability
+  only; parity is machine-checked, wording is not.
+- Directions on a real trip — reached traceability. `GET /places/route` needs a `place_id` on both
+  items, which a hand-typed itinerary lacks, so the card's populated path needs a trip seeded with
+  catalog places to exercise.
 
 ### Rollback
 
@@ -93,4 +129,10 @@ directions to. `start_time` may be displayed, never used to select.
 
 ### Harness-Delta
 
-- none
+- backlog — `commit-quality-gate.sh` audits the index of `CLAUDE_PROJECT_DIR` (the main checkout)
+  rather than the repository the commit is running in, so a broken staged `SUMMARY.md` in one
+  session blocks commits from every other worktree. It blocked this branch for work belonging to
+  `specs/gh-173-supervisor-local-tips-fanout`, which this slice never touched.
+- backlog — `tripVisuals.todayUTC` is the repo's local-date helper but is module-private and reads
+  the clock internally, so it cannot be reused by anything that needs a supplied `now`. Exporting a
+  shared `localIso(now)` would stop the next slice reimplementing it.
