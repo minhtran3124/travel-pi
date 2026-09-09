@@ -133,7 +133,7 @@ stays `high-risk` on authorization grounds regardless.
 | Tool output is JSON-serializable | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_list_trips.py -q -k json` | 0 | 1 passed, 8 deselected | SC-7 |
 | Shared trip-context label | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state_system_prompt.py -q` | 0 | 16 passed | SC-9 |
 | Goldens load, updated golden declares tools_expected | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | 160 passed; dataset count constant 102 to 103 | SC-8 |
-| Observed route pinned on the counting golden | `cd apps/api && ../../.venv/bin/python scripts/check_gh166_golden_flow.py` | 0 | expected_flow=planner, a key of TOOLS_BY_DOMAIN | SC-10 |
+| Observed route pinned on the counting golden | `cd apps/api && ../../.venv/bin/python scripts/check_gh166_golden_flow.py` | 0 | expected_flow=planner, a member of ALL_SUBAGENTS | SC-10 |
 | Baseline decision recorded | `cd apps/api && ../../.venv/bin/python scripts/check_gh166_baseline_note.py` | 0 | negative control: exits 1 before the note is written | SC-11 |
 | Branch-wide regression sweep | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools tests/mcp tests/agents tests/eval tests/prompts -q` | 0 | 908 at baseline, 925 after | |
 | Lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | all checks passed | |
@@ -186,7 +186,9 @@ this work's own success-criteria checks and were fixed rather than recorded; the
   fan-out path sets `current_flow` to `SYNTHESIZE_NODE`, which the eval runner copies into the
   very field `expected_flow` is compared against. A future honest observation of `synthesize`
   would have been rejected as "not a sub-agent the supervisor can route to". Now derived from
-  `ALL_SUBAGENTS` + `SYNTHESIZE_NODE`.
+  `ALL_SUBAGENTS` + `SYNTHESIZE_NODE`. In fairness the practical gap was narrow: `TOOLS_BY_DOMAIN`'s
+  keys happen to be exactly the five sub-agent names, so `synthesize` was the only value the old
+  check would have wrongly rejected. The false docstring claim was the worse half.
 - `check_gh166_baseline_note.py`'s decision regex had no word boundary and no `IGNORECASE`:
   `Baseline decision: acceptedly unresolved — 0.5 and 0.3` PASSED as "accepted", and a naturally
   capitalised `Accepted` FAILED a correctly recorded decision — the same wrong-branch class the
@@ -243,8 +245,9 @@ there is a vaguer answer, not the original bug.
 
 ### Rollback
 
-- `git revert 15d5b07 28bb989 027cb67 6747754 9ff37a4 92227be 8ed14d9` — every commit is additive
-  and reversible. No migration, no schema change, no data written, no external state.
+- `git revert b2c6c30 a67a362 f5f097d 15d5b07 28bb989 027cb67 6747754 9ff37a4 92227be 8ed14d9`
+  — newest first, because `a67a362` edits scripts that `15d5b07` and `f5f097d` add; reverting the
+  older commits first would conflict on those two files. Every commit is additive and reversible. No migration, no schema change, no data written, no external state.
 - The prompt bump reverts with the rest: `active.yaml` returns to `planner: 13` / `journal: 2`,
   and v14 / v3 become unreferenced files rather than needing deletion.
 - The isolated eval stack is separate from anything shipped: `docker compose -p gh166 down -v`.
