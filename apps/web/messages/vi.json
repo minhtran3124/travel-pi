@@ -103,7 +103,8 @@
       "budget": "Ngân sách",
       "expenses": "Chi tiêu",
       "bookings": "Đặt chỗ",
-      "shortlist": "Danh sách yêu thích"
+      "shortlist": "Danh sách yêu thích",
+      "map": "Bản đồ"
     },
     "stats": {
       "tripLength": "Độ dài chuyến đi",
@@ -276,6 +277,18 @@
     "removeAria": "Bỏ {name}",
     "alreadyShortlisted": "{name} đã có trong danh sách yêu thích của chuyến đi này.",
     "addError": "Không thể thêm {name}. Vui lòng thử lại."
+  },
+  "Map": {
+    "title": "Bản đồ",
+    "ariaLabel": "Bản đồ chuyến đi",
+    "loading": "Đang tải bản đồ…",
+    "loadingLabel": "Đang tải bản đồ",
+    "errorTitle": "Không thể tải bản đồ",
+    "errorHint": "Đã xảy ra lỗi khi lấy địa điểm và lịch trình của chuyến đi này.",
+    "emptyTitle": "Chưa có gì để hiển thị trên bản đồ",
+    "emptyHint": "Thêm một địa điểm vào danh sách yêu thích hoặc thêm mục lịch trình có địa điểm để xem tại đây.",
+    "markerSaved": "{name}",
+    "markerItinerary": "Ngày {day} · {title}"
   },
   "Places": {
     "title": "Địa điểm đã lưu",

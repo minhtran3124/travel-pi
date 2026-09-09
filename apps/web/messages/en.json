@@ -103,7 +103,8 @@
       "budget": "Budget",
       "expenses": "Expenses",
       "bookings": "Bookings",
-      "shortlist": "Shortlist"
+      "shortlist": "Shortlist",
+      "map": "Map"
     },
     "stats": {
       "tripLength": "Trip length",
@@ -276,6 +277,18 @@
     "removeAria": "Remove {name}",
     "alreadyShortlisted": "{name} is already on this trip's shortlist.",
     "addError": "Could not add {name}. Please try again."
+  },
+  "Map": {
+    "title": "Map",
+    "ariaLabel": "Trip map",
+    "loading": "Loading map…",
+    "loadingLabel": "Loading map",
+    "errorTitle": "Couldn't load the map",
+    "errorHint": "Something went wrong fetching this trip's places and itinerary.",
+    "emptyTitle": "Nothing to show on the map yet",
+    "emptyHint": "Shortlist a place or add an itinerary item with a place to see it here.",
+    "markerSaved": "{name}",
+    "markerItinerary": "Day {day} · {title}"
   },
   "Places": {
     "title": "Saved places",
