@@ -1,0 +1,22 @@
+{
+  "reviewed_head_sha": "dab42589ce0279ccb8dd2d9e4b16dabd792af6a7",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "six blind angles over the branch as originally built",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "note": "3 P1 + 3 P2 found; all resolved by reverting the two tasks they applied to (E001 decision B). Two advisories left open and recorded in SUMMARY: an auth outage is indistinguishable from signed-out and unobserved, and requireSupabaseEnv validates presence not URL shape. Both predate this branch and belong to option C."
+    },
+    {
+      "type": "intent",
+      "reviewer": "controller, against ESCALATIONS E001 decision B",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "note": "The shipped scope is narrower than the intake intent, by explicit user decision recorded in E001. The intent's core defect — a 500 on missing env — is addressed for the configuration case; the outage case is left open with the reason stated."
+    }
+  ],
+  "created": "2026-09-09T01:00:34Z"
+}
