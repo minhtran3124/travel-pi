@@ -1,5 +1,5 @@
 {
-  "reviewed_head_sha": "c9332cc6ba17654df3ec96b715339222f80dcf4a",
+  "reviewed_head_sha": "d4f219514023fdcf8f4e123a8b84faa3ccc7f803",
   "reviews": [
     {
       "type": "correctness",
@@ -35,5 +35,5 @@
     }
   ],
   "created": "2026-09-09T03:44:56Z",
-  "note": "Pinned at c9332cc, the last commit touching apps/. Task 6.1 (the shared search_hotels description) and its re-review fix are covered; that change has a unit pin and NO eval coverage - the OpenAI account ran out of credits, so hotels and booking returned 429 on every case. Re-measure before trusting it in the planner and booking paths."
+  "note": "Re-pinned at the merge of main (PR #167, 33 commits) into this branch. No code conflicted: main's hotel_tools change is confined to BookHotelArgs/book_hotel (trip_id), disjoint from this branch's search_hotels/browse_hotels edits; active.yaml merged to concierge 12 + booking 10. Both conflicts were prepend-at-top ledgers (prompts/CHANGELOG.md, specs/STATE.md), resolved keeping both sides. Re-verified after the merge: pytest tests/tools tests/agents tests/prompts tests/api/booking -> 800 passed, 2 failed (routing offline-estimate pair, pre-existing at base). Also checked that booking v10, which main introduced, still carries the confirm-before-the-tool rule the shared search_hotels description defers to."
 }
