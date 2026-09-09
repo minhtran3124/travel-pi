@@ -5,9 +5,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 ## Active Spec
 
 - **Slug:** gh-147-dated-hotel-availability-routing
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
+- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
 - **Last skill:** subagent-driven-development
-- **Last action:** All 5 waves executed on `fix/gh-147-dated-hotel-availability-routing` (13 commits off `main` 0a7b6d7); wave 4 (code-gate fallback) skipped — the MIN-51 date-interrogation regression never returned. #147's golden `hotels-multi_turn-en-01` passes, `hotels-happy-en-02` too; every dateless golden still calls `browse_hotels`. Correctness + intent reviews pass, receipt pinned at HEAD, zero blocking open. Full BE suite 2245 passed / 59 failed — the 59 byte-identical at base (local `.env` contamination). Branch review found and fixed a real gap the new capability exposed: `search_hotels` could name a sold-out hotel as the cheapest option. **Not done:** the one full `make eval-check` the user authorized before the PR, and the PR itself. No browser UAT.
+- **Last action:** All 5 waves executed on `fix/gh-147-dated-hotel-availability-routing` (13 commits off `main` 0a7b6d7); wave 4 (code-gate fallback) skipped — the MIN-51 date-interrogation regression never returned. #147's golden `hotels-multi_turn-en-01` passes, `hotels-happy-en-02` too; every dateless golden still calls `browse_hotels`. Correctness + intent reviews pass, receipt pinned at HEAD, zero blocking open. Full BE suite 2245 passed / 59 failed — the 59 byte-identical at base (local `.env` contamination). Branch review found and fixed a real gap the new capability exposed: `search_hotels` could name a sold-out hotel as the cheapest option. Full judged eval run: hotels 50.0% → 83.3%, flight_search +16.7%, suggestions +10.0%; the gate's `language` flag was disproved by two control runs on base. Browser UAT green with screenshots in `uat/`. PR opened against `main`; awaiting human review and merge.
 - **Updated:** 2026-09-09
 
 ## Recent Specs
@@ -16,7 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| gh-147-dated-hotel-availability-routing | 2026-09-09 | review | all waves done, reviews pass; awaiting full eval-check + PR |
+| gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | PR open → main; hotels eval 50% → 83.3% |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | review | PR open → main, awaiting merge |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |

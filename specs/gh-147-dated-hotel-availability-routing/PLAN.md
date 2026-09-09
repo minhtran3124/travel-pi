@@ -1,6 +1,6 @@
 ---
 slug: gh-147-dated-hotel-availability-routing
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-09
 ---
@@ -182,4 +182,5 @@ The full BE suite (`pytest tests/`, ~3 min) and `make eval-check` (paid, judged,
 - 2026-09-09 — Final review chain. Intent review: **PASS** (no gap, no drift, no unapproved scope; two record-honesty nits fixed in `4f13f42`). Correctness review: no blocking runtime bug in the diff, but one real behavioural gap — the `search_hotels` summary could name a sold-out hotel as the cheapest option. Fixed in `418cd98`, narrowed in `fa4279e`, and finally moved out of the prompt entirely in the commit after it, after the eval showed prompt-level availability wording made the model narrate its own shortlist as the search result (5/6 → 3/6 → 4/6 → 5/6). Full BE suite: 2245 passed / 59 failed, and the 59 are byte-identical to the same run at base `0a7b6d7` (local `.env` contamination: dashboard basic-auth 401s, OpenAI key present).
 - 2026-09-09 — Remaining before delivery: one full `make eval-check` (user-authorized, not yet run) and the PR.
 - 2026-09-09 — Full `eval-check` run (user-authorized): **hotels 50.0% → 83.3%**, flight_search +16.7%, suggestions +10.0%, everything else flat. Gate exits 1 on `language` (−14.3%), but both flagged goldens fail at **base** too — proved by two `--capability language` runs on a detached `0a7b6d7` (6/7 and 5/7, with `language-ambiguous-vi-01` red in both). Baseline deliberately not refreshed. Browser UAT green with screenshots (`uat/`).
+- 2026-09-09 — **Shipped to PR.** Targeted suite `pytest tests/tools tests/agents tests/prompts` → 720 passed, 2 failed (`test_routing_tools.py` offline-estimate pair — both in the base-identical failure set, local `.env` contamination). Receipt gate `check_review_receipt.py --require correctness,intent` exit 0. Branch pushed, PR opened against `main`.
 
