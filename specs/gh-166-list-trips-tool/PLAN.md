@@ -1,6 +1,6 @@
 ---
 slug: gh-166-list-trips-tool
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-09
 ---
@@ -279,3 +279,9 @@ the decision was right — the eval run behind them is judged and paid, and is r
   task moved to its own wave (it consumed 4.1's output while sharing its wave). SC-9/10/11 added
   so Tasks 1.2, 4.1 and 5.1 stop borrowing criteria they do not satisfy. Intake (`SUMMARY.md`), design (approved, 2 review rounds), and Deep
   research brief complete. E001-A / E002-A(superseded) / E003-B recorded. Status: active — reviewed 3 rounds, approved.
+- 2026-09-09 — All 8 tasks executed in 5 waves with per-task spec+quality review (all PASS).
+  Branch correctness review: no blocking findings; two advisories were defects in this work's own
+  SC-check scripts and were fixed, then re-reviewed. Intent review (plan-blind): PASS with one
+  deferred gap, one accepted drift, one recorded excess. Eval observation: the counting question
+  routes to `planner` and the agent calls `list_trips` unprompted, so the conditional supervisor
+  bump was NOT taken. Baseline accepted, not refreshed. Status: shipped.
