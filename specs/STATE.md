@@ -4,11 +4,11 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** gh-156-flight-search-before-create-trip
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** finishing-a-development-branch
-- **Last action:** PR #165 open → main (HEAD ec46c43): main merged in, browser UAT 2/2 with screenshots committed, receipt re-pinned, PR description rewritten decision-first. Awaiting human review/merge.
-- **Updated:** 2026-09-08
+- **Slug:** gh-147-dated-hotel-availability-routing
+- **Phase:** plan  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** writing-plans
+- **Last action:** Intake for GitHub issue #147 done: Lane `normal`, Confidence `high`. E001 (option B) superseded the same day by E002 = **option A** — bind BOTH `search_hotels` and `browse_hotels` to the concierge, no `book_hotel`. Read-only impact analysis in ESCALATIONS E002: fixes 3 failing goldens with no oracle edit; no MCP/tier/HITL change; `test_hotel_tool_split` breaks by design; the real risk is the MIN-51 regression (concierge interrogating for dates) — mitigated by concierge v12 + a pinned prompt rule. Branch `fix/gh-147-dated-hotel-availability-routing` created off `main` (0a7b6d7). xia2 (Standard, no external surface) delivered `research-brief.md`: recommendation = reuse existing (bind the tool, disambiguate in concierge v12 + browse_hotels docstring only — never touch the shared search_hotels docstring); fallback if prose fails at k=3 = code-gate. PLAN.md written: 7 tasks / 5 waves, 10 SC rows, plan-contract exit 0. W1 registry binding + browse_hotels description, W2 concierge v12 + graph test, W3 targeted eval (hotels, errors, k=3), W4 CONDITIONAL code-gate fallback (authorized in-branch), W5 docs/solutions record. Not started. Next: subagent-driven-development.
+- **Updated:** 2026-09-09
 
 ## Recent Specs
 
@@ -16,6 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
+| gh-147-dated-hotel-availability-routing | 2026-09-09 | plan | PLAN.md ready (7 tasks/5 waves), branch off main, not started |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | review | PR open → main, awaiting merge |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
@@ -1556,5 +1557,47 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 28128cda-0dfd-424f-a3c1-266ece937e6b
 - exit: 
 - last_commit: d539377 docs(specs): gh-156 run state at ready_to_merge
+- user_turns: 0
+
+
+### 2026-09-09T02:39:27Z
+- session_id: 923204a5-3ed5-49e7-882c-a67b5b27f2b7
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-09T02:41:13Z
+- session_id: b0d3231a-9b55-43e6-827f-5509aa6b5d2c
+- exit: 
+- last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
+- user_turns: 0
+
+
+### 2026-09-09T02:44:11Z
+- session_id: 05bd4253-2dcc-4c01-b836-5781d80a4b56
+- exit: 
+- last_commit: 2789a73 docs(agent): tell the model which hotel tool the dates call for
+- user_turns: 0
+
+
+### 2026-09-09T02:46:04Z
+- session_id: dfae90eb-44b1-47e9-8273-70cf9e988e98
+- exit: 
+- last_commit: 505ed2b test(agent): pin the clause that names the dated tool, not just its absence
+- user_turns: 0
+
+
+### 2026-09-09T02:46:34Z
+- session_id: 7f24cc7c-804d-489c-8dda-214e612a0dfb
+- exit: 
+- last_commit: 505ed2b test(agent): pin the clause that names the dated tool, not just its absence
+- user_turns: 0
+
+
+### 2026-09-09T02:48:41Z
+- session_id: 87796f83-e152-4b5f-be19-1561d8ecc315
+- exit: 
+- last_commit: 6d1ac3c test(agent): cover a dated concierge turn end to end
 - user_turns: 0
 
