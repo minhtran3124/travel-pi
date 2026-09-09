@@ -175,6 +175,14 @@ provider, EN-only, `repeat: 1`. Reasoning under Not auto-verified.
   get any observation at all. That run was also EN-only (`--language en`, 3 cases) at `repeat: 1`,
   against a baseline captured over the full suite at `repeat: 3`. Overwriting a whole-suite
   baseline from that would destroy it.
+- **The pinned `expected_flow: planner` was observed under supervisor v11.** Merging `main`
+  brought in gh-173's **supervisor v12**, which rewrites the fan-out rule. Reading v12, the
+  trigger is narrow and tool-keyed — a fan-out needs the message to ask for a concierge-only tool
+  (`get_local_tips`, `get_visa`, `search_travel_knowledge`), and `target_agent` stays a single
+  specialist — so "how many trips do I have?" should still land on `planner`. That is reasoning
+  about a prompt, not an observation, and this SUMMARY says elsewhere that such claims are not
+  deterministically checkable. The golden was **not** re-run after the merge. It folds into the
+  like-for-like run already wanted below.
 - **Whether this change affects the two other journal failures.** In the same run
   `journal-ambiguous-en-01` failed `reply_language` (replied vi to an en prompt) and
   `journal-multi_turn-en-01` failed `format_quality` (0.3). Neither is a golden this work
