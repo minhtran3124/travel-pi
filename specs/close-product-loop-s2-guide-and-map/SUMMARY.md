@@ -38,8 +38,8 @@ addition beyond the umbrella design.
 Three destination-knowledge endpoints that had no screen now have one, the trip has a map, and the
 assistant can answer a visa question from the structured source instead of saying it has none.
 
-Four commits: `5d53f98` (visa tool + the map lifted out of the chat panel), `5ea0dc2` (concierge
-v12), `b7a7514` (the guide page), `aee5fc0` (the trip Map tab).
+Five commits: `5d53f98` (visa tool + the map lifted out of the chat panel), `5ea0dc2` (concierge
+v12), `b7a7514` (the guide page), `aee5fc0` (the trip Map tab), and the tab-overflow fix the UAT turned up.
 
 ### Rationale
 
@@ -102,15 +102,18 @@ lines and already loads maplibre dynamically, so the piece that moves is small.
   auto-exposed over MCP the moment it is registered. Read-only and PII-free, so benign — but it is a
   surface change that no gate will announce, which is why it is written here. Reached traceability
   against `registry.py:76-95`; no diff exists yet to corroborate it.
-- **Six tabs on the trip page.** Map makes it six. Still unmeasured below 1280px — a browser
-  question, deliberately not answered from a test.
-- **Whether the assistant actually reaches for `get_visa`.** The tool is registered, the prompt
-  names it, and a test proves both. No live turn in this session asked the assistant a visa question
-  and watched which tool it picked. v12 is a behavioural instruction, and only a real turn or an
-  eval case shows it lands — the same gap S1 closed with a browser UAT.
-- **The guide page and the map in a browser.** Both are covered by component tests only. Nothing
-  here proves the map renders tiles, that markers land in the right places, or that the three guide
-  sections read well together.
+- ~~Six tabs on the trip page, unmeasured below 1280px.~~ **Measured, and it was broken.** At 390px
+  the row was 434px of content in a 342px box with `overflow-x: visible`, so it spilled and dragged
+  the document to 458px against a 390px viewport — the page scrolled sideways and "Map" sat half off
+  screen. Fixed in `uat/`: the row scrolls within itself. Re-measured at 390 vs 390.
+- ~~Whether the assistant actually reaches for `get_visa`.~~ **Proven.** A live turn asking "Do I
+  need a visa for Vietnam?" logged `[tool] get_visa called` — the structured source, not the RAG
+  fallback, and none of v11's "I don't have that information".
+- ~~The guide page in a browser.~~ **Seen.** All three sections render and the disclaimer is
+  verbatim.
+- **A map with markers on it is still unproven.** The UAT trip was created fresh, so it had no saved
+  places and no dated itinerary items: the tab rendered its empty state and no tiles or markers were
+  exercised. Plotting is covered by component tests only.
 
 ### Rollback
 
