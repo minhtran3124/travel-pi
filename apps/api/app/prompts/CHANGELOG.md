@@ -3,6 +3,24 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## close-product-loop-s1-booking-ui — booking can now collect an email at all
+
+Booking through the chatbot could never complete: email was redacted before any model
+call, and the booking tools require one. Product decision: email is no longer treated
+as PII to redact — the assistant offers the traveller's signed-in account email and
+asks them to confirm it (or give a different one), rather than asking blind.
+
+- **booking v8** — copied v7; added "How to Work" step 4 (offer-and-confirm the
+  signed-in account email, or ask directly if none is present) and carved out email
+  as the one exception to the "No default-with-confirm" guardrail. Name, phone,
+  dates, party size and `confirm=True` keep the existing no-default rule unchanged.
+- **code half** — `app/agents/guardrails.py`'s `redact_pii` no longer masks email
+  (credit-card masking unchanged); `TravelAgentState.account_email` carries the
+  signed-in caller's email (from `AuthUser.email`, set in `_turn_input`) into the
+  leading system message via `system_with_summary`.
+
+`active.yaml`: booking → 8.
+
 ## gh-156-flight-search-before-create-trip — planner searches first; a bare search never opens a trip
 
 - **planner v13** — copied v12; added four edits: the Responsibilities bullet and "How to Work"
