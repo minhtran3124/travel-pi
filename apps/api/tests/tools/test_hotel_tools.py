@@ -205,3 +205,7 @@ def test_search_hotels_description_reuses_what_the_traveller_gave():
     assert "never guess or assume a value the traveller has not given" in description
     assert "search with them instead of asking again" in description
     assert "restate them and ask the traveller to confirm" not in description
+    # The booking prompt still requires a yes/no on a detail from an earlier turn
+    # before it calls a tool. This description is shared with that agent, so it
+    # must yield to that rule rather than argue with it in the same context.
+    assert "those come first" in description

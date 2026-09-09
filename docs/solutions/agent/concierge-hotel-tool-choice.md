@@ -143,21 +143,23 @@ Caveat worth carrying: this edit has a unit pin and **no eval proof** — the Op
 of credits before `--capability hotels` / `--capability booking` could run (every case returned a
 429). Re-measure before trusting it in the planner and booking paths.
 
-## Still open — not solved, unclosed by decision
+## What stayed open after the edit
 
-`search_hotels`'s docstring is shared with the planner and booking agents and was deliberately
-**not** edited: it tells the model to "collect every one from the traveller and never guess or
-assume" `rooms`/`adults`/`children`, and to restate-and-confirm any value that "only appeared
-earlier in the conversation" — the opposite of what concierge v12 wants for values the traveller
-already gave. `hotels-multi_turn-en-01` never states `rooms` in its turns, so a model literally
-obeying that docstring clause could stop and ask instead of searching, for a reason the concierge
-prompt fix cannot reach (the docstring is shared surface, out of this branch's scope). This was a
-deliberate choice, not an oversight: editing a docstring two other agents read is its own blast
-radius, and the user chose to measure first rather than edit a shared surface pre-emptively. Wave
-3 showed the risk did **not** bite on these goldens — the model called `search_hotels` on the
-`rooms`-less turn without stopping to ask — but that is one k=3 run against a handful of goldens,
-not proof the clause is safe in general. **Say it is unclosed, not solved**; a future model or
-prompt change can still trip it, and there is no test guarding against it today.
+The reason the docstring was left alone at first still holds and is worth carrying: editing a tool
+description that three agents read is its own blast radius, and wave 3 showed the old clause did
+not actually bite on these goldens — the model called `search_hotels` on a `rooms`-less turn
+without stopping to ask. Measuring before editing was the right order.
+
+Two things remain unproven after the edit:
+
+- **No eval covers it.** See the caveat above — every case returned a 429.
+- **The booking prompt still says the opposite for its own path.** `app/prompts/booking/v7.md`
+  tells the booking agent to restate a non-date detail that appeared in an earlier turn and get a
+  yes/no *before* calling the tool. The tool description now says to search with what the
+  traveller gave. The description defers to the agent's own rules for the booking path, so the
+  money gate (`book_hotel`'s `confirm=True`, and v7's "never confirm a booking without explicit
+  approval") is untouched — but a shared description and a per-agent prompt can drift again, and
+  only one of them is pinned by a test.
 
 ## Unbuilt fallback
 

@@ -47,7 +47,7 @@ CHANGELOG + pin), `6d1ac3c` (dated-turn graph tests).
   `search_hotels` docstring byte-identical to base (2102 == 2102 bytes), concierge = 16 tools with
   an empty destructive set, `ALL_TOOLS` unchanged. One Minor fixed in `505ed2b`.
 - **Wave 2** — spec pass on both tasks; quality approved on 2.2, `needs_fixes` on 2.1 for one
-  **Important** finding, deliberately deferred (see "Open, deferred by decision" below).
+  **Important** finding, deliberately deferred (see "Closed: the shared `search_hotels` description" below).
 
 ### Impact analysis (2026-09-09, read-only)
 
@@ -149,6 +149,15 @@ question is only for what is genuinely missing, ambiguous, or contradicted later
 that used to forbid touching this text now asserts the new rule instead
 (`test_search_hotels_description_reuses_what_the_traveller_gave`).
 
+The re-review of that commit caught a contradiction it introduced: `app/prompts/booking/v7.md`
+tells the booking agent to restate a non-date detail from an earlier turn and get a single yes/no
+**before it calls the tool** — the opposite of what the shared description now says. Rather than
+weaken a prompt that guards the money path, the description yields to it: *"Where your own
+instructions require confirming a detail before you call a tool — the booking flow does, ahead of
+a reservation — those come first."* Pinned by the same test. `book_hotel`'s `confirm=True` gate and
+booking v7 are untouched; the re-review verified both, and that the anti-guess rule survives at
+both the paragraph and the per-parameter level.
+
 **This change has unit proof and no eval proof.** The OpenAI account ran out of credits before the
 follow-up eval could run: `--capability hotels` and `--capability booking` returned
 `agent_run raised RateLimitError: 429 … You have no credits remaining` on **every** case (0/6 and
@@ -156,6 +165,74 @@ follow-up eval could run: `--capability hotels` and `--capability booking` retur
 it. Every eval figure recorded elsewhere in this SUMMARY was produced before the credits ran out
 and stands unaffected. The two runs to repeat once credits are restored are named in `PLAN.md`
 §6 Status Log.
+
+### Eval acceptance (wave 3, 2026-09-09, k=3, premium + authenticated)
+
+Targeted judged runs inside `api-api-1` after `touch app/main.py`. The three at-risk dateless
+goldens carry `suite: smoke`, which `--suite full` skips, so a second pair of smoke runs covers
+them — a plan gap caught during execution (SC-10 corrected).
+
+| Golden | Before (`eval/baselines/main.json`) | After | Tools called | Note |
+| --- | --- | --- | --- | --- |
+| `hotels-multi_turn-en-01` (#147) | **FAIL** | **PASS** | `browse_hotels`, `resolve_date`, `search_hotels` | the reported defect; oracle fact-check green. The trace is cumulative over both turns: `browse_hotels` is turn 1 ("a hotel in Da Nang", no dates) and `search_hotels` is turn 2 once the dates arrive — exactly the v12 rule, not a stray extra call |
+| `hotels-multi_turn-vi-01` | **FAIL** | **PASS** | `browse_hotels`, `search_hotels` | same two-turn shape: dateless browse on turn 1, dated search on turn 2 |
+| `hotels-happy-en-02` | **FAIL** | FAIL — `reply_language` only | `search_hotels` (single turn) | `flow_match`, `tools_expected`, `oracle_fact_check`, `non_empty_reply` all pass; the reply came back `vi` for an `en` turn = **#148**, unrelated to this change |
+| `hotels-happy-vi-01` | pass | **PASS** | `browse_hotels` | dateless — no regression |
+| `hotels-happy-en-01` | pass | **PASS** | `browse_hotels` | dateless — no regression |
+| `errors-happy-vi-01` | pass | **PASS** | `browse_hotels` | dateless — no regression |
+| `errors-multi_turn-vi-01` | pass | **PASS** | — | dateless, city correction |
+| `errors-ambiguous-en-01` | fail | FAIL — `non_empty_reply` | — | pre-existing HITL empty-draft gap = **#153** |
+| `hotels-happy-vi-02`, `hotels-ambiguous-vi-01`, `hotels-ambiguous-en-01` | pass | **PASS** | | |
+
+### Correctness-review follow-up and the eval churn it caused (2026-09-09)
+
+The branch correctness review found a real gap the new capability exposed:
+`HotelService.check_availability` returns **every** hotel matching city + filters, flagging each
+with `available`, and the model-visible summary counted them all and named "cheapest $X" without
+checking whether that room could be had. Harmless while the concierge could not quote dated
+availability (booking caught it at `book_hotel`); not harmless now.
+
+Fixing it took three attempts, and the eval is what caught the two bad ones:
+
+| Run | Change under test | `hotels` full | What it taught |
+| --- | --- | --- | --- |
+| `gh147-hotels.json` | wave 1–2 as shipped | 5/6 | `hotels-multi_turn-en-01` (#147) passes; only `reply_language` red (#148) |
+| `gh147-hotels-v2.json` | summary rewritten to "N of M have a room free" + a v12 rule to shortlist only available ones | **3/6** | the model narrated its own 4-hotel shortlist as the search result — "4 hotels available at $560" against 24 from $140 — and the oracle read it as a false claim |
+| `gh147-hotels-v3.json` | counts dropped from the summary, v12 rule kept | 4/6 | better, but any availability sentence in the prompt still made the model narrate availability counts |
+| `gh147-hotels-v4.json` | **identical code and prompt to v3** — the intended prompt revert silently did not apply (a failed `cd` in the edit command; caught by the post-review re-check) | **5/6** | `hotels-multi_turn-en-01` **and** `hotels-happy-en-02` both pass |
+
+What actually moved the score was the **tool summary**, not the prompt. v2's "N of M hotels have a
+room free … present only the available ones" gave the model counts to repeat, and it repeated them
+about its own shortlist. v3 removed those counts and kept the short prompt sentence; **v4 ran on
+byte-identical code and prompt and scored 5/6 instead of 4/6**, so that difference is run-to-run
+variance, not a fix. The shipped state keeps both halves: the short v12 sentence (pinned by
+`test_concierge_prompt_never_shortlists_a_sold_out_hotel`) and the deterministic guard in the tool
+output, whose summary is byte-identical to wave 2's whenever every hotel is available.
+
+This correction exists because the re-check caught the record claiming a revert that never
+happened: the commit meant to remove the v12 sentence deleted only its pin test, because a `cd`
+in the edit command failed and took the prompt edit with it. The prompt sentence was present for
+v3 **and** v4 — which is what makes them a clean variance comparison.
+
+**Final state (v4 runs):** `hotels` full 5/6, `hotels` smoke 2/2, `errors` full 5/6. The one red
+is `hotels-multi_turn-vi-01` on `oracle_fact_check`, and only on `available_count` (oracle 3,
+claimed 2) — price, nights, hotel count, flow, tools and language all match. Across the four runs
+a different single golden goes red each time on this same extractor, so treat `oracle_fact_check`
+on the hotel goldens as **flaky at k=3**, not as a signal about this diff. Both #147 goldens have
+passed; `hotels-multi_turn-en-01` passed in the first and last run.
+
+Capability roll-up: `hotels` full 5/6 (83.3%), `errors` full 5/6 (83.3%), both smoke suites 2/2.
+Neither remaining failure is caused by this change.
+
+**The MIN-51 regression did not return.** Every dateless golden still calls `browse_hotels`, and no
+run shows the concierge asking for dates, rooms or guests in order to browse — the failure this
+branch was most exposed to. **Wave 4 (the code-gate fallback) is therefore `skipped — not
+triggered`**; `_base.py` is untouched.
+
+**The deferred wave-2 Important finding did not bite either.** `hotels-multi_turn-en-01` never
+states `rooms`, yet the model called `search_hotels` rather than stopping to ask, so the
+`search_hotels` docstring's "never guess or assume / restate and confirm" clause did not block the
+search on this golden. It stays unedited and the risk stays recorded, not closed.
 
 ### Full judged eval + regression gate (2026-09-09)
 

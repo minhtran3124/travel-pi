@@ -207,7 +207,11 @@ def search_hotels(
     parameter. Values the traveller gave earlier in the conversation are still
     theirs: search with them instead of asking again, and echo them back in your
     reply so they can correct you. Ask only for a value that is genuinely missing,
-    ambiguous, or contradicted by something they said later.
+    ambiguous, or contradicted by something they said later. Where your own
+    instructions require confirming a detail before you call a tool — the booking
+    flow does, ahead of a reservation — those come first; this rule is about not
+    re-asking for what you already have, never about skipping a confirmation you
+    were told to get.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param check_in: Stay start date, YYYY-MM-DD. Must be today or later. For any
