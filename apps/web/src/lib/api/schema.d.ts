@@ -2896,6 +2896,12 @@ export interface components {
              */
             arrival_time: string;
             /**
+             * Passengers
+             * @description Seats booked.
+             * @default 1
+             */
+            passengers: number;
+            /**
              * Passenger Name
              * @description Name on the ticket.
              */
@@ -2922,8 +2928,9 @@ export interface components {
          *       days and routes, so the route+date pin which leg it is).
          *
          *     Provide exactly one of the two — both, or an incomplete set, is a 422. The
-         *     fare is *not* sent by the client — it is taken server-side from the selected
-         *     flight, so the price can't be tampered with.
+         *     fare is *not* sent by the client — it is taken server-side from the
+         *     selected flight and multiplied by ``passengers``, so the price can't be
+         *     tampered with.
          * @example {
          *       "flight_id": "c0a8011e-5b2e-5f7a-9c3d-1f2e3a4b5c6d",
          *       "notes": "Window seat preferred",
@@ -2973,6 +2980,12 @@ export interface components {
              * @example 2026-06-01
              */
             departure_date?: string | null;
+            /**
+             * Passengers
+             * @description Number of seats to book.
+             * @default 1
+             */
+            passengers: number;
             /**
              * Passenger Name
              * @description Full name as printed on the passenger's ID/passport.

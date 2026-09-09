@@ -378,6 +378,7 @@
     "pillCancelled": "Đã hủy",
     "viewBookingAria": "Xem đặt chỗ {code}",
     "departsLabel": "Khởi hành {date}",
+    "seatsCount": "{count, plural, other {# chỗ}}",
     "nightsCount": "{count, plural, other {# đêm}}",
     "roomsGuests": "{rooms, plural, other {# phòng}}, {guests, plural, other {# khách}}",
     "confirmedTotal": "Tổng đã xác nhận",

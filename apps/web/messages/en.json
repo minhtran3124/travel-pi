@@ -378,6 +378,7 @@
     "pillCancelled": "Cancelled",
     "viewBookingAria": "View booking {code}",
     "departsLabel": "Departs {date}",
+    "seatsCount": "{count, plural, one {# seat} other {# seats}}",
     "nightsCount": "{count, plural, one {# night} other {# nights}}",
     "roomsGuests": "{rooms, plural, one {# room} other {# rooms}}, {guests, plural, one {# guest} other {# guests}}",
     "confirmedTotal": "Confirmed total",
