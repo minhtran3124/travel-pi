@@ -15,6 +15,8 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 const NAV_LINKS = [
   { href: "/trips", key: "trips" },
   { href: "/places", key: "places" },
+  { href: "/flights", key: "flights" },
+  { href: "/hotels", key: "hotels" },
   { href: "/bookings", key: "bookings" },
 ] as const;
 

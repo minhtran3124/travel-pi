@@ -214,6 +214,19 @@ export function BudgetTab({ tripId }: { tripId: string }) {
             <Meter value={data.total_spent} max={data.total_cap} />
           ) : null}
         </div>
+
+        <div className="flex flex-col gap-xs border-t border-line pt-sm">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted">{t("totalSpentLabel")}</span>
+            <span className="tabular-nums text-ink">{usd(data.total_spent)}</span>
+          </div>
+          <p className="text-xs text-muted">{t("totalSpentHint")}</p>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted">{t("bookedTotalLabel")}</span>
+            <span className="tabular-nums text-ink">{usd(data.booked_total)}</span>
+          </div>
+          <p className="text-xs text-muted">{t("bookedTotalHint")}</p>
+        </div>
       </Card>
 
       <Modal

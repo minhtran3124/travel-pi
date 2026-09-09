@@ -274,6 +274,7 @@ export interface paths {
          *
          *     :param request: The booking request body.
          *     :param bookings: The booking service.
+         *     :param auth_user: The authenticated caller, stamped as the booking owner.
          *     :param idempotency_key: Optional client-supplied key that makes this
          *         POST replay-safe.
          *     :return: The created (or replayed) booking.
@@ -425,6 +426,7 @@ export interface paths {
          *
          *     :param request: The booking request body.
          *     :param bookings: The booking service.
+         *     :param auth_user: The authenticated caller, stamped as the booking owner.
          *     :param idempotency_key: Optional client-supplied key that makes this
          *         POST replay-safe.
          *     :return: The created (or replayed) booking.
@@ -1047,6 +1049,7 @@ export interface paths {
          *     :param q: Optional case-insensitive match on booking id, confirmation
          *         code, customer name, or email.
          *     :param booking_type: Optional filter by booking type.
+         *     :param trip_id: Optional filter by linked trip id.
          *     :param sort: The sort order to apply.
          *     :return: The matching bookings, sorted and paginated.
          */
@@ -1068,11 +1071,13 @@ export interface paths {
         };
         /**
          * Retrieve a booking by UUID or confirmation code
-         * @description Return a booking by its UUID *or* its friendly confirmation code.
+         * @description Return the caller's booking by its UUID *or* friendly confirmation code.
          *
-         *     Both identifiers are accepted interchangeably; 404 if neither matches.
+         *     Both identifiers are accepted interchangeably; 404 if neither matches a
+         *     booking owned by the caller.
          *
          *     :param bookings: The booking service.
+         *     :param auth_user: The authenticated caller.
          *     :param booking_id: The booking UUID or confirmation code.
          *     :return: The matching booking.
          */
@@ -1096,13 +1101,15 @@ export interface paths {
         put?: never;
         /**
          * Cancel a booking by UUID or confirmation code
-         * @description Cancel a booking and return it with ``status: "cancelled"``.
+         * @description Cancel the caller's booking and return it with ``status: "cancelled"``.
          *
          *     Accepts the UUID or the confirmation code. A soft change — the booking
          *     is kept and still retrievable. Idempotent: cancelling an
-         *     already-cancelled booking is a no-op. 404 if no booking matches.
+         *     already-cancelled booking is a no-op. 404 if no booking owned by the
+         *     caller matches.
          *
          *     :param bookings: The booking service.
+         *     :param auth_user: The authenticated caller.
          *     :param booking_id: The booking UUID or confirmation code.
          *     :return: The cancelled booking.
          */
@@ -1473,7 +1480,7 @@ export interface paths {
          *     :param body: The request body.
          *     :param graph: The compiled LangGraph graph.
          *     :param session: The request-scoped DB session.
-         *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :param auth_user: The authenticated user (a valid Supabase JWT is required).
          *     :param background: FastAPI background-task queue; used to run memory
          *         extraction after the reply is returned, off the request's critical path.
          *     :return: The chat response.
@@ -1502,7 +1509,7 @@ export interface paths {
          *     :param graph: The compiled LangGraph graph.
          *     :param session: The request-scoped DB session (used to create/look up the
          *         conversation and append the user message before streaming begins).
-         *     :param auth_user: The authenticated user, or None for anonymous callers.
+         *     :param auth_user: The authenticated user (a valid Supabase JWT is required).
          *     :return: A streaming response of Server-Sent Events.
          */
         post: operations["agent_stream"];
@@ -1521,16 +1528,15 @@ export interface paths {
         };
         /**
          * List conversations for a user
-         * @description Return all conversations for the given user, newest first.
+         * @description Return all conversations for the authenticated user, newest first.
          *
-         *     When authenticated the JWT sub is used and the ``user_id`` query param is
-         *     ignored (no enumeration of another user's conversations) and not required.
-         *     Anonymous callers must supply ``user_id``. Returns an empty list for an
-         *     unknown user (matches the repo contract).
+         *     Identity is the JWT sub; the ``user_id`` query param is deprecated and
+         *     ignored (no enumeration of another user's conversations). Returns an empty
+         *     list for a user with no conversations (matches the repo contract).
          *
          *     :param session: The request-scoped DB session.
-         *     :param auth_user: The authenticated user, or None for anonymous callers.
-         *     :param user_id: The user id to list conversations for (anonymous callers only).
+         *     :param auth_user: The authenticated user (a valid Supabase JWT is required).
+         *     :param user_id: Deprecated and ignored; identity comes from the JWT.
          *     :return: The user's conversations, newest first.
          */
         get: operations["list_conversations"];
@@ -1553,17 +1559,31 @@ export interface paths {
          * List messages for a conversation
          * @description Return all messages for the given conversation, oldest first.
          *
-         *     Ownership-scoped: the caller must be the conversation's owner. When
-         *     authenticated the JWT sub is used and the ``user_id`` query param is ignored
-         *     (no spoofing); anonymous callers must supply their ``user_id``. Returns an
-         *     empty list for an unknown conversation or one owned by someone else — this
-         *     neither leaks message contents nor confirms a conversation's existence.
+         *     Ownership-scoped: the caller must be the conversation's owner. Identity is
+         *     the JWT sub; the ``user_id`` query param is deprecated and ignored (no
+         *     spoofing). Returns an empty result for an unknown conversation or one owned
+         *     by someone else — this neither leaks message contents nor confirms a
+         *     conversation's existence.
+         *
+         *     Alongside the messages, the response carries any pending HITL interrupt
+         *     state read from the LangGraph checkpoint (``interrupt_pending`` /
+         *     ``interrupt_payload``) so a client hydrating a reloaded conversation can
+         *     re-surface a plan-approval prompt that was awaiting the user. This read is
+         *     best-effort and uses ``GraphOptionalDep``, not ``GraphDep``: the latter
+         *     raises ``UpstreamError`` at dependency-resolution time whenever the graph
+         *     isn't built yet, which would couple this previously graph-independent,
+         *     pure-DB read to agent-runtime availability — including on the early-return
+         *     path below, since FastAPI resolves declared dependencies before the
+         *     function body runs. ``GraphOptionalDep`` returns ``None`` instead, so a
+         *     down or not-yet-built graph degrades to ``interrupt_pending=False`` rather
+         *     than failing the whole message-history read.
          *
          *     :param conversation_id: The conversation to list messages for.
+         *     :param graph: The compiled LangGraph graph, or ``None`` if not available.
          *     :param session: The request-scoped DB session.
-         *     :param auth_user: The authenticated user, or None for anonymous callers.
-         *     :param user_id: The user id claiming ownership (anonymous callers only).
-         *     :return: The conversation's messages, oldest first.
+         *     :param auth_user: The authenticated user (a valid Supabase JWT is required).
+         *     :param user_id: Deprecated and ignored; identity comes from the JWT.
+         *     :return: The conversation's messages plus any pending interrupt state.
          */
         get: operations["list_conversation_messages"];
         put?: never;
@@ -1920,6 +1940,11 @@ export interface components {
              */
             notes?: string | null;
             /**
+             * Trip Id
+             * @description The trip this booking is attached to, if any.
+             */
+            trip_id?: string | null;
+            /**
              * Confirmation Code
              * @description Friendly 6-char PNR-style reference, derived from ``id``.
              */
@@ -2022,9 +2047,9 @@ export interface components {
             message?: string | null;
             /**
              * User Id
-             * @description Caller identity (no auth enforced).
+             * @description Deprecated and ignored: identity is taken from the Supabase JWT (the `sub` claim), never from this field. Kept optional for one release so old clients get 401 rather than 422; will be removed.
              */
-            user_id: string;
+            user_id?: string | null;
             /**
              * Trip Id
              * @description Optional trip context for the agent.
@@ -2061,6 +2086,11 @@ export interface components {
             conversation_id: string;
             /** Reply */
             reply: string;
+            /**
+             * Trip Id
+             * @description The active trip after this turn — echoes the request's trip_id, or a new id when the agent opened one via create_trip. Informational only (e.g. to display or link to the trip) — do NOT resend this as the next request's trip_id just because it changed here: the server derives the LangGraph thread key from the request's trip_id, so echoing a create_trip-opened id back would fork the conversation onto a fresh, empty thread. Only pass an explicit trip_id when the user has actually navigated to that trip's own page; otherwise keep sending whatever this conversation started with (including null) and the server keeps the active trip current on its own.
+             */
+            trip_id?: string | null;
             /** Current Flow */
             current_flow?: string | null;
             /** Suggestions */
@@ -2074,6 +2104,8 @@ export interface components {
             interrupt_payload?: {
                 [key: string]: unknown;
             } | null;
+            /** @description Per-turn token/cost/latency metrics; None when unknown. */
+            usage?: components["schemas"]["TurnUsage"] | null;
         };
         /**
          * City
@@ -2260,6 +2292,26 @@ export interface components {
             created_at: string;
             /** Updated At */
             updated_at: string;
+        };
+        /**
+         * ConversationMessages
+         * @description Messages for a conversation, plus any pending HITL interrupt state.
+         *
+         *     ``interrupt_pending`` / ``interrupt_payload`` mirror the same-named fields
+         *     on ``ChatResponse`` for naming consistency across the API surface.
+         */
+        ConversationMessages: {
+            /** Messages */
+            messages: components["schemas"]["Message"][];
+            /**
+             * Interrupt Pending
+             * @default false
+             */
+            interrupt_pending: boolean;
+            /** Interrupt Payload */
+            interrupt_payload?: {
+                [key: string]: unknown;
+            } | null;
         };
         /**
          * CurrencyConvertResponse
@@ -2844,6 +2896,12 @@ export interface components {
              */
             arrival_time: string;
             /**
+             * Passengers
+             * @description Seats booked.
+             * @default 1
+             */
+            passengers: number;
+            /**
              * Passenger Name
              * @description Name on the ticket.
              */
@@ -2870,8 +2928,9 @@ export interface components {
          *       days and routes, so the route+date pin which leg it is).
          *
          *     Provide exactly one of the two — both, or an incomplete set, is a 422. The
-         *     fare is *not* sent by the client — it is taken server-side from the selected
-         *     flight, so the price can't be tampered with.
+         *     fare is *not* sent by the client — it is taken server-side from the
+         *     selected flight and multiplied by ``passengers``, so the price can't be
+         *     tampered with.
          * @example {
          *       "flight_id": "c0a8011e-5b2e-5f7a-9c3d-1f2e3a4b5c6d",
          *       "notes": "Window seat preferred",
@@ -2922,6 +2981,12 @@ export interface components {
              */
             departure_date?: string | null;
             /**
+             * Passengers
+             * @description Number of seats to book.
+             * @default 1
+             */
+            passengers: number;
+            /**
              * Passenger Name
              * @description Full name as printed on the passenger's ID/passport.
              * @example Nguyen Van A
@@ -2946,6 +3011,11 @@ export interface components {
              * @example Window seat preferred
              */
             notes?: string | null;
+            /**
+             * Trip Id
+             * @description Attach this booking to a trip you own (from POST /trips). Optional; a trip_id you do not own is refused with 404.
+             */
+            trip_id?: string | null;
         };
         /**
          * FlightSearchInfo
@@ -3584,6 +3654,11 @@ export interface components {
              * @example Late arrival ~22:00
              */
             notes?: string | null;
+            /**
+             * Trip Id
+             * @description Attach this booking to a trip you own (from POST /trips). Optional; a trip_id you do not own is refused with 404.
+             */
+            trip_id?: string | null;
         };
         /**
          * HotelListResponse
@@ -4694,6 +4769,11 @@ export interface components {
              */
             total_spent: number;
             /**
+             * Booked Total
+             * @description Sum of every non-cancelled booking carrying this trip's trip_id, counted once each — independent of total_spent, which walks itinerary items instead (an unreferenced booking contributes nothing there; a booking referenced by two items counts twice).
+             */
+            booked_total: number;
+            /**
              * Total Remaining
              * @description total_cap - total_spent (USD); null when no cap is set.
              */
@@ -5153,6 +5233,28 @@ export interface components {
             notes?: string | null;
         };
         /**
+         * TurnUsage
+         * @description Per-turn token / cost / latency metrics for one agent reply.
+         */
+        TurnUsage: {
+            /** Input Tokens */
+            input_tokens: number;
+            /** Output Tokens */
+            output_tokens: number;
+            /** Cached Tokens */
+            cached_tokens: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Llm Calls */
+            llm_calls: number;
+            /** Latency Ms */
+            latency_ms?: number | null;
+            /** Cost Usd */
+            cost_usd?: number | null;
+            /** Models */
+            models?: string[];
+        };
+        /**
          * UserTierResponse
          * @description Response confirming the persisted tier for a user.
          */
@@ -5608,6 +5710,15 @@ export interface operations {
                     "application/json": components["schemas"]["Booking"];
                 };
             };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Resource not found */
             404: {
                 headers: {
@@ -5822,6 +5933,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Booking"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Resource not found */
@@ -6785,6 +6905,8 @@ export interface operations {
                 q?: string | null;
                 /** @description Filter by booking type */
                 type?: components["schemas"]["BookingType"] | null;
+                /** @description Filter by linked trip id */
+                trip_id?: string | null;
                 /** @description Sort order — Swagger renders the dropdown. */
                 sort?: components["schemas"]["BookingSort"];
                 /** @description Page size (1-500, default 20) */
@@ -7935,7 +8057,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Message"][];
+                    "application/json": components["schemas"]["ConversationMessages"];
                 };
             };
             /** @description Request validation failed */

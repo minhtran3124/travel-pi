@@ -112,3 +112,40 @@ def test_system_with_summary_empty_profile_unchanged():
 
     base = SystemMessage(content="BASE")
     assert system_with_summary({"profile": ""}, base) is base
+
+
+def test_account_email_field_in_state_schema():
+    from app.agents.state import TravelAgentState
+
+    assert "account_email" in TravelAgentState.__annotations__
+
+
+def test_system_with_summary_folds_account_email():
+    """close-product-loop-s1-booking-ui: the signed-in account email must reach
+    the leading system message so the model can offer/confirm it for booking."""
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    combined = system_with_summary({"account_email": "traveller@example.com"}, base)
+    assert "Signed-in account email:" in combined.content
+    assert "traveller@example.com" in combined.content
+    assert "BASE" in combined.content
+
+
+def test_system_with_summary_account_email_after_profile():
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    combined = system_with_summary(
+        {"profile": "- Name: Minh", "account_email": "minh@example.com"}, base
+    )
+    c = combined.content
+    assert c.index("Traveller profile:") < c.index("Signed-in account email:")
+
+
+def test_system_with_summary_no_account_email_unchanged():
+    """An anonymous caller (no account email) must not change the base prompt."""
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    assert system_with_summary({"account_email": None}, base) is base

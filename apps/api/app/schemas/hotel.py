@@ -228,6 +228,13 @@ class HotelBookingRequest(AppBaseModel):
         description="Free-form note for the hotel — e.g. arrival time, bed preference.",
         examples=["Late arrival ~22:00"],
     )
+    trip_id: str | None = Field(
+        default=None,
+        description=(
+            "Attach this booking to a trip you own (from POST /trips). "
+            "Optional; a trip_id you do not own is refused with 404."
+        ),
+    )
 
     @field_validator("check_in", "check_out")
     @classmethod

@@ -17,9 +17,12 @@ from typing import Annotated
 import jwt
 from fastapi import Depends, Request
 from jwt import PyJWKClient
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.exceptions import AuthError
+from app.db.session import get_session
+from app.enums import Tier
+from app.exceptions import AuthError, PremiumRequiredError
 
 logger = logging.getLogger(__name__)
 
@@ -145,3 +148,30 @@ def get_current_user_optional(request: Request) -> AuthUser | None:
 # Routers depend on these; tests override via ``app.dependency_overrides``.
 CurrentUserDep = Annotated[AuthUser, Depends(get_current_user)]
 OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]
+
+# Module-level Depends aliases so FastAPI resolves them correctly under
+# Python 3.14's deferred annotations (mirrors app.core.rate_limit).
+_SessionDep = Annotated[Session, Depends(get_session)]
+
+
+def require_premium(session: _SessionDep, auth_user: CurrentUserDep) -> None:
+    """Raise :class:`PremiumRequiredError` (403) unless the caller is premium.
+
+    Reads the tier via :class:`~app.repositories.user.UserRepository` — never
+    from the request body/header — and falls back to ``Tier.FREE`` on an
+    unknown stored value, matching ``app.agents.context.resolve_agent_context``.
+
+    :param session: The request-scoped session.
+    :param auth_user: The authenticated caller.
+    """
+    from app.repositories.user import UserRepository
+
+    raw_tier = UserRepository(session).get_tier(auth_user.id)
+    try:
+        tier = Tier(raw_tier)
+    except ValueError:
+        tier = Tier.FREE
+    if tier != Tier.PREMIUM:
+        raise PremiumRequiredError(
+            hint="Upgrade to premium to book flights and hotels."
+        )

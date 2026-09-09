@@ -1,8 +1,10 @@
-"""PII guardrail tests (specs/pii-middleware-guardrail).
+"""PII guardrail tests (specs/pii-middleware-guardrail, close-product-loop-s1-booking-ui).
 
 Covers the pure ``redact_pii`` function and the ``pii_guardrail_node`` in-place
-replacement. Scope is email + credit card only; names and phones are asserted
-UNTOUCHED (names are owned by MIN-53's post-response extractor).
+replacement. Scope is credit card only; names, phones, and email are asserted
+UNTOUCHED (names are owned by MIN-53's post-response extractor; email is no
+longer redacted — product decision, booking now offers/confirms the account
+email instead of asking blind, and needs the real address to reach the model).
 """
 
 from app.agents.guardrails import pii_guardrail_node, redact_pii
@@ -17,10 +19,10 @@ VALID_CARD = "4111 1111 1111 1111"
 # ---------------------------------------------------------------------------
 
 
-def test_redacts_email():
-    assert redact_pii("reach me at john.doe@example.com please") == (
-        "reach me at [REDACTED_EMAIL] please"
-    )
+def test_does_not_redact_email():
+    # Product decision: email must survive so the model/booking tools see it.
+    text = "reach me at john.doe@example.com please"
+    assert redact_pii(text) == text
 
 
 def test_masks_valid_card_keeping_last4():
@@ -67,11 +69,11 @@ def test_plain_text_and_empty_unchanged():
     assert redact_pii("") == ""
 
 
-def test_email_and_card_together():
+def test_email_survives_card_still_masked():
     out = redact_pii(f"mail a@b.co card {VALID_CARD}")
-    assert "a@b.co" not in out
+    assert "a@b.co" in out
     assert VALID_CARD not in out
-    assert "[REDACTED_EMAIL]" in out and "****-****-****-1111" in out
+    assert "****-****-****-1111" in out
 
 
 # ---------------------------------------------------------------------------
@@ -80,10 +82,16 @@ def test_email_and_card_together():
 
 
 def test_node_replaces_latest_human_in_place():
-    original = HumanMessage(content="email me at a@b.com", id="m-1")
+    original = HumanMessage(content=f"card {VALID_CARD}", id="m-1")
     out = pii_guardrail_node({"messages": [original]})
     assert out["messages"][0].id == "m-1", "must reuse id so add_messages replaces"
-    assert out["messages"][0].content == "email me at [REDACTED_EMAIL]"
+    assert out["messages"][0].content == "card ****-****-****-1111"
+
+
+def test_node_noop_on_email_only():
+    # Email is no longer PII to the guardrail — no card present, so no-op.
+    out = pii_guardrail_node({"messages": [HumanMessage(content="a@b.com", id="m-1")]})
+    assert out == {}
 
 
 def test_node_noop_when_no_pii():
@@ -98,18 +106,22 @@ def test_node_noop_when_no_human_message():
 
 def test_node_noop_when_no_id():
     # No id → can't replace in place via add_messages; must no-op, not append.
-    out = pii_guardrail_node({"messages": [HumanMessage(content="a@b.com", id=None)]})
+    out = pii_guardrail_node(
+        {"messages": [HumanMessage(content=f"card {VALID_CARD}", id=None)]}
+    )
     assert out == {}
 
 
 def test_node_noop_on_multimodal_content():
     # List (multimodal) content is out of scope; guard must no-op, not crash.
-    multimodal = HumanMessage(content=[{"type": "text", "text": "a@b.com"}], id="m-1")
+    multimodal = HumanMessage(
+        content=[{"type": "text", "text": VALID_CARD}], id="m-1"
+    )
     assert pii_guardrail_node({"messages": [multimodal]}) == {}
 
 
 def test_node_preserves_message_fields():
-    original = HumanMessage(content="mail a@b.com", id="m-1", name="user-42")
+    original = HumanMessage(content=f"card {VALID_CARD}", id="m-1", name="user-42")
     out = pii_guardrail_node({"messages": [original]})
     assert out["messages"][0].name == "user-42"
 

@@ -29,6 +29,7 @@ def _row_to_booking(row: models.Booking) -> Booking:
         created_at=row.created_at,
         details=details,
         notes=row.notes,
+        trip_id=row.trip_id,
     )
 
 
@@ -198,6 +199,7 @@ class BookingRepository(Repo):
             notes=booking.notes,
             idempotency_key=idempotency_key,
             confirmation_code=booking.confirmation_code,
+            trip_id=booking.trip_id,
         )
         try:
             with self._session() as s:

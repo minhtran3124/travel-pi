@@ -3,6 +3,53 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## close-product-loop-s1-booking-ui — booking can now book more than one seat
+
+`BookFlightArgs`/`book_flight` gained a model-supplied `passengers` argument (Task 1.1
+already made `FlightBookingRequest`/`BookingService.book_flight` price and record it) —
+but nothing told the assistant to use it, so every flight booking still defaulted to
+one seat regardless of what the traveller asked for.
+
+- **booking v10** — copied v9; added "How to Work" step 6: ask the traveller for the
+  passenger count and pass it to `book_flight` as `passengers`, with one booking
+  covering all of them rather than one call per traveller. The "No default-with-confirm"
+  guardrail already listed "party size" among the values that must come from the
+  traveller — this makes that rule reachable, not new.
+
+`active.yaml`: booking → 10.
+
+## close-product-loop-s1-booking-ui — booking can now identify the flight
+
+Second blocker on the same path, found by browser UAT. With the email fixed, the
+assistant searched, was approved, called `book_flight` with `flight_id='VN407'` and
+got back an invalid reference. It was not the model guessing: `search_flights`
+reports flights to the model by **flight number only** — the `id` goes to the
+Flights panel and never reaches the model — so the number was the only handle it
+had, and `flight_id` was the wrong field for it.
+
+- **booking v9** — copied v8; added "How to Work" step 5: never put a flight number
+  in `flight_id`, and book by `flight_number` + `origin` + `destination` +
+  `departure_date` instead, which the tool already accepts and the assistant already
+  knows from the search it just ran.
+
+## close-product-loop-s1-booking-ui — booking can now collect an email at all
+
+Booking through the chatbot could never complete: email was redacted before any model
+call, and the booking tools require one. Product decision: email is no longer treated
+as PII to redact — the assistant offers the traveller's signed-in account email and
+asks them to confirm it (or give a different one), rather than asking blind.
+
+- **booking v8** — copied v7; added "How to Work" step 4 (offer-and-confirm the
+  signed-in account email, or ask directly if none is present) and carved out email
+  as the one exception to the "No default-with-confirm" guardrail. Name, phone,
+  dates, party size and `confirm=True` keep the existing no-default rule unchanged.
+- **code half** — `app/agents/guardrails.py`'s `redact_pii` no longer masks email
+  (credit-card masking unchanged); `TravelAgentState.account_email` carries the
+  signed-in caller's email (from `AuthUser.email`, set in `_turn_input`) into the
+  leading system message via `system_with_summary`.
+
+`active.yaml`: booking → 8.
+
 ## gh-156-flight-search-before-create-trip — planner searches first; a bare search never opens a trip
 
 - **planner v13** — copied v12; added four edits: the Responsibilities bullet and "How to Work"

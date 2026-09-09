@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { BookingsTab } from "@/components/trips/bookings/BookingsTab";
 import { BudgetTab } from "@/components/trips/budget/BudgetTab";
 import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
@@ -24,6 +25,7 @@ export default function TripDetailPage() {
     { id: "itinerary", label: t("tabs.itinerary") },
     { id: "budget", label: t("tabs.budget") },
     { id: "expenses", label: t("tabs.expenses") },
+    { id: "bookings", label: t("tabs.bookings") },
     { id: "shortlist", label: t("tabs.shortlist") },
   ];
 
@@ -54,6 +56,7 @@ export default function TripDetailPage() {
         {activeTab === "itinerary" ? <ItineraryTab tripId={tripId} /> : null}
         {activeTab === "budget" ? <BudgetTab tripId={tripId} /> : null}
         {activeTab === "expenses" ? <ExpensesTab tripId={tripId} /> : null}
+        {activeTab === "bookings" ? <BookingsTab tripId={tripId} /> : null}
         {activeTab === "shortlist" ? <ShortlistTab tripId={tripId} /> : null}
       </div>
     </div>

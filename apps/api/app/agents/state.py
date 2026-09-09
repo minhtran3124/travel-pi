@@ -93,6 +93,10 @@ class TravelAgentState(MessagesState):
     profile: (
         str  # personalization block (name/gender/travel-group); injected at model call
     )
+    account_email: (
+        str | None
+    )  # signed-in account's email (None if anonymous); lets the assistant offer
+    # and confirm it for booking instead of asking blind (close-product-loop-s1-booking-ui)
     plan_approved: bool  # P2: HITL plan-approval signal → episode outcome="approved"
     trip_facts: Annotated[
         dict, merge_trip_facts
@@ -112,8 +116,8 @@ class TravelAgentState(MessagesState):
 
 
 def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemMessage:
-    """Fold ``profile``, ``instructions``, ``trip_context``, ``summary``, ``trip_facts``
-    and ``preferences`` into one leading system prompt.
+    """Fold ``profile``, ``account_email``, ``instructions``, ``trip_context``,
+    ``summary``, ``trip_facts`` and ``preferences`` into one leading system prompt.
 
     REVIEW.md C2: the rolling ``summary`` must be re-injected after compression.
     REVIEW.md M2: the trip-context snapshot must appear *before* the HumanMessage,
@@ -121,24 +125,28 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     it *after* the HumanMessage and upset Anthropic's single-system-message rule).
 
     The traveller ``profile`` is folded first — before instructions — so name/gender
-    carry the most weight for address/tone. Procedural instructions (per-user
-    standing directives) are folded before the summary so they carry the most weight.
-    ``trip_facts`` and ``preferences`` (MIN-65 DESIGN D1/D2) are folded last, after
-    the summary — they are per-turn/derived context, lower priority than the four
-    standing fields above.
+    carry the most weight for address/tone. ``account_email`` (close-product-loop-s1
+    -booking-ui) is folded right after it, in the same style, so the assistant can
+    *name* the signed-in address when offering it for a booking rather than asking
+    blind. Procedural instructions (per-user standing directives) are folded before
+    the summary so they carry the most weight. ``trip_facts`` and ``preferences``
+    (MIN-65 DESIGN D1/D2) are folded last, after the summary — they are per-turn/
+    derived context, lower priority than the standing fields above.
 
-    :param state: The current graph state, read for ``profile``, ``instructions``,
-        ``trip_context``, ``summary``, ``trip_facts`` and ``preferences``.
+    :param state: The current graph state, read for ``profile``, ``account_email``,
+        ``instructions``, ``trip_context``, ``summary``, ``trip_facts`` and
+        ``preferences``.
     :param base: The base system message to fold the extra context into.
-    :return: ``base`` unchanged when none of the six fields are set, else one
-        ``SystemMessage`` combining base + profile + instructions + trip_context +
-        summary + trip_facts + preferences — a single leading system message keeps
-        providers that reject mid-stream/multiple system messages happy.
+    :return: ``base`` unchanged when none of the seven fields are set, else one
+        ``SystemMessage`` combining base + profile + account_email + instructions +
+        trip_context + summary + trip_facts + preferences — a single leading system
+        message keeps providers that reject mid-stream/multiple system messages happy.
     """
     trip_context = state.get("trip_context")
     summary = state.get("summary")
     instructions = state.get("instructions")
     profile = state.get("profile")
+    account_email = state.get("account_email")
     trip_facts = state.get("trip_facts")
     preferences = state.get("preferences")
     if (
@@ -146,6 +154,7 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
         and not summary
         and not instructions
         and not profile
+        and not account_email
         and not trip_facts
         and not preferences
     ):
@@ -153,6 +162,8 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     parts = [base.content]
     if profile:
         parts.append(f"Traveller profile:\n{profile}")
+    if account_email:
+        parts.append(f"Signed-in account email:\n{account_email}")
     if instructions:
         parts.append(f"Standing traveller instructions:\n{instructions}")
     if trip_context:

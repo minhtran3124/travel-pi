@@ -148,8 +148,9 @@ class FlightBookingRequest(AppBaseModel):
       days and routes, so the route+date pin which leg it is).
 
     Provide exactly one of the two — both, or an incomplete set, is a 422. The
-    fare is *not* sent by the client — it is taken server-side from the selected
-    flight, so the price can't be tampered with.
+    fare is *not* sent by the client — it is taken server-side from the
+    selected flight and multiplied by ``passengers``, so the price can't be
+    tampered with.
     """
 
     flight_id: str | None = Field(
@@ -181,6 +182,7 @@ class FlightBookingRequest(AppBaseModel):
         description="Departure date in YYYY-MM-DD.",
         examples=["2026-06-01"],
     )
+    passengers: int = Field(default=1, ge=1, description="Number of seats to book.")
     passenger_name: str = Field(
         description="Full name as printed on the passenger's ID/passport.",
         examples=["Nguyen Van A"],
@@ -200,6 +202,13 @@ class FlightBookingRequest(AppBaseModel):
             "request. Optional."
         ),
         examples=["Window seat preferred"],
+    )
+    trip_id: str | None = Field(
+        default=None,
+        description=(
+            "Attach this booking to a trip you own (from POST /trips). "
+            "Optional; a trip_id you do not own is refused with 404."
+        ),
     )
 
     @field_validator("departure_date")
