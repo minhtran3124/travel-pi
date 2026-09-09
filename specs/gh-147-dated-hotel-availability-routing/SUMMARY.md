@@ -179,8 +179,42 @@ The golden flips at roughly the same rate with and without the change, with an i
 signature on both sides — so it is pre-existing flakiness on that golden, not a regression this
 edit introduced. Mechanically that also fits: the edit *removed* a reason to ask and added none.
 
-So the shared-description change now has eval coverage on both capabilities that read it, and
-neither moved.
+**The planner path, measured on request (2026-09-09, after the `main` merge).** The third agent
+that reads this description was the one gap left; it is now closed:
+
+| Capability | Baseline | Now | Reading |
+| --- | --- | --- | --- |
+| `flight_search` | 83.3% | **6/6 = 100.0%** | zero failures; `flight_search-ambiguous-en-01`, red in the baseline, passes |
+| `routing` | 88.2% | **15/17, 16/17, 15/17** across three runs | at or above baseline every time |
+
+`routing`'s failing *set* shifted even though its rate did not: `routing-multi-en-04` ("Plan
+everything for a Tokyo weekend: flights, **a hotel**, places to see, the weather, local tips…",
+expecting a planner + concierge fan-out) went red, while `routing-multi_turn-en-01` (#155's
+crash) went green. Because that golden mentions a hotel, it was isolated rather than reasoned
+about: **the `search_hotels` paragraph alone was reverted on top of the same HEAD** and `routing`
+re-run twice.
+
+| State | Runs | `routing-multi-en-04` |
+| --- | --- | --- |
+| branch HEAD (with the edit) | 3 | red, red, red |
+| HEAD with **only that paragraph reverted** | 2 | red, green |
+
+It is red on both sides, so the edit did not cause it.
+
+**Correction.** This was first written up here as a stale golden, on the strength of its `notes`
+("re-derived from supervisor **v10** … re-derive here if the v10 prompt changes") and the fact
+that the supervisor is now v11. That reading was wrong, and reading the prompt rather than the
+note is what showed it. Supervisor v11 §3 states **both** halves: a chain inside one specialist's
+toolset goes to that specialist alone, **and** "Only add a `plan` step for a genuinely INDEPENDENT
+extra a single specialist cannot do itself (e.g. **local tips** / travel knowledge → concierge)".
+The golden's input is the prompt's own example *plus local tips* — exactly the carve-out — so
+`["planner", "concierge"]` is what v11 asks for and the agent is dropping the exception. That
+paragraph is also **byte-identical between v10 and v11**, so the version bump changed nothing the
+golden depended on. It is an agent defect, not staleness, and it is now **#173** — same surface as
+#149, which is the opposite failure on the same fan-out decision. Still not caused by this branch.
+
+So the shared-description change now has eval coverage on **all three** agents that read it —
+concierge (`hotels`), booking (`booking`), planner (`flight_search`, `routing`) — and none moved.
 
 ### Eval acceptance (wave 3, 2026-09-09, k=3, premium + authenticated)
 
@@ -357,9 +391,9 @@ The full BE suite and `make eval-check` run at delivery, not here.
   run at delivery.
 - **The UAT ran against local Docker + a signed-in `e2e-test` account**, one pass, not k=3 — it
   is a demonstration that the path works end to end in the browser, not a statistical claim.
-- **Task 6.1's shared-docstring change was measured on hotels and booking, not on the planner.**
-  `flight_search` and `routing` goldens exercise the planner but were not re-run after the edit;
-  the planner's use of `search_hotels` is reasoned, not measured.
+- **`routing-multi-en-04` is a real agent defect, filed as #173** — the supervisor drops the
+  local-tips fan-out that v11 §3 explicitly carves out. Proven not to come from this branch (red
+  with and without the edited paragraph), but the fix is not attempted here.
 - **`hotels-happy-en-01` is flaky on both sides of the edit** (1 fail in 3 control runs, 2 in 4
   branch runs). Those are small samples — enough to say the change did not cause it, not enough to
   quantify the rate.
