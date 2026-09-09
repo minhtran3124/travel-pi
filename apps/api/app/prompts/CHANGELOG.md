@@ -12,9 +12,12 @@ rollback / A-B. Newest first.
 - **concierge v12, correctness-review follow-up** — the shortlist rule adds one sentence: never
   shortlist a hotel the tool marked as having no free room, and say so plainly when none is
   available for those dates.
-- **code half** (Tasks 1.1–1.2 + the review follow-up) — registry binding, `browse_hotels`
-  description, and an availability-aware `search_hotels` summary (it named the cheapest hotel
-  from every match, including sold-out ones).
+- **code half** (Tasks 1.1–1.2 + the review follow-ups) — registry binding, `browse_hotels`
+  description, an availability-aware `search_hotels` summary (it named the cheapest hotel from
+  every match, including sold-out ones), and the shared `search_hotels` description: values the
+  traveller gave earlier are reused instead of restated for confirmation, while "never guess or
+  assume a value the traveller has not given" stays. That description is read by the planner and
+  booking agents too.
 
 `active.yaml`: concierge → 12.
 

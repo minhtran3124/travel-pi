@@ -124,6 +124,25 @@ stayed red but only on `reply_language` (pre-existing #148, unrelated — `flow_
 did not return, **wave 4's code-gate fallback was skipped — not triggered**; `_base.py` is
 untouched.
 
+## Closed later the same day — the shared description
+
+`search_hotels`' docstring is read by the planner and booking agents as well as the concierge, so
+it was left untouched while the branch was measured. It said any value that "only appeared earlier
+in the conversation" must be restated and confirmed before searching — which is every multi-turn
+hotel conversation, and a round-trip the concierge now pays for. The user authorized the change
+after the branch shipped: the anti-hallucination half stays ("never guess or assume a value the
+traveller has not given"), the confirmation round-trip becomes "search with what they gave, echo
+it back so they can correct you, ask only for what is genuinely missing, ambiguous, or
+contradicted later."
+
+The general point: **a tool description shared by several agents is a shared prompt.** Deferring
+the edit until there was evidence was right; leaving it forever because it was shared would have
+left two agents arguing with each other in the model's context.
+
+Caveat worth carrying: this edit has a unit pin and **no eval proof** — the OpenAI account ran out
+of credits before `--capability hotels` / `--capability booking` could run (every case returned a
+429). Re-measure before trusting it in the planner and booking paths.
+
 ## Still open — not solved, unclosed by decision
 
 `search_hotels`'s docstring is shared with the planner and booking agents and was deliberately
