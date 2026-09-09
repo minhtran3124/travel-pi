@@ -18,6 +18,17 @@ from mcp.types import ToolAnnotations
 
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 
+# Tools excluded from the MCP surface by name (beyond the structural skips
+# below). `build_mcp_server` registers `tool.func`, and FastMCP derives the
+# served input schema from the RAW signature — the `InjectedState` annotation is
+# invisible to it, so an injected `user_id` becomes an ordinary caller-supplied
+# argument. That surface is unauthenticated (standalone `python -m
+# app.mcp.server`, not mounted in `main.py`). Every other read tool shares this,
+# but they also need a guessed trip UUID; `list_trips` would need only a
+# `user_id` to dump a user's whole trip inventory
+# (specs/gh-166-list-trips-tool E003-B).
+_MCP_EXCLUDED_BY_NAME = {"list_trips"}
+
 
 def build_mcp_server(name: str = "travel-pi") -> FastMCP:
     """Build a FastMCP server exposing the registry tools.
@@ -48,6 +59,10 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         # closed, act without an authorization boundary. Keep destructive actions
         # to the in-agent HITL path only (specs/review-a-security-hardening E004).
         if meta["destructive"]:
+            continue
+        # Read tools whose only argument would be a caller-supplied `user_id`
+        # (see _MCP_EXCLUDED_BY_NAME above).
+        if tool.name in _MCP_EXCLUDED_BY_NAME:
             continue
         server.add_tool(
             fn,

@@ -311,12 +311,79 @@ def add_itinerary_item(
             raise ToolException(str(e)) from e
 
 
+@tool
+def list_trips(
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trips' owner. Injected from graph state (#118)."),
+    ] = None,
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip that is currently open, if any."),
+    ] = None,
+) -> dict:
+    """List every trip the traveller has, newest first, with a total count.
+
+    This is the only way to know how many trips the traveller has, or what they
+    are called. The trip context in the system prompt names the ONE trip
+    currently open — it says nothing about how many exist — so never count or
+    list trips from it. Call this tool to answer "how many trips do I have",
+    "list my trips", or whenever the traveller names a trip that is not the
+    open one.
+
+    Each entry carries ``title``, ``city``, ``start_date``, ``end_date``,
+    ``travelers``, ``items`` (the number of itinerary items) and ``is_active``
+    (true for the trip currently open). Having no trip open is normal here and
+    is not an error: every ``is_active`` is then false.
+
+    :param trip_id: The trip that is currently open. Injected from graph state
+        on the LangGraph agent path (not model-supplied there); optional, and
+        used only to mark which entry is the open one.
+    :return: ``{"count": <int>, "trips": [...]}`` — the trips, newest first.
+    """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    log_tool_call("list_trips", {"trip_id": trip_id})
+    with session_scope() as s:
+        try:
+            trips = TripService(s, user_id).list_trips()
+        except AppError as e:
+            raise tool_error(e) from e
+    entries = []
+    for trip in trips:
+        # Project from dump() (model_dump(mode="json")) rather than the model's
+        # attributes: that is what turns the date fields into strings, so the
+        # payload stays JSON-serialisable into the graph checkpoint. No `id` is
+        # emitted (nothing consumes one, and the prompts forbid showing it), and
+        # `items` is the count — the repo attaches every item, which would flood
+        # the model's context.
+        d = dump(trip)
+        entries.append(
+            {
+                "title": d["title"],
+                "city": d["city"],
+                "start_date": d["start_date"],
+                "end_date": d["end_date"],
+                "travelers": d["travelers"],
+                "items": len(d["items"]),
+                "is_active": d["id"] == trip_id,
+            }
+        )
+    return {"count": len(entries), "trips": entries}
+
+
 TRIP_TOOLS = [
     get_trip_summary,
     get_trip_budget,
     list_trip_places,
     add_place_to_trip,
     add_itinerary_item,
+    list_trips,
 ]
 
 
