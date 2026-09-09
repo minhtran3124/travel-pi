@@ -22,6 +22,17 @@
     "notes": "No trip_id in a single-shot eval context — expected_tools intentionally unset; agent may ask which trip before add_itinerary_item."
   },
   {
+    "id": "journal-happy-en-02",
+    "capability": "journal",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "how many trips do I have?",
+    "expected_tools": ["list_trips"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "gh-166: the eval runner hardcodes user_id = \"eval\" and seeds no trips, so this golden proves routing and tool selection (list_trips is called), not the count the agent reports. expected_flow is filled from an observed run in a later task."
+  },
+  {
     "id": "journal-ambiguous-vi-01",
     "capability": "journal",
     "scenario": "ambiguous",
@@ -29,8 +40,9 @@
     "suite": "full",
     "input": "Cho tôi xem lịch trình chuyến đi Đà Lạt của tôi",
     "expected_flow": "journal",
-    "metrics": ["flow_match", "reply_language"],
-    "notes": "No trip_id given — ambiguous which trip outside a live session. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#150"
+    "expected_tools": ["list_trips"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "No trip_id given — ambiguous which trip outside a live session. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#150 | gh-166: the eval runner hardcodes user_id = \"eval\" and seeds no trips, so expected_tools proves the naming trigger reaches list_trips, not the count; #150 is unchanged by this work."
   },
   {
     "id": "journal-ambiguous-en-01",
