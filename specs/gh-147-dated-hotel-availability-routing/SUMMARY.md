@@ -158,13 +158,29 @@ a reservation — those come first."* Pinned by the same test. `book_hotel`'s `c
 booking v7 are untouched; the re-review verified both, and that the anti-guess rule survives at
 both the paragraph and the per-parameter level.
 
-**This change has unit proof and no eval proof.** The OpenAI account ran out of credits before the
-follow-up eval could run: `--capability hotels` and `--capability booking` returned
-`agent_run raised RateLimitError: 429 … You have no credits remaining` on **every** case (0/6 and
-0/8). That is an environment failure, not a measurement — nothing about the agent was learned from
-it. Every eval figure recorded elsewhere in this SUMMARY was produced before the credits ran out
-and stands unaffected. The two runs to repeat once credits are restored are named in `PLAN.md`
-§6 Status Log.
+**Eval coverage (2026-09-09, after the account was topped up).** The first attempt returned
+`RateLimitError: 429 … no credits remaining` on every case (0/6, 0/8) — an environment failure, not
+a measurement, and the empty reports were discarded. Re-run once credits were restored:
+
+| Run | Result | Reading |
+| --- | --- | --- |
+| `gh147-hotels-v6.json` | **hotels 5/6 (83.3%)** | same rate as before the change. The one red is `hotels-multi_turn-en-01` on `reply_language` (vi for an en turn = #148) plus the shortlist-count claim — both already-tracked flakiness |
+| `gh147-booking-v6.json` | **booking 6/8 (75.0%)** | **exactly the committed baseline's booking rate.** The two reds are `booking-ambiguous-vi-01` / `-en-01` on `non_empty_reply`, the HITL empty-draft gap = #153, red in the baseline too. The agent that most needed protecting from this edit is unmoved |
+| `gh147-hotels-smoke-v6.json` | hotels smoke 1/2 | `hotels-happy-en-01` called `needs_clarification` instead of `browse_hotels` — the interrogation failure mode this branch guards against |
+
+That last one was worth chasing rather than waving away, so it was measured on both sides:
+
+| Commit | Runs | `hotels-happy-en-01` |
+| --- | --- | --- |
+| **`2989de9`** (before the docstring edit) | 3 | pass, pass, **fail** (`flow_match` concierge→planner + `needs_clarification`) |
+| **branch HEAD** (after it) | 4 | **fail**, pass, pass, **fail** (same mode) |
+
+The golden flips at roughly the same rate with and without the change, with an identical failure
+signature on both sides — so it is pre-existing flakiness on that golden, not a regression this
+edit introduced. Mechanically that also fits: the edit *removed* a reason to ask and added none.
+
+So the shared-description change now has eval coverage on both capabilities that read it, and
+neither moved.
 
 ### Eval acceptance (wave 3, 2026-09-09, k=3, premium + authenticated)
 
@@ -341,9 +357,12 @@ The full BE suite and `make eval-check` run at delivery, not here.
   run at delivery.
 - **The UAT ran against local Docker + a signed-in `e2e-test` account**, one pass, not k=3 — it
   is a demonstration that the path works end to end in the browser, not a statistical claim.
-- **Task 6.1's shared-docstring change is unit-pinned only.** No eval or UAT ran against it
-  (out of API credits). Its effect on the planner and booking agents in particular is reasoned,
-  not measured.
+- **Task 6.1's shared-docstring change was measured on hotels and booking, not on the planner.**
+  `flight_search` and `routing` goldens exercise the planner but were not re-run after the edit;
+  the planner's use of `search_hotels` is reasoned, not measured.
+- **`hotels-happy-en-01` is flaky on both sides of the edit** (1 fail in 3 control runs, 2 in 4
+  branch runs). Those are small samples — enough to say the change did not cause it, not enough to
+  quantify the rate.
 
 ### Rollback
 

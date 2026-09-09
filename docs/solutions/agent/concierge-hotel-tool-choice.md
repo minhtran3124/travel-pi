@@ -139,9 +139,12 @@ The general point: **a tool description shared by several agents is a shared pro
 the edit until there was evidence was right; leaving it forever because it was shared would have
 left two agents arguing with each other in the model's context.
 
-Caveat worth carrying: this edit has a unit pin and **no eval proof** — the OpenAI account ran out
-of credits before `--capability hotels` / `--capability booking` could run (every case returned a
-429). Re-measure before trusting it in the planner and booking paths.
+Measured after the fact: `hotels` 5/6 and `booking` 6/8 — the latter exactly the committed
+baseline's rate, which is the number that mattered, since booking is the agent whose confirmation
+rule this description had to stop contradicting. A dateless golden flipped in one run and was
+chased down with three control runs at the pre-edit commit: it flips there too, with the same
+signature, so it is that golden's own flakiness. The planner's use of the tool was **not**
+re-measured.
 
 ## What stayed open after the edit
 
@@ -152,7 +155,8 @@ without stopping to ask. Measuring before editing was the right order.
 
 Two things remain unproven after the edit:
 
-- **No eval covers it.** See the caveat above — every case returned a 429.
+- **The planner was not re-measured.** `hotels` and `booking` were; `flight_search` / `routing`
+  exercise the planner's use of this tool and were not re-run after the edit.
 - **The booking prompt still says the opposite for its own path.** `app/prompts/booking/v7.md`
   tells the booking agent to restate a non-date detail that appeared in an earlier turn and get a
   yes/no *before* calling the tool. The tool description now says to search with what the
