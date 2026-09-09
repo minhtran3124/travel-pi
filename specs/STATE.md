@@ -4,10 +4,16 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** gh-147-dated-hotel-availability-routing
-- **Phase:** shipped  <!-- design | research | plan | implement | review | shipped -->
+- **Slug:** close-product-loop-s2-guide-and-map
+- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
 - **Last skill:** subagent-driven-development
-- **Last action:** All 5 waves executed on `fix/gh-147-dated-hotel-availability-routing` (13 commits off `main` 0a7b6d7); wave 4 (code-gate fallback) skipped — the MIN-51 date-interrogation regression never returned. #147's golden `hotels-multi_turn-en-01` passes, `hotels-happy-en-02` too; every dateless golden still calls `browse_hotels`. Correctness + intent reviews pass, receipt pinned at HEAD, zero blocking open. Full BE suite 2245 passed / 59 failed — the 59 byte-identical at base (local `.env` contamination). Branch review found and fixed a real gap the new capability exposed: `search_hotels` could name a sold-out hotel as the cheapest option. Full judged eval run: hotels 50.0% → 83.3%, flight_search +16.7%, suggestions +10.0%; the gate's `language` flag was disproved by two control runs on base. Browser UAT green with screenshots in `uat/`. PR opened against `main`; awaiting human review and merge.
+- **Last action:** S2 shipped to PR #172 → main (8 commits, HEAD ac343de), in the worktree
+  `.worktrees/feat/close-product-loop-s2-guide-and-map` because the main checkout belongs to another
+  session. Six tasks over four waves; all twelve success criteria exit 0 and `verify_summary --check`
+  re-ran the thirteen SUMMARY commands clean. Browser UAT settled the three open questions and found
+  a real regression: six tabs overflowed the trip page at 390px, fixed in `ac343de`. Still unproven:
+  a map with markers on it (the UAT trip was empty). Previously: S1 and the passenger-count fix
+  merged as PR #167 (`4cb8f10`).
 - **Updated:** 2026-09-09
 
 ## Recent Specs
@@ -16,7 +22,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | PR open → main; hotels eval 50% → 83.3% |
+| close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
+| gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | merged via PR #171 → main (a6e7998); hotels eval 50% → 83.3% |
+| flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |
 | close-product-loop-s1-booking-ui | 2026-09-08 | shipped | merged via PR #167 → main (4cb8f10) |
 | close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 shipped (PR #167) |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
@@ -1833,5 +1841,40 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 2789f249-e7d6-44c7-b74e-76fb07107929
 - exit: 
 - last_commit: cf9772a docs(specs): re-pin the receipt after the shared-description review
+- user_turns: 0
+
+
+### 2026-09-09T04:50:15Z
+- session_id: 1d0877fc-ac7a-414b-8f4b-6ceeee5cb482
+- exit: 
+- last_commit: 5d53f98 feat: give the concierge a visa tool, and share one map with the chat panel
+- user_turns: 0
+
+
+### 2026-09-09T04:50:15Z
+- session_id: 5a9a9b7f-3d83-47bf-98dd-fb529dfea361
+- exit: 
+- last_commit: 5d53f98 feat: give the concierge a visa tool, and share one map with the chat panel
+- user_turns: 0
+
+
+### 2026-09-09T04:51:53Z
+- session_id: 73422bc1-0ea6-4e2e-8598-650bf2bf24ca
+- exit: 
+- last_commit: 5ea0dc2 feat(agent): point the concierge at the visa tool it now has
+- user_turns: 0
+
+
+### 2026-09-09T04:55:51Z
+- session_id: d2fe66eb-0363-4961-9499-d931609dd36c
+- exit: 
+- last_commit: b7a7514 feat(web): a destination guide page for visa, tips and climate
+- user_turns: 0
+
+
+### 2026-09-09T05:01:30Z
+- session_id: 68a9341c-619c-4167-bc29-cdb96d1e091a
+- exit: 
+- last_commit: aee5fc0 feat(web): a Map tab on the trip, sharing the chat panel's map
 - user_turns: 0
 
