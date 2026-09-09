@@ -4,11 +4,17 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** flight-booking-passenger-count
+- **Slug:** close-product-loop-s2-guide-and-map
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
 - **Last skill:** subagent-driven-development
-- **Last action:** Flight bookings now price for the seats asked for (2 tasks, commits bee98f4 + 76b44c1, all 8 SC exit 0), landing on the same branch as PR #167. Previously: all 10 S1 tasks executed plus a post-review fix pass (10 commits, HEAD 889b189). Correctness and intent reviews both pass, zero blocking open. verify_summary --check: 15/15 exit 0. Postgres suite run in an isolated compose project: 2252 passed, no failure in this slice's areas. Known limitation recorded: chatbot bookings still carry no trip_id (agent path out of scope for S1). Not done: browser UAT. PR #167 open → main (HEAD bb31851). Awaiting human review and merge.
-- **Updated:** 2026-09-08
+- **Last action:** S2 shipped to PR #172 → main (8 commits, HEAD ac343de), in the worktree
+  `.worktrees/feat/close-product-loop-s2-guide-and-map` because the main checkout belongs to another
+  session. Six tasks over four waves; all twelve success criteria exit 0 and `verify_summary --check`
+  re-ran the thirteen SUMMARY commands clean. Browser UAT settled the three open questions and found
+  a real regression: six tabs overflowed the trip page at 390px, fixed in `ac343de`. Still unproven:
+  a map with markers on it (the UAT trip was empty). Previously: S1 and the passenger-count fix
+  merged as PR #167 (`4cb8f10`).
+- **Updated:** 2026-09-09
 
 ## Recent Specs
 
@@ -16,7 +22,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| close-product-loop-s1-booking-ui | 2026-09-08 | review | all waves executed, 8 commits; awaiting final review chain |
+| close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
+| flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |
+| close-product-loop-s1-booking-ui | 2026-09-08 | shipped | merged via PR #167 → main (4cb8f10) |
 | close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 in flight |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
@@ -1775,5 +1783,40 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 6d0e51bb-fcf9-46ae-9fe8-e0803c12708a
 - exit: 
 - last_commit: 76b44c1 feat(agent): let the assistant book more than one seat
+- user_turns: 0
+
+
+### 2026-09-09T04:50:15Z
+- session_id: 1d0877fc-ac7a-414b-8f4b-6ceeee5cb482
+- exit: 
+- last_commit: 5d53f98 feat: give the concierge a visa tool, and share one map with the chat panel
+- user_turns: 0
+
+
+### 2026-09-09T04:50:15Z
+- session_id: 5a9a9b7f-3d83-47bf-98dd-fb529dfea361
+- exit: 
+- last_commit: 5d53f98 feat: give the concierge a visa tool, and share one map with the chat panel
+- user_turns: 0
+
+
+### 2026-09-09T04:51:53Z
+- session_id: 73422bc1-0ea6-4e2e-8598-650bf2bf24ca
+- exit: 
+- last_commit: 5ea0dc2 feat(agent): point the concierge at the visa tool it now has
+- user_turns: 0
+
+
+### 2026-09-09T04:55:51Z
+- session_id: d2fe66eb-0363-4961-9499-d931609dd36c
+- exit: 
+- last_commit: b7a7514 feat(web): a destination guide page for visa, tips and climate
+- user_turns: 0
+
+
+### 2026-09-09T05:01:30Z
+- session_id: 68a9341c-619c-4167-bc29-cdb96d1e091a
+- exit: 
+- last_commit: aee5fc0 feat(web): a Map tab on the trip, sharing the chat panel's map
 - user_turns: 0
 
