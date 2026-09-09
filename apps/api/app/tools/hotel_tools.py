@@ -4,8 +4,8 @@ Wrap ``HotelService`` and ``BookingService`` as LLM tools. Each opens its own
 session via ``session_scope`` and maps domain errors to ``ToolException``.
 The booking tool requires ``confirm=True`` to guard against accidental
 reservations — mutable state in an agent graph needs an explicit opt-in.
-``search_hotels`` (dated availability, booking flow) and ``browse_hotels``
-(dateless catalog, concierge) are both panel-capable: on matches they return a
+``search_hotels`` (dated availability) and ``browse_hotels`` (dateless catalog)
+are both panel-capable: on matches they return a
 short summary plus a ``kind="hotels"`` side-panel artifact; on no match they
 return a message and no panel (the mapper never sends an empty panel to the
 drawer).
@@ -289,15 +289,32 @@ def search_hotels(
             results, matched_reasons = rank_by_preference(
                 results, preferences, keyword_fn=_hotel_keyword_features
             )
-            cheapest = min(results, key=lambda h: h.total_price)
-            top_rated = max(results, key=lambda h: h.rating)
-            summary = (
-                f"{len(results)} hotels in {results[0].city} for {check_in} to {check_out} "
-                f"({nights} nights, {rooms} room{'s' if rooms > 1 else ''}). "
-                f"Cheapest {cheapest.name} ${cheapest.total_price:.0f}; "
-                f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
-                "The full comparison is in the Hotels panel."
+            # `check_availability` returns every hotel matching the city and filters,
+            # flagging each one — a sold-out property is in `results` with
+            # available=False. Name and count only the bookable ones, or the model
+            # quotes "cheapest $190" for a hotel with no free room.
+            free = [h for h in results if h.available]
+            stay = (
+                f"{results[0].city} for {check_in} to {check_out} "
+                f"({nights} nights, {rooms} room{'s' if rooms > 1 else ''})"
             )
+            if not free:
+                summary = (
+                    f"{len(results)} hotels in {stay}, but none has a room free for "
+                    "those dates. Tell the user none are available and offer to try "
+                    "other dates or relax the filters — do not present them as "
+                    "bookable. The full list is in the Hotels panel, marked full."
+                )
+            else:
+                cheapest = min(free, key=lambda h: h.total_price)
+                top_rated = max(free, key=lambda h: h.rating)
+                summary = (
+                    f"{len(free)} of {len(results)} hotels in {stay} have a room free. "
+                    f"Cheapest available {cheapest.name} ${cheapest.total_price:.0f}; "
+                    f"top-rated available {top_rated.name} ({top_rated.rating:.1f}★). "
+                    "Present only the available ones. The full comparison is in the "
+                    "Hotels panel."
+                )
             if matched_reasons:
                 summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             # After ranking (keyword features match the English text), before the panel.

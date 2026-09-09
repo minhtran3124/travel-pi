@@ -244,3 +244,30 @@ def test_book_hotel_does_not_log_guest_pii(agent_db, caplog):
     assert "secret.guest@example.com" not in caplog.text
     assert "+1 555 987 6543" not in caplog.text
     assert hotel_id in caplog.text  # the plain booking identifier IS logged
+
+
+def test_search_hotels_summary_counts_only_available_rooms(agent_db):
+    """The model-visible summary must name available hotels, not every match.
+
+    ``HotelService.check_availability`` returns every hotel matching the city and
+    filters, flagging each one, so a summary built from the whole list can quote a
+    sold-out property as the cheapest option (#147: the concierge now quotes dated
+    availability, and has no booking step to catch the mistake later).
+    """
+    msg = _invoke_hotel(
+        {
+            "city": "Da Nang",
+            "check_in": "2027-03-15",
+            "check_out": "2027-03-18",
+            "rooms": 1,
+            "adults": 2,
+            "children": 0,
+        }
+    )
+    hotels = msg.artifact["data"]["hotels"]
+    available = [h for h in hotels if h["available"]]
+    assert available, "fixture must have at least one bookable hotel"
+    assert f"{len(available)} of {len(hotels)} hotels" in msg.content
+    assert "Cheapest available" in msg.content
+    cheapest = min(available, key=lambda h: h["total_price"])
+    assert cheapest["name"] in msg.content
