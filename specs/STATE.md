@@ -1622,3 +1622,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: 418cd98 fix(agent): never offer a sold-out hotel as an available one
 - user_turns: 0
 
+
+### 2026-09-09T04:41:01Z
+- session_id: 2789f249-e7d6-44c7-b74e-76fb07107929
+- exit: 
+- last_commit: cf9772a docs(specs): re-pin the receipt after the shared-description review
+- user_turns: 0
+
