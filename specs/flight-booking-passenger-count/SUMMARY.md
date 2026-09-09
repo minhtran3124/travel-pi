@@ -94,11 +94,10 @@ files and a handful of tests.
 
 ### Not auto-verified
 
-- **The assistant actually asking for a passenger count in a live conversation** — reached
-  traceability only. `tests/tools/test_booking_passengers.py` proves the tool carries the value and
-  prices it, and `tests/prompts` proves v10 loads with its rules intact, but no run in this session
-  put "book three seats" to the assistant and watched it fill the field. Prompt v10 is a behavioural
-  instruction; only a live turn or an eval case can show it lands.
+- ~~The assistant actually asking for a passenger count in a live conversation~~ — **now verified in
+  a browser.** See `uat/`: asked for three seats in chat, the assistant stated "Passengers: 3,
+  Total: USD 151.83" before booking, the tool call logged `passengers = 3`, and the row holds
+  `total_price` 151.83 with `details.passengers` 3 at 50.61 a seat, stamped with the trip.
 - **`apps/web/src/lib/api/schema.d.ts` is now stale.** It is a checked-in `pnpm gen:api` artifact
   containing `FlightBookingRequest`, and it does not have `passengers`. Deliberate: no web code calls
   `/flights/book` since the pages became browse-only, and no CI gate checks the drift. The next slice
@@ -112,6 +111,14 @@ files and a handful of tests.
 - No migration to reverse: the field lives in the existing `Booking.details` JSON column. Bookings
   written before the revert keep their stored `total_price`, which stays correct for the seats they
   recorded.
+
+### Follow-up worth a decision
+
+The Bookings tab shows the party total but not the party. The row reads
+`Vietnam Airlines · DAD → SGN — Departs Oct 9, 6:15 AM · UAT Tester` at `$151.83`, and nothing on
+that line explains why it is three times the fare. The assistant says "Passengers: 3" in chat, so the
+information exists; it just does not reach the trip page. Adding `· 3 seats` to the summary is small
+but is UI work nobody asked for, so it is recorded rather than done.
 
 ### Harness-Delta
 
