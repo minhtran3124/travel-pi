@@ -25,4 +25,7 @@ export const qk = {
   flightSearch: (filters: Record<string, unknown>) =>
     ["flightSearch", filters] as const,
   manifest: () => ["manifest"] as const,
+  visa: (city: string) => ["visa", city] as const,
+  tips: (city: string) => ["tips", city] as const,
+  climate: (city: string) => ["climate", city] as const,
 } as const;

@@ -31,6 +31,7 @@ from app.tools.trip_tools import (
     estimate_trip_budget,
     set_trip_budget,
 )
+from app.tools.visa_tools import VISA_TOOLS
 from app.tools.weather_tools import WEATHER_TOOLS
 
 # Tools grouped by the sub-agent that should bind them.
@@ -55,6 +56,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + CLIMATE_TOOLS
         + ROUTING_TOOLS
         + TIP_TOOLS
+        + VISA_TOOLS
         + HOTEL_SEARCH_TOOLS
         + HOTEL_AVAILABILITY_TOOLS
         + KNOWLEDGE_TOOLS

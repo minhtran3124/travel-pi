@@ -9,6 +9,7 @@ import { BookingsTab } from "@/components/trips/bookings/BookingsTab";
 import { BudgetTab } from "@/components/trips/budget/BudgetTab";
 import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
+import { MapTab } from "@/components/trips/map/MapTab";
 import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
 import { TripHeader, TripHeaderSkeleton } from "@/components/trips/TripHeader";
 import { Tabs, type Tab } from "@/components/ui/Tabs";
@@ -27,6 +28,7 @@ export default function TripDetailPage() {
     { id: "expenses", label: t("tabs.expenses") },
     { id: "bookings", label: t("tabs.bookings") },
     { id: "shortlist", label: t("tabs.shortlist") },
+    { id: "map", label: t("tabs.map") },
   ];
 
   if (isPending) {
@@ -58,6 +60,7 @@ export default function TripDetailPage() {
         {activeTab === "expenses" ? <ExpensesTab tripId={tripId} /> : null}
         {activeTab === "bookings" ? <BookingsTab tripId={tripId} /> : null}
         {activeTab === "shortlist" ? <ShortlistTab tripId={tripId} /> : null}
+        {activeTab === "map" ? <MapTab tripId={tripId} /> : null}
       </div>
     </div>
   );
