@@ -35,7 +35,11 @@ addition beyond the umbrella design.
 
 ## What changed
 
-Intake only — no code.
+Three destination-knowledge endpoints that had no screen now have one, the trip has a map, and the
+assistant can answer a visa question from the structured source instead of saying it has none.
+
+Four commits: `5d53f98` (visa tool + the map lifted out of the chat panel), `5ea0dc2` (concierge
+v12), `b7a7514` (the guide page), `aee5fc0` (the trip Map tab).
 
 ### Rationale
 
@@ -77,7 +81,19 @@ lines and already loads maplibre dynamically, so the piece that moves is small.
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| SUMMARY shape | `python .claude/scripts/verify_summary.py --lane close-product-loop-s2-guide-and-map` | 0 | intake-time check | |
+| Visa tool | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_visa_tools.py -q` | 0 | 5 tests | SC-1 |
+| Unknown destination answers | `cd apps/api && ../../.venv/bin/python -m pytest "tests/tools/test_visa_tools.py::test_unknown_destination_returns_not_found" -q` | 0 | `found: false`, no raise | SC-2 |
+| Registry and MCP | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools/test_tool_registry.py tests/mcp -q -p no:randomly` | 0 | tool names stay unique | SC-3 |
+| Prompt registry | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts/test_prompt_registry_helpers.py -q -p no:randomly` | 0 | 30 tests | SC-4 |
+| Route panel unchanged | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/components/chat/panel/RoutePanel.test.tsx` | 0 | both tests pass after the map moved | SC-5 |
+| Guide page | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/app/guide/page.test.tsx` | 0 | disclaimer verbatim, sections fail independently | SC-6 |
+| Map tab | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/components/trips/map/MapTab.test.tsx` | 0 | 5 tests | SC-7 |
+| Locale parity | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/messages.parity.test.ts` | 0 | | SC-8 |
+| Frontend typecheck | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | | SC-9 |
+| Backend lint | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | All checks passed | SC-10 |
+| Frontend lint | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec eslint .` | 0 | 0 errors; 1 pre-existing warning in `useAgentStream.ts` | SC-11 |
+| Prompt names the tool and drops the denial | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | 0 | fails if `active.yaml` is not bumped, or the sentence survives | SC-12 |
+| Whole frontend suite | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test` | 0 | 243 passed | |
 
 ### Not auto-verified
 
@@ -86,12 +102,21 @@ lines and already loads maplibre dynamically, so the piece that moves is small.
   auto-exposed over MCP the moment it is registered. Read-only and PII-free, so benign — but it is a
   surface change that no gate will announce, which is why it is written here. Reached traceability
   against `registry.py:76-95`; no diff exists yet to corroborate it.
-- **Six tabs on the trip page.** Map makes it six, and the row will be tight on a narrow screen.
-  Observed on the S1 UAT screenshots at 1280px, not measured below that.
+- **Six tabs on the trip page.** Map makes it six. Still unmeasured below 1280px — a browser
+  question, deliberately not answered from a test.
+- **Whether the assistant actually reaches for `get_visa`.** The tool is registered, the prompt
+  names it, and a test proves both. No live turn in this session asked the assistant a visa question
+  and watched which tool it picked. v12 is a behavioural instruction, and only a real turn or an
+  eval case shows it lands — the same gap S1 closed with a browser UAT.
+- **The guide page and the map in a browser.** Both are covered by component tests only. Nothing
+  here proves the map renders tiles, that markers land in the right places, or that the three guide
+  sections read well together.
 
 ### Rollback
 
-- `git rm -r specs/close-product-loop-s2-guide-and-map` (intake artifacts only; no code yet)
+- `git revert aee5fc0 b7a7514 5ea0dc2 5d53f98`
+- Nothing to undo outside git: no migration, no schema change, and the prompt reverts with
+  `active.yaml` in the same commit.
 
 ### Harness-Delta
 

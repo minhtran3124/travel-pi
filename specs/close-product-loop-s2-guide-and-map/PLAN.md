@@ -1,6 +1,6 @@
 ---
 slug: close-product-loop-s2-guide-and-map
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-09
 ---
@@ -214,5 +214,6 @@ network is up, and all of `tests/api/prompts` pulls in fourteen dashboard tests 
 | Date | Event |
 |---|---|
 | 2026-09-09 | Plan written from the intake SUMMARY, in a worktree branched from `main` at `4cb8f10`. Status `proposed`. |
+| 2026-09-09 | All six tasks executed across four waves: commits 5d53f98, 5ea0dc2, b7a7514, aee5fc0. Every Verify re-run by the controller; all twelve success criteria exit 0; `verify_summary --check` re-ran the thirteen SUMMARY commands clean. |
 | 2026-09-09 | Re-review: approved. Two wording gaps closed in Task 4.1 — its Done no longer claims what its single-command Verify cannot decide, and its Action says a lint fix reopens the owning task rather than widening this one. |
 | 2026-09-09 | Independent review: three issues fixed. Task 2.2 required entry points in files it had not declared; SC-4 could not tell v12 from v11, so Task 2.1 now pins two assertions in the concierge prompt test; SC-9 chained two commands and is split into SC-9, SC-11 and a wave-4 gate task. Line citation corrected to `v11.md:106-109`. Measured: tsc 1.8s, eslint 4.4s. |
