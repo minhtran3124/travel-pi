@@ -6,13 +6,18 @@ Verifies that:
 - A booking-intent message still interrupts as before (regression guard).
 - The concierge sub-agent can actually call ``browse_hotels`` (the dateless
   catalog browse) and get back a ``kind="hotels"`` panel artifact.
+- (#147) The concierge sub-agent now also holds ``search_hotels`` (the dated
+  availability check) alongside ``browse_hotels``, and still has no
+  ``book_hotel``; a dated concierge turn calls ``search_hotels`` and gets
+  back a dated ``kind="hotels"`` panel (``nights > 0``), without pausing for
+  plan approval.
 
 FakeLLM-driven graph tests bypass prompt CONTENT for routing (supervisor
-intent is injected via ``structured_responses``), so (a)/(b) validate the
-STRUCTURAL wiring (routing target -> interrupt-or-not), not the LLM's
-prompt-following. (c) validates that concierge's tool binding actually
-includes ``browse_hotels`` and that invoking it produces the expected
-ToolMessage + artifact shape.
+intent is injected via ``structured_responses``), so (a)/(b)/(d) validate the
+STRUCTURAL wiring (routing target -> interrupt-or-not, tool binding -> tool
+call -> artifact shape), never the model's own tool choice — whether the
+model actually picks ``search_hotels`` over ``browse_hotels`` for a dated
+turn can only be proven by the eval.
 """
 
 from app.agents.graph import build_graph
@@ -107,3 +112,70 @@ def test_concierge_can_call_browse_hotels(agent_db):
     assert tool_msgs, "expected browse_hotels to be called"
     browse_result = next(m for m in tool_msgs if m.name == "browse_hotels")
     assert browse_result.artifact["kind"] == "hotels"
+
+
+def test_concierge_can_call_search_hotels_with_dates(agent_db):
+    from app.agents.subagents._base import build_subagent
+    from app.prompts.registry import registry
+    from app.tools.registry import get_tools_for
+
+    fake = FakeLLM(
+        responses=[
+            AIMessage(
+                content="",
+                tool_calls=[
+                    {
+                        "name": "search_hotels",
+                        "args": {
+                            "city": "Da Nang",
+                            "check_in": "2027-03-10",
+                            "check_out": "2027-03-13",
+                            "rooms": 1,
+                            "adults": 2,
+                            "children": 1,
+                        },
+                        "id": "h1",
+                    }
+                ],
+            ),
+            "Here are some hotels — muốn đặt phòng không?",
+        ]
+    )
+    subgraph = build_subagent(
+        "concierge_hotel_test",
+        get_tools_for("concierge"),
+        lambda _: fake,
+        registry.get("concierge"),
+    )
+
+    result = subgraph.invoke(
+        {
+            "messages": [
+                HumanMessage(
+                    content="find me a hotel in Da Nang from 2027-03-10 to 2027-03-13"
+                )
+            ]
+        }
+    )
+
+    tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
+    assert tool_msgs, "expected search_hotels to be called"
+    search_result = next(m for m in tool_msgs if m.name == "search_hotels")
+    assert search_result.artifact["kind"] == "hotels"
+    assert search_result.artifact["data"]["nights"] > 0
+
+    assert "book_hotel" not in {t.name for t in get_tools_for("concierge")}
+
+
+def test_concierge_dated_hotel_turn_does_not_interrupt():
+    graph = _build(intent_target="concierge", answer="Here are some hotels in Da Nang.")
+    result = _invoke(
+        graph,
+        "find me a hotel in Da Nang from 2027-03-10 to 2027-03-13",
+        thread_id="t-hotel-search-dated-1",
+    )
+
+    assert not result.get("__interrupt__"), (
+        "a dated hotel search must complete without a plan-approval interrupt"
+    )
+    assert result["current_flow"] == "concierge"

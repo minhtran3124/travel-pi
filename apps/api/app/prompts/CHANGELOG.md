@@ -10,11 +10,28 @@ lookups), but the prompt still told it "for visa questions there is no other sou
 to plead ignorance whenever `search_travel_knowledge` came back empty — that claim is now
 false, and the assistant would keep refusing while holding a tool that can answer.
 
-- **concierge v12** — copied v11; "Visa & local advice" now reaches for `get_visa` first
+- **concierge v13** — copied **v12** (it landed first, on `main`, and carries the hotel-tool
+  routing); "Visa & local advice" now reaches for `get_visa` first
   for entry requirements about a named destination, keeps `search_travel_knowledge` for
   free-text/nuanced questions the structured lookup can't answer, and drops the "no other
   source" claim. The guidance-not-a-ruling framing and passing the disclaimer through both
   stay — they matter more now that the answer looks authoritative.
+
+## gh-147-dated-hotel-availability-routing — the concierge searches hotels with and without dates
+
+- **concierge v12** — copied v11; `## Hotels` rewritten to route between the two hotel tools:
+  `browse_hotels` for a dateless city-level lookup, `search_hotels` for real availability once
+  the traveller has given check-in/check-out; the "does not quote date-specific availability"
+  rule is dropped because the concierge now holds the dated tool.
+- **concierge v12, correctness-review follow-up** — the shortlist rule adds one sentence: never
+  shortlist a hotel the tool marked as having no free room, and say so plainly when none is
+  available for those dates.
+- **code half** (Tasks 1.1–1.2 + the review follow-ups) — registry binding, `browse_hotels`
+  description, an availability-aware `search_hotels` summary (it named the cheapest hotel from
+  every match, including sold-out ones), and the shared `search_hotels` description: values the
+  traveller gave earlier are reused instead of restated for confirmation, while "never guess or
+  assume a value the traveller has not given" stays. That description is read by the planner and
+  booking agents too.
 
 `active.yaml`: concierge → 12.
 

@@ -23,9 +23,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
 | close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
+| gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | merged via PR #171 → main (a6e7998); hotels eval 50% → 83.3% |
 | flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |
 | close-product-loop-s1-booking-ui | 2026-09-08 | shipped | merged via PR #167 → main (4cb8f10) |
-| close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 in flight |
+| close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 shipped (PR #167) |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
@@ -1571,6 +1572,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ### 2026-09-08T09:49:29Z
 - session_id: 450c93b3-e681-4dc4-af81-492a74aa813a
+### 2026-09-09T02:39:27Z
+- session_id: 923204a5-3ed5-49e7-882c-a67b5b27f2b7
 - exit: 
 - last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
 - user_turns: 0
@@ -1578,6 +1581,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ### 2026-09-08T11:35:10Z
 - session_id: a8fa06be-8cb6-42a2-9314-93ee302f793f
+### 2026-09-09T02:41:13Z
+- session_id: b0d3231a-9b55-43e6-827f-5509aa6b5d2c
 - exit: 
 - last_commit: 0a7b6d7 Merge pull request #165 from minhtran3124/fix/gh-156-flight-search-before-create-trip
 - user_turns: 0
@@ -1783,6 +1788,59 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 6d0e51bb-fcf9-46ae-9fe8-e0803c12708a
 - exit: 
 - last_commit: 76b44c1 feat(agent): let the assistant book more than one seat
+### 2026-09-09T02:44:11Z
+- session_id: 05bd4253-2dcc-4c01-b836-5781d80a4b56
+- exit: 
+- last_commit: 2789a73 docs(agent): tell the model which hotel tool the dates call for
+- user_turns: 0
+
+
+### 2026-09-09T02:46:04Z
+- session_id: dfae90eb-44b1-47e9-8273-70cf9e988e98
+- exit: 
+- last_commit: 505ed2b test(agent): pin the clause that names the dated tool, not just its absence
+- user_turns: 0
+
+
+### 2026-09-09T02:46:34Z
+- session_id: 7f24cc7c-804d-489c-8dda-214e612a0dfb
+- exit: 
+- last_commit: 505ed2b test(agent): pin the clause that names the dated tool, not just its absence
+- user_turns: 0
+
+
+### 2026-09-09T02:48:41Z
+- session_id: 87796f83-e152-4b5f-be19-1561d8ecc315
+- exit: 
+- last_commit: 6d1ac3c test(agent): cover a dated concierge turn end to end
+- user_turns: 0
+
+
+### 2026-09-09T02:59:16Z
+- session_id: c6e575ba-7337-47c9-8e9c-c135eb8f848b
+- exit: 
+- last_commit: 47eb8d3 docs(specs): record the gh-147 eval acceptance and skip the fallback
+- user_turns: 0
+
+
+### 2026-09-09T03:02:00Z
+- session_id: 1ae578c9-5b4a-4d3f-8a84-8380f930934b
+- exit: 
+- last_commit: 9b154c2 docs(solutions): record what the concierge hotel-tool mismatch taught
+- user_turns: 0
+
+
+### 2026-09-09T03:06:04Z
+- session_id: 102c2259-f65f-48de-b409-f51c5f8a0af5
+- exit: 
+- last_commit: 418cd98 fix(agent): never offer a sold-out hotel as an available one
+- user_turns: 0
+
+
+### 2026-09-09T04:41:01Z
+- session_id: 2789f249-e7d6-44c7-b74e-76fb07107929
+- exit: 
+- last_commit: cf9772a docs(specs): re-pin the receipt after the shared-description review
 - user_turns: 0
 
 
