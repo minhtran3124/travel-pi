@@ -1,6 +1,6 @@
 ---
 slug: close-product-loop-s3-today
-status: proposed
+status: active
 owner: Minh Tran
 created: 2026-09-09
 ---
@@ -237,3 +237,8 @@ Every check names a file rather than a directory. The full frontend suite belong
 
 - 2026-09-09 — plan written; intake `normal`/`high`, research Standard with no external surface.
   Both research follow-ups decided in §1 without a backend change.
+- 2026-09-09 — tasks 1.1, 1.2, 1.3 complete; commits 643440d, 7be09a3. Wave 1 green: 28 tests
+  pass across the selectors, the hooks and message parity. No backend change needed.
+- 2026-09-09 — tasks 2.1, 2.2, 2.3 complete; commits 1b1ae05, 96c5099, c58b58a. Wave 2 green:
+  34 tests pass across the two cards and the directions adapter; the chat Route panel is unchanged
+  and its own tests still pass. No backend change needed.
