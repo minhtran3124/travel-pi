@@ -5,9 +5,9 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 ## Active Spec
 
 - **Slug:** gh-147-dated-hotel-availability-routing
-- **Phase:** plan  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** writing-plans
-- **Last action:** Intake for GitHub issue #147 done: Lane `normal`, Confidence `high`. E001 (option B) superseded the same day by E002 = **option A** — bind BOTH `search_hotels` and `browse_hotels` to the concierge, no `book_hotel`. Read-only impact analysis in ESCALATIONS E002: fixes 3 failing goldens with no oracle edit; no MCP/tier/HITL change; `test_hotel_tool_split` breaks by design; the real risk is the MIN-51 regression (concierge interrogating for dates) — mitigated by concierge v12 + a pinned prompt rule. Branch `fix/gh-147-dated-hotel-availability-routing` created off `main` (0a7b6d7). xia2 (Standard, no external surface) delivered `research-brief.md`: recommendation = reuse existing (bind the tool, disambiguate in concierge v12 + browse_hotels docstring only — never touch the shared search_hotels docstring); fallback if prose fails at k=3 = code-gate. PLAN.md written: 7 tasks / 5 waves, 10 SC rows, plan-contract exit 0. W1 registry binding + browse_hotels description, W2 concierge v12 + graph test, W3 targeted eval (hotels, errors, k=3), W4 CONDITIONAL code-gate fallback (authorized in-branch), W5 docs/solutions record. Not started. Next: subagent-driven-development.
+- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** subagent-driven-development
+- **Last action:** All 5 waves executed on `fix/gh-147-dated-hotel-availability-routing` (13 commits off `main` 0a7b6d7); wave 4 (code-gate fallback) skipped — the MIN-51 date-interrogation regression never returned. #147's golden `hotels-multi_turn-en-01` passes, `hotels-happy-en-02` too; every dateless golden still calls `browse_hotels`. Correctness + intent reviews pass, receipt pinned at HEAD, zero blocking open. Full BE suite 2245 passed / 59 failed — the 59 byte-identical at base (local `.env` contamination). Branch review found and fixed a real gap the new capability exposed: `search_hotels` could name a sold-out hotel as the cheapest option. **Not done:** the one full `make eval-check` the user authorized before the PR, and the PR itself. No browser UAT.
 - **Updated:** 2026-09-09
 
 ## Recent Specs
@@ -16,7 +16,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| gh-147-dated-hotel-availability-routing | 2026-09-09 | plan | PLAN.md ready (7 tasks/5 waves), branch off main, not started |
+| gh-147-dated-hotel-availability-routing | 2026-09-09 | review | all waves done, reviews pass; awaiting full eval-check + PR |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | review | PR open → main, awaiting merge |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
@@ -1599,5 +1599,26 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 87796f83-e152-4b5f-be19-1561d8ecc315
 - exit: 
 - last_commit: 6d1ac3c test(agent): cover a dated concierge turn end to end
+- user_turns: 0
+
+
+### 2026-09-09T02:59:16Z
+- session_id: c6e575ba-7337-47c9-8e9c-c135eb8f848b
+- exit: 
+- last_commit: 47eb8d3 docs(specs): record the gh-147 eval acceptance and skip the fallback
+- user_turns: 0
+
+
+### 2026-09-09T03:02:00Z
+- session_id: 1ae578c9-5b4a-4d3f-8a84-8380f930934b
+- exit: 
+- last_commit: 9b154c2 docs(solutions): record what the concierge hotel-tool mismatch taught
+- user_turns: 0
+
+
+### 2026-09-09T03:06:04Z
+- session_id: 102c2259-f65f-48de-b409-f51c5f8a0af5
+- exit: 
+- last_commit: 418cd98 fix(agent): never offer a sold-out hotel as an available one
 - user_turns: 0
 

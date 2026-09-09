@@ -1,0 +1,22 @@
+{
+  "reviewed_head_sha": "2989de904feb606e0a880548a04a195d9c6f728e",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "general-purpose subagent (independent context)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "note": "Reviewed 0a7b6d7..9b154c2, then re-reviewed 9b154c2..2989de9 after the follow-up commits. First pass: no blocking runtime bug; one behavioural gap (search_hotels could name a sold-out hotel as cheapest) fixed in 418cd98/fa4279e/2989de9. Re-check raised two Important findings (a prompt revert the record claimed but that never applied; a vacuous test) - both fixed in 2989de9. Advisory open: stale module-docstring labels elsewhere in hotel_tools.py, and the pre-existing FE hotels panelKey collision (apps/web/src/lib/stream/panel.ts)."
+    },
+    {
+      "type": "intent",
+      "reviewer": "general-purpose subagent (oracle = SUMMARY ### Intent + the user's verbatim direction change)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "note": "No missing behaviour, no drift, no unapproved scope. Concierge searches with and without dates and cannot book. Two record-honesty nits fixed in 4f13f42."
+    }
+  ],
+  "created": "2026-09-09T03:44:56Z"
+}
