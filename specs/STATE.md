@@ -1878,3 +1878,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: aee5fc0 feat(web): a Map tab on the trip, sharing the chat panel's map
 - user_turns: 0
 
+
+### 2026-09-09T06:59:01Z
+- session_id: 96da518d-397c-4b03-8741-204c5e13fcd0
+- exit: 
+- last_commit: a2380ae docs(gh-147): planner measurements and a corrected routing diagnosis (#174)
+- user_turns: 0
+
