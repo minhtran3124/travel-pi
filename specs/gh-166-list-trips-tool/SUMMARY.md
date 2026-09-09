@@ -135,8 +135,14 @@ stays `high-risk` on authorization grounds regardless.
 | Goldens load, updated golden declares tools_expected | `cd apps/api && ../../.venv/bin/python -m pytest tests/eval -q` | 0 | 160 passed; dataset count constant 102 to 103 | SC-8 |
 | Observed route pinned on the counting golden | `cd apps/api && ../../.venv/bin/python scripts/check_gh166_golden_flow.py` | 0 | expected_flow=planner, a member of ALL_SUBAGENTS | SC-10 |
 | Baseline decision recorded | `cd apps/api && ../../.venv/bin/python scripts/check_gh166_baseline_note.py` | 0 | negative control: exits 1 before the note is written | SC-11 |
-| Branch-wide regression sweep | `cd apps/api && ../../.venv/bin/python -m pytest tests/tools tests/mcp tests/agents tests/eval tests/prompts -q` | 0 | 908 at baseline, 925 after | |
 | Lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | all checks passed | |
+
+Beyond the rows above, the affected directories were swept as a whole —
+`pytest tests/tools tests/mcp tests/agents tests/eval tests/prompts -q` — twice: 908 passed on the
+clean baseline before any change, 925 passed at HEAD. It is cited here rather than added as a
+Verify row because it runs ~75s, and `rules/plan-format.md` bars a whole-suite row (the 60s limit
+exists so the gate can re-run every row; this one timed it out, which is how the violation was
+found). The full suite runs at branch finish and in CI.
 
 Baseline decision: **accepted**, not refreshed — pinned `journal` pass_rate 0.500, run on this branch 0.333.
 Those two numbers are NOT comparable and the second must not overwrite the first: different

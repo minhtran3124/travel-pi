@@ -1,0 +1,31 @@
+{
+  "slug": "gh-166-list-trips-tool",
+  "reviewed_head_sha": "5767b2dc40e10d2a8acbfaabe10efa4aabd43c42",
+  "base_sha": "20f3c79",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Per-task spec + quality verdicts for tasks 1.1, 1.2, 2.1, 2.2, 2.3, 3.1 — all PASS/PASS. Reviewers ran their own verification, including a mutation probe on the MCP exclusion and a rendered-string comparison of the pinned label."
+    },
+    {
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Six find angles, 8 candidate locations, independent scorer per location on a different model. No finding reached the blocking threshold. Two advisories were defects in this branch's own SC-check scripts and were fixed in a67a362; the rest are recorded in SUMMARY '### Advisory Findings'."
+    },
+    {
+      "type": "correctness-review-delta",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Re-review of f5f097d..b2c6c30, the post-review fixes. Verified by probe, not by reading: the flow set now covers every non-None value Trace.flow can hold, and all three baseline-note regex counterexamples behave correctly."
+    },
+    {
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Plan-blind, oracle = issue #166 verbatim. PASS with one deferred gap (the 2+-trip eval fixture), one accepted field-projection drift, one recorded excess (three permanent SC scripts). All three are in SUMMARY '### Intent Findings'."
+    }
+  ]
+}
