@@ -17,8 +17,8 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
 | gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | PR open → main; hotels eval 50% → 83.3% |
-| close-product-loop-s1-booking-ui | 2026-09-08 | review | all waves executed, 8 commits; awaiting final review chain |
-| close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 in flight |
+| close-product-loop-s1-booking-ui | 2026-09-08 | shipped | merged via PR #167 → main (4cb8f10) |
+| close-product-loop | 2026-09-08 | design | umbrella design APPROVED by user; 6 slices, S1 shipped (PR #167) |
 | gh-156-flight-search-before-create-trip | 2026-09-08 | shipped | merged via PR #165 → main (0a7b6d7) |
 | side-panel-multi-category-tabs | 2026-09-08 | shipped | merged via PR #164 → main (9114bac); browser UAT in specs/…/uat |
 | plan-approved-line-reset | 2026-09-07 | shipped | merged via PR #158 → main |
