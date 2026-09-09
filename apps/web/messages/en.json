@@ -290,6 +290,78 @@
     "markerSaved": "{name}",
     "markerItinerary": "Day {day} · {title}"
   },
+  "Today": {
+    "tab": "Today",
+    "notInProgress": {
+      "title": "This trip isn't in progress",
+      "dates": "It runs {start} – {end}.",
+      "noDates": "Add dates to this trip to see your day as it happens."
+    },
+    "plan": {
+      "title": "Today's plan",
+      "emptyTitle": "Nothing planned for today",
+      "emptyHint": "Add an itinerary item for today to see it here.",
+      "travelToNext": "{minutes} min to the next stop"
+    },
+    "noDestination": {
+      "title": "No destination set",
+      "hint": "Add a city to this trip to see its weather and air quality."
+    },
+    "weather": {
+      "title": "Weather",
+      "temperature": "Temperature",
+      "feelsLike": "Feels like",
+      "humidity": "Humidity",
+      "wind": "Wind",
+      "wmo": {
+        "0": "Clear sky",
+        "1": "Mainly clear",
+        "2": "Partly cloudy",
+        "3": "Overcast",
+        "45": "Fog",
+        "48": "Depositing rime fog",
+        "51": "Light drizzle",
+        "53": "Moderate drizzle",
+        "55": "Dense drizzle",
+        "56": "Light freezing drizzle",
+        "57": "Dense freezing drizzle",
+        "61": "Slight rain",
+        "63": "Moderate rain",
+        "65": "Heavy rain",
+        "66": "Light freezing rain",
+        "67": "Heavy freezing rain",
+        "71": "Slight snow fall",
+        "73": "Moderate snow fall",
+        "75": "Heavy snow fall",
+        "77": "Snow grains",
+        "80": "Slight rain showers",
+        "81": "Moderate rain showers",
+        "82": "Violent rain showers",
+        "85": "Slight snow showers",
+        "86": "Heavy snow showers",
+        "95": "Thunderstorm",
+        "96": "Thunderstorm with slight hail",
+        "99": "Thunderstorm with heavy hail"
+      }
+    },
+    "air": {
+      "title": "Air quality",
+      "aqi": "US AQI",
+      "pm25": "PM2.5",
+      "band": {
+        "good": "Good",
+        "moderate": "Moderate",
+        "unhealthySensitive": "Unhealthy for sensitive groups",
+        "unhealthy": "Unhealthy",
+        "veryUnhealthy": "Very unhealthy",
+        "hazardous": "Hazardous"
+      }
+    },
+    "directions": {
+      "title": "Directions",
+      "unavailable": "Directions to your next stop will appear here once it has a place pinned."
+    }
+  },
   "Places": {
     "title": "Saved places",
     "browseCatalog": "Browse catalog",
