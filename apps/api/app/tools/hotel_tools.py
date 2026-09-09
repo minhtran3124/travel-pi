@@ -202,10 +202,12 @@ def search_hotels(
     hotels. It is not an error.
 
     ``check_in``, ``check_out``, ``rooms``, ``adults`` and ``children`` are all
-    required and have no defaults — collect every one from the traveller and never
-    guess or assume them. The number of nights is derived from the two dates, so it
-    is not a parameter. If any of these values only appeared earlier in the
-    conversation, restate them and ask the traveller to confirm before searching.
+    required and have no defaults — never guess or assume a value the traveller has
+    not given. The number of nights is derived from the two dates, so it is not a
+    parameter. Values the traveller gave earlier in the conversation are still
+    theirs: search with them instead of asking again, and echo them back in your
+    reply so they can correct you. Ask only for a value that is genuinely missing,
+    ambiguous, or contradicted by something they said later.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param check_in: Stay start date, YYYY-MM-DD. Must be today or later. For any

@@ -192,6 +192,16 @@ def test_browse_hotels_description_points_at_search_hotels():
     assert "for a real reservation with exact dates" not in description
 
 
-def test_search_hotels_description_unchanged():
+def test_search_hotels_description_reuses_what_the_traveller_gave():
+    """The dated tool must not send the model back to re-ask for known values.
+
+    This description is read by the planner and booking agents as well as the
+    concierge, so it carries two rules at once: never invent a value the traveller
+    did not give (the anti-hallucination guard, kept verbatim in spirit), and reuse
+    what they already said instead of demanding confirmation (#147 — the concierge
+    now answers dated hotel questions, and an extra round-trip there is the cost).
+    """
     description = " ".join(search_hotels.description.split())
-    assert "collect every one from the traveller and never guess" in description
+    assert "never guess or assume a value the traveller has not given" in description
+    assert "search with them instead of asking again" in description
+    assert "restate them and ask the traveller to confirm" not in description
