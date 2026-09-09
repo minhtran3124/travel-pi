@@ -199,11 +199,19 @@ re-run twice.
 | branch HEAD (with the edit) | 3 | red, red, red |
 | HEAD with **only that paragraph reverted** | 2 | red, green |
 
-It is red on both sides, so the edit did not cause it. Its own `notes` field explains why it is
-red at all: the golden was "re-derived from supervisor **v10** … re-derive here if the v10 prompt
-changes", and the supervisor has been **v11** since gh-155 — v11's single-specialist rule sends a
-one-toolset chain to the planner alone, which is exactly what the agent did. That is a stale
-golden, tracked separately, not a defect from this branch.
+It is red on both sides, so the edit did not cause it.
+
+**Correction.** This was first written up here as a stale golden, on the strength of its `notes`
+("re-derived from supervisor **v10** … re-derive here if the v10 prompt changes") and the fact
+that the supervisor is now v11. That reading was wrong, and reading the prompt rather than the
+note is what showed it. Supervisor v11 §3 states **both** halves: a chain inside one specialist's
+toolset goes to that specialist alone, **and** "Only add a `plan` step for a genuinely INDEPENDENT
+extra a single specialist cannot do itself (e.g. **local tips** / travel knowledge → concierge)".
+The golden's input is the prompt's own example *plus local tips* — exactly the carve-out — so
+`["planner", "concierge"]` is what v11 asks for and the agent is dropping the exception. That
+paragraph is also **byte-identical between v10 and v11**, so the version bump changed nothing the
+golden depended on. It is an agent defect, not staleness, and it is now **#173** — same surface as
+#149, which is the opposite failure on the same fan-out decision. Still not caused by this branch.
 
 So the shared-description change now has eval coverage on **all three** agents that read it —
 concierge (`hotels`), booking (`booking`), planner (`flight_search`, `routing`) — and none moved.
@@ -383,9 +391,9 @@ The full BE suite and `make eval-check` run at delivery, not here.
   run at delivery.
 - **The UAT ran against local Docker + a signed-in `e2e-test` account**, one pass, not k=3 — it
   is a demonstration that the path works end to end in the browser, not a statistical claim.
-- **`routing-multi-en-04` looks stale rather than broken**, but that was inferred from the
-  golden's own `notes` (derived from supervisor v10; the supervisor is v11) plus the control runs
-  — no one re-derived the golden against v11 to confirm it. Worth its own issue, not this branch.
+- **`routing-multi-en-04` is a real agent defect, filed as #173** — the supervisor drops the
+  local-tips fan-out that v11 §3 explicitly carves out. Proven not to come from this branch (red
+  with and without the edited paragraph), but the fix is not attempted here.
 - **`hotels-happy-en-01` is flaky on both sides of the edit** (1 fail in 3 control runs, 2 in 4
   branch runs). Those are small samples — enough to say the change did not cause it, not enough to
   quantify the rate.
