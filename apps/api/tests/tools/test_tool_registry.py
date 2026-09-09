@@ -302,14 +302,16 @@ def test_air_quality_tool_returns_panel(monkeypatch):
 
 
 def test_hotel_tool_split():
-    """concierge gets the dateless browse_hotels; booking keeps availability
-    search_hotels + book_hotel (MIN-51)."""
+    """concierge holds both browse_hotels and search_hotels (dated availability),
+    but no destructive tool — money stays behind the booking domain's HITL gate
+    (#147)."""
     from app.tools.registry import ALL_TOOLS, TOOL_METADATA, get_tools_for
 
     concierge = {t.name for t in get_tools_for("concierge")}
     assert "browse_hotels" in concierge
-    assert "search_hotels" not in concierge
+    assert "search_hotels" in concierge
     assert "book_hotel" not in concierge
+    assert not {n for n in concierge if TOOL_METADATA[n]["destructive"]}
 
     booking = {t.name for t in get_tools_for("booking")}
     assert "search_hotels" in booking

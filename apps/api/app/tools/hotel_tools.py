@@ -4,8 +4,8 @@ Wrap ``HotelService`` and ``BookingService`` as LLM tools. Each opens its own
 session via ``session_scope`` and maps domain errors to ``ToolException``.
 The booking tool requires ``confirm=True`` to guard against accidental
 reservations — mutable state in an agent graph needs an explicit opt-in.
-``search_hotels`` (dated availability, booking flow) and ``browse_hotels``
-(dateless catalog, concierge) are both panel-capable: on matches they return a
+``search_hotels`` (dated availability) and ``browse_hotels`` (dateless catalog)
+are both panel-capable: on matches they return a
 short summary plus a ``kind="hotels"`` side-panel artifact; on no match they
 return a message and no panel (the mapper never sends an empty panel to the
 drawer).
@@ -210,10 +210,16 @@ def search_hotels(
     hotels. It is not an error.
 
     ``check_in``, ``check_out``, ``rooms``, ``adults`` and ``children`` are all
-    required and have no defaults — collect every one from the traveller and never
-    guess or assume them. The number of nights is derived from the two dates, so it
-    is not a parameter. If any of these values only appeared earlier in the
-    conversation, restate them and ask the traveller to confirm before searching.
+    required and have no defaults — never guess or assume a value the traveller has
+    not given. The number of nights is derived from the two dates, so it is not a
+    parameter. Values the traveller gave earlier in the conversation are still
+    theirs: search with them instead of asking again, and echo them back in your
+    reply so they can correct you. Ask only for a value that is genuinely missing,
+    ambiguous, or contradicted by something they said later. Where your own
+    instructions require confirming a detail before you call a tool — the booking
+    flow does, ahead of a reservation — those come first; this rule is about not
+    re-asking for what you already have, never about skipping a confirmation you
+    were told to get.
 
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param check_in: Stay start date, YYYY-MM-DD. Must be today or later. For any
@@ -297,15 +303,37 @@ def search_hotels(
             results, matched_reasons = rank_by_preference(
                 results, preferences, keyword_fn=_hotel_keyword_features
             )
-            cheapest = min(results, key=lambda h: h.total_price)
-            top_rated = max(results, key=lambda h: h.rating)
-            summary = (
-                f"{len(results)} hotels in {results[0].city} for {check_in} to {check_out} "
-                f"({nights} nights, {rooms} room{'s' if rooms > 1 else ''}). "
-                f"Cheapest {cheapest.name} ${cheapest.total_price:.0f}; "
-                f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
-                "The full comparison is in the Hotels panel."
+            # `check_availability` returns every hotel matching the city and filters,
+            # flagging each one — a sold-out property is in `results` with
+            # available=False. Name and count only the bookable ones, or the model
+            # quotes "cheapest $190" for a hotel with no free room.
+            free = [h for h in results if h.available]
+            stay = (
+                f"{results[0].city} for {check_in} to {check_out} "
+                f"({nights} nights, {rooms} room{'s' if rooms > 1 else ''})"
             )
+            if not free:
+                summary = (
+                    f"{len(results)} hotels in {stay}, but none has a room free for "
+                    "those dates. Tell the user none are available and offer to try "
+                    "other dates or relax the filters — do not present them as "
+                    "bookable. The full list is in the Hotels panel, marked full."
+                )
+            else:
+                cheapest = min(free, key=lambda h: h.total_price)
+                top_rated = max(free, key=lambda h: h.rating)
+                sold_out = len(results) - len(free)
+                summary = (
+                    f"{len(results)} hotels in {stay}. "
+                    f"Cheapest {cheapest.name} ${cheapest.total_price:.0f}; "
+                    f"top-rated {top_rated.name} ({top_rated.rating:.1f}★). "
+                )
+                if sold_out:
+                    summary += (
+                        f"{sold_out} of them have no room free for these dates — "
+                        "do not offer those. "
+                    )
+                summary += "The full comparison is in the Hotels panel."
             if matched_reasons:
                 summary += f" Prioritized based on your preferences: {', '.join(matched_reasons)}."
             # After ranking (keyword features match the English text), before the panel.
@@ -337,10 +365,11 @@ def browse_hotels(
     """Answer hotel info/search questions — price, location, amenities, rating — with no dates.
 
     Use this to browse what's in a city (e.g. "hotels in Da Nang under $100",
-    "any 4-star places with a pool?"). It does **not** check date-specific
-    availability and does **not** book — for a real reservation with exact
-    dates, the booking flow's ``search_hotels`` (availability) and
-    ``book_hotel`` handle that.
+    "any 4-star places with a pool?"). Use it when the traveller has given
+    **no dates** — it does not check date-specific availability and does not
+    book. As soon as they give check-in and check-out, use ``search_hotels``
+    instead, which checks real availability for those dates; ``book_hotel``
+    (the actual reservation) stays with the booking flow.
 
     Returns up to 12 hotels, sorted cheapest nightly rate first (best value on
     top) — unless the traveller's known preferences (star rating, hotel type,

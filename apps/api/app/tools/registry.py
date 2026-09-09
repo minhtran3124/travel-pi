@@ -56,6 +56,7 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + ROUTING_TOOLS
         + TIP_TOOLS
         + HOTEL_SEARCH_TOOLS
+        + HOTEL_AVAILABILITY_TOOLS
         + KNOWLEDGE_TOOLS
         + DATE_TOOLS
     ),
