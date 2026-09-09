@@ -1,6 +1,6 @@
 ---
 slug: close-product-loop-s3-today
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-09
 ---
@@ -248,4 +248,8 @@ Every check names a file rather than a directory. The full frontend suite belong
   branches were unwired — the directions card spun forever on a route failure, and the weather and
   air cards vanished silently. Fixed with the MapTab ladder; 71 tests pass. SUMMARY closed with the
   full Verify table.
+- 2026-09-09 — browser UAT 5/5 (`specs/close-product-loop-s3-today/uat/`); commit bb0a5f3. The two
+  items the plan left unmeasured are now measured: seven tabs leave the document at exactly 390px,
+  and the vi locale renders "Giông bão" / "Trung bình" from the WMO code and us_aqi. Full frontend
+  suite 308/308. Plan shipped.
 
