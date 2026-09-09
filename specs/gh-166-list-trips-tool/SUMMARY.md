@@ -178,7 +178,7 @@ Independent correctness review (six find angles, 8 candidate locations, independ
 location on a different model). **No finding reached the blocking threshold.** Two were defects in
 this work's own success-criteria checks and were fixed rather than recorded; the rest stand.
 
-**Fixed in `bf2e4d6`:**
+**Fixed in `a67a362`:**
 
 - `check_gh166_golden_flow.py` asserted the observed flow against `TOOLS_BY_DOMAIN`'s keys, and
   its docstring claimed there was "no enum to read". Both wrong: `ALL_SUBAGENTS`
