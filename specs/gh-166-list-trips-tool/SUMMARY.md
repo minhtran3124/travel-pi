@@ -137,6 +137,13 @@ stays `high-risk` on authorization grounds regardless.
 | Baseline decision recorded | `cd apps/api && ../../.venv/bin/python scripts/check_gh166_baseline_note.py` | 0 | negative control: exits 1 before the note is written | SC-11 |
 | Lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | all checks passed | |
 
+The **full** backend suite at HEAD reports 2309 passed / 57 failed. Those 57 are environmental,
+not this branch: a worktree needs a real `apps/api/.env` to run, and its presence breaks the tests
+that assert a *missing* key (`test_llm_defaults_require_no_key`, `test_get_embeddings_fake_without_key`)
+plus the dashboard basic-auth suites. Proven rather than assumed — the same subset was run at the
+merge base `20f3c79` in a throwaway worktree with the identical `.env`, and the failing test ids
+are byte-identical to HEAD's (`diff` empty, 57 = 57). CI has no `.env`, so they do not appear there.
+
 Beyond the rows above, the affected directories were swept as a whole —
 `pytest tests/tools tests/mcp tests/agents tests/eval tests/prompts -q` — twice: 908 passed on the
 clean baseline before any change, 925 passed at HEAD. It is cited here rather than added as a
