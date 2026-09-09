@@ -10,7 +10,7 @@
 // throws on `Headers`, hence the node environment override above.
 import { NextRequest, NextResponse } from "next/server";
 import { getRedirectUrl } from "next/experimental/testing/server";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const ROTATED_COOKIE_NAME = "sb-project-auth-token";
 const ROTATED_COOKIE_VALUE = "rotated-session-value";
@@ -24,10 +24,6 @@ const ROTATED_COOKIE_OPTIONS = {
 // Mutable per-test knob: whether getClaims() resolves an authenticated
 // subject. Read by the createServerClient mock below.
 let hasClaims = true;
-
-// Mutable per-test knob: whether getClaims() rejects, simulating an auth
-// backend outage. Read by the createServerClient mock below.
-let shouldRejectClaims = false;
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(
@@ -44,9 +40,6 @@ vi.mock("@supabase/ssr", () => ({
     ) => ({
       auth: {
         getClaims: async () => {
-          if (shouldRejectClaims) {
-            throw new Error("auth backend unreachable");
-          }
           // The real client rotates the auth-token cookie via setAll() as a
           // side effect of refreshing the session — reproduce that here.
           config.cookies.setAll([
@@ -84,7 +77,6 @@ function expectNoRedirectBuilt(response: NextResponse): void {
 describe("proxy — updateSession + applyLangParam composition", () => {
   beforeEach(() => {
     hasClaims = true;
-    shouldRejectClaims = false;
   });
 
   it("row 1: no lang param — rotated cookie still lands on the response", async () => {
@@ -141,88 +133,5 @@ describe("proxy — updateSession + applyLangParam composition", () => {
 
     expect(getRedirectUrl(result)).not.toBeNull();
     expectRotatedCookieSurvives(result);
-  });
-});
-
-describe("proxy — auth backend outage (getClaims() rejects)", () => {
-  beforeEach(() => {
-    hasClaims = true;
-    shouldRejectClaims = true;
-    // proxy.ts's catch handler logs via console.error(). In this test file
-    // (node environment + next/experimental/testing/server's getRedirectUrl
-    // imported above), letting a real thrown Error reach console.error()
-    // after an async rejection crosses a function boundary trips a Next/Node
-    // AsyncLocalStorage invariant unrelated to the code under test — stub it
-    // so the real behavior under test (fail-closed routing) runs, and assert
-    // the pathname was logged instead of relying on the raw console call.
-    vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("fails closed: a protected path redirects to /auth/login", async () => {
-    const request = new NextRequest("https://example.com/trips", {
-      headers: { "sec-fetch-dest": "document" },
-    });
-
-    const result = await proxy(request);
-
-    expect(result.status).toBe(307);
-    expect(new URL(result.headers.get("location")!).pathname).toBe(
-      "/auth/login",
-    );
-    expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("/trips"),
-      expect.anything(),
-    );
-  });
-
-  it("fails closed: a protected path's redirect carries next back to the originally requested path", async () => {
-    const request = new NextRequest("https://example.com/trips?lang=vi", {
-      headers: { "sec-fetch-dest": "document" },
-    });
-
-    const result = await proxy(request);
-
-    const location = new URL(result.headers.get("location")!);
-    expect(location.pathname).toBe("/auth/login");
-    expect(location.searchParams.get("next")).toBe("/trips?lang=vi");
-  });
-
-  it("fails open: an unprotected path still renders", async () => {
-    const request = new NextRequest("https://example.com/", {
-      headers: { "sec-fetch-dest": "document" },
-    });
-
-    const result = await proxy(request);
-
-    expect(result.status < 300 || result.status >= 400).toBe(true);
-  });
-
-  it("fails open: /auth/login itself still renders — the recovery path must not also be gated", async () => {
-    const request = new NextRequest("https://example.com/auth/login", {
-      headers: { "sec-fetch-dest": "document" },
-    });
-
-    const result = await proxy(request);
-
-    expect(getRedirectUrl(result)).toBeNull();
-  });
-});
-
-describe("proxy.ts — imports isProtected from the shared middleware module", () => {
-  it("does not re-list the protected prefixes", async () => {
-    const { readFileSync } = await import("node:fs");
-    const source = readFileSync(
-      new URL("./proxy.ts", import.meta.url),
-      "utf-8",
-    );
-
-    expect(source).toMatch(
-      /import\s*\{[^}]*\bisProtected\b[^}]*\}\s*from\s*['"]@\/lib\/supabase\/middleware['"]/,
-    );
   });
 });

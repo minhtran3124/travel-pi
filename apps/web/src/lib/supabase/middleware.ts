@@ -14,7 +14,7 @@ import { requireSupabaseEnv } from '@/lib/env'
  */
 const PROTECTED_PREFIXES = ['/trips', '/bookings', '/expenses', '/places'] as const
 
-export function isProtected(pathname: string): boolean {
+function isProtected(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   )

@@ -96,6 +96,12 @@ handling has no Supabase dependency, and the auth-gate redirect on the success p
   this one.
 
 - default_if_no_response: BLOCK
-- decision: pending
-- decided_by: <name once decided>
-- decided_at: <YYYY-MM-DD>
+- decision: **B — reduce to the env contract.** `lib/env.ts` and the three call sites stay;
+  `instrumentation.ts` (F4) and the whole `proxy.ts` boundary (F1, F3, F6) are reverted. Narrowed
+  one step further than option B's wording by the controller, and flagged rather than done quietly:
+  the `isProtected` export is also reverted, because its only consumer was the boundary and an
+  exported function with no caller is surface a reviewer has to ask about. F2 (an auth outage is
+  silently indistinguishable from signed-out) and F6 (nothing observes an outage) are **left open**
+  as the real, unfixed defects — they predate this branch and belong to option C's design.
+- decided_by: Minh Tran
+- decided_at: 2026-09-08

@@ -1,6 +1,8 @@
 # proxy-auth-failure-boundary — Design
 
-Status: approved by user 2026-09-08 (scope: both halves; outage behaviour: fail closed to login).
+Status: **scope reduced 2026-09-08** — see `ESCALATIONS.md` E001, decision B. §3.2 and §3.3 below
+are recorded as *rejected*, not built. Six blind correctness angles falsified the premise they rest
+on; the analysis is kept because the next attempt needs it, not because it shipped.
 Lane: `high-risk` (auth hard gate) · Confidence: `high` (the fork below was resolved before design).
 Branch is stacked on `feat/review-c3-web-ssr-i18n` (PR #168): the file this edits, `src/proxy.ts`,
 exists only there — on `main` it is still `src/middleware.ts`.
@@ -66,7 +68,17 @@ nor a bare `!` provides.
 The three call sites replace `process.env.X!` with `requireSupabaseEnv()`. Behaviour on a correct
 configuration is identical; the change is what happens when it is wrong, and where you learn.
 
-### 3.2 `src/instrumentation.ts` — fail the server at startup
+### 3.2 `src/instrumentation.ts` — REJECTED, not built
+
+Kept for the next attempt. The reasoning below is sound except for one load-bearing claim that is
+false: `NEXT_PUBLIC_*` is inlined into the **server** bundle as well as the client one
+(`next/dist/build/define-env.js:53`, `next/dist/lib/inline-static-env.js:27`), so the values are
+frozen at build time on the server too and the "built once, promoted to an environment missing the
+variable" case can never be detected at runtime. `register()` does still fail the boot when the
+build itself lacked the variables — traced through `next-server.js:553-556` — but that build is
+already broken client-side, so the hook adds nothing the build does not already tell you.
+
+#### Original text (rejected)
 
 Next runs `register()` once on server startup (docs: *"You can run code on server startup using the
 `register` function"*). Calling `requireSupabaseEnv()` there turns a misconfigured deploy into one
@@ -74,7 +86,24 @@ loud startup failure instead of a 500 per user request. This does not help a *cl
 without the vars — nothing can, they are already inlined — but it catches the server half at the
 earliest possible moment.
 
-### 3.3 `src/proxy.ts` — the outage boundary
+### 3.3 `src/proxy.ts` — REJECTED, not built
+
+Three independent defects, each verified against the installed packages:
+**(a)** the outage never throws — `auth-js` converts its own errors to `{ data: null, error }` and
+`middleware.ts:58` discards `error`, so a signed-in user is already redirected to login during an
+outage and this boundary never runs;
+**(b)** `getClaims()` refreshes the session *before* the steps that can throw, so a catch that builds
+a fresh response drops the rotated `sb-*` cookies and turns a transient error into a permanent
+sign-out — the failure this file's own comment and `docs/solutions/web/nextjs-16-proxy-and-loading-boundaries.md`
+both warn about;
+**(c)** for a present-but-invalid URL it converted a loud 500 into a site that looks healthy while
+redirecting every user to a login page that cannot work.
+
+A correct boundary has to live *inside* `updateSession`, read `getClaims()`'s `error`, separate
+configuration failures from transient ones, and leave an operator-visible signal — the 500 it removes
+is currently the only thing that observes an auth outage. That is option C, and its own design.
+
+#### Original text (rejected)
 
 ```ts
 export async function proxy(request: NextRequest) {

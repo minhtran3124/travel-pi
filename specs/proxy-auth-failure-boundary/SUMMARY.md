@@ -29,61 +29,40 @@ Source: `specs/review-c3-web-ssr-i18n/ESCALATIONS.md` E001, decision A.
 
 ## What changed
 
-An auth failure no longer takes the whole site down. `proxy.ts` awaited the Supabase session
-refresh with no boundary, so an unreachable auth host or a missing environment variable returned
-500 for **every** matched path — including `/auth/login` and `/auth/callback`, the pages a user
-needs in order to recover. The blast radius of an auth outage was the entire site rather than the
-four protected prefixes the gate actually covers.
+The two Supabase environment variables now have one contract. Three files each non-null-asserted
+them and nothing validated them anywhere, so a misconfigured deploy failed at whichever client
+happened to be constructed first, with a message that named the problem but not the fix.
+`requireSupabaseEnv()` names the absent variable and says it is required at **build** time, because
+Next inlines `NEXT_PUBLIC_*` during `next build` and it cannot be supplied later.
 
-It now fails closed: a protected path redirects to the login page as though the visitor were signed
-out, carrying the `next` return path exactly as the normal gate does; everything else renders.
-Signing in will not work while the backend is down, but the user reaches a page that renders and a
-state they can read.
-
-Separately, the two Supabase environment variables now have one contract. Three files each
-non-null-asserted them and nothing validated them anywhere, so a misconfigured deploy failed at
-whichever client happened to be constructed first. `requireSupabaseEnv()` names the absent variable
-and says it is required at build time, and `register()` fails the server at startup rather than on
-every user request.
+**That is all that shipped.** The branch originally also added a failure boundary in `src/proxy.ts`
+and a startup validation hook. Both were reverted — see `### Correctness Findings`.
 
 ### Rationale
 
-The escalation described one defect; research found two wearing one coat, and they want different
-fixes. **Misconfiguration** is deterministic and belongs as early as possible — at build, or at
-server start. **An outage** is transient and belongs at the request boundary. Conflating them is why
-"what should happen?" read as one question when it was two.
+The escalation described one defect; research found two wearing one coat. **Misconfiguration** is
+deterministic and belongs as early as possible. **An outage** is transient and belongs at the request
+boundary. Only the first survived scrutiny.
 
-Two facts were measured rather than assumed, and both shaped the result:
-
-- `createServerClient` throws **synchronously** on a missing url or key — run against the installed
-  package. So Supabase's message was never the problem; where it surfaced was.
-- `NEXT_PUBLIC_*` variables are inlined at build by textual replacement of `process.env.NAME`, and
-  the Next docs state that dynamic access is **not** inlined. The natural shape for a validator — a
-  loop over a list of variable names — would therefore ship `undefined` to the browser and cause the
-  very outage this spec removes. `env.ts` reads each name literally and a source-text gate holds it
-  there, because jsdom performs no inlining and no runtime test can see the defect.
+The reads use literal property access at module scope, one line per variable, with a comment saying
+why and a source-text gate holding them there. Next inlines `NEXT_PUBLIC_*` by textually replacing
+`process.env.NAME` and does not inline dynamic access, so the tidy version of this — a loop over a
+list of names — would ship `undefined` to the browser. The gate is a positive assertion (both literal
+strings present) rather than a ban on one bad form, because the docs name two and destructuring is a
+third. jsdom performs no inlining, so no runtime test can see the defect.
 
 The checks live inside `requireSupabaseEnv()` rather than at module scope, measured both ways:
 importing must not throw, calling must. `lib/supabase/client.ts` is imported by browser code, and an
 import-time throw there would blank every route including ones that never touch Supabase.
 
-The `try` covers `updateSession` alone. `applyLangParam` sits after it, so a throw from there escapes
-instead of being logged under the wrong function's name and failing a request closed during an
-incident that is not an auth incident.
-
 ### Alternatives considered
 
-- **Fail open — render the page during an outage.** Rejected: it looks signed-in but every API call
-  401s, and widening an auth gate while the auth backend is unstable is the wrong direction.
-- **A dedicated "auth unavailable" page.** Rejected for now: a new route plus catalog entries in two
-  languages for a state that should be rare. `/auth/login` already exists, already renders, and
-  already explains itself. Revisit if outages prove common.
-- **Fix only the proxy boundary, as the escalation described.** Rejected once research found the same
-  assertion in three files with nothing validating them: the proxy would stop returning 500 while a
-  missing variable still broke the browser client and the route handlers separately.
-- **Validate env at module scope.** Rejected on measurement — see Rationale.
-- **Re-list the protected prefixes in the failure path.** Rejected: two definitions drift, and the
-  outage path would then protect a different set of routes than the success path.
+- **Also add the proxy failure boundary and the startup hook** — built, then reverted. Six blind
+  correctness angles falsified the premise. Recorded in full under `### Correctness Findings` and in
+  `design.md` §3.2/§3.3, which are kept as rejected analysis for whoever attempts option C.
+- **Validate the variables at module scope.** Rejected on measurement — see Rationale.
+- **Keep the three non-null assertions and fix only the proxy.** Rejected once research found the
+  same assertion in three files with nothing validating them.
 
 ### Deviations
 
@@ -91,42 +70,64 @@ incident that is not an auth incident.
 
 ### Verify
 
-Every row re-run on the branch head; each is a single pipe-free command naming the criterion it
-satisfies. The 6 SC rows live in `PLAN.md` §3.
-
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | Env contract behaves and reads literally | `cd apps/web && pnpm exec vitest run src/lib/env.test.ts` | 0 | 6 tests; includes the positive source-text gate | SC-1 |
 | Every Supabase client goes through it | `grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/middleware.ts && grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/server.ts && grep -q "requireSupabaseEnv" apps/web/src/lib/supabase/client.ts` | 0 | `-q`, not `-L`: `-L`'s exit code is not portable across the two greps on this machine | SC-2 |
-| Startup validation actually validates | `cd apps/web && pnpm exec vitest run src/instrumentation.test.ts` | 0 | 3 tests; asserts `register()` throws, not that a symbol exists | SC-3 |
-| Outage fails closed, and the success path is unmoved | `cd apps/web && pnpm exec vitest run src/proxy.test.ts` | 0 | 9 tests; the five pre-existing branch cases are byte-identical | SC-4 |
-| Workspace type-check | `cd apps/web && pnpm exec tsc --noEmit` | 0 | | SC-5 |
-| No bare non-null assertion survives | `! grep -rq "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/` | 0 | | SC-6 |
-| Full suite | `cd apps/web && pnpm exec vitest run` | 0 | 49 files / 267 tests, from 47 / 254 at the branch point | |
-| Build | `cd apps/web && pnpm build` | 0 | route table still lists `f Proxy (Middleware)` | |
+| Workspace type-check | `cd apps/web && pnpm exec tsc --noEmit` | 0 | | SC-3 |
+| No bare non-null assertion survives | `! grep -rq "NEXT_PUBLIC_SUPABASE_URL!" apps/web/src/lib/supabase/` | 0 | | SC-4 |
+| Full suite | `cd apps/web && pnpm exec vitest run` | 0 | 48 files / 260 tests | |
+| Build | `cd apps/web && pnpm build` | 0 | | |
+
+### Correctness Findings
+
+Six blind angles ran over the branch as originally built. Every finding below was re-verified by the
+controller against the installed packages, not taken from the reports.
+
+**Reverted because of these — the boundary and the startup hook:**
+
+- **The outage this spec was written for does not throw.** `auth-js` catches its own errors and
+  returns `{ data: null, error }`; `AuthRetryableFetchError` (a network failure) is an `AuthError`.
+  `middleware.ts:58` discards `error`, so during an outage a signed-in user is already redirected to
+  `/auth/login` — the app tells them they are signed out when it is in fact broken. The boundary
+  never ran on that path.
+- **The boundary dropped rotated session cookies.** `getClaims()` refreshes first, writing the new
+  `sb-*` token through `setAll()` onto `updateSession`'s local response; only then does it reach the
+  crypto steps whose `DOMException` escapes. A catch that builds a fresh response cannot reach that
+  object, so the browser keeps a refresh token Supabase has already consumed — a transient error
+  becomes a permanent silent sign-out. The test could not catch it: the mock threw *before* `setAll`.
+- **It made a real misconfiguration worse.** `requireSupabaseEnv()` tests presence, not shape. A
+  present-but-invalid URL passes it and `createServerClient` then throws per request. That was a
+  loud 500 before the branch; with the boundary it became a healthy-looking site redirecting every
+  user to a login page that could not work.
+- **`register()` could not detect its stated case.** `NEXT_PUBLIC_*` is inlined into the server
+  bundle too, so a promoted build carries frozen values. It does still fail the boot when the build
+  itself lacked the variables — narrower than the design claimed.
+
+**Left open, and not introduced by this branch:**
+
+- An auth outage is silently indistinguishable from "signed out", and nothing observes it: no
+  `onRequestError` hook, no error-reporting SDK, no deployment probe. Protected paths 307 and
+  everything else returns 200, so an uptime check reads the site as healthy. This is the real defect
+  behind E001 and it belongs to option C.
+- `requireSupabaseEnv()` validates presence, not URL shape.
 
 ### Not auto-verified
 
-- **No auth outage was simulated against a running deployment.** The outage path is proven by unit
-  tests that force `getClaims()` to reject through the `@supabase/ssr` mock — reached **provenance**,
-  not **truth**. Nobody took Supabase away from a live instance and watched `/auth/login` render.
-- **`register()` was not observed running under `next build` / `next start`.** The test invokes it
-  directly. That it is wired as Next's startup hook rests on the file convention, which `pnpm build`
-  exercises only indirectly.
-- **The inlining claim is docs-plus-reasoning, not a measured browser bundle.** The positive
-  source-text gate enforces the shape the docs require; no one inspected a built client chunk to
-  confirm the values were inlined.
-- A Rule-3 test-only `console.error` spy works around an upstream Next 16.2.9 / Node 24
-  `AsyncLocalStorage` invariant. An independent reviewer removed the spy and reproduced the exact
-  upstream error, so it is an environment artifact rather than a defect here — but the workaround
-  itself is untested against a future Next release.
+- **No misconfigured deploy was exercised end to end.** The env contract is proven by unit tests and
+  by a direct measurement that `createServerClient` throws synchronously on a falsy url or key. No
+  one deployed with a variable removed and watched what a user sees.
+- **The inlining claim is docs-plus-source-reading, not a measured browser bundle.** The positive
+  source-text gate enforces the shape the docs require; no one inspected a built client chunk.
+- The `NEXT_PUBLIC_*`-is-inlined-into-the-server-bundle finding rests on reading
+  `next/dist/build/define-env.js` and `next/dist/lib/inline-static-env.js`, not on observing a
+  promoted deploy.
 
 ### Rollback
 
-- Whole branch: do not merge, or `git revert --no-commit <base>..HEAD && git commit`.
-- The boundary alone: `git revert 29a656e`. Reverting the env contract (`d562ced`) requires also
-  reverting `82c0651`, which routes the three factories through it, or they will import a module
-  that no longer exists.
+- `git revert` the three commits that survive, or simply do not merge. Nothing here is deployed.
+- Reverting `lib/env.ts` requires also reverting the commit that routes the three factories through
+  it, or they import a module that no longer exists.
 - No migration, no backend change, no public API change.
 
 ### Harness-Delta
