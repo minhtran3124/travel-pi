@@ -46,6 +46,7 @@ class FlightBookingDetails(AppBaseModel):
     destination: str = Field(description="IATA destination code.")
     departure_time: str = Field(description="Scheduled departure time, ISO 8601.")
     arrival_time: str = Field(description="Scheduled arrival time, ISO 8601.")
+    passengers: int = Field(default=1, description="Seats booked.")
     passenger_name: str = Field(description="Name on the ticket.")
     passenger_phone: str | None = Field(default=None, description="Contact phone.")
 
@@ -67,7 +68,9 @@ class HotelBookingDetails(AppBaseModel):
     adults: int = Field(description="Adults in the party.")
     children: int = Field(description="Children in the party.")
     price_per_night: float = Field(description="Locked nightly rate at booking time.")
-    guest_phone: str | None = Field(default=None, description="Contact phone for the hotel.")
+    guest_phone: str | None = Field(
+        default=None, description="Contact phone for the hotel."
+    )
 
 
 BookingDetails = Annotated[
