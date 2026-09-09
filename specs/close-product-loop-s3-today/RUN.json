@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-09T07:34:56Z",
+  "last_event_id": "8a29b1b9-8743-496a-b0c8-5401ae2867ed",
+  "resume_event": null,
+  "run_id": "1cbaef40-49d2-4c12-9735-1c79dbde52f3",
+  "seq": 3,
+  "sha": null,
+  "slug": "close-product-loop-s3-today",
+  "state": "planning",
+  "updated_at": "2026-09-09T07:35:01Z",
+  "waiting_on": null
+}
