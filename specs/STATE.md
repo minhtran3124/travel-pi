@@ -4,10 +4,10 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** close-product-loop-s1-booking-ui
+- **Slug:** flight-booking-passenger-count
 - **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
 - **Last skill:** subagent-driven-development
-- **Last action:** All 10 tasks executed plus a post-review fix pass (10 commits, HEAD 889b189). Correctness and intent reviews both pass, zero blocking open. verify_summary --check: 15/15 exit 0. Postgres suite run in an isolated compose project: 2252 passed, no failure in this slice's areas. Known limitation recorded: chatbot bookings still carry no trip_id (agent path out of scope for S1). Not done: browser UAT. PR #167 open → main (HEAD bb31851). Awaiting human review and merge.
+- **Last action:** Flight bookings now price for the seats asked for (2 tasks, commits bee98f4 + 76b44c1, all 8 SC exit 0), landing on the same branch as PR #167. Previously: all 10 S1 tasks executed plus a post-review fix pass (10 commits, HEAD 889b189). Correctness and intent reviews both pass, zero blocking open. verify_summary --check: 15/15 exit 0. Postgres suite run in an isolated compose project: 2252 passed, no failure in this slice's areas. Known limitation recorded: chatbot bookings still carry no trip_id (agent path out of scope for S1). Not done: browser UAT. PR #167 open → main (HEAD bb31851). Awaiting human review and merge.
 - **Updated:** 2026-09-08
 
 ## Recent Specs
@@ -1740,5 +1740,40 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - session_id: 07471ffe-ff50-4567-8606-fe7d020d80ee
 - exit: 
 - last_commit: 032aa96 fix(web): load every trip before deciding a prefilled tripId is stale
+- user_turns: 0
+
+
+### 2026-09-08T16:32:29Z
+- session_id: b1070d04-5955-4cb0-af4d-907aea1849ac
+- exit: 
+- last_commit: 64b7b0e docs(uat): embed the screenshots in the UAT README
+- user_turns: 0
+
+
+### 2026-09-08T16:42:56Z
+- session_id: 8d938691-e1c3-4f7c-9e77-2dd1db3ac073
+- exit: 
+- last_commit: 64b7b0e docs(uat): embed the screenshots in the UAT README
+- user_turns: 0
+
+
+### 2026-09-09T01:52:10Z
+- session_id: 7733b503-fb3b-45fd-8f0c-e65d17ad901d
+- exit: 
+- last_commit: 564ad7c chore(specs): record the S1 run as ready to merge
+- user_turns: 0
+
+
+### 2026-09-09T01:57:53Z
+- session_id: b0a5e1ca-adf3-45bd-ab54-363f50a8c3dc
+- exit: 
+- last_commit: bee98f4 feat(api): price a flight booking for the seats actually asked for
+- user_turns: 0
+
+
+### 2026-09-09T02:01:19Z
+- session_id: 6d0e51bb-fcf9-46ae-9fe8-e0803c12708a
+- exit: 
+- last_commit: 76b44c1 feat(agent): let the assistant book more than one seat
 - user_turns: 0
 
