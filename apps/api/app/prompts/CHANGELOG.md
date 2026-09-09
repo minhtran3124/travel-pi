@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## close-product-loop-s2-guide-and-map — concierge learns the visa tool exists
+
+The concierge got a `get_visa` tool (structured, disclaimer-carrying entry-requirement
+lookups), but the prompt still told it "for visa questions there is no other source" and
+to plead ignorance whenever `search_travel_knowledge` came back empty — that claim is now
+false, and the assistant would keep refusing while holding a tool that can answer.
+
+- **concierge v12** — copied v11; "Visa & local advice" now reaches for `get_visa` first
+  for entry requirements about a named destination, keeps `search_travel_knowledge` for
+  free-text/nuanced questions the structured lookup can't answer, and drops the "no other
+  source" claim. The guidance-not-a-ruling framing and passing the disclaimer through both
+  stay — they matter more now that the answer looks authoritative.
+
+`active.yaml`: concierge → 12.
+
 ## close-product-loop-s1-booking-ui — booking can now book more than one seat
 
 `BookFlightArgs`/`book_flight` gained a model-supplied `passengers` argument (Task 1.1
