@@ -303,6 +303,15 @@ class BookFlightArgs(AppBaseModel):
     notes: str | None = Field(
         None, description="Optional note for the airline (seat/meal preference)."
     )
+    passengers: int = Field(
+        default=1,
+        ge=1,
+        description=(
+            "Number of seats to book. Get this explicitly from the traveller "
+            "rather than assuming 1 — one booking covers all of them, so do "
+            "not call book_flight once per traveller."
+        ),
+    )
     confirm: bool = Field(
         False,
         description=(
@@ -335,6 +344,7 @@ def book_flight(
     destination: str | None = None,
     departure_date: str | None = None,
     notes: str | None = None,
+    passengers: int = 1,
     confirm: bool = False,
     user_id: Annotated[str, InjectedState("user_id")] = "",
     trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
@@ -355,6 +365,8 @@ def book_flight(
     :param destination: 3-letter IATA destination code (mode B).
     :param departure_date: Departure date YYYY-MM-DD (mode B).
     :param notes: Optional note for the airline.
+    :param passengers: Number of seats to book, from the traveller — one
+        booking covers all of them, never call this once per traveller.
     :param confirm: Must be True to execute the booking; left False, nothing books.
     :param user_id: The owner id, injected from graph state (not model-supplied);
         stamped on the booking so it is scoped to the authenticated traveller.
@@ -373,6 +385,7 @@ def book_flight(
             "origin": origin,
             "destination": destination,
             "departure_date": departure_date,
+            "passengers": passengers,
             "confirm": confirm,
         },
     )
@@ -392,6 +405,7 @@ def book_flight(
                 passenger_email=passenger_email,
                 passenger_phone=passenger_phone,
                 notes=notes,
+                passengers=passengers,
                 trip_id=trip_id,
             )
             result = BookingService(s).book_flight(request, user_id=user_id)

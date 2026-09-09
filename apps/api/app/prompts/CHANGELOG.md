@@ -3,6 +3,21 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## close-product-loop-s1-booking-ui — booking can now book more than one seat
+
+`BookFlightArgs`/`book_flight` gained a model-supplied `passengers` argument (Task 1.1
+already made `FlightBookingRequest`/`BookingService.book_flight` price and record it) —
+but nothing told the assistant to use it, so every flight booking still defaulted to
+one seat regardless of what the traveller asked for.
+
+- **booking v10** — copied v9; added "How to Work" step 6: ask the traveller for the
+  passenger count and pass it to `book_flight` as `passengers`, with one booking
+  covering all of them rather than one call per traveller. The "No default-with-confirm"
+  guardrail already listed "party size" among the values that must come from the
+  traveller — this makes that rule reachable, not new.
+
+`active.yaml`: booking → 10.
+
 ## close-product-loop-s1-booking-ui — booking can now identify the flight
 
 Second blocker on the same path, found by browser UAT. With the email fixed, the
