@@ -151,6 +151,7 @@ fixes (#146/#155/#156) already used.
 | the reviewer round's rewritten pins still bite | deleted the weather/places guard from **both** places in `v12.md`, re-ran the module, restored it | 1 | `test_supervisor_prompt_keeps_planner_owned_not_a_trigger` failed only when the rule was absent from both locations — it correctly stayed green when the rule survived in the other one | SC-2 |
 | the contrastive-pair pin still bites | deleted the `**local tips**` example line, re-ran the module, restored it | 1 | `test_supervisor_prompt_has_contrastive_pair` failed | SC-3 |
 | the reviewer round did not disturb the workflow | `../../.venv/bin/python -m pytest tests/prompts/test_supervisor_prompt.py tests/agents/test_supervisor_plan_semantics.py -q` | 0 | | SC-6 |
+| the BE suite's 59 failures are pre-existing, not caused by this change | ran the 12 failing modules on a temp worktree at `main` and on this branch, then `diff`ed the sorted `FAILED` lists | 0 | 59 failed on both; the two lists are byte-identical. They are dashboard/auth, visa, tips, routing, config and embeddings modules — none touches the supervisor, the prompt registry or the agent graph | |
 | ruff clean on the touched Python | `../../.venv/bin/ruff check app/agents/supervisor.py eval/compare_capability.py` | 0 | | |
 
 ### Not auto-verified
@@ -171,6 +172,12 @@ fixes (#146/#155/#156) already used.
 - **Nothing was checked against the live dev agent.** Prompt text is not hot-reloaded
   (`docs/solutions/agent/langgraph-thread-reset-and-prompt-reload.md`); `python -m eval` builds its
   own graph, so the running container still serves v11 until `docker exec api-api-1 touch app/main.py`.
+- **The 59 pre-existing suite failures were not diagnosed, only attributed.** The comparison
+  proves they predate this branch; it does not say why they fail. Two of my own runs were
+  misleading before I got there — the first passed `--timeout=300`, which this pytest has no
+  plugin for, so it ran nothing while `tail`'s exit 0 read as a pass; the second truncated 45 of
+  the 59 names through `tail -15`. Both are recorded here because the wrong lesson to draw is
+  that the suite is green.
 - **A separate, unfiled defect was observed:** the model intermittently returns a nested object in
   `plan` (`{'target_agent': 'journal', 'slots': None}`) instead of a specialist literal, crashing
   the turn with a pydantic ValidationError. Seen in the committed baseline and in two runs here.
