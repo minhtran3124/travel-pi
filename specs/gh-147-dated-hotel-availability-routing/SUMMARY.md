@@ -164,6 +164,36 @@ them — a plan gap caught during execution (SC-10 corrected).
 | `errors-ambiguous-en-01` | fail | FAIL — `non_empty_reply` | — | pre-existing HITL empty-draft gap = **#153** |
 | `hotels-happy-vi-02`, `hotels-ambiguous-vi-01`, `hotels-ambiguous-en-01` | pass | **PASS** | | |
 
+### Correctness-review follow-up and the eval churn it caused (2026-09-09)
+
+The branch correctness review found a real gap the new capability exposed:
+`HotelService.check_availability` returns **every** hotel matching city + filters, flagging each
+with `available`, and the model-visible summary counted them all and named "cheapest $X" without
+checking whether that room could be had. Harmless while the concierge could not quote dated
+availability (booking caught it at `book_hotel`); not harmless now.
+
+Fixing it took three attempts, and the eval is what caught the two bad ones:
+
+| Run | Change under test | `hotels` full | What it taught |
+| --- | --- | --- | --- |
+| `gh147-hotels.json` | wave 1–2 as shipped | 5/6 | `hotels-multi_turn-en-01` (#147) passes; only `reply_language` red (#148) |
+| `gh147-hotels-v2.json` | summary rewritten to "N of M have a room free" + a v12 rule to shortlist only available ones | **3/6** | the model narrated its own 4-hotel shortlist as the search result — "4 hotels available at $560" against 24 from $140 — and the oracle read it as a false claim |
+| `gh147-hotels-v3.json` | counts dropped from the summary, v12 rule kept | 4/6 | better, but any availability sentence in the prompt still made the model narrate availability counts |
+| `gh147-hotels-v4.json` | guard lives only in the tool; v12's Hotels section back to its shipped text | **5/6** | `hotels-multi_turn-en-01` **and** `hotels-happy-en-02` both pass |
+
+The lesson is the repo's own `llm-parses-code-computes` principle: the availability guard belongs
+in the deterministic tool output (the cheapest and top-rated it names come from the bookable
+subset; a sold-out note appears only when some hotel actually is), **not** in a prompt rule the
+model restates. When every hotel is available — the common case — the summary string is now
+byte-identical to what shipped in wave 2.
+
+**Final state (v4 runs):** `hotels` full 5/6, `hotels` smoke 2/2, `errors` full 5/6. The one red
+is `hotels-multi_turn-vi-01` on `oracle_fact_check`, and only on `available_count` (oracle 3,
+claimed 2) — price, nights, hotel count, flow, tools and language all match. Across the four runs
+a different single golden goes red each time on this same extractor, so treat `oracle_fact_check`
+on the hotel goldens as **flaky at k=3**, not as a signal about this diff. Both #147 goldens have
+passed; `hotels-multi_turn-en-01` passed in the first and last run.
+
 Capability roll-up: `hotels` full 5/6 (83.3%), `errors` full 5/6 (83.3%), both smoke suites 2/2.
 Neither remaining failure is caused by this change.
 
