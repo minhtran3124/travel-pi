@@ -152,6 +152,42 @@ class SupervisorIntent(BaseModel):
                 logger.warning("[agent] supervisor dropping plan entry: %r", entry)
         return coerced or None
 
+    @field_validator("task_queries", mode="before")
+    @classmethod
+    def _coerce_task_queries(cls, value: object) -> list[str] | None:
+        """Degrade a malformed ``task_queries`` instead of raising a ValidationError.
+
+        The router's ``function_calling`` output is not strict-schema, so the
+        model can emit a bare string, a non-list, or ``null``/number/object
+        entries. A bare string is wrapped, any other non-list is dropped with a
+        WARNING, and a non-string entry is replaced by ``""`` (WARNING) rather
+        than removed — positions are kept so the length-equality alignment in
+        ``supervisor()`` still holds and only that one task falls back to the
+        last user message. Entries are only ``isinstance``-checked, never
+        hashed or membership-tested, so an unhashable value cannot escape
+        (GH-180). Declared as a ``before`` validator so the JSON schema sent to
+        the model stays ``list[str] | None``.
+        """
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return [value]
+        if not isinstance(value, list):
+            logger.warning(
+                "[agent] supervisor dropping non-list task_queries: %r", value
+            )
+            return None
+        coerced: list[str] = []
+        for entry in value:
+            if isinstance(entry, str):
+                coerced.append(entry)
+            else:
+                logger.warning(
+                    "[agent] supervisor blanking task_queries entry: %r", entry
+                )
+                coerced.append("")
+        return coerced
+
 
 # Loose "number + currency hint" match: a digit run (with optional , / . group
 # separators) followed by an optional unit token. Deliberately simple — MIN-65
