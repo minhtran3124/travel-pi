@@ -20,11 +20,19 @@ entry, so a model that ignores the field degrades to today's behaviour. Rejected
 `[{agent, query}]` objects — breaks `test_wire_schema_keeps_plan_enum`, re-enters the gh-180
 coercer, and changes an enum the model has routed reliably on since v9.
 
-**D2 — Delivery: a trailing `SystemMessage`, built at invoke time, never stored.**
-`_base.py::assistant` passes `[system_msg, *state["messages"], task_note]` to the model. The note
-is `TASK_NOTE_PREAMBLE + query`. It is not returned in `{"messages": [...]}`, so it is never
-checkpointed or replayed on later turns (the PR #140 replay class). Rejected: `HumanMessage`
-(upstream-literal) — `docs/solutions/agent/reflection-humanmessage-language-flip.md`.
+**D2 — Delivery: folded into the single leading `SystemMessage` (revised 2026-09-10).**
+`with_task_note(system_msg, state)` appends `TASK_NOTE_PREAMBLE + query` to the end of the leading
+system message, after `with_reply_language`; `messages` is untouched and nothing is stored.
+The first version appended a separate trailing `SystemMessage`. The final correctness review
+rejected it: the codebase requires one leading system message (`system_with_summary` docstring,
+pinned by four tests in `test_profile_injection.py` / `test_procedural_injection.py`, which went
+red), and langchain-anthropic raises `Received multiple non-consecutive system messages` on
+that shape, so every routed turn on an Anthropic-configured specialist crashed. The trailing
+note also landed after the reflection REVISE note and after each tool round's results.
+Cost accepted: the query changes per turn, so the cached prompt prefix now diverges at the end
+of the system message instead of after the history — not measured (see SUMMARY `Not
+auto-verified`). Rejected: `HumanMessage` (language-flip bug); per-provider branching (complexity
+for a provider that is not configured today).
 
 **D3 — Scope: both paths, one read.** The specialist always reads `state["tasks"][0]["query"]`.
 Single-intent: the supervisor's list. Fan-out: `synthesis_worker` sets `inner_state["tasks"] = [task]`

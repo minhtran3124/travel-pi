@@ -56,8 +56,23 @@ Two implementation forks remain; both have a safe default so confidence is `medi
 ### Deviations
 
 - Task 1.1, Rule 1 — the plan's dedup test data `["a","b","c"]` contradicted its own ≥3-char fallback rule; the test uses `["query a","query b","query c"]` so it measures alignment, not the length guard. Accepted by the task reviewer; PLAN.md reconciled.
+- Correctness review, Rule 1 (68aaee2) — design D2 reversed: the task note moved from a separate trailing `SystemMessage` into the end of the single leading system message (`with_task_note`). The trailing form broke the single-leading-system invariant (four existing tests went red in the full suite, which no per-task Verify ran) and crashed every routed turn on an Anthropic-configured specialist. An independent re-review confirmed the defect closed with no new findings. design.md D2 records the change and its unmeasured cache cost.
 - Task 2.2, Rule 3 (controller) — `test_total_case_count_at_least_60` pins the exact golden count (`== 103`) in a file outside the task's Files set, so the implementer stopped as BLOCKED. The controller bumped it to 105, following the gh-166 precedent (28bb989). PLAN.md Task 2.2 Files now lists `tests/eval/test_datasets.py`.
 - Task 1.1, Rule 3 — ruff B905 required `zip(..., strict=True)`; safe because the branch is guarded by an equal-length check.
+
+### Advisory Findings (correctness review, below threshold 75)
+
+Six finders over 34f9920..058e8dd; seven candidates; one independent scorer per candidate.
+
+- 75 → fix loop — `_base.py:260` trailing task-note `SystemMessage` crashes every routed turn on an Anthropic-configured specialist and breaks the single-leading-system invariant (4 existing tests red). Fixed by folding the note into the leading system message (see Deviations).
+- 50 — `_base.py:260` the trailing note lands after the reflection REVISE note, so the last instruction is the original task. Resolved by the same fold.
+- 50 — `_base.py:260` the note is re-appended after the ToolMessages on every tool round. Resolved by the same fold.
+- 50 — `supervisor.py:434` if the model repeats `target_agent` inside `plan`, lengths still match and `setdefault` keeps only the first slice for that agent; needs the model to break v13 ("`plan` must never contain `target_agent`"). Not fixed.
+- 50 — `supervisor.py:432` `plan=null` with a one-entry `task_queries` replaces the single specialist's full message with the model's paraphrase; needs the model to ignore both the prompt and the Field description. Not fixed. A one-line guard (use `task_queries` only when more than one task is emitted) would close it.
+- 25 — `supervisor.py:438` a valid 1–2 character CJK slice falls back to the whole message; the product supports `en` and `vi` only.
+- 25 — `supervisor.py:430` a dropped plan entry plus a missing primary query can re-align queries to the wrong agents; needs two independent prompt violations.
+- pre-existing on main, out of scope — reflection REVISE stores `SystemMessage(REFLECTION_REVISE_NOTE)` in `messages` (`nodes.py:258`), so the retry input has two system messages and still raises on an Anthropic-configured specialist. Unchanged by this branch; worth its own issue.
+- prior-art finder: no recorded failure reintroduced (language flip, sync-over-async, gh-180 unhashable, active.yaml pointer, prompt-version collision).
 
 ### Minor review findings (forwarded to the final review chain)
 
@@ -76,7 +91,7 @@ Two implementation forks remain; both have a safe default so confidence is `medi
 
 ### Verify
 
-All rows run from the repo root at HEAD 80302ec, 2026-09-10.
+All rows run from the repo root at HEAD 68aaee2, 2026-09-10 (after the correctness-review fix). The full backend suite was also run at that tree: 2413 passed, 0 failed (baseline on main: 2388 passed). A whole-suite run is not a Verify row by rule.
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
@@ -85,8 +100,10 @@ All rows run from the repo root at HEAD 80302ec, 2026-09-10.
 | Distinct query per task | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_task_queries.py -q -k distinct` | 0 | 1 passed | SC-1 |
 | Fallback to the user message | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_task_queries.py -q -k fallback` | 0 | 2 passed | SC-2 |
 | `plan` wire schema and existing constructors unchanged | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py apps/api/tests/agents/test_supervisor.py -q` | 0 | 25 passed | SC-3 |
-| `task_note` shape | `.venv/bin/python -m pytest apps/api/tests/agents/test_task_note.py -q` | 0 | 6 passed | SC-4 |
-| Specialist receives the note on both paths | `.venv/bin/python -m pytest apps/api/tests/agents/test_subagent_task_note.py -q -k receives` | 0 | 2 passed | SC-5 |
+| `with_task_note` shape | `.venv/bin/python -m pytest apps/api/tests/agents/test_task_note.py -q` | 0 | 5 passed | SC-4 |
+| Specialist receives the note in its one leading system message, on both paths | `.venv/bin/python -m pytest apps/api/tests/agents/test_subagent_task_note.py -q -k receives` | 0 | 2 passed | SC-5 |
+| Tool result and revise note stay last; one leading system message | `.venv/bin/python -m pytest apps/api/tests/agents/test_subagent_task_note.py -q -k last` | 0 | 2 passed: `test_tool_round_keeps_tool_result_last`, `test_revise_note_stays_last` | SC-5 |
+| Single-leading-system invariant (the four tests the first design broke) | `.venv/bin/python -m pytest apps/api/tests/agents/test_profile_injection.py apps/api/tests/agents/test_procedural_injection.py -q` | 0 | 5 passed; 4 of them were red at 058e8dd | SC-5 |
 | Note never persisted | `.venv/bin/python -m pytest apps/api/tests/agents/test_subagent_task_note.py -q -k not_persisted` | 0 | 1 passed | SC-6 |
 | Fan-out end to end: distinct notes, none checkpointed | `.venv/bin/python -m pytest apps/api/tests/agents/test_multi_intent_routing.py -q` | 0 | 8 passed; the new test fails when the note append in `_base.py` is disabled | SC-5 |
 | Supervisor prompt v13 active | `.venv/bin/python -m pytest apps/api/tests/prompts/test_supervisor_prompt.py -q` | 0 | 5 passed | SC-7 |
