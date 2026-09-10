@@ -94,6 +94,7 @@ def test_smoke_suite_never_declares_a_judged_metric():
         "format_quality",
         "memory_recall",
         "suggestion_relevance",
+        "ask_coverage",
     }
     for case in _real_store().load(suite="smoke"):
         declared = set(case.metrics or [])
