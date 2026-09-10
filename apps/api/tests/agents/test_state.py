@@ -203,6 +203,12 @@ def test_ground_current_date_injects_today():
     grounded = ground_current_date(SystemMessage(content="BASE PROMPT"))
     assert isinstance(grounded, SystemMessage)
     assert "BASE PROMPT" in grounded.content
+    # Order pin (prompt-caching): the stable base prompt must sit at token 0 and the
+    # volatile date note is appended last, so the cacheable prefix stays byte-stable.
+    assert grounded.content.startswith("BASE PROMPT")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE PROMPT")
+    # The date-grounding note is the final block; its last sentence ends the message.
+    assert grounded.content.rstrip().endswith("ambiguous.")
     assert today in grounded.content
     assert "resolve_date" in grounded.content
     # No date given is the one case that must still produce a question: the note has to
@@ -308,6 +314,17 @@ def test_subagent_no_language_directive_when_undetected():
     assert "Reply in the traveller's own language" not in system_msg.content
 
 
+def test_ground_current_date_note_is_last_block():
+    """Prompt-caching order pin: the volatile date note is the LAST block of the
+    grounded message so the stable, cacheable prefix stays at token 0."""
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    grounded = ground_current_date(SystemMessage(content="BASE PROMPT"))
+    assert grounded.content.startswith("BASE PROMPT")
+    assert grounded.content.rstrip().endswith("ambiguous.")
+
+
 def test_ground_current_date_uses_timezone():
     from datetime import datetime
     from zoneinfo import ZoneInfo
@@ -321,6 +338,8 @@ def test_ground_current_date_uses_timezone():
     assert today_local in grounded.content
     assert tz in grounded.content
     assert "BASE" in grounded.content
+    assert grounded.content.startswith("BASE")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE")
 
 
 def test_ground_current_date_invalid_tz_falls_back_to_utc():
@@ -329,3 +348,5 @@ def test_ground_current_date_invalid_tz_falls_back_to_utc():
 
     grounded = ground_current_date(SystemMessage(content="BASE"), "Not/AZone")
     assert "UTC" in grounded.content  # fell back, did not raise
+    assert grounded.content.startswith("BASE")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE")
