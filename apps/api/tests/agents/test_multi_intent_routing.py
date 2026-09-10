@@ -7,6 +7,8 @@ Covers:
 - The plan/HITL booking detour keeps its own topology untouched.
 """
 
+import asyncio
+
 from app.agents.graph import build_graph
 from app.agents.nodes import route_tasks
 from app.agents.supervisor import SupervisorIntent
@@ -15,6 +17,17 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 from langgraph.types import Send
+
+
+def _drive(graph, *args, **kwargs):
+    """Run the graph the way production does — asynchronously.
+
+    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
+    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
+    ``ainvoke``/``astream``, so driving the graph this way is also the more
+    faithful test.
+    """
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 def _build(structured_responses, main_responses, fast_responses):
@@ -26,7 +39,8 @@ def _build(structured_responses, main_responses, fast_responses):
 
 
 def _invoke(graph, msg: str, thread_id: str):
-    return graph.invoke(
+    return _drive(
+        graph,
         {
             "messages": [HumanMessage(content=msg)],
             "user_id": "u1",
@@ -177,7 +191,8 @@ def test_booking_hitl_detour_untouched_by_dispatch():
     first = _invoke(graph, "book me a hotel in Paris", thread_id=cfg_thread)
     assert first.get("__interrupt__"), "booking must still pause at plan_node"
 
-    resumed = graph.invoke(
+    resumed = _drive(
+        graph,
         Command(resume={"approved": True}),
         {"configurable": {"thread_id": cfg_thread}},
     )

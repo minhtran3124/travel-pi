@@ -30,6 +30,7 @@ inspecting the system prompt, keeping each specialist's script independent.
 
 from __future__ import annotations
 
+import asyncio
 import threading
 from typing import Any
 
@@ -51,6 +52,17 @@ from langchain_core.runnables import Runnable, RunnableLambda
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 from pydantic import PrivateAttr
+
+
+def _drive(graph, *args, **kwargs):
+    """Run the graph the way production does — asynchronously.
+
+    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
+    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
+    ``ainvoke``/``astream``, so driving the graph this way is also the more
+    faithful test.
+    """
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 @pytest.fixture
@@ -207,7 +219,8 @@ def test_plan_everything_routes_to_one_planner_plus_concierge(agent_db, monkeypa
     limit = get_settings().agent_recursion_limit
     # Reaching the assertions at all is the recursion-headroom proof: an inner
     # planner loop over budget would raise GraphRecursionError inside the worker.
-    out = graph.invoke(
+    out = _drive(
+        graph,
         {
             "messages": [HumanMessage(content=_PLAN_EVERYTHING)],
             "user_id": "test-user-1",

@@ -6,6 +6,7 @@ the only channel that reaches ``on_chat_model_start`` / ``on_tool_start``. The
 merge must not drop the caller's own metadata keys.
 """
 
+import asyncio
 from types import SimpleNamespace
 
 from app.agents.subagents.synthesis_worker import (
@@ -21,7 +22,9 @@ class _CapturingGraph:
     def __init__(self) -> None:
         self.captured_config = None
 
-    def invoke(self, state: dict, config=None) -> dict:
+    # The worker awaits the sub-agent (#178: the specialists bind async-only
+    # tools), so the capture point is the async entry point.
+    async def ainvoke(self, state: dict, config=None) -> dict:
         self.captured_config = config
         return {**state, "messages": [AIMessage(content="Here are the facts.")]}
 
@@ -48,7 +51,7 @@ def test_worker_passes_specialist_and_keeps_caller_metadata(monkeypatch):
         }
     )
 
-    worker(_state("concierge"), runtime)
+    asyncio.run(worker(_state("concierge"), runtime))
 
     config = graph.captured_config
     assert config is not None
@@ -66,7 +69,7 @@ def test_worker_adds_specialist_when_caller_has_no_metadata(monkeypatch):
 
     worker = build_synthesis_worker(lambda _name, _hint=None: None)
 
-    worker(_state("planner"), SimpleNamespace(config=None))
+    asyncio.run(worker(_state("planner"), SimpleNamespace(config=None)))
 
     assert graph.captured_config["metadata"] == {"specialist": "planner"}
 
@@ -80,7 +83,9 @@ def test_unknown_specialist_returns_command_without_invoking(monkeypatch):
     monkeypatch.setitem(_AGENT_BUILDERS, "nope", _explode)
 
     worker = build_synthesis_worker(lambda _name, _hint=None: None)
-    cmd = worker(_state("mystery"), SimpleNamespace(config={"metadata": {"a": 1}}))
+    cmd = asyncio.run(
+        worker(_state("mystery"), SimpleNamespace(config={"metadata": {"a": 1}}))
+    )
 
     result = cmd.update["task_results"][0]
     assert result["agent"] == "mystery"
