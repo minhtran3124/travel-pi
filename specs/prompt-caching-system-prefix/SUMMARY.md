@@ -59,7 +59,7 @@ rules out.
   wave is skipped; `app/clients/llm.py` is untouched.
 - **Two knowledge records**, one of which documents a **pre-existing production bug** this work
   surfaced: asked for a flight with no date, the agent searches today's date without asking, 6 of 6
-  times on `main`. Not caused or fixed here — it needs its own issue.
+  times on `main`. Not caused or fixed here — filed as gh-191.
 
 Code commits: `7041ae9`, `7e59ce6`, `271c086`, `9a0df74`, `25186a7`, `c9d480a`, `81c89f0`,
 `e404505`, `4911e49`. Docs: `bab0f0d`, `e3bc5cb`. Final code head `4911e49`: **2412 passed**.
