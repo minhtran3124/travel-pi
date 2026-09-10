@@ -54,8 +54,16 @@ def main(argv: list[str]) -> int:
         shown = detail[:DETAIL_MAX] if detail else ""
         print(f"{golden_id}\tpassed={entry.get('passed')}\t{shown}")
         for check in entry.get("checks") or []:
-            check_detail = check.get("detail")
-            if check_detail and "ValidationError" in str(check_detail):
+            check_detail = str(check.get("detail") or "")
+            # Any crashed turn, not only a pydantic ValidationError: the eval
+            # harness records one as a check named ``agent_run`` whose detail
+            # reads "agent run raised <ExcName>". Gating on the literal string
+            # "ValidationError" would report green for a turn that died with a
+            # TypeError, which is precisely how a regression of this fix would
+            # look.
+            if "raised" in check_detail or (
+                check.get("name") == "agent_run" and check.get("passed") is False
+            ):
                 has_validation_error = True
 
     distinct = {entry.get("golden_id") for entry in routing}

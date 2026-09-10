@@ -127,10 +127,17 @@ class SupervisorIntent(BaseModel):
         valid = set(get_args(_SecondaryTarget))
         coerced: list[str] = []
         for entry in value:
-            if isinstance(entry, str) and entry in valid:
-                coerced.append(entry)
-            elif isinstance(entry, dict) and entry.get("target_agent") in valid:
-                coerced.append(entry["target_agent"])
+            name = entry
+            if isinstance(entry, dict):
+                # A nested SupervisorIntent-shaped object: unwrap it. ``get`` can
+                # return anything the model emitted, including an unhashable list
+                # or dict, so the membership test below is guarded by the
+                # ``isinstance`` check — ``x in <set>`` hashes x and a TypeError
+                # here would escape the validator and kill the turn, which is the
+                # exact failure this validator exists to prevent (GH-180).
+                name = entry.get("target_agent")
+            if isinstance(name, str) and name in valid:
+                coerced.append(name)
             else:
                 logger.warning("[agent] supervisor dropping plan entry: %r", entry)
         return coerced or None

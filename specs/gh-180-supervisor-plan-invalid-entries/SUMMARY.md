@@ -42,8 +42,18 @@ is byte-identical; the allow-list is derived from that Literal via `get_args` ra
 The field description now says what the code does. Two tests that asserted the old raising contract
 were rewritten. A stdlib-only report checker plus a pre-fix fixture make the eval claim re-runnable.
 
-Measured effect: the judged routing eval (17 goldens, k=3) went from 14/17 with a `ValidationError`
-crash on `routing-multi_turn-vi-01` to 17/17 with no crash text anywhere in the report.
+Measured effect, across two judged routing runs (17 goldens, k=3 each) after the fix: no crash text
+appears anywhere in either report, against 14/17 with a `ValidationError` crash on
+`routing-multi_turn-vi-01` before it. The crash class is gone.
+
+The issue's wish that "the two `multi_turn` goldens should stop flipping" is only PARTLY met, and
+this is stated rather than smoothed over. Run 1 scored 17/17. Run 2 scored 16/17: `vi-01` failed on
+`flow_match` with `expected='booking' got='journal'` — a routing judgement, not a crash. So the
+golden still flips, on a different axis. That axis is the pre-existing multi-intent routing gap
+(issue #155) which the crash was previously masking: before this fix the turn died before any
+routing judgement could be scored at all. Eliminating the crash is deterministic and is what this
+spec owns; making the supervisor pick `booking` over `journal` as the primary of a two-intent
+Vietnamese message is #155's scope.
 
 ### Rationale
 
@@ -82,6 +92,19 @@ Verified against code before planning, at the user's request:
 - Rule 3 — Removed the now-unused `pytest` and `ValidationError` imports in
   `tests/agents/test_supervisor_plan_semantics.py` after the rewrite, which would otherwise fail
   ruff F401. Commit `fae2561`.
+- Rule 1 — Guarded the nested-object unwrap with an `isinstance(name, str)` check before the
+  membership test. `entry.get("target_agent")` returns whatever the model emitted, so a list or
+  dict there made `name in <set>` raise `TypeError` straight out of the supervisor node — the same
+  dead turn this spec exists to prevent, in a different exception class. Found by the branch
+  correctness review, not by any earlier gate. Pinned by
+  `test_unhashable_nested_target_agent_does_not_raise`.
+- Rule 1 — Broadened the report checker's crash gate from the literal string `ValidationError` to
+  any check whose detail says the run `raised`, or any failed `agent_run` check. As written it
+  would have reported green on a report full of `TypeError` crashes, which is exactly how a
+  regression of the finding above would have looked.
+- Rule 2 — Added `tests/agents/test_gh180_report_checker.py` so the checker is executed by the
+  suite. The intent review flagged it as an issue-named artifact wired into nothing; four tests now
+  pin both directions plus the two false-green paths.
 - Rule 1 — Derived the validator allow-list from `get_args(_SecondaryTarget)` instead of repeating
   the four names, and corrected a comment that still claimed the type forbids `booking`. Both were
   reviewer Minor findings; the hardcoded set would have silently dropped a future fifth specialist.
@@ -95,6 +118,9 @@ Verified against code before planning, at the user's request:
   blind spot on a spec-local helper.
 - `apps/api/scripts/check_gh180_routing_report.py` — a missing input path exits via traceback
   rather than a usage exit 2.
+- `apps/api/app/agents/supervisor.py` — the reflowed task-list comment ends a line with a dangling
+  "and"; cosmetic only. Left as is so the running branch review chain stays valid against its
+  reviewed HEAD.
 - `.harness-state/sdd/brief-1.1.md` — SC-8/SC-10 name a file produced by Task 1.2, so those two
   criteria cannot be run from Task 1.1 alone. Both tasks share wave 1, so the criteria run clean
   now; noted so a future single-task rerun is not surprised.
@@ -118,6 +144,19 @@ All commands run from the REPOSITORY ROOT, which is the cwd `verify_summary.py -
 | checker rejects pre-fix fixture | `! .venv/bin/python apps/api/scripts/check_gh180_routing_report.py apps/api/tests/fixtures/eval/gh180_pre_fix_routing_report.json` | 0 | checker itself exits 1, as designed | SC-11 |
 | regression sweep beyond task scope | `.venv/bin/python -m pytest apps/api/tests/agents apps/api/tests/prompts apps/api/tests/streaming -q` | 0 | 489 passed; this is what caught the second stale test | |
 
+### Final review chain
+
+- `intent-review` — PASS, blind to PLAN.md, judged against the verbatim issue text. No intent
+  drift, no missing requested behavior. Two advisories: the issue's suggested prompt note was not
+  shipped as a `supervisor/v13`, satisfied instead by the field description the model actually
+  reads (a deliberate call recorded under Non-goals); and the report checker plus fixture are
+  issue-named artifacts wired into no test or CI target, so they will rot unowned. The second is
+  addressed below.
+- The reviewer also noted, correctly, that `eval/reports/gh180-routing.json` is provenance-trusted
+  rather than independently attested: it is the output of a paid network run that a reviewer cannot
+  reproduce. The checker discriminates (exit 1 pre-fix, exit 0 post-fix), which is what makes the
+  committed artifact meaningful.
+
 ### Not auto-verified
 
 - Lane/flag classification — reached traceability (read supervisor.py, prompts, goldens, manifest); not re-run because it is a judgment, corroborated by `risk-corroboration.sh` on the staged diff.
@@ -125,9 +164,13 @@ All commands run from the REPOSITORY ROOT, which is the cwd `verify_summary.py -
   network-bound command far over the 60 s budget. Command, from the worktree's `apps/api`:
   `docker run --rm --network api_default --env-file <main-checkout>/apps/api/.env -e DATABASE_URL=postgresql+psycopg://travel:travel@db:5432/travel -v "$(git rev-parse --show-toplevel)/apps/api":/app -w /app api-api python -m eval --suite full --capability routing --repeat 3 --out eval/reports/gh180-routing.json`.
   Result: routing 17/17, pass_rate 100.0%, about 3 minutes. SC-9 re-checks its committed output.
-- "The goldens stop flipping" — reached provenance, not truth. Three repeats passed with no crash;
-  that is strong evidence, not a proof that no future sampling produces a new malformed shape. The
-  validator's design makes any such shape a dropped entry rather than a crash.
+- "The goldens stop crashing" — reached truth for two independent k=3 runs (six samples per golden)
+  with no crash in either. Not a proof that no future sampling produces a new malformed shape; the
+  validator's design is what makes any such shape a dropped entry rather than a raised exception,
+  and `test_unhashable_nested_target_agent_does_not_raise` pins the one shape that did still raise.
+- "The goldens stop flipping" — NOT achieved, and not claimed. `vi-01` passed `flow_match` in run 1
+  and failed it in run 2. Re-running the eval is the only way to observe this; SC-9 deliberately
+  gates on crashes only, so it stays green on a `flow_match` miss. Reported upstream as #155 scope.
 - The committed baseline `eval/baselines/main.json` still records the crash as a FAIL for
   `routing-multi_turn-vi-01`. Not re-baselined here by decision: `make eval-baseline` overwrites the
   whole baseline from a full-suite run, and this was a routing-only run.

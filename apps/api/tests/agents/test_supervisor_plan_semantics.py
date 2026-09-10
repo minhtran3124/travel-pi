@@ -247,3 +247,16 @@ def test_follow_ons_capped_at_max_ledger_steps():
     )
     assert agents == ["planner", "concierge", "budget", "journal"]
     assert len(agents) == MAX_LEDGER_STEPS
+
+
+def test_unhashable_nested_target_agent_does_not_raise():
+    # GH-180 regression: the validator unwraps a nested object by reading
+    # ``target_agent``, whose value is whatever the model emitted. A list or dict
+    # there is unhashable, so an unguarded ``value in <set>`` membership test
+    # raised TypeError straight out of the supervisor node — the same dead turn
+    # the validator exists to prevent, just with a different exception class.
+    for bad in ([{"target_agent": ["planner"]}], [{"target_agent": {"a": 1}}]):
+        intent = SupervisorIntent.model_validate(
+            {"target_agent": "planner", "plan": bad}
+        )
+        assert intent.plan is None

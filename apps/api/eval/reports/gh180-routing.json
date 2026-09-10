@@ -9,8 +9,8 @@
     "skipped_judged_metrics": [],
     "summary": {
       "total_cases": 17,
-      "total_passed": 17,
-      "overall_pass_rate": 1.0,
+      "total_passed": 16,
+      "overall_pass_rate": 0.9411764705882353,
       "capabilities_below_threshold": []
     }
   },
@@ -170,9 +170,9 @@
       "checks": [
         {
           "name": "flow_match",
-          "passed": true,
+          "passed": false,
           "score": null,
-          "detail": "expected='booking' got='booking'"
+          "detail": "expected='booking' got='journal'"
         },
         {
           "name": "non_empty_reply",
@@ -181,7 +181,7 @@
           "detail": null
         }
       ],
-      "passed": true
+      "passed": false
     },
     {
       "golden_id": "routing-multi_turn-en-01",
@@ -375,9 +375,9 @@
   ],
   "per_capability": {
     "routing": {
-      "passed": 17,
+      "passed": 16,
       "total": 17,
-      "pass_rate": 1.0,
+      "pass_rate": 0.9411764705882353,
       "threshold": 0.7,
       "meets_threshold": true
     }
