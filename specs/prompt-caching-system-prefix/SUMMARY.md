@@ -77,7 +77,7 @@ Code commits: `7041ae9`, `7e59ce6`, `271c086`, `9a0df74`, `25186a7`, `c9d480a`, 
 | **`24h` is BETTER than the default for our miss pattern** | ❌ **not shown** | the control arm also hit: `in_memory` re-call at 04:58Z read 2,816 / 3,310 → HIT. OpenAI documents `in_memory` as "5 to 10 minutes of inactivity, **up to one hour**", so 21 min proves nothing about the two policies. The discriminating gap is **>60 min**, where the dev data shows 0/17 hits — a longer A/B re-call is running |
 | No `cache_control` anywhere in the app | ✅ still true | `grep -rn cache_control apps/api/app --include='*.py'` → 0 hits |
 
-## Status log (waves 1-2 execution, 2026-09-10)
+## Status log (execution, 2026-09-10) — shipped to PR #190, awaiting human review
 
 Branch `feat/prompt-caching-system-prefix` in worktree `../travel-pi-prompt-caching-system-prefix`,
 off `main` 34f9920. Worktree baseline before any change: **2388 passed, exit 0**.

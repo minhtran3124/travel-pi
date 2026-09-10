@@ -1,6 +1,6 @@
 ---
 slug: prompt-caching-system-prefix
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-10
 ---
@@ -275,3 +275,16 @@ The full BE suite (`make test`, ~3 min) and `make eval-smoke` (18 cases, real ag
 - **Done:** the record exists with complete frontmatter and is listed in INDEX and critical-patterns.
 - **Criteria:** SC-10
 - **Interfaces:** Consumes the SUMMARY evidence from Task 3.1. Produces `docs/solutions/agent/prompt-caching-implicit-idle-eviction.md`, `docs/solutions/INDEX.md`.
+
+## Status Log
+
+- **2026-09-10** — Waves 1–2 implemented (7 code commits), every task PASS on spec and quality review.
+- **2026-09-10** — Wave 3 live acceptance: SC-5 on the dev database; eval smoke 18/18; date goldens
+  identical to `main`'s baseline; date-rule A/B (no regression; surfaced a pre-existing no-date bug);
+  `cached_tokens` before/after across a timezone change, 0 → 3,840 of 4,373.
+- **2026-09-10** — Task 4.1 **skipped — not triggered**: SC-7 production probe `BOTH-MISS` after 86.8 min
+  (second independent trial), per E003.
+- **2026-09-10** — Wave 5 durable records (`bab0f0d`, `e3bc5cb`).
+- **2026-09-10** — Final review chain: correctness (1 finding fixed, re-scored 0; 3 advisory) and intent
+  (all gaps closed; 4 advisory). Receipt pinned at `4911e49`. Ship gate passed. PR #190. Status
+  `shipped` — awaiting human review and merge.
