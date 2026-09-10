@@ -269,10 +269,21 @@ def test_mapper_multi_intent_streams_single_synthesized_answer():
     In the single-path parallel model the specialists run as blind
     ``synthesis_worker`` subgraphs, so their prose must never reach the client;
     the top-level ``synthesize`` node is the sole source of user-facing tokens.
-    The observable contract: no worker prose token, one synthesized token
-    stream, no reset, and exactly one ``done``. Because the workers stream under
-    the ``synthesis_worker`` namespace root (never a specialist name), no
+    The observable contract: no worker prose token, ONE synthesized answer, no
+    reset, and exactly one ``done``. Because the workers stream under the
+    ``synthesis_worker`` namespace root (never a specialist name), no
     ``subagent`` handoff is announced for this turn.
+
+    **Corrected for #179.** This case previously scripted the synthesized answer
+    as a single chunk arriving twice under the SAME message id, and asserted
+    ``names.count("token") == 1``. That shape does not occur: every model is built
+    with ``streaming=True``, so the node's answer arrives as MANY
+    ``AIMessageChunk`` items sharing one id, and the duplicate the mapper must
+    suppress is a separate aggregated ``AIMessage`` with a DIFFERENT id. Measured
+    on a live fan-out turn: 73 chunks under one id, plus one ``AIMessage`` under
+    another. The old expectation is what let the mapper ship a one-character
+    reply, so the fixture now mirrors the measured stream and the assertion is on
+    the reassembled answer rather than on the token count.
     """
     items = [
         # Supervisor persists the turn language (top level, no prose).
@@ -289,13 +300,13 @@ def test_mapper_multi_intent_streams_single_synthesized_answer():
             "messages",
             (AIMessageChunk(content="local tips", id="w2"), {}),
         ),
-        # The synthesize node combines them into the single final answer. It
-        # arrives twice (model stream + graph update); only the first is emitted.
+        # The synthesize node combines them into the final answer, which streams
+        # as chunks sharing one message id.
         (
             (),
             "messages",
             (
-                AIMessageChunk(content="Here is your trip.", id="s1"),
+                AIMessageChunk(content="Here is ", id="s1"),
                 {"langgraph_node": "synthesize"},
             ),
         ),
@@ -303,19 +314,33 @@ def test_mapper_multi_intent_streams_single_synthesized_answer():
             (),
             "messages",
             (
-                AIMessageChunk(content="Here is your trip.", id="s1"),
+                AIMessageChunk(content="your trip.", id="s1"),
+                {"langgraph_node": "synthesize"},
+            ),
+        ),
+        # The aggregated message for the same node execution — a DIFFERENT id.
+        # This is the duplicate the mapper must suppress.
+        (
+            (),
+            "messages",
+            (
+                AIMessage(content="Here is your trip.", id="s1-aggregate"),
                 {"langgraph_node": "synthesize"},
             ),
         ),
     ]
     out = _run(_FakeGraph(items, values={"current_flow": "synthesize"}))
     names = [n for n, _ in out]
-    assert names == ["start", "token", "done"]
-    assert out[1][1] == {"content": "Here is your trip."}
-    assert names.count("token") == 1
+    tokens = [data["content"] for name, data in out if name == "token"]
+    # The whole answer reaches the client, and the aggregate duplicate does not
+    # double it.
+    assert "".join(tokens) == "Here is your trip."
     assert names.count("reset") == 0
     assert names.count("done") == 1
     assert "subagent" not in names
+    # No worker prose leaked: every token came from the synthesize node.
+    assert "flights + hotel found" not in "".join(tokens)
+    assert "local tips" not in "".join(tokens)
 
 
 # --- done.usage from a live TurnMetricsHandler (specs/agent-turn-metrics) ------

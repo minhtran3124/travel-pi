@@ -139,7 +139,12 @@ async def stream_agent_events(
     # ``emitted_tool_calls`` does for the call.
     emitted_tool_results: set[str] = set(prior_tool_call_ids)
     emitted_token: bool = False
-    synthesize_answer_emitted: bool = False
+    # #179: dedupe the synthesize answer by MESSAGE ID, not by "first event".
+    # `synthesize_seen` distinguishes "no chunk yet" from "a chunk whose id is
+    # None", so a provider that omits ids still streams rather than emitting one
+    # chunk and stopping.
+    synthesize_seen: bool = False
+    synthesize_msg_id: str | None = None
 
     try:
         async for ns, mode, data in graph.astream(
@@ -180,15 +185,25 @@ async def stream_agent_events(
                 node_name = _node_name_from_meta(meta)
                 # Top-level synthesizer is the final answer for multi-intent.
                 # LangGraph emits the synthesized message more than once for the
-                # same node execution (model stream + graph update). The
-                # synthesize node currently uses llm.invoke(), so there is exactly
-                # one meaningful answer event per run; emit the first one and
-                # suppress the duplicate without relying on provider-specific
-                # metadata fields.
+                # same node execution (model stream + graph update), so this
+                # branch must dedupe — but NOT by "emit the first event only"
+                # (#179). Every model is built with streaming=True
+                # (app/clients/llm.py, so OpenAI reports usage_metadata), and that
+                # routes llm.invoke() through _stream: the node's answer arrives
+                # here CHUNK BY CHUNK. Suppressing everything after the first
+                # chunk shipped a one-character reply to the traveller on every
+                # fanned-out turn. Dedupe by message id, the way the sub-agent
+                # branch below already does.
                 if root is None and node_name == "synthesize":
-                    if synthesize_answer_emitted:
+                    synth_msg_id = getattr(chunk, "id", None)
+                    if not synthesize_seen:
+                        synthesize_seen = True
+                        synthesize_msg_id = synth_msg_id
+                    elif synth_msg_id != synthesize_msg_id:
+                        # A DIFFERENT message for the same node is the duplicate
+                        # this branch has always suppressed; further chunks of the
+                        # SAME message are the rest of the answer and must go out.
                         continue
-                    synthesize_answer_emitted = True
                     emitted_token = True
                     yield events.token(content)
                     continue
