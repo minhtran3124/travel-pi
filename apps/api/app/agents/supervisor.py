@@ -85,6 +85,16 @@ class SupervisorIntent(BaseModel):
             "other way to queue an additional specialist this turn."
         ),
     )
+    task_queries: list[str] | None = Field(
+        default=None,
+        description=(
+            "One entry per specialist, in [target_agent, *plan] order: a "
+            "self-contained restatement of that specialist's slice of THIS "
+            "message, written in the traveller's language. Quote only what the "
+            "traveller said — never invent destinations, dates, counts or "
+            "preferences. Leave null for the single-specialist case."
+        ),
+    )
     language: str = Field(
         default=DEFAULT_LANGUAGE,
         description=(
@@ -365,17 +375,33 @@ def make_supervisor(llm: BaseChatModel):
                 ):
                     continue
                 task_agents.append(step)
-        # Use the last user message as the query for every task. Each worker
+        # Each task carries its own slice of the message when the model emitted
+        # ``task_queries``; otherwise the last user message, and each worker
         # prompt narrows the focus to the specialist's domain.
         last_user_message = ""
         for msg in reversed(state.get("messages", [])):
             if isinstance(msg, HumanMessage):
                 last_user_message = str(msg.content or "")
                 break
-        tasks = [
-            AgentTask(agent=agent, query=last_user_message, index=idx).model_dump()
-            for idx, agent in enumerate(task_agents)
-        ]
+        # ``task_queries`` is positional over the model's own ``[target, *plan]``
+        # — the list as it left ``_coerce_plan``, BEFORE the dedup/cap loop above
+        # shifted positions — so it is aligned to that list and then looked up
+        # per emitted task by agent name (first entry wins for a repeated name).
+        # A length mismatch means the positions cannot be trusted, and a
+        # mis-aligned non-blank query is worse than none: every task then falls
+        # back to the user message.
+        queries = getattr(intent, "task_queries", None) or []
+        aligned = [target, *candidates]
+        query_by_agent: dict[str, str] = {}
+        if len(queries) == len(aligned):
+            for agent, query in zip(aligned, queries, strict=True):
+                query_by_agent.setdefault(agent, str(query or "").strip())
+        tasks = []
+        for idx, agent in enumerate(task_agents):
+            query = query_by_agent.get(agent, "")
+            if len(query) < 3:
+                query = last_user_message
+            tasks.append(AgentTask(agent=agent, query=query, index=idx).model_dump())
         logger.info("[agent] supervisor tasks=%d (intent=%s)", len(tasks), target)
         return Command(
             update={
