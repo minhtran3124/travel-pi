@@ -153,3 +153,34 @@ def test_task_queries_wire_schema_stays_string_array():
     prop = SupervisorIntent.model_json_schema()["properties"]["task_queries"]
     assert {"type": "array", "items": {"type": "string"}} in prop["anyOf"]
     assert {"type": "null"} in prop["anyOf"]
+
+
+def test_single_task_ignores_task_queries():
+    # A single specialist always gets the whole message: the model's paraphrase
+    # can drop details the traveller wrote (counts, dates).
+    message = "find flights to Tokyo for 2 adults on 15/8"
+    supervisor = make_supervisor(
+        FakeLLM(
+            structured_responses=[
+                SupervisorIntent(target_agent="planner", task_queries=["find flights"])
+            ]
+        )
+    )
+    cmd = supervisor(
+        {"messages": [HumanMessage(content=message)]},
+        SimpleNamespace(context=AgentContext()),
+    )
+    assert _queries(cmd.update["tasks"]) == [("planner", message)]
+
+
+def test_plan_deduped_to_single_task_ignores_task_queries():
+    # plan repeats the primary, so dedup leaves one task; the lengths match but
+    # the single task still carries the user message.
+    tasks = _tasks_for(
+        SupervisorIntent(
+            target_agent="planner",
+            plan=["planner"],
+            task_queries=["a query here", "another query"],
+        )
+    )
+    assert _queries(tasks) == [("planner", USER_MESSAGE)]

@@ -426,10 +426,13 @@ def make_supervisor(llm: BaseChatModel):
         # A length mismatch means the positions cannot be trusted, and a
         # mis-aligned non-blank query is worse than none: every task then falls
         # back to the user message.
+        # A single emitted task always gets the whole message as-is, whatever
+        # ``task_queries`` holds: the model sometimes fills the field for a
+        # single intent, and its paraphrase can drop details (counts, dates).
         queries = getattr(intent, "task_queries", None) or []
         aligned = [target, *candidates]
         query_by_agent: dict[str, str] = {}
-        if len(queries) == len(aligned):
+        if len(task_agents) > 1 and len(queries) == len(aligned):
             for agent, query in zip(aligned, queries, strict=True):
                 query_by_agent.setdefault(agent, str(query or "").strip())
         tasks = []
