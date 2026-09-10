@@ -1,0 +1,27 @@
+{
+  "label": "branch-note-last",
+  "rows": [
+    {
+      "pair": [
+        "Pacific/Chatham",
+        "Pacific/Kiritimati"
+      ],
+      "system_chars": 18205,
+      "shared_prefix_chars": 17597,
+      "note_position": "last",
+      "input_tokens": 4373,
+      "cached_tokens": 3840
+    },
+    {
+      "pair": [
+        "Atlantic/Azores",
+        "Asia/Kathmandu"
+      ],
+      "system_chars": 18201,
+      "shared_prefix_chars": 17590,
+      "note_position": "last",
+      "input_tokens": 4372,
+      "cached_tokens": 3840
+    }
+  ]
+}

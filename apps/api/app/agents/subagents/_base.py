@@ -248,11 +248,15 @@ def build_subagent(
         bound = model.bind_tools(active_tools) if active_tools else model
 
         tz = ctx.timezone if ctx is not None else None
-        system_msg = system_with_summary(state, ground_current_date(system, tz))
+        system_msg = system_with_summary(state, system)
         # Every sub-agent replies in the supervisor-detected conversation language
         # (state["language"]) — one detection, one source of truth. Also closes the
         # clarification path (MIN-68), which skips reflection's language guard.
         system_msg = with_reply_language(system_msg, state)
+        # D1: ground the date OUTERMOST so the volatile "today" note is the final
+        # block; the stable style+prompt+summary+language prefix stays at token 0
+        # for prompt caching.
+        system_msg = ground_current_date(system_msg, tz)
         response = bound.invoke([system_msg, *state["messages"]])
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:

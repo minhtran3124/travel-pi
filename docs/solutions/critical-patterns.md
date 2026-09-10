@@ -192,3 +192,25 @@ Two branches each picked `concierge/v12` by reading the directory at branch time
 
 **Full doc:** docs/solutions/agent/concurrent-branches-collide-on-prompt-version.md
 ---
+
+## [2026-09-10] prompt-caching-implicit-idle-eviction
+**Type:** knowledge
+**Module:** agent/prompts
+**Tags:** prompt-caching, openai, cached-tokens, prompt-cache-retention, system-prompt, prefix, ground-current-date, idle-eviction, measurement, gpt-5.4-mini
+**Applicable when:** Before any prompt-caching, cache_control, prompt_cache_retention or system-prompt-prefix change, when a review or doc claims caching is off, or when a turn's token cost looks higher than expected.
+
+OpenAI prompt caching is implicit and already on here — 71.9% on dev data — and its misses are idle eviction (0/17 hits after an hour idle), not prefix instability. `prompt_cache_retention="24h"` is accepted but did not retain on `gpt-5.4-mini` in a controlled A/B, so no config setting fixes idle misses on the current model. Measure with `scripts/cache_hit_report.py` before changing anything, and prove retention claims only with the two-armed `scripts/probe_cache_retention.py`.
+
+**Full doc:** docs/solutions/agent/prompt-caching-implicit-idle-eviction.md
+---
+
+## [2026-09-10] eval-golden-notes-are-not-metrics
+**Type:** failure
+**Module:** agent/eval
+**Tags:** eval, goldens, metrics, verification, dates, ground-current-date, hollow-gate, a-b-test, tool-args
+**Applicable when:** Before naming an eval golden, a capability, or a test file as the gate for a behaviour change — read which metrics it declares, not its name, capability or notes.
+
+The `dates` goldens were cited as the gate for moving the date-grounding rules, and they passed — but they only check routing, language and non-empty replies, so none could fail on a date. A direct A/B on tool-call arguments found the agent invents today's date for a no-date flight search 6 of 6 times on both `main` and the branch: a live bug every date golden passes. Read a golden's metrics, not its notes; where a behaviour leaves a trace in tool arguments, check it mechanically.
+
+**Full doc:** docs/solutions/agent/eval-golden-notes-are-not-metrics.md
+---
