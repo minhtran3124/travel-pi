@@ -4,17 +4,16 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** close-product-loop-s2-guide-and-map
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** subagent-driven-development
-- **Last action:** S2 shipped to PR #172 → main (8 commits, HEAD ac343de), in the worktree
-  `.worktrees/feat/close-product-loop-s2-guide-and-map` because the main checkout belongs to another
-  session. Six tasks over four waves; all twelve success criteria exit 0 and `verify_summary --check`
-  re-ran the thirteen SUMMARY commands clean. Browser UAT settled the three open questions and found
-  a real regression: six tabs overflowed the trip page at 390px, fixed in `ac343de`. Still unproven:
-  a map with markers on it (the UAT trip was empty). Previously: S1 and the passenger-count fix
-  merged as PR #167 (`4cb8f10`).
-- **Updated:** 2026-09-09
+- **Slug:** specialist-task-description
+- **Phase:** plan  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** writing-plans
+- **Last action:** Worktree `../travel-pi-specialist-task-description` on `feat/specialist-task-description`
+  (baseline: ruff clean, 2388 passed). research-brief (Standard, adapt upstream: deepagents fork
+  preamble as a trailing SystemMessage), design.md D1–D3 (parallel `task_queries`, SystemMessage
+  built at invoke and never stored, both paths), PLAN.md 7 tasks / 3 waves, SC-1…SC-9, passes
+  check_plan_contract. Next: subagent-driven-development in the worktree; `make eval-check` is the
+  manual pre-merge gate for `ask_coverage`.
+- **Updated:** 2026-09-10
 
 ## Recent Specs
 
@@ -22,6 +21,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
+| specialist-task-description | 2026-09-10 | plan | 7 tasks / 3 waves; per-task query + SystemMessage task note for specialists |
 | close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
 | gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | merged via PR #171 → main (a6e7998); hotels eval 50% → 83.3% |
 | flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |

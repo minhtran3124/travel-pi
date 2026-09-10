@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-10T05:48:03Z",
+  "last_event_id": "123e1f0e-d5ab-4937-85e4-207feba62b31",
+  "resume_event": null,
+  "run_id": "2cf7a669-e573-44b6-8a92-270594ffe01f",
+  "seq": 5,
+  "sha": null,
+  "slug": "specialist-task-description",
+  "state": "verifying",
+  "updated_at": "2026-09-10T10:03:48Z",
+  "waiting_on": null
+}
