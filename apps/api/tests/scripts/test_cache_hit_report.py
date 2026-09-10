@@ -70,14 +70,17 @@ def test_build_report_aggregates_per_node_and_model():
     assert sup["calls"] == 2
     assert sup["input"] == 6000
     assert sup["cached"] == 2816
-    assert sup["misses"] == 3184
+    # uncached is a TOKEN delta; miss_calls is a COUNT of zero-cache calls.
+    assert sup["uncached"] == 3184
+    assert sup["miss_calls"] == 1
     assert sup["ratio"] == pytest.approx(2816 / 6000)
 
     asst = by_key[("assistant", "gpt-5")]
     assert asst["calls"] == 1
     assert asst["input"] == 3000
     assert asst["cached"] == 2816
-    assert asst["misses"] == 184
+    assert asst["uncached"] == 184
+    assert asst["miss_calls"] == 0
     assert asst["ratio"] == pytest.approx(2816 / 3000)
 
     assert report["overall"] == pytest.approx(5632 / 9000)
@@ -106,3 +109,63 @@ def test_main_without_min_ratio_exits_zero(db_url):
     from scripts.cache_hit_report import main
 
     assert main(["--since", "1d"]) == 0
+
+
+def test_db_path_excludes_non_llm_steps(db_url):
+    """The report reads through the repository, which filters kind == 'llm'.
+
+    The fixture inserts a 999-input tool step; it must not reach the report,
+    so total input is 9000 (three llm steps) not 9999, and no row exists for
+    the tool step's (node, model) key beyond the llm rows.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    from app.core.config import get_settings
+    from app.db.engine import get_session_factory
+    from app.repositories.agent_run import AgentRunRepository
+    from scripts.cache_hit_report import build_report
+
+    since = datetime.now(timezone.utc) - timedelta(days=1)
+    factory = get_session_factory(get_settings().database_url)
+    rows = AgentRunRepository(factory).llm_steps_since(since)
+
+    # Only the three llm steps come back; the tool step is filtered out.
+    assert all(r.kind == "llm" for r in rows)
+    report = build_report(rows)
+    total_input = sum(r["input"] for r in report["rows"])
+    assert total_input == 9000
+    assert not any(r["input"] == 999 for r in report["rows"])
+    assert report["overall"] == pytest.approx(5632 / 9000)
+
+
+def test_main_node_filter_narrows_rows_and_ratio(db_url, capsys):
+    from scripts.cache_hit_report import main
+
+    # --node supervisor keeps only the two supervisor llm steps: 2816/6000.
+    out = main(["--since", "1d", "--node", "supervisor"])
+    assert out == 0
+    printed = capsys.readouterr().out
+    assert "supervisor" in printed
+    assert "assistant" not in printed
+
+    # The narrowed overall ratio (0.469) gates between 0.4 and 0.5; if the
+    # assistant rows leaked in, the overall would be 0.626 and pass 0.5.
+    assert main(["--since", "1d", "--node", "supervisor", "--min-ratio", "0.4"]) == 0
+    assert main(["--since", "1d", "--node", "supervisor", "--min-ratio", "0.5"]) == 1
+
+
+def test_parse_since_raises_on_invalid_value():
+    from scripts.cache_hit_report import _parse_since
+
+    with pytest.raises(ValueError):
+        _parse_since("bogus")
+
+
+def test_main_invalid_since_is_argparse_error(capsys):
+    from scripts.cache_hit_report import main
+
+    with pytest.raises(SystemExit) as exc:
+        main(["--since", "bogus"])
+    # argparse usage error exits 2, not an unhandled ValueError traceback.
+    assert exc.value.code == 2
+    assert "--since" in capsys.readouterr().err

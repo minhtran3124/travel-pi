@@ -7,6 +7,15 @@ work of specs/prompt-caching-system-prefix can be measured against a real
 database. An optional ``--min-ratio`` gates CI-style: the process exits 1 when
 the overall hit rate is below the threshold.
 
+The table reports two distinct miss measures, so an operator can tell a broad
+low hit rate apart from a few calls that cached nothing:
+
+* ``uncached`` — the number of input *tokens* not served from cache
+  (``input - cached``), summed over the group.
+* ``miss`` — the number of *calls* that read zero cached tokens
+  (``cached_tokens`` of 0 or ``None``). This is the signal for cache misses
+  clustering after idle gaps, which token totals alone cannot reveal.
+
 Run as a module from ``apps/api/`` so ``app`` is importable:
 
     python -m scripts.cache_hit_report --since 7d
@@ -56,17 +65,21 @@ def build_report(rows) -> dict:
 
     :param rows: The ``AgentRunStep`` rows (or equivalents) to aggregate.
     :return: ``{"rows": [...], "overall": float}`` where each row dict carries
-        ``node, model, calls, input, cached, misses, ratio`` and ``overall`` is
-        total cached / total input across every row.
+        ``node, model, calls, input, cached, uncached, miss_calls, ratio``.
+        ``uncached`` is the token delta ``input - cached``; ``miss_calls`` is
+        the count of calls that read zero cached tokens (``None`` treated as 0).
+        ``overall`` is total cached / total input across every row.
     """
     agg: dict[tuple[str | None, str | None], dict] = defaultdict(
-        lambda: {"calls": 0, "input": 0, "cached": 0}
+        lambda: {"calls": 0, "input": 0, "cached": 0, "miss_calls": 0}
     )
     for r in rows:
         a = agg[(r.node, r.model)]
         a["calls"] += 1
         a["input"] += r.input_tokens or 0
         a["cached"] += r.cached_tokens or 0
+        if not (r.cached_tokens or 0):
+            a["miss_calls"] += 1
 
     report_rows = []
     total_input = total_cached = 0
@@ -80,7 +93,8 @@ def build_report(rows) -> dict:
                 "calls": a["calls"],
                 "input": a["input"],
                 "cached": a["cached"],
-                "misses": a["input"] - a["cached"],
+                "uncached": a["input"] - a["cached"],
+                "miss_calls": a["miss_calls"],
                 "ratio": _ratio(a["cached"], a["input"]),
             }
         )
@@ -90,13 +104,17 @@ def build_report(rows) -> dict:
 
 def _print_table(report: dict) -> None:
     """Print the report as a fixed-width table plus the overall ratio."""
-    header = f"{'node':<20} {'model':<24} {'calls':>6} {'input':>10} {'cached':>10} {'misses':>10} {'hit%':>7}"
+    header = (
+        f"{'node':<20} {'model':<24} {'calls':>6} {'input':>10} "
+        f"{'cached':>10} {'uncached':>10} {'miss':>6} {'hit%':>7}"
+    )
     print(header)
     print("-" * len(header))
     for r in report["rows"]:
         print(
             f"{(r['node'] or '-'):<20} {(r['model'] or '-'):<24} {r['calls']:>6} "
-            f"{r['input']:>10} {r['cached']:>10} {r['misses']:>10} {r['ratio'] * 100:>6.1f}%"
+            f"{r['input']:>10} {r['cached']:>10} {r['uncached']:>10} "
+            f"{r['miss_calls']:>6} {r['ratio'] * 100:>6.1f}%"
         )
     print("-" * len(header))
     print(f"overall hit rate: {report['overall'] * 100:.1f}%")
@@ -118,7 +136,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    since = datetime.now(timezone.utc) - _parse_since(args.since)
+    try:
+        window = _parse_since(args.since)
+    except ValueError as exc:
+        # Surface a clean argparse usage error (exit 2), not a raw traceback.
+        parser.error(str(exc))
+    since = datetime.now(timezone.utc) - window
     factory = get_session_factory(get_settings().database_url)
     rows = AgentRunRepository(factory).llm_steps_since(since)
     if args.node:
