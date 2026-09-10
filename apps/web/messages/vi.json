@@ -290,6 +290,78 @@
     "markerSaved": "{name}",
     "markerItinerary": "Ngày {day} · {title}"
   },
+  "Today": {
+    "tab": "Hôm nay",
+    "notInProgress": {
+      "title": "Chuyến đi hiện chưa diễn ra",
+      "dates": "Chuyến đi diễn ra từ {start} – {end}.",
+      "noDates": "Thêm ngày cho chuyến đi để xem lịch trình trong ngày."
+    },
+    "plan": {
+      "title": "Lịch hôm nay",
+      "emptyTitle": "Hôm nay chưa có kế hoạch",
+      "emptyHint": "Thêm một mục lịch trình cho hôm nay để xem tại đây.",
+      "travelToNext": "{minutes} phút đến điểm tiếp theo"
+    },
+    "noDestination": {
+      "title": "Chưa đặt điểm đến",
+      "hint": "Thêm thành phố cho chuyến đi để xem thời tiết và chất lượng không khí."
+    },
+    "weather": {
+      "title": "Thời tiết",
+      "temperature": "Nhiệt độ",
+      "feelsLike": "Cảm giác như",
+      "humidity": "Độ ẩm",
+      "wind": "Gió",
+      "wmo": {
+        "0": "Trời quang",
+        "1": "Trời quang mây",
+        "2": "Có mây rải rác",
+        "3": "Trời nhiều mây",
+        "45": "Sương mù",
+        "48": "Sương mù đóng băng",
+        "51": "Mưa phùn nhẹ",
+        "53": "Mưa phùn vừa",
+        "55": "Mưa phùn dày",
+        "56": "Mưa phùn băng giá nhẹ",
+        "57": "Mưa phùn băng giá dày",
+        "61": "Mưa nhẹ",
+        "63": "Mưa vừa",
+        "65": "Mưa to",
+        "66": "Mưa băng giá nhẹ",
+        "67": "Mưa băng giá to",
+        "71": "Tuyết rơi nhẹ",
+        "73": "Tuyết rơi vừa",
+        "75": "Tuyết rơi dày",
+        "77": "Hạt tuyết",
+        "80": "Mưa rào nhẹ",
+        "81": "Mưa rào vừa",
+        "82": "Mưa rào dữ dội",
+        "85": "Mưa tuyết nhẹ",
+        "86": "Mưa tuyết dày",
+        "95": "Giông bão",
+        "96": "Giông kèm mưa đá nhẹ",
+        "99": "Giông kèm mưa đá to"
+      }
+    },
+    "air": {
+      "title": "Chất lượng không khí",
+      "aqi": "AQI (Hoa Kỳ)",
+      "pm25": "PM2.5",
+      "band": {
+        "good": "Tốt",
+        "moderate": "Trung bình",
+        "unhealthySensitive": "Không tốt cho nhóm nhạy cảm",
+        "unhealthy": "Không tốt cho sức khỏe",
+        "veryUnhealthy": "Rất không tốt cho sức khỏe",
+        "hazardous": "Nguy hại"
+      }
+    },
+    "directions": {
+      "title": "Chỉ đường",
+      "unavailable": "Chỉ đường tới điểm tiếp theo sẽ hiện ở đây khi điểm đó được ghim địa điểm."
+    }
+  },
   "Places": {
     "title": "Địa điểm đã lưu",
     "browseCatalog": "Duyệt danh mục",

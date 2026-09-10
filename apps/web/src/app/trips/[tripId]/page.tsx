@@ -11,18 +11,21 @@ import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
 import { MapTab } from "@/components/trips/map/MapTab";
 import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
+import { TodayTab } from "@/components/trips/today/TodayTab";
 import { TripHeader, TripHeaderSkeleton } from "@/components/trips/TripHeader";
 import { Tabs, type Tab } from "@/components/ui/Tabs";
 import { useTrip } from "@/lib/query/trips";
 
 export default function TripDetailPage() {
   const t = useTranslations("TripDetail");
+  const tToday = useTranslations("Today");
   const params = useParams<{ tripId: string }>();
   const tripId = params.tripId;
   const [activeTab, setActiveTab] = useState("itinerary");
   const { data: trip, isPending, isError } = useTrip(tripId);
 
   const tabs: Tab[] = [
+    { id: "today", label: tToday("tab") },
     { id: "itinerary", label: t("tabs.itinerary") },
     { id: "budget", label: t("tabs.budget") },
     { id: "expenses", label: t("tabs.expenses") },
@@ -55,6 +58,7 @@ export default function TripDetailPage() {
       <TripHeader trip={trip} />
       <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
       <div>
+        {activeTab === "today" ? <TodayTab tripId={tripId} /> : null}
         {activeTab === "itinerary" ? <ItineraryTab tripId={tripId} /> : null}
         {activeTab === "budget" ? <BudgetTab tripId={tripId} /> : null}
         {activeTab === "expenses" ? <ExpensesTab tripId={tripId} /> : null}
