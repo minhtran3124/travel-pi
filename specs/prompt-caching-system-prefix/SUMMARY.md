@@ -326,6 +326,15 @@ work lost, no shared history rewritten — and remade as `e404505` (fix, 2 files
 1 file). The plan constraint had described this trap as "aborts the whole invocation", which is
 wrong for tracked files; corrected here, in PLAN, and in memory.
 
+### UAT through the real endpoint (2026-09-10, post-ship, by user request)
+
+Two real chat turns through the actual `POST /agent/chat` — full lifespan, the branch's compiled
+graph, the dev Postgres — not the eval harness. Same conversation, so turn 2's specialist prompt
+is turn 1's prefix through the D1 reorder. Turn 1 (cold): 23,071 in / 9,344 cached (41%). Turn 2
+(same thread): 35,750 in / **31,744 cached (89%)**. Screenshots of the real dashboard, served by
+this branch's own code, in `evidence/uat_dashboard_run2_detail.png` and `uat_dashboard_runs_list.png`;
+script in `evidence/uat_chat_endpoint_probe.py`. Synthetic user's DB rows deleted after capture.
+
 ### Controller error during verification (self-reported)
 
 While mutation-testing the Task 2.2 fix, the controller restored a mutated file with

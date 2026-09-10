@@ -43,3 +43,31 @@ Both timezone pairs gave the same result. Results: `prefix_cache_main_note_first
 Why a same-day hit-rate comparison could not show this: within one day and one zone the note is
 identical, so both orderings keep a stable prefix. The difference appears only when the note
 changes, which the dev database — a single timezone — records only at the day rollover.
+
+## UAT through the real endpoint (`uat_chat_endpoint_probe.py`, screenshots)
+
+Two real chat turns sent through the actual `POST /agent/chat` endpoint (not the eval harness,
+not a bespoke script calling the graph directly) — full FastAPI lifespan, the branch's real
+compiled graph, the real dev Postgres. Auth: the app requires a real Supabase JWT (RS256 via
+JWKS); no Supabase test project is available here, so `get_current_user` is overridden the same
+way the app's own test suite does it (`tests/api/agent_config/test_agent_runs_dashboard.py` and
+siblings) — a supported test seam, not a bypass. Everything downstream (routing, tier resolution,
+quota, the graph, `TurnMetricsHandler`, the DB writes) runs unmodified.
+
+Both turns share one `conversation_id` (one thread), so the second turn's specialist prompt is
+byte-for-byte the first turn's prefix through this spec's D1 reorder — the case that should cache.
+
+| Turn | Input tokens | Cached tokens | % cached |
+| --- | --- | --- | --- |
+| 1 (cold) | 23,071 | 9,344 | 41% |
+| 2 (same thread) | 35,750 | 31,744 | **89%** |
+
+`uat_dashboard_runs_list.png` — the two runs side by side in `/dashboard/agent-runs`, same user
+`uat-prompt-caching-2026-09-10`, same flow, cached-token column visible for both.
+`uat_dashboard_run2_detail.png` — the full call-chain detail page for run 2: the "COST BY MODEL"
+table reads `35,750 in · 351 out · 31,744 cached`, and the per-call rows (supervisor, both
+concierge assistant calls) each show a nonzero cache read — a real dashboard render, served by a
+locally-run instance of this branch's own code, of a run this branch's own code produced.
+
+Cleanup: the synthetic user's `agent_runs`/`agent_run_steps`/`users` rows were deleted from the dev
+database after capture; nothing from this UAT is left in the dev database.
