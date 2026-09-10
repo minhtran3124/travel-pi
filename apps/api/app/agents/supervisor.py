@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 import re
 from datetime import date
-from typing import Literal
+from typing import Literal, get_args
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
@@ -124,7 +124,7 @@ class SupervisorIntent(BaseModel):
         elif not isinstance(value, list):
             logger.warning("[agent] supervisor dropping non-list plan: %r", value)
             return None
-        valid = {"planner", "concierge", "journal", "budget"}
+        valid = set(get_args(_SecondaryTarget))
         coerced: list[str] = []
         for entry in value:
             if isinstance(entry, str) and entry in valid:
@@ -337,7 +337,8 @@ def make_supervisor(llm: BaseChatModel):
         # no duplicate specialist workers, since each worker sees only this
         # message and a repeat would just do the same work twice), drops anything
         # unknown or "booking" (always HITL, never queued — defensive; the
-        # ``_SecondaryTarget`` type already forbids it) or a tier-gated agent, and
+        # ``plan`` validator already drops it before this point) or a tier-gated
+        # agent, and
         # caps the follow-ons at ``MAX_LEDGER_STEPS - 1``. A booking *target*
         # routes through the HITL plan node with no follow-ons.
         raw_plan = getattr(intent, "plan", None)
