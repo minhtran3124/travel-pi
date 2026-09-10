@@ -252,9 +252,9 @@ def with_task_note(base: SystemMessage, state: TravelAgentState) -> SystemMessag
     whose ``task_queries`` fell back) the supervisor sets ``query`` to the last
     user message; that sentence is already in the conversation, so the note is
     skipped and the model input is exactly what it was without the note — no
-    duplication, and the
-    cached system-prompt prefix does not change per turn (E001). Both sides are
-    compared stripped, since the supervisor stores the raw message content.
+    duplication, and the cached system-prompt prefix does not change per turn
+    (E001). Both sides are compared stripped, since the supervisor stores the
+    raw message content.
 
     :param base: The already-assembled leading system message.
     :param state: The current graph state.
