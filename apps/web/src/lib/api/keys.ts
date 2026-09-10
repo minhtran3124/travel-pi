@@ -28,4 +28,10 @@ export const qk = {
   visa: (city: string) => ["visa", city] as const,
   tips: (city: string) => ["tips", city] as const,
   climate: (city: string) => ["climate", city] as const,
+  dayPlan: (tripId: string, date: string) =>
+    ["dayPlan", tripId, date] as const,
+  weather: (city: string) => ["weather", city] as const,
+  airQuality: (city: string) => ["airQuality", city] as const,
+  placesRoute: (fromPlaceId: string, toPlaceId: string) =>
+    ["placesRoute", fromPlaceId, toPlaceId] as const,
 } as const;
