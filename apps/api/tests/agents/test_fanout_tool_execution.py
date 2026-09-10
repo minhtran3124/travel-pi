@@ -6,7 +6,7 @@ Six agent tools are ``async def`` — ``get_weather``, ``get_packing``,
 the planner and the concierge bind all of them. Under a sync invocation one such
 call raises ``NotImplementedError: StructuredTool does not support sync
 invocation``, which kills the whole ``tools`` node; ``TOOL_FAULT``'s
-``graceful_fallback`` then hands the model ``GRACEFUL_MSG`` for **every** pending
+``graceful_fallback`` then hands the model one fallback message for **every** pending
 call in that batch — including healthy synchronous ones. The specialist duly told
 the traveller the data was temporarily unavailable, which was false and identical
 on retry.
@@ -29,7 +29,7 @@ from typing import Any
 
 import pytest
 from app.agents.graph import build_graph
-from app.agents.retry import GRACEFUL_MSG
+from app.agents.retry import GRACEFUL_MSG, INTERNAL_FAULT_MSG
 from app.agents.supervisor import SupervisorIntent
 from app.core.config import get_settings
 from app.db.base import Base
@@ -181,6 +181,11 @@ def _fan_out_and_capture_tool_messages() -> list[ToolMessage]:
     return seen
 
 
+# Either one means the tools node died before the tool ran (#178). #186 split
+# the node-death message in two, so the regression guard must exclude both.
+_NODE_DIED = (GRACEFUL_MSG, INTERNAL_FAULT_MSG)
+
+
 def _by_name(messages: list[ToolMessage], name: str) -> ToolMessage:
     match = [m for m in messages if m.name == name]
     assert match, f"no ToolMessage for {name}; got {[m.name for m in messages]}"
@@ -191,12 +196,13 @@ def test_async_tool_succeeds_in_a_fanned_out_worker(agent_db, offline_weather):
     """The async-only tool must reach its own body, not the tools-node fallback.
 
     With the service stubbed, its honest outcome is a domain error naming the
-    stub. What must never appear is ``GRACEFUL_MSG`` — that means the node died
+    stub. What must never appear is a node-death fallback message — that means
+    the node died
     before the tool ran, which is #178.
     """
     weather = _by_name(_fan_out_and_capture_tool_messages(), ASYNC_TOOL)
 
-    assert GRACEFUL_MSG not in str(weather.content), (
+    assert not any(m in str(weather.content) for m in _NODE_DIED), (
         "the tools node died instead of running the async tool — the worker is "
         "invoking the sub-agent synchronously again (#178)"
     )
@@ -212,8 +218,8 @@ def test_sibling_sync_tool_is_not_collateral_damaged(agent_db, offline_weather):
     """
     tips = _by_name(_fan_out_and_capture_tool_messages(), SYNC_TOOL)
 
-    assert GRACEFUL_MSG not in str(tips.content), (
-        "a healthy synchronous tool was reported as an outage because a sibling "
+    assert not any(m in str(tips.content) for m in _NODE_DIED), (
+        "a healthy synchronous tool was reported as failed because a sibling "
         "async call killed the tools node (#178)"
     )
     assert tips.status != "error", f"{SYNC_TOOL} returned an error: {tips.content}"
