@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-10T04:06:29Z",
+  "last_event_id": "a2037f5f-2bbb-4c1d-a1f3-abb6aafccdf7",
+  "resume_event": null,
+  "run_id": "dfd7c669-e123-4d4c-b8ec-f7a5b9a78c80",
+  "seq": 5,
+  "sha": null,
+  "slug": "gh-180-supervisor-plan-invalid-entries",
+  "state": "verifying",
+  "updated_at": "2026-09-10T04:40:44Z",
+  "waiting_on": null
+}

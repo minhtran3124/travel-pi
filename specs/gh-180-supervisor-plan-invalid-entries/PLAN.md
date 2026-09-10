@@ -1,6 +1,6 @@
 ---
 slug: gh-180-supervisor-plan-invalid-entries
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-10
 ---
@@ -10,7 +10,7 @@ created: 2026-09-10
 <!-- AT-A-GLANCE:BEGIN (generated — do not edit; refreshed by render_plan.py --summarize) -->
 ## At a glance
 
-**3 tasks · 2 waves · 6 files · 0/3 done**
+**3 tasks · 2 waves · 6 files · 3/3 done**
 
 | Wave | Task | Title | Files | Done (acceptance) |
 |---|---|---|---|---|
@@ -31,9 +31,9 @@ flowchart LR
 ```
 
 ### Progress
-- [ ] 1.1 — Tolerant `plan` validator with tests (wave 1)
-- [ ] 1.2 — Report checker for the routing eval (wave 1)
-- [ ] 2.1 — Routing eval: prove the goldens stop crashing (wave 2)
+- [x] 1.1 — Tolerant `plan` validator with tests (wave 1)
+- [x] 1.2 — Report checker for the routing eval (wave 1)
+- [x] 2.1 — Routing eval: prove the goldens stop crashing (wave 2)
 <!-- AT-A-GLANCE:END -->
 
 ## 1. Motivation
@@ -222,3 +222,13 @@ negated with a leading `!`, passes vacuously.
 ## 6. Status Log
 
 - 2026-09-10 — plan written (writing-plans); intake lane normal / confidence high.
+- 2026-09-10 — tasks 1.1, 1.2 complete; commit fae2561. Wave-1 Verify green; both per-task reviews
+  returned spec PASS / quality PASS. Controller also fixed a second stale contract test in
+  `tests/agents/test_task_ledger.py`, outside every task's Files set — a plan gap the task-scoped
+  Verify could not see.
+- 2026-09-10 — reviewer Minor findings applied; commit 9776b43, re-reviewed PASS / PASS.
+- 2026-09-10 — task 2.1 complete; commit 9474268. Routing eval run against the branch code in a
+  one-off container; SC-9 green.
+- 2026-09-10 — branch review chain: intent PASS, correctness FAIL then PASS. Two real defects fixed
+  in commit 515d1f5 (TypeError escaping the validator on an unhashable nested value; report checker
+  green on a non-ValidationError crash). Full suite 2388 passed. Plan shipped.
