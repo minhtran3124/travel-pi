@@ -34,8 +34,9 @@ Exit codes:
     3  the probe cannot produce a trustworthy verdict and must be re-seeded —
        either a --seed arm's second call read 0 cached tokens (the write never
        landed: parameter ignored, model lacks the policy, or a routing miss), or
-       --check found the state was already checked (a check refreshes the cache,
-       so a second check restarts the idle clock it just reset)
+       --check found the state already carries a check attempt (a check refreshes
+       the cache, so any prior attempt — finished OR crashed partway through the
+       arms — restarts the idle clock it just reset)
 
 ``--seed`` sends each arm TWICE and verifies the second call read cached tokens;
 if either arm's second read is 0 it refuses to write the state file (exit 3), so
@@ -44,9 +45,11 @@ cache (``BOTH-MISS``).
 
 !!! WARNING: a cache READ refreshes the entry's idle timer. Every ``--check``
 therefore restarts the idle clock, so a naive re-check appears to "succeed"
-forever. ``--check`` stamps ``checked_at`` into the state on success and refuses
-to run against an already-stamped state (exit 3); a repeat measurement needs a
-fresh ``--seed``.
+forever — and so does a re-check after a check that crashed after touching only
+the first arm. To close both, ``--check`` stamps an ``attempted_at`` marker into
+the state AFTER the gap gate but BEFORE the first invoke, and persists it before
+any call; it then refuses (exit 3) against any state that already carries an
+attempt, finished or not. A repeat measurement needs a fresh ``--seed``.
 
 Calls ``_build_chat_model("openai", model, model_kwargs={"prompt_cache_retention":
 value})`` directly, so the probe stays independent of any settings flag a later
@@ -122,6 +125,11 @@ def seed(state_path: Path, model: str) -> int:
 
     Returns the process exit code: 3 if an arm was not warmed, else 0.
     """
+    # Remove any state file from a PREVIOUS seed before making any call. A seed
+    # that refuses a cold arm or crashes midway must not leave the old run's
+    # nonces + clock behind for a later --check to trust as this run.
+    state_path.unlink(missing_ok=True)
+
     arms: dict[str, dict[str, str]] = {}
     second_reads: dict[str, int] = {}
     for value in ARMS:
@@ -168,11 +176,13 @@ def check(state_path: Path, min_gap_min: float) -> int:
     """
     state = json.loads(state_path.read_text())
 
-    if "checked_at" in state:
+    if "attempted_at" in state or "checked_at" in state:
         print(
-            "this state file was already checked (a cache read refreshes the "
-            "idle timer, so a second check restarts the clock it just reset and "
-            "would report a false result forever). Re-seed before checking again."
+            "this state file already carries a check attempt (a cache read "
+            "refreshes the idle timer, so any check — even one that crashed "
+            "after touching only the first arm — restarts the clock it just "
+            "reset and would report a false result forever). Re-seed before "
+            "checking again."
         )
         return 3
 
@@ -187,6 +197,14 @@ def check(state_path: Path, min_gap_min: float) -> int:
         )
         return 2
 
+    # The experiment is spent the moment ANY arm's cache is touched. Stamp an
+    # attempt marker now — AFTER the gap gate, BEFORE the first invoke — and
+    # persist it, so if a later arm's call raises (network error, 5xx, timeout)
+    # the already-refreshed first arm cannot be re-measured: the next --check
+    # sees the marker and refuses (exit 3), whether this run finishes or crashes.
+    state["attempted_at"] = time.time()
+    state_path.write_text(json.dumps(state, indent=2))
+
     hits: dict[str, bool] = {}
     for value in ARMS:
         nonce = state["arms"][value]["nonce"]
@@ -199,8 +217,8 @@ def check(state_path: Path, min_gap_min: float) -> int:
             f"{'HIT' if hit else 'MISS'} elapsed={elapsed_min:.1f}min"
         )
 
-    # Stamp the check so a second --check against this state is refused: the
-    # reads above already refreshed both entries' idle timers.
+    # Mark the check complete. The attempt marker above already blocks a re-check;
+    # checked_at records that the run also finished, for the state file's reader.
     state["checked_at"] = time.time()
     state_path.write_text(json.dumps(state, indent=2))
 
