@@ -254,3 +254,24 @@ class AgentRunRepository(Repo):
             "cost": sum(r.cost_usd for r in rows if r.cost_usd is not None),
             "latencies": [r.latency_ms for r in rows if r.latency_ms is not None],
         }
+
+    def llm_steps_since(self, since: datetime) -> list[models.AgentRunStep]:
+        """Return ``llm`` steps created at or after *since*, oldest first.
+
+        Filters on ``kind == "llm"`` (tool and node steps carry no cache tokens)
+        and ``created_at`` using the same ISO-8601 string cutoff idiom as
+        ``totals`` — the timestamps sort chronologically, so a ``>=`` string
+        comparison is a correct cutoff.
+
+        :param since: Only steps created at or after this instant are returned.
+        :return: The matching ``AgentRunStep`` rows ordered by ``created_at``.
+        """
+        cutoff = since.isoformat()
+        stmt = (
+            select(models.AgentRunStep)
+            .where(models.AgentRunStep.kind == "llm")
+            .where(models.AgentRunStep.created_at >= cutoff)
+            .order_by(models.AgentRunStep.created_at)
+        )
+        with self._session() as s:
+            return list(s.scalars(stmt).all())
