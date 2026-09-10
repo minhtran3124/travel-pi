@@ -1,6 +1,6 @@
 ---
 slug: specialist-task-description
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-10
 ---
@@ -136,6 +136,7 @@ All checks run from the repo root — `verify_summary.py --lane` re-runs every r
 
 ## 6. Status Log
 
+- 2026-09-10 — shipped to a PR against main: receipt valid at f71dc96 (task-review, correctness, correctness-delta, intent all pass, 0 blocking); full suite 2419 passed; value not demonstrated by the judged eval (E003).
 - 2026-09-10 — E002 eval + supervisor probe: no measurable ask-coverage gain over main; v13 dropped the budget+concierge fan-out 6/18 vs 0/30. E003 decided A: v13 reverted (f71dc96), task 1.3 undone. Single-task guard added (3de9993) after the probe showed the model filling task_queries for a single intent under v12.
 - 2026-09-10 — intent review: 5 findings; E001 (single-intent note) and E002 (measure) escalated and decided A/A by the user. E001 implemented in f3cc9f5 + 1101c01: the note is added only on a real split. E002: judged eval running on the branch.
 - 2026-09-10 — correctness review: 6 finders, 7 candidates, 1 at score 75 (trailing SystemMessage broke the single-leading-system invariant and crashed on Anthropic). Fixed in 68aaee2 by folding the note into the leading system message; independent re-review closed it with no new findings. Full suite 2413 passed. SC-1…SC-9 re-run at 68aaee2, all exit 0.
