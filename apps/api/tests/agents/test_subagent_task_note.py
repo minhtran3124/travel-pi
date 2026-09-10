@@ -11,6 +11,9 @@ from app.clients.llm import FakeLLM
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 QUERY = "find flights to Tokyo"
+# Differs from QUERY: the note is only added when the supervisor actually split
+# the message (E001), so delivery tests need a user sentence != the task query.
+USER = "flights to Tokyo and a visa question"
 
 
 class CapturingFakeLLM(FakeLLM):
@@ -43,7 +46,7 @@ def _assert_single_leading_system_with_task(call) -> None:
 def _run_planner(llm, messages=None, **extra):
     graph = build_planner(lambda hint=None: llm)
     state = {
-        "messages": messages or [HumanMessage(content="I want to go to Tokyo")],
+        "messages": messages or [HumanMessage(content=USER)],
         **extra,
     }
     return asyncio.run(graph.ainvoke(state))
@@ -60,12 +63,27 @@ def test_single_intent_receives_note():
     _assert_single_leading_system_with_task(llm.seen[-1])
 
 
+def test_single_intent_same_sentence_gets_no_note():
+    # E001: when the task query is the traveller's own sentence, the model input
+    # is main's — one plain leading SystemMessage, no task note.
+    llm = _llm()
+    _run_planner(
+        llm,
+        messages=[HumanMessage(content=QUERY)],
+        tasks=[_task()],
+    )
+    assert llm.seen
+    call = llm.seen[-1]
+    assert len(_systems(call)) == 1
+    assert not any(TASK_NOTE_PREAMBLE in str(m.content) for m in call)
+
+
 def test_fan_out_receives_note():
     llm = _llm()
     worker = build_synthesis_worker(lambda name, hint=None: llm)
     state = {
         "task": _task(),
-        "messages": [HumanMessage(content="I want to go to Tokyo")],
+        "messages": [HumanMessage(content=USER)],
         "user_id": "u1",
         "trip_id": None,
     }
@@ -111,7 +129,7 @@ def test_tool_round_keeps_tool_result_last():
 def test_revise_note_stays_last():
     llm = _llm()
     history = [
-        HumanMessage(content="I want to go to Tokyo"),
+        HumanMessage(content=USER),
         AIMessage(content="Draft answer."),
         SystemMessage(content=REFLECTION_REVISE_NOTE),
     ]

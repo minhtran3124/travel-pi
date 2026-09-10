@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import MessagesState
 
 from app.agents.constants import TASK_NOTE_PREAMBLE
@@ -248,15 +248,29 @@ def with_task_note(base: SystemMessage, state: TravelAgentState) -> SystemMessag
     compiled subgraph drops input keys its schema does not declare, so a value
     passed under an undeclared key silently arrives as ``None``.
 
+    The note carries only a real split. On a single-intent turn (or a fan-out
+    whose ``task_queries`` fell back) the supervisor sets ``query`` to the last
+    user message; that sentence is already in the conversation, so the note is
+    skipped and the model input is exactly what it was without the note — no
+    duplication, and the
+    cached system-prompt prefix does not change per turn (E001). Both sides are
+    compared stripped, since the supervisor stores the raw message content.
+
     :param base: The already-assembled leading system message.
     :param state: The current graph state.
-    :return: ``base`` unchanged when there is no task or its ``query`` is blank,
-        else ``base`` plus ``TASK_NOTE_PREAMBLE`` and the query.
+    :return: ``base`` unchanged when there is no task, its ``query`` is blank,
+        or it equals the last ``HumanMessage``; else ``base`` plus
+        ``TASK_NOTE_PREAMBLE`` and the query.
     """
     task = (state.get("tasks") or [None])[0]
     query = str((task or {}).get("query") or "").strip()
     if not query:
         return base
+    for msg in reversed(state.get("messages") or []):
+        if isinstance(msg, HumanMessage):
+            if str(msg.content or "").strip() == query:
+                return base
+            break
     return SystemMessage(content=f"{base.content}\n\n{TASK_NOTE_PREAMBLE}{query}")
 
 
