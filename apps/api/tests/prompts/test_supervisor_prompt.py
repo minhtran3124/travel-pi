@@ -50,8 +50,7 @@ def test_supervisor_prompt_keeps_planner_owned_not_a_trigger():
     ]
     assert denials, "the prompt no longer denies that a second worker is needed"
     assert any(
-        "weather" in clause.lower() or "places" in clause.lower()
-        for clause in denials
+        "weather" in clause.lower() or "places" in clause.lower() for clause in denials
     ), "the fan-out denial is no longer tied to weather/places (the #149 guard)"
 
 
@@ -62,7 +61,7 @@ def test_supervisor_prompt_has_contrastive_pair():
     examples = [
         line
         for line in registry.get("supervisor").splitlines()
-        if line.startswith("- \"plan my weekend")
+        if line.startswith('- "plan my weekend')
     ]
     assert len(examples) == 2, f"expected the contrastive pair, got {len(examples)}"
 
@@ -73,6 +72,21 @@ def test_supervisor_prompt_has_contrastive_pair():
 
     assert "`plan=[]`" in planner_alone[0]
     assert '`plan=["concierge"]`' in with_tips[0]
+
+
+def test_supervisor_prompt_explains_task_queries():
+    # specialist-task-description (v13): a fanned-out specialist sees only the
+    # whole message, so the prompt must teach the model to write one query per
+    # specialist, in [target_agent, *plan] order, in the traveller's language.
+    text = _normalized()
+    assert "task_queries" in text, "supervisor prompt no longer names task_queries"
+    assert "[target_agent, *plan]" in text, "the per-specialist order wording is gone"
+    assert "traveller's language" in text
+    assert "null when `plan` is null" in text
+    assert (
+        'task_queries = ["find me flights to Tokyo", "what visa do I need for Tokyo?"]'
+        in text
+    ), "the worked example no longer shows the task_queries split"
 
 
 def test_plan_field_description_carries_the_carve_out():

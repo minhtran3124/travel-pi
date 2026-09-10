@@ -3,6 +3,35 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## specialist-task-description — supervisor v13: one query per fanned-out specialist
+
+A fanned-out `plan` specialist runs on the whole traveller message (it sees only
+that message, never `target_agent`'s output), so it has no way to tell which part
+is its own and either redoes the primary's work or answers the wrong half. v13
+asks the supervisor to split the message at routing time instead of leaving each
+specialist to guess.
+
+- **`## Multi-step Plan` → `### Task queries`** (new subsection, after the "Keep it
+  short" bullet) — when `plan` is non-empty, also fill `task_queries`: one entry per
+  specialist in `[target_agent, *plan]` order, each restating **only that
+  specialist's part of THIS message** as a self-contained request, in the
+  traveller's language, copying the names, dates and counts the traveller wrote
+  and inventing nothing. `task_queries` stays null when `plan` is null — the
+  single-specialist path is unchanged.
+- **Worked example** — the existing "flights to Tokyo + visa" prose gains
+  `task_queries = ["find me flights to Tokyo", "what visa do I need for Tokyo?"]`.
+  It extends the prose, not the `## Routing Examples` bullet list, so the
+  "plan my weekend" contrastive pair pinned by
+  `test_supervisor_prompt_has_contrastive_pair` is untouched.
+- Routing Rules 1–5, the fan-out carve-out (§3) and every routing example are
+  copied from v12 verbatim.
+
+The matching `task_queries` field on `SupervisorIntent` (`app/agents/supervisor.py`)
+is additive with default `None`, so the `plan` wire schema is unchanged.
+
+Pinned by `tests/prompts/test_supervisor_prompt.py::test_supervisor_prompt_explains_task_queries`.
+`active.yaml`: supervisor → 13.
+
 ## gh-166-list-trips-tool — the planner and journal can see every trip, not just the open one
 
 The trip context folded into every sub-agent's system message carries the **one open trip**,
