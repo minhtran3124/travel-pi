@@ -5,14 +5,13 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 ## Active Spec
 
 - **Slug:** specialist-task-description
-- **Phase:** plan  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** writing-plans
-- **Last action:** Worktree `../travel-pi-specialist-task-description` on `feat/specialist-task-description`
-  (baseline: ruff clean, 2388 passed). research-brief (Standard, adapt upstream: deepagents fork
-  preamble as a trailing SystemMessage), design.md D1–D3 (parallel `task_queries`, SystemMessage
-  built at invoke and never stored, both paths), PLAN.md 7 tasks / 3 waves, SC-1…SC-9, passes
-  check_plan_contract. Next: subagent-driven-development in the worktree; `make eval-check` is the
-  manual pre-merge gate for `ask_coverage`.
+- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** intent-review (round 2) → finishing-a-development-branch next
+- **Last action:** All 7 tasks done; correctness review fixed the trailing-SystemMessage design (note folded into the
+  leading system message). User decisions: E001-A (note only on a real split), E002-A (judged eval before PR),
+  E003-A (supervisor v13 reverted after it dropped the budget+concierge fan-out 6/18 vs 0/30). Eval: no measurable
+  ask-coverage gain over main yet. Single-task guard added on probe evidence. Branch HEAD f71dc96 + spec commit.
+  Next: receipt + PR (PR must state the value is not demonstrated).
 - **Updated:** 2026-09-10
 
 ## Recent Specs
@@ -21,7 +20,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| specialist-task-description | 2026-09-10 | plan | 7 tasks / 3 waves; per-task query + SystemMessage task note for specialists |
+| specialist-task-description | 2026-09-10 | review | fan-out task note via task_queries; v13 reverted (E003); value not yet demonstrated |
 | close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
 | gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | merged via PR #171 → main (a6e7998); hotels eval 50% → 83.3% |
 | flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |

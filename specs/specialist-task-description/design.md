@@ -20,6 +20,12 @@ entry, so a model that ignores the field degrades to today's behaviour. Rejected
 `[{agent, query}]` objects — breaks `test_wire_schema_keeps_plan_enum`, re-enters the gh-180
 coercer, and changes an enum the model has routed reliably on since v9.
 
+**D1 addendum — no supervisor prompt change (2026-09-10, decision E003-A).** A v13 prompt section
+teaching `task_queries` was built and reverted: it dropped the budget+concierge fan-out in 6/18
+probe samples (0/30 on v12 and main). The field's schema description alone makes the model fill
+`task_queries` (12/12 real splits under v12). The field applies only when two or more tasks are
+emitted, because the model also filled it for single intents (6/6 on a booking request).
+
 **D2 — Delivery: folded into the single leading `SystemMessage` (revised 2026-09-10).**
 `with_task_note(system_msg, state)` appends `TASK_NOTE_PREAMBLE + query` to the end of the leading
 system message, after `with_reply_language`; `messages` is untouched and nothing is stored.
@@ -34,11 +40,13 @@ of the system message instead of after the history — not measured (see SUMMARY
 auto-verified`). Rejected: `HumanMessage` (language-flip bug); per-provider branching (complexity
 for a provider that is not configured today).
 
-**D3 — Scope: both paths, one read.** The specialist always reads `state["tasks"][0]["query"]`.
-Single-intent: the supervisor's list. Fan-out: `synthesis_worker` sets `inner_state["tasks"] = [task]`
-because a compiled subgraph drops the undeclared `task` key (probe 2026-09-10). Rationale: one code path, and step 3 of the review
-(reflection sees the question) can reuse the same text. The single-intent query is usually a
-restatement of the user sentence; appended after the history it does not touch the cached prefix.
+**D3 — Scope: a note only for a real split (revised 2026-09-10, decision E001-A).** The specialist
+always reads `state["tasks"][0]["query"]`; single-intent gets the supervisor's list, fan-out gets
+`tasks=[task]` from `synthesis_worker` because a compiled subgraph drops the undeclared `task` key.
+`with_task_note` skips the note when the query equals the last `HumanMessage`, which is the
+single-intent case and every fan-out fallback. The first version added it on both paths, which
+restated the traveller's sentence in the system prompt and, after D2 moved the note there, changed
+the cached prefix on every single-intent turn for no new information.
 
 ## Out of scope
 
