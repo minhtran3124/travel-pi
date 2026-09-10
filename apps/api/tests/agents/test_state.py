@@ -232,14 +232,36 @@ def test_subagent_receives_todays_date_in_system_prompt():
             captured["messages"] = messages
             return super()._generate(messages, *args, **kwargs)
 
+    from app.prompts.registry import registry
+
     capturing = CapturingLLM(responses=["ok"])
     agent = build_subagent("plain", [], lambda _: capturing, "base system")
-    agent.invoke({"messages": [HumanMessage(content="find me a flight today")]})
+    # Both a rolling summary and a detected reply language are set so the ORDER of
+    # all the stable blocks (style + prompt + summary + language pin) vs the volatile
+    # date note can be pinned — not just the date's presence (D1: date grounded last).
+    agent.invoke(
+        {
+            "messages": [HumanMessage(content="find me a flight today")],
+            "summary": "trip to Tokyo",
+            "language": "vi",
+        }
+    )
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     system_msg = captured["messages"][0]
-    assert today in system_msg.content
-    assert "base system" in system_msg.content
+    content = system_msg.content
+    assert today in content
+    assert "base system" in content
+    # The stable, cacheable prefix starts at token 0 — the shared communication_style
+    # block, never the volatile date note.
+    assert content.startswith(registry.get("communication_style"))
+    # D1 order: base prompt, then the rolling summary, then the reply-language pin,
+    # all BEFORE the date note; the date note is the final block.
+    date_at = content.index("CURRENT DATE")
+    assert content.index("base system") < date_at
+    assert content.index("Tokyo") < date_at
+    assert content.index("Reply in the traveller's own language") < date_at
+    assert content.rstrip().endswith("ambiguous.")
 
 
 def test_subagent_receives_summary_in_system_prompt():
