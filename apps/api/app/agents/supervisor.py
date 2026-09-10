@@ -11,13 +11,13 @@ from __future__ import annotations
 import logging
 import re
 from datetime import date
-from typing import Literal
+from typing import Literal, get_args
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
 from langgraph.types import Command
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.agents.constants import ALL_SUBAGENTS, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
@@ -79,8 +79,9 @@ class SupervisorIntent(BaseModel):
             "message that also asks for one of them is target_agent='planner' "
             "with plan=['concierge']. Weather and places are planner-owned and "
             "are not a reason to fan out. "
-            "Leave null for the common single-intent case. Duplicate or invalid "
-            "steps are dropped in code. The only follow-on channel — there is no "
+            "Leave null for the common single-intent case. Duplicate, invalid or "
+            "nested steps are dropped or unwrapped in code; each entry is a "
+            "bare specialist name. The only follow-on channel — there is no "
             "other way to queue an additional specialist this turn."
         ),
     )
@@ -103,6 +104,43 @@ class SupervisorIntent(BaseModel):
             "guess or infer a value."
         ),
     )
+
+    @field_validator("plan", mode="before")
+    @classmethod
+    def _coerce_plan(cls, value: object) -> list[str] | None:
+        """Degrade a malformed ``plan`` instead of raising a ValidationError.
+
+        The model occasionally emits nested ``{"target_agent": ...}`` objects,
+        an unknown or non-specialist name, or ``booking`` (never a valid
+        follow-on). Rather than failing the whole routing decision, each entry
+        is coerced to a bare specialist name or dropped with a WARNING; an empty
+        result becomes ``None``. Declared as a ``before`` validator so the JSON
+        schema sent to the model is unchanged (the four-name enum is preserved).
+        """
+        if value is None:
+            return None
+        if isinstance(value, (str, dict)):
+            value = [value]
+        elif not isinstance(value, list):
+            logger.warning("[agent] supervisor dropping non-list plan: %r", value)
+            return None
+        valid = set(get_args(_SecondaryTarget))
+        coerced: list[str] = []
+        for entry in value:
+            name = entry
+            if isinstance(entry, dict):
+                # A nested SupervisorIntent-shaped object: unwrap it. ``get`` can
+                # return anything the model emitted, including an unhashable list
+                # or dict, so the membership test below is guarded by the
+                # ``isinstance`` check — ``x in <set>`` hashes x and a TypeError
+                # here would escape the validator and kill the turn, which is the
+                # exact failure this validator exists to prevent (GH-180).
+                name = entry.get("target_agent")
+            if isinstance(name, str) and name in valid:
+                coerced.append(name)
+            else:
+                logger.warning("[agent] supervisor dropping plan entry: %r", entry)
+        return coerced or None
 
 
 # Loose "number + currency hint" match: a digit run (with optional , / . group
@@ -306,7 +344,8 @@ def make_supervisor(llm: BaseChatModel):
         # no duplicate specialist workers, since each worker sees only this
         # message and a repeat would just do the same work twice), drops anything
         # unknown or "booking" (always HITL, never queued — defensive; the
-        # ``_SecondaryTarget`` type already forbids it) or a tier-gated agent, and
+        # ``plan`` validator already drops it before this point) or a tier-gated
+        # agent, and
         # caps the follow-ons at ``MAX_LEDGER_STEPS - 1``. A booking *target*
         # routes through the HITL plan node with no follow-ons.
         raw_plan = getattr(intent, "plan", None)

@@ -17,16 +17,15 @@ Direct supervisor calls with a FakeLLM structured response (the pattern in
 
 from __future__ import annotations
 
+import logging
 from dataclasses import replace
 from types import SimpleNamespace
 
-import pytest
 from app.agents.constants import MAX_LEDGER_STEPS
 from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.supervisor import SupervisorIntent, make_supervisor
 from app.clients.llm import FakeLLM
 from langchain_core.messages import HumanMessage
-from pydantic import ValidationError
 
 
 def _runtime(ctx: AgentContext) -> SimpleNamespace:
@@ -107,12 +106,75 @@ def test_raw_payload_with_secondary_booking_does_not_raise():
     assert intent.plan is None
 
 
-def test_plan_with_booking_still_rejected():
+# ---------------------------------------------------------------------------
+# Invalid plan entries degrade instead of raising
+# ---------------------------------------------------------------------------
 
-    with pytest.raises(ValidationError):
+
+def test_nested_object_is_coerced():
+    # A nested {"target_agent": ...} step is unwrapped to the bare name.
+    intent = SupervisorIntent.model_validate(
+        {
+            "target_agent": "planner",
+            "plan": [{"target_agent": "journal", "slots": None}],
+        }
+    )
+    assert intent.plan == ["journal"]
+
+
+def test_booking_in_plan_is_dropped():
+    # 'booking' can never be queued as a follow-on; it is dropped, not rejected.
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "plan": ["booking", "concierge"]}
+    )
+    assert intent.plan == ["concierge"]
+
+
+def test_unparseable_entries_are_dropped():
+    # Unknown string, int, dict without a valid target_agent, nested booking:
+    # all dropped; nothing survives so plan becomes None.
+    intent = SupervisorIntent.model_validate(
+        {
+            "target_agent": "planner",
+            "plan": ["nope", 7, {"x": 1}, {"target_agent": "booking"}],
+        }
+    )
+    assert intent.plan is None
+
+
+def test_wire_schema_keeps_plan_enum():
+    # The tolerant before-validator must not change the JSON schema sent to the
+    # model (SC-4): the array branch still lists the four-name enum.
+    plan_schema = SupervisorIntent.model_json_schema()["properties"]["plan"]
+    array_branches = [b for b in plan_schema["anyOf"] if b.get("type") == "array"]
+    assert len(array_branches) == 1
+    assert array_branches[0]["items"]["enum"] == [
+        "planner",
+        "concierge",
+        "journal",
+        "budget",
+    ]
+
+
+def test_coerced_plan_reaches_tasks():
+    # End to end: a raw nested journal entry yields tasks [planner, journal].
+    intent = SupervisorIntent.model_validate(
+        {
+            "target_agent": "planner",
+            "plan": [{"target_agent": "journal", "slots": None}],
+        }
+    )
+    agents = _agents_for(intent, AgentContext())
+    assert agents == ["planner", "journal"]
+
+
+def test_dropped_entry_is_logged(caplog):
+    # Every dropped entry is logged at WARNING with the rejected value.
+    with caplog.at_level(logging.WARNING, logger="app.agents.supervisor"):
         SupervisorIntent.model_validate(
             {"target_agent": "planner", "plan": ["booking"]}
         )
+    assert "booking" in caplog.text
 
 
 # ---------------------------------------------------------------------------
@@ -185,3 +247,16 @@ def test_follow_ons_capped_at_max_ledger_steps():
     )
     assert agents == ["planner", "concierge", "budget", "journal"]
     assert len(agents) == MAX_LEDGER_STEPS
+
+
+def test_unhashable_nested_target_agent_does_not_raise():
+    # GH-180 regression: the validator unwraps a nested object by reading
+    # ``target_agent``, whose value is whatever the model emitted. A list or dict
+    # there is unhashable, so an unguarded ``value in <set>`` membership test
+    # raised TypeError straight out of the supervisor node — the same dead turn
+    # the validator exists to prevent, just with a different exception class.
+    for bad in ([{"target_agent": ["planner"]}], [{"target_agent": {"a": 1}}]):
+        intent = SupervisorIntent.model_validate(
+            {"target_agent": "planner", "plan": bad}
+        )
+        assert intent.plan is None
