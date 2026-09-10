@@ -1,12 +1,12 @@
 {
   "created_at": "2026-09-08T09:51:28Z",
-  "last_event_id": "9fbcdb4b-e4e6-46bf-8c4a-b0eb4a77a742",
+  "last_event_id": "74e53923-8a5c-48af-aa63-e88dfab51099",
   "resume_event": null,
   "run_id": "92489307-b5ff-4236-946f-711d4e3d609f",
-  "seq": 6,
+  "seq": 7,
   "sha": null,
   "slug": "prompt-caching-system-prefix",
-  "state": "verifying",
-  "updated_at": "2026-09-10T07:28:02Z",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-10T09:55:49Z",
   "waiting_on": null
 }
