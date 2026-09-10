@@ -1,6 +1,6 @@
 ---
 slug: gh-180-supervisor-plan-invalid-entries
-status: proposed
+status: active
 owner: minhtran3124
 created: 2026-09-10
 ---
@@ -74,21 +74,23 @@ them.
 
 ## 3. Success Criteria
 
-All checks run from `apps/api/` with `../../.venv/bin/python`.
+All checks run from the REPOSITORY ROOT with `.venv/bin/python`. `verify_summary.py --check` executes
+them with the repo root as cwd, so a check written to run from `apps/api/` exits 127 and, when
+negated with a leading `!`, passes vacuously.
 
 | ID | Behavior (observable) | Check (re-runnable) | Expected |
 |------|-------------------------|-----------------------|------------|
-| SC-1 | A nested `{'target_agent': 'journal', 'slots': None}` entry in `plan` is coerced to `'journal'`; no `ValidationError` | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q -k nested_object_is_coerced` | exit 0 |
-| SC-2 | The bare string `'booking'` in `plan` is dropped; validation succeeds with the remaining entries | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q -k booking_in_plan_is_dropped` | exit 0 |
-| SC-3 | Unparseable entries (unknown string, int, dict without a valid `target_agent`, nested `booking`) are dropped and `plan` becomes `None` when nothing survives | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q -k unparseable_entries_are_dropped` | exit 0 |
-| SC-4 | The JSON schema sent to the model still lists the four-name enum for `plan` items (the `Literal` is kept) | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q -k wire_schema_keeps_plan_enum` | exit 0 |
-| SC-5 | End to end through the supervisor node: a raw payload with a nested journal entry yields tasks `[planner, journal]` | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q -k coerced_plan_reaches_tasks` | exit 0 |
-| SC-6 | Every dropped entry is logged at WARNING with the rejected value | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q -k dropped_entry_is_logged` | exit 0 |
-| SC-7 | The old contract test that expected `ValidationError` for `plan=["booking"]` is gone and the file's full run passes | `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py -q` | exit 0 |
-| SC-8 | Lint is clean on the touched files | `../../.venv/bin/ruff check app/agents/supervisor.py tests/agents/test_supervisor_plan_semantics.py scripts/check_gh180_routing_report.py` | exit 0 |
-| SC-9 | In a fresh routing eval report, neither `multi_turn` golden records a `ValidationError` | `../../.venv/bin/python scripts/check_gh180_routing_report.py eval/reports/gh180-routing.json` | exit 0 |
-| SC-10 | Formatting is clean on the touched files | `../../.venv/bin/ruff format --check app/agents/supervisor.py tests/agents/test_supervisor_plan_semantics.py scripts/check_gh180_routing_report.py` | exit 0 |
-| SC-11 | The report checker rejects the pre-fix fixture that holds the crash | `! ../../.venv/bin/python scripts/check_gh180_routing_report.py tests/fixtures/eval/gh180_pre_fix_routing_report.json` | exit 0 — the checker itself exits 1 |
+| SC-1 | A nested `{'target_agent': 'journal', 'slots': None}` entry in `plan` is coerced to `'journal'`; no `ValidationError` | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q -k nested_object_is_coerced` | exit 0 |
+| SC-2 | The bare string `'booking'` in `plan` is dropped; validation succeeds with the remaining entries | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q -k booking_in_plan_is_dropped` | exit 0 |
+| SC-3 | Unparseable entries (unknown string, int, dict without a valid `target_agent`, nested `booking`) are dropped and `plan` becomes `None` when nothing survives | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q -k unparseable_entries_are_dropped` | exit 0 |
+| SC-4 | The JSON schema sent to the model still lists the four-name enum for `plan` items (the `Literal` is kept) | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q -k wire_schema_keeps_plan_enum` | exit 0 |
+| SC-5 | End to end through the supervisor node: a raw payload with a nested journal entry yields tasks `[planner, journal]` | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q -k coerced_plan_reaches_tasks` | exit 0 |
+| SC-6 | Every dropped entry is logged at WARNING with the rejected value | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q -k dropped_entry_is_logged` | exit 0 |
+| SC-7 | The old contract test that expected `ValidationError` for `plan=["booking"]` is gone and the file's full run passes | `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py -q` | exit 0 |
+| SC-8 | Lint is clean on the touched files | `.venv/bin/ruff check apps/api/app/agents/supervisor.py apps/api/tests/agents/test_supervisor_plan_semantics.py apps/api/scripts/check_gh180_routing_report.py` | exit 0 |
+| SC-9 | In a fresh routing eval report, neither `multi_turn` golden records a `ValidationError` | `.venv/bin/python apps/api/scripts/check_gh180_routing_report.py apps/api/eval/reports/gh180-routing.json` | exit 0 |
+| SC-10 | Formatting is clean on the touched files | `.venv/bin/ruff format --check apps/api/app/agents/supervisor.py apps/api/tests/agents/test_supervisor_plan_semantics.py apps/api/scripts/check_gh180_routing_report.py` | exit 0 |
+| SC-11 | The report checker rejects the pre-fix fixture that holds the crash | `! .venv/bin/python apps/api/scripts/check_gh180_routing_report.py apps/api/tests/fixtures/eval/gh180_pre_fix_routing_report.json` | exit 0 — the checker itself exits 1 |
 
 ## Global Constraints
 
@@ -145,7 +147,7 @@ All checks run from `apps/api/` with `../../.venv/bin/python`.
   steps are dropped or unwrapped in code; each entry is a bare specialist name." — keep every
   other sentence verbatim because `tests/prompts/test_supervisor_prompt.py:78` asserts three of
   them. Import `field_validator` from `pydantic` in the same edit as its first use.
-- **Verify:** `../../.venv/bin/python -m pytest tests/agents/test_supervisor_plan_semantics.py tests/prompts/test_supervisor_prompt.py -q`
+- **Verify:** `.venv/bin/python -m pytest apps/api/tests/agents/test_supervisor_plan_semantics.py tests/prompts/test_supervisor_prompt.py -q`
 - **Done:** Both files pass; `ruff check` and `ruff format --check` on the two touched files exit 0; the JSON schema for `plan` is unchanged from before the edit (SC-4 test green).
 - **Criteria:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-10
 - **Interfaces:** Consumes the existing SupervisorIntent pydantic model and the _agents_for test helper (both already in the repo). Produces `apps/api/app/agents/supervisor.py` (tolerant validator, updated description) and `apps/api/tests/agents/test_supervisor_plan_semantics.py` (six new tests, one rewritten).
@@ -169,7 +171,7 @@ All checks run from `apps/api/` with `../../.venv/bin/python`.
   `routing-multi_turn-` (one of them carries the `agent_run` ValidationError detail). Note
   `.gitignore` also swallows `scripts/`: stage with `git add -f` (memory
   `gh-166-list-trips-shipped`).
-- **Verify:** `! ../../.venv/bin/python scripts/check_gh180_routing_report.py tests/fixtures/eval/gh180_pre_fix_routing_report.json`
+- **Verify:** `! .venv/bin/python apps/api/scripts/check_gh180_routing_report.py apps/api/tests/fixtures/eval/gh180_pre_fix_routing_report.json`
 - **Done:** Script exits 1 on the fixture (whose `routing-multi_turn-vi-01` entry carries the ValidationError detail) and its output contains both `routing-multi_turn-vi-01` and `routing-multi_turn-en-01`; `ruff check` and `ruff format --check` on the script exit 0.
 - **Criteria:** SC-11
 - **Interfaces:** Consumes the eval report JSON shape defined in evalkit/types.py (existing) and the main checkout's untracked gh173-before.json report. Produces `apps/api/scripts/check_gh180_routing_report.py` and `apps/api/tests/fixtures/eval/gh180_pre_fix_routing_report.json`.
@@ -193,7 +195,7 @@ All checks run from `apps/api/` with `../../.venv/bin/python`.
   wall-clock time (it exceeds the 60 s Verify budget). If either `multi_turn` golden still
   fails on `flow_match` rather than on a crash, record that as a pre-existing routing gap
   (issue #155) — it is not this spec's regression.
-- **Verify:** `../../.venv/bin/python scripts/check_gh180_routing_report.py eval/reports/gh180-routing.json`
+- **Verify:** `.venv/bin/python apps/api/scripts/check_gh180_routing_report.py apps/api/eval/reports/gh180-routing.json`
 - **Done:** Checker exits 0 on the fresh report; SUMMARY has one Verify row for each of SC-1..SC-11 with its exit code, `python .claude/scripts/verify_summary.py --lane gh-180-supervisor-plan-invalid-entries` exits 0, and the eval command is listed under Not auto-verified.
 - **Criteria:** SC-9
 - **Interfaces:** Consumes external runtime inputs (the running Postgres service on the shared compose network, the already-built api image, and the main checkout's provider key supplied by env-file) plus `apps/api/scripts/check_gh180_routing_report.py`. Produces `apps/api/eval/reports/gh180-routing.json` and the completed `specs/gh-180-supervisor-plan-invalid-entries/SUMMARY.md`.
