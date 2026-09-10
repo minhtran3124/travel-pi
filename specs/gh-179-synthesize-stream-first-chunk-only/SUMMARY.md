@@ -26,7 +26,11 @@ Issue #179 (rewritten title): "Agent SSE: a fanned-out turn streams only the fir
 
 ## What changed
 
-Nothing yet — intake only.
+`mapper.py`'s `synthesize` branch now dedupes by **message id** instead of by "emit the first event
+only". Every chunk of the answer message in flight is streamed; a *different* message id for the
+same node is suppressed as the duplicate. Nothing else in the mapper moved, and the SSE event
+taxonomy is unchanged — only the number of `token` events a fan-out turn produces, which was the
+defect.
 
 ### The issue as originally filed was mis-scoped, twice
 
@@ -73,7 +77,12 @@ before any code was read, and re-measured against the code that produces it.
 
 ### Deviations
 
-- none
+- **Rule 3 (auto-fix blocking):** the `risk-corroboration` hook blocked the commit with
+  `data-loss/migration`. The trigger was its `TRUNCATE` pattern matching inside the word
+  *"truncated"* — including in this spec's own directory name, since the diff header line is
+  scanned. Resolved by rewording and renaming the slug to
+  `gh-179-synthesize-stream-first-chunk-only`, **not** by declaring a higher lane or loosening the
+  gate: both of those would have made the gate mean less.
 
 ### Verify
 
@@ -84,13 +93,26 @@ before any code was read, and re-measured against the code that produces it.
 | the synthesize branch suppresses after the first chunk | `grep -n 'synthesize_answer_emitted' apps/api/app/streaming/mapper.py` | 0 | flag set on the first chunk, `continue` on every later one | |
 | the sub-agent branch dedupes by message id instead | `sed -n '200,213p' apps/api/app/streaming/mapper.py` | 0 | compares `msg_id` to `last_msg_id`, emits a `reset` on a genuinely new message | |
 
+| the answer's chunks vs the duplicate, measured on a live turn | temporary logging of `type`/`id` on every item the synthesize branch received | 0 | **73 × `AIMessageChunk` sharing one id** (the answer) + **1 × `AIMessage` with a different id** (the aggregate duplicate) — so dedupe-by-id is correct and the old test's same-id model was wrong | |
+| the regression tests fail before the fix, for the right reason | `python -m pytest tests/streaming/test_synthesize_stream_chunks.py -q` (pre-fix) | 1 | `assert 'I' == 'I can put to...okyo weekend.'` | |
+| the same tests pass after | `python -m pytest tests/streaming/test_synthesize_stream_chunks.py -q` | 0 | 2 passed | |
+| the corrected existing test and the streaming suite pass | `python -m pytest tests/api/agent/test_stream_events.py tests/streaming -q` | 0 | 66 passed | |
+| the full backend suite passes | `DATABASE_URL=sqlite:///<tmp> python -m pytest tests -q`, from a detached worktree with no `apps/api/.env` | 0 | **2374 passed, 0 failed** | |
+| ruff on the touched files | `ruff check app/streaming/mapper.py tests/streaming/test_synthesize_stream_chunks.py tests/api/agent/test_stream_events.py` | 0 | All checks passed | |
+| the live stream carries the whole answer | `curl -sN POST /agent/stream ... ; grep -c '^event: token'` | 0 | **215** token events (was 1); reassembled reply contains the real local tips — "use Suica/Pasmo, carry some cash, and don't tip" | |
+
 ### Not auto-verified
 
-- **No fix exists yet**, so no behavioral claim is made about the repaired stream.
-- **Whether streamed chunks share one message id** is the assumption the fix rests on. It is
-  consistent with the sub-agent branch already relying on it, but it has NOT been measured for the
-  synthesize node specifically; the first task is a test that would fail if it were false.
-- The `1 token` measurement is from **one** live turn, not a repeated sample.
+- **The before/after live measurements are one turn each**, not a repeated sample. The offline
+  tests are the repeatable evidence; the live numbers show the user-visible effect.
+- **The fix rests on streamed chunks sharing one message id.** That was measured (73 chunks, one
+  id) on this provider and model. A provider that emitted a fresh id per chunk would break it — the
+  regression test would not catch that, since it scripts the ids. Recorded rather than guarded
+  against, because the sub-agent branch twenty lines below has always relied on the same property.
+- **An existing green test's expectation was changed.** `test_mapper_multi_intent_streams_single_synthesized_answer`
+  asserted `names.count("token") == 1` and scripted the duplicate as a same-id chunk. That is the
+  assumption that caused this bug, so the fixture was corrected to the measured shape. Changing a
+  passing test needs justification; it is recorded in that test's docstring as well as here.
 
 ### Rollback
 
