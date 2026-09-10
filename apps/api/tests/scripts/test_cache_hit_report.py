@@ -26,14 +26,38 @@ def db_url(tmp_path, monkeypatch):
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
     rows = [
-        _step(node="supervisor", model="gpt-5", kind="llm",
-              input_tokens=3000, cached_tokens=2816, seq=0),
-        _step(node="supervisor", model="gpt-5", kind="llm",
-              input_tokens=3000, cached_tokens=0, seq=1),
-        _step(node="supervisor", model="gpt-5", kind="tool",
-              input_tokens=999, cached_tokens=0, seq=2),
-        _step(node="assistant", model="gpt-5", kind="llm",
-              input_tokens=3000, cached_tokens=2816, seq=3),
+        _step(
+            node="supervisor",
+            model="gpt-5",
+            kind="llm",
+            input_tokens=3000,
+            cached_tokens=2816,
+            seq=0,
+        ),
+        _step(
+            node="supervisor",
+            model="gpt-5",
+            kind="llm",
+            input_tokens=3000,
+            cached_tokens=0,
+            seq=1,
+        ),
+        _step(
+            node="supervisor",
+            model="gpt-5",
+            kind="tool",
+            input_tokens=999,
+            cached_tokens=0,
+            seq=2,
+        ),
+        _step(
+            node="assistant",
+            model="gpt-5",
+            kind="llm",
+            input_tokens=3000,
+            cached_tokens=2816,
+            seq=3,
+        ),
     ]
     with factory() as s:
         s.add_all(rows)
@@ -56,12 +80,30 @@ def test_build_report_aggregates_per_node_and_model():
     from scripts.cache_hit_report import build_report
 
     rows = [
-        _step(node="supervisor", model="gpt-5", kind="llm",
-              input_tokens=3000, cached_tokens=2816, seq=0),
-        _step(node="supervisor", model="gpt-5", kind="llm",
-              input_tokens=3000, cached_tokens=0, seq=1),
-        _step(node="assistant", model="gpt-5", kind="llm",
-              input_tokens=3000, cached_tokens=2816, seq=2),
+        _step(
+            node="supervisor",
+            model="gpt-5",
+            kind="llm",
+            input_tokens=3000,
+            cached_tokens=2816,
+            seq=0,
+        ),
+        _step(
+            node="supervisor",
+            model="gpt-5",
+            kind="llm",
+            input_tokens=3000,
+            cached_tokens=0,
+            seq=1,
+        ),
+        _step(
+            node="assistant",
+            model="gpt-5",
+            kind="llm",
+            input_tokens=3000,
+            cached_tokens=2816,
+            seq=2,
+        ),
     ]
     report = build_report(rows)
 
@@ -90,8 +132,16 @@ def test_build_report_zero_input_is_zero_ratio():
     from scripts.cache_hit_report import build_report
 
     report = build_report(
-        [_step(node="reflection", model="gpt-5", kind="llm",
-               input_tokens=0, cached_tokens=0, seq=0)]
+        [
+            _step(
+                node="reflection",
+                model="gpt-5",
+                kind="llm",
+                input_tokens=0,
+                cached_tokens=0,
+                seq=0,
+            )
+        ]
     )
     assert report["rows"][0]["ratio"] == 0.0
     assert report["overall"] == 0.0
@@ -176,7 +226,7 @@ def test_main_no_rows_with_min_ratio_exits_three(db_url, capsys):
 
     A gate must tell "nothing was measured" apart from "the cache regressed",
     so an empty window fails closed with a distinct code and never prints a
-    0.0%% hit rate as if it were a measurement.
+    0.0% hit rate as if it were a measurement.
     """
     from scripts.cache_hit_report import main
 
@@ -200,3 +250,34 @@ def test_main_no_rows_without_min_ratio_exits_zero(db_url, capsys):
     assert "0.0%" not in printed
     assert "no LLM steps" in printed
     assert "does-not-exist" in printed
+
+
+def test_main_rows_with_zero_input_is_no_data(db_url, capsys):
+    """Rows that carry no input tokens are "nothing measurable", not a 0% hit rate.
+
+    A window can match llm steps that recorded 0 input tokens — a step closed by
+    an LLM error or swept as unfinished. Gating that as "0.0% below --min-ratio"
+    reports a regression when nothing was measured; it must exit 3 like an empty
+    window, and never print a 0.0% rate.
+    """
+    from scripts.cache_hit_report import main
+
+    factory = get_session_factory(db_url)
+    with factory() as s:
+        s.add(
+            _step(
+                node="reflection",
+                model="gpt-5",
+                kind="llm",
+                input_tokens=0,
+                cached_tokens=0,
+                seq=10,
+            )
+        )
+        s.commit()
+
+    code = main(["--since", "1d", "--node", "reflection", "--min-ratio", "0.1"])
+    assert code == 3
+    printed = capsys.readouterr().out
+    assert "0.0%" not in printed
+    assert "nothing to measure" in printed

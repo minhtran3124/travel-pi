@@ -14,7 +14,7 @@ Exit codes:
 * ``2`` — argparse usage error (e.g. a malformed ``--since``).
 * ``3`` — no LLM steps matched the window, so nothing could be measured. With
   ``--min-ratio`` this fails closed (a gate that cannot measure must not pass);
-  the report never prints a 0.0%% hit rate as if it were a measurement.
+  the report never prints a 0.0% hit rate as if it were a measurement.
 
 The table reports two distinct miss measures, so an operator can tell a broad
 low hit rate apart from a few calls that cached nothing:
@@ -141,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--min-ratio",
         type=float,
-        help="Exit 1 when the overall hit rate is below this ratio (0-1).",
+        help="Exit 1 when the overall hit rate is below this ratio (0-1); exit 3 when nothing was measured.",
     )
     args = parser.parse_args(argv)
 
@@ -158,12 +158,23 @@ def main(argv: list[str] | None = None) -> int:
 
     report = build_report(rows)
 
-    if not report["rows"]:
+    total_input = sum(r["input"] for r in report["rows"])
+    if not report["rows"] or total_input == 0:
         node_desc = f" and --node {args.node!r}" if args.node else ""
-        print(
-            f"no LLM steps matched --since {args.since!r}{node_desc}; "
-            "nothing to measure."
-        )
+        if not report["rows"]:
+            print(
+                f"no LLM steps matched --since {args.since!r}{node_desc}; "
+                "nothing to measure."
+            )
+        else:
+            # Steps matched but none carried input tokens (e.g. closed by an LLM
+            # error or swept as unfinished), so a hit rate would be the 0.0
+            # no-input sentinel, not a measurement.
+            calls = sum(r["calls"] for r in report["rows"])
+            print(
+                f"{calls} LLM step(s) matched --since {args.since!r}{node_desc} "
+                "but none carried input tokens; nothing to measure."
+            )
         # Fail closed when a gate was requested: "no data" is distinct from
         # "below threshold" (exit 1) and must not read as a passing measurement.
         return 3 if args.min_ratio is not None else 0
