@@ -1,6 +1,8 @@
 # tests/agents/test_retry.py
 """Unit tests for the fault-tolerance policies (specs/agent-fault-tolerance, MIN-49)."""
 
+import logging
+
 import httpx
 from app.agents.retry import (
     GRACEFUL_MSG,
@@ -51,3 +53,29 @@ def test_graceful_fallback_one_message_per_tool_call():
     assert [m.tool_call_id for m in msgs] == ["c1", "c2"]
     assert all(m.content == GRACEFUL_MSG for m in msgs)
     assert cmd.goto == "assistant"
+
+
+def test_graceful_fallback_logs_the_exception_with_traceback(caplog):
+    """#186: the substituted message is the only other trace, so the real fault
+    must reach the logs with its traceback — a deterministic error read as an
+    "upstream problem" is what misdiagnosed #178."""
+    ai = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_weather", "args": {}, "id": "c1", "type": "tool_call"}
+        ],
+    )
+    boom = NotImplementedError("StructuredTool does not support sync invocation.")
+    try:
+        raise boom
+    except NotImplementedError as exc:
+        err = NodeError(node="tools", error=exc)
+
+    with caplog.at_level(logging.ERROR, logger="app.agents.retry"):
+        graceful_fallback({"messages": [ai]}, err)
+
+    record = next(r for r in caplog.records if r.name == "app.agents.retry")
+    assert record.exc_info is not None
+    assert record.exc_info[1] is boom
+    assert "get_weather" in record.getMessage()
+    assert "sync invocation" in caplog.text

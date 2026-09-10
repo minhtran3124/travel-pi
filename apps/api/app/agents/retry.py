@@ -9,6 +9,7 @@ provider-agnostic ``UpstreamError`` family; logic failures stay ``ToolException`
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -20,6 +21,8 @@ from langgraph.prebuilt.tool_node import ToolInvocationError
 from langgraph.types import Command, RetryPolicy
 
 from app.exceptions import AppError, UpstreamError
+
+logger = logging.getLogger(__name__)
 
 # Shown to the user after transient retries are exhausted (or a non-retryable
 # error surfaces). Mirrors today's tool-unavailable message, minus "do not retry".
@@ -159,12 +162,25 @@ def graceful_fallback(state: dict, error: NodeError) -> Command:
     pending ``tool_call_id`` (read from the last ``AIMessage``), then route back to
     ``assistant``.
 
+    The substituted message is all that survives this handler, so the exception is
+    logged with its traceback first (#186): without it a deterministic fault (a
+    ``NotImplementedError``, a ``TypeError``) leaves no trace anywhere and is only
+    ever seen as ``GRACEFUL_MSG``'s "upstream problem" — which is how #178 was
+    first diagnosed wrong.
+
     :param state: The graph state whose last message is the tool-calling AIMessage.
     :param error: The LangGraph failure context (``error.error`` is the exception).
     :return: A ``Command`` appending graceful tool messages and going to assistant.
     """
     last = state["messages"][-1]
     tool_calls = getattr(last, "tool_calls", None) or []
+    logger.error(
+        "[graceful_fallback] tools node failed; degrading %d pending tool call(s) "
+        "%s to GRACEFUL_MSG",
+        len(tool_calls),
+        [tc["name"] for tc in tool_calls],
+        exc_info=getattr(error, "error", None),
+    )
     msgs = [
         ToolMessage(
             content=GRACEFUL_MSG,
