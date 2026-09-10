@@ -155,13 +155,13 @@ def test_plan_dedupes_repeated_specialist():
 
 
 def test_plan_cannot_contain_booking_at_type_level():
-    # booking can never be a queued follow-on — enforced by the _SecondaryTarget
-    # type on the `plan` field, so it never even reaches the Python filter.
-    import pytest
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError):
-        SupervisorIntent(target_agent="planner", plan=["booking"])
+    # booking can never be a queued follow-on. Since GH-180 the `plan` validator
+    # DROPS it instead of raising, so a malformed routing decision degrades to
+    # the primary intent rather than killing the whole turn.
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "plan": ["booking"]}
+    )
+    assert intent.plan is None
 
 
 def test_plan_step_tier_gated_is_dropped():

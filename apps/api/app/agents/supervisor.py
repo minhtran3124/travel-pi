@@ -17,7 +17,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
 from langgraph.types import Command
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.agents.constants import ALL_SUBAGENTS, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
@@ -79,8 +79,9 @@ class SupervisorIntent(BaseModel):
             "message that also asks for one of them is target_agent='planner' "
             "with plan=['concierge']. Weather and places are planner-owned and "
             "are not a reason to fan out. "
-            "Leave null for the common single-intent case. Duplicate or invalid "
-            "steps are dropped in code. The only follow-on channel — there is no "
+            "Leave null for the common single-intent case. Duplicate, invalid or "
+            "nested steps are dropped or unwrapped in code; each entry is a "
+            "bare specialist name. The only follow-on channel — there is no "
             "other way to queue an additional specialist this turn."
         ),
     )
@@ -103,6 +104,36 @@ class SupervisorIntent(BaseModel):
             "guess or infer a value."
         ),
     )
+
+    @field_validator("plan", mode="before")
+    @classmethod
+    def _coerce_plan(cls, value: object) -> list[str] | None:
+        """Degrade a malformed ``plan`` instead of raising a ValidationError.
+
+        The model occasionally emits nested ``{"target_agent": ...}`` objects,
+        an unknown or non-specialist name, or ``booking`` (never a valid
+        follow-on). Rather than failing the whole routing decision, each entry
+        is coerced to a bare specialist name or dropped with a WARNING; an empty
+        result becomes ``None``. Declared as a ``before`` validator so the JSON
+        schema sent to the model is unchanged (the four-name enum is preserved).
+        """
+        if value is None:
+            return None
+        if isinstance(value, (str, dict)):
+            value = [value]
+        elif not isinstance(value, list):
+            logger.warning("[agent] supervisor dropping non-list plan: %r", value)
+            return None
+        valid = {"planner", "concierge", "journal", "budget"}
+        coerced: list[str] = []
+        for entry in value:
+            if isinstance(entry, str) and entry in valid:
+                coerced.append(entry)
+            elif isinstance(entry, dict) and entry.get("target_agent") in valid:
+                coerced.append(entry["target_agent"])
+            else:
+                logger.warning("[agent] supervisor dropping plan entry: %r", entry)
+        return coerced or None
 
 
 # Loose "number + currency hint" match: a digit run (with optional , / . group
