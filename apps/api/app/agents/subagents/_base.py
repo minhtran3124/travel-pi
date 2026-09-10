@@ -37,6 +37,7 @@ from app.agents.state import (
     TravelAgentState,
     ground_current_date,
     system_with_summary,
+    task_note,
     with_reply_language,
 )
 from app.prompts.registry import registry
@@ -253,7 +254,15 @@ def build_subagent(
         # (state["language"]) — one detection, one source of truth. Also closes the
         # clarification path (MIN-68), which skips reflection's language guard.
         system_msg = with_reply_language(system_msg, state)
-        response = bound.invoke([system_msg, *state["messages"]])
+        # The supervisor's task for this specialist goes LAST as a SystemMessage.
+        # Built per invoke and never returned in ``messages``, so it is not
+        # checkpointed or replayed.
+        note = task_note(state)
+        response = bound.invoke(
+            [system_msg, *state["messages"], note]
+            if note
+            else [system_msg, *state["messages"]]
+        )
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
             logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))
