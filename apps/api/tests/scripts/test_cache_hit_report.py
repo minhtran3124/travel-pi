@@ -169,3 +169,34 @@ def test_main_invalid_since_is_argparse_error(capsys):
     # argparse usage error exits 2, not an unhandled ValueError traceback.
     assert exc.value.code == 2
     assert "--since" in capsys.readouterr().err
+
+
+def test_main_no_rows_with_min_ratio_exits_three(db_url, capsys):
+    """No matching llm steps + --min-ratio: exit 3 (no data), not 1 (regressed).
+
+    A gate must tell "nothing was measured" apart from "the cache regressed",
+    so an empty window fails closed with a distinct code and never prints a
+    0.0%% hit rate as if it were a measurement.
+    """
+    from scripts.cache_hit_report import main
+
+    code = main(["--since", "1d", "--node", "does-not-exist", "--min-ratio", "0.1"])
+    assert code == 3
+    printed = capsys.readouterr().out
+    assert "0.0%" not in printed
+    assert "does-not-exist" in printed
+    assert "1d" in printed
+    # A clear no-data message, not a hit-rate line.
+    assert "no LLM steps" in printed
+
+
+def test_main_no_rows_without_min_ratio_exits_zero(db_url, capsys):
+    """No matching llm steps + no --min-ratio: a plain empty window is exit 0."""
+    from scripts.cache_hit_report import main
+
+    code = main(["--since", "1d", "--node", "does-not-exist"])
+    assert code == 0
+    printed = capsys.readouterr().out
+    assert "0.0%" not in printed
+    assert "no LLM steps" in printed
+    assert "does-not-exist" in printed

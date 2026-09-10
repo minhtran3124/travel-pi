@@ -4,8 +4,17 @@
 Aggregates the ``llm`` steps in ``agent_run_steps`` into a per node-and-model
 table of cache hit rates (``cached_tokens`` / ``input_tokens``) so the caching
 work of specs/prompt-caching-system-prefix can be measured against a real
-database. An optional ``--min-ratio`` gates CI-style: the process exits 1 when
-the overall hit rate is below the threshold.
+database. An optional ``--min-ratio`` gates CI-style on the overall hit rate.
+
+Exit codes:
+
+* ``0`` — the report ran; with ``--min-ratio`` the overall hit rate was at or
+  above the threshold, or no gate was requested.
+* ``1`` — measured: the overall hit rate is below ``--min-ratio``.
+* ``2`` — argparse usage error (e.g. a malformed ``--since``).
+* ``3`` — no LLM steps matched the window, so nothing could be measured. With
+  ``--min-ratio`` this fails closed (a gate that cannot measure must not pass);
+  the report never prints a 0.0%% hit rate as if it were a measurement.
 
 The table reports two distinct miss measures, so an operator can tell a broad
 low hit rate apart from a few calls that cached nothing:
@@ -148,6 +157,17 @@ def main(argv: list[str] | None = None) -> int:
         rows = [r for r in rows if r.node == args.node]
 
     report = build_report(rows)
+
+    if not report["rows"]:
+        node_desc = f" and --node {args.node!r}" if args.node else ""
+        print(
+            f"no LLM steps matched --since {args.since!r}{node_desc}; "
+            "nothing to measure."
+        )
+        # Fail closed when a gate was requested: "no data" is distinct from
+        # "below threshold" (exit 1) and must not read as a passing measurement.
+        return 3 if args.min_ratio is not None else 0
+
     _print_table(report)
 
     if args.min_ratio is not None and report["overall"] < args.min_ratio:
