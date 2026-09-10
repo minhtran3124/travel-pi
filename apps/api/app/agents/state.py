@@ -230,28 +230,34 @@ def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemM
     )
 
 
-def task_note(state: TravelAgentState) -> SystemMessage | None:
-    """Build the internal steering note that hands a specialist its task for this turn.
+def with_task_note(base: SystemMessage, state: TravelAgentState) -> SystemMessage:
+    """Fold the supervisor's task for this specialist into its leading system message.
 
     The supervisor writes an ordered ``tasks`` list into state (single-intent:
     one task; fan-out: one per worker). The specialist reads only the FIRST
-    entry's ``query`` and gets it back as a SystemMessage — preamble first, the
-    query on its own line — so it answers the routed task against the
-    conversation above instead of re-deriving intent from the raw messages.
+    entry's ``query`` and gets it at the end of its system prompt — preamble
+    first, then the query — so it answers the routed task against the
+    conversation instead of re-deriving intent from the raw messages.
+
+    The note is folded into the single leading system message, never appended
+    as a second one: ``system_with_summary`` requires a single leading system
+    message (some providers reject mid-stream or multiple system messages), and
+    the Anthropic adapter raises on non-consecutive system messages.
 
     Reads the declared ``tasks`` key only, never an ad-hoc ``task`` key: a
     compiled subgraph drops input keys its schema does not declare, so a value
     passed under an undeclared key silently arrives as ``None``.
 
+    :param base: The already-assembled leading system message.
     :param state: The current graph state.
-    :return: ``None`` when there is no task or its ``query`` is blank, else a
-        SystemMessage of ``TASK_NOTE_PREAMBLE`` followed by the query.
+    :return: ``base`` unchanged when there is no task or its ``query`` is blank,
+        else ``base`` plus ``TASK_NOTE_PREAMBLE`` and the query.
     """
     task = (state.get("tasks") or [None])[0]
     query = str((task or {}).get("query") or "").strip()
     if not query:
-        return None
-    return SystemMessage(content=TASK_NOTE_PREAMBLE + query)
+        return base
+    return SystemMessage(content=f"{base.content}\n\n{TASK_NOTE_PREAMBLE}{query}")
 
 
 def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:

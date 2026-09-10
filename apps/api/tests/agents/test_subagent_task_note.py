@@ -1,14 +1,14 @@
-"""Specialists receive the supervisor's task note as their last model input (SC-5/SC-6)."""
+"""Specialists receive the supervisor's task folded into their single leading system message (SC-5/SC-6)."""
 
 import asyncio
 import types
 from typing import Any
 
-from app.agents.constants import TASK_NOTE_PREAMBLE
+from app.agents.constants import REFLECTION_REVISE_NOTE, TASK_NOTE_PREAMBLE
 from app.agents.subagents.planner import build_planner
 from app.agents.subagents.synthesis_worker import build_synthesis_worker
 from app.clients.llm import FakeLLM
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 QUERY = "find flights to Tokyo"
 
@@ -23,19 +23,29 @@ class CapturingFakeLLM(FakeLLM):
         return super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
 
 
-def _llm() -> CapturingFakeLLM:
-    return CapturingFakeLLM(responses=["Here are some flights."], seen=[])
+def _llm(responses=None) -> CapturingFakeLLM:
+    return CapturingFakeLLM(responses=responses or ["Here are some flights."], seen=[])
 
 
-def _is_note(msg) -> bool:
-    return isinstance(msg, SystemMessage) and str(msg.content).startswith(
-        TASK_NOTE_PREAMBLE
-    )
+def _systems(call) -> list[SystemMessage]:
+    return [m for m in call if isinstance(m, SystemMessage)]
 
 
-def _run_planner(llm, **extra):
+def _assert_single_leading_system_with_task(call) -> None:
+    systems = _systems(call)
+    assert len(systems) == 1, "expected exactly one SystemMessage"
+    assert call[0] is systems[0], "the SystemMessage must lead the input"
+    content = str(systems[0].content)
+    assert TASK_NOTE_PREAMBLE in content
+    assert content.endswith(QUERY)
+
+
+def _run_planner(llm, messages=None, **extra):
     graph = build_planner(lambda hint=None: llm)
-    state = {"messages": [HumanMessage(content="I want to go to Tokyo")], **extra}
+    state = {
+        "messages": messages or [HumanMessage(content="I want to go to Tokyo")],
+        **extra,
+    }
     return asyncio.run(graph.ainvoke(state))
 
 
@@ -47,9 +57,7 @@ def test_single_intent_receives_note():
     llm = _llm()
     _run_planner(llm, tasks=[_task()])
     assert llm.seen
-    last = llm.seen[-1][-1]
-    assert _is_note(last)
-    assert str(last.content).endswith(QUERY)
+    _assert_single_leading_system_with_task(llm.seen[-1])
 
 
 def test_fan_out_receives_note():
@@ -64,21 +72,57 @@ def test_fan_out_receives_note():
     runtime = types.SimpleNamespace(context=None, config={})
     asyncio.run(worker(state, runtime))
     assert llm.seen
-    last = llm.seen[-1][-1]
-    assert _is_note(last)
-    assert str(last.content).endswith(QUERY)
+    _assert_single_leading_system_with_task(llm.seen[-1])
 
 
 def test_note_not_persisted():
     llm = _llm()
     result = _run_planner(llm, tasks=[_task()])
-    assert llm.seen and _is_note(llm.seen[-1][-1])
-    assert not any(_is_note(m) for m in result["messages"])
+    assert llm.seen
+    assert not any(TASK_NOTE_PREAMBLE in str(m.content) for m in result["messages"])
 
 
 def test_no_task_no_note():
     llm = _llm()
     _run_planner(llm)
     assert llm.seen
-    last = llm.seen[-1][-1]
-    assert isinstance(last, HumanMessage)
+    assert not any(TASK_NOTE_PREAMBLE in str(m.content) for m in llm.seen[-1])
+
+
+def test_tool_round_keeps_tool_result_last():
+    tool_call = AIMessage(
+        content="",
+        tool_calls=[
+            {
+                "name": "needs_clarification",
+                "args": {"question": "Which dates?"},
+                "id": "c1",
+            }
+        ],
+    )
+    llm = _llm([tool_call, "Here are some flights."])
+    _run_planner(llm, tasks=[_task()])
+    assert len(llm.seen) >= 2, "expected a second model call after the tool round"
+    second = llm.seen[1]
+    assert isinstance(second[-1], ToolMessage)
+    _assert_single_leading_system_with_task(second)
+
+
+def test_revise_note_stays_last():
+    llm = _llm()
+    history = [
+        HumanMessage(content="I want to go to Tokyo"),
+        AIMessage(content="Draft answer."),
+        SystemMessage(content=REFLECTION_REVISE_NOTE),
+    ]
+    _run_planner(llm, messages=history, tasks=[_task()])
+    assert llm.seen
+    call = llm.seen[-1]
+    assert isinstance(call[-1], SystemMessage)
+    assert call[-1].content == REFLECTION_REVISE_NOTE
+    # The history carries reflection's own system note by design (as on main);
+    # only the FIRST system message may carry the task.
+    systems = _systems(call)
+    assert call[0] is systems[0]
+    assert TASK_NOTE_PREAMBLE in str(systems[0].content)
+    assert not any(TASK_NOTE_PREAMBLE in str(s.content) for s in systems[1:])

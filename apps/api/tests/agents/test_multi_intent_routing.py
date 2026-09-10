@@ -244,8 +244,8 @@ class CapturingFakeLLM(FakeLLM):
 
 
 def test_fan_out_workers_receive_distinct_task_notes():
-    # SC-5/SC-6 end to end: each parallel worker's model sees its own task as the
-    # trailing SystemMessage, and no task note is checkpointed in the thread.
+    # SC-5/SC-6 end to end: each parallel worker's model sees its own task folded
+    # into the leading SystemMessage, and no task note is checkpointed in the thread.
     main = CapturingFakeLLM(
         structured_responses=[
             SupervisorIntent(
@@ -267,10 +267,10 @@ def test_fan_out_workers_receive_distinct_task_notes():
     _invoke(graph, "flights to Tokyo and do I need a visa", thread_id=thread_id)
 
     notes = [
-        str(call[-1].content)
+        str(call[0].content)
         for call in main.seen
-        if isinstance(call[-1], SystemMessage)
-        and str(call[-1].content).startswith(TASK_NOTE_PREAMBLE)
+        if isinstance(call[0], SystemMessage)
+        and TASK_NOTE_PREAMBLE in str(call[0].content)
     ]
     assert any(n.endswith("find flights") for n in notes)
     assert any(n.endswith("check visa") for n in notes)
@@ -278,4 +278,4 @@ def test_fan_out_workers_receive_distinct_task_notes():
     thread = graph.get_state({"configurable": {"thread_id": thread_id}}).values[
         "messages"
     ]
-    assert not any(str(m.content).startswith(TASK_NOTE_PREAMBLE) for m in thread)
+    assert not any(TASK_NOTE_PREAMBLE in str(m.content) for m in thread)
