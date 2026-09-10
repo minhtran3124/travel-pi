@@ -7,14 +7,14 @@ long idle gap? A single ``24h`` arm proves nothing — the DEFAULT ``in_memory``
 policy already survives "5 to 10 minutes of inactivity, up to one hour", so a hit
 after 21 minutes sits inside *both* windows. This probe therefore runs **two
 arms** over separately nonced prompts — ``24h`` and an ``in_memory`` control —
-and refuses to report until the idle gap exceeds ``--min-gap-min`` (default 60),
-the bucket where the project's own data shows a 0/17 hit rate.
+and refuses to report until the idle gap is at least ``--min-gap-min`` (default
+60), the bucket where the project's own data shows a 0/17 hit rate.
 
 Two mutually exclusive phases:
 
     # 1. seed: warm each arm's cache (two calls per arm so the write lands)
     python -m scripts.probe_cache_retention --seed
-    # ... wait > 60 minutes, doing nothing to these threads ...
+    # ... wait >= 60 minutes, doing nothing to these threads ...
     # 2. check: re-send each prompt once, compare cache reads, print a verdict
     python -m scripts.probe_cache_retention --check
 
@@ -23,14 +23,30 @@ The verdict is a single token on its own last line:
     RETENTION-WINS  only the 24h arm read cached tokens (the parameter works)
     TIE             both arms read cached tokens (cannot attribute to 24h)
     BOTH-MISS       neither arm read cached tokens (cache expired for both)
+    CONTROL-ONLY    only the in_memory control read cached tokens — an anomaly
+                    (not a retention win, not a tie, not both-miss); reported
+                    distinctly so it can never be mislabelled
 
-``--check`` exits 0 once a verdict is reached and 2 when the elapsed gap is still
-under ``--min-gap-min``.
+Exit codes:
+
+    0  a verdict was reached (--check), or both arms seeded warm (--seed)
+    2  --check ran too soon: the idle gap is under --min-gap-min
+    3  the probe cannot produce a trustworthy verdict and must be re-seeded —
+       either a --seed arm's second call read 0 cached tokens (the write never
+       landed: parameter ignored, model lacks the policy, or a routing miss), or
+       --check found the state was already checked (a check refreshes the cache,
+       so a second check restarts the idle clock it just reset)
+
+``--seed`` sends each arm TWICE and verifies the second call read cached tokens;
+if either arm's second read is 0 it refuses to write the state file (exit 3), so
+a later ``--check`` can never mistake a write that never landed for an expired
+cache (``BOTH-MISS``).
 
 !!! WARNING: a cache READ refreshes the entry's idle timer. Every ``--check``
 therefore restarts the idle clock, so a naive re-check appears to "succeed"
-forever. A repeat measurement needs a fresh ``--seed`` — never re-``--check`` the
-same state file and trust the second reading.
+forever. ``--check`` stamps ``checked_at`` into the state on success and refuses
+to run against an already-stamped state (exit 3); a repeat measurement needs a
+fresh ``--seed``.
 
 Calls ``_build_chat_model("openai", model, model_kwargs={"prompt_cache_retention":
 value})`` directly, so the probe stays independent of any settings flag a later
@@ -63,7 +79,7 @@ ARMS = (RETENTION_24H, RETENTION_CONTROL)
 _API_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_STATE = _API_ROOT / ".harness-state" / "cache_retention_probe.json"
 
-# Filler large enough to make a cacheable prefix (~3k tokens ≈ 12k chars).
+# Filler large enough to make a cacheable prefix (~5-6k tokens ≈ 27k chars).
 _FILLER = (
     "Traveller planning notes for cache-retention measurement. "
     "This paragraph is deliberately verbose so the prompt prefix is long "
@@ -72,7 +88,7 @@ _FILLER = (
 
 
 def _build_prompt(nonce: str) -> str:
-    """A deterministic ~3k-token prompt keyed by *nonce* (rebuilt on check)."""
+    """A deterministic ~5-6k-token prompt keyed by *nonce* (rebuilt on check)."""
     return f"[probe-nonce:{nonce}]\n{_FILLER}\nSummarise the notes above in one word."
 
 
@@ -94,21 +110,43 @@ def _model_for(value: str, model: str) -> Any:
     )
 
 
-def seed(state_path: Path, model: str) -> None:
+def seed(state_path: Path, model: str) -> int:
     """Warm each arm's cache with a fresh nonce; store nonces + a timestamp.
 
     Each arm is sent TWICE: the first call writes the prefix, the second call is
-    what proves the cache write actually landed before we walk away to wait.
+    what proves the cache write actually landed. The second call's cache_read is
+    printed per arm; if EITHER arm read 0 cached tokens the write never landed
+    (parameter ignored, model lacks the policy, or a routing miss), so no state
+    file is written and the probe exits 3 — otherwise a later ``--check`` would
+    read that never-warmed arm as ``BOTH-MISS`` and call it an expired cache.
+
+    Returns the process exit code: 3 if an arm was not warmed, else 0.
     """
     arms: dict[str, dict[str, str]] = {}
+    second_reads: dict[str, int] = {}
     for value in ARMS:
         nonce = uuid.uuid4().hex
         prompt = _build_prompt(nonce)
         chat = _model_for(value, model)
+        message: Any = None
         for _ in range(2):
-            chat.invoke(prompt)
+            message = chat.invoke(prompt)
+        second_reads[value] = _cache_read(message)
         arms[value] = {"nonce": nonce}
-        print(f"seeded arm {value!r} nonce={nonce}")
+        print(
+            f"seeded arm {value!r} nonce={nonce} "
+            f"second_call_cache_read={second_reads[value]}"
+        )
+
+    cold = [value for value in ARMS if second_reads[value] <= 0]
+    if cold:
+        print(
+            f"seed did NOT warm arm(s) {cold}: the second call read 0 cached "
+            "tokens, so the write never landed (parameter ignored, model lacks "
+            "the policy, or a routing miss). Refusing to write the state file; "
+            "the probe must be re-seeded."
+        )
+        return 3
 
     state_path.parent.mkdir(parents=True, exist_ok=True)
     state_path.write_text(
@@ -117,15 +155,27 @@ def seed(state_path: Path, model: str) -> None:
         )
     )
     print(f"wrote state {state_path}")
+    return 0
 
 
 def check(state_path: Path, min_gap_min: float) -> int:
     """Re-send each nonced prompt once; print per-arm reads and a verdict.
 
-    Returns the process exit code: 2 while the idle gap is under *min_gap_min*
-    (too soon to attribute anything), 0 once a verdict is reached.
+    Returns the process exit code: 3 if the state was already checked (a check
+    refreshes the cache, so a second check restarts the idle clock and cannot be
+    trusted), 2 while the idle gap is under *min_gap_min* (too soon to attribute
+    anything), 0 once a verdict is reached.
     """
     state = json.loads(state_path.read_text())
+
+    if "checked_at" in state:
+        print(
+            "this state file was already checked (a cache read refreshes the "
+            "idle timer, so a second check restarts the clock it just reset and "
+            "would report a false result forever). Re-seed before checking again."
+        )
+        return 3
+
     model = state["model"]
     elapsed_min = (time.time() - state["seeded_at"]) / 60.0
 
@@ -148,6 +198,11 @@ def check(state_path: Path, min_gap_min: float) -> int:
             f"arm={value} input={_input_tokens(message)} cache_read={cached} "
             f"{'HIT' if hit else 'MISS'} elapsed={elapsed_min:.1f}min"
         )
+
+    # Stamp the check so a second --check against this state is refused: the
+    # reads above already refreshed both entries' idle timers.
+    state["checked_at"] = time.time()
+    state_path.write_text(json.dumps(state, indent=2))
 
     print(_verdict(hits[RETENTION_24H], hits[RETENTION_CONTROL]))
     return 0
@@ -195,8 +250,7 @@ def main() -> None:
 
     if args.seed:
         model = args.model or get_settings().llm_model
-        seed(args.state, model)
-        sys.exit(0)
+        sys.exit(seed(args.state, model))
 
     sys.exit(check(args.state, args.min_gap_min))
 

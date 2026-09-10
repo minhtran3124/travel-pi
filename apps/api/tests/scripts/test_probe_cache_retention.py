@@ -10,6 +10,8 @@ import json
 import pytest
 import scripts.probe_cache_retention as mod
 
+_VERDICT_TOKENS = ("RETENTION-WINS", "TIE", "BOTH-MISS", "CONTROL-ONLY")
+
 
 class _StubMsg:
     def __init__(self, input_tokens: int, cache_read: int) -> None:
@@ -66,7 +68,10 @@ def _write_state(path, seeded_at: float, model: str = "fake") -> None:
 
 def test_seed_writes_two_nonces_and_timestamp(monkeypatch, tmp_path):
     calls: dict[str, list] = {}
-    monkeypatch.setattr(mod, "_build_chat_model", _make_build({}, calls))
+    # both arms' second call must read cached tokens or seed refuses to write
+    monkeypatch.setattr(
+        mod, "_build_chat_model", _make_build({"24h": 2900, "in_memory": 2900}, calls)
+    )
     monkeypatch.setattr("time.time", lambda: 1000.0)
     state = tmp_path / "probe.json"
 
@@ -83,6 +88,22 @@ def test_seed_writes_two_nonces_and_timestamp(monkeypatch, tmp_path):
     assert len(calls["in_memory"]) == 2
 
 
+def test_seed_refuses_when_an_arm_not_warmed(monkeypatch, tmp_path, capsys):
+    """Important 1: a second-call zero-read means the write never landed."""
+    monkeypatch.setattr(
+        mod, "_build_chat_model", _make_build({"24h": 2900, "in_memory": 0}, {})
+    )
+    monkeypatch.setattr("time.time", lambda: 1000.0)
+    state = tmp_path / "probe.json"
+
+    code = _run(monkeypatch, ["--seed", "--state", str(state), "--model", "fake"])
+
+    assert code == 3
+    assert not state.exists()  # no state file written when a seed did not warm
+    out = capsys.readouterr().out
+    assert "in_memory" in out and "re-seed" in out.lower()
+
+
 def test_check_exits_2_below_min_gap(monkeypatch, tmp_path):
     state = tmp_path / "probe.json"
     _write_state(state, seeded_at=1000.0)
@@ -92,6 +113,21 @@ def test_check_exits_2_below_min_gap(monkeypatch, tmp_path):
     code = _run(monkeypatch, ["--check", "--state", str(state)])
 
     assert code == 2
+
+
+def test_check_boundary_exact_min_gap_verdicts(monkeypatch, tmp_path, capsys):
+    """Minor: gate is ``elapsed < min_gap``, so exactly the minimum passes."""
+    state = tmp_path / "probe.json"
+    _write_state(state, seeded_at=1000.0)
+    monkeypatch.setattr(
+        mod, "_build_chat_model", _make_build({"24h": 2900, "in_memory": 0}, {})
+    )
+    monkeypatch.setattr("time.time", lambda: 1000.0 + 60 * 60)  # exactly 60 min
+
+    code = _run(monkeypatch, ["--check", "--state", str(state)])
+
+    assert code == 0
+    assert capsys.readouterr().out.strip().splitlines()[-1] == "RETENTION-WINS"
 
 
 def _run_check_verdict(monkeypatch, tmp_path, cache_by_value):
@@ -121,3 +157,53 @@ def test_check_both_miss(monkeypatch, tmp_path, capsys):
     code = _run(monkeypatch, ["--check", "--state", str(tmp_path / "probe.json")])
     assert code == 0
     assert capsys.readouterr().out.strip().splitlines()[-1] == "BOTH-MISS"
+
+
+def test_check_control_only(monkeypatch, tmp_path, capsys):
+    """Important 3: only the control arm hits — the fourth table cell."""
+    _run_check_verdict(monkeypatch, tmp_path, {"24h": 0, "in_memory": 2900})
+    code = _run(monkeypatch, ["--check", "--state", str(tmp_path / "probe.json")])
+    assert code == 0
+    assert capsys.readouterr().out.strip().splitlines()[-1] == "CONTROL-ONLY"
+
+
+def test_second_check_is_refused(monkeypatch, tmp_path, capsys):
+    """Important 2: a check refreshes the cache, so a re-check must be refused."""
+    state = tmp_path / "probe.json"
+    _write_state(state, seeded_at=1000.0)
+    monkeypatch.setattr(
+        mod, "_build_chat_model", _make_build({"24h": 2900, "in_memory": 2900}, {})
+    )
+    monkeypatch.setattr("time.time", lambda: 1000.0 + 61 * 60)
+
+    assert _run(monkeypatch, ["--check", "--state", str(state)]) == 0
+    capsys.readouterr()  # discard first verdict
+
+    code = _run(monkeypatch, ["--check", "--state", str(state)])
+
+    assert code == 3
+    out = capsys.readouterr().out
+    for token in _VERDICT_TOKENS:
+        assert token not in out  # no verdict on a refused re-check
+    assert "re-seed" in out.lower()
+
+
+def test_check_sends_the_same_prompt_seed_sent(monkeypatch, tmp_path):
+    """Minor: the nonce must round-trip from --seed into each --check call."""
+    calls: dict[str, list] = {}
+    monkeypatch.setattr(
+        mod, "_build_chat_model", _make_build({"24h": 2900, "in_memory": 2900}, calls)
+    )
+    state = tmp_path / "probe.json"
+
+    monkeypatch.setattr("time.time", lambda: 1000.0)
+    assert _run(monkeypatch, ["--seed", "--state", str(state), "--model", "fake"]) == 0
+    data = json.loads(state.read_text())
+
+    monkeypatch.setattr("time.time", lambda: 1000.0 + 61 * 60)
+    assert _run(monkeypatch, ["--check", "--state", str(state)]) == 0
+
+    for value in ("24h", "in_memory"):
+        nonce = data["arms"][value]["nonce"]
+        check_prompt = calls[value][-1]  # seed = 2 calls, check = the 3rd
+        assert f"[probe-nonce:{nonce}]" in check_prompt
