@@ -80,8 +80,10 @@ The verdict is one of `RETENTION-WINS`, `TIE`, `BOTH-MISS`, `CONTROL-ONLY`.
 - **Verify the seed landed.** A write that never landed looks exactly like expiry at check time.
 - **Two arms make four cells**, including only-the-control-hits (`CONTROL-ONLY`). Naming three
   lets the fourth fall through a decision rule.
-- **Still open:** two `--check` runs started seconds apart can race past the guard. Add an
-  `O_EXCL` lock before relying on the probe again.
+- The attempt marker is claimed by read-then-write, not atomically, but the window is only the
+  in-process gap before the marker is saved — no model call sits inside it. Two checks would have to
+  start within a fraction of a millisecond. Add an `O_EXCL` lock only if the probe ever runs from
+  automation.
 - Re-reading a value every turn does not break the cache — the cache keys on bytes. The trip
   snapshot is one sentence of title and city, so it only breaks the prefix when either changes.
 - The Docker `api` container bind-mounts the main checkout. Measure or evaluate a branch from its
