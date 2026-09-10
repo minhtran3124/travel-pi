@@ -24,12 +24,26 @@ from app.exceptions import AppError, UpstreamError
 
 logger = logging.getLogger(__name__)
 
-# Shown to the user after transient retries are exhausted (or a non-retryable
-# error surfaces). Mirrors today's tool-unavailable message, minus "do not retry".
+# Shown after transient retries are exhausted. Mirrors today's tool-unavailable
+# message, minus "do not retry". Only correct when the fault really was upstream:
+# the node's TRANSIENT_RETRY only retries UpstreamError, so exhaustion is exactly
+# the UpstreamError case and _fallback_message() gates on it (#186).
 GRACEFUL_MSG = (
     "The requested information is temporarily unavailable due to an upstream "
     "problem. Tell the user it could not be retrieved right now and to try again "
     "shortly."
+)
+
+# Shown when the tools node died of anything else (#186). Deliberately says nothing
+# about the exception: at this level the failure belongs to the node, not to any one
+# tool -- the same message goes to every pending call, healthy siblings included --
+# and the exception text is an internal string, so it belongs in the log that
+# graceful_fallback writes, not in the model's context.
+INTERNAL_FAULT_MSG = (
+    "This step did not complete because of a fault in this system, not an upstream "
+    "outage. It is NOT temporary and calling the tool again will fail identically — "
+    "do not retry it and do not tell the user to try again shortly. Tell the user "
+    "plainly that this information could not be retrieved."
 )
 
 # Provider-SDK exception class names that mean "transient" — matched by name so the
@@ -154,6 +168,28 @@ def _tool_error_logic_only(exc: ToolException) -> str:
     return describe_tool_failure(exc)
 
 
+def _fallback_message(exc: BaseException | None) -> str:
+    """Pick the tools-node fallback message that matches the failure (#186).
+
+    ``GRACEFUL_MSG`` asserts an upstream outage and tells the model to send the
+    traveller back to retry. That is right for exactly one failure: the node's
+    ``TRANSIENT_RETRY`` retries ``UpstreamError`` and nothing else, so an exhausted
+    retry *is* an ``UpstreamError``. For a ``NotImplementedError``, a ``TypeError``
+    or any other deterministic fault, both halves of the claim are false and the
+    retry it invites can never succeed.
+
+    A missing/unknown exception takes the non-transient branch on purpose: claiming
+    an outage we cannot evidence is the failure mode this fixes.
+
+    :param exc: The exception that killed the tools node, if the runtime gave one.
+    :return: ``GRACEFUL_MSG`` for a genuine upstream fault, else ``INTERNAL_FAULT_MSG``.
+    """
+    cause = getattr(exc, "__cause__", None)
+    if isinstance(exc, UpstreamError) or isinstance(cause, UpstreamError):
+        return GRACEFUL_MSG
+    return INTERNAL_FAULT_MSG
+
+
 def graceful_fallback(state: dict, error: NodeError) -> Command:
     """tools-node ``error_handler``: restore graceful degradation after exhaustion.
 
@@ -162,28 +198,33 @@ def graceful_fallback(state: dict, error: NodeError) -> Command:
     pending ``tool_call_id`` (read from the last ``AIMessage``), then route back to
     ``assistant``.
 
-    The substituted message is all that survives this handler, so the exception is
-    logged with its traceback first (#186): without it a deterministic fault (a
-    ``NotImplementedError``, a ``TypeError``) leaves no trace anywhere and is only
-    ever seen as ``GRACEFUL_MSG``'s "upstream problem" — which is how #178 was
-    first diagnosed wrong.
+    Two things about that substitution are load-bearing (#186). The message is the
+    only thing that survives this handler, so the exception is logged with its
+    traceback first -- without it a deterministic fault leaves no trace anywhere.
+    And which message is sent is decided by :func:`_fallback_message`, so such a
+    fault is not announced to the traveller as a transient outage. Both halves come
+    from #178, where a ``NotImplementedError`` presented only as "upstream problem"
+    and was diagnosed wrong.
 
     :param state: The graph state whose last message is the tool-calling AIMessage.
     :param error: The LangGraph failure context (``error.error`` is the exception).
     :return: A ``Command`` appending graceful tool messages and going to assistant.
     """
+    exc = getattr(error, "error", None)
+    content = _fallback_message(exc)
     last = state["messages"][-1]
     tool_calls = getattr(last, "tool_calls", None) or []
     logger.error(
         "[graceful_fallback] tools node failed; degrading %d pending tool call(s) "
-        "%s to GRACEFUL_MSG",
+        "%s to %s",
         len(tool_calls),
         [tc["name"] for tc in tool_calls],
-        exc_info=getattr(error, "error", None),
+        "GRACEFUL_MSG" if content is GRACEFUL_MSG else "INTERNAL_FAULT_MSG",
+        exc_info=exc,
     )
     msgs = [
         ToolMessage(
-            content=GRACEFUL_MSG,
+            content=content,
             tool_call_id=tc["id"],
             name=tc["name"],
             status="error",
