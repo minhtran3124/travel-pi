@@ -409,3 +409,31 @@ def test_injected_trip_id_params_have_defaults():
                 )
                 checked += 1
     assert checked >= 5  # the five trip tools, at minimum — not vacuous
+
+
+# --- gh-166: list_trips domain binding + metadata ---
+
+
+def test_list_trips_bound_to_planner_and_journal():
+    """list_trips ships in the shared TRIP_TOOLS list, so both domains that bind
+    TRIP_TOOLS wholesale (planner, journal) get it (gh-166, SC-5)."""
+    from app.tools.registry import get_tools_for
+
+    assert "list_trips" in {t.name for t in get_tools_for("planner")}
+    assert "list_trips" in {t.name for t in get_tools_for("journal")}
+
+
+def test_list_trips_not_bound_to_budget_or_concierge():
+    """budget filters TRIP_TOOLS through a name allowlist that excludes
+    list_trips; concierge binds no trip tools at all (gh-166, SC-5)."""
+    from app.tools.registry import get_tools_for
+
+    for domain in ("budget", "concierge"):
+        assert "list_trips" not in {t.name for t in get_tools_for(domain)}, domain
+
+
+def test_list_trips_metadata_is_readonly():
+    """Derived metadata: list_trips is in neither _WRITE nor _DESTRUCTIVE."""
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["list_trips"] == {"readOnly": True, "destructive": False}

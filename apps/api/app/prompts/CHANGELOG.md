@@ -3,6 +3,60 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-166-list-trips-tool — the planner and journal can see every trip, not just the open one
+
+The trip context folded into every sub-agent's system message carries the **one open trip**,
+so "how many trips do I have?" was answered from it ("one") and a trip the traveller named but
+had not opened was offered back as a brand-new idea to draft. The new `list_trips` tool is bound
+to the planner and the journal; these bumps tell them when to reach for it. Two triggers, because
+the issue reports two failures — counting and naming.
+
+- **planner v14** — copied v13; adds "The traveller may have more than one trip": call
+  `list_trips` to count or list trips (never count from the trip context), and call it before
+  proposing anything when the traveller names a trip that is not the open one — if it is in the
+  list it already exists, so say which trip is open instead of offering to draft it or opening a
+  second trip with `create_trip`. It explicitly does not promise that trip's itinerary: nothing
+  can switch the open trip yet.
+- **journal v3** — copied v2; the same rule, worded for the journal's job (it records against the
+  open trip, so it promises neither that trip's itinerary nor its notes).
+- **concierge is deliberately untouched.** It binds no trip tools, and naming a tool an agent
+  cannot execute is its own failure mode
+  (`docs/solutions/agent/concierge-hotel-tool-choice.md`).
+- `scripts/check_gh166_prompt_wiring.py` resolves both prompts through `registry.get(...)` — the
+  same path the running agent takes — so a bumped pointer that misses the rule fails loudly
+  instead of silently.
+
+`active.yaml`: planner → 14, journal → 3.
+
+## gh-173 — supervisor v12: the fan-out exception is decided by tools, not judgment
+
+Fixes minhtran3124/travel-pi#173 (`routing-multi-en-04`): the supervisor dropped the
+`concierge` step on "plan everything … **local tips** …" and answered planner-alone, so the
+traveller's local-tips question was silently lost.
+
+v11 §3 enumerated the **planner's** tools by name but stated the fan-out exception as a
+judgment call ("a genuinely INDEPENDENT extra a single specialist cannot do itself"). The
+decidable half won. v12 states both halves in tools:
+
+- **§3** — names the three tools the planner does **not** have and the concierge does:
+  `get_local_tips`, `get_visa`, `search_travel_knowledge`. A trip-planning message that also
+  asks for one of them is `target_agent=planner` **with** `plan=["concierge"]`. A second
+  bullet states that `get_weather` and `search_places` are planner-owned and therefore **not**
+  fan-out triggers — that sentence is the guard for #149, the opposite bug on the same
+  decision (flights + weather fanning out when it should not).
+- **`## Routing Examples`** — adds the *contrastive twin* of the existing "plan my weekend …"
+  → planner-alone line: the identical request **plus local tips** → `plan=["concierge"]`. The
+  pair is adjacent on purpose; a lone fan-out example would only raise fan-out pressure and
+  make #149 worse.
+- **`## Multi-step Plan`** — adds the converse of the omit-rule (never omit a step the primary
+  has no tool for) where that rule is repeated.
+
+`SupervisorIntent.plan`'s `Field(description=...)` in `app/agents/supervisor.py` carries the
+same carve-out: the prompt and the schema description are read independently by the model
+(the lesson from #156), and in v11 only the prompt had the exception.
+
+Pinned by `tests/prompts/test_supervisor_prompt.py`. `active.yaml`: supervisor → 12.
+
 ## close-product-loop-s2-guide-and-map — concierge learns the visa tool exists
 
 The concierge got a `get_visa` tool (structured, disclaimer-carrying entry-requirement

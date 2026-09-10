@@ -149,3 +149,33 @@ def test_system_with_summary_no_account_email_unchanged():
 
     base = SystemMessage(content="BASE")
     assert system_with_summary({"account_email": None}, base) is base
+
+
+def test_trip_context_label_says_one_trip_not_a_list():
+    """GH-166 SC-9: the shared trip-context label must scope itself to the ONE open
+    trip, so no sub-agent reads it as the traveller's full trip list."""
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    combined = system_with_summary({"trip_context": "Active trip: Rome"}, base)
+    content = combined.content
+    assert "Current trip context" in content
+    assert "is not a list of the traveller's trips" in content
+
+
+def test_trip_context_label_names_no_tool():
+    """The label reaches every sub-agent, including concierge, which binds no trip
+    tools — naming one would promise a capability it cannot execute."""
+    from app.agents.state import system_with_summary
+
+    base = SystemMessage(content="BASE")
+    combined = system_with_summary({"trip_context": "Active trip: Rome"}, base)
+    label = combined.content.split("Current trip context", 1)[1].split(":\n", 1)[0]
+    for tool_name in (
+        "list_trips",
+        "get_trip",
+        "create_trip",
+        "update_trip",
+        "search_trips",
+    ):
+        assert tool_name not in label

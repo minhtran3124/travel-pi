@@ -170,3 +170,25 @@ Supervisor v11 already routed hotel *availability* to the concierge and three ev
 
 **Full doc:** docs/solutions/harness/commit-gate-audits-main-checkout-index.md
 ---
+
+## [2026-09-09] chat-booking-unreachable-three-blockers
+**Type:** bug
+**Module:** agent/tools
+**Tags:** langgraph, booking, pii, guardrails, alembic, dev-database, tool-output, uat
+**Applicable when:** An agent tool path passes every automated check but a real user in a browser cannot complete it — especially a write tool needing a field the model must obtain from conversation, or an identifier produced by a sibling search tool.
+
+Slice S1 shipped fully green yet chat booking was impossible, blocked by three stacked defects each hidden behind the previous: the long-lived dev Postgres never had the migration applied (`create_all` adds tables, never columns); the `redact_pii` entry node masked the email the booking tools require, so the model asked forever; and `search_flights`'s model-facing summary dropped the `id` that `book_flight` consumes. Every one lives in a seam between two independently-tested components. Rules: run migrations against the **dev** database, not just the test database; trace any user-supplied required field through every graph entry node; and a tool's arguments must be derivable from text the model can actually read.
+
+**Full doc:** docs/solutions/agent/chat-booking-unreachable-three-blockers.md
+---
+
+## [2026-09-09] concurrent-branches-collide-on-prompt-version
+**Type:** failure
+**Module:** agent/prompts
+**Tags:** prompts, prompt-registry, active-yaml, versioned-prompts, merge-conflict, concurrent-branches
+**Applicable when:** Adding a versioned prompt under `apps/api/app/prompts/<agent>/` while another branch off the same base is open, or resolving a conflict where both sides added the same `vN.md`.
+
+Two branches each picked `concierge/v12` by reading the directory at branch time; after the first merged, the second hit an add/add conflict that looks like ordinary text plus one YAML line. Merging the two bodies invents a prompt no eval covered, and taking "mine" on the `active.yaml` pointer silently drops the merged side's whole prompt. A published `vN.md` is immutable: keep main's byte-for-byte, rebuild your work as `v13` **on top of** it so the other branch's rules survive, repoint `active.yaml`, then `docker exec api-api-1 touch app/main.py` — the graph is baked at lifespan startup and will not see the edit otherwise.
+
+**Full doc:** docs/solutions/agent/concurrent-branches-collide-on-prompt-version.md
+---

@@ -83,7 +83,9 @@ class TravelAgentState(MessagesState):
     user_id: str
     trip_id: str | None
     current_flow: str  # which sub-agent the supervisor routed to
-    language: str  # dominant conversation language code (app.core.languages); supervisor
+    language: (
+        str  # dominant conversation language code (app.core.languages); supervisor
+    )
     summary: str  # rolling summary of compressed older turns
     revisions: int  # reflection self-correction counter (bounds the loop)
     trip_context: str  # active-trip snapshot; injected at model call, not into messages
@@ -167,7 +169,11 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
     if instructions:
         parts.append(f"Standing traveller instructions:\n{instructions}")
     if trip_context:
-        parts.append(f"Current trip context:\n{trip_context}")
+        parts.append(
+            "Current trip context (the ONE trip currently open — this is not a "
+            "list of the traveller's trips, and says nothing about how many they "
+            f"have):\n{trip_context}"
+        )
     if summary:
         parts.append(f"Summary of earlier conversation:\n{summary}")
     if trip_facts:

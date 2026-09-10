@@ -51,7 +51,24 @@ def test_real_dataset_directory_loads_without_error():
 
 
 def test_total_case_count_at_least_60():
-    assert len(_real_store().load()) == 102
+    assert len(_real_store().load()) == 103
+
+
+def test_journal_list_trips_goldens_declare_tools_expected():
+    """SC-8 (gh-166): a golden's `expected_tools` is inert unless the golden
+    also declares `tools_expected` — goldens declare their metrics explicitly
+    and `DEFAULT_METRICS_BY_CAPABILITY` is empty, so a check absent from the
+    list never runs.
+    """
+    by_id = {case.id: case for case in _real_store().load(capability="journal")}
+    for case_id in ("journal-ambiguous-vi-01", "journal-happy-en-02"):
+        case = by_id.get(case_id)
+        assert case is not None, f"golden {case_id!r} is missing"
+        assert case.expected_tools == ["list_trips"]
+        assert "tools_expected" in (case.metrics or []), (
+            f"golden {case_id!r} declares expected_tools but not the "
+            "'tools_expected' metric — the expectation would never be checked"
+        )
 
 
 def test_every_taxonomy_capability_has_at_least_one_case():
