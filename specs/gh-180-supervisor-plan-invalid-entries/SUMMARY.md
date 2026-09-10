@@ -118,6 +118,11 @@ Verified against code before planning, at the user's request:
   blind spot on a spec-local helper.
 - `apps/api/scripts/check_gh180_routing_report.py` — a missing input path exits via traceback
   rather than a usage exit 2.
+- `apps/api/app/agents/supervisor.py` — the drop warning logs the rejected entry with `%r`, so a
+  malformed dict carrying model-echoed traveller text would reach the logs. Raised by both branch
+  correctness reviews as a low advisory. Not changed here: it belongs to the existing
+  PII-in-tool-logs backlog rather than to this fix, and bounding the repr is a separate decision
+  about every agent log line, not just this one.
 - `apps/api/app/agents/supervisor.py` — the reflowed task-list comment ends a line with a dangling
   "and"; cosmetic only. Left as is so the running branch review chain stays valid against its
   reviewed HEAD.
@@ -156,6 +161,14 @@ All commands run from the REPOSITORY ROOT, which is the cwd `verify_summary.py -
   rather than independently attested: it is the output of a paid network run that a reviewer cannot
   reproduce. The checker discriminates (exit 1 pre-fix, exit 0 post-fix), which is what makes the
   committed artifact meaningful.
+
+- `correctness-review` — FAIL on the first pass at `9474268`, PASS on the second at `515d1f5`.
+  The first pass found the two defects recorded under Deviations: a `TypeError` escaping the
+  validator on an unhashable nested value, and a report checker that reported green on a report
+  full of crashes. Neither was caught by the task Verify, the per-task reviews, or the intent
+  review. The second pass drove 31 adversarial payloads through the validator without producing an
+  escape, proved the new checker test fails when the old gate is restored, and ran the full backend
+  suite (2388 passed). Remaining advisories are recorded above.
 
 ### Not auto-verified
 
