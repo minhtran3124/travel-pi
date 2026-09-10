@@ -80,6 +80,22 @@ REFLECTION_REVISE_NOTE = (
     "a message from the traveller — keep replying in the traveller's own language."
 )
 
+# Internal note the specialist ``assistant()`` appends at invoke time when the
+# supervisor has scheduled a task for it (``state["tasks"][0]``): the task query
+# follows the preamble on its own line. Modelled on the deepagents "fork"
+# preamble, but addressed as an INTERNAL routing note. A SystemMessage (never
+# HumanMessage) for the same reason as ``REFLECTION_REVISE_NOTE``: a HumanMessage
+# would be mistaken for the traveller's latest message, so language-detection
+# and "the traveller's latest message" prompt rules would key off English
+# steering text instead of what the traveller actually typed.
+TASK_NOTE_PREAMBLE = (
+    "The messages above are the conversation so far. This is an internal routing "
+    "note, not a message from the traveller. Use the facts, dates and "
+    "identifiers already established above — do not answer generically. Keep "
+    "replying in the traveller's own language. Your task for this turn is "
+    "below.\n\n"
+)
+
 # --- trip selection -------------------------------------------------------
 # Emitted by the trip_guard node (app/agents/subagents/_base.py) when the model
 # calls a trip-scoped tool with no active trip in state (#113). Instructions to
