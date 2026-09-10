@@ -18,6 +18,7 @@ agents from ``cmd.update["tasks"]``.
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import replace
 from types import SimpleNamespace
 
@@ -29,6 +30,17 @@ from app.clients.llm import FakeLLM
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
+
+
+def _drive(graph, *args, **kwargs):
+    """Run the graph the way production does — asynchronously.
+
+    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
+    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
+    ``ainvoke``/``astream``, so driving the graph this way is also the more
+    faithful test.
+    """
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 def _build(structured_responses, main_responses, fast_responses):
@@ -43,7 +55,8 @@ def _invoke(graph, msg: str, thread_id: str, recursion_limit: int | None = None)
     config: dict = {"configurable": {"thread_id": thread_id}}
     if recursion_limit is not None:
         config["recursion_limit"] = recursion_limit
-    return graph.invoke(
+    return _drive(
+        graph,
         {"messages": [HumanMessage(content=msg)], "user_id": "u1", "trip_id": None},
         config,
     )

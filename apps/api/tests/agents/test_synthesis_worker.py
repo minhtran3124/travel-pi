@@ -6,6 +6,7 @@ propagate graph-state mutations performed by tools (e.g. ``create_trip`` sets
 graph while keeping the sub-agent's inner messages private.
 """
 
+import asyncio
 from types import SimpleNamespace
 
 from app.agents.subagents.synthesis_worker import (
@@ -22,7 +23,9 @@ def _fake_subagent(mutated_state: dict):
     """
 
     class FakeGraph:
-        def invoke(self, state: dict, config=None) -> dict:
+        # The worker awaits the sub-agent (#178: the specialists bind async-only
+        # tools), so the stand-in exposes the async entry point the worker uses.
+        async def ainvoke(self, state: dict, config=None) -> dict:
             merged = dict(state)
             merged.update(mutated_state)
             return merged
@@ -55,7 +58,7 @@ def test_worker_propagates_trip_id_when_tool_creates_trip(monkeypatch):
     }
     runtime = SimpleNamespace(config=None)
 
-    cmd = worker(state, runtime)
+    cmd = asyncio.run(worker(state, runtime))
 
     assert cmd.update["trip_id"] == "new-trip-id"
     assert cmd.update["task_results"][0]["findings"] == "Created a new trip for you."
@@ -84,7 +87,7 @@ def test_worker_propagates_awaiting_user_when_tool_blocks(monkeypatch):
     }
     runtime = SimpleNamespace(config=None)
 
-    cmd = worker(state, runtime)
+    cmd = asyncio.run(worker(state, runtime))
 
     assert cmd.update["awaiting_user"] is True
     assert cmd.update["task_results"][0]["findings"] == "What is your departure city?"
@@ -96,9 +99,7 @@ def test_worker_does_not_overwrite_unchanged_state(monkeypatch):
     monkeypatch.setitem(
         _AGENT_BUILDERS,
         "concierge",
-        _fake_subagent(
-            {"messages": [AIMessage(content="Sunny and warm.")]}
-        ),
+        _fake_subagent({"messages": [AIMessage(content="Sunny and warm.")]}),
     )
 
     worker = build_synthesis_worker(lambda _name, _hint=None: None)
@@ -110,7 +111,7 @@ def test_worker_does_not_overwrite_unchanged_state(monkeypatch):
     }
     runtime = SimpleNamespace(config=None)
 
-    cmd = worker(state, runtime)
+    cmd = asyncio.run(worker(state, runtime))
 
     assert "trip_id" not in cmd.update
     assert "awaiting_user" not in cmd.update

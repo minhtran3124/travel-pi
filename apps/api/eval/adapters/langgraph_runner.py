@@ -22,6 +22,7 @@ tests always inject `FakeLLM` so they stay network-free.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 import uuid
@@ -176,6 +177,26 @@ class LangGraphRunner:
         )
         self._context = context if context is not None else AgentContext()
 
+    def _drive(self, payload: Any, cfg: dict[str, Any]) -> dict[str, Any]:
+        """Run one graph turn asynchronously, the way production does.
+
+        ``synthesis_worker`` is an async node (#178: the specialists bind
+        async-only tools such as ``get_weather``), so a sync ``graph.invoke``
+        cannot execute a fanned-out turn at all. Driving the graph with
+        ``ainvoke`` also makes the eval measure the same execution mode the API
+        serves — before this, every multi-intent golden was scored against the
+        sync path, where an async tool took its whole batch down and the
+        specialist reported a false outage.
+
+        ``asyncio.run`` is safe here and not in the graph itself: the eval CLI is
+        a batch entry point with no enclosing event loop.
+
+        :param payload: The turn input (initial state dict, or a ``Command``).
+        :param cfg: The LangGraph config carrying this golden's thread id.
+        :return: The graph's output state for this turn.
+        """
+        return asyncio.run(self._graph.ainvoke(payload, cfg, context=self._context))
+
     def run(self, golden: Golden) -> Trace:
         """Invoke the graph for *golden* (single input or multi-turn) -> Trace."""
         thread_id = f"eval-{golden.id}-{uuid.uuid4().hex[:8]}"
@@ -192,7 +213,7 @@ class LangGraphRunner:
                 # shape; the checkpointer carries it forward on later turns.
                 payload["user_id"] = "eval"
                 payload["trip_id"] = None
-            out = self._graph.invoke(payload, cfg, context=self._context)
+            out = self._drive(payload, cfg)
 
             pending = [
                 iv.value
@@ -211,10 +232,8 @@ class LangGraphRunner:
                 )
                 hitl = getattr(golden, "hitl", None)
                 if hitl is not None:
-                    out = self._graph.invoke(
-                        Command(resume={"approved": hitl == "approve"}),
-                        cfg,
-                        context=self._context,
+                    out = self._drive(
+                        Command(resume={"approved": hitl == "approve"}), cfg
                     )
         elapsed = time.monotonic() - start
 

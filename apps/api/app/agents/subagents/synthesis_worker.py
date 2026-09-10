@@ -9,12 +9,24 @@ the ``synthesize`` node.
 The worker reuses the existing specialist sub-agent (prose) as an inner subgraph,
 then extracts a structured result from its final answer. This keeps the worker
 prompts, tools, and tool-fault policies identical to the production sub-agents.
+
+The node is **async** and must stay that way (#178). Several agent tools are
+``async def`` — ``get_weather``, ``get_packing``, ``get_air_quality``,
+``get_climate``, ``get_route``, ``get_city_route`` — and both the planner and the
+concierge bind them. A sync ``subagent.invoke`` raises ``NotImplementedError:
+StructuredTool does not support sync invocation`` on the first such call, which
+kills the whole ``tools`` node, so ``TOOL_FAULT``'s ``graceful_fallback`` hands the
+model a "temporarily unavailable" message for *every* call in that batch — healthy
+synchronous siblings included. The specialist then reports a false outage that
+retrying reproduces identically. The parent graph is always driven asynchronously
+in production (``graph.ainvoke`` / ``graph.astream``), so this node was the single
+sync link in an otherwise async chain.
 """
 
 from __future__ import annotations
 
 import copy
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -51,18 +63,21 @@ def _last_assistant_content(messages: list[Any]) -> str:
 
 def build_synthesis_worker(
     resolve_model: Callable[[str, str | None], BaseChatModel],
-) -> Callable[[TravelAgentState, Runtime[AgentContext]], Command]:
-    """Return a sync worker node that runs one specialist and returns a result.
+) -> Callable[[TravelAgentState, Runtime[AgentContext]], Awaitable[Command]]:
+    """Return an async worker node that runs one specialist and returns a result.
 
     The returned node is intended to be added once to the parent graph under the
     name ``synthesis_worker``. It reads ``state["task"]`` to determine which
     specialist to invoke, then resolves that specialist's own model.
 
     :param resolve_model: Callable ``(agent_name, ctx_model_hint) -> chat_model``.
-    :return: A sync node function.
+    :return: An async node coroutine function (see the module docstring: the
+        specialists bind async-only tools, so the sub-agent must be awaited).
     """
 
-    def worker(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
+    async def worker(
+        state: TravelAgentState, runtime: Runtime[AgentContext]
+    ) -> Command:
         task = state.get("task") or {}
         agent_name = task.get("agent", "unknown")
         index = task.get("index", 0)
@@ -105,7 +120,7 @@ def build_synthesis_worker(
                 "specialist": agent_name,
             },
         }
-        result = subagent.invoke(inner_state, config=inner_config)
+        result = await subagent.ainvoke(inner_state, config=inner_config)
         findings = _last_assistant_content(result.get("messages", []))
 
         # GH-117 Path A / Codex Comment 2: tools inside the worker may mutate

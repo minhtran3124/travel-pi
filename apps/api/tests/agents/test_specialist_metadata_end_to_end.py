@@ -11,6 +11,8 @@ So this drives the compiled graph through a real multi-intent turn with the real
 handler attached and asserts the specialist arrives on its own.
 """
 
+import asyncio
+
 from app.agents.graph import build_graph
 from app.agents.metrics import TurnMetricsHandler
 from app.agents.prompt_map import enrich_steps, prompt_versions_snapshot
@@ -20,6 +22,17 @@ from app.prompts.registry import registry
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
+
+
+def _drive(graph, *args, **kwargs):
+    """Run the graph the way production does — asynchronously.
+
+    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
+    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
+    ``ainvoke``/``astream``, so driving the graph this way is also the more
+    faithful test.
+    """
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 def _run_multi_intent_turn() -> TurnMetricsHandler:
@@ -35,7 +48,8 @@ def _run_multi_intent_turn() -> TurnMetricsHandler:
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
     )
     metrics = TurnMetricsHandler()
-    graph.invoke(
+    _drive(
+        graph,
         {
             "messages": [HumanMessage(content="flights to Tokyo and things to do")],
             "user_id": "u1",

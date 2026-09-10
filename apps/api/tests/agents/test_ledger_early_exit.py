@@ -7,6 +7,7 @@ turn ends cleanly at the graph result.
 
 from __future__ import annotations
 
+import asyncio
 from types import SimpleNamespace
 
 from app.agents.graph import build_graph
@@ -20,6 +21,17 @@ from langgraph.store.memory import InMemoryStore
 # ---------------------------------------------------------------------------
 # load_context: the flag is single-turn — reset at the start of every turn
 # ---------------------------------------------------------------------------
+
+
+def _drive(graph, *args, **kwargs):
+    """Run the graph the way production does — asynchronously.
+
+    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
+    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
+    ``ainvoke``/``astream``, so driving the graph this way is also the more
+    faithful test.
+    """
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 def test_load_context_resets_awaiting_user():
@@ -49,7 +61,8 @@ def _build(structured_responses, main_responses, fast_responses):
 
 
 def _invoke(graph, msg: str, thread_id: str):
-    return graph.invoke(
+    return _drive(
+        graph,
         {"messages": [HumanMessage(content=msg)], "user_id": "u1", "trip_id": None},
         {"configurable": {"thread_id": thread_id}},
     )
