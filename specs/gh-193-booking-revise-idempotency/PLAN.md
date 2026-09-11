@@ -39,6 +39,7 @@ created: 2026-09-11
 | SC-6 | The model-visible schema of both write tools is unchanged (no `messages`/`config` key) | `cd apps/api && ../../.venv/bin/python -c "from app.tools.flight_tools import book_flight; from app.tools.hotel_tools import book_hotel; assert 'messages' not in book_flight.args and 'config' not in book_flight.args and 'messages' not in book_hotel.args and 'config' not in book_hotel.args"` | exit 0 |
 | SC-7 | Lint is clean on the CI scope (`app`, `scripts`) and on every test file this change adds | `cd apps/api && ../../.venv/bin/ruff check app scripts tests/tools/test_booking_idempotency_key.py tests/tools/test_booking_idempotency_tools.py tests/agents/test_reflection_booking_guard.py tests/agents/test_booking_turn_no_revise.py` | exit 0 |
 | SC-8 | A cancelled booking is never a replay target: book → cancel → book again with the same key/turn creates a fresh active row, for the agent tools and for the REST `Idempotency-Key` path | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/booking/test_bookings.py tests/tools/test_booking_idempotency_tools.py tests/api/flight/test_flights.py -q -k "cancel or idempot"` | exit 0 |
+| SC-9 | A real `LLM_RETRY` re-execution of the booking assistant (transient LLM failure after the write) ends with exactly one booking row and one successful `book_flight` ToolMessage | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_booking_turn_no_revise.py -q -k retry` | exit 0 |
 
 ## 4. Tasks
 
@@ -96,6 +97,15 @@ created: 2026-09-11
 - **Criteria:** SC-8
 - **Interfaces:** Consumes the E001 decision and the existing replay path. Produces the `release_idempotency_key` flag in `app/repositories/booking.py` and its use in `app/services/booking_service.py`.
 
+### Task 5.1 — Pin the LLM_RETRY re-run of the booking assistant (wave 5)
+
+- **Files:** apps/api/tests/agents/test_booking_turn_no_revise.py
+- **Action:** Intent-review gap: the issue's Tests list promises "`LLM_RETRY` re-run of the booking assistant with the same args → one booking" and no test drives the retry mechanism itself. Add one test to `test_booking_turn_no_revise.py`, reusing its `agent_db`, `_build`, `_invoke`, `_drive`, `_seed_trip_and_flight`, `_rows` helpers: subclass `FakeLLM` so that one scripted response raises an exception `app/agents/retry.py::_is_retryable_llm` accepts (read that predicate and `tests/agents/test_retry.py` for the exact type/shape, e.g. a rate-limit / transient upstream error) exactly once on the assistant call that follows the successful `book_flight` tool call, then continues the script. Drive the full turn (plan interrupt → approve → booking → reflection). Assert: the turn completes without interrupt; exactly one booking row; exactly one `book_flight` ToolMessage and it has `status == "success"`; the failing call was retried (the fake's call counter is one higher than the number of scripted responses consumed); `revisions == 0`. Name the test `test_booking_turn_llm_retry_after_write_books_once`. Do not change product code; if the retry cannot be provoked without product changes, report BLOCKED with the reason.
+- **Verify:** `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_booking_turn_no_revise.py -q -k retry`
+- **Done:** The new test passes; the whole file passes in under 20 s; `ruff check tests/agents/test_booking_turn_no_revise.py` exits 0
+- **Criteria:** SC-9
+- **Interfaces:** Consumes the LLM retry policy on the sub-agent assistant node and the keyed booking tools (external inputs). Produces the retry test in `tests/agents/test_booking_turn_no_revise.py`.
+
 ## 5. Risks
 
 - `InjectedState("messages")` on a tool with an explicit `args_schema`: the schema must declare the field or `ToolNode` injection breaks (`docs/solutions/agent/explicit-args-schema-breaks-tool-injection.md`). Mitigated by declaring it in both `*Args` classes exactly like `user_id`.
@@ -115,3 +125,4 @@ created: 2026-09-11
 - 2026-09-11 — task 3.1 complete (SUMMARY filled, `verify_summary.py --check` exit 0, targeted regression 366 passed); all tasks 1.1, 1.2, 2.1, 2.2, 3.1 complete. Entering the final review chain (correctness-review → intent-review).
 - 2026-09-11 — final correctness review: 6 angles → 3 locations → scores 100 / 50 / 25. The 100 (book → cancel → re-book in one turn replays the cancelled row) is Rule 4 → E001 raised; user decided option A (clear the key on cancel). Task 4.1 + SC-8 added. Scores 50 and 25 recorded as advisory in SUMMARY.
 - 2026-09-11 — task 4.1 complete; commit 5281c43. Task review: spec pass / approved (2 Minor). Fix re-review round 1 (enclosing-function, call-site-impact): finding A re-scored 0 at HEAD (fixed); two `unmodified-line` advisories recorded in SUMMARY (legacy cancelled rows keep their key; concurrent cancel/replay window). Correctness review complete → intent-review.
+- 2026-09-11 — intent review: 2 findings — 1 equivalent drift (advisory), 1 gap (no test drives a real LLM_RETRY re-run) → Task 5.1 + SC-9 added.

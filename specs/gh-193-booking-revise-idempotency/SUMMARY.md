@@ -94,6 +94,11 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 - score 0 by rule (`unmodified-line`, fix re-review round 1, call-site-impact) — `apps/api/app/services/booking_service.py:300` (`_replay`): a concurrent interleaving (request A's `_replay` reads the confirmed row for key K; request B's `cancel` commits `cancelled` + key NULL before A returns) still hands A the now-cancelled row. The fix closes the sequential case; a status-aware replay filter or `SELECT … FOR UPDATE` would close the window. Design choice (Rule 4), out of scope here.
 - score 25 — `apps/api/app/agents/constants.py:75` (guard-completeness): `BOOKING_WRITE_TOOLS` omits `cancel_flight`/`cancel_hotel`, so a REVISE after a successful cancel still re-enters `booking` (pre-diff behaviour). `BookingService.cancel` is idempotent, so the worst case is a redundant no-op call, not a wrong result. Optional follow-up: add the cancel tools to the set.
 
+### Intent Findings (intent-review, plan-blind, model distinct from the implementer)
+
+- drift (behaviourally equivalent, advisory) — intent says "passed as `idempotency_key=` to `BookingService.create_*`"; the service's creation methods are named `book_flight` / `book_hotel` and receive the key. Naming mismatch in the issue text only.
+- gap (in fix loop) — intent's Tests list: "`LLM_RETRY` re-run of the booking assistant with the same args → one booking." No test forces a real `LLM_RETRY` re-execution; the closest (`test_booking_idempotency_tools.py::test_book_flight_replays_through_booking_subagent`) invokes the compiled sub-agent twice by hand. Resolution: see Task 5.1 below.
+
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
