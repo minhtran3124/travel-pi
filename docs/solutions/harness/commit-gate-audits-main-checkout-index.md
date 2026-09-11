@@ -1,11 +1,12 @@
 ---
 problem_type: bug
 module: harness/hooks
-tags: hooks, commit-gate, git-worktree, claude-project-dir, cross-session, false-block, verify-summary
+tags: hooks, commit-gate, git-worktree, claude-project-dir, cross-session, false-block, verify-summary, normalize-tool-input, write-edit-refused
 severity: critical
 applicable_when: A commit from a linked git worktree is blocked by a gate complaining about a file the commit does not touch — especially a `specs/<other-slug>/SUMMARY.md` belonging to someone else's branch.
 affects:
   - .claude/hooks/commit-quality-gate.sh
+  - .claude/hooks/lib/normalize-tool-input.py
 supersedes: null
 confidence: high
 confirmed_at: 2026-09-09
@@ -80,6 +81,32 @@ violating `SUMMARY.md` in the worktree and assert it blocks.
 - Do not resolve it by completing or unstaging the other session's work. Completing another
   session's Verify table fabricates evidence for checks nobody ran. Ask the owning session, or the
   user.
+
+## Second manifestation: Write and Edit refused in a sibling worktree (2026-09-10)
+
+The same root cause blocks file edits, not only commits. In `prompt-caching-system-prefix`, run from
+a sibling worktree `../travel-pi-prompt-caching-system-prefix`, **every** `Write` and `Edit` call on
+a worktree path was refused with a branch-isolation `unsafe-path:outside-root` error — for all five
+wave subagents and for the controller, even after `EnterWorktree`, and even for the scratchpad.
+
+`hooks/lib/normalize-tool-input.py` resolves its root with the same precedence:
+
+```python
+default=os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd(),
+```
+
+`CLAUDE_PROJECT_DIR` is the main checkout, so any path in a sibling worktree resolves outside the
+root and is refused. The fix is the same inversion: prefer the toplevel of the repository the path
+belongs to (`git -C <dir> rev-parse --show-toplevel`), or accept any root listed by
+`git worktree list`.
+
+Workaround used, and why it is not a fix: every file was written through Bash + `python3` heredocs,
+which the normaliser does not inspect. That works, but it also silently skips every PreToolUse
+check keyed on Write/Edit — so the worktree is less guarded, not equally guarded. Tell subagents
+this in the dispatch prompt, or each one burns turns rediscovering it.
+
+Consequence for isolation choice: until both hooks are fixed, an in-place feature branch is safer
+than a sibling worktree whenever the work needs Write/Edit.
 
 ## Related
 

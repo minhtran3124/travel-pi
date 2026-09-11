@@ -335,7 +335,9 @@ def make_supervisor(llm: BaseChatModel):
         )
         intent = router.invoke(
             [
-                system_with_summary(state, ground_current_date(base, ctx.timezone)),
+                # D1: date grounded OUTERMOST — the volatile note lands last, the
+                # stable cacheable prefix stays at token 0.
+                ground_current_date(system_with_summary(state, base), ctx.timezone),
                 *state["messages"],
             ]
         )

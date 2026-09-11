@@ -275,7 +275,11 @@ def with_task_note(base: SystemMessage, state: TravelAgentState) -> SystemMessag
 
 
 def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMessage:
-    """Prepend today's date and point relative-date resolution at the resolve_date tool.
+    """Append today's date and point relative-date resolution at the resolve_date tool.
+
+    The note is appended last, after ``base.content``, so the stable base prompt stays
+    at token 0 — OpenAI advises placing volatile timestamps at the end so the cacheable
+    prefix does not shift each request.
 
     Without a concrete "today", the model has no anchor for expressions like
     "hôm nay"/"today" or "next Friday", which then flow into tool calls such as
@@ -291,7 +295,8 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
     :param base: The base system message to fold the date grounding into.
     :param tz: Optional IANA timezone (e.g. "Asia/Ho_Chi_Minh") for the traveller;
         grounds "today" in their local zone. Invalid/None falls back to UTC.
-    :return: A ``SystemMessage`` with ``base`` followed by the date-grounding note.
+    :return: A ``SystemMessage`` with ``base`` followed by the date-grounding note
+        (base first, note appended last).
     """
     zone_label = "UTC"
     now = datetime.now(timezone.utc)
@@ -315,4 +320,4 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
         "did not give. Ask, too, when resolve_date reports the expression is "
         "ambiguous."
     )
-    return SystemMessage(content=f"{note}\n\n{base.content}")
+    return SystemMessage(content=f"{base.content}\n\n{note}")
