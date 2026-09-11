@@ -97,7 +97,7 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 ### Intent Findings (intent-review, plan-blind, model distinct from the implementer)
 
 - drift (behaviourally equivalent, advisory) — intent says "passed as `idempotency_key=` to `BookingService.create_*`"; the service's creation methods are named `book_flight` / `book_hotel` and receive the key. Naming mismatch in the issue text only.
-- gap (in fix loop) — intent's Tests list: "`LLM_RETRY` re-run of the booking assistant with the same args → one booking." No test forces a real `LLM_RETRY` re-execution; the closest (`test_booking_idempotency_tools.py::test_book_flight_replays_through_booking_subagent`) invokes the compiled sub-agent twice by hand. Resolution: see Task 5.1 below.
+- gap — intent's Tests list: "`LLM_RETRY` re-run of the booking assistant with the same args → one booking." Fixed in Task 5.1, commit `4c5ffdf`: `test_booking_turn_llm_retry_after_write_books_once` raises a genuine retryable `ConnectionError` on the post-write narration call; LangGraph's own `RetryPolicy` (not a manual double-invoke) re-runs the assistant node; one booking row, one success `ToolMessage`, `revisions == 0`. Task review: spec pass / approved, 0 findings.
 
 ### Verify
 
@@ -115,6 +115,7 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 | Model-visible schema of both write tools unchanged | `cd apps/api && ../../.venv/bin/python -c "from app.tools.flight_tools import book_flight; from app.tools.hotel_tools import book_hotel; assert 'messages' not in book_flight.args and 'config' not in book_flight.args and 'messages' not in book_hotel.args and 'config' not in book_hotel.args"` | 0 | 11 model-visible keys each | SC-6 |
 | Lint clean on the CI scope plus the four new test files | `cd apps/api && ../../.venv/bin/ruff check app scripts tests/tools/test_booking_idempotency_key.py tests/tools/test_booking_idempotency_tools.py tests/agents/test_reflection_booking_guard.py tests/agents/test_booking_turn_no_revise.py` | 0 | All checks passed | SC-7 |
 | A cancelled booking is never a replay target: service, tool and REST book → cancel → re-book create a fresh row | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/booking/test_bookings.py tests/tools/test_booking_idempotency_tools.py tests/api/flight/test_flights.py -q -k "cancel or idempot"` | 0 | 20 passed, 82 deselected | SC-8 |
+| A real `LLM_RETRY` re-execution of the booking assistant after a write books once | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_booking_turn_no_revise.py -q -k retry` | 0 | 1 passed | SC-9 |
 
 ### Not auto-verified
 
@@ -125,7 +126,7 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 
 ### Rollback
 
-- `git revert 5281c43 6bc9a36 7c1e6e2 dd2564b 794f4bd` (E001 fix → test → tool wiring → reflection guard → helper; each commit reverts cleanly on its own, and reverting `7c1e6e2` alone restores today's un-keyed booking path).
+- `git revert 4c5ffdf 5281c43 6bc9a36 7c1e6e2 dd2564b 794f4bd` (E001 fix → test → tool wiring → reflection guard → helper; each commit reverts cleanly on its own, and reverting `7c1e6e2` alone restores today's un-keyed booking path).
 
 ### Harness-Delta
 
