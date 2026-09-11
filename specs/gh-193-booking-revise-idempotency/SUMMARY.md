@@ -68,7 +68,12 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 
 ### Deviations
 
-- none
+- Rule 3 — ruff import-sort / unused-import fix on the new helper's own code. `apps/api/app/tools/_idempotency.py`. Commit `794f4bd`.
+- Rule 3 — flipped the pin-test equality operand order for ruff `SIM300`. `apps/api/tests/agents/test_reflection_booking_guard.py`. Commit `dd2564b`.
+
+### Review findings (Minor, non-blocking — forwarded to the final review chain)
+
+- Task 1.1 review: no test pins the key formula itself (join order / json options); behaviour verified by reading `_idempotency.py:103-108`. Optional follow-up: one inline expected-digest test.
 
 ### Verify
 
