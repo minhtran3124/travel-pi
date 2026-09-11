@@ -42,6 +42,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 from langgraph.types import Command
+from pydantic import PrivateAttr
 
 OWNER = "u_booking_turn"
 
@@ -253,3 +254,78 @@ def test_booking_turn_without_guard_revises_but_replays_booking(agent_db, monkey
     # turn-scoped idempotency key — so there is still exactly one row.
     assert _booking_id(booked[0]) == _booking_id(booked[1])
     assert _rows(agent_db) == 1
+
+
+# ---------------------------------------------------------------------------
+# Retry (guard on): a transient LLM fault AFTER the write is retried, books once.
+# ---------------------------------------------------------------------------
+
+
+class _RetryOnceFakeLLM(FakeLLM):
+    """``FakeLLM`` that raises a retryable fault once, on a chosen response slot.
+
+    ``fail_at`` is the ``responses`` cursor position whose FIRST delivery raises a
+    ``ConnectionError`` -- a fault ``app.agents.retry._is_retryable_llm`` accepts --
+    *without* consuming the slot, so the assistant node's ``LLM_RETRY`` re-runs it
+    and the retried call returns that same scripted response normally. ``_calls``
+    counts every delivery attempt (the failed one included), so a test can assert
+    it is exactly one higher than the number of responses actually consumed
+    (``_cursor``) -- i.e. that one retry happened.
+    """
+
+    fail_at: int = 0
+    _failed: bool = PrivateAttr(default=False)
+    _calls: int = PrivateAttr(default=0)
+
+    def _build_next(self) -> AIMessage:
+        self._calls += 1
+        if self._cursor == self.fail_at and not self._failed:
+            self._failed = True
+            raise ConnectionError("simulated transient LLM failure")
+        return super()._build_next()
+
+
+def test_booking_turn_llm_retry_after_write_books_once(agent_db):
+    # Fail the narration call (cursor 1) -- the assistant turn that runs AFTER the
+    # successful book_flight tool call, so the write has already happened when the
+    # retry re-runs the assistant. LLM_RETRY on the booking assistant node must
+    # re-run it and finish the turn with a single booking, not a second write.
+    trip_id, flight_number = _seed_trip_and_flight(agent_db)
+    main = _RetryOnceFakeLLM(
+        fail_at=1,
+        structured_responses=[SupervisorIntent(target_agent="booking")],
+        responses=[
+            _book_flight_call(flight_number, "call-1"),
+            "Booked!",
+        ],
+    )
+    fast = FakeLLM(responses=["REVISE", "OK"])
+    graph = _build(main, fast)
+    thread_id = "t-booking-llm-retry"
+
+    first = _invoke(graph, "book HAN to SGN", trip_id=trip_id, thread_id=thread_id)
+    assert first.get("__interrupt__"), "booking must still pause at plan_node"
+
+    out = _drive(
+        graph,
+        Command(resume={"approved": True}),
+        {"configurable": {"thread_id": thread_id}},
+    )
+
+    # The turn completed -- the retried narration surfaced, no interrupt.
+    assert not out.get("__interrupt__")
+    ai_contents = [m.content for m in out["messages"] if isinstance(m, AIMessage)]
+    assert ai_contents[-1] == "Booked!"
+
+    # The retry actually fired: exactly one delivery attempt raised, so the call
+    # counter is one higher than the number of scripted responses consumed.
+    assert main._failed
+    assert main._calls == main._cursor + 1
+
+    # The write ran once and succeeded -- exactly one booking row, one success
+    # ToolMessage (a guard block would be status="error"), and no revision.
+    booked = _book_flight_tool_messages(out["messages"])
+    assert len(booked) == 1
+    assert booked[0].status == "success"
+    assert _rows(agent_db) == 1
+    assert out.get("revisions", 0) == 0
