@@ -66,6 +66,13 @@ FAST_AGENTS: frozenset[str] = frozenset(
 # ``AgentContext.allow_episodic`` is False (mirrors the RAG filter in _base.py).
 EPISODIC_TOOL_NAME = "recall_past_trips"
 
+# --- booking idempotency (gh-193) -----------------------------------------
+# Write tools whose ToolMessage marks a committed booking. Reflection ends a
+# turn (never REVISEs it) when one of these succeeded *this turn*, so a REVISE
+# cannot re-run the booking sub-agent and double-book. Pinned to the tool
+# objects' .name attributes by a test in test_reflection_booking_guard.py.
+BOOKING_WRITE_TOOLS: frozenset[str] = frozenset({"book_flight", "book_hotel"})
+
 # --- reflection -----------------------------------------------------------
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
 DEFAULT_MAX_REVISIONS = 1
