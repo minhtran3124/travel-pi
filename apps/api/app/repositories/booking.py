@@ -151,12 +151,27 @@ class BookingRepository(Repo):
             ).all()
             return [_row_to_booking(r) for r in rows]
 
-    def update_status(self, booking_id: str, user_id: str, status: str) -> bool:
+    def update_status(
+        self,
+        booking_id: str,
+        user_id: str,
+        status: str,
+        *,
+        release_idempotency_key: bool = False,
+    ) -> bool:
         """Set the status of the caller's booking. No-op for a foreign id.
+
+        When ``release_idempotency_key`` is True the row's ``idempotency_key`` is
+        cleared in the same transaction, so a cancelled booking is never a replay
+        target: a later booking under the same key creates a fresh row instead of
+        returning the cancelled one (gh-193). The column is nullable and its
+        unique index is partial (excludes NULL), so clearing it never collides.
 
         :param booking_id: The booking's UUID.
         :param user_id: The caller; a booking owned by anyone else is not found.
         :param status: The new status value.
+        :param release_idempotency_key: When True, also clear the row's
+            ``idempotency_key`` so the booking can no longer be replayed.
         :return: ``True`` if the caller's row was found and updated.
         """
         with self._session() as s:
@@ -169,6 +184,8 @@ class BookingRepository(Repo):
             if row is None:
                 return False
             row.status = status
+            if release_idempotency_key:
+                row.idempotency_key = None
             self._commit(s)
             return True
 

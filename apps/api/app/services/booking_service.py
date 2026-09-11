@@ -199,6 +199,10 @@ class BookingService:
         just returns it unchanged. Raises :class:`NotFoundError` if no
         booking matches the caller (#118).
 
+        Cancelling releases the booking's idempotency key, so a cancelled
+        booking is never a replay target: re-booking with the same key/turn
+        creates a fresh row rather than replaying the cancelled one (gh-193).
+
         :param booking_id: A booking UUID or confirmation code.
         :param user_id: The caller who must own the booking.
         :return: The cancelled booking.
@@ -206,7 +210,12 @@ class BookingService:
         booking = self.get(booking_id, user_id=user_id)
         if booking.status == BookingStatus.CANCELLED:
             return booking
-        self._repo.update_status(booking.id, user_id, BookingStatus.CANCELLED.value)
+        self._repo.update_status(
+            booking.id,
+            user_id,
+            BookingStatus.CANCELLED.value,
+            release_idempotency_key=True,
+        )
         logger.info("Cancelled booking %s", booking.id)
         return self.get(booking.id, user_id=user_id)
 

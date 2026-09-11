@@ -97,6 +97,32 @@ def test_book_flight_same_turn_replays_one_row(agent_db):
 
 
 # ---------------------------------------------------------------------------
+# (a2) same turn, but cancelled between calls -> new booking (two rows)
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_cancel_then_rebook_same_turn_creates_new_row(agent_db):
+    """A cancel releases the idempotency key (gh-193, E001): book -> cancel ->
+    book-again within the *same* turn no longer replays the cancelled row, it
+    creates a fresh booking. Two rows exist (one cancelled, one confirmed)."""
+    from app.tools.booking_tools import cancel_flight
+    from app.tools.flight_tools import book_flight
+
+    args = {
+        **_flight_args(_flight_number(agent_db)),
+        "messages": [HumanMessage(id="h1", content="book it")],
+    }
+    config = {"configurable": {"thread_id": "t1"}}
+
+    first = book_flight.invoke(dict(args), config=config)
+    cancel_flight.invoke({"booking_id": first["id"], "confirm": True, "user_id": OWNER})
+    second = book_flight.invoke(dict(args), config=config)
+
+    assert second["id"] != first["id"]
+    assert _rows(agent_db) == 2
+
+
+# ---------------------------------------------------------------------------
 # (b) new turn (new HumanMessage) -> new booking (two rows)
 # ---------------------------------------------------------------------------
 

@@ -671,6 +671,27 @@ def test_book_flight_without_idempotency_key_creates_each_time(client):
     assert first["id"] != second["id"]
 
 
+def test_book_flight_idempotency_key_released_by_cancel_allows_rebook(client):
+    """Cancelling a booking releases its Idempotency-Key (gh-193, E001):
+    retrying the original POST with the same key after the booking is cancelled
+    creates a fresh booking instead of replaying the cancelled one. This is a
+    deliberate behaviour change from the plain replay path above."""
+    payload = {
+        **get_first_flight_booking_fields(client),
+        "passenger_name": "Rebook After Cancel",
+        "passenger_email": "rebook-after-cancel@example.com",
+        "passenger_phone": "+84 901 234 567",
+    }
+    headers = {"Idempotency-Key": "flight-key-rebook-after-cancel"}
+
+    first = client.post("/flights/book", json=payload, headers=headers).json()
+    assert client.post(f"/bookings/{first['id']}/cancel").status_code == 200
+
+    resp = client.post("/flights/book", json=payload, headers=headers)
+    assert resp.status_code == 200
+    assert resp.json()["id"] != first["id"]
+
+
 def test_book_flight_distinct_idempotency_keys_create_distinct_bookings(client):
 
     payload = {
