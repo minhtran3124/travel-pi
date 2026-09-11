@@ -16,6 +16,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Annotated
 
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import ToolException, tool
 from langgraph.prebuilt import InjectedState
 from pydantic import Field
@@ -31,6 +32,7 @@ from app.services.content_translation_service import ContentTranslationService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
+from app.tools._idempotency import turn_idempotency_key
 from app.tools._ranking import rank_by_preference
 
 
@@ -183,6 +185,13 @@ class BookHotelArgs(AppBaseModel):
             "Injected active trip id from graph state — never supplied by "
             "the model. None when there is no active trip; the booking is "
             "then created unattached."
+        ),
+    )
+    messages: Annotated[list, InjectedState("messages")] = Field(
+        default_factory=list,
+        description=(
+            "Injected conversation messages from graph state — never supplied "
+            "by the model."
         ),
     )
 
@@ -470,6 +479,9 @@ def book_hotel(
     confirm: bool = False,
     user_id: Annotated[str, InjectedState("user_id")] = "",
     trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
+    messages: Annotated[list, InjectedState("messages")] = None,
+    *,
+    config: RunnableConfig,
 ) -> dict:
     """Book a hotel room. You MUST pass confirm=True to create the reservation.
 
@@ -512,6 +524,26 @@ def book_hotel(
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
         )
+    # Replay-safety within one traveller turn (gh-193): see book_flight.
+    idempotency_key = turn_idempotency_key(
+        "book_hotel",
+        {
+            "hotel_id": hotel_id,
+            "check_in": check_in,
+            "check_out": check_out,
+            "guest_name": guest_name,
+            "guest_email": guest_email,
+            "guest_phone": guest_phone,
+            "rooms": rooms,
+            "adults": adults,
+            "children": children,
+            "notes": notes,
+            "confirm": confirm,
+        },
+        user_id=user_id,
+        config=config,
+        messages=messages,
+    )
     with session_scope() as s:
         try:
             request = HotelBookingRequest(
@@ -527,7 +559,9 @@ def book_hotel(
                 notes=notes,
                 trip_id=trip_id,
             )
-            result = BookingService(s).book_hotel(request, user_id=user_id)
+            result = BookingService(s).book_hotel(
+                request, user_id=user_id, idempotency_key=idempotency_key
+            )
             return dump(result)
         except AppError as e:
             raise tool_error(e) from e

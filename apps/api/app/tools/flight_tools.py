@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Annotated, Literal
 
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import ToolException, tool
 from langgraph.prebuilt import InjectedState
 from pydantic import Field
@@ -24,6 +25,7 @@ from app.services.booking_service import BookingService
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
+from app.tools._idempotency import turn_idempotency_key
 from app.tools._ranking import rank_by_preference
 
 
@@ -331,6 +333,13 @@ class BookFlightArgs(AppBaseModel):
             "then created unattached."
         ),
     )
+    messages: Annotated[list, InjectedState("messages")] = Field(
+        default_factory=list,
+        description=(
+            "Injected conversation messages from graph state — never supplied "
+            "by the model."
+        ),
+    )
 
 
 @tool(args_schema=BookFlightArgs)
@@ -348,6 +357,9 @@ def book_flight(
     confirm: bool = False,
     user_id: Annotated[str, InjectedState("user_id")] = "",
     trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
+    messages: Annotated[list, InjectedState("messages")] = None,
+    *,
+    config: RunnableConfig,
 ) -> dict:
     """Book a flight. You MUST pass confirm=True to create the reservation.
 
@@ -393,6 +405,29 @@ def book_flight(
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
         )
+    # Replay-safety within one traveller turn: a revise loop re-runs this tool
+    # with the same thread + last HumanMessage, so the same key replays the
+    # first booking instead of creating a duplicate (gh-193). Injected plumbing
+    # (user_id/trip_id/messages/config) is stripped from the hash by the helper.
+    idempotency_key = turn_idempotency_key(
+        "book_flight",
+        {
+            "flight_id": flight_id,
+            "flight_number": flight_number,
+            "origin": origin,
+            "destination": destination,
+            "departure_date": departure_date,
+            "passenger_name": passenger_name,
+            "passenger_email": passenger_email,
+            "passenger_phone": passenger_phone,
+            "notes": notes,
+            "passengers": passengers,
+            "confirm": confirm,
+        },
+        user_id=user_id,
+        config=config,
+        messages=messages,
+    )
     with session_scope() as s:
         try:
             request = FlightBookingRequest(
@@ -408,7 +443,9 @@ def book_flight(
                 passengers=passengers,
                 trip_id=trip_id,
             )
-            result = BookingService(s).book_flight(request, user_id=user_id)
+            result = BookingService(s).book_flight(
+                request, user_id=user_id, idempotency_key=idempotency_key
+            )
             return dump(result)
         except AppError as e:
             raise tool_error(e) from e
