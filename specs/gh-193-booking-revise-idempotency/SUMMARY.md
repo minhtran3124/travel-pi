@@ -84,6 +84,11 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 - Task 1.1 review: no test pins the key formula itself (join order / json options); behaviour verified by reading `_idempotency.py:103-108`. Optional follow-up: one inline expected-digest test.
 - Task 2.1 review: signature default `messages: Annotated[list, InjectedState("messages")] = None` vs schema `default_factory=list` — a typing wart only (helper handles `None`); the brief mandated this form. Optional follow-up: `list | None` on the signature.
 
+### Advisory Findings (correctness-review, below the 75 threshold — not auto-fixed, surfaced for the author)
+
+- score 50 — `apps/api/app/tools/_idempotency.py:80` (call-site-impact / guard-completeness): the key has no per-call component, so two byte-identical `book_*` calls in one turn collapse into one row. Both schemas model party size (`rooms`, `passengers`; `book_flight` docstring: "one booking covers all of them, never call this once per traveller"), so the trigger is an edge case, and it is the deliberate contract recorded under Alternatives (turn + args = one unit of work; #194 owns duplicate-intent).
+- score 25 — `apps/api/app/agents/constants.py:75` (guard-completeness): `BOOKING_WRITE_TOOLS` omits `cancel_flight`/`cancel_hotel`, so a REVISE after a successful cancel still re-enters `booking` (pre-diff behaviour). `BookingService.cancel` is idempotent, so the worst case is a redundant no-op call, not a wrong result. Optional follow-up: add the cancel tools to the set.
+
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |

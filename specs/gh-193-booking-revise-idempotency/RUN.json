@@ -1,12 +1,12 @@
 {
   "created_at": "2026-09-11T07:23:38Z",
-  "last_event_id": "78c54ba0-1077-44c6-ac92-2b0a99535311",
+  "last_event_id": "4206537d-4407-4119-8bcf-baab205631a2",
   "resume_event": null,
   "run_id": "4073cac5-06dc-44d1-805f-80598eadb78f",
-  "seq": 4,
+  "seq": 7,
   "sha": null,
   "slug": "gh-193-booking-revise-idempotency",
   "state": "implementing",
-  "updated_at": "2026-09-11T07:33:05Z",
+  "updated_at": "2026-09-11T08:11:37Z",
   "waiting_on": null
 }
