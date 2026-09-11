@@ -48,7 +48,9 @@ Two independent fixes for GitHub #193, plumbing only — no service, schema, pro
 - **A. Turn-scoped idempotency key in the write tools.** `app/tools/_idempotency.py` derives `sha256(user_id|thread_id|last HumanMessage id|tool_name|canonical model-visible args)` and returns `None` when the turn cannot be identified. `book_flight`/`book_hotel` read `thread_id` from an injected bare `config: RunnableConfig` and the turn boundary from an injected `messages` state field (declared in the `*Args` schemas like `user_id`/`trip_id`, so the model-visible schema is unchanged and MCP is untouched — destructive tools are already excluded) and pass the key to `BookingService.book_*`, which already replays the owner's booking for the same key. A revise pass, an LLM retry or a graph replay inside one turn therefore returns the same reservation; a new turn, or a call with no turn context, books exactly as before (the `2c44f99` pinned test stays green).
 - **B. Reflection ends a turn that already committed a booking.** `BOOKING_WRITE_TOOLS` in `app/agents/constants.py`; `_booking_committed_this_turn` in `app/agents/nodes.py` ends the turn (`goto=END`) before the judge when a `book_*` `ToolMessage` after the last `HumanMessage` has `status != "error"`. Placed right after the `awaiting_user` guard. Saves the judge call and removes the REVISE → `booking` re-entry that skipped the `plan` interrupt.
 
-Commits: `794f4bd` (A helper), `dd2564b` (B), `7c1e6e2` (A wiring + tool tests), `6bc9a36` (end-to-end test). Targeted regression at `6bc9a36`: `tests/agents/test_depth_toggles.py tests/agents/test_multi_intent_routing.py tests/agents/test_graph.py tests/tools tests/mcp` → 366 passed, 1 warning in 47.73s (whole-directory run, cited per the layer-ladder rule; the full suite runs at branch finish).
+- **E001 (correctness review, decided by the user): a cancelled booking is never a replay target.** `BookingRepository.update_status(..., release_idempotency_key=True)` clears the key in the cancel transaction and `BookingService.cancel` passes it. Book → cancel → re-book with the same key/turn now creates a fresh row for the agent tools and for the REST `Idempotency-Key` path. Behaviour change on REST: a client that retries its original POST after cancelling gets a new booking instead of the cancelled one (`tests/api/flight/test_flights.py` pins it). No schema change — the column is nullable and the unique index is partial.
+
+Commits: `794f4bd` (A helper), `dd2564b` (B), `7c1e6e2` (A wiring + tool tests), `6bc9a36` (end-to-end test), `5281c43` (E001 fix). Targeted regression at `6bc9a36`: `tests/agents/test_depth_toggles.py tests/agents/test_multi_intent_routing.py tests/agents/test_graph.py tests/tools tests/mcp` → 366 passed, 1 warning in 47.73s (whole-directory run, cited per the layer-ladder rule; the full suite runs at branch finish).
 
 ### Rationale
 
@@ -83,10 +85,13 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 
 - Task 1.1 review: no test pins the key formula itself (join order / json options); behaviour verified by reading `_idempotency.py:103-108`. Optional follow-up: one inline expected-digest test.
 - Task 2.1 review: signature default `messages: Annotated[list, InjectedState("messages")] = None` vs schema `default_factory=list` — a typing wart only (helper handles `None`); the brief mandated this form. Optional follow-up: `list | None` on the signature.
+- Task 4.1 review: the REST re-book contract is HTTP 200 (`/flights/book` declares no `status_code`); the task brief's "201" was a drafting error — the test correctly asserts 200 and a distinct id. Tool-level test asserts the new id and two rows but not the old row's released key; the service-level test covers that DB state.
 
 ### Advisory Findings (correctness-review, below the 75 threshold — not auto-fixed, surfaced for the author)
 
 - score 50 — `apps/api/app/tools/_idempotency.py:80` (call-site-impact / guard-completeness): the key has no per-call component, so two byte-identical `book_*` calls in one turn collapse into one row. Both schemas model party size (`rooms`, `passengers`; `book_flight` docstring: "one booking covers all of them, never call this once per traveller"), so the trigger is an edge case, and it is the deliberate contract recorded under Alternatives (turn + args = one unit of work; #194 owns duplicate-intent).
+- score 0 by rule (`unmodified-line`, fix re-review round 1, enclosing-function) — `apps/api/app/services/booking_service.py:211`: the already-cancelled early return in `cancel` never releases a key, so rows cancelled **before** this branch ships keep their REST `Idempotency-Key` and still replay as cancelled; re-cancelling does not self-heal. Only REST clients that reuse a pre-deploy key after a cancel are affected (the agent path sent no key before this branch). Follow-up options: release the key in the already-cancelled branch too (2 lines), or a one-off backfill `UPDATE bookings SET idempotency_key = NULL WHERE status = 'cancelled'`.
+- score 0 by rule (`unmodified-line`, fix re-review round 1, call-site-impact) — `apps/api/app/services/booking_service.py:300` (`_replay`): a concurrent interleaving (request A's `_replay` reads the confirmed row for key K; request B's `cancel` commits `cancelled` + key NULL before A returns) still hands A the now-cancelled row. The fix closes the sequential case; a status-aware replay filter or `SELECT … FOR UPDATE` would close the window. Design choice (Rule 4), out of scope here.
 - score 25 — `apps/api/app/agents/constants.py:75` (guard-completeness): `BOOKING_WRITE_TOOLS` omits `cancel_flight`/`cancel_hotel`, so a REVISE after a successful cancel still re-enters `booking` (pre-diff behaviour). `BookingService.cancel` is idempotent, so the worst case is a redundant no-op call, not a wrong result. Optional follow-up: add the cancel tools to the set.
 
 ### Verify
@@ -104,6 +109,7 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 | End-to-end booking turn: guard on → judge never called, one row; guard off → REVISE re-runs booking, second call replays via the key, one row | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_booking_turn_no_revise.py -q` | 0 | 2 passed in 0.83 s | SC-5 |
 | Model-visible schema of both write tools unchanged | `cd apps/api && ../../.venv/bin/python -c "from app.tools.flight_tools import book_flight; from app.tools.hotel_tools import book_hotel; assert 'messages' not in book_flight.args and 'config' not in book_flight.args and 'messages' not in book_hotel.args and 'config' not in book_hotel.args"` | 0 | 11 model-visible keys each | SC-6 |
 | Lint clean on the CI scope plus the four new test files | `cd apps/api && ../../.venv/bin/ruff check app scripts tests/tools/test_booking_idempotency_key.py tests/tools/test_booking_idempotency_tools.py tests/agents/test_reflection_booking_guard.py tests/agents/test_booking_turn_no_revise.py` | 0 | All checks passed | SC-7 |
+| A cancelled booking is never a replay target: service, tool and REST book → cancel → re-book create a fresh row | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/booking/test_bookings.py tests/tools/test_booking_idempotency_tools.py tests/api/flight/test_flights.py -q -k "cancel or idempot"` | 0 | 20 passed, 82 deselected | SC-8 |
 
 ### Not auto-verified
 
@@ -114,7 +120,7 @@ Documented default (not an ambiguity): when `thread_id` or a last `HumanMessage`
 
 ### Rollback
 
-- `git revert 6bc9a36 7c1e6e2 dd2564b 794f4bd` (test → tool wiring → reflection guard → helper; each commit reverts cleanly on its own, and reverting `7c1e6e2` alone restores today's un-keyed booking path).
+- `git revert 5281c43 6bc9a36 7c1e6e2 dd2564b 794f4bd` (E001 fix → test → tool wiring → reflection guard → helper; each commit reverts cleanly on its own, and reverting `7c1e6e2` alone restores today's un-keyed booking path).
 
 ### Harness-Delta
 
