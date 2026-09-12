@@ -269,7 +269,7 @@ persist_assistant_turn (changed):
     reset → clear accumulator and yield
     interrupt → yield; the done that follows an interrupt passes through with
                assistant_message_id: null (§4.2) — no row is written for an interrupted turn
-    error → if accumulated text is non-empty, insert the assistant Message under the pre-minted id
+    error → if accumulated text is non-empty (and code != cancelled), insert the assistant Message under the pre-minted id
             with agent_run_id = run_id (the run ends failed, so it is never rateable — same as the
             REST fallback in §4.2), then yield error unchanged; with empty text just yield
     done:
@@ -380,7 +380,7 @@ comment text.
 | Status | Meaning |
 |---:|---|
 | `201` | New state-changing event appended |
-| `200` | Same idempotency key/fingerprint replayed, or documented retract no-op |
+| `200` | Same idempotency key/fingerprint replayed, or documented retract no-op (a retract with nothing active still appends a `retract_rating` row — audit trail and key reservation — and answers `200`) |
 | `401` | Neither a valid JWT nor a supported anonymous principal is available |
 | `404` | Target unknown, foreign, non-assistant, non-completed, or non-rateable |
 | `409` | Key reused with different fingerprint or invalid state transition |
@@ -547,7 +547,10 @@ optional comment; prose is never required.
 
 **Deferred (2026-09-12):** the first implementation round is UI + API + SQL evidence only; the
 service keeps an `export_hook` seam that is a no-op. The section stays as the contract for the
-follow-up.
+follow-up. Ordering caveat for that follow-up: the hook is scheduled as a Starlette background task,
+and the request session's teardown commit runs **after** background tasks (see
+`docs/solutions` background-task deadlock note), so a real exporter must either commit explicitly
+before scheduling or read the event through its own session, never the request session.
 
 After local commit, enqueue best-effort export:
 

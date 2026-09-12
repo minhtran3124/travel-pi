@@ -167,6 +167,8 @@ describe("parseSSE — typed protocol", () => {
     expect(events.at(-1)).toEqual({
       type: "done",
       conversationId: "c1",
+      assistantMessageId: null,
+      agentRunId: null,
       currentFlow: "concierge",
       suggestions: [],
     });
@@ -185,6 +187,8 @@ describe("parseSSE — typed protocol", () => {
     expect(events.at(-1)).toEqual({
       type: "done",
       conversationId: "c1",
+      assistantMessageId: null,
+      agentRunId: null,
       currentFlow: "booking",
       suggestions: ["booking.bookThis", "booking.comparePrices"],
     });
@@ -212,6 +216,91 @@ describe("parseSSE — typed protocol", () => {
     );
     const done = events.at(-1) as Extract<SSEEvent, { type: "done" }>;
     expect(done.suggestions).toEqual([]);
+  });
+
+  it("parses done with assistant_message_id + agent_run_id (feedback handle)", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", {
+          conversation_id: "c1",
+          assistant_message_id: "m1",
+          agent_run_id: "r1",
+          current_flow: "concierge",
+          suggestions: [],
+        }),
+      ]),
+    );
+    expect(events.at(-1)).toEqual({
+      type: "done",
+      conversationId: "c1",
+      assistantMessageId: "m1",
+      agentRunId: "r1",
+      currentFlow: "concierge",
+      suggestions: [],
+    });
+  });
+
+  it("maps a null assistant_message_id (done after an interrupt) to null", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", {
+          conversation_id: "c1",
+          assistant_message_id: null,
+          agent_run_id: "r1",
+          current_flow: null,
+        }),
+      ]),
+    );
+    const done = events.at(-1) as Extract<SSEEvent, { type: "done" }>;
+    expect(done.assistantMessageId).toBeNull();
+    expect(done.agentRunId).toBe("r1");
+  });
+
+  it("parses done without the ids (pre-feedback payload) as null ids", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", { conversation_id: "c1", current_flow: null }),
+      ]),
+    );
+    const done = events.at(-1) as Extract<SSEEvent, { type: "done" }>;
+    expect(done.assistantMessageId).toBeNull();
+    expect(done.agentRunId).toBeNull();
+  });
+
+  it("ignores unknown additive fields on done", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("done", {
+          conversation_id: "c1",
+          assistant_message_id: "m1",
+          agent_run_id: "r1",
+          current_flow: null,
+          future_field: { nested: true },
+        }),
+      ]),
+    );
+    expect(events.at(-1)).toEqual({
+      type: "done",
+      conversationId: "c1",
+      assistantMessageId: "m1",
+      agentRunId: "r1",
+      currentFlow: null,
+      suggestions: [],
+    });
+    expect(events.at(-1)).not.toHaveProperty("future_field");
+  });
+
+  it("parses the terminal feedback error codes as ordinary error events", async () => {
+    const events = await collect(
+      streamFromChunks([
+        sse("error", { code: "empty_reply", message: "no text" }),
+        sse("error", { code: "persistence_failed", message: "db" }),
+      ]),
+    );
+    expect(events).toEqual([
+      { type: "error", code: "empty_reply", message: "no text" },
+      { type: "error", code: "persistence_failed", message: "db" },
+    ]);
   });
 
   it("parses error events", async () => {

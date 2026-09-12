@@ -101,7 +101,14 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   feedback abuse limit over the PR #110 primitive (`enforce_rate_limit` called directly with a
   body-aware `feedback_subject`, per the primitive's own docstring), import-graph test proving no
   feedback → memory edge, `locale` allowlist from `app/core/languages.py`. Verify 30 passed; whole
-  `tests/api/agent` 148 passed.
+  `tests/api/agent` 148 passed. Landed as `2cb7174`. Task review: spec pass / quality approved;
+  4 Minor (export-hook ordering vs teardown commit and retract-no-op semantics recorded in DESIGN
+  §9/§5.2; `append` inserted-flag and store forbidden-prefix fixed in the review-fixes change).
+- Wave 4 — Task 4.1: `schema.d.ts` regenerated offline from `app.openapi()` (the :8000 container
+  mounts main), `lib/query/feedback.ts` (`useSubmitFeedback`, one `clientEventId` per logical action,
+  per-message in-flight guard, `retry()`), SSE `done` gains the two ids, terminal codes parse as
+  errors. Verify 59 tests / 10 files, `tsc --noEmit` 0, eslint 0. Deviation: no query key added
+  (`keys.ts` untouched — there is no feedback query, only a mutation).
 
 ## Deviations
 

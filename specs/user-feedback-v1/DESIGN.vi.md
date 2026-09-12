@@ -251,7 +251,7 @@ persist_assistant_turn (đổi):
     reset → clear accumulator và yield
     interrupt → yield; done theo sau interrupt đi qua với assistant_message_id: null (§4.2) —
                 không ghi row cho turn bị interrupt
-    error → nếu text tích lũy không rỗng, insert assistant Message bằng pre-minted id với
+    error → nếu text tích lũy không rỗng (và code != cancelled), insert assistant Message bằng pre-minted id với
             agent_run_id = run_id (run kết thúc failed nên không bao giờ rateable — giống REST
             fallback ở §4.2), rồi yield error nguyên vẹn; text rỗng thì chỉ yield
     done:
@@ -357,7 +357,7 @@ Không trả actor, trace, prompt, model, fingerprint, supersession chain hay co
 | Status | Ý nghĩa |
 |---:|---|
 | `201` | Append state-changing event mới |
-| `200` | Replay cùng key/fingerprint hoặc retract no-op |
+| `200` | Replay cùng key/fingerprint hoặc retract no-op (retract khi không có rating active vẫn append một row `retract_rating` — audit trail và giữ key — và trả `200`) |
 | `401` | Không có JWT hợp lệ lẫn anonymous principal được hỗ trợ |
 | `404` | Target unknown/foreign/non-assistant/non-completed |
 | `409` | Reuse key khác fingerprint hoặc transition không hợp lệ |
@@ -498,7 +498,11 @@ aggregation rõ; prose không bắt buộc.
 ## 9. Observability export
 
 **Hoãn (2026-09-12):** vòng implement đầu chỉ gồm UI + API + bằng chứng SQL; service giữ seam
-`export_hook` là no-op. Mục này giữ nguyên làm contract cho vòng sau.
+`export_hook` là no-op. Mục này giữ nguyên làm contract cho vòng sau. Lưu ý thứ tự cho vòng sau:
+hook được schedule như Starlette background task, và commit teardown của request session chạy
+**sau** background task (xem ghi chú deadlock background-task trong `docs/solutions`), nên exporter
+thật phải commit tường minh trước khi schedule hoặc đọc event qua session riêng, không dùng
+request session.
 
 Sau local commit, enqueue best-effort export:
 
