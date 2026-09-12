@@ -90,7 +90,16 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   after the assistant row is committed, history items carry `feedback`. Rule-1 deviation: a `done`
   that follows an `interrupt` passes through with `assistant_message_id: null` (DESIGN §4.2) instead of
   becoming `error{empty_reply}` as a literal reading of §4.3 implied. Verify `tests/api/agent
-  tests/streaming` 167 passed.
+  tests/streaming` 167 passed. Landed as `1298433`. Task review: spec pass / quality needs_fixes —
+  one Important (a failed SSE turn no longer persisted its fallback text because the mapper never
+  emits `done` on failure): decided to persist on terminal `error` with non-empty text (run is
+  `failed`, never rateable), DESIGN §4.3 amended, fix in the next change.
+- Wave 3 — Task 3.2: `FeedbackService`, `POST /agent/feedback` (router registered in
+  `app/routers/main.py`, the aggregate the app mounts — deviation from the plan's `app/main.py`),
+  feedback abuse limit over the PR #110 primitive (`enforce_rate_limit` called directly with a
+  body-aware `feedback_subject`, per the primitive's own docstring), import-graph test proving no
+  feedback → memory edge, `locale` allowlist from `app/core/languages.py`. Verify 30 passed; whole
+  `tests/api/agent` 148 passed.
 
 ## Deviations
 
