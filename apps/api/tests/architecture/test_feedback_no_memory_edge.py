@@ -2,8 +2,25 @@
 
 DESIGN §10 (specs/user-feedback-v1): feedback must never change memory. This
 walks the static import graph of the feedback service and router and fails if
-any module under ``app.memory`` is reachable. ``app.agents.memory`` does not
-exist in this repo (``ls app/agents``); ``app.memory`` is the runner + store.
+any forbidden module is reachable.
+
+Surfaces covered (``FORBIDDEN_PREFIXES``):
+
+- ``app.memory`` — the in-repo memory package: ``app.memory.store`` (the
+  LangGraph store wrapper: ``open_store`` / ``get_store`` / ``upsert_*``),
+  ``app.memory.extractor``, ``app.memory.extraction_runner``,
+  ``app.memory.summarizer``.
+- ``langgraph.store`` — the third-party store package the app imports
+  directly (``langgraph.store.base.BaseStore``, ``langgraph.store.memory``,
+  ``langgraph.store.postgres``; see ``rg "langgraph.store" app``). A feedback
+  module that bypassed ``app.memory`` and opened the store itself is caught
+  here.
+- ``app.agents.memory`` — kept for forward compatibility; it does not exist in
+  this repo today (``ls app/agents``).
+
+The walker follows ``app.*`` imports transitively and records any import whose
+name starts with a forbidden prefix, first-party or third-party; other
+third-party modules are not walked.
 """
 
 import ast
@@ -12,7 +29,12 @@ from pathlib import Path
 
 APP = Path(__file__).resolve().parents[2] / "app"
 ROOTS = ["app.services.feedback_service", "app.routers.feedback"]
-FORBIDDEN_PREFIXES = ("app.memory", "app.agents.memory")
+FORBIDDEN_PREFIXES = ("app.memory", "app.agents.memory", "langgraph.store")
+
+
+def _tracked(name: str) -> bool:
+    """Follow ``app.*`` edges and record forbidden third-party ones."""
+    return name.startswith("app.") or name.startswith(FORBIDDEN_PREFIXES)
 
 
 def _find_spec(name: str):
@@ -30,7 +52,11 @@ def _module_path(name: str) -> Path | None:
 
 
 def _imports_of(name: str) -> set[str]:
-    """Return the ``app.*`` modules this module imports (static, no execution)."""
+    """Return the tracked modules this module imports (static, no execution).
+
+    Tracked = every ``app.*`` module plus any module under a forbidden prefix
+    (so a direct third-party ``langgraph.store`` import is recorded too).
+    """
     path = _module_path(name)
     if path is None:
         return set()
@@ -38,8 +64,8 @@ def _imports_of(name: str) -> set[str]:
     out: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            out.update(a.name for a in node.names if a.name.startswith("app."))
-        elif isinstance(node, ast.ImportFrom) and (node.module or "").startswith("app"):
+            out.update(a.name for a in node.names if _tracked(a.name))
+        elif isinstance(node, ast.ImportFrom) and _tracked(node.module or ""):
             out.add(node.module)
             # ``from app.pkg import mod`` may name a submodule.
             for alias in node.names:
@@ -75,3 +101,11 @@ def test_feedback_path_does_not_reach_memory():
 def test_walker_detects_memory_when_present():
     """Guard against a hollow gate: the memory package is reachable from the graph."""
     assert any(m.startswith("app.memory") for m in _reachable(["app.agents.graph"]))
+
+
+def test_walker_records_direct_langgraph_store_imports():
+    """The third-party store surface is recorded, not skipped as third-party."""
+    direct = _imports_of("app.memory.store")
+    assert any(m.startswith("langgraph.store") for m in direct), direct
+    reachable = _reachable(["app.agents.graph"])
+    assert any(m.startswith("langgraph.store") for m in reachable)

@@ -375,11 +375,15 @@ def test_openapi_lists_route_with_429(tmp_path):
 
 def test_same_key_race_recovers_via_repository(tmp_path, monkeypatch):
     """Lookup misses, insert collides: the winner is replayed or conflicted."""
+    exported: list = []
+    monkeypatch.setattr(feedback_service, "export_hook", exported.append)
     app, sf = make_app(tmp_path, auth_user_id=OWNER)
     mid = seed_message(sf, owner=OWNER)
     payload = body(mid)
     with TestClient(app) as client:
-        assert post(client, payload).status_code == 201
+        first = post(client, payload)
+        assert first.status_code == 201
+        first_id = first.json()["feedback_event_id"]
         # Simulate the concurrent writer landing between lookup and insert: the
         # first lookup misses, the insert collides, the repository recovers the
         # winner and the service compares fingerprints.
@@ -391,12 +395,17 @@ def test_same_key_race_recovers_via_repository(tmp_path, monkeypatch):
             return None if calls["n"] == 1 else real_find(self, **kw)
 
         monkeypatch.setattr(FeedbackRepository, "find_by_client_event", flaky_find)
-        # Identical payload: the winner's row is state-equivalent to our own
-        # insert (the service cannot tell them apart), so it answers 201 and the
-        # log still holds exactly one row for the key.
+        # Identical payload: the repository reports the race loss, so the
+        # service answers it as a replay (200, replayed:true), the log still
+        # holds exactly one row for the key and the export hook does not fire
+        # a second time for the winner's event.
+        assert [e.id for e in exported] == [first_id]
         r = post(client, payload)
-        assert r.status_code == 201
+        assert r.status_code == 200
+        assert r.json()["replayed"] is True
+        assert r.json()["feedback_event_id"] == first_id
         assert r.json()["effective_feedback"]["rating"] == "helpful"
+        assert [e.id for e in exported] == [first_id]
         with sf() as s:
             from app.db import models
 

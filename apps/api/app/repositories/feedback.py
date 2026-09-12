@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import models
-from app.enums import FeedbackAction, FeedbackRating
+from app.enums import FeedbackAction, FeedbackRating, FeedbackReasonCode
 from app.repositories.base import Repo
 from app.schemas.feedback import (
     VALUE_TO_RATING,
@@ -55,15 +55,16 @@ class FeedbackRepository(Repo):
         comment: str | None = None,
         locale: str | None = None,
         supersedes_event_id: str | None = None,
-    ) -> FeedbackEventRecord:
-        """Insert one immutable event and return it.
+    ) -> tuple[FeedbackEventRecord, bool]:
+        """Insert one immutable event and return ``(event, inserted)``.
 
         On the unique ``(user_id, client_event_id)`` race the insert is rolled
         back to a savepoint (so a shared unit-of-work session stays usable) and
-        the winning row is returned instead; the service compares fingerprints
-        to decide between replay and conflict.
+        the winning row is returned with ``inserted=False``; the service
+        compares fingerprints to decide between replay and conflict.
 
-        :return: The inserted event, or the existing event for the same key.
+        :return: ``(inserted event, True)``, or ``(existing event for the same
+            key, False)`` when this call lost the insert race.
         """
         row = models.FeedbackEvent(
             user_id=user_id,
@@ -86,13 +87,13 @@ class FeedbackRepository(Repo):
                     s.add(row)
                 self._commit(s)
                 s.refresh(row)
-                return FeedbackEventRecord.model_validate(row)
+                return FeedbackEventRecord.model_validate(row), True
         except IntegrityError:
             existing = self.find_by_client_event(
                 user_id=user_id, client_event_id=client_event_id
             )
             if existing is not None:
-                return existing
+                return existing, False
             raise
 
     def effective_for(
@@ -143,10 +144,31 @@ def _fold(
     # add_detail enriches only an active negative rating; anything else is stale.
     if state is None or state.rating != VALUE_TO_RATING[FeedbackRating.NOT_HELPFUL]:
         return state
-    return state.model_copy(
-        update={
-            "reason_code": event.reason_code or state.reason_code,
+    # Rebuild through validation (not ``model_copy``) so ``reason_code`` is
+    # always a ``FeedbackReasonCode`` member, never the raw column string.
+    reason_code = (
+        _reason_code(event.reason_code)
+        if event.reason_code is not None
+        else state.reason_code
+    )
+    return EffectiveFeedback.model_validate(
+        {
+            **state.model_dump(),
+            "reason_code": reason_code,
             "comment_present": state.comment_present or bool(event.comment),
             "updated_at": event.created_at,
         }
     )
+
+
+def _reason_code(raw: str) -> FeedbackReasonCode:
+    """Coerce a stored ``reason_code`` column value to the enum.
+
+    The log is append-only, so a code retired from ``FeedbackReasonCode`` can
+    still sit in old rows; it folds to the catch-all ``OTHER`` rather than
+    crashing the read model.
+    """
+    try:
+        return FeedbackReasonCode(raw)
+    except ValueError:
+        return FeedbackReasonCode.OTHER

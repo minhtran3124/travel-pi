@@ -1215,7 +1215,7 @@ def test_history_carries_feedback_null_then_folded_state(client, tmp_path):
 
     s = _db_session(tmp_path)
     try:
-        event = FeedbackRepository(s).append(
+        event, _inserted = FeedbackRepository(s).append(
             user_id="u1",
             conversation_id=conversation_id,
             assistant_message_id=message_id,

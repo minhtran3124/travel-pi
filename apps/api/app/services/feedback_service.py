@@ -159,7 +159,7 @@ class FeedbackService:
         current = self._feedback.effective_for([target.id])[target.id]
         state_changes = self._check_transition(body.action, current)
 
-        event = self._feedback.append(
+        event, inserted = self._feedback.append(
             user_id=actor,
             conversation_id=target.conversation_id,
             assistant_message_id=target.id,
@@ -174,10 +174,10 @@ class FeedbackService:
             locale=body.locale,
             supersedes_event_id=current.rating_event_id if current else None,
         )
-        if event.request_fingerprint != fp:
-            # Lost the same-key insert race to a different payload; the
-            # repository returned the winner (an identical winner is a replay
-            # in all but name and is answered like our own insert).
+        if not inserted:
+            # Lost the same-key insert race: the repository returned the
+            # winner. Same fingerprint → ``200 replayed`` (no log line, no
+            # second export); different payload → ``409``.
             return self._replay_or_conflict(event, fp)
 
         logger.info(

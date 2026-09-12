@@ -48,7 +48,7 @@ def test_reassign_moves_all_three_tables_and_leaves_other_users_alone(factory):
         conversation_id=c1.id, role="assistant", content="hi", agent_run_id="run-1"
     )
     fb = FeedbackRepository(factory)
-    ev = fb.append(
+    ev, _ = fb.append(
         user_id=ANON,
         conversation_id=c1.id,
         assistant_message_id=msg.id,

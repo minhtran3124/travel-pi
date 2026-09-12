@@ -108,7 +108,15 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   mounts main), `lib/query/feedback.ts` (`useSubmitFeedback`, one `clientEventId` per logical action,
   per-message in-flight guard, `retry()`), SSE `done` gains the two ids, terminal codes parse as
   errors. Verify 59 tests / 10 files, `tsc --noEmit` 0, eslint 0. Deviation: no query key added
-  (`keys.ts` untouched — there is no feedback query, only a mutation).
+  (`keys.ts` untouched — there is no feedback query, only a mutation). Landed as `905a3c4`. Task
+  review: spec pass / quality approved; 4 Minor (two are constraints handed to Task 5.1: disable a
+  message's controls while pending, derive per-message status from the returned promise).
+- Review-fixes change (backend Minors M5, M13, M15): `_fold` rebuilds `EffectiveFeedback` through
+  validation so `reason_code` is always the enum (retired codes fold to `other`);
+  `FeedbackRepository.append` returns `(event, inserted)` and an identical-payload race now answers
+  `200 replayed: true` with no log line and no export; the no-memory-edge test also forbids
+  `langgraph.store` and documents the surfaces it covers. `tests/db tests/api/agent/test_feedback*
+  tests/architecture tests/api/agent/test_agent_chat.py` 128 passed.
 
 ## Deviations
 

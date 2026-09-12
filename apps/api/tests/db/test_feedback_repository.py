@@ -9,7 +9,7 @@ import pytest
 from app.db import models
 from app.db.base import Base
 from app.db.engine import get_session_factory
-from app.enums import FeedbackAction
+from app.enums import FeedbackAction, FeedbackReasonCode
 from app.repositories.feedback import FeedbackRepository
 from app.schemas.feedback import EffectiveFeedback
 
@@ -140,8 +140,29 @@ def test_add_detail_enriches_negative_rating(factory, repo):
     assert eff.rating == "not_helpful"
     assert eff.rating_event_id == "e1"
     assert eff.reason_code == "incorrect"  # kept when a later detail has none
+    assert eff.reason_code is FeedbackReasonCode.INCORRECT  # enum, not raw str
     assert eff.comment_present is True
     assert eff.updated_at == "2026-01-01T00:00:03"
+
+
+def test_add_detail_with_retired_reason_code_folds_to_other(factory, repo):
+    """A code no longer in the enum (append-only log) must not crash the fold."""
+    _insert(
+        factory,
+        id="e1",
+        created_at="2026-01-01T00:00:01",
+        action=FeedbackAction.SET_RATING,
+        rating=-1,
+    )
+    _insert(
+        factory,
+        id="e2",
+        created_at="2026-01-01T00:00:02",
+        action=FeedbackAction.ADD_DETAIL,
+        reason_code="retired_code",
+    )
+    eff = repo.effective_for([MSG])[MSG]
+    assert eff.reason_code is FeedbackReasonCode.OTHER
 
 
 def test_add_detail_on_positive_rating_is_ignored(factory, repo):
@@ -276,7 +297,8 @@ def _append(repo, **overrides):
 
 def test_append_returns_row_and_find_by_client_event(repo):
     assert repo.find_by_client_event(user_id="u1", client_event_id="ce-1") is None
-    rec = _append(repo, locale="en")
+    rec, inserted = _append(repo, locale="en")
+    assert inserted is True
     assert rec.id and rec.created_at
     assert rec.action is FeedbackAction.SET_RATING
     assert rec.rating == 1
@@ -288,8 +310,9 @@ def test_append_returns_row_and_find_by_client_event(repo):
 
 
 def test_replay_same_key_appends_nothing_and_returns_winner(factory, repo):
-    first = _append(repo)
-    again = _append(repo, request_fingerprint="fp-different")
+    first, _ = _append(repo)
+    again, inserted = _append(repo, request_fingerprint="fp-different")
+    assert inserted is False  # the caller can tell a race loss from an insert
     assert again.id == first.id
     assert again.request_fingerprint == "fp-1"  # the winner, so the service can compare
     assert _count(factory) == 1
@@ -300,7 +323,7 @@ def test_race_recovery_keeps_shared_session_usable(factory, repo):
     _append(repo)
     with factory() as s:
         live = FeedbackRepository(s)
-        winner = live.append(
+        winner, inserted = live.append(
             user_id="u1",
             conversation_id="c1",
             assistant_message_id=MSG,
@@ -312,8 +335,9 @@ def test_race_recovery_keeps_shared_session_usable(factory, repo):
             source="chat_message_actions",
         )
         assert winner.rating == 1
+        assert inserted is False
         # Session still works after the recovered IntegrityError.
-        second = live.append(
+        second, inserted = live.append(
             user_id="u1",
             conversation_id="c1",
             assistant_message_id=MSG,
@@ -324,6 +348,7 @@ def test_race_recovery_keeps_shared_session_usable(factory, repo):
             source="chat_message_actions",
         )
         s.commit()
+    assert inserted is True
     assert second.action is FeedbackAction.RETRACT_RATING
     assert _count(factory) == 2
     assert repo.effective_for([MSG]) == {MSG: None}
@@ -331,6 +356,7 @@ def test_race_recovery_keeps_shared_session_usable(factory, repo):
 
 def test_same_key_different_user_is_a_separate_event(factory, repo):
     _append(repo)
-    other = _append(repo, user_id="u2")
+    other, inserted = _append(repo, user_id="u2")
+    assert inserted is True
     assert other.user_id == "u2"
     assert _count(factory) == 2
