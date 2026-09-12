@@ -214,6 +214,16 @@ describe("MessageList — feedback eligibility (DESIGN §7.1)", () => {
     expect(screen.queryByTestId("feedback")).toBeNull();
   });
 
+  it("shows nothing on an empty completed turn even with a server id (empty states never show feedback)", () => {
+    render(
+      <MessageList
+        messages={[user("u"), { ...assistant("a", "srv-a"), content: "  \n " }]}
+        isStreaming={false}
+      />,
+    );
+    expect(screen.queryByTestId("feedback")).toBeNull();
+  });
+
   it("hides feedback on the streaming turn but keeps it on earlier completed turns", () => {
     render(
       <MessageList

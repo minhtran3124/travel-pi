@@ -116,7 +116,27 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   `FeedbackRepository.append` returns `(event, inserted)` and an identical-payload race now answers
   `200 replayed: true` with no log line and no export; the no-memory-edge test also forbids
   `langgraph.store` and documents the surfaces it covers. `tests/db tests/api/agent/test_feedback*
-  tests/architecture tests/api/agent/test_agent_chat.py` 128 passed.
+  tests/architecture tests/api/agent/test_agent_chat.py` 128 passed. Landed as `5afa5d8`. Review:
+  spec pass / quality approved; 4 optional Minor in the ledger.
+- Postgres: full backend suite on Postgres 17 / Python 3.12 at `5afa5d8` (isolated compose project,
+  worktree mounted into the cached test image): 2538 passed, 0 failed.
+- Wave 5 — Task 5.1 landed as `5cfe366`: `MessageFeedback` + `FeedbackDialog` under complete
+  assistant replies with a server id, optimistic update with rollback and same-id retry, per-message
+  disable while pending, 404 hides the controls, en/vi strings. Controller re-ran `tsc --noEmit`
+  (0), `eslint src/components/chat` (0 errors, 1 warning under review), and the three Verify test
+  files: 24 passed. Whole web suite 54 files / 332 tests passed. Task review: spec fail / quality
+  needs_fixes — one Important (after a successful detail Save the dialog's trigger unmounts, so focus
+  restore lands on a detached node and falls to `<body>`, breaking DESIGN §8.4) plus five Minor
+  (dialog reopening on a late failure, empty-content gate, hook-level id tests, textarea error
+  association, the `feedback` field missing from the hand-written history type). All six sent to one
+  fix round; the `exhaustive-deps` warning at `useAgentStream.ts:329` is pre-existing (2026-09-02).
+- Task 5.1 fix round: focus moves to the pressed Not-helpful button after a successful detail Save;
+  a detail failure after the user closed the dialog surfaces inline with Retry instead of reopening it;
+  controls also require non-empty content and a Stop after `done` clears the id; hook-level tests for
+  `done` with / without an id and for hydration; textarea error in `aria-describedby`; the history
+  `feedback` field added to the hand-written `Message` type (cast removed). Rule 2: the three duplicated
+  stop-handling blocks folded into one `settleTurn()` helper. `pnpm test src/components/chat` 154
+  passed; whole web suite 340 passed; tsc and eslint clean apart from the pre-existing warning.
 
 ## Deviations
 
@@ -137,6 +157,20 @@ until the plan executes (see Not auto-verified).
 | Plan context contract | `python3 .claude/scripts/check_plan_contract.py specs/user-feedback-v1/PLAN.md` | 0 | Global Constraints, SC table, Criteria/Interfaces on all 7 tasks; every consumed artifact has a producer | |
 | Design cites real code | `python3 -c "import os,sys;p=['apps/api/app/db/models/agent_run.py','apps/api/app/db/models/agent_run_step.py','apps/api/app/streaming/agent_run.py','apps/api/app/core/rate_limit.py','apps/api/alembic/versions/e3b7c5d9a1f4_add_agent_runs.py','apps/api/alembic/versions/b2d9f4a7c1e8_add_agent_run_steps.py','apps/api/alembic/versions/b8e4c1f7a305_add_bookings_trip_id.py','apps/api/tests/api/agent/test_agent_runs.py','apps/api/tests/api/agent/test_agent_run_steps_wiring.py','apps/api/tests/db/test_bookings_trip_id_migration.py'];m=[x for x in p if not os.path.exists(x)];print(m);sys.exit(1 if m else 0)"` | 0 | Every file the revised §3.1 / §11 / §12 name exists on main | |
 | No second `agent_runs` table planned | `rg -c 'create_table\("agent_runs"' specs/user-feedback-v1/PLAN.md specs/user-feedback-v1/DESIGN.md` | 1 | rg exit 1 = zero matches, the intended result | |
+| SC-1 The migration adds messages.agent_run_id and feedback_events, and  | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_events_migration.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-1 |
+| SC-2 ORM column sets for messages and feedback_events match the migrati | `cd apps/api && ../../.venv/bin/python -m pytest tests/test_db_models.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-2 |
+| SC-3 Set, replace, detail, retract fold to the documented effective state | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_repository.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-3 |
+| SC-4 A conversation claim moves conversations, agent_runs and feedback | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_conversation_reassign.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-4 |
+| SC-5 /agent/chat, SSE done and reloaded history carry the same assista | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_chat.py tests/api/agent/test_stream_events.py tests/streaming/test_persistence.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-5 |
+| SC-6 POST /agent/feedback returns 201/200/404/409/422 per DESIG | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_feedback.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-6 |
+| SC-7 The feedback_rate_limit_max + 1-th request in one window from the sa | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_feedback_rate_limit.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-7 |
+| SC-8 Existing run-metrics behaviour is unchanged | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_runs.py tests/api/agent/test_agent_run_steps_wiring.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-8 |
+| SC-9 No import path leads from the feedback service or router to the memory | `cd apps/api && ../../.venv/bin/python -m pytest tests/architecture/test_feedback_no_memory_edge.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-9 |
+| SC-10 The SSE parser accepts assistant_message_id / agent_run_id on don | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/lib/stream/parseSSE.test.ts` | 0 | run 2026-09-12 at 5cfe366 | SC-10 |
+| SC-11 Feedback controls render only for complete assistant messages with a s | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/components/chat/MessageFeedback.test.tsx src/components/chat/MessageList.render.test.tsx` | 0 | run 2026-09-12 at 5cfe366 | SC-11 |
+| SC-12 Every new UI string exists in both locales | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/messages.parity.test.ts` | 0 | run 2026-09-12 at 5cfe366 | SC-12 |
+| SC-13 Frontend type-checks against the regenerated schema | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run 2026-09-12 at 5cfe366 | SC-13 |
+| SC-14 Backend lint is clean | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | run 2026-09-12 at 5cfe366 | SC-14 |
 
 ### Not auto-verified
 
@@ -169,6 +203,14 @@ until the plan executes (see Not auto-verified).
 - backlog — **`branch-isolation-guard.sh` resolves the branch from `CLAUDE_PROJECT_DIR` (the main
   checkout), so inside an `EnterWorktree` worktree on a feature branch every Edit/Write is refused
   as "on shared branch main".** Worked around with Bash-written files.
+- backlog — **The correctness FIND composition command in
+  `.claude/skills/correctness-review/correctness-reviewer-prompt.md` uses `--fragment
+  skills/correctness-review/...`, which only resolves in the harness repo's own layout.** In a
+  consuming repo every form of that path fails with `prompt-compose: missing fragment` (tried
+  `--root .claude`, `--root .`, no root). What works here: `--root . --fragment
+  .claude/skills/correctness-review/prompts/shared.md --fragment
+  .claude/skills/correctness-review/prompts/angles/<angle>.md`. The deployed prompt should carry the
+  consumer-relative path, or the renderer should try `.claude/` when a bare `skills/` path misses.
 - note — `authorization` corroboration fired on the word `role` inside the `messages` column-set
   assertion in `tests/test_db_models.py` (false positive, see memory
   `risk-corroboration-session-auth-false-positive`). Lane is `high-risk` anyway, so no downgrade

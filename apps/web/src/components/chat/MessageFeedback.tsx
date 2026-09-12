@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/lib/cn";
@@ -93,8 +93,29 @@ export function MessageFeedback({
   const [busy, setBusy] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
   /** `null` = closed; otherwise the detail request state shown in the dialog. */
-  const [dialog, setDialog] = useState<"idle" | "saving" | "error" | null>(null);
+  const [dialog, setDialogState] = useState<"idle" | "saving" | "error" | null>(null);
+  // Mirror of `dialog !== null` readable from the async request path: a detail
+  // request that settles after the user closed the dialog must report through
+  // the inline status, never by reopening the dialog uninvited.
+  const dialogOpen = useRef(false);
+  const setDialog = useCallback((next: "idle" | "saving" | "error" | null) => {
+    dialogOpen.current = next !== null;
+    setDialogState(next);
+  }, []);
   const lastAction = useRef<Action | null>(null);
+  const notHelpfulRef = useRef<HTMLButtonElement>(null);
+  // A successful detail Save unmounts the "Tell us more" trigger together with
+  // the dialog, so `Modal`'s own restore targets a detached node. Re-home focus
+  // on the pressed Not-helpful button instead — this effect runs after the
+  // Modal's unmount cleanup within the same commit (the one that sets `dialog`
+  // to null), so it wins. Skip / Escape leave the flag unset and keep the
+  // Modal's own restore to the still-mounted trigger.
+  const restoreFocus = useRef(false);
+  useEffect(() => {
+    if (dialog !== null || !restoreFocus.current) return;
+    restoreFocus.current = false;
+    notHelpfulRef.current?.focus();
+  }, [dialog]);
 
   const run = useCallback(
     async (request: Promise<FeedbackResponse | undefined>, action: Action) => {
@@ -104,20 +125,23 @@ export function MessageFeedback({
         if (!res) return;
         setView(toView(res.effective_feedback));
         setStatus(action.kind === "retract" ? "removed" : "saved");
-        if (action.kind === "detail") setDialog(null);
+        if (action.kind === "detail" && dialogOpen.current) {
+          restoreFocus.current = true;
+          setDialog(null);
+        }
       } catch (err) {
         if (statusCodeOf(err) === 404) {
           setUnavailable(true);
           return;
         }
         setView(action.prev);
-        if (action.kind === "detail") setDialog("error");
+        if (action.kind === "detail" && dialogOpen.current) setDialog("error");
         else setStatus("error");
       } finally {
         setBusy(false);
       }
     },
-    [],
+    [setDialog],
   );
 
   const rate = (rating: Rating) => {
@@ -158,9 +182,19 @@ export function MessageFeedback({
     const action = lastAction.current;
     if (!action || busy) return;
     setView(action.optimistic);
-    if (action.kind === "detail") setDialog("saving");
+    // A detail retry reports through the dialog only while it is still open;
+    // once the user closed it, the inline status owns the request.
+    if (action.kind === "detail" && dialogOpen.current) setDialog("saving");
     else setStatus("saving");
     void run(retry(assistantMessageId), action);
+  };
+
+  /** Skip / Escape / backdrop — never retracts the saved rating (DESIGN §8.3). */
+  const closeDialog = () => {
+    // Closing over a pending Save hands the request to the inline status, so
+    // the disabled controls stay explained and a later failure has a Retry.
+    if (dialog === "saving") setStatus("saving");
+    setDialog(null);
   };
 
   if (unavailable) return null;
@@ -197,6 +231,7 @@ export function MessageFeedback({
           {t("helpful")}
         </button>
         <button
+          ref={notHelpfulRef}
           type="button"
           aria-pressed={view.rating === "not_helpful"}
           disabled={busy}
@@ -243,7 +278,7 @@ export function MessageFeedback({
           status={dialog}
           onSave={saveDetail}
           onRetry={onRetry}
-          onClose={() => setDialog(null)}
+          onClose={closeDialog}
         />
       ) : null}
     </>

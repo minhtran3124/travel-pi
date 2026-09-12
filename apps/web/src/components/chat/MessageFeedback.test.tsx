@@ -197,7 +197,11 @@ describe("MessageFeedback — rating flows", () => {
 describe("MessageFeedback — not-helpful detail dialog", () => {
   async function openDialog() {
     fireEvent.click(notHelpful());
-    fireEvent.click(await screen.findByRole("button", { name: F.tellUsMore }));
+    const trigger = await screen.findByRole("button", { name: F.tellUsMore });
+    // A real activation focuses the trigger first — that is what `Modal`
+    // records as the element to restore focus to on close.
+    trigger.focus();
+    fireEvent.click(trigger);
     return screen.getByRole("dialog", { name: F.dialogTitle });
   }
 
@@ -245,14 +249,36 @@ describe("MessageFeedback — not-helpful detail dialog", () => {
     expect(screen.queryByRole("button", { name: F.tellUsMore })).toBeNull();
   });
 
+  it("moves focus to the pressed Not-helpful button after a successful Save (the trigger unmounts)", async () => {
+    feedbackHandler();
+    renderWith(<MessageFeedback assistantMessageId="m1" />);
+    const dialog = await openDialog();
+    // The modal took focus on open (first control).
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    fireEvent.click(within(dialog).getByRole("radio", { name: F.reasons.incorrect }));
+    fireEvent.click(within(dialog).getByRole("button", { name: F.save }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+    // The "Tell us more" trigger is gone, so the Modal's own restore has no
+    // live target — focus must land on the pressed thumb, never on <body>.
+    expect(screen.queryByRole("button", { name: F.tellUsMore })).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(notHelpful()));
+  });
+
   it("skip / Escape close the dialog without retracting the saved rating", async () => {
     const { bodies } = feedbackHandler();
     renderWith(<MessageFeedback assistantMessageId="m1" />);
     const dialog = await openDialog();
+    expect(dialog.contains(document.activeElement)).toBe(true);
 
     fireEvent.click(within(dialog).getByRole("button", { name: F.skip }));
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(notHelpful()).toHaveAttribute("aria-pressed", "true");
+    // Skip keeps the Modal's own restore: focus returns to the trigger.
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: F.tellUsMore }),
+    );
 
     fireEvent.click(screen.getByRole("button", { name: F.tellUsMore }));
     fireEvent.keyDown(document, { key: "Escape" });
@@ -269,9 +295,48 @@ describe("MessageFeedback — not-helpful detail dialog", () => {
     fireEvent.click(within(dialog).getByRole("radio", { name: F.reasons.other }));
     fireEvent.click(within(dialog).getByRole("button", { name: F.save }));
     await within(dialog).findByText(F.error);
+    // The error is programmatically associated with the comment field while
+    // it shows (DESIGN §8.4).
+    expect(within(dialog).getByLabelText(F.commentLabel)).toHaveAccessibleDescription(
+      `${F.commentHint} 500 characters left ${F.error}`,
+    );
 
     fireEvent.click(within(dialog).getByRole("button", { name: F.retry }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(bodies).toHaveLength(3);
+    expect(bodies[2]).toEqual(bodies[1]);
+  });
+
+  it("a detail failure after the user closed the dialog reports inline and never reopens it", async () => {
+    const { bodies, release } = feedbackHandler([201, 500, 201], true);
+    renderWith(<MessageFeedback assistantMessageId="m1" />);
+
+    fireEvent.click(notHelpful());
+    await release();
+    await screen.findByText(F.saved);
+    fireEvent.click(await screen.findByRole("button", { name: F.tellUsMore }));
+    const dialog = screen.getByRole("dialog", { name: F.dialogTitle });
+    fireEvent.click(within(dialog).getByRole("radio", { name: F.reasons.other }));
+    fireEvent.click(within(dialog).getByRole("button", { name: F.save }));
+    await within(dialog).findByText(F.saving);
+
+    // Skip while the Save is still in flight: the request now belongs to the
+    // inline status row.
+    fireEvent.click(within(dialog).getByRole("button", { name: F.skip }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("status")).toHaveTextContent(F.saving);
+
+    await release(); // → 500
+    await screen.findByText(F.error);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(notHelpful()).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: F.retry }));
+    await release(); // → 201
+    await screen.findByText(F.saved);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    // The detail now exists — the affordance is gone.
+    expect(screen.queryByRole("button", { name: F.tellUsMore })).toBeNull();
     expect(bodies).toHaveLength(3);
     expect(bodies[2]).toEqual(bodies[1]);
   });

@@ -10,7 +10,6 @@ import {
   fetchClaim,
   fetchConversationMessages,
   type ChatRequest,
-  type Message,
 } from "@/lib/query/agent";
 import type { EffectiveFeedback } from "@/lib/query/feedback";
 import { panelKey, type PanelArtifact } from "@/lib/stream/panel";
@@ -185,6 +184,28 @@ function withStoppedContent(content: string, t: (key: string) => string): string
 }
 
 /**
+ * Final shape of the assistant bubble once its turn ends. A deliberate Stop
+ * rewrites the content (stopped suffix / placeholder), so even when it lands
+ * after `done` already recorded a `serverMessageId`, the bubble no longer
+ * matches the persisted row — drop the id so the turn is not rateable
+ * (DESIGN §7.1: stopped turns never show feedback).
+ */
+function settleTurn(
+  m: ChatMessage,
+  wasStopped: boolean,
+  startedAt: number,
+  t: (key: string) => string,
+): ChatMessage {
+  const next: ChatMessage = {
+    ...m,
+    content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+    elapsedMs: Date.now() - startedAt,
+  };
+  if (wasStopped) delete next.serverMessageId;
+  return next;
+}
+
+/**
  * Drives a single agent conversation: streams `/agent/stream` direct-to-origin
  * (bypassing the buffering Next proxy). The assistant's final answer streams into
  * the message bubble; sub-agent/tool activity and panel events are surfaced onto
@@ -278,11 +299,7 @@ export function useAgentStream(
 
       fetchConversationMessages(storedId, userId)
         .then(({ messages, interrupt_pending, interrupt_payload }) => {
-          // `Message` in lib/query/agent.ts is a hand-written mirror that
-          // predates the history `feedback` field (schema.d.ts `Message`).
-          const mapped: ChatMessage[] = (
-            messages as Array<Message & { feedback?: EffectiveFeedback | null }>
-          ).map((m) => ({
+          const mapped: ChatMessage[] = messages.map((m) => ({
             id: m.id,
             role: m.role,
             content: m.content,
@@ -602,13 +619,7 @@ export function useAgentStream(
             const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantId
-                  ? {
-                      ...m,
-                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
-                      elapsedMs: Date.now() - startedAt,
-                    }
-                  : m,
+                m.id === assistantId ? settleTurn(m, wasStopped, startedAt, t) : m,
               ),
             );
             setIsStreaming(false);
@@ -746,13 +757,7 @@ export function useAgentStream(
             const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantId
-                  ? {
-                      ...m,
-                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
-                      elapsedMs: Date.now() - startedAt,
-                    }
-                  : m,
+                m.id === assistantId ? settleTurn(m, wasStopped, startedAt, t) : m,
               ),
             );
             setIsStreaming(false);
@@ -901,13 +906,7 @@ export function useAgentStream(
           const wasStopped = controller.signal.aborted && userStoppedRef.current;
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === assistantId
-                ? {
-                    ...m,
-                    content: wasStopped ? withStoppedContent(m.content, t) : m.content,
-                    elapsedMs: Date.now() - startedAt,
-                  }
-                : m,
+              m.id === assistantId ? settleTurn(m, wasStopped, startedAt, t) : m,
             ),
           );
           setIsStreaming(false);

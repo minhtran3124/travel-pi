@@ -152,6 +152,72 @@ describe("useAgentStream — interrupt rehydration", () => {
   });
 });
 
+describe("useAgentStream — history hydration (persisted ids + feedback, DESIGN §7.1)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    h.fetchConvo.mockReset();
+    h.fetchClaim.mockReset();
+    localStorage.setItem(CONVERSATION_STORAGE_KEY, "c1");
+  });
+
+  const rated = {
+    rating: "helpful",
+    reason_code: null,
+    comment_present: false,
+    rating_event_id: "ev-1",
+    updated_at: "2026-01-01T00:00:00Z",
+  };
+
+  it("sets serverMessageId + feedback on assistant rows, nothing on user rows", async () => {
+    h.fetchConvo.mockResolvedValue({
+      messages: [
+        { ...msg("u1", "user", "hi"), feedback: null },
+        { ...msg("a1", "assistant", "answer"), feedback: rated },
+        { ...msg("u2", "user", "more"), feedback: null },
+        { ...msg("a2", "assistant", "second"), feedback: null },
+      ],
+      interrupt_pending: false,
+      interrupt_payload: null,
+    });
+
+    const { result } = renderHook(() => useAgentStream());
+    await waitFor(() => expect(result.current.messages).toHaveLength(4));
+
+    const [u1, a1, u2, a2] = result.current.messages;
+    expect(u1).not.toHaveProperty("serverMessageId");
+    expect(u1).not.toHaveProperty("feedback");
+    expect(u2).not.toHaveProperty("serverMessageId");
+    expect(a1?.serverMessageId).toBe("a1");
+    expect(a1?.feedback).toEqual(rated);
+    expect(a2?.serverMessageId).toBe("a2");
+    expect(a2?.feedback).toBeNull();
+    expect(result.current.interrupt).toBeNull();
+  });
+
+  it("leaves the interrupted trailing turn without an id while earlier turns keep theirs", async () => {
+    h.fetchConvo.mockResolvedValue({
+      messages: [
+        { ...msg("u1", "user", "hi"), feedback: null },
+        { ...msg("a1", "assistant", "answer"), feedback: rated },
+        { ...msg("u2", "user", "plan a trip"), feedback: null },
+        { ...msg("a2", "assistant", "draft"), feedback: null },
+      ],
+      interrupt_pending: true,
+      interrupt_payload: { type: "plan_approval", draft: "draft" },
+    });
+
+    const { result } = renderHook(() => useAgentStream());
+    await waitFor(() => expect(result.current.interrupt).not.toBeNull());
+
+    const byId = (id: string) => result.current.messages.find((m) => m.id === id);
+    expect(byId("a1")?.serverMessageId).toBe("a1");
+    expect(byId("a1")?.feedback).toEqual(rated);
+    // The pending turn is not complete — never rateable.
+    expect(byId("a2")?.serverMessageId).toBeUndefined();
+    expect(byId("a2")).not.toHaveProperty("serverMessageId");
+  });
+});
+
 describe("useAgentStream — claim behavior", () => {
   beforeEach(() => {
     localStorage.clear();

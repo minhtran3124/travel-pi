@@ -131,10 +131,11 @@ export function MessageList({
                 onRegenerate={isLastAssistant ? onRegenerate : undefined}
               />
             ) : null}
-            {/* Only a complete turn with a persisted id is rateable (DESIGN
-                §7.1): streaming, interrupted, stopped and failed turns never
-                receive a `serverMessageId`. */}
-            {!streaming && m.serverMessageId ? (
+            {/* Only a complete, non-empty turn with a persisted id is rateable
+                (DESIGN §7.1): streaming, interrupted, stopped and failed turns
+                never receive a `serverMessageId`, and empty states never show
+                feedback. */}
+            {!streaming && m.serverMessageId && m.content.trim().length > 0 ? (
               <MessageFeedback
                 assistantMessageId={m.serverMessageId}
                 initial={m.feedback}

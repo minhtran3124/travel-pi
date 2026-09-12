@@ -53,6 +53,7 @@ export function FeedbackDialog({
   const groupName = useId();
   const hintId = useId();
   const countId = useId();
+  const errorId = useId();
   const [reason, setReason] = useState<FeedbackReasonCode | null>(null);
   const [comment, setComment] = useState("");
   // After a failure the primary button replays the SAME event until the user
@@ -98,7 +99,13 @@ export function FeedbackDialog({
           label={t("commentLabel")}
           value={comment}
           maxLength={COMMENT_MAX_CHARS}
-          aria-describedby={`${hintId} ${countId}`}
+          // Programmatic error association (DESIGN §8.4): the inline error
+          // joins the description only while it is showing.
+          aria-describedby={
+            status === "error"
+              ? `${hintId} ${countId} ${errorId}`
+              : `${hintId} ${countId}`
+          }
           onChange={(e) => {
             setComment(e.target.value);
             setEditedSinceError(true);
@@ -111,7 +118,7 @@ export function FeedbackDialog({
           </span>
         </div>
       </div>
-      <p aria-live="polite" className="mt-sm min-h-4 text-xs text-coral-ink">
+      <p id={errorId} aria-live="polite" className="mt-sm min-h-4 text-xs text-coral-ink">
         {status === "error" ? t("error") : null}
       </p>
       <div className="mt-sm flex justify-end gap-sm">
