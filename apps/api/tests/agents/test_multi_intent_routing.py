@@ -8,7 +8,9 @@ Covers:
 """
 
 import asyncio
+from typing import Any
 
+from app.agents.constants import TASK_NOTE_PREAMBLE
 from app.agents.graph import build_graph
 from app.agents.nodes import route_tasks
 from app.agents.supervisor import SupervisorIntent
@@ -229,3 +231,51 @@ def test_task_results_cleared_between_turns():
     assert second["current_flow"] == "concierge"
     # Results from the previous multi-intent turn must not survive.
     assert second.get("task_results") == []
+
+
+class CapturingFakeLLM(FakeLLM):
+    """FakeLLM that records every message list the model actually receives."""
+
+    seen: list = []
+
+    def _generate(self, messages, stop=None, run_manager=None, **kwargs: Any):
+        self.seen.append(list(messages))
+        return super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+
+
+def test_fan_out_workers_receive_distinct_task_notes():
+    # SC-5/SC-6 end to end: each parallel worker's model sees its own task folded
+    # into the leading SystemMessage, and no task note is checkpointed in the thread.
+    main = CapturingFakeLLM(
+        structured_responses=[
+            SupervisorIntent(
+                target_agent="planner",
+                plan=["concierge"],
+                task_queries=["find flights", "check visa"],
+            )
+        ],
+        responses=["flights found", "visa info", "combined answer"],
+        seen=[],
+    )
+    graph = build_graph(
+        llm=main,
+        fast_llm=FakeLLM(responses=["OK"]),
+        checkpointer=MemorySaver(),
+        store=InMemoryStore(),
+    )
+    thread_id = "t-fan-out-notes"
+    _invoke(graph, "flights to Tokyo and do I need a visa", thread_id=thread_id)
+
+    notes = [
+        str(call[0].content)
+        for call in main.seen
+        if isinstance(call[0], SystemMessage)
+        and TASK_NOTE_PREAMBLE in str(call[0].content)
+    ]
+    assert any(n.endswith("find flights") for n in notes)
+    assert any(n.endswith("check visa") for n in notes)
+
+    thread = graph.get_state({"configurable": {"thread_id": thread_id}}).values[
+        "messages"
+    ]
+    assert not any(TASK_NOTE_PREAMBLE in str(m.content) for m in thread)

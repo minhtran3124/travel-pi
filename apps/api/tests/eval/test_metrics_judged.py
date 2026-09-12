@@ -82,10 +82,11 @@ ALL_RUBRIC_NAMES = {
     "format_quality",
     "memory_recall",
     "suggestion_relevance",
+    "ask_coverage",
 }
 
 
-def test_all_six_rubrics_are_data():
+def test_all_seven_rubrics_are_data():
     assert set(RUBRICS) == ALL_RUBRIC_NAMES
     for _name, rubric in RUBRICS.items():
         assert "criteria" in rubric and rubric["criteria"]
@@ -121,19 +122,21 @@ def test_other_rubrics_do_not_request_retrieval_context():
         "search_vs_booking",
         "format_quality",
         "memory_recall",
+        "ask_coverage",
     ):
         assert (
             SingleTurnParams.RETRIEVAL_CONTEXT not in RUBRICS[name]["evaluation_params"]
         )
 
 
-def test_all_six_metrics_are_registered_by_module_import():
+def test_all_seven_metrics_are_registered_by_module_import():
     names = list_metrics()
     for expected in ALL_RUBRIC_NAMES:
         assert expected in names
     assert isinstance(get_metric("response_language"), GEvalJudgedMetric)
     assert isinstance(get_metric("memory_recall"), GEvalJudgedMetric)
     assert isinstance(get_metric("suggestion_relevance"), GEvalJudgedMetric)
+    assert isinstance(get_metric("ask_coverage"), GEvalJudgedMetric)
 
 
 def test_registering_never_builds_a_real_judge_without_a_key(monkeypatch):
@@ -226,7 +229,7 @@ def test_make_judged_metric_builds_configured_instance():
     assert metric.k == 3
 
 
-def test_make_all_judged_metrics_returns_all_six():
+def test_make_all_judged_metrics_returns_all_seven():
     metrics = make_all_judged_metrics(k=3)
     assert {m.name for m in metrics} == set(RUBRICS)
     assert all(m.k == 3 for m in metrics)

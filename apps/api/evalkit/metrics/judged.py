@@ -1,6 +1,6 @@
 """Judge-based (G-Eval) eval metrics: temp-0, k-repeat averaged (task 2.3).
 
-Ports 6 calibrated G-Eval rubrics from the original
+Ports 6 calibrated G-Eval rubrics (plus one added later, 7 total) from the original
 ``apps/api/eval/metrics_geval.py`` as **DATA** — ``RUBRICS`` below is the
 whole rubric definition (criteria + evaluation params + threshold). A
 project that wants different rubrics only supplies its own dict to
@@ -15,7 +15,9 @@ in MIN-65 task 1.2 (commit ``9c410e6``, since-removed
 that file — several `eval/datasets/*.json` goldens (task 2.4) name them in
 their ``metrics`` field, which used to crash a full run mid-flight with a
 `KeyError` once the judged metrics ran. Ported here verbatim from that
-commit; not re-derived.
+commit; not re-derived. A seventh (``ask_coverage``) was added for the
+specialist-task-description work: it scores whether a reply addresses every
+distinct ask in a multi-intent input (`specs/specialist-task-description/`).
 
 Judge-variance control (`research-brief.md` §5/§6): the judge always runs at
 **temperature 0**, and each `evaluate()` call repeats the judge call `k`
@@ -141,6 +143,19 @@ RUBRICS: dict[str, dict[str, Any]] = {
             "or topic."
         ),
         "evaluation_params": _IO_WITH_CONTEXT,
+        "threshold": DEFAULT_THRESHOLD,
+    },
+    "ask_coverage": {
+        "criteria": (
+            "The input may contain more than one DISTINCT ask (for example a "
+            "flight search AND a visa question). Score how many of the distinct "
+            "asks the actual output addresses with substance. An answer that "
+            "covers every ask passes even when brief. Penalize an answer that "
+            "silently drops one ask, or that only promises to look into it "
+            "later instead of answering it. Do NOT judge formatting or language; "
+            "those are out of scope for this rubric."
+        ),
+        "evaluation_params": _IO,
         "threshold": DEFAULT_THRESHOLD,
     },
 }

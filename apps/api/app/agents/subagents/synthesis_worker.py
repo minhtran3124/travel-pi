@@ -106,6 +106,12 @@ def build_synthesis_worker(
         # it off so the worker's input remains isolated.
         inner_state["messages"] = copy.deepcopy(inner_state.get("messages", []))
         inner_state["task"] = task
+        # The inner subgraph drops undeclared keys (``task`` arrives as None), so
+        # the specialist reads its slice from the declared ``tasks`` key.
+        # ``_replace_tasks`` is last-write-wins: this single-task list replaces
+        # the parent's full list inside the inner run only, and the worker never
+        # propagates ``tasks`` back.
+        inner_state["tasks"] = [task]
         inner_state["current_flow"] = agent_name
         # The checkpoint namespace of the inner graph does not carry the
         # specialist name, so the config metadata is the only channel that

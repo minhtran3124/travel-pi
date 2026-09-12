@@ -219,5 +219,27 @@
     "expected_flow": "planner",
     "metrics": ["flow_match"],
     "notes": "Ported from main@4e032c7 legacy multi_intent.json as a single-domain case: itinerary reordering is planner under v10, no fan-out."
+  },
+  {
+    "id": "routing-multi-en-05",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Find me flights from Hanoi to Tokyo next month, and separately what visa do I need as a Vietnamese citizen?",
+    "expected_tasks": ["planner", "concierge"],
+    "metrics": ["tasks_expected", "ask_coverage", "reply_language"],
+    "notes": "Measures per-task query delivery (specs/specialist-task-description): a planner-owned flight search and a concierge-only visa question are two independent asks, so the supervisor fans out and each specialist must receive its own ask; ask_coverage is judged. No expected_flow: fan-out ends in synthesize."
+  },
+  {
+    "id": "routing-multi-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tìm giúp tôi chuyến bay từ Hà Nội đi Tokyo tháng sau, và cho tôi hỏi riêng người Việt cần visa gì?",
+    "expected_tasks": ["planner", "concierge"],
+    "metrics": ["tasks_expected", "ask_coverage", "reply_language"],
+    "notes": "Measures per-task query delivery (specs/specialist-task-description) in Vietnamese: a planner-owned flight search and a concierge-only visa question are two independent asks, so the supervisor fans out and each specialist must receive its own ask; ask_coverage is judged. No expected_flow: fan-out ends in synthesize."
   }
 ]
