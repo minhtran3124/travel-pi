@@ -85,6 +85,16 @@ class SupervisorIntent(BaseModel):
             "other way to queue an additional specialist this turn."
         ),
     )
+    task_queries: list[str] | None = Field(
+        default=None,
+        description=(
+            "One entry per specialist, in [target_agent, *plan] order: a "
+            "self-contained restatement of that specialist's slice of THIS "
+            "message, written in the traveller's language. Quote only what the "
+            "traveller said — never invent destinations, dates, counts or "
+            "preferences. Leave null for the single-specialist case."
+        ),
+    )
     language: str = Field(
         default=DEFAULT_LANGUAGE,
         description=(
@@ -141,6 +151,42 @@ class SupervisorIntent(BaseModel):
             else:
                 logger.warning("[agent] supervisor dropping plan entry: %r", entry)
         return coerced or None
+
+    @field_validator("task_queries", mode="before")
+    @classmethod
+    def _coerce_task_queries(cls, value: object) -> list[str] | None:
+        """Degrade a malformed ``task_queries`` instead of raising a ValidationError.
+
+        The router's ``function_calling`` output is not strict-schema, so the
+        model can emit a bare string, a non-list, or ``null``/number/object
+        entries. A bare string is wrapped, any other non-list is dropped with a
+        WARNING, and a non-string entry is replaced by ``""`` (WARNING) rather
+        than removed — positions are kept so the length-equality alignment in
+        ``supervisor()`` still holds and only that one task falls back to the
+        last user message. Entries are only ``isinstance``-checked, never
+        hashed or membership-tested, so an unhashable value cannot escape
+        (GH-180). Declared as a ``before`` validator so the JSON schema sent to
+        the model stays ``list[str] | None``.
+        """
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return [value]
+        if not isinstance(value, list):
+            logger.warning(
+                "[agent] supervisor dropping non-list task_queries: %r", value
+            )
+            return None
+        coerced: list[str] = []
+        for entry in value:
+            if isinstance(entry, str):
+                coerced.append(entry)
+            else:
+                logger.warning(
+                    "[agent] supervisor blanking task_queries entry: %r", entry
+                )
+                coerced.append("")
+        return coerced
 
 
 # Loose "number + currency hint" match: a digit run (with optional , / . group
@@ -367,17 +413,36 @@ def make_supervisor(llm: BaseChatModel):
                 ):
                     continue
                 task_agents.append(step)
-        # Use the last user message as the query for every task. Each worker
+        # Each task carries its own slice of the message when the model emitted
+        # ``task_queries``; otherwise the last user message, and each worker
         # prompt narrows the focus to the specialist's domain.
         last_user_message = ""
         for msg in reversed(state.get("messages", [])):
             if isinstance(msg, HumanMessage):
                 last_user_message = str(msg.content or "")
                 break
-        tasks = [
-            AgentTask(agent=agent, query=last_user_message, index=idx).model_dump()
-            for idx, agent in enumerate(task_agents)
-        ]
+        # ``task_queries`` is positional over the model's own ``[target, *plan]``
+        # — the list as it left ``_coerce_plan``, BEFORE the dedup/cap loop above
+        # shifted positions — so it is aligned to that list and then looked up
+        # per emitted task by agent name (first entry wins for a repeated name).
+        # A length mismatch means the positions cannot be trusted, and a
+        # mis-aligned non-blank query is worse than none: every task then falls
+        # back to the user message.
+        # A single emitted task always gets the whole message as-is, whatever
+        # ``task_queries`` holds: the model sometimes fills the field for a
+        # single intent, and its paraphrase can drop details (counts, dates).
+        queries = getattr(intent, "task_queries", None) or []
+        aligned = [target, *candidates]
+        query_by_agent: dict[str, str] = {}
+        if len(task_agents) > 1 and len(queries) == len(aligned):
+            for agent, query in zip(aligned, queries, strict=True):
+                query_by_agent.setdefault(agent, str(query or "").strip())
+        tasks = []
+        for idx, agent in enumerate(task_agents):
+            query = query_by_agent.get(agent, "")
+            if len(query) < 3:
+                query = last_user_message
+            tasks.append(AgentTask(agent=agent, query=query, index=idx).model_dump())
         logger.info("[agent] supervisor tasks=%d (intent=%s)", len(tasks), target)
         return Command(
             update={

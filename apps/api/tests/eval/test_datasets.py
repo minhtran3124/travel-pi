@@ -51,7 +51,7 @@ def test_real_dataset_directory_loads_without_error():
 
 
 def test_total_case_count_at_least_60():
-    assert len(_real_store().load()) == 103
+    assert len(_real_store().load()) == 105
 
 
 def test_journal_list_trips_goldens_declare_tools_expected():
@@ -94,6 +94,7 @@ def test_smoke_suite_never_declares_a_judged_metric():
         "format_quality",
         "memory_recall",
         "suggestion_relevance",
+        "ask_coverage",
     }
     for case in _real_store().load(suite="smoke"):
         declared = set(case.metrics or [])

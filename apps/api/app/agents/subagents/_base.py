@@ -38,6 +38,7 @@ from app.agents.state import (
     ground_current_date,
     system_with_summary,
     with_reply_language,
+    with_task_note,
 )
 from app.prompts.registry import registry
 from app.tools.clarification_tools import needs_clarification
@@ -253,10 +254,14 @@ def build_subagent(
         # (state["language"]) — one detection, one source of truth. Also closes the
         # clarification path (MIN-68), which skips reflection's language guard.
         system_msg = with_reply_language(system_msg, state)
-        # D1: ground the date OUTERMOST so the volatile "today" note is the final
-        # block; the stable style+prompt+summary+language prefix stays at token 0
-        # for prompt caching.
+        # D1: ground the date before the task note so the shared style+prompt+
+        # summary+language+date prefix stays identical across single-intent and
+        # fan-out turns on the same day; only the per-turn task note (when
+        # present) trails it.
         system_msg = ground_current_date(system_msg, tz)
+        # Supervisor task folded into the leading system message, last (most
+        # volatile block, changes per turn) — never appended to messages.
+        system_msg = with_task_note(system_msg, state)
         response = bound.invoke([system_msg, *state["messages"]])
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
