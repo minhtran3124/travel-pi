@@ -10,6 +10,7 @@ from app.db import models
 from app.enums import JobStatus
 from app.repositories.base import Repo
 from app.schemas.agent import Conversation, Job, Message
+from app.schemas.feedback import MessageForFeedback
 
 
 class ConversationRepository(Repo):
@@ -73,22 +74,29 @@ class ConversationRepository(Repo):
             return Conversation.model_validate(row) if row is not None else None
 
     def reassign_user(self, *, from_user_id: str, to_user_id: str) -> int:
-        """Reassign all conversations from *from_user_id* to *to_user_id*.
+        """Reassign everything owned by *from_user_id* to *to_user_id*.
 
-        Messages follow automatically because they are keyed by
-        ``conversation_id``, not ``user_id``.
+        Conversations, ``agent_runs`` and ``feedback_events`` move in the same
+        transaction (specs/user-feedback-v1 §3.4) so the new owner sees the
+        history together with its runs and feedback. Messages follow
+        automatically because they are keyed by ``conversation_id``.
 
-        :param from_user_id: The user id to reassign conversations away from.
-        :param to_user_id: The user id to reassign conversations to.
+        :param from_user_id: The user id to reassign away from.
+        :param to_user_id: The user id to reassign to.
         :return: The number of conversation rows updated.
         """
-        stmt = (
-            update(models.Conversation)
-            .where(models.Conversation.user_id == from_user_id)
-            .values(user_id=to_user_id)
-        )
         with self._session() as s:
-            result = s.execute(stmt)
+            result = s.execute(
+                update(models.Conversation)
+                .where(models.Conversation.user_id == from_user_id)
+                .values(user_id=to_user_id)
+            )
+            for model in (models.AgentRun, models.FeedbackEvent):
+                s.execute(
+                    update(model)
+                    .where(model.user_id == from_user_id)
+                    .values(user_id=to_user_id)
+                )
             self._commit(s)
             return result.rowcount
 
@@ -109,18 +117,62 @@ class ConversationRepository(Repo):
         role: str,
         content: str = "",
         tool_calls: list | None = None,
+        message_id: str | None = None,
+        agent_run_id: str | None = None,
     ) -> Message:
+        """Insert one message row.
+
+        :param message_id: Explicit id for the row (e.g. the id already sent to
+            the client over SSE); ``None`` mints a UUID.
+        :param agent_run_id: The ``agent_runs`` row that produced an assistant
+            reply; ``None`` for user turns.
+        """
         row = models.Message(
             conversation_id=conversation_id,
             role=role,
             content=content,
             tool_calls=tool_calls,
+            agent_run_id=agent_run_id,
         )
+        if message_id is not None:
+            row.id = message_id
         with self._session() as s:
             s.add(row)
             self._commit(s)
             s.refresh(row)
             return Message.model_validate(row)
+
+    def get_message_for_feedback(self, message_id: str) -> MessageForFeedback | None:
+        """Load a message with its conversation owner and linked run status.
+
+        One query: messages → conversations on ``conversation_id`` and an outer
+        join to ``agent_runs`` on ``agent_run_id`` (string ids, no FK). Whether
+        the message is rateable is decided by the feedback service.
+
+        :param message_id: The message id.
+        :return: The joined view, or ``None`` when the message does not exist.
+        """
+        stmt = (
+            select(
+                models.Message.id,
+                models.Message.conversation_id,
+                models.Message.role,
+                models.Message.agent_run_id,
+                models.Conversation.user_id.label("owner_user_id"),
+                models.AgentRun.status.label("run_status"),
+            )
+            .join(
+                models.Conversation,
+                models.Message.conversation_id == models.Conversation.id,
+            )
+            .outerjoin(
+                models.AgentRun, models.Message.agent_run_id == models.AgentRun.id
+            )
+            .where(models.Message.id == message_id)
+        )
+        with self._session() as s:
+            row = s.execute(stmt).first()
+            return MessageForFeedback.model_validate(row) if row is not None else None
 
     def count_user_turns_since(self, user_id: str, iso_cutoff: str) -> int:
         """Count user-role messages for *user_id* on or after *iso_cutoff*.

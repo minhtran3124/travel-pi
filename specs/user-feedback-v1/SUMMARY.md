@@ -75,6 +75,16 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   original draft. Still documentation-only; still `proposed`. RESEARCH.md was not edited: its
   audit predates PR #131 and is kept as the record of what was true on 2026-07-21.
 
+### Implementation progress (2026-09-12)
+
+- Wave 1 — Task 1.1 commit `450acd3`: schema + migration `d4f7a2c9e1b3`. Task review: spec pass /
+  quality approved; 4 Minor recorded in `.harness-state/sdd/minor-findings.md` (Postgres run pending,
+  per-action rules live in the service, `updated_at` by convention, reason_code taxonomy confirmed as
+  incorrect | irrelevant | incomplete | unsafe | other).
+- Wave 2 — Task 2.1: `FeedbackRepository`, `append_message(message_id, agent_run_id)`,
+  `get_message_for_feedback`, three-table `reassign_user`, feedback schemas. Verify `tests/db`
+  63 passed; regression set 43 passed. Commit recorded below once landed.
+
 ## Deviations
 
 - None. Documentation-only; implementation intentionally remains proposed.
