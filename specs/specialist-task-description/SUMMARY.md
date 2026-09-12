@@ -34,6 +34,45 @@ The "following artifact" is step 2 of the architecture review *Fork hay Isolated
 
 A fanned-out specialist can now receive its own slice of the traveller's message. `SupervisorIntent` gains a `task_queries` field; its schema description tells the model to write one self-contained query per specialist in `[target_agent, *plan]` order, and the model fills it from that description alone (supervisor prompt unchanged at v12). When two or more tasks are emitted and the list aligns, each `AgentTask.query` carries that specialist's slice; otherwise, and always for a single task, it is the traveller's whole message. Malformed entries are coerced instead of failing the turn. `with_task_note` folds the slice into the end of the specialist's single leading system message behind `TASK_NOTE_PREAMBLE`, only when the query differs from the traveller's own sentence, so single-intent turns send the same model input as before. On the fan-out path `synthesis_worker` hands the task over through the declared `tasks` key. Two fan-out goldens and a judged `ask_coverage` rubric were added; the judged eval shows no measurable gain over main yet (see Eval results). A supervisor prompt v13 was built and reverted after it regressed routing.
 
+### Fan-out path (where the task note lands)
+
+One `synthesis_worker` node is declared once in `graph.py`; for a multi-intent turn `route_tasks` returns N `Send()` objects and LangGraph runs that node N times in parallel. The task note is applied on that path only: `supervisor` emits `task_queries[]`, and each worker run folds `task_queries[i]` into the tail of its specialist's single leading system message. The single-specialist path sends the same model input as main. Source diagram: [Một node, N nhánh](https://claude.ai/code/artifact/858106f7-2c97-467a-b3db-5a5a1b429598), also in PR #192.
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#FFFFFF","primaryTextColor":"#101915","primaryBorderColor":"#101915","lineColor":"#516059","secondaryColor":"#FFFFFF","tertiaryColor":"#F7FAF8","clusterBkg":"#F7FAF8","clusterBorder":"#F7FAF8","edgeLabelBackground":"#F7FAF8"}}}%%
+flowchart TD
+    subgraph G[" "]
+    direction TB
+    PRE["Pre-processing<br/>pii_guardrail → load_context → summarize"]
+    SUP["supervisor<br/>tasks[ ]: 1 or N entries<br/>+ task_queries[ ] (this PR)"]
+    ROUTE{"route_tasks<br/>len(tasks) ?"}
+    BOOK["Booking (HITL)<br/>separate branch → plan"]
+    SPEC["Static specialist ×1<br/>planner · concierge · journal · budget<br/>model input identical to main"]
+    WORKER["synthesis_worker ×N<br/>Send() · task[0..N-1]<br/>task_queries[i] → task note (this PR)"]
+    SYN["synthesize<br/>merge N results → 1 reply"]
+    REF["reflection<br/>goto = state['current_flow']"]
+    DONE(["END"])
+
+    PRE --> SUP --> ROUTE
+    ROUTE -. booking .-> BOOK
+    ROUTE -- "1 task" --> SPEC
+    ROUTE == "≥2 tasks · Send × N" ==> WORKER
+    WORKER --> SYN
+    SPEC --> REF
+    SYN --> REF
+    REF -- ACCEPT --> DONE
+    REF -. "REVISE (1 task)" .-> SPEC
+    REF -. "REVISE (fan-out)" .-> SYN
+    end
+
+    style G fill:#F7FAF8,stroke:#F7FAF8
+    style BOOK fill:#F2F5F3,stroke:#516059,stroke-dasharray:4 3
+    style WORKER fill:#E9EEFB,stroke:#2C56D6,stroke-width:2px
+    linkStyle 4 stroke:#2C56D6,stroke-width:2px
+```
+
+The thick edge is the dynamic fan-out; thin edges are fixed `add_edge` wiring; dashed edges are the booking side branch and the two REVISE loops. The loops have different targets because `reflection` jumps to `state["current_flow"]`: `supervisor` sets it to the specialist name on a single-task turn, and `synthesize` overwrites it with `"synthesize"` on a fan-out turn, so a revision re-merges the existing `task_results` and never re-runs the N workers.
+
 ### Rationale
 
 Intake facts that fix the lane (all read from the tree at 34f9920):
