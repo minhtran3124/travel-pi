@@ -11,6 +11,7 @@ from pydantic import Field, model_validator
 
 from app.enums import JobStatus, MessageRole
 from app.schemas.base import AppBaseModel
+from app.schemas.feedback import EffectiveFeedback
 
 
 class ChatRequest(AppBaseModel):
@@ -74,6 +75,14 @@ class ChatResponse(AppBaseModel):
     """The agent's reply for one turn."""
 
     conversation_id: str
+    assistant_message_id: str | None = Field(
+        default=None,
+        description="Id of the persisted assistant message for this turn; the "
+        "handle feedback is filed against. Null on an interrupt (no reply row).",
+    )
+    agent_run_id: str | None = Field(
+        default=None, description="The agent_runs row that produced this turn."
+    )
     reply: str
     trip_id: str | None = Field(
         default=None,
@@ -120,6 +129,11 @@ class Message(AppBaseModel):
     content: str
     tool_calls: list | None = None
     created_at: str
+    feedback: EffectiveFeedback | None = Field(
+        default=None,
+        description="Effective feedback state for an assistant message; null "
+        "for user messages and for an unrated assistant message.",
+    )
 
 
 class Conversation(AppBaseModel):

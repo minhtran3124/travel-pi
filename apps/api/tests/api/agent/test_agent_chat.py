@@ -1082,3 +1082,161 @@ def test_stream_booking_resume_rejected(booking_client):
     assert "event: done" in text
     assert "event: interrupt" not in text
     assert "Hotel booked" not in text
+
+
+# ---------------------------------------------------------------------------
+# Answer identity — specs/user-feedback-v1 §4.2 / §4.3 / §6 (SC-5)
+# ---------------------------------------------------------------------------
+
+
+def _db_session(tmp_path):
+    """Open a session on the same tmp SQLite DB the ``client`` fixture uses."""
+    return get_session_factory(f"sqlite:///{tmp_path / 'agent_api.db'}")()
+
+
+def _assert_answer_identity(tmp_path, *, conversation_id, message_id, run_id):
+    """The reply row exists under ``message_id`` and links the started run."""
+    from app.db.models import AgentRun, Message
+
+    s = _db_session(tmp_path)
+    try:
+        row = s.get(Message, message_id)
+        assert row is not None
+        assert row.conversation_id == conversation_id
+        assert row.role == "assistant"
+        assert row.agent_run_id == run_id
+        run = s.get(AgentRun, run_id)
+        assert run is not None
+        assert run.conversation_id == conversation_id
+        return row, run
+    finally:
+        s.close()
+
+
+def test_chat_returns_persisted_assistant_message_id_and_run_id(client, tmp_path):
+    resp = client.post("/agent/chat", json={"message": "What should I see in Tokyo?"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["assistant_message_id"]
+    assert body["agent_run_id"]
+    row, run = _assert_answer_identity(
+        tmp_path,
+        conversation_id=body["conversation_id"],
+        message_id=body["assistant_message_id"],
+        run_id=body["agent_run_id"],
+    )
+    assert row.content == body["reply"]
+    assert run.status == "completed"
+
+
+def test_chat_interrupt_has_null_assistant_message_id(booking_client):
+    resp = booking_client.post(
+        "/agent/chat", json={"message": "Book flight VN123 for me", "user_id": "u1"}
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["interrupt_pending"] is True
+    assert body["assistant_message_id"] is None
+    assert body["agent_run_id"]
+
+
+def test_chat_fallback_message_links_the_failed_run(tmp_path):
+    """A fallback reply is persisted under the run (so history and the client
+    agree on identity) but that run finishes ``failed`` — not rateable."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    class _CrashingGraph:
+        async def ainvoke(self, *args, **kwargs):
+            raise RuntimeError("model provider down")
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
+
+    with TestClient(app) as c:
+        resp = c.post("/agent/chat", json={"message": "plan a trip to Hanoi"})
+    assert resp.status_code == 200
+    body = resp.json()
+    row, run = _assert_answer_identity(
+        tmp_path,
+        conversation_id=body["conversation_id"],
+        message_id=body["assistant_message_id"],
+        run_id=body["agent_run_id"],
+    )
+    assert row.content == body["reply"]
+    assert run.status == "failed"
+
+
+def test_stream_done_carries_persisted_answer_identity(client, tmp_path):
+    resp = client.post("/agent/stream", json={"message": "hi"})
+    assert resp.status_code == 200
+    evs = _parse_sse(resp.text)
+    done = next(json.loads(e["data"]) for e in evs if e.get("event") == "done")
+    assert done["assistant_message_id"]
+    assert done["agent_run_id"]
+    row, run = _assert_answer_identity(
+        tmp_path,
+        conversation_id=done["conversation_id"],
+        message_id=done["assistant_message_id"],
+        run_id=done["agent_run_id"],
+    )
+    assert "Visit Tokyo Tower" in row.content
+    assert run.status == "completed"
+
+
+def test_history_carries_feedback_null_then_folded_state(client, tmp_path):
+    from app.enums import FeedbackAction
+    from app.repositories.feedback import FeedbackRepository
+
+    body = client.post("/agent/chat", json={"message": "hi"}).json()
+    conversation_id = body["conversation_id"]
+    message_id = body["assistant_message_id"]
+
+    hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
+    by_role = {m["role"]: m for m in hist["messages"]}
+    assert by_role["user"]["feedback"] is None
+    assert by_role["assistant"]["id"] == message_id
+    assert by_role["assistant"]["feedback"] is None
+
+    s = _db_session(tmp_path)
+    try:
+        event = FeedbackRepository(s).append(
+            user_id="u1",
+            conversation_id=conversation_id,
+            assistant_message_id=message_id,
+            agent_run_id=body["agent_run_id"],
+            action=FeedbackAction.SET_RATING,
+            rating=1,
+            client_event_id="ce-1",
+            request_fingerprint="fp",
+            source="web",
+        )
+        s.commit()
+    finally:
+        s.close()
+
+    hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
+    by_role = {m["role"]: m for m in hist["messages"]}
+    assert by_role["user"]["feedback"] is None
+    assert by_role["assistant"]["feedback"] == {
+        "rating": "helpful",
+        "reason_code": None,
+        "comment_present": False,
+        "rating_event_id": event.id,
+        "updated_at": event.created_at,
+    }

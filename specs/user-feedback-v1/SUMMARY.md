@@ -83,7 +83,14 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   incorrect | irrelevant | incomplete | unsafe | other).
 - Wave 2 — Task 2.1: `FeedbackRepository`, `append_message(message_id, agent_run_id)`,
   `get_message_for_feedback`, three-table `reassign_user`, feedback schemas. Verify `tests/db`
-  63 passed; regression set 43 passed. Commit recorded below once landed.
+  63 passed; regression set 43 passed. Landed as `14edffa` (lane read from the staged SUMMARY;
+  no gate category loosened). Task review: spec pass / quality approved; 4 Minor in the ledger
+  (`reason_code` typing in `_fold` to fix post-wave-3, `locale` allowlist moved to the service).
+- Wave 3 — Task 3.1: `assistant_message_id` + `agent_run_id` on `/agent/chat`, SSE `done` yielded only
+  after the assistant row is committed, history items carry `feedback`. Rule-1 deviation: a `done`
+  that follows an `interrupt` passes through with `assistant_message_id: null` (DESIGN §4.2) instead of
+  becoming `error{empty_reply}` as a literal reading of §4.3 implied. Verify `tests/api/agent
+  tests/streaming` 167 passed.
 
 ## Deviations
 

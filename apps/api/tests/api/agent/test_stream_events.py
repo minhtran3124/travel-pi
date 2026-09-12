@@ -56,6 +56,8 @@ def test_done_factory_shape():
     assert ev.event == "done"
     assert _payload(ev) == {
         "conversation_id": "c1",
+        "assistant_message_id": None,
+        "agent_run_id": None,
         "current_flow": "booking",
         "suggestions": ["booking.bookThis"],
         "language": "en",
@@ -68,6 +70,8 @@ def test_done_factory_empty_suggestions():
     ev = events.done(conversation_id="c1", current_flow=None, suggestions=[])
     assert _payload(ev) == {
         "conversation_id": "c1",
+        "assistant_message_id": None,
+        "agent_run_id": None,
         "current_flow": None,
         "suggestions": [],
         "language": "en",
@@ -82,6 +86,20 @@ def test_done_factory_usage_key_present_and_none_by_default():
     body = _payload(ev)
     assert "usage" in body
     assert body["usage"] is None
+
+
+def test_done_factory_carries_answer_identity():
+    """``done`` names the persisted answer (specs/user-feedback-v1 §4.3)."""
+    ev = events.done(
+        conversation_id="c1",
+        current_flow=None,
+        suggestions=[],
+        assistant_message_id="m1",
+        agent_run_id="r1",
+    )
+    body = _payload(ev)
+    assert body["assistant_message_id"] == "m1"
+    assert body["agent_run_id"] == "r1"
 
 
 def test_done_factory_carries_trip_id():
