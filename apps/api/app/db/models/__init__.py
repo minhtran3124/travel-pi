@@ -15,6 +15,7 @@ from app.db.models.content_translation import ContentTranslation
 from app.db.models.conversation import Conversation
 from app.db.models.country import Country
 from app.db.models.expense import Expense
+from app.db.models.feedback_event import FeedbackEvent
 from app.db.models.flight_index import FlightIndex
 from app.db.models.fx import CountryCurrency, FxMeta, FxRate
 from app.db.models.hotel import Hotel
@@ -38,6 +39,7 @@ __all__ = [
     "Message",
     "Job",
     "Expense",
+    "FeedbackEvent",
     "Trip",
     "TripItem",
     "TripPlaceLink",

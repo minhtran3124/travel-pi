@@ -1,6 +1,6 @@
 ---
 slug: user-feedback-v1
-status: proposed
+status: active
 owner: minhtran
 created: 2026-07-21
 ---
