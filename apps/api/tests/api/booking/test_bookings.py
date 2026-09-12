@@ -354,6 +354,53 @@ def _sample_booking(booking_id):
     )
 
 
+def test_cancel_releases_idempotency_key_so_rebook_creates_new(seeded_session):
+    """Cancelling a booking releases its idempotency key (gh-193, E001 option A).
+
+    book -> cancel -> book-again with the *same* key creates a fresh confirmed
+    booking rather than replaying the cancelled row, and the cancelled row keeps
+    its status but no longer carries the key (so it can never be a replay
+    target). Two rows exist afterwards.
+    """
+    from app.db import models
+    from app.enums import BookingStatus
+    from app.repositories.booking import BookingRepository
+    from app.schemas.flight import FlightBookingRequest
+    from app.services.booking_service import BookingService
+    from app.services.flight_service import FlightService
+
+    owner = "release-owner"
+    flight = FlightService(seeded_session).search_flights("HAN", "SGN", "2027-03-15")[0]
+    request = FlightBookingRequest(
+        flight_number=flight.flight_number,
+        origin="HAN",
+        destination="SGN",
+        departure_date="2027-03-15",
+        passenger_name="Rebook User",
+        passenger_email="rebook@example.com",
+        passenger_phone="+1 555 000 0000",
+    )
+    svc = BookingService(seeded_session)
+
+    first = svc.book_flight(request, user_id=owner, idempotency_key="K")
+    svc.cancel(first.id, user_id=owner)
+    second = svc.book_flight(request, user_id=owner, idempotency_key="K")
+
+    assert second.id != first.id
+    assert second.status == BookingStatus.CONFIRMED
+
+    rows = svc.list_all(user_id=owner)
+    assert len(rows) == 2
+
+    cancelled = svc.get(first.id, user_id=owner)
+    assert cancelled.status == BookingStatus.CANCELLED
+    # The cancelled row released its key, so the key now points at the new row.
+    assert seeded_session.get(models.Booking, first.id).idempotency_key is None
+    assert BookingRepository(seeded_session).get_by_idempotency_key("K", owner).id == (
+        second.id
+    )
+
+
 def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
     """A second add() under an already-used idempotency key must not create a
     duplicate row — it returns the booking the first add() created."""

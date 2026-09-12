@@ -17,12 +17,13 @@ from __future__ import annotations
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, Send, interrupt
 
 from app.agents.constants import (
+    BOOKING_WRITE_TOOLS,
     DEFAULT_MAX_REVISIONS,
     REFLECTION_REVISE_NOTE,
     SYNTHESIZE_NODE,
@@ -205,6 +206,29 @@ def make_synthesize_node(llm: BaseChatModel):
     return synthesize
 
 
+def _booking_committed_this_turn(messages: list) -> bool:
+    """True when a booking write tool succeeded since the last HumanMessage.
+
+    "This turn" is the messages after the last ``HumanMessage``. A committed
+    booking is a ``ToolMessage`` whose ``name`` is in ``BOOKING_WRITE_TOOLS``
+    and whose ``status`` is not ``"error"`` (ToolNode sets ``"error"`` on a
+    tool exception). Used by reflection to end — never REVISE — such a turn,
+    so a REVISE cannot re-run the booking sub-agent and double-book (gh-193).
+    """
+    last_human = -1
+    for i, msg in enumerate(messages):
+        if isinstance(msg, HumanMessage):
+            last_human = i
+    for msg in messages[last_human + 1 :]:
+        if (
+            isinstance(msg, ToolMessage)
+            and msg.name in BOOKING_WRITE_TOOLS
+            and msg.status != "error"
+        ):
+            return True
+    return False
+
+
 def make_reflection_node(
     llm: BaseChatModel, max_revisions: int = DEFAULT_MAX_REVISIONS
 ):
@@ -230,6 +254,15 @@ def make_reflection_node(
         # turn is terminal and not reviewable; end it here, before the judge call.
         if state.get("awaiting_user"):
             logger.info("[agent] reflection → END (awaiting traveller; not reviewable)")
+            return Command(goto=END)
+
+        # gh-193: a turn that already committed a booking is terminal and must
+        # not be reviewed — a REVISE would route goto=current_flow ('booking')
+        # and re-run the booking sub-agent, double-booking. End before the judge.
+        if _booking_committed_this_turn(state["messages"]):
+            logger.info(
+                "[agent] reflection → END (booking committed this turn; not reviewable)"
+            )
             return Command(goto=END)
 
         ctx = runtime.context if runtime.context is not None else None
