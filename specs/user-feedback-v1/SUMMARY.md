@@ -35,8 +35,9 @@ retractions without silently rewriting what the user did.
 Revision 2026-09-12: the run-provenance table the design proposed already exists on `main`
 (`agent_runs`, PR #131, migration `e3b7c5d9a1f4`; `agent_run_steps` + `prompt_versions`, PR #132,
 migration `b2d9f4a7c1e8`). Creating it again would collide on the table name and the model class.
-The design and plan now extend the existing tables with two nullable columns
-(`messages.agent_run_id`, `agent_runs.trace_id`) and create only `feedback_events`. The `429`
+The design and plan now link `messages` to the existing `agent_runs` with one nullable column
+(`messages.agent_run_id`; `agent_runs.trace_id` was deferred with the export) and create only
+`feedback_events`. The `429`
 abuse limit the contract promised but no task delivered (REVIEW.vi.md gap #1) is now Task 3.2 over
 the PR #110 primitive and the `feedback_rate_limit_*` settings that already exist in
 `app/core/config.py`. The REST lifecycle gap (REVIEW gap #3) closes because the chat router already
@@ -74,6 +75,10 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   `rules/plan-format.md`) on the `agent_runs` / `agent_run_steps` tables that shipped after the
   original draft. Still documentation-only; still `proposed`. RESEARCH.md was not edited: its
   audit predates PR #131 and is kept as the record of what was true on 2026-07-21.
+- 2026-09-12 (implementation): the plan was executed on `feat/user-feedback-v1` — 7 tasks, 15
+  Success Criteria, every task review and the final review chain green. The "16 Success Criteria"
+  and "still `proposed`" in the bullet above describe the documentation turn; see Implementation
+  progress below for the build.
 
 ### Implementation progress (2026-09-12)
 
@@ -196,8 +201,8 @@ becomes an explicit `reassign_user` extension in Task 2.1.
 ### Verify
 
 Documentation checks (first seven rows) date from the 2026-09-12 re-base. `SC-1` … `SC-14` rows were
-run from the repo root at `5cfe366` by the controller; `verify_summary.py --check` re-runs every row
-at the final HEAD. `SC-15` (e2e collection) was added when Task 6.1 landed at `d552497`.
+run from the repo root at `5cfe366` by the controller; `verify_summary.py --check` re-ran every row
+at `b956ea8` (all 22 PASS, exit 0). `SC-15` (e2e collection) was added when Task 6.1 landed at `d552497`.
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
@@ -208,20 +213,20 @@ at the final HEAD. `SC-15` (e2e collection) was added when Task 6.1 landed at `d
 | Plan context contract | `python3 .claude/scripts/check_plan_contract.py specs/user-feedback-v1/PLAN.md` | 0 | Global Constraints, SC table, Criteria/Interfaces on all 7 tasks; every consumed artifact has a producer | |
 | Design cites real code | `python3 -c "import os,sys;p=['apps/api/app/db/models/agent_run.py','apps/api/app/db/models/agent_run_step.py','apps/api/app/streaming/agent_run.py','apps/api/app/core/rate_limit.py','apps/api/alembic/versions/e3b7c5d9a1f4_add_agent_runs.py','apps/api/alembic/versions/b2d9f4a7c1e8_add_agent_run_steps.py','apps/api/alembic/versions/b8e4c1f7a305_add_bookings_trip_id.py','apps/api/tests/api/agent/test_agent_runs.py','apps/api/tests/api/agent/test_agent_run_steps_wiring.py','apps/api/tests/db/test_bookings_trip_id_migration.py'];m=[x for x in p if not os.path.exists(x)];print(m);sys.exit(1 if m else 0)"` | 0 | Every file the revised §3.1 / §11 / §12 name exists on main | |
 | No second `agent_runs` table planned | `python3 -c "import sys;t=open('specs/user-feedback-v1/PLAN.md').read()+open('specs/user-feedback-v1/DESIGN.md').read();sys.exit(1 if 'create_table(\"agent_runs\"' in t else 0)"` | 0 | exit 0 = neither doc creates an agent_runs table | |
-| SC-1 The migration adds messages.agent_run_id and feedback_events, and  | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_events_migration.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-1 |
-| SC-2 ORM column sets for messages and feedback_events match the migrati | `cd apps/api && ../../.venv/bin/python -m pytest tests/test_db_models.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-2 |
-| SC-3 Set, replace, detail, retract fold to the documented effective state | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_repository.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-3 |
-| SC-4 A conversation claim moves conversations, agent_runs and feedback | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_conversation_reassign.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-4 |
-| SC-5 /agent/chat, SSE done and reloaded history carry the same assista | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_chat.py tests/api/agent/test_stream_events.py tests/streaming/test_persistence.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-5 |
-| SC-6 POST /agent/feedback returns 201/200/404/409/422 per DESIG | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_feedback.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-6 |
-| SC-7 The feedback_rate_limit_max + 1-th request in one window from the sa | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_feedback_rate_limit.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-7 |
-| SC-8 Existing run-metrics behaviour is unchanged | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_runs.py tests/api/agent/test_agent_run_steps_wiring.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-8 |
-| SC-9 No import path leads from the feedback service or router to the memory | `cd apps/api && ../../.venv/bin/python -m pytest tests/architecture/test_feedback_no_memory_edge.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-9 |
-| SC-10 The SSE parser accepts assistant_message_id / agent_run_id on don | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/lib/stream/parseSSE.test.ts` | 0 | run 2026-09-12 at 5cfe366 | SC-10 |
-| SC-11 Feedback controls render only for complete assistant messages with a s | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/components/chat/MessageFeedback.test.tsx src/components/chat/MessageList.render.test.tsx` | 0 | run 2026-09-12 at 5cfe366 | SC-11 |
-| SC-12 Every new UI string exists in both locales | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/messages.parity.test.ts` | 0 | run 2026-09-12 at 5cfe366 | SC-12 |
-| SC-13 Frontend type-checks against the regenerated schema | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run 2026-09-12 at 5cfe366 | SC-13 |
-| SC-14 Backend lint is clean | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | run 2026-09-12 at 5cfe366 | SC-14 |
+| SC-1 The migration adds messages.agent_run_id and feedback_events, and  | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_events_migration.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-1 |
+| SC-2 ORM column sets for messages and feedback_events match the migrati | `cd apps/api && ../../.venv/bin/python -m pytest tests/test_db_models.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-2 |
+| SC-3 Set, replace, detail, retract fold to the documented effective state | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_repository.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-3 |
+| SC-4 A conversation claim moves conversations, agent_runs and feedback | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_conversation_reassign.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-4 |
+| SC-5 /agent/chat, SSE done and reloaded history carry the same assista | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_chat.py tests/api/agent/test_stream_events.py tests/streaming/test_persistence.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-5 |
+| SC-6 POST /agent/feedback returns 201/200/404/409/422 per DESIG | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_feedback.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-6 |
+| SC-7 The feedback_rate_limit_max + 1-th request in one window from the sa | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_feedback_rate_limit.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-7 |
+| SC-8 Existing run-metrics behaviour is unchanged | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent/test_agent_runs.py tests/api/agent/test_agent_run_steps_wiring.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-8 |
+| SC-9 No import path leads from the feedback service or router to the memory | `cd apps/api && ../../.venv/bin/python -m pytest tests/architecture/test_feedback_no_memory_edge.py -q` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-9 |
+| SC-10 The SSE parser accepts assistant_message_id / agent_run_id on don | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/lib/stream/parseSSE.test.ts` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-10 |
+| SC-11 Feedback controls render only for complete assistant messages with a s | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/components/chat/MessageFeedback.test.tsx src/components/chat/MessageList.render.test.tsx` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-11 |
+| SC-12 Every new UI string exists in both locales | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/messages.parity.test.ts` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-12 |
+| SC-13 Frontend type-checks against the regenerated schema | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-13 |
+| SC-14 Backend lint is clean | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | run at 5cfe366; `--check` re-ran at b956ea8: PASS | SC-14 |
 | SC-15 The end-to-end spec is collectable | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec playwright test --list playwright/chat-feedback.spec.ts` | 0 | lists 1 chromium test + setup; skips without creds or E2E_CHAT_LLM=1 | SC-15 |
 
 ### Advisory Findings
@@ -277,6 +282,13 @@ Plan-blind intent review over `5d919fd..d552497`, oracle = the verbatim `### Int
 6. **gap (evidence) — closed.** SC-10…SC-13 were first run at `5cfe366`; `verify_summary --check`
    re-ran every row at `d552497` (all SC rows PASS) and runs again at the final HEAD.
 
+Round 2 (plan-blind, `5d919fd..b956ea8`): ✅ no intent divergence. Findings 1–3 are closed — an
+empty reply, a failed insert and an interrupted turn deliver `done` as before the feature, and
+interrupted drafts are saved again; `rateable` is traceable to "lam phan UI + BE api truoc" and only
+changes where the thumbs appear. One report-only excess: the assistant row is now written before
+`done` is yielded (the old code saved after the stream ended), so `done` reaches the client one
+synchronous insert later; content is unchanged and the latency was not measured.
+
 ### Not auto-verified
 
 - **Postgres** — reached truth, not a Verify row (over the 60 s limit): the full backend suite on
@@ -298,6 +310,8 @@ Plan-blind intent review over `5d919fd..d552497`, oracle = the verbatim `### Int
   head fails every feedback write; `alembic upgrade head` must run on deploy.
 - **Generated OpenAPI types** — produced offline from `app.openapi()` at `bce70d8`; not byte-compared
   against a live `pnpm gen:api` run against this branch.
+- **`done` latency** — not measured. `done` now waits for one synchronous assistant-row insert
+  (intent round 2, report-only).
 - **Langfuse score export and `agent_runs.trace_id`** — deferred by scope decision (UI + API only);
   the `export_hook` seam is a no-op.
 
@@ -340,6 +354,11 @@ Plan-blind intent review over `5d919fd..d552497`, oracle = the verbatim `### Int
   without checking anything; only the absence row surfaced as a 127 mismatch. All four were
   rewritten as `python3 -c` checks that fail on a missing file and require a non-zero section
   count, then re-run. Rows in a Verify table should never depend on `rg`.
+- backlog — **Worktree isolation refuses any command whose text contains a brace literal with commas**
+  (a JSON object, a Python dict literal) as "too complex to verify that it stays inside the worktree",
+  even a plain `cat > file <<'EOF'` heredoc. Writing `.review-receipt.json` failed four times until the
+  script built it with `dict(...)` keyword calls and no braces. The shell guard appears to read the
+  text as brace expansion; heredoc bodies should be exempt.
 - note — `authorization` corroboration fired on the word `role` inside the `messages` column-set
   assertion in `tests/test_db_models.py` (false positive, see memory
   `risk-corroboration-session-auth-false-positive`). Lane is `high-risk` anyway, so no downgrade

@@ -1,0 +1,31 @@
+{
+  "slug": "user-feedback-v1",
+  "reviewed_head_sha": "b956ea8c214dedf91dcf78ffdcb4ab5bc6650742",
+  "base_sha": "5d919fd",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Per-task spec and quality verdicts for tasks 1.1, 2.1, 3.1, 3.2, 4.1, 5.1 and 6.1 all pass after fix rounds (3.1 Important in bce70d8; 5.1 Important in b534049 plus Minors in 25b0936; 6.1 Critical in f17198b; 2.1 and 3.2 Minors in 5afa5d8). verify_summary check: 22 of 22 rows PASS at b956ea8."
+    },
+    {
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Six FIND angles over 5d919fd to d552497 with one independent scorer per location, threshold 75. Candidate D (thumbs on unrateable history rows, score 75) fixed in b956ea8 with an additive rateable field. A, B, E (50) and C, F (0) are advisory in SUMMARY. G and H were routed through the intent fixes."
+    },
+    {
+      "type": "correctness-delta",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Re-review of d552497 to b956ea8 found no correctness defects: stream event sequences, resume, the shared rateable rule, the single bulk run-status query, unchanged REST chat, web hydration."
+    },
+    {
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Plan-blind, two rounds. Round 1 found three behaviour drifts against 'ko effect voi chatbot', fixed in b956ea8, plus a DESIGN advisory, a report-only excess and an evidence gap. Round 2 over the whole range found no divergence; one report-only excess (done waits for one insert). Recorded in SUMMARY Intent Findings."
+    }
+  ]
+}
