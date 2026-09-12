@@ -469,10 +469,12 @@ describe("useAgentStream — persisted assistant id (DESIGN §7.1)", () => {
     });
     await waitFor(() => expect(result.current.isStreaming).toBe(false));
 
-    const assistants = result.current.messages.filter((m) => m.role === "assistant");
-    await waitFor(() =>
-      expect(assistants.map((m) => m.serverMessageId)).toEqual(["srv-1", "srv-2"]),
-    );
+    // Filter inside `waitFor` so each retry reads the current messages array,
+    // not a snapshot taken before the last state flush.
+    await waitFor(() => {
+      const assistants = result.current.messages.filter((m) => m.role === "assistant");
+      expect(assistants.map((m) => m.serverMessageId)).toEqual(["srv-1", "srv-2"]);
+    });
     // User bubbles never carry a persisted id.
     for (const m of result.current.messages.filter((m) => m.role === "user")) {
       expect(m.serverMessageId).toBeUndefined();

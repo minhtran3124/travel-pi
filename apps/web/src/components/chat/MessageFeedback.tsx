@@ -104,6 +104,7 @@ export function MessageFeedback({
   }, []);
   const lastAction = useRef<Action | null>(null);
   const notHelpfulRef = useRef<HTMLButtonElement>(null);
+  const tellUsMoreRef = useRef<HTMLButtonElement>(null);
   // A successful detail Save unmounts the "Tell us more" trigger together with
   // the dialog, so `Modal`'s own restore targets a detached node. Re-home focus
   // on the pressed Not-helpful button instead — this effect runs after the
@@ -116,6 +117,18 @@ export function MessageFeedback({
     restoreFocus.current = false;
     notHelpfulRef.current?.focus();
   }, [dialog]);
+  // Background detail success (the user pressed Skip / Escape while the Save
+  // was in flight): the dialog's own restore already landed on the now-disabled
+  // trigger, which unmounts when `hasDetail` flips — focus would fall to
+  // <body>. Re-home it on the pressed Not-helpful button, but only when focus
+  // was on that trigger or already on <body>; focus anywhere else is never
+  // moved by a background success (DESIGN §8.4).
+  const refocusAfterBackgroundDetail = useRef(false);
+  useEffect(() => {
+    if (!refocusAfterBackgroundDetail.current) return;
+    refocusAfterBackgroundDetail.current = false;
+    notHelpfulRef.current?.focus();
+  }, [view.hasDetail]);
 
   const run = useCallback(
     async (request: Promise<FeedbackResponse | undefined>, action: Action) => {
@@ -125,9 +138,17 @@ export function MessageFeedback({
         if (!res) return;
         setView(toView(res.effective_feedback));
         setStatus(action.kind === "retract" ? "removed" : "saved");
-        if (action.kind === "detail" && dialogOpen.current) {
-          restoreFocus.current = true;
-          setDialog(null);
+        if (action.kind === "detail") {
+          if (dialogOpen.current) {
+            restoreFocus.current = true;
+            setDialog(null);
+          } else {
+            const trigger = tellUsMoreRef.current;
+            const active = document.activeElement;
+            if (trigger && (active === trigger || active === document.body)) {
+              refocusAfterBackgroundDetail.current = true;
+            }
+          }
         }
       } catch (err) {
         if (statusCodeOf(err) === 404) {
@@ -246,6 +267,7 @@ export function MessageFeedback({
         </button>
         {view.rating === "not_helpful" && !view.hasDetail ? (
           <button
+            ref={tellUsMoreRef}
             type="button"
             disabled={busy}
             onClick={() => setDialog("idle")}

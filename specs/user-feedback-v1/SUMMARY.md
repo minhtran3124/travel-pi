@@ -137,16 +137,42 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   `feedback` field added to the hand-written `Message` type (cast removed). Rule 2: the three duplicated
   stop-handling blocks folded into one `settleTurn()` helper. `pnpm test src/components/chat` 154
   passed; whole web suite 340 passed; tsc and eslint clean apart from the pre-existing warning.
+  Re-review: spec pass / quality approved. Two of its three Minor fixed in a follow-up: a background
+  detail success that unmounts the trigger now moves focus to Not-helpful only when focus was on the
+  trigger or `<body>`; a hook test's stale array moved inside `waitFor`. The third (reopening the
+  dialog after a closed-dialog failure leaves the old inline error) is recorded, not fixed.
 
 ## Deviations
 
-- None. Documentation-only; implementation intentionally remains proposed.
+- Rule 1 — `persist_assistant_turn`: a `done` that follows an `interrupt` passes through with
+  `assistant_message_id: null` (DESIGN §4.2) instead of becoming `error{empty_reply}`. Commit `1298433`.
+- Rule 1 — failed SSE turns persist the streamed fallback text before `error` (review Important,
+  DESIGN §4.3 amended); `error{code: cancelled}` writes nothing. Commit `bce70d8`.
+- Rule 2 — terminal error codes `empty_reply` / `persistence_failed` chosen by the implementer and then
+  recorded in DESIGN §4.3. Commit `1298433`.
+- Rule 2 — `locale` allowlist enforced in `FeedbackService` from `app/core/languages.py` (review of
+  Task 2.1). Commit `2cb7174`.
+- Plan deviation — `POST /agent/feedback` registered in the aggregate `app/routers/main.py`, not
+  `app/main.py`, because the app mounts only the aggregate. Commit `2cb7174`.
+- Plan deviation — the feedback limit calls `enforce_rate_limit` directly with a body-aware subject
+  (`anon:<id>` for anonymous callers), as the primitive's own docstring prescribes; it still runs
+  before the request session opens a transaction. Commit `2cb7174`.
+- Plan deviation — `apps/web/src/lib/api/keys.ts` untouched: the feedback hook has no query to key.
+  Commit `905a3c4`.
+- Plan deviation — `schema.d.ts` regenerated offline from `app.openapi()` because the :8000 container
+  mounts the main checkout. Commit `905a3c4`.
+- Rule 1/2 review fixes — `_fold` typed `reason_code`, `append` returns `(event, inserted)` so an
+  identical-payload race replays, wider no-memory import gate. Commit `5afa5d8`.
+- Rule 2 — three duplicated stop-handling blocks in `useAgentStream.ts` folded into `settleTurn()`
+  (reviewer confirmed behaviour-preserving). Commit `b534049`.
+- Test-only — `tests/api/agent/test_agent_chat.py` history test adapted to the tuple return of
+  `append`. Commit `5afa5d8`.
 
 ### Verify
 
-Rows below are the documentation checks run on 2026-09-12. `SC-1` … `SC-16` in `PLAN.md` §3 are
-implementation criteria; none has been run, so `verify_summary.py --lane` reports them uncovered
-until the plan executes (see Not auto-verified).
+Documentation checks (first seven rows) date from the 2026-09-12 re-base. `SC-1` … `SC-14` rows were
+run from the repo root at `5cfe366` by the controller; `verify_summary.py --check` re-runs every row
+at the final HEAD. `SC-15` (e2e collection) is added when Task 6.1 lands.
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
@@ -174,15 +200,24 @@ until the plan executes (see Not auto-verified).
 
 ### Not auto-verified
 
-- **SC-1 … SC-16** — reached traceability only (the checks exist and are pipe-free); not re-run
-  because no implementation exists yet. `verify_summary.py --lane user-feedback-v1` fails on SC
-  coverage by design until the plan executes.
-- **Alembic head is `b8e4c1f7a305`** — reached provenance on 2026-09-12 via `alembic heads` from
-  `apps/api/`; must be re-checked at implementation time because other branches add migrations.
-- **Langfuse trace id availability** — unknown; `app/agents/observability.py` was read and exposes
-  none. Task 4.1 decides.
-- **Vietnamese wording of the revision** — reached traceability (section and revision-marker parity);
-  no value-level comparison.
+- **Postgres** — reached truth, not a Verify row (over the 60 s limit): the full backend suite on
+  Postgres 17 / Python 3.12 at `5afa5d8` (isolated compose project `apitest`, worktree mounted into the
+  cached test image, `alembic upgrade head` first, `tests/core/test_languages.py` excluded for its
+  known container-layout issue) — 2538 passed, 0 failed.
+- **End-to-end feedback flow** — reached traceability only. `playwright/chat-feedback.spec.ts` is
+  collectable (SC-15) but was not executed: no `E2E_USER_*` credentials locally, and CI's web-e2e
+  backend runs with an empty `OPENAI_API_KEY`, so every CI chat turn takes the failure path and is
+  correctly not rateable. The spec skips unless `E2E_CHAT_LLM=1`.
+- **Browser UAT** — not performed. The feedback row's look and the dialog's layout at phone width are
+  unverified by any screenshot.
+- **Vietnamese copy** — traceability only: the parity test proves every key exists in both locales,
+  never that the translations read well.
+- **Alembic head** — `d4f7a2c9e1b3` at `5afa5d8` (provenance). A long-lived database behind this
+  head fails every feedback write; `alembic upgrade head` must run on deploy.
+- **Generated OpenAPI types** — produced offline from `app.openapi()` at `bce70d8`; not byte-compared
+  against a live `pnpm gen:api` run against this branch.
+- **Langfuse score export and `agent_runs.trace_id`** — deferred by scope decision (UI + API only);
+  the `export_hook` seam is a no-op.
 
 ### Rollback
 
@@ -211,6 +246,11 @@ until the plan executes (see Not auto-verified).
   .claude/skills/correctness-review/prompts/shared.md --fragment
   .claude/skills/correctness-review/prompts/angles/<angle>.md`. The deployed prompt should carry the
   consumer-relative path, or the renderer should try `.claude/` when a bare `skills/` path misses.
+- backlog — **`.claude/agents/PROJECT.md` → "Test execution" documents the harness repo, not
+  travel-pi:** it names `bash scripts/run-tests.sh` (hook/script suites), which is absent (checked: test -e scripts/run-tests.sh at the worktree root) here.
+  `finishing-a-development-branch` takes its suite command from that section, so a literal follow
+  would run nothing useful. This run used `CLAUDE.md`'s commands instead (backend pytest suite, web
+  `pnpm test`). PROJECT.md should be re-bootstrapped for this repo.
 - note — `authorization` corroboration fired on the word `role` inside the `messages` column-set
   assertion in `tests/test_db_models.py` (false positive, see memory
   `risk-corroboration-session-auth-false-positive`). Lane is `high-risk` anyway, so no downgrade

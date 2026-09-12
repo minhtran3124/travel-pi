@@ -340,4 +340,56 @@ describe("MessageFeedback — not-helpful detail dialog", () => {
     expect(bodies).toHaveLength(3);
     expect(bodies[2]).toEqual(bodies[1]);
   });
+
+  /** Rate, open the dialog, Save, then Skip while the Save is still parked. */
+  async function skipDuringSave(release: () => Promise<void>) {
+    fireEvent.click(notHelpful());
+    await release();
+    await screen.findByText(F.saved);
+    fireEvent.click(await screen.findByRole("button", { name: F.tellUsMore }));
+    const dialog = screen.getByRole("dialog", { name: F.dialogTitle });
+    fireEvent.click(within(dialog).getByRole("radio", { name: F.reasons.other }));
+    fireEvent.click(within(dialog).getByRole("button", { name: F.save }));
+    await within(dialog).findByText(F.saving);
+    fireEvent.click(within(dialog).getByRole("button", { name: F.skip }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  }
+
+  it("a background detail success that removes the trigger re-homes focus on Not-helpful", async () => {
+    const { release } = feedbackHandler([201, 201], true);
+    renderWith(<MessageFeedback assistantMessageId="m1" />);
+    await skipDuringSave(release);
+
+    // The Modal restored focus to the (disabled) trigger — or, where a disabled
+    // control cannot take focus, let it fall to <body>. Both are "nowhere
+    // useful" once the trigger unmounts.
+    const trigger = screen.getByRole("button", { name: F.tellUsMore });
+    trigger.focus();
+    expect([trigger, document.body]).toContain(document.activeElement);
+
+    await release(); // → 201
+    await screen.findByText(F.saved);
+    expect(screen.queryByRole("button", { name: F.tellUsMore })).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(notHelpful()));
+  });
+
+  it("a background detail success never steals focus from elsewhere", async () => {
+    const { release } = feedbackHandler([201, 201], true);
+    renderWith(
+      <>
+        <MessageFeedback assistantMessageId="m1" />
+        <button type="button">Composer</button>
+      </>,
+    );
+    await skipDuringSave(release);
+
+    const composer = screen.getByRole("button", { name: "Composer" });
+    composer.focus();
+    expect(document.activeElement).toBe(composer);
+
+    await release(); // → 201
+    await screen.findByText(F.saved);
+    expect(screen.queryByRole("button", { name: F.tellUsMore })).toBeNull();
+    expect(document.activeElement).toBe(composer);
+  });
 });
