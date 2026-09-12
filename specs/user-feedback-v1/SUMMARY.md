@@ -177,17 +177,17 @@ becomes an explicit `reassign_user` extension in Task 2.1.
 
 Documentation checks (first seven rows) date from the 2026-09-12 re-base. `SC-1` … `SC-14` rows were
 run from the repo root at `5cfe366` by the controller; `verify_summary.py --check` re-runs every row
-at the final HEAD. `SC-15` (e2e collection) is added when Task 6.1 lands.
+at the final HEAD. `SC-15` (e2e collection) was added when Task 6.1 landed at `d552497`.
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| Whitespace hygiene | `if rg -n '[[:blank:]]+$' specs/user-feedback-v1; then exit 1; fi` | 0 | No trailing whitespace in the spec folder | |
-| Research section parity | `test "$(rg -c '^## ' specs/user-feedback-v1/RESEARCH.md)" = "$(rg -c '^## ' specs/user-feedback-v1/RESEARCH.vi.md)"` | 0 | 14 top-level sections each | |
-| Design section parity | `test "$(rg -c '^## ' specs/user-feedback-v1/DESIGN.md)" = "$(rg -c '^## ' specs/user-feedback-v1/DESIGN.vi.md)"` | 0 | 13 top-level sections each | |
+| Whitespace hygiene | `python3 -c "import pathlib,re,sys;bad=[str(p) for p in sorted(pathlib.Path('specs/user-feedback-v1').glob('*.md')) if re.search(r'[ \t]+$',p.read_text(),re.M)];print(bad);sys.exit(1 if bad else 0)"` | 0 | no spec markdown file has trailing whitespace | |
+| Research section parity | `python3 -c "import re,sys;c=[len(re.findall(r'(?m)^## ',open('specs/user-feedback-v1/'+f).read())) for f in ('RESEARCH.md','RESEARCH.vi.md')];print(c);sys.exit(0 if c[0]==c[1]>0 else 1)"` | 0 | same non-zero count of top-level sections in EN and VI | |
+| Design section parity | `python3 -c "import re,sys;c=[len(re.findall(r'(?m)^## ',open('specs/user-feedback-v1/'+f).read())) for f in ('DESIGN.md','DESIGN.vi.md')];print(c);sys.exit(0 if c[0]==c[1]>0 else 1)"` | 0 | same non-zero count of top-level sections in EN and VI | |
 | External-source parity | `python3 -c "import re,sys;a=set(re.findall(r'https://[^)]+',open('specs/user-feedback-v1/RESEARCH.md').read()));b=set(re.findall(r'https://[^)]+',open('specs/user-feedback-v1/RESEARCH.vi.md').read()));sys.exit(0 if a==b else 1)"` | 0 | Both versions retain the same official source URLs | |
 | Plan context contract | `python3 .claude/scripts/check_plan_contract.py specs/user-feedback-v1/PLAN.md` | 0 | Global Constraints, SC table, Criteria/Interfaces on all 7 tasks; every consumed artifact has a producer | |
 | Design cites real code | `python3 -c "import os,sys;p=['apps/api/app/db/models/agent_run.py','apps/api/app/db/models/agent_run_step.py','apps/api/app/streaming/agent_run.py','apps/api/app/core/rate_limit.py','apps/api/alembic/versions/e3b7c5d9a1f4_add_agent_runs.py','apps/api/alembic/versions/b2d9f4a7c1e8_add_agent_run_steps.py','apps/api/alembic/versions/b8e4c1f7a305_add_bookings_trip_id.py','apps/api/tests/api/agent/test_agent_runs.py','apps/api/tests/api/agent/test_agent_run_steps_wiring.py','apps/api/tests/db/test_bookings_trip_id_migration.py'];m=[x for x in p if not os.path.exists(x)];print(m);sys.exit(1 if m else 0)"` | 0 | Every file the revised §3.1 / §11 / §12 name exists on main | |
-| No second `agent_runs` table planned | `rg -c 'create_table\("agent_runs"' specs/user-feedback-v1/PLAN.md specs/user-feedback-v1/DESIGN.md` | 1 | rg exit 1 = zero matches, the intended result | |
+| No second `agent_runs` table planned | `python3 -c "import sys;t=open('specs/user-feedback-v1/PLAN.md').read()+open('specs/user-feedback-v1/DESIGN.md').read();sys.exit(1 if 'create_table(\"agent_runs\"' in t else 0)"` | 0 | exit 0 = neither doc creates an agent_runs table | |
 | SC-1 The migration adds messages.agent_run_id and feedback_events, and  | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_events_migration.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-1 |
 | SC-2 ORM column sets for messages and feedback_events match the migrati | `cd apps/api && ../../.venv/bin/python -m pytest tests/test_db_models.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-2 |
 | SC-3 Set, replace, detail, retract fold to the documented effective state | `cd apps/api && ../../.venv/bin/python -m pytest tests/db/test_feedback_repository.py -q` | 0 | run 2026-09-12 at 5cfe366 | SC-3 |
@@ -260,6 +260,13 @@ at the final HEAD. `SC-15` (e2e collection) is added when Task 6.1 lands.
   `finishing-a-development-branch` takes its suite command from that section, so a literal follow
   would run nothing useful. This run used `CLAUDE.md`'s commands instead (backend pytest suite, web
   `pnpm test`). PROJECT.md should be re-bootstrapped for this repo.
+- fix-direct — **Three documentation Verify rows were false-green.** `verify_summary.py --check`
+  runs rows in a plain subprocess where `rg` is not on PATH (in the interactive shell it is a
+  wrapper, not a binary), so `rg` exited 127: the negated whitespace row (`if rg …; then exit 1; fi`)
+  and the two `test "$(rg -c …)" = "$(rg -c …)"` parity rows compared empty strings and passed
+  without checking anything; only the absence row surfaced as a 127 mismatch. All four were
+  rewritten as `python3 -c` checks that fail on a missing file and require a non-zero section
+  count, then re-run. Rows in a Verify table should never depend on `rg`.
 - note — `authorization` corroboration fired on the word `role` inside the `messages` column-set
   assertion in `tests/test_db_models.py` (false positive, see memory
   `risk-corroboration-session-auth-false-positive`). Lane is `high-risk` anyway, so no downgrade

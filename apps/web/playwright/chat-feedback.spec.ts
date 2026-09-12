@@ -74,8 +74,13 @@ test("rate a reply, keep the rating across reloads, replay and probe", async ({
   expect(messageId, "SSE done carries assistant_message_id").toBeTruthy();
 
   const feedback = chat.getByRole("group", { name: "Rate this answer" }).last();
-  const helpful = feedback.getByRole("button", { name: "Helpful" });
-  const notHelpful = feedback.getByRole("button", { name: "Not helpful" });
+  // `exact` — the role-name match is a case-insensitive substring, so a bare
+  // "Helpful" would also match "Not helpful" (strict-mode violation).
+  const helpful = feedback.getByRole("button", { name: "Helpful", exact: true });
+  const notHelpful = feedback.getByRole("button", {
+    name: "Not helpful",
+    exact: true,
+  });
   await expect(helpful).toBeVisible();
 
   // 2. Reload; history names the same message id.
@@ -96,9 +101,13 @@ test("rate a reply, keep the rating across reloads, replay and probe", async ({
   await feedback.getByRole("button", { name: "Tell us more" }).click();
   const dialog = page.getByRole("dialog", { name: "What went wrong?" });
   await dialog.getByRole("radio", { name: "Incomplete answer" }).check();
-  const detailPost = page.waitForRequest(isFeedbackPost);
+  const detailResponse = page.waitForResponse((res) => isFeedbackPost(res.request()));
   await dialog.getByRole("button", { name: "Save feedback" }).click();
-  const detailBody = (await detailPost).postData()!;
+  const detailBody = (await detailResponse).request().postData()!;
+  const detailEventId = ((await (await detailResponse).json()) as {
+    feedback_event_id: string;
+  }).feedback_event_id;
+  expect(detailEventId, "detail POST returns feedback_event_id").toBeTruthy();
   await expect(dialog).toBeHidden();
   messages = await reloadHistory(page);
   await expect(notHelpful).toHaveAttribute("aria-pressed", "true");
@@ -116,13 +125,19 @@ test("rate a reply, keep the rating across reloads, replay and probe", async ({
   await expect(notHelpful).toHaveAttribute("aria-pressed", "false");
   expect(messages.find((m) => m.id === messageId)?.feedback ?? null).toBeNull();
 
-  // 6. Replay the detail request verbatim: 200 `replayed`, state unchanged.
+  // 6. Replay the detail request verbatim: 200 `replayed`, no new event.
+  // `replayed: true` + the ORIGINAL `feedback_event_id` is the idempotency
+  // proof (a fresh add_detail would mint a new id); the reload is only a
+  // sanity check — after the retract, a new event would fold to null too.
   const replay = await page.request.post(FEEDBACK_PATH, {
     headers: { ...authHeaders, "content-type": "application/json" },
     data: detailBody,
   });
   expect(replay.status()).toBe(200);
-  expect(await replay.json()).toMatchObject({ replayed: true });
+  expect(await replay.json()).toMatchObject({
+    replayed: true,
+    feedback_event_id: detailEventId,
+  });
   messages = await reloadHistory(page);
   expect(messages.find((m) => m.id === messageId)?.feedback ?? null).toBeNull();
 
