@@ -10,7 +10,9 @@ import {
   fetchClaim,
   fetchConversationMessages,
   type ChatRequest,
+  type Message,
 } from "@/lib/query/agent";
+import type { EffectiveFeedback } from "@/lib/query/feedback";
 import { panelKey, type PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { parseSSE, type SSEEvent } from "@/lib/stream/parseSSE";
@@ -72,6 +74,15 @@ export interface ChatMessage {
   panels: PanelArtifact[];
   /** Wall-clock duration of the turn in ms; set once the turn ends. */
   elapsedMs?: number;
+  /**
+   * Persisted id of this assistant message — the handle feedback is filed
+   * against. Assigned ONLY from server history or a successful SSE `done`
+   * (DESIGN §7.1); absent on streaming, interrupted, stopped and failed turns,
+   * so its presence is the "complete + rateable" signal for the UI.
+   */
+  serverMessageId?: string;
+  /** Effective feedback state reloaded from history; `null` when unrated. */
+  feedback?: EffectiveFeedback | null;
 }
 
 /** Pending HITL interrupt from the agent — shown as an approve/reject prompt. */
@@ -267,12 +278,19 @@ export function useAgentStream(
 
       fetchConversationMessages(storedId, userId)
         .then(({ messages, interrupt_pending, interrupt_payload }) => {
-          const mapped: ChatMessage[] = messages.map((m) => ({
+          // `Message` in lib/query/agent.ts is a hand-written mirror that
+          // predates the history `feedback` field (schema.d.ts `Message`).
+          const mapped: ChatMessage[] = (
+            messages as Array<Message & { feedback?: EffectiveFeedback | null }>
+          ).map((m) => ({
             id: m.id,
             role: m.role,
             content: m.content,
             activity: [],
             panels: [],
+            ...(m.role === "assistant"
+              ? { serverMessageId: m.id, feedback: m.feedback ?? null }
+              : {}),
           }));
 
           if (interrupt_pending) {
@@ -280,6 +298,8 @@ export function useAgentStream(
             const last = messages[messages.length - 1];
             if (last && last.role === "assistant") {
               assistantIdRef.current = last.id;
+              // The interrupted turn is not complete — never rateable.
+              delete mapped[mapped.length - 1].serverMessageId;
             } else {
               // No trailing assistant turn (interrupt fired before any tokens):
               // add a fresh empty bubble for the resumed continuation.
@@ -324,6 +344,16 @@ export function useAgentStream(
   const setAssistant = useCallback((id: string, content: string) => {
     setMessages((prev) =>
       prev.map((m) => (m.id === id ? { ...m, content } : m)),
+    );
+  }, []);
+
+  // Record the persisted message id carried by a successful `done` so the
+  // feedback controls can render (DESIGN §7.1). `done` after an interrupt
+  // carries `null` — nothing to record, the turn stays unrateable.
+  const markPersisted = useCallback((id: string, serverMessageId: string | null) => {
+    if (!serverMessageId) return;
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, serverMessageId } : m)),
     );
   }, []);
 
@@ -524,6 +554,7 @@ export function useAgentStream(
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
+                markPersisted(assistantId, event.assistantMessageId);
                 break;
               case "interrupt":
                 received = true;
@@ -595,6 +626,7 @@ export function useAgentStream(
       applyPanelLanguage,
       attachPanelToMessage,
       handleActivityEvent,
+      markPersisted,
       interrupt,
       isStreaming,
       onTurnComplete,
@@ -688,6 +720,7 @@ export function useAgentStream(
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
+                markPersisted(assistantId, event.assistantMessageId);
                 break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
@@ -734,6 +767,7 @@ export function useAgentStream(
       applyPanelLanguage,
       attachPanelToMessage,
       handleActivityEvent,
+      markPersisted,
       interrupt,
       onTurnComplete,
       t,
@@ -829,6 +863,7 @@ export function useAgentStream(
               // Terminal event — capture the turn's language for the panels.
               applyPanelLanguage(event.language);
               setSuggestions(event.suggestions);
+              markPersisted(assistantId, event.assistantMessageId);
               break;
             case "interrupt":
               received = true;
@@ -888,6 +923,7 @@ export function useAgentStream(
     applyPanelLanguage,
     attachPanelToMessage,
     handleActivityEvent,
+    markPersisted,
     interrupt,
     isStreaming,
     onTurnComplete,

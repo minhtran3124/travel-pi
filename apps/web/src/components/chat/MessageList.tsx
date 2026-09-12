@@ -9,6 +9,7 @@ import { AgentActivityTrail } from "./AgentActivityTrail";
 import { AgentAvatar } from "./AgentAvatar";
 import { AssistantMarkdown } from "./AssistantMarkdown";
 import { MessageActions } from "./MessageActions";
+import { MessageFeedback } from "./MessageFeedback";
 import { ResultChips } from "./ResultChips";
 import type { ChatMessage } from "./useAgentStream";
 
@@ -128,6 +129,15 @@ export function MessageList({
               <MessageActions
                 content={m.content}
                 onRegenerate={isLastAssistant ? onRegenerate : undefined}
+              />
+            ) : null}
+            {/* Only a complete turn with a persisted id is rateable (DESIGN
+                §7.1): streaming, interrupted, stopped and failed turns never
+                receive a `serverMessageId`. */}
+            {!streaming && m.serverMessageId ? (
+              <MessageFeedback
+                assistantMessageId={m.serverMessageId}
+                initial={m.feedback}
               />
             ) : null}
           </div>
