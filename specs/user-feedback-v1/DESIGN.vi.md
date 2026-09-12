@@ -249,11 +249,15 @@ persist_assistant_turn (đổi):
   với mỗi upstream event:
     token → accumulate và yield
     reset → clear accumulator và yield
-    interrupt / error → yield (record_agent_run sở hữu run status)
+    interrupt → yield; done theo sau interrupt đi qua với assistant_message_id: null (§4.2) —
+                không ghi row cho turn bị interrupt
+    error → nếu text tích lũy không rỗng, insert assistant Message bằng pre-minted id với
+            agent_run_id = run_id (run kết thúc failed nên không bao giờ rateable — giống REST
+            fallback ở §4.2), rồi yield error nguyên vẹn; text rỗng thì chỉ yield
     done:
-      nếu final text empty → error, không yield done
+      nếu final text empty → error{code: empty_reply}, không yield done
       insert assistant Message bằng pre-minted id, agent_run_id = run_id
-      nếu insert fail → terminal persistence error, không yield done
+      nếu insert fail → error{code: persistence_failed}, không yield done
       nếu thành công → inject assistant_message_id + agent_run_id vào payload rồi yield done
 
 record_agent_run (không đổi):
@@ -269,6 +273,11 @@ generator hỏi inner generator event kế tiếp và `finally` của nó chạy
 `session_factory` isolated. Feedback request rơi vào khoảng đó thấy `status = running` và nhận `404`
 (§5.2); client retry cùng `client_event_id` sẽ thành công. Chấp nhận được cho v1 và rẻ hơn việc đảo
 thứ tự hai wrapper best-effort.
+
+Sửa 2026-09-12 sau review Task 3.1: mapper stream một `token` fallback rồi `error` (không bao giờ
+`done`) khi graph fail, nên nhánh `error` ở trên persist text đó để history REST và SSE giống nhau
+với cùng một failure; hai mã lỗi `empty_reply` và `persistence_failed` là terminal code mà task
+frontend phải nhận biết.
 
 `persist_assistant_turn` nhận thêm `run_id` và `message_id` từ router. Ở chat path (`/agent/chat`)
 router đã append reply và gọi `finish` trên request session trước `session.commit()` tường minh; nó

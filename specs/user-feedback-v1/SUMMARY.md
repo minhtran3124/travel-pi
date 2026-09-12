@@ -93,7 +93,9 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   tests/streaming` 167 passed. Landed as `1298433`. Task review: spec pass / quality needs_fixes —
   one Important (a failed SSE turn no longer persisted its fallback text because the mapper never
   emits `done` on failure): decided to persist on terminal `error` with non-empty text (run is
-  `failed`, never rateable), DESIGN §4.3 amended, fix in the next change.
+  `failed`, never rateable), DESIGN §4.3 amended (en + vi). Fix landed in the next change together
+  with a resume-path identity test and a rule that `error{code: cancelled}` (client disconnect)
+  never writes a row. `tests/api/agent tests/streaming` 201 passed after the fix.
 - Wave 3 — Task 3.2: `FeedbackService`, `POST /agent/feedback` (router registered in
   `app/routers/main.py`, the aggregate the app mounts — deviation from the plan's `app/main.py`),
   feedback abuse limit over the PR #110 primitive (`enforce_rate_limit` called directly with a

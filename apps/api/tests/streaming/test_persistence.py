@@ -5,6 +5,8 @@ Drives the wrapper with a scripted async SSE iterator against a real
 consuming loop*, that the assistant row already exists when ``done`` is yielded,
 that ``done`` carries the pre-minted ``assistant_message_id`` + ``agent_run_id``,
 and that an empty reply or a failed insert yields a terminal ``error`` instead.
+A terminal upstream ``error`` that follows streamed text (the mapper's fallback
+reply on a graph failure) persists that text before the ``error`` is yielded.
 """
 
 from __future__ import annotations
@@ -131,14 +133,74 @@ def test_interrupt_then_done_passes_through_with_null_message_id(factory):
     assert _row(factory) is None
 
 
-def test_interrupt_and_error_pass_through_without_a_row(factory):
+def test_interrupt_terminal_passes_through_without_a_row(factory):
     interrupt = events.interrupt(conversation_id="c1", payload={"plan": "x"})
     out = _drain(factory, [events.token("partial"), interrupt])
     assert [e for e, _ in out] == ["token", "interrupt"]
     assert _row(factory) is None
 
+
+def test_error_with_text_persists_reply_before_error_is_yielded(factory):
+    """Graph failure: the mapper streams a fallback ``token`` then ``error`` and
+    never ``done``. The text is saved under the pre-minted id (history parity
+    with the REST fallback reply) and the ``error`` payload is untouched."""
+    seen_at_error: dict = {}
+
+    def on_event(ev):
+        if ev.event == "error":
+            seen_at_error["row"] = _row(factory)
+
+    error = events.error(code="internal", message="boom")
+    out = _drain(
+        factory,
+        [events.token("Sorry, "), events.token("try again"), error],
+        on_event=on_event,
+    )
+    assert [e for e, _ in out] == ["token", "token", "error"]
+    assert out[-1][1] == {"code": "internal", "message": "boom"}  # no ids injected
+    row = seen_at_error["row"]
+    assert row is not None
+    assert row.role == "assistant"
+    assert row.content == "Sorry, try again"
+    assert row.agent_run_id == RUN_ID
+    assert row.conversation_id == "c1"
+
+
+def test_error_without_text_writes_no_row(factory):
+    error = events.error(code="internal", message="boom")
+    out = _drain(factory, [events.start("c1"), error])
+    assert [e for e, _ in out] == ["start", "error"]
+    assert out[-1][1] == {"code": "internal", "message": "boom"}
+    assert _row(factory) is None
+
+
+def test_error_persist_failure_is_swallowed_and_error_still_passes(
+    factory, monkeypatch
+):
+    def _boom(self, **kwargs):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(ConversationRepository, "append_message", _boom)
     error = events.error(code="internal", message="boom")
     out = _drain(factory, [events.token("partial"), error])
     assert [e for e, _ in out] == ["token", "error"]
     assert out[-1][1] == {"code": "internal", "message": "boom"}
+    assert _row(factory) is None
+
+
+def test_interrupt_then_error_writes_no_row(factory):
+    """An interrupted turn has no reply row (DESIGN §4.2) even if it then errors."""
+    interrupt = events.interrupt(conversation_id="c1", payload={"plan": "x"})
+    error = events.error(code="internal", message="boom")
+    out = _drain(factory, [events.token("partial"), interrupt, error])
+    assert [e for e, _ in out] == ["token", "interrupt", "error"]
+    assert _row(factory) is None
+
+
+def test_cancelled_error_writes_no_row_even_with_partial_text(factory):
+    """A client disconnect (error code ``cancelled``) is not a reply the
+    traveller saw; the partial text is dropped (DESIGN §4.3)."""
+    error = events.error(code="cancelled", message="Stream cancelled")
+    out = _drain(factory, [events.token("partial"), error])
+    assert [e for e, _ in out] == ["token", "error"]
     assert _row(factory) is None

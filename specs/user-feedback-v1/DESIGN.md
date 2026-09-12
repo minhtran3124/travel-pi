@@ -267,11 +267,15 @@ persist_assistant_turn (changed):
   for upstream event:
     token → accumulate and yield
     reset → clear accumulator and yield
-    interrupt / error → yield (record_agent_run owns the run status)
+    interrupt → yield; the done that follows an interrupt passes through with
+               assistant_message_id: null (§4.2) — no row is written for an interrupted turn
+    error → if accumulated text is non-empty, insert the assistant Message under the pre-minted id
+            with agent_run_id = run_id (the run ends failed, so it is never rateable — same as the
+            REST fallback in §4.2), then yield error unchanged; with empty text just yield
     done:
-      if final text is empty: emit error; do not yield done
+      if final text is empty: emit error{code: empty_reply}; do not yield done
       insert assistant Message under the pre-minted id, agent_run_id = run_id
-      if the insert fails: emit terminal persistence error; do not yield done
+      if the insert fails: emit error{code: persistence_failed}; do not yield done
       else: inject assistant_message_id + agent_run_id into the payload and yield done
 
 record_agent_run (unchanged):
@@ -288,6 +292,11 @@ written a moment later, when the outer generator asks the inner one for its next
 in that window sees `status = running` and gets `404` (§5.2); the client retries with the same
 `client_event_id` and succeeds. That is acceptable for v1 and is cheaper than reordering two
 best-effort wrappers.
+
+Amended 2026-09-12 after the Task 3.1 review: the mapper streams a fallback `token` and then
+`error` (never `done`) when the graph fails, so the `error` branch above persists that text to keep
+REST and SSE history identical for the same failure; the two error codes `empty_reply` and
+`persistence_failed` are the terminal codes the frontend task must recognise.
 
 `persist_assistant_turn` gains `run_id` and `message_id` parameters from the router. On the chat
 path (`/agent/chat`) the router already appends the reply and calls `finish` on the request session

@@ -19,6 +19,13 @@ the *final* answer is persisted, mirroring the FE's reset semantics in
 row's ``assistant_message_id`` and the ``agent_run_id`` that produced it, and
 is never yielded when there is no row (empty reply or insert failure) — a
 terminal ``error`` is emitted instead.
+
+A terminal ``error`` that arrives *with* accumulated text (the mapper streams a
+fallback ``token`` and then ``error`` when the graph fails — see
+``streaming/mapper.py``) is also persisted under the pre-minted id, so REST
+and SSE history stay in parity (the chat path saves its fallback reply the
+same way). That run ends ``failed`` via ``record_agent_run``, so the row is
+not rateable; the ``error`` payload itself is passed through untouched.
 """
 
 from __future__ import annotations
@@ -53,9 +60,14 @@ async def persist_assistant_turn(
     yielded, and both ids are injected into the ``done`` payload. An empty reply
     or a failed insert emits a terminal ``error`` and suppresses ``done``.
     ``interrupt`` / ``error`` pass through untouched (``record_agent_run`` owns
-    the run status). The mapper emits ``done`` after ``interrupt`` too; that
-    turn has no reply row (DESIGN §4.2: interrupt ⇒ ``assistant_message_id``
-    null, not rateable), so it passes through with a null message id.
+    the run status). A terminal ``error`` with non-empty accumulated text (the
+    mapper's fallback reply) persists that text under ``message_id`` **before**
+    the ``error`` is yielded — history parity with the REST fallback — and a
+    failure to do so is logged and swallowed (the client already has an
+    error). An ``error`` with no text writes nothing. The mapper emits ``done``
+    after ``interrupt`` too; that turn has no reply row (DESIGN §4.2:
+    interrupt ⇒ ``assistant_message_id`` null, not rateable), so it passes
+    through with a null message id.
 
     :param events_iter: The upstream SSE event stream to pass through.
     :param conversation_id: The conversation the persisted turn belongs to.
@@ -78,6 +90,34 @@ async def persist_assistant_turn(
             accumulated.clear()
         elif event.event == "interrupt":
             interrupted = True
+        elif event.event == "error" and not interrupted:
+            # A client disconnect surfaces as error{code: cancelled}; the
+            # traveller never saw a reply, so no row (DESIGN §4.3).
+            try:
+                code = json.loads(event.data).get("code")
+            except (ValueError, AttributeError):
+                code = None
+            text = "" if code == "cancelled" else "".join(accumulated)
+            if text:
+                # Persist the (fallback) reply before the client sees the
+                # failure; the run is marked `failed` by record_agent_run, so
+                # the row exists for history but is never rateable.
+                try:
+                    _append_assistant(
+                        session_factory,
+                        conversation_id=conversation_id,
+                        text=text,
+                        message_id=message_id,
+                        run_id=run_id,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    logger.error(
+                        "[persist_assistant_turn] failed to persist reply on error "
+                        "for conv=%s run=%s: %s",
+                        conversation_id,
+                        run_id,
+                        exc,
+                    )
         elif event.event == "done" and interrupted:
             event = _with_identity(event, message_id=None, run_id=run_id)
         elif event.event == "done":
@@ -93,12 +133,12 @@ async def persist_assistant_turn(
                 )
                 continue
             try:
-                ConversationRepository(session_factory).append_message(
+                _append_assistant(
+                    session_factory,
                     conversation_id=conversation_id,
-                    role="assistant",
-                    content=text,
+                    text=text,
                     message_id=message_id,
-                    agent_run_id=run_id,
+                    run_id=run_id,
                 )
             except Exception as exc:  # noqa: BLE001
                 logger.error(
@@ -113,13 +153,31 @@ async def persist_assistant_turn(
                     message="The reply could not be saved.",
                 )
                 continue
-            logger.debug(
-                "[persist_assistant_turn] persisted assistant message %s for conv=%s",
-                message_id,
-                conversation_id,
-            )
             event = _with_identity(event, message_id=message_id, run_id=run_id)
         yield event
+
+
+def _append_assistant(
+    session_factory: sessionmaker[Session],
+    *,
+    conversation_id: str,
+    text: str,
+    message_id: str,
+    run_id: str,
+) -> None:
+    """Insert the assistant row under the pre-minted id, linked to its run."""
+    ConversationRepository(session_factory).append_message(
+        conversation_id=conversation_id,
+        role="assistant",
+        content=text,
+        message_id=message_id,
+        agent_run_id=run_id,
+    )
+    logger.debug(
+        "[persist_assistant_turn] persisted assistant message %s for conv=%s",
+        message_id,
+        conversation_id,
+    )
 
 
 def _with_identity(
