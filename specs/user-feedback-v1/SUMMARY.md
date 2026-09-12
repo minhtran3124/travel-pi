@@ -141,6 +141,11 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   detail success that unmounts the trigger now moves focus to Not-helpful only when focus was on the
   trigger or `<body>`; a hook test's stale array moved inside `waitFor`. The third (reopening the
   dialog after a closed-dialog failure leaves the old inline error) is recorded, not fixed.
+- Wave 6 — Task 6.1: `apps/web/playwright/chat-feedback.spec.ts` drives DESIGN §12 steps 1-7 through
+  accessible names only (send, capture `assistant_message_id` from the SSE `done`, rate, change with a
+  reason, retract, reload after each, replay the detail request for `200 replayed`, probe an unknown
+  id for `404`). It skips unless E2E credentials and `E2E_CHAT_LLM=1` are present. Controller ran
+  eslint (0), `tsc --noEmit` (0) and SC-15 `--list` (0, one chromium test listed).
 
 ## Deviations
 
@@ -197,6 +202,7 @@ at the final HEAD. `SC-15` (e2e collection) is added when Task 6.1 lands.
 | SC-12 Every new UI string exists in both locales | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm test src/messages.parity.test.ts` | 0 | run 2026-09-12 at 5cfe366 | SC-12 |
 | SC-13 Frontend type-checks against the regenerated schema | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run 2026-09-12 at 5cfe366 | SC-13 |
 | SC-14 Backend lint is clean | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | run 2026-09-12 at 5cfe366 | SC-14 |
+| SC-15 The end-to-end spec is collectable | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec playwright test --list playwright/chat-feedback.spec.ts` | 0 | lists 1 chromium test + setup; skips without creds or E2E_CHAT_LLM=1 | SC-15 |
 
 ### Not auto-verified
 
@@ -204,6 +210,9 @@ at the final HEAD. `SC-15` (e2e collection) is added when Task 6.1 lands.
   Postgres 17 / Python 3.12 at `5afa5d8` (isolated compose project `apitest`, worktree mounted into the
   cached test image, `alembic upgrade head` first, `tests/core/test_languages.py` excluded for its
   known container-layout issue) — 2538 passed, 0 failed.
+- **Full backend suite on SQLite** — reached truth, not a Verify row (over the 60 s limit):
+  `cd apps/api && ../../.venv/bin/python -m pytest tests -q -p no:randomly` at `25b0936` — 2542
+  passed, 0 failed (3m45s). The whole web suite passed 340 tests after the Task 5.1 fix round.
 - **End-to-end feedback flow** — reached traceability only. `playwright/chat-feedback.spec.ts` is
   collectable (SC-15) but was not executed: no `E2E_USER_*` credentials locally, and CI's web-e2e
   backend runs with an empty `OPENAI_API_KEY`, so every CI chat turn takes the failure path and is

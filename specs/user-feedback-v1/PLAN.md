@@ -233,3 +233,8 @@ column) and creates only `feedback_events`; see `DESIGN.md` §3.1 and §11. The 
   schema (1) → repositories (2) → identity + API/rate limit (3) → web (4–5) → e2e (6); Langfuse export + `trace_id` deferred;
   the `429` abuse limit is now Task 3.2's deliverable over the PR #110 primitive; Success Criteria
   table and Global Constraints added per `rules/plan-format.md`. Still `proposed`.
+- 2026-09-12 — tasks 1.1, 2.1 complete; commits 450acd3, 14edffa (both task reviews: spec pass / quality approved).
+- 2026-09-12 — tasks 3.1, 3.2 complete; commits 1298433, bce70d8 (3.1 review fix), 2cb7174, 5afa5d8 (2.1/3.2 Minor fixes); all reviews green after the fix round.
+- 2026-09-12 — task 4.1 complete; commit 905a3c4 (review: spec pass / quality approved).
+- 2026-09-12 — task 5.1 complete; commits 5cfe366, b534049 (review fix round: spec pass / quality approved).
+- 2026-09-12 — task 5.1 follow-up complete; commit 25b0936 (two re-review Minor fixes; covered by the final correctness review).
