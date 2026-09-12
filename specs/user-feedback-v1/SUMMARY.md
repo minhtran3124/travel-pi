@@ -298,12 +298,18 @@ synchronous insert later; content is unchanged and the latency was not measured.
 - **Full backend suite on SQLite** — reached truth, not a Verify row (over the 60 s limit):
   `cd apps/api && ../../.venv/bin/python -m pytest tests -q -p no:randomly` at `25b0936` — 2542
   passed, 0 failed (3m45s). The whole web suite passed 340 tests after the Task 5.1 fix round.
-- **End-to-end feedback flow** — reached traceability only. `playwright/chat-feedback.spec.ts` is
-  collectable (SC-15) but was not executed: no `E2E_USER_*` credentials locally, and CI's web-e2e
-  backend runs with an empty `OPENAI_API_KEY`, so every CI chat turn takes the failure path and is
-  correctly not rateable. The spec skips unless `E2E_CHAT_LLM=1`.
-- **Browser UAT** — not performed. The feedback row's look and the dialog's layout at phone width are
-  unverified by any screenshot.
+- **The automated e2e spec itself** — reached traceability only. `playwright/chat-feedback.spec.ts`
+  is collectable (SC-15) but has not been executed BY THE PLAYWRIGHT TEST RUNNER: no `E2E_USER_*`
+  credentials in CI's environment, and CI's web-e2e backend runs with an empty `OPENAI_API_KEY`, so
+  every CI chat turn takes the failure path and is correctly not rateable. The spec skips unless
+  `E2E_CHAT_LLM=1`.
+- **Browser UAT** — reached truth. `specs/user-feedback-v1/uat/` (11 screenshots, commit `6906a78`)
+  runs the identical sequence the e2e spec asserts by hand, against a real signed-in Supabase
+  account, a real OpenAI reply, and a fresh SQLite database migrated to this branch's head: send a
+  message, rate Helpful, reload, switch to Not helpful with a reason, reload, retract, reload,
+  replay the detail request (200, `replayed: true`, the SAME `feedback_event_id`), probe an unknown
+  message id (404). All checks passed. The dialog's layout at phone width is still unverified by any
+  screenshot.
 - **Vietnamese copy** — traceability only: the parity test proves every key exists in both locales,
   never that the translations read well.
 - **Alembic head** — `d4f7a2c9e1b3` at `5afa5d8` (provenance). A long-lived database behind this
