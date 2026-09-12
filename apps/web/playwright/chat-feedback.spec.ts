@@ -101,7 +101,12 @@ test("rate a reply, keep the rating across reloads, replay and probe", async ({
   await feedback.getByRole("button", { name: "Tell us more" }).click();
   const dialog = page.getByRole("dialog", { name: "What went wrong?" });
   await dialog.getByRole("radio", { name: "Incomplete answer" }).check();
-  const detailResponse = page.waitForResponse((res) => isFeedbackPost(res.request()));
+  const detailResponse = page.waitForResponse(
+    (res) =>
+      isFeedbackPost(res.request()) &&
+      (res.request().postDataJSON() as { action?: string } | null)?.action ===
+        "add_detail",
+  );
   await dialog.getByRole("button", { name: "Save feedback" }).click();
   const detailBody = (await detailResponse).request().postData()!;
   const detailEventId = ((await (await detailResponse).json()) as {

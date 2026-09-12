@@ -1210,8 +1210,11 @@ def test_history_carries_feedback_null_then_folded_state(client, tmp_path):
     hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
     by_role = {m["role"]: m for m in hist["messages"]}
     assert by_role["user"]["feedback"] is None
+    assert by_role["user"]["rateable"] is False
     assert by_role["assistant"]["id"] == message_id
     assert by_role["assistant"]["feedback"] is None
+    # A completed run's reply is rateable (DESIGN §6) — the client shows controls.
+    assert by_role["assistant"]["rateable"] is True
 
     s = _db_session(tmp_path)
     try:
@@ -1240,3 +1243,91 @@ def test_history_carries_feedback_null_then_folded_state(client, tmp_path):
         "rating_event_id": event.id,
         "updated_at": event.created_at,
     }
+
+
+def test_history_rateable_false_for_failed_run_fallback(tmp_path):
+    """The fallback reply of a crashed run is in history (identity parity) but
+    ``rateable`` is false, so the client never renders controls that would 404."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    class _CrashingGraph:
+        async def ainvoke(self, *args, **kwargs):
+            raise RuntimeError("model provider down")
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
+    app.dependency_overrides[get_travel_graph_optional] = lambda: None
+
+    with TestClient(app) as c:
+        body = c.post("/agent/chat", json={"message": "plan a trip to Hanoi"}).json()
+        hist = c.get(f"/agent/conversations/{body['conversation_id']}/messages").json()
+    by_role = {m["role"]: m for m in hist["messages"]}
+    assert by_role["assistant"]["id"] == body["assistant_message_id"]
+    assert by_role["assistant"]["rateable"] is False
+    assert by_role["user"]["rateable"] is False
+
+
+def test_history_rateable_false_for_legacy_row_without_run(client, tmp_path):
+    """A pre-feature assistant row (NULL ``agent_run_id``) is never rateable,
+    while the completed-run reply in the same page is; user rows never are."""
+    from app.repositories.conversation import ConversationRepository
+
+    body = client.post("/agent/chat", json={"message": "hi"}).json()
+    conversation_id = body["conversation_id"]
+
+    s = _db_session(tmp_path)
+    try:
+        legacy = ConversationRepository(s).append_message(
+            conversation_id=conversation_id, role="assistant", content="old reply"
+        )
+        s.commit()
+    finally:
+        s.close()
+
+    hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
+    by_id = {m["id"]: m for m in hist["messages"]}
+    assert by_id[body["assistant_message_id"]]["rateable"] is True
+    assert by_id[legacy.id]["rateable"] is False
+    assert all(m["rateable"] is False for m in hist["messages"] if m["role"] == "user")
+
+
+def test_history_run_status_is_one_bulk_lookup(client, monkeypatch):
+    """The rateable flag comes from ONE run-status query for the whole page —
+    never a per-message lookup (DESIGN §6)."""
+    from app.repositories.conversation import ConversationRepository
+
+    body = client.post("/agent/chat", json={"message": "hi"}).json()
+    client.post(
+        "/agent/chat",
+        json={"message": "and more", "conversation_id": body["conversation_id"]},
+    )
+
+    calls: list[list[str]] = []
+    original = ConversationRepository.run_status_for_messages
+
+    def _spy(self, message_ids):
+        calls.append(list(message_ids))
+        return original(self, message_ids)
+
+    monkeypatch.setattr(ConversationRepository, "run_status_for_messages", _spy)
+    hist = client.get(f"/agent/conversations/{body['conversation_id']}/messages").json()
+    assistant_ids = [m["id"] for m in hist["messages"] if m["role"] == "assistant"]
+    assert len(assistant_ids) == 2
+    assert calls == [assistant_ids]
+    assert all(m["rateable"] for m in hist["messages"] if m["role"] == "assistant")

@@ -34,6 +34,10 @@ export interface Message {
   /** Effective feedback state for an assistant message; `null` for user
    * messages and for an unrated assistant message (schema.d.ts `Message`). */
   feedback?: components["schemas"]["EffectiveFeedback"] | null;
+  /** True only for an assistant message linked to a completed agent run — the
+   * same rule `POST /agent/feedback` applies. Controls render only when true
+   * (schema.d.ts `Message`). */
+  rateable: boolean;
 }
 
 /** Full message list for a conversation, including any pending interrupt state.

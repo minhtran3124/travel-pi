@@ -134,6 +134,12 @@ class Message(AppBaseModel):
         description="Effective feedback state for an assistant message; null "
         "for user messages and for an unrated assistant message.",
     )
+    rateable: bool = Field(
+        default=False,
+        description="True only for an assistant message linked to a completed "
+        "agent run — the same rule POST /agent/feedback applies. The client "
+        "shows feedback controls only when true.",
+    )
 
 
 class Conversation(AppBaseModel):

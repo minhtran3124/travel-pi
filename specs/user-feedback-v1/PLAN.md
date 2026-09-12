@@ -238,3 +238,4 @@ column) and creates only `feedback_events`; see `DESIGN.md` §3.1 and §11. The 
 - 2026-09-12 — task 4.1 complete; commit 905a3c4 (review: spec pass / quality approved).
 - 2026-09-12 — task 5.1 complete; commits 5cfe366, b534049 (review fix round: spec pass / quality approved).
 - 2026-09-12 — task 5.1 follow-up complete; commit 25b0936 (two re-review Minor fixes; covered by the final correctness review).
+- 2026-09-12 — task 6.1 complete; commits d552497, f17198b (task review fix round: spec pass / quality approved). All 7 tasks complete; final review chain in progress.

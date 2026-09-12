@@ -48,6 +48,25 @@ NOT_RATEABLE_DETAIL = "Assistant message not found or not rateable."
 RATEABLE_RUN_STATUS = "completed"
 
 
+def is_rateable(role: str, agent_run_id: str | None, run_status: str | None) -> bool:
+    """The single rateable rule (DESIGN §3.1): assistant role, linked to a run
+    that finished ``completed``.
+
+    Shared by ``FeedbackService.submit`` (the ``404`` decision) and the history
+    handler (the ``rateable`` flag on each item) so the client and the write
+    path can never disagree. Ownership is checked separately by the caller.
+
+    :param role: The message role (``user`` / ``assistant``).
+    :param agent_run_id: The linked ``agent_runs`` id, or ``None``.
+    :param run_status: The linked run's status, or ``None`` when unlinked.
+    """
+    return (
+        role == "assistant"
+        and agent_run_id is not None
+        and run_status == RATEABLE_RUN_STATUS
+    )
+
+
 def _noop_export(event: FeedbackEventRecord) -> None:
     """Export seam — a no-op this round (provider export is deferred, DESIGN §2)."""
 
@@ -150,9 +169,7 @@ class FeedbackService:
         if (
             target is None
             or target.owner_user_id != actor
-            or target.role != "assistant"
-            or target.agent_run_id is None
-            or target.run_status != RATEABLE_RUN_STATUS
+            or not is_rateable(target.role, target.agent_run_id, target.run_status)
         ):
             raise NotFoundError(NOT_RATEABLE_DETAIL)
 

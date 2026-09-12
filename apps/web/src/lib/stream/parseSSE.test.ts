@@ -290,16 +290,18 @@ describe("parseSSE — typed protocol", () => {
     expect(events.at(-1)).not.toHaveProperty("future_field");
   });
 
-  it("parses the terminal feedback error codes as ordinary error events", async () => {
+  it("parses error codes it does not know as ordinary error events", async () => {
+    // The server never withholds `done` behind a feedback-specific error
+    // (DESIGN §4.3); any future code still parses as a plain error event.
     const events = await collect(
       streamFromChunks([
-        sse("error", { code: "empty_reply", message: "no text" }),
-        sse("error", { code: "persistence_failed", message: "db" }),
+        sse("error", { code: "some_future_code", message: "no text" }),
+        sse("error", { code: "another_code", message: "db" }),
       ]),
     );
     expect(events).toEqual([
-      { type: "error", code: "empty_reply", message: "no text" },
-      { type: "error", code: "persistence_failed", message: "db" },
+      { type: "error", code: "some_future_code", message: "no text" },
+      { type: "error", code: "another_code", message: "db" },
     ]);
   });
 

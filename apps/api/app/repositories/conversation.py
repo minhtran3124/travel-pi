@@ -174,6 +174,36 @@ class ConversationRepository(Repo):
             row = s.execute(stmt).first()
             return MessageForFeedback.model_validate(row) if row is not None else None
 
+    def run_status_for_messages(
+        self, message_ids: list[str]
+    ) -> dict[str, tuple[str | None, str | None]]:
+        """Bulk ``(agent_run_id, run_status)`` per message id — one query.
+
+        Used by the history handler to compute the ``rateable`` flag for a whole
+        page without an N+1 (DESIGN §6). Messages with no linked run map to
+        ``(None, None)``; a link to a missing run maps to ``(run_id, None)``.
+
+        :param message_ids: The message ids to look up (empty → empty dict).
+        :return: ``{message_id: (agent_run_id, run_status)}`` for every id found.
+        """
+        if not message_ids:
+            return {}
+        stmt = (
+            select(
+                models.Message.id,
+                models.Message.agent_run_id,
+                models.AgentRun.status,
+            )
+            .outerjoin(
+                models.AgentRun, models.Message.agent_run_id == models.AgentRun.id
+            )
+            .where(models.Message.id.in_(message_ids))
+        )
+        with self._session() as s:
+            return {
+                mid: (run_id, status) for mid, run_id, status in s.execute(stmt).all()
+            }
+
     def count_user_turns_since(self, user_id: str, iso_cutoff: str) -> int:
         """Count user-role messages for *user_id* on or after *iso_cutoff*.
 

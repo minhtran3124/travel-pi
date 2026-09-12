@@ -25,7 +25,7 @@ source_of_truth: true
 ## 1. Scope and invariants
 
 This design adds answer-level feedback from backend to frontend. The contract is deliberately narrow:
-thumbs up/down, optional reason/comment, change, retract, reload, and evaluation export.
+thumbs up/down, optional reason/comment, change, retract, reload, and evaluation export (export deferred this round).
 
 Hard invariants:
 
@@ -33,7 +33,7 @@ Hard invariants:
    trace, tool call, or draft token stream.
 2. `assistant_message_id` is minted by the server and is identical in SQL history, `/agent/chat`, SSE
    `done`, and hydrated FE state.
-3. `done` is not emitted until the assistant message commit succeeds.
+3. `done` carries a non-null `assistant_message_id` only after that message's commit succeeds; otherwise it carries `null`. `done` itself is never withheld ("no effect on the chatbot", 2026-09-12).
 4. Only the message's conversation owner may submit or read its effective feedback.
 5. Feedback events are append-only, except legally/operationally required privacy erasure.
 6. A repeated transport request does not create a repeated logical event.
@@ -267,16 +267,17 @@ persist_assistant_turn (changed):
   for upstream event:
     token → accumulate and yield
     reset → clear accumulator and yield
-    interrupt → yield; the done that follows an interrupt passes through with
-               assistant_message_id: null (§4.2) — no row is written for an interrupted turn
-    error → if accumulated text is non-empty (and code != cancelled), insert the assistant Message under the pre-minted id
-            with agent_run_id = run_id (the run ends failed, so it is never rateable — same as the
-            REST fallback in §4.2), then yield error unchanged; with empty text just yield
+    interrupt → mark interrupted; yield
+    error → if accumulated text is non-empty and code != cancelled, insert the assistant Message
+            under the pre-minted id with agent_run_id = run_id (the run ends failed or interrupted,
+            so it is never rateable); then yield error unchanged
     done:
-      if final text is empty: emit error{code: empty_reply}; do not yield done
-      insert assistant Message under the pre-minted id, agent_run_id = run_id
-      if the insert fails: emit error{code: persistence_failed}; do not yield done
-      else: inject assistant_message_id + agent_run_id into the payload and yield done
+      if interrupted: save non-empty text as above (not rateable); yield done with
+                      assistant_message_id: null (§4.2)
+      elif text is empty: yield done with assistant_message_id: null — no row, as before this feature
+      else: insert the assistant Message under the pre-minted id, agent_run_id = run_id
+            on success: inject assistant_message_id + agent_run_id and yield done
+            on failure: log it and yield done with assistant_message_id: null
 
 record_agent_run (unchanged):
   finally → AgentRunRepository.finish(status = interrupted | failed | completed, current_flow, …)
@@ -293,10 +294,13 @@ in that window sees `status = running` and gets `404` (§5.2); the client retrie
 `client_event_id` and succeeds. That is acceptable for v1 and is cheaper than reordering two
 best-effort wrappers.
 
-Amended 2026-09-12 after the Task 3.1 review: the mapper streams a fallback `token` and then
-`error` (never `done`) when the graph fails, so the `error` branch above persists that text to keep
-REST and SSE history identical for the same failure; the two error codes `empty_reply` and
-`persistence_failed` are the terminal codes the frontend task must recognise.
+Amended 2026-09-12 twice. After the Task 3.1 review: the mapper streams a fallback `token` and then
+`error` (never `done`) when the graph fails, so the `error` branch persists that text to keep REST and
+SSE history identical for the same failure. After the final intent review ("ko effect voi chatbot"):
+`done` is never withheld or replaced — an empty reply, a failed insert, or an interrupted turn all
+still deliver `done` exactly as before this feature, only with `assistant_message_id: null`, and
+interrupted draft text is saved again as it was before. The earlier `empty_reply` /
+`persistence_failed` terminal codes are gone.
 
 `persist_assistant_turn` gains `run_id` and `message_id` parameters from the router. On the chat
 path (`/agent/chat`) the router already appends the reply and calls `finish` on the request session
@@ -444,7 +448,14 @@ Avoid one request per message. Extend the ownership-scoped history item additive
 ```
 
 User messages return `feedback: null`. The repository performs a bulk effective-state lookup for the
-assistant message IDs returned by the history query. An alternative dedicated conversation-feedback
+assistant message IDs returned by the history query.
+
+Each history item also carries `rateable: boolean` (added 2026-09-12): true only when the rateable
+rule of §3.1 holds (assistant role, non-null `agent_run_id`, linked run `completed`), computed with
+the same helper the feedback service uses and from one bulk run-status lookup. The client hydrates a
+server message id — and therefore shows controls — only for rateable rows. This implements the §11
+policy of hiding controls for messages without an `agent_run_id`, and also hides them on failed-run
+fallbacks and interrupted drafts. An alternative dedicated conversation-feedback
 endpoint is acceptable if it remains one bulk request; N+1 message calls are not.
 
 ## 7. Frontend state and API design
@@ -680,5 +691,5 @@ Rollback:
 - No raw feedback text appears in logs, traces by default, or memory.
 - SQL feedback remains available when tracing is off.
 - UI state survives reload and is accessible in English and Vietnamese.
-- Rollout, rollback, retention owner/window, erasure behavior, and metrics dashboards are documented.
+- Rollout, rollback, retention owner/window, erasure behavior, and metrics dashboards are documented (metrics dashboards deferred with the export).
 - Memory-candidate or product-learning work remains a separate, gated follow-up.

@@ -61,6 +61,7 @@ from app.schemas.agent import (
     TurnUsage,
 )
 from app.schemas.error import error_responses
+from app.services.feedback_service import is_rateable
 from app.services.quota_service import check_quota
 from app.streaming.agent_run import record_agent_run
 from app.streaming.mapper import stream_agent_events
@@ -753,12 +754,15 @@ async def list_conversation_messages(
         except Exception:  # noqa: BLE001 — best-effort; the message history below still returns
             pass
     messages = repo.list_messages(conversation_id)
-    # One bulk fold for the assistant messages (DESIGN §6) — never per message.
-    feedback = FeedbackRepository(session).effective_for(
-        [m.id for m in messages if m.role == MessageRole.ASSISTANT]
-    )
+    # One bulk fold + one bulk run-status lookup for the assistant messages
+    # (DESIGN §6) — never per message.
+    assistant_ids = [m.id for m in messages if m.role == MessageRole.ASSISTANT]
+    feedback = FeedbackRepository(session).effective_for(assistant_ids)
+    run_status = repo.run_status_for_messages(assistant_ids)
     for m in messages:
         m.feedback = feedback.get(m.id)
+        run_id, status = run_status.get(m.id, (None, None))
+        m.rateable = is_rateable(m.role, run_id, status)
     return ConversationMessages(
         messages=messages,
         interrupt_pending=interrupt_pending,

@@ -4,9 +4,12 @@ Drives the wrapper with a scripted async SSE iterator against a real
 ``ConversationRepository`` on a tmp SQLite factory and asserts, *inside the
 consuming loop*, that the assistant row already exists when ``done`` is yielded,
 that ``done`` carries the pre-minted ``assistant_message_id`` + ``agent_run_id``,
-and that an empty reply or a failed insert yields a terminal ``error`` instead.
-A terminal upstream ``error`` that follows streamed text (the mapper's fallback
-reply on a graph failure) persists that text before the ``error`` is yielded.
+and that ``done`` is never withheld: an empty reply, a failed insert or an
+interrupted turn still deliver ``done`` with ``assistant_message_id: null``
+(DESIGN §4.3 as amended — "no effect on the chatbot"). A terminal upstream
+``error`` that follows streamed text (the mapper's fallback reply on a graph
+failure) persists that text before the ``error`` is yielded, as does
+interrupted draft text.
 """
 
 from __future__ import annotations
@@ -103,33 +106,63 @@ def test_reset_persists_only_the_final_answer(factory):
     assert _row(factory).content == "final"
 
 
-def test_empty_reply_emits_error_and_no_done_and_no_row(factory):
+def test_empty_reply_yields_done_with_null_id_and_no_row(factory):
+    """A tool/panel-only turn has no text: ``done`` passes exactly as before this
+    feature (never an ``empty_reply`` error), with a null message id."""
     out = _drain(factory, [events.start("c1"), _done()])
-    assert [e for e, _ in out] == ["start", "error"]
-    assert out[-1][1]["code"] == "empty_reply"
+    assert [e for e, _ in out] == ["start", "done"]
+    done = out[-1][1]
+    assert done["assistant_message_id"] is None
+    assert done["agent_run_id"] == RUN_ID
+    assert done["current_flow"] == "planner"  # rest of the payload untouched
     assert _row(factory) is None
 
 
-def test_insert_failure_emits_error_and_no_done(factory, monkeypatch):
+def test_insert_failure_still_yields_done_with_null_id(factory, monkeypatch, caplog):
+    """A failed insert must not turn the reply the traveller already saw into an
+    error: log it, yield ``done`` with a null id (not rateable)."""
+
     def _boom(self, **kwargs):
         raise RuntimeError("db down")
 
     monkeypatch.setattr(ConversationRepository, "append_message", _boom)
-    out = _drain(factory, [events.token("Hello"), _done()])
-    assert [e for e, _ in out] == ["token", "error"]
-    assert out[-1][1]["code"] == "persistence_failed"
-    assert "db down" not in out[-1][1]["message"]  # internals stay out of the wire
+    with caplog.at_level("ERROR", logger="app.streaming.persistence"):
+        out = _drain(factory, [events.token("Hello"), _done()])
+    assert [e for e, _ in out] == ["token", "done"]
+    assert out[-1][1]["assistant_message_id"] is None
+    assert out[-1][1]["agent_run_id"] == RUN_ID
     assert _row(factory) is None
+    assert any("db down" in r.getMessage() for r in caplog.records)
 
 
-def test_interrupt_then_done_passes_through_with_null_message_id(factory):
-    """The mapper emits ``done`` after ``interrupt``; that turn has no reply row
-    (DESIGN §4.2), so ``done`` is kept — never turned into ``empty_reply``."""
+def test_interrupt_then_done_saves_draft_and_yields_null_message_id(factory):
+    """The mapper emits ``done`` after ``interrupt``; the draft text is saved
+    (as before this feature) but the turn is not rateable, so ``done`` carries
+    a null ``assistant_message_id`` (DESIGN §4.2)."""
+    seen_at_done: dict = {}
+
+    def on_event(ev):
+        if ev.event == "done":
+            seen_at_done["row"] = _row(factory)
+
     interrupt = events.interrupt(conversation_id="c1", payload={"plan": "x"})
-    out = _drain(factory, [events.token("partial"), interrupt, _done()])
+    out = _drain(
+        factory, [events.token("partial"), interrupt, _done()], on_event=on_event
+    )
     assert [e for e, _ in out] == ["token", "interrupt", "done"]
     assert out[-1][1]["assistant_message_id"] is None
     assert out[-1][1]["agent_run_id"] == RUN_ID
+    row = seen_at_done["row"]
+    assert row is not None
+    assert row.content == "partial"
+    assert row.agent_run_id == RUN_ID
+
+
+def test_interrupt_then_done_without_text_writes_no_row(factory):
+    interrupt = events.interrupt(conversation_id="c1", payload={"plan": "x"})
+    out = _drain(factory, [events.start("c1"), interrupt, _done()])
+    assert [e for e, _ in out] == ["start", "interrupt", "done"]
+    assert out[-1][1]["assistant_message_id"] is None
     assert _row(factory) is None
 
 
@@ -188,13 +221,18 @@ def test_error_persist_failure_is_swallowed_and_error_still_passes(
     assert _row(factory) is None
 
 
-def test_interrupt_then_error_writes_no_row(factory):
-    """An interrupted turn has no reply row (DESIGN §4.2) even if it then errors."""
+def test_interrupt_then_error_saves_draft_text(factory):
+    """Draft text of an interrupted turn that then errors is kept for history
+    (not rateable — the run ends interrupted/failed); ``error`` is untouched."""
     interrupt = events.interrupt(conversation_id="c1", payload={"plan": "x"})
     error = events.error(code="internal", message="boom")
     out = _drain(factory, [events.token("partial"), interrupt, error])
     assert [e for e, _ in out] == ["token", "interrupt", "error"]
-    assert _row(factory) is None
+    assert out[-1][1] == {"code": "internal", "message": "boom"}
+    row = _row(factory)
+    assert row is not None
+    assert row.content == "partial"
+    assert row.agent_run_id == RUN_ID
 
 
 def test_cancelled_error_writes_no_row_even_with_partial_text(factory):

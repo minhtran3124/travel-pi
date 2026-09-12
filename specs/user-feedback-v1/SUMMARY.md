@@ -146,6 +146,13 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   reason, retract, reload after each, replay the detail request for `200 replayed`, probe an unknown
   id for `404`). It skips unless E2E credentials and `E2E_CHAT_LLM=1` are present. Controller ran
   eslint (0), `tsc --noEmit` (0) and SC-15 `--list` (0, one chromium test listed).
+  Task review: spec cannot_verify / quality needs_fixes — one Critical: Playwright matches accessible
+  names as substrings, so "Helpful" also matched "Not helpful" and the first real run would have
+  failed in strict mode. Fixed in `f17198b` (exact names; the replay step now also asserts the same
+  `feedback_event_id`), re-review: spec pass / quality approved.
+- Final review chain over `5d919fd..d552497`: six FIND angles + scorers + intent review. One finding
+  at 75 (unrateable history rows) and three intent drifts against "ko effect voi chatbot" were fixed
+  in the final fix round; the rest are under Advisory Findings and Intent Findings.
 
 ## Deviations
 
@@ -170,6 +177,19 @@ becomes an explicit `reassign_user` extension in Task 2.1.
   identical-payload race replays, wider no-memory import gate. Commit `5afa5d8`.
 - Rule 2 — three duplicated stop-handling blocks in `useAgentStream.ts` folded into `settleTurn()`
   (reviewer confirmed behaviour-preserving). Commit `b534049`.
+- Rule 4 judgment (controller) — history items gain an additive `rateable: boolean`. A
+  response-shape change not listed in DESIGN §6, but the user chose "UI + BE api", the
+  public-contract gate was declared at intake, and DESIGN §11 already required hiding controls for
+  messages without an `agent_run_id`, which the client cannot do without this signal. Without it
+  every pre-feature assistant message showed thumbs that vanished on a 404 (correctness score 75).
+  The rule lives once in `is_rateable()` (feedback service), fed by one bulk run-status query.
+  Final fix commit.
+- Rule 1 (intent) — `persist_assistant_turn` no longer withholds or replaces `done`: an empty reply,
+  a failed insert, or an interrupted turn deliver `done` as before this feature, with
+  `assistant_message_id: null`; interrupted draft text is saved again. The `empty_reply` /
+  `persistence_failed` codes are gone. Final fix commit.
+- Rule 3 — `agent.test.ts` fixture gains `rateable: false` (the type field is required); an unused
+  import dropped in `persistence.py`. Final fix commit.
 - Test-only — `tests/api/agent/test_agent_chat.py` history test adapted to the tuple return of
   `append`. Commit `5afa5d8`.
 
@@ -181,7 +201,7 @@ at the final HEAD. `SC-15` (e2e collection) was added when Task 6.1 landed at `d
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| Whitespace hygiene | `python3 -c "import pathlib,re,sys;bad=[str(p) for p in sorted(pathlib.Path('specs/user-feedback-v1').glob('*.md')) if re.search(r'[ \t]+$',p.read_text(),re.M)];print(bad);sys.exit(1 if bad else 0)"` | 0 | no spec markdown file has trailing whitespace | |
+| Whitespace hygiene | `python3 -c "import pathlib,re,sys;ps=sorted(pathlib.Path('specs/user-feedback-v1').glob('*.md'));bad=[str(p) for p in ps if re.search(r'[ \t]+$',p.read_text(),re.M)];print(len(ps),bad);sys.exit(1 if not ps or bad else 0)"` | 0 | fails on a missing folder or any trailing whitespace | |
 | Research section parity | `python3 -c "import re,sys;c=[len(re.findall(r'(?m)^## ',open('specs/user-feedback-v1/'+f).read())) for f in ('RESEARCH.md','RESEARCH.vi.md')];print(c);sys.exit(0 if c[0]==c[1]>0 else 1)"` | 0 | same non-zero count of top-level sections in EN and VI | |
 | Design section parity | `python3 -c "import re,sys;c=[len(re.findall(r'(?m)^## ',open('specs/user-feedback-v1/'+f).read())) for f in ('DESIGN.md','DESIGN.vi.md')];print(c);sys.exit(0 if c[0]==c[1]>0 else 1)"` | 0 | same non-zero count of top-level sections in EN and VI | |
 | External-source parity | `python3 -c "import re,sys;a=set(re.findall(r'https://[^)]+',open('specs/user-feedback-v1/RESEARCH.md').read()));b=set(re.findall(r'https://[^)]+',open('specs/user-feedback-v1/RESEARCH.vi.md').read()));sys.exit(0 if a==b else 1)"` | 0 | Both versions retain the same official source URLs | |
@@ -203,6 +223,59 @@ at the final HEAD. `SC-15` (e2e collection) was added when Task 6.1 landed at `d
 | SC-13 Frontend type-checks against the regenerated schema | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec tsc --noEmit` | 0 | run 2026-09-12 at 5cfe366 | SC-13 |
 | SC-14 Backend lint is clean | `cd apps/api && ../../.venv/bin/ruff check app` | 0 | run 2026-09-12 at 5cfe366 | SC-14 |
 | SC-15 The end-to-end spec is collectable | `cd apps/web && PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH" pnpm exec playwright test --list playwright/chat-feedback.spec.ts` | 0 | lists 1 chromium test + setup; skips without creds or E2E_CHAT_LLM=1 | SC-15 |
+
+### Advisory Findings
+
+Final correctness review over `5d919fd..d552497`: six FIND angles (opus), one independent scorer
+per location (sonnet), threshold 75. Findings below the threshold are recorded here, not fixed.
+
+- **A · score 50** — on `/agent/stream`, `done` reaches the client before `record_agent_run`'s
+  `finally` marks the run `completed`, because `persist_assistant_turn` wraps `record_agent_run`.
+  A client that rates inside that window, or a run whose `finish()` fails (logged and swallowed),
+  gets 404, and `MessageFeedback` then hides the controls. The web UI renders the controls only after
+  the stream closes, which is after `finish()`, so a normal web click does not hit it. DESIGN §4.3's
+  "the client retries" assumption does not hold: the UI treats 404 as permanent. Reported by four
+  angles. Follow-up: finish the run before `done` is yielded (swap the wrapper order).
+- **B · score 50** — when `persist_assistant_turn` replaces `done` with
+  `error{empty_reply | persistence_failed}`, the inner `record_agent_run` has already seen `done` and
+  records the run `completed`, so dashboard success rates count a turn the user saw fail. Same
+  follow-up as A.
+- **C · score 0 (unmodified line)** — a client disconnect after `done` was delivered marks the run
+  `failed`, so a persisted reply that was shown as rateable later returns 404. Pre-existing behaviour
+  in `app/streaming/agent_run.py`, newly consequential because rateability now depends on run status.
+  Same follow-up.
+
+- **E · score 50** — an upstream `done` with no streamed token text is replaced by
+  `error{empty_reply}`; the scorer found the finder's named triggers safe but one real, rare one (a
+  ReAct loop that ends on a ToolMessage). Superseded by the intent fix below, which restores `done`.
+- **F · score 0** — a retract with nothing active still appends and reaches the export hook; this is
+  the documented audit behaviour of DESIGN §5.2 and the hook is a no-op this round.
+- **D · score 75 → fix loop** — history hydration sets a server id on every assistant row, so
+  failed-run fallbacks and every pre-feature row show thumbs that vanish on a 404. Fixed in the final
+  fix round (see Deviations once landed).
+- **G, H (removed-behavior)** — interrupted draft text no longer saved; empty `done` became an error.
+  Same as intent findings 1 and 3; fixed there.
+
+### Intent Findings
+
+Plan-blind intent review over `5d919fd..d552497`, oracle = the verbatim `### Intent`.
+
+1. **drift, behaviour-changing — fix loop.** An empty reply turned `done` into `error{empty_reply}`
+   (the web showed a failed turn and lost suggestions). Against "ko effect voi chatbot". Restored:
+   `done` always passes, with `assistant_message_id: null` when there is no row.
+2. **drift, behaviour-changing — fix loop.** A failed assistant-row insert turned `done` into
+   `error{persistence_failed}`; before, the failure was logged and the user saw the reply. Restored
+   the same way.
+3. **drift, behaviour-changing — fix loop.** Text streamed before a plan-approval interrupt was no
+   longer saved, so it vanished from history on reload. Restored: that text is saved again (its run
+   ends `interrupted`, so it is not rateable).
+4. **drift, DESIGN vs intent — advisory.** DESIGN §1 still listed evaluation export and §13 metrics
+   dashboards; both are now marked deferred.
+5. **excess, minor — report-only.** `reassign_user` also moves `agent_runs` rows on an anonymous
+   claim, which changes who owns run metrics. Kept: it closes review gap #2 (runs must follow their
+   conversation for feedback ownership).
+6. **gap (evidence) — closed.** SC-10…SC-13 were first run at `5cfe366`; `verify_summary --check`
+   re-ran every row at `d552497` (all SC rows PASS) and runs again at the final HEAD.
 
 ### Not auto-verified
 

@@ -305,7 +305,10 @@ export function useAgentStream(
             content: m.content,
             activity: [],
             panels: [],
-            ...(m.role === "assistant"
+            // Only a rateable row (assistant + completed run, decided by the
+            // server) gets a server id: failed-run fallbacks and legacy rows
+            // must never render controls that would 404.
+            ...(m.role === "assistant" && m.rateable
               ? { serverMessageId: m.id, feedback: m.feedback ?? null }
               : {}),
           }));

@@ -3909,6 +3909,12 @@ export interface components {
             created_at: string;
             /** @description Effective feedback state for an assistant message; null for user messages and for an unrated assistant message. */
             feedback?: components["schemas"]["EffectiveFeedback"] | null;
+            /**
+             * Rateable
+             * @description True only for an assistant message linked to a completed agent run — the same rule POST /agent/feedback applies. The client shows feedback controls only when true.
+             * @default false
+             */
+            rateable: boolean;
         };
         /**
          * MessageRole

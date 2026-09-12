@@ -25,7 +25,7 @@ translation_of: DESIGN.md
 ## 1. Phạm vi và invariants
 
 Thiết kế này thêm answer-level feedback xuyên BE→FE. Contract cố ý hẹp: thumbs up/down, reason/comment
-tùy chọn, đổi, retract, reload và export cho evaluation.
+tùy chọn, đổi, retract, reload và export cho evaluation (export hoãn ở vòng này).
 
 Invariants bắt buộc:
 
@@ -33,7 +33,7 @@ Invariants bắt buộc:
    tool call hay draft stream.
 2. `assistant_message_id` do server tạo và giống nhau trong SQL history, `/agent/chat`, SSE `done` và
    hydrated FE state.
-3. Không phát `done` trước khi commit assistant message thành công.
+3. `done` chỉ mang `assistant_message_id` khác null sau khi message đó commit thành công; nếu không thì mang `null`. Bản thân `done` không bao giờ bị giữ lại ("không ảnh hưởng chatbot", 2026-09-12).
 4. Chỉ owner của conversation chứa message được submit/read effective feedback.
 5. Feedback event append-only, ngoại trừ privacy erasure bắt buộc.
 6. Retry transport không tạo thêm logical event.
@@ -249,16 +249,17 @@ persist_assistant_turn (đổi):
   với mỗi upstream event:
     token → accumulate và yield
     reset → clear accumulator và yield
-    interrupt → yield; done theo sau interrupt đi qua với assistant_message_id: null (§4.2) —
-                không ghi row cho turn bị interrupt
-    error → nếu text tích lũy không rỗng (và code != cancelled), insert assistant Message bằng pre-minted id với
-            agent_run_id = run_id (run kết thúc failed nên không bao giờ rateable — giống REST
-            fallback ở §4.2), rồi yield error nguyên vẹn; text rỗng thì chỉ yield
+    interrupt → đánh dấu interrupted; yield
+    error → nếu text tích lũy không rỗng và code != cancelled, insert assistant Message bằng
+            pre-minted id với agent_run_id = run_id (run kết thúc failed hoặc interrupted nên không
+            bao giờ rateable); rồi yield error nguyên vẹn
     done:
-      nếu final text empty → error{code: empty_reply}, không yield done
-      insert assistant Message bằng pre-minted id, agent_run_id = run_id
-      nếu insert fail → error{code: persistence_failed}, không yield done
-      nếu thành công → inject assistant_message_id + agent_run_id vào payload rồi yield done
+      nếu interrupted: lưu text không rỗng như trên (không rateable); yield done với
+                       assistant_message_id: null (§4.2)
+      nếu text rỗng: yield done với assistant_message_id: null — không ghi row, như trước feature
+      còn lại: insert assistant Message bằng pre-minted id, agent_run_id = run_id
+               thành công: inject assistant_message_id + agent_run_id rồi yield done
+               thất bại: log lỗi và yield done với assistant_message_id: null
 
 record_agent_run (không đổi):
   finally → AgentRunRepository.finish(status = interrupted | failed | completed, current_flow, …)
@@ -274,10 +275,12 @@ generator hỏi inner generator event kế tiếp và `finally` của nó chạy
 (§5.2); client retry cùng `client_event_id` sẽ thành công. Chấp nhận được cho v1 và rẻ hơn việc đảo
 thứ tự hai wrapper best-effort.
 
-Sửa 2026-09-12 sau review Task 3.1: mapper stream một `token` fallback rồi `error` (không bao giờ
-`done`) khi graph fail, nên nhánh `error` ở trên persist text đó để history REST và SSE giống nhau
-với cùng một failure; hai mã lỗi `empty_reply` và `persistence_failed` là terminal code mà task
-frontend phải nhận biết.
+Sửa 2026-09-12 hai lần. Sau review Task 3.1: mapper stream một `token` fallback rồi `error` (không
+bao giờ `done`) khi graph fail, nên nhánh `error` persist text đó để history REST và SSE giống nhau
+với cùng một failure. Sau intent review cuối ("ko effect voi chatbot"): `done` không bao giờ bị giữ
+lại hay thay thế — reply rỗng, insert lỗi hoặc turn bị interrupt vẫn nhận `done` đúng như trước
+feature, chỉ với `assistant_message_id: null`, và text nháp trước interrupt lại được lưu như trước.
+Hai terminal code `empty_reply` / `persistence_failed` đã bỏ.
 
 `persist_assistant_turn` nhận thêm `run_id` và `message_id` từ router. Ở chat path (`/agent/chat`)
 router đã append reply và gọi `finish` trên request session trước `session.commit()` tường minh; nó
@@ -416,7 +419,13 @@ Tránh N+1 call. Mở rộng history item theo kiểu additive:
 ```
 
 User message trả `feedback: null`. Repository bulk-load effective states cho các assistant IDs trong
-history query. Dedicated conversation-feedback endpoint cũng được nếu chỉ một bulk request.
+history query.
+
+Mỗi history item còn mang `rateable: boolean` (thêm 2026-09-12): chỉ true khi quy tắc rateable ở
+§3.1 thỏa (role assistant, `agent_run_id` khác null, run liên kết `completed`), tính bằng cùng helper
+mà feedback service dùng và từ một lần tra run status hàng loạt. Client chỉ gán server message id —
+tức là chỉ hiện controls — cho row rateable. Đây là cách thực hiện chính sách §11 ẩn controls cho
+message không có `agent_run_id`, và cũng ẩn chúng trên fallback của run lỗi và bản nháp bị interrupt. Dedicated conversation-feedback endpoint cũng được nếu chỉ một bulk request.
 
 ## 7. Frontend state và API design
 
@@ -614,5 +623,5 @@ backup và chấp nhận xóa dữ liệu.
 - Raw feedback text không vào log, trace mặc định hay memory.
 - SQL feedback vẫn dùng được khi tracing off.
 - UI state survive reload và accessible bằng tiếng Anh/Việt.
-- Rollout, rollback, retention owner/window, erasure và metrics được document.
+- Rollout, rollback, retention owner/window, erasure và metrics được document (metrics dashboards hoãn cùng export).
 - Memory-candidate/product-learning vẫn là follow-up tách riêng có gate.
