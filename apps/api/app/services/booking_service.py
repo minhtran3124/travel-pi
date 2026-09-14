@@ -9,7 +9,7 @@ in-memory / read-only.
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Annotated
 
 from fastapi import Depends
@@ -43,6 +43,20 @@ BOOKING_SORTS = {
     BookingSort.PRICE_DESC.value: (lambda booking: booking.total_price, True),
     BookingSort.PRICE_ASC.value: (lambda booking: booking.total_price, False),
 }
+
+
+def _as_date(value: str) -> date:
+    """Parse a ``YYYY-MM-DD`` date string to a :class:`date` for comparison.
+
+    The hotel duplicate check compares stored vs requested dates as *dates*, not
+    raw strings, so unpadded input like ``"2027-4-10"`` (which the schema
+    validator accepts unchanged) still matches the padded ``"2027-04-10"`` of an
+    existing booking instead of escaping the check (gh-194).
+
+    :param value: A date string in ``YYYY-MM-DD`` form.
+    :return: The parsed calendar date.
+    """
+    return datetime.strptime(value, "%Y-%m-%d").date()
 
 
 def _new_booking_id() -> str:
@@ -496,12 +510,14 @@ class BookingService:
             )
 
         if check_duplicate:
+            req_check_in = _as_date(request.check_in)
+            req_check_out = _as_date(request.check_out)
             for existing in self._repo.list_active_by_reference(
                 user_id, BookingType.HOTEL.value, hotel.id
             ):
                 if (
-                    existing.details.check_in == request.check_in
-                    and existing.details.check_out == request.check_out
+                    _as_date(existing.details.check_in) == req_check_in
+                    and _as_date(existing.details.check_out) == req_check_out
                 ):
                     raise DuplicateBookingError(
                         f"You already have booking {existing.confirmation_code} "

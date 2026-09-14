@@ -97,6 +97,32 @@ def test_book_flight_same_turn_replays_one_row(agent_db):
 
 
 # ---------------------------------------------------------------------------
+# (a1) same turn, second call with allow_duplicate=True -> still replays (one row)
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_same_turn_allow_duplicate_still_replays_one_row(agent_db):
+    """Same-turn idempotency replay wins over the duplicate check: a second call
+    in the same turn replays the first booking even when allow_duplicate=True is
+    set, so the row count stays 1 and the same id comes back (gh-194, M4)."""
+    from app.tools.flight_tools import book_flight
+
+    args = {
+        **_flight_args(_flight_number(agent_db)),
+        "messages": [HumanMessage(id="h1", content="book it")],
+    }
+    config = {"configurable": {"thread_id": "t1"}}
+
+    first = book_flight.invoke(dict(args), config=config)
+    second = book_flight.invoke(
+        {**args, "allow_duplicate": True}, config=config
+    )
+
+    assert first["id"] == second["id"]
+    assert _rows(agent_db) == 1
+
+
+# ---------------------------------------------------------------------------
 # (a2) same turn, but cancelled between calls -> new booking (two rows)
 # ---------------------------------------------------------------------------
 

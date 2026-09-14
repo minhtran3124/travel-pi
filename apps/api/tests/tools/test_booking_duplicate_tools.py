@@ -152,5 +152,8 @@ def test_allow_duplicate_in_model_schema_injected_hidden(tool_name):
     tool = {"book_flight": book_flight, "book_hotel": book_hotel}[tool_name]
     model_fields = tool.tool_call_schema.model_fields
     assert "allow_duplicate" in model_fields
+    # The description must steer the model to only override after confirming.
+    description = model_fields["allow_duplicate"].description or ""
+    assert "confirm" in description.lower()
     for hidden in ("user_id", "trip_id", "messages", "config"):
         assert hidden not in model_fields

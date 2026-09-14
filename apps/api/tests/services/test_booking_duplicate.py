@@ -105,6 +105,26 @@ def test_book_hotel_duplicate_raises(service):
 
     assert exc.value.existing.id == first.id
     assert first.confirmation_code in exc.value.detail
+    assert exc.value.hint is not None and "allow_duplicate" in exc.value.hint
+    assert len(service.list_all(user_id=owner)) == 1
+
+
+def test_hotel_unpadded_dates_raises(service):
+    """Unpadded request dates ("2027-4-10") must still match a padded existing
+    booking ("2027-04-10"): the check compares parsed dates, not raw strings, so
+    the duplicate does not escape (gh-194, M1)."""
+    owner = "u_dup_hotel_unpadded"
+    hotel_id = _hotel_id(service._session)
+    first = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
+
+    with pytest.raises(DuplicateBookingError) as exc:
+        service.book_hotel(
+            _hotel_request(hotel_id, check_in="2027-4-10", check_out="2027-4-14"),
+            user_id=owner,
+            check_duplicate=True,
+        )
+
+    assert exc.value.existing.id == first.id
     assert len(service.list_all(user_id=owner)) == 1
 
 
@@ -170,5 +190,42 @@ def test_check_duplicate_false_not_flagged(service):
     first = service.book_flight(_flight_request(flight), user_id=owner)
     # Default False (the REST path) still creates a second row.
     second = service.book_flight(_flight_request(flight), user_id=owner)
+    assert second.id != first.id
+    assert len(service.list_all(user_id=owner)) == 2
+
+
+def test_cancelled_hotel_not_flagged(service):
+    owner = "u_dup_hotel_cancelled"
+    hotel_id = _hotel_id(service._session)
+    first = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
+    service.cancel(first.id, user_id=owner)
+
+    # A cancelled booking never counts, so re-booking the same dates is allowed.
+    second = service.book_hotel(
+        _hotel_request(hotel_id), user_id=owner, check_duplicate=True
+    )
+    assert second.id != first.id
+
+
+def test_another_owner_hotel_not_flagged(service):
+    owner_a = "u_dup_hotel_owner_a"
+    owner_b = "u_dup_hotel_owner_b"
+    hotel_id = _hotel_id(service._session)
+    service.book_hotel(_hotel_request(hotel_id), user_id=owner_a)
+
+    # A different owner's identical hotel booking is not a duplicate of A's.
+    booking_b = service.book_hotel(
+        _hotel_request(hotel_id), user_id=owner_b, check_duplicate=True
+    )
+    assert len(service.list_all(user_id=owner_b)) == 1
+    assert booking_b.id is not None
+
+
+def test_hotel_check_duplicate_false_not_flagged(service):
+    owner = "u_dup_hotel_flag_off"
+    hotel_id = _hotel_id(service._session)
+    first = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
+    # Default False (the REST path) still creates a second row.
+    second = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
     assert second.id != first.id
     assert len(service.list_all(user_id=owner)) == 2
