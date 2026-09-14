@@ -136,9 +136,13 @@ def test_book_flight_new_turn_books_again_two_rows(agent_db):
     book_flight.invoke(
         {**base, "messages": [HumanMessage(id="h1", content="book it")]}, config=config
     )
+    # gh-194: a genuinely new turn re-booking the identical flight now trips the
+    # duplicate check, so the second (deliberate) booking sets allow_duplicate=True
+    # — this keeps testing that a new turn is not idempotency-collapsed.
     book_flight.invoke(
         {
             **base,
+            "allow_duplicate": True,
             "messages": [
                 HumanMessage(id="h1", content="book it"),
                 AIMessage(content="Booked!"),
@@ -184,7 +188,9 @@ def test_book_flight_no_context_creates_distinct_bookings(agent_db):
     args = _flight_args(_flight_number(agent_db))
 
     first = book_flight.invoke(dict(args))
-    second = book_flight.invoke(dict(args))
+    # gh-194: with no turn context there is no idempotency replay, but the
+    # duplicate check still fires, so the intentional second booking opts in.
+    second = book_flight.invoke({**args, "allow_duplicate": True})
 
     assert first["id"] != second["id"]
     assert _rows(agent_db) == 2

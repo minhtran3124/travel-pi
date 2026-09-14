@@ -100,7 +100,11 @@ def test_book_flight_repeated_call_creates_distinct_bookings(agent_db):
         "user_id": OWNER,
     }
     first = book_flight.invoke(dict(args))
-    second = book_flight.invoke(dict(args))
+    # gh-194: the agent tool now opts into the duplicate check, so a genuine
+    # second identical booking must set allow_duplicate=True (the override the
+    # model passes only after the traveller confirms). This still exercises the
+    # no-idempotency-collapse invariant this test guards.
+    second = book_flight.invoke({**args, "allow_duplicate": True})
 
     assert second["id"] != first["id"]
     assert second["confirmation_code"] != first["confirmation_code"]

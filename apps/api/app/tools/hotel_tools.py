@@ -175,6 +175,16 @@ class BookHotelArgs(AppBaseModel):
             "reservations. Leaving it False (the default) will not book anything."
         ),
     )
+    allow_duplicate: bool = Field(
+        False,
+        description=(
+            "Leave False. If the tool reports a possible duplicate (the traveller "
+            "already has an active booking for this same hotel and exact dates), "
+            "do NOT retry blindly — tell the traveller about the existing booking "
+            "and ask whether they really want another one. Set True only after "
+            "they explicitly confirm they want a second booking."
+        ),
+    )
     user_id: Annotated[str, InjectedState("user_id")] = Field(
         default="",
         description="Injected owner id from graph state — never supplied by the model.",
@@ -477,6 +487,7 @@ def book_hotel(
     children: int = 0,
     notes: str | None = None,
     confirm: bool = False,
+    allow_duplicate: bool = False,
     user_id: Annotated[str, InjectedState("user_id")] = "",
     trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
     messages: Annotated[list, InjectedState("messages")] = None,
@@ -499,6 +510,10 @@ def book_hotel(
     :param notes: Optional note for the hotel (arrival time, bed type preference).
     :param confirm: Must be True to execute the booking — prevents accidental
         reservations; left False (the default), nothing is booked.
+    :param allow_duplicate: Leave False. If the tool reports a possible duplicate
+        (an existing active booking for the same hotel + exact dates), tell the
+        traveller and ask; set True only after they explicitly confirm they want
+        another booking.
     :param user_id: The owner id, injected from graph state (not model-supplied);
         stamped on the booking so it is scoped to the authenticated traveller.
     :param trip_id: The active trip id, injected from graph state (not
@@ -518,6 +533,7 @@ def book_hotel(
             "adults": adults,
             "children": children,
             "confirm": confirm,
+            "allow_duplicate": allow_duplicate,
         },
     )
     if not confirm:
@@ -525,6 +541,9 @@ def book_hotel(
             "set confirm=true to book — this action creates a real reservation"
         )
     # Replay-safety within one traveller turn (gh-193): see book_flight.
+    # `allow_duplicate` is deliberately OUT of the idempotency args: the key
+    # identifies the booking content, so including the override would let a
+    # same-turn revise re-run with a flipped flag mint a second row (gh-194).
     idempotency_key = turn_idempotency_key(
         "book_hotel",
         {
@@ -560,7 +579,10 @@ def book_hotel(
                 trip_id=trip_id,
             )
             result = BookingService(s).book_hotel(
-                request, user_id=user_id, idempotency_key=idempotency_key
+                request,
+                user_id=user_id,
+                idempotency_key=idempotency_key,
+                check_duplicate=not allow_duplicate,
             )
             return dump(result)
         except AppError as e:
