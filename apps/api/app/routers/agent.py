@@ -38,7 +38,7 @@ from app.core.pricing import estimate_cost
 from app.core.streaming import sse_response
 from app.db.base import _utc_now_iso
 from app.db.session import get_session
-from app.enums import Tier
+from app.enums import MessageRole, Tier
 from app.exceptions import ForbiddenError, UpstreamError
 from app.memory.extraction_runner import (
     run_memory_extraction,
@@ -46,6 +46,7 @@ from app.memory.extraction_runner import (
 )
 from app.repositories.agent_run import AgentRunRepository
 from app.repositories.conversation import ConversationRepository
+from app.repositories.feedback import FeedbackRepository
 from app.repositories.user import UserRepository
 from app.routers.tags import Tags
 from app.schemas.agent import (
@@ -60,6 +61,7 @@ from app.schemas.agent import (
     TurnUsage,
 )
 from app.schemas.error import error_responses
+from app.services.feedback_service import is_rateable
 from app.services.quota_service import check_quota
 from app.streaming.agent_run import record_agent_run
 from app.streaming.mapper import stream_agent_events
@@ -304,6 +306,9 @@ async def agent_chat(
     # row (committed by the existing session.commit() below). All of this is
     # best-effort — no metrics failure may raise into the reply path.
     run_id = str(uuid4())
+    # Answer identity (specs/user-feedback-v1 §4.2): the reply row's id is minted
+    # up front so the response, history and feedback all name the same message.
+    assistant_message_id = str(uuid4())
     metrics = TurnMetricsHandler()
     started = time.monotonic()
     kind = "resume" if body.resume is not None else "turn"
@@ -417,8 +422,14 @@ async def agent_chat(
             _lang = None
         # Off the loop: a first miss per language runs a blocking translation.
         reply = await asyncio.to_thread(system_reply, "agent_error_fallback", _lang)
+        # Persisted under the run so history and the client agree on identity;
+        # the run finishes `failed`, so the feedback service refuses to rate it.
         repo.append_message(
-            conversation_id=conversation_id, role="assistant", content=reply
+            conversation_id=conversation_id,
+            role="assistant",
+            content=reply,
+            message_id=assistant_message_id,
+            agent_run_id=run_id,
         )
         # The failed graph run may still have left a checkpointed trip_id from
         # an earlier turn's create_trip (this turn's own state update, if any,
@@ -435,6 +446,8 @@ async def agent_chat(
         usage = _finalize("failed", None)
         return ChatResponse(
             conversation_id=conversation_id,
+            assistant_message_id=assistant_message_id,
+            agent_run_id=run_id,
             reply=reply,
             trip_id=fallback_trip_id,
             current_flow=None,
@@ -477,7 +490,11 @@ async def agent_chat(
             system_reply, "agent_error_fallback", result.get("language")
         )
         repo.append_message(
-            conversation_id=conversation_id, role="assistant", content=reply
+            conversation_id=conversation_id,
+            role="assistant",
+            content=reply,
+            message_id=assistant_message_id,
+            agent_run_id=run_id,
         )
         # Schedule memory extraction to run after the response is sent. The
         # interrupt-skip is guaranteed solely by this `else` branch: the runner
@@ -503,6 +520,9 @@ async def agent_chat(
 
     return ChatResponse(
         conversation_id=conversation_id,
+        # No reply row is written on an interrupt, so there is nothing to rate.
+        assistant_message_id=None if interrupt_pending else assistant_message_id,
+        agent_run_id=run_id,
         reply=reply,
         trip_id=result.get("trip_id"),
         current_flow=result.get("current_flow"),
@@ -559,6 +579,9 @@ async def agent_stream(
     # ``agent_runs`` row before the session.commit() below persists it. The stream
     # recorder (record_agent_run) finalizes it once the SSE stream drains.
     run_id = str(uuid4())
+    # Answer identity (specs/user-feedback-v1 §4.3): persist_assistant_turn
+    # stores the reply under this id and echoes it on `done`.
+    assistant_message_id = str(uuid4())
     metrics = TurnMetricsHandler()
     kind = "resume" if body.resume is not None else "turn"
     try:
@@ -640,6 +663,8 @@ async def agent_stream(
             ),
             conversation_id=conversation_id,
             session_factory=factory,
+            run_id=run_id,
+            message_id=assistant_message_id,
         ),
         background=background_task,
     )
@@ -728,8 +753,18 @@ async def list_conversation_messages(
             interrupt_payload = state.interrupts[0].value if state.interrupts else None
         except Exception:  # noqa: BLE001 — best-effort; the message history below still returns
             pass
+    messages = repo.list_messages(conversation_id)
+    # One bulk fold + one bulk run-status lookup for the assistant messages
+    # (DESIGN §6) — never per message.
+    assistant_ids = [m.id for m in messages if m.role == MessageRole.ASSISTANT]
+    feedback = FeedbackRepository(session).effective_for(assistant_ids)
+    run_status = repo.run_status_for_messages(assistant_ids)
+    for m in messages:
+        m.feedback = feedback.get(m.id)
+        run_id, status = run_status.get(m.id, (None, None))
+        m.rateable = is_rateable(m.role, run_id, status)
     return ConversationMessages(
-        messages=repo.list_messages(conversation_id),
+        messages=messages,
         interrupt_pending=interrupt_pending,
         interrupt_payload=interrupt_payload,
     )

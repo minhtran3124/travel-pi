@@ -686,6 +686,31 @@
       "copied": "Đã sao chép",
       "regenerate": "Tạo lại"
     },
+    "feedback": {
+      "groupLabel": "Đánh giá câu trả lời này",
+      "helpful": "Hữu ích",
+      "notHelpful": "Chưa hữu ích",
+      "tellUsMore": "Cho chúng tôi biết thêm",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu đánh giá",
+      "removed": "Đã gỡ đánh giá",
+      "error": "Không lưu được đánh giá của bạn.",
+      "retry": "Thử lại",
+      "dialogTitle": "Có gì chưa ổn?",
+      "reasonLegend": "Lý do",
+      "reasons": {
+        "incorrect": "Thông tin không chính xác",
+        "irrelevant": "Không liên quan đến câu hỏi",
+        "incomplete": "Câu trả lời chưa đầy đủ",
+        "unsafe": "Không an toàn hoặc không phù hợp",
+        "other": "Lý do khác"
+      },
+      "commentLabel": "Góp ý (không bắt buộc)",
+      "commentHint": "Vui lòng không ghi thông tin cá nhân.",
+      "remaining": "Còn {count} ký tự",
+      "skip": "Bỏ qua",
+      "save": "Gửi góp ý"
+    },
     "result": {
       "open": "Mở",
       "close": "Đóng"

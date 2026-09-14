@@ -18,8 +18,11 @@ Taxonomy
 * ``panel``       — structured side-panel payload from a tool's artifact:
   ``{tool_call_id, kind, data, language}`` (``kind`` ∈ ``route|places|weather``)
 * ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
-* ``done``        — terminal success: ``{conversation_id, current_flow, suggestions, language, trip_id, usage}``
-  (``trip_id`` is informational — see ``ChatResponse.trip_id``'s field description
+* ``done``        — terminal success: ``{conversation_id, assistant_message_id,
+  agent_run_id, current_flow, suggestions, language, trip_id, usage}``
+  (``assistant_message_id`` / ``agent_run_id`` are filled in by
+  ``persist_assistant_turn`` once the reply row is committed — ``done`` means
+  the answer is durable; ``trip_id`` is informational — see ``ChatResponse.trip_id``'s field description
   for why the client must not resend it as the next request's ``trip_id``)
 * ``error``       — terminal failure: ``{code, message}``
 """
@@ -96,11 +99,15 @@ def done(
     language: str = DEFAULT_LANGUAGE,
     trip_id: str | None = None,
     usage: dict | None = None,
+    assistant_message_id: str | None = None,
+    agent_run_id: str | None = None,
 ) -> TypedSSEEvent:
     return _event(
         "done",
         {
             "conversation_id": conversation_id,
+            "assistant_message_id": assistant_message_id,
+            "agent_run_id": agent_run_id,
             "current_flow": current_flow,
             "suggestions": suggestions,
             "language": language,

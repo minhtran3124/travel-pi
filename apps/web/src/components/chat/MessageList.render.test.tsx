@@ -32,6 +32,21 @@ vi.mock("./MessageActions", () => ({
     </div>
   ),
 }));
+vi.mock("./MessageFeedback", () => ({
+  MessageFeedback: ({
+    assistantMessageId,
+    initial,
+  }: {
+    assistantMessageId: string;
+    initial?: { rating: string } | null;
+  }) => (
+    <div
+      data-testid="feedback"
+      data-id={assistantMessageId}
+      data-rating={initial?.rating ?? ""}
+    />
+  ),
+}));
 
 // jsdom has no layout engine — scrollIntoView is referenced by MessageList's effect.
 beforeAll(() => {
@@ -160,5 +175,81 @@ describe("MessageList — turn composition", () => {
 
     expect(screen.getByLabelText("typingAria")).toBeTruthy();
     expect(screen.queryByTestId("trail")).toBeNull();
+  });
+});
+
+describe("MessageList — feedback eligibility (DESIGN §7.1)", () => {
+  const user = (id: string): ChatMessage => ({
+    id,
+    role: "user",
+    content: "hi",
+    activity: [],
+    panels: [],
+  });
+  const assistant = (id: string, serverMessageId?: string): ChatMessage => ({
+    id,
+    role: "assistant",
+    content: "answer",
+    activity: [],
+    panels: [],
+    serverMessageId,
+  });
+
+  it("renders feedback only under a completed assistant message with a server id", () => {
+    render(
+      <MessageList
+        messages={[user("u"), assistant("a", "srv-a")]}
+        isStreaming={false}
+      />,
+    );
+    const feedback = screen.getAllByTestId("feedback");
+    expect(feedback).toHaveLength(1);
+    expect(feedback[0].getAttribute("data-id")).toBe("srv-a");
+  });
+
+  it("shows nothing without a server id (streaming, interrupted, stopped or failed turns)", () => {
+    render(
+      <MessageList messages={[user("u"), assistant("a")]} isStreaming={false} />,
+    );
+    expect(screen.queryByTestId("feedback")).toBeNull();
+  });
+
+  it("shows nothing on an empty completed turn even with a server id (empty states never show feedback)", () => {
+    render(
+      <MessageList
+        messages={[user("u"), { ...assistant("a", "srv-a"), content: "  \n " }]}
+        isStreaming={false}
+      />,
+    );
+    expect(screen.queryByTestId("feedback")).toBeNull();
+  });
+
+  it("hides feedback on the streaming turn but keeps it on earlier completed turns", () => {
+    render(
+      <MessageList
+        messages={[user("u1"), assistant("a1", "srv-1"), user("u2"), assistant("a2", "srv-2")]}
+        isStreaming
+      />,
+    );
+    const feedback = screen.getAllByTestId("feedback");
+    expect(feedback).toHaveLength(1);
+    expect(feedback[0].getAttribute("data-id")).toBe("srv-1");
+  });
+
+  it("passes the reloaded history state through", () => {
+    const rated: ChatMessage = {
+      ...assistant("a", "srv-a"),
+      feedback: {
+        rating: "helpful",
+        reason_code: null,
+        comment_present: false,
+        rating_event_id: "ev",
+        updated_at: "2026-01-01T00:00:00Z",
+      },
+    };
+    render(<MessageList messages={[user("u"), rated]} isStreaming={false} />);
+    expect(screen.getByTestId("feedback").getAttribute("data-rating")).toBe(
+      "helpful",
+    );
   });
 });

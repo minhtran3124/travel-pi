@@ -195,3 +195,34 @@ class ResponseStyle(str, Enum):
     DEFAULT = "default"
     CONCISE = "concise"
     DETAILED = "detailed"
+
+
+class FeedbackAction(str, Enum):
+    """Kind of append-only ``feedback_events`` row (specs/user-feedback-v1)."""
+
+    SET_RATING = "set_rating"
+    ADD_DETAIL = "add_detail"
+    RETRACT_RATING = "retract_rating"
+
+
+class FeedbackRating(int, Enum):
+    """Thumbs value stored in ``feedback_events.rating``."""
+
+    HELPFUL = 1
+    NOT_HELPFUL = -1
+
+
+class FeedbackReasonCode(str, Enum):
+    """Allowlisted reasons a traveller can attach to a negative rating."""
+
+    INCORRECT = "incorrect"
+    IRRELEVANT = "irrelevant"
+    INCOMPLETE = "incomplete"
+    UNSAFE = "unsafe"
+    OTHER = "other"
+
+
+class FeedbackSource(str, Enum):
+    """UI surface that produced a feedback event."""
+
+    CHAT_MESSAGE_ACTIONS = "chat_message_actions"

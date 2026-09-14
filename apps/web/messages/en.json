@@ -686,6 +686,31 @@
       "copied": "Copied",
       "regenerate": "Regenerate"
     },
+    "feedback": {
+      "groupLabel": "Rate this answer",
+      "helpful": "Helpful",
+      "notHelpful": "Not helpful",
+      "tellUsMore": "Tell us more",
+      "saving": "Saving…",
+      "saved": "Feedback saved",
+      "removed": "Feedback removed",
+      "error": "Couldn't save your feedback.",
+      "retry": "Try again",
+      "dialogTitle": "What went wrong?",
+      "reasonLegend": "Reason",
+      "reasons": {
+        "incorrect": "Incorrect information",
+        "irrelevant": "Not relevant to my question",
+        "incomplete": "Incomplete answer",
+        "unsafe": "Unsafe or inappropriate",
+        "other": "Something else"
+      },
+      "commentLabel": "Comment (optional)",
+      "commentHint": "Please don't include personal details.",
+      "remaining": "{count} characters left",
+      "skip": "Skip",
+      "save": "Save feedback"
+    },
     "result": {
       "open": "Open",
       "close": "Close"

@@ -441,6 +441,71 @@ describe("useAgentStream — per-turn activity + panels", () => {
   });
 });
 
+describe("useAgentStream — persisted assistant id (DESIGN §7.1)", () => {
+  it("records `done.assistant_message_id` on the assistant bubble of its own turn", async () => {
+    const turn = (text: string, id: string) => ({
+      ok: true,
+      body: wireStream([
+        sse("start", { conversation_id: "c1" }),
+        sse("token", { content: text }),
+        sse("done", { conversation_id: "c1", current_flow: "concierge", assistant_message_id: id }),
+      ]),
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockImplementationOnce(async () => turn("First", "srv-1"))
+        .mockImplementationOnce(async () => turn("Second", "srv-2")),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("one");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    act(() => {
+      result.current.send("two");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // Filter inside `waitFor` so each retry reads the current messages array,
+    // not a snapshot taken before the last state flush.
+    await waitFor(() => {
+      const assistants = result.current.messages.filter((m) => m.role === "assistant");
+      expect(assistants.map((m) => m.serverMessageId)).toEqual(["srv-1", "srv-2"]);
+    });
+    // User bubbles never carry a persisted id.
+    for (const m of result.current.messages.filter((m) => m.role === "user")) {
+      expect(m.serverMessageId).toBeUndefined();
+    }
+  });
+
+  it("leaves the id unset when `done` carries `assistant_message_id: null`", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("token", { content: "Hi" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge", assistant_message_id: null }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("hi");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = result.current.messages.find((m) => m.role === "assistant");
+    expect(assistant?.serverMessageId).toBeUndefined();
+    expect(assistant).not.toHaveProperty("serverMessageId");
+  });
+});
+
 describe("useAgentStream — panel language plumbing", () => {
   it("carries `language` from panel/done events into panelLanguage", async () => {
     vi.stubGlobal(

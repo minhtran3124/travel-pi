@@ -1646,6 +1646,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/agent/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rate an assistant reply
+         * @description Append one feedback event and return the folded effective state.
+         *
+         *     ``201`` for a new state-changing event; ``200`` for an idempotent replay or
+         *     a retract with nothing active.
+         */
+        post: operations["submit_feedback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/users/{user_id}/tier": {
         parameters: {
             query?: never;
@@ -2084,6 +2107,16 @@ export interface components {
         ChatResponse: {
             /** Conversation Id */
             conversation_id: string;
+            /**
+             * Assistant Message Id
+             * @description Id of the persisted assistant message for this turn; the handle feedback is filed against. Null on an interrupt (no reply row).
+             */
+            assistant_message_id?: string | null;
+            /**
+             * Agent Run Id
+             * @description The agent_runs row that produced this turn.
+             */
+            agent_run_id?: string | null;
             /** Reply */
             reply: string;
             /**
@@ -2554,6 +2587,33 @@ export interface components {
             attribution: string;
         };
         /**
+         * EffectiveFeedback
+         * @description Folded view of one assistant message's feedback log (DESIGN §3.3).
+         */
+        EffectiveFeedback: {
+            /**
+             * Rating
+             * @enum {string}
+             */
+            rating: "helpful" | "not_helpful";
+            reason_code?: components["schemas"]["FeedbackReasonCode"] | null;
+            /**
+             * Comment Present
+             * @default false
+             */
+            comment_present: boolean;
+            /**
+             * Rating Event Id
+             * @description Id of the active set_rating event.
+             */
+            rating_event_id: string;
+            /**
+             * Updated At
+             * @description created_at of the last effective event.
+             */
+            updated_at: string;
+        };
+        /**
          * EntryRequirements
          * @description Typical entry requirements for a destination country.
          */
@@ -2769,6 +2829,78 @@ export interface components {
             description?: string | null;
             /** Occurred At */
             occurred_at?: string | null;
+        };
+        /**
+         * FeedbackAction
+         * @description Kind of append-only ``feedback_events`` row (specs/user-feedback-v1).
+         * @enum {string}
+         */
+        FeedbackAction: "set_rating" | "add_detail" | "retract_rating";
+        /**
+         * FeedbackReasonCode
+         * @description Allowlisted reasons a traveller can attach to a negative rating.
+         * @enum {string}
+         */
+        FeedbackReasonCode: "incorrect" | "irrelevant" | "incomplete" | "unsafe" | "other";
+        /**
+         * FeedbackRequest
+         * @description Body of ``POST /agent/feedback`` (DESIGN §5.1).
+         *
+         *     Field presence is action-dependent and validated here (a schema ``422``);
+         *     ownership, rateability and state transitions are the service's job.
+         */
+        FeedbackRequest: {
+            /**
+             * Client Event Id
+             * Format: uuid
+             * @description Stable id per logical UI action; replays reuse it.
+             */
+            client_event_id: string;
+            /**
+             * Anonymous User Id
+             * @description Fallback principal when no valid JWT is present; ignored when authenticated.
+             */
+            anonymous_user_id?: string | null;
+            /**
+             * Assistant Message Id
+             * @description The assistant message being rated.
+             */
+            assistant_message_id: string;
+            action: components["schemas"]["FeedbackAction"];
+            /**
+             * Rating
+             * @description Required for set_rating, forbidden otherwise.
+             */
+            rating?: ("helpful" | "not_helpful") | null;
+            /** @description Allowlisted reason; add_detail only. */
+            reason_code?: components["schemas"]["FeedbackReasonCode"] | null;
+            /**
+             * Comment
+             * @description Free text, trimmed, at most 500 characters; add_detail only.
+             */
+            comment?: string | null;
+            /**
+             * Locale
+             * @description Advisory short locale, e.g. 'en'.
+             */
+            locale?: string | null;
+        };
+        /**
+         * FeedbackResponse
+         * @description Body of the ``POST /agent/feedback`` reply (DESIGN §5.1).
+         */
+        FeedbackResponse: {
+            /** Feedback Event Id */
+            feedback_event_id: string;
+            /** Assistant Message Id */
+            assistant_message_id: string;
+            /** @description Null once the rating is retracted. */
+            effective_feedback?: components["schemas"]["EffectiveFeedback"] | null;
+            /**
+             * Replayed
+             * @default false
+             */
+            replayed: boolean;
         };
         /**
          * Flight
@@ -3775,6 +3907,14 @@ export interface components {
             tool_calls?: unknown[] | null;
             /** Created At */
             created_at: string;
+            /** @description Effective feedback state for an assistant message; null for user messages and for an unrated assistant message. */
+            feedback?: components["schemas"]["EffectiveFeedback"] | null;
+            /**
+             * Rateable
+             * @description True only for an assistant message linked to a completed agent run — the same rule POST /agent/feedback applies. The client shows feedback controls only when true.
+             * @default false
+             */
+            rateable: boolean;
         };
         /**
          * MessageRole
@@ -8142,6 +8282,87 @@ export interface operations {
             };
             /** @description Request validation failed */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    submit_feedback: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional mirror of client_event_id; a different value is 422. */
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay or retract with nothing active */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Resource not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Request conflicts with the current state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Feedback rate limit exceeded */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
