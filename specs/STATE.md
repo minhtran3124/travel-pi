@@ -1950,3 +1950,269 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: c65bb90 docs(specs): S3 status log — waves 1 and 2 complete, run at verifying
 - user_turns: 0
 
+
+### 2026-09-12T06:39:26Z
+- session_id: 1be3a032-2789-42a7-9920-2978f13d9a19
+- exit: 
+- last_commit: 450acd3 feat(feedback): messages.agent_run_id + feedback_events model and migration
+- user_turns: 0
+
+
+### 2026-09-12T06:40:41Z
+- session_id: 9c14a666-bc24-407e-9f00-06fd1fcbdff7
+- exit: 
+- last_commit: 450acd3 feat(feedback): messages.agent_run_id + feedback_events model and migration
+- user_turns: 0
+
+
+### 2026-09-12T06:46:13Z
+- session_id: 5d75a4f4-5db9-463f-a993-0bb69e2b397a
+- exit: 
+- last_commit: 450acd3 feat(feedback): messages.agent_run_id + feedback_events model and migration
+- user_turns: 0
+
+
+### 2026-09-12T06:48:22Z
+- session_id: 61cb4f56-4583-4882-9ca4-e1d2713906be
+- exit: 
+- last_commit: 14edffa feat(feedback): feedback repository, message link on append, three-table claim
+- user_turns: 0
+
+
+### 2026-09-12T06:54:17Z
+- session_id: fc45f986-10b3-4ad1-885b-aaff4fc0cf73
+- exit: 
+- last_commit: 14edffa feat(feedback): feedback repository, message link on append, three-table claim
+- user_turns: 0
+
+
+### 2026-09-12T06:56:37Z
+- session_id: 7ae50d71-e893-4da5-b890-bf9236b42c48
+- exit: 
+- last_commit: 1298433 feat(agent): stable assistant_message_id on chat, SSE done and history
+- user_turns: 0
+
+
+### 2026-09-12T06:58:23Z
+- session_id: 700e06af-75e7-49ef-b2e9-ad585fb3ce90
+- exit: 
+- last_commit: 1298433 feat(agent): stable assistant_message_id on chat, SSE done and history
+- user_turns: 0
+
+
+### 2026-09-12T07:00:11Z
+- session_id: 63fdaf57-22ae-40cb-9166-341f77827f92
+- exit: 
+- last_commit: 1298433 feat(agent): stable assistant_message_id on chat, SSE done and history
+- user_turns: 0
+
+
+### 2026-09-12T07:01:12Z
+- session_id: 82b9ac71-8ef3-462b-acf0-6f845301571e
+- exit: 
+- last_commit: 2cb7174 feat(feedback): POST /agent/feedback with ownership, idempotency and abuse limit
+- user_turns: 0
+
+
+### 2026-09-12T07:03:49Z
+- session_id: f06aeca9-282a-4917-b38d-8cf422d82cab
+- exit: 
+- last_commit: bce70d8 fix(agent): persist the streamed fallback reply on a failed turn, keep REST/SSE history equal
+- user_turns: 0
+
+
+### 2026-09-12T07:04:37Z
+- session_id: 357104fa-880e-414d-9ae3-fb907f629d60
+- exit: 
+- last_commit: bce70d8 fix(agent): persist the streamed fallback reply on a failed turn, keep REST/SSE history equal
+- user_turns: 0
+
+
+### 2026-09-12T07:08:07Z
+- session_id: 0ba975e8-a475-4e4a-a93b-b1bd1f0e9649
+- exit: 
+- last_commit: bce70d8 fix(agent): persist the streamed fallback reply on a failed turn, keep REST/SSE history equal
+- user_turns: 0
+
+
+### 2026-09-12T07:21:03Z
+- session_id: 7c1d777e-a019-411a-97fa-eca49bb3e54d
+- exit: 
+- last_commit: 905a3c4 feat(web): feedback mutation hook + assistant_message_id on SSE done
+- user_turns: 0
+
+
+### 2026-09-12T07:25:28Z
+- session_id: 60a6075e-eb79-4b1f-aeef-fe7230c90942
+- exit: 
+- last_commit: 5afa5d8 fix(feedback): typed reason_code in the fold, replay on an identical-payload race, wider no-memory gate
+- user_turns: 0
+
+
+### 2026-09-12T07:33:33Z
+- session_id: d2901145-9795-4f30-8f1e-598404b5a8ad
+- exit: 
+- last_commit: 5cfe366 feat(web): thumbs feedback under assistant messages
+- user_turns: 0
+
+
+### 2026-09-12T07:33:33Z
+- session_id: f23ece06-4e9a-462e-99c8-0dd81af4c5d0
+- exit: 
+- last_commit: 5cfe366 feat(web): thumbs feedback under assistant messages
+- user_turns: 0
+
+
+### 2026-09-12T07:50:23Z
+- session_id: 3be6fde8-bfe4-48b3-925c-64b0a37d01ba
+- exit: 
+- last_commit: 5cfe366 feat(web): thumbs feedback under assistant messages
+- user_turns: 0
+
+
+### 2026-09-12T07:56:10Z
+- session_id: 3eb03ae2-b7e9-4ccf-9b41-5ea9eba764a0
+- exit: 
+- last_commit: b534049 fix(web): feedback focus restore, closed-dialog errors, empty-turn gate
+- user_turns: 0
+
+
+### 2026-09-12T08:02:32Z
+- session_id: f4fc37c6-0440-4854-b4e0-d2e5dc78c9ae
+- exit: 
+- last_commit: 25b0936 fix(web): keep focus when a background feedback save removes its trigger
+- user_turns: 0
+
+
+### 2026-09-12T08:07:59Z
+- session_id: 7d6cf4e8-3169-4f51-92db-06e59c356b12
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:08:00Z
+- session_id: 2524cb16-dee2-45d9-be43-79030ddcfde1
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:08:00Z
+- session_id: ea06bc3f-0994-4429-bd66-5860ee743610
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:08:01Z
+- session_id: d4b55844-cf3e-4493-8380-bae90dbf2eee
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:13:09Z
+- session_id: edfbcc57-74c8-4b53-a729-b046dcbf08ef
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:13:10Z
+- session_id: 74d0df4d-0248-4c8c-b025-5e01ede8ab08
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:13:10Z
+- session_id: 4521077d-eae1-4589-b6ee-6ac677c99c7a
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:13:11Z
+- session_id: a486c329-b11c-4670-9fdd-fd6bd89e188f
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:13:11Z
+- session_id: 6e2164d1-85eb-4b69-b763-5fda16d48c0f
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:13:12Z
+- session_id: c8bacca2-7a47-430e-b0a0-7a805d41a821
+- exit: 
+- last_commit: d552497 test(web): Playwright e2e for the chat feedback rating lifecycle
+- user_turns: 0
+
+
+### 2026-09-12T08:18:45Z
+- session_id: 9c02bcef-a084-4d28-8e23-356ee98dee0a
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:18:46Z
+- session_id: 9eca2dad-290c-43bd-9e90-301fb8ad067a
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:18:46Z
+- session_id: a1451a25-e8bc-40c3-bd10-988b555b35a9
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:18:47Z
+- session_id: e1fe152c-a17b-4191-bdce-56e7ffe78bb9
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:18:47Z
+- session_id: 4fd13a44-7f45-452c-970a-13692fbc844c
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:18:47Z
+- session_id: e5be4f4b-c9a0-46a2-b640-e9c4fb5420f3
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:27:37Z
+- session_id: 6ba22d4e-a01f-48a5-90ec-d68e772fe12d
+- exit: 
+- last_commit: f17198b test(web): exact thumb locators and a real idempotency proof in the feedback e2e
+- user_turns: 0
+
+
+### 2026-09-12T08:33:27Z
+- session_id: 6470203b-69bd-4f31-946c-43e221925e61
+- exit: 
+- last_commit: b956ea8 fix(feedback): leave the chatbot's streaming unchanged and show thumbs only on rateable replies
+- user_turns: 0
+
+
+### 2026-09-12T08:33:27Z
+- session_id: d2000e63-a56c-4de9-9600-bcfda220d6e7
+- exit: 
+- last_commit: b956ea8 fix(feedback): leave the chatbot's streaming unchanged and show thumbs only on rateable replies
+- user_turns: 0
+
