@@ -288,8 +288,10 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
     anchor; the note also routes non-ISO date expressions through the
     ``resolve_date`` tool instead of letting the model compute them itself, and
     tells it to state the resolved date rather than ask the traveller to
-    confirm it — asking is reserved for no date signal at all, or an ambiguous
-    expression ``resolve_date`` itself reports. Computed per request — the
+    confirm it — asking is reserved for no date signal before a date-bound tool
+    call (flight/hotel search, booking, dated trip), or an ambiguous expression
+    ``resolve_date`` itself reports; an undated day-by-day suggestion is answered
+    as Day 1/Day 2/... without asking (#152). Computed per request — the
     graph is built once at startup, so a long-running server would otherwise
     serve a date frozen at boot.
 
@@ -316,9 +318,12 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
         '"next Friday", "thứ 6 tuần sau", "12/07") with the resolve_date tool — '
         "do not compute them yourself. Do not ask the traveller to confirm a date "
         "resolve_date already returned; state it in your answer so they can "
-        "correct it. If the traveller mentioned NO date at all, you MUST ask which "
-        f"date they want — never fall back to {today}, and never invent a date they "
-        "did not give. Ask, too, when resolve_date reports the expression is "
-        "ambiguous."
+        "correct it. If the traveller gave NO date and you are about to call a "
+        "date-bound tool (a flight or hotel search, a booking, creating a trip with "
+        "dates), you MUST ask which date they want — never fall back to "
+        f"{today}, and never invent a date they did not give. An undated "
+        'day-by-day suggestion ("gợi ý lịch trình 3 ngày") needs no date: answer '
+        "it as Day 1, Day 2, Day 3 without asking and without calendar dates. Ask, "
+        "too, when resolve_date reports the expression is ambiguous."
     )
     return SystemMessage(content=f"{base.content}\n\n{note}")

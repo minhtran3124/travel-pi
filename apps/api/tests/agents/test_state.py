@@ -206,7 +206,9 @@ def test_ground_current_date_injects_today():
     # Order pin (prompt-caching): the stable base prompt must sit at token 0 and the
     # volatile date note is appended last, so the cacheable prefix stays byte-stable.
     assert grounded.content.startswith("BASE PROMPT")
-    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE PROMPT")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index(
+        "BASE PROMPT"
+    )
     # The date-grounding note is the final block; its last sentence ends the message.
     assert grounded.content.rstrip().endswith("ambiguous.")
     assert today in grounded.content
@@ -372,3 +374,40 @@ def test_ground_current_date_invalid_tz_falls_back_to_utc():
     assert "UTC" in grounded.content  # fell back, did not raise
     assert grounded.content.startswith("BASE")
     assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE")
+
+
+def _must_ask_sentence(content: str) -> str:
+    """Return the sentence of the date note that carries the "must ask" requirement."""
+    note = content[content.index("CURRENT DATE") :]
+    lowered = note.lower()
+    start = lowered.rfind(". ", 0, lowered.index("must ask")) + 2
+    end = lowered.index(". ", lowered.index("must ask"))
+    return lowered[start:end]
+
+
+def test_ground_current_date_must_ask_is_tied_to_date_bound_tool():
+    """E001-A (#152): the no-date question is conditional on a date-bound tool call
+    (flight/hotel search, a booking, a dated trip) — not asked for every request."""
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    sentence = _must_ask_sentence(
+        ground_current_date(SystemMessage(content="BASE")).content
+    )
+    assert "no date" in sentence
+    for trigger in ("flight", "hotel", "booking", "trip"):
+        assert trigger in sentence, trigger
+
+
+def test_ground_current_date_allows_undated_day_by_day_suggestion():
+    """E001-A (#152): "Gợi ý lịch trình 3 ngày" with no date is answered as
+    Day 1/Day 2/Day 3 without asking — and without inventing calendar dates."""
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    content = ground_current_date(SystemMessage(content="BASE")).content
+    note = content[content.index("CURRENT DATE") :]
+    assert "Day 1" in note
+    assert "day-by-day" in note
+    assert "without asking" in note
+    assert "never invent a date" in note.lower()
