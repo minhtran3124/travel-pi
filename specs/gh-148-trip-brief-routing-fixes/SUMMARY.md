@@ -36,6 +36,12 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 
 - none
 
+### Review ledger (Minor findings, forwarded to final review)
+
+- Task 1.1 (spec pass / quality approved, f662d990): (m1) v13 test does not assert the "switch to English" phrasing nor the positive `language en` few-shot line; (m2) wording drift between `SupervisorIntent.language` description and v13 rule 4 (same meaning); (m3) the ❌ quoted-phrase example is uninformative when the established language is already `en`; (m4) real-model routing unproven until Task 3.1.
+- Task 1.3 round 1 (needs_fixes → fixed): Guardrails lacked the ≈-estimate exception (Important, fixed); "hard constraint" vs allowed overrun (Minor, fixed). Reviewer's "budget key may not exist" finding rejected with evidence: `_normalize_slots` writes `budget` (app/agents/supervisor.py) and `system_with_summary` renders `- budget: <value>` (app/agents/state.py).
+- Task 1.2 round 1 (needs_fixes → fixed): v9 lines 29/40 absolutes contradicted the explicit-request rule (Important, fixed); "Blocked on the Traveller" wording and a byte-stable test that only checked substring (Minor, fixed).
+
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
