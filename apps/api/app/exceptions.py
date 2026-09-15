@@ -5,6 +5,13 @@ free of HTTP/web concerns. ``app.main`` registers a single global handler
 that turns any :class:`AppError` into the right HTTP response.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.schemas.booking import Booking
+
 
 class AppError(Exception):
     """Base class for domain errors. Carries the HTTP status to respond with.
@@ -50,6 +57,45 @@ class ConflictError(AppError):
 
     status_code = 409
     default_detail = "Request conflicts with the current state"
+
+
+#: Stable marker embedded in every :class:`DuplicateBookingError` detail so a
+#: duplicate warning can be recognised downstream (e.g. in a replayed
+#: ``ToolMessage``) by tag rather than by fragile free-text matching (gh-194).
+DUPLICATE_WARNING_MARKER = "[possible-duplicate]"
+
+
+class DuplicateBookingError(ConflictError):
+    """A prior active booking already matches this request (HTTP 409).
+
+    Raised by :class:`~app.services.booking_service.BookingService` only when a
+    caller opts in with ``check_duplicate=True`` (the agent book tools) and an
+    earlier non-cancelled booking by the same owner matches the same flight
+    (row + passengers) or hotel (+ exact check-in/check-out). Never raised on
+    the REST path, which keeps the default ``check_duplicate=False`` (gh-194).
+
+    Being a :class:`ConflictError` subclass, it relays through the agent tools'
+    existing ``except AppError`` path unchanged. ``existing`` carries the
+    already-stored booking so the caller can quote its ``confirmation_code``
+    to the traveller before deciding whether to book again. The detail always
+    carries :data:`DUPLICATE_WARNING_MARKER` so a warning is machine-detectable.
+    """
+
+    default_detail = "A matching booking already exists."
+
+    def __init__(
+        self,
+        detail: str | None = None,
+        *,
+        existing: Booking,
+        hint: str | None = None,
+    ) -> None:
+        detail = detail or self.default_detail
+        if DUPLICATE_WARNING_MARKER not in detail:
+            detail = f"{detail} {DUPLICATE_WARNING_MARKER}"
+        super().__init__(detail, hint=hint)
+        #: The already-stored booking this request duplicates.
+        self.existing = existing
 
 
 class DomainValidationError(AppError):

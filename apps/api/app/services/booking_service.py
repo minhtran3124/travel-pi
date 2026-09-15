@@ -9,7 +9,7 @@ in-memory / read-only.
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Annotated
 
 from fastapi import Depends
@@ -19,7 +19,7 @@ from app.core.config import get_settings
 from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.enums import BookingSort, BookingStatus, BookingType
-from app.exceptions import ConflictError, NotFoundError
+from app.exceptions import ConflictError, DuplicateBookingError, NotFoundError
 from app.repositories.booking import BookingRepository
 from app.repositories.trip import TripRepository
 from app.schemas.booking import (
@@ -43,6 +43,20 @@ BOOKING_SORTS = {
     BookingSort.PRICE_DESC.value: (lambda booking: booking.total_price, True),
     BookingSort.PRICE_ASC.value: (lambda booking: booking.total_price, False),
 }
+
+
+def _as_date(value: str) -> date:
+    """Parse a ``YYYY-MM-DD`` date string to a :class:`date` for comparison.
+
+    The hotel duplicate check compares stored vs requested dates as *dates*, not
+    raw strings, so unpadded input like ``"2027-4-10"`` (which the schema
+    validator accepts unchanged) still matches the padded ``"2027-04-10"`` of an
+    existing booking instead of escaping the check (gh-194).
+
+    :param value: A date string in ``YYYY-MM-DD`` form.
+    :return: The parsed calendar date.
+    """
+    return datetime.strptime(value, "%Y-%m-%d").date()
 
 
 def _new_booking_id() -> str:
@@ -108,6 +122,15 @@ def _filter_and_sort(
 # ``ix_bookings_confirmation_code`` index so a collision regenerates the UUID
 # instead of failing the insert.
 _MAX_ID_ATTEMPTS = 8
+
+# Shared recovery hint for a possible-duplicate booking (gh-194). The agent
+# relays it verbatim: ask the traveller, then only retry with the override.
+_DUPLICATE_HINT = (
+    "This looks like a duplicate of an existing booking. Do NOT rebook "
+    "silently — tell the traveller about the existing booking and ask whether "
+    "they really want another one. Only call again with allow_duplicate=true "
+    "if they explicitly confirm."
+)
 
 
 class BookingService:
@@ -332,16 +355,29 @@ class BookingService:
         *,
         user_id: str,
         idempotency_key: str | None = None,
+        check_duplicate: bool = False,
     ) -> Booking:
         """Create a flight booking for the caller. 404 if the flight is unknown.
 
         When ``idempotency_key`` matches an earlier request by the same owner,
         the original booking is returned and nothing new is stored.
 
+        When ``check_duplicate`` is True (the opt-in the agent book tools pass;
+        the REST route keeps the default False), a prior *active* booking by the
+        same owner for the same flight row with the same ``passengers`` raises
+        :class:`~app.exceptions.DuplicateBookingError` instead of silently
+        creating a second identical booking (gh-194). The check runs after
+        idempotency replay — so a same-turn revise re-run still replays the
+        original rather than tripping the check against itself — and after the
+        flight is resolved.
+
         :param request: The flight booking request.
         :param user_id: The owner stamped on the booking (#118).
         :param idempotency_key: Optional key that replays an earlier booking
             instead of creating a duplicate.
+        :param check_duplicate: When True, raise
+            :class:`~app.exceptions.DuplicateBookingError` if the same owner
+            already has an active booking for this flight + passenger count.
         :return: The created (or replayed) booking.
         """
         replayed = self._replay(idempotency_key, user_id)
@@ -380,6 +416,20 @@ class BookingService:
                     ),
                 )
 
+        if check_duplicate:
+            for existing in self._repo.list_active_by_reference(
+                user_id, BookingType.FLIGHT.value, flight.id
+            ):
+                if existing.details.passengers == request.passengers:
+                    raise DuplicateBookingError(
+                        f"You already have booking {existing.confirmation_code} "
+                        f"for flight {flight.flight_number} on "
+                        f"{flight.departure_time.date().isoformat()} for "
+                        f"{request.passengers} passenger(s).",
+                        existing=existing,
+                        hint=_DUPLICATE_HINT,
+                    )
+
         booking = Booking(
             id=self._mint_booking_id(),
             type=BookingType.FLIGHT,
@@ -414,6 +464,7 @@ class BookingService:
         *,
         user_id: str,
         idempotency_key: str | None = None,
+        check_duplicate: bool = False,
     ) -> Booking:
         """Create a hotel booking for the caller.
 
@@ -424,10 +475,21 @@ class BookingService:
         matches an earlier request by the same owner, the original booking is
         returned unchanged.
 
+        When ``check_duplicate`` is True (the opt-in the agent book tools pass;
+        the REST route keeps the default False), a prior *active* booking by the
+        same owner for the same hotel with the exact same ``check_in`` and
+        ``check_out`` raises :class:`~app.exceptions.DuplicateBookingError`
+        instead of silently creating a second identical booking (gh-194). The
+        check runs after idempotency replay and after the hotel is resolved, but
+        before the availability check.
+
         :param request: The hotel booking request.
         :param user_id: The owner stamped on the booking (#118).
         :param idempotency_key: Optional key that replays an earlier booking
             instead of creating a duplicate.
+        :param check_duplicate: When True, raise
+            :class:`~app.exceptions.DuplicateBookingError` if the same owner
+            already has an active booking for this hotel + exact dates.
         :return: The created (or replayed) booking.
         """
         replayed = self._replay(idempotency_key, user_id)
@@ -446,6 +508,24 @@ class BookingService:
                     "(or the short HTL-XXXX code)."
                 ),
             )
+
+        if check_duplicate:
+            req_check_in = _as_date(request.check_in)
+            req_check_out = _as_date(request.check_out)
+            for existing in self._repo.list_active_by_reference(
+                user_id, BookingType.HOTEL.value, hotel.id
+            ):
+                if (
+                    _as_date(existing.details.check_in) == req_check_in
+                    and _as_date(existing.details.check_out) == req_check_out
+                ):
+                    raise DuplicateBookingError(
+                        f"You already have booking {existing.confirmation_code} "
+                        f"for {hotel.name} on {request.check_in}→"
+                        f"{request.check_out} ({request.rooms} room(s)).",
+                        existing=existing,
+                        hint=_DUPLICATE_HINT,
+                    )
 
         guests = request.adults + request.children
         if not hotel_service.is_available(

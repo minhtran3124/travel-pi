@@ -22,8 +22,19 @@ from __future__ import annotations
 import hashlib
 import json
 
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
+
+from app.exceptions import DUPLICATE_WARNING_MARKER
+
+#: Appended to the refused-override error so the model knows a fresh traveller
+#: turn is required before the duplicate can be forced through (gh-194).
+OVERRIDE_REFUSED_HINT = (
+    "The allow_duplicate override was ignored because the traveller has not "
+    "confirmed a second booking since this duplicate was flagged in the current "
+    "turn. Tell the traveller about the existing booking and wait for them to "
+    "confirm in a new message before booking again."
+)
 
 # Injected/config parameter names that are supplied by the graph, not the
 # model. They are dropped from ``args`` before canonicalisation so the same
@@ -39,13 +50,67 @@ def _thread_id(config: RunnableConfig | None) -> str | None:
     return thread_id or None
 
 
-def _last_human_message_id(messages: list | None) -> str | None:
+def _last_human_index(messages: list | None) -> int | None:
+    """Index of the most recent ``HumanMessage`` (the turn boundary), or None."""
     if not messages:
         return None
-    for message in reversed(messages):
-        if isinstance(message, HumanMessage):
-            return message.id or None
+    for i in range(len(messages) - 1, -1, -1):
+        if isinstance(messages[i], HumanMessage):
+            return i
     return None
+
+
+def _last_human_message_id(messages: list | None) -> str | None:
+    index = _last_human_index(messages)
+    if index is None:
+        return None
+    return messages[index].id or None
+
+
+def _message_text(content: object) -> str:
+    """Flatten a message ``content`` (str or list-of-parts) to plain text."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for part in content:
+            if isinstance(part, str):
+                parts.append(part)
+            elif isinstance(part, dict):
+                parts.append(str(part.get("text", "")))
+        return " ".join(parts)
+    return str(content)
+
+
+def duplicate_warned_this_turn(tool_name: str, messages: list | None) -> bool:
+    """Was a duplicate warning already surfaced for ``tool_name`` this turn?
+
+    Scans the messages *after* the most recent ``HumanMessage`` (the turn
+    boundary) for an error :class:`~langchain_core.messages.ToolMessage` from the
+    same tool whose content carries
+    :data:`~app.exceptions.DUPLICATE_WARNING_MARKER`. A True result means the
+    traveller has NOT spoken since the warning, so an ``allow_duplicate`` override
+    in the same turn must be ignored (gh-194): the first duplicate call raised
+    before any row was inserted, so idempotency replay cannot catch a same-turn
+    re-run with a flipped flag.
+
+    :param tool_name: The calling tool's name (``"book_flight"`` / ``"book_hotel"``).
+    :param messages: The injected graph message list. ``None``/empty (no context)
+        returns False — the override is honoured, today's behaviour.
+    :return: True if a same-turn duplicate warning from this tool is present.
+    """
+    if not messages:
+        return False
+    start = (_last_human_index(messages) or -1) + 1
+    for message in messages[start:]:
+        if (
+            isinstance(message, ToolMessage)
+            and getattr(message, "name", None) == tool_name
+            and getattr(message, "status", None) == "error"
+            and DUPLICATE_WARNING_MARKER in _message_text(message.content)
+        ):
+            return True
+    return False
 
 
 def turn_idempotency_key(

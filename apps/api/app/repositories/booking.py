@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.db import models
 from app.db.base import Base
+from app.enums import BookingStatus
 from app.repositories.base import Repo
 from app.schemas.booking import Booking
 
@@ -133,6 +134,34 @@ class BookingRepository(Repo):
             rows = s.scalars(
                 select(models.Booking)
                 .where(models.Booking.user_id == user_id)
+                .order_by(models.Booking.created_at.desc())
+            ).all()
+            return [_row_to_booking(r) for r in rows]
+
+    def list_active_by_reference(
+        self, user_id: str, booking_type: str, reference_id: str
+    ) -> list[Booking]:
+        """Return the caller's non-cancelled bookings for one referenced item.
+
+        Owner-scoped and excludes cancelled rows, newest first — this is the
+        candidate set the opt-in duplicate-intent check scans for a same-flight
+        or same-hotel match (gh-194). A cancelled booking never counts, so it
+        cannot block a re-book of the same flight/hotel.
+
+        :param user_id: The owner whose bookings to search.
+        :param booking_type: ``"flight"`` or ``"hotel"``.
+        :param reference_id: The ``flight_id`` or ``hotel_id`` to match on.
+        :return: The caller's active bookings for that reference, newest first.
+        """
+        with self._session() as s:
+            rows = s.scalars(
+                select(models.Booking)
+                .where(
+                    models.Booking.user_id == user_id,
+                    models.Booking.type == booking_type,
+                    models.Booking.reference_id == reference_id,
+                    models.Booking.status != BookingStatus.CANCELLED.value,
+                )
                 .order_by(models.Booking.created_at.desc())
             ).all()
             return [_row_to_booking(r) for r in rows]
