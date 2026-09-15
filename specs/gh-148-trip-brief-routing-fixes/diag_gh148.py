@@ -13,11 +13,14 @@ from eval.adapters.langgraph_runner import LangGraphRunner
 import json
 
 IDS = ["language-ambiguous-en-01", "memory-multi_turn-vi-04"]
+# `--ids a,b`: diagnose other goldens instead (any suite).
+if "--ids" in sys.argv:
+    IDS = sys.argv[sys.argv.index("--ids") + 1].split(",")
 # `--tally N`: run language-ambiguous-en-01 N times and write a pass tally (E002).
 TALLY = int(sys.argv[sys.argv.index("--tally") + 1]) if "--tally" in sys.argv else 0
 TALLY_OUT = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else None
 store = JsonDatasetStore(DATASET_DIR, TAXONOMY, known_metrics=set(list_metrics()))
-goldens = [g for g in store.load(suite="full") if g.id in IDS]
+goldens = [g for g in store.load() if g.id in IDS]
 runner = LangGraphRunner(context=em._prod_agent_context(get_session_factory(get_settings().database_url)))
 if TALLY:
     from evalkit.metrics.deterministic import _detect_language as detect_language  # noqa: E402
@@ -43,6 +46,9 @@ for g in goldens:
     print("flow:", tr.flow, "| tasks:", tr.meta.get("tasks"))
     print("state.language:", st.get("language"))
     print("state.trip_facts:", st.get("trip_facts"))
+    from evalkit.metrics.deterministic import _detect_language  # noqa: E402
+
+    print("detect_language(final reply):", _detect_language(tr.reply))
     ai = [m for m in tr.messages if m.get("type") in ("ai", "AIMessage") or m.get("role") == "assistant"]
     for i, m in enumerate(ai):
         c = m.get("content") if isinstance(m.get("content"), str) else str(m.get("content"))
