@@ -17,9 +17,17 @@ from __future__ import annotations
 import pytest
 from app.db.engine import get_session_factory
 from app.services.booking_service import BookingService
+from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.tools import ToolException
 
 OWNER = "u_dup_owner"
+
+
+def _warning_message(tool_name: str, content: str) -> ToolMessage:
+    """The error ``ToolMessage`` the graph appends after a duplicate warning."""
+    return ToolMessage(
+        content=content, name=tool_name, status="error", tool_call_id="call-dup"
+    )
 
 
 def _flight_number(url: str) -> str:
@@ -129,6 +137,124 @@ def test_book_hotel_duplicate_raises_and_creates_no_row(agent_db):
 
 
 def test_book_hotel_allow_duplicate_books_second_row(agent_db):
+    from app.tools.hotel_tools import book_hotel
+
+    args = _hotel_args(_hotel_id(agent_db))
+    first = book_hotel.invoke(dict(args))
+    second = book_hotel.invoke({**args, "allow_duplicate": True})
+
+    assert second["id"] != first["id"]
+    assert _rows(agent_db) == 2
+
+
+# ---------------------------------------------------------------------------
+# Same-turn override guard (gh-194 fix-up CR-5): a blocked duplicate raises
+# before any row is inserted, so idempotency replay cannot catch a same-turn
+# re-run with allow_duplicate=True flipped on. The tool must ignore the override
+# until the traveller has spoken again (a new HumanMessage after the warning).
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_same_turn_allow_duplicate_after_warning_still_raises(agent_db):
+    from app.tools.flight_tools import book_flight
+
+    args = _flight_args(_flight_number(agent_db))
+    # Pre-existing active booking from an earlier turn (no turn context).
+    book_flight.invoke(dict(args))
+
+    messages = [HumanMessage(id="h1", content="book HAN to SGN")]
+    with pytest.raises(ToolException) as excinfo:
+        book_flight.invoke({**args, "messages": list(messages)})
+    warning = str(excinfo.value)
+
+    # Same turn: the model flips allow_duplicate=True right after the warning,
+    # with no new traveller message in between -> override is refused.
+    messages.append(_warning_message("book_flight", warning))
+    with pytest.raises(ToolException) as retry:
+        book_flight.invoke(
+            {**args, "allow_duplicate": True, "messages": list(messages)}
+        )
+
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 1
+
+
+def test_book_flight_allow_duplicate_after_new_message_books(agent_db):
+    from app.tools.flight_tools import book_flight
+
+    args = _flight_args(_flight_number(agent_db))
+    first = book_flight.invoke(dict(args))
+
+    messages = [HumanMessage(id="h1", content="book HAN to SGN")]
+    with pytest.raises(ToolException) as excinfo:
+        book_flight.invoke({**args, "messages": list(messages)})
+    messages.append(_warning_message("book_flight", str(excinfo.value)))
+    # The traveller confirms in a NEW message -> override is honoured.
+    messages.append(HumanMessage(id="h2", content="yes, book another"))
+
+    second = book_flight.invoke(
+        {**args, "allow_duplicate": True, "messages": list(messages)}
+    )
+
+    assert second["id"] != first["id"]
+    assert _rows(agent_db) == 2
+
+
+def test_book_flight_allow_duplicate_no_context_books(agent_db):
+    """No messages/context -> nothing to inspect, so the override is honoured
+    (today's behaviour)."""
+    from app.tools.flight_tools import book_flight
+
+    args = _flight_args(_flight_number(agent_db))
+    first = book_flight.invoke(dict(args))
+    second = book_flight.invoke({**args, "allow_duplicate": True})
+
+    assert second["id"] != first["id"]
+    assert _rows(agent_db) == 2
+
+
+def test_book_hotel_same_turn_allow_duplicate_after_warning_still_raises(agent_db):
+    from app.tools.hotel_tools import book_hotel
+
+    args = _hotel_args(_hotel_id(agent_db))
+    book_hotel.invoke(dict(args))
+
+    messages = [HumanMessage(id="h1", content="book Da Nang")]
+    with pytest.raises(ToolException) as excinfo:
+        book_hotel.invoke({**args, "messages": list(messages)})
+    warning = str(excinfo.value)
+
+    messages.append(_warning_message("book_hotel", warning))
+    with pytest.raises(ToolException) as retry:
+        book_hotel.invoke(
+            {**args, "allow_duplicate": True, "messages": list(messages)}
+        )
+
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 1
+
+
+def test_book_hotel_allow_duplicate_after_new_message_books(agent_db):
+    from app.tools.hotel_tools import book_hotel
+
+    args = _hotel_args(_hotel_id(agent_db))
+    first = book_hotel.invoke(dict(args))
+
+    messages = [HumanMessage(id="h1", content="book Da Nang")]
+    with pytest.raises(ToolException) as excinfo:
+        book_hotel.invoke({**args, "messages": list(messages)})
+    messages.append(_warning_message("book_hotel", str(excinfo.value)))
+    messages.append(HumanMessage(id="h2", content="yes, book another"))
+
+    second = book_hotel.invoke(
+        {**args, "allow_duplicate": True, "messages": list(messages)}
+    )
+
+    assert second["id"] != first["id"]
+    assert _rows(agent_db) == 2
+
+
+def test_book_hotel_allow_duplicate_no_context_books(agent_db):
     from app.tools.hotel_tools import book_hotel
 
     args = _hotel_args(_hotel_id(agent_db))

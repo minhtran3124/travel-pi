@@ -24,7 +24,7 @@ from pydantic import Field
 from app.core.config import get_settings
 from app.core.dates import resolve_travel_date, today_in_timezone
 from app.core.text import fold_diacritics
-from app.exceptions import AppError
+from app.exceptions import AppError, DuplicateBookingError
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import HotelBookingRequest
 from app.services.booking_service import BookingService
@@ -32,7 +32,11 @@ from app.services.content_translation_service import ContentTranslationService
 from app.services.hotel_service import HotelService
 from app.streaming.panels import HotelsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
-from app.tools._idempotency import turn_idempotency_key
+from app.tools._idempotency import (
+    OVERRIDE_REFUSED_HINT,
+    duplicate_warned_this_turn,
+    turn_idempotency_key,
+)
 from app.tools._ranking import rank_by_preference
 
 
@@ -541,9 +545,15 @@ def book_hotel(
             "set confirm=true to book — this action creates a real reservation"
         )
     # Replay-safety within one traveller turn (gh-193): see book_flight.
-    # `allow_duplicate` is deliberately OUT of the idempotency args: the key
-    # identifies the booking content, so including the override would let a
-    # same-turn revise re-run with a flipped flag mint a second row (gh-194).
+    # `allow_duplicate` is deliberately OUT of the idempotency args, and — because
+    # a blocked duplicate raises before inserting, leaving no row to replay — a
+    # same-turn re-run with allow_duplicate=true would otherwise slip a second
+    # booking through without the traveller confirming. Honour the override only
+    # if the traveller has spoken since the warning (gh-194).
+    override_refused = allow_duplicate and duplicate_warned_this_turn(
+        "book_hotel", messages
+    )
+    effective_allow_duplicate = allow_duplicate and not override_refused
     idempotency_key = turn_idempotency_key(
         "book_hotel",
         {
@@ -582,9 +592,14 @@ def book_hotel(
                 request,
                 user_id=user_id,
                 idempotency_key=idempotency_key,
-                check_duplicate=not allow_duplicate,
+                check_duplicate=not effective_allow_duplicate,
             )
             return dump(result)
+        except DuplicateBookingError as e:
+            err = tool_error(e)
+            if override_refused:
+                err = ToolException(f"{err} {OVERRIDE_REFUSED_HINT}")
+            raise err from e
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:

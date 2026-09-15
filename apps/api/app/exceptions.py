@@ -59,6 +59,12 @@ class ConflictError(AppError):
     default_detail = "Request conflicts with the current state"
 
 
+#: Stable marker embedded in every :class:`DuplicateBookingError` detail so a
+#: duplicate warning can be recognised downstream (e.g. in a replayed
+#: ``ToolMessage``) by tag rather than by fragile free-text matching (gh-194).
+DUPLICATE_WARNING_MARKER = "[possible-duplicate]"
+
+
 class DuplicateBookingError(ConflictError):
     """A prior active booking already matches this request (HTTP 409).
 
@@ -71,7 +77,8 @@ class DuplicateBookingError(ConflictError):
     Being a :class:`ConflictError` subclass, it relays through the agent tools'
     existing ``except AppError`` path unchanged. ``existing`` carries the
     already-stored booking so the caller can quote its ``confirmation_code``
-    to the traveller before deciding whether to book again.
+    to the traveller before deciding whether to book again. The detail always
+    carries :data:`DUPLICATE_WARNING_MARKER` so a warning is machine-detectable.
     """
 
     default_detail = "A matching booking already exists."
@@ -83,6 +90,9 @@ class DuplicateBookingError(ConflictError):
         existing: Booking,
         hint: str | None = None,
     ) -> None:
+        detail = detail or self.default_detail
+        if DUPLICATE_WARNING_MARKER not in detail:
+            detail = f"{detail} {DUPLICATE_WARNING_MARKER}"
         super().__init__(detail, hint=hint)
         #: The already-stored booking this request duplicates.
         self.existing = existing

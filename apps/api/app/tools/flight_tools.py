@@ -18,14 +18,18 @@ from pydantic import Field
 
 from app.core.config import get_settings
 from app.core.dates import resolve_travel_date, today_in_timezone
-from app.exceptions import AppError
+from app.exceptions import AppError, DuplicateBookingError
 from app.schemas.base import AppBaseModel
 from app.schemas.flight import FlightBookingRequest
 from app.services.booking_service import BookingService
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
-from app.tools._idempotency import turn_idempotency_key
+from app.tools._idempotency import (
+    OVERRIDE_REFUSED_HINT,
+    duplicate_warned_this_turn,
+    turn_idempotency_key,
+)
 from app.tools._ranking import rank_by_preference
 
 
@@ -427,7 +431,18 @@ def book_flight(
     # (user_id/trip_id/messages/config) is stripped from the hash by the helper.
     # `allow_duplicate` is deliberately OUT of the idempotency args: the key
     # identifies the booking content, so including the override would let a
-    # same-turn revise re-run with a flipped flag mint a second row (gh-194).
+    # same-turn revise re-run with a flipped flag mint a second row when the
+    # first call already succeeded. That key exclusion only stops a *committed*
+    # duplicate, though — the first call replays because a row exists. When the
+    # first call was itself blocked as a duplicate (it raised before inserting),
+    # no row exists to replay, so a same-turn re-run with allow_duplicate=true
+    # would slip a second booking through without the traveller confirming. Guard
+    # that here: honour the override only if the traveller has spoken since the
+    # warning; otherwise force the duplicate check back on (gh-194).
+    override_refused = allow_duplicate and duplicate_warned_this_turn(
+        "book_flight", messages
+    )
+    effective_allow_duplicate = allow_duplicate and not override_refused
     idempotency_key = turn_idempotency_key(
         "book_flight",
         {
@@ -466,9 +481,14 @@ def book_flight(
                 request,
                 user_id=user_id,
                 idempotency_key=idempotency_key,
-                check_duplicate=not allow_duplicate,
+                check_duplicate=not effective_allow_duplicate,
             )
             return dump(result)
+        except DuplicateBookingError as e:
+            err = tool_error(e)
+            if override_refused:
+                err = ToolException(f"{err} {OVERRIDE_REFUSED_HINT}")
+            raise err from e
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:
