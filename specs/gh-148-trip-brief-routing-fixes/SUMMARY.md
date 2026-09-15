@@ -53,7 +53,10 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 
 ### Not auto-verified
 
-- Real-model behaviour on the 7 affected goldens — needs a live eval run (paid, Docker db + .env); pending.
+- Live eval (Task 3.1, `eval-report.json`, code at c2c8c115, `--repeat 3` judge): 4/6 in-scope goldens pass — language-multi_turn-vi-01 (#148), routing-multi-en-01 (#149), journal-multi_turn-vi-01 (#150), budget-ambiguous-en-03 (#151). FAIL: language-ambiguous-en-01 (#148; reply_language vi, response_language 0.336) and memory-multi_turn-vi-04 (#152; memory_recall 0.411). Watch item budget-ambiguous-en-02 (#146, out of scope) fails flow_match (fan-out to synthesize), as in the baseline. `check_eval.py` exits 1.
+- Diagnostic re-run of the two failures (`diag_gh148.py`, output `diag-rerun.txt`, one agent run each, no judge):
+  - language-ambiguous-en-01 replied in English with `state.language=en` — 1 pass / 1 fail across two runs: the fix works but is not stable; n=2 cannot give a rate (baseline also flipped this golden between runs).
+  - memory-multi_turn-vi-04: `trip_facts={'destination': 'Phú Quốc', 'budget': '20 triệu'}` — the budget reaches the planner, but the planner produced NO itinerary: it asked for a travel date. Root cause is outside the plan: the shared `ground_current_date` note ("If the traveller mentioned NO date at all, you MUST ask which date they want", app/agents/state.py) forces a date question even for an undated day-by-day suggestion, so v16's budget section never runs. Plan gap — escalated to the owner.
 
 ### Rollback
 
