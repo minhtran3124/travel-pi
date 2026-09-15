@@ -68,7 +68,9 @@ class SearchHotelsArgs(AppBaseModel):
         description=(
             "Stay start date, YYYY-MM-DD. Must be today or later. For any non-ISO "
             "wording, call the resolve_date tool on the traveller's original "
-            "expression first — never compute or guess a date yourself."
+            "expression first — never compute or guess a date yourself. If the "
+            "traveller gave no dates at all, do NOT call this tool: never use "
+            "today's date; ask them (or use browse_hotels where available)."
         ),
     )
     check_out: str = Field(
@@ -233,7 +235,9 @@ def search_hotels(
     :param city: Free-text city name — fuzzy matched (e.g. 'danang' → 'Da Nang').
     :param check_in: Stay start date, YYYY-MM-DD. Must be today or later. For any
         non-ISO wording, call the resolve_date tool on the traveller's original
-        expression first — never compute or guess a date yourself.
+        expression first — never compute or guess a date yourself. With no
+        dates from the traveller at all, do not call this tool — never default
+        to today.
     :param check_out: Stay end date, YYYY-MM-DD. Must be after ``check_in``. For
         any non-ISO wording, call the resolve_date tool on the traveller's
         original expression first — never compute or guess a date yourself.

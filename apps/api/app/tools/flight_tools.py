@@ -67,7 +67,12 @@ class SearchFlightsArgs(AppBaseModel):
     )
     departure_date: str = Field(
         ...,
-        description="Departure date, ISO format YYYY-MM-DD. Must not be in the past.",
+        description=(
+            "Departure date, ISO format YYYY-MM-DD. Must not be in the past. Only a "
+            "date the traveller actually gave — if they gave no date at all, do NOT "
+            "call this tool: never use today's date or pick one for them; call "
+            "needs_clarification and ask which date they want."
+        ),
     )
     return_date: str | None = Field(
         None,
@@ -118,7 +123,9 @@ def search_flights(
     :param departure_date: ISO date YYYY-MM-DD. Must be today or later. For any
         non-ISO wording (e.g. "today", "tomorrow", "next Friday"), call the
         resolve_date tool on the traveller's original expression first — never
-        compute or guess a date yourself.
+        compute or guess a date yourself. If the traveller gave no date at all,
+        do not call this tool — ask them (``needs_clarification``); never
+        default to today.
     :param return_date: Optional ISO date YYYY-MM-DD for the return leg
         (destination→origin). When set, its real fare is included in the
         summary — resolve non-ISO wording the same way as ``departure_date``.

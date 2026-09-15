@@ -3,6 +3,23 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-191 — a flight/hotel search with no date asks instead of using today
+
+A bare "find me a flight from Hanoi to Singapore" ran `search_flights(departure_date=<today>)`
+6/6 times, despite the CURRENT DATE note's "never fall back to today". The "ask when no date"
+path was a sub-clause of a bullet about *not* asking, while "search first, save later" and the
+required `departure_date` argument both pulled toward searching now.
+
+- **planner v15** — copied v14; adds a standalone "No date given → ask, never search." bullet:
+  no `search_flights`/`search_hotels` without a traveller-given date, call
+  `needs_clarification` and ask; "search first" applies once the date is known.
+- `search_flights.departure_date` and `search_hotels.check_in` model-visible `Field`
+  descriptions carry the same rule (the model reads the args schema independently of prompts).
+- New eval metric `no_invented_date` + goldens `dates-ambiguous-{en,vi}-02` (smoke) and
+  `dates-ambiguous-en-03` (full).
+
+`active.yaml`: planner → 15.
+
 ## gh-166-list-trips-tool — the planner and journal can see every trip, not just the open one
 
 The trip context folded into every sub-agent's system message carries the **one open trip**,
