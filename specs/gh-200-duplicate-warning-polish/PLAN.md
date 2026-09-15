@@ -1,6 +1,6 @@
 ---
 slug: gh-200-duplicate-warning-polish
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-15
 ---
@@ -136,3 +136,4 @@ PR #197 (gh-194) shipped the duplicate-intent warning with four advisories left 
 ## 6. Status Log
 
 - 2026-09-15 — plan written (writing-plans); status `proposed`. Baselines at `63621d1` recorded under Context.
+- 2026-09-15 — shipped: 4 tasks + 2 review fixes (`f93d02b`, `5b2c1b7`, `0d98c88`, `1fc9ba5`, `7a88b7b`, `e50f8b3`); per-task reviews pass; correctness-review C1 fixed (`e50f8b3`) and closed on re-review, C2 closed at score 0; intent-review: items 1–4 faithful, item 5 deferred (scoped out at intake). Status `shipped`.
