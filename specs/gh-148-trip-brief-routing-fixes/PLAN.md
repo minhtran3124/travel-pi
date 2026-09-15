@@ -69,7 +69,7 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 | SC-5 | Planner v16 sizes the plan to a known budget and reports spend against it | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_planner_prompt.py -q` | exit 0 |
 | SC-6 | With `active.yaml` at supervisor 13, planner 16, communication_style 9, every prompt/registry test passes on the active versions | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts -q` | exit 0 |
 | SC-8 | The date note makes "must ask" conditional on a date-bound tool call and allows an undated day-by-day suggestion, keeping the gh-191 never-invent guarantees | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state.py -q -k ground_current_date` | exit 0 |
-| SC-9 | On the final code, memory-multi_turn-vi-04 and the three gh-191 no_invented_date goldens pass, and language-ambiguous-en-01 passes ≥4/5 single runs | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json` | exit 0 |
+| SC-9 | On the final code, memory-multi_turn-vi-04 and the three gh-191 no_invented_date goldens pass, and language-ambiguous-en-01 passes ≥4/5 single runs | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json specs/gh-148-trip-brief-routing-fixes/language-tally.json` | exit 0 |
 | SC-7 | On the real model the seven affected goldens pass (live eval report on this branch) | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report.json` | exit 0 |
 
 ## 4. Tasks
@@ -174,7 +174,7 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 
 ### Task 3.3 — Final live eval + #148 stability (wave 5)
 
-- **Files:** specs/gh-148-trip-brief-routing-fixes/run_eval_subset.py, specs/gh-148-trip-brief-routing-fixes/check_eval.py, specs/gh-148-trip-brief-routing-fixes/diag_gh148.py, specs/gh-148-trip-brief-routing-fixes/eval-report-final.json
+- **Files:** specs/gh-148-trip-brief-routing-fixes/run_eval_subset.py, specs/gh-148-trip-brief-routing-fixes/check_eval.py, specs/gh-148-trip-brief-routing-fixes/diag_gh148.py, specs/gh-148-trip-brief-routing-fixes/eval-report-final.json, specs/gh-148-trip-brief-routing-fixes/language-tally.json
 - **Action:** Owner decisions E001-A, E002-A. On the final code, run the judged subset (the seven
   goldens plus the three gh-191 `no_invented_date` goldens dates-ambiguous-en-02,
   dates-ambiguous-vi-02, dates-ambiguous-en-03) to `eval-report-final.json`, and five extra
@@ -182,7 +182,7 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
   `check_eval.py` accepts the report path and the in-scope id set; it exits 0 iff the in-scope and
   gh-191 goldens pass and language-ambiguous-en-01 passed ≥4 of its 5 extra runs plus the judged
   run's verdict is recorded.
-- **Verify:** `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json`
+- **Verify:** `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json specs/gh-148-trip-brief-routing-fixes/language-tally.json`
 - **Done:** `eval-report-final.json` and the 5-run tally committed; SC-9 command exits 0, or the
   shortfall is escalated with evidence.
 - **Criteria:** SC-9

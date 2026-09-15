@@ -29,6 +29,9 @@ GOLDEN_IDS = frozenset(
         "budget-ambiguous-en-03",  # #151
         "memory-multi_turn-vi-04",  # #152
         "budget-ambiguous-en-02",  # watch item (#146), not gated
+        "dates-ambiguous-en-02",  # gh-191 regression guard (E001-A)
+        "dates-ambiguous-vi-02",  # gh-191 regression guard (E001-A)
+        "dates-ambiguous-en-03",  # gh-191 regression guard (E001-A)
     }
 )
 

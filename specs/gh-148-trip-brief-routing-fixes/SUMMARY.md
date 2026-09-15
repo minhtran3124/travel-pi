@@ -50,6 +50,12 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
+| unit — supervisor v13 prompt + schema | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_supervisor_prompt.py -q` | 0 | 14 passed (verify-1.1.txt run at f662d990) | SC-1 |
+| unit — explicit-switch selector | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_supervisor_prompt.py -q -k explicit_switch` | 0 | 4 passed | SC-2 |
+| unit — with_reply_language | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state_language.py -q` | 0 | part of 33 passed (verify-1.2.txt) | SC-3 |
+| unit — communication_style v9 | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_communication_style_language.py -q` | 0 | part of 33 passed (verify-1.2.txt) | SC-4 |
+| unit — planner v16 budget | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_planner_prompt.py -q` | 0 | 5 passed (verify-1.3.txt) | SC-5 |
+| unit — active versions + registry | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts -q` | 0 | covered by 539 passed (verify-2.1.txt, tests/prompts tests/api/prompts tests/agents) | SC-6 |
 
 ### Not auto-verified
 
