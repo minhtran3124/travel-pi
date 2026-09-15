@@ -1,12 +1,12 @@
 {
   "created_at": "2026-09-15T02:49:28Z",
-  "last_event_id": "77f1765d-8d44-4d7e-b028-fedbc5c07c35",
+  "last_event_id": "ba2e59b6-d36a-4597-a999-46edd9bdc5d7",
   "resume_event": null,
   "run_id": "7433c628-fb0b-48c6-9d4b-505bc570d551",
-  "seq": 5,
+  "seq": 6,
   "sha": null,
   "slug": "gh-198-booking-duplicate-check-atomic",
-  "state": "verifying",
-  "updated_at": "2026-09-15T03:43:40Z",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-15T04:36:25Z",
   "waiting_on": null
 }
