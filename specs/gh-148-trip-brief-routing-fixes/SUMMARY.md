@@ -73,6 +73,14 @@ Whole BE suite (cited, not a Verify row per `rules/plan-format.md`): `cd apps/ap
 - Eval is a small sample: one agent run per golden (judge k=3), plus 5 runs for the flaky #148 case. The rates are not measured, and passing here does not prove zero regressions outside the ten goldens. `make eval-check` against `eval/baselines/main.json` was not run (paid; owner's call).
 - The dev DB (`api-db-1`) was upgraded to d4f7a2c9e1b3 by the eval container's entrypoint (see Review ledger). This comes from main's migration, not from this branch.
 
+### Intent Findings
+
+Intent review over 4d565678..ad5a3145 (plan-blind; 3 findings, none blocking):
+
+- (i1, drift — behaviorally equivalent, advisory) No new state channel: the "trip brief" is the existing `trip_facts` (filled every turn by the supervisor, injected into every specialist via `system_with_summary`); "ngôn ngữ ưu tiên" travels in the separate `state["language"]` channel via `with_reply_language`. Disclosed to the owner at intake, before implementation.
+- (i2, drift — owner-approved, advisory) The recommendation's claim "Một thay đổi này có thể xử lý cả #152, #150 và #148" did not hold: #150 is fixed by a supervisor routing example, #148 by explicit-switch carve-outs, and #152 by narrowing the shared gh-191 date rule (E001-A) plus planner v16. The PR text states this.
+- (i3, flagged as an unknown gap — resolved with evidence) budget-ambiguous-en-02 (English input, out-of-scope #146 watch item, not gated) fails `reply_language` in `eval-report-final.json`. The reviewer reported that no diagnostic existed, but `diag-budget-rerun.txt` has one for en-02: the reply is fully English, `state.language=en`, and the only non-ASCII word is "cafés". This is the same detector false positive as #212, not a #148 regression. No exemption is needed because the golden is not gated.
+
 ### Rollback
 
 - `git revert <sha>` (prompt versions are additive; `active.yaml` pointer revert restores prior behaviour)
