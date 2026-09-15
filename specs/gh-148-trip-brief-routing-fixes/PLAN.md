@@ -68,6 +68,8 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 | SC-4 | communication_style v9 lets an explicit request switch the reply language | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_communication_style_language.py -q` | exit 0 |
 | SC-5 | Planner v16 sizes the plan to a known budget and reports spend against it | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_planner_prompt.py -q` | exit 0 |
 | SC-6 | With `active.yaml` at supervisor 13, planner 16, communication_style 9, every prompt/registry test passes on the active versions | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts -q` | exit 0 |
+| SC-8 | The date note makes "must ask" conditional on a date-bound tool call and allows an undated day-by-day suggestion, keeping the gh-191 never-invent guarantees | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state.py -q -k ground_current_date` | exit 0 |
+| SC-9 | On the final code, memory-multi_turn-vi-04 and the three gh-191 no_invented_date goldens pass, and language-ambiguous-en-01 passes ≥4/5 single runs | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json` | exit 0 |
 | SC-7 | On the real model the seven affected goldens pass (live eval report on this branch) | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report.json` | exit 0 |
 
 ## 4. Tasks
@@ -154,6 +156,38 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 - **Criteria:** SC-7
 - **Interfaces:** Consumes the activated prompts. Produces `specs/gh-148-trip-brief-routing-fixes/eval-report.json`.
 
+### Task 3.2 — Narrow the shared no-date rule (wave 4)
+
+- **Files:** apps/api/app/agents/state.py, apps/api/tests/agents/test_state.py
+- **Action:** Owner decision E001-A. Test-first. Reword the note built by `ground_current_date`
+  so "you MUST ask which date they want" applies only when the traveller gave no date AND you are
+  about to call a date-bound tool (flight or hotel search, a booking, creating a trip with
+  dates); an undated request for a day-by-day suggestion ("gợi ý lịch trình 3 ngày") is answered
+  as Day 1/Day 2/Day 3 without asking. Keep every gh-191 guarantee and every existing pin: today's
+  date and "CURRENT DATE", "resolve_date", "must ask", `never fall back to {today}`, never invent a
+  date, the note last and ending "ambiguous.". Add tests for the new conditional and the
+  undated-itinerary allowance.
+- **Verify:** `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state.py tests/agents/test_state_language.py tests/agents/test_synthesize_node.py -q`
+- **Done:** the three test files pass, including new tests for the conditional and the allowance.
+- **Criteria:** SC-8
+- **Interfaces:** Consumes the existing gh-191 date note. Produces `ground_current_date` in `apps/api/app/agents/state.py`.
+
+### Task 3.3 — Final live eval + #148 stability (wave 5)
+
+- **Files:** specs/gh-148-trip-brief-routing-fixes/run_eval_subset.py, specs/gh-148-trip-brief-routing-fixes/check_eval.py, specs/gh-148-trip-brief-routing-fixes/diag_gh148.py, specs/gh-148-trip-brief-routing-fixes/eval-report-final.json
+- **Action:** Owner decisions E001-A, E002-A. On the final code, run the judged subset (the seven
+  goldens plus the three gh-191 `no_invented_date` goldens dates-ambiguous-en-02,
+  dates-ambiguous-vi-02, dates-ambiguous-en-03) to `eval-report-final.json`, and five extra
+  single runs of language-ambiguous-en-01 (no judge; reply language + `state.language` recorded).
+  `check_eval.py` accepts the report path and the in-scope id set; it exits 0 iff the in-scope and
+  gh-191 goldens pass and language-ambiguous-en-01 passed ≥4 of its 5 extra runs plus the judged
+  run's verdict is recorded.
+- **Verify:** `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json`
+- **Done:** `eval-report-final.json` and the 5-run tally committed; SC-9 command exits 0, or the
+  shortfall is escalated with evidence.
+- **Criteria:** SC-9
+- **Interfaces:** Consumes `ground_current_date` in `apps/api/app/agents/state.py`. Produces `specs/gh-148-trip-brief-routing-fixes/eval-report-final.json`.
+
 ## 5. Risks
 
 - Prompt edits shift routing elsewhere — mitigated by keeping v12 contrastive tests on v13 and the
@@ -171,3 +205,4 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 - 2026-09-15 — review iteration 2: items 1–7 resolved; 1 new issue (with_reply_language prefix pins) applied; plan approved.
 - 2026-09-15 — tasks 1.1, 1.2, 1.3 complete (spec pass / quality approved after one fix round on 1.2 and 1.3); commits f662d990, 2a423352, b2ae0516, 899896be, aea5445b
 - 2026-09-15 — task 2.1 complete (spec pass / quality approved); commit c2c8c115
+- 2026-09-15 — task 3.1 run: 4/6 in scope (eval-report.json); escalations E001 (narrow gh-191 date rule) and E002 (measure #148 ×5) decided by owner → tasks 3.2, 3.3 added.
