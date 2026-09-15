@@ -1,12 +1,12 @@
 {
   "created_at": "2026-09-15T08:56:31Z",
-  "last_event_id": "70b55fae-a068-463a-a03e-4614b7f8fda1",
+  "last_event_id": "pr-209-merged",
   "resume_event": null,
   "run_id": "079cdba4-35c8-488a-9e4b-53260839d934",
-  "seq": 6,
-  "sha": null,
+  "seq": 7,
+  "sha": "fbee3f28d7c41d52fe11e37f4316fc807d144aeb",
   "slug": "state-md-auto-update-on-merge",
-  "state": "ready_to_merge",
-  "updated_at": "2026-09-15T09:10:11Z",
+  "state": "shipped",
+  "updated_at": "2026-09-15T09:23:17Z",
   "waiting_on": null
 }

@@ -21,7 +21,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| state-md-auto-update-on-merge | 2026-09-15 | implement | high-risk/high; A (post-merge workflow) + B (session log out of STATE.md) |
+| state-md-auto-update-on-merge | 2026-09-15 | shipped | merged via PR #209 → main (fbee3f2); high-risk/high; A (post-merge workflow) + B (session log out of STATE.md) |
 | gh-199-rest-duplicate-booking-warning | 2026-09-15 | design | high-risk/high; E001 A (ErrorResponse code+details), E002 A (FE plumbing only); next: brainstorming |
 | gh-200-duplicate-warning-polish | 2026-09-15 | shipped | merged via PR #206 → main (e5f72d0); items 1–4; item 5 deferred (#200 open); C1 fixed in review |
 | gh-198-booking-duplicate-check-atomic | 2026-09-15 | shipped | merged via PR #203 → main (22dadff); per-owner xact advisory lock |
