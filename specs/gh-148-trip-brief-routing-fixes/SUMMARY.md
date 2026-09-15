@@ -34,7 +34,7 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 
 ### Deviations
 
-- none
+- Rule 1 — Task 3.2 review m12: restored "Never invent a date the traveller did not give." as an unconditional sentence in the `ground_current_date` note (it had been folded into the date-bound-tool clause); tightened the two new tests (m13, m14). `apps/api/app/agents/state.py`, `apps/api/tests/agents/test_state.py`. Applied by the controller (one-line prompt fix + test asserts), covered by the final correctness-review.
 
 ### Review ledger (Minor findings, forwarded to final review)
 
@@ -44,6 +44,7 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 - Task 1.2 re-review (spec pass / quality approved, 2a423352 + b2ae0516): (m8) the ❌ quoted-phrase example states wrong and right behaviour on one line — leave v9 as shipped; (m9) SC-3 is wording-only — the request → state["language"] → directive path is proven only by Task 3.1 (language-* goldens).
 - Task 2.1 (spec pass / quality approved, c2c8c115): (m10) CHANGELOG line forward-references the live-eval report — must be satisfied by Task 3.1's `eval-report.json`; (m11) verify evidence should name the HEAD sha — done from here on.
 - Side effect (not a finding, recorded for audit): the one-off `api-api` container's entrypoint runs `alembic upgrade head`; the Task 3.1 dry-run upgraded the shared dev DB `api-db-1` from b8e4c1f7a305 to d4f7a2c9e1b3 (feedback_events + messages.agent_run_id, from main commit 450acd3a, already on github/main). Additive; reversible with `alembic downgrade b8e4c1f7a305` (drops feedback_events) — left to the owner.
+- Task 3.2 (spec pass / quality approved, a21138ce): (m12) "never invent a date" had moved inside the date-bound-tool clause, narrowing gh-191's guarantee — controller restored it as its own unconditional sentence before the final eval (see Deviations); (m13) the allowance test matched phrases anywhere in the note — tightened to the allowance sentence; (m14) the must-ask trigger check accepted bare "trip" — tightened to "trip with dates"; (m15) SC-8 is string-level — real-model proof is Task 3.3 (memory-multi_turn-vi-04 + the three gh-191 goldens).
 - Task 1.2 round 1 (needs_fixes → fixed): v9 lines 29/40 absolutes contradicted the explicit-request rule (Important, fixed); "Blocked on the Traveller" wording and a byte-stable test that only checked substring (Minor, fixed).
 
 ### Verify

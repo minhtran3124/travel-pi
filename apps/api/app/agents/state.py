@@ -321,7 +321,7 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
         "correct it. If the traveller gave NO date and you are about to call a "
         "date-bound tool (a flight or hotel search, a booking, creating a trip with "
         "dates), you MUST ask which date they want — never fall back to "
-        f"{today}, and never invent a date they did not give. An undated "
+        f"{today}. Never invent a date the traveller did not give. An undated "
         'day-by-day suggestion ("gợi ý lịch trình 3 ngày") needs no date: answer '
         "it as Day 1, Day 2, Day 3 without asking and without calendar dates. Ask, "
         "too, when resolve_date reports the expression is ambiguous."

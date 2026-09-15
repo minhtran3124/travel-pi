@@ -395,8 +395,10 @@ def test_ground_current_date_must_ask_is_tied_to_date_bound_tool():
         ground_current_date(SystemMessage(content="BASE")).content
     )
     assert "no date" in sentence
-    for trigger in ("flight", "hotel", "booking", "trip"):
+    for trigger in ("flight", "hotel", "booking", "trip with dates"):
         assert trigger in sentence, trigger
+    # gh-191's never-invent guarantee is unconditional, not scoped to tool calls.
+    assert "never invent" not in sentence
 
 
 def test_ground_current_date_allows_undated_day_by_day_suggestion():
@@ -407,7 +409,9 @@ def test_ground_current_date_allows_undated_day_by_day_suggestion():
 
     content = ground_current_date(SystemMessage(content="BASE")).content
     note = content[content.index("CURRENT DATE") :]
-    assert "Day 1" in note
-    assert "day-by-day" in note
-    assert "without asking" in note
-    assert "never invent a date" in note.lower()
+    sentences = [s.strip() for s in note.split(". ")]
+    allowance = next(s for s in sentences if "day-by-day" in s)
+    assert "Day 1" in allowance
+    assert "without asking" in allowance
+    assert "without calendar dates" in allowance
+    assert "Never invent a date the traveller did not give" in sentences
