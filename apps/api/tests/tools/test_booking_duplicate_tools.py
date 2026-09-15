@@ -384,3 +384,59 @@ def test_allow_duplicate_in_model_schema_injected_hidden(tool_name):
     assert "confirm" in description.lower()
     for hidden in ("user_id", "trip_id", "messages", "config"):
         assert hidden not in model_fields
+
+
+# ---------------------------------------------------------------------------
+# gh-200 C1 — a newer matching booking committed after the warning must not slip
+# through a same-turn override. The warning flagged X (warned={X}); a newer
+# matching Z lands before the re-run (e.g. the REST route, which never runs the
+# duplicate check); the service now raises for Z, but X is still among the error's
+# matches, so the override is refused and no row is added.
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_newer_match_after_warning_refuses_override(agent_db):
+    from app.tools.flight_tools import book_flight
+
+    args = _flight_args(_flight_number(agent_db))
+    book_flight.invoke(dict(args))  # X: the booking the warning will flag
+    assert _rows(agent_db) == 1
+
+    messages = [HumanMessage(id="h1", content="book HAN to SGN")]
+    with pytest.raises(ToolException) as excinfo:
+        book_flight.invoke({**args, "messages": list(messages)})
+    messages.append(_warning_message("book_flight", str(excinfo.value)))
+
+    # A newer matching booking Z lands before the same-turn re-run.
+    book_flight.invoke({**args, "allow_duplicate": True})  # Z, no turn context
+    assert _rows(agent_db) == 2
+
+    # Same turn, warned={X}: the service raises for the newer Z, but X is still in
+    # matches, so the override must be refused and nothing new persisted.
+    with pytest.raises(ToolException) as retry:
+        book_flight.invoke(
+            {**args, "allow_duplicate": True, "messages": list(messages)}
+        )
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 2
+
+
+def test_book_hotel_newer_match_after_warning_refuses_override(agent_db):
+    from app.tools.hotel_tools import book_hotel
+
+    args = _hotel_args(_hotel_id(agent_db))
+    book_hotel.invoke(dict(args))  # X
+    assert _rows(agent_db) == 1
+
+    messages = [HumanMessage(id="h1", content="book Da Nang")]
+    with pytest.raises(ToolException) as excinfo:
+        book_hotel.invoke({**args, "messages": list(messages)})
+    messages.append(_warning_message("book_hotel", str(excinfo.value)))
+
+    book_hotel.invoke({**args, "allow_duplicate": True})  # Z, no turn context
+    assert _rows(agent_db) == 2
+
+    with pytest.raises(ToolException) as retry:
+        book_hotel.invoke({**args, "allow_duplicate": True, "messages": list(messages)})
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 2

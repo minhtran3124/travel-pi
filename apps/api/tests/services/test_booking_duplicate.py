@@ -281,3 +281,45 @@ def test_book_hotel_sold_out_wins_over_duplicate(service, monkeypatch):
         )
     assert not isinstance(exc.value, DuplicateBookingError)
     assert len(service.list_all(user_id=owner)) == 1
+
+
+# ---------------------------------------------------------------------------
+# gh-200 C1 — every matching active booking is carried in `matches`
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_all_matches_carries_every_active_duplicate(service):
+    """Two active bookings match this flight (older X, newer Z); the error names
+    the newest as ``existing`` but carries *both* in ``matches`` so the tool can
+    refuse an override flagged against either one (gh-200 C1)."""
+    owner = "u_dup_flight_all_matches"
+    flight = _flight(service._session)
+    older = service.book_flight(_flight_request(flight), user_id=owner)
+    newer = service.book_flight(_flight_request(flight), user_id=owner)
+
+    with pytest.raises(DuplicateBookingError) as exc:
+        service.book_flight(
+            _flight_request(flight), user_id=owner, check_duplicate=True
+        )
+
+    assert exc.value.existing.id == newer.id
+    assert {b.id for b in exc.value.matches} == {older.id, newer.id}
+    assert len(service.list_all(user_id=owner)) == 2
+
+
+def test_book_hotel_all_matches_carries_every_active_duplicate(service):
+    """Two active bookings match this hotel + exact dates (older X, newer Z);
+    ``existing`` names the newest, ``matches`` carries both (gh-200 C1)."""
+    owner = "u_dup_hotel_all_matches"
+    hotel_id = _hotel_id(service._session)
+    older = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
+    newer = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
+
+    with pytest.raises(DuplicateBookingError) as exc:
+        service.book_hotel(
+            _hotel_request(hotel_id), user_id=owner, check_duplicate=True
+        )
+
+    assert exc.value.existing.id == newer.id
+    assert {b.id for b in exc.value.matches} == {older.id, newer.id}
+    assert len(service.list_all(user_id=owner)) == 2

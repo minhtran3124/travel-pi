@@ -602,8 +602,8 @@ def book_hotel(
                     check_duplicate=(not allow_duplicate) or bool(warned),
                 )
             except DuplicateBookingError as e:
-                if allow_duplicate and duplicate_override_refused(
-                    e.existing.id, warned
+                if allow_duplicate and any(
+                    duplicate_override_refused(b.id, warned) for b in e.matches
                 ):
                     raise ToolException(
                         f"{tool_error(e)} {OVERRIDE_REFUSED_HINT}"

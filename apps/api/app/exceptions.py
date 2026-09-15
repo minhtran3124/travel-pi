@@ -11,6 +11,8 @@ import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from app.schemas.booking import Booking
 
 
@@ -104,14 +106,21 @@ class DuplicateBookingError(ConflictError):
         detail: str | None = None,
         *,
         existing: Booking,
+        matches: Sequence[Booking] | None = None,
         hint: str | None = None,
     ) -> None:
         detail = detail or self.default_detail
         if DUPLICATE_WARNING_MARKER_RE.search(detail) is None:
             detail = f"{detail} {duplicate_warning_marker(existing.id)}"
         super().__init__(detail, hint=hint)
-        #: The already-stored booking this request duplicates.
+        #: The already-stored booking this request duplicates. The message and
+        #: the id-bearing marker name this one (the newest match).
         self.existing = existing
+        #: Every active booking that matched this request, not only ``existing``.
+        #: A same-turn override must be refused if *any* of these was flagged, so
+        #: a newer match committed after the warning cannot slip through (gh-200
+        #: C1). Defaults to ``(existing,)`` for callers that pass only one.
+        self.matches = tuple(matches) if matches is not None else (existing,)
 
 
 class DomainValidationError(AppError):
