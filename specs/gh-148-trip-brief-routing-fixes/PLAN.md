@@ -170,3 +170,4 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 - 2026-09-15 — review iteration 1: 7 issues + 2 recommendations applied.
 - 2026-09-15 — review iteration 2: items 1–7 resolved; 1 new issue (with_reply_language prefix pins) applied; plan approved.
 - 2026-09-15 — tasks 1.1, 1.2, 1.3 complete (spec pass / quality approved after one fix round on 1.2 and 1.3); commits f662d990, 2a423352, b2ae0516, 899896be, aea5445b
+- 2026-09-15 — task 2.1 complete (spec pass / quality approved); commit c2c8c115
