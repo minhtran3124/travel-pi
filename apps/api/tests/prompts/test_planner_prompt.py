@@ -49,3 +49,14 @@ def test_planner_v16_honours_a_known_budget():
     assert "estimated total (or per-day) spend against that budget" in normalized
     assert "never ask for the budget again" in normalized
     assert "No `budget` in Known trip facts → plan as usual" in normalized
+    assert "it is a firm target for every plan you propose" in normalized
+    assert (
+        "Going over it is allowed only when your reply says so clearly." in normalized
+    )
+    assert (
+        "this is the only sum you may do, and it is never a price quote" in normalized
+    )
+    assert (
+        '(Sole exception: the ≈ budget estimate in "Plan to a known budget", '
+        "which is never a price quote.)" in normalized
+    )
