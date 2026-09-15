@@ -331,6 +331,43 @@ class ToolArgsShapeMetric:
         )
 
 
+_ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}")
+
+
+class NoInventedDateMetric:
+    """Fails if any tool call received an ISO date on a golden with no date.
+
+    Declared only by goldens whose traveller turns contain NO date signal at
+    all, so any ``YYYY-MM-DD`` value reaching a tool argument was invented by
+    the agent (typically today's date — gh-191). The check reads the runner's
+    own ``tool_calls``, never the reply text, so it cannot be fooled by a
+    reply that merely omits the date.
+    """
+
+    name = "no_invented_date"
+
+    def evaluate(
+        self, golden: Golden, trace: Trace, oracle: Oracle | None = None
+    ) -> CheckResult:
+        invented = [
+            f"{tc.name}.{arg}={value!r}"
+            for tc in trace.tool_calls
+            for arg, value in tc.args.items()
+            if isinstance(value, str) and _ISO_DATE.match(value)
+        ]
+        if invented:
+            return CheckResult(
+                name=self.name,
+                passed=False,
+                detail=f"invented date(s): {'; '.join(invented)}",
+            )
+        return CheckResult(
+            name=self.name,
+            passed=True,
+            detail=f"no dated tool args across {len(trace.tool_calls)} call(s)",
+        )
+
+
 def make_tool_args_shape_metric(
     schemas: dict[str, dict[str, Any]],
 ) -> ToolArgsShapeMetric:
@@ -350,3 +387,4 @@ register_metric(ToolsExpectedMetric(mode="exact"))
 register_metric(ReplyLanguageMetric())
 register_metric(NonEmptyReplyMetric())
 register_metric(ToolArgsShapeMetric())
+register_metric(NoInventedDateMetric())

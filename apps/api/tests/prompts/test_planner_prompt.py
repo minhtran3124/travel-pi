@@ -30,3 +30,11 @@ def test_planner_prompt_searches_before_creating_a_trip():
     normalized = " ".join(text.split())
     assert "Never call `create_trip` before a search" in normalized
     assert "Search first, save later" in normalized
+
+
+def test_planner_prompt_asks_when_no_date_given():
+    """gh-191: a no-date search must ask, not fall back to today."""
+    normalized = " ".join(registry.get("planner").split())
+    assert "No date given → ask, never search." in normalized
+    assert "never use today's date" in normalized
+    assert "needs_clarification" in normalized

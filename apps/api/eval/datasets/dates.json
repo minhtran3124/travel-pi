@@ -74,5 +74,37 @@
     "hitl": "approve",
     "metrics": ["flow_match", "reply_language"],
     "notes": "'In 2 weeks from today' — tests relative-date resolution anchored to the current date. | review-b7 re-validate 2026-09-07: expected_flow concierge→booking (v10: 'I want to book a flight' is an explicit book intent → booking) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "dates-ambiguous-en-02",
+    "capability": "dates",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "smoke",
+    "input": "Find me a flight from Hanoi to Singapore.",
+    "expected_flow": "planner",
+    "metrics": ["flow_match", "no_invented_date", "reply_language", "non_empty_reply"],
+    "notes": "gh-191: no date at all — the agent must ask which date, never search with today's date. no_invented_date fails if any tool arg carries a YYYY-MM-DD value."
+  },
+  {
+    "id": "dates-ambiguous-vi-02",
+    "capability": "dates",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "smoke",
+    "input": "Tìm giúp tôi chuyến bay từ Hà Nội đi Đà Nẵng.",
+    "expected_flow": "planner",
+    "metrics": ["flow_match", "no_invented_date", "reply_language", "non_empty_reply"],
+    "notes": "gh-191: VI twin of dates-ambiguous-en-02 — no date given, must ask rather than invent today's date."
+  },
+  {
+    "id": "dates-ambiguous-en-03",
+    "capability": "dates",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Find me a hotel in Da Nang for 2 adults, 1 room.",
+    "metrics": ["no_invented_date", "reply_language", "non_empty_reply"],
+    "notes": "gh-191: hotel search with party size but no dates — search_hotels must not run with an invented check_in/check_out (browse_hotels or asking is fine)."
   }
 ]
