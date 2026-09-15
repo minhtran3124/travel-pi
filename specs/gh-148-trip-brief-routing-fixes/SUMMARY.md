@@ -73,6 +73,20 @@ Whole BE suite (cited, not a Verify row per `rules/plan-format.md`): `cd apps/ap
 - Eval is a small sample: one agent run per golden (judge k=3), plus 5 runs for the flaky #148 case. The rates are not measured, and passing here does not prove zero regressions outside the ten goldens. `make eval-check` against `eval/baselines/main.json` was not run (paid; owner's call).
 - The dev DB (`api-db-1`) was upgraded to d4f7a2c9e1b3 by the eval container's entrypoint (see Review ledger). This comes from main's migration, not from this branch.
 
+### Advisory Findings
+
+Correctness review over 4d565678..ad5a3145: six FIND angles (prior-art found nothing), deduplicated to 7 locations, each scored independently. The threshold is 75. Every location below it is advisory: not auto-fixed, surfaced to the owner.
+
+- (C1, score 25) `apps/api/app/agents/state.py:321-326`: the narrowed date note does not list weather or climate lookups as date-bound. An undated "will it rain on my trip?" could get today's forecast. Mitigations: the unconditional "Never invent a date", and the concierge/planner forecast-coverage rules. Candidate follow-up: phrase the rule as "any tool whose answer depends on a date the traveller did not give".
+- (C2, score 50) `apps/api/app/agents/supervisor.py:106-110, 334-338`: nothing in state enforces that an explicit reply-language request is sticky; only the prompt wording does. A later fully-Vietnamese turn could flip the router back to `vi`. The five-run tally covers only the single-turn request. Candidate follow-up: an `explicit_language` flag in state, or state in the router hint that typing in another language is not a switch after an explicit request.
+- (C3, score 0, line not modified by the diff) `apps/api/app/agents/constants.py:87,102`: the reflection and task notes say "the traveller's own language". `with_reply_language` now names the explicitly requested language, so the scorer judged the conflict weak.
+- (C4, score 0, line not modified by the diff) `apps/api/app/agents/supervisor.py:199-201`: `_BUDGET_RE` drops unknown currencies ("20 million dong", "$1,500", "1500 EUR"). Planner v16 now treats the budget as a firm target, so a unit-less value matters more than before. Candidate follow-up: emit the budget fact only when a unit matched.
+- (C5, score 0, lines carried over from v15) `apps/api/app/prompts/planner/v16.md:42-48`: "No active trip yet" step 1 still asks for dates when building a trip. It applies to build/save intent, not to undated suggestions, and the final eval passes memory-multi_turn-vi-04.
+- (C6, score 25) `specs/gh-148-trip-brief-routing-fixes/check_eval.py:41-54`: `_check` trusts `case["passed"]`. The "no checks" trigger is not reachable, because every gated golden has a deterministic metric and the runner always adds `non_empty_reply`. The only residual risk is a keyless run that silently skips judged metrics while the gate stays green. Both gated reports here are judged runs (`judge_available` in run_meta).
+- (C7, score 50) `specs/gh-148-trip-brief-routing-fixes/check_eval.py:62-67`: the tally gate does not compare the tally's `golden_id` to `language-ambiguous-en-01`. It is triggered only by passing the wrong tally file by hand; the committed `language-tally.json` carries the correct id. Spec-local tooling.
+
+Result: 0 findings at or above the threshold, so the correctness review has no blocking findings and no fix loop ran.
+
 ### Intent Findings
 
 Intent review over 4d565678..ad5a3145 (plan-blind; 3 findings, none blocking):
