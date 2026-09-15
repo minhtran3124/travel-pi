@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import pytest
 from app.db.engine import get_session_factory
+from app.exceptions import DUPLICATE_WARNING_MARKER
 from app.services.booking_service import BookingService
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.tools import ToolException
@@ -226,9 +227,7 @@ def test_book_hotel_same_turn_allow_duplicate_after_warning_still_raises(agent_d
 
     messages.append(_warning_message("book_hotel", warning))
     with pytest.raises(ToolException) as retry:
-        book_hotel.invoke(
-            {**args, "allow_duplicate": True, "messages": list(messages)}
-        )
+        book_hotel.invoke({**args, "allow_duplicate": True, "messages": list(messages)})
 
     assert "confirm" in str(retry.value).lower()
     assert _rows(agent_db) == 1
@@ -263,6 +262,108 @@ def test_book_hotel_allow_duplicate_no_context_books(agent_db):
 
     assert second["id"] != first["id"]
     assert _rows(agent_db) == 2
+
+
+# ---------------------------------------------------------------------------
+# Per-booking override (gh-200): the override is refused only for the booking
+# actually flagged this turn. A same-turn warning about booking A must not
+# block an override for a different booking B; a bare legacy marker still
+# refuses every override for that tool (fail-safe).
+# ---------------------------------------------------------------------------
+
+
+def test_book_flight_same_turn_override_for_different_booking_books(agent_db):
+    from app.tools.flight_tools import book_flight
+
+    args = _flight_args(_flight_number(agent_db))
+    # Two distinct existing bookings for OWNER (match key = row + passengers),
+    # seeded without turn context.
+    book_flight.invoke(dict(args))  # A: passengers=1
+    book_flight.invoke({**args, "passengers": 2})  # B: passengers=2
+    assert _rows(agent_db) == 2
+
+    # One turn: A is warned (its id rides the marker), then allow_duplicate=True
+    # for the DIFFERENT booking B still books.
+    messages = [HumanMessage(id="h1", content="book HAN to SGN")]
+    with pytest.raises(ToolException) as excinfo:
+        book_flight.invoke({**args, "messages": list(messages)})
+    messages.append(_warning_message("book_flight", str(excinfo.value)))
+
+    booked = book_flight.invoke(
+        {**args, "passengers": 2, "allow_duplicate": True, "messages": list(messages)}
+    )
+    assert isinstance(booked, dict)
+    assert _rows(agent_db) == 3
+
+    # The flagged booking A is still refused in the same turn.
+    with pytest.raises(ToolException) as retry:
+        book_flight.invoke(
+            {**args, "allow_duplicate": True, "messages": list(messages)}
+        )
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 3
+
+
+def test_book_hotel_same_turn_override_for_different_booking_books(agent_db):
+    from app.tools.hotel_tools import book_hotel
+
+    args = _hotel_args(_hotel_id(agent_db))
+    b_args = {**args, "check_in": "2027-05-01", "check_out": "2027-05-04"}
+    book_hotel.invoke(dict(args))  # A
+    book_hotel.invoke(dict(b_args))  # B: same hotel, different dates
+    assert _rows(agent_db) == 2
+
+    messages = [HumanMessage(id="h1", content="book Da Nang")]
+    with pytest.raises(ToolException) as excinfo:
+        book_hotel.invoke({**args, "messages": list(messages)})
+    messages.append(_warning_message("book_hotel", str(excinfo.value)))
+
+    booked = book_hotel.invoke(
+        {**b_args, "allow_duplicate": True, "messages": list(messages)}
+    )
+    assert isinstance(booked, dict)
+    assert _rows(agent_db) == 3
+
+    with pytest.raises(ToolException) as retry:
+        book_hotel.invoke({**args, "allow_duplicate": True, "messages": list(messages)})
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 3
+
+
+def test_book_flight_legacy_marker_refuses_override(agent_db):
+    from app.tools.flight_tools import book_flight
+
+    args = _flight_args(_flight_number(agent_db))
+    book_flight.invoke(dict(args))
+    messages = [
+        HumanMessage(id="h1", content="book HAN to SGN"),
+        _warning_message(
+            "book_flight", f"Tool call failed: dup {DUPLICATE_WARNING_MARKER}"
+        ),
+    ]
+    with pytest.raises(ToolException) as retry:
+        book_flight.invoke(
+            {**args, "allow_duplicate": True, "messages": list(messages)}
+        )
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 1
+
+
+def test_book_hotel_legacy_marker_refuses_override(agent_db):
+    from app.tools.hotel_tools import book_hotel
+
+    args = _hotel_args(_hotel_id(agent_db))
+    book_hotel.invoke(dict(args))
+    messages = [
+        HumanMessage(id="h1", content="book Da Nang"),
+        _warning_message(
+            "book_hotel", f"Tool call failed: dup {DUPLICATE_WARNING_MARKER}"
+        ),
+    ]
+    with pytest.raises(ToolException) as retry:
+        book_hotel.invoke({**args, "allow_duplicate": True, "messages": list(messages)})
+    assert "confirm" in str(retry.value).lower()
+    assert _rows(agent_db) == 1
 
 
 # ---------------------------------------------------------------------------

@@ -34,7 +34,8 @@ from app.streaming.panels import HotelsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
 from app.tools._idempotency import (
     OVERRIDE_REFUSED_HINT,
-    duplicate_warned_this_turn,
+    duplicate_override_refused,
+    duplicate_warned_ids_this_turn,
     turn_idempotency_key,
 )
 from app.tools._ranking import rank_by_preference
@@ -551,13 +552,13 @@ def book_hotel(
     # Replay-safety within one traveller turn (gh-193): see book_flight.
     # `allow_duplicate` is deliberately OUT of the idempotency args, and — because
     # a blocked duplicate raises before inserting, leaving no row to replay — a
-    # same-turn re-run with allow_duplicate=true would otherwise slip a second
-    # booking through without the traveller confirming. Honour the override only
-    # if the traveller has spoken since the warning (gh-194).
-    override_refused = allow_duplicate and duplicate_warned_this_turn(
-        "book_hotel", messages
-    )
-    effective_allow_duplicate = allow_duplicate and not override_refused
+    # same-turn re-run with allow_duplicate=true could otherwise slip a second
+    # booking through without the traveller confirming. Guard that per booking id
+    # (gh-200): `warned` is the set of booking ids flagged as duplicates this
+    # turn, so we force the duplicate check back on whenever any warning stands
+    # and honour the override only for a booking that was NOT flagged (a bare
+    # legacy marker flags every booking of this tool).
+    warned = duplicate_warned_ids_this_turn("book_hotel", messages)
     idempotency_key = turn_idempotency_key(
         "book_hotel",
         {
@@ -592,18 +593,34 @@ def book_hotel(
                 notes=notes,
                 trip_id=trip_id,
             )
-            result = BookingService(s).book_hotel(
-                request,
-                user_id=user_id,
-                idempotency_key=idempotency_key,
-                check_duplicate=not effective_allow_duplicate,
-            )
+            service = BookingService(s)
+            try:
+                result = service.book_hotel(
+                    request,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    check_duplicate=(not allow_duplicate) or bool(warned),
+                )
+            except DuplicateBookingError as e:
+                if allow_duplicate and duplicate_override_refused(
+                    e.existing.id, warned
+                ):
+                    raise ToolException(
+                        f"{tool_error(e)} {OVERRIDE_REFUSED_HINT}"
+                    ) from e
+                if not allow_duplicate:
+                    raise tool_error(e) from e
+                # The warning was about a *different* booking, so the traveller's
+                # override stands. Re-book without the duplicate check on the same
+                # BookingService/session, so the gh-198 per-owner advisory lock the
+                # first attempt took is still held for this insert.
+                result = service.book_hotel(
+                    request,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    check_duplicate=False,
+                )
             return dump(result)
-        except DuplicateBookingError as e:
-            err = tool_error(e)
-            if override_refused:
-                err = ToolException(f"{err} {OVERRIDE_REFUSED_HINT}")
-            raise err from e
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:
