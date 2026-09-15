@@ -4,15 +4,16 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 ## Active Spec
 
-- **Slug:** specialist-task-description
-- **Phase:** review  <!-- design | research | plan | implement | review | shipped -->
-- **Last skill:** intent-review (round 2) → finishing-a-development-branch next
-- **Last action:** All 7 tasks done; correctness review fixed the trailing-SystemMessage design (note folded into the
-  leading system message). User decisions: E001-A (note only on a real split), E002-A (judged eval before PR),
-  E003-A (supervisor v13 reverted after it dropped the budget+concierge fan-out 6/18 vs 0/30). Eval: no measurable
-  ask-coverage gain over main yet. Single-task guard added on probe evidence. Branch HEAD f71dc96 + spec commit.
-  Next: receipt + PR (PR must state the value is not demonstrated).
-- **Updated:** 2026-09-10
+- **Slug:** gh-199-rest-duplicate-booking-warning
+- **Phase:** design  <!-- design | research | plan | implement | review | shipped -->
+- **Last skill:** feature-intake (+ ESCALATIONS E001/E002 decided) → next: brainstorming → xia2 (Deep) → writing-plans
+- **Last action:** gh-200 shipped — PR #206 merged → main (e5f72d0): items 1–4 of #200 (hotel warning quotes the
+  existing booking, availability before the duplicate block, id-bearing `[possible-duplicate:<id>]` marker,
+  per-booking override guard against every matching booking, FakeLLM graph test); item 5 (`_as_date` softening)
+  deferred, #200 left open ("Refs #200"). gh-199 unblocked: E001 A (extend `ErrorResponse` with optional
+  `code` + `details`; 409 `possible_duplicate`), E002 A (FE: `errors.ts` 409 mapping + regenerated
+  `schema.d.ts`, no page UI). Lane high-risk / confidence high. Start from `github/main` (local `main` was stale).
+- **Updated:** 2026-09-15
 
 ## Recent Specs
 
@@ -20,9 +21,13 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
-| specialist-task-description | 2026-09-10 | review | fan-out task note via task_queries; v13 reverted (E003); value not yet demonstrated |
-| prompt-caching-system-prefix | 2026-09-08 | plan | E001→A, E002→B; caching already 71.9%, plan = 24h retention + date note last + report script |
-| close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
+| gh-199-rest-duplicate-booking-warning | 2026-09-15 | design | high-risk/high; E001 A (ErrorResponse code+details), E002 A (FE plumbing only); next: brainstorming |
+| gh-200-duplicate-warning-polish | 2026-09-15 | shipped | merged via PR #206 → main (e5f72d0); items 1–4; item 5 deferred (#200 open); C1 fixed in review |
+| gh-198-booking-duplicate-check-atomic | 2026-09-15 | shipped | merged via PR #203 → main (22dadff); per-owner xact advisory lock |
+| gh-194-duplicate-booking-warning | 2026-09-14 | shipped | merged via PR #197 → main (ef9aec1); agent-only duplicate warning |
+| specialist-task-description | 2026-09-10 | shipped | merged via PR #192 → main (f67e7c6); fan-out task note; value not demonstrated by eval |
+| prompt-caching-system-prefix | 2026-09-08 | shipped | merged via PR #190 → main (b96569a); caching already on (71.9%), 24h retention + report script |
+| close-product-loop-s2-guide-and-map | 2026-09-09 | shipped | merged via PR #172 → main (8cdfed4); UAT found and fixed a tab-overflow regression |
 | gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | merged via PR #171 → main (a6e7998); hotels eval 50% → 83.3% |
 | flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |
 | close-product-loop-s1-booking-ui | 2026-09-08 | shipped | merged via PR #167 → main (4cb8f10) |
@@ -1951,3 +1956,163 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 - last_commit: c65bb90 docs(specs): S3 status log — waves 1 and 2 complete, run at verifying
 - user_turns: 0
 
+
+### 2026-09-15T06:37:51Z
+- session_id: caf61c1c-ca16-4af1-822e-b831b631840c
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T06:56:32Z
+- session_id: 57824f97-40aa-460a-ab0c-5ce6e2a6c17b
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:05:08Z
+- session_id: 72a40b75-97d2-479b-857f-77dad6610e55
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:10:25Z
+- session_id: 5ba8af5a-548f-4951-8b08-e8e1c4911b54
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:12:11Z
+- session_id: 09781c38-004c-46de-a1ff-db2aed588805
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:12:49Z
+- session_id: 960c1f83-25f8-4fed-83a2-ead3dea4adf6
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:13:19Z
+- session_id: 2be58c89-cd83-4bd7-9687-31499759323d
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:21:51Z
+- session_id: 5ff695fa-64c7-4f56-85ab-a84c08892c71
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:24:47Z
+- session_id: 5d530b41-427f-4839-9d0e-8689dca525b3
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:33:29Z
+- session_id: aae8fba2-da37-4f9d-bbfa-833e77d9ca58
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:33:30Z
+- session_id: ad024f0f-0d9e-4e3d-9ace-fbaf37a06ca7
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:36:15Z
+- session_id: d52ff6fb-c529-4442-b11e-5660865c31f8
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:37:01Z
+- session_id: 906cdb2c-0d06-42dc-aca6-2c292e5a4030
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:37:01Z
+- session_id: 4d1c4294-baba-41c6-b1e1-f3211c19f0c2
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:37:02Z
+- session_id: 8a179b6c-c524-44b3-aaaa-e8437660883e
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:38:07Z
+- session_id: 4f470397-8a12-45fb-a7a9-8bda21fa106f
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:38:08Z
+- session_id: b4be9269-dac2-4496-889e-bbf0bb1fd690
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:39:24Z
+- session_id: 15515cfb-1dac-4921-9908-ea309bba9cc1
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:39:24Z
+- session_id: f1e7bb64-46a1-4e0a-8e65-323152c732b9
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:40:26Z
+- session_id: 3c85f7ed-881f-40ea-b471-a227a1dd4f40
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:47:39Z
+- session_id: 4b403a81-724e-4ce3-9583-b69469e0d66c
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:51:48Z
+- session_id: 555e7cd8-4626-4cf0-8d21-6566668be30b
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
+
+
+### 2026-09-15T07:53:35Z
+- session_id: a8ddf215-f7ec-4219-8933-8525c45ec3b3
+- exit: 
+- last_commit: ef9aec1 Merge pull request #197 from minhtran3124/feat/gh-194-duplicate-booking-warning
+- user_turns: 0
