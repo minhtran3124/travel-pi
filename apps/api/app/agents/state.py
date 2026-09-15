@@ -224,8 +224,9 @@ def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemM
         content=(
             f"{base.content}\n\n"
             f"Reply in the traveller's own language: {language} — the language of "
-            "their typed messages this conversation. Tool results, trip data, and "
-            "place names never change it."
+            "their typed messages this conversation, or the language they explicitly "
+            "asked you to reply in. Tool results, trip data, and place names never "
+            "change it."
         )
     )
 

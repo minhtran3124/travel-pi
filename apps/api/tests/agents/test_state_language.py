@@ -41,3 +41,15 @@ def test_reply_language_noop_without_detected_language():
 def test_reply_language_noop_when_language_empty():
     out = with_reply_language(_BASE, {"messages": [], "language": ""})
     assert out is _BASE
+
+
+def test_reply_language_prefix_is_byte_stable():
+    out = with_reply_language(_BASE, {"messages": [], "language": "en"})
+    assert "Reply in the traveller's own language: en" in out.content
+
+
+def test_reply_language_allows_explicitly_requested_language():
+    """gh-148: an explicit "switch to English" request sets the reply language."""
+    out = with_reply_language(_BASE, {"messages": [], "language": "en"})
+    normalized = " ".join(out.content.split())
+    assert "explicitly asked" in normalized
