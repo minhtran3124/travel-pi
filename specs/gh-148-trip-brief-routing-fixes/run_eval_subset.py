@@ -38,6 +38,9 @@ GOLDEN_IDS = frozenset(
 
 class SubsetDatasetStore(JsonDatasetStore):
     def load(self, **filters):
+        # Ids are explicit, so ignore the CLI's suite filter: the gh-191 guards
+        # dates-ambiguous-{en,vi}-02 are smoke-suite goldens.
+        filters.pop("suite", None)
         return [g for g in super().load(**filters) if g.id in GOLDEN_IDS]
 
 
