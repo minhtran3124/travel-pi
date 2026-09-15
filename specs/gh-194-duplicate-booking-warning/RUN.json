@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-14T11:20:41Z",
+  "last_event_id": "72fcd712-ff76-4eda-affa-6cc61c218b48",
+  "resume_event": null,
+  "run_id": "2d455c94-50df-411b-a407-9c6624ed7027",
+  "seq": 6,
+  "sha": null,
+  "slug": "gh-194-duplicate-booking-warning",
+  "state": "verifying",
+  "updated_at": "2026-09-14T11:41:18Z",
+  "waiting_on": null
+}
