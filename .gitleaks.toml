@@ -1,0 +1,26 @@
+# gitleaks config for the CI `secrets` job (specs/ci-secret-scanning).
+# Default rules, plus allowlists matched against the extracted SECRET only —
+# never a whole line or path, so a real key sharing a line still fires.
+# Every entry below was a verified false positive on the full-history scan.
+
+title = "travel-pi"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Env neutralization: `env OPENAI_API_KEY= ANTHROPIC_API_KEY= ...` blanks provider keys; generic-api-key reads the next empty var name as the value"
+regexTarget = "secret"
+regexes = ['''^[A-Z][A-Z0-9_]*_KEY=$''']
+
+[[allowlists]]
+description = "Idempotency keys are client request ids, not credentials"
+regexTarget = "secret"
+regexes = ['''^idempotency_key=idempotency_key$''']
+
+[[allowlists]]
+description = "Sample Idempotency-Key header value in the API docs"
+condition = "AND"
+paths = ['''^APIS\.md$''']
+regexTarget = "secret"
+regexes = ['''^trip-danang-outbound-001$''']
