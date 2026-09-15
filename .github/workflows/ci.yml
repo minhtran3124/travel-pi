@@ -10,15 +10,15 @@ jobs:
         working-directory: apps/api
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
 
       - name: Install dependencies
         run: uv venv && uv pip install -r requirements.txt
@@ -30,13 +30,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: pnpm
@@ -68,18 +68,18 @@ jobs:
       HAS_E2E_SECRETS: "${{ secrets.E2E_USER_EMAIL != '' && secrets.E2E_USER_PASSWORD != '' && secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY != '' }}"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: success() && env.HAS_E2E_SECRETS == 'true'
 
       - name: Set up Python
         if: success() && env.HAS_E2E_SECRETS == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install uv
         if: success() && env.HAS_E2E_SECRETS == 'true'
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
 
       - name: Install backend dependencies
         if: success() && env.HAS_E2E_SECRETS == 'true'
@@ -113,11 +113,11 @@ jobs:
 
       - name: Set up pnpm
         if: success() && env.HAS_E2E_SECRETS == 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Set up Node
         if: success() && env.HAS_E2E_SECRETS == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: pnpm
@@ -150,7 +150,7 @@ jobs:
 
       - name: Upload Playwright report
         if: (failure() || cancelled()) && env.HAS_E2E_SECRETS == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: |
