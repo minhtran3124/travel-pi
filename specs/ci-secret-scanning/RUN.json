@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-15T10:10:57Z",
+  "last_event_id": "072f13a4-ed86-4e20-b870-ebbc4dc37021",
+  "resume_event": null,
+  "run_id": "c5f41931-5ead-4f20-b990-0e7a542cc1d5",
+  "seq": 6,
+  "sha": "fe38a70d",
+  "slug": "ci-secret-scanning",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-15T10:19:59Z",
+  "waiting_on": null
+}
