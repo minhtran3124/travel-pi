@@ -27,6 +27,15 @@ IN_SCOPE = (
 GH191 = ("dates-ambiguous-en-02", "dates-ambiguous-vi-02", "dates-ambiguous-en-03")
 FLAKY = "language-ambiguous-en-01"
 TALLY_MIN = 4
+# Owner decision E003: a check proven to be an eval-metric false positive is
+# exempt, printed as EXEMPT, and tracked upstream. Any OTHER failing check on
+# the same golden still fails the gate.
+EXEMPT = {
+    ("budget-ambiguous-en-03", "reply_language"): (
+        "#212 detector reads any Latin diacritic as vi; diag-budget-rerun.txt "
+        "shows an English reply with state.language=en"
+    ),
+}
 
 
 def _check(cases: dict, golden_id: str) -> bool:
@@ -36,8 +45,13 @@ def _check(cases: dict, golden_id: str) -> bool:
         return False
     if not case["passed"]:
         bad = [ck.get("name") for ck in case.get("checks", []) if not ck.get("passed")]
-        print(f"FAIL    {golden_id} {bad}")
-        return False
+        real = [name for name in bad if (golden_id, name) not in EXEMPT]
+        if real:
+            print(f"FAIL    {golden_id} {real}")
+            return False
+        for name in bad:
+            print(f"EXEMPT  {golden_id} {name}: {EXEMPT[(golden_id, name)]}")
+        return True
     print(f"PASS    {golden_id}")
     return True
 

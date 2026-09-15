@@ -69,8 +69,8 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 | SC-5 | Planner v16 sizes the plan to a known budget and reports spend against it | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_planner_prompt.py -q` | exit 0 |
 | SC-6 | With `active.yaml` at supervisor 13, planner 16, communication_style 9, every prompt/registry test passes on the active versions | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts -q` | exit 0 |
 | SC-8 | The date note makes "must ask" conditional on a date-bound tool call and allows an undated day-by-day suggestion, keeping the gh-191 never-invent guarantees | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state.py -q -k ground_current_date` | exit 0 |
-| SC-9 | On the final code, memory-multi_turn-vi-04 and the three gh-191 no_invented_date goldens pass, and language-ambiguous-en-01 passes ≥4/5 single runs | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json specs/gh-148-trip-brief-routing-fixes/language-tally.json` | exit 0 |
-| SC-7 | On the real model the seven affected goldens pass (live eval report on this branch) | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report.json` | exit 0 |
+| SC-9 | On the final code, memory-multi_turn-vi-04 and the three gh-191 no_invented_date goldens pass, and language-ambiguous-en-01 passes ≥4/5 single runs (E003 exemption: budget-ambiguous-en-03 reply_language, #212) | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json specs/gh-148-trip-brief-routing-fixes/language-tally.json` | exit 0 |
+| SC-7 | On the real model the six in-scope affected goldens pass on the final code (E003 exemption: budget-ambiguous-en-03 reply_language, #212) | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json` | exit 0 |
 
 ## 4. Tasks
 
@@ -206,3 +206,5 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 - 2026-09-15 — tasks 1.1, 1.2, 1.3 complete (spec pass / quality approved after one fix round on 1.2 and 1.3); commits f662d990, 2a423352, b2ae0516, 899896be, aea5445b
 - 2026-09-15 — task 2.1 complete (spec pass / quality approved); commit c2c8c115
 - 2026-09-15 — task 3.1 run: 4/6 in scope (eval-report.json); escalations E001 (narrow gh-191 date rule) and E002 (measure #148 ×5) decided by owner → tasks 3.2, 3.3 added.
+- 2026-09-15 — task 3.2 complete (spec pass / quality approved; controller applied review m12-m14); commits a21138ce, 6cbb355a
+- 2026-09-15 — task 3.3 complete: final eval on 6cbb355a (eval-report-final.json, language-tally.json 5/5); budget-ambiguous-en-03 reply_language proven a detector false positive → E003 exemption, issue #212; commits 804f966f, baa0a4a1

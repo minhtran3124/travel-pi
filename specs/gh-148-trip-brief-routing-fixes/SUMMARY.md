@@ -21,7 +21,7 @@ User: "ok, làm trước với trip brief + sủa #148-#152"
 
 ## What changed
 
-_(pending — filled at delivery)_
+No new state: the "trip brief" already existed as `trip_facts` (MIN-65 D1), and intake verified it carries destination and budget across turns. The five eval defects were instruction gaps, fixed in four places. **supervisor v13**: an explicit request to reply in a language switches it immediately and stays sticky (#148); adding an item to a day is a planner edit, not journal (#150); general cost knowledge goes to concierge, the trip's own money to budget (#151); flights + weather stays one planner job (#149). The `SupervisorIntent.language` description and the established-language hint in `make_supervisor` say the same. **communication_style v9** + `with_reply_language`: the explicit-request exception reaches every language absolute, including the blocked-on-traveller line (#148). **planner v16**: a known budget is a firm target with one approximate spend estimate, stated in Guardrails too (#152). **Shared date note** (`ground_current_date`): gh-191's "no date → must ask" now applies only before a date-bound tool call, so an undated "3-day itinerary" is answered as Day 1/2/3 — the real root cause of #152 found by the live eval (E001); never-invent-a-date stays unconditional. Live eval on the final code passes #148–#152 in scope and all three gh-191 guards (one documented detector exemption, #212); details in `### Not auto-verified`.
 
 ### Rationale
 
@@ -57,6 +57,11 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 | unit — communication_style v9 | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_communication_style_language.py -q` | 0 | part of 33 passed (verify-1.2.txt) | SC-4 |
 | unit — planner v16 budget | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts/test_planner_prompt.py -q` | 0 | 5 passed (verify-1.3.txt) | SC-5 |
 | unit — active versions + registry | `cd apps/api && ../../.venv/bin/python -m pytest tests/prompts tests/api/prompts -q` | 0 | covered by 539 passed (verify-2.1.txt, tests/prompts tests/api/prompts tests/agents) | SC-6 |
+| unit — narrowed no-date rule (+ m12 fix) | `cd apps/api && ../../.venv/bin/python -m pytest tests/agents/test_state.py -q -k ground_current_date` | 0 | 6 passed (verify-3.2.txt); task Verify 29 passed and tests/agents+tests/prompts 517 passed after the m12-m14 fix | SC-8 |
+| live eval — in-scope goldens on final code | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json` | 0 | report from 6cbb355a; budget-ambiguous-en-03 reply_language EXEMPT (E003, #212) | SC-7 |
+| live eval — final gate incl. gh-191 + #148 tally | `.venv/bin/python specs/gh-148-trip-brief-routing-fixes/check_eval.py specs/gh-148-trip-brief-routing-fixes/eval-report-final.json specs/gh-148-trip-brief-routing-fixes/language-tally.json` | 0 | 8 PASS + 1 EXEMPT; language-ambiguous-en-01 5/5; negative check (en-03 also failing flow_match) exits 1 | SC-9 |
+
+Whole BE suite (cited, not a Verify row per `rules/plan-format.md`): `cd apps/api && ../../.venv/bin/python -m pytest -q` → 2630 passed, 6 skipped, exit 0 at 6cbb355a (baseline before the branch: 2610 passed).
 
 ### Not auto-verified
 
@@ -64,6 +69,9 @@ Intake found the "trip brief" already exists as `TravelAgentState.trip_facts` (M
 - Diagnostic re-run of the two failures (`diag_gh148.py`, output `diag-rerun.txt`, one agent run each, no judge):
   - language-ambiguous-en-01 replied in English with `state.language=en` — 1 pass / 1 fail across two runs: the fix works but is not stable; n=2 cannot give a rate (baseline also flipped this golden between runs).
   - memory-multi_turn-vi-04: `trip_facts={'destination': 'Phú Quốc', 'budget': '20 triệu'}` — the budget reaches the planner, but the planner produced NO itinerary: it asked for a travel date. Root cause is outside the plan: the shared `ground_current_date` note ("If the traveller mentioned NO date at all, you MUST ask which date they want", app/agents/state.py) forces a date question even for an undated day-by-day suggestion, so v16's budget section never runs. Plan gap — escalated to the owner.
+- Final live eval (Task 3.3, `eval-report-final.json`, code at 6cbb355a, `--repeat 3` judge): PASS language-multi_turn-vi-01, routing-multi-en-01, journal-multi_turn-vi-01, memory-multi_turn-vi-04 (#152 now passes), and all three gh-191 guards (dates-ambiguous-en-02, -vi-02, -en-03). language-ambiguous-en-01 passed its judged run and 5/5 extra single runs (`language-tally.json`, reply and state.language both en). budget-ambiguous-en-03 fails only `reply_language`: `diag-budget-rerun.txt` shows an English reply with state.language=en, and `_detect_language` returns `vi` for any Latin diacritic ("Great cafés…" → vi). Exempted by owner decision E003, tracked in #212. Watch item budget-ambiguous-en-02 (#146, out of scope) fails the same detector check this run; its fan-out to synthesize also recurs in one of three runs.
+- Eval is a small sample: one agent run per golden (judge k=3), plus 5 runs for the flaky #148 case. The rates are not measured, and passing here does not prove zero regressions outside the ten goldens. `make eval-check` against `eval/baselines/main.json` was not run (paid; owner's call).
+- The dev DB (`api-db-1`) was upgraded to d4f7a2c9e1b3 by the eval container's entrypoint (see Review ledger). This comes from main's migration, not from this branch.
 
 ### Rollback
 

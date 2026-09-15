@@ -35,3 +35,19 @@ Default: **deny-on-no-response**. No recorded decision → work stays blocked.
 - decision: A — measure 5 more runs on the final code
 - decided_by: minhtran3124 (owner, via AskUserQuestion)
 - decided_at: 2026-09-15
+
+## E003
+
+- raised_by: orchestrator
+- date: 2026-09-15
+- trigger: in-flight
+- question: The final eval fails only budget-ambiguous-en-03's reply_language, and the diagnostic proves the eval's detector reads any Latin diacritic ("cafés") as Vietnamese while the agent replied in English (state.language=en) — record and exempt, fix the detector here, or re-run?
+- context: Task 3.3 — SC-9 gate (`check_eval.py`) exits 1 on that single check; everything else in scope and all three gh-191 goldens pass.
+- options:
+  - A) Record it: a documented, printed exemption for that one check in `check_eval.py`, SC-7/SC-9 wording amended, and a GitHub issue to fix the detector separately (it moves `eval/baselines/main.json`).
+  - B) Fix `_detect_language` in this PR (eval-harness scope, re-baseline risk) and re-run the budget goldens.
+  - C) Re-run the golden until it passes (retry, not a fix).
+- default_if_no_response: BLOCK
+- decision: A — record + open issue; issue #212 opened
+- decided_by: minhtran3124 (owner, via AskUserQuestion)
+- decided_at: 2026-09-15
