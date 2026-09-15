@@ -21,6 +21,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
 | specialist-task-description | 2026-09-10 | review | fan-out task note via task_queries; v13 reverted (E003); value not yet demonstrated |
+| prompt-caching-system-prefix | 2026-09-08 | plan | E001→A, E002→B; caching already 71.9%, plan = 24h retention + date note last + report script |
 | close-product-loop-s2-guide-and-map | 2026-09-09 | review | PR #172 open → main; UAT found and fixed a tab-overflow regression |
 | gh-147-dated-hotel-availability-routing | 2026-09-09 | shipped | merged via PR #171 → main (a6e7998); hotels eval 50% → 83.3% |
 | flight-booking-passenger-count | 2026-09-09 | shipped | merged in PR #167 |
