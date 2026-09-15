@@ -21,6 +21,7 @@ Source of truth for the currently-active spec. Updated by skills and by the `sta
 
 | Slug | Created | Last phase | Status |
 |---|---|---|---|
+| ci-actions-node24 | 2026-09-15 | shipped | merged via PR #211 → main (523d9cf) |
 | ci-secret-scanning | 2026-09-15 | shipped | merged via PR #210 → main (af28801) |
 | state-md-auto-update-on-merge | 2026-09-15 | shipped | merged via PR #209 → main (fbee3f2); high-risk/high; A (post-merge workflow) + B (session log out of STATE.md) |
 | gh-199-rest-duplicate-booking-warning | 2026-09-15 | design | high-risk/high; E001 A (ErrorResponse code+details), E002 A (FE plumbing only); next: brainstorming |
