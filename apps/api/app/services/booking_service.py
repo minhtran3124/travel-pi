@@ -428,18 +428,28 @@ class BookingService:
             replayed = self._replay(idempotency_key, user_id)
             if replayed is not None:
                 return replayed
-            for existing in self._repo.list_active_by_reference(
-                user_id, BookingType.FLIGHT.value, flight.id
-            ):
-                if existing.details.passengers == request.passengers:
-                    raise DuplicateBookingError(
-                        f"You already have booking {existing.confirmation_code} "
-                        f"for flight {flight.flight_number} on "
-                        f"{flight.departure_time.date().isoformat()} for "
-                        f"{request.passengers} passenger(s).",
-                        existing=existing,
-                        hint=_DUPLICATE_HINT,
-                    )
+            matches = [
+                existing
+                for existing in self._repo.list_active_by_reference(
+                    user_id, BookingType.FLIGHT.value, flight.id
+                )
+                if existing.details.passengers == request.passengers
+            ]
+            if matches:
+                # list_active_by_reference is newest-first, so matches[0] is the
+                # newest; naming it keeps the message/marker unchanged. All
+                # matches ride along so the tool can refuse a same-turn override
+                # flagged against any of them, not only the newest (gh-200 C1).
+                existing = matches[0]
+                raise DuplicateBookingError(
+                    f"You already have booking {existing.confirmation_code} "
+                    f"for flight {flight.flight_number} on "
+                    f"{flight.departure_time.date().isoformat()} for "
+                    f"{request.passengers} passenger(s).",
+                    existing=existing,
+                    matches=matches,
+                    hint=_DUPLICATE_HINT,
+                )
 
         booking = Booking(
             id=self._mint_booking_id(),
@@ -491,8 +501,9 @@ class BookingService:
         same owner for the same hotel with the exact same ``check_in`` and
         ``check_out`` raises :class:`~app.exceptions.DuplicateBookingError`
         instead of silently creating a second identical booking (gh-194). The
-        check runs after idempotency replay and after the hotel is resolved, but
-        before the availability check. On Postgres the check and the insert are
+        check runs after idempotency replay and after the hotel is resolved, and
+        after the availability check (a sold-out hotel reports sold-out first,
+        gh-200). On Postgres the check and the insert are
         serialized per owner by a transaction-scoped advisory lock, so two
         concurrent requests cannot both pass the check and both insert (gh-198).
 
@@ -522,33 +533,6 @@ class BookingService:
                 ),
             )
 
-        if check_duplicate:
-            self._repo.lock_owner_bookings(user_id)
-            # Re-run the replay under the lock: a concurrent same-key request may
-            # have committed the winner's row while we waited, and the idempotency
-            # contract owes that caller the original booking, not a
-            # DuplicateBookingError. Postgres READ COMMITTED sees it now (gh-198
-            # CR-1); the pre-lock replay above still short-circuits plain replays.
-            replayed = self._replay(idempotency_key, user_id)
-            if replayed is not None:
-                return replayed
-            req_check_in = _as_date(request.check_in)
-            req_check_out = _as_date(request.check_out)
-            for existing in self._repo.list_active_by_reference(
-                user_id, BookingType.HOTEL.value, hotel.id
-            ):
-                if (
-                    _as_date(existing.details.check_in) == req_check_in
-                    and _as_date(existing.details.check_out) == req_check_out
-                ):
-                    raise DuplicateBookingError(
-                        f"You already have booking {existing.confirmation_code} "
-                        f"for {hotel.name} on {request.check_in}→"
-                        f"{request.check_out} ({request.rooms} room(s)).",
-                        existing=existing,
-                        hint=_DUPLICATE_HINT,
-                    )
-
         guests = request.adults + request.children
         if not hotel_service.is_available(
             hotel,
@@ -570,6 +554,45 @@ class BookingService:
                     "GET /hotels/availability (filter with available_only=true)."
                 ),
             )
+
+        if check_duplicate:
+            self._repo.lock_owner_bookings(user_id)
+            # Re-run the replay under the lock: a concurrent same-key request may
+            # have committed the winner's row while we waited, and the idempotency
+            # contract owes that caller the original booking, not a
+            # DuplicateBookingError. Postgres READ COMMITTED sees it now (gh-198
+            # CR-1); the pre-lock replay above still short-circuits plain replays.
+            replayed = self._replay(idempotency_key, user_id)
+            if replayed is not None:
+                return replayed
+            req_check_in = _as_date(request.check_in)
+            req_check_out = _as_date(request.check_out)
+            matches = [
+                existing
+                for existing in self._repo.list_active_by_reference(
+                    user_id, BookingType.HOTEL.value, hotel.id
+                )
+                if (
+                    _as_date(existing.details.check_in) == req_check_in
+                    and _as_date(existing.details.check_out) == req_check_out
+                )
+            ]
+            if matches:
+                # Newest-first, so matches[0] is the newest; naming it keeps the
+                # message/marker unchanged. All matches ride along so a same-turn
+                # override flagged against any of them is refused (gh-200 C1).
+                existing = matches[0]
+                raise DuplicateBookingError(
+                    f"You already have booking {existing.confirmation_code} "
+                    f"for {existing.details.hotel_name} on "
+                    f"{existing.details.check_in}→{existing.details.check_out} "
+                    f"({existing.details.rooms} room(s), "
+                    f"{existing.details.adults} adult(s), "
+                    f"{existing.details.children} child(ren)).",
+                    existing=existing,
+                    matches=matches,
+                    hint=_DUPLICATE_HINT,
+                )
 
         nights = hotel_service.count_nights(request.check_in, request.check_out)
         booking = Booking(
