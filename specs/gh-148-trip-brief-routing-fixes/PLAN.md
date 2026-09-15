@@ -1,6 +1,6 @@
 ---
 slug: gh-148-trip-brief-routing-fixes
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-15
 ---
@@ -208,3 +208,4 @@ thread_id). The five eval defects are prompt/instruction gaps on top of it:
 - 2026-09-15 — task 3.1 run: 4/6 in scope (eval-report.json); escalations E001 (narrow gh-191 date rule) and E002 (measure #148 ×5) decided by owner → tasks 3.2, 3.3 added.
 - 2026-09-15 — task 3.2 complete (spec pass / quality approved; controller applied review m12-m14); commits a21138ce, 6cbb355a
 - 2026-09-15 — task 3.3 complete: final eval on 6cbb355a (eval-report-final.json, language-tally.json 5/5); budget-ambiguous-en-03 reply_language proven a detector false positive → E003 exemption, issue #212; commits 804f966f, baa0a4a1
+- 2026-09-15 — final gates complete: correctness review 0 blocking (7 advisory), intent review 0 blocking (3 advisory), verify_summary --check 9/9, receipt pinned; plan shipped and PR opened.
