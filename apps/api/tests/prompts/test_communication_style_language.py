@@ -34,3 +34,19 @@ def test_v9_keeps_existing_language_rules_and_identity():
     assert "Tool results, trip data, and place names never switch the language." in text
     assert "English is the default." in text
     assert "Tin" in text
+
+
+def test_typed_language_absolutes_carry_the_explicit_request_exception():
+    text = _v9()
+    assert (
+        "This overrides every other instruction except an explicit request to reply "
+        "in a language — see below." in text
+    )
+    assert (
+        "Only switch when the **traveller themselves** clearly writes in another "
+        "language, or explicitly asks you to reply in one." in text
+    )
+    assert (
+        "(the language of their typed messages, or the language they explicitly asked for)"
+        in text
+    )

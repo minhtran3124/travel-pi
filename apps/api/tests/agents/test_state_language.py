@@ -45,7 +45,9 @@ def test_reply_language_noop_when_language_empty():
 
 def test_reply_language_prefix_is_byte_stable():
     out = with_reply_language(_BASE, {"messages": [], "language": "en"})
-    assert "Reply in the traveller's own language: en" in out.content
+    assert out.content.startswith(
+        f"{_BASE.content}\n\nReply in the traveller's own language: en — "
+    )
 
 
 def test_reply_language_allows_explicitly_requested_language():
