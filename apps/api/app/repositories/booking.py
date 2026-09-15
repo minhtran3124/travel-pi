@@ -4,6 +4,8 @@ Business rules live in services/booking_service.py. This tier maps Booking
 ORM rows to/from the Booking Pydantic model and nothing more.
 """
 
+import hashlib
+
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
@@ -32,6 +34,21 @@ def _row_to_booking(row: models.Booking) -> Booking:
         notes=row.notes,
         trip_id=row.trip_id,
     )
+
+
+def _owner_lock_key(user_id: str) -> int:
+    """Map an owner id to a stable signed-int64 Postgres advisory-lock key (gh-198).
+
+    ``pg_advisory_xact_lock`` takes a ``bigint``, so we hash the owner id to a
+    deterministic 64-bit signed integer. blake2b (not Python ``hash()``, which is
+    salted per process) keeps the key identical across processes and workers so
+    two requests by the same owner contend on the same lock.
+
+    :param user_id: The owner whose per-owner lock key to derive.
+    :return: A stable signed 64-bit lock key for that owner.
+    """
+    digest = hashlib.blake2b(f"booking:{user_id}".encode(), digest_size=8).digest()
+    return int.from_bytes(digest, "big", signed=True)
 
 
 class BookingRepository(Repo):
@@ -165,6 +182,40 @@ class BookingRepository(Repo):
                 .order_by(models.Booking.created_at.desc())
             ).all()
             return [_row_to_booking(r) for r in rows]
+
+    def lock_owner_bookings(self, user_id: str) -> None:
+        """Take a per-owner advisory lock for the duplicate check + insert (gh-198).
+
+        The gh-194 duplicate-intent check reads ``list_active_by_reference`` and
+        then inserts; two concurrent requests by the same owner can both pass the
+        read and both insert. The caller (``BookingService``) takes this lock at
+        the top of its ``check_duplicate`` block so the check + insert is
+        serialized per owner: the loser waits, then sees the winner's row.
+
+        The caller MUST own the transaction — this is a transaction-scoped lock
+        (``pg_advisory_xact_lock``), released automatically on commit or rollback,
+        never explicitly. In factory mode there is no caller-owned transaction, so
+        this raises ``RuntimeError`` rather than lock-then-immediately-release.
+
+        On SQLite this is intentionally a no-op: SQLite backs only the unit-test
+        suite, and every running environment is Postgres. There is no cross-engine
+        parity to keep here — the lock is a Postgres concurrency guard, not a
+        business rule.
+
+        :param user_id: The owner whose booking writes to serialize.
+        """
+        if self._s is None:
+            raise RuntimeError(
+                "lock_owner_bookings requires a live caller-owned session "
+                "(transaction-scoped advisory lock); factory mode has no "
+                "transaction to attach the lock to."
+            )
+        with self._session() as s:
+            if s.get_bind().dialect.name == "postgresql":
+                s.execute(
+                    text("SELECT pg_advisory_xact_lock(:key)"),
+                    {"key": _owner_lock_key(user_id)},
+                )
 
     def list_all_unscoped(self) -> list[Booking]:
         """Return every booking, newest first — operator dashboard only.

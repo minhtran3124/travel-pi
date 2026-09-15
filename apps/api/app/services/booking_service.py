@@ -369,7 +369,9 @@ class BookingService:
         creating a second identical booking (gh-194). The check runs after
         idempotency replay — so a same-turn revise re-run still replays the
         original rather than tripping the check against itself — and after the
-        flight is resolved.
+        flight is resolved. On Postgres the check and the insert are
+        serialized per owner by a transaction-scoped advisory lock, so two
+        concurrent requests cannot both pass the check and both insert (gh-198).
 
         :param request: The flight booking request.
         :param user_id: The owner stamped on the booking (#118).
@@ -417,6 +419,7 @@ class BookingService:
                 )
 
         if check_duplicate:
+            self._repo.lock_owner_bookings(user_id)
             for existing in self._repo.list_active_by_reference(
                 user_id, BookingType.FLIGHT.value, flight.id
             ):
@@ -481,7 +484,9 @@ class BookingService:
         ``check_out`` raises :class:`~app.exceptions.DuplicateBookingError`
         instead of silently creating a second identical booking (gh-194). The
         check runs after idempotency replay and after the hotel is resolved, but
-        before the availability check.
+        before the availability check. On Postgres the check and the insert are
+        serialized per owner by a transaction-scoped advisory lock, so two
+        concurrent requests cannot both pass the check and both insert (gh-198).
 
         :param request: The hotel booking request.
         :param user_id: The owner stamped on the booking (#118).
@@ -510,6 +515,7 @@ class BookingService:
             )
 
         if check_duplicate:
+            self._repo.lock_owner_bookings(user_id)
             req_check_in = _as_date(request.check_in)
             req_check_out = _as_date(request.check_out)
             for existing in self._repo.list_active_by_reference(
