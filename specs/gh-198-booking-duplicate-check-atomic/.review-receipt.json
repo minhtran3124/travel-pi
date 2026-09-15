@@ -1,0 +1,20 @@
+{
+  "reviewed_head_sha": "447dc396b4d15b0ca23dff171c46fd15ca32cade",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "6 finder angles + 4 scorers; CR-1 fix re-reviewed (closed)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3
+    },
+    {
+      "type": "intent",
+      "reviewer": "plan-blind reviewer + CR-1 fix re-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0
+    }
+  ],
+  "created": "2026-09-15T00:00:00+07:00"
+}
