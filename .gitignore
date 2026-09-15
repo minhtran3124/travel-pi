@@ -29,6 +29,8 @@ env/
 .DS_Store
 
 scripts/
+# ...except the CI helper scripts that workflows run
+!.github/scripts/
 
 node_modules/
 
@@ -66,3 +68,6 @@ CLAUDE.local.md
 
 # Transient lock file for the specs/ events.jsonl append logger
 specs/**/events.jsonl.lock
+
+# Local harness state (session log, SDD scratch, runtime diagnosis) — never tracked
+.harness-state/
