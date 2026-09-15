@@ -15,22 +15,46 @@ from typing import Annotated
 from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from app.memory.store import search_episodes, search_preferences, upsert_preference
+from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
 # NOTE: these tools take ``user_id``/``store`` as LangGraph-injected args
-# (InjectedState/InjectedStore). An explicit ``args_schema=`` that omits those
-# injected params breaks ToolNode injection (it derives injection targets from the
-# tool's schema) — the tool then gets called without them and raises "missing
-# required positional arguments". So the model-facing descriptions are attached
-# inline via ``Annotated[..., Field(description=...)]`` on the signature, and no
-# explicit ``args_schema`` is passed: LangChain auto-derives the schema while
-# keeping the injected args out of the model-facing ``tool_call_schema``.
+# (InjectedState/InjectedStore). Each explicit ``args_schema`` DECLARES them:
+# ToolNode derives injection targets from the schema, so an injected param left
+# out of it is never injected ("missing required positional arguments"). Declared,
+# they are still stripped from the model-facing ``tool_call_schema``.
 
 
-@tool
+class _MemoryInjectedArgs(AppBaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)  # BaseStore
+
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        ...,
+        description="The traveller's id. Injected from graph state — never "
+        "supplied by the model.",
+    )
+    store: Annotated[BaseStore, InjectedStore] = Field(
+        ..., description="The cross-session memory store. Injected by LangGraph."
+    )
+
+
+class SaveUserPreferenceArgs(_MemoryInjectedArgs):
+    key: str = Field(..., description="Preference key/name to store under.")
+    text: str = Field(..., description="Free-text preference value.")
+
+
+class GetUserPreferencesArgs(_MemoryInjectedArgs):
+    query: str | None = Field(None, description="Optional free-text filter.")
+
+
+class RecallPastTripsArgs(_MemoryInjectedArgs):
+    query: str = Field(..., description="Free-text query to filter past trip episodes.")
+
+
+@tool(args_schema=SaveUserPreferenceArgs)
 def save_user_preference(
     key: Annotated[str, Field(description="Preference key/name to store under.")],
     text: Annotated[str, Field(description="Free-text preference value.")],
@@ -53,7 +77,7 @@ def save_user_preference(
     return f"Saved preference '{key}'."
 
 
-@tool
+@tool(args_schema=GetUserPreferencesArgs)
 def get_user_preferences(
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
@@ -76,7 +100,7 @@ def get_user_preferences(
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
 
 
-@tool
+@tool(args_schema=RecallPastTripsArgs)
 def recall_past_trips(
     query: Annotated[
         str, Field(description="Free-text query to filter past trip episodes.")

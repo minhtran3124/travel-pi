@@ -17,10 +17,18 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId, tool
 from langgraph.types import Command
 
+from app.schemas.base import AppBaseModel
+
 logger = logging.getLogger(__name__)
 
 
-@tool
+class NeedsClarificationArgs(AppBaseModel):
+    # No model-facing args. The injected id is declared (not omitted) so
+    # ToolNode still injects it; it stays out of the model-facing schema.
+    tool_call_id: Annotated[str, InjectedToolCallId]
+
+
+@tool(args_schema=NeedsClarificationArgs)
 def needs_clarification(
     tool_call_id: Annotated[str, InjectedToolCallId],
 ) -> Command:

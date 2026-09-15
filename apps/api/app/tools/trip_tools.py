@@ -9,14 +9,14 @@ manifest + MCP layer (roadmap B1) and lives in ``registry.py``.
 (``InjectedState``), mirroring ``user_id`` in ``memory_tools.py`` — the model
 never sees or supplies the internal trip UUID (specs/agent-trip-context).
 
-NOTE: these tools take ``trip_id`` as a LangGraph-injected arg
-(``InjectedState``). An explicit ``args_schema=`` that omits an injected param
-breaks ToolNode injection (it derives injection targets from the tool's
-schema) — the tool then gets called without it and raises "missing required
-positional arguments". So the model-facing descriptions are attached inline
-via ``Annotated[..., Field(description=...)]`` on the signature, and no
-explicit ``args_schema`` is passed: LangChain auto-derives the schema while
-keeping the injected arg out of the model-facing ``tool_call_schema``.
+NOTE: every tool passes an explicit ``args_schema`` that DECLARES its injected
+args (``InjectedState`` / ``InjectedToolCallId``) alongside the model-facing
+ones. ToolNode derives injection targets from that schema, so an injected param
+left out of it is never injected ("missing required positional arguments");
+declared, it is still stripped from the model-facing ``tool_call_schema``. The
+signatures keep their ``Annotated`` metadata too: the trip guard
+(``subagents/_base.py``) reads ``InjectedState("trip_id")`` from the function's
+type hints, and MCP serves the raw signature.
 """
 
 from __future__ import annotations
@@ -35,6 +35,7 @@ from pydantic import Field
 from app.agents.context import AgentContext
 from app.enums import ActivityLevel, MealStyle, TripItemKind, TripItemStatus
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.schemas.trip import (
     TripBudgetSet,
     TripCreate,
@@ -70,7 +71,94 @@ def _no_active_trip() -> dict:
     }
 
 
-@tool
+class TripScopedArgs(AppBaseModel):
+    """Injected owner + active trip shared by every trip-scoped tool.
+
+    Also the whole schema of the read tools that take no model-facing args.
+    """
+
+    user_id: Annotated[str | None, InjectedState("user_id")] = Field(
+        default=None,
+        description="The trip's owner. Injected from graph state (#118).",
+    )
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = Field(
+        default=None,
+        description="The active trip. Injected from graph state — never supplied "
+        "by the model.",
+    )
+
+
+class AddPlaceToTripArgs(TripScopedArgs):
+    place_id: str = Field(..., description="The place's id or PLC-XXXX short code.")
+    source: Literal["catalog", "saved"] = Field(
+        "catalog",
+        description="Where the place comes from: 'catalog' (default) or 'saved'.",
+    )
+
+
+class AddItineraryItemArgs(TripScopedArgs):
+    day: int = Field(..., description="The trip day number the item belongs to.")
+    title: str = Field(..., description="The item's title.")
+    kind: TripItemKind = Field(
+        TripItemKind.PLACE, description="The kind of itinerary entry."
+    )
+    status: TripItemStatus = Field(
+        TripItemStatus.PENDING, description="Planning state of the item."
+    )
+    notes: str | None = Field(
+        None, description="Optional free-text notes for the item."
+    )
+    start_time: str | None = Field(
+        None, description="Optional start time for the item."
+    )
+
+
+class CreateTripArgs(AppBaseModel):
+    title: str = Field(..., description="Trip title, e.g. 'Da Nang long weekend'.")
+    city: str | None = Field(None, description="Primary destination city (free text).")
+    start_date: str | None = Field(None, description="Trip start date (YYYY-MM-DD).")
+    end_date: str | None = Field(None, description="Trip end date (YYYY-MM-DD).")
+    travelers: int | None = Field(None, description="Number of travelers.")
+    tool_call_id: Annotated[str, InjectedToolCallId]
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        ...,
+        description="The new trip's owner. Injected from graph state (#118).",
+    )
+
+
+class SetTripBudgetArgs(TripScopedArgs):
+    flights: float | None = Field(None, ge=0, description="Flights cap in USD.")
+    hotels: float | None = Field(None, ge=0, description="Hotels cap in USD.")
+    activities: float | None = Field(None, ge=0, description="Activities cap in USD.")
+    buffer: float | None = Field(
+        None,
+        ge=0,
+        description="Buffer cap in USD (meals, local transport, incidentals).",
+    )
+
+
+class EstimateTripBudgetArgs(TripScopedArgs):
+    nights: int | None = Field(
+        None, description="Number of nights. Omit to derive from the trip's dates."
+    )
+    travelers: int | None = Field(
+        None, description="Number of travelers. Omit to use the trip's value."
+    )
+    meal_style: MealStyle = Field(
+        MealStyle.MID, description="Meal-spend tier: budget|mid|fine."
+    )
+    activity_level: ActivityLevel = Field(
+        ActivityLevel.SOME, description="Activity-spend tier: none|some|lots."
+    )
+    flight_total_usd: float | None = Field(
+        None, description="Known total flight cost in USD. Omit to exclude."
+    )
+    hotel_price_per_night_usd: float | None = Field(
+        None, description="Known room price per night in USD. Omit to exclude."
+    )
+
+
+@tool(args_schema=TripScopedArgs)
 def get_trip_summary(
     user_id: Annotated[
         str | None,
@@ -107,7 +195,7 @@ def get_trip_summary(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=TripScopedArgs)
 def get_trip_budget(
     user_id: Annotated[
         str | None,
@@ -143,7 +231,7 @@ def get_trip_budget(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=TripScopedArgs)
 def list_trip_places(
     user_id: Annotated[
         str | None,
@@ -179,7 +267,7 @@ def list_trip_places(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=AddPlaceToTripArgs)
 def add_place_to_trip(
     place_id: Annotated[
         str, Field(description="The place's id or PLC-XXXX short code.")
@@ -231,7 +319,7 @@ def add_place_to_trip(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=AddItineraryItemArgs)
 def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
     title: Annotated[str, Field(description="The item's title.")],
@@ -311,7 +399,7 @@ def add_itinerary_item(
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=TripScopedArgs)
 def list_trips(
     user_id: Annotated[
         str | None,
@@ -387,7 +475,7 @@ TRIP_TOOLS = [
 ]
 
 
-@tool
+@tool(args_schema=CreateTripArgs)
 def create_trip(
     title: Annotated[
         str, Field(description="Trip title, e.g. 'Da Nang long weekend'.")
@@ -501,7 +589,7 @@ def create_trip(
     )
 
 
-@tool
+@tool(args_schema=SetTripBudgetArgs)
 def set_trip_budget(
     flights: Annotated[
         float | None, Field(ge=0, description="Flights cap in USD.")
@@ -568,7 +656,7 @@ def set_trip_budget(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=EstimateTripBudgetArgs)
 def estimate_trip_budget(
     nights: Annotated[
         int | None,
