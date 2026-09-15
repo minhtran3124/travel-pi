@@ -60,6 +60,8 @@ GitHub runners are deprecating Node 20. Every Node-20 JavaScript action now prin
 | target majors declare node24 | `gh api "repos/<owner>/<action>/contents/action.yml?ref=<major>" --jq .content \| base64 -d \| grep -A1 '^runs:'` | 0 | checkout v5, setup-python v6, setup-node v5, upload-artifact v6, pnpm v5, setup-uv v7 are all `node24`. upload-artifact v5 and setup-uv v5/v6 are still `node20`, so those majors were skipped | |
 | workflow YAML parses | `ruby -ryaml -e 'Dir[".github/workflows/*.yml"].each{\|f\| YAML.load_file(f)}'` | 0 | ci.yml (api, web, web-e2e), eval.yml (eval-smoke), state-on-merge.yml (mark-shipped) | |
 | no Node-20 major left | `git grep -nE "actions/checkout@v4\|setup-python@v5\|setup-node@v4\|upload-artifact@v[45]\b\|pnpm/action-setup@v4\|setup-uv@v[4-6]\b" -- .github/workflows` | 1 | exit 1 = no match | |
+| PR #211 CI passes on the bumped actions | `gh pr checks 211 --repo minhtran3124/travel-pi --watch` | 0 | run 34958488597 on `eea0a5a7`: api 9m45s, web 2m04s, web-e2e 1m57s, all pass (run 34958428722 on `0e6efc60` also passed) | |
+| Node-20 deprecation warning gone | `gh run view 34958488597 --repo minhtran3124/travel-pi --log \| grep -ciE "node 20 is being deprecated\|node20"` | 1 | count 0 (grep exit 1 = no match) across the full log of all three jobs | |
 
 ### Review
 
@@ -73,7 +75,7 @@ GitHub runners are deprecating Node 20. Every Node-20 JavaScript action now prin
 
 ### Not auto-verified
 
-- That the Node-20 deprecation warning is gone and all jobs still pass: reached traceability only. Needs this PR's own CI run (api, web, web-e2e). `eval-smoke` and `mark-shipped` do not run on this PR's triggers.
+- `eval.yml` (`eval-smoke`) and `state-on-merge.yml` (`mark-shipped`) do not run on pull-request events, so their bumped actions are verified only by YAML parse and the reviewer's input check, not by a run. They get their first real run after merge.
 - PR #210 (`ci-secret-scanning`, open) adds a `secrets` job with `actions/checkout@v4`. Whichever PR merges second must bump that line to `@v5`, or the warning returns for that job.
 
 ### Rollback
