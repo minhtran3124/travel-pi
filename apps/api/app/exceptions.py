@@ -66,10 +66,12 @@ class ConflictError(AppError):
 #: The legacy bare form is kept as the fail-safe wildcard shape (gh-200).
 DUPLICATE_WARNING_MARKER = "[possible-duplicate]"
 
-#: Matches both the legacy bare ``[possible-duplicate]`` marker and the
-#: id-bearing ``[possible-duplicate:<id>]`` form (gh-200). Group 1 is the
-#: existing booking's id, or ``None`` for the legacy bare marker.
-DUPLICATE_WARNING_MARKER_RE = re.compile(r"\[possible-duplicate(?::([^\]\s]+))?\]")
+#: Matches the legacy bare ``[possible-duplicate]`` marker, the id-bearing
+#: ``[possible-duplicate:<id>]`` form (gh-200), and malformed id forms such as
+#: ``[possible-duplicate:]``. Group 1 is the raw id text (possibly empty or
+#: containing whitespace), or ``None`` for the legacy bare marker. Readers treat
+#: anything but a clean id as the wildcard, so a malformed marker fails safe.
+DUPLICATE_WARNING_MARKER_RE = re.compile(r"\[possible-duplicate(?::([^\]]*))?\]")
 
 
 def duplicate_warning_marker(booking_id: str) -> str:

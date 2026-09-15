@@ -102,7 +102,9 @@ def duplicate_warned_ids_this_turn(
     from the same tool and collects every duplicate marker (matched by
     :data:`~app.exceptions.DUPLICATE_WARNING_MARKER_RE`) in their content. An
     id-bearing marker contributes the existing booking's id; a bare legacy marker
-    contributes :data:`DUPLICATE_WARNED_ANY`. A non-empty result means the
+    or a malformed one (empty id, whitespace in the id) contributes
+    :data:`DUPLICATE_WARNED_ANY`, so an unparseable warning never lets an
+    override through. A non-empty result means the
     traveller has NOT spoken since the warning, so a same-turn ``allow_duplicate``
     override for a flagged booking must be ignored (gh-194): the first duplicate
     call raised before any row was inserted, so idempotency replay cannot catch a
@@ -126,7 +128,9 @@ def duplicate_warned_ids_this_turn(
             for match in DUPLICATE_WARNING_MARKER_RE.finditer(
                 _message_text(message.content)
             ):
-                warned.add(match.group(1) or DUPLICATE_WARNED_ANY)
+                booking_id = match.group(1)
+                clean = bool(booking_id) and not any(c.isspace() for c in booking_id)
+                warned.add(booking_id if clean else DUPLICATE_WARNED_ANY)
     return frozenset(warned)
 
 

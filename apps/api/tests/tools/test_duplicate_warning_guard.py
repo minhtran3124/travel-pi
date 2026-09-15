@@ -56,6 +56,20 @@ def test_marker_regex_extracts_id_and_none_for_legacy():
     assert DUPLICATE_WARNING_MARKER_RE.search("no tag") is None
 
 
+def test_marker_regex_matches_malformed_id_forms():
+    assert DUPLICATE_WARNING_MARKER_RE.search("x [possible-duplicate:]").group(1) == ""
+    assert (
+        DUPLICATE_WARNING_MARKER_RE.search("x [possible-duplicate:a b]").group(1)
+        == "a b"
+    )
+
+
+def test_marker_not_double_tagged_when_malformed():
+    b = _booking()
+    malformed = "already [possible-duplicate:]"
+    assert DuplicateBookingError(malformed, existing=b).detail == malformed
+
+
 def test_marker_not_double_tagged():
     b = _booking()
     tagged = f"already {duplicate_warning_marker('abc')}"
@@ -95,6 +109,14 @@ def test_guard_legacy_bare_tag_returns_wildcard():
     assert duplicate_warned_ids_this_turn(TOOL, messages) == frozenset(
         {DUPLICATE_WARNED_ANY}
     )
+
+
+def test_guard_malformed_id_returns_wildcard():
+    for content in ("[possible-duplicate:]", "[possible-duplicate:a b]"):
+        messages = _human_then(_error_tool_message(content))
+        assert duplicate_warned_ids_this_turn(TOOL, messages) == frozenset(
+            {DUPLICATE_WARNED_ANY}
+        )
 
 
 def test_guard_ignores_other_tool_and_success_status():

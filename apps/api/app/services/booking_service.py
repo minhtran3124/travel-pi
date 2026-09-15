@@ -491,7 +491,7 @@ class BookingService:
         same owner for the same hotel with the exact same ``check_in`` and
         ``check_out`` raises :class:`~app.exceptions.DuplicateBookingError`
         instead of silently creating a second identical booking (gh-194). The
-        check runs after idempotency replay and after the hotel is resolved, but
+        check runs after idempotency replay and after the hotel is resolved, and
         after the availability check (a sold-out hotel reports sold-out first,
         gh-200). On Postgres the check and the insert are
         serialized per owner by a transaction-scoped advisory lock, so two
