@@ -109,52 +109,25 @@ def _all_tools():
     return list(ALL_TOOLS)
 
 
-def _has_injected_args(tool):
-    """True if the tool carries LangGraph-injected args (InjectedState/InjectedStore).
-
-    Detected structurally: injected args appear in the full input schema but are
-    stripped from the model-facing ``tool_call_schema``.
-    """
-    full = set(tool.get_input_schema().model_fields)
-    facing = set(tool.tool_call_schema.model_fields)
-    return full != facing
-
-
 @pytest.mark.parametrize("tool", _all_tools(), ids=lambda t: t.name)
 def test_every_tool_has_explicit_described_schema(tool):
     """Every registered tool must expose an EXPLICIT, described model-facing schema (MIN-46).
 
     LangChain auto-derives a non-None ``args_schema`` from the signature when none
-    is supplied, so ``is not None`` is not enough. Two valid shapes:
-
-    * Normal tools: a hand-authored ``<Tool>Args`` schema living in ``app.tools.*``.
-    * Injection-bearing tools (InjectedState/InjectedStore): an explicit
-      ``args_schema`` that omits the injected args would break ToolNode injection,
-      so they keep the auto-derived schema but attach model-facing descriptions
-      inline via ``Annotated[..., Field(description=...)]``. We require every
-      model-facing field to carry a description instead. A tool whose only
-      arg(s) are injected (e.g. ``get_trip_summary`` after the InjectedState
-      refactor, specs/agent-trip-context) has an empty model-facing schema —
-      that trivially satisfies "every field is described" and must pass, not fail.
-
-    This guard blocks a future tool (e.g. from MIN-42) shipping with an
-    undocumented, auto-derived schema.
+    is supplied, so ``is not None`` is not enough: the schema must be a
+    hand-authored ``<Tool>Args`` living in ``app.tools.*``. Injection-bearing
+    tools (InjectedState/InjectedStore/InjectedToolCallId) are no exception — their
+    schema DECLARES the injected args (omitting one breaks ToolNode injection),
+    and LangChain strips them from the model-facing ``tool_call_schema``. Every
+    model-facing field must carry a description; a tool whose only args are
+    injected (e.g. ``get_trip_summary``) has none and passes trivially.
     """
-    assert tool.args_schema is not None
-    if _has_injected_args(tool):
-        facing = tool.tool_call_schema.model_fields
-        if not facing:
-            return  # no model-facing args left to describe — nothing to check
-        for name, field in facing.items():
-            assert field.description, (
-                f"{tool.name}.{name} has no description — add "
-                f"Annotated[..., Field(description=...)] on the signature."
-            )
-    else:
-        assert tool.args_schema.__module__.startswith("app.tools"), (
-            f"{tool.name} uses an auto-derived args_schema "
-            f"({tool.args_schema.__module__}) — declare an explicit <Tool>Args(AppBaseModel)."
-        )
+    assert tool.args_schema.__module__.startswith("app.tools"), (
+        f"{tool.name} uses an auto-derived args_schema "
+        f"({tool.args_schema.__module__}) — declare an explicit <Tool>Args(AppBaseModel)."
+    )
+    for name, field in tool.tool_call_schema.model_fields.items():
+        assert field.description, f"{tool.name}.{name} has no description."
 
 
 def test_memory_tool_hides_injected_store_and_user_id():
