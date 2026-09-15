@@ -13,6 +13,11 @@ plus the tool name and the model-visible args. A later turn (a new
 plumbing (``user_id``, ``trip_id``, ``messages``, ``config``) is stripped
 before hashing so it never perturbs the key.
 
+The turn guard reads the same window to decide whether an ``allow_duplicate``
+override is honoured. It collects the ids of the bookings flagged as duplicates
+this turn (gh-200) so an override is refused only for the booking actually
+flagged, while a bare legacy marker fails safe to the wildcard.
+
 The helper is pure and side-effect free: it imports only stdlib and
 ``langchain_core`` and reaches nothing from ``app.agents``.
 """
@@ -25,7 +30,7 @@ import json
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 
-from app.exceptions import DUPLICATE_WARNING_MARKER
+from app.exceptions import DUPLICATE_WARNING_MARKER_RE
 
 #: Appended to the refused-override error so the model knows a fresh traveller
 #: turn is required before the duplicate can be forced through (gh-194).
@@ -35,6 +40,11 @@ OVERRIDE_REFUSED_HINT = (
     "turn. Tell the traveller about the existing booking and wait for them to "
     "confirm in a new message before booking again."
 )
+
+#: Wildcard id used when a duplicate warning carries no booking id (the legacy
+#: bare ``[possible-duplicate]`` marker). Its presence in the warned set refuses
+#: every same-tool override this turn — the fail-safe behaviour (gh-200).
+DUPLICATE_WARNED_ANY = "*"
 
 # Injected/config parameter names that are supplied by the graph, not the
 # model. They are dropped from ``args`` before canonicalisation so the same
@@ -82,35 +92,60 @@ def _message_text(content: object) -> str:
     return str(content)
 
 
-def duplicate_warned_this_turn(tool_name: str, messages: list | None) -> bool:
-    """Was a duplicate warning already surfaced for ``tool_name`` this turn?
+def duplicate_warned_ids_this_turn(
+    tool_name: str, messages: list | None
+) -> frozenset[str]:
+    """Ids of bookings flagged as duplicates for ``tool_name`` this turn.
 
     Scans the messages *after* the most recent ``HumanMessage`` (the turn
-    boundary) for an error :class:`~langchain_core.messages.ToolMessage` from the
-    same tool whose content carries
-    :data:`~app.exceptions.DUPLICATE_WARNING_MARKER`. A True result means the
-    traveller has NOT spoken since the warning, so an ``allow_duplicate`` override
-    in the same turn must be ignored (gh-194): the first duplicate call raised
-    before any row was inserted, so idempotency replay cannot catch a same-turn
-    re-run with a flipped flag.
+    boundary) for error :class:`~langchain_core.messages.ToolMessage` objects
+    from the same tool and collects every duplicate marker (matched by
+    :data:`~app.exceptions.DUPLICATE_WARNING_MARKER_RE`) in their content. An
+    id-bearing marker contributes the existing booking's id; a bare legacy marker
+    contributes :data:`DUPLICATE_WARNED_ANY`. A non-empty result means the
+    traveller has NOT spoken since the warning, so a same-turn ``allow_duplicate``
+    override for a flagged booking must be ignored (gh-194): the first duplicate
+    call raised before any row was inserted, so idempotency replay cannot catch a
+    same-turn re-run with a flipped flag.
 
     :param tool_name: The calling tool's name (``"book_flight"`` / ``"book_hotel"``).
     :param messages: The injected graph message list. ``None``/empty (no context)
-        returns False — the override is honoured, today's behaviour.
-    :return: True if a same-turn duplicate warning from this tool is present.
+        returns the empty set — the override is honoured, today's behaviour.
+    :return: The set of warned booking ids (with ``"*"`` for id-less markers).
     """
     if not messages:
-        return False
+        return frozenset()
     start = (_last_human_index(messages) or -1) + 1
+    warned: set[str] = set()
     for message in messages[start:]:
         if (
             isinstance(message, ToolMessage)
             and getattr(message, "name", None) == tool_name
             and getattr(message, "status", None) == "error"
-            and DUPLICATE_WARNING_MARKER in _message_text(message.content)
         ):
-            return True
-    return False
+            for match in DUPLICATE_WARNING_MARKER_RE.finditer(
+                _message_text(message.content)
+            ):
+                warned.add(match.group(1) or DUPLICATE_WARNED_ANY)
+    return frozenset(warned)
+
+
+def duplicate_override_refused(existing_id: str, warned: frozenset[str]) -> bool:
+    """Must an ``allow_duplicate`` override be refused for ``existing_id``?
+
+    True iff the wildcard is present (a legacy id-less warning refuses every
+    same-tool override) or this specific booking was flagged this turn (gh-200).
+    """
+    return DUPLICATE_WARNED_ANY in warned or existing_id in warned
+
+
+def duplicate_warned_this_turn(tool_name: str, messages: list | None) -> bool:
+    """Was any duplicate warning already surfaced for ``tool_name`` this turn?
+
+    Thin wrapper over :func:`duplicate_warned_ids_this_turn` preserving the
+    original boolean semantics (gh-194); the tools still call it in this wave.
+    """
+    return bool(duplicate_warned_ids_this_turn(tool_name, messages))
 
 
 def turn_idempotency_key(

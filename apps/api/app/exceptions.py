@@ -7,6 +7,7 @@ that turns any :class:`AppError` into the right HTTP response.
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -62,7 +63,18 @@ class ConflictError(AppError):
 #: Stable marker embedded in every :class:`DuplicateBookingError` detail so a
 #: duplicate warning can be recognised downstream (e.g. in a replayed
 #: ``ToolMessage``) by tag rather than by fragile free-text matching (gh-194).
+#: The legacy bare form is kept as the fail-safe wildcard shape (gh-200).
 DUPLICATE_WARNING_MARKER = "[possible-duplicate]"
+
+#: Matches both the legacy bare ``[possible-duplicate]`` marker and the
+#: id-bearing ``[possible-duplicate:<id>]`` form (gh-200). Group 1 is the
+#: existing booking's id, or ``None`` for the legacy bare marker.
+DUPLICATE_WARNING_MARKER_RE = re.compile(r"\[possible-duplicate(?::([^\]\s]+))?\]")
+
+
+def duplicate_warning_marker(booking_id: str) -> str:
+    """Marker embedding the existing booking's id, e.g. ``[possible-duplicate:<id>]``."""
+    return f"[possible-duplicate:{booking_id}]"
 
 
 class DuplicateBookingError(ConflictError):
@@ -78,7 +90,9 @@ class DuplicateBookingError(ConflictError):
     existing ``except AppError`` path unchanged. ``existing`` carries the
     already-stored booking so the caller can quote its ``confirmation_code``
     to the traveller before deciding whether to book again. The detail always
-    carries :data:`DUPLICATE_WARNING_MARKER` so a warning is machine-detectable.
+    carries an id-bearing :func:`duplicate_warning_marker` tag (matched by
+    :data:`DUPLICATE_WARNING_MARKER_RE`) so a warning is machine-detectable and
+    attributable to this specific booking (gh-200).
     """
 
     default_detail = "A matching booking already exists."
@@ -91,8 +105,8 @@ class DuplicateBookingError(ConflictError):
         hint: str | None = None,
     ) -> None:
         detail = detail or self.default_detail
-        if DUPLICATE_WARNING_MARKER not in detail:
-            detail = f"{detail} {DUPLICATE_WARNING_MARKER}"
+        if DUPLICATE_WARNING_MARKER_RE.search(detail) is None:
+            detail = f"{detail} {duplicate_warning_marker(existing.id)}"
         super().__init__(detail, hint=hint)
         #: The already-stored booking this request duplicates.
         self.existing = existing
