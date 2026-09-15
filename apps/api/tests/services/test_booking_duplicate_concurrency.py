@@ -224,3 +224,62 @@ def test_concurrent_duplicate_without_lock_double_books(tmp_db, seeded_session, 
         assert len(active) == 2  # both inserts landed — the lock is what prevents this
     finally:
         _close_all(a, result.get("session"))
+
+
+@pytest.mark.parametrize("kind", ["flight", "hotel"])
+def test_concurrent_same_key_replays_winner(tmp_db, seeded_session, kind):
+    """Two concurrent requests with the SAME idempotency key: the loser replays.
+
+    The idempotency contract says a same-key request returns the original
+    booking. A takes the per-owner lock and stays uncommitted; B (same owner,
+    item, and idempotency key) parks on the lock. Its pre-lock replay missed
+    A's still-uncommitted row, so without the post-lock replay (gh-198 CR-1) B
+    would wake, scan, and raise ``DuplicateBookingError`` against A's row. With
+    the fix B re-runs the replay under the lock, sees A's now-committed row, and
+    returns it — one active row remains.
+    """
+    factory = get_session_factory(tmp_db)
+    owner = uuid4().hex
+    method, request, booking_type, reference_id = _SCENARIOS[kind](seeded_session)
+
+    key = f"k-same-{owner}"
+    a = factory()
+    poll = factory()
+    thread, result = _book_in_thread(factory, method, request, owner, key)
+    try:
+        # A takes the per-owner lock and flushes an (uncommitted) row under the
+        # shared idempotency key; it holds the lock until we commit below.
+        a_booking = getattr(BookingService(a), method)(
+            request,
+            user_id=owner,
+            idempotency_key=key,
+            check_duplicate=True,
+        )
+        thread.start()
+
+        # Poll a third session until B is parked on the advisory lock.
+        ungranted = 0
+        deadline = time.monotonic() + 5.0
+        while time.monotonic() < deadline:
+            ungranted = poll.execute(_UNGRANTED_ADVISORY).scalar()
+            poll.rollback()  # end the read txn so each poll sees live lock state
+            if ungranted == 1:
+                break
+            time.sleep(0.05)
+        alive_while_blocked = thread.is_alive()
+
+        a.commit()  # release the lock; B wakes and re-runs replay under the lock
+        thread.join(timeout=10)
+
+        assert ungranted == 1  # B parked on exactly one ungranted advisory lock
+        assert alive_while_blocked  # ... and was still waiting when observed
+        assert not thread.is_alive()  # B finished once A released the lock
+        # Same key => B must replay A's booking, not raise DuplicateBookingError.
+        assert isinstance(result["outcome"], Booking)
+        assert result["outcome"].id == a_booking.id
+        active = BookingRepository(factory).list_active_by_reference(
+            owner, booking_type, reference_id
+        )
+        assert len(active) == 1  # replay reused A's row; B inserted nothing
+    finally:
+        _close_all(a, poll, result.get("session"))

@@ -420,6 +420,14 @@ class BookingService:
 
         if check_duplicate:
             self._repo.lock_owner_bookings(user_id)
+            # Re-run the replay under the lock: a concurrent same-key request may
+            # have committed the winner's row while we waited, and the idempotency
+            # contract owes that caller the original booking, not a
+            # DuplicateBookingError. Postgres READ COMMITTED sees it now (gh-198
+            # CR-1); the pre-lock replay above still short-circuits plain replays.
+            replayed = self._replay(idempotency_key, user_id)
+            if replayed is not None:
+                return replayed
             for existing in self._repo.list_active_by_reference(
                 user_id, BookingType.FLIGHT.value, flight.id
             ):
@@ -516,6 +524,14 @@ class BookingService:
 
         if check_duplicate:
             self._repo.lock_owner_bookings(user_id)
+            # Re-run the replay under the lock: a concurrent same-key request may
+            # have committed the winner's row while we waited, and the idempotency
+            # contract owes that caller the original booking, not a
+            # DuplicateBookingError. Postgres READ COMMITTED sees it now (gh-198
+            # CR-1); the pre-lock replay above still short-circuits plain replays.
+            replayed = self._replay(idempotency_key, user_id)
+            if replayed is not None:
+                return replayed
             req_check_in = _as_date(request.check_in)
             req_check_out = _as_date(request.check_out)
             for existing in self._repo.list_active_by_reference(
