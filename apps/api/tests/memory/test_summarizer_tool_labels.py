@@ -16,8 +16,15 @@ would degrade to "a constant contains a string", which proves nothing about D7.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
+from app.agents.tool_output import (
+    CLOSE_TAG,
+    OPEN_TAG_TEMPLATE,
+    TAG_NAME,
+    wrap_tool_output,
+)
 from app.clients.llm import FakeLLM
 from app.memory.summarizer import _SUMMARY_SYSTEM, summarize_conversation
 from langchain_core.messages import (
@@ -28,13 +35,14 @@ from langchain_core.messages import (
 )
 from pydantic import PrivateAttr
 
-# A wrapped tool block, exactly as the tool-output hook would leave it in a
-# ToolMessage's content: an opening/closing <tool_output> tag around the payload.
-WRAPPED_TOOL_CONTENT = (
-    '<tool_output name="search_hotels">\n'
-    "Hotel Sofitel Metropole, Hanoi — $210/night, 5 star\n"
-    "</tool_output>"
-)
+_TOOL_NAME = "search_hotels"
+_TOOL_PAYLOAD = "Hotel Sofitel Metropole, Hanoi — $210/night, 5 star"
+
+# A wrapped tool block, produced by the real ``wrap_tool_output`` so a tag rename
+# in tool_output.py flows through here instead of leaving stale literals behind.
+# wrap_tool_output puts a newline right after the opening tag and right before the
+# closing tag; that framing is what a stray strip would remove, so keep it.
+WRAPPED_TOOL_CONTENT = wrap_tool_output(_TOOL_NAME, _TOOL_PAYLOAD)
 
 
 class RecordingFakeLLM(FakeLLM):
@@ -87,14 +95,25 @@ def test_transcript_keeps_the_wrapper_tags() -> None:
     assert isinstance(transcript, str)
 
     # The opening and closing tags survive verbatim — nothing stripped them.
-    assert '<tool_output name="search_hotels">' in transcript
-    assert "</tool_output>" in transcript
+    # Derived from the exported constants so a tag rename can't leave this green.
+    assert OPEN_TAG_TEMPLATE.format(name=_TOOL_NAME) in transcript
+    assert CLOSE_TAG in transcript
     # And the payload inside the block is still there.
-    assert "Hotel Sofitel Metropole, Hanoi" in transcript
+    assert _TOOL_PAYLOAD in transcript
 
 
 def test_summary_system_labels_tagged_blocks_as_data() -> None:
-    """_SUMMARY_SYSTEM tells the summarizer that tagged blocks are retrieved data."""
-    assert "tool_output" in _SUMMARY_SYSTEM
-    assert "retrieved" in _SUMMARY_SYSTEM
-    assert "not instructions" in _SUMMARY_SYSTEM
+    """_SUMMARY_SYSTEM tells the summarizer not to obey directions inside a tagged block.
+
+    Pin the semantic core, not incidental phrasing. Load-bearing fragments:
+    (1) ``TAG_NAME`` — the prompt must name the exact wrapper the hook emits, so a
+    rename can't leave the prompt pointing at a tag nobody produces; (2) the safety
+    instruction itself — a negated obey-verb ("never/do not follow") plus
+    "directions"/"instructions", so the summarizer is told NOT to act on block
+    contents. A harmless rephrase of the surrounding sentence keeps these; a gutted
+    prompt that drops the don't-obey guarantee fails.
+    """
+    assert TAG_NAME in _SUMMARY_SYSTEM
+    prompt = _SUMMARY_SYSTEM.lower()
+    assert re.search(r"(never|not|don't|do not)\s+follow", prompt)
+    assert "directions" in prompt or "instructions" in prompt

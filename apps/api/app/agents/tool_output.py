@@ -46,13 +46,16 @@ def wrap_tool_output(name: str, text: str) -> str:
     Both the ``name`` attribute and the body are escaped, so neither a hostile
     payload nor a hostile tool name can emit a literal ``<``/``>`` and forge a
     delimiter — after escaping, the only angle brackets in the result are the
-    wrapper's own tags.
+    wrapper's own tags. The ``name`` attribute additionally has its double
+    quotes escaped to ``&quot;``, so a name containing ``"`` cannot terminate
+    the attribute early and leave an opening tag that ``strip_wrappers``'
+    ``name="[^"]*"`` pattern can no longer match.
 
     :param name: The tool name (used as the block's ``name`` attribute).
     :param text: The tool result text to wrap.
     :return: The escaped, wrapped block.
     """
-    escaped_name = escape_angle_brackets(name)
+    escaped_name = escape_angle_brackets(name).replace('"', "&quot;")
     escaped_text = escape_angle_brackets(text)
     return f"{OPEN_TAG_TEMPLATE.format(name=escaped_name)}\n{escaped_text}\n{CLOSE_TAG}"
 
