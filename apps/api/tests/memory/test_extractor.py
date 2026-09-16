@@ -360,5 +360,6 @@ def test_last_exchange_fallback_excludes_tool_calling_ai():
 
     result = _last_exchange(msgs)
 
+    assert result == []
     assert not any(isinstance(m, ToolMessage) for m in result)
     assert not any(getattr(m, "tool_calls", None) for m in result)

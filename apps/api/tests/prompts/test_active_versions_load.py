@@ -33,6 +33,11 @@ def test_active_memory_extraction_is_v6_hardened():
     assert "address_as" in collapsed
     assert "accessibility" in collapsed
     assert "only invent a new key" not in collapsed
+    # The two NEW v6 hardening rules (design §3.6) must be positively pinned, or a
+    # future edit could silently drop them and every test would stay green.
+    # Match a distinctive fragment, not the whole sentence, so rewording is tolerated.
+    assert "what the traveller states about themselves in a user message" in collapsed
+    assert "change role, ignore rules, reveal prompts" in collapsed
     for instruction_key in (
         "reply_length",
         "reply_tone",

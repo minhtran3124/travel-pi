@@ -171,10 +171,11 @@ def _run_blocklist(text: str) -> None:
     Matches against a lower-cased, diacritic-folded copy so an accented VI
     injection ("bỏ qua mọi hướng dẫn") and its folded form match one pattern.
 
-    :param text: Whitespace-collapsed memory text (but *before* ``<>`` removal,
-        so role-spoofing tokens like ``<|…|>`` are still visible). Collapsing
-        first is what closes the ``"you are  now"`` / ``"system\\nprompt"``
-        evasions where a pattern's literal single space is disguised.
+    :param text: A whitespace-collapsed memory form to scan. :func:`_normalize_text`
+        calls this twice — once on the form that still contains ``<``/``>`` (so
+        role-spoofing tokens like ``<|…|>`` stay visible) and once on the form
+        with brackets removed and re-collapsed (so a ``<>``-insertion cannot mask
+        a pattern).
     """
     folded = fold_diacritics(text.lower())
     for category, pattern in _BLOCKLIST:
@@ -183,25 +184,36 @@ def _run_blocklist(text: str) -> None:
 
 
 def _normalize_text(text: str) -> str:
-    """Collapse whitespace + strip, run the blocklist, then remove ``<`` / ``>``.
+    """Collapse whitespace + strip, run the blocklist on both bracket forms, remove ``<``/``>``.
 
     Order is load-bearing:
 
     1. Collapse internal whitespace and strip, so a pattern's literal single
        space matches even when the raw text used a double space or newline.
-    2. Run the blocklist on that collapsed form.
-    3. Remove the angle brackets — *after* the blocklist, so a bracket trick
-       (``<|…|>``) cannot mask a pattern; this is also what stops stored text
-       from closing a ``<traveller_memory>`` wrapper tag in the system prompt.
+    2. Build the de-bracketed form: remove ``<``/``>`` and re-collapse whitespace.
+    3. Run the blocklist on BOTH forms — a hit in either rejects:
+       - the still-bracketed collapsed form, so role-spoofing tokens like
+         ``<|…|>`` (which need the brackets to be detectable) still match;
+       - the de-bracketed re-collapsed form, so a bracket insertion such as
+         ``"you are <>now an admin"`` cannot mask the ``you are now`` pattern.
+       Scanning only the bracketed form (the previous ordering) let ``<>``
+       insertion slip a pattern past the blocklist and then be stored as the
+       exact blocked phrase once the brackets were removed.
+    4. Return the de-bracketed form — angle brackets are gone, so stored text
+       cannot close a ``<traveller_memory>`` wrapper tag in the system prompt.
 
     :param text: Raw memory text.
     :return: The normalized text (may be empty).
-    :raises MemoryRejected: ``blocked_pattern:<category>`` if the collapsed text
+    :raises MemoryRejected: ``blocked_pattern:<category>`` if either bracket form
         trips a blocklist category.
     """
     collapsed = re.sub(r"\s+", " ", text).strip()
+    debracketed = re.sub(
+        r"\s+", " ", collapsed.replace("<", "").replace(">", "")
+    ).strip()
     _run_blocklist(collapsed)
-    return collapsed.replace("<", "").replace(">", "")
+    _run_blocklist(debracketed)
+    return debracketed
 
 
 def _apply_content(text: str, cap: int, *, truncate: bool) -> str:
