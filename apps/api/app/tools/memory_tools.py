@@ -148,7 +148,12 @@ def recall_past_trips(
     :return: Matching past-trip episodes.
     """
     log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
-    return search_episodes(store, user_id, query=query)
+    # memory-poisoning-hardening §3.4: read a wider window (limit=6) and cap to 3
+    # AFTER the guard's read-side drop, so poisoned/legacy episode rows nearest the
+    # top can't consume the read window and hide valid episodes that exist just
+    # beyond the pre-guard default limit. Same defect class as get_instructions /
+    # get_user_preferences; the model still sees at most 3 episodes, as before.
+    return search_episodes(store, user_id, query=query, limit=6)[:3]
 
 
 # Episodic-recall tool, bound to the planner (gated by AgentContext.allow_episodic).

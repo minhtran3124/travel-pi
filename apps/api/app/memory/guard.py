@@ -34,6 +34,7 @@ this case. Reject reasons name the rule (``key_not_allowed``, ``too_long``,
 
 from __future__ import annotations
 
+import hashlib
 import re
 from typing import Literal
 
@@ -352,7 +353,16 @@ def check_episode(value: dict) -> dict:
     """
     cleaned = dict(value)
     outcome = value.get("outcome")
-    cleaned["outcome"] = outcome if outcome in _EPISODE_OUTCOMES else "proposed"
+    # ``isinstance(outcome, str)`` guards the ``in`` test: the extractor copies
+    # ``outcome`` verbatim from untrusted model JSON, so it can be an unhashable
+    # list/dict. ``x in frozenset`` hashes ``x`` and raises ``TypeError`` on an
+    # unhashable value — which escapes the read path's ``except MemoryRejected``
+    # in ``_guarded_episode_payload`` and loses episodic recall for the turn.
+    # Any non-string outcome falls back to the default.
+    if isinstance(outcome, str) and outcome in _EPISODE_OUTCOMES:
+        cleaned["outcome"] = outcome
+    else:
+        cleaned["outcome"] = "proposed"
 
     city = value.get("city")
     if isinstance(city, str):
@@ -408,8 +418,17 @@ def _slugify(text: str) -> str:
     slug = collapsed.strip("_-")
     # Bound to _KEY_SHAPE_RE's 64-char cap: a descriptive extractor key would
     # otherwise slugify past 64 chars and be dropped as ``key_not_allowed`` —
-    # defeating the point of slugifying (making the key conform). Truncate, then
-    # re-strip any trailing ``_``/``-`` the cut may have exposed.
+    # defeating the point of slugifying (making the key conform).
+    #
+    # A plain 64-char truncation (the previous bound) is a SILENT overwrite hazard:
+    # the episodes namespace is key-addressed and ``store.put`` overwrites, so two
+    # distinct descriptive keys sharing a 64-char prefix would collapse onto one
+    # row and the later episode would replace the earlier one with no trace. We
+    # make the bound collision-resistant instead of merely logging the drop: keep
+    # 55 chars of the readable slug and append a short hash of the FULL slug, so
+    # distinct long keys keep distinct rows while the result still fits the cap and
+    # the shape rule. (55 + "_" + 8 hex = 64; hex is [0-9a-f], a valid slug char.)
     if len(slug) > 64:
-        slug = slug[:64].strip("_-")
+        digest = hashlib.sha256(slug.encode("utf-8")).hexdigest()[:8]
+        slug = slug[:55].strip("_-") + "_" + digest
     return slug

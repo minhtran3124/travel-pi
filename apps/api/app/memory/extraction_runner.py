@@ -25,6 +25,23 @@ from app.repositories.agent_run import AgentRunRepository
 logger = logging.getLogger(__name__)
 
 
+def _safe_key(item: object) -> object | None:
+    """Best-effort ``key`` lookup for a reject log line.
+
+    An item that reached a per-item ``except`` may be a non-dict — untrusted
+    extractor output whose upstream ``_parse_content`` filter (dict with both
+    ``key`` and ``text``) was relaxed. ``item.get`` would then raise
+    ``AttributeError`` from inside the handler and unwind to the function-level
+    ``except``, discarding every sibling of the turn — the exact bug the
+    per-item guard exists to prevent. Swallow it so building the log line can
+    never re-raise.
+    """
+    try:
+        return item.get("key")  # type: ignore[attr-defined]
+    except AttributeError:
+        return None
+
+
 def run_memory_extraction(
     *,
     messages: list[BaseMessage],
@@ -92,7 +109,7 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "preferences",
-                    pref.get("key"),
+                    _safe_key(pref),
                     exc.reason,
                 )
                 continue
@@ -100,8 +117,9 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "preferences",
-                    pref.get("key"),
+                    _safe_key(pref),
                     f"malformed:{type(exc).__name__}",
+                    exc_info=True,
                 )
                 continue
             logger.info(
@@ -119,7 +137,7 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "instructions",
-                    instr.get("key"),
+                    _safe_key(instr),
                     exc.reason,
                 )
                 continue
@@ -127,8 +145,9 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "instructions",
-                    instr.get("key"),
+                    _safe_key(instr),
                     f"malformed:{type(exc).__name__}",
+                    exc_info=True,
                 )
                 continue
             logger.info(
@@ -141,13 +160,16 @@ def run_memory_extraction(
         # plan-approval gate (plan_approved=True) records outcome="approved";
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
-            key = ep.get("key") or trip_id or "episode"
+            key = None
             try:
-                # normalize_episode_key must sit INSIDE the try: a non-str episode
-                # key (a JSON number) raises AttributeError from ``_slugify`` — if
-                # that call stayed above the try it would unwind to the function
-                # ``except Exception`` and discard every remaining episode of the
-                # turn, defeating the per-item guarantee this loop exists for.
+                # BOTH the key lookup and normalize_episode_key must sit INSIDE the
+                # try. A non-dict episode makes ``ep.get`` raise AttributeError, and
+                # a non-str key (a JSON number) makes ``normalize_episode_key`` raise
+                # AttributeError from ``_slugify``. If either sat above the try it
+                # would unwind to the function ``except Exception`` and discard every
+                # remaining episode of the turn, defeating the per-item guarantee
+                # this loop exists for.
+                key = ep.get("key") or trip_id or "episode"
                 key = normalize_episode_key(key, trip_id)
                 outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
                 upsert_episode(
@@ -165,7 +187,7 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "episodes",
-                    key,
+                    key if key is not None else _safe_key(ep),
                     exc.reason,
                 )
                 continue
@@ -173,8 +195,9 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "episodes",
-                    ep.get("key"),
+                    key if key is not None else _safe_key(ep),
                     f"malformed:{type(exc).__name__}",
+                    exc_info=True,
                 )
                 continue
             logger.info(

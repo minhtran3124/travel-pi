@@ -380,6 +380,16 @@ def test_check_episode_coerces_unknown_outcome():
     assert check_episode({"text": "t"})["outcome"] == "proposed"
 
 
+@pytest.mark.parametrize("bad_outcome", [["approved"], {"outcome": "approved"}])
+def test_check_episode_non_str_outcome_coerced_not_typeerror(bad_outcome):
+    """F1: an unhashable outcome (list/dict) copied verbatim from model JSON must
+    coerce to ``proposed``, never raise ``TypeError`` from ``x in frozenset`` —
+    that TypeError escapes the read path and loses episodic recall for the turn.
+    """
+    out = check_episode({"text": "t", "outcome": bad_outcome})
+    assert out["outcome"] == "proposed"
+
+
 def test_check_episode_normalizes_and_caps_city():
     out = check_episode({"text": "t", "city": "  Đà Nẵng <b> "})
     assert "<" not in out["city"] and ">" not in out["city"]
@@ -470,3 +480,21 @@ def test_normalize_episode_key_bounds_slug_to_64_chars():
     # The whole point: a bounded slug is an allowed episode key on write.
     assert check("episodes", slug, "Loved it") == "Loved it"
     assert not (slug.endswith("_") or slug.endswith("-"))
+
+
+def test_normalize_episode_key_long_keys_sharing_prefix_stay_distinct():
+    """F2: two distinct long keys sharing a 64-char prefix must NOT collide.
+
+    The episodes namespace is key-addressed and ``store.put`` overwrites, so a
+    plain 64-char truncation would silently collapse both onto one row. The
+    collision-resistant bound (55 readable chars + a hash of the full slug) keeps
+    them distinct while still fitting the shape rule / cap.
+    """
+    prefix = "Ba Na Hills cable car day trip with the family in Da Nang "
+    slug_a = normalize_episode_key(prefix + "summer twenty twenty five")
+    slug_b = normalize_episode_key(prefix + "winter twenty twenty six")
+    assert len(slug_a) <= 64 and len(slug_b) <= 64
+    assert slug_a != slug_b
+    # Both remain valid episode keys on write.
+    assert check("episodes", slug_a, "a") == "a"
+    assert check("episodes", slug_b, "b") == "b"
