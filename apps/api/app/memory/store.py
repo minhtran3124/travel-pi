@@ -32,8 +32,77 @@ from langgraph.store.postgres import PostgresStore
 
 from app.core.config import get_settings
 from app.core.embeddings import EMBED_DIM, get_embeddings
+from app.memory.guard import (
+    PROFILE_KEYS,
+    MemoryKindLiteral,
+    MemoryRejected,
+    check,
+    check_content,
+    check_episode,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _guarded_values(guard_kind: MemoryKindLiteral, results) -> list[dict]:
+    """Filter preference/instruction search *results* through the read guard.
+
+    Each item's text is re-checked with :func:`guard.check_content`; a row that
+    fails (blocklist / bad-shape key) is dropped with a warning naming only
+    kind/key/reason — never the text. Survivors carry the guard's **normalized**
+    text (``<``/``>`` stripped, over-length truncated), so a row poisoned before
+    this guard existed is neutralized on read without a migration.
+
+    :param guard_kind: The guard content kind (``preferences`` / ``instructions``).
+    :param results: Iterable of store search items (``.key`` / ``.value``).
+    :return: The surviving values with normalized ``text``.
+    """
+    out: list[dict] = []
+    for item in results:
+        try:
+            text = check_content(guard_kind, item.key, item.value.get("text", ""))
+        except MemoryRejected as exc:
+            logger.warning(
+                "memory_filtered kind=%s key=%s reason=%s",
+                guard_kind,
+                item.key,
+                exc.reason,
+            )
+            continue
+        out.append({**item.value, "text": text})
+    return out
+
+
+def _guarded_episode_payload(item) -> dict | None:
+    """Read-guard one episode item, returning the limited payload or ``None``.
+
+    Runs :func:`guard.check_content` on the episode ``text`` and
+    :func:`guard.check_episode` on the metadata (coerce ``outcome``, normalize
+    ``city``); on any :class:`MemoryRejected` the row is dropped with a
+    text-free warning. The returned payload is limited to
+    ``text`` / ``city`` / ``outcome`` / ``trip_id`` (§3.1) — store-internal
+    fields such as ``updated_at`` are not surfaced.
+
+    :param item: A store search/get item (``.key`` / ``.value``).
+    :return: The limited episode payload, or ``None`` when dropped.
+    """
+    try:
+        text = check_content("episodes", item.key, item.value.get("text", ""))
+        cleaned = check_episode(item.value)
+    except MemoryRejected as exc:
+        logger.warning(
+            "memory_filtered kind=%s key=%s reason=%s",
+            "episodes",
+            item.key,
+            exc.reason,
+        )
+        return None
+    payload: dict = {"text": text, "outcome": cleaned["outcome"]}
+    if cleaned.get("city") is not None:
+        payload["city"] = cleaned["city"]
+    if cleaned.get("trip_id") is not None:
+        payload["trip_id"] = cleaned["trip_id"]
+    return payload
 
 
 def _libpq_dsn(url: str) -> str:
@@ -127,8 +196,11 @@ def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> 
     :param user_id: Owning user's id.
     :param key: Preference key within the user's prefs namespace.
     :param value: JSON-serializable preference payload.
+    :raises MemoryRejected: when the key is not allowed or the text is empty,
+        over-length or blocklisted (see :func:`app.memory.guard.check`).
     """
-    store.put(_prefs_namespace(user_id), key, _stamped(value))
+    text = check("preferences", key, value.get("text", ""))
+    store.put(_prefs_namespace(user_id), key, _stamped({**value, "text": text}))
 
 
 def search_preferences(
@@ -144,12 +216,14 @@ def search_preferences(
     :return: Matching preference values.
     """
     results = store.search(_prefs_namespace(user_id), query=query, limit=limit)
-    return [item.value for item in results]
+    return _guarded_values("preferences", results)
 
 
-# Reserved preference keys for MIN-53 personalization. These three ride the
-# existing prefs namespace (no schema) and are auto-injected each turn.
-PROFILE_KEYS: tuple[str, ...] = ("name", "gender", "travel_group")
+# ``PROFILE_KEYS`` (the reserved MIN-53 personalization keys) is defined once in
+# ``app.memory.guard`` and imported at the top of this module, so the guard and
+# the store share one source of truth. It is re-exported here (``store.PROFILE_KEYS``)
+# because ``app.agents.nodes`` imports it from ``store``; the import direction is
+# store → guard only.
 
 
 def get_profile(store: BaseStore, user_id: str) -> dict[str, str]:
@@ -166,11 +240,23 @@ def get_profile(store: BaseStore, user_id: str) -> dict[str, str]:
     profile: dict[str, str] = {}
     for key in PROFILE_KEYS:
         item = store.get(_prefs_namespace(user_id), key)
-        if item is not None:
-            raw = item.value.get("text")
-            text = raw.strip() if isinstance(raw, str) else ""
-            if text:
-                profile[key] = text
+        if item is None:
+            continue
+        raw = item.value.get("text")
+        if not isinstance(raw, str):
+            continue
+        try:
+            text = check_content("preferences", key, raw)
+        except MemoryRejected as exc:
+            logger.warning(
+                "memory_filtered kind=%s key=%s reason=%s",
+                "preferences",
+                key,
+                exc.reason,
+            )
+            continue
+        if text:
+            profile[key] = text
     return profile
 
 
@@ -182,8 +268,11 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
     :param user_id: Owning user's id.
     :param key: Instruction key within the user's procedural namespace.
     :param value: JSON-serializable instruction payload.
+    :raises MemoryRejected: when the key is not in the canonical instruction
+        allowlist or the text is empty, over-length or blocklisted.
     """
-    store.put(_namespace(user_id, "procedural"), key, _stamped(value))
+    text = check("instructions", key, value.get("text", ""))
+    store.put(_namespace(user_id, "procedural"), key, _stamped({**value, "text": text}))
 
 
 def get_instructions(
@@ -199,7 +288,7 @@ def get_instructions(
     :return: Matching instruction values.
     """
     results = store.search(_namespace(user_id, "procedural"), query=query, limit=limit)
-    return [item.value for item in results]
+    return _guarded_values("instructions", results)
 
 
 def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> None:
@@ -212,8 +301,13 @@ def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> Non
     :param user_id: Owning user's id.
     :param key: Episode key within the user's episodes namespace (the trip id).
     :param value: JSON-serializable episode payload.
+    :raises MemoryRejected: when the key breaks the slug shape rule or the text
+        is empty, over-length or blocklisted (``city`` is normalized too).
     """
-    store.put(_namespace(user_id, "episodes"), key, _stamped(value))
+    text = check("episodes", key, value.get("text", ""))
+    cleaned = check_episode(value)
+    cleaned["text"] = text
+    store.put(_namespace(user_id, "episodes"), key, _stamped(cleaned))
 
 
 def search_episodes(
@@ -229,7 +323,11 @@ def search_episodes(
     :return: Matching episode values.
     """
     results = store.search(_namespace(user_id, "episodes"), query=query, limit=limit)
-    return [item.value for item in results]
+    return [
+        payload
+        for item in results
+        if (payload := _guarded_episode_payload(item)) is not None
+    ]
 
 
 # --- Structured namespaces: typed search (research P2 row 2) -----------------
@@ -253,6 +351,14 @@ _DEFAULT_SEARCH_LIMITS: dict[MemoryKind, int] = {
     MemoryKind.PREFERENCES: 5,
     MemoryKind.PROCEDURAL: 10,
     MemoryKind.EPISODES: 3,
+}
+
+# Store namespace kind -> guard content kind (the guard's vocabulary differs from
+# the namespace strings: prefs -> preferences, procedural -> instructions).
+_GUARD_KIND: dict[MemoryKind, MemoryKindLiteral] = {
+    MemoryKind.PREFERENCES: "preferences",
+    MemoryKind.PROCEDURAL: "instructions",
+    MemoryKind.EPISODES: "episodes",
 }
 
 
@@ -336,7 +442,14 @@ def search_memory(
     kind = MemoryKind(kind)
     ns = _namespace(user_id, kind.value)
     eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
-    return [item.value for item in store.search(ns, query=query, limit=eff_limit)]
+    results = store.search(ns, query=query, limit=eff_limit)
+    if kind is MemoryKind.EPISODES:
+        return [
+            payload
+            for item in results
+            if (payload := _guarded_episode_payload(item)) is not None
+        ]
+    return _guarded_values(_GUARD_KIND[kind], results)
 
 
 def search_memory_typed(
@@ -365,8 +478,38 @@ def search_memory_typed(
     kind = MemoryKind(kind)
     ns = _namespace(user_id, kind.value)
     eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
+    results = store.search(ns, query=query, limit=eff_limit)
+
+    if kind is MemoryKind.EPISODES:
+        typed: list[Preference | Instruction | Episode] = []
+        for item in results:
+            payload = _guarded_episode_payload(item)
+            if payload is None:
+                continue
+            typed.append(
+                Episode(
+                    key=item.key,
+                    text=payload["text"],
+                    trip_id=payload.get("trip_id"),
+                    city=payload.get("city"),
+                    outcome=payload["outcome"],
+                )
+            )
+        return typed
+
+    guard_kind = _GUARD_KIND[kind]
     result_type = _MEMORY_RESULT_TYPES[kind]
-    return [
-        result_type.from_item(item)
-        for item in store.search(ns, query=query, limit=eff_limit)
-    ]
+    typed_values: list[Preference | Instruction | Episode] = []
+    for item in results:
+        try:
+            text = check_content(guard_kind, item.key, item.value.get("text", ""))
+        except MemoryRejected as exc:
+            logger.warning(
+                "memory_filtered kind=%s key=%s reason=%s",
+                guard_kind,
+                item.key,
+                exc.reason,
+            )
+            continue
+        typed_values.append(result_type(key=item.key, text=text))
+    return typed_values

@@ -16,7 +16,7 @@ MESSAGES = [
 EXTRACTOR_JSON = json.dumps(
     {
         "preferences": [{"key": "seat", "text": "prefers window seats"}],
-        "instructions": [{"key": "diet", "text": "vegetarian meals only"}],
+        "instructions": [{"key": "format", "text": "vegetarian meals only"}],
         "episodes": [
             {
                 "key": "trip-1",

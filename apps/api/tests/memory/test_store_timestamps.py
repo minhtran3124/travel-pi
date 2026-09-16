@@ -22,7 +22,7 @@ def test_upsert_instruction_writes_updated_at():
     from app.memory.store import get_instructions, get_store, upsert_instruction
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u1", "style", {"text": "Be concise"})
+    upsert_instruction(store, "u1", "reply_length", {"text": "Be concise"})
 
     results = get_instructions(store, "u1")
     assert len(results) == 1
@@ -31,8 +31,13 @@ def test_upsert_instruction_writes_updated_at():
 
 
 def test_upsert_episode_writes_updated_at():
-    """upsert_episode stamps the value dict with a parseable ISO updated_at."""
-    from app.memory.store import get_store, search_episodes, upsert_episode
+    """upsert_episode stamps the stored value dict with a parseable ISO updated_at.
+
+    The episode *read* helpers now limit the returned payload to
+    text/city/outcome/trip_id (guard §3.1), so ``updated_at`` is asserted on the
+    raw stored record via ``store.get`` rather than through ``search_episodes``.
+    """
+    from app.memory.store import _namespace, get_store, upsert_episode
 
     store = get_store("sqlite:///:memory:")
     upsert_episode(
@@ -42,10 +47,10 @@ def test_upsert_episode_writes_updated_at():
         {"text": "Da Nang beach trip", "city": "Da Nang", "outcome": "approved"},
     )
 
-    results = search_episodes(store, "u1")
-    assert len(results) == 1
-    assert "updated_at" in results[0]
-    datetime.fromisoformat(results[0]["updated_at"])
+    item = store.get(_namespace("u1", "episodes"), "trip_abc")
+    assert item is not None
+    assert "updated_at" in item.value
+    datetime.fromisoformat(item.value["updated_at"])
 
 
 def test_upsert_preserves_caller_supplied_fields():
