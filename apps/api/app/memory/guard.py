@@ -234,16 +234,29 @@ def _normalize_text(text: str) -> str:
     :raises MemoryRejected: ``blocked_pattern:<category>`` if either bracket form
         trips a blocklist category.
     """
+    if not isinstance(text, str):
+        # The extractor's ``_parse_content`` accepts any JSON type for ``text``
+        # (list/dict/int/None), so a non-str value can reach the guard. Reject it
+        # as ``empty`` rather than letting ``re.sub`` raise ``TypeError`` — a
+        # TypeError escapes every caller's ``except MemoryRejected`` and discards
+        # the whole turn's memory (write) or fails a tool call (read).
+        raise MemoryRejected("empty")
     collapsed = re.sub(r"\s+", " ", text).strip()
     debracketed = re.sub(
         r"\s+", " ", collapsed.replace("<", "").replace(">", "")
     ).strip()
-    # Newline-preserving form (only horizontal whitespace collapsed) so
-    # role_spoofing can anchor on a line break as a clause boundary; brackets are
-    # kept so the ``<|…|>`` token stays detectable.
+    # Newline-preserving forms (only horizontal whitespace collapsed) so
+    # role_spoofing can anchor on a line break as a clause boundary. The bracketed
+    # form keeps ``<``/``>`` so the ``<|…|>`` token stays detectable; the
+    # de-bracketed form matches the bracket state of the text that actually gets
+    # stored, so a ``<>``-insertion (``"<>system: …"``) cannot smuggle a
+    # ``system:`` role token past role_spoofing and then be stored verbatim.
     lined = re.sub(r"[^\S\n]+", " ", text).strip()
+    debracketed_lined = re.sub(
+        r"[^\S\n]+", " ", text.replace("<", "").replace(">", "")
+    ).strip()
     _run_blocklist(collapsed, lined)
-    _run_blocklist(debracketed, lined)
+    _run_blocklist(debracketed, debracketed_lined)
     return debracketed
 
 
@@ -284,6 +297,10 @@ def check(kind: MemoryKindLiteral, key: str, text: str) -> str:
     :raises MemoryRejected: ``key_not_allowed``, ``blocked_pattern:<category>``,
         ``empty`` or ``too_long``.
     """
+    if not isinstance(key, str):
+        # A non-str key would raise TypeError in ``_KEY_SHAPE_RE.fullmatch`` and
+        # escape the caller's ``except MemoryRejected``; treat it as disallowed.
+        raise MemoryRejected("key_not_allowed")
     if kind == "episodes":
         if not _KEY_SHAPE_RE.fullmatch(key):
             raise MemoryRejected("key_not_allowed")
@@ -307,7 +324,7 @@ def check_content(kind: MemoryKindLiteral, key: str, text: str) -> str:
     :raises MemoryRejected: ``key_not_allowed``, ``blocked_pattern:<category>``
         or ``empty``.
     """
-    if not _KEY_SHAPE_RE.fullmatch(key):
+    if not isinstance(key, str) or not _KEY_SHAPE_RE.fullmatch(key):
         raise MemoryRejected("key_not_allowed")
     return _apply_content(text, _TEXT_CAP[kind], truncate=True)
 
@@ -388,4 +405,11 @@ def _slugify(text: str) -> str:
     """
     folded = fold_diacritics(text.lower())
     collapsed = re.sub(r"[^a-z0-9_-]+", "_", folded)
-    return collapsed.strip("_-")
+    slug = collapsed.strip("_-")
+    # Bound to _KEY_SHAPE_RE's 64-char cap: a descriptive extractor key would
+    # otherwise slugify past 64 chars and be dropped as ``key_not_allowed`` —
+    # defeating the point of slugifying (making the key conform). Truncate, then
+    # re-strip any trailing ``_``/``-`` the cut may have exposed.
+    if len(slug) > 64:
+        slug = slug[:64].strip("_-")
+    return slug

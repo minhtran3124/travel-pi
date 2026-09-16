@@ -77,6 +77,14 @@ def run_memory_extraction(
         # call in its own try/except means one rejected item is skipped with a
         # text-free WARNING and never drops the siblings after it (§3.3). The reject
         # log carries kind/key/reason only — never the memory text.
+        #
+        # The per-item try ALSO covers the malformed-item class — a non-str key or
+        # text (or a missing field) that trips a TypeError/AttributeError/KeyError/
+        # ValueError inside the guard or key normalization rather than the guard's
+        # own MemoryRejected. Those raise from a plain dict of untrusted extractor
+        # JSON, so they must skip just that item and keep its siblings, exactly like
+        # a MemoryRejected. The reason names the malformed input's exception class
+        # (never the memory text).
         for pref in extracted.preferences:
             try:
                 upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
@@ -84,8 +92,16 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "preferences",
-                    pref["key"],
+                    pref.get("key"),
                     exc.reason,
+                )
+                continue
+            except (TypeError, AttributeError, KeyError, ValueError) as exc:
+                logger.warning(
+                    "memory_rejected kind=%s key=%s reason=%s",
+                    "preferences",
+                    pref.get("key"),
+                    f"malformed:{type(exc).__name__}",
                 )
                 continue
             logger.info(
@@ -103,8 +119,16 @@ def run_memory_extraction(
                 logger.warning(
                     "memory_rejected kind=%s key=%s reason=%s",
                     "instructions",
-                    instr["key"],
+                    instr.get("key"),
                     exc.reason,
+                )
+                continue
+            except (TypeError, AttributeError, KeyError, ValueError) as exc:
+                logger.warning(
+                    "memory_rejected kind=%s key=%s reason=%s",
+                    "instructions",
+                    instr.get("key"),
+                    f"malformed:{type(exc).__name__}",
                 )
                 continue
             logger.info(
@@ -118,9 +142,14 @@ def run_memory_extraction(
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
             key = ep.get("key") or trip_id or "episode"
-            key = normalize_episode_key(key, trip_id)
-            outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
             try:
+                # normalize_episode_key must sit INSIDE the try: a non-str episode
+                # key (a JSON number) raises AttributeError from ``_slugify`` — if
+                # that call stayed above the try it would unwind to the function
+                # ``except Exception`` and discard every remaining episode of the
+                # turn, defeating the per-item guarantee this loop exists for.
+                key = normalize_episode_key(key, trip_id)
+                outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
                 upsert_episode(
                     store,
                     user_id,
@@ -138,6 +167,14 @@ def run_memory_extraction(
                     "episodes",
                     key,
                     exc.reason,
+                )
+                continue
+            except (TypeError, AttributeError, KeyError, ValueError) as exc:
+                logger.warning(
+                    "memory_rejected kind=%s key=%s reason=%s",
+                    "episodes",
+                    ep.get("key"),
+                    f"malformed:{type(exc).__name__}",
                 )
                 continue
             logger.info(

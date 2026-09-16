@@ -76,45 +76,71 @@ def _memory_cases() -> list[Golden]:
 def test_memory_dataset_has_four_negatives_and_one_positive():
     cases = _memory_cases()
     negatives = [g for g in cases if g.forbidden_memory is not None]
-    positives = [g for g in cases if g.expected_memory is not None]
+    # `expected_memory` no longer marks the lone happy positive: every
+    # adversarial negative now also carries a legitimate preference, so an empty
+    # capture fails `memory_stored` instead of passing `no_injected_memory`
+    # vacuously. So 4 negatives + 1 happy positive all declare it.
+    stores_something = [g for g in cases if g.expected_memory is not None]
+    happy_positives = [g for g in stores_something if g.forbidden_memory is None]
 
     assert len(negatives) == 4, "expected exactly 4 negative memory goldens"
-    assert len(positives) == 1, "expected exactly 1 positive memory golden"
+    assert len(stores_something) == 5, (
+        "expected 4 adversarial negatives + 1 happy positive to declare "
+        "expected_memory (the negatives close the no_injected_memory vacuity trap)"
+    )
+    assert len(happy_positives) == 1, "expected exactly 1 happy positive golden"
 
-    # Every negative is adversarial, declares the metric, and covers both langs.
+    # Every negative is adversarial, declares BOTH gate metrics, and carries a
+    # non-empty forbidden list AND a legitimate expected_memory key so an empty
+    # capture can never pass vacuously. Both languages are covered.
     for g in negatives:
         assert g.scenario == "adversarial", f"{g.id} must be scenario=adversarial"
         assert "no_injected_memory" in (g.metrics or []), (
             f"{g.id} sets forbidden_memory but does not declare no_injected_memory"
         )
         assert g.forbidden_memory, f"{g.id} forbidden_memory must be non-empty"
+        assert "memory_stored" in (g.metrics or []), (
+            f"{g.id} must declare memory_stored so an empty capture fails the gate "
+            f"instead of passing no_injected_memory vacuously"
+        )
+        assert g.expected_memory, (
+            f"{g.id} must name a legitimate expected_memory key to close the trap"
+        )
         assert g.suite == "full"
     langs = sorted(g.language for g in negatives)
     assert langs == ["en", "en", "vi", "vi"], f"want 2 EN + 2 VI negatives, got {langs}"
 
 
 def test_positive_golden_stores_price_display():
-    positive = next(g for g in _memory_cases() if g.expected_memory is not None)
-    assert positive.id == "memory-happy-en-02"
+    positive = next(g for g in _memory_cases() if g.id == "memory-happy-en-02")
     assert positive.scenario == "happy"
     assert positive.suite == "full"
+    assert positive.forbidden_memory is None
     assert positive.expected_memory == ["price_display"]
     assert "memory_stored" in (positive.metrics or [])
 
 
 def test_every_memory_field_names_its_metric_across_the_whole_dataset():
-    """The load-bearing invariant: a `forbidden_memory` / `expected_memory` field
-    without its metric in `metrics` is silently never checked — a false green at
-    the selection layer. Asserted over the ENTIRE real dataset, not just
-    memory.json, because the trap applies to any capability that adds the field.
+    """The load-bearing invariant, both directions, over the ENTIRE real dataset
+    (not just memory.json — the trap applies to any capability that adds the
+    field):
+
+    - field WITHOUT its metric → the expectation is silently never checked, a
+      false green at the selection layer
+      (`docs/solutions/agent/eval-golden-notes-are-not-metrics.md`); and
+    - metric WITHOUT its field → the metric has nothing to assert, so a golden
+      that means to gate on stored/forbidden memory would pass vacuously.
     """
     for g in _store().load():
+        declared = set(g.metrics or [])
         for field, metric in _FIELD_METRIC.items():
-            if getattr(g, field) is not None:
-                assert metric in (g.metrics or []), (
-                    f"golden {g.id!r} sets {field} but does not declare the "
-                    f"{metric!r} metric — the expectation would never be checked"
-                )
+            has_field = getattr(g, field) is not None
+            has_metric = metric in declared
+            assert has_field == has_metric, (
+                f"golden {g.id!r}: {field} present={has_field} but {metric!r} "
+                f"declared={has_metric} — field and metric must be wired together "
+                f"or the expectation is never checked / has nothing to check"
+            )
 
 
 # --- adapter capture (FakeLLM-backed graph) --------------------------------

@@ -96,8 +96,12 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
+        # memory-poisoning-hardening §3.4: read a wider window (limit=20) and cap
+        # to 10 AFTER the guard's read-side drop (poisoned/legacy rows) — so
+        # dropped rows can't consume the read window and leave the block empty
+        # even though valid instructions sit just past the pre-guard limit.
         try:
-            instrs = get_instructions(store, user_id)
+            instrs = get_instructions(store, user_id, limit=20)[:10]
             if instrs:
                 result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))

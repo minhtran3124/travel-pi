@@ -98,6 +98,128 @@ def test_mixed_batch_stores_valid_items_skips_poisoned(caplog):
     )
 
 
+def test_malformed_episode_key_skips_only_that_item(caplog):
+    """A numeric episode key raises AttributeError from slugify — skip ONE, keep siblings.
+
+    The malformed key normalization used to sit above the per-item try, so this
+    AttributeError unwound to the function-level ``except`` and discarded every
+    remaining episode of the turn. Written to pass regardless of the guard task:
+    it asserts the valid sibling is stored and exactly one WARNING is logged.
+    """
+    store = InMemoryStore()
+    llm = FakeLLM(
+        responses=[
+            json.dumps(
+                {
+                    "preferences": [],
+                    "instructions": [],
+                    "episodes": [
+                        {"key": 2026, "text": "Da Nang trip went well"},
+                        {"key": "hoi_an", "text": "liked the old town"},
+                    ],
+                }
+            )
+        ]
+    )
+
+    with caplog.at_level(logging.WARNING):
+        run_memory_extraction(
+            messages=MESSAGES,
+            user_id="u1",
+            trip_id="trip1",
+            plan_approved=False,
+            allow_memory_write=True,
+            store=store,
+            llm=llm,
+        )
+
+    episodes = search_episodes(store, "u1")
+    assert len(episodes) == 1
+    assert episodes[0]["text"] == "liked the old town"
+
+    rejects = _rejects(caplog)
+    assert len(rejects) == 1
+    msg = rejects[0].getMessage()
+    assert "kind=episodes" in msg
+    assert "Da Nang trip went well" not in msg
+
+
+def test_malformed_preference_skips_only_that_item(caplog):
+    """A non-str preference text raises TypeError in the guard — skip ONE, keep siblings."""
+    store = InMemoryStore()
+    llm = FakeLLM(
+        responses=[
+            json.dumps(
+                {
+                    "preferences": [
+                        {"key": "seat", "text": 123},
+                        {"key": "airline", "text": "prefers Vietnam Airlines"},
+                    ],
+                    "instructions": [],
+                    "episodes": [],
+                }
+            )
+        ]
+    )
+
+    with caplog.at_level(logging.WARNING):
+        run_memory_extraction(
+            messages=MESSAGES,
+            user_id="u1",
+            trip_id="trip1",
+            plan_approved=False,
+            allow_memory_write=True,
+            store=store,
+            llm=llm,
+        )
+
+    prefs = search_preferences(store, "u1")
+    assert len(prefs) == 1
+    assert prefs[0]["text"] == "prefers Vietnam Airlines"
+
+    rejects = _rejects(caplog)
+    assert len(rejects) == 1
+    assert "kind=preferences" in rejects[0].getMessage()
+
+
+def test_malformed_instruction_skips_only_that_item(caplog):
+    """A non-str instruction text raises TypeError in the guard — skip ONE, keep siblings."""
+    store = InMemoryStore()
+    llm = FakeLLM(
+        responses=[
+            json.dumps(
+                {
+                    "preferences": [],
+                    "instructions": [
+                        {"key": "reply_tone", "text": 456},
+                        {"key": "format", "text": "keep replies concise"},
+                    ],
+                    "episodes": [],
+                }
+            )
+        ]
+    )
+
+    with caplog.at_level(logging.WARNING):
+        run_memory_extraction(
+            messages=MESSAGES,
+            user_id="u1",
+            trip_id="trip1",
+            plan_approved=False,
+            allow_memory_write=True,
+            store=store,
+            llm=llm,
+        )
+
+    instrs = get_instructions(store, "u1")
+    assert len(instrs) == 1
+    assert instrs[0]["text"] == "keep replies concise"
+
+    rejects = _rejects(caplog)
+    assert len(rejects) == 1
+    assert "kind=instructions" in rejects[0].getMessage()
+
+
 def _rejects(caplog):
     return [
         r

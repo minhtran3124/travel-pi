@@ -120,7 +120,11 @@ def get_user_preferences(
     :return: Matching saved preferences.
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
-    return search_preferences(store, user_id, query=query)
+    # memory-poisoning-hardening §3.4: read a wider window (limit=10) and cap to
+    # 5 AFTER the guard's read-side drop, so poisoned/legacy rows nearest the top
+    # can't consume the read window and hide valid preferences that exist just
+    # beyond the pre-guard limit.
+    return search_preferences(store, user_id, query=query, limit=10)[:5]
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
