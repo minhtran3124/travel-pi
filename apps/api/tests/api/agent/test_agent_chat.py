@@ -956,7 +956,7 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
         "Visit Tokyo Tower at sunset.",
         fast_responses=[
             "OK",
-            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '{"preferences": [{"key": "seat", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
     )

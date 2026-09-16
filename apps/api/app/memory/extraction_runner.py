@@ -18,6 +18,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.agents.metrics import TurnMetricsHandler
 from app.memory.extractor import extract_memories
+from app.memory.guard import MemoryRejected, normalize_episode_key
 from app.memory.store import upsert_episode, upsert_instruction, upsert_preference
 from app.repositories.agent_run import AgentRunRepository
 
@@ -71,8 +72,22 @@ def run_memory_extraction(
         extracted = extract_memories(
             messages, llm, callbacks=[handler] if handler else None
         )
+        # Each upsert is guarded individually: the store raises MemoryRejected on
+        # a poisoned/invalid item (key allowlist, length, blocklist). Wrapping each
+        # call in its own try/except means one rejected item is skipped with a
+        # text-free WARNING and never drops the siblings after it (§3.3). The reject
+        # log carries kind/key/reason only — never the memory text.
         for pref in extracted.preferences:
-            upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            try:
+                upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            except MemoryRejected as exc:
+                logger.warning(
+                    "memory_rejected kind=%s key=%s reason=%s",
+                    "preferences",
+                    pref["key"],
+                    exc.reason,
+                )
+                continue
             logger.info(
                 "[agent] extract_memory saved preference user=%s key=%s text=%r",
                 user_id,
@@ -80,7 +95,18 @@ def run_memory_extraction(
                 pref["text"],
             )
         for instr in extracted.instructions:
-            upsert_instruction(store, user_id, instr["key"], {"text": instr["text"]})
+            try:
+                upsert_instruction(
+                    store, user_id, instr["key"], {"text": instr["text"]}
+                )
+            except MemoryRejected as exc:
+                logger.warning(
+                    "memory_rejected kind=%s key=%s reason=%s",
+                    "instructions",
+                    instr["key"],
+                    exc.reason,
+                )
+                continue
             logger.info(
                 "[agent] extract_memory saved instruction user=%s key=%s text=%r",
                 user_id,
@@ -92,18 +118,28 @@ def run_memory_extraction(
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
             key = ep.get("key") or trip_id or "episode"
+            key = normalize_episode_key(key, trip_id)
             outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
-            upsert_episode(
-                store,
-                user_id,
-                key,
-                {
-                    "text": ep["text"],
-                    "trip_id": trip_id,
-                    "city": ep.get("city"),
-                    "outcome": outcome,
-                },
-            )
+            try:
+                upsert_episode(
+                    store,
+                    user_id,
+                    key,
+                    {
+                        "text": ep["text"],
+                        "trip_id": trip_id,
+                        "city": ep.get("city"),
+                        "outcome": outcome,
+                    },
+                )
+            except MemoryRejected as exc:
+                logger.warning(
+                    "memory_rejected kind=%s key=%s reason=%s",
+                    "episodes",
+                    key,
+                    exc.reason,
+                )
+                continue
             logger.info(
                 "[agent] extract_memory saved episode user=%s key=%s city=%s "
                 "outcome=%s text=%r",
