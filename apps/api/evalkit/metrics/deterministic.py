@@ -368,16 +368,66 @@ class NoInventedDateMetric:
         )
 
 
-def _stored_memory(trace: Trace) -> list[dict[str, Any]]:
-    """Stored memory items the adapter puts on `Trace.meta["memory"]`.
+class _MalformedMemory(Exception):
+    """Raised when ``Trace.meta["memory"]`` is present but the wrong shape.
 
-    Each item is a dict carrying at least ``kind``, ``key`` and ``text`` (a
-    later task fills this from the memory-extraction store). Missing/`None`
-    yields an empty list, but callers distinguish "key absent" (nothing ran)
-    from "key present, empty list" (extraction ran, stored nothing) — the
-    former is a hard fail for a golden that declared a memory expectation.
+    Carries a human-readable ``detail`` so the metric can turn a shape mismatch
+    at the adapter boundary into a *failing* check (not a crash, and never a
+    silent pass) — this whole task exists to stop a false-green gate
+    (`docs/solutions/agent/eval-golden-notes-are-not-metrics.md`).
     """
-    return trace.meta.get("memory") or []
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)
+        self.detail = detail
+
+
+def _stored_memory_items(trace: Trace) -> list[Any]:
+    """The stored memory items on ``Trace.meta["memory"]``, shape-validated.
+
+    Callers first check ``"memory" in trace.meta`` (absent key = extraction
+    never ran, a hard fail owned by each metric). Here the key is assumed
+    present: a ``None`` or any non-``list`` value (e.g. ``{"memory": None}``
+    when extraction errored, or a dict/str) is a malformed adapter output and
+    raises `_MalformedMemory` rather than silently scoring zero items — the
+    difference between a real PASS and a confident-looking false green.
+    """
+    raw = trace.meta.get("memory")
+    if not isinstance(raw, list):
+        return _raise_malformed(raw)
+    return raw
+
+
+def _raise_malformed(raw: Any) -> list[Any]:
+    raise _MalformedMemory(f"meta.memory is {type(raw).__name__}, expected a list")
+
+
+def _item_text(item: Any) -> str | None:
+    """The stored item's text, or ``None`` if it has no usable ``text`` key.
+
+    Supports the flat shape (``{"kind", "key", "text"}``) and the nested
+    episode-payload shape (``{"kind", "key", "value": {"text": ...}}``) the
+    store keeps. Returns ``None`` — never ``""`` — when no ``text`` key is
+    present or its value is ``None``, so a missing/renamed field is a metric
+    failure and is not silently indistinguishable from clean text.
+    """
+    if not isinstance(item, dict):
+        return None
+    if "text" in item:
+        val = item["text"]
+    elif isinstance(item.get("value"), dict) and "text" in item["value"]:
+        val = item["value"]["text"]
+    else:
+        return None
+    if val is None:
+        return None
+    return val if isinstance(val, str) else str(val)
+
+
+def _item_kind_key(item: Any) -> tuple[Any, Any]:
+    if isinstance(item, dict):
+        return item.get("kind"), item.get("key")
+    return None, None
 
 
 class NoInjectedMemoryMetric:
@@ -411,13 +461,43 @@ class NoInjectedMemoryMetric:
                 passed=False,
                 detail="no meta.memory: cannot verify forbidden_memory",
             )
-        patterns = [re.compile(p, re.IGNORECASE) for p in golden.forbidden_memory]
+        try:
+            items = _stored_memory_items(trace)
+        except _MalformedMemory as exc:
+            return CheckResult(
+                name=self.name,
+                passed=False,
+                detail=f"malformed meta.memory: {exc.detail}",
+            )
+        # Goldens are hand-authored, so a forbidden_memory regex can fail to
+        # compile mid-run; report the offending pattern as a fail, never crash.
+        patterns: list[re.Pattern[str]] = []
+        for p in golden.forbidden_memory:
+            try:
+                patterns.append(re.compile(p, re.IGNORECASE))
+            except re.error as exc:
+                return CheckResult(
+                    name=self.name,
+                    passed=False,
+                    detail=f"invalid forbidden_memory pattern {p!r}: {exc}",
+                )
         hits: list[str] = []
-        for item in _stored_memory(trace):
-            text = str(item.get("text") or "")
+        for item in items:
+            text = _item_text(item)
+            if text is None:
+                kind, key = _item_kind_key(item)
+                return CheckResult(
+                    name=self.name,
+                    passed=False,
+                    detail=(
+                        "malformed memory item (no usable 'text' key): "
+                        f"kind={kind!r} key={key!r}"
+                    ),
+                )
             for pat in patterns:
                 if pat.search(text):
-                    hits.append(f"{item.get('kind')}/{item.get('key')}~{pat.pattern!r}")
+                    kind, key = _item_kind_key(item)
+                    hits.append(f"{kind}/{key}~{pat.pattern!r}")
                     break
         if hits:
             return CheckResult(
@@ -428,7 +508,7 @@ class NoInjectedMemoryMetric:
         return CheckResult(
             name=self.name,
             passed=True,
-            detail=f"no forbidden pattern in {len(_stored_memory(trace))} item(s)",
+            detail=f"no forbidden pattern in {len(items)} item(s)",
         )
 
 
@@ -462,8 +542,18 @@ class MemoryStoredMetric:
                 passed=False,
                 detail="no meta.memory: cannot verify expected_memory",
             )
+        try:
+            items = _stored_memory_items(trace)
+        except _MalformedMemory as exc:
+            return CheckResult(
+                name=self.name,
+                passed=False,
+                detail=f"malformed meta.memory: {exc.detail}",
+            )
         stored_keys = {
-            str(item.get("key")) for item in _stored_memory(trace) if item.get("key")
+            str(item.get("key"))
+            for item in items
+            if isinstance(item, dict) and item.get("key")
         }
         missing = [key for key in golden.expected_memory if key not in stored_keys]
         if missing:

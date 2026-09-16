@@ -171,8 +171,10 @@ def _run_blocklist(text: str) -> None:
     Matches against a lower-cased, diacritic-folded copy so an accented VI
     injection ("bỏ qua mọi hướng dẫn") and its folded form match one pattern.
 
-    :param text: Raw memory text (before ``<>`` removal, so role-spoofing
-        tokens like ``<|…|>`` are still visible).
+    :param text: Whitespace-collapsed memory text (but *before* ``<>`` removal,
+        so role-spoofing tokens like ``<|…|>`` are still visible). Collapsing
+        first is what closes the ``"you are  now"`` / ``"system\\nprompt"``
+        evasions where a pattern's literal single space is disguised.
     """
     folded = fold_diacritics(text.lower())
     for category, pattern in _BLOCKLIST:
@@ -181,23 +183,33 @@ def _run_blocklist(text: str) -> None:
 
 
 def _normalize_text(text: str) -> str:
-    """Strip, collapse internal whitespace, and remove ``<`` / ``>``.
+    """Collapse whitespace + strip, run the blocklist, then remove ``<`` / ``>``.
 
-    Removing the angle brackets is what stops stored text from closing a
-    ``<traveller_memory>`` wrapper tag in the system prompt.
+    Order is load-bearing:
+
+    1. Collapse internal whitespace and strip, so a pattern's literal single
+       space matches even when the raw text used a double space or newline.
+    2. Run the blocklist on that collapsed form.
+    3. Remove the angle brackets — *after* the blocklist, so a bracket trick
+       (``<|…|>``) cannot mask a pattern; this is also what stops stored text
+       from closing a ``<traveller_memory>`` wrapper tag in the system prompt.
 
     :param text: Raw memory text.
     :return: The normalized text (may be empty).
+    :raises MemoryRejected: ``blocked_pattern:<category>`` if the collapsed text
+        trips a blocklist category.
     """
-    without_brackets = text.replace("<", "").replace(">", "")
-    return re.sub(r"\s+", " ", without_brackets).strip()
+    collapsed = re.sub(r"\s+", " ", text).strip()
+    _run_blocklist(collapsed)
+    return collapsed.replace("<", "").replace(">", "")
 
 
 def _apply_content(text: str, cap: int, *, truncate: bool) -> str:
-    """Run the shared content rules: blocklist, normalization, empty + length.
+    """Run the shared content rules: normalize + blocklist, then empty + length.
 
-    The blocklist runs on the full raw *text* first (before any truncation),
-    so over-length poisoned text cannot slip a pattern past the cap.
+    :func:`_normalize_text` runs the blocklist on the full (collapsed but
+    un-truncated) text, so over-length poisoned text cannot slip a pattern past
+    the cap.
 
     :param text: Raw memory text.
     :param cap: Maximum allowed length after normalization.
@@ -207,7 +219,6 @@ def _apply_content(text: str, cap: int, *, truncate: bool) -> str:
     :raises MemoryRejected: ``blocked_pattern:<category>``, ``empty`` or
         ``too_long``.
     """
-    _run_blocklist(text)
     normalized = _normalize_text(text)
     if not normalized:
         raise MemoryRejected("empty")
@@ -231,7 +242,7 @@ def check(kind: MemoryKindLiteral, key: str, text: str) -> str:
         ``empty`` or ``too_long``.
     """
     if kind == "episodes":
-        if not _KEY_SHAPE_RE.match(key):
+        if not _KEY_SHAPE_RE.fullmatch(key):
             raise MemoryRejected("key_not_allowed")
     elif key not in _ALLOWED_KEYS[kind]:
         raise MemoryRejected("key_not_allowed")
@@ -253,7 +264,7 @@ def check_content(kind: MemoryKindLiteral, key: str, text: str) -> str:
     :raises MemoryRejected: ``key_not_allowed``, ``blocked_pattern:<category>``
         or ``empty``.
     """
-    if not _KEY_SHAPE_RE.match(key):
+    if not _KEY_SHAPE_RE.fullmatch(key):
         raise MemoryRejected("key_not_allowed")
     return _apply_content(text, _TEXT_CAP[kind], truncate=True)
 
@@ -278,8 +289,7 @@ def check_episode(value: dict) -> dict:
     cleaned["outcome"] = outcome if outcome in _EPISODE_OUTCOMES else "proposed"
 
     city = value.get("city")
-    if isinstance(city, str) and city.strip():
-        _run_blocklist(city)
+    if isinstance(city, str):
         normalized_city = _normalize_text(city)[:_CITY_CAP]
         if normalized_city:
             cleaned["city"] = normalized_city
