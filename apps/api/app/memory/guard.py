@@ -313,17 +313,23 @@ def check_content(kind: MemoryKindLiteral, key: str, text: str) -> str:
 
 
 def check_episode(value: dict) -> dict:
-    """Validate/normalize an episode value's extra fields (``city``, ``outcome``).
+    """Validate/normalize an episode value's extra fields (``trip_id``, ``city``, ``outcome``).
 
     The episode ``text`` is guarded separately via :func:`check` /
     :func:`check_content`; this handles the metadata that rides alongside it —
     applied on both write and read (§3.1). ``city`` gets the same blocklist +
     normalization and is capped at 60 chars; ``outcome`` is coerced to
-    ``proposed`` unless it is already ``proposed`` / ``approved``.
+    ``proposed`` unless it is already ``proposed`` / ``approved``. ``trip_id``
+    reaches the model via ``recall_past_trips``, so it is held to the same
+    key-shape rule as the episode key (:data:`_KEY_SHAPE_RE`); a value that
+    fails — a non-string, or one carrying ``<``, ``:``, spaces or an injection
+    phrase — is **dropped** (not raised, so one bad id never costs the traveller
+    the whole memory).
 
     :param value: The episode value dict.
-    :return: A shallow copy with a coerced ``outcome`` and a normalized ``city``
-        (dropped when it normalizes to empty).
+    :return: A shallow copy with a coerced ``outcome``, a normalized ``city``
+        (dropped when it normalizes to empty), and a shape-checked ``trip_id``
+        (dropped when it fails the shape rule).
     :raises MemoryRejected: ``blocked_pattern:<category>`` if ``city`` trips the
         blocklist.
     """
@@ -338,6 +344,10 @@ def check_episode(value: dict) -> dict:
             cleaned["city"] = normalized_city
         else:
             cleaned.pop("city", None)
+
+    trip_id = value.get("trip_id")
+    if not (isinstance(trip_id, str) and _KEY_SHAPE_RE.fullmatch(trip_id)):
+        cleaned.pop("trip_id", None)
     return cleaned
 
 

@@ -44,10 +44,35 @@ from app.memory.guard import (
 logger = logging.getLogger(__name__)
 
 
+def _guarded_text(guard_kind: MemoryKindLiteral, key: str, raw: str) -> str | None:
+    """Run the read guard on one row's *raw* text; return normalized text or ``None``.
+
+    Single source of truth for the "check_content, drop-and-log on
+    :class:`MemoryRejected`" loop that every non-episode read path shares
+    (:func:`_guarded_values`, :func:`get_profile`, :func:`search_memory_typed`).
+    A dropped row is logged naming only kind/key/reason — never the text.
+
+    :param guard_kind: The guard content kind (``preferences`` / ``instructions``).
+    :param key: The stored key (for the shape rule and the drop log).
+    :param raw: The stored text to normalize.
+    :return: The guard's normalized text, or ``None`` when the row is dropped.
+    """
+    try:
+        return check_content(guard_kind, key, raw)
+    except MemoryRejected as exc:
+        logger.warning(
+            "memory_filtered kind=%s key=%s reason=%s",
+            guard_kind,
+            key,
+            exc.reason,
+        )
+        return None
+
+
 def _guarded_values(guard_kind: MemoryKindLiteral, results) -> list[dict]:
     """Filter preference/instruction search *results* through the read guard.
 
-    Each item's text is re-checked with :func:`guard.check_content`; a row that
+    Each item's text is re-checked with :func:`_guarded_text`; a row that
     fails (blocklist / bad-shape key) is dropped with a warning naming only
     kind/key/reason — never the text. Survivors carry the guard's **normalized**
     text (``<``/``>`` stripped, over-length truncated), so a row poisoned before
@@ -59,15 +84,8 @@ def _guarded_values(guard_kind: MemoryKindLiteral, results) -> list[dict]:
     """
     out: list[dict] = []
     for item in results:
-        try:
-            text = check_content(guard_kind, item.key, item.value.get("text", ""))
-        except MemoryRejected as exc:
-            logger.warning(
-                "memory_filtered kind=%s key=%s reason=%s",
-                guard_kind,
-                item.key,
-                exc.reason,
-            )
+        text = _guarded_text(guard_kind, item.key, item.value.get("text", ""))
+        if text is None:
             continue
         out.append({**item.value, "text": text})
     return out
@@ -245,16 +263,7 @@ def get_profile(store: BaseStore, user_id: str) -> dict[str, str]:
         raw = item.value.get("text")
         if not isinstance(raw, str):
             continue
-        try:
-            text = check_content("preferences", key, raw)
-        except MemoryRejected as exc:
-            logger.warning(
-                "memory_filtered kind=%s key=%s reason=%s",
-                "preferences",
-                key,
-                exc.reason,
-            )
-            continue
+        text = _guarded_text("preferences", key, raw)
         if text:
             profile[key] = text
     return profile
@@ -501,15 +510,8 @@ def search_memory_typed(
     result_type = _MEMORY_RESULT_TYPES[kind]
     typed_values: list[Preference | Instruction | Episode] = []
     for item in results:
-        try:
-            text = check_content(guard_kind, item.key, item.value.get("text", ""))
-        except MemoryRejected as exc:
-            logger.warning(
-                "memory_filtered kind=%s key=%s reason=%s",
-                guard_kind,
-                item.key,
-                exc.reason,
-            )
+        text = _guarded_text(guard_kind, item.key, item.value.get("text", ""))
+        if text is None:
             continue
         typed_values.append(result_type(key=item.key, text=text))
     return typed_values

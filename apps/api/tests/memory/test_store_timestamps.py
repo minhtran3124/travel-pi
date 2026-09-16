@@ -124,7 +124,10 @@ def test_reading_legacy_record_without_updated_at_does_not_crash():
     assert instrs[0]["text"] == "legacy rule"
     assert "updated_at" not in instrs[0]
     assert episodes[0]["text"] == "legacy trip"
-    assert "updated_at" not in episodes[0]
+    # The episode read payload is limited to text/city/outcome/trip_id (§3.1), so
+    # updated_at is always absent regardless of the legacy record — assert the
+    # payload-limit intent explicitly rather than a trivially-true membership.
+    assert set(episodes[0].keys()) <= {"text", "city", "outcome", "trip_id"}
 
 
 def test_get_profile_ignores_missing_updated_at():
