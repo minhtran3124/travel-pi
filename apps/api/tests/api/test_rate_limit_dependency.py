@@ -1,9 +1,11 @@
 """Reusable rate-limit dependency + 429/Retry-After mapping (T3.1)."""
 
 import time
+from types import SimpleNamespace
 from typing import Annotated
 
 import pytest
+from app.core import rate_limit as rate_limit_module
 from app.core.auth import AuthUser, get_current_user_optional
 from app.core.config import get_settings
 from app.core.errors import register_exception_handlers
@@ -19,6 +21,24 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 _TestSessionDep = Annotated[Session, Depends(get_session)]
+
+_WINDOW = 60
+
+
+@pytest.fixture(autouse=True)
+def _frozen_limiter_clock(monkeypatch):
+    """Pin the limiter's clock mid-window for the whole module.
+
+    The counter is a FIXED window aligned to the wall clock (``now - now %
+    window`` in ``RateLimitRepository.hit``), so a test that spends several
+    requests on one budget resets that budget if it straddles a window
+    boundary — the 429 assertions then see a fresh 200. Tests that pass an
+    explicit ``now_epoch`` are unaffected; this only pins the default.
+    """
+    frozen = (int(time.time()) // _WINDOW) * _WINDOW + _WINDOW // 2
+    monkeypatch.setattr(
+        rate_limit_module, "time", SimpleNamespace(time=lambda: float(frozen))
+    )
 
 
 @pytest.fixture
