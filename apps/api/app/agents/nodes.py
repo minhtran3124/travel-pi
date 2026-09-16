@@ -35,7 +35,7 @@ from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
     MemoryKind,
-    get_instructions,
+    format_age,
     get_profile,
     search_memory_typed,
 )
@@ -45,6 +45,22 @@ from app.services.trip_service import TripService
 from app.tools._base import session_scope
 
 logger = logging.getLogger(__name__)
+
+
+def _with_age(text: str, updated_at: str | None) -> str:
+    """Append a coarse recorded-age marker to a memory line, when one is knowable.
+
+    ``format_age`` returns a month-granularity bucket, or ``None`` for a row whose
+    ``updated_at`` is absent or unparseable — in which case the line renders exactly as
+    it did before this marker existed. Absent data stays absent: no "unknown", no
+    substituted date (specs/agent-memory-layer-5 Task 2.1).
+
+    :param text: The memory line's own text.
+    :param updated_at: The stored ISO-8601 timestamp, or ``None``.
+    :return: ``text`` with a ``(recorded <bucket>)`` suffix, or unchanged.
+    """
+    age = format_age(updated_at)
+    return f"{text} (recorded {age})" if age else text
 
 
 def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
@@ -96,10 +112,15 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
+        # search_memory_typed (not get_instructions) so each instruction carries its
+        # updated_at, which format_age turns into the recorded-age marker below —
+        # matching how the preferences block already reads the typed API.
         try:
-            instrs = get_instructions(store, user_id)
+            instrs = search_memory_typed(store, user_id, MemoryKind.PROCEDURAL)
             if instrs:
-                result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
+                result["instructions"] = "\n".join(
+                    f"- {_with_age(i.text, i.updated_at)}" for i in instrs
+                )
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))
         except Exception:
             logger.exception("[agent] load_context: instruction load failed")
@@ -130,7 +151,7 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
             non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
             if non_profile:
                 result["preferences"] = "\n".join(
-                    f"- {p.key}: {p.text}" for p in non_profile
+                    f"- {p.key}: {_with_age(p.text, p.updated_at)}" for p in non_profile
                 )
                 logger.info(
                     "[agent] node=load_context preferences=%d", len(non_profile)
