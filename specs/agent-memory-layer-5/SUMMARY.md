@@ -131,19 +131,24 @@ migration — which is why they are P0 and the rest of the playbook is not.
 | full backend suite | `.venv/bin/python -m pytest -q` (from `apps/api/`, sqlite) | 0 | 2642 passed, 7 skipped, 241s | |
 | lint | `ruff check app scripts` (from `apps/api/`) | 0 | All checks passed; `ruff format --check` clean on changed files | |
 | prompt-cache BEFORE reading | `.venv/bin/python -m scripts.cache_hit_report --since 7d` (from `apps/api/`, dev Postgres) | 0 | overall 80.3% — assistant 81.9%, supervisor 75.1%, reflection/synthesize 0% (sub-floor prompts, always 0%) | SC-6 |
-| intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | — | to run at handoff | |
+| agent behaviour: eval smoke, this branch | `.venv/bin/python -m eval --suite smoke --out eval/reports/latest.json` (from `apps/api/`) | 0 | 18 cases, real agent. memory 2/2; budget/errors/flight_search/journal/language/routing 2/2 each; dates 3/4 ok; **hotels 1/2 BELOW THRESHOLD**. The runner exits 0 anyway — the threshold line is the gate, not `$?` | SC-6 |
+| the two failures are pre-existing, not a regression | `.venv/bin/python -m eval --suite smoke --capability hotels` and `--capability dates`, run in a throwaway worktree at base `da546c92` | 0 | Same two cases fail with byte-identical details: `hotels-happy-en-01` → `tools_expected` `expected=['browse_hotels'] called=['needs_clarification']`; `dates-ambiguous-en-02` → `no_invented_date` `search_flights.departure_date='2026-09-16'` | SC-6 |
+| intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | 0 | passes | |
 
 ### Not auto-verified
 
-- **The prompt-cache AFTER reading does not exist yet.** The BEFORE reading is recorded above
-  (80.3% over 7d). An AFTER reading requires new agent turns recorded in `agent_run_step` under
-  the changed prompt, which means running the real agent — a paid action, not yet authorized. Until
-  then the bucketing decision rests on **inference** from the documented mechanism, not measurement.
-  This is the one open item in `SC-6`.
-- **`make eval-smoke` and `make eval-check` have not been run.** Both need `apps/api/.env`, which
-  this worktree does not have, and both spend real API budget (`eval-check` is judged and marked
-  paid in `CLAUDE.md`). Task 3.1 is blocked on that authorization, so no claim is made here about
-  agent behaviour after the prompt change.
+- **The prompt-cache AFTER reading does not exist.** The BEFORE reading is recorded above
+  (80.3% over 7d). `eval-smoke` **cannot** supply the AFTER reading: `eval/adapters/langgraph_runner.py`
+  invokes the graph directly and never passes through the `/agent/*` router, which is what writes the
+  `agent_runs` / `agent_run_step` rows `cache_hit_report` reads. An AFTER reading needs real turns
+  through the API. Until then the month-bucket decision rests on **inference** from the documented
+  mechanism, not measurement — this is the open half of `SC-6`.
+- **`make eval-check` (judged, paid) was not run.** Only `eval-smoke` was authorized. No claim is
+  made here about judged metrics or about the `eval/baselines/main.json` regression gate.
+- **The two eval failures were attributed by re-running the same goldens at base, not by reading the
+  baseline file.** `eval/baselines/main.json` is the `full` suite and excludes all 18 smoke goldens,
+  so it contains `hotels-happy-en-02` but not `hotels-happy-en-01` — it could not have settled the
+  question either way.
 - **langgraph's Postgres read paths were not checked for expired-row filtering.** Upstream
   langgraph#5178 / #8905 report `omit_expired` being ignored in *sqlite* store reads. Irrelevant
   to this P0 slice (no TTL is set here) but load-bearing for the P1 TTL item in `design.md` §6.
@@ -170,6 +175,21 @@ migration — which is why they are P0 and the rest of the playbook is not.
 
 ### Harness-Delta
 
+- backlog — **`ruff-on-edit` strips an import added before its first use.** Adding the `format_age`
+  import in one edit and its call site in the next left `nodes.py` with a `NameError`, which the
+  best-effort `except Exception` in `load_context` then swallowed into a log line: the turn
+  continued with **no preferences at all**. `docs/solutions/.../ruff-on-edit-strips-unused-imports`
+  already records the hook behaviour; what is new is the failure *mode* — a programming error in a
+  best-effort block silently disables personalization rather than failing. Candidate P1: let
+  `NameError` / `AttributeError` propagate there while still swallowing store I/O errors. → `compound`.
+- backlog — **`--suite smoke` exits 0 with a capability under threshold.** `python -m eval` printed
+  `hotels ... BELOW THRESHOLD` and still exited 0, so any gate wired to the exit code reads a
+  failing capability as a pass. → `compound`.
+- backlog — **the blast-radius hook bound to the wrong spec for this entire session.** It warned
+  against `specs/gh-193-booking-revise-idempotency/PLAN.md` on every edit, because this plan is
+  `status: proposed` and the hook picks the first `status: active` plan alphabetically. Flipping the
+  status would not have helped: harness scripts running inside a worktree read the *main* checkout's
+  `specs/`, where this plan does not exist. Every warning this session was a false positive. → `compound`.
 - backlog — `verify_summary.py --lane` fails at intake for any spec whose sibling `PLAN.md`
   declares an SC table, because SC coverage cannot exist before the tasks run (reproduced on
   `specs/memory-poisoning-hardening`, an already-shipped spec). The lane check and the SC-coverage
