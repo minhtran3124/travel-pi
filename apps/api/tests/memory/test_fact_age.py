@@ -85,16 +85,16 @@ def test_format_age_none_for_garbage():
 
 
 def test_format_age_this_month():
-    """Under one month old -> 'this month'."""
+    """Under one month old -> 'in the last month'."""
     from app.memory.store import format_age
 
     same_day = _NOW.isoformat()
     a_week = (_NOW - timedelta(days=7)).isoformat()
     just_under_month = (_NOW - timedelta(days=20)).isoformat()
 
-    assert format_age(same_day, now=_NOW) == "this month"
-    assert format_age(a_week, now=_NOW) == "this month"
-    assert format_age(just_under_month, now=_NOW) == "this month"
+    assert format_age(same_day, now=_NOW) == "in the last month"
+    assert format_age(a_week, now=_NOW) == "in the last month"
+    assert format_age(just_under_month, now=_NOW) == "in the last month"
 
 
 def test_format_age_a_few_months():
@@ -125,7 +125,7 @@ def test_format_age_boundary_one_month():
     """The <1-month / a-few-months boundary is crisp and month-granular."""
     from app.memory.store import format_age
 
-    # Exactly one calendar month back reads as 'a few months ago', not 'this month'.
+    # Exactly one calendar month back reads as 'a few months ago', not 'in the last month'.
     one_month = datetime(2026, 8, 16, 12, 0, 0, tzinfo=timezone.utc).isoformat()
     assert format_age(one_month, now=_NOW) == "a few months ago"
 
@@ -152,11 +152,11 @@ def test_format_age_never_emits_day_count_vocabulary():
 
 
 def test_format_age_defaults_now_to_utc_now_without_raising():
-    """Omitting now must not raise and must still bucket a recent stamp as 'this month'."""
+    """Omitting now must not raise and must still bucket a recent stamp as 'in the last month'."""
     from app.memory.store import format_age
 
     recent = datetime.now(timezone.utc).isoformat()
-    assert format_age(recent) == "this month"
+    assert format_age(recent) == "in the last month"
 
 
 def test_format_age_handles_naive_timestamp():
@@ -164,4 +164,41 @@ def test_format_age_handles_naive_timestamp():
     from app.memory.store import format_age
 
     naive = datetime(2026, 9, 10, 12, 0, 0).isoformat()  # no tzinfo
-    assert format_age(naive, now=_NOW) == "this month"
+    assert format_age(naive, now=_NOW) == "in the last month"
+
+
+# --- Regressions found by correctness review (M2, M3) ------------------------
+
+
+def test_freshest_phrase_does_not_claim_a_calendar_month():
+    """M2: the code measures ELAPSED months, so the label must not say "this month".
+
+    Read on 16 Sep, a row stamped 20 Aug scores 0 elapsed months but belongs to the
+    *previous* calendar month. "this month" would be a false claim, wrong by up to
+    nearly two calendar months; "in the last month" is true for the whole bucket and
+    has identical prompt-cache properties.
+    """
+    from app.memory.store import _AGE_COARSE, _AGE_FINE, format_age
+
+    late_last_month = datetime(2026, 8, 20, tzinfo=timezone.utc).isoformat()
+    assert format_age(late_last_month, now=_NOW) == "in the last month"
+
+    phrases = [p for _, p in _AGE_COARSE] + [p for _, p in _AGE_FINE]
+    assert "this month" not in phrases
+
+
+def test_future_timestamp_renders_no_age_at_all():
+    """M3: an impossible stamp must not be shown as the freshest possible data.
+
+    Clock skew, a bad backfill or a hand-edited row previously clamped to 0 months and
+    rendered as the most confidence-inspiring label available. Unusable data renders as
+    absent, matching the plan's constraint for a missing stamp.
+    """
+    from app.memory.store import format_age
+
+    far_future = datetime(2030, 1, 1, tzinfo=timezone.utc).isoformat()
+    next_month = datetime(2026, 10, 20, tzinfo=timezone.utc).isoformat()
+
+    assert format_age(far_future, now=_NOW) is None
+    assert format_age(next_month, now=_NOW) is None
+    assert format_age(far_future, now=_NOW, fine=True) is None

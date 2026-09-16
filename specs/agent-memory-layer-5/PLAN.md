@@ -34,18 +34,26 @@ merge dependency, not a task here — see `SUMMARY.md` → Hard-gate narrowing.
   parameter, or request body is a blocking defect, not a review nit.
 - **No new table, no Alembic migration, no new runtime dependency, no scheduler.** If a task
   appears to need one, stop and escalate — the premise is wrong.
-- **Additive prompt changes only.** §4.1 may append a parenthetical and one clause to the
-  preferences block. Rewording the base system prompt is out of scope.
+- **Prompt changes stay inside the preferences and instructions blocks.** Rewording the base
+  system prompt, or reordering the blocks in `system_with_summary`, is out of scope.
+  *(Amended 2026-09-16: this originally read "additive only — may append a parenthetical and one
+  clause". The correctness review (M1/D-2) then showed that the appended-clause wording
+  **loosened** the very rule it was meant to activate, so the clause had to be replaced rather
+  than extended. The replacement is recorded as a deviation in `SUMMARY.md`; the constraint is
+  widened here to what the fix actually required — not to retroactively excuse it.)*
 - **Never remove existing behavior.** The token budget ORs with the message-count threshold;
   it does not replace it. Removing a branch here trips `remove-functionality`.
 - **One store instance.** Routers reach the store via `GraphDep` → `graph.store`. Never call
   `open_store` / `get_store` in request scope (`lifespan.py:116-135`).
 - **Absent data renders as absent.** A memory row without a parseable `updated_at` renders
   with no age suffix. Never substitute "unknown", a default date, or `now`.
-- **Nothing that changes daily goes into the system-prompt prefix.** Fact age is a
-  month-granularity bucket, never a day count. Prompt caching is implicit, on, and measured at
-  71.9%, and the preferences/instructions blocks sit *before* `summary`
-  (`research-brief.md`; `docs/solutions/agent/prompt-caching-implicit-idle-eviction.md`).
+- **Nothing that changes daily goes into the system-prompt prefix**, and granularity below that
+  is chosen by block position. `instructions` is position 3, so a change invalidates everything
+  after it — keep it coarse. `preferences` is position 8 (last, before only the already-daily
+  date note), so finer phrasing costs essentially no cache. Caching is implicit, on, measured at
+  80.3% (`design.md` §4.1; `docs/solutions/agent/prompt-caching-implicit-idle-eviction.md`).
+  *(Corrected 2026-09-16: this originally asserted both blocks sit before `summary`. False for
+  `preferences`.)*
 - **Do not use `llm.get_num_tokens_from_messages()`.** `transformers` is absent from this venv,
   so the base implementation raises — including under the test `FakeLLM`. The char/4 estimator is
   the portable option; say so in a comment at the call site.
@@ -208,6 +216,23 @@ run's scope without losing the specification.
 (or a second PLAN in this one), unfence these three tasks (D.1–D.3), renumber them and their `SC` rows into that
 plan's own table, and delete `apps/api/tests/api/routes/test_no_memory_route_yet.py` (the SC-1 pin
 from Task 0.1) in the same change.
+
+**Defects the correctness review pinned on these deferred helpers — fix them when unfencing;
+they are latent only because no route reaches them yet:**
+
+- **M4 — `delete_memory` returns `True` for a delete that did not happen.** `kind` is
+  caller-supplied, so a key living under `procedural` "deleted" as `prefs` issues a no-op against
+  the wrong namespace and still reports success. On `DELETE /memory/{kind}/{key}` ("204 whether or
+  not it existed") the traveller is told their data is gone while it is still stored — on a privacy
+  surface that is the failure mode that matters. Either verify the row existed, or make the route's
+  contract honest.
+- **M4b — `MemoryKind(kind)` raises `ValueError` on an unknown kind.** Deliberate and correct at
+  the store layer, but the route must map it to 422/404; unmapped it surfaces as a 500.
+- **M5 — `list_memory` truncates at 50 with no offset and no total.** The caller cannot tell a
+  full page from a truncated one. `DELETE /memory` ("delete everything for the caller") built as
+  list-then-delete — the obvious implementation — would silently partial-wipe a traveller with
+  more than 50 rows in one kind and report it complete. Add paging, or delete by namespace rather
+  than by enumerated key.
 
 Their original success criteria, to be renumbered on unfencing:
 

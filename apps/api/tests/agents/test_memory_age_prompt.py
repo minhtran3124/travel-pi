@@ -46,7 +46,7 @@ def test_preferences_carry_a_recorded_age_marker():
     result = _load(store)
 
     assert "diet: vegetarian" in result["preferences"]
-    assert "(recorded this month)" in result["preferences"]
+    assert "(recorded in the last month)" in result["preferences"]
 
 
 def test_standing_instructions_carry_a_recorded_age_marker():
@@ -56,7 +56,31 @@ def test_standing_instructions_carry_a_recorded_age_marker():
     result = _load(store)
 
     assert "never book red-eye flights" in result["instructions"]
-    assert "(recorded this month)" in result["instructions"]
+    assert "(recorded in the last month)" in result["instructions"]
+
+
+def test_preferences_use_the_fine_vocabulary_and_instructions_the_coarse_one():
+    """Granularity is chosen by prompt position, not by taste.
+
+    `preferences` is the last block in `system_with_summary`, followed only by the
+    daily date note `ground_current_date` appends, so finer phrasing there costs no
+    cached prefix. `instructions` is position 3 — a change invalidates everything
+    after it, `summary` included — so it keeps the coarse vocabulary.
+    """
+    store = get_store()
+    store.put(
+        ("users", "u1", "prefs"), "budget", {"text": "20m", "updated_at": _iso(200)}
+    )
+    store.put(
+        ("users", "u1", "procedural"),
+        "no_redeye",
+        {"text": "no red-eyes", "updated_at": _iso(200)},
+    )
+
+    result = _load(store)
+
+    assert "(recorded about 6 months ago)" in result["preferences"]
+    assert "(recorded a few months ago)" in result["instructions"]
 
 
 def test_older_rows_bucket_to_coarser_phrases():
@@ -72,7 +96,7 @@ def test_older_rows_bucket_to_coarser_phrases():
 
     prefs = _load(store)["preferences"]
 
-    assert "budget: 20m VND (recorded a few months ago)" in prefs
+    assert "budget: 20m VND (recorded about 6 months ago)" in prefs
     assert "airline: VJ (recorded over a year ago)" in prefs
 
 
@@ -117,7 +141,7 @@ def test_age_marker_survives_into_the_assembled_system_prompt():
     prompt = system_with_summary(state, SystemMessage(content="BASE"))
 
     assert isinstance(prompt, SystemMessage)
-    assert "(recorded this month)" in prompt.content
+    assert "(recorded in the last month)" in prompt.content
     # Still one leading system message, and the base survives.
     assert prompt.content.startswith("BASE")
 

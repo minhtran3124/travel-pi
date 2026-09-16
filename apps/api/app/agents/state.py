@@ -193,9 +193,9 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
         parts.append(
             "Traveller preferences (learned from past conversations — use to "
             "personalise). Each line may end with a marker saying roughly when it "
-            "was recorded; anything recorded more than a few months ago should be "
-            "confirmed with the traveller before you act on it. A line with no "
-            f"marker has no known date — ask rather than assume:\n{preferences}"
+            "was recorded. Only 'recorded in the last month' counts as fresh: every other "
+            "marker, and any line with no marker at all, must be confirmed with the "
+            f"traveller before you act on it:\n{preferences}"
         )
     return SystemMessage(content="\n\n".join(parts))
 

@@ -17,13 +17,26 @@ External surface: **yes** — version-specific `langgraph` / `langchain-core` AP
 
 ### Two corrections this research forces
 
-1. **`design.md` §4.1 as written would degrade prompt caching.** `format_age` returning
-   `"today"` / `"3 days ago"` puts a **daily-changing string into the middle of the system-prompt
-   prefix** (the preferences and instructions blocks sit before `summary`). Caching here is
-   implicit, already on, and measured at 71.9%; `ground_current_date` was deliberately appended
-   **last** precisely so the one volatile block could not invalidate the stable prefix
-   (`docs/solutions/agent/prompt-caching-implicit-idle-eviction.md`). Restoring that property
-   means **coarse buckets**, not a relative-days phrase — see §Recommendation.
+1. **`design.md` §4.1 as written would degrade prompt caching** — *partly. This item was
+   **materially wrong when first written** and was corrected on 2026-09-16 after the correctness
+   and intent reviews both caught it. The original text claimed "the preferences and instructions
+   blocks sit before `summary`". Read `state.py:system_with_summary`: the block order is
+   `base → profile → account_email → instructions → trip_context → summary → trip_facts →
+   preferences`, and `ground_current_date` then appends the daily date note outermost. So:*
+
+   - **`instructions` (position 3) — the claim holds.** A daily-changing string there invalidates
+     the cached prefix for everything after it, `summary` included. Coarse phrasing is right.
+   - **`preferences` (position 8, last) — the claim is largely false.** It is already after
+     `summary`, and the only thing after it is a note that *already* changes daily, so the cached
+     prefix stops just before that note regardless. Extra churn in `preferences` costs that one
+     small block and nothing else.
+
+   The corrected conclusion: **coarse for `instructions`, finer for `preferences`** — which is
+   what shipped. The owner's original approval of a single coarse vocabulary rested on the wrong
+   premise and was re-put to them with the ordering corrected; they chose the split.
+   *Lesson worth keeping: this error survived a Deep research pass, a design doc, a plan, two
+   docstrings and a user-facing decision, because nobody re-read the 8 lines of `state.py` that
+   settle it. Prefix-position claims must cite the append order, not be recalled.*
 2. **`design.md` §6's deferred "lazy TTL read filter" should be rewritten before it is built.**
    LangGraph ships native per-item TTL with an `expires_at` column and a background sweeper. The
    P1 item is `use built-in`, not `build` — but it carries a backend asymmetry that makes it a
@@ -148,18 +161,14 @@ External surface: **yes** — version-specific `langgraph` / `langchain-core` AP
 - **Primary recommendation:** **reuse existing + use built-in.** No new abstraction, and `PLAN.md`'s
   task structure survives intact. Three concrete adjustments:
 
-  **(a) P0#2 — bucket the age; do not phrase it in days.** `format_age` should return a
-  **coarse, slow-changing** bucket (`"this month"`, `"a few months ago"`, `"over a year ago"`) or a
-  month stamp (`"recorded 2026-04"`) — never `"today"` / `"3 days ago"`. Rationale is cache
-  economics, not style: the preferences and instructions blocks sit **before** `summary` in the
-  prefix (`state.py:160-195`), so a string that changes daily invalidates the cached prefix for
-  every user at every day rollover, in a system measured at 71.9% hit rate where the one volatile
-  block was deliberately pushed to the end. A month-granularity bucket changes at most once a
-  month, and only for rows sitting on a boundary. It also still satisfies the actual product
-  requirement — the model needs to know *roughly how old*, not the exact day.
-  *If per-day precision is ever genuinely wanted, the alternative is to move the age-annotated
-  blocks after `summary`, adjacent to the date note — a prefix-order change, which is a bigger
-  blast radius than bucketing and should not be bundled into this spec.*
+  **(a) P0#2 — month granularity, split by prompt position.** *(Corrected 2026-09-16 — see
+  correction 1 above; the original version of this paragraph applied one coarse vocabulary to both
+  blocks on a false premise.)* Never a day count in either block: it would change daily and buys
+  nothing the model needs. But the granularity below that differs by position —
+  `instructions` (position 3) keeps the coarse vocabulary because a change there invalidates
+  everything after it; `preferences` (position 8, followed only by the already-daily date note)
+  takes a finer one, which costs essentially no cache and buys real resolution inside the first
+  year — the span `design.md` §6 itself calls the one that matters for a seasonal, annual domain.
 
   **(b) P0#4 — keep the char/4 estimator; the framework method is not usable here.** Not a
   preference: `transformers` is not installed, so the base `get_num_tokens_from_messages` raises

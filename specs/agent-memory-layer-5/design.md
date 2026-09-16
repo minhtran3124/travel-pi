@@ -71,17 +71,31 @@ there; three things drop it before it reaches the model.
    English because the system prompt is assembled in English regardless of reply language
    (`state.py:with_reply_language` localises the *reply*, not the prompt).
 
-   **The phrase is a coarse, month-granularity bucket** — `"this month"`, `"a few months ago"`,
-   `"over a year ago"` — **not** a day count. This is a cache-economics constraint, not a
-   style choice, and `research-brief.md` is what forced it: prompt caching here is implicit,
-   already on, and measured at **71.9%**, and the preferences and instructions blocks sit
-   **before** `summary` in the prefix (`state.py:160-195`). A string like `"3 days ago"`
-   changes every single day, mid-prefix, for every user — invalidating the cached prefix at
-   each day rollover. The volatile date note was deliberately appended **last** for exactly
-   this reason (`docs/solutions/agent/prompt-caching-implicit-idle-eviction.md`). A monthly
-   bucket changes at most once a month, and only for rows sitting on a boundary, while still
-   answering the only question the model actually needs answered: *roughly how old is this?*
-   Owner confirmed the month granularity on 2026-09-16.
+   **The phrase is month-granularity, never a day count** — and the granularity below that is
+   **chosen by the block's position in the prompt**. The block order in
+   `state.py:system_with_summary` is
+   `base → profile → account_email → instructions → trip_context → summary → trip_facts →
+   preferences`, after which `ground_current_date` appends the daily date note outermost:
+
+   - **`instructions` — position 3 — coarse** (`"in the last month"` / `"a few months ago"` /
+     `"over a year ago"`). A string that changes here invalidates the cached prefix for
+     everything after it, `summary` included. Caching is implicit, on, and measured at 80.3%
+     (`docs/solutions/agent/prompt-caching-implicit-idle-eviction.md`).
+   - **`preferences` — position 8, last — fine** (`"in the last month"` / `"2-3 months ago"` /
+     `"about 6 months ago"` / `"about a year ago"` / `"over a year ago"`). It already sits after
+     `summary`, and the only thing after it is a note that changes daily anyway, so the cached
+     prefix stops just before that note regardless. Extra churn here costs one small block.
+
+   > **Correction, 2026-09-16.** The first version of this section claimed *both* blocks sit
+   > before `summary` and therefore applied one coarse vocabulary to both. That is false for
+   > `preferences`, which is last. The correctness and intent reviews both caught it; the owner's
+   > earlier approval had rested on the wrong premise and was re-put to them with the ordering
+   > corrected. Never a day count is still right — the rest was not.
+
+   The freshest phrase is `"in the last month"`, **not** `"this month"`: the code measures
+   elapsed months, so a row stamped 20 Aug read on 16 Sep is 0 elapsed months but belongs to the
+   previous calendar month. And a **future** timestamp returns `None` rather than the freshest
+   label — an impossible stamp is unusable data, and unusable data renders as absent.
 3. **`nodes.py` — render it.** Preferences become `- {key}: {text} (recorded {age})` and
    standing instructions `- {text} (recorded {age})`. When `format_age` returns `None`, the
    suffix is omitted entirely — a row with no timestamp renders exactly as it does today.

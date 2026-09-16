@@ -387,36 +387,86 @@ def search_memory_typed(
 # --- Fact age + management helpers (specs/agent-memory-layer-5 Task 1.1) ------
 
 
-def format_age(updated_at: str | None, *, now: datetime | None = None) -> str | None:
-    """Render a stored ``updated_at`` as a coarse, month-granularity age bucket.
+# Age vocabularies, by prompt position. Both are month-granularity — never a day
+# count, which would change daily inside a cached prompt and buy nothing.
+#
+# COARSE is for blocks that sit EARLY in the system prompt (standing instructions is
+# position 3 of 8 in ``state.py:system_with_summary``): a change there invalidates the
+# cached prefix for everything after it, including ``summary``, so the vocabulary is
+# kept as stable as possible.
+#
+# FINE is for blocks at the END (preferences is position 8, followed only by the daily
+# date note that ``ground_current_date`` appends outermost). The cached prefix already
+# stops before that note, so extra churn in preferences costs essentially nothing —
+# which buys real resolution inside the first year, the span this product cares about
+# most ("travel preferences are seasonal and annual", design.md §6).
+#
+# M2: the freshest phrase is "in the last month", NOT "this month". The code computes
+# ELAPSED whole months, not a calendar month, so a row stamped 20 Aug read on 16 Sep
+# scores 0 months and would be labelled "this month" while in fact belonging to the
+# previous one — wrong by up to nearly two calendar months. The elapsed phrasing has
+# identical cache properties and makes no false claim.
+#
+# Each entry is (max_months_exclusive, phrase); the last entry is the fallback.
+_AGE_COARSE: tuple[tuple[int | None, str], ...] = (
+    (1, "in the last month"),
+    (12, "a few months ago"),
+    (None, "over a year ago"),
+)
+_AGE_FINE: tuple[tuple[int | None, str], ...] = (
+    (1, "in the last month"),
+    (4, "2-3 months ago"),
+    (9, "about 6 months ago"),
+    (16, "about a year ago"),
+    (None, "over a year ago"),
+)
+
+
+def _months_elapsed(stamp: datetime, ref: datetime) -> int:
+    """Whole months between *stamp* and *ref*. Negative when *stamp* is in the future.
+
+    Day-of-month aware, so 31 Jan -> 28 Feb counts as 0 months rather than 1. The
+    result is NOT clamped: :func:`format_age` needs to tell "freshly written" apart
+    from "impossible" (see M3 there).
+
+    :param stamp: The stored timestamp (timezone-aware).
+    :param ref: The reference "now" (timezone-aware).
+    :return: Whole months elapsed; negative for a future stamp.
+    """
+    months = (ref.year - stamp.year) * 12 + (ref.month - stamp.month)
+    if ref.day < stamp.day:
+        months -= 1
+    return months
+
+
+def format_age(
+    updated_at: str | None, *, now: datetime | None = None, fine: bool = False
+) -> str | None:
+    """Render a stored ``updated_at`` as a month-granularity age phrase.
 
     Code computes the delta so the model only reads the result
-    (``docs/solutions/agent/llm-parses-code-computes.md``). The returned phrase is
-    **deliberately month-coarse and never a day count**: the preferences/instructions
-    blocks sit *before* ``summary`` in the implicitly cached system-prompt prefix
-    (measured at 71.9%), and a string that changed daily would invalidate that prefix
-    for every user at each day rollover
-    (``docs/solutions/agent/prompt-caching-implicit-idle-eviction.md``). Buckets:
+    (``docs/solutions/agent/llm-parses-code-computes.md``). The phrase is **never a day
+    count**: a string that changed daily would churn a cached system prompt for every
+    user at each rollover, and buys nothing the model needs
+    (``docs/solutions/agent/prompt-caching-implicit-idle-eviction.md``).
 
-    - **< 1 month** old -> ``"this month"``
-    - **1 to < 12 months** old -> ``"a few months ago"``
-    - **>= 12 months** old -> ``"over a year ago"``
-
-    "1 month" is measured in whole calendar months elapsed, so it changes at most once a
-    month and only for rows sitting on a boundary.
+    Two vocabularies, chosen by the caller's position in the prompt — see
+    :data:`_AGE_COARSE` and :data:`_AGE_FINE` for why position decides this.
 
     :param updated_at: An ISO-8601 timestamp string, or ``None``. A timezone-naive stamp
         is treated as UTC.
     :param now: Reference "now" (defaults to the current UTC time); injectable so tests
         are deterministic.
-    :return: The age bucket, or ``None`` when *updated_at* is ``None``, empty, or
+    :param fine: Use the finer vocabulary (for late-in-prompt blocks such as
+        preferences). Defaults to the coarse vocabulary.
+    :return: The age phrase, or ``None`` when *updated_at* is ``None``, empty, or
         unparseable. Never guesses, never substitutes *now*, never raises.
     """
     if not updated_at or not isinstance(updated_at, str):
         return None
     try:
         stamp = datetime.fromisoformat(updated_at)
-    except ValueError:
+    except (ValueError, TypeError):
         return None
 
     ref = now or datetime.now(timezone.utc)
@@ -426,18 +476,18 @@ def format_age(updated_at: str | None, *, now: datetime | None = None) -> str | 
     if ref.tzinfo is None:
         ref = ref.replace(tzinfo=timezone.utc)
 
-    # Whole calendar months elapsed (day-of-month aware), floored at 0.
-    months = (ref.year - stamp.year) * 12 + (ref.month - stamp.month)
-    if ref.day < stamp.day:
-        months -= 1
+    months = _months_elapsed(stamp, ref)
+    # M3: a stamp in the future cannot be an age. Clock skew, a bad backfill or a
+    # hand-edited row would otherwise be shown to the model as maximally FRESH — the
+    # most confidence-inspiring label available, on the least trustworthy data. Treat
+    # it the way the plan's "absent data renders as absent" constraint treats a missing
+    # stamp: return None, and the line renders with no marker at all.
     if months < 0:
-        months = 0
-
-    if months < 1:
-        return "this month"
-    if months < 12:
-        return "a few months ago"
-    return "over a year ago"
+        return None
+    for max_months, phrase in _AGE_FINE if fine else _AGE_COARSE:
+        if max_months is None or months < max_months:
+            return phrase
+    return None  # unreachable: both vocabularies end with a None fallback
 
 
 def list_memory(

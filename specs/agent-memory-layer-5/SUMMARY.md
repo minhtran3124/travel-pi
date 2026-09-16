@@ -100,12 +100,15 @@ migration — which is why they are P0 and the rest of the playbook is not.
 - **Token budget replaces the message-count threshold** — rejected in favour of an OR. Replacing
   it removes existing behavior (a `remove-functionality` judgment gate) for no gain; an OR is
   strictly more conservative and keeps every current `should_summarize` test valid.
-- **Day-precise fact age (`"3 days ago"`)** — rejected after research. It puts a daily-changing
-  string mid-prefix in a prompt whose caching is on and measured at 71.9%, where the one volatile
-  block was deliberately placed last. Month-granularity buckets keep that property and still
-  answer the only question the model needs answered. The alternative that preserves day precision
-  — moving the age-annotated blocks after `summary` — is a prefix-order change with a larger blast
-  radius and does not belong in this spec. Owner confirmed month granularity 2026-09-16.
+- **Day-precise fact age (`"3 days ago"`)** — rejected: it changes daily in a cached prompt and
+  buys nothing the model needs. **But the reasoning first recorded here was wrong**, and the owner's
+  initial approval rested on it. It claimed "the preferences and instructions blocks sit before
+  `summary`"; in fact `state.py` appends `preferences` **last**, with only the already-daily date
+  note after it. The cache argument therefore holds for `instructions` (position 3) and is largely
+  false for `preferences` (position 8). Both reviews caught this independently; the decision was
+  re-put to the owner with the ordering corrected, and they chose the **split**: coarse for
+  `instructions`, finer for `preferences`. Corrected 2026-09-16 here and in `research-brief.md`,
+  `design.md` §4.1, PLAN Global Constraints, and the `format_age` docstring.
 - **`llm.get_num_tokens_from_messages()` instead of a char/4 estimate** — rejected after research:
   `transformers` is not installed, so the base implementation raises for any model that does not
   override it, including the test `FakeLLM`.
@@ -115,7 +118,30 @@ migration — which is why they are P0 and the rest of the playbook is not.
 
 ### Deviations
 
-- none (no code changed)
+- **Rule 1 — `list_memory` key precedence.** Rows were built as
+  `{"key": item.key, **item.value}`, letting a stored value shadow the store key that is the
+  delete handle. Reordered. Commit `918cbf84`.
+- **Constraint exceeded — the preferences prompt clause was REPLACED, not appended to.** PLAN's
+  Global Constraints said "additive prompt changes only … may append a parenthetical and one
+  clause". The correctness/intent reviews (M1/D-2) then showed the appended wording
+  ("anything recorded **more than a few months ago**") *loosened* the rule against the emitted
+  vocabulary — `format_age` emits the literal phrase "a few months ago" for the whole 1–11 month
+  span, so an 11-month-old preference was told **not** to be confirmed, weaker than the
+  unqualified base text it replaced. Extending the clause could not fix that; it had to be
+  rewritten to key off the one fresh marker. The constraint in PLAN is amended with the same
+  note. **This entry exists because a reviewer found the record saying `none` while the block had
+  been rewritten — not because the deviation was self-reported.**
+- **Scope creep, reverted.** `ruff format app tests/memory tests/agents` was run over whole
+  directories instead of the changed files, reformatting 8 unrelated files (`app/agents/metrics.py`,
+  `app/repositories/agent_run.py`, `app/schemas/tip.py`, `tests/agents/test_graph.py`,
+  `test_pii_redaction.py`, `test_state.py`, `test_supervisor.py`,
+  `tests/memory/test_structured_namespaces.py`). All 8 restored with `git checkout --`; the diff
+  carries only the 6 intended files. Notably `test_structured_namespaces.py` is the file the Task
+  1.1 subagent had deliberately left alone as out-of-scope (it carries pre-existing ruff errors) —
+  the controller was less disciplined than the subagent there.
+- **Post-review fixes** (all with a regression test; see `### Verify`): H1/D-3 no-progress
+  compression loop, H2 summary replacement, M1/D-2 staleness rule, D-1 granularity split,
+  M2 false "this month" label, M3 future timestamps.
 
 ### Verify
 
@@ -133,6 +159,12 @@ migration — which is why they are P0 and the rest of the playbook is not.
 | prompt-cache BEFORE reading | `.venv/bin/python -m scripts.cache_hit_report --since 7d` (from `apps/api/`, dev Postgres) | 0 | overall 80.3% — assistant 81.9%, supervisor 75.1%, reflection/synthesize 0% (sub-floor prompts, always 0%) | SC-6 |
 | agent behaviour: eval smoke, this branch | `.venv/bin/python -m eval --suite smoke --out eval/reports/latest.json` (from `apps/api/`) | 0 | 18 cases, real agent. memory 2/2; budget/errors/flight_search/journal/language/routing 2/2 each; dates 3/4 ok; **hotels 1/2 BELOW THRESHOLD**. The runner exits 0 anyway — the threshold line is the gate, not `$?` | SC-6 |
 | the two failures are pre-existing, not a regression | `.venv/bin/python -m eval --suite smoke --capability hotels` and `--capability dates`, run in a throwaway worktree at base `da546c92` | 0 | Same two cases fail with byte-identical details: `hotels-happy-en-01` → `tools_expected` `expected=['browse_hotels'] called=['needs_clarification']`; `dates-ambiguous-en-02` → `no_invented_date` `search_flights.departure_date='2026-09-16'` | SC-6 |
+| H1/D-3: token branch makes no empty promise; no paid call on a no-op compression | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarize_token_budget.py -q` | 0 | 9 passed. Probed directly: 3 heavy msgs → `should_summarize` False (was True), `summarize_conversation` → `("", [])` with an LLM that raises if called; 6 heavy msgs still True | SC-4 |
+| H2: a repeated compression merges the rolling summary instead of replacing it | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarize_token_budget.py -q -k merges` | 0 | asserts the prior summary reaches the model and the merge prompt carries its 250-word growth cap | SC-4 |
+| M1/D-2 + D-1: staleness rule keys off the one fresh marker; preferences fine / instructions coarse | `.venv/bin/python -m pytest apps/api/tests/agents/test_memory_age_prompt.py -q` | 0 | 8 passed; 200-day row renders `about 6 months ago` in preferences and `a few months ago` in instructions | SC-3 |
+| M2/M3: freshest label makes no calendar claim; a future stamp renders no marker | `.venv/bin/python -m pytest apps/api/tests/memory/test_fact_age.py -q` | 0 | 17 passed; `"this month"` absent from both vocabularies; future stamp → `None` | SC-2 |
+| post-fix regression sweep | `.venv/bin/python -m pytest apps/api/tests/memory apps/api/tests/agents -q` | 0 | 560 passed, 1 skipped (the Postgres cascade pin, under sqlite) | |
+| lint after the fixes | `ruff check app scripts` + `ruff format --check` on the 6 changed files (from `apps/api/`) | 0 | All checks passed; 6 files already formatted | |
 | intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | 0 | passes | |
 
 ### Not auto-verified
@@ -145,6 +177,13 @@ migration — which is why they are P0 and the rest of the playbook is not.
   mechanism, not measurement — this is the open half of `SC-6`.
 - **`make eval-check` (judged, paid) was not run.** Only `eval-smoke` was authorized. No claim is
   made here about judged metrics or about the `eval/baselines/main.json` regression gate.
+- **The recorded `eval-smoke` result predates the post-review fixes.** It was run against the diff
+  as it stood at `49bd91df`. H1 changed the compression trigger, H2 changed the summarizer prompt,
+  and D-1/M1/M2 changed the preferences prompt — so that run describes a diff that no longer
+  exists and must be repeated before the eval evidence can be claimed for the shipped code.
+- **The correctness review's LOW findings (L1 onward) were never received.** Both review reports
+  truncated mid-sentence in delivery and only the HIGH/MEDIUM items were recovered. The disposition
+  table above is therefore complete for HIGH/MEDIUM and *incomplete below that*.
 - **The two eval failures were attributed by re-running the same goldens at base, not by reading the
   baseline file.** `eval/baselines/main.json` is the `full` suite and excludes all 18 smoke goldens,
   so it contains `hotels-happy-en-02` but not `hotels-happy-en-01` — it could not have settled the
@@ -172,6 +211,25 @@ migration — which is why they are P0 and the rest of the playbook is not.
   are not recoverable** (hard delete, by design). This is the one irreversible surface in the
   spec; it is why `DELETE /memory` (delete-all) requires an explicit confirmation token in the
   request rather than being a bare verb — see `design.md` §4.3.
+
+### Review findings and disposition
+
+Correctness and intent review both ran at base `da546c92` (`reviewer` agent type: read-only by
+construction, distinct model class). They converged independently on the two most serious items,
+which is why those were treated as confirmed rather than argued with.
+
+| ID | Finding | Disposition |
+| --- | --- | --- |
+| H1 / D-3 | Token branch fires forever while compressing zero messages — a paid summarizer call per turn with no context relief. A regression the OR branch introduced. | **Fixed** + 2 tests |
+| H2 | `summary` replaced rather than merged; repeated firing narrows it to the last window while the messages behind it are already deleted → in-session amnesia | **Fixed** (owner authorized widening scope: the behaviour predates this change) + test |
+| M1 / D-2 | "more than a few months ago" self-excludes the 1–11 month bucket it was meant to catch; *looser* than the base text | **Fixed** + test |
+| D-1 | The cache rationale was false for `preferences` (it is last, not before `summary`) | **Fixed** in code (granularity split, owner re-approved) and corrected in 5 documents |
+| M2 | `"this month"` asserted a calendar fact the code does not compute | **Fixed** + test |
+| M3 | Future timestamps rendered as the *freshest* possible label | **Fixed** (→ `None`) + test |
+| M6 | This SUMMARY said `Deviations: none` while the prompt block had been rewritten past a plan constraint | **Fixed** — see `### Deviations` |
+| M4, M4b, M5 | Latent defects in the deferred `list_memory` / `delete_memory` (dishonest delete result, unmapped `ValueError`, silent 50-row truncation) | **Pinned in `PLAN.md` §6** as must-fix-on-unfencing; unreachable today (no route) |
+| L1+ | Remaining low-severity items | Not yet dispositioned — the review report was truncated; see `### Not auto-verified` |
+| Profile block | `name`/`gender`/`travel_group` carry no age marker (`get_profile` drops `updated_at`) | Accepted narrowing; noted for follow-up |
 
 ### Harness-Delta
 

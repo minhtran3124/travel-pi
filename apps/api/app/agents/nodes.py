@@ -47,19 +47,23 @@ from app.tools._base import session_scope
 logger = logging.getLogger(__name__)
 
 
-def _with_age(text: str, updated_at: str | None) -> str:
-    """Append a coarse recorded-age marker to a memory line, when one is knowable.
+def _with_age(text: str, updated_at: str | None, *, fine: bool = False) -> str:
+    """Append a recorded-age marker to a memory line, when one is knowable.
 
-    ``format_age`` returns a month-granularity bucket, or ``None`` for a row whose
+    ``format_age`` returns a month-granularity phrase, or ``None`` for a row whose
     ``updated_at`` is absent or unparseable — in which case the line renders exactly as
     it did before this marker existed. Absent data stays absent: no "unknown", no
     substituted date (specs/agent-memory-layer-5 Task 2.1).
 
     :param text: The memory line's own text.
     :param updated_at: The stored ISO-8601 timestamp, or ``None``.
-    :return: ``text`` with a ``(recorded <bucket>)`` suffix, or unchanged.
+    :param fine: Use the finer age vocabulary. Set for blocks rendered LATE in the
+        system prompt (preferences, position 8 of 8), where extra churn costs no cached
+        prefix; leave False for early blocks (standing instructions, position 3). See
+        ``store._AGE_COARSE`` / ``store._AGE_FINE``.
+    :return: ``text`` with a ``(recorded <phrase>)`` suffix, or unchanged.
     """
-    age = format_age(updated_at)
+    age = format_age(updated_at, fine=fine)
     return f"{text} (recorded {age})" if age else text
 
 
@@ -151,7 +155,8 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
             non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
             if non_profile:
                 result["preferences"] = "\n".join(
-                    f"- {p.key}: {_with_age(p.text, p.updated_at)}" for p in non_profile
+                    f"- {p.key}: {_with_age(p.text, p.updated_at, fine=True)}"
+                    for p in non_profile
                 )
                 logger.info(
                     "[agent] node=load_context preferences=%d", len(non_profile)
@@ -173,7 +178,20 @@ def make_summarize_node(llm: BaseChatModel):
         if not should_summarize(messages):
             logger.info("[agent] node=summarize (skipped — history short)")
             return {}
-        summary, to_remove = summarize_conversation(messages, llm)
+        # H2: hand the existing rolling summary back in, so a fresh compression MERGES
+        # with it instead of replacing it. Without this, repeated firing (which the
+        # token branch makes possible over a short window) narrows the summary to "the
+        # last few messages" while the older ones are already gone from `messages` —
+        # the agent forgets facts stated earlier in the same session.
+        summary, to_remove = summarize_conversation(
+            messages, llm, previous_summary=state.get("summary")
+        )
+        if not to_remove:
+            # Nothing was removable, so no LLM call was made and `summary` is "".
+            # Writing it would blank an existing rolling summary — defence in depth
+            # behind summarize_conversation's own early return.
+            logger.info("[agent] node=summarize (skipped — nothing removable)")
+            return {}
         logger.info("[agent] node=summarize (compressed %d messages)", len(to_remove))
         return {"summary": summary, "messages": to_remove}
 

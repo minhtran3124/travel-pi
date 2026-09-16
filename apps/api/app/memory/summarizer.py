@@ -26,6 +26,19 @@ _SUMMARY_SYSTEM = (
     "budget, booked items, stated preferences and constraints. Be terse."
 )
 
+# When a previous summary is supplied, the task becomes a MERGE rather than a fresh
+# summarisation: the older messages it covers have already been deleted from the
+# history, so anything dropped here is lost for good. The word cap is what keeps the
+# rolling summary from growing without bound as compressions accumulate.
+_MERGE_SYSTEM = (
+    "You maintain the running summary of a travel-assistant conversation. You are "
+    "given the summary so far and the newer messages. Merge them into ONE summary "
+    "of at most 250 words. The earlier messages behind the existing summary are "
+    "already deleted, so never drop a concrete fact it records: destinations, dates, "
+    "budget, booked items, stated preferences and constraints. Prefer dropping "
+    "narrative and pleasantries over facts. Be terse."
+)
+
 
 def _safe_split(messages: list[BaseMessage], keep_last: int) -> int:
     """Index into ``messages`` where the kept (verbatim) tail should start.
@@ -49,6 +62,10 @@ def _safe_split(messages: list[BaseMessage], keep_last: int) -> int:
 
 
 _HEADROOM = 0.85  # leave room for the system prompt and the next reply
+# Trailing messages summarize_conversation keeps verbatim. Shared with the token
+# branch of should_summarize so the predicate cannot promise a compression the
+# compressor is structurally unable to perform.
+DEFAULT_KEEP_LAST = 5
 
 
 def _content_chars(content: object) -> int:
@@ -116,6 +133,11 @@ def should_summarize(
     limit = threshold if threshold is not None else settings.summarize_threshold
     if len(messages) > limit:
         return True
+    # Floor the token branch at the verbatim tail: with keep_last or fewer messages
+    # there is nothing summarize_conversation could remove, so claiming "compress
+    # this" would be a promise the compressor cannot keep.
+    if len(messages) <= DEFAULT_KEEP_LAST:
+        return False
     budget = (
         token_budget if token_budget is not None else settings.summarize_token_budget
     )
@@ -126,7 +148,8 @@ def summarize_conversation(
     messages: list[BaseMessage],
     llm: BaseChatModel,
     *,
-    keep_last: int = 5,
+    keep_last: int = DEFAULT_KEEP_LAST,
+    previous_summary: str | None = None,
 ) -> tuple[str, list[RemoveMessage]]:
     """Return (summary_text, messages_to_remove).
 
@@ -137,16 +160,40 @@ def summarize_conversation(
     :param llm: The chat model used to generate the summary.
     :param keep_last: Minimum number of trailing messages to keep verbatim (not
         removed); more may be kept to avoid splitting a tool-call/tool-result pair.
-    :return: A tuple of the summary text and the messages to remove.
+    :param previous_summary: The rolling summary already in state, if any. When
+        given, the result MERGES it with the newer messages instead of replacing it.
+        Omitting it is how a repeated compression silently narrows the summary to the
+        most recent window while the messages behind it are already deleted — i.e. how
+        the agent comes to forget facts stated earlier in the same session.
+    :return: A tuple of the summary text and the messages to remove. ``("", [])``
+        when nothing is removable — no model call is made in that case.
     """
-    transcript = "\n".join(
-        f"{m.type}: {m.content}" for m in messages if getattr(m, "content", None)
-    )
-    summary = llm.invoke(
-        [SystemMessage(content=_SUMMARY_SYSTEM), HumanMessage(content=transcript)]
-    ).content
+    # Decide what would actually be removed BEFORE paying for the LLM call. With a
+    # short history _safe_split returns 0, so there is nothing to compress and a
+    # summary would buy no context relief — while the token branch of
+    # should_summarize would keep firing on the same unchanged history, one paid call
+    # per turn, forever. Returning early keeps "the node fired" and "the node made
+    # progress" the same event, which is what the message-count branch guaranteed
+    # structurally and the token branch does not.
     split = _safe_split(messages, keep_last)
     to_remove = [
         RemoveMessage(id=m.id) for m in messages[:split] if getattr(m, "id", None)
     ]
+    if not to_remove:
+        return "", []
+
+    transcript = "\n".join(
+        f"{m.type}: {m.content}" for m in messages if getattr(m, "content", None)
+    )
+    if previous_summary:
+        system = _MERGE_SYSTEM
+        payload = (
+            f"Summary so far:\n{previous_summary}\n\nNewer messages:\n{transcript}"
+        )
+    else:
+        system = _SUMMARY_SYSTEM
+        payload = transcript
+    summary = llm.invoke(
+        [SystemMessage(content=system), HumanMessage(content=payload)]
+    ).content
     return summary, to_remove
