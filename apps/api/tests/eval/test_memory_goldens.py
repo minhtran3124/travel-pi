@@ -270,7 +270,9 @@ def test_runner_isolates_captured_memory_between_goldens():
             ]
         }
     )
-    b_json = json.dumps({"instructions": []})
+    b_json = json.dumps(
+        {"instructions": [{"key": "reply_tone", "text": "cheerful and concise"}]}
+    )
     # One guarded-persist response per run(): A then B.
     graph.extract_memory_llm = FakeLLM(responses=[a_json, b_json])
     runner = LangGraphRunner(graph=graph)
@@ -294,10 +296,16 @@ def test_runner_isolates_captured_memory_between_goldens():
 
     # Golden A really persisted its instruction…
     assert any(item["key"] == "price_display" for item in trace_a.meta["memory"])
-    # …and golden B, running on the SAME runner/store afterwards, sees none of it.
-    assert trace_b.meta["memory"] == [], (
-        "golden B must not see golden A's stored memory (per-golden user namespace)"
+    # …and golden B, running on the SAME runner/store afterwards, sees exactly its
+    # OWN item and none of A's. Asserting B's own key (not just an empty snapshot)
+    # pins isolation AND B's liveness together: an empty snapshot would leave
+    # "B's capture never ran" indistinguishable from "B stored nothing".
+    b_keys = {item["key"] for item in trace_b.meta["memory"]}
+    assert b_keys == {"reply_tone"}, (
+        "golden B must see exactly its own item and none of golden A's "
+        "(per-golden user namespace)"
     )
+    assert "price_display" not in b_keys, "golden A's item must not leak into B"
     # The gate would go green vacuously without isolation; prove it is not vacuous
     # by confirming B's own forbidden pattern would have matched A's leaked text.
     result = NoInjectedMemoryMetric().evaluate(

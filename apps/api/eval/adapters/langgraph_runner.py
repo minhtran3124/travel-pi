@@ -275,9 +275,10 @@ class LangGraphRunner:
         swallows its own errors, and a graph missing the store/LLM seam yields an
         empty snapshot.
 
-        The snapshot is read back from *user_id*'s own namespace (§Finding 1): the
-        shared eval store is written and read per golden, so nothing another golden
-        stored is visible here.
+        The snapshot is read back from *user_id*'s own per-golden namespace: the
+        shared eval store is written and read under a user id derived from this
+        golden's id (see ``_eval_user_id``), so nothing another golden stored is
+        visible here.
 
         The vacuity trap — an empty snapshot from a rejected poison looking
         identical to one where nothing was extracted at all — is closed by the
