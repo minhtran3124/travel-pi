@@ -273,4 +273,27 @@ Their original success criteria, to be renumbered on unfencing:
   chose to ship the #214-independent subset. Plan re-sequenced: SC table cut to SC-1..SC-6 for this
   delivery; Tasks 2.2 / 3.1 / 3.2 (P0#3) moved to §7, fenced; old Task 4.1 renumbered 3.1; new
   Task 0.1 now pins the deferral with a no-`/memory`-route test.
-- **Remaining preconditions:** none for this delivery. P0#3 stays blocked on #214 merging.
+- 2026-09-16 — tasks 0.1, 1.1, 1.2 complete; commit `918cbf84`. Wave 1 ran as two parallel
+  subagents (file-disjoint); the controller reviewed both diffs, applied one Rule-1 fix, and
+  serialized the commit. Committed as one sha because a hook rejects a commit that leaves sibling
+  untracked `.py` files unstaged.
+- 2026-09-16 — task 2.1 complete; commit `431b74b7`. Full sqlite suite 2642 passed / 7 skipped;
+  `ruff check app scripts` clean.
+- 2026-09-16 — SC-1..SC-5 green and recorded in `SUMMARY.md` `### Verify`. SC-5 reached the truth
+  tier: the pgvector cascade was executed against live Postgres (`store` / `store_vectors` row
+  counts 1/1 → 0/0 after `delete_memory`), not merely read in langgraph's source.
+- **Task 3.1 (SC-6) BLOCKED on cost authorization.** The prompt-cache BEFORE reading is captured
+  (80.3% over 7d). The AFTER reading needs real agent turns, and `make eval-smoke` /
+  `make eval-check` both spend API budget (`eval-check` is judged and marked paid in `CLAUDE.md`)
+  and both need an `apps/api/.env` this worktree lacks.
+- **Remaining preconditions:** cost authorization for task 3.1. P0#3 stays blocked on #214 merging.
+
+### Deviations from the plan as written
+
+- Rule 1 (`rules/auto-correct-scope.md`) — `list_memory` built rows as
+  `{"key": item.key, **item.value}`, letting a stored value shadow the store key that serves as the
+  delete handle. Reordered to `{**item.value, "key": item.key}`. Commit `918cbf84`.
+- Waves 2 and 3 collapsed: with Tasks 2.2 / 3.1 / 3.2 deferred to §6, wave 2 held only Task 2.1 and
+  the old Task 4.1 became Task 3.1 (wave 3). No task content changed.
+- Task 0.1's content changed from "confirm #214 is merged" to "pin the deferral with a test", per
+  `ESCALATIONS.md` E001 decision A. The original gate could not pass.

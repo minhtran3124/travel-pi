@@ -122,20 +122,28 @@ migration — which is why they are P0 and the rest of the playbook is not.
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | plan contract | `python3 .claude/scripts/check_plan_contract.py specs/agent-memory-layer-5/PLAN.md` | 0 | run from repo root after the research-driven plan edits | |
-| intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | — | to run at handoff; SC coverage closes as tasks execute | |
+| P0#3 deferral pinned (no `/memory` route, no router reference) | `.venv/bin/python -m pytest apps/api/tests/api/routes/test_no_memory_route_yet.py -q` | 0 | 2 passed | SC-1 |
+| store carries `updated_at`; `format_age` buckets, `None` on absent | `.venv/bin/python -m pytest apps/api/tests/memory/test_fact_age.py -q` | 0 | 15 passed | SC-2 |
+| prompt renders month-coarse age, omits it when absent, never a day count | `.venv/bin/python -m pytest apps/api/tests/agents/test_memory_age_prompt.py -q` | 0 | 7 passed; sweeps a year of offsets for day-count vocabulary | SC-3 |
+| token-pressure OR branch fires; message-count branch still fires | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarize_token_budget.py -q` | 0 | 5 passed; existing summarizer tests unmodified | SC-4 |
+| `delete_memory` removes row + pgvector embedding (cascade pin) | `.venv/bin/python -m pytest apps/api/tests/memory/test_memory_delete.py -q` | 0 | 6 passed on `InMemoryStore`; the Postgres case skips under sqlite — it was separately RUN against live Postgres (see note below) | SC-5 |
+| cascade confirmed by execution on live Postgres | `.venv/bin/python -m pytest apps/api/tests/memory/test_memory_delete.py -q -k postgres` (with `DATABASE_URL` = dev Postgres) | 0 | 1 passed. Independently probed: row counts in `store` / `store_vectors` go 1/1 → 0/0 after `delete_memory` | SC-5 |
+| full backend suite | `.venv/bin/python -m pytest -q` (from `apps/api/`, sqlite) | 0 | 2642 passed, 7 skipped, 241s | |
+| lint | `ruff check app scripts` (from `apps/api/`) | 0 | All checks passed; `ruff format --check` clean on changed files | |
+| prompt-cache BEFORE reading | `.venv/bin/python -m scripts.cache_hit_report --since 7d` (from `apps/api/`, dev Postgres) | 0 | overall 80.3% — assistant 81.9%, supervisor 75.1%, reflection/synthesize 0% (sub-floor prompts, always 0%) | SC-6 |
+| intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | — | to run at handoff | |
 
 ### Not auto-verified
 
-- **The `ON DELETE CASCADE` finding was read in source, never executed.** `research-brief.md`
-  confirms `store_vectors` cascades from `store(prefix, key)` in langgraph 1.2.6, but no live
-  database was touched — reached **provenance** (re-derived from the installed package, which is
-  the source of truth for the running version), not **truth**. Task 1.1's Postgres test is the
-  first actual execution; an absent `store_vectors` table means the store was created unindexed
-  and delete semantics differ.
-- **The prompt-cache regression is predicted, not measured.** The mechanism is documented and the
-  71.9% baseline is real, but the specific cost of Task 2.1 was not measured. Task 4.1 records
-  `cache_hit_report --since 24h` before and after; until it runs, the bucketing decision rests on
-  inference.
+- **The prompt-cache AFTER reading does not exist yet.** The BEFORE reading is recorded above
+  (80.3% over 7d). An AFTER reading requires new agent turns recorded in `agent_run_step` under
+  the changed prompt, which means running the real agent — a paid action, not yet authorized. Until
+  then the bucketing decision rests on **inference** from the documented mechanism, not measurement.
+  This is the one open item in `SC-6`.
+- **`make eval-smoke` and `make eval-check` have not been run.** Both need `apps/api/.env`, which
+  this worktree does not have, and both spend real API budget (`eval-check` is judged and marked
+  paid in `CLAUDE.md`). Task 3.1 is blocked on that authorization, so no claim is made here about
+  agent behaviour after the prompt change.
 - **langgraph's Postgres read paths were not checked for expired-row filtering.** Upstream
   langgraph#5178 / #8905 report `omit_expired` being ignored in *sqlite* store reads. Irrelevant
   to this P0 slice (no TTL is set here) but load-bearing for the P1 TTL item in `design.md` §6.
