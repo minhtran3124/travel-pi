@@ -1,6 +1,6 @@
 ---
 slug: agent-memory-layer-5
-status: proposed
+status: shipped
 owner: Minh Tran
 created: 2026-09-16
 ---
@@ -340,8 +340,18 @@ Their original success criteria, to be renumbered on unfencing:
   written: `eval-smoke` cannot produce a cache AFTER reading, because the eval adapter invokes the
   graph directly and never goes through the router that records `agent_run_step`. The BEFORE
   reading (80.3% over 7d) stands; the AFTER reading needs real API turns.
-- **Remaining preconditions:** a cache AFTER reading (needs real agent traffic) to fully close
-  SC-6. P0#3 stays blocked on #214 merging.
+- 2026-09-16 — **four review rounds**, each at the then-current HEAD, because every round's fixes
+  advanced HEAD and `check_review_receipt.py` refuses to let a stale review authorize a newer one:
+  round 1 `49bd91df` (9 findings, 2 HIGH regressions), round 2 `94c4e9a6` (correctness PASS +
+  F1–F5; intent FAIL on one Verify row), round 3 `4a22a58a` (PASS; the cap comment claimed a
+  guarantee the prompt does not give), round 4 `0f2fc1ef` (PASS, no change). Fix commits:
+  `94c4e9a6`, `4a22a58a`, `0f2fc1ef`.
+- 2026-09-16 — review receipt pinned at `0f2fc1ef`; `check_review_receipt.py --require
+  correctness,intent` exit 0, and confirmed discriminating (a deliberately wrong sha yields
+  `stale-sha`, exit 1). Plan marked `shipped`.
+- **Remaining, and deliberately not claimed:** the prompt-cache AFTER reading (needs real API
+  turns — `eval-smoke` cannot supply it), `make eval-check` (judged/paid, not authorized),
+  round 1's LOW findings (lost to report truncation), and P0#3 — still blocked on PR #214.
 
 ### Deviations from the plan as written
 
