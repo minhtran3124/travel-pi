@@ -67,8 +67,34 @@ ToolMessage is labelled".
 
 ### Deviations
 
-- none (Rule 1-3 auto-fixes). Two in-flight escalations changed the plan itself rather than the
-  implementation — see `### Intent Findings`.
+- Rule 1 — `_label_tool_outputs`' `list`-shape branch matched only a bare `ToolMessage`, but
+  `ToolNode._combine_tool_outputs` emits `{"messages": [ToolMessage]}` for every non-`Command`
+  entry when `input_type == "dict"` (always true here), so a batch mixing a `Command`-returning
+  tool with an ordinary tool left the ordinary tool's result unescaped and unwrapped. Found by
+  5/6 correctness-review FIND angles independently (each via direct execution against the
+  installed langgraph), scored 75/100, fixed by recursing into `dict` entries, re-reviewed and
+  closed — the re-review ran the new test against the reconstructed pre-fix code and confirmed it
+  fails there, so the test pins the fix rather than coincidentally passing. `app/agents/subagents/_base.py`, `apps/api/tests/agents/test_tool_output_wrapping.py`. Commit `968812af`.
+- Two in-flight escalations changed the plan itself rather than the implementation — see
+  `### Intent Findings`.
+
+### Advisory Findings (correctness-review, scored below the 75 fix-loop threshold)
+
+Full branch review, `.harness-state/sdd/package-branch-final.md` (BASE `68836c23`..HEAD `ffe80e5b`
+pre-fix; finding above fixed at `968812af`). Six independent FIND angles, one independent score per
+deduplicated location — none blocking, all below threshold:
+
+| Score | Location | Finding |
+| --- | --- | --- |
+| 50 | `_base.py:114` | The "already wrapped" skip is a content sniff (`startswith("<tool_output ")`) rather than a provenance flag; a payload starting with that literal token would bypass escaping. No shipped tool can reach it today (every `-> str` tool return starts with a fixed first-party prefix; every dict/list return is JSON-serialized first). |
+| 50 | `_base.py:86-90` | Docstring justifies `model_copy` via "`add_messages` upserts by id", but `ToolNode`'s messages have `id=None` at this point and `add_messages` assigns a fresh id — the actual protection is that the original is never separately appended, not id-upsert. No runtime bug; a wrong invariant statement. |
+| 50 | `text.py:60` + `v9.md` | `escape_angle_brackets` escapes every `<`/`>` in tool content, and v9 forbids reversing it, so a legitimate value with a bracket (a price note, a layover time) could reach the traveller as `&lt;`/`&gt;` literally. No seeded catalog data with angle brackets found; the web client's markdown renderer decodes entities back for the reader, so impact is limited to non-markdown consumers. |
+| 25 | `_base.py:106-111` | Non-`str` tool content (a block-list shape, or an empty list) fails open (passed through unlabelled) rather than failing closed like the memory guard's precedent. No current tool can produce a non-empty block-list `ToolMessage`; a code comment justifying this also cites the wrong test (an `AIMessage` test, not a `ToolMessage` one) — cosmetic, fixed as part of this note. |
+| 25 | `v9.md` + `place_tools.py`/`hotel_tools.py` | Some tools embed first-party anti-hallucination / sold-out guard text inside a *successful* return, which this diff now wraps identically to untrusted content; v9's "disregard in-block instructions" language is scoped to role/rule-changing requests, not general guard text, so a live regression is plausible but unconfirmed — would need an eval case to demonstrate. |
+| 25 | `_base.py:103` | The new `status == "error"` skip forwards `str(exc)` verbatim (via `describe_tool_failure`); no shipped exception path was found carrying externally-sourced text today, so this is a theoretical, not demonstrated, gap. |
+| 25 | `langgraph_runner.py:142-157` | `_serialize_message` (pre-existing, unmodified) does not strip the wrapper the way `_pair_tool_calls` (new) does, so `Trace.messages` and `Trace.tool_calls[].output` render the same tool result differently. No current consumer reads `Trace.messages[].content` for a `ToolMessage` — dormant, not live. |
+| 0 | `state.py:215` | Wrapped/escaped tool text can be laundered through the summarizer into `state["summary"]`, which is injected into every future system prompt unescaped and untagged. Pre-existing behavior (both the summarizer transcript build and `system_with_summary`'s summary injection are unchanged by this diff) — the new prompt line is an *incomplete* mitigation of a gap that predates this spec, not a new regression. |
+| 0 | `langgraph_runner.py:95-111` | Eval strip doesn't unescape entities, so byte-identity only holds for content with no angle brackets — exactly the scope SC-7 and the test already declare; not a defect. |
 
 ### Intent Findings
 
@@ -102,6 +128,17 @@ ToolMessage is labelled".
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane rag-tool-output-wrapping` | 0 | intake-time lane check | |
+| escape primitive | `.venv/bin/python -m pytest apps/api/tests/core/test_text_escape.py -q` | 0 | idempotent, leaves `&` and `[`/`]` alone | SC-1 |
+| wrap/strip helpers + delimiter forgery | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output.py -q` | 0 | | SC-2 |
+| duplicate-booking marker survives wrapping | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output.py -q -k marker` | 0 | | SC-3 |
+| tools-node wrapping (sync+async, both branches, mixed batch) | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output_wrapping.py apps/api/tests/agents/test_trip_guard.py apps/api/tests/agents/test_prompt_map.py -q` | 0 | 61 passed post-fix `968812af` | SC-4 |
+| communication_style v9 active + retention pins | `.venv/bin/python -m pytest apps/api/tests/prompts/test_active_versions_load.py -q` | 0 | | SC-5 |
+| summarizer keeps tags | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarizer_tool_labels.py -q` | 0 | | SC-6 |
+| eval adapter strips wrapper, byte-identical when no brackets | `.venv/bin/python -m pytest apps/api/tests/ev*l/test_langgraph_runner.py -q` | 0 | 37 passed | SC-7 |
+| lint | `.venv/bin/ruff check apps/api/app apps/api/ev*l` | 0 | | SC-8 |
+| RAG documents arrive escaped through the real graph | `.venv/bin/python -m pytest apps/api/tests/tools/test_rag_output_wrapping.py -q` | 0 | 11 passed | SC-9 |
+| fault-tolerance regression guard (E001) | `.venv/bin/python -m pytest apps/api/tests/agents/test_subagent_fault_tolerance.py -q` | 0 | flaky tool retries 3x, degrades via graceful_fallback | |
+| full branch fallout | `.venv/bin/python -m pytest apps/api/tests/agents -q` | 0 | 512 passed | |
 
 ### Not auto-verified
 
