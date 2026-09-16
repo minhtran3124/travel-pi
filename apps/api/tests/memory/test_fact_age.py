@@ -248,17 +248,17 @@ def test_prompt_rule_and_emitted_vocabulary_share_one_literal():
     matching any bucket and nothing fails.
     """
     from app.agents.state import system_with_summary
-    from app.memory.store import _AGE_COARSE, _AGE_FINE, _AGE_FRESH
+    from app.memory.store import _AGE_COARSE, _AGE_FINE, AGE_FRESH
     from langchain_core.messages import SystemMessage
 
-    assert _AGE_COARSE[0][1] == _AGE_FRESH
-    assert _AGE_FINE[0][1] == _AGE_FRESH
+    assert _AGE_COARSE[0][1] == AGE_FRESH
+    assert _AGE_FINE[0][1] == AGE_FRESH
 
     content = system_with_summary(
-        {"preferences": f"- diet: veg (recorded {_AGE_FRESH})"},
+        {"preferences": f"- diet: veg (recorded {AGE_FRESH})"},
         SystemMessage(content="BASE"),
     ).content
-    assert f"'recorded {_AGE_FRESH}'" in content
+    assert f"'recorded {AGE_FRESH}'" in content
 
 
 def test_merge_output_is_capped_in_code_not_only_by_the_prompt():

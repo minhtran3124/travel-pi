@@ -9,6 +9,8 @@ keeping only the last few verbatim. Mirrors the reference chatbot's sliding
 
 from __future__ import annotations
 
+import logging
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import (
     BaseMessage,
@@ -19,6 +21,8 @@ from langchain_core.messages import (
 )
 
 from app.core.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 _SUMMARY_SYSTEM = (
     "You compress a travel-assistant conversation into a concise running summary. "
@@ -205,9 +209,24 @@ def summarize_conversation(
     ).content
     # F4: the merge prompt ASKS for at most 250 words; a prompt is a request, not a
     # bound. Without a code-side cap a model that ignores it compounds the summary on
-    # every merge, which is the growth this feature exists to prevent. Truncating the
-    # tail is the least-bad failure: the merge prompt puts the carried-forward facts
-    # first, so what is lost here is the newest narrative, not the oldest facts.
-    if isinstance(summary, str) and len(summary) > _SUMMARY_MAX_CHARS:
+    # every merge, which is the growth this feature exists to prevent.
+    #
+    # This is a LAST-RESORT bound, not a safe one. _MERGE_SYSTEM says nothing about
+    # ordering, so there is no guarantee the carried-forward facts survive in the kept
+    # prefix — a runaway merge that trails its facts loses them for good, because the
+    # source messages are already RemoveMessage'd. Hence the warning: if this fires in
+    # production it means the summary is being maintained by truncation, which is a
+    # problem to fix at the prompt, not a steady state to accept.
+    if not isinstance(summary, str):
+        # A non-string content (multimodal block list) would otherwise bypass the cap
+        # entirely and land in state["summary"] as a non-string.
+        summary = str(summary)
+    if len(summary) > _SUMMARY_MAX_CHARS:
+        logger.warning(
+            "[agent] summarize: merged summary hit the %d-char cap (was %d); facts "
+            "may have been truncated — tighten _MERGE_SYSTEM rather than the cap",
+            _SUMMARY_MAX_CHARS,
+            len(summary),
+        )
         summary = summary[:_SUMMARY_MAX_CHARS].rstrip() + "…"
     return summary, to_remove

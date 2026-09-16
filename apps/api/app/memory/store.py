@@ -408,14 +408,15 @@ def search_memory_typed(
 # identical cache properties and makes no false claim.
 #
 # Each entry is (max_months_exclusive, phrase); the last entry is the fallback.
-# F2: the fresh phrase is exported and interpolated into the prompt rule in
+# F2: PUBLIC on purpose — `state.py` imports it to build the prompt rule, so it is
+# a cross-package contract, not an internal detail. It is exported and interpolated in
 # ``state.py`` rather than retyped there. Drift between those two literals IS the
 # M1/D-2 defect class (the rule silently stops matching any bucket), and two tests
 # asserting each side separately would not catch it.
-_AGE_FRESH = "in the last month"
+AGE_FRESH = "in the last month"
 
 _AGE_COARSE: tuple[tuple[int | None, str], ...] = (
-    (1, _AGE_FRESH),
+    (1, AGE_FRESH),
     (12, "a few months ago"),
     (None, "over a year ago"),
 )
@@ -424,7 +425,7 @@ _AGE_COARSE: tuple[tuple[int | None, str], ...] = (
 # for months==9 — reintroducing, one line below the fix for it, the same false-calendar
 # -claim defect that M2 was raised for.
 _AGE_FINE: tuple[tuple[int | None, str], ...] = (
-    (1, _AGE_FRESH),
+    (1, AGE_FRESH),
     (4, "1-3 months ago"),
     (9, "4-8 months ago"),
     (16, "9-15 months ago"),
