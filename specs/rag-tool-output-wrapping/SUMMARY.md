@@ -109,6 +109,20 @@ deduplicated location — none blocking, all below threshold:
   Behavior at the boundary (every tool result wrapped as data-not-instructions) is unchanged from
   intent; only the internal mechanism moved, twice, under measurement. Both escalations and their
   evidence are recorded in `specs/rag-tool-output-wrapping/ESCALATIONS.md`.
+- **Drift (material, escalated and resolved — E003 in `ESCALATIONS.md`).** Intent-review flagged
+  that design D3 (no wrapping for `status == "error"` messages or `Command`-carried messages)
+  narrows the owner's verbatim decision "wrap every tool output" — concretely, `create_trip`'s
+  successful result (model/traveller-supplied `title`/`city`, delivered inside a `Command`) and the
+  entire error channel stay unwrapped. Owner decision: **keep D3 as-is** — both carve-outs are
+  first-party control/recovery text, not third-party content, and the narrowing is now documented
+  in design.md rather than left implicit. No code change.
+- **Advisory, open (E004 in `ESCALATIONS.md`, pending `make eval-smoke`).** Prior-art found that
+  v9's "disregard in-block instructions" carve-out is scoped to role/rule-changing requests, not to
+  the anti-hallucination / sold-out guard text some tools embed in a successful return — which this
+  spec now wraps like any other tool content. Correctness-review scored this 25/100 (plausible,
+  unconfirmed). Owner decision: run `make eval-smoke` on a zero-result search case before deciding
+  whether v9 needs a carve-out — `apps/api/.env` is not present in this worktree, so the run is
+  blocked pending owner action (supply the env file, or run from the main checkout and report back).
 - **Advisory (four Minor findings from task 2.1's review, none blocking):** `_label_one`'s
   exception guard covers only the wrap call, not the surrounding `model_copy`; `create_trip`'s D3
   coverage is unit-level, not graph-level (the identity assertion is the real protection either
