@@ -1,6 +1,6 @@
 ---
 slug: rag-tool-output-wrapping
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-16
 ---
@@ -247,5 +247,7 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 - 2026-09-16 — task 3.1 complete (wave 3); commit af58342c. Test-only, proves the escaping chokepoint through a compiled graph (`rag_tools.py` unchanged per D2). Review: spec pass / quality approved, 4 Minor findings (wrapper `name` attribute not pinned; structural test depends on production `strip_wrappers` as its own inverse; no negative-case assertion that the raw tool itself is unescaped; fake `hybrid_search` signature looser than the real one) — none blocking, carried to `SUMMARY.md`. Reviewer also flagged a stale docstring in `app/agents/tool_output.py` still naming "the hook" as the sole caller after E001/E002 moved the seam; fixed directly (Rule 1, commit follows this entry). Controller-run evidence: 11 passed (2 new, 9 pre-existing unchanged).
 
 All three waves complete. Next: final review chain (correctness-review, intent-review), `.review-receipt.json`, `verify_summary.py --check`, then `finishing-a-development-branch`.
+
+- 2026-09-16 — final review chain complete. Correctness-review (six independent FIND angles over the full branch diff, one independent score per deduplicated location): one finding crossed the 75 threshold — the list-shape wrapper branch's `isinstance(m, ToolMessage)` check never matched `ToolNode`'s real dict-wrapped entries for a mixed `Command`+ordinary batch (confirmed by 5/6 angles via direct execution), fixed at `968812af`, re-reviewed and CLOSED. Eight findings scored below threshold, recorded as advisory in `SUMMARY.md`. Intent-review: two drift findings, both escalated (E003, E004 in `ESCALATIONS.md`) and resolved by owner decision — E003 keeps design D3 as a documented deliberate narrowing; E004 defers a possible v9 prompt fix pending a `make eval-smoke` run (blocked in this worktree on a missing `apps/api/.env`, open advisory). `.review-receipt.json` pinned at `e5dfdc58`; `verify_summary.py --check` green on all 9 SCs plus the fault-tolerance regression guard and full-suite fallout; full backend suite (`apps/api`) 2825 passed, 6 skipped (Postgres-only).
 
 - 2026-09-16 — plan written from the approved design (six review rounds) and the Deep research brief.
