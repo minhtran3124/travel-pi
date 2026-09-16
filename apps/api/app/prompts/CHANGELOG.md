@@ -3,6 +3,28 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## memory-poisoning-hardening — memory extractor rejects tool output and injections (wave 1)
+
+specs/memory-poisoning-hardening (§3.6): persistent memory is re-injected into every future
+system prompt, and nothing between the extractor and the store constrained what became memory.
+Two gaps closed here — the extractor's input, and its prompt contract.
+
+- **extractor `_last_exchange`** (code half) — now returns only the last `HumanMessage` and the
+  final answer `AIMessage`; ToolMessages and intermediate tool-calling AIMessages are excluded on
+  both the main path and the no-HumanMessage `messages[-2:]` fallback, so tool/RAG text (which can
+  carry a smuggled "from now on …" directive) can no longer become memory.
+- **memory_extraction v6** — copied v5, then: the preference key set is **closed** (dropped the
+  "only invent a new key for a genuinely new kind of fact" clause; a fact fitting no canonical key
+  is not stored) and gains `accessibility`; the **instructions** category is pinned to six
+  canonical keys (`reply_length`, `reply_tone`, `address_as`, `price_display`, `exclude_options`,
+  `format`); two new leading rules require storing only what the traveller states about themselves
+  in a **user** message (never tool output or pasted/quoted text) and never storing content that
+  asks the assistant to change role, ignore rules, reveal prompts, or change behaviour beyond reply
+  style/format. The canonical keys are listed as literal prompt text (the `guard.py` allowlist
+  constants are wired up in a sibling task).
+
+`active.yaml`: memory_extraction → 6. Others unchanged.
+
 ## gh-191 — a flight/hotel search with no date asks instead of using today
 
 A bare "find me a flight from Hanoi to Singapore" ran `search_flights(departure_date=<today>)`
