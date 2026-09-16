@@ -157,8 +157,9 @@ migration — which is why they are P0 and the rest of the playbook is not.
 | full backend suite | `.venv/bin/python -m pytest -q` (from `apps/api/`, sqlite) | 0 | 2642 passed, 7 skipped, 241s | |
 | lint | `ruff check app scripts` (from `apps/api/`) | 0 | All checks passed; `ruff format --check` clean on changed files | |
 | prompt-cache BEFORE reading | `.venv/bin/python -m scripts.cache_hit_report --since 7d` (from `apps/api/`, dev Postgres) | 0 | overall 80.3% — assistant 81.9%, supervisor 75.1%, reflection/synthesize 0% (sub-floor prompts, always 0%) | SC-6 |
-| agent behaviour: eval smoke, this branch | `.venv/bin/python -m eval --suite smoke --out eval/reports/latest.json` (from `apps/api/`) | 0 | 18 cases, real agent. memory 2/2; budget/errors/flight_search/journal/language/routing 2/2 each; dates 3/4 ok; **hotels 1/2 BELOW THRESHOLD**. The runner exits 0 anyway — the threshold line is the gate, not `$?` | SC-6 |
-| the two failures are pre-existing, not a regression | `.venv/bin/python -m eval --suite smoke --capability hotels` and `--capability dates`, run in a throwaway worktree at base `da546c92` | 0 | Same two cases fail with byte-identical details: `hotels-happy-en-01` → `tools_expected` `expected=['browse_hotels'] called=['needs_clarification']`; `dates-ambiguous-en-02` → `no_invented_date` `search_flights.departure_date='2026-09-16'` | SC-6 |
+| agent behaviour: eval smoke **at HEAD `94c4e9a6`** (post-fix) | `.venv/bin/python -m eval --suite smoke --out eval/reports/latest.json` (from `apps/api/`) | 0 | **20** smoke goldens (not the 18 `CLAUDE.md:27` claims — counted from `eval/datasets/*.json` where `suite=="smoke"`), real agent. memory 2/2; budget/errors/flight_search/journal/language/routing 2/2 each; **dates 2/4 BELOW THRESHOLD**; **hotels 1/2 BELOW THRESHOLD**. The runner exits 0 regardless — the threshold line is the gate, not `$?` | SC-6 |
+| two of the three failures are pre-existing | `.venv/bin/python -m eval --suite smoke --capability hotels` and `--capability dates`, run in a throwaway worktree at base `da546c92` | 0 | `hotels-happy-en-01` → `tools_expected` `expected=['browse_hotels'] called=['needs_clarification']` and `dates-ambiguous-en-02` → `no_invented_date` `search_flights.departure_date='2026-09-16'` fail identically at base, byte-for-byte. `dates-ambiguous-en-02` also failed 3/3 on re-run | SC-6 |
+| the third failure is **flaky, and its cause is NOT settled** | `.venv/bin/python -m eval --suite smoke --capability dates --language en` ×3 on this branch | 0 | `dates-happy-en-01` → `reply_language expected='en' detected='vi'`: **PASS, PASS, FAIL**. Non-deterministic, so not a consistent regression — but n=3 here against n=1 at base does **not** rule out this change having raised the flip rate. No unqualified "no regression" claim is made for this case | SC-6 |
 | H1/D-3: token branch makes no empty promise; no paid call on a no-op compression | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarize_token_budget.py -q` | 0 | 9 passed. Probed directly: 3 heavy msgs → `should_summarize` False (was True), `summarize_conversation` → `("", [])` with an LLM that raises if called; 6 heavy msgs still True | SC-4 |
 | H2: a repeated compression merges the rolling summary instead of replacing it | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarize_token_budget.py -q -k merges` | 0 | asserts the prior summary reaches the model and the merge prompt carries its 250-word growth cap | SC-4 |
 | M1/D-2 + D-1: staleness rule keys off the one fresh marker; preferences fine / instructions coarse | `.venv/bin/python -m pytest apps/api/tests/agents/test_memory_age_prompt.py -q` | 0 | 8 passed; 200-day row renders `about 6 months ago` in preferences and `a few months ago` in instructions | SC-3 |
@@ -181,9 +182,15 @@ migration — which is why they are P0 and the rest of the playbook is not.
   as it stood at `49bd91df`. H1 changed the compression trigger, H2 changed the summarizer prompt,
   and D-1/M1/M2 changed the preferences prompt — so that run describes a diff that no longer
   exists and must be repeated before the eval evidence can be claimed for the shipped code.
-- **The correctness review's LOW findings (L1 onward) were never received.** Both review reports
-  truncated mid-sentence in delivery and only the HIGH/MEDIUM items were recovered. The disposition
-  table above is therefore complete for HIGH/MEDIUM and *incomplete below that*.
+- **The FIRST correctness review's LOW findings (L1 onward) were never received.** Both first-round
+  reports truncated mid-sentence in delivery and only the HIGH/MEDIUM items were recovered. The
+  second round was capped at ~600 words for that reason and arrived complete; its F1–F5 are all
+  dispositioned. So: complete for round two, complete for HIGH/MEDIUM in round one, *incomplete
+  below that in round one*.
+- **F1–F4 were applied AFTER the second review, so no review has seen them.** They are the
+  reviewer's own written recommendations, applied as specified, each with a regression test
+  (563 passed, 1 skipped; ruff clean). The review receipt is pinned at the sha that was actually
+  reviewed, not at HEAD — see the receipt's own note rather than assuming HEAD was reviewed.
 - **The two eval failures were attributed by re-running the same goldens at base, not by reading the
   baseline file.** `eval/baselines/main.json` is the `full` suite and excludes all 18 smoke goldens,
   so it contains `hotels-happy-en-02` but not `hotels-happy-en-01` — it could not have settled the
@@ -228,7 +235,21 @@ which is why those were treated as confirmed rather than argued with.
 | M3 | Future timestamps rendered as the *freshest* possible label | **Fixed** (→ `None`) + test |
 | M6 | This SUMMARY said `Deviations: none` while the prompt block had been rewritten past a plan constraint | **Fixed** — see `### Deviations` |
 | M4, M4b, M5 | Latent defects in the deferred `list_memory` / `delete_memory` (dishonest delete result, unmapped `ValueError`, silent 50-row truncation) | **Pinned in `PLAN.md` §6** as must-fix-on-unfencing; unreachable today (no route) |
-| L1+ | Remaining low-severity items | Not yet dispositioned — the review report was truncated; see `### Not auto-verified` |
+| L1+ | Remaining low-severity items of the FIRST review | Not dispositioned — that report truncated in delivery; see `### Not auto-verified` |
+
+**Second review round**, run at HEAD `94c4e9a6` because the fixes above changed 491 lines that
+nobody had reviewed (a receipt pinned at the pre-fix sha would have certified code that no longer
+existed). Correctness verdict **PASS** (no blocking defect, all nine fixes do what this SUMMARY
+claims); intent verdict **FAIL** on one row, since fixed.
+
+| ID | Finding | Disposition |
+| --- | --- | --- |
+| Intent | `### Verify` still described the **pre-fix** eval run and read as "no regression" for shipped code; the new `dates-happy-en-01` failure appeared nowhere in the record (`grep dates-happy\|flak\|2/4` → 0 hits). Also "18 cases" where the suite has 20 | **Fixed** — rows rewritten per failure with separate attribution; `CLAUDE.md:27`'s stale count noted inline |
+| F1 | `_AGE_FINE` reintroduced M2's own defect one line below the fix for it: `months==1` labelled "2-3 months ago", `months==9` labelled "about a year ago" — false claims, erring older | **Fixed** — phrases relabelled to the ranges the arithmetic supports (`1-3` / `4-8` / `9-15 months ago`) + a test asserting every bucket edge |
+| F2 | The fresh phrase was a literal on both sides (`store.py`, `state.py`) with no coupling — drift between them *is* the M1/D-2 defect class, and the per-side tests would not catch it | **Fixed** — `_AGE_FRESH` exported and interpolated into the prompt + a test pinning the shared literal |
+| F3 | `should_summarize` floors at `DEFAULT_KEEP_LAST` but cannot see a caller's `keep_last` override; latent (both call sites use defaults) | **Documented** on the parameter |
+| F4 | Merge growth was guarded by prompt text only ("at most 250 words") — a request, not a bound | **Fixed** — `_SUMMARY_MAX_CHARS` cap enforced in code + a test with a model that ignores the instruction |
+| F5 | `_safe_split` can return 0 with >5 messages (leading AIMessage + long ToolMessage run): the node fires and returns `{}`, no LLM call, one log line | Accepted as informational, per the reviewer |
 | Profile block | `name`/`gender`/`travel_group` carry no age marker (`get_profile` drops `updated_at`) | Accepted narrowing; noted for follow-up |
 
 ### Harness-Delta

@@ -122,7 +122,7 @@ def test_staleness_rule_covers_the_middle_bucket():
     from langchain_core.messages import SystemMessage
 
     content = system_with_summary(
-        {"preferences": "- diet: vegetarian (recorded about 6 months ago)"},
+        {"preferences": "- diet: vegetarian (recorded 4-8 months ago)"},
         SystemMessage(content="BASE"),
     ).content
 

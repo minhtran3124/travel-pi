@@ -408,16 +408,26 @@ def search_memory_typed(
 # identical cache properties and makes no false claim.
 #
 # Each entry is (max_months_exclusive, phrase); the last entry is the fallback.
+# F2: the fresh phrase is exported and interpolated into the prompt rule in
+# ``state.py`` rather than retyped there. Drift between those two literals IS the
+# M1/D-2 defect class (the rule silently stops matching any bucket), and two tests
+# asserting each side separately would not catch it.
+_AGE_FRESH = "in the last month"
+
 _AGE_COARSE: tuple[tuple[int | None, str], ...] = (
-    (1, "in the last month"),
+    (1, _AGE_FRESH),
     (12, "a few months ago"),
     (None, "over a year ago"),
 )
+# F1: every phrase names the range the arithmetic ACTUALLY supports. The first
+# version of this table said "2-3 months ago" for months==1 and "about a year ago"
+# for months==9 — reintroducing, one line below the fix for it, the same false-calendar
+# -claim defect that M2 was raised for.
 _AGE_FINE: tuple[tuple[int | None, str], ...] = (
-    (1, "in the last month"),
-    (4, "2-3 months ago"),
-    (9, "about 6 months ago"),
-    (16, "about a year ago"),
+    (1, _AGE_FRESH),
+    (4, "1-3 months ago"),
+    (9, "4-8 months ago"),
+    (16, "9-15 months ago"),
     (None, "over a year ago"),
 )
 

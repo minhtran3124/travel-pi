@@ -16,6 +16,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import MessagesState
 
 from app.agents.constants import TASK_NOTE_PREAMBLE
+from app.memory.store import _AGE_FRESH
 
 
 def _replace_tasks(old: list[dict] | None, new: list[dict] | None) -> list[dict]:
@@ -193,7 +194,7 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
         parts.append(
             "Traveller preferences (learned from past conversations — use to "
             "personalise). Each line may end with a marker saying roughly when it "
-            "was recorded. Only 'recorded in the last month' counts as fresh: every other "
+            f"was recorded. Only 'recorded {_AGE_FRESH}' counts as fresh: every other "
             "marker, and any line with no marker at all, must be confirmed with the "
             f"traveller before you act on it:\n{preferences}"
         )

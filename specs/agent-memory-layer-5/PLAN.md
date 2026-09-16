@@ -320,14 +320,22 @@ Their original success criteria, to be renumbered on unfencing:
   (80.3% over 7d). The AFTER reading needs real agent turns, and `make eval-smoke` /
   `make eval-check` both spend API budget (`eval-check` is judged and marked paid in `CLAUDE.md`)
   and both need an `apps/api/.env` this worktree lacks.
-- 2026-09-16 — task 3.1 partially complete. `eval-smoke` run on this branch (18 cases, real
-  agent): memory 2/2, budget/errors/flight_search/journal/language/routing 2/2 each, dates 3/4 ok,
-  **hotels 1/2 BELOW THRESHOLD**. The same suite re-run on base `da546c92` fails the *same two*
-  cases with byte-identical check details (`hotels-happy-en-01` → `tools_expected`
-  `expected=['browse_hotels'] called=['needs_clarification']`; `dates-ambiguous-en-02` →
-  `no_invented_date` `search_flights.departure_date='2026-09-16'`), so both are pre-existing and
-  this change introduces no eval regression. Note: the runner exits 0 even with a capability under
-  threshold — the `BELOW THRESHOLD` line is the gate, not `$?`.
+- 2026-09-16 — `eval-smoke` run at `49bd91df` (superseded — the fix commit changed the
+  compression trigger and two prompt blocks, so that run describes a diff that no longer exists).
+- 2026-09-16 — **`eval-smoke` re-run at HEAD `94c4e9a6`**: **20** smoke goldens (`CLAUDE.md:27`
+  says 18; counted from `eval/datasets/*.json`). memory 2/2; budget/errors/flight_search/journal/
+  language/routing 2/2 each; **dates 2/4 BELOW THRESHOLD**; **hotels 1/2 BELOW THRESHOLD**. Three
+  failures, attributed separately rather than as a group:
+  - `hotels-happy-en-01` (`tools_expected`) and `dates-ambiguous-en-02` (`no_invented_date`) —
+    **pre-existing**, byte-identical at base `da546c92`; the latter also 3/3 on re-run.
+  - `dates-happy-en-01` (`reply_language` en→vi) — **flaky**: PASS/PASS/FAIL over 3 runs. Not a
+    consistent regression, but n=3 here vs n=1 at base cannot rule out a raised flip rate. No
+    unqualified "no regression" claim is made for it.
+  The runner exits 0 even with a capability under threshold — the `BELOW THRESHOLD` line is the
+  gate, not `$?`.
+- 2026-09-16 — commit `94c4e9a6`: fixes for the 9 review findings (H1/D-3, H2, M1/D-2, D-1, M2,
+  M3, M6; M4/M4b/M5 pinned in §6). Owner authorized two mid-flight widenings the same day: fixing
+  H2 (behaviour predating this change) and splitting age granularity by prompt position.
 - 2026-09-16 — **Task 3.1's cache half remains open.** Corrected a wrong assumption in the task as
   written: `eval-smoke` cannot produce a cache AFTER reading, because the eval adapter invokes the
   graph directly and never goes through the router that records `agent_run_step`. The BEFORE

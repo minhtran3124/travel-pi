@@ -79,7 +79,7 @@ def test_preferences_use_the_fine_vocabulary_and_instructions_the_coarse_one():
 
     result = _load(store)
 
-    assert "(recorded about 6 months ago)" in result["preferences"]
+    assert "(recorded 4-8 months ago)" in result["preferences"]
     assert "(recorded a few months ago)" in result["instructions"]
 
 
@@ -96,7 +96,7 @@ def test_older_rows_bucket_to_coarser_phrases():
 
     prefs = _load(store)["preferences"]
 
-    assert "budget: 20m VND (recorded about 6 months ago)" in prefs
+    assert "budget: 20m VND (recorded 4-8 months ago)" in prefs
     assert "airline: VJ (recorded over a year ago)" in prefs
 
 

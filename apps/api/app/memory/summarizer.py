@@ -66,6 +66,9 @@ _HEADROOM = 0.85  # leave room for the system prompt and the next reply
 # branch of should_summarize so the predicate cannot promise a compression the
 # compressor is structurally unable to perform.
 DEFAULT_KEEP_LAST = 5
+# Hard ceiling on the stored rolling summary (~250 words at ~5.5 chars/word, with
+# headroom). Enforced in code because _MERGE_SYSTEM can only ask.
+_SUMMARY_MAX_CHARS = 1800
 
 
 def _content_chars(content: object) -> int:
@@ -160,6 +163,10 @@ def summarize_conversation(
     :param llm: The chat model used to generate the summary.
     :param keep_last: Minimum number of trailing messages to keep verbatim (not
         removed); more may be kept to avoid splitting a tool-call/tool-result pair.
+        **Overriding this decouples it from** ``should_summarize``, which floors its
+        token branch at :data:`DEFAULT_KEEP_LAST` and cannot see this argument: a
+        caller passing a smaller value gets the token branch suppressed over the range
+        between the two, where compression would in fact have been possible.
     :param previous_summary: The rolling summary already in state, if any. When
         given, the result MERGES it with the newer messages instead of replacing it.
         Omitting it is how a repeated compression silently narrows the summary to the
@@ -196,4 +203,11 @@ def summarize_conversation(
     summary = llm.invoke(
         [SystemMessage(content=system), HumanMessage(content=payload)]
     ).content
+    # F4: the merge prompt ASKS for at most 250 words; a prompt is a request, not a
+    # bound. Without a code-side cap a model that ignores it compounds the summary on
+    # every merge, which is the growth this feature exists to prevent. Truncating the
+    # tail is the least-bad failure: the merge prompt puts the carried-forward facts
+    # first, so what is lost here is the newest narrative, not the oldest facts.
+    if isinstance(summary, str) and len(summary) > _SUMMARY_MAX_CHARS:
+        summary = summary[:_SUMMARY_MAX_CHARS].rstrip() + "…"
     return summary, to_remove
