@@ -80,7 +80,7 @@ def test_preferences_use_the_fine_vocabulary_and_instructions_the_coarse_one():
     result = _load(store)
 
     assert "(recorded 4-8 months ago)" in result["preferences"]
-    assert "(recorded a few months ago)" in result["instructions"]
+    assert "(recorded 1-11 months ago)" in result["instructions"]
 
 
 def test_older_rows_bucket_to_coarser_phrases():

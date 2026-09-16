@@ -415,14 +415,20 @@ def search_memory_typed(
 # asserting each side separately would not catch it.
 AGE_FRESH = "in the last month"
 
+# F1 applied to the coarse table too. It previously read "a few months ago" for the
+# WHOLE 1-11 month span — the same vagueness F1 removed from the fine table, left in
+# place only because the reviewer happened not to flag it. "A few months" is not what
+# eleven months is, and this block's phrase is what the staleness rule is read against.
+# Coarse still means coarse: three buckets, so the string changes at most twice in a
+# row's lifetime, which is what protects the cached prefix ahead of `summary`.
 _AGE_COARSE: tuple[tuple[int | None, str], ...] = (
     (1, AGE_FRESH),
-    (12, "a few months ago"),
+    (12, "1-11 months ago"),
     (None, "over a year ago"),
 )
-# F1: every phrase names the range the arithmetic ACTUALLY supports. The first
-# version of this table said "2-3 months ago" for months==1 and "about a year ago"
-# for months==9 — reintroducing, one line below the fix for it, the same false-calendar
+# F1: every phrase names the range the arithmetic ACTUALLY supports. The first version
+# of this table said "2-3 months ago" for months==1 and "about a year ago" for
+# months==9 — reintroducing, one line below the fix for it, the same false-calendar
 # -claim defect that M2 was raised for.
 _AGE_FINE: tuple[tuple[int | None, str], ...] = (
     (1, AGE_FRESH),

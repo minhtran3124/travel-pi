@@ -111,14 +111,21 @@ def test_summarize_conversation_skips_the_llm_call_when_nothing_is_removable():
     assert to_remove == []
 
 
-def test_staleness_rule_covers_the_middle_bucket():
-    """D-2: the prompt rule must catch the 1-11 month bucket, not self-exclude it.
+def test_staleness_rule_covers_every_non_fresh_bucket():
+    """D-2: the rule must catch every aged bucket, not self-exclude one.
 
-    `format_age` emits the literal string "a few months ago" for that whole span, so a
-    rule phrased "more than a few months ago" told the model NOT to confirm an
-    11-month-old preference — looser than the unqualified base text it replaced.
+    The original wording was "anything recorded **more than a few months ago** should be
+    confirmed", while `format_age` emitted the literal phrase "a few months ago" for the
+    entire 1-11 month span — so an 11-month-old preference was told NOT to be confirmed,
+    looser than the unqualified base text it replaced.
+
+    The assertion is deliberately phrased against the DEFECT SHAPE rather than against
+    that one historical string: any "more than <phrase>" construction re-excludes the
+    bucket named by <phrase>. Pinning the old literal would have gone stale the moment
+    the vocabulary changed — which it since has, twice.
     """
     from app.agents.state import system_with_summary
+    from app.memory.store import AGE_FRESH, _AGE_COARSE, _AGE_FINE
     from langchain_core.messages import SystemMessage
 
     content = system_with_summary(
@@ -128,9 +135,15 @@ def test_staleness_rule_covers_the_middle_bucket():
 
     # The rule keys off the ONE fresh marker, so every other phrase in either
     # vocabulary is in scope without the prompt having to enumerate them.
-    assert "recorded in the last month" in content
-    assert "more than a few months ago" not in content
+    assert f"recorded {AGE_FRESH}" in content
     assert "confirmed" in content
+
+    # No aged phrase may appear after "more than", in either vocabulary.
+    aged = [p for _, p in (*_AGE_COARSE, *_AGE_FINE) if p != AGE_FRESH]
+    for phrase in aged:
+        assert f"more than {phrase}" not in content, (
+            f"the rule excludes the {phrase!r} bucket it is meant to catch"
+        )
 
 
 def test_summarize_conversation_merges_the_previous_summary():

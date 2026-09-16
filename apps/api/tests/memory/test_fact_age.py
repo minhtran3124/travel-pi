@@ -98,16 +98,16 @@ def test_format_age_this_month():
 
 
 def test_format_age_a_few_months():
-    """One to just under twelve months -> 'a few months ago'."""
+    """One to just under twelve months -> '1-11 months ago'."""
     from app.memory.store import format_age
 
     two_months = (_NOW - timedelta(days=65)).isoformat()
     six_months = (_NOW - timedelta(days=185)).isoformat()
     eleven_months = (_NOW - timedelta(days=340)).isoformat()
 
-    assert format_age(two_months, now=_NOW) == "a few months ago"
-    assert format_age(six_months, now=_NOW) == "a few months ago"
-    assert format_age(eleven_months, now=_NOW) == "a few months ago"
+    assert format_age(two_months, now=_NOW) == "1-11 months ago"
+    assert format_age(six_months, now=_NOW) == "1-11 months ago"
+    assert format_age(eleven_months, now=_NOW) == "1-11 months ago"
 
 
 def test_format_age_over_a_year():
@@ -125,9 +125,9 @@ def test_format_age_boundary_one_month():
     """The <1-month / a-few-months boundary is crisp and month-granular."""
     from app.memory.store import format_age
 
-    # Exactly one calendar month back reads as 'a few months ago', not 'in the last month'.
+    # Exactly one calendar month back reads as '1-11 months ago', not 'in the last month'.
     one_month = datetime(2026, 8, 16, 12, 0, 0, tzinfo=timezone.utc).isoformat()
-    assert format_age(one_month, now=_NOW) == "a few months ago"
+    assert format_age(one_month, now=_NOW) == "1-11 months ago"
 
 
 def test_format_age_never_emits_day_count_vocabulary():
