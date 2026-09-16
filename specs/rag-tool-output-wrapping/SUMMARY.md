@@ -27,7 +27,19 @@ memory only:
 
 ## What changed
 
-Intake only — no code changed yet.
+In progress (waves 1-2 of 3 complete; see `PLAN.md` Status Log for full detail):
+
+- `app/core/text.py` `escape_angle_brackets`; `app/agents/tool_output.py` (new) `wrap_tool_output` /
+  `strip_wrappers`; `communication_style` prompt v8 → v9; summarizer system prompt gains one line
+  (wave 1).
+- Eval adapter (`eval/adapters/langgraph_runner.py`) strips the wrapper before pairing tool output
+  for judging (wave 2, task 2.2).
+- The `"tools"` node in `build_subagent` (`app/agents/subagents/_base.py`) now wraps every tool
+  result as `<tool_output name="...">...</tool_output>` (escaped, not deleted) via a callable
+  registered in place of the bare `ToolNode` — **not** the hook or node seam the design originally
+  proposed; see `### Intent Findings` below (wave 2, task 2.1).
+
+Remaining: wave 3 (RAG-specific proof, task 3.1), then the review chain and PR.
 
 ### Rationale
 
@@ -51,7 +63,28 @@ ToolMessage is labelled".
 
 ### Deviations
 
-- none
+- none (Rule 1-3 auto-fixes). Two in-flight escalations changed the plan itself rather than the
+  implementation — see `### Intent Findings`.
+
+### Intent Findings
+
+- **Drift (material, escalated and resolved in-flight — E001, E002 in `ESCALATIONS.md`).** The
+  approved design's seam (langgraph's `wrap_tool_call`/`awrap_tool_call` hook on `ToolNode`) was
+  measured, during task 2.1's implementation, to disarm `TRANSIENT_RETRY` + `graceful_fallback` for
+  planner and concierge — the two specialists doing real external I/O, i.e. the highest-value
+  injection surface this spec targets. The first replacement (a `label_tools` node after `tools`)
+  was also measured broken: it adds a super-step per tool round that overruns
+  `agent_recursion_limit` on an existing test. The shipped seam wraps the `"tools"` node's own
+  callable instead — same node, same edges, no added super-step, exception propagation untouched.
+  Behavior at the boundary (every tool result wrapped as data-not-instructions) is unchanged from
+  intent; only the internal mechanism moved, twice, under measurement. Both escalations and their
+  evidence are recorded in `specs/rag-tool-output-wrapping/ESCALATIONS.md`.
+- **Advisory (four Minor findings from task 2.1's review, none blocking):** `_label_one`'s
+  exception guard covers only the wrap call, not the surrounding `model_copy`; `create_trip`'s D3
+  coverage is unit-level, not graph-level (the identity assertion is the real protection either
+  way); the idempotence prefix is coupled to the tag constant by convention, not by construction;
+  and `test_booking_turn_no_revise.py` needed an out-of-file `strip_wrappers` fix (commit e914eb00)
+  once tool output started arriving wrapped. Full detail in `PLAN.md` Status Log.
 
 ### Verify
 

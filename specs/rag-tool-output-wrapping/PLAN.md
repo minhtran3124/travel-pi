@@ -210,15 +210,16 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 
 - **Files:** apps/api/tests/tools/test_rag_output_wrapping.py
 - **Action:** Test-only; `rag_tools.py` is deliberately unchanged (design D2), but the design still
-  asks for proof that retrieved text is covered. Through a **compiled** graph carrying the hook,
-  with the vector store faked so no embeddings are needed, assert that a document whose
-  `page_content` contains angle brackets arrives in the resulting `ToolMessage` content with them
-  escaped, and that two results remain separate JSON objects each carrying their own
-  `metadata.source`. Build the angle brackets inside the test file, not in any shell command.
+  asks for proof that retrieved text is covered. Through a **compiled** graph — carrying the
+  wrapping `"tools"`-node callable from Task 2.1, not a hook — with the vector store faked so no
+  embeddings are needed, assert that a document whose `page_content` contains angle brackets
+  arrives in the resulting `ToolMessage` content with them escaped, and that two results remain
+  separate JSON objects each carrying their own `metadata.source`. Build the angle brackets inside
+  the test file, not in any shell command.
 - **Verify:** `.venv/bin/python -m pytest apps/api/tests/tools/test_rag_output_wrapping.py apps/api/tests/tools/test_rag_tools.py -q`
 - **Done:** exit 0, with the pre-existing `test_rag_tools.py` assertions unchanged.
 - **Criteria:** SC-9
-- **Interfaces:** Consumes the hook from Task 2.1 (wave 2) and the deliberately unchanged tool module app/tools/rag_tools.py. Produces `apps/api/tests/tools/test_rag_output_wrapping.py`.
+- **Interfaces:** Consumes the wrapping `"tools"`-node callable from Task 2.1 (wave 2) and the deliberately unchanged tool module app/tools/rag_tools.py. Produces `apps/api/tests/tools/test_rag_output_wrapping.py`.
 
 ## 5. Risks
 
@@ -232,5 +233,15 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 ## 6. Status Log
 
 - 2026-09-16 — tasks 1.1, 1.2, 1.3 complete (wave 1); commits 991aa36d, 413d2a3f, 21625fdd. Reviews: 1.1 spec pass / quality approved, 1.3 spec pass / quality approved, 1.2 spec pass / quality needs_fixes. The 1.2 finding was a defect in this plan, not the implementation: SC-5 asked for a banned WORD ('decode') where it needed a banned behaviour, so the assertion passed the forbidden instruction phrased differently and failed a correct prompt that used the word in a negation. Fixed by pinning the clause that carries the rule. Controller-run evidence: 33 passed across the wave-1 test files.
+
+- 2026-09-16 — task 2.2 complete (wave 2); commit 8852cb04. Review not separately dispatched (test-only eval-adapter change, low risk); controller-run evidence: 37 passed, ruff exit 0.
+
+- 2026-09-16 — task 2.1 complete on its THIRD seam attempt (wave 2); commit f1e097a4. The first two attempts were escalated and reversed in-flight rather than shipped: E001 (langgraph's `wrap_tool_call` hook — measured to disarm `TRANSIENT_RETRY` + `graceful_fallback`, `test_subagent_fault_tolerance.py` went 2 failed/2 passed) and E002 (a `label_tools` node after `tools` — measured to add a super-step that overruns `agent_recursion_limit`, failing `test_trip_guard.py` and `test_prompt_map.py`). Both are recorded with full measurements in `ESCALATIONS.md`; design.md and this plan were rewritten twice to match. The shipped seam wraps the `"tools"` node's own callable (`RunnableLambda` around an unchanged `ToolNode`) — no new node, no new edge, exception propagation untouched. Review: spec pass / quality approved, 4 Minor findings (below), none blocking. Controller-run evidence: 67 passed, ruff exit 0; full `tests/agents` 511 passed.
+
+  Minor findings from the 2.1 review, carried forward rather than fixed (none change behaviour on the paths this spec targets):
+  - `_label_one`'s try/except covers only `wrap_tool_output`, not `model_copy` or attribute access around it — a raise there would abort the whole batch instead of degrading one message. Low likelihood (pydantic `model_copy`).
+  - D3 coverage for `create_trip` (`trip_tools.py:583`) is asserted at the unit level (`_label_tool_outputs` called directly) but not through a compiled graph round; `needs_clarification` has both. The identity assertion used is the real protection either way.
+  - `_WRAPPED_PREFIX` re-derives the opening-tag syntax from `TAG_NAME` rather than from `OPEN_TAG_TEMPLATE`; coupled by convention and by the existing test, not by construction.
+  - `test_booking_turn_no_revise.py`'s pre-existing `json.loads` on tool content was out-of-file fallout from this seam, caught and fixed in commit e914eb00 (after f1e097a4, before this log entry) rather than inside task 2.1's own Files list.
 
 - 2026-09-16 — plan written from the approved design (six review rounds) and the Deep research brief.
