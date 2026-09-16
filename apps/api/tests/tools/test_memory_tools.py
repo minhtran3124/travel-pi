@@ -1,14 +1,15 @@
 """Memory-tools schema tests (specs/standardize-tool-args-schema Task 1.2).
 
 Critical edge case: ``user_id``/``store`` are injected via ``InjectedState`` /
-``InjectedStore``. An explicit ``args_schema=`` that omits those injected params
-breaks LangGraph's ToolNode injection (it derives injection targets from the
-tool's schema), so these tools keep an auto-derived schema and attach their
-model-facing descriptions inline via ``Annotated[..., Field(description=...)]``.
-We therefore assert the MODEL-FACING ``tool_call_schema`` (which excludes the
-injected args) rather than ``get_input_schema()`` (which still carries the
-un-JSON-able ``BaseStore``). Schema-only (no invoke) since a real invoke needs a
-running graph/store to perform injection.
+``InjectedStore``. These tools pass an explicit ``args_schema=`` (e.g.
+``SaveUserPreferenceArgs``), and that schema STILL declares the injected
+``user_id`` / ``store`` fields: ToolNode derives its injection targets from the
+schema, so dropping them would break injection. The model-facing descriptions
+ride inline via ``Annotated[..., Field(description=...)]``. We therefore assert
+the MODEL-FACING ``tool_call_schema`` (which excludes the injected args) rather
+than ``get_input_schema()`` (which still carries the un-JSON-able ``BaseStore``).
+The invoke-based tests below drive the tool directly, supplying ``user_id`` and
+``store`` as explicit arguments rather than relying on ToolNode injection.
 """
 
 import pytest
@@ -86,8 +87,11 @@ def test_save_user_preference_key_is_closed_enum():
     field = save_user_preference.tool_call_schema.model_fields["key"]
     assert typing.get_origin(field.annotation) is typing.Literal
     assert typing.get_args(field.annotation) == PREFERENCE_KEYS
-    # The allowlist is surfaced to the model in the field description.
-    assert field.description and "diet" in field.description
+    # The allowlist is surfaced to the model in the field description, which is
+    # derived from PREFERENCE_KEYS — so every key must appear, not just a subset.
+    assert field.description
+    for key in PREFERENCE_KEYS:
+        assert key in field.description, key
 
 
 def test_save_user_preference_unknown_key_raises_validation_error():
