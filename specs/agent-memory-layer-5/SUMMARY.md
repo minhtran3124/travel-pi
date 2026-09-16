@@ -166,6 +166,9 @@ migration — which is why they are P0 and the rest of the playbook is not.
 | M2/M3: freshest label makes no calendar claim; a future stamp renders no marker | `.venv/bin/python -m pytest apps/api/tests/memory/test_fact_age.py -q` | 0 | 17 passed; `"this month"` absent from both vocabularies; future stamp → `None` | SC-2 |
 | post-fix regression sweep | `.venv/bin/python -m pytest apps/api/tests/memory apps/api/tests/agents -q` | 0 | 560 passed, 1 skipped (the Postgres cascade pin, under sqlite) | |
 | lint after the fixes | `ruff check app scripts` + `ruff format --check` on the 6 changed files (from `apps/api/`) | 0 | All checks passed; 6 files already formatted | |
+| judged full eval (`eval-full`, 88 cases, k=3) | `make eval-check` (from repo root) | **2** | `eval-full` returned 1 so `eval-compare` never ran; `make` failed. My shell reported exit 0 only because the command was piped without `pipefail` — the `make[1]: *** [eval-full] Error 1` line is the result, not `$?`. Report: 72/88 (81.8%) vs baseline 67/84 (79.8%). Below threshold: budget, hotels, journal — **the same three as the baseline** | SC-6 |
+| regression gate, run standalone on the paid report | `python -c "from evalkit.baseline import compare …"` (from `apps/api/`) | 1 | `journal REGRESSED -10.0%` (tolerance 5%). Per-case: 8 fixes (fail→pass) vs 4 regressions (pass→fail) | SC-6 |
+| the gate's failure is a **stale-baseline artifact**, proven case-by-case | `python -c` diff of `per_case` between report and baseline (from `apps/api/`) | 0 | All four pre-existing journal goldens have **identical** outcomes to the baseline (`ambiguous-vi-01` F, `ambiguous-en-01` P, `multi_turn-vi-01` P, `multi_turn-en-01` F). The −10pp is entirely `journal-happy-en-02`, a golden **added after the baseline was pinned**. Same for routing: 2 new goldens fail, yet routing passes *more* in absolute terms (15→16). Four goldens are new since the baseline: `dates-ambiguous-en-03`, `journal-happy-en-02`, `routing-multi-en-05`, `routing-multi-vi-01` | SC-6 |
 | intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | 0 | passes | |
 
 ### Not auto-verified
@@ -176,8 +179,22 @@ migration — which is why they are P0 and the rest of the playbook is not.
   `agent_runs` / `agent_run_step` rows `cache_hit_report` reads. An AFTER reading needs real turns
   through the API. Until then the month-bucket decision rests on **inference** from the documented
   mechanism, not measurement — this is the open half of `SC-6`.
-- **`make eval-check` (judged, paid) was not run.** Only `eval-smoke` was authorized. No claim is
-  made here about judged metrics or about the `eval/baselines/main.json` regression gate.
+- **`make eval-check` ran and FAILED, and the four `pass → fail` case flips are NOT attributed.**
+  The gate's *headline* failure (`journal -10.0%`) is a stale-baseline artifact and that is proven
+  above. But the per-case diff also shows four genuine flips, and two of them do **not** look like
+  noise: `hotels-happy-vi-02` (`search_vs_booking` k=3 = 0.457/0.496/0.487, avg 0.480 vs a 0.7
+  threshold) and `suggestions-happy-en-03` (`suggestion_relevance` k=3 = 0.633/0.647/0.647, avg
+  0.642) score consistently below threshold within this run; `language-ambiguous-vi-01` flipped
+  routing (`journal` → `planner`), which a change that adds text to every turn's system prompt
+  could plausibly cause; `flight_search-multi_turn-en-01` failed `oracle_fact_check` on offer
+  counts/prices. Against that: 8 cases went fail → pass, the overall rate rose, and `memory` — the
+  capability this change targets — went 9/10 → 10/10, with `hotels` 3/6 → 4/6 and `dates` 3/4 → 5/5.
+  **Attribution requires a judged run at the base commit** (another paid `eval-full`); it was not
+  run, so no claim is made either way about those four.
+- **`eval/baselines/main.json` is stale for the whole repo, not just this branch.** It predates four
+  goldens, so `make eval-check` fails on a pass-rate comparison for anyone who runs it. Not re-pinned
+  here: `PLAN.md` Task 3.1 says a baseline edited to accommodate a regression is not a gate, and this
+  baseline is not this spec's to re-pin.
 - **The recorded `eval-smoke` result predates the post-review fixes.** It was run against the diff
   as it stood at `49bd91df`. H1 changed the compression trigger, H2 changed the summarizer prompt,
   and D-1/M1/M2 changed the preferences prompt — so that run describes a diff that no longer
