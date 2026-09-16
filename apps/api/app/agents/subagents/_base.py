@@ -137,26 +137,40 @@ def _label_tool_outputs(result):
     ``RetryPolicy`` / ``error_handler`` are framed identically to a bare
     ``ToolNode``.
 
-    ``ToolNode`` returns **two distinct shapes** (confirmed by probe, not the
-    declared type): a ``dict`` with a ``"messages"`` list — the normal batch,
-    every entry a ``ToolMessage`` — and a bare ``list`` when at least one tool
-    call returned a ``Command`` — entries are ``Command | ToolMessage``. Only
-    ``ToolMessage`` entries are labelled; every ``Command`` is left untouched
-    (D3: a first-party success ``ToolMessage`` built inside a ``Command.update``,
-    e.g. ``clarification_tools.py:55`` / ``trip_tools.py:583``, arrives as a
-    ``Command`` here and so is never wrapped). Any other shape is returned as-is.
+    ``ToolNode`` returns **two distinct shapes** (confirmed against
+    ``ToolNode._combine_tool_outputs``, not the declared type). When no tool call
+    returned a ``Command``, the whole batch is a single ``dict`` with a
+    ``"messages"`` list, every entry a ``ToolMessage``. When at least one call
+    returned a ``Command``, the batch is a ``list`` whose entries are **either** a
+    ``Command`` **or** a per-message ``dict`` — ``{"messages": [ToolMessage]}`` —
+    because this graph always invokes the node with a state ``dict`` (so
+    ``input_type == "dict"``, and ``_combine_tool_outputs`` wraps each ordinary
+    output as ``{self._messages_key: [output]}``, never a bare ``ToolMessage``).
+    Every ``Command`` is left untouched (D3: a first-party success ``ToolMessage``
+    built inside a ``Command.update``, e.g. ``clarification_tools.py:55`` /
+    ``trip_tools.py:583``, arrives as a ``Command`` here and so is never wrapped);
+    each ``{"messages": […]}`` entry has the same per-message labelling applied as
+    the top-level ``dict`` shape. Any other shape is returned as-is.
 
     :param result: The value returned by ``ToolNode.invoke`` / ``ToolNode.ainvoke``.
     :return: The same shape with each ordinary ``ToolMessage`` wrapped in place.
     """
-    if isinstance(result, dict) and "messages" in result:
+
+    def _label_messages_dict(d: dict) -> dict:
         labelled = [
-            _label_one(m) if isinstance(m, ToolMessage) else m
-            for m in result["messages"]
+            _label_one(m) if isinstance(m, ToolMessage) else m for m in d["messages"]
         ]
-        return {**result, "messages": labelled}
+        return {**d, "messages": labelled}
+
+    if isinstance(result, dict) and "messages" in result:
+        return _label_messages_dict(result)
     if isinstance(result, list):
-        return [_label_one(m) if isinstance(m, ToolMessage) else m for m in result]
+        return [
+            _label_messages_dict(entry)
+            if isinstance(entry, dict) and "messages" in entry
+            else entry
+            for entry in result
+        ]
     return result
 
 
