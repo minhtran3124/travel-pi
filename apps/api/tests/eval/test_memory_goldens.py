@@ -134,6 +134,7 @@ def _runner(extraction: dict, *, target: str = "concierge", answer: str = "Noted
     )
     fast = FakeLLM(responses=["OK"] * 4)
     graph = build_eval_graph(llm=main, fast_llm=fast)
+    # One response per run(): the guarded persist (run_memory_extraction).
     graph.extract_memory_llm = FakeLLM(responses=[json.dumps(extraction)])
     return LangGraphRunner(graph=graph)
 
@@ -248,3 +249,63 @@ def test_adapter_skips_capture_without_a_memory_metric():
         "capture must be opt-in — only goldens declaring a memory metric pay for "
         "the extra extraction call"
     )
+
+
+def test_runner_isolates_captured_memory_between_goldens():
+    # Finding 1: the eval CLI drives every golden through ONE runner (one shared
+    # InMemoryStore). A second golden must see NONE of the first golden's stored
+    # memory — otherwise the positive golden's "prices in EUR" instruction would
+    # stand in every later golden's snapshot (and system prompt) and shift the
+    # baseline.
+    main = FakeLLM(
+        structured_responses=[SupervisorIntent(target_agent="concierge")] * 4,
+        responses=["Noted."] * 4,
+    )
+    fast = FakeLLM(responses=["OK"] * 4)
+    graph = build_eval_graph(llm=main, fast_llm=fast)
+    a_json = json.dumps(
+        {
+            "instructions": [
+                {"key": "price_display", "text": "always show prices in EUR"}
+            ]
+        }
+    )
+    b_json = json.dumps({"instructions": []})
+    # One guarded-persist response per run(): A then B.
+    graph.extract_memory_llm = FakeLLM(responses=[a_json, b_json])
+    runner = LangGraphRunner(graph=graph)
+
+    trace_a = runner.run(
+        _golden(
+            id="iso-a",
+            input="Always show prices in EUR",
+            metrics=["memory_stored"],
+            expected_memory=["price_display"],
+        )
+    )
+    trace_b = runner.run(
+        _golden(
+            id="iso-b",
+            input="hello there",
+            metrics=["no_injected_memory"],
+            forbidden_memory=["prices in EUR"],
+        )
+    )
+
+    # Golden A really persisted its instruction…
+    assert any(item["key"] == "price_display" for item in trace_a.meta["memory"])
+    # …and golden B, running on the SAME runner/store afterwards, sees none of it.
+    assert trace_b.meta["memory"] == [], (
+        "golden B must not see golden A's stored memory (per-golden user namespace)"
+    )
+    # The gate would go green vacuously without isolation; prove it is not vacuous
+    # by confirming B's own forbidden pattern would have matched A's leaked text.
+    result = NoInjectedMemoryMetric().evaluate(
+        _golden(
+            id="iso-b",
+            metrics=["no_injected_memory"],
+            forbidden_memory=["prices in EUR"],
+        ),
+        trace_b,
+    )
+    assert result.passed, result.detail

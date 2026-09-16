@@ -166,6 +166,28 @@ def _wants_memory_capture(golden: Golden) -> bool:
     return bool(_MEMORY_METRICS.intersection(golden.metrics or ()))
 
 
+def _eval_user_id(golden_id: str) -> str:
+    """Per-golden store user id so one golden's captured memory never leaks to another.
+
+    The eval CLI builds ONE ``LangGraphRunner`` (one ``build_eval_graph`` → one
+    ``InMemoryStore``) for the whole run and drives every golden through it. If
+    every golden wrote under a single fixed user id, ``_capture_memory`` would
+    persist into a namespace ``load_context_node`` then re-reads for every LATER
+    golden — the positive golden's stored "always show prices in EUR" would stand
+    as a standing instruction in every subsequent system prompt (shifting results
+    and the ``eval-check`` baseline), and within the memory goldens a negative
+    could be reddened, or a positive pass, on an item another golden wrote.
+
+    Deriving the id from the golden's unique, stable id gives each golden its own
+    ``("users", "eval-<id>", …)`` subtree. Deterministic (no uuid): the same
+    golden always reads back exactly and only what it wrote.
+
+    :param golden_id: The golden's dataset id.
+    :return: A user id unique to that golden.
+    """
+    return f"eval-{golden_id}"
+
+
 def _stored_memory(store: Any, user_id: str) -> list[dict[str, Any]]:
     """Snapshot every memory item persisted for *user_id*, flattened for the metrics.
 
@@ -240,7 +262,9 @@ class LangGraphRunner:
         """
         return asyncio.run(self._graph.ainvoke(payload, cfg, context=self._context))
 
-    def _capture_memory(self, out: dict[str, Any]) -> list[dict[str, Any]]:
+    def _capture_memory(
+        self, out: dict[str, Any], user_id: str
+    ) -> list[dict[str, Any]]:
         """Run post-turn extraction against the eval graph's store, then snapshot it.
 
         Mirrors production: ``run_memory_extraction`` writes through the same
@@ -251,16 +275,27 @@ class LangGraphRunner:
         swallows its own errors, and a graph missing the store/LLM seam yields an
         empty snapshot.
 
+        The snapshot is read back from *user_id*'s own namespace (§Finding 1): the
+        shared eval store is written and read per golden, so nothing another golden
+        stored is visible here.
+
+        The vacuity trap — an empty snapshot from a rejected poison looking
+        identical to one where nothing was extracted at all — is closed by the
+        adversarial goldens themselves: each carries a legitimate preference
+        alongside the injection, so a healthy run stores that preference and an
+        empty snapshot is itself the anomaly signal.
+
         :param out: The final graph state for this golden's last turn.
-        :return: The flattened stored-memory items (possibly empty).
+        :param user_id: This golden's isolated store user id.
+        :return: The flattened stored-memory items.
         """
         store = getattr(self._graph, "store", None)
         llm = getattr(self._graph, "extract_memory_llm", None)
         if store is None or llm is None:
             return []
-        user_id = out.get("user_id") or "eval"
+        messages = out.get("messages", [])
         run_memory_extraction(
-            messages=out.get("messages", []),
+            messages=messages,
             user_id=user_id,
             trip_id=out.get("trip_id"),
             plan_approved=out.get("plan_approved", False),
@@ -275,6 +310,10 @@ class LangGraphRunner:
         thread_id = f"eval-{golden.id}-{uuid.uuid4().hex[:8]}"
         cfg = {"configurable": {"thread_id": thread_id}}
         turns = golden.turns if golden.turns is not None else [golden.input]
+        # Per-golden store namespace: the runner's InMemoryStore is shared across
+        # every golden in the run, so a fixed user id would leak one golden's
+        # captured memory into every later golden (see _eval_user_id).
+        user_id = _eval_user_id(golden.id)
 
         start = time.monotonic()
         out: dict[str, Any] = {}
@@ -284,7 +323,7 @@ class LangGraphRunner:
             if i == 0:
                 # Only the first turn on a fresh thread needs the initial state
                 # shape; the checkpointer carries it forward on later turns.
-                payload["user_id"] = "eval"
+                payload["user_id"] = user_id
                 payload["trip_id"] = None
             out = self._drive(payload, cfg)
 
@@ -327,7 +366,7 @@ class LangGraphRunner:
         # — the metrics treat a missing "memory" key as a hard fail (extraction
         # never ran), so absence is never a silent pass.
         if _wants_memory_capture(golden):
-            meta["memory"] = self._capture_memory(out)
+            meta["memory"] = self._capture_memory(out, user_id)
         return Trace(
             reply=_final_reply(messages),
             tool_calls=_pair_tool_calls(messages),
