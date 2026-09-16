@@ -6,11 +6,12 @@ conversation the assistant's own rules live in, so a hotel review containing
 from an instruction. Wrapping every tool result in a labelled block — after
 escaping its angle brackets — lets the model read it as data.
 
-This module is *pure*: no langgraph import, no I/O. The hook in
-``app.agents.subagents._base`` is the only caller of :func:`wrap_tool_output`;
-the eval adapter is the only caller of :func:`strip_wrappers` (see the spec's
-D7). Escaping is idempotent (:func:`app.core.text.escape_angle_brackets`);
-wrapping is not, so the hook must run it exactly once per tool call.
+This module is *pure*: no langgraph import, no I/O. The wrapping callable
+registered as the ``"tools"`` node in ``app.agents.subagents._base`` is the
+only caller of :func:`wrap_tool_output`; the eval adapter is the only caller
+of :func:`strip_wrappers` (see the spec's D7). Escaping is idempotent
+(:func:`app.core.text.escape_angle_brackets`); wrapping is not, so that
+caller must run it exactly once per tool call.
 """
 
 import re

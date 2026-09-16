@@ -244,4 +244,8 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
   - `_WRAPPED_PREFIX` re-derives the opening-tag syntax from `TAG_NAME` rather than from `OPEN_TAG_TEMPLATE`; coupled by convention and by the existing test, not by construction.
   - `test_booking_turn_no_revise.py`'s pre-existing `json.loads` on tool content was out-of-file fallout from this seam, caught and fixed in commit e914eb00 (after f1e097a4, before this log entry) rather than inside task 2.1's own Files list.
 
+- 2026-09-16 — task 3.1 complete (wave 3); commit af58342c. Test-only, proves the escaping chokepoint through a compiled graph (`rag_tools.py` unchanged per D2). Review: spec pass / quality approved, 4 Minor findings (wrapper `name` attribute not pinned; structural test depends on production `strip_wrappers` as its own inverse; no negative-case assertion that the raw tool itself is unescaped; fake `hybrid_search` signature looser than the real one) — none blocking, carried to `SUMMARY.md`. Reviewer also flagged a stale docstring in `app/agents/tool_output.py` still naming "the hook" as the sole caller after E001/E002 moved the seam; fixed directly (Rule 1, commit follows this entry). Controller-run evidence: 11 passed (2 new, 9 pre-existing unchanged).
+
+All three waves complete. Next: final review chain (correctness-review, intent-review), `.review-receipt.json`, `verify_summary.py --check`, then `finishing-a-development-branch`.
+
 - 2026-09-16 — plan written from the approved design (six review rounds) and the Deep research brief.

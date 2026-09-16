@@ -38,8 +38,12 @@ In progress (waves 1-2 of 3 complete; see `PLAN.md` Status Log for full detail):
   result as `<tool_output name="...">...</tool_output>` (escaped, not deleted) via a callable
   registered in place of the bare `ToolNode` — **not** the hook or node seam the design originally
   proposed; see `### Intent Findings` below (wave 2, task 2.1).
+- `apps/api/tests/tools/test_rag_output_wrapping.py` (new) proves the escaping chokepoint covers
+  retrieved documents through a compiled graph; `app/tools/rag_tools.py` is unchanged (design D2,
+  wave 3, task 3.1).
 
-Remaining: wave 3 (RAG-specific proof, task 3.1), then the review chain and PR.
+All three waves complete. Remaining: the final review chain, `.review-receipt.json`,
+`verify_summary.py --check`, then `finishing-a-development-branch`.
 
 ### Rationale
 
@@ -84,7 +88,14 @@ ToolMessage is labelled".
   coverage is unit-level, not graph-level (the identity assertion is the real protection either
   way); the idempotence prefix is coupled to the tag constant by convention, not by construction;
   and `test_booking_turn_no_revise.py` needed an out-of-file `strip_wrappers` fix (commit e914eb00)
-  once tool output started arriving wrapped. Full detail in `PLAN.md` Status Log.
+  once tool output started arriving wrapped.
+- **Advisory (four Minor findings from task 3.1's review, none blocking):** the wrapper's `name`
+  attribute is not pinned to the specific tool in the escaping test; the structural test depends on
+  production `strip_wrappers` as its own inverse rather than a bracket-agnostic parse; nothing
+  asserts the negative case (the raw tool itself returns unescaped text); the fake `hybrid_search`
+  signature is looser than the real keyword-only one. A stale docstring in `app/agents/tool_output.py`
+  still naming "the hook" as the sole caller (left over from E001/E002) was fixed directly (Rule 1).
+  Full detail in `PLAN.md` Status Log.
 
 ### Verify
 
