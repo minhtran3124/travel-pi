@@ -169,6 +169,9 @@ migration — which is why they are P0 and the rest of the playbook is not.
 | judged full eval (`eval-full`, 88 cases, k=3) | `make eval-check` (from repo root) | **2** | `eval-full` returned 1 so `eval-compare` never ran; `make` failed. My shell reported exit 0 only because the command was piped without `pipefail` — the `make[1]: *** [eval-full] Error 1` line is the result, not `$?`. Report: 72/88 (81.8%) vs baseline 67/84 (79.8%). Below threshold: budget, hotels, journal — **the same three as the baseline** | SC-6 |
 | regression gate, run standalone on the paid report | `python -c "from evalkit.baseline import compare …"` (from `apps/api/`) | 1 | `journal REGRESSED -10.0%` (tolerance 5%). Per-case: 8 fixes (fail→pass) vs 4 regressions (pass→fail) | SC-6 |
 | the gate's failure is a **stale-baseline artifact**, proven case-by-case | `python -c` diff of `per_case` between report and baseline (from `apps/api/`) | 0 | All four pre-existing journal goldens have **identical** outcomes to the baseline (`ambiguous-vi-01` F, `ambiguous-en-01` P, `multi_turn-vi-01` P, `multi_turn-en-01` F). The −10pp is entirely `journal-happy-en-02`, a golden **added after the baseline was pinned**. Same for routing: 2 new goldens fail, yet routing passes *more* in absolute terms (15→16). Four goldens are new since the baseline: `dates-ambiguous-en-03`, `journal-happy-en-02`, `routing-multi-en-05`, `routing-multi-vi-01` | SC-6 |
+| **judged eval at the base commit, same dataset** — the comparison the stale baseline could not give | `python -m eval --suite full --repeat 3` in a throwaway worktree at `da546c92` | 1 | base **68/88 (77.3%)**, five capabilities below threshold (budget, **errors**, **flight_search**, hotels, journal) vs this branch **72/88 (81.8%)**, three (budget, hotels, journal). `errors` and `flight_search` move above threshold | SC-6 |
+| per-case diff against base: **7 fixes, 3 regressions** | `python -c` diff of `per_case` between `/tmp/base_full.json` and `eval/reports/latest.json` | 0 | Fixes: `dates-multi_turn-vi-01`, `errors-multi_turn-en-01`, `flight_search-ambiguous-{en-01,vi-01,vi-02}`, `language-ambiguous-en-01`, `memory-multi_turn-vi-04`. Regressions: `flight_search-multi_turn-en-01`, `language-ambiguous-vi-01`, `routing-multi-vi-01` | SC-6 |
+| two of the four cases suspected earlier are **pre-existing after all** | same per-case diff | 0 | `hotels-happy-vi-02` and `suggestions-happy-en-03` fail at base too — they appeared as `pass → fail` only against the stale baseline. Confirms the stale-baseline comparison was unsound in both directions | SC-6 |
 | intake lane evidence | `python3 .claude/scripts/verify_summary.py --lane agent-memory-layer-5` | 0 | passes | |
 
 ### Not auto-verified
@@ -179,7 +182,20 @@ migration — which is why they are P0 and the rest of the playbook is not.
   `agent_runs` / `agent_run_step` rows `cache_hit_report` reads. An AFTER reading needs real turns
   through the API. Until then the month-bucket decision rests on **inference** from the documented
   mechanism, not measurement — this is the open half of `SC-6`.
-- **`make eval-check` ran and FAILED, and the four `pass → fail` case flips are NOT attributed.**
+- **Three genuine regressions against base, two of them routing/flow flips, cause unproven.**
+  `language-ambiguous-vi-01` (`flow_match`: `journal` → `planner`), `routing-multi-vi-01`, and
+  `flight_search-multi_turn-en-01` (`oracle_fact_check` on offer counts/prices) pass at base and
+  fail here. This change adds text to the system prompt of **every** turn whenever the store holds
+  preferences or instructions, so shifting a supervisor routing decision is a plausible mechanism —
+  but each branch was measured **once**, and the per-case verdict aggregates k=3 without exposing
+  the spread, so noise cannot be excluded either. Against them: 7 fixes, net +4 cases, and
+  `errors` + `flight_search` both cross above threshold. Deciding this needs repeated runs on both
+  sides, which was not done. **Not claimed as either noise or regression.**
+- **The judged comparison covers code at `0f2fc1ef`, not HEAD.** The coarse-vocabulary fix
+  (`81c29651`) landed after both eval runs. It changes only the `instructions` phrase, which
+  renders only for a user with stored instructions, so an eval effect is unlikely — but unlikely is
+  not measured, and no run covers HEAD.
+- **Superseded, kept for the record: the earlier stale-baseline analysis.**
   The gate's *headline* failure (`journal -10.0%`) is a stale-baseline artifact and that is proven
   above. But the per-case diff also shows four genuine flips, and two of them do **not** look like
   noise: `hotels-happy-vi-02` (`search_vs_booking` k=3 = 0.457/0.496/0.487, avg 0.480 vs a 0.7
