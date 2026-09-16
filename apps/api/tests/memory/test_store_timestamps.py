@@ -124,10 +124,13 @@ def test_reading_legacy_record_without_updated_at_does_not_crash():
     assert instrs[0]["text"] == "legacy rule"
     assert "updated_at" not in instrs[0]
     assert episodes[0]["text"] == "legacy trip"
-    # The episode read payload is limited to text/city/outcome/trip_id (§3.1), so
-    # updated_at is always absent regardless of the legacy record — assert the
-    # payload-limit intent explicitly rather than a trivially-true membership.
-    assert set(episodes[0].keys()) <= {"text", "city", "outcome", "trip_id"}
+    # Chose: assert the legacy-record property positively (not the payload-limit
+    # set, which is already pinned in test_store_guard.py). This test is about a
+    # record written before updated_at existed — so prove that record's own
+    # fields (city, outcome) survive the read while updated_at stays absent.
+    assert episodes[0]["city"] == "Hanoi"
+    assert episodes[0]["outcome"] == "proposed"
+    assert "updated_at" not in episodes[0]
 
 
 def test_get_profile_ignores_missing_updated_at():

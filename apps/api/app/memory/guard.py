@@ -328,8 +328,8 @@ def check_episode(value: dict) -> dict:
 
     :param value: The episode value dict.
     :return: A shallow copy with a coerced ``outcome``, a normalized ``city``
-        (dropped when it normalizes to empty), and a shape-checked ``trip_id``
-        (dropped when it fails the shape rule).
+        (dropped when it is a non-string or normalizes to empty), and a
+        shape-checked ``trip_id`` (dropped when it fails the shape rule).
     :raises MemoryRejected: ``blocked_pattern:<category>`` if ``city`` trips the
         blocklist.
     """
@@ -344,6 +344,12 @@ def check_episode(value: dict) -> dict:
             cleaned["city"] = normalized_city
         else:
             cleaned.pop("city", None)
+    elif "city" in cleaned:
+        # A non-str ``city`` in a legacy row (dict/list/number) would otherwise
+        # pass through untouched into the read payload and reach the model via
+        # ``recall_past_trips`` — the same hole closed for ``trip_id``. Drop it
+        # (never raise), so one bad field never costs the traveller the memory.
+        cleaned.pop("city", None)
 
     trip_id = value.get("trip_id")
     if not (isinstance(trip_id, str) and _KEY_SHAPE_RE.fullmatch(trip_id)):

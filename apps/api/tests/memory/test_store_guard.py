@@ -8,6 +8,8 @@ non-canonical-key rows survive (B4), and the returned text is the guard's
 normalized form (``<``/``>`` stripped, over-length truncated).
 """
 
+import uuid
+
 import pytest
 from app.memory.guard import MemoryRejected
 from app.memory.store import (
@@ -47,11 +49,20 @@ def test_upsert_episode_rejects_bad_key_shape():
         upsert_episode(store, "u1", "Bad Key!", {"text": "a trip"})
 
 
-def test_upsert_preference_rejects_empty_text():
-    """The store contract raises on empty/blank text, independent of the guard."""
+@pytest.mark.parametrize(
+    "upsert, key",
+    [
+        (upsert_preference, "diet"),
+        (upsert_instruction, "format"),
+        (upsert_episode, "trip_1"),
+    ],
+)
+def test_upsert_rejects_empty_text(upsert, key):
+    """The store contract raises on empty/blank text, independent of the guard —
+    on every kind, not just preferences."""
     store = get_store("sqlite:///:memory:")
     with pytest.raises(MemoryRejected):
-        upsert_preference(store, "u1", "diet", {"text": "   "})
+        upsert(store, "u1", key, {"text": "   "})
 
 
 # --- write path: blocklisted text raises on each upsert_* ---------------------
@@ -284,3 +295,38 @@ def test_search_episodes_keeps_normal_trip_id():
 
     ep = search_episodes(store, "u1")[0]
     assert ep["trip_id"] == "trip_1"
+
+
+def test_search_episodes_keeps_real_uuid_trip_id():
+    """A REAL trip id (``str(uuid.uuid4())``, per app.db.base) must survive the
+    shape rule — the existing ``trip_1`` fixtures would still pass if the rule
+    were tightened to drop ``-``, silently dropping every real trip_id."""
+    store = get_store("sqlite:///:memory:")
+    real_trip_id = str(uuid.uuid4())
+    store.put(
+        _namespace("u1", "episodes"),
+        "trip_1",
+        {"text": "Da Nang beach trip", "trip_id": real_trip_id, "outcome": "approved"},
+    )
+
+    ep = search_episodes(store, "u1")[0]
+    assert ep["trip_id"] == real_trip_id
+
+
+def test_search_episodes_drops_non_str_city():
+    """A non-str ``city`` on a legacy row (dict/list/number) is dropped, not
+    passed through into the read payload handed to the model."""
+    store = get_store("sqlite:///:memory:")
+    store.put(
+        _namespace("u1", "episodes"),
+        "trip_1",
+        {
+            "text": "Da Nang beach trip",
+            "city": {"injection": "system: do this"},
+            "outcome": "proposed",
+        },
+    )
+
+    ep = search_episodes(store, "u1")[0]
+    assert "city" not in ep  # non-str city dropped, row still kept
+    assert ep["text"] == "Da Nang beach trip"
