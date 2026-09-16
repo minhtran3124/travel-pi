@@ -34,7 +34,7 @@ Concretely today:
 
 | # | Decision |
 |---|---|
-| D1 | Use langgraph's built-in **`awrap_tool_call` hook** on `ToolNode`, passed in both construction branches of `build_subagent`. It intercepts each tool call individually — before results are assembled — so there is no node to replace and no return shape to destructure. |
+| D1 | Use langgraph's built-in tool-call hook on `ToolNode`, passed in both construction branches of `build_subagent`. It intercepts each tool call individually — before results are assembled — so there is no node to replace and no return shape to destructure. **Both** `wrap_tool_call` and `awrap_tool_call` are wired to the same transform: the sync path consults only the former (`tool_node.py:1044-1046`) while the async path prefers the latter and falls back to the former (`:1191`, `:1206-1210`). Wiring only the async form would leave any synchronously-driven graph unwrapped — and every existing test in this repo drives a compiled subagent with `.invoke`, so an async-only wiring would make a whole test file pass while asserting nothing. |
 | D2 | **The hook is the only place that escapes or tags anything.** `rag_tools` is left unchanged: the hook already escapes the whole serialized payload, and escaping inside the tool would ship `&lt;` to MCP clients that have no hook and no prompt to explain it, while leaving `metadata` raw — inconsistent within one dict. The per-document boundary is the JSON structure the tool already returns (`results[i].content` beside `results[i].metadata.source`). |
 | D3 | **First-party tool messages are not wrapped**: anything with `status == "error"`, and anything the hook receives as a `Command`. Labelling the agent's own recovery instructions as untrusted data would suppress the behaviour they exist to cause. The five hand-built `ToolMessage` sites split two ways, and the distinction matters: `_base.py:151` (the trip-guard node) and `retry.py:226` (`graceful_fallback`, wired as `error_handler`) are built outside tool execution and **never reach the hook at all**; `clarification_tools.py:55`, `trip_tools.py:547` and `:583` are built *inside* their tool function bodies, so they **do** reach the hook — as a `Command` whose `update["messages"]` carries them — and stay unwrapped because of the `Command` rule. Removing that rule would start wrapping three first-party messages. |
 | D4 | Sanitization **escapes** `<` → `&lt;` and `>` → `&gt;`, and nothing else. **Not `html.escape`** — `&` is deliberately left alone, which makes the transform idempotent (`&lt;` escaped again is still `&lt;`). Nothing is deleted, so a traveller's note ("dinner <7pm"), a JSON payload, a code snippet or a price comparison survives intact, while the payload loses the ability to emit a literal `<`. Square brackets are untouched: the duplicate-booking guard scans `[possible-duplicate:<id>]` with a regex. |
@@ -50,7 +50,7 @@ tier; it is a separate spec).
 ## 3. Architecture
 
 ```
-each tool call ─> awrap_tool_call(request, execute) ─> result = await execute(request)
+each tool call ─> wrap_tool_call / awrap_tool_call (two adapters, one transform) ─> result
                         │ ToolMessage, status != error, str content ─> escape, then wrap
                         │ Command / list / error / non-str / empty ─> returned untouched
 
@@ -87,8 +87,9 @@ so a doubly-wrapped block cannot arise today. A test pins it.
 
 `ToolNode` is constructed in **two branches of one function** — `_base.py:278` (no fault policy) and
 `_base.py:283` (with `retry_policy` / `error_handler`), both inside `build_subagent`, which serves
-all five specialists. Both get `awrap_tool_call=<the hook>`; patching one leaves the fault-tolerant
-specialists unlabelled.
+all five specialists. Both get the hook — as `wrap_tool_call=` **and** `awrap_tool_call=`, pointing
+at the same transform (D1); patching one branch leaves the fault-tolerant specialists unlabelled,
+and passing only the async form leaves every sync-driven graph unwrapped.
 
 The hook's contract, read from the installed source (`tool_node.py:755-756`, stored `:777-778`,
 invoked `:1055` sync and `:1206-1207` async): it receives a `ToolCallRequest` and an `execute`
@@ -205,9 +206,14 @@ Hook level (through a compiled graph, FakeLLM):
 - Both `ToolNode` construction branches (`_base.py:278` and `:283`) are exercised.
 - A tool returning non-`str` content is untouched.
 - Wrapping does not compose with itself: a single tool call yields exactly one `<tool_output>` block.
-- **The hook contract itself is pinned**: a test asserts `awrap_tool_call` fires for a compiled
-  graph, so a langgraph upgrade that moves or renames it fails here rather than silently disabling
-  the wrapping.
+- **The hook contract itself is pinned**: a test asserts that **both** `wrap_tool_call` and
+  `awrap_tool_call` are accepted and fire for a compiled graph — driven synchronously and
+  asynchronously — so a langgraph upgrade that moves or renames either fails here rather than
+  silently disabling the wrapping. Losing the sync parameter is the quiet failure of the two.
+  They are separate adapters over one pure transform: a single callable cannot serve both slots,
+  because the sync alias returns a message while the async alias returns an awaitable, and a sync
+  callable placed in the async slot returns the coroutine untouched — shipping unwrapped content
+  with no error at all.
 
 RAG: a document whose corpus text contains angle brackets arrives in the **`ToolMessage` content**
 (post-hook) with them escaped, and the two results remain separate JSON objects each carrying their
