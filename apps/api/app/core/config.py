@@ -176,6 +176,12 @@ class Settings(BaseSettings):
     # Agent runtime knobs.
     agent_recursion_limit: int = 25  # LangGraph recursion guard per invocation
     summarize_threshold: int = 20  # compress history once messages exceed this
+    # Token ceiling for the OR branch of should_summarize: compress once the
+    # estimated token count exceeds summarize_token_budget * 0.85. The 0.85
+    # headroom factor leaves room for the system prompt and the next reply, so
+    # the compressed request still fits the model call. Conservative default —
+    # catches token-heavy fan-out turns the message count misses.
+    summarize_token_budget: int = 12000
     agent_free_daily_turn_limit: int = 20  # max user turns per day for the free tier
     # How long the DB-backed per-agent config cache may serve before a read
     # polls the DB for a change (GH-106: a cheap MAX(updated_at) check, not a

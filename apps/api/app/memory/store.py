@@ -262,10 +262,15 @@ class Preference:
 
     key: str
     text: str
+    updated_at: str | None = None
 
     @classmethod
     def from_item(cls, item) -> Preference:
-        return cls(key=item.key, text=item.value.get("text", ""))
+        return cls(
+            key=item.key,
+            text=item.value.get("text", ""),
+            updated_at=item.value.get("updated_at"),
+        )
 
 
 @dataclass
@@ -274,10 +279,15 @@ class Instruction:
 
     key: str
     text: str
+    updated_at: str | None = None
 
     @classmethod
     def from_item(cls, item) -> Instruction:
-        return cls(key=item.key, text=item.value.get("text", ""))
+        return cls(
+            key=item.key,
+            text=item.value.get("text", ""),
+            updated_at=item.value.get("updated_at"),
+        )
 
 
 @dataclass
@@ -289,6 +299,7 @@ class Episode:
     trip_id: str | None = None
     city: str | None = None
     outcome: str = "proposed"
+    updated_at: str | None = None
 
     @classmethod
     def from_item(cls, item) -> Episode:
@@ -299,6 +310,7 @@ class Episode:
             trip_id=v.get("trip_id"),
             city=v.get("city"),
             outcome=v.get("outcome", "proposed"),
+            updated_at=v.get("updated_at"),
         )
 
 
@@ -370,3 +382,109 @@ def search_memory_typed(
         result_type.from_item(item)
         for item in store.search(ns, query=query, limit=eff_limit)
     ]
+
+
+# --- Fact age + management helpers (specs/agent-memory-layer-5 Task 1.1) ------
+
+
+def format_age(updated_at: str | None, *, now: datetime | None = None) -> str | None:
+    """Render a stored ``updated_at`` as a coarse, month-granularity age bucket.
+
+    Code computes the delta so the model only reads the result
+    (``docs/solutions/agent/llm-parses-code-computes.md``). The returned phrase is
+    **deliberately month-coarse and never a day count**: the preferences/instructions
+    blocks sit *before* ``summary`` in the implicitly cached system-prompt prefix
+    (measured at 71.9%), and a string that changed daily would invalidate that prefix
+    for every user at each day rollover
+    (``docs/solutions/agent/prompt-caching-implicit-idle-eviction.md``). Buckets:
+
+    - **< 1 month** old -> ``"this month"``
+    - **1 to < 12 months** old -> ``"a few months ago"``
+    - **>= 12 months** old -> ``"over a year ago"``
+
+    "1 month" is measured in whole calendar months elapsed, so it changes at most once a
+    month and only for rows sitting on a boundary.
+
+    :param updated_at: An ISO-8601 timestamp string, or ``None``. A timezone-naive stamp
+        is treated as UTC.
+    :param now: Reference "now" (defaults to the current UTC time); injectable so tests
+        are deterministic.
+    :return: The age bucket, or ``None`` when *updated_at* is ``None``, empty, or
+        unparseable. Never guesses, never substitutes *now*, never raises.
+    """
+    if not updated_at or not isinstance(updated_at, str):
+        return None
+    try:
+        stamp = datetime.fromisoformat(updated_at)
+    except ValueError:
+        return None
+
+    ref = now or datetime.now(timezone.utc)
+    # Normalize both sides to aware UTC so the subtraction never mixes naive/aware.
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    if ref.tzinfo is None:
+        ref = ref.replace(tzinfo=timezone.utc)
+
+    # Whole calendar months elapsed (day-of-month aware), floored at 0.
+    months = (ref.year - stamp.year) * 12 + (ref.month - stamp.month)
+    if ref.day < stamp.day:
+        months -= 1
+    if months < 0:
+        months = 0
+
+    if months < 1:
+        return "this month"
+    if months < 12:
+        return "a few months ago"
+    return "over a year ago"
+
+
+def list_memory(
+    store: BaseStore, user_id: str, kind: MemoryKind | str, *, limit: int = 50
+) -> list[dict]:
+    """Unfiltered listing of a user's memory rows for one *kind*, key preserved.
+
+    Unlike :func:`search_memory` (which drops the store key), each returned row carries
+    ``key`` — the delete handle a management surface needs — alongside the stored
+    ``text`` and ``updated_at``. No query is applied; rows are the store's natural order.
+
+    :param store: Long-term store to read from.
+    :param user_id: Owning user's id.
+    :param kind: Which memory namespace to list; validated through :class:`MemoryKind`.
+    :param limit: Maximum number of rows to return.
+    :return: Rows as dicts, each including its store ``key``.
+    """
+    kind = MemoryKind(kind)
+    ns = _namespace(user_id, kind.value)
+    # Spread the value FIRST so the authoritative store key always wins: this key is
+    # the delete handle, and a stored value that happened to carry its own "key" field
+    # must not be able to shadow it.
+    return [
+        {**item.value, "key": item.key}
+        for item in store.search(ns, query=None, limit=limit)
+    ]
+
+
+def delete_memory(
+    store: BaseStore, user_id: str, kind: MemoryKind | str, key: str
+) -> bool:
+    """Hard-delete a single memory row by ``(kind, key)``. Idempotent.
+
+    Coerces *kind* through :class:`MemoryKind` **before** building the namespace, so an
+    unknown kind raises rather than being interpolated into a namespace tuple. On an
+    indexed ``PostgresStore`` the underlying ``store.delete`` also removes the pgvector
+    embedding row via ``store_vectors``' ``ON DELETE CASCADE``. Deleting a missing key
+    is not an error.
+
+    :param store: Long-term store to delete from.
+    :param user_id: Owning user's id.
+    :param kind: Which memory namespace the key lives in; validated through
+        :class:`MemoryKind`.
+    :param key: The row key to delete.
+    :return: ``True`` once the delete has been issued (idempotent — missing key included).
+    """
+    kind = MemoryKind(kind)
+    ns = _namespace(user_id, kind.value)
+    store.delete(ns, key)
+    return True

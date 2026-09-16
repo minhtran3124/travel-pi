@@ -48,16 +48,78 @@ def _safe_split(messages: list[BaseMessage], keep_last: int) -> int:
     return split
 
 
-def should_summarize(messages: list[BaseMessage], threshold: int | None = None) -> bool:
-    """True when the thread is long enough to compress.
+_HEADROOM = 0.85  # leave room for the system prompt and the next reply
+
+
+def _content_chars(content: object) -> int:
+    """Character length of a message ``content``, tolerating multimodal shapes.
+
+    ``content`` may be a plain string, a list of block dicts (multimodal), or a
+    dict. Any non-string shape is stringified so estimation never raises.
+
+    :param content: The ``content`` attribute of a message.
+    :return: The character count used to estimate tokens.
+    """
+    if content is None:
+        return 0
+    if isinstance(content, str):
+        return len(content)
+    return len(str(content))
+
+
+def _estimate_tokens(messages: list[BaseMessage]) -> int:
+    """Estimate the token footprint of ``messages`` from character length.
+
+    Uses the portable ``chars / 4`` heuristic and counts **tool-call arguments**
+    as well as ``content`` — a fan-out turn carries most of its tokens in tool
+    payloads, which a message count misses.
+
+    We deliberately do NOT call ``llm.get_num_tokens_from_messages()``:
+    ``transformers`` is not installed in this venv, so ``langchain_core``'s base
+    implementation (which falls back to ``GPT2TokenizerFast.from_pretrained("gpt2")``)
+    raises for any model that does not override it — including the test ``FakeLLM``.
+    This value is only a ceiling, so a provider-coupled count is not worth it.
+
+    :param messages: The conversation history to estimate.
+    :return: The estimated token count.
+    """
+    chars = 0
+    for m in messages:
+        chars += _content_chars(getattr(m, "content", None))
+        for call in getattr(m, "tool_calls", None) or []:
+            chars += len(str(call.get("name", "")))
+            chars += len(str(call.get("args", "")))
+    return chars // 4
+
+
+def should_summarize(
+    messages: list[BaseMessage],
+    threshold: int | None = None,
+    *,
+    token_budget: int | None = None,
+) -> bool:
+    """True when the thread is long enough or heavy enough to compress.
+
+    Compresses when the message count exceeds ``threshold`` **OR** the estimated
+    token count exceeds ``token_budget * 0.85``. The token branch catches
+    token-heavy fan-out turns that sit below the message-count threshold; the
+    count branch is never bypassed.
 
     :param messages: The current conversation history.
     :param threshold: Override for the message-count threshold; defaults to
         ``settings.summarize_threshold`` when omitted.
-    :return: True when ``messages`` exceeds the threshold.
+    :param token_budget: Override for the token ceiling; defaults to
+        ``settings.summarize_token_budget`` when omitted.
+    :return: True when ``messages`` exceeds either threshold.
     """
-    limit = threshold if threshold is not None else get_settings().summarize_threshold
-    return len(messages) > limit
+    settings = get_settings()
+    limit = threshold if threshold is not None else settings.summarize_threshold
+    if len(messages) > limit:
+        return True
+    budget = (
+        token_budget if token_budget is not None else settings.summarize_token_budget
+    )
+    return _estimate_tokens(messages) > budget * _HEADROOM
 
 
 def summarize_conversation(
