@@ -125,9 +125,16 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         # above. search_memory_typed (not search_preferences) is used because it
         # preserves each preference's store key, needed both to filter and to
         # format the "- {key}: {value}" lines below.
+        #
+        # memory-poisoning-hardening §3.4: read a wider window (limit=16) and cap
+        # to 8 AFTER both the guard's read-side drop (poisoned/legacy rows) and the
+        # PROFILE_KEYS exclusion — so dropped rows can't crowd out valid ones and
+        # leave the block short.
         try:
-            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
-            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
+            prefs = search_memory_typed(
+                store, user_id, MemoryKind.PREFERENCES, limit=16
+            )
+            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS][:8]
             if non_profile:
                 result["preferences"] = "\n".join(
                     f"- {p.key}: {p.text}" for p in non_profile
