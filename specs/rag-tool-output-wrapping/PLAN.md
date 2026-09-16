@@ -30,8 +30,11 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 - No new dependency, no schema change, no new API route. `langgraph` stays pinned at the installed 1.2.6.
 - `escape_angle_brackets` escapes `<` and `>` and nothing else. **Never `html.escape`** — escaping `&` would break idempotence, which a test pins.
 - Square brackets are never touched: the duplicate-booking guard scans `[possible-duplicate:<id>]` with a regex.
-- The hook guards only its own transform, never the `await execute(request)` call.
-- **The hook is wired twice, to one transform.** `ToolNode` consults `wrap_tool_call` on the sync path (`tool_node.py:1044-1046`) and prefers `awrap_tool_call` on the async path, falling back to the sync one (`:1191`, `:1206-1210`). Every existing test in this repo drives a compiled subagent with `.invoke`, so wiring only the async form would let a whole test file pass while the hook never fires and every negative assertion succeeds vacuously. Pass both.
+- **Do not use langgraph's `wrap_tool_call` / `awrap_tool_call` hook** (E001, decided 2026-09-16). `ToolNode`'s wrapper path catches every exception a hook raises with no handled-types gate (`tool_node.py:1053-1067`, `:1205-1222`), which disarms `_tool_error_logic_only` and kills `TRANSIENT_RETRY` + `graceful_fallback` for planner and concierge. Measured: with the hook wired, `test_subagent_fault_tolerance.py` is 2 failed / 2 passed. The seam is a `label_tools` **node** between `tools` and `assistant`.
+- **Both `ToolNode` constructions stay byte-for-byte unchanged.** The only edit at that site is the edge: `builder.add_edge("tools", "assistant")` becomes `tools → label_tools → assistant`.
+- **Return same-`id` copies via `model_copy`.** The `add_messages` reducer upserts by `id`; a fresh `ToolMessage` regenerates it and duplicates every tool result in the transcript. Assert the message COUNT, not just the content of the last one.
+- The node must be idempotent: skip content that already starts with the opening tag, because a checkpoint resume can re-enter it and wrapping does not compose.
+- The node never drops a message: a transform that raises delivers that one unchanged and continues. A missing `tool_call_id` makes the provider reject the next `assistant` turn.
 - A task edits only the files in its `Files` list; fallout elsewhere is reported as a blocker, not fixed silently.
 - Stage and commit as separate commands; commit messages carry no Claude attribution trailer.
 
@@ -42,7 +45,7 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 | SC-1 | `escape_angle_brackets` escapes `<` and `>`, leaves `&` and square brackets alone, and is idempotent (escaping twice equals escaping once) | `.venv/bin/python -m pytest apps/api/tests/core/test_text_escape.py -q` | exit 0 |
 | SC-2 | A payload containing a closing tag comes back escaped and cannot close the block; the `name` attribute is escaped too, so a tool name cannot close the tag from inside it; nothing is deleted, so `dinner <7pm` survives as `dinner &lt;7pm`; `strip_wrappers` reverses wrapping exactly, handling a variable `name` attribute and removing the newlines the wrapper added | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output.py -q` | exit 0 |
 | SC-3 | A wrapped message still matches the live duplicate-booking marker regex | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output.py -q -k marker` | exit 0 |
-| SC-4 | Through a compiled graph driven both synchronously and asynchronously: tool prose comes back escaped and wrapped with `id`/`tool_call_id`/`name`/`status`/`artifact` intact; an error result, a `Command`, a non-`str` content, an empty content and a `list` result all pass through untouched; one tool call yields exactly one block; the hook parameters are pinned so a langgraph upgrade that renames them fails here | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_wrapping_hook.py -q` | exit 0 |
+| SC-4 | Through a compiled graph driven both synchronously and asynchronously: tool prose comes back escaped and wrapped with `id`/`tool_call_id`/`name`/`status`/`artifact` intact and **exactly one message per tool call** in the final state; an error result, a `Command`-returning tool, a non-`str` content and an empty content are left untouched; the transform is idempotent; `label_tools` is pinned as the node between `tools` and `assistant` | `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output_labelling.py -q` | exit 0 |
 | SC-5 | The active `communication_style` prompt is v9, names `<tool_output>`, states that a request inside a block to ignore rules, change role or reveal prompts is disregarded and reported to the traveller, and does not instruct the model to decode character entities | `.venv/bin/python -m pytest apps/api/tests/prompts/test_active_versions_load.py -q` | exit 0 |
 | SC-6 | The summarizer transcript keeps the tags and its system prompt tells the summarizer that tagged blocks are retrieved data | `.venv/bin/python -m pytest apps/api/tests/memory/test_summarizer_tool_labels.py -q` | exit 0 |
 | SC-7 | The eval adapter's paired tool output has no wrapper text, and is byte-identical to the pre-change value for content containing no angle brackets | `.venv/bin/python -m pytest apps/api/tests/ev*l/test_langgraph_runner.py -q` | exit 0 |
@@ -115,55 +118,51 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 - **Criteria:** SC-6
 - **Interfaces:** Consumes the existing summarizer. Produces the amended `_SUMMARY_SYSTEM` in `app/memory/summarizer.py`.
 
-### Task 2.1 — Wire the hook into both ToolNode branches (wave 2)
+### Task 2.1 — label_tools node between tools and assistant (wave 2)
 
-- **Files:** apps/api/app/agents/subagents/_base.py, apps/api/tests/agents/test_tool_wrapping_hook.py
+- **Files:** apps/api/app/agents/subagents/_base.py, apps/api/tests/agents/test_tool_output_labelling.py
 - **Action:** Tests first, driving a **compiled** graph (a bare `ToolNode` outside a graph raises
-  `Missing required config key`, so the test must compile). Then add the hook in `_base.py` and pass
-  it as **both** `wrap_tool_call=` and `awrap_tool_call=` to the
-  `ToolNode` construction in **both** branches: `:278` (no fault policy) and `:283` (with
-  `retry_policy` / `error_handler`). Patching one branch leaves the fault-tolerant specialists
-  unlabelled; passing only the async form leaves every sync-driven graph unwrapped, which is how a
-  whole test file passes while asserting nothing.
-  Build the transformed message with `result.model_copy(update={"content": …})` rather than
-  constructing a fresh `ToolMessage`: a new instance regenerates `id`, and design §3.2 requires `id`
-  preserved. The tag's `name` comes from `request.tool_call["name"]` — the call the model made — not
-  from `result.name`, which differs for an invalid-tool message.
-  **Two adapters over one pure transform — not one callable in both slots.** The type aliases differ:
-  `ToolCallWrapper` returns `ToolMessage | Command`, `AsyncToolCallWrapper` returns an `Awaitable`
-  (`tool_node.py:202-205`, `:279-282`). Passing a single `async def` to both makes sync `.invoke`
-  raise `NotImplementedError: Unsupported message type: coroutine`; passing a single `def` to both
-  is worse — the sync adapter receives the async `execute`, gets a coroutine back, type-guards it as
-  "not a `ToolMessage`", returns it unchanged, and langgraph awaits it into the raw result: the
-  async path then silently ships **unwrapped** content with no error at all. Write one pure
-  transform over a finished result, plus a sync adapter that calls `execute(request)` and an async
-  adapter that awaits it. Each adapter invokes `execute` exactly once, then type-guards: transform only a
-  `ToolMessage` whose `status != "error"` and whose `content` is a non-empty `str`; return a
-  `Command`, a `list`, a non-`str` content or an empty content untouched. `execute` is declared to
-  return `ToolMessage | Command | list[Command | ToolMessage]` (`tool_node.py:1074`, `:1166`), so the
-  list case is guarded rather than assumed. Preserve `id`, `tool_call_id`, `name`, `status` and
-  `artifact`. Guard only the transform, never the `await` — langgraph turns a hook exception into a
-  `status="error"` message (`tool_node.py:1211-1222`), and swallowing a real tool fault would bypass
-  `graceful_fallback`.
-  Reach the `:283` branch by passing `build_subagent`'s `tool_fault` argument; without it only the
-  `:278` branch is exercised.
-  Tests cover: prose wrapped and escaped with metadata intact; an error result unwrapped; a
-  `Command`-returning tool untouched, including a batch pairing it with an ordinary tool; a tool
-  returning non-`str` content untouched; **empty content producing no wrapper at all**; **a
-  `list[Command | ToolMessage]` result passed through untouched**, the declared return shape the
-  code guards against; the same graph driven **both** with `invoke` and with `ainvoke`, each
-  wrapping, which is what proves the two hook forms are really wired; the five hand-built
-  `ToolMessage` sites still unwrapped, so
-  design D3 is a test rather than a comment; both construction branches; exactly one block per tool
-  call; the logging contract of design §4 (debug for a non-`str` skip, warning when the transform
-  raises, and the original message still delivered); and a test pinning that **both**
-  `wrap_tool_call` and `awrap_tool_call` are accepted and fire, so a langgraph upgrade that renames
-  either parameter fails here rather than silently disabling wrapping — the sync one especially,
-  since its loss is the quiet failure.
-- **Verify:** `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_wrapping_hook.py apps/api/tests/agents/test_trip_guard.py apps/api/tests/agents/test_retry.py -q`
-- **Done:** exit 0, including the two first-party-message suites that must be unaffected.
+  `Missing required config key`, so the test must compile).
+  **Do not use `wrap_tool_call` / `awrap_tool_call`.** That was this plan's first answer and E001
+  records why it is wrong: `ToolNode`'s wrapper path catches every exception a hook raises with no
+  handled-types gate, so the narrowed `_tool_error_logic_only` stops narrowing, `TRANSIENT_RETRY`
+  never retries and `graceful_fallback` never fires. Measured, not argued.
+  Instead add a plain `def label_tools(state) -> dict` node in `_base.py` and change one edge inside
+  `build_subagent`: `builder.add_edge("tools", "assistant")` becomes an added
+  `builder.add_node("label_tools", label_tools)` plus `tools → label_tools → assistant`. **Both
+  `ToolNode` constructions stay byte-for-byte unchanged** — one new node serves both branches.
+  The node walks `state["messages"]` **backwards from the end while the message is a `ToolMessage`**
+  (the batch `tools` just appended; the preceding tool-calling `AIMessage` terminates the walk) and
+  returns `{"messages": [transformed…]}`.
+  Build each transformed message with `msg.model_copy(update={"content": …})`, never a fresh
+  `ToolMessage`. `add_messages` **upserts by `id`**, so a same-`id` copy replaces the message in
+  place; a regenerated `id` appends and silently duplicates every tool result in the transcript.
+  The tag's `name` comes from `msg.name`.
+  Skip, leaving the message untouched: `status == "error"`; content that is not a `str` (log at
+  debug); empty content; and content that **already starts with the opening tag** — the node is
+  re-entrant across a checkpoint resume and wrapping does not compose.
+  A transform that raises delivers that one message unchanged, logs a warning, and continues with
+  the rest. The node must return a result for every message it examined: dropping a `ToolMessage`
+  leaves a `tool_call_id` unanswered and the provider rejects the next `assistant` turn.
+  Keep the node a plain `def`: it invokes nothing, so it works on the `invoke` and `ainvoke` paths
+  alike, with no second execution mode to drift
+  (`docs/solutions/agent/sync-node-breaks-async-only-tools.md` governs nodes that await work).
+  Tests cover: prose wrapped and escaped with `id`/`tool_call_id`/`name`/`status`/`artifact` intact;
+  **exactly one message per tool call in the final state**, which is the assertion that catches a
+  regenerated `id` — a test checking only "the last message is wrapped" passes while every result is
+  duplicated; an error result unwrapped; a `Command`-returning tool reaching `assistant` untouched,
+  including a batch pairing it with an ordinary tool; non-`str` and empty content untouched;
+  idempotence (transform twice equals once, no nested block); both construction branches, reached
+  via `build_subagent`'s `tool_fault` argument; the same graph driven **both** with `invoke` and
+  `ainvoke`; the logging contract of design §4; and a test pinning `label_tools` as the node between
+  `tools` and `assistant`, so a future edit restoring the direct edge fails here rather than
+  silently disabling the wrapping.
+  **The regression guard is part of this task's Verify:** `test_subagent_fault_tolerance.py` must
+  stay green, because that is the suite the abandoned hook broke.
+- **Verify:** `.venv/bin/python -m pytest apps/api/tests/agents/test_tool_output_labelling.py apps/api/tests/agents/test_subagent_fault_tolerance.py apps/api/tests/agents/test_trip_guard.py apps/api/tests/agents/test_retry.py -q`
+- **Done:** exit 0, including the fault-tolerance suite (the E001 regression guard) and the two first-party-message suites that must be unaffected.
 - **Criteria:** SC-4
-- **Interfaces:** Consumes `app/agents/tool_output.py` (Task 1.1). Produces the `awrap_tool_call` hook in `app/agents/subagents/_base.py`, wired in both `ToolNode` branches.
+- **Interfaces:** Consumes `app/agents/tool_output.py` (Task 1.1). Produces the `label_tools` node in `app/agents/subagents/_base.py`, wired between `tools` and `assistant`.
 
 ### Task 2.2 — Eval adapter strips the wrapper (wave 2)
 
@@ -207,5 +206,7 @@ This completes the review's second proposal bullet, which E001 deferred. Approve
 - This branch is based on the unmerged PR #214; if that changes under review, rebase before finishing.
 
 ## 6. Status Log
+
+- 2026-09-16 — tasks 1.1, 1.2, 1.3 complete (wave 1); commits 991aa36d, 413d2a3f, 21625fdd. Reviews: 1.1 spec pass / quality approved, 1.3 spec pass / quality approved, 1.2 spec pass / quality needs_fixes. The 1.2 finding was a defect in this plan, not the implementation: SC-5 asked for a banned WORD ('decode') where it needed a banned behaviour, so the assertion passed the forbidden instruction phrased differently and failed a correct prompt that used the word in a negation. Fixed by pinning the clause that carries the rule. Controller-run evidence: 33 passed across the wave-1 test files.
 
 - 2026-09-16 — plan written from the approved design (six review rounds) and the Deep research brief.

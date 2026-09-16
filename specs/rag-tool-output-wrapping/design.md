@@ -34,7 +34,7 @@ Concretely today:
 
 | # | Decision |
 |---|---|
-| D1 | Use langgraph's built-in tool-call hook on `ToolNode`, passed in both construction branches of `build_subagent`. It intercepts each tool call individually — before results are assembled — so there is no node to replace and no return shape to destructure. **Both** `wrap_tool_call` and `awrap_tool_call` are wired to the same transform: the sync path consults only the former (`tool_node.py:1044-1046`) while the async path prefers the latter and falls back to the former (`:1191`, `:1206-1210`). Wiring only the async form would leave any synchronously-driven graph unwrapped — and every existing test in this repo drives a compiled subagent with `.invoke`, so an async-only wiring would make a whole test file pass while asserting nothing. |
+| D1 | **A `label_tools` node between `tools` and `assistant`** — *not* langgraph's `wrap_tool_call` hook. The hook was this design's original choice and it was wrong; see E001 for the measurement. `ToolNode`'s wrapper path catches every exception a hook raises with **no handled-types gate** (`tool_node.py:1053-1067` sync, `:1205-1222` async), unlike `_execute_tool_sync`, which derives the handled types from `handle_tool_errors` and re-raises anything outside them (`:982-1012`). Wiring the hook therefore neutralizes `_tool_error_logic_only`: a transient tool fault becomes a `status="error"` message on the first attempt, `TRANSIENT_RETRY` never retries, and `graceful_fallback` never receives a `NodeError`. Measured, not inferred — with the hook wired, `test_subagent_fault_tolerance.py` goes 2 failed / 2 passed and the flaky tool runs once instead of three times. The node seam runs only after the `tools` node has already succeeded, so the exception path is untouched and both specialists keep their fault tolerance. Cost, accepted: one extra super-step per tool round (3 instead of 2), which spends `agent_recursion_limit` faster. |
 | D2 | **The hook is the only place that escapes or tags anything.** `rag_tools` is left unchanged: the hook already escapes the whole serialized payload, and escaping inside the tool would ship `&lt;` to MCP clients that have no hook and no prompt to explain it, while leaving `metadata` raw — inconsistent within one dict. The per-document boundary is the JSON structure the tool already returns (`results[i].content` beside `results[i].metadata.source`). |
 | D3 | **First-party tool messages are not wrapped**: anything with `status == "error"`, and anything the hook receives as a `Command`. Labelling the agent's own recovery instructions as untrusted data would suppress the behaviour they exist to cause. The five hand-built `ToolMessage` sites split two ways, and the distinction matters: `_base.py:151` (the trip-guard node) and `retry.py:226` (`graceful_fallback`, wired as `error_handler`) are built outside tool execution and **never reach the hook at all**; `clarification_tools.py:55`, `trip_tools.py:547` and `:583` are built *inside* their tool function bodies, so they **do** reach the hook — as a `Command` whose `update["messages"]` carries them — and stay unwrapped because of the `Command` rule. Removing that rule would start wrapping three first-party messages. |
 | D4 | Sanitization **escapes** `<` → `&lt;` and `>` → `&gt;`, and nothing else. **Not `html.escape`** — `&` is deliberately left alone, which makes the transform idempotent (`&lt;` escaped again is still `&lt;`). Nothing is deleted, so a traveller's note ("dinner <7pm"), a JSON payload, a code snippet or a price comparison survives intact, while the payload loses the ability to emit a literal `<`. Square brackets are untouched: the duplicate-booking guard scans `[possible-duplicate:<id>]` with a regex. |
@@ -50,9 +50,11 @@ tier; it is a separate spec).
 ## 3. Architecture
 
 ```
-each tool call ─> wrap_tool_call / awrap_tool_call (two adapters, one transform) ─> result
-                        │ ToolMessage, status != error, str content ─> escape, then wrap
-                        │ Command / list / error / non-str / empty ─> returned untouched
+tools (ToolNode, untouched) ─> label_tools ─> assistant
+                                   │ ToolMessage, status != error, str content ─> escape, then wrap
+                                   │ error / non-str / empty / already wrapped ─> left untouched
+
+graceful_fallback ─> Command(goto="assistant") ─> bypasses label_tools (first-party, unwrapped)
 
 summarizer   ─> transcript KEEPS the tags (+ one line in its system prompt)
 eval adapter ─> strip_wrappers ─> retrieval_context (baseline stays comparable)
@@ -85,32 +87,44 @@ so a doubly-wrapped block cannot arise today. A test pins it.
 
 ### 3.2 The seam (`app/agents/subagents/_base.py`)
 
-`ToolNode` is constructed in **two branches of one function** — `_base.py:278` (no fault policy) and
-`_base.py:283` (with `retry_policy` / `error_handler`), both inside `build_subagent`, which serves
-all five specialists. Both get the hook — as `wrap_tool_call=` **and** `awrap_tool_call=`, pointing
-at the same transform (D1); patching one branch leaves the fault-tolerant specialists unlabelled,
-and passing only the async form leaves every sync-driven graph unwrapped.
+Both `ToolNode` constructions in `build_subagent` — `_base.py:278` (no fault policy) and `:283`
+(with `retry_policy` / `error_handler`) — are left **exactly as they are**. The seam is the edge
+below them: `builder.add_edge("tools", "assistant")` becomes `tools → label_tools → assistant`, so
+one new node serves both branches and all five specialists without touching either construction.
 
-The hook's contract, read from the installed source (`tool_node.py:755-756`, stored `:777-778`,
-invoked `:1055` sync and `:1206-1207` async): it receives a `ToolCallRequest` and an `execute`
-callable. `execute` is declared to return `ToolMessage | Command | list[Command | ToolMessage]`
-(`tool_node.py:1074`, `:1166`), so the hook **type-guards** rather than assuming: only a
-`ToolMessage` is transformed; a `Command`, a list, or anything else is returned untouched.
+**Why not the hook** is D1 and E001: `ToolNode`'s wrapper path swallows every exception a hook
+raises, which disarms the narrowed `handle_tool_errors` that `TRANSIENT_RETRY` and
+`graceful_fallback` depend on. The node seam avoids this structurally rather than by care — it
+cannot see an exception, because it only runs on a super-step the `tools` node already completed.
 
-**Verified by execution, not by documentation.** LangChain's middleware docs present
-`wrap_tool_call` as a `create_agent`-only concept; the installed source exposes it on `ToolNode`
-directly. A probe against a compiled one-node `StateGraph` in this repo's venv confirms the source:
-the hook fires, a hostile payload's `</tool_output>` comes back as `&lt;/tool_output&gt;`,
-`dinner <7pm` survives as `dinner &lt;7pm`, and `status` / `tool_call_id` / `name` are unchanged.
+`label_tools` is a plain state node. It reads `state["messages"]`, walks **backwards from the end
+while the message is a `ToolMessage`** (the batch the `tools` node just appended; the preceding
+tool-calling `AIMessage` terminates the walk), transforms each one, and returns
+`{"messages": [transformed…]}`. The transformed copies are built with
+`result.model_copy(update={"content": …})`, which preserves `id` — and `id` is what makes this
+work: the `add_messages` reducer **upserts by `id`**, so returning a same-`id` copy replaces the
+message in place rather than appending a duplicate. Constructing a fresh `ToolMessage` would
+regenerate `id` and double every tool result in the transcript.
 
-**What this removes.** Because the hook runs per call, before `_combine_tool_outputs` assembles
-anything, the design no longer touches that function's return shape — the list mixing `Command`
-objects with `{"messages": […]}` dicts, which no document states as a contract and which has an open
-upstream issue. No node is replaced either, so the `async def` requirement recorded in
-`docs/solutions/agent/sync-node-breaks-async-only-tools.md` is met by using the async hook form
-rather than by rewriting a node.
+**Idempotence is required here, not merely desirable.** Unlike the hook, this node can run more
+than once over the same message — a checkpoint resume or a re-entered super-step would re-wrap
+already-wrapped content, and wrapping does not compose. The node therefore skips any content that
+already begins with the opening tag, and a test pins that running the transform twice equals
+running it once.
+
+What the node never touches, so D3 holds by construction: `graceful_fallback` returns
+`Command(goto="assistant")` and so **bypasses this node entirely**; the trip-guard node
+(`_base.py:151`) likewise routes to `assistant` on its own. `status == "error"` messages are
+skipped explicitly, which covers the in-tool-body first-party messages
+(`clarification_tools.py:55`, `trip_tools.py:547`, `:583`) that arrive as ordinary state messages.
 
 Preserved untouched on every message: `id`, `tool_call_id`, `name`, `status`, `artifact`.
+
+**The `async def` question.** `docs/solutions/agent/sync-node-breaks-async-only-tools.md` requires a
+node that invokes an inner graph or tool to be `async def`. `label_tools` invokes nothing — it is a
+pure function of state — so it stays a plain `def` and works on both the `invoke` and `ainvoke`
+paths without a second execution mode to keep in sync. That document's rule is about awaiting work,
+not about node style.
 
 ### 3.3 RAG (`app/tools/rag_tools.py`) — no change
 
@@ -171,13 +185,13 @@ Everything else that touches a `ToolMessage` reads metadata, not content: `strea
 
 | Situation | Behaviour |
 |---|---|
-| Tool result is a `ToolMessage` with text | Escaped, then wrapped |
-| `status == "error"` | Passed through untouched (D3) |
-| The hook receives a `Command` | Passed through untouched (D3) |
-| The hook receives a `list[Command \| ToolMessage]` | Passed through untouched — a declared return of `execute` that no current tool appears to produce; the hook type-guards rather than assuming |
-| Content is not a `str` | Passed through untouched, logged at debug. A coverage gap, not a safe case: today every tool yields a `str` via langgraph's `msg_content_output`, so this branch is near-theoretical — but if it ever fires, that content reaches the model unlabelled. |
-| Content is empty | Passed through untouched — no empty wrapper |
-| The transform raises | That message passes through unchanged and a warning is logged. The guard wraps **only the transform**, never the `await execute(request)` call — langgraph converts an exception thrown by the hook into a `status="error"` ToolMessage (`tool_node.py:1211-1222`), and swallowing a genuine tool fault would bypass `graceful_fallback`, which `retry.py` wires in as `error_handler`. |
+| Trailing message is a `ToolMessage` with text | Escaped, then wrapped |
+| `status == "error"` | Left untouched (D3) — covers `graceful_fallback`'s messages if they ever reach the node, and the in-tool-body first-party messages |
+| A `Command` was returned by the `tools` node | Never reaches the node: a `Command(goto=…)` routes directly and skips the `tools → label_tools` edge (D3 holds by construction) |
+| Content is already wrapped | Left untouched — the node is re-entrant (checkpoint resume), and wrapping does not compose |
+| Content is not a `str` | Left untouched, logged at debug. A coverage gap, not a safe case: today every tool yields a `str` via langgraph's `msg_content_output`, so this branch is near-theoretical — but if it ever fires, that content reaches the model unlabelled. |
+| Content is empty | Left untouched — no empty wrapper |
+| The transform raises on one message | That message is delivered unchanged, a warning is logged, and the remaining messages are still processed. The node returns a result for every message it examined, so a failure can never drop a `ToolMessage` — a missing `tool_call_id` would make the provider reject the next `assistant` turn. |
 
 ## 5. Tests
 
@@ -196,24 +210,29 @@ Unit (`tests/agents/test_tool_output.py`):
   `strip_wrappers(wrap_tool_output(name, x)) == escape_angle_brackets(x)` exactly — no leading or
   trailing blank line. It handles a variable `name` attribute, which a plain string replace could not.
 
-Hook level (through a compiled graph, FakeLLM):
+Node level (through a compiled graph, FakeLLM):
 
-- A tool returning prose comes back escaped and wrapped; `tool_call_id`, `name`, `status` and
+- A tool returning prose comes back escaped and wrapped; `id`, `tool_call_id`, `name`, `status` and
   `artifact` are unchanged.
+- **Exactly one message per tool call in the final state** — the upsert-by-`id` assertion. A test
+  that only checked "the last message is wrapped" would pass while every tool result was duplicated
+  in the transcript, which is the failure mode of building a fresh `ToolMessage`.
 - An error result is **not** wrapped.
-- A `Command`-returning tool (`needs_clarification` or `create_trip`) passes through untouched, and a
-  batch pairing one with an ordinary tool wraps only the ordinary one.
-- Both `ToolNode` construction branches (`_base.py:278` and `:283`) are exercised.
-- A tool returning non-`str` content is untouched.
-- Wrapping does not compose with itself: a single tool call yields exactly one `<tool_output>` block.
-- **The hook contract itself is pinned**: a test asserts that **both** `wrap_tool_call` and
-  `awrap_tool_call` are accepted and fire for a compiled graph — driven synchronously and
-  asynchronously — so a langgraph upgrade that moves or renames either fails here rather than
-  silently disabling the wrapping. Losing the sync parameter is the quiet failure of the two.
-  They are separate adapters over one pure transform: a single callable cannot serve both slots,
-  because the sync alias returns a message while the async alias returns an awaitable, and a sync
-  callable placed in the async slot returns the coroutine untouched — shipping unwrapped content
-  with no error at all.
+- A `Command`-returning tool (`needs_clarification` or `create_trip`) reaches `assistant` untouched,
+  and a batch pairing one with an ordinary tool wraps only the ordinary one.
+- Both `ToolNode` construction branches are exercised — reached via `build_subagent`'s `tool_fault`
+  argument — and both label their output.
+- **Fault tolerance still works with the node in place**: this is the test that would have caught
+  E001. A flaky tool under `TOOL_FAULT` still runs three times and still degrades through
+  `graceful_fallback`, whose messages arrive unwrapped.
+- A tool returning non-`str` content is untouched; empty content produces no wrapper.
+- The node is **idempotent**: running the transform twice over the same state equals running it once
+  — no nested `<tool_output>` block.
+- The same graph is driven **both** with `invoke` and with `ainvoke`, and labels in both — the node
+  is a plain `def`, so there is no second execution mode that can drift.
+- **The seam itself is pinned**: a test asserts that `label_tools` sits between `tools` and
+  `assistant` in the compiled graph, so a future edit that restores `tools → assistant` directly
+  fails here rather than silently disabling the wrapping.
 
 RAG: a document whose corpus text contains angle brackets arrives in the **`ToolMessage` content**
 (post-hook) with them escaped, and the two results remain separate JSON objects each carrying their
