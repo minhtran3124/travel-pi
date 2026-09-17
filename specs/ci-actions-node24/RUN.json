@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-15T10:30:44Z",
+  "last_event_id": "pr-211-merged",
+  "resume_event": null,
+  "run_id": "944dee86-6b72-4a65-8702-59e92e3e1d76",
+  "seq": 7,
+  "sha": "523d9cf7241ac27ace77beeb03f475c65edab22e",
+  "slug": "ci-actions-node24",
+  "state": "shipped",
+  "updated_at": "2026-09-15T11:10:22Z",
+  "waiting_on": null
+}
