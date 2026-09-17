@@ -67,7 +67,12 @@ Production was not queried — `unknown`.
 
 ## What changed
 
-Nothing yet — intake only.
+`load_context_node` and the `get_user_preferences` tool now read every stored instruction /
+preference (`READ_ALL_LIMIT = 50` in `app/memory/store.py`, a technical ceiling) instead of
+over-reading a 2× window and slicing to 10 / 8 / 5. The read guard and the `PROFILE_KEYS` exclusion
+are unchanged; episodic recall keeps its 6 → 3 window. Three tests pin the new behavior (12
+instructions by content and order, 10 preferences with poison and profile rows absent, 7 tool rows
+by content); the two pre-existing "poisoned rows ahead of valid ones" tests pass with bodies untouched.
 
 ### Rationale
 
@@ -87,13 +92,35 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 
 ### Deviations
 
-- none
+- none (no Rule 1–3 auto-fix by either implementer).
+
+### Review findings (per-task, all Minor — none blocking)
+
+- 1.1 — deleted comment lost the reason `search_memory_typed` is used over `search_preferences`
+  → **fixed** in `e4b3f604` (one comment line).
+- 1.1 — new test asserted a count only → **fixed** in `e4b3f604` (asserts the 12 lines by content and order).
+- 1.1 — reviewer could not confirm the window test's body was byte-identical (review package
+  truncated) → **resolved** by the controller with `git diff 40a6d98d..9d1c623f`: docstring-only.
+- 2.1 — controller caught, before commit, an added docstring containing `over-reading` (Global
+  Constraint) and two `§3.4` citations pointing at the removed cap → **fixed** in `f5a738f9`.
+  The implementer's own forbidden-token scan had reported clean.
+- 2.1 — "Read all rows" comments sit next to a ceiling of 50; the nuance lives at the constant's
+  definition → **recorded**, not changed.
+- 2.1 — test-first ordering is attested only by the implementer reports (`assert 10 == 12`,
+  `assert 8 == 10`, `assert 5 == 7`), not observable in the tree → **recorded**.
 
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | baseline before change (intake) | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py apps/api/tests/tools/test_memory_tools.py -q` | 0 | 19 passed on `baf46eea` (main with #214), run from repo root | |
+| SC-1 12 instructions reach the prompt | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_all_valid_instructions_reach_prompt_without_cap -q` | 0 | at f5a738f9 | SC-1 |
+| SC-2 10 valid preferences, no poison/profile | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected -q` | 0 | at f5a738f9 | SC-2 |
+| SC-3 tool returns all 7 | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_get_user_preferences_returns_all_valid_rows -q` | 0 | at f5a738f9 | SC-3 |
+| SC-4 no `limit=NN)[:` left | `grep -nE "limit=[12][0-9]\)\[:" apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 1 | exit 1 = no match (expected) | SC-4 |
+| SC-5 episodic recall unchanged | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_recall_past_trips_valid_episode_past_poisoned_window_survives -q` | 0 | at f5a738f9 | SC-5 |
+| SC-6 lint | `.venv/bin/ruff check apps/api/app/memory/store.py apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 0 | at f5a738f9 | SC-6 |
+| SC-7 preferences not sliced | `grep -n "PROFILE_KEYS\]\[:" apps/api/app/agents/nodes.py` | 1 | exit 1 = no match (expected) | SC-7 |
 
 ### Not auto-verified
 
@@ -107,4 +134,8 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 
 ### Harness-Delta
 
-- none yet
+- backlog — `review_package.py` truncated the 1.1 package mid-hunk (248 lines), forcing a
+  `cannot_verify` the controller had to settle by hand. → `compound`.
+- backlog — an implementer's self-run "forbidden token" scan reported clean while an added line
+  contained `over-reading`; countable constraints should be checked by the controller, not
+  self-attested. → `compound`.

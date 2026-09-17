@@ -123,3 +123,5 @@ design cap.
   (not satisfiable after wave 1); `Done` restated as exit codes; comment/docstring instructions made
   countable. Not applied (advisory): anchoring SC-4 on `READ_ALL_LIMIT` — a generic `limit=X)[:` pattern
   would also match the in-scope-untouched episodes line; SC-1/2/3 already fail on any reintroduced cap.
+- 2026-09-17 — task 1.1 complete; commits 9d1c623f, e4b3f604 (review: spec pass / quality approved, 3 Minor — 2 fixed, 1 resolved).
+- 2026-09-17 — task 2.1 complete; commit f5a738f9 (review: spec pass / quality approved, 2 Minor recorded).
