@@ -109,7 +109,7 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
 
-        # Full-read preferences, excluding PROFILE_KEYS (they surface via the profile block).
+        # search_memory_typed keeps p.key (search_preferences drops it); PROFILE_KEYS go in profile.
         try:
             prefs = search_memory_typed(
                 store, user_id, MemoryKind.PREFERENCES, limit=READ_ALL_LIMIT

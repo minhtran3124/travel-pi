@@ -147,7 +147,7 @@ def test_all_valid_instructions_reach_prompt_without_cap():
     _state, result = _run(store, "u_all_instr")
 
     lines = [ln for ln in result["instructions"].split("\n") if ln.strip()]
-    assert len(lines) == 12
+    assert lines == [f"- always confirm option {i} first" for i in range(12)]
 
 
 def test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected():
