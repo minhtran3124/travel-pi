@@ -81,11 +81,12 @@ Production was not queried — `unknown`.
 ## What changed
 
 `load_context_node` and the `get_user_preferences` tool now read every stored instruction /
-preference (`READ_ALL_LIMIT = 50` in `app/memory/store.py`, a technical ceiling) instead of
-over-reading a 2× window and slicing to 10 / 8 / 5. The read guard and the `PROFILE_KEYS` exclusion
-are unchanged; episodic recall keeps its 6 → 3 window. Three tests pin the new behavior (12
-instructions by content and order, 10 preferences with poison and profile rows absent, 7 tool rows
-by content); the two pre-existing "poisoned rows ahead of valid ones" tests pass with bodies untouched.
+preference instead of over-reading a 2× window and slicing to 10 / 8 / 5 — and the call sites pass
+no `limit` at all. `BaseStore.search` has no unlimited mode, so `app/memory/store.py` pages through
+it (`_read_all`: offset paging, rows told apart by namespace + key, stops on a short page or a page
+with nothing new). A read that carries a semantic `query` is a top-k search and is never paged — it
+uses the store's own default limit. Episodes are untouched (`recall_past_trips` keeps 6 → 3;
+default recall stays 3). The read guard and the `PROFILE_KEYS` exclusion are unchanged.
 
 ### Rationale
 
@@ -127,13 +128,16 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | baseline before change (intake) | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py apps/api/tests/tools/test_memory_tools.py -q` | 0 | 19 passed on `baf46eea` (main with #214), run from repo root | |
-| SC-1 12 instructions reach the prompt | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_all_valid_instructions_reach_prompt_without_cap -q` | 0 | at f5a738f9 | SC-1 |
-| SC-2 10 valid preferences, no poison/profile | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected -q` | 0 | at f5a738f9 | SC-2 |
-| SC-3 tool returns all 7 | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_get_user_preferences_returns_all_valid_rows -q` | 0 | at f5a738f9 | SC-3 |
+| SC-1 12 instructions reach the prompt | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_all_valid_instructions_reach_prompt_without_cap -q` | 0 | at 3969416f | SC-1 |
+| SC-2 10 valid preferences, no poison/profile | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected -q` | 0 | at 3969416f | SC-2 |
+| SC-3 tool returns all 7 | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_get_user_preferences_returns_all_valid_rows -q` | 0 | at 3969416f | SC-3 |
 | SC-4 no `limit=NN)[:` left | `grep -nE "limit=[12][0-9]\)\[:" apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 1 | exit 1 = no match (expected) | SC-4 |
-| SC-5 episodic recall unchanged | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_recall_past_trips_valid_episode_past_poisoned_window_survives -q` | 0 | at f5a738f9 | SC-5 |
-| SC-6 lint | `.venv/bin/ruff check apps/api/app/memory/store.py apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 0 | at f5a738f9 | SC-6 |
+| SC-5 episodic recall unchanged | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_recall_past_trips_valid_episode_past_poisoned_window_survives -q` | 0 | at 3969416f | SC-5 |
+| SC-6 lint | `.venv/bin/ruff check apps/api/app/memory/store.py apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 0 | at 3969416f | SC-6 |
 | SC-7 preferences not sliced | `grep -n "PROFILE_KEYS\]\[:" apps/api/app/agents/nodes.py` | 1 | exit 1 = no match (expected) | SC-7 |
+| SC-8 paged read returns every row once | `.venv/bin/python -m pytest apps/api/tests/memory/test_search_all.py -q` | 0 | 6 tests at 3969416f, incl. the hang reproduction | SC-8 |
+| SC-9 no `READ_ALL_LIMIT` | `grep -rn "READ_ALL_LIMIT" apps/api/app` | 1 | exit 1 = no match (expected) | SC-9 |
+| SC-10 no `limit=` in load_context | `grep -n "limit=" apps/api/app/agents/nodes.py` | 1 | exit 1 = no match (expected) | SC-10 |
 
 ### Not auto-verified
 
@@ -147,6 +151,25 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 
 - `git revert <sha>` — read-path only, no data written or deleted.
 
+### Correctness review (final gate) — BASE baf46eea
+
+Six FIND angles ran on `42ff7ae3`; all six reported the same defect and four reproduced it by
+execution. The controller reproduced it too (the new regression test was killed by SIGALRM after
+20 s on `42ff7ae3`). Independent SCORE dispatch was skipped for that location: it was fixed
+regardless of score, so threshold routing was moot. An adversarial re-review of the fix
+(`ed5b1937`) returned **fix holds**, with boundaries executed at 0/1/99/100/101/199/200/201 rows.
+
+| Finding | Severity | Outcome |
+| --- | --- | --- |
+| Queried read through the paging loop never terminated / returned duplicates on `InMemoryStore` (langgraph ignores `offset` for unembedded rows) | P0–P1 | **fixed** `ed5b1937` — a queried read is never paged; unqueried paging dedupes and stops on a page with nothing new |
+| Queried read on `PostgresStore` silently capped at ~201 candidates while claiming "every row" | P2 | **fixed** `ed5b1937` — queried reads are top-k by contract; docstrings say so |
+| `get_user_preferences(query=…)` returned all rows merely re-ranked | P2 | **fixed** `ed5b1937` — queried reads return the store's top matches (≤10; was ≤5 before this branch) |
+| Dedupe keyed on `key` only, but `store.search` matches a namespace prefix | P3 latent | **fixed** `3969416f` — keyed on `(namespace, key)`, with a test |
+| Legacy (pre-allowlist) rows are no longer capped in the prompt or the tool result | P2, Rule 4 | **advisory — owner decision**, see `### Intent` and PLAN §5; comment wording corrected (the allowlist bounds new writes only) |
+| Unqueried multi-page read is not atomic: a write landing between pages can skip a boundary row; ≥100 concurrent inserts could end the read early | P3 | **advisory** — only reachable above 100 rows in one user namespace (dev max: 5); duplicates are removed by the dedupe |
+| Tool wording "Optional free-text filter" / "Matching saved preferences" overstates a top-k search | P3 | **advisory** — pre-existing (top-k always filled before this branch too); model-facing text left unchanged |
+| Task 3.1 per-task review, 2 Minor (test name overstated; missing return annotations) | Minor | **fixed** `ed5b1937` |
+
 ### Harness-Delta
 
 - backlog — `review_package.py` truncated the 1.1 package mid-hunk (248 lines), forcing a
@@ -154,3 +177,9 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 - backlog — an implementer's self-run "forbidden token" scan reported clean while an added line
   contained `over-reading`; countable constraints should be checked by the controller, not
   self-attested. → `compound`.
+- backlog — `correctness-reviewer-prompt.md` documents fragment paths without the `.claude/` prefix;
+  `render_skill_prompt.py` exits 1 on them in a consumer install. → `compound`.
+- backlog — `run_state.py` has no transition out of `verifying` back to implementation, so an
+  owner scope change during the final gate leaves the durable state stale. → `compound`.
+- backlog — teammate results are truncated in delivery (~4–5 findings lost per report) and
+  read-only reviewers cannot write a report file; every FIND result needed a follow-up message. → `compound`.

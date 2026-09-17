@@ -161,3 +161,7 @@ design cap.
 - 2026-09-17 — owner, mid final-review: remove `limit` from the read sites entirely ("gây confuse cho ng review").
   `BaseStore.search` requires an int limit, so owner chose pagination. Six in-flight FIND reviewers stopped
   (stale diff). Added Task 3.1 + SC-8..SC-10; `READ_ALL_LIMIT` is superseded.
+- 2026-09-17 — task 3.1 complete; commit 42ff7ae3 (review: spec pass / quality approved, 2 Minor — fixed in ed5b1937).
+- 2026-09-17 — correctness review: 6/6 angles found a paging hang on queried reads; fixed ed5b1937, re-review "fix holds";
+  follow-up latent finding fixed 3969416f. Three advisories recorded in SUMMARY.md.
+
