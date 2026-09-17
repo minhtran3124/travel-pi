@@ -1,17 +1,4 @@
-"""Reflection booking-idempotency guard tests (gh-193, SC-4).
-
-A REVISE verdict routes ``goto=current_flow``; on the booking path that re-runs
-the booking sub-agent and can re-book. When *this turn* already committed a
-booking, reflection must end the turn at END *before* the judge call, so the
-committed booking is never reviewed (and never re-booked).
-
-"This turn" means the messages after the last ``HumanMessage``. A committed
-booking is a ``ToolMessage`` whose ``name`` is a booking write tool and whose
-``status`` is not ``"error"``.
-
-All tests are offline: FakeLLM is used, no network calls. ``llm._cursor`` (a
-private attr, 0 until the judge is called) proves whether the judge ran.
-"""
+"""When this turn already committed a booking (a non-error booking-write ToolMessage after the last ``HumanMessage``), reflection must END before the judge so the booking is never re-run. ``llm._cursor`` (0 until the judge is called) proves whether it ran."""
 
 from __future__ import annotations
 

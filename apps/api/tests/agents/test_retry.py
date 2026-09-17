@@ -1,5 +1,4 @@
-# tests/agents/test_retry.py
-"""Unit tests for the fault-tolerance policies (specs/agent-fault-tolerance, MIN-49)."""
+"""Unit tests for the fault-tolerance policies."""
 
 import logging
 
@@ -59,8 +58,7 @@ def test_graceful_fallback_one_message_per_tool_call():
 
 
 def test_fallback_message_claims_an_outage_only_for_upstream():
-    """#186: TRANSIENT_RETRY retries UpstreamError and nothing else, so an
-    exhausted retry is the one failure GRACEFUL_MSG describes truthfully."""
+    """TRANSIENT_RETRY retries UpstreamError only, so an exhausted retry is the one failure GRACEFUL_MSG describes truthfully."""
     assert _fallback_message(WeatherUnavailableError("open-meteo down")) is GRACEFUL_MSG
 
     wrapped = ToolException("tool failed")
@@ -69,8 +67,7 @@ def test_fallback_message_claims_an_outage_only_for_upstream():
 
 
 def test_fallback_message_does_not_claim_an_outage_for_a_deterministic_fault():
-    """The #178 exception class: retrying it can never succeed, so the message
-    must not send the traveller back to try again."""
+    """Retrying this exception class can never succeed, so the message must not send the traveller back to try again."""
     for exc in (
         NotImplementedError("StructuredTool does not support sync invocation."),
         TypeError("bad arg"),
@@ -104,9 +101,7 @@ def test_graceful_fallback_sends_the_non_transient_message_for_a_local_fault():
 
 
 def test_graceful_fallback_logs_the_exception_with_traceback(caplog):
-    """#186: the substituted message is the only other trace, so the real fault
-    must reach the logs with its traceback — a deterministic error read as an
-    "upstream problem" is what misdiagnosed #178."""
+    """The substituted message is the only other trace, so the real fault must reach the logs with its traceback."""
     ai = AIMessage(
         content="",
         tool_calls=[

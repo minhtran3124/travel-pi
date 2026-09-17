@@ -1,25 +1,11 @@
-"""Agent-domain constants — one home for the flat, tunable values.
-
-Enum-valued *types* live in ``app/enums.py`` (``Tier``, …); this module holds
-the plain constants the agent layer shares across modules: the safe tier
-default, the canonical sub-agent name sets, the fast-tier node set, the RAG
-tool name, the reflection cap, and user-facing copy. Keeping them together
-makes them easy to find and change without hunting through nodes.
-
-Import from here rather than redefining; the previous home modules now re-export
-these so existing import paths keep working.
-"""
+"""Agent-domain constants shared across the agent layer."""
 
 from __future__ import annotations
 
 from app.enums import Tier
 
-# --- tier resolution default ------------------------------------------------
-# Unknown/None tier falls back to this in ``resolve_agent_context``.
 DEFAULT_TIER: Tier = Tier.FREE
 
-# --- sub-agent inventory --------------------------------------------------
-# Canonical specialist sub-agent names — the single source of truth.
 ALL_SUBAGENTS: tuple[str, ...] = (
     "planner",
     "concierge",
@@ -30,26 +16,15 @@ ALL_SUBAGENTS: tuple[str, ...] = (
 # Sub-agents unavailable on the free tier (routing is restricted to the rest).
 PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
 
-# Name of the parallel-synthesis convergence node (GH-117 Path A). Shared so the
-# node registration, reflection's declared destinations, the worker/synthesize
-# edges, and the ``current_flow`` label the synthesize node emits all reference
-# ONE string. They MUST agree: reflection routes a REVISE back via
-# ``goto=current_flow``, and a label that is not a declared destination is
-# silently dropped by LangGraph (the revision is wasted). See
-# specs/fix-reflection-synthesize-goto.
+# Convergence node label. Must equal a declared routing destination or LangGraph
+# silently drops a reflection REVISE routed back via ``goto=current_flow``.
 SYNTHESIZE_NODE = "synthesize"
 
-# --- task fan-out (P1) ----------------------------------------------------
-# Max total sub-agent tasks the supervisor may schedule in ONE turn — dispatched
-# as parallel ``synthesis_worker`` instances (GH-117 Path A) that converge on
-# ``synthesize``. Bounded because each worker is an isolated ReAct subgraph (own
-# recursion budget); the cap keeps the parent graph well inside
-# ``agent_recursion_limit`` (25) with headroom for the reflection revise loop.
-# The supervisor truncates an over-long model-emitted plan to this in code.
+# Max sub-agent tasks the supervisor may schedule in one turn; bounded to keep the
+# parent graph inside ``agent_recursion_limit`` with headroom for the revise loop.
 MAX_LEDGER_STEPS = 4
 
-# Graph nodes that default to the cheap ``fast_llm_model`` when a per-agent
-# config omits ``model``. Everything else defaults to the main ``llm_model``.
+# Graph nodes that default to the cheap ``fast_llm_model`` when config omits ``model``.
 FAST_AGENTS: frozenset[str] = frozenset(
     {
         "summarize",
@@ -61,40 +36,25 @@ FAST_AGENTS: frozenset[str] = frozenset(
     }
 )
 
-# --- tooling --------------------------------------------------------------
-# Name of the episodic-recall tool (app/tools/memory_tools.py); gated off when
-# ``AgentContext.allow_episodic`` is False (mirrors the RAG filter in _base.py).
+# Episodic-recall tool; gated off when ``AgentContext.allow_episodic`` is False.
 EPISODIC_TOOL_NAME = "recall_past_trips"
 
-# --- booking idempotency (gh-193) -----------------------------------------
-# Write tools whose ToolMessage marks a committed booking. Reflection ends a
-# turn (never REVISEs it) when one of these succeeded *this turn*, so a REVISE
-# cannot re-run the booking sub-agent and double-book. Pinned to the tool
-# objects' .name attributes by a test in test_reflection_booking_guard.py.
+# Write tools whose ToolMessage marks a committed booking. Reflection ends the turn
+# (never REVISEs) when one succeeded this turn, so a REVISE cannot double-book.
 BOOKING_WRITE_TOOLS: frozenset[str] = frozenset({"book_flight", "book_hotel"})
 
-# --- reflection -----------------------------------------------------------
 # Default revise-loop cap; overridden per-mode via ``AgentContext.max_revisions``.
 DEFAULT_MAX_REVISIONS = 1
 
-# Internal note reflection injects into ``state["messages"]`` when it sends an
-# answer back for revision. Shared so the REST reply-assembly can recognise a
-# superseded draft (the answer immediately before this note) without coupling to
-# the wording. A SystemMessage (never HumanMessage) so language-detection and
-# "the traveller's latest message" prompt rules don't misfire.
+# Note reflection injects when sending an answer back for revision. A SystemMessage
+# (never HumanMessage) so language-detection and "latest traveller message" rules don't misfire.
 REFLECTION_REVISE_NOTE = (
     "Please improve your previous answer. This is an internal review note, not "
     "a message from the traveller — keep replying in the traveller's own language."
 )
 
-# Internal note the specialist ``assistant()`` folds into the END of its single
-# leading SystemMessage when the supervisor has scheduled a task for it
-# (``state["tasks"][0]``): the task query follows the preamble directly. Modelled
-# on the deepagents "fork" preamble, but addressed as an INTERNAL routing note.
-# It is never a separate or trailing message and never a HumanMessage: a
-# HumanMessage would be mistaken for the traveller's latest message, so
-# language-detection and "the traveller's latest message" prompt rules would key
-# off English steering text instead of what the traveller actually typed.
+# Folded into the specialist's leading SystemMessage (never a HumanMessage, which
+# would be mistaken for the traveller's latest message) when a task is scheduled.
 TASK_NOTE_PREAMBLE = (
     "Internal routing note from the supervisor, not a message from the "
     "traveller. Answer it against the conversation that follows: use the facts, "
@@ -103,12 +63,8 @@ TASK_NOTE_PREAMBLE = (
     "this turn:\n\n"
 )
 
-# --- trip selection -------------------------------------------------------
-# Emitted by the trip_guard node (app/agents/subagents/_base.py) when the model
-# calls a trip-scoped tool with no active trip in state (#113). Instructions to
-# the MODEL, not text shown verbatim: the reply must be in the traveller's own
-# language. Never asks for the trip id — the traveller has never seen one; the
-# id is a UUID the system assigns, so asking for it is a dead end.
+# Emitted by trip_guard when a trip-scoped tool runs with no active trip. Model
+# instructions, not verbatim text: never asks for the trip id (an unseen UUID).
 NO_ACTIVE_TRIP_MSG = (
     "Not run: no trip is selected for this conversation, and this tool cannot "
     "run without one. This is NOT an outage and retrying will fail identically. "
@@ -118,29 +74,21 @@ NO_ACTIVE_TRIP_MSG = (
     "before acting, so a wrong guess is caught before it reaches their data."
 )
 
-# --- user-facing copy -----------------------------------------------------
-# The assistant's name (persona lives in prompts/communication_style; this is
-# the code-side handle for text produced outside the LLM reply path).
+# Code-side handle for the assistant's name (persona lives in prompts).
 ASSISTANT_NAME = "Tin"
 
-# English SOURCE text only. Emit through ``app.agents.copy.system_reply`` so
-# the traveller gets it in the conversation language (translated once, cached).
-# Shown when a free user is routed to a premium-only sub-agent (booking).
+# English SOURCE text; emit via ``app.agents.copy.system_reply`` for translation.
 BOOKING_UPGRADE_MSG = (
     "Booking is a premium feature. Please upgrade your plan to book trips."
 )
 
-# Supervisor could not map the message to any specialist.
 NOT_SURE_MSG = "I'm not sure how to help with that yet."
 
-# HITL plan node reject outcome (app/agents/nodes.py). Approval has no reply
-# line: it is state (plan_approved) shown by the client as an activity step.
+# HITL plan reject outcome. Approval has no reply line: it is state (plan_approved).
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."
 
-# Always-on safety net: returned to the user when the agent run fails before it
-# could produce any reply (tool outage, LLM error, or a ReAct loop that exhausted
-# the recursion limit on repeated tool errors). Guarantees the chat bubble is
-# never empty / the request never 500s without a readable message.
+# Safety net returned when the run fails before producing any reply, so the chat
+# bubble is never empty and the request never 500s without a readable message.
 AGENT_ERROR_FALLBACK_MSG = (
     "I ran into a problem handling that request and couldn't finish my reply. "
     "Please try again in a moment."

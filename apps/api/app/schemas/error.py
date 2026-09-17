@@ -1,11 +1,4 @@
-"""The error envelope schema + an OpenAPI ``responses`` helper.
-
-Every failed request — domain (``AppError``), HTTP, or request-validation —
-comes back in the one envelope produced by the handlers in ``app.main``.
-This module documents that shape so Swagger renders error responses
-correctly instead of showing them as "Undocumented" (or, for 422, with the
-stale default ``HTTPValidationError`` shape).
-"""
+"""The error envelope schema + an OpenAPI ``responses`` helper."""
 
 from typing import Any
 
@@ -46,7 +39,6 @@ class ErrorResponse(AppBaseModel):
     )
 
 
-# Human-readable description per status code, for the OpenAPI docs.
 _DESCRIPTIONS: dict[int, str] = {
     401: "Authentication required",
     403: "Forbidden",
@@ -58,12 +50,7 @@ _DESCRIPTIONS: dict[int, str] = {
 
 
 def error_responses(*status_codes: int) -> dict[int | str, dict[str, Any]]:
-    """Build an OpenAPI ``responses=`` map for the given error status codes.
-
-    Pass this to a route decorator so Swagger documents each error with the
-    real :class:`ErrorResponse` shape, e.g.
-    ``responses=error_responses(404, 422)``.
-    """
+    """Build an OpenAPI ``responses=`` map for the given error status codes."""
     return {
         code: {"model": ErrorResponse, "description": _DESCRIPTIONS[code]}
         for code in status_codes

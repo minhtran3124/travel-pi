@@ -1,4 +1,4 @@
-"""Langfuse observability wiring (specs/travel-agent Task 7.1)."""
+"""Langfuse observability wiring."""
 
 
 def test_handler_none_when_disabled():
@@ -28,7 +28,7 @@ def test_handler_built_when_enabled(monkeypatch):
 
 
 def test_handler_built_once_not_per_call(monkeypatch):
-    """Langfuse client + handler are constructed exactly once, not per callbacks() call (M4)."""
+    """Langfuse client + handler are constructed exactly once, not per callbacks() call."""
     from unittest.mock import MagicMock, patch
 
     monkeypatch.setenv("LANGFUSE_ENABLED", "true")
@@ -65,7 +65,6 @@ def test_handler_built_once_not_per_call(monkeypatch):
 
 
 def test_disabled_no_client_constructed(monkeypatch):
-    """When Langfuse is disabled, no client or handler constructor is called."""
     from unittest.mock import patch
 
     from app.agents import observability
@@ -96,5 +95,4 @@ def test_trace_metadata_groups_by_user_and_trip():
     assert meta["langfuse_session_id"] == "t1"
     assert "travel-agent" in meta["langfuse_tags"]
 
-    # missing trip -> 'none' session
     assert trace_metadata("u1", None)["langfuse_session_id"] == "none"

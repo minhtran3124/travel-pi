@@ -1,16 +1,4 @@
-"""Provider-agnostic LLM client (specs/travel-agent Task 1.1).
-
-The agent layer never imports a provider SDK directly: it builds chat models via
-LangChain's ``init_chat_model()``, so switching provider is a settings change
-(``LLM_PROVIDER``), not a code change. Importing this module has **no** side
-effects — no network, no key validation — construction happens only when
-``get_llm()`` / ``get_fast_llm()`` is called.
-
-``FakeLLM`` is the deterministic stand-in used throughout the test suite: it
-scripts ``AIMessage`` responses (including tool calls) and supports
-``bind_tools`` / ``with_structured_output`` so it can drive the full agent graph
-without any API key or network access.
-"""
+"""Provider-agnostic LLM client: build chat models via ``init_chat_model``, no import side effects."""
 
 from __future__ import annotations
 
@@ -30,15 +18,7 @@ from app.core.llm_providers import ProviderProfile, get_provider
 
 
 def _resolve_profile(provider: str) -> ProviderProfile:
-    """Return the catalog profile for *provider*.
-
-    Falls back to a bare profile that treats the name as its own SDK with no
-    gateway, so any provider string stays usable — the catalog is a reference
-    list, not an allowlist.
-
-    :param provider: The profile name (or raw SDK name) to resolve.
-    :return: The matching :class:`ProviderProfile`, or a bare fallback.
-    """
+    """Return the catalog profile for *provider*, or a bare fallback (the catalog is a reference list, not an allowlist)."""
     profile = get_provider(provider)
     if profile is not None:
         return profile
@@ -53,21 +33,7 @@ def _build_chat_model(
     base_url: str | None = None,
     **extra: Any,
 ) -> BaseChatModel:
-    """Construct a chat model via ``init_chat_model`` for a provider *profile*.
-
-    The profile decides the underlying SDK (``model_provider``), whether a
-    gateway ``base_url`` is needed, and which settings key to inject.
-    ``temperature`` and ``extra`` knobs are only forwarded when set, so
-    reasoning models that reject ``temperature`` keep working with the defaults.
-
-    :param provider: The provider profile name (e.g. ``openai``, ``clinepass``).
-    :param model: The model to use.
-    :param temperature: The temperature to use, when supported.
-    :param base_url: Per-call override; wins over the profile's gateway and the
-        global ``settings.llm_base_url`` fallback.
-    :param extra: Extra arguments to pass to the chat model.
-    :return: A chat model.
-    """
+    """Construct a chat model via ``init_chat_model``; ``temperature``/``extra`` forwarded only when set so reasoning models that reject them still work."""
     s = get_settings()
     profile = _resolve_profile(provider)
     kwargs: dict[str, Any] = dict(extra)
@@ -85,62 +51,29 @@ def _build_chat_model(
     if temperature is not None:
         kwargs["temperature"] = temperature
 
-    kwargs.setdefault(
-        "max_retries", 0
-    )  # graph owns retry (MIN-49); avoid SDK double-retry
+    kwargs.setdefault("max_retries", 0)  # graph owns retry; avoid SDK double-retry
 
     if profile.sdk == "openai":
-        # streaming=True routes invoke through _stream, and langchain-openai
-        # 0.3.34 defaults stream_usage=False, so without this no OpenAI call
-        # returns usage_metadata. Scoped to the OpenAI SDK: other SDKs keep
-        # their own defaults and never receive this kwarg.
+        # Without this, streaming OpenAI calls return no usage_metadata (SDK defaults stream_usage=False).
         kwargs["stream_usage"] = True
 
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 
 def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
-    """Build a chat model for the configured provider.
-
-    ``model`` overrides the configured model name; ``fast=True`` selects the
-    cheaper ``fast_llm_model`` (used by sub-agents and summarisation). The API
-    key is passed explicitly from settings when present so we never depend on
-    process-wide env leakage; when absent the underlying client raises on first
-    use, not here.
-
-    :param model: Overrides the configured model name.
-    :param fast: When ``True``, selects the cheaper ``fast_llm_model``.
-    :return: A chat model.
-    """
+    """Build a chat model for the configured provider; ``fast=True`` selects the cheaper ``fast_llm_model``."""
     s = get_settings()
     name = model or (s.fast_llm_model if fast else s.llm_model)
     return _build_chat_model(s.llm_provider, name)
 
 
 def get_fast_llm(model: str | None = None) -> BaseChatModel:
-    """Build the cheap/fast chat model (sub-agents, summarisation, routing).
-
-    :param model: Overrides the configured fast model name.
-    :return: A chat model.
-    """
+    """Build the cheap/fast chat model (sub-agents, summarisation, routing)."""
     return get_llm(model, fast=True)
 
 
 def get_agent_llm(agent_name: str) -> BaseChatModel:
-    """Build the chat model for a specific graph node.
-
-    Resolves per field from the DB-backed override (``AgentConfigCache``),
-    falling back to the global default per field: ``provider`` to the global
-    ``llm_provider``, ``model`` to the node's tier default (fast vs main, via
-    ``FAST_AGENTS``). ``temperature`` / ``max_tokens`` are applied only when the
-    row sets them. The chosen ``provider`` profile supplies its own gateway
-    ``base_url`` inside ``_build_chat_model``; only a per-agent ``base_url``
-    override is threaded here. A node with no DB row behaves exactly like
-    ``get_llm()`` / ``get_fast_llm()``.
-
-    :param agent_name: The graph node name to resolve config for.
-    :return: A chat model.
-    """
+    """Build the chat model for a graph node, per-field from the DB override with global defaults as fallback; no DB row behaves like ``get_llm()``."""
     s = get_settings()
     fast = agent_name in FAST_AGENTS
 
@@ -162,16 +95,7 @@ def get_agent_llm(agent_name: str) -> BaseChatModel:
 
 
 class FakeLLM(BaseChatModel):
-    """Deterministic chat model for tests — scripts responses, zero network.
-
-    - ``responses``: cycled through by ``invoke``/``_generate``. Items may be a
-      plain ``str`` (becomes ``AIMessage(content=...)``), an ``AIMessage`` (use
-      as-is, e.g. carrying ``tool_calls``), or a ``dict`` with ``content`` /
-      ``tool_calls`` keys.
-    - ``structured_responses``: cycled through by the runnable returned from
-      ``with_structured_output`` — items are returned verbatim (already schema
-      instances) so callers get the object they expect.
-    """
+    """Deterministic chat model for tests — cycles scripted ``responses``/``structured_responses``, zero network."""
 
     responses: list[Any] = []
     structured_responses: list[Any] = []
@@ -184,9 +108,7 @@ class FakeLLM(BaseChatModel):
 
     def _next(self) -> AIMessage:
         msg = self._build_next()
-        # Deterministic usage so offline turns exercise the token/cost/latency
-        # metrics path; scripted AIMessages that already carry usage are left
-        # untouched.
+        # Deterministic usage so offline turns exercise the token/cost/latency metrics path.
         if not msg.usage_metadata:
             msg.usage_metadata = {
                 "input_tokens": 10,

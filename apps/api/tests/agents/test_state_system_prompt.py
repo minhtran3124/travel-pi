@@ -1,17 +1,15 @@
-"""Task 1.3 — State instructions field + system-prompt fold (specs/agent-memory-layers)."""
+"""State instructions field + system-prompt fold."""
 
 from langchain_core.messages import SystemMessage
 
 
 def test_instructions_field_in_state_schema():
-    """TravelAgentState has an 'instructions' annotation."""
     from app.agents.state import TravelAgentState
 
     assert "instructions" in TravelAgentState.__annotations__
 
 
 def test_system_with_summary_folds_instructions():
-    """Instructions appear in the leading system message."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -23,7 +21,6 @@ def test_system_with_summary_folds_instructions():
 
 
 def test_system_with_summary_instructions_before_summary():
-    """Instructions are folded BEFORE the summary (per D4)."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -41,7 +38,6 @@ def test_system_with_summary_instructions_before_summary():
 
 
 def test_system_with_summary_all_three_fields():
-    """All three (instructions, trip_context, summary) are folded together."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -63,7 +59,6 @@ def test_system_with_summary_all_three_fields():
 
 
 def test_system_with_summary_empty_instructions_unchanged():
-    """Empty instructions still return base unchanged when trip_context/summary also empty."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -72,7 +67,6 @@ def test_system_with_summary_empty_instructions_unchanged():
 
 
 def test_new_user_no_behavior_change():
-    """All-empty fields → base prompt unchanged (no behavior change for new users)."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -121,8 +115,7 @@ def test_account_email_field_in_state_schema():
 
 
 def test_system_with_summary_folds_account_email():
-    """close-product-loop-s1-booking-ui: the signed-in account email must reach
-    the leading system message so the model can offer/confirm it for booking."""
+    """The signed-in account email must reach the system message so the model can offer it for booking."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -144,7 +137,6 @@ def test_system_with_summary_account_email_after_profile():
 
 
 def test_system_with_summary_no_account_email_unchanged():
-    """An anonymous caller (no account email) must not change the base prompt."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -152,8 +144,7 @@ def test_system_with_summary_no_account_email_unchanged():
 
 
 def test_trip_context_label_says_one_trip_not_a_list():
-    """GH-166 SC-9: the shared trip-context label must scope itself to the ONE open
-    trip, so no sub-agent reads it as the traveller's full trip list."""
+    """The shared trip-context label must scope itself to the one open trip, not the traveller's full trip list."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -164,8 +155,7 @@ def test_trip_context_label_says_one_trip_not_a_list():
 
 
 def test_trip_context_label_names_no_tool():
-    """The label reaches every sub-agent, including concierge, which binds no trip
-    tools — naming one would promise a capability it cannot execute."""
+    """The label reaches sub-agents like concierge that bind no trip tools, so naming one would promise a capability it lacks."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")

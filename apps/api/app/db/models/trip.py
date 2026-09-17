@@ -9,11 +9,7 @@ from app.db.base import UUIDBase
 class Trip(UUIDBase):
     __tablename__ = "trips"
 
-    # Owner (#118). Every read and write is scoped to it — before this column a
-    # trip belonged to nobody, so `list_trips()` returned every trip in the
-    # database and a guessed UUID reached anyone's itinerary. NOT NULL from the
-    # first revision: the migration deletes the pre-existing ownerless rows
-    # rather than leaving a nullable column whose meaning drifts.
+    # Owner: every read and write is scoped to it. NOT NULL so no trip is ownerless.
     user_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -26,11 +22,7 @@ class Trip(UUIDBase):
     budget_caps: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     __table_args__ = (
-        # Uniqueness is per owner (#118). A global unique key meant two users
-        # sending the same Idempotency-Key collided: the second one's
-        # owner-scoped replay lookup finds nothing, the global index still
-        # rejects the INSERT, and the IntegrityError fallback re-runs the same
-        # scoped lookup and re-raises — a 500 instead of that user's trip.
+        # Uniqueness is per owner: a global key would collide two users sharing an Idempotency-Key.
         Index(
             "ix_trips_user_idempotency_key",
             "user_id",

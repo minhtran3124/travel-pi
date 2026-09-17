@@ -1,16 +1,7 @@
-"""Hybrid retrieval (specs/travel-knowledge-rag; restored from the deleted original).
+"""Hybrid retrieval combining semantic and lexical overlap via Reciprocal Rank Fusion.
 
-Combines semantic similarity with lexical (keyword) overlap via Reciprocal Rank
-Fusion, then applies metadata filtering — the combination travel queries need
-("do I need a visa for a 45-day stay in Vietnam?" carries both semantic and
-keyword signal). Runs identically on the in-memory store (tests) and pgvector; a
-Postgres deployment can push the lexical leg down to a ``tsvector`` index, but the
-fusion contract here is engine-agnostic.
-
-The metadata filter is pushed into ``similarity_search`` so the candidate pool is
-already filtered *before* RRF fusion — this avoids result starvation when
-matching documents are sparse in the semantic top-N (the original
-``test_hybrid_search_filter_during_fetch_no_starvation`` guards this).
+The metadata filter is pushed into ``similarity_search`` so the candidate pool is filtered before RRF
+fusion, avoiding result starvation when matching documents are sparse in the semantic top-N.
 """
 
 from __future__ import annotations
@@ -25,31 +16,14 @@ _WORD_RE = re.compile(r"\w+")
 
 
 def _tokenize(text: str) -> set[str]:
-    """Lowercase word tokens with punctuation stripped.
-
-    Splitting on ``\\w+`` (not whitespace) means ``"Vietnam?"`` and ``"Vietnam."``
-    both tokenize to ``vietnam``, so the lexical leg still fires on natural,
-    punctuated questions.
-
-    :param text: The text to tokenize.
-    :return: The set of lowercase word tokens.
-    """
+    """Lowercase word tokens split on ``\\w+`` so punctuated forms ("Vietnam?") still tokenize and the
+    lexical leg fires on natural questions."""
     return set(_WORD_RE.findall(text.lower()))
 
 
 def _store_filter_kwargs(store: VectorStore, filters: dict | None) -> dict:
-    """Return the ``filter=`` kwargs appropriate for the given store implementation.
-
-    - :class:`InMemoryVectorStore` expects a callable predicate.
-    - ``PGVector`` (and other stores) expect a metadata dict.
-
-    Passing no filter returns an empty dict so the call site can always do
-    ``store.similarity_search(query, k=n, **kwargs)`` uniformly.
-
-    :param store: The vector store the filter will be passed to.
-    :param filters: Metadata filters to apply, or ``None``.
-    :return: The ``filter=`` kwargs for ``similarity_search``.
-    """
+    """Return the ``filter=`` kwargs for the store: ``InMemoryVectorStore`` expects a callable predicate,
+    ``PGVector`` a metadata dict; no filter returns an empty dict for a uniform call site."""
     if not filters:
         return {}
     if isinstance(store, InMemoryVectorStore):
@@ -60,12 +34,7 @@ def _store_filter_kwargs(store: VectorStore, filters: dict | None) -> dict:
 
 
 def _lexical_score(query: str, doc: Document) -> int:
-    """Token-overlap count between *query* and the document (case-insensitive).
-
-    :param query: The search query.
-    :param doc: The document to score.
-    :return: The number of query tokens present in the document.
-    """
+    """Token-overlap count between *query* and the document (case-insensitive)."""
     return len(_tokenize(query) & _tokenize(doc.page_content))
 
 
@@ -77,19 +46,7 @@ def hybrid_search(
     k: int = 5,
     fetch_k: int | None = None,
 ) -> list[Document]:
-    """Return up to k documents ranked by RRF(semantic, lexical), metadata-filtered.
-
-    The metadata filter is pushed into ``similarity_search`` so the candidate pool
-    is already filtered before RRF fusion. This avoids result starvation when
-    matching documents are sparse in the semantic top-N.
-
-    :param store: The vector store to search.
-    :param query: The search query.
-    :param filters: Metadata filters to apply (e.g. ``{"country": "Vietnam"}``).
-    :param k: Number of ranked documents to return.
-    :param fetch_k: Number of candidates to fetch before fusion; defaults to ``k * 4``.
-    :return: Up to ``k`` documents ranked by RRF score.
-    """
+    """Return up to k documents ranked by RRF(semantic, lexical), metadata-filtered."""
     fetch_k = fetch_k or k * 4
     filter_kwargs = _store_filter_kwargs(store, filters)
     candidates = store.similarity_search(query, k=fetch_k, **filter_kwargs)

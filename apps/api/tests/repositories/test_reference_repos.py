@@ -1,11 +1,4 @@
-"""Parity tests for the per-entity reference repos (Chunk D).
-
-Each repo reads the seeded reference tables behind a ``session_factory`` and
-returns the existing Pydantic response schemas (or the exact dict/scalar shape
-the consuming service uses today). These tests assert each repo reproduces the
-behaviour of today's module-level ``app/data`` structures, exercised over a
-freshly-seeded temp-SQLite session factory.
-"""
+"""Parity tests: each reference repo reproduces today's ``app/data`` structures over a seeded temp DB."""
 
 import pytest
 from app.data.airlines import AIRLINE_COLORS, AIRLINES
@@ -49,15 +42,8 @@ def sf(tmp_path_factory):
     return get_session_factory(url)
 
 
-# ---------------------------------------------------------------------------
-# D1 — simple lookups: country, airline, airport, visa, fx
-# ---------------------------------------------------------------------------
-
-
 def test_airline_list_preserves_seed_order(sf):
-    """flight_service does rng.choice(AIRLINES) over a seeded RNG → the repo's
-    list() MUST return airlines in AIRLINES seed order (ORDER BY position) and
-    as {code, name} dicts."""
+    """list() must return airlines in AIRLINES seed order (position) as {code, name} dicts, since flight_service does rng.choice over a seeded RNG."""
     repo = AirlineRepository(sf)
     result = repo.list()
     expected = [{"code": a["code"], "name": a["name"]} for a in AIRLINES]
@@ -68,7 +54,6 @@ def test_airline_color(sf):
     repo = AirlineRepository(sf)
     for code, color in AIRLINE_COLORS.items():
         assert repo.color(code) == color
-    # Unknown code → None.
     assert repo.color("ZZ") is None
 
 
@@ -99,8 +84,7 @@ def test_country_list_and_get(sf):
     repo = CountryRepository(sf)
     listed = repo.list()
     assert len(listed) == len(COUNTRIES)
-    # list() preserves the curated COUNTRIES seed order (ORDER BY position) —
-    # the dashboard region tiles rely on it.
+    # Seed order (ORDER BY position) is preserved — the dashboard region tiles rely on it.
     assert [c["code"] for c in listed] == [c["code"] for c in COUNTRIES]
     by_code = {c["code"]: c for c in listed}
     for c in COUNTRIES:
@@ -154,11 +138,6 @@ def test_fx_valid_codes_and_country_names(sf):
     assert repo.country_names() == sorted(COUNTRY_CURRENCY)
 
 
-# ---------------------------------------------------------------------------
-# D2 — fuzzy + JSON repos: city, hotel_ref, place_ref, tip
-# ---------------------------------------------------------------------------
-
-
 def _hotel_counts() -> dict[str, int]:
     counts: dict[str, int] = {}
     for h in HOTELS:
@@ -181,7 +160,6 @@ def test_city_get(sf):
     assert got.country == sample["country"]
     assert got.airport_codes == sample["airport_codes"]
     assert got.hotel_count == counts.get(sample["name"], 0)
-    # case-insensitive exact lookup
     assert repo.get(sample["name"].lower()).name == sample["name"]
     assert repo.get("Nowhere City") is None
 
@@ -292,7 +270,6 @@ def test_place_search_filters(sf):
     repo = PlaceRepository(sf)
     city = PLACES[0]["city"]
     category = PLACES[0]["category"]
-    # city + category (exact, lowercased)
     results = repo.search(city=city, category=category)
     expected = [
         p["id"]
@@ -308,7 +285,6 @@ def test_place_search_rating_and_price(sf):
     for p in results:
         assert p.rating >= 4.5
         assert p.price_level <= 2
-    # price_level exact
     exact = repo.search(price_level=1)
     assert all(p.price_level == 1 for p in exact)
 

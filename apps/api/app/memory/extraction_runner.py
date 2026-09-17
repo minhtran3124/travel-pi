@@ -1,7 +1,6 @@
 """Framework-agnostic post-turn memory extraction runner.
 
-Lifts the body of ``app.agents.nodes.make_extract_memory_node`` into a plain
-function so it can be invoked outside a LangGraph node (e.g. from a
+A plain function so it can be invoked outside a LangGraph node (e.g. from a
 background task). Best-effort: any error is swallowed so a failed extraction
 never breaks the caller.
 """
@@ -39,21 +38,8 @@ def run_memory_extraction(
     """Extract preferences/instructions/episodes from *messages* and upsert them.
 
     Best-effort: any error during extraction or store writes is logged and
-    swallowed, never raised.
-
-    :param messages: Full conversation history to extract from.
-    :param user_id: Owning user id; extraction is skipped if falsy.
-    :param trip_id: Trip id used as an episode key fallback.
-    :param plan_approved: When True, episodes are recorded with
-        ``outcome="approved"`` regardless of the extractor's own outcome.
-    :param allow_memory_write: Gate — extraction is skipped entirely if False.
-    :param store: LangGraph store to write into; extraction is skipped if None.
-    :param llm: Chat model used to run the extraction prompt.
-    :param run_id: When set together with *session_factory*, the background LLM
-        calls / tokens / wall-clock of this extraction are recorded onto the
-        ``agent_runs`` row with this id (best-effort).
-    :param session_factory: Session factory used to persist the background
-        metrics; required alongside *run_id* for any DB write to happen.
+    swallowed, never raised. ``run_id`` + ``session_factory`` together record the
+    background LLM calls/tokens/wall-clock onto the ``agent_runs`` row.
     """
     if not allow_memory_write:
         logger.info("[agent] extract_memory (skipped — allow_memory_write=False)")
@@ -87,8 +73,7 @@ def run_memory_extraction(
                 instr["key"],
                 instr["text"],
             )
-        # P2: persist episodes with rich metadata. A turn that passed the HITL
-        # plan-approval gate (plan_approved=True) records outcome="approved";
+        # A turn that passed the plan-approval gate records outcome="approved";
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
             key = ep.get("key") or trip_id or "episode"
@@ -122,9 +107,8 @@ def run_memory_extraction(
     except Exception:
         logger.exception("[agent] extract_memory: write failed")
 
-    # Record background metrics AFTER the memory writes, in an isolated try, so a
-    # metrics-DB failure can never starve the primary preference/instruction/episode
-    # upserts above (memory is the point of this task; metrics are secondary).
+    # Record metrics after the writes in an isolated try, so a metrics-DB failure
+    # can never starve the primary upserts above.
     if record_metrics:
         try:
             elapsed_ms = int((time.perf_counter() - started) * 1000)
@@ -152,20 +136,9 @@ def run_memory_extraction_from_stream(
     """Adapt a streaming turn's post-drain ``sink`` into ``run_memory_extraction``.
 
     ``sink`` is populated by ``stream_agent_events`` after the SSE stream fully
-    drains (see ``final_state_sink``); this adapter is the entry point a
-    ``StreamingResponse`` background task calls, so extraction still runs off
-    the reply path even though the final graph state is only known post-drain.
-    No-op (best-effort) when the sink is empty (stream crashed before the
-    post-drain fetch) or a plan-approval interrupt is pending.
-
-    :param sink: The mutable dict populated by ``stream_agent_events`` with
-        ``values`` (final graph state) and ``interrupt_pending``.
-    :param allow_memory_write: Gate forwarded to ``run_memory_extraction``.
-    :param store: LangGraph store to write into.
-    :param llm: Chat model used to run the extraction prompt.
-    :param run_id: Forwarded to ``run_memory_extraction`` for background metrics.
-    :param session_factory: Forwarded to ``run_memory_extraction`` for background
-        metric persistence.
+    drains, so extraction runs off the reply path even though the final graph
+    state is only known post-drain. No-op when the sink is empty (stream crashed
+    before the post-drain fetch) or a plan-approval interrupt is pending.
     """
     if not sink or sink.get("interrupt_pending"):
         return None

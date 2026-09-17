@@ -1,14 +1,4 @@
-"""Opt-in duplicate-intent check in ``BookingService`` (gh-194, task 1.1).
-
-These exercise the service directly (no HTTP, no tools). With
-``check_duplicate=True`` a second *active* booking by the same owner for the
-same flight (row + passengers) or hotel (+ exact dates) raises
-``DuplicateBookingError`` and stores no new row; the default ``False`` keeps the
-REST create-every-time behaviour. Raising cases are named ``test_*_raises*`` and
-non-flag cases ``test_*_not_flagged*`` so SC-1/SC-2 ``-k`` filters select them.
-Each test uses a unique owner id so the shared session-scoped DB cannot leak
-rows between cases.
-"""
+"""Opt-in duplicate-intent check in ``BookingService``: with ``check_duplicate=True`` a second active booking by the same owner for the same flight or hotel raises ``DuplicateBookingError`` and stores no new row; the default ``False`` keeps the REST create-every-time behaviour. Each test uses a unique owner id so the shared session-scoped DB cannot leak rows between cases."""
 
 from __future__ import annotations
 
@@ -75,11 +65,6 @@ def _hotel_request(
     )
 
 
-# ---------------------------------------------------------------------------
-# SC-1 — raising cases
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_duplicate_raises(service):
     owner = "u_dup_flight_raise"
     flight = _flight(service._session)
@@ -90,7 +75,6 @@ def test_book_flight_duplicate_raises(service):
             _flight_request(flight), user_id=owner, check_duplicate=True
         )
 
-    # Names the existing booking and stores no new row.
     assert exc.value.existing.id == first.id
     assert first.confirmation_code in exc.value.detail
     assert exc.value.hint is not None and "allow_duplicate" in exc.value.hint
@@ -115,8 +99,7 @@ def test_book_hotel_duplicate_raises(service):
 
 def test_hotel_unpadded_dates_raises(service):
     """Unpadded request dates ("2027-4-10") must still match a padded existing
-    booking ("2027-04-10"): the check compares parsed dates, not raw strings, so
-    the duplicate does not escape (gh-194, M1)."""
+    booking ("2027-04-10"): the check compares parsed dates, not raw strings."""
     owner = "u_dup_hotel_unpadded"
     hotel_id = _hotel_id(service._session)
     first = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
@@ -130,11 +113,6 @@ def test_hotel_unpadded_dates_raises(service):
 
     assert exc.value.existing.id == first.id
     assert len(service.list_all(user_id=owner)) == 1
-
-
-# ---------------------------------------------------------------------------
-# SC-2 — not-flagged cases
-# ---------------------------------------------------------------------------
 
 
 def test_cancelled_flight_not_flagged(service):
@@ -236,7 +214,7 @@ def test_hotel_check_duplicate_false_not_flagged(service):
 def test_book_hotel_duplicate_message_uses_existing_details(service):
     """The duplicate message is built from the *existing* row, not the new
     request: it names the matched booking's hotel, dates and party size so the
-    traveller can tell which booking is meant (gh-200)."""
+    traveller can tell which booking is meant."""
     owner = "u_dup_hotel_details"
     hotel_id = _hotel_id(service._session)
     first = service.book_hotel(_hotel_request(hotel_id), user_id=owner)
@@ -259,7 +237,7 @@ def test_book_hotel_duplicate_message_uses_existing_details(service):
 def test_book_hotel_sold_out_wins_over_duplicate(service, monkeypatch):
     """A sold-out hotel reports sold-out before the duplicate check: an identical
     active booking plus zero free rooms raises ConflictError, not
-    DuplicateBookingError, and inserts no row (gh-200)."""
+    DuplicateBookingError, and inserts no row."""
     owner = "u_dup_hotel_sold_out"
     hotel_id = _hotel_id(service._session)
     service.book_hotel(_hotel_request(hotel_id), user_id=owner)
@@ -283,15 +261,10 @@ def test_book_hotel_sold_out_wins_over_duplicate(service, monkeypatch):
     assert len(service.list_all(user_id=owner)) == 1
 
 
-# ---------------------------------------------------------------------------
-# gh-200 C1 — every matching active booking is carried in `matches`
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_all_matches_carries_every_active_duplicate(service):
     """Two active bookings match this flight (older X, newer Z); the error names
     the newest as ``existing`` but carries *both* in ``matches`` so the tool can
-    refuse an override flagged against either one (gh-200 C1)."""
+    refuse an override flagged against either one."""
     owner = "u_dup_flight_all_matches"
     flight = _flight(service._session)
     older = service.book_flight(_flight_request(flight), user_id=owner)
@@ -309,7 +282,7 @@ def test_book_flight_all_matches_carries_every_active_duplicate(service):
 
 def test_book_hotel_all_matches_carries_every_active_duplicate(service):
     """Two active bookings match this hotel + exact dates (older X, newer Z);
-    ``existing`` names the newest, ``matches`` carries both (gh-200 C1)."""
+    ``existing`` names the newest, ``matches`` carries both."""
     owner = "u_dup_hotel_all_matches"
     hotel_id = _hotel_id(service._session)
     older = service.book_hotel(_hotel_request(hotel_id), user_id=owner)

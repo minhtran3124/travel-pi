@@ -1,34 +1,13 @@
 """Persistence wrapper for the agent SSE stream.
 
-Wraps ``stream_agent_events`` to accumulate the assistant's reply from ``token``
-events and write it to the DB **before** the terminal ``done`` event reaches
-the client (specs/user-feedback-v1 DESIGN §4.3). Uses an **isolated**
-sessionmaker-backed session (not the request-scoped Depends session, which may
-be torn down before or during streaming) — see rules/guidelines.md Data Access.
-
-The caller passes a ``session_factory`` so the same DB engine used for the
-request-scoped session is reused. This lets tests override ``get_session`` once
-and have the propagation flow through automatically (instead of reading
-``get_settings()`` here and hitting the real DB in tests).
-
-On ``reset`` events (reflection revision) the accumulator is cleared so only
-the *final* answer is persisted, mirroring the FE's reset semantics in
-``streaming/mapper.py``.
-
-``done`` therefore carries the persisted row's ``assistant_message_id`` and
-the ``agent_run_id`` that produced it when a rateable row exists, and
-``assistant_message_id: null`` otherwise (empty reply, interrupted turn, or a
-failed insert). ``done`` itself is never withheld or replaced: the stream's
-terminal contract is exactly what it was before this feature.
-
-A terminal ``error`` that arrives *with* accumulated text (the mapper streams a
-fallback ``token`` and then ``error`` when the graph fails — see
-``streaming/mapper.py``) is also persisted under the pre-minted id, so REST
-and SSE history stay in parity (the chat path saves its fallback reply the
-same way). That run ends ``failed`` via ``record_agent_run``, so the row is
-not rateable; the ``error`` payload itself is passed through untouched. The
-same applies after an ``interrupt``: draft text is saved (as it was before this
-feature) but the turn is never rateable.
+Accumulates the assistant reply from ``token`` events and writes it to the DB
+before the terminal ``done`` reaches the client. Uses an isolated
+sessionmaker-backed session (not the request-scoped one, which may be torn down
+during streaming); the caller passes ``session_factory`` so tests can override
+``get_session`` once. ``reset`` clears the accumulator so only the final answer
+is persisted. A ``done`` with a saved row carries its ``assistant_message_id`` /
+``agent_run_id``, else null; a terminal ``error`` (or ``interrupt``) with
+accumulated text persists it too, but that turn is never rateable.
 """
 
 from __future__ import annotations
@@ -55,27 +34,12 @@ async def persist_assistant_turn(
 ) -> AsyncIterator[TypedSSEEvent]:
     """Pass every SSE event through while persisting the assistant reply.
 
-    Tokens (since the last ``reset``) are accumulated. When the upstream ``done``
-    arrives the text is inserted as an ``assistant`` message under the
-    pre-minted ``message_id`` with ``agent_run_id=run_id`` via ``session_factory``
-    (an isolated session — not the request-scoped one) **before** ``done`` is
-    yielded, and both ids are injected into the ``done`` payload. ``done`` is
-    always yielded: an empty reply writes no row, a failed insert is logged, and
-    an interrupted turn saves its draft text (not rateable) — each of those
-    yields ``done`` with ``assistant_message_id: null`` (DESIGN §4.2/§4.3).
-    ``interrupt`` / ``error`` pass through untouched (``record_agent_run`` owns
-    the run status). A terminal ``error`` with non-empty accumulated text (the
-    mapper's fallback reply) persists that text under ``message_id`` **before**
-    the ``error`` is yielded — history parity with the REST fallback — and a
-    failure to do so is logged and swallowed (the client already has an
-    error). An ``error`` with no text, or with code ``cancelled`` (client
-    disconnect — the traveller never saw the reply), writes nothing.
-
-    :param events_iter: The upstream SSE event stream to pass through.
-    :param conversation_id: The conversation the persisted turn belongs to.
-    :param session_factory: Isolated sessionmaker used to write the message.
-    :param run_id: The ``agent_runs`` id the router started for this turn.
-    :param message_id: The router-minted id the assistant row is stored under.
+    Accumulated tokens (since the last ``reset``) are written under the pre-minted
+    ``message_id`` before ``done`` is yielded, and both ids are injected into it.
+    An empty reply, failed insert, or interrupted turn yields ``done`` with
+    ``assistant_message_id: null``. A terminal ``error`` with accumulated text
+    persists it (history parity with the REST fallback); an ``error`` with no
+    text, or code ``cancelled`` (client disconnect), writes nothing.
     """
     accumulated: list[str] = []
     interrupted = False
@@ -94,15 +58,15 @@ async def persist_assistant_turn(
             interrupted = True
         elif event.event == "error":
             # A client disconnect surfaces as error{code: cancelled}; the
-            # traveller never saw a reply, so no row (DESIGN §4.3).
+            # traveller never saw a reply, so no row.
             try:
                 code = json.loads(event.data).get("code")
             except (ValueError, AttributeError):
                 code = None
             if code != "cancelled":
-                # Persist the (fallback / draft) reply before the client sees
-                # the failure; the run is marked `failed` or `interrupted` by
-                # record_agent_run, so the row is history-only, never rateable.
+                # Persist the fallback/draft reply before the client sees the
+                # failure; record_agent_run marks the run failed/interrupted, so
+                # the row is history-only, never rateable.
                 _save_best_effort(
                     session_factory,
                     conversation_id=conversation_id,
@@ -114,8 +78,8 @@ async def persist_assistant_turn(
         elif event.event == "done":
             text = "".join(accumulated)
             if interrupted:
-                # Draft text of an interrupted turn is kept for history (as it
-                # was before this feature) but the turn is not rateable.
+                # Draft text of an interrupted turn is kept for history but the
+                # turn is not rateable.
                 _save_best_effort(
                     session_factory,
                     conversation_id=conversation_id,
@@ -126,7 +90,6 @@ async def persist_assistant_turn(
                 )
                 event = _with_identity(event, message_id=None, run_id=run_id)
             elif not text:
-                # No reply text: no row, `done` passes as it always did.
                 event = _with_identity(event, message_id=None, run_id=run_id)
             else:
                 saved = _save_best_effort(
@@ -154,8 +117,7 @@ def _save_best_effort(
 ) -> bool:
     """Insert *text* as the assistant row; log and swallow any failure.
 
-    :return: ``True`` when a row was written, ``False`` for empty text or a
-        failed insert (the caller then reports a null ``assistant_message_id``).
+    Returns ``True`` when a row was written, ``False`` for empty text or a failure.
     """
     if not text:
         return False

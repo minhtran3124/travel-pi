@@ -1,17 +1,4 @@
-"""Live air-quality lookup via the Open-Meteo Air-Quality API.
-
-Like ``weather_service`` (which this module reuses for geocoding and the raw
-HTTP fetch), this makes a *real* outbound call — the Air-Quality API is the
-same keyless, CC-BY-4.0 Open-Meteo provider, just a different host.
-
-It returns the current US-AQI snapshot plus the six standard pollutants, and a
-short per-day *max*-AQI forecast aggregated from the hourly series. There is no
-cache — this is point-in-time data, mirroring ``weather_service``.
-
-Only ``get_air_quality`` is async (it awaits geocoding + the fetch); the
-category mapping and forecast aggregation are pure sync helpers. Tests
-monkeypatch ``weather_service._fetch_json`` to avoid hitting the network.
-"""
+"""Live air-quality lookup via the Open-Meteo Air-Quality API."""
 
 import logging
 
@@ -23,9 +10,7 @@ from app.services import weather_service
 
 logger = logging.getLogger(__name__)
 
-# US-AQI category band ceilings (inclusive). The label applies when the AQI is
-# ≤ the bound and > the previous one; anything above the last bound is the
-# final, open-ended category. https://www.airnow.gov/aqi/aqi-basics/
+# US-AQI category band ceilings (inclusive); above the last bound is open-ended.
 _AQI_GOOD = 50
 _AQI_MODERATE = 100
 _AQI_USG = 150  # Unhealthy for Sensitive Groups
@@ -34,11 +19,7 @@ _AQI_VERY_UNHEALTHY = 300
 
 
 def _us_aqi_category(value: int | None) -> str:
-    """Map a US-AQI value to its category label; ``None`` → ``"Unknown"``.
-
-    :param value: The US-AQI reading, or ``None`` if unavailable.
-    :return: The category label for the reading.
-    """
+    """Map a US-AQI value to its category label; ``None`` → ``"Unknown"``."""
     if value is None:
         return "Unknown"
     if value <= _AQI_GOOD:
@@ -55,18 +36,7 @@ def _us_aqi_category(value: int | None) -> str:
 
 
 def _build_forecast(hourly: dict, max_days: int) -> list[AirQualityDay]:
-    """Aggregate the hourly US-AQI series into per-day max-AQI summaries.
-
-    Groups hourly readings by calendar date (``YYYY-MM-DD`` prefix of each
-    timestamp), takes the peak non-null AQI per day, and emits one
-    :class:`AirQualityDay` per date in chronological order, capped at
-    ``max_days``. A day with no usable readings yields ``max_us_aqi=None``
-    (``"Unknown"``) — ``max([])`` is guarded so an all-null day never raises.
-
-    :param hourly: Raw Open-Meteo ``hourly`` block with ``time``/``us_aqi`` arrays.
-    :param max_days: Maximum number of days to include in the forecast.
-    :return: One ``AirQualityDay`` per date, in chronological order.
-    """
+    """Aggregate the hourly US-AQI series into per-day max-AQI summaries."""
     htime: list = hourly.get("time") or []
     haqi: list = hourly.get("us_aqi") or []
 
@@ -79,9 +49,7 @@ def _build_forecast(hourly: dict, max_days: int) -> list[AirQualityDay]:
             bucket.append(value)
 
     days: list[AirQualityDay] = []
-    # Sort by date (YYYY-MM-DD sorts chronologically) before capping, so the
-    # "in date order" contract holds even if the upstream hourly series isn't
-    # ordered, and the cap keeps the earliest days rather than insertion order.
+    # Sort before capping so date order holds even if the hourly series isn't.
     for day in sorted(by_date)[:max_days]:
         values = by_date[day]
         max_aqi = max(values) if values else None
@@ -96,15 +64,7 @@ def _build_forecast(hourly: dict, max_days: int) -> list[AirQualityDay]:
 
 
 async def get_air_quality(city: str) -> AirQualityResponse:
-    """Return the current air quality + a short max-AQI forecast for ``city``.
-
-    Raises :class:`CityNotFoundError` (404) when the name cannot be geocoded,
-    and :class:`WeatherUnavailableError` (502) when Open-Meteo is unreachable
-    or returns a body we cannot parse.
-
-    :param city: Free-text city name to geocode and look up.
-    :return: Current air quality plus a short max-AQI forecast for the city.
-    """
+    """Return the current air quality + a short max-AQI forecast for ``city``."""
     settings = get_settings()
 
     location = await weather_service.geocode_city(city)
@@ -132,10 +92,7 @@ async def get_air_quality(city: str) -> AirQualityResponse:
         },
     )
 
-    # Walk the response defensively — ``_fetch_json`` already converts transport
-    # and HTTP errors to ``WeatherUnavailableError`` (502), but a 200 with an
-    # unexpected/null-laden body would otherwise escape as a raw exception →
-    # 500. Mirror ``weather_service.get_weather``.
+    # Walk the response defensively so a 200 with a broken body is a 502, not 500.
     try:
         current = data["current"]
         time = current["time"]  # required; its absence means a broken body

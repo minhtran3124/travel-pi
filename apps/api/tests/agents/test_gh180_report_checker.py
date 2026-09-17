@@ -1,10 +1,4 @@
-"""The GH-180 routing-report checker must discriminate, and must not rot.
-
-`scripts/check_gh180_routing_report.py` is the re-runnable evidence behind this
-spec's claim that the two ``routing-multi_turn`` goldens stop crashing. Nothing
-else in the suite executes it, so without this module a later edit could quietly
-turn it into a script that always exits 0.
-"""
+"""The routing-report checker must discriminate: nothing else runs it, so guard it against rotting into an always-exit-0 script."""
 
 from __future__ import annotations
 
@@ -41,9 +35,8 @@ def test_checker_accepts_the_post_fix_report():
 
 
 def test_checker_rejects_a_non_validation_crash(tmp_path: Path):
-    # A turn that dies with TypeError is still a dead turn. Gating only on the
-    # literal string "ValidationError" would report green for exactly the
-    # regression this spec guards against.
+    # A TypeError turn is still a dead turn; gating only on the literal
+    # "ValidationError" would false-green the very regression this guards against.
     report = {
         "schema_version": "1.0",
         "run_meta": {},

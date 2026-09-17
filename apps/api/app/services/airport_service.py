@@ -17,21 +17,13 @@ class AirportService:
         self._airport = AirportRepository(session)
 
     def list_airports(self) -> list[Airport]:
-        """Return the supported airports.
-
-        :return: All airports as a list of ``Airport`` objects.
-        """
+        """Return the supported airports."""
         return self._airport.list()
 
     def get_airport(self, code: str) -> Airport | None:
         """Return the airport for an IATA ``code``, or ``None`` if unknown.
 
-        Used by the web pages to show a friendly city / name next to the raw
-        3-letter code. Flights can be generated for any code, so callers must
-        handle a ``None`` result (just show the bare code in that case).
-
-        :param code: IATA airport code to look up.
-        :return: The matching ``Airport``, or ``None`` if the code is unknown.
+        Flights can be generated for any code, so callers must handle ``None``.
         """
         return self._airport.get(code)
 
@@ -39,9 +31,5 @@ class AirportService:
 def get_airport_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> AirportService:
-    """FastAPI dependency: an airport service bound to the request session.
-
-    :param session: Request-scoped DB session.
-    :return: An ``AirportService`` instance.
-    """
+    """FastAPI dependency: an airport service bound to the request session."""
     return AirportService(session)

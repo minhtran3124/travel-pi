@@ -1,14 +1,4 @@
-"""Code-authored agent replies, served in the conversation language.
-
-A handful of replies are written by Python, not the LLM (the tier-gate upgrade
-notice, unknown intent, HITL cancel, the error fallback), so they bypass
-the prompt-level language rule. ``system_reply`` closes that gap: English (the
-default language) is the single source text in ``app/agents/constants.py``;
-any other language is translated ONCE by ``ContentTranslationService`` and
-cached in ``content_translations`` (``entity_type="system_copy"``), so no
-per-language table is ever hand-maintained. Every failure — no DB, translator
-error, LLM outage — serves the English source; this never raises.
-"""
+"""Code-authored agent replies, translated once and cached; English on any failure."""
 
 from __future__ import annotations
 
@@ -38,8 +28,7 @@ logger = logging.getLogger(__name__)
 #: Translation-store entity kind for system copy (rows keyed by copy key).
 ENTITY_TYPE = "system_copy"
 
-#: Stable key → English source text. Add a message here (and in constants.py);
-#: never add a per-language variant.
+#: Stable key → English source text; never add a per-language variant.
 SYSTEM_COPY: dict[str, str] = {
     "booking_upgrade": BOOKING_UPGRADE_MSG,
     "unknown_intent": NOT_SURE_MSG,
@@ -48,8 +37,7 @@ SYSTEM_COPY: dict[str, str] = {
 }
 
 
-#: Persona guidance for the translator: these lines are spoken by the assistant,
-#: which refers to itself by name (not "I"/"Tôi") in every language.
+#: Persona guidance: the assistant refers to itself by name, not "I", in every language.
 TRANSLATOR_INSTRUCTIONS = (
     f"These texts are spoken by a travel assistant named {ASSISTANT_NAME}. "
     f"Where the text says 'I'/'my', refer to the assistant by name "
@@ -71,20 +59,12 @@ class _Copy(BaseModel):
 def system_reply(
     key: str, language: str | None, *, translator: Translator | None = None
 ) -> str:
-    """Return the system copy for ``key`` in ``language``.
-
-    :param key: A ``SYSTEM_COPY`` key.
-    :param language: Conversation language; unknown/empty → default → English.
-    :param translator: Test seam; ``None`` uses the LLM translator with the
-        assistant-persona instructions.
-    :return: The translated text, or the English source on any failure.
-    :raises KeyError: For a key missing from ``SYSTEM_COPY`` (programmer error).
-    """
+    """Return the system copy for ``key`` in ``language``, English source on any failure."""
     source = SYSTEM_COPY[key]
     if normalize(language) == DEFAULT_LANGUAGE:
         return source
-    # The cache row is keyed by key + a digest of the English source, so editing
-    # a constant invalidates its translations instead of serving a stale one.
+    # Row keyed by key + digest of the source, so editing a constant invalidates
+    # its cached translations instead of serving a stale one.
     row_id = f"{key}:{hashlib.sha1(source.encode()).hexdigest()[:10]}"
     try:
         with session_scope() as s:

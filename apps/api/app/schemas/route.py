@@ -1,8 +1,4 @@
-"""Route schemas — the response shape for the routing endpoints.
-
-Shared by ``GET /places/route`` (place → place) and ``GET /cities/route``
-(city → city).
-"""
+"""Route schemas — the response shape for the routing endpoints."""
 
 from typing import Literal
 
@@ -10,8 +6,7 @@ from pydantic import Field
 
 from app.schemas.base import AppBaseModel
 
-# Closed sets, exposed in the OpenAPI schema so FE codegen produces real TS
-# unions instead of plain strings.
+# Closed sets exposed in OpenAPI so FE codegen produces real TS unions, not plain strings.
 EndpointKind = Literal["place", "city"]
 TravelMode = Literal["walk", "bike", "car"]
 ORSProfile = Literal["foot-walking", "cycling-regular", "driving-car"]
@@ -47,14 +42,7 @@ class RouteLeg(AppBaseModel):
 
 
 class RouteResponse(AppBaseModel):
-    """Response body for the routing endpoints.
-
-    ``legs`` carries one entry per travel mode (walk / bike / car) so a
-    client can compare them; ``recommended_mode`` is the sensible default
-    for the distance involved. ``source`` says where the numbers came from:
-    ``"openrouteservice"`` for real road routing, or ``"estimate"`` for the
-    offline straight-line fallback used when no ORS API key is configured.
-    """
+    """Response body for the routing endpoints."""
 
     origin: RouteEndpoint
     destination: RouteEndpoint

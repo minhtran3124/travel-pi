@@ -1,30 +1,15 @@
-"""Deterministic Postgres concurrency proof for the per-owner lock (gh-198, task 2.1).
+"""Deterministic Postgres concurrency proof for the per-owner advisory lock that
+serializes the duplicate check + insert.
 
-Task 1.1 added a per-owner Postgres advisory transaction lock
-(``BookingRepository.lock_owner_bookings``) at the top of each
-``if check_duplicate:`` block so the gh-194 duplicate check + insert is
-serialized per owner. The SQLite unit suite (tests/services/test_booking_owner_lock.py)
-proves the lock is *called* and that its guards hold, but cannot prove
-serialization: SQLite is a no-op. These tests prove it on real Postgres, and are
-deterministic rather than a barrier race (which could pass without the lock if A
-happens to commit before B checks):
-
-- ``blocks_and_rejects``: session A books with ``check_duplicate=True`` and is
-  left uncommitted, holding the lock. B (same owner + item, different idempotency
-  key) runs in a thread and parks on the lock — observed via a third session
-  polling ``pg_locks`` for one ungranted advisory lock. After A commits, B wakes,
-  sees A's row, and raises ``DuplicateBookingError``; exactly one active row
-  remains.
-- ``without_lock_double_books``: the negative control. With
-  ``lock_owner_bookings`` patched to a no-op, B never waits, both inserts
-  succeed, and two active rows remain — which is exactly what the lock prevents,
-  so it proves the first test depends on the lock.
+Deterministic rather than a barrier race (which could pass without the lock if A
+commits before B checks): A holds the lock uncommitted while B parks on it,
+observed via a third session polling ``pg_locks`` for one ungranted advisory
+lock. A negative control patches the lock to a no-op and shows both inserts land.
 
 Postgres-only (module-level skip on SQLite). Never run under ``-n`` / xdist: the
 ``pg_locks`` ungranted count of 1 assumes cases run one at a time. Each case uses
 a fresh ``uuid4().hex`` owner and owner-embedded idempotency keys because
-``ix_bookings_idempotency_key`` is unique across ALL users, and the criteria that
-reuse one container would otherwise collide on that index instead of the lock.
+``ix_bookings_idempotency_key`` is unique across ALL users.
 """
 
 from __future__ import annotations
@@ -107,12 +92,8 @@ _SCENARIOS = {"flight": _flight_scenario, "hotel": _hotel_scenario}
 
 
 def _book_in_thread(factory, method, request, owner, key):
-    """Build (thread, result) for B: its own session, own idempotency key.
-
-    The thread commits on success and rolls back on failure, then stashes the
-    outcome (a ``Booking`` or the raised exception) in ``result["outcome"]`` and
-    its session in ``result["session"]`` so the caller can close it.
-    """
+    """Build (thread, result) for B on its own session; the thread commits on
+    success, rolls back on failure, and stashes the outcome and session in ``result``."""
     result: dict = {}
 
     def _run():

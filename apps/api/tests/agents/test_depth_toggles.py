@@ -1,14 +1,4 @@
-"""Depth toggle tests (specs/runtime-context-config C.2).
-
-Verifies that:
-- Reflection node short-circuits (goes to END) when allow_reflection=False.
-- Reflection node short-circuits when max_revisions is reached.
-- Reflection node runs the LLM and routes normally with default context.
-- Response style "default" adds no extra directive (the only value reachable
-  now that MIN-43 removed the mode-driven CONCISE/DETAILED prompt injection).
-
-All tests are offline: FakeLLM is used, no network calls.
-"""
+"""Reflection short-circuit gates (allow_reflection / max_revisions) and response-style directive injection. Offline: FakeLLM only."""
 
 from __future__ import annotations
 
@@ -53,7 +43,6 @@ def _base_state(**overrides):
 
 
 def test_reflection_skips_when_allow_reflection_false():
-    """Reflection node goes to END when allow_reflection=False."""
     llm = FakeLLM(responses=["REVISE please"])  # would trigger a loop if reached
     reflect = make_reflection_node(llm)
 
@@ -65,7 +54,6 @@ def test_reflection_skips_when_allow_reflection_false():
 
 
 def test_reflection_skips_when_max_revisions_zero():
-    """Reflection node goes to END when max_revisions=0 (fast mode)."""
     llm = FakeLLM(responses=["REVISE please"])
     reflect = make_reflection_node(llm)
 
@@ -77,7 +65,6 @@ def test_reflection_skips_when_max_revisions_zero():
 
 
 def test_reflection_skips_when_revisions_reached():
-    """Reflection node exits to END when revisions >= max_revisions."""
     llm = FakeLLM(responses=["REVISE please"])
     reflect = make_reflection_node(llm)
 
@@ -89,7 +76,6 @@ def test_reflection_skips_when_revisions_reached():
 
 
 def test_reflection_runs_with_default_context():
-    """Reflection node invokes LLM and goes to END on LGTM verdict."""
     llm = FakeLLM(responses=["LGTM"])
     reflect = make_reflection_node(llm)
 
@@ -101,7 +87,6 @@ def test_reflection_runs_with_default_context():
 
 
 def test_reflection_loops_on_revise_verdict():
-    """Reflection node returns Command(goto=current_flow) when verdict is REVISE."""
     llm = FakeLLM(responses=["REVISE this answer"])
     reflect = make_reflection_node(llm)
 
@@ -118,13 +103,7 @@ def test_reflection_loops_on_revise_verdict():
 
 
 def test_reflection_skips_when_awaiting_user():
-    """A turn blocked on the traveller ends at END, unreviewable (MIN-68 / #99).
-
-    The reply is a clarifying question — a necessarily "incomplete" answer the
-    reviewer would flag REVISE, which would re-run the sub-agent to answer
-    WITHOUT the missing detail. Reflection must short-circuit before the judge
-    call so the question is not revised away.
-    """
+    """A turn blocked on the traveller ends at END before the judge, so its clarifying question is not REVISEd away."""
     llm = FakeLLM(responses=["REVISE this answer"])  # would loop if reflection ran
     reflect = make_reflection_node(llm)
 
@@ -156,7 +135,6 @@ def _make_capturing_generate(captured: list):
 
 
 def test_response_style_default_adds_no_directive(monkeypatch):
-    """'default' response_style adds no extra directive to the system prompt."""
     captured: list = []
     monkeypatch.setattr(FakeLLM, "_generate", _make_capturing_generate(captured))
 

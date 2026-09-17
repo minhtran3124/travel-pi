@@ -1,24 +1,4 @@
-"""Static USD price table for the agent-turn cost estimate.
-
-Prices are **data, not logic**: each per-provider block is copied verbatim from
-the provider's public pricing page on the date in its header comment, and the
-unit test pins the *formula* (via a monkeypatched fake price), never these
-numbers. Re-verify and bump the header date when a provider changes a price.
-
-Scope notes:
-
-* Anthropic ``cache_creation`` (5-minute cache-*write*, billed at 1.25x input)
-  is **not** priced here — no ``cache_control`` is in use in this app, so no
-  turn accrues cache-write tokens. Only cache *reads* (``cached_input``) are
-  priced. Revisit if prompt caching is turned on.
-* Gemini 2.5 Pro is tiered by prompt size; this table records the **≤200k-token
-  tier** only. A flat per-1M table cannot express the >200k tier, and turns in
-  this app stay well under 200k.
-
-Covers every model in ``LLM_PROVIDERS[*].models`` (after normalisation — the
-``clinepass`` gateway names models ``openai/<model>``) plus the two config
-defaults ``gpt-5`` / ``gpt-5-mini``.
-"""
+"""Static USD price table (per 1M tokens) for the agent-turn cost estimate — data copied from provider pricing pages, not logic (the unit test pins the formula, never these numbers)."""
 
 from __future__ import annotations
 
@@ -62,15 +42,7 @@ _SNAPSHOT_RE = re.compile(r"-\d{4}-\d{2}-\d{2}$")
 
 
 def normalize_model(name: str) -> str:
-    """Reduce a raw model name to its price-table key.
-
-    Strips a leading ``models/`` or ``openai/`` prefix (the ``clinepass``
-    gateway names models ``openai/<model>``) and a trailing dated-snapshot
-    suffix ``-YYYY-MM-DD``.
-
-    :param name: The raw model name as reported by the SDK / catalogue.
-    :return: The normalised key to look up in ``MODEL_PRICES_USD_PER_1M``.
-    """
+    """Reduce a raw model name to its price-table key (strip a ``models/``/``openai/`` prefix and a trailing ``-YYYY-MM-DD`` snapshot suffix)."""
     for prefix in ("models/", "openai/"):
         if name.startswith(prefix):
             name = name[len(prefix) :]
@@ -79,19 +51,7 @@ def normalize_model(name: str) -> str:
 
 
 def estimate_cost(by_model: dict[str, dict]) -> float | None:
-    """Sum the USD cost across per-model token counts.
-
-    For each model: ``((input - cached) * p_in + cached * p_cached +
-    output * p_out) / 1e6``, where ``input_tokens`` already includes the
-    ``cached_tokens`` subset (OpenAI/LangChain semantics).
-
-    :param by_model: Maps a model name to a dict with ``input_tokens``,
-        ``output_tokens`` and ``cached_tokens`` (each defaulting to 0).
-    :return: Total cost in USD, or ``None`` when the cost is unknown — either
-        no usage was captured at all (empty ``by_model``) or some model
-        normalises to a name absent from the price table. A partial or
-        falsely-confident ``0.0`` is worse than an explicit unknown.
-    """
+    """Sum USD cost across per-model token counts (``input_tokens`` already includes the ``cached`` subset); ``None`` when unknown — empty input or a model missing from the price table, since a false ``0.0`` is worse than an explicit unknown."""
     if not by_model:
         return None
     total = 0.0

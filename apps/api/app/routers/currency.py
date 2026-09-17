@@ -52,19 +52,7 @@ def convert_currency(
         ),
     ] = None,
 ) -> CurrencyConvertResponse:
-    """Convert ``amount`` from one currency to another using a static mock table.
-
-    Rates are not live (see `last_updated`). Currency codes are exact
-    identifiers — an unknown `from`/`to` returns 404. An unrecognised `country`
-    is ignored (no `local_currency`), not an error.
-
-    :param currency: The currency service.
-    :param to: Target ISO 4217 code.
-    :param from_currency: Source ISO 4217 code.
-    :param amount: Amount in the source currency.
-    :param country: Optional destination country to attach `local_currency`.
-    :return: The converted amount.
-    """
+    """Convert ``amount`` between currencies via a static mock table; unknown ``country`` is ignored, not an error."""
     return currency.convert(
         from_code=from_currency,
         to_code=to,

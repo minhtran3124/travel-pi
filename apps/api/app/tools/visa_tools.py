@@ -1,12 +1,5 @@
-"""Visa / entry-requirement tool (wraps ``VisaService`` as an LLM tool).
-
-Read-only lookup over the DB-backed seed visa data (``app/data/visa.py``).
-Plain ``@tool`` returning JSON the model relays — no side-panel artifact (cf.
-``weather_tools`` which use ``panel_result``). Opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent can
-self-correct. An unknown destination returns ``found: False`` (the service's
-documented behaviour, mirrored by ``GET /visa``), never an error.
-"""
+"""Visa / entry-requirement tool wrapping ``VisaService`` (an unknown destination returns
+``found: False``, never an error)."""
 
 from __future__ import annotations
 

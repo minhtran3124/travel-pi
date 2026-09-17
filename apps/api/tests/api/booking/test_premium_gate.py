@@ -1,12 +1,4 @@
-"""Premium gate on the two book routes (SC-1, SC-2; specs/close-product-loop-s1-booking-ui).
-
-A free-tier caller (no ``users`` row, tier resolves to ``free`` via
-``UserRepository.get_tier``) must be refused with 403 and the
-``PremiumRequiredError`` discriminator on both ``POST /flights/book`` and
-``POST /hotels/book``. A caller whose tier was set to ``premium`` via
-``UserRepository.upsert_tier`` must still receive a created booking — the
-agent's booking path (``tests/api/agent/test_quota.py``) is unaffected.
-"""
+"""Premium gate on the book routes: free tier gets 403, premium still books."""
 
 from __future__ import annotations
 
@@ -38,14 +30,7 @@ def _rooms_always_available(monkeypatch):
 
 
 def _make_app(tmp_path, *, premium: bool):
-    """Build an app authenticated as ``_UID``, seeded premium or left free.
-
-    Mirrors the ``_make_app`` fixture shape in ``tests/api/agent/test_quota.py``
-    (lines 40-93): an isolated per-test SQLite DB, ``get_session`` +
-    ``get_current_user`` overrides, and — when ``premium`` — a tier row set via
-    ``UserRepository.upsert_tier`` so the fixture matches how tier is actually
-    resolved in production, not a mocked shortcut.
-    """
+    """App authenticated as ``_UID``, on an isolated DB, seeded premium or left free."""
     url = f"sqlite:///{tmp_path / 'premium_gate.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     seed_all(get_session_factory(url))

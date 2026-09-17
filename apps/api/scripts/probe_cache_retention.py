@@ -1,61 +1,23 @@
 #!/usr/bin/env python3
-"""Two-phase A/B prompt-cache retention probe (specs/prompt-caching-system-prefix Task 2.2).
+"""Two-phase A/B probe: does OpenAI's ``prompt_cache_retention="24h"`` keep a prefix
+cached across a long idle gap?
 
-Settle one question a sloppier one-armed probe could not: does OpenAI's
-``prompt_cache_retention="24h"`` actually keep a prompt prefix cached across a
-long idle gap? A single ``24h`` arm proves nothing — the DEFAULT ``in_memory``
-policy already survives "5 to 10 minutes of inactivity, up to one hour", so a hit
-after 21 minutes sits inside *both* windows. This probe therefore runs **two
-arms** over separately nonced prompts — ``24h`` and an ``in_memory`` control —
-and refuses to report until the idle gap is at least ``--min-gap-min`` (default
-60), the bucket where the project's own data shows a 0/17 hit rate.
+Runs two nonced arms — ``24h`` and an ``in_memory`` control — because a single arm
+cannot attribute a hit to ``24h`` (the default policy also survives short gaps).
+Two mutually exclusive phases::
 
-Two mutually exclusive phases:
+    python -m scripts.probe_cache_retention --seed   # warm both arms
+    # ... wait >= --min-gap-min minutes, doing nothing to these threads ...
+    python -m scripts.probe_cache_retention --check  # measure and verdict
 
-    # 1. seed: warm each arm's cache (two calls per arm so the write lands)
-    python -m scripts.probe_cache_retention --seed
-    # ... wait >= 60 minutes, doing nothing to these threads ...
-    # 2. check: re-send each prompt once, compare cache reads, print a verdict
-    python -m scripts.probe_cache_retention --check
+Verdict (single token on the last line): RETENTION-WINS (only 24h hit),
+TIE (both hit), BOTH-MISS (neither hit), CONTROL-ONLY (only control hit — anomaly).
 
-The verdict is a single token on its own last line:
-
-    RETENTION-WINS  only the 24h arm read cached tokens (the parameter works)
-    TIE             both arms read cached tokens (cannot attribute to 24h)
-    BOTH-MISS       neither arm read cached tokens (cache expired for both)
-    CONTROL-ONLY    only the in_memory control read cached tokens — an anomaly
-                    (not a retention win, not a tie, not both-miss); reported
-                    distinctly so it can never be mislabelled
-
-Exit codes:
-
-    0  a verdict was reached (--check), or both arms seeded warm (--seed)
-    2  --check ran too soon: the idle gap is under --min-gap-min
-    3  the probe cannot produce a trustworthy verdict and must be re-seeded —
-       either a --seed arm's second call read 0 cached tokens (the write never
-       landed: parameter ignored, model lacks the policy, or a routing miss), or
-       --check found the state already carries a check attempt (a check refreshes
-       the cache, so any prior attempt — finished OR crashed partway through the
-       arms — restarts the idle clock it just reset)
-
-``--seed`` sends each arm TWICE and verifies the second call read cached tokens;
-if either arm's second read is 0 it refuses to write the state file (exit 3), so
-a later ``--check`` can never mistake a write that never landed for an expired
-cache (``BOTH-MISS``).
-
-!!! WARNING: a cache READ refreshes the entry's idle timer. Every ``--check``
-therefore restarts the idle clock, so a naive re-check appears to "succeed"
-forever — and so does a re-check after a check that crashed after touching only
-the first arm. To close both, ``--check`` stamps an ``attempted_at`` marker into
-the state AFTER the gap gate but BEFORE the first invoke, and persists it before
-any call; it then refuses (exit 3) against any state that already carries an
-attempt, finished or not. A repeat measurement needs a fresh ``--seed``.
-
-Calls ``_build_chat_model("openai", model, model_kwargs={"prompt_cache_retention":
-value})`` directly, so the probe stays independent of any settings flag a later
-task may add. Cache reads are pulled from
-``usage_metadata["input_token_details"]["cache_read"]`` — the same path
-``app/agents/metrics.py`` uses.
+Exit codes: 0 verdict reached / both arms seeded warm; 2 ``--check`` too soon;
+3 must re-seed (a seed arm's write never landed, or the state already carries a
+check attempt). A cache READ refreshes the idle timer, so ``--check`` stamps an
+``attempted_at`` marker before any call and refuses any already-attempted state —
+otherwise a re-check would restart the clock and appear to succeed forever.
 """
 
 from __future__ import annotations
@@ -71,14 +33,11 @@ from typing import Any
 from app.clients.llm import _build_chat_model
 from app.core.config import get_settings
 
-# The two retention arms. ``in_memory`` is OpenAI's documented default policy and
-# serves as the control: without it, a hit cannot be attributed to ``24h``.
+# ``in_memory`` is the control arm: without it a hit cannot be attributed to 24h.
 RETENTION_24H = "24h"
 RETENTION_CONTROL = "in_memory"
 ARMS = (RETENTION_24H, RETENTION_CONTROL)
 
-# apps/api/ root (scripts/ lives directly under it), so the default state path is
-# stable regardless of the caller's working directory.
 _API_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_STATE = _API_ROOT / ".harness-state" / "cache_retention_probe.json"
 
@@ -116,18 +75,12 @@ def _model_for(value: str, model: str) -> Any:
 def seed(state_path: Path, model: str) -> int:
     """Warm each arm's cache with a fresh nonce; store nonces + a timestamp.
 
-    Each arm is sent TWICE: the first call writes the prefix, the second call is
-    what proves the cache write actually landed. The second call's cache_read is
-    printed per arm; if EITHER arm read 0 cached tokens the write never landed
-    (parameter ignored, model lacks the policy, or a routing miss), so no state
-    file is written and the probe exits 3 — otherwise a later ``--check`` would
-    read that never-warmed arm as ``BOTH-MISS`` and call it an expired cache.
-
-    Returns the process exit code: 3 if an arm was not warmed, else 0.
+    Each arm is sent twice so the second call can prove the write landed; if
+    either arm still reads 0 cached tokens no state is written and it exits 3,
+    else a later ``--check`` would misread that arm as an expired cache.
     """
-    # Remove any state file from a PREVIOUS seed before making any call. A seed
-    # that refuses a cold arm or crashes midway must not leave the old run's
-    # nonces + clock behind for a later --check to trust as this run.
+    # Drop any previous seed's state before calling, so a refused or crashed
+    # seed cannot leave stale nonces + clock for a later --check to trust.
     state_path.unlink(missing_ok=True)
 
     arms: dict[str, dict[str, str]] = {}
@@ -158,9 +111,7 @@ def seed(state_path: Path, model: str) -> int:
 
     state_path.parent.mkdir(parents=True, exist_ok=True)
     state_path.write_text(
-        json.dumps(
-            {"model": model, "seeded_at": time.time(), "arms": arms}, indent=2
-        )
+        json.dumps({"model": model, "seeded_at": time.time(), "arms": arms}, indent=2)
     )
     print(f"wrote state {state_path}")
     return 0
@@ -169,10 +120,8 @@ def seed(state_path: Path, model: str) -> int:
 def check(state_path: Path, min_gap_min: float) -> int:
     """Re-send each nonced prompt once; print per-arm reads and a verdict.
 
-    Returns the process exit code: 3 if the state was already checked (a check
-    refreshes the cache, so a second check restarts the idle clock and cannot be
-    trusted), 2 while the idle gap is under *min_gap_min* (too soon to attribute
-    anything), 0 once a verdict is reached.
+    Exits 3 if the state was already checked, 2 while the idle gap is under
+    *min_gap_min*, 0 once a verdict is reached.
     """
     state = json.loads(state_path.read_text())
 
@@ -197,11 +146,9 @@ def check(state_path: Path, min_gap_min: float) -> int:
         )
         return 2
 
-    # The experiment is spent the moment ANY arm's cache is touched. Stamp an
-    # attempt marker now — AFTER the gap gate, BEFORE the first invoke — and
-    # persist it, so if a later arm's call raises (network error, 5xx, timeout)
-    # the already-refreshed first arm cannot be re-measured: the next --check
-    # sees the marker and refuses (exit 3), whether this run finishes or crashes.
+    # Stamp the attempt marker after the gap gate but before the first invoke:
+    # once any arm's cache is touched the experiment is spent, so a later --check
+    # must refuse (exit 3) even if this run crashes mid-way.
     state["attempted_at"] = time.time()
     state_path.write_text(json.dumps(state, indent=2))
 
@@ -217,8 +164,7 @@ def check(state_path: Path, min_gap_min: float) -> int:
             f"{'HIT' if hit else 'MISS'} elapsed={elapsed_min:.1f}min"
         )
 
-    # Mark the check complete. The attempt marker above already blocks a re-check;
-    # checked_at records that the run also finished, for the state file's reader.
+    # Record that the run finished, for the state file's reader.
     state["checked_at"] = time.time()
     state_path.write_text(json.dumps(state, indent=2))
 
@@ -227,12 +173,7 @@ def check(state_path: Path, min_gap_min: float) -> int:
 
 
 def _verdict(retention_hit: bool, control_hit: bool) -> str:
-    """Map the two arms' hit/miss to a verdict token.
-
-    ``CONTROL-ONLY`` covers the anomalous case where only the default policy
-    read cache — it is not a tie, not both-miss, and certainly not a retention
-    win, so it is reported distinctly rather than mislabelled.
-    """
+    """Map the two arms' hit/miss to a verdict token."""
     if retention_hit and control_hit:
         return "TIE"
     if retention_hit and not control_hit:

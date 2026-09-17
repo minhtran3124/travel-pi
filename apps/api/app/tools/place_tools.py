@@ -1,10 +1,5 @@
-"""Place / attraction tools (specs/travel-agent Task 3.2).
-
-Wrap ``PlaceService`` as LLM tools. Each opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent can
-self-correct. An unrecognised city returns an empty list (not an error) —
-this is the service's documented behaviour.
-"""
+"""Place / attraction tools wrapping ``PlaceService`` (an unrecognised city returns an empty list,
+not an error)."""
 
 from __future__ import annotations
 
@@ -42,10 +37,7 @@ class SearchPlacesArgs(AppBaseModel):
             "instead of repeating the same search."
         ),
     )
-    # Injected from graph state (TravelAgentState.language), never model-supplied:
-    # the conversation language the supervisor detected. Free-form place text is
-    # localized to it at tool time so the model and the Places panel see the same
-    # words. Absent (MCP / direct calls) → default language, no translation.
+    # Injected conversation language; place text is localized to it so the model and Places panel agree.
     language: Annotated[str, InjectedState("language")] = Field(
         default="",
         description="Injected — never supplied by the model.",
@@ -69,10 +61,8 @@ class ResolvePlaceArgs(AppBaseModel):
     source: Literal["catalog", "saved"] = Field(
         "catalog", description="Where to resolve the place from: 'catalog' or 'saved'."
     )
-    # Injected from graph state (TravelAgentState.user_id), never model-supplied.
-    # Scopes the ``saved`` source to the signed-in traveller so a user-controlled
-    # id/SPL- code can never read another user's saved place (PII). Kept on the
-    # schema so ToolNode still injects it; stripped from the model-facing schema.
+    # Injected user id scopes the ``saved`` source to its owner so a user-supplied id can't read
+    # another traveller's saved place (PII). Declared so ToolNode injects it; hidden from the model.
     user_id: Annotated[str, InjectedState("user_id")] = Field(
         default="",
         description="Injected — never supplied by the model.",
@@ -87,9 +77,7 @@ class ListPlaceCategoriesArgs(AppBaseModel):
     pass
 
 
-# Cap the Places panel to the top N (highest-rated first, the service's default
-# sort) so a broad/unfiltered query doesn't flood the drawer with the entire
-# seeded set.
+# Cap the Places panel so a broad/unfiltered query doesn't flood the drawer.
 _PLACES_PANEL_CAP = 4
 
 
@@ -154,9 +142,7 @@ def search_places(
             canonical_category = top_results[0].category if category else None
             where = f" in {canonical_city}" if canonical_city else ""
             what = f" {canonical_category}" if canonical_category else ""
-            # Name the places the model must ground on: without these in the
-            # content, the model only sees a count and invents well-known names
-            # that diverge from the Places panel.
+            # Name the places in the content or the model only sees a count and invents names.
             listed = ", ".join(f"{p.name} ({p.rating:.1f}★)" for p in top_results)
             ground = (
                 f" These exact places are shown in the Places panel: {listed}. "

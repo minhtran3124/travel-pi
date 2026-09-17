@@ -1,16 +1,4 @@
-"""Static, USD-based mock foreign-exchange table.
-
-This is **mock data** — no live rates, no network call. ``LAST_UPDATED`` is a
-fixed date so the response is honest about being a snapshot. ``RATES`` is keyed
-by ISO 4217 code and gives *units of that currency per 1 USD* (so USD == 1.0);
-a cross-rate is ``RATES[to] / RATES[from]``.
-
-Covers every seed-country currency (see ``data/countries.py``) plus a few common
-reference currencies. ``COUNTRY_CURRENCY`` maps each country name to its code so
-``/currency/convert`` can surface a destination's local currency. The mapping is
-validated against ``COUNTRIES`` at import — a missing or mistyped entry fails
-loudly on startup, like the other seed files.
-"""
+"""Mock USD-based FX table; ``RATES`` gives units per 1 USD, cross-rate = RATES[to] / RATES[from]."""
 
 from app.data.countries import COUNTRIES
 
@@ -57,7 +45,6 @@ CURRENCY_NAMES: dict[str, str] = {
     "JPY": "Japanese Yen",
 }
 
-# Seed-country name (as in countries.py) → its ISO 4217 code.
 # Timor-Leste uses the US dollar as its official currency.
 COUNTRY_CURRENCY: dict[str, str] = {
     "Vietnam": "VND",
@@ -76,7 +63,6 @@ COUNTRY_CURRENCY: dict[str, str] = {
     "Japan": "JPY",
 }
 
-# ── Import-time validation (fail loudly on a typo, per the seed-data convention) ──
 _country_names = {c["name"] for c in COUNTRIES}
 _missing = _country_names - COUNTRY_CURRENCY.keys()
 if _missing:

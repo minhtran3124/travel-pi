@@ -1,9 +1,4 @@
-"""User repository — tier lookup and upsert (specs/runtime-context-config B.1).
-
-Tier is BE-resolved only; it is never accepted from the request body. The
-default "free" is returned when no row exists, so callers never need to handle
-a missing-user case for capability resolution.
-"""
+"""User repository: tier lookup and upsert. Tier is BE-resolved only, never from the request body; a missing user resolves to "free"."""
 
 import logging
 
@@ -15,28 +10,16 @@ logger = logging.getLogger(__name__)
 
 
 class UserRepository(Repo):
-    """ORM-backed store for per-user profile data (currently: tier).
-
-    Tier values are stored and returned as plain strings (matching the String
-    column); ``resolve_agent_context`` coerces them to :class:`Tier`.
-    """
+    """ORM-backed store for per-user profile data (currently: tier, stored as a plain string)."""
 
     def get_tier(self, user_id: str) -> str:
-        """Return the stored tier for *user_id*, or ``"free"`` if no row exists.
-
-        :param user_id: The user id to look up.
-        :return: The stored tier value, or ``Tier.FREE.value`` if no row exists.
-        """
+        """Return the stored tier for *user_id*, or ``"free"`` if no row exists."""
         with self._session() as s:
             row = s.get(models.User, user_id)
             return row.tier if row is not None else Tier.FREE.value
 
     def ensure_user(self, user_id: str, default_tier: str = Tier.FREE.value) -> None:
-        """Insert a ``User`` row for *user_id* with *default_tier* if absent; no-op otherwise.
-
-        :param user_id: The user id to ensure a row for.
-        :param default_tier: The tier to set when a row is created.
-        """
+        """Insert a ``User`` row for *user_id* with *default_tier* if absent; no-op otherwise."""
         with self._session() as s:
             if s.get(models.User, user_id) is None:
                 s.add(models.User(user_id=user_id, tier=default_tier))
@@ -44,20 +27,10 @@ class UserRepository(Repo):
                 logger.info("[UserRepository] ensure_user created user_id=%s", user_id)
 
     def exists(self, user_id: str) -> bool:
-        """Return ``True`` if a ``users`` row exists for *user_id*.
-
-        :param user_id: The user id to check.
-        :return: ``True`` if a row exists, ``False`` otherwise.
-        """
         with self._session() as s:
             return s.get(models.User, user_id) is not None
 
     def upsert_tier(self, user_id: str, tier: str) -> None:
-        """Insert or update the tier for *user_id*.
-
-        :param user_id: The user id to insert or update.
-        :param tier: The tier value to set.
-        """
         with self._session() as s:
             row = s.get(models.User, user_id)
             if row is None:

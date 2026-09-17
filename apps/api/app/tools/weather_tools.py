@@ -1,9 +1,4 @@
-"""Weather & air-quality tools (specs/travel-agent Task 3.4).
-
-These wrap the async weather/air-quality services (the one real outbound call in
-the backend), so the tools are async too. Upstream failures map to
-``ToolException`` for self-correction.
-"""
+"""Weather and air-quality tools wrapping the async weather/air-quality services."""
 
 from __future__ import annotations
 
@@ -51,16 +46,8 @@ class GetPackingArgs(AppBaseModel):
 
 
 def _resolve_optional_date(raw: str | None):
-    """Resolve an optional model-supplied date string to a concrete date.
-
-    Mirrors the ``departure_date`` / ``check_in`` pattern in ``flight_tools.py``
-    / ``hotel_tools.py`` for consistency: a numeric ISO date parses directly,
-    non-numeric wording must go through the ``resolve_date`` tool first.
-
-    :param raw: The model-supplied date string, or ``None``.
-    :return: The parsed date, or ``None`` if ``raw`` is ``None``.
-    :raises ToolException: If ``raw`` cannot be resolved to a concrete date.
-    """
+    """Resolve an optional model-supplied date string: numeric ISO parses directly, other wording must
+    have gone through the ``resolve_date`` tool first."""
     if raw is None:
         return None
     today = today_in_timezone(get_settings().agent_timezone)
@@ -82,15 +69,8 @@ class GetAirQualityArgs(AppBaseModel):
 
 
 def _weather_summary(r: WeatherResponse) -> str:
-    """Compact textual forecast the model reads (the full data rides the panel).
-
-    Unlike the route tool — where the model only needs the headline — the agent
-    often reasons over the forecast (will it rain on day 3?), so the summary
-    keeps the per-day lines while the structured payload goes to the drawer.
-
-    :param r: The weather response to summarise.
-    :return: A multi-line textual forecast summary.
-    """
+    """Compact textual forecast the model reads; per-day lines are kept because the agent reasons over
+    them (will it rain on day 3?) while the full data rides the panel."""
     where = r.location.name
     if r.location.country:
         where = f"{where}, {r.location.country}"
@@ -177,11 +157,7 @@ async def get_packing(
 
 
 def _air_quality_summary(r: AirQualityResponse) -> str:
-    """Compact textual AQI reading the model reads (full data rides the panel).
-
-    :param r: The air-quality response to summarise.
-    :return: A multi-line textual AQI summary.
-    """
+    """Compact textual AQI reading the model reads (full data rides the panel)."""
     where = r.location.name
     if r.location.country:
         where = f"{where}, {r.location.country}"

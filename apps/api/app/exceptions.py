@@ -1,9 +1,4 @@
-"""Domain exceptions, decoupled from FastAPI.
-
-Service-layer code raises these instead of ``HTTPException`` so it stays
-free of HTTP/web concerns. ``app.main`` registers a single global handler
-that turns any :class:`AppError` into the right HTTP response.
-"""
+"""Domain exceptions, decoupled from FastAPI — a global handler maps any :class:`AppError` to its HTTP response."""
 
 from __future__ import annotations
 
@@ -17,13 +12,7 @@ if TYPE_CHECKING:
 
 
 class AppError(Exception):
-    """Base class for domain errors. Carries the HTTP status to respond with.
-
-    An optional ``hint`` field gives the caller — typically an LLM agent —
-    a concrete recovery suggestion ("call X to find valid IDs", "try
-    different dates"). It is surfaced in the error envelope so the agent
-    can act on it without parsing the human-readable ``message``.
-    """
+    """Base class for domain errors; the optional ``hint`` gives an agent a machine-actionable recovery suggestion in the envelope."""
 
     status_code: int = 500
     default_detail: str = "Internal server error"
@@ -35,11 +24,7 @@ class AppError(Exception):
 
 
 class AuthError(AppError):
-    """Authentication failed — missing or invalid credentials (HTTP 401).
-
-    Raised when a Supabase access token is absent, malformed, or fails
-    signature/issuer/audience/expiry verification. See ``app.core.auth``.
-    """
+    """Authentication failed — missing or invalid credentials (HTTP 401)."""
 
     status_code = 401
     default_detail = "Authentication required"
@@ -53,26 +38,16 @@ class NotFoundError(AppError):
 
 
 class ConflictError(AppError):
-    """The request cannot be fulfilled in the current state (HTTP 409).
-
-    Used e.g. when a hotel has no rooms available for the requested dates.
-    """
+    """The request cannot be fulfilled in the current state (HTTP 409)."""
 
     status_code = 409
     default_detail = "Request conflicts with the current state"
 
 
-#: Stable marker embedded in every :class:`DuplicateBookingError` detail so a
-#: duplicate warning can be recognised downstream (e.g. in a replayed
-#: ``ToolMessage``) by tag rather than by fragile free-text matching (gh-194).
-#: The legacy bare form is kept as the fail-safe wildcard shape (gh-200).
+#: Stable tag in a :class:`DuplicateBookingError` detail so a duplicate warning is machine-detectable rather than free-text matched; the bare form is the fail-safe wildcard.
 DUPLICATE_WARNING_MARKER = "[possible-duplicate]"
 
-#: Matches the legacy bare ``[possible-duplicate]`` marker, the id-bearing
-#: ``[possible-duplicate:<id>]`` form (gh-200), and malformed id forms such as
-#: ``[possible-duplicate:]``. Group 1 is the raw id text (possibly empty or
-#: containing whitespace), or ``None`` for the legacy bare marker. Readers treat
-#: anything but a clean id as the wildcard, so a malformed marker fails safe.
+#: Group 1 is the raw id (bare/legacy marker -> ``None``); anything but a clean id is treated as the wildcard, so a malformed marker fails safe.
 DUPLICATE_WARNING_MARKER_RE = re.compile(r"\[possible-duplicate(?::([^\]]*))?\]")
 
 
@@ -82,22 +57,7 @@ def duplicate_warning_marker(booking_id: str) -> str:
 
 
 class DuplicateBookingError(ConflictError):
-    """A prior active booking already matches this request (HTTP 409).
-
-    Raised by :class:`~app.services.booking_service.BookingService` only when a
-    caller opts in with ``check_duplicate=True`` (the agent book tools) and an
-    earlier non-cancelled booking by the same owner matches the same flight
-    (row + passengers) or hotel (+ exact check-in/check-out). Never raised on
-    the REST path, which keeps the default ``check_duplicate=False`` (gh-194).
-
-    Being a :class:`ConflictError` subclass, it relays through the agent tools'
-    existing ``except AppError`` path unchanged. ``existing`` carries the
-    already-stored booking so the caller can quote its ``confirmation_code``
-    to the traveller before deciding whether to book again. The detail always
-    carries an id-bearing :func:`duplicate_warning_marker` tag (matched by
-    :data:`DUPLICATE_WARNING_MARKER_RE`) so a warning is machine-detectable and
-    attributable to this specific booking (gh-200).
-    """
+    """A prior active booking already matches this request (HTTP 409); raised only when a caller opts in with ``check_duplicate=True``. The detail always carries an id-bearing :func:`duplicate_warning_marker` tag."""
 
     default_detail = "A matching booking already exists."
 
@@ -113,23 +73,14 @@ class DuplicateBookingError(ConflictError):
         if DUPLICATE_WARNING_MARKER_RE.search(detail) is None:
             detail = f"{detail} {duplicate_warning_marker(existing.id)}"
         super().__init__(detail, hint=hint)
-        #: The already-stored booking this request duplicates. The message and
-        #: the id-bearing marker name this one (the newest match).
+        #: The already-stored booking this request duplicates (the newest match).
         self.existing = existing
-        #: Every active booking that matched this request, not only ``existing``.
-        #: A same-turn override must be refused if *any* of these was flagged, so
-        #: a newer match committed after the warning cannot slip through (gh-200
-        #: C1). Defaults to ``(existing,)`` for callers that pass only one.
+        #: Every active booking that matched, so a same-turn override is refused if any was flagged.
         self.matches = tuple(matches) if matches is not None else (existing,)
 
 
 class DomainValidationError(AppError):
-    """A request is well-formed but semantically invalid (HTTP 422).
-
-    For value-level checks the service layer makes that Pydantic cannot express
-    on the request schema alone (e.g. an enum-like field constrained to a small
-    set). Renders in the same envelope as request-validation 422s.
-    """
+    """A request is well-formed but semantically invalid (HTTP 422) — for value-level checks Pydantic cannot express on the schema alone."""
 
     status_code = 422
     default_detail = "Request validation failed"
@@ -155,34 +106,20 @@ class RoutingUnavailableError(UpstreamError):
 
 
 class ForbiddenError(AppError):
-    """The caller is authenticated but lacks the required role/permission (HTTP 403).
-
-    Raised when a valid token is present but the user does not hold the role
-    required to perform the action (e.g. ``role != "admin"``).
-    """
+    """The caller is authenticated but lacks the required role/permission (HTTP 403)."""
 
     status_code = 403
     default_detail = "Forbidden"
 
 
 class PremiumRequiredError(ForbiddenError):
-    """The caller's tier does not permit this action (HTTP 403).
-
-    Raised by ``app.core.auth.require_premium`` when a free-tier caller hits a
-    route gated to premium accounts (e.g. ``POST /flights/book``,
-    ``POST /hotels/book``).
-    """
+    """The caller's tier does not permit this action (HTTP 403)."""
 
     default_detail = "This action requires a premium account."
 
 
 class QuotaExceededError(AppError):
-    """The user has exceeded their daily usage quota (HTTP 429).
-
-    Raised by ``app.services.quota_service`` when a free-tier user's turn count
-    for the current UTC day meets or exceeds the configured daily limit. The
-    ``AppError`` handler in ``app.core.errors`` maps this to 429 automatically.
-    """
+    """The user has exceeded their daily usage quota (HTTP 429)."""
 
     status_code = 429
     default_detail = (
@@ -191,14 +128,7 @@ class QuotaExceededError(AppError):
 
 
 class RateLimitError(AppError):
-    """A caller exceeded a short-window rate limit for an action (HTTP 429).
-
-    Distinct from :class:`QuotaExceededError` (a per-day usage budget): this is
-    an abuse limiter enforced per effective user by ``app.repositories.rate_limit``
-    / ``app.core.rate_limit`` (``specs/rate-limit-primitive``). ``retry_after`` is
-    the number of seconds until the current window resets; the ``AppError``
-    handler in ``app.core.errors`` emits it as the ``Retry-After`` header.
-    """
+    """A caller exceeded a short-window abuse rate limit (HTTP 429), distinct from the per-day :class:`QuotaExceededError`; ``retry_after`` seconds becomes the ``Retry-After`` header."""
 
     status_code = 429
     default_detail = "Rate limit exceeded. Please retry shortly."
@@ -215,8 +145,7 @@ class RateLimitError(AppError):
     ) -> None:
         super().__init__(detail, hint=hint)
         self.retry_after = retry_after
-        # HTTP-facing policy metadata is optional so direct/manual construction
-        # remains backwards compatible. The limiter always supplies all three.
+        # Policy metadata is optional so manual construction stays backwards compatible; the limiter always supplies all three.
         self.limit = limit
         self.remaining = remaining
         self.reset_at = reset_at

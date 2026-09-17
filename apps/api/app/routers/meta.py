@@ -10,16 +10,7 @@ router = APIRouter(tags=[Tags.meta])
 
 
 def _list_endpoints(request: Request) -> list[str]:
-    """Walk the live route table for ``"METHOD /path"`` strings.
-
-    Deriving the list (rather than maintaining it by hand in this file) means
-    it can never drift from the actual API — adding a router automatically
-    surfaces it here, and dashboard routes are filtered out via
-    ``include_in_schema=False``.
-
-    :param request: The incoming request, used to reach the live route table.
-    :return: Sorted, deduplicated ``"METHOD /path"`` strings.
-    """
+    """Derive sorted, deduplicated ``"METHOD /path"`` strings from the live route table so the list can't drift from the API."""
     seen: set[str] = set()
     out: list[str] = []
     for route in request.app.routes:
@@ -39,14 +30,7 @@ def _list_endpoints(request: Request) -> list[str]:
 
 @router.get("/", response_model=ServiceInfo, summary="Service info")
 def root(request: Request) -> ServiceInfo:
-    """Return the service name, docs URL, and available endpoint paths.
-
-    ``endpoints`` is derived from the live route table at request time so it
-    stays in sync with the API automatically.
-
-    :param request: The incoming request.
-    :return: The service info.
-    """
+    """Return the service name, docs URL, and available endpoint paths."""
     return ServiceInfo(
         name="Travel Planner Mock API",
         docs="/docs",

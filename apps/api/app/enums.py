@@ -1,9 +1,4 @@
-"""Centralised enumerations.
-
-String-valued enums so they serialise transparently in JSON and compare
-equal to the raw strings used in query params and the SQLite store, while
-giving the codebase a single source of truth for the valid values.
-"""
+"""Centralised string-valued enumerations — serialise transparently and compare equal to raw strings."""
 
 from enum import Enum
 
@@ -16,11 +11,7 @@ class BookingType(str, Enum):
 
 
 class BookingStatus(str, Enum):
-    """Lifecycle state of a booking.
-
-    New bookings are always ``CONFIRMED``; ``POST /bookings/{id}/cancel``
-    moves them to ``CANCELLED`` (a soft state change — the row is kept).
-    """
+    """Lifecycle state of a booking; cancel is a soft state change — the row is kept."""
 
     CONFIRMED = "confirmed"
     CANCELLED = "cancelled"
@@ -84,11 +75,7 @@ class TipCategory(str, Enum):
 
 
 class OverviewSection(str, Enum):
-    """Sections of a destination overview response.
-
-    Pass one or more via ``?include=weather&include=places`` to restrict
-    which sections are returned. Omit the param to get all four.
-    """
+    """Sections of a destination overview response."""
 
     WEATHER = "weather"
     PLACES = "places"
@@ -107,14 +94,7 @@ class TripItemKind(str, Enum):
 
 
 class TripItemStatus(str, Enum):
-    """Planning state of a trip itinerary item.
-
-    Lets an agent express soft vs. hard plan and hard constraints:
-    ``pending`` (default, not yet decided), ``booked`` (locked in — note this
-    is the *planning* state and is independent of ``BookingStatus`` /
-    ``booking_id``), ``constraint`` (a fixed must-happen anchor), and
-    ``optional`` (nice-to-have; excluded from gap-detection).
-    """
+    """Planning state of a trip itinerary item; ``booked`` here is planning state, independent of ``BookingStatus``."""
 
     PENDING = "pending"
     BOOKED = "booked"
@@ -152,11 +132,7 @@ class ExpenseCategory(str, Enum):
 
 
 class BudgetCategory(str, Enum):
-    """Spend buckets a per-trip budget cap can target.
-
-    flights/hotels map 1:1 to BookingType; activities/buffer have no booking
-    source yet (activity booking is unshipped, #15) so their spent is always 0.
-    """
+    """Spend buckets a per-trip budget cap can target; activities/buffer have no booking source yet so their spent is always 0."""
 
     FLIGHTS = "flights"
     HOTELS = "hotels"
@@ -165,7 +141,7 @@ class BudgetCategory(str, Enum):
 
 
 class MessageRole(str, Enum):
-    """Author role of a stored conversation message (specs/travel-agent)."""
+    """Author role of a stored conversation message."""
 
     USER = "user"
     ASSISTANT = "assistant"
@@ -174,7 +150,7 @@ class MessageRole(str, Enum):
 
 
 class JobStatus(str, Enum):
-    """Lifecycle of a long-running agent job (specs/travel-agent)."""
+    """Lifecycle of a long-running agent job."""
 
     PENDING = "pending"
     RUNNING = "running"
@@ -183,7 +159,7 @@ class JobStatus(str, Enum):
 
 
 class Tier(str, Enum):
-    """BE-resolved account tier — the capability ceiling (specs/agent-identity-tier)."""
+    """BE-resolved account tier — the capability ceiling."""
 
     FREE = "free"
     PREMIUM = "premium"
@@ -198,7 +174,7 @@ class ResponseStyle(str, Enum):
 
 
 class FeedbackAction(str, Enum):
-    """Kind of append-only ``feedback_events`` row (specs/user-feedback-v1)."""
+    """Kind of append-only ``feedback_events`` row."""
 
     SET_RATING = "set_rating"
     ADD_DETAIL = "add_detail"

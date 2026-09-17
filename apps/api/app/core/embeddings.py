@@ -1,11 +1,4 @@
-"""Embedding model selection, shared by the agent-memory semantic index.
-
-``get_embeddings()`` uses OpenAI when a key is configured and a deterministic
-fake otherwise, so local dev and the test suite embed without a key or
-network. Relocated from ``app.rag.embeddings`` when the RAG feature was
-removed (specs/remove-rag-feature) — ``app.memory.store`` is the only
-remaining consumer.
-"""
+"""Embedding model selection for the agent-memory semantic index: OpenAI when keyed, a deterministic fake otherwise (no key or network in dev/test)."""
 
 from __future__ import annotations
 
@@ -18,10 +11,7 @@ _FAKE_EMBED_DIM = EMBED_DIM  # the fake matches so dims are stable across modes
 
 
 def get_embeddings() -> Embeddings:
-    """Return the embedding model: OpenAI when keyed, deterministic fake otherwise.
-
-    :return: The embedding model.
-    """
+    """Return the embedding model: OpenAI when keyed, deterministic fake otherwise."""
     s = get_settings()
     if s.openai_api_key:
         from langchain_openai import OpenAIEmbeddings

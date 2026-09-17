@@ -1,12 +1,4 @@
-"""Localize catalog entities to the conversation language (specs/catalog-content-i18n).
-
-``localize`` overlays stored translations (``content_translations``) onto Pydantic
-entities and fills any miss with ONE batched translator call, writing the result
-back so the same text is never translated twice. The default language is a
-strict no-op (the same objects are returned, no query, no LLM). Everything here
-is best-effort: a translator failure keeps the source text and never raises into
-the tool path.
-"""
+"""Localize catalog entities to the conversation language (best-effort; never raises)."""
 
 from __future__ import annotations
 
@@ -27,9 +19,7 @@ logger = logging.getLogger(__name__)
 #: ``translator(texts, language) -> translated texts`` (same length and order).
 Translator = Callable[[list[str], str], list[str]]
 
-#: Agent-config name the translator resolves through. Reuses an existing node
-#: name on purpose: a brand-new name would be seeded with a NULL model and 403
-#: in Docker (docs/solutions/agent/new-agent-config-node-seeds-null-model.md).
+#: Reuses an existing node name — a new one seeds a NULL model and 403s in Docker.
 TRANSLATOR_AGENT = "extract_memory"
 
 _SYSTEM = (
@@ -51,15 +41,7 @@ class TranslationBatch(BaseModel):
 def llm_translator(
     texts: list[str], language: str, *, instructions: str | None = None
 ) -> list[str]:
-    """Translate ``texts`` in one structured LLM call.
-
-    :param texts: Source strings (non-empty list).
-    :param language: Target language code (used to name the language in the prompt).
-    :param instructions: Extra system-prompt guidance for this batch (e.g. the
-        assistant persona for system copy); ``None`` for plain catalog text.
-    :return: Translations in input order.
-    :raises ValueError: If the model returns a different number of items.
-    """
+    """Translate ``texts`` in one structured LLM call."""
     llm = get_agent_llm(TRANSLATOR_AGENT).with_structured_output(TranslationBatch)
     numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(texts))
     system = _SYSTEM.format(language=LANGUAGE_NAMES[language])
@@ -77,8 +59,7 @@ def llm_translator(
             f"translator returned {0 if items is None else len(items)} items "
             f"for {len(texts)} inputs"
         )
-    # The model sometimes echoes the input numbering ("1. …"); strip a prefix
-    # that matches the item's own index — a genuine leading number would not.
+    # Strip an echoed "N. " prefix matching the item's own index.
     return [
         item[len(f"{i + 1}. ") :] if item.startswith(f"{i + 1}. ") else item
         for i, item in enumerate(items)
@@ -101,18 +82,7 @@ class ContentTranslationService:
         *,
         fill_misses: bool = True,
     ) -> list[M]:
-        """Return ``items`` with ``fields`` in ``language``.
-
-        :param entity_type: Catalog entity kind (``"place"`` / ``"hotel"``); the
-            translations table key, not a Python type.
-        :param items: Pydantic entities carrying an ``id`` and the ``fields``.
-        :param fields: Free-form text fields to localize (e.g. ``["description"]``).
-        :param language: Target language code; unknown/empty → default → no-op.
-        :param fill_misses: When ``False`` (e.g. the dashboard), never call the
-            translator — a missing row simply keeps the source text.
-        :return: The same objects for the default language; otherwise copies
-            with every available translation applied. Never raises.
-        """
+        """Return ``items`` with ``fields`` in ``language`` (default language is a no-op)."""
         lang = normalize(language)
         items = list(items)
         if lang == DEFAULT_LANGUAGE or not items or not fields:

@@ -1,9 +1,4 @@
-"""Tests for `GET /bookings?trip_id=` (Task 3.1, SC-5).
-
-Filtering by trip_id keeps only that trip's bookings for the calling owner;
-omitting the parameter preserves today's response (all of the caller's
-bookings); another user's booking on the same trip_id never appears.
-"""
+"""GET /bookings?trip_id= filters to the caller's own bookings for that trip."""
 
 from __future__ import annotations
 
@@ -36,7 +31,6 @@ def _rooms_always_available(monkeypatch):
 
 
 def _client_as(tmp_db, user_id: str) -> TestClient:
-    """A premium TestClient acting as ``user_id``, on the shared temp DB."""
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
     seed_all(get_session_factory(tmp_db))
     UserRepository(get_session_factory(tmp_db)).upsert_tier(user_id, "premium")
@@ -110,9 +104,7 @@ def test_trip_id_filter_never_shows_another_users_booking(tmp_db):
         c_a.post("/flights/book", json=_flight_payload(c_a, trip_id=shared_trip_id))
 
     with _client_as(tmp_db, USER_B) as c_b:
-        # B's own trip happens to reuse the same id space is impossible (trip
-        # ids are owner-scoped by ownership check elsewhere); what matters
-        # here is B never sees A's booking when querying by A's trip_id.
+        # B must never see A's booking when querying by A's trip_id.
         resp = c_b.get("/bookings", params={"trip_id": shared_trip_id})
 
     assert resp.status_code == 200

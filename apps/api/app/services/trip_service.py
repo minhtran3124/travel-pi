@@ -1,10 +1,4 @@
-"""Trip itinerary business logic: CRUD over trips and their items.
-
-Service tier — owns ID generation, existence checks, and the 404s; delegates
-all persistence to :class:`~app.repositories.trip.TripRepository`. Trips are the
-second mutable state in the API (alongside bookings). Sync + raw SQLite, like
-the booking service.
-"""
+"""Trip itinerary business logic: CRUD over trips and their items, delegating persistence to :class:`~app.repositories.trip.TripRepository`."""
 
 import logging
 import uuid
@@ -58,8 +52,7 @@ logger = logging.getLogger(__name__)
 
 _VALID_SOURCES = {"catalog", "saved"}
 
-# Which budget category a booking's spend lands in. Activities/buffer have no
-# booking source yet (activity booking is unshipped, #15).
+# Which budget category a booking's spend lands in; activities/buffer have no booking source yet.
 _BOOKING_TYPE_TO_CATEGORY: dict[BookingType, BudgetCategory] = {
     BookingType.FLIGHT: BudgetCategory.FLIGHTS,
     BookingType.HOTEL: BudgetCategory.HOTELS,
@@ -74,37 +67,17 @@ class TripService:
     """Business logic over the trip store."""
 
     def __init__(self, session: Session, user_id: str) -> None:
-        """Bind the store to one owner (#118).
-
-        The owner is a property of the service instance rather than a parameter
-        on twenty methods, because every read and mutation already funnels
-        through :meth:`get_trip` — scoping that one lookup scopes the whole
-        surface, and no future method can forget to pass it.
-
-        :param session: The request-scoped DB session.
-        :param user_id: The caller who owns the trips this instance may touch.
-        """
+        """Bind the store to one owner; every read/mutation funnels through :meth:`get_trip`, so scoping that scopes the whole surface."""
         self._session = session
         self._repo = TripRepository(session)
         self._user_id = user_id
 
     def _bookings(self) -> BookingService:
-        """Return a booking store bound to this trip's request session (shared txn).
-
-        :return: A ``BookingService`` sharing this service's session/transaction.
-        """
+        """Return a booking store sharing this service's session/transaction."""
         return BookingService(self._session)
 
     def get_trip(self, trip_id: str) -> Trip:
-        """Return a trip by UUID, or raise :class:`NotFoundError`.
-
-        A trip owned by someone else raises the same ``NotFoundError`` as one
-        that does not exist — a distinct "forbidden" would confirm to a probe
-        that a guessed id is real (#118).
-
-        :param trip_id: The trip's UUID.
-        :return: The matching trip.
-        """
+        """Return a trip by UUID, or raise :class:`NotFoundError` — a foreign trip 404s like a missing one, so a probe can't confirm a guessed id."""
         trip = self._repo.get_trip(trip_id, self._user_id)
         if trip is None:
             raise NotFoundError(
@@ -114,24 +87,13 @@ class TripService:
         return trip
 
     def list_trips(self) -> list[Trip]:
-        """Return the caller's trips, newest first.
-
-        :return: The caller's trips, newest first.
-        """
+        """Return the caller's trips, newest first."""
         return self._repo.list_trips(self._user_id)
 
     def create_trip(
         self, request: TripCreate, idempotency_key: str | None = None
     ) -> Trip:
-        """Create a trip (plus any initial items) and return it.
-
-        When ``idempotency_key`` matches an earlier request, the original trip
-        is returned and nothing new is stored.
-
-        :param request: The trip creation payload (title, dates, initial items).
-        :param idempotency_key: Optional key replaying an earlier create request.
-        :return: The stored trip.
-        """
+        """Create a trip (plus any initial items); a matching ``idempotency_key`` replays the original."""
         if idempotency_key:
             existing = self._repo.get_trip_by_idempotency_key(
                 idempotency_key, self._user_id
@@ -167,12 +129,7 @@ class TripService:
         return self._repo.get_trip(stored.id, self._user_id)
 
     def update_trip(self, trip_id: str, request: TripUpdate) -> Trip:
-        """Replace a trip's top-level fields. 404 if it does not exist.
-
-        :param trip_id: The trip's UUID.
-        :param request: The new top-level field values.
-        :return: The updated trip.
-        """
+        """Replace a trip's top-level fields. 404 if it does not exist."""
         existing = self.get_trip(trip_id)
         updated = existing.model_copy(
             update={
@@ -189,12 +146,7 @@ class TripService:
         return self._repo.get_trip(trip_id, self._user_id)
 
     def delete_trip(self, trip_id: str) -> None:
-        """Soft-delete a trip (stamp deleted_at, keep the row). 404 if missing
-        or already deleted — get_trip filters tombstoned rows, so a repeat
-        delete raises NotFoundError (idempotent 404 at the API).
-
-        :param trip_id: The trip's UUID.
-        """
+        """Soft-delete a trip; a repeat delete raises NotFoundError (idempotent 404)."""
         self.get_trip(trip_id)
         self._repo.delete_trip(trip_id, when=datetime.now(timezone.utc).isoformat())
         logger.info("Soft-deleted trip %s", trip_id)
@@ -205,22 +157,12 @@ class TripService:
         request: TripItemCreate,
         idempotency_key: str | None = None,
     ) -> TripItem:
-        """Append an item to a trip. 404 if the trip does not exist.
-
-        When ``idempotency_key`` matches an earlier request, the original item
-        is returned and nothing new is stored.
-
-        :param trip_id: The trip's UUID.
-        :param request: The item creation payload.
-        :param idempotency_key: Optional key replaying an earlier add request.
-        :return: The stored trip item.
-        """
+        """Append an item to a trip (404 if missing); a matching ``idempotency_key`` replays the original."""
         trip = self.get_trip(trip_id)
         if idempotency_key:
             existing = self._repo.get_item_by_idempotency_key(idempotency_key)
             if existing is not None:
-                # Keys are globally unique; reusing one against a different
-                # trip is a client error, not a silent replay of the wrong item.
+                # Keys are globally unique; reusing one for a different trip is a client error, not a silent wrong-item replay.
                 if existing.trip_id != trip_id:
                     raise ConflictError(
                         f"Idempotency-Key {idempotency_key!r} was already used "
@@ -234,8 +176,7 @@ class TripService:
                     existing.id,
                 )
                 return existing
-        # Budget guard runs after the replay check (a replay is not a new
-        # charge) and before the insert.
+        # Budget guard after the replay check (a replay is not a new charge), before the insert.
         self._enforce_budget(trip, request)
         item = TripItem(id=_new_id(), trip_id=trip_id, **request.model_dump())
         stored = self._repo.add_item(item, idempotency_key=idempotency_key)
@@ -245,13 +186,7 @@ class TripService:
     def update_item(
         self, trip_id: str, item_id: str, request: TripItemUpdate
     ) -> TripItem:
-        """Replace an item's fields. 404 if the trip or item does not match.
-
-        :param trip_id: The trip's UUID.
-        :param item_id: The item's UUID.
-        :param request: The new item field values.
-        :return: The updated trip item.
-        """
+        """Replace an item's fields. 404 if the trip or item does not match."""
         self.get_trip(trip_id)
         existing = self._repo.get_item(item_id)
         if existing is None or existing.trip_id != trip_id:
@@ -264,11 +199,7 @@ class TripService:
         return self._repo.get_item(item_id)
 
     def delete_item(self, trip_id: str, item_id: str) -> None:
-        """Delete an item from a trip. 404 if the trip or item does not match.
-
-        :param trip_id: The trip's UUID.
-        :param item_id: The item's UUID.
-        """
+        """Delete an item from a trip. 404 if the trip or item does not match."""
         self.get_trip(trip_id)
         existing = self._repo.get_item(item_id)
         if existing is None or existing.trip_id != trip_id:
@@ -284,27 +215,14 @@ class TripService:
     def add_place_to_trip(
         self, trip_id: str, place_id: str, source: str = "catalog"
     ) -> ShortlistEntry:
-        """Shortlist a catalog or saved place onto a trip.
-
-        Validates ``source`` (422) before any DB work, then checks the trip
-        exists (404) and the place resolves (404). A repeat of the same
-        (trip, place, source) hits the UNIQUE index → 409.
-
-        :param trip_id: The trip's UUID.
-        :param place_id: The catalog or saved place id to shortlist.
-        :param source: The place source — ``'catalog'`` or ``'saved'``.
-        :return: The created shortlist entry.
-        """
+        """Shortlist a catalog or saved place onto a trip (422 bad source, 404 missing trip/place, 409 duplicate)."""
         if source not in _VALID_SOURCES:
             raise DomainValidationError(
                 f"Invalid source {source!r}.",
                 hint="source must be 'catalog' or 'saved'.",
             )
         self.get_trip(trip_id)
-        # Scope the saved resolve to the caller: place_id is a fresh, model-facing
-        # argument (an agent can be steered to another user's saved UUID / SPL-
-        # code), so an unscoped resolve here would shortlist — and echo back — a
-        # foreign saved place's PII onto the caller's own trip.
+        # Scope the saved resolve to the caller: an unscoped resolve could shortlist and echo back a foreign saved place's PII onto the caller's trip.
         resolved = PlaceService(self._session).resolve(
             place_id, source, user_id=self._user_id
         )
@@ -334,12 +252,7 @@ class TripService:
         return ShortlistEntry(link_id=link_id, source=source, place=resolved)
 
     def list_trip_places(self, trip_id: str) -> list[ShortlistEntry]:
-        """Return the trip's shortlist, each entry resolved. Entries whose
-        place no longer resolves (e.g. a soft-deleted saved place) are dropped.
-
-        :param trip_id: The trip's UUID.
-        :return: The resolved shortlist entries.
-        """
+        """Return the trip's shortlist, each entry resolved; entries whose place no longer resolves are dropped."""
         self.get_trip(trip_id)
         entries: list[ShortlistEntry] = []
         for row in self._repo.list_trip_places(trip_id):
@@ -354,11 +267,7 @@ class TripService:
         return entries
 
     def remove_trip_place(self, trip_id: str, link_id: str) -> None:
-        """Remove a shortlist entry. 404 if the trip or link does not match.
-
-        :param trip_id: The trip's UUID.
-        :param link_id: The shortlist link id to remove.
-        """
+        """Remove a shortlist entry. 404 if the trip or link does not match."""
         self.get_trip(trip_id)
         if not self._repo.delete_trip_place(trip_id, link_id):
             raise NotFoundError(
@@ -368,11 +277,7 @@ class TripService:
         logger.info("Removed shortlist entry %s from trip %s", link_id, trip_id)
 
     def _resolve_bookings(self, trip: Trip) -> dict[str, object]:
-        """Resolve every distinct linked booking_id once. Missing → None.
-
-        :param trip: The trip whose items' bookings to resolve.
-        :return: A map of booking id to the resolved booking (``None`` if missing).
-        """
+        """Resolve every distinct linked booking_id once (missing → None)."""
         booking_svc = self._bookings()
         resolved: dict[str, object] = {}
         for item in trip.items:
@@ -392,11 +297,7 @@ class TripService:
         return resolved
 
     def _spend_by_category(self, trip: Trip) -> dict[BudgetCategory, float]:
-        """Sum booked spend per category. Per-item (matches total_spent).
-
-        :param trip: The trip whose booked spend to sum.
-        :return: Booked spend keyed by budget category.
-        """
+        """Sum booked spend per category (per-item, matches total_spent)."""
         resolved = self._resolve_bookings(trip)
         spend: dict[BudgetCategory, float] = dict.fromkeys(BudgetCategory, 0.0)
         for item in trip.items:
@@ -412,18 +313,7 @@ class TripService:
         return {c: _money(v) for c, v in spend.items()}
 
     def _booked_total(self, trip_id: str) -> float:
-        """Sum every non-cancelled booking carrying this trip_id, once each.
-
-        Independent of :meth:`_spend_by_category`/``total_spent``, which walk
-        itinerary items instead: a booking no item references contributes
-        nothing there, and one referenced by two items is counted twice
-        there. This counts by booking existence, not item references, so a
-        booking counts exactly once here regardless of how many (if any)
-        items reference it.
-
-        :param trip_id: The trip whose linked bookings to sum.
-        :return: Sum of non-cancelled linked bookings' total_price (USD).
-        """
+        """Sum every non-cancelled booking carrying this trip_id once — counts by booking existence, not item references (unlike ``total_spent``)."""
         bookings = self._bookings().query(user_id=self._user_id, trip_id=trip_id)
         total = sum(
             b.total_price for b in bookings if b.status != BookingStatus.CANCELLED
@@ -431,11 +321,7 @@ class TripService:
         return _money(total)
 
     def get_trip_budget(self, trip_id: str) -> TripBudget:
-        """Return per-category caps vs spend for a trip. 404 if unknown.
-
-        :param trip_id: The trip's UUID.
-        :return: The trip's per-category caps versus spend.
-        """
+        """Return per-category caps vs spend for a trip. 404 if unknown."""
         trip = self.get_trip(trip_id)
         caps = self._repo.get_budget_caps(trip_id)
         spend = self._spend_by_category(trip)
@@ -443,12 +329,7 @@ class TripService:
         return self._build_budget(trip_id, caps, spend, booked_total)
 
     def set_trip_budget(self, trip_id: str, request: TripBudgetSet) -> TripBudget:
-        """Replace the trip's caps and return the resulting budget. 404 if unknown.
-
-        :param trip_id: The trip's UUID.
-        :param request: The new per-category caps.
-        :return: The resulting trip budget.
-        """
+        """Replace the trip's caps and return the resulting budget. 404 if unknown."""
         self.get_trip(trip_id)
         caps = {
             c.value: getattr(request, c.value)
@@ -494,14 +375,7 @@ class TripService:
         )
 
     def _enforce_budget(self, trip: Trip, request: TripItemCreate) -> None:
-        """Reject (409) when a linked booking would push its category over cap.
-
-        No-ops unless the new item links a resolvable, non-cancelled booking
-        whose category has a cap set. Boundary is strict: spent == cap is OK.
-
-        :param trip: The trip whose caps to enforce.
-        :param request: The item being added, whose linked booking is checked.
-        """
+        """Reject (409) when a linked booking would push its category over cap (spent == cap is OK)."""
         if request.booking_id is None:
             return
         caps = self._repo.get_budget_caps(trip.id)
@@ -534,23 +408,12 @@ class TripService:
             )
 
     def get_trip_detail(self, trip_id: str) -> TripDetail:
-        """Return a trip enriched with spend rollup and coverage gaps.
-
-        ``total_spent`` sums the ``total_price`` of every non-cancelled
-        booking linked by items. ``gaps`` lists days that are missing
-        accommodation or have no items at all.  Both fields are computed
-        fresh on each call — nothing extra is stored.
-
-        :param trip_id: The trip's UUID.
-        :return: The trip enriched with spend rollup and coverage gaps.
-        """
+        """Return a trip enriched with spend rollup and coverage gaps, computed fresh each call."""
         trip = self.get_trip(trip_id)
 
-        # Resolve all booking_ids once to avoid redundant DB lookups in the
-        # gaps pass that follows.
+        # Resolve all booking_ids once — reused by the gaps pass below.
         resolved = self._resolve_bookings(trip)
 
-        # Spend rollup: sum confirmed bookings only.
         total = 0.0
         for item in trip.items:
             if item.booking_id is None:
@@ -561,19 +424,15 @@ class TripService:
             total += booking.total_price
         total_spent = _money(total)
 
-        # Remaining budget rollup: total of set caps minus total_spent. Null when
-        # no cap is set anywhere — mirrors TripBudget.total_remaining (#12).
+        # Remaining budget rollup: set caps minus total_spent; None when no cap is set anywhere.
         caps = self._repo.get_budget_caps(trip_id)
         remaining_budget = _money(sum(caps.values()) - total_spent) if caps else None
 
-        # Gap detection: iterate day range when dates are known.
         gaps: list[str] = []
         if trip.start_date is not None and trip.end_date is not None:
             num_days = (trip.end_date - trip.start_date).days + 1
             for day_num in range(1, num_days + 1):
-                # Optional items are "nice-to-have" — they don't count as
-                # planning a day, so a day with only optional items still
-                # reports the no-items gap.
+                # Optional items don't count as planning a day, so a day with only optional items still reports the no-items gap.
                 day_items = [
                     i
                     for i in trip.items
@@ -601,19 +460,7 @@ class TripService:
         )
 
     async def get_day_plan(self, trip_id: str, target_date: date) -> DayPlanResponse:
-        """Return an ordered day plan with optional travel-time annotations.
-
-        Raises :class:`ConflictError` (409) when the trip has no
-        ``start_date`` — the day number cannot be computed without it.
-        Travel times between consecutive items are fetched from
-        ``routing_service`` when both items have resolvable, geo-located
-        place IDs; any routing error is silently swallowed (fields stay
-        ``None``) so a missing API key never breaks the day plan.
-
-        :param trip_id: The trip's UUID.
-        :param target_date: The calendar date to build the plan for.
-        :return: The ordered day plan with travel-time annotations.
-        """
+        """Return an ordered day plan with optional travel-time annotations (409 if the trip has no start_date; routing errors leave the fields None)."""
         trip = self.get_trip(trip_id)
         if trip.start_date is None:
             raise ConflictError(
@@ -715,24 +562,13 @@ def get_trip_service(
     session: Annotated[Session, Depends(get_session)],
     auth_user: Annotated[AuthUser, Depends(get_current_user)],
 ) -> TripService:
-    """FastAPI dependency: a trip store bound to the request session AND caller.
-
-    ``get_current_user`` is the *required* variant, so every route depending on
-    this now 401s without a valid token. Before #118 these routes had no
-    authentication at all and the store was unscoped, which is what made every
-    trip readable by anyone.
-
-    :param session: The request-scoped DB session.
-    :param auth_user: The authenticated caller; supplies the owner filter.
-    :return: A ``TripService`` bound to the request session and caller.
-    """
+    """FastAPI dependency: a trip store bound to the request session and caller (required auth, owner-scoped)."""
     return TripService(session, auth_user.id)
 
 
 # --------------------------------------------------------------------------- #
 # Budget estimate — a stateless calculator (no DB, no network).
-# Rates are USD per person per day, where "day" = one night (see SUMMARY.md /
-# PLAN.md: the spec's worked example balances on `nights`, not `nights + 1`).
+# Rates are USD per person per day, where "day" = one night.
 # --------------------------------------------------------------------------- #
 
 _MEAL_RATES: dict[MealStyle, int] = {
@@ -750,22 +586,13 @@ _BUFFER_PCT = 10
 
 
 def _money(value: float, places: int = 2) -> float:
-    """Round half-up to ``places`` decimals (avoids round()'s banker's rounding).
-
-    :param value: The number to round.
-    :param places: The number of decimal places to round to.
-    :return: The half-up rounded value.
-    """
+    """Round half-up to ``places`` decimals (avoids round()'s banker's rounding)."""
     quant = Decimal(10) ** -places
     return float(Decimal(str(value)).quantize(quant, rounding=ROUND_HALF_UP))
 
 
 def estimate_trip(request: TripEstimateRequest) -> TripEstimateResponse:
-    """Compute a line-item budget estimate. Pure function; nothing is stored.
-
-    :param request: The estimate inputs (nights, travelers, rates, prices).
-    :return: The computed line-item budget estimate.
-    """
+    """Compute a line-item budget estimate. Pure function; nothing is stored."""
     nights = request.nights
     travelers = request.travelers
     meal_rate = _MEAL_RATES[request.meal_style]

@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""SC-11: the gh-166 SUMMARY must record an explicit baseline decision.
+"""Assert the SUMMARY records an explicit baseline decision.
 
-Adding a golden moves the `journal` capability's pass_rate, which is what the
-regression gate reads — `evalkit.baseline` skips a golden_id present in only
-one report, so a new case never trips the gate by count. The decision to
-refresh `eval/baselines/main.json` or to accept the delta must therefore be
-recorded, not left implicit.
-
-This asserts the record exists and is specific: one of the two fixed branch
-tokens plus two numeric pass_rate values on the same line. It does not judge
-whether the decision was right.
+Adding a golden moves the capability's pass_rate, so the decision to refresh the
+baseline or accept the delta must be recorded, not left implicit. This checks the
+record exists and is specific (a fixed branch token plus two pass_rate values on
+one line); it does not judge whether the decision was right.
 """
 
 from __future__ import annotations
@@ -17,8 +12,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-# scripts -> apps/api -> apps -> repo root. Resolved from the file, not the
-# cwd: this runs from apps/api but reads a file at the repo root.
+# Resolved from the file, not cwd: runs from apps/api but reads a repo-root file.
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SUMMARY = REPO_ROOT / "specs" / "gh-166-list-trips-tool" / "SUMMARY.md"
 TOKENS = ("refreshed", "accepted")
@@ -36,11 +30,9 @@ def main() -> int:
         print("FAIL  SUMMARY.md has no 'Baseline decision:' line")
         return 1
 
-    # The token must be the word the line LEADS with, not merely present in it:
-    # "accepted, not refreshed" contains both, and a check that reports the
-    # wrong branch is worse than no check.
-    # \b so "acceptedly" cannot pass as "accepted", IGNORECASE so a naturally
-    # capitalised "Accepted" is not rejected. Both were live defects.
+    # Anchor on the word the line LEADS with: "accepted, not refreshed" contains
+    # both tokens, so reporting the wrong branch is worse than no check. \b stops
+    # "acceptedly" passing; IGNORECASE allows a capitalised "Accepted".
     decision = re.compile(
         r"Baseline decision:\s*\**(" + "|".join(TOKENS) + r")\b",
         re.IGNORECASE,

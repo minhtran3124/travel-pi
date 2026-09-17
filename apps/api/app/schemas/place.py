@@ -6,17 +6,11 @@ from app.core.codes import prefixed_code
 from app.schemas.base import AppBaseModel
 from app.schemas.pagination import PagedResponse
 
-# Prefix used for the friendly place short code, e.g. "PLC-AB23XY".
 PLACE_CODE_PREFIX = "PLC"
 
 
 class PlaceCategoryInfo(AppBaseModel):
-    """A place category with its display metadata (color + icon).
-
-    Returned by ``GET /places/categories``. ``color`` is a ``#rrggbb`` hex string
-    aligned with the dashboard "Sunset" palette; ``icon`` is a short string key
-    the frontend maps to its own icon set.
-    """
+    """A place category with its display metadata (color + icon)."""
 
     name: str = Field(description="Category key.", examples=["restaurant"])
     color: str = Field(
@@ -84,11 +78,7 @@ class Place(AppBaseModel):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def short_code(self) -> str:
-        """Friendly ``PLC-XXXXXX`` reference derived from ``id``.
-
-        Accepted anywhere a ``place_id`` is — easier to read aloud or quote
-        in a chat message than the raw UUID.
-        """
+        """Friendly ``PLC-XXXXXX`` reference derived from ``id``."""
         return prefixed_code(PLACE_CODE_PREFIX, self.id)
 
 
@@ -102,11 +92,7 @@ class NearbyPlace(Place):
 
 
 class PlaceNearbyResponse(AppBaseModel):
-    """Response body for ``GET /places/nearby``.
-
-    ``results`` is ordered nearest-first and excludes the origin place
-    itself. ``count`` is the number returned (after the ``limit`` cap).
-    """
+    """Response body for ``GET /places/nearby`` (results ordered nearest-first, origin excluded)."""
 
     origin_place_id: str = Field(
         description="The place_id (or short code) the search anchored on."

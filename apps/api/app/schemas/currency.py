@@ -1,9 +1,4 @@
-"""Currency-conversion schemas for ``GET /currency/convert``.
-
-Mock FX only — see ``app/data/fx.py``. ``from``/``to`` are exposed under their
-natural names via aliases (``from`` is a Python reserved word, so the fields are
-``from_currency``/``to_currency`` internally).
-"""
+"""Currency-conversion schemas for ``GET /currency/convert`` (mock FX; ``from``/``to`` are reserved-word aliases)."""
 
 from pydantic import ConfigDict, Field
 
@@ -20,8 +15,7 @@ class LocalCurrency(AppBaseModel):
 class CurrencyConvertResponse(AppBaseModel):
     """Response body for ``GET /currency/convert``."""
 
-    # Allow construction by field name (``from_currency=``) while serialising
-    # under the natural ``from``/``to`` aliases.
+    # Construct by field name while serialising under the ``from``/``to`` aliases.
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     from_currency: str = Field(

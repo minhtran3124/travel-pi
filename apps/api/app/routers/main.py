@@ -1,9 +1,4 @@
-"""Aggregate router — wires every endpoint group into a single router.
-
-``app.main.create_app`` includes just this one router, so adding or removing
-an endpoint group is a one-line change here instead of touching the app
-factory.
-"""
+"""Aggregate router — wires every endpoint group into a single router."""
 
 from fastapi import APIRouter
 
