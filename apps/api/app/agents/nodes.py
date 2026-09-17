@@ -22,6 +22,7 @@ from app.agents.state import TravelAgentState, with_reply_language
 from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
+    READ_ALL_LIMIT,
     MemoryKind,
     get_instructions,
     get_profile,
@@ -84,12 +85,9 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
-        # Over-read (limit=20) then cap to 10 AFTER the guard's read-side drop,
-        # so poisoned/legacy rows can't crowd out valid ones near the pre-guard
-        # limit (memory-poisoning-hardening §3.4; same pattern below and in
-        # memory_tools.py).
+        # Read all guard-survivor instructions; the write allowlist bounds the rows.
         try:
-            instrs = get_instructions(store, user_id, limit=20)[:10]
+            instrs = get_instructions(store, user_id, limit=READ_ALL_LIMIT)
             if instrs:
                 result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))
@@ -111,20 +109,12 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
 
-        # Best-effort: recency-ordered full-read of traveller preferences (MIN-65
-        # DESIGN D2 — bounded full-read beats semantic search at this store size),
-        # excluding PROFILE_KEYS since those already surface via the profile block
-        # above. search_memory_typed (not search_preferences) is used because it
-        # preserves each preference's store key, needed both to filter and to
-        # format the "- {key}: {value}" lines below.
-        #
-        # Same over-read-then-cap pattern as above (limit=16, cap 8, applied after
-        # both the guard's drop and the PROFILE_KEYS exclusion).
+        # Full-read preferences, excluding PROFILE_KEYS (they surface via the profile block).
         try:
             prefs = search_memory_typed(
-                store, user_id, MemoryKind.PREFERENCES, limit=16
+                store, user_id, MemoryKind.PREFERENCES, limit=READ_ALL_LIMIT
             )
-            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS][:8]
+            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
             if non_profile:
                 result["preferences"] = "\n".join(
                     f"- {p.key}: {p.text}" for p in non_profile

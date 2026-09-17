@@ -269,6 +269,9 @@ _DEFAULT_SEARCH_LIMITS: dict[MemoryKind, int] = {
     MemoryKind.EPISODES: 3,
 }
 
+# Technical ceiling: the store API requires a limit; the write allowlist is the real bound.
+READ_ALL_LIMIT = 50
+
 # Store namespace kind -> guard content kind (the guard's vocabulary differs from
 # the namespace strings: prefs -> preferences, procedural -> instructions).
 _GUARD_KIND: dict[MemoryKind, MemoryKindLiteral] = {
