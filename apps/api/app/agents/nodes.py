@@ -84,7 +84,7 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
-        # Read all guard-survivor instructions; the write allowlist bounds the rows.
+        # Every guard-surviving instruction; the allowlist bounds new writes, not legacy rows.
         try:
             instrs = get_instructions(store, user_id)
             if instrs:

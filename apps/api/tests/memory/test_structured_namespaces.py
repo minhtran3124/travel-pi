@@ -165,7 +165,7 @@ def test_search_memory_typed_returns_typed_objects():
     assert episodes[0].outcome == "approved"
 
 
-def test_search_memory_default_limits_per_kind():
+def test_episode_default_limit_constant():
     """Only episodes keep a default recall limit; prefs/instructions return every row."""
     from app.memory.store import _EPISODE_DEFAULT_LIMIT
 

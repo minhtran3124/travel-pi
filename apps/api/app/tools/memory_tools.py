@@ -113,7 +113,7 @@ def get_user_preferences(
     :return: Matching saved preferences.
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
-    # Read all rows; the write allowlist already bounds preferences.
+    # Unqueried: every preference. With a query: the store's top semantic matches.
     return search_preferences(store, user_id, query=query)
 
 

@@ -166,16 +166,27 @@ def _stamped(value: dict) -> dict:
 _PAGE_SIZE = 100
 
 
-def _search_all(
-    store: BaseStore, namespace: tuple[str, ...], *, query: str | None = None
-):
+def _read_all(store: BaseStore, namespace: tuple[str, ...]) -> list:
     """Return every item in *namespace*; ``store.search`` has no unlimited mode, so page."""
-    items: list = []
+    items: dict = {}
+    offset = 0
     while True:
-        page = store.search(namespace, query=query, limit=_PAGE_SIZE, offset=len(items))
-        items.extend(page)
-        if len(page) < _PAGE_SIZE:
-            return items
+        page = store.search(namespace, limit=_PAGE_SIZE, offset=offset)
+        fresh = [item for item in page if item.key not in items]
+        items.update((item.key, item) for item in fresh)
+        # Also stop on a page with nothing new, so a store that mishandles offset cannot spin.
+        if len(page) < _PAGE_SIZE or not fresh:
+            return list(items.values())
+        offset += len(page)
+
+
+def _search_unbounded(
+    store: BaseStore, namespace: tuple[str, ...], query: str | None
+) -> list:
+    """Every row when unqueried; a semantic *query* is a top-k search, so it is never paged."""
+    if query is not None:
+        return store.search(namespace, query=query)
+    return _read_all(store, namespace)
 
 
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
@@ -191,8 +202,8 @@ def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> 
 def search_preferences(
     store: BaseStore, user_id: str, *, query: str | None = None
 ) -> list[dict]:
-    """Return every preference value for a user (semantically ranked when a query is given)."""
-    results = _search_all(store, _prefs_namespace(user_id), query=query)
+    """Return every preference for a user, or the top semantic matches when a query is given."""
+    results = _search_unbounded(store, _prefs_namespace(user_id), query)
     return _guarded_values("preferences", results)
 
 
@@ -237,8 +248,8 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
 def get_instructions(
     store: BaseStore, user_id: str, *, query: str | None = None
 ) -> list[dict]:
-    """Return every procedural instruction for a user (semantically ranked when a query is given)."""
-    results = _search_all(store, _namespace(user_id, "procedural"), query=query)
+    """Return every instruction for a user, or the top semantic matches when a query is given."""
+    results = _search_unbounded(store, _namespace(user_id, "procedural"), query)
     return _guarded_values("instructions", results)
 
 
@@ -287,11 +298,11 @@ def _search_kind(
     kind: MemoryKind,
     query: str | None,
     limit: int | None,
-):
-    """Search one kind: everything for prefs/instructions unless *limit* is given."""
+) -> list:
+    """Search one kind; with no *limit*, episodes default to 3 and the others are unbounded."""
     ns = _namespace(user_id, kind.value)
     if limit is None and kind is not MemoryKind.EPISODES:
-        return _search_all(store, ns, query=query)
+        return _search_unbounded(store, ns, query)
     eff_limit = limit if limit is not None else _EPISODE_DEFAULT_LIMIT
     return store.search(ns, query=query, limit=eff_limit)
 
@@ -369,7 +380,8 @@ def search_memory(
     """Unified dispatcher over the structured memory namespaces.
 
     Returns matching values as dicts (semantic ranking when *query* is given).
-    When *limit* is ``None``, preferences and instructions return every row; episodes return 3.
+    With no *limit*: episodes return 3; preferences and instructions return every row
+    (or the top semantic matches when a *query* is given).
     """
     kind = MemoryKind(kind)
     results = _search_kind(store, user_id, kind, query, limit)
