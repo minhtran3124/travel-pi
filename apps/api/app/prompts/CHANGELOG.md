@@ -3,6 +3,39 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-148 — supervisor v13, communication_style v9, planner v16: trip-brief routing fixes
+
+Fixes minhtran3124/travel-pi#148–#152, five failures from one trip-brief conversation: an
+explicit "reply in English" asked in Vietnamese was ignored, adding an item to a day went to
+the journal, a general price question went to budget, flights + weather fanned out, and a
+known trip budget was ignored when planning.
+
+- **supervisor v13** — copied v12. #148: the language rule now also switches on an explicit
+  request to reply in a language — it wins immediately, whatever language the request is
+  written in, and stays sticky; a question *about* a language is not a switch (with a ❌
+  example). #150: the journal "never adds or moves itinerary items" — adding an activity or
+  meal to a day is a **planner** edit. #151: budget is scoped to THIS trip's money; general
+  cost knowledge ("how much does X usually cost") is a **concierge** question. #149: new
+  routing example — flights + weather is one planner job (`plan=[]`). v12's fan-out rules are
+  unchanged.
+- **communication_style v9** — copied v8. #148: an explicit request to reply in a language
+  wins over the typed-language default and stays in effect until the traveller asks for
+  another; carried into every language absolute, including the blocked-on-traveller line.
+  ✅/❌ examples pin the request-vs-question-about-a-language distinction.
+- **planner v16** — copied v15. #152: new "Plan to a known budget" section — a `budget` in
+  Known trip facts is a firm target; size choices to it, state one approximate (≈) estimate
+  against it, never ask for it again. Guardrails names that estimate as the sole exception to
+  "never compute prices yourself" — it is never a price quote.
+
+Code-level wording (live since wave 1, not versioned prompts): `SupervisorIntent.language`'s
+`Field(description=...)` and the established-language hint in `app/agents/supervisor.py`, and
+the `with_reply_language` wording in `app/agents/state.py`, say the same explicit-switch rule
+(the model reads prompt and schema independently — #156 lesson).
+
+The live eval (7 goldens) is recorded in `specs/gh-148-trip-brief-routing-fixes/`.
+
+`active.yaml`: supervisor → 13, communication_style → 9, planner → 16.
+
 ## gh-191 — a flight/hotel search with no date asks instead of using today
 
 A bare "find me a flight from Hanoi to Singapore" ran `search_flights(departure_date=<today>)`

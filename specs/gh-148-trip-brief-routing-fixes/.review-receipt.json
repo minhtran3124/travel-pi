@@ -1,0 +1,62 @@
+{
+  "reviewed_head_sha": "7b63023762542b58b94af3db73c1354673c13894",
+  "created": "2026-09-15T11:27:09+00:00",
+  "reviews": [
+    {
+      "reviewer": "plan-document-reviewer",
+      "type": "plan",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Two iterations. Iteration 1 raised 7 issues: the eval CLI had no id filter, the report path was gitignored, the wave-1 Verify had a hidden dependency, a Done criterion could not be decided in wave 1, a deliberately removed version-pin test was re-added, the quoted-phrase negative case was missing, and code-level wording went live in wave 1. Iteration 2 found 1 more: the with_reply_language prefix pins. All were applied before execution."
+    },
+    {
+      "reviewer": "task-reviewer",
+      "type": "task-1.1-1.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 9,
+      "notes": "Wave 1 (supervisor v13, communication_style v9 + with_reply_language, planner v16). Two tasks passed after one fix round. In 1.2 the v8 absolutes contradicted the explicit-request rule. In 1.3 the Guardrails lacked the ≈-estimate exception. The reviewer's claim that the budget key might not exist was rejected with evidence. Minor findings m1-m9 are in the SUMMARY Review ledger."
+    },
+    {
+      "reviewer": "task-reviewer",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "active.yaml points supervisor 13, planner 16, communication_style 9. No literal version pin. 539 prompt, registry and agent tests passed."
+    },
+    {
+      "reviewer": "task-reviewer",
+      "type": "task-3.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Narrowed the gh-191 no-date rule (E001-A). The reviewer found that never-invent-a-date had been folded into the tool clause (m12). The controller restored it as an unconditional sentence and tightened the tests in 6cbb355a before the final eval."
+    },
+    {
+      "reviewer": "live-eval",
+      "type": "uat",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Real model on 6cbb355a (judge k=3), 10 goldens. #148-#152 in-scope goldens pass, including memory-multi_turn-vi-04, which failed in run 1. All three gh-191 no_invented_date guards pass. The #148 single-turn switch replied in English 5/5. budget-ambiguous-en-03 fails only reply_language: an eval-detector false positive with evidence in diag-budget-rerun.txt. It is exempted under E003 and tracked in #212. Watch item budget-ambiguous-en-02 (#146) is out of scope."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 7,
+      "notes": "Six FIND angles over 4d565678..ad5a3145. prior-art found none. The rest deduplicated to 7 locations, each scored independently against a threshold of 75, and none reached it. C1 (25): weather/climate is not listed as date-bound. C2 (50): the explicit-language switch is sticky only through prompt wording. C7 (50): the tally golden_id is unchecked. C6 (25). C3, C4 and C5 scored 0 because those lines were not modified. All are recorded in SUMMARY Advisory Findings."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Plan-blind against the verbatim request and owner decisions E001-E003. The five issues are addressed, and every SC has a passing Verify row. The trip brief reuses trip_facts: equivalent drift, disclosed at intake. The claim that one change would fix #148, #150 and #152 did not hold, and the PR text states this. The en-02 'unknown gap' was resolved with existing diagnostic evidence. No excess in apps/."
+    }
+  ]
+}

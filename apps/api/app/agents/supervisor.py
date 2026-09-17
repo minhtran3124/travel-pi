@@ -103,7 +103,11 @@ class SupervisorIntent(BaseModel):
             f"to {LANGUAGE_NAMES[DEFAULT_LANGUAGE]} ('{DEFAULT_LANGUAGE}') when the "
             "language is unclear or ambiguous. Ignore lone interjections and "
             "loanwords ('ok','fine','good'); only report a different code on a "
-            "clear, sustained switch."
+            "clear, sustained switch, or when the traveller explicitly asks to "
+            "reply in a language — that request wins immediately, even if that "
+            "request is written in another language, and stays sticky. A "
+            "question ABOUT a language ('How do you say thank you in English?') "
+            "is not a switch."
         ),
     )
     slots: ExtractedSlots | None = Field(
@@ -330,7 +334,8 @@ def make_supervisor(llm: BaseChatModel):
             content=(
                 f"{system.content}\n\n"
                 f"Established conversation language: {established}; "
-                "keep it unless the traveller clearly switches."
+                "keep it unless the traveller clearly switches or explicitly "
+                "asks for another language."
             )
         )
         intent = router.invoke(

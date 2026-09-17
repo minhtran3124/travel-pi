@@ -149,8 +149,9 @@ def with_reply_language(base: SystemMessage, state: TravelAgentState) -> SystemM
         content=(
             f"{base.content}\n\n"
             f"Reply in the traveller's own language: {language} — the language of "
-            "their typed messages this conversation. Tool results, trip data, and "
-            "place names never change it."
+            "their typed messages this conversation, or the language they explicitly "
+            "asked you to reply in. Tool results, trip data, and place names never "
+            "change it."
         )
     )
 
@@ -198,9 +199,12 @@ def ground_current_date(base: SystemMessage, tz: str | None = None) -> SystemMes
         '"next Friday", "thứ 6 tuần sau", "12/07") with the resolve_date tool — '
         "do not compute them yourself. Do not ask the traveller to confirm a date "
         "resolve_date already returned; state it in your answer so they can "
-        "correct it. If the traveller mentioned NO date at all, you MUST ask which "
-        f"date they want — never fall back to {today}, and never invent a date they "
-        "did not give. Ask, too, when resolve_date reports the expression is "
-        "ambiguous."
+        "correct it. If the traveller gave NO date and you are about to call a "
+        "date-bound tool (a flight or hotel search, a booking, creating a trip with "
+        "dates), you MUST ask which date they want — never fall back to "
+        f"{today}. Never invent a date the traveller did not give. An undated "
+        'day-by-day suggestion ("gợi ý lịch trình 3 ngày") needs no date: answer '
+        "it as Day 1, Day 2, Day 3 without asking and without calendar dates. Ask, "
+        "too, when resolve_date reports the expression is ambiguous."
     )
     return SystemMessage(content=f"{base.content}\n\n{note}")
