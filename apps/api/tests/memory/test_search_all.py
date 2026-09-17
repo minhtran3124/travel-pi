@@ -1,6 +1,7 @@
 """Instruction and preference reads return every stored row, however many pages it takes."""
 
 from app.memory.store import (
+    _SEMANTIC_TOP_K,
     MemoryKind,
     get_instructions,
     get_store,
@@ -58,7 +59,7 @@ def test_query_read_terminates_when_rows_have_no_embedding():
 
     texts = [row["text"] for row in result]
     assert len(texts) == len(set(texts))
-    assert len(texts) <= 10
+    assert 0 < len(texts) <= _SEMANTIC_TOP_K
 
 
 def test_unqueried_read_stops_when_a_store_ignores_offset():

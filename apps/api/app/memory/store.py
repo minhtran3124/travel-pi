@@ -164,6 +164,7 @@ def _stamped(value: dict) -> dict:
 
 
 _PAGE_SIZE = 100
+_SEMANTIC_TOP_K = 10
 
 
 def _read_all(store: BaseStore, namespace: tuple[str, ...]) -> list:
@@ -185,7 +186,7 @@ def _search_unbounded(
 ) -> list:
     """Every row when unqueried; a semantic *query* is a top-k search, so it is never paged."""
     if query is not None:
-        return store.search(namespace, query=query)
+        return store.search(namespace, query=query, limit=_SEMANTIC_TOP_K)
     return _read_all(store, namespace)
 
 
