@@ -163,6 +163,38 @@ def _stamped(value: dict) -> dict:
     return {**value, "updated_at": datetime.now(timezone.utc).isoformat()}
 
 
+_PAGE_SIZE = 100
+_SEMANTIC_TOP_K = 10
+
+
+def _read_all(
+    store: BaseStore,
+    namespace: tuple[str, ...],
+) -> list:
+    """Return every item in *namespace*; ``store.search`` has no unlimited mode, so page."""
+    items: dict = {}
+    offset = 0
+    while True:
+        page = store.search(namespace, limit=_PAGE_SIZE, offset=offset)
+        fresh = [item for item in page if (item.namespace, item.key) not in items]
+        items.update(((item.namespace, item.key), item) for item in fresh)
+        # Also stop on a page with nothing new, so a store that mishandles offset cannot spin.
+        if len(page) < _PAGE_SIZE or not fresh:
+            return list(items.values())
+        offset += len(page)
+
+
+def _search_unbounded(
+    store: BaseStore,
+    namespace: tuple[str, ...],
+    query: str | None,
+) -> list:
+    """Every row when unqueried; a semantic *query* is a top-k search, so it is never paged."""
+    if query is not None:
+        return store.search(namespace, query=query, limit=_SEMANTIC_TOP_K)
+    return _read_all(store, namespace)
+
+
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single user preference (value must be a JSON dict).
 
@@ -174,10 +206,13 @@ def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> 
 
 
 def search_preferences(
-    store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 5
+    store: BaseStore,
+    user_id: str,
+    *,
+    query: str | None = None,
 ) -> list[dict]:
-    """Return preference values for a user (semantic when a query is given)."""
-    results = store.search(_prefs_namespace(user_id), query=query, limit=limit)
+    """Return every preference for a user, or the top semantic matches when a query is given."""
+    results = _search_unbounded(store, _prefs_namespace(user_id), query)
     return _guarded_values("preferences", results)
 
 
@@ -220,10 +255,13 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
 
 
 def get_instructions(
-    store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 10
+    store: BaseStore,
+    user_id: str,
+    *,
+    query: str | None = None,
 ) -> list[dict]:
-    """Return procedural instruction values for a user (semantic when a query is given)."""
-    results = store.search(_namespace(user_id, "procedural"), query=query, limit=limit)
+    """Return every instruction for a user, or the top semantic matches when a query is given."""
+    results = _search_unbounded(store, _namespace(user_id, "procedural"), query)
     return _guarded_values("instructions", results)
 
 
@@ -262,12 +300,24 @@ class MemoryKind(str, Enum):
     EPISODES = "episodes"
 
 
-# Per-kind default recall limits (mirror the per-kind helpers' defaults).
-_DEFAULT_SEARCH_LIMITS: dict[MemoryKind, int] = {
-    MemoryKind.PREFERENCES: 5,
-    MemoryKind.PROCEDURAL: 10,
-    MemoryKind.EPISODES: 3,
-}
+# Episodes are unbounded by key, so they alone keep a default recall limit.
+_EPISODE_DEFAULT_LIMIT = 3
+
+
+def _search_kind(
+    store: BaseStore,
+    user_id: str,
+    kind: MemoryKind,
+    query: str | None,
+    limit: int | None,
+) -> list:
+    """Search one kind; with no *limit*, episodes default to 3 and the others are unbounded."""
+    ns = _namespace(user_id, kind.value)
+    if limit is None and kind is not MemoryKind.EPISODES:
+        return _search_unbounded(store, ns, query)
+    eff_limit = limit if limit is not None else _EPISODE_DEFAULT_LIMIT
+    return store.search(ns, query=query, limit=eff_limit)
+
 
 # Store namespace kind -> guard content kind (the guard's vocabulary differs from
 # the namespace strings: prefs -> preferences, procedural -> instructions).
@@ -342,12 +392,11 @@ def search_memory(
     """Unified dispatcher over the structured memory namespaces.
 
     Returns matching values as dicts (semantic ranking when *query* is given).
-    When *limit* is ``None`` the per-kind default is used.
+    With no *limit*: episodes return 3; preferences and instructions return every row
+    (or the top semantic matches when a *query* is given).
     """
     kind = MemoryKind(kind)
-    ns = _namespace(user_id, kind.value)
-    eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
-    results = store.search(ns, query=query, limit=eff_limit)
+    results = _search_kind(store, user_id, kind, query, limit)
     if kind is MemoryKind.EPISODES:
         return [
             payload
@@ -371,9 +420,7 @@ def search_memory_typed(
     (selected by *kind*) instead of raw dicts.
     """
     kind = MemoryKind(kind)
-    ns = _namespace(user_id, kind.value)
-    eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
-    results = store.search(ns, query=query, limit=eff_limit)
+    results = _search_kind(store, user_id, kind, query, limit)
 
     if kind is MemoryKind.EPISODES:
         typed: list[Preference | Instruction | Episode] = []

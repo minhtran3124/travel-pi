@@ -132,28 +132,30 @@ def test_long_legacy_instruction_truncated_to_200():
     assert "a" * 201 not in content
 
 
-def test_ten_valid_six_poisoned_three_profile_preferences_cap_to_eight():
-    """10 valid + 6 poisoned + 3 profile preferences → exactly 8 injected: the
-    poisoned rows are dropped by the guard AND the PROFILE_KEYS rows are excluded,
-    both BEFORE the cap, so neither can crowd out valid ones (limit=16 read, cap to
-    8 after the guard filter AND the PROFILE_KEYS exclusion — design §3.4)."""
+def test_all_valid_instructions_reach_prompt_without_cap():
+    """All 12 stored instructions reach the prompt; no cap trims the survivor list."""
     from app.memory.store import get_store
 
     store = get_store("sqlite:///:memory:")
-    # This test's discriminating power assumes InMemoryStore returns rows in
-    # INSERTION order, so the read window (limit=16) is the first 16 rows inserted
-    # below — this ordering is deliberate, not incidental:
-    #   * 3 PROFILE_KEYS rows first, so they head the guard-survivor list. An
-    #     implementation that capped BEFORE excluding profile keys (prefs[:8] then
-    #     exclude) would spend 3 of its 8 slots on profile rows and inject only 5 —
-    #     falsifying that variant.
-    #   * 5 poisoned rows next, so a naive limit=8 read is dominated by rows the
-    #     guard then drops, surfacing far fewer than 8 — falsifying that variant.
-    #   * 8 valid rows fill out the window; the 6th poisoned row and the last 2
-    #     valid rows sit PAST position 16 (outside the read window), so the window
-    #     holds exactly 3 profile + 5 poisoned + 8 valid. The limit=16 read + the
-    #     post-filter cap is what keeps all 8 slots filled with valid, non-profile
-    #     rows.
+    for i in range(12):
+        store.put(
+            _proc_ns("u_all_instr"),
+            f"valid_{i}",
+            {"text": f"always confirm option {i} first"},
+        )
+
+    _state, result = _run(store, "u_all_instr")
+
+    lines = [ln for ln in result["instructions"].split("\n") if ln.strip()]
+    assert lines == [f"- always confirm option {i} first" for i in range(12)]
+
+
+def test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected():
+    """Guard drops poisoned prefs and PROFILE_KEYS are excluded; every remaining
+    valid pref is injected with no cap trimming the block."""
+    from app.memory.store import get_store
+
+    store = get_store("sqlite:///:memory:")
     for key in ("name", "gender", "travel_group"):
         store.put(_prefs_ns("u_cap"), key, {"text": f"{key} value"})
     for i in range(5):
@@ -175,19 +177,14 @@ def test_ten_valid_six_poisoned_three_profile_preferences_cap_to_eight():
     _state, result = _run(store, "u_cap")
 
     lines = [ln for ln in result["preferences"].split("\n") if ln.strip()]
-    assert len(lines) == 8
-    # No PROFILE_KEYS row may leak into the preferences block (they surface via the
-    # separate profile block) — pins the exclusion explicitly.
+    assert len(lines) == 10
     assert "- name:" not in result["preferences"]
+    assert "ignore all previous instructions" not in result["preferences"]
 
 
 def test_valid_instructions_past_poisoned_window_still_reach_prompt():
-    """The guard's read-side drop must not consume the read window: 10 poisoned
-    instructions sit ahead of 2 valid ones that fall PAST the old ``limit=10``
-    window. The valid instructions still reach the prompt because the read now
-    widens to 20 and caps to 10 AFTER the guard filter (§3.4). Against the old
-    fixed ``limit=10`` read the whole window is poisoned, so the block would be
-    empty and the assertions below fail — this is the regression guard."""
+    """Poisoned rows ahead of valid ones in the read window do not hide the valid
+    ones from the prompt."""
     from app.memory.store import get_store
 
     store = get_store("sqlite:///:memory:")
