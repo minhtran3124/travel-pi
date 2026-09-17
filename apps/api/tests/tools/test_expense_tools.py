@@ -1,14 +1,7 @@
-"""Tests for expense_tools' argument schema (specs/standardize-tool-args-schema Task 1.3).
+"""expense_tools argument-schema tests.
 
-The explicit ``args_schema=`` classes these tests originally asserted were removed
-in #118, when the tools gained an ``InjectedState("user_id")`` argument: an
-explicit schema that omits an injected argument silently breaks ToolNode
-injection (docs/solutions/agent/explicit-args-schema-breaks-tool-injection.md).
-The arguments are described inline instead.
-
-What the original tests were *for* — a complete, constrained model-facing schema —
-still holds and is still asserted here through ``get_input_schema()``, which
-reports the same shape either way.
+An explicit ``args_schema=`` that omits an ``InjectedState`` argument silently
+breaks ToolNode injection, so arguments are described inline instead.
 """
 
 import json
@@ -34,14 +27,8 @@ CATEGORY_VALUES = [
 
 
 def test_all_expense_tools_expose_a_model_facing_schema():
-    """Each tool still advertises its arguments, and hides the injected owner.
-
-    ``user_id`` comes from graph state (#118) — a model that sees it in the
-    schema would try to guess one.
-    """
+    """Each tool advertises its arguments but hides the injected owner user_id."""
     for tool in (add_expense, list_expenses, expense_summary):
-        # `tool_call_schema` is what bind_tools shows the model; `get_input_schema`
-        # is the raw signature and still lists injected arguments.
         props = tool.tool_call_schema.model_json_schema()["properties"]
         assert "trip_id" in props, f"{tool.name} must take a trip_id"
         assert "user_id" not in props, f"{tool.name} leaks the injected owner"

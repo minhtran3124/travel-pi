@@ -1,17 +1,6 @@
-"""Canonical country list.
-
-The 14 countries currently in use across the seed data — every value that
-appears in the ``country`` field of ``cities.py`` and as a key of
-``COUNTRY_TIPS`` in ``tips.py``. Keep this list in sync when adding cities
-or country tips for a new country.
-
-Each entry has the country ``name``, its ISO 3166-1 alpha-2 ``code``, and
-the broad ``region`` it belongs to. Order matches ``cities.py``: Southeast
-Asia first, then East Asia.
-"""
+"""Canonical country list; keep in sync with cities.py and tips.py."""
 
 COUNTRIES: list[dict] = [
-    # ── Southeast Asia ────────────────────────────────────────────────────────
     {
         "name": "Vietnam",
         "code": "VN",
@@ -89,7 +78,6 @@ COUNTRIES: list[dict] = [
         "latitude": -8.8383,
         "longitude": 125.9181,
     },
-    # ── East Asia ─────────────────────────────────────────────────────────────
     {
         "name": "Hong Kong",
         "code": "HK",

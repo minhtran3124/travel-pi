@@ -1,18 +1,4 @@
-"""SSE streaming helper (specs/travel-agent; llm-readiness 1.2 seam).
-
-Wraps an async generator of string chunks (or typed events) into a
-Server-Sent Events response.  A terminal ``[DONE]`` event marks the end of
-the stream.
-
-Wire contract
--------------
-* Token chunks (plain ``str``): ``data: <text>\\n\\n``
-* Named events (``TypedSSEEvent``): ``event: <name>\\ndata: <json>\\n\\n``
-
-The agent stream is fully typed (see ``app.streaming.events``); the terminal is
-an explicit ``event: done`` emitted by the producer, not a ``[DONE]`` sentinel
-appended here.
-"""
+"""SSE streaming helper: wrap an async generator of string chunks or ``TypedSSEEvent`` into a text/event-stream response; the producer emits its own terminal event."""
 
 from __future__ import annotations
 
@@ -36,29 +22,15 @@ def sse_response(
     *,
     background: BackgroundTask | None = None,
 ) -> StreamingResponse:
-    """Return a text/event-stream response.
-
-    Plain-string chunks are emitted as default SSE events
-    (``data: <chunk>``).  ``TypedSSEEvent`` instances are emitted as named
-    events (``event: <name>\\ndata: <data>``). The producer is responsible for
-    emitting its own terminal event (the agent stream uses ``event: done``).
-
-    :param chunks: An async iterator of plain-text chunks or typed SSE events.
-    :param background: Optional Starlette background task run by the ASGI
-        server after the response body has fully drained — used to schedule
-        post-stream work (e.g. memory extraction) off the reply path.
-    :return: A ``text/event-stream`` streaming response.
-    """
+    """Return a text/event-stream response — plain strings as default ``data:`` events, ``TypedSSEEvent`` as named events; ``background`` runs after the body drains (off the reply path)."""
 
     async def event_stream() -> AsyncIterator[str]:
         async for chunk in chunks:
             if isinstance(chunk, TypedSSEEvent):
                 yield f"event: {chunk.event}\ndata: {chunk.data}\n\n"
             else:
-                # SSE forbids raw newlines inside a `data:` value — a chunk that
-                # contains them (markdown paragraph breaks, list separators) must
-                # be emitted as one `data:` line per physical line. The client
-                # rejoins them with `\n`, preserving the markdown structure.
+                # SSE forbids raw newlines in a `data:` value — emit one `data:`
+                # line per physical line; the client rejoins them with `\n`.
                 yield "".join(f"data: {line}\n" for line in chunk.split("\n")) + "\n"
 
     return StreamingResponse(

@@ -1,22 +1,8 @@
-"""Canonical city list.
-
-Merges every city that appears in ``airports.py`` or ``hotels.py``,
-deduplicated. Each entry stores the city name, country, and the IATA
-codes of all airports that serve the city (empty list for cities that
-have hotel data but no seeded airport, e.g. Hoi An).
-
-Order: Vietnam first (alphabetical), then the rest of Southeast Asia
-alphabetical by country then city, then East Asia.
-
-``countries.py`` is the single source of truth for the country list — the
-consistency guard at the bottom of this file rejects any city whose
-``country`` is not defined there.
-"""
+"""Canonical cities merged from airports.py and hotels.py; empty airport list = hotel-only city."""
 
 from app.data.countries import COUNTRIES as _COUNTRIES
 
 CITIES: list[dict] = [
-    # ── Vietnam ───────────────────────────────────────────────────────────────
     {
         "name": "Can Tho",
         "country": "Vietnam",
@@ -122,7 +108,6 @@ CITIES: list[dict] = [
         "latitude": 18.6760,
         "longitude": 105.6888,
     },
-    # ── Thailand ──────────────────────────────────────────────────────────────
     {
         "name": "Bangkok",
         "country": "Thailand",
@@ -165,7 +150,6 @@ CITIES: list[dict] = [
         "latitude": 7.8804,
         "longitude": 98.3923,
     },
-    # ── Singapore ─────────────────────────────────────────────────────────────
     {
         "name": "Singapore",
         "country": "Singapore",
@@ -173,7 +157,6 @@ CITIES: list[dict] = [
         "latitude": 1.3521,
         "longitude": 103.8198,
     },
-    # ── Malaysia ──────────────────────────────────────────────────────────────
     {
         "name": "Johor Bahru",
         "country": "Malaysia",
@@ -216,7 +199,6 @@ CITIES: list[dict] = [
         "latitude": 5.4164,
         "longitude": 100.3327,
     },
-    # ── Indonesia ─────────────────────────────────────────────────────────────
     {
         "name": "Bali",
         "country": "Indonesia",
@@ -259,7 +241,6 @@ CITIES: list[dict] = [
         "latitude": -7.2505,
         "longitude": 112.7508,
     },
-    # ── Philippines ───────────────────────────────────────────────────────────
     {
         "name": "Angeles",
         "country": "Philippines",
@@ -302,7 +283,6 @@ CITIES: list[dict] = [
         "latitude": 9.7424,
         "longitude": 118.7338,
     },
-    # ── Cambodia ──────────────────────────────────────────────────────────────
     {
         "name": "Phnom Penh",
         "country": "Cambodia",
@@ -324,7 +304,6 @@ CITIES: list[dict] = [
         "latitude": 10.6282,
         "longitude": 103.5197,
     },
-    # ── Laos ──────────────────────────────────────────────────────────────────
     {
         "name": "Luang Prabang",
         "country": "Laos",
@@ -339,7 +318,6 @@ CITIES: list[dict] = [
         "latitude": 17.9757,
         "longitude": 102.6331,
     },
-    # ── Myanmar ───────────────────────────────────────────────────────────────
     {
         "name": "Mandalay",
         "country": "Myanmar",
@@ -354,7 +332,6 @@ CITIES: list[dict] = [
         "latitude": 16.8661,
         "longitude": 96.1951,
     },
-    # ── Brunei ────────────────────────────────────────────────────────────────
     {
         "name": "Bandar Seri Begawan",
         "country": "Brunei",
@@ -362,7 +339,6 @@ CITIES: list[dict] = [
         "latitude": 4.8804,
         "longitude": 114.9355,
     },
-    # ── Timor-Leste ───────────────────────────────────────────────────────────
     {
         "name": "Dili",
         "country": "Timor-Leste",
@@ -370,7 +346,6 @@ CITIES: list[dict] = [
         "latitude": -8.5563,
         "longitude": 125.5827,
     },
-    # ── East Asia ─────────────────────────────────────────────────────────────
     {
         "name": "Hong Kong",
         "country": "Hong Kong",
@@ -394,9 +369,7 @@ CITIES: list[dict] = [
     },
 ]
 
-# Consistency guard: every country named above must exist in countries.py,
-# the single source of truth for the country list. A typo or a new country
-# without a countries.py entry fails loudly at import time.
+# Reject any city whose country is absent from countries.py.
 _VALID_COUNTRIES: set[str] = {c["name"] for c in _COUNTRIES}
 for _city in CITIES:
     if _city["country"] not in _VALID_COUNTRIES:

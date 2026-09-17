@@ -28,8 +28,7 @@ def _isolated_migration_url(
     admin_engine = create_engine(tmp_db, future=True)
     with admin_engine.begin() as connection:
         connection.execute(text(f'CREATE SCHEMA "{schema}"'))
-    # Keep the libpq ``options`` value raw (see test_rate_limit_migration for why
-    # render_as_string() percent-encoding breaks Alembic's ConfigParser).
+    # Keep libpq ``options`` raw (see test_rate_limit_migration: render_as_string() percent-encoding breaks Alembic's ConfigParser).
     separator = "&" if "?" in tmp_db else "?"
     isolated = f"{tmp_db}{separator}options=-csearch_path={schema}"
 
@@ -63,7 +62,6 @@ def test_agent_run_steps_migration_upgrade_downgrade_round_trip(
     engine = create_engine(database_url, future=True)
 
     try:
-        # Before this revision: no table, and agent_runs has no prompt_versions.
         command.upgrade(config, DOWN_REVISION)
         assert inspect(engine).has_table("agent_run_steps") is False
         assert "prompt_versions" not in _agent_runs_columns(engine)

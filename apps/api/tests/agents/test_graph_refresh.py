@@ -1,8 +1,7 @@
-"""resolve_travel_graph — rebuild the compiled graph when config changes (MIN-47).
+"""resolve_travel_graph rebuilds the compiled graph when config changes.
 
-The graph memoises each node's chat model for its lifetime, so a DB config
-change only takes effect once the graph is rebuilt. resolve_travel_graph gates
-that rebuild on the AgentConfigCache generation counter.
+The graph memoises each node's chat model for its lifetime, so a DB config change
+only takes effect on rebuild, gated on the AgentConfigCache generation counter.
 """
 
 from types import SimpleNamespace

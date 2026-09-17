@@ -1,8 +1,4 @@
-"""Tests for the `passengers` field on flight bookings.
-
-A flight booking always creates one seat at the one-adult fare unless the
-caller says otherwise; this mirrors how `rooms` works on hotel bookings.
-"""
+"""The `passengers` field defaults to one seat at the single fare."""
 
 from tests.conftest import (
     VALID_DATE,

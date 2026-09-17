@@ -1,4 +1,4 @@
-"""Specialist sub-agents (specs/travel-agent Task 5.2)."""
+"""Specialist sub-agents."""
 
 import pytest
 from langchain_core.messages import HumanMessage
@@ -24,7 +24,6 @@ def test_subagents_build_and_answer(builder_name):
     mod = importlib.import_module(f"app.agents.subagents.{domain}")
     builder = getattr(mod, builder_name)
 
-    # C.1: builders now accept a resolver callable, not a fixed LLM.
     fake = FakeLLM(responses=["here is my answer"])
     agent = builder(lambda _: fake)
     out = agent.invoke({"messages": [HumanMessage(content="hi")]})
@@ -32,7 +31,6 @@ def test_subagents_build_and_answer(builder_name):
 
 
 def test_concierge_has_knowledge_tool():
-    """The concierge binds the travel-knowledge RAG tool (specs/travel-knowledge-rag)."""
     from app.tools.registry import get_tools_for
 
     names = {t.name for t in get_tools_for("concierge")}

@@ -1,15 +1,4 @@
-"""Every node that resolves its own model must have an ``agent_config`` row.
-
-A node whose name is missing from ``AGENT_CONFIG_NODES`` gets no seeded row, so
-``get_agent_llm`` finds nothing in ``AgentConfigCache`` and silently falls back
-to the env default model — the dashboard then cannot configure it and a turn can
-mix models without anyone noticing (this is exactly how ``synthesize`` drifted).
-
-The node names are *derived* here — from the compiled graph and from a source
-scan of the ``get_agent_llm(...)`` / ``pick(...)`` call sites — rather than
-hardcoded, so a future node that resolves its own model fails this test instead
-of quietly inheriting the env default.
-"""
+"""Every model-resolving node must have an ``agent_config`` row, else it silently falls back to the env default and cannot be configured from the dashboard."""
 
 from __future__ import annotations
 
@@ -20,13 +9,8 @@ from app.data.agent_config import AGENT_CONFIG_NODES
 
 APP_DIR = Path(__file__).resolve().parents[2] / "app"
 
-# Names that legitimately have NO ``agent_config`` row.
-#
-# - ``synthesis_worker`` resolves the *specialist's* model at worker runtime
-#   (``worker_resolve`` -> ``resolver_for(<specialist>)``), so its calls are
-#   already covered by the specialists' own rows. A row of its own would be
-#   dead config. Asserted explicitly below so this exclusion cannot rot.
-# - the rest are pure-graph nodes that never call a model.
+# Names that legitimately have NO ``agent_config`` row: synthesis_worker
+# resolves the specialist's model at runtime; the rest never call a model.
 NO_CONFIG_ROW: frozenset[str] = frozenset(
     {
         "synthesis_worker",
@@ -40,8 +24,6 @@ NO_CONFIG_ROW: frozenset[str] = frozenset(
 )
 
 # ``get_agent_llm("name")`` / ``pick("name")`` with a string-literal node name.
-# Non-literal call sites (e.g. ``pick(SYNTHESIZE_NODE)``) are covered by the
-# compiled-graph derivation instead.
 _CALL_RE = re.compile(
     r"""(?:get_agent_llm|pick)\(\s*["']([A-Za-z_][A-Za-z0-9_]*)["']"""
 )
@@ -70,12 +52,7 @@ def _source_resolved_names() -> set[str]:
 
 
 def test_source_scan_finds_tool_resolved_node():
-    """Guard the scan itself: ``date_resolution`` is resolved from a tool.
-
-    It is not a graph node (``app/tools/date_tools.py`` calls ``get_agent_llm``
-    directly), so only the source scan can see it. If this stops matching, the
-    scan has silently stopped covering non-graph call sites.
-    """
+    """``date_resolution`` is resolved from a tool, not a graph node, so only the source scan can see it."""
     assert "date_resolution" in _source_resolved_names()
 
 

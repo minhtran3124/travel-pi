@@ -1,4 +1,4 @@
-"""End-to-end agent graph (specs/travel-agent Task 5.4)."""
+"""End-to-end agent graph."""
 
 from langchain_core.messages import HumanMessage
 
@@ -52,14 +52,15 @@ def test_graph_persists_across_turns():
 
 
 def test_graph_masks_card_but_not_email_before_persisting():
-    # Email is no longer redacted (close-product-loop-s1-booking-ui) — booking
-    # needs the real address; only the credit card is still masked.
+    # Email is no longer redacted — booking needs the real address; only the card is masked.
     graph = _build(intent_target="concierge", answer="acknowledged")
     cfg = {"configurable": {"thread_id": "u1_pii"}}
     out = graph.invoke(
         {
             "messages": [
-                HumanMessage(content="my email is secret@leak.com and card 4111 1111 1111 1111")
+                HumanMessage(
+                    content="my email is secret@leak.com and card 4111 1111 1111 1111"
+                )
             ],
             "user_id": "u1",
             "trip_id": None,

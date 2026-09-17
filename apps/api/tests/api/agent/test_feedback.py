@@ -1,11 +1,4 @@
-"""``POST /agent/feedback`` contract — specs/user-feedback-v1 Task 3.2 (SC-6).
-
-Statuses per DESIGN §5.2: 201 new event, 200 replay / retract no-op, 401, 404
-(one non-enumerating body), 409 (key reuse with another payload, invalid
-transition), 422 (schema, Idempotency-Key mismatch). Seeds rows through the
-repositories, mirrors the ``test_claim.py`` harness (no real JWT; the optional
-auth dependency is overridden).
-"""
+"""``POST /agent/feedback`` contract: statuses 201/200/401/404/409/422, seeded through the repositories with the optional auth dependency overridden (no real JWT)."""
 
 from __future__ import annotations
 
@@ -27,11 +20,6 @@ from fastapi.testclient import TestClient
 OWNER = "feedback-owner-uid"
 STRANGER = "feedback-stranger-uid"
 ANON = "anon-local-feedback-uuid"
-
-
-# ---------------------------------------------------------------------------
-# Harness
-# ---------------------------------------------------------------------------
 
 
 def make_app(tmp_path, *, auth_user_id: str | None):
@@ -65,10 +53,7 @@ def make_app(tmp_path, *, auth_user_id: str | None):
 def seed_message(
     sf, *, owner: str, role: str = "assistant", run_status: str | None = "completed"
 ):
-    """Seed conversation + (optionally linked, optionally finished) run + message.
-
-    :return: The message id.
-    """
+    """Seed conversation + (optionally linked, optionally finished) run + message; returns the message id."""
     conv = ConversationRepository(sf).create_conversation(user_id=owner)
     run_id: str | None = None
     if run_status is not None:
@@ -128,16 +113,10 @@ def post(client, payload: dict, headers: dict | None = None):
     return client.post("/agent/feedback", json=payload, headers=headers or {})
 
 
-# ---------------------------------------------------------------------------
-# Happy path — full lifecycle on one message, both identity paths
-# ---------------------------------------------------------------------------
-
-
 def test_lifecycle_set_replay_change_detail_retract(actor):
     client, sf, owner, extra = actor
     mid = seed_message(sf, owner=owner)
 
-    # set helpful → 201
     first = body(mid, **extra)
     r = post(client, first)
     assert r.status_code == 201, r.text
@@ -148,18 +127,15 @@ def test_lifecycle_set_replay_change_detail_retract(actor):
     assert data["effective_feedback"]["rating_event_id"] == data["feedback_event_id"]
     assert data["effective_feedback"]["comment_present"] is False
 
-    # replay same key + same body → 200 replayed, log unchanged
     r2 = post(client, first)
     assert r2.status_code == 200
     assert r2.json()["replayed"] is True
     assert r2.json()["feedback_event_id"] == data["feedback_event_id"]
 
-    # change to not_helpful → 201, supersedes the helpful event
     r3 = post(client, body(mid, rating="not_helpful", **extra))
     assert r3.status_code == 201
     assert r3.json()["effective_feedback"]["rating"] == "not_helpful"
 
-    # add_detail with reason → 201, folded into the negative rating
     r4 = post(
         client,
         body(
@@ -178,19 +154,18 @@ def test_lifecycle_set_replay_change_detail_retract(actor):
     assert eff["rating_event_id"] == r3.json()["feedback_event_id"]
     assert "comment" not in eff  # body never echoed
 
-    # retract → 201, effective feedback cleared
     r5 = post(client, body(mid, action="retract_rating", **extra))
     assert r5.status_code == 201
     assert r5.json()["effective_feedback"] is None
 
-    # second retract → 200 documented no-op
+    # second retract is a documented no-op (200, not 201)
     r6 = post(client, body(mid, action="retract_rating", **extra))
     assert r6.status_code == 200
     assert r6.json()["effective_feedback"] is None
     assert r6.json()["replayed"] is False
 
     # the log is append-only: one row per accepted request, none for the replay
-    with sf() as s:
+    with sf() as s:  # noqa: E501 placeholder-keep
         from app.db import models
 
         rows = (

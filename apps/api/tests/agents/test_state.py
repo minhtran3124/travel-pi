@@ -1,4 +1,4 @@
-"""State + sub-agent factory (specs/travel-agent Task 5.1)."""
+"""State + sub-agent factory."""
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.tools import tool
@@ -52,7 +52,7 @@ def test_subagent_without_tools_answers_directly():
 
 
 def test_system_with_summary_folds_summary_into_prompt():
-    """REVIEW.md C2: the rolling summary must be re-injected, not silently dropped."""
+    """The rolling summary must be re-injected, not silently dropped."""
     from app.agents.state import system_with_summary
     from langchain_core.messages import SystemMessage
 
@@ -68,7 +68,7 @@ def test_system_with_summary_folds_summary_into_prompt():
 
 
 def test_system_with_summary_folds_trip_context():
-    """REVIEW.md M2: trip_context appears in the leading system message."""
+    """trip_context appears in the leading system message."""
     from app.agents.state import system_with_summary
     from langchain_core.messages import SystemMessage
 
@@ -99,7 +99,7 @@ def test_system_with_summary_folds_both_context_and_summary():
 
 
 def test_load_context_node_returns_trip_context_not_messages():
-    """REVIEW.md M2: load_context_node must set state field, not append a SystemMessage."""
+    """load_context_node must set a state field, not append a SystemMessage."""
     from types import SimpleNamespace
     from unittest.mock import MagicMock, patch
 
@@ -118,8 +118,7 @@ def test_load_context_node_returns_trip_context_not_messages():
         mock_scope.return_value.__exit__ = MagicMock(return_value=False)
         mock_svc.return_value.get_trip_detail.return_value = detail
 
-        # #118: the snapshot is loaded through the owner-scoped service, so the
-        # node needs a user_id in state as well as a trip_id.
+        # The snapshot loads through the owner-scoped service, so the node needs a user_id as well as a trip_id.
         state = {
             "messages": [HumanMessage(content="plan my trip")],
             "trip_id": "t1",
@@ -127,7 +126,6 @@ def test_load_context_node_returns_trip_context_not_messages():
         }
         result = load_context_node(state, SimpleNamespace())
 
-    # trip_context carries the info
     assert "trip_context" in result
     assert "Tokyo Adventure" in result["trip_context"]
     # messages is NOT in result (no trailing SystemMessage injected)
@@ -135,12 +133,7 @@ def test_load_context_node_returns_trip_context_not_messages():
 
 
 def test_load_context_node_no_trip_id_resets_plan_approved():
-    """No trip_id -> only the per-turn plan_approved reset, no other mutation.
-
-    load_context runs at the start of every fresh turn and always clears the
-    HITL plan-approval flag so outcome="approved" stays scoped to the approving
-    turn (issue #63), and likewise clears awaiting_user (MIN-68).
-    """
+    """No trip_id -> only the per-turn reset: load_context clears plan_approved (so approval stays scoped to its turn) and awaiting_user at the start of every turn."""
     from types import SimpleNamespace
 
     from app.agents.nodes import load_context_node
@@ -160,7 +153,7 @@ def test_load_context_node_no_trip_id_resets_plan_approved():
 
 
 def test_subagent_receives_trip_context_as_leading_system_message():
-    """M2: assembled model call has one leading SystemMessage with trip-context, HumanMessage after."""
+    """The assembled model call has one leading SystemMessage with trip-context, HumanMessage after."""
     from app.agents.subagents._base import build_subagent
     from app.clients.llm import FakeLLM
     from langchain_core.messages import HumanMessage, SystemMessage
@@ -181,11 +174,9 @@ def test_subagent_receives_trip_context_as_leading_system_message():
         }
     )
     msgs = captured["messages"]
-    # First message is the only SystemMessage and contains trip context
     assert isinstance(msgs[0], SystemMessage)
     assert "base system" in msgs[0].content
     assert "Tokyo Adventure" in msgs[0].content
-    # Human message is next
     assert isinstance(msgs[1], HumanMessage)
     # No trailing or mid-conversation SystemMessages
     system_count = sum(1 for m in msgs if isinstance(m, SystemMessage))
@@ -203,17 +194,17 @@ def test_ground_current_date_injects_today():
     grounded = ground_current_date(SystemMessage(content="BASE PROMPT"))
     assert isinstance(grounded, SystemMessage)
     assert "BASE PROMPT" in grounded.content
-    # Order pin (prompt-caching): the stable base prompt must sit at token 0 and the
-    # volatile date note is appended last, so the cacheable prefix stays byte-stable.
+    # Order pin (prompt-caching): stable base prompt at token 0, volatile date note last, so the cacheable prefix stays byte-stable.
     assert grounded.content.startswith("BASE PROMPT")
-    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE PROMPT")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index(
+        "BASE PROMPT"
+    )
     # The date-grounding note is the final block; its last sentence ends the message.
     assert grounded.content.rstrip().endswith("ambiguous.")
     assert today in grounded.content
     assert "resolve_date" in grounded.content
-    # No date given is the one case that must still produce a question: the note has to
-    # forbid the fallback explicitly, not merely permit asking. A live probe showed the
-    # model defaulting to today when the note only said "ask only when…".
+    # No date given must still produce a question: the note has to forbid the fallback
+    # explicitly — a live probe showed the model defaulting to today when it only said "ask only when…".
     assert "must ask" in grounded.content.lower()
     assert f"never fall back to {today}" in grounded.content.lower()
 
@@ -236,9 +227,8 @@ def test_subagent_receives_todays_date_in_system_prompt():
 
     capturing = CapturingLLM(responses=["ok"])
     agent = build_subagent("plain", [], lambda _: capturing, "base system")
-    # Both a rolling summary and a detected reply language are set so the ORDER of
-    # all the stable blocks (style + prompt + summary + language pin) vs the volatile
-    # date note can be pinned — not just the date's presence (D1: date grounded last).
+    # Both a summary and a reply language are set so the ORDER of the stable blocks
+    # (style + prompt + summary + language pin) vs the volatile date note can be pinned.
     agent.invoke(
         {
             "messages": [HumanMessage(content="find me a flight today")],
@@ -252,11 +242,9 @@ def test_subagent_receives_todays_date_in_system_prompt():
     content = system_msg.content
     assert today in content
     assert "base system" in content
-    # The stable, cacheable prefix starts at token 0 — the shared communication_style
-    # block, never the volatile date note.
+    # The stable, cacheable prefix starts at token 0 — the communication_style block, never the date note.
     assert content.startswith(registry.get("communication_style"))
-    # D1 order: base prompt, then the rolling summary, then the reply-language pin,
-    # all BEFORE the date note; the date note is the final block.
+    # Order: base prompt, then rolling summary, then reply-language pin, all before the date note (the final block).
     date_at = content.index("CURRENT DATE")
     assert content.index("base system") < date_at
     assert content.index("Tokyo") < date_at
@@ -290,8 +278,7 @@ def test_subagent_receives_summary_in_system_prompt():
 
 
 def test_subagent_reply_pinned_to_detected_language():
-    """The supervisor-detected state['language'] reaches the sub-agent's system
-    prompt so it replies in the traveller's language (MIN-68 follow-up)."""
+    """The supervisor-detected state['language'] reaches the sub-agent's system prompt so it replies in the traveller's language."""
     from app.agents.subagents._base import build_subagent
     from app.clients.llm import FakeLLM
 

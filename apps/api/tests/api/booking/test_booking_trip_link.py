@@ -1,10 +1,4 @@
-"""Tests for the optional ``trip_id`` on flight/hotel bookings (Task 2.1, SC-4).
-
-A booking can be attached to a trip the caller owns; a trip owned by someone
-else is refused with 404 (the same #118 not-found-vs-forbidden pattern used
-elsewhere); the field stays optional; and idempotent replay is unaffected by
-what the (ignored) second request carries.
-"""
+"""Optional ``trip_id`` on bookings: owned links, foreign gives 404, replay ignores it."""
 
 from __future__ import annotations
 
@@ -42,7 +36,6 @@ def _rooms_always_available(monkeypatch):
 
 
 def _client_as(tmp_db, user_id: str) -> TestClient:
-    """A premium TestClient acting as ``user_id``, on the shared temp DB."""
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
     seed_all(get_session_factory(tmp_db))
     UserRepository(get_session_factory(tmp_db)).upsert_tier(user_id, "premium")
@@ -174,8 +167,7 @@ def test_replay_ignores_different_trip_id_on_second_request(tmp_db):
 
 
 # ---------------------------------------------------------------------------
-# Repository round trip: task 1.2's mapping is only proven once the Booking
-# schema has a trip_id field to carry the value through.
+# Repository round trip: the Booking schema carries trip_id through persistence.
 # ---------------------------------------------------------------------------
 
 

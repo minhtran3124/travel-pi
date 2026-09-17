@@ -1,11 +1,4 @@
-"""Tests for the saved-places store (crud + service + HTTP) — POI library Wave 1.
-
-Saved places are per-user (#118): the repository stamps and filters on
-``user_id``, and the six ``/places/saved*`` routes require a signed-in caller.
-The ``client`` fixture (tests/conftest.py) overrides ``get_current_user`` with a
-fixed traveller, so the HTTP cases below run as one owner. Cross-user isolation
-and the 401-without-a-token property are pinned at the bottom of this file.
-"""
+"""Saved-places store (crud + service + HTTP): per-user, repo filters on user_id and the ``/places/saved*`` routes require a signed-in caller."""
 
 import uuid
 
@@ -51,7 +44,7 @@ def repo(tmp_path):
 def test_add_and_get_by_id_and_code(repo):
     sp = repo.add(_make_sp(id="a1", name="Bar"), USER)
     assert repo.get("a1", USER).name == "Bar"
-    assert repo.get(sp.short_code, USER).id == "a1"  # SPL- code lookup
+    assert repo.get(sp.short_code, USER).id == "a1"
 
 
 def test_soft_delete_filters(repo):
@@ -115,7 +108,7 @@ def test_links_round_trip(repo):
 
 
 def test_repo_is_owner_scoped(repo):
-    """A row stamped for one owner is invisible to another (#118)."""
+    """A row stamped for one owner is invisible to another."""
     repo.add(_make_sp(id="a1", name="Bar"), "owner-a")
     assert repo.get("a1", "owner-b") is None
     assert repo.list("owner-b") == []
@@ -187,12 +180,8 @@ def test_flag_and_delete_by_short_code(client):
 
 
 # --------------------------------------------------------------------------- #
-# Auth + cross-user isolation (#118, SC-3)
-#
-# The negative cases are the ones that matter: B must not read, list, delete,
-# or favourite A's saved place, and must be told "not found" (never 403 —
-# which would confirm a guessed id is real). The public catalog routes must
-# stay open to anonymous callers.
+# Auth + cross-user isolation: B gets 404 (never 403, which confirms an id);
+# public catalog routes stay open to anonymous callers.
 # --------------------------------------------------------------------------- #
 
 USER_A = "owner-a"
@@ -226,11 +215,7 @@ def _client_as(tmp_db, user_id: str | None) -> TestClient:
 
 @pytest.fixture()
 def a_saved(tmp_db) -> str:
-    """A saved place owned by USER_A.
-
-    ``tmp_db`` is session-scoped and the dedup guard is per-owner, so each case
-    needs a unique name — a fixed one would 409 on the second test's create.
-    """
+    """A saved place owned by USER_A (unique name: tmp_db is session-scoped and the dedup guard is per-owner)."""
     name = f"A's secret bar {uuid.uuid4()}"
     with _client_as(tmp_db, USER_A) as c:
         r = c.post("/places/saved", json={"name": name, "city": "Hanoi"})

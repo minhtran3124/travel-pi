@@ -1,17 +1,8 @@
-"""Seed list of supported airports, keyed by IATA code.
-
-Covers all of Southeast Asia (Vietnam, Thailand, Singapore, Malaysia,
-Indonesia, the Philippines, Cambodia, Laos, Myanmar, Brunei, Timor-Leste)
-plus a few East Asian hubs kept from the original seed. Each entry carries
-the airport ``name``, its ``city``, its ``country``, and the ISO
-``country_code`` — the last one is filled in automatically from
-``countries.py`` so the country list stays the single source of truth.
-"""
+"""Seed airports keyed by IATA code; ``country_code`` is filled from countries.py."""
 
 from app.data.countries import COUNTRIES
 
 AIRPORTS: dict[str, dict[str, str]] = {
-    # --- Vietnam ---
     "DAD": {
         "name": "Da Nang International Airport",
         "city": "Da Nang",
@@ -67,7 +58,6 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Quy Nhon",
         "country": "Vietnam",
     },
-    # --- Thailand ---
     "BKK": {
         "name": "Suvarnabhumi Airport",
         "city": "Bangkok",
@@ -103,13 +93,11 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Hat Yai",
         "country": "Thailand",
     },
-    # --- Singapore ---
     "SIN": {
         "name": "Singapore Changi Airport",
         "city": "Singapore",
         "country": "Singapore",
     },
-    # --- Malaysia ---
     "KUL": {
         "name": "Kuala Lumpur International Airport",
         "city": "Kuala Lumpur",
@@ -140,7 +128,6 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Johor Bahru",
         "country": "Malaysia",
     },
-    # --- Indonesia ---
     "CGK": {
         "name": "Soekarno-Hatta International Airport",
         "city": "Jakarta",
@@ -171,7 +158,6 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Balikpapan",
         "country": "Indonesia",
     },
-    # --- Philippines ---
     "MNL": {
         "name": "Ninoy Aquino International Airport",
         "city": "Manila",
@@ -202,7 +188,6 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Kalibo (Boracay)",
         "country": "Philippines",
     },
-    # --- Cambodia ---
     "PNH": {
         "name": "Phnom Penh International Airport",
         "city": "Phnom Penh",
@@ -218,7 +203,6 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Sihanoukville",
         "country": "Cambodia",
     },
-    # --- Laos ---
     "VTE": {
         "name": "Wattay International Airport",
         "city": "Vientiane",
@@ -229,7 +213,6 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Luang Prabang",
         "country": "Laos",
     },
-    # --- Myanmar ---
     "RGN": {
         "name": "Yangon International Airport",
         "city": "Yangon",
@@ -240,19 +223,16 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Mandalay",
         "country": "Myanmar",
     },
-    # --- Brunei ---
     "BWN": {
         "name": "Brunei International Airport",
         "city": "Bandar Seri Begawan",
         "country": "Brunei",
     },
-    # --- Timor-Leste ---
     "DIL": {
         "name": "Presidente Nicolau Lobato International Airport",
         "city": "Dili",
         "country": "Timor-Leste",
     },
-    # --- East Asia (non-SEA hubs, kept from the original seed) ---
     "ICN": {
         "name": "Incheon International Airport",
         "city": "Seoul",
@@ -270,10 +250,7 @@ AIRPORTS: dict[str, dict[str, str]] = {
     },
 }
 
-# Map each airport's country name to its ISO code via the canonical country
-# list. The dict lookup also acts as a consistency guard: if an airport
-# names a country that is missing from ``countries.py``, this raises a
-# KeyError at import time instead of silently drifting out of sync.
+# An airport naming a country absent from countries.py raises KeyError at import.
 _COUNTRY_CODE: dict[str, str] = {c["name"]: c["code"] for c in COUNTRIES}
 
 for _info in AIRPORTS.values():

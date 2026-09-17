@@ -19,7 +19,6 @@ def test_categories_item_shape(client: TestClient) -> None:
 
 
 def test_categories_color_icon_match_metadata(client: TestClient) -> None:
-    """Each returned category carries the color/icon from CATEGORY_META."""
     for c in client.get("/places/categories").json():
         color, icon = CATEGORY_META.get(c["name"], _FALLBACK)
         assert c["color"] == color
@@ -27,8 +26,7 @@ def test_categories_color_icon_match_metadata(client: TestClient) -> None:
 
 
 def test_every_seed_category_has_metadata(client: TestClient) -> None:
-    """No seed-derived category may fall through to the neutral fallback —
-    a newly-seeded category without a CATEGORY_META entry fails loudly here."""
+    """A newly-seeded category without a CATEGORY_META entry fails loudly here."""
     names = [c["name"] for c in client.get("/places/categories").json()]
     missing = [n for n in names if n not in CATEGORY_META]
     assert not missing, f"categories without metadata: {missing}"

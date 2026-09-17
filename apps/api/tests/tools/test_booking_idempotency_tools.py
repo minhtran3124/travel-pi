@@ -1,14 +1,6 @@
-"""Turn-scoped idempotency for the booking write tools (gh-193, task 2.1).
-
-``book_flight`` / ``book_hotel`` are re-run on a revise turn (the reflection
-loop re-invokes the specialist with a correction note). These tests pin that a
-second call *within the same traveller turn* — same LangGraph ``thread_id`` and
-same last ``HumanMessage`` — replays the original booking instead of creating a
-duplicate, while a genuinely new turn (a new ``HumanMessage``) still books
-again, and a call with no thread/turn context keeps today's create-every-time
-behaviour (that last invariant is pinned by
-``tests/tools/test_flight_booking_tool.py`` and cross-checked here as case (d)).
-"""
+"""Turn-scoped idempotency for the booking write tools: a second call within the
+same turn replays the original booking, a new turn books again, and no turn
+context keeps the create-every-time behaviour."""
 
 from __future__ import annotations
 
@@ -74,11 +66,6 @@ def _rows(url: str) -> int:
         return len(BookingService(s).list_all(user_id=OWNER))
 
 
-# ---------------------------------------------------------------------------
-# (a) same thread + same last HumanMessage -> replay (one row)
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_same_turn_replays_one_row(agent_db):
     from app.tools.flight_tools import book_flight
 
@@ -96,15 +83,9 @@ def test_book_flight_same_turn_replays_one_row(agent_db):
     assert _rows(agent_db) == 1
 
 
-# ---------------------------------------------------------------------------
-# (a1) same turn, second call with allow_duplicate=True -> still replays (one row)
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_same_turn_allow_duplicate_still_replays_one_row(agent_db):
-    """Same-turn idempotency replay wins over the duplicate check: a second call
-    in the same turn replays the first booking even when allow_duplicate=True is
-    set, so the row count stays 1 and the same id comes back (gh-194, M4)."""
+    """Same-turn idempotency replay wins over the duplicate check even when
+    allow_duplicate=True is set: the row count stays 1 and the same id comes back."""
     from app.tools.flight_tools import book_flight
 
     args = {
@@ -114,23 +95,15 @@ def test_book_flight_same_turn_allow_duplicate_still_replays_one_row(agent_db):
     config = {"configurable": {"thread_id": "t1"}}
 
     first = book_flight.invoke(dict(args), config=config)
-    second = book_flight.invoke(
-        {**args, "allow_duplicate": True}, config=config
-    )
+    second = book_flight.invoke({**args, "allow_duplicate": True}, config=config)
 
     assert first["id"] == second["id"]
     assert _rows(agent_db) == 1
 
 
-# ---------------------------------------------------------------------------
-# (a2) same turn, but cancelled between calls -> new booking (two rows)
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_cancel_then_rebook_same_turn_creates_new_row(agent_db):
-    """A cancel releases the idempotency key (gh-193, E001): book -> cancel ->
-    book-again within the *same* turn no longer replays the cancelled row, it
-    creates a fresh booking. Two rows exist (one cancelled, one confirmed)."""
+    """A cancel releases the idempotency key: book -> cancel -> book-again in the
+    same turn creates a fresh booking rather than replaying the cancelled row."""
     from app.tools.booking_tools import cancel_flight
     from app.tools.flight_tools import book_flight
 
@@ -148,11 +121,6 @@ def test_book_flight_cancel_then_rebook_same_turn_creates_new_row(agent_db):
     assert _rows(agent_db) == 2
 
 
-# ---------------------------------------------------------------------------
-# (b) new turn (new HumanMessage) -> new booking (two rows)
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_new_turn_books_again_two_rows(agent_db):
     from app.tools.flight_tools import book_flight
 
@@ -162,9 +130,8 @@ def test_book_flight_new_turn_books_again_two_rows(agent_db):
     book_flight.invoke(
         {**base, "messages": [HumanMessage(id="h1", content="book it")]}, config=config
     )
-    # gh-194: a genuinely new turn re-booking the identical flight now trips the
-    # duplicate check, so the second (deliberate) booking sets allow_duplicate=True
-    # — this keeps testing that a new turn is not idempotency-collapsed.
+    # A new turn re-booking the identical flight trips the duplicate check, so the
+    # deliberate second booking sets allow_duplicate=True and is not collapsed.
     book_flight.invoke(
         {
             **base,
@@ -179,11 +146,6 @@ def test_book_flight_new_turn_books_again_two_rows(agent_db):
     )
 
     assert _rows(agent_db) == 2
-
-
-# ---------------------------------------------------------------------------
-# (c) same as (a) for book_hotel
-# ---------------------------------------------------------------------------
 
 
 def test_book_hotel_same_turn_replays_one_row(agent_db):
@@ -203,38 +165,24 @@ def test_book_hotel_same_turn_replays_one_row(agent_db):
     assert _rows(agent_db) == 1
 
 
-# ---------------------------------------------------------------------------
-# (d) no thread/turn context -> distinct bookings (pinned behaviour, SC-3)
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_no_context_creates_distinct_bookings(agent_db):
     from app.tools.flight_tools import book_flight
 
     args = _flight_args(_flight_number(agent_db))
 
     first = book_flight.invoke(dict(args))
-    # gh-194: with no turn context there is no idempotency replay, but the
-    # duplicate check still fires, so the intentional second booking opts in.
+    # No turn context means no replay, but the duplicate check still fires, so the
+    # intentional second booking opts in.
     second = book_flight.invoke({**args, "allow_duplicate": True})
 
     assert first["id"] != second["id"]
     assert _rows(agent_db) == 2
 
 
-# ---------------------------------------------------------------------------
-# (e) end-to-end through the booking sub-agent: two invokes, same turn -> one row
-# ---------------------------------------------------------------------------
-
-
 def test_book_flight_replays_through_booking_subagent(agent_db):
-    """The reflection revise loop re-invokes the specialist with the same turn
-    (same thread + same last HumanMessage). Driven through the real booking
-    sub-agent, the second invoke must replay the first booking, not duplicate it.
-
-    ``book_flight`` is trip-scoped (``trip_id`` via ``InjectedState``), so the
-    sub-agent's trip guard blocks it when no trip is active - the state carries a
-    real OWNER-owned trip so the tool actually runs (see report deviation)."""
+    """Driven through the real booking sub-agent, a second invoke in the same turn
+    replays the first booking. The state carries a real OWNER-owned trip because
+    book_flight is trip-scoped and the sub-agent's trip guard blocks it otherwise."""
     from app.agents.subagents.booking import build_booking
     from app.clients.llm import FakeLLM
     from app.schemas.trip import TripCreate
@@ -281,11 +229,6 @@ def test_book_flight_replays_through_booking_subagent(agent_db):
     agent.invoke(dict(state), config=config)
 
     assert _rows(agent_db) == 1
-
-
-# ---------------------------------------------------------------------------
-# SC-6: injected plumbing stays out of the model-visible schema
-# ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("tool_name", ["book_flight", "book_hotel"])

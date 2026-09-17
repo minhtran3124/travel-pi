@@ -1,10 +1,8 @@
-"""FeedbackEvent ORM model — one immutable row per feedback action (specs/user-feedback-v1).
+"""FeedbackEvent ORM model — one immutable row per feedback action.
 
-Append-only: product code never updates or deletes a row; the effective rating of
-an assistant message is a fold over its events ordered by ``(created_at, id)``.
-Plain String ids and no FK (repo convention) so SQLite and Postgres behave the
-same. No message text, tool args, or trace content is stored here — only the
-traveller's own comment, capped at 500 characters by the service.
+Append-only: the effective rating of an assistant message is a fold over its events
+ordered by ``(created_at, id)``. Only the traveller's own comment is stored, capped
+at 500 characters by the service.
 """
 
 from sqlalchemy import CheckConstraint, Index, Integer, String, UniqueConstraint

@@ -1,9 +1,4 @@
-"""Ledger early exit — a sub-agent blocked on the traveller ends the turn via
-reflection's ``awaiting_user`` guard, before the judge reviews it (MIN-68 / #99).
-
-Graph-level FakeLLM tests drive the ``needs_clarification`` tool and assert the
-turn ends cleanly at the graph result.
-"""
+"""A sub-agent blocked on the traveller ends the turn via reflection's awaiting_user guard, before the judge reviews it."""
 
 from __future__ import annotations
 
@@ -18,19 +13,9 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 
-# ---------------------------------------------------------------------------
-# load_context: the flag is single-turn — reset at the start of every turn
-# ---------------------------------------------------------------------------
-
 
 def _drive(graph, *args, **kwargs):
-    """Run the graph the way production does — asynchronously.
-
-    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
-    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
-    ``ainvoke``/``astream``, so driving the graph this way is also the more
-    faithful test.
-    """
+    """Run the graph asynchronously; synthesis_worker is an async node that a sync invoke cannot execute."""
     return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
@@ -42,10 +27,7 @@ def test_load_context_resets_awaiting_user():
     assert result["plan_approved"] is False  # existing reset stays intact
 
 
-# ---------------------------------------------------------------------------
-# Graph-level: a blocked sub-agent abandons the ledger (wave 2, MIN-68)
-# ---------------------------------------------------------------------------
-
+# Graph-level: a blocked sub-agent abandons the ledger.
 _CLARIFY_CALL = {
     "content": "",
     "tool_calls": [{"name": "needs_clarification", "args": {}, "id": "call-clarify-1"}],
@@ -69,8 +51,8 @@ def _invoke(graph, msg: str, thread_id: str):
 
 
 def test_blocked_single_intent_subagent_ends_cleanly():
-    # GH-117 Path A: single-intent turns still use the legacy static sub-agent
-    # path; a clarification request sets awaiting_user and ends the turn cleanly.
+    # Single-intent turns use the legacy static sub-agent path; a clarification
+    # request sets awaiting_user and ends the turn cleanly.
     graph = _build(
         structured_responses=[SupervisorIntent(target_agent="planner")],
         main_responses=[
@@ -115,9 +97,8 @@ def test_awaiting_user_is_single_turn():
 
 
 def test_duplicate_clarification_calls_do_not_crash():
-    # A zero-arg tool invites duplicate parallel tool calls; two Commands
-    # writing awaiting_user in one superstep must not InvalidUpdateError
-    # (last-write-wins reducer, MIN-68).
+    # A zero-arg tool invites duplicate parallel tool calls; two Commands writing
+    # awaiting_user in one superstep must not InvalidUpdateError (last-write-wins reducer).
     double_call = {
         "content": "",
         "tool_calls": [
@@ -142,9 +123,8 @@ def test_duplicate_clarification_calls_do_not_crash():
 
 def test_blocked_turn_survives_revise_prone_reflection():
     # A clarifying question is by construction "incomplete", so the reflection
-    # judge would flag it REVISE and re-run the sub-agent to answer WITHOUT the
-    # missing detail. The awaiting_user guard must end the turn regardless, so
-    # the question is not revised away (MIN-68 / #99, PR #105 review).
+    # judge would flag it REVISE and re-run the sub-agent without the missing
+    # detail. The awaiting_user guard must end the turn so it is not revised away.
     graph = _build(
         structured_responses=[SupervisorIntent(target_agent="planner")],
         main_responses=[

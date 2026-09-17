@@ -1,11 +1,6 @@
-"""Tests for the id-aware duplicate-warning turn guard (gh-200, task 1.2).
-
-Pure, no DB — same shape as ``test_booking_idempotency_key.py``. The marker
-now embeds the existing booking's id so an ``allow_duplicate`` override can be
-refused only for the booking that was actually flagged this turn, while a bare
-legacy ``[possible-duplicate]`` marker fails safe to the wildcard (refuse every
-same-tool override that turn).
-"""
+"""Tests for the id-aware duplicate-warning turn guard. The marker embeds the
+existing booking's id so an override is refused only for the booking flagged this
+turn, while a bare legacy marker fails safe to the wildcard."""
 
 from app.exceptions import (
     DUPLICATE_WARNING_MARKER,
@@ -37,9 +32,6 @@ def _error_tool_message(marker: str, *, name: str = TOOL, status: str = "error")
         tool_call_id="c1",
         content=f"Tool call failed: a matching booking exists. {marker}",
     )
-
-
-# --- SC-3: id-bearing marker (test names contain "marker") -------------------
 
 
 def test_marker_appends_existing_id():
@@ -76,9 +68,6 @@ def test_marker_not_double_tagged():
     assert DuplicateBookingError(tagged, existing=b).detail == tagged
     legacy = f"already {DUPLICATE_WARNING_MARKER}"
     assert DuplicateBookingError(legacy, existing=b).detail == legacy
-
-
-# --- SC-4: id-aware turn guard (test names must NOT contain "marker") --------
 
 
 def _human_then(*messages):

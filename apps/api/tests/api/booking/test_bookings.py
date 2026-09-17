@@ -106,8 +106,7 @@ def test_list_bookings_filter_by_type_hotel(client):
 
 
 def test_list_bookings_unknown_type_returns_422(client):
-    """``type`` is a BookingType enum — an unknown value is now 422 instead of
-    being silently dropped."""
+    """Unknown ``type`` is a 422 (BookingType enum), not silently dropped."""
     resp = client.get("/bookings", params={"type": "unknown"})
     assert resp.status_code == 422
 
@@ -355,13 +354,7 @@ def _sample_booking(booking_id):
 
 
 def test_cancel_releases_idempotency_key_so_rebook_creates_new(seeded_session):
-    """Cancelling a booking releases its idempotency key (gh-193, E001 option A).
-
-    book -> cancel -> book-again with the *same* key creates a fresh confirmed
-    booking rather than replaying the cancelled row, and the cancelled row keeps
-    its status but no longer carries the key (so it can never be a replay
-    target). Two rows exist afterwards.
-    """
+    """Cancelling releases the idempotency key: same-key rebook creates a fresh row."""
     from app.db import models
     from app.enums import BookingStatus
     from app.repositories.booking import BookingRepository
@@ -402,8 +395,7 @@ def test_cancel_releases_idempotency_key_so_rebook_creates_new(seeded_session):
 
 
 def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
-    """A second add() under an already-used idempotency key must not create a
-    duplicate row — it returns the booking the first add() created."""
+    """A duplicate idempotency key returns the first booking, not a new row."""
     from app.db.engine import get_session_factory
     from app.repositories.booking import BookingRepository
 
@@ -432,15 +424,12 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
 
 
 def test_repo_get_by_confirmation_code_resolves(tmp_db):
-    """The new indexed lookup returns the same booking the original add stored."""
     from app.db.engine import get_engine, get_session_factory
     from app.repositories.booking import BookingRepository
     from sqlalchemy import inspect
 
-    # Use the shared per-session test DB URL directly. (Don't fabricate a
-    # sibling URL by string-appending — that yields a valid distinct SQLite
-    # file but an invalid/non-existent Postgres database name, which breaks the
-    # docker-compose.test.yml Postgres parity run.)
+    # Use the test DB URL directly; string-appending a sibling URL breaks the
+    # Postgres parity run (invalid database name).
     url = tmp_db
     repo = BookingRepository(get_session_factory(url))
     repo.init_db()
@@ -470,11 +459,7 @@ def test_repo_get_by_confirmation_code_resolves(tmp_db):
 def test_mint_booking_id_retries_past_confirmation_code_collision(
     client, booking_service, monkeypatch
 ):
-    """A minted UUID whose derived confirmation_code already exists is regenerated.
-
-    Force the first candidate ID to collide with an existing booking's code; the
-    minter must skip it and return the next, collision-free candidate.
-    """
+    """A minted UUID whose derived confirmation_code already exists is regenerated."""
     from app.services import booking_service as booking_module
 
     existing = _create_flight_booking(client, "Collide", "collide@example.com")
@@ -486,10 +471,7 @@ def test_mint_booking_id_retries_past_confirmation_code_collision(
 
 
 def test_duplicate_confirmation_code_rejected_by_unique_index(booking_service, tmp_db):
-    """The DB-level UNIQUE index rejects a second row with the same code.
-
-    Uses flush + rollback so nothing is committed to the shared session DB.
-    """
+    """Uses flush + rollback so nothing is committed to the shared session DB."""
     from app.db import models
     from app.db.engine import get_session_factory
     from sqlalchemy.exc import IntegrityError

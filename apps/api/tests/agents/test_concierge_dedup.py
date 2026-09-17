@@ -1,4 +1,4 @@
-"""Concierge exclude_names wiring end-to-end (MIN-50 reproduction test)."""
+"""Concierge exclude_names wiring end-to-end."""
 
 from langchain_core.messages import AIMessage, HumanMessage
 from tests.tools.conftest import (

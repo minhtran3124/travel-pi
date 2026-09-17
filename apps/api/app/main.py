@@ -1,10 +1,4 @@
-"""Travel Planner Mock API — application entry point.
-
-Run locally:
-    uvicorn app.main:app --reload --port 8000
-
-Then open http://localhost:8000/docs for the Swagger UI.
-"""
+"""Travel Planner Mock API — application entry point."""
 
 import logging
 
@@ -31,8 +25,7 @@ def create_app() -> FastAPI:
     settings: Settings = get_settings()
     configure_logging(settings)
 
-    # Hide the interactive docs and raw schema in production — a FastAPI
-    # best practice. In development (and tests) they stay on.
+    # Hide the interactive docs and raw schema in production; on in dev and tests.
     docs_kwargs = (
         {"docs_url": None, "redoc_url": None, "openapi_url": None}
         if settings.is_production
@@ -52,10 +45,7 @@ def create_app() -> FastAPI:
     register_middleware(app, settings)
     app.include_router(api_router)
 
-    # Fail fast on duplicate operationIds — a duplicate handler name silently
-    # breaks TS codegen, so surface it at startup rather than only in CI. Only
-    # schema-visible routes reach codegen; include_in_schema=False routes (e.g.
-    # the dashboard page served at both "" and "/") are intentionally exempt.
+    # Fail fast on duplicate operationIds — a duplicate handler name silently breaks TS codegen. Schema-hidden routes are exempt.
     ids = [
         r.operation_id or r.name
         for r in app.routes

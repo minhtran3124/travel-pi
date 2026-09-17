@@ -1,9 +1,4 @@
-"""The compiled graph carries its build-time prompt snapshot (SC-5).
-
-``prompt_versions`` is evaluated inside ``build_graph`` and attached to the
-compiled graph, so it records the versions the running graph baked in rather
-than whatever ``active.yaml`` says at turn time.
-"""
+"""The compiled graph carries a build-time ``prompt_versions`` snapshot, not the turn-time ``active.yaml`` values."""
 
 from app.agents.graph import build_graph
 from app.clients.llm import FakeLLM
@@ -26,7 +21,7 @@ def test_compiled_graph_exposes_active_versions_for_every_prompt():
 
     assert isinstance(snapshot, dict)
     assert set(snapshot) == set(registry.names())
-    assert snapshot  # the registry is non-empty
+    assert snapshot
     assert snapshot == {
         name: registry.active_version(name) for name in registry.names()
     }

@@ -1,10 +1,6 @@
-"""``book_flight`` accepts a model-supplied passenger count (Task 2.1).
-
-Unlike ``user_id``/``trip_id``, ``passengers`` is not injected — the traveller
-states it, so the model must be able to pass it. It flows straight into
-``FlightBookingRequest.passengers``, which prices and records the booking for
-that many seats (Task 1.1).
-"""
+"""``book_flight`` accepts a model-supplied passenger count: unlike
+``user_id``/``trip_id``, ``passengers`` is not injected, and it flows into
+``FlightBookingRequest.passengers`` to price and record that many seats."""
 
 from app.db.engine import get_session_factory
 

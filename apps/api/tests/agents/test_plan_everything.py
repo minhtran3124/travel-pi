@@ -1,31 +1,10 @@
-"""Plan-everything golden — a dependent chain routes to ONE specialist that runs
-the whole tool chain in its own ReAct loop (specs/multi-intent-single-path, SC-6).
+"""A dependent chain routes to ONE planner specialist that runs the whole tool chain in its own ReAct loop.
 
-Option A collapses the two multi-intent mechanisms into one parallel model: the
-supervisor emits a deduplicated ``tasks`` list, ``route_tasks`` fans genuinely
-independent slices out to ``synthesis_worker`` instances, and a dependent chain
-(flights → hotel → places → weather → itinerary — all planner-owned tools) routes
-to the single ``planner`` specialist, whose own loop is the sequential executor.
-
-This module proves two things for the flagship "plan everything" request:
-
-- **Topology** — ``plan=["concierge"]`` yields exactly ONE planner task and ONE
-  concierge task (no duplicate planner), and a single synthesized answer.
-- **Recursion budget** — the planner runs a 7-tool chain in its own ReAct loop.
-  Because each ``synthesis_worker`` invokes its inner specialist subgraph with the
-  parent's ``config`` (so the inner graph inherits ``recursion_limit``), that loop
-  must fit under ``agent_recursion_limit`` (25). The second test MEASURES the
-  planner loop's super-step count and asserts it fits with headroom.
-
-Hermetic: ``agent_db`` points DATABASE_URL at a seeded temp SQLite DB so the real
-planner tools run; the one networked tool (``get_weather``) is stubbed to a
-deterministic domain error so the loop stays offline (the tool still returns a
-ToolMessage — only the network is removed).
-
-The two parallel synthesis workers share the single injected main model, so a
-plain cursor-based FakeLLM would race (each worker runs on its own thread). The
-test-local :class:`_AgentAwareLLM` routes scripted responses per specialist by
-inspecting the system prompt, keeping each specialist's script independent.
+Proves topology (plan=["concierge"] yields one planner + one concierge task and a
+single synthesized answer) and that the planner's 7-tool loop fits under
+agent_recursion_limit with headroom. The two parallel synthesis workers share the
+injected main model on separate threads, so _AgentAwareLLM routes scripted
+responses per specialist by system prompt to keep each script race-free.
 """
 
 from __future__ import annotations
@@ -55,22 +34,13 @@ from pydantic import PrivateAttr
 
 
 def _drive(graph, *args, **kwargs):
-    """Run the graph the way production does — asynchronously.
-
-    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
-    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
-    ``ainvoke``/``astream``, so driving the graph this way is also the more
-    faithful test.
-    """
+    """Run the graph asynchronously; synthesis_worker is an async node that a sync invoke cannot execute."""
     return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 @pytest.fixture
 def agent_db(tmp_path, monkeypatch):
-    """Point DATABASE_URL at a fresh seeded temp SQLite DB so the real planner
-    tools run in-graph (they resolve their session from the setting, not a
-    request). Mirrors ``tests/tools/conftest.agent_db``; kept local so this
-    module is self-contained and free of a cross-package fixture import."""
+    """Fresh seeded temp SQLite DB so in-graph planner tools resolve a session from the setting."""
     url = f"sqlite:///{tmp_path / 'plan_everything.db'}"
     monkeypatch.setenv("DATABASE_URL", url)
     get_settings.cache_clear()
@@ -87,9 +57,7 @@ def _tc(name: str, **args: Any) -> AIMessage:
     )
 
 
-# The planner's dependent chain: flights → hotel → places → weather → create the
-# trip → two itinerary items → final prose. Seven tool rounds, all planner-owned
-# tools, then one content-bearing answer that ends the ReAct loop.
+# Planner chain: flights, hotel, places, weather, create trip, two itinerary items, then prose.
 _PLANNER_SCRIPT: list[AIMessage] = [
     _tc("search_flights", origin="DAD", destination="SGN", departure_date="2026-12-01"),
     _tc(
@@ -117,16 +85,7 @@ _SYNTHESIZE_SCRIPT: list[AIMessage] = [
 
 
 class _AgentAwareLLM(BaseChatModel):
-    """A scripted chat model that serves a different queue per specialist.
-
-    ``build_graph`` injects ONE main-tier model for every main node, and the two
-    synthesis workers run on separate threads — so a single shared cursor would
-    race and interleave the planner's tool calls with the concierge's prose. This
-    model instead routes by the domain prompt in the system message ("Trip
-    Planner" / "Travel Concierge", else the synthesize node), each queue advancing
-    independently under a lock. ``with_structured_output`` serves the supervisor's
-    fixed intent.
-    """
+    """Scripted chat model serving a per-specialist queue, routed by the domain prompt in the system message, since the synthesis workers share one injected model across threads."""
 
     intent: Any = None
     _cursors: dict[str, int] = PrivateAttr(
@@ -169,8 +128,7 @@ class _AgentAwareLLM(BaseChatModel):
         with self._lock:
             i = self._cursors[key]
             self._cursors[key] += 1
-        # Clamp so an unexpected extra call (e.g. a reflection revise) repeats the
-        # terminal answer instead of raising — the loop still ends deterministically.
+        # Clamp so an unexpected extra call repeats the terminal answer instead of raising.
         msg = script[min(i, len(script) - 1)]
         return ChatResult(generations=[ChatGeneration(message=msg)])
 
@@ -217,8 +175,7 @@ def test_plan_everything_routes_to_one_planner_plus_concierge(agent_db, monkeypa
     )
 
     limit = get_settings().agent_recursion_limit
-    # Reaching the assertions at all is the recursion-headroom proof: an inner
-    # planner loop over budget would raise GraphRecursionError inside the worker.
+    # Reaching the assertions is the headroom proof: an over-budget inner planner loop would raise GraphRecursionError.
     out = _drive(
         graph,
         {
@@ -230,8 +187,7 @@ def test_plan_everything_routes_to_one_planner_plus_concierge(agent_db, monkeypa
         context=AgentContext(authenticated=True),
     )
 
-    # Exactly one planner task and one concierge task — the repeated/duplicated
-    # planner the old ordered plan would have produced is gone.
+    # Exactly one planner task and one concierge task, no duplicate planner.
     agents = [r["agent"] for r in out.get("task_results", [])]
     assert sorted(agents) == ["concierge", "planner"], agents
     assert agents.count("planner") == 1, "the dependent chain is ONE planner task"
@@ -243,21 +199,14 @@ def test_plan_everything_routes_to_one_planner_plus_concierge(agent_db, monkeypa
 
 
 def test_planner_seven_tool_chain_fits_recursion_budget(agent_db, monkeypatch):
-    """MEASURE the planner ReAct loop's super-step count for the 7-tool chain.
-
-    Each ``synthesis_worker`` invokes the planner subgraph with the parent config,
-    so the inner loop is bounded by the same ``recursion_limit``. This runs that
-    inner planner subgraph directly, counts its super-steps, and asserts the chain
-    finishes (a content-bearing final answer) with headroom under the limit.
-    """
+    """Measure the planner ReAct loop's super-step count for the 7-tool chain; the inner subgraph inherits recursion_limit, so it must finish with headroom."""
     _stub_weather(monkeypatch)
 
     main = _AgentAwareLLM(intent=SupervisorIntent(target_agent="planner"))
     planner = build_planner(lambda hint=None: main)
 
     limit = get_settings().agent_recursion_limit
-    # ``updates`` yields one chunk per node execution, i.e. one per pregel
-    # super-step — exactly what ``recursion_limit`` counts against.
+    # ``updates`` yields one chunk per super-step, exactly what recursion_limit counts against.
     steps = 0
     final: AIMessage | None = None
     for chunk in planner.stream(
@@ -279,6 +228,5 @@ def test_planner_seven_tool_chain_fits_recursion_budget(agent_db, monkeypatch):
     assert isinstance(final, AIMessage) and not getattr(final, "tool_calls", None)
     assert "day by day" in str(final.content)
 
-    # Fits under the configured budget with headroom — the whole point of routing
-    # a dependent chain to ONE specialist instead of raising the limit.
+    # Fits under the budget with headroom.
     assert steps < limit, f"planner chain streamed {steps} states; limit is {limit}"

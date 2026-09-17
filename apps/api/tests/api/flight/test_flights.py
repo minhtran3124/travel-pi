@@ -148,7 +148,6 @@ def test_search_flights_missing_required_param_returns_422(client):
         params={
             "origin": VALID_ORIGIN,
             "destination": VALID_DESTINATION,
-            # departure_date missing
         },
     )
     assert resp.status_code == 422
@@ -283,9 +282,7 @@ def test_get_flight_malformed_id_returns_404(client):
 
 
 def test_get_flight_resolves_from_persisted_index(client):
-    """A flight ID resolves even when the in-process cache is empty — i.e.
-    after a restart or on a different worker — because the search params are
-    persisted to SQLite."""
+    """A flight ID resolves with an empty in-process cache because search params are persisted to SQLite."""
     from app.services import flight_service
 
     flight_id = get_first_flight_id(client)
@@ -672,10 +669,7 @@ def test_book_flight_without_idempotency_key_creates_each_time(client):
 
 
 def test_book_flight_idempotency_key_released_by_cancel_allows_rebook(client):
-    """Cancelling a booking releases its Idempotency-Key (gh-193, E001):
-    retrying the original POST with the same key after the booking is cancelled
-    creates a fresh booking instead of replaying the cancelled one. This is a
-    deliberate behaviour change from the plain replay path above."""
+    """Cancelling a booking releases its Idempotency-Key, so retrying the same key creates a fresh booking rather than replaying the cancelled one."""
     payload = {
         **get_first_flight_booking_fields(client),
         "passenger_name": "Rebook After Cancel",
@@ -775,8 +769,7 @@ def test_book_flight_details_includes_passenger_phone(client):
 
 
 def test_book_flight_invalid_date_returns_422(client):
-    """A malformed departure_date is rejected at the schema boundary (422),
-    not passed through to the flight lookup as a misleading 404."""
+    """A malformed departure_date is rejected at the schema boundary (422), not as a misleading 404."""
     resp = client.post(
         "/flights/book",
         json={

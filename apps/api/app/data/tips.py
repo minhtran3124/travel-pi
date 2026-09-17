@@ -1,26 +1,4 @@
-"""Seed data for local tips — practical, curated destination advice.
-
-Two tiers:
-  * ``COUNTRY_TIPS``  — most advice (currency, safety, etiquette, language)
-    is the same country-wide, so it is keyed by country. Every city in that
-    country inherits it.
-  * ``CITY_TIPS``     — the smaller set of genuinely city-specific advice
-    (a particular scam, a transport app, a neighbourhood).
-
-``COUNTRY_SUMMARIES`` is a 2–3 sentence natural-language overview the agent
-can quote directly.
-
-Each tip dict has: ``category``, ``title``, ``content``, ``is_essential``.
-IDs are assigned by ``tip_service`` from the position in these lists, so they
-are stable as long as the lists are only appended to.
-
-Valid categories: transport | money | safety | culture | food |
-connectivity | health | etiquette | best_time | language
-
-``countries.py`` is the single source of truth for the country list — the
-consistency guard at the bottom of this file rejects any ``COUNTRY_TIPS`` or
-``COUNTRY_SUMMARIES`` key that is not a country defined there.
-"""
+"""Local tips keyed by country (inherited by its cities) or city; IDs derive from list position, so append only."""
 
 from app.data.countries import COUNTRIES as _COUNTRIES
 
@@ -759,9 +737,7 @@ COUNTRY_SUMMARIES: dict[str, str] = {
     "South Korea": "South Korea is ultra-modern, exceptionally safe and a joy to navigate, with a cheap, English-signed transit network and lightning-fast internet. Get a T-money card, use Naver or Kakao Maps instead of Google, and visit in spring or autumn for the best weather.",
 }
 
-# Consistency guard: every COUNTRY_TIPS / COUNTRY_SUMMARIES key must be a
-# country defined in countries.py, the single source of truth for the
-# country list. Also keeps the two dicts covering exactly the same set.
+# Reject keys absent from countries.py; both dicts must cover the same countries.
 _VALID_COUNTRIES: set[str] = {c["name"] for c in _COUNTRIES}
 _unknown = (set(COUNTRY_TIPS) | set(COUNTRY_SUMMARIES)) - _VALID_COUNTRIES
 if _unknown:

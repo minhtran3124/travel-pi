@@ -1,20 +1,6 @@
-"""Agent booking/cancel tools stamp & enforce the graph owner (review-A, SC-6).
-
-Wave 2 made ``BookingService`` owner-scoped (keyword-only ``user_id``). These
-tests prove the agent tools now thread the graph's ``user_id`` (injected from
-``TravelAgentState`` via ``InjectedState``) into the service, so:
-
-* a booking created through ``book_flight`` / ``book_hotel`` is scoped to that
-  owner — readable by the owner, not-found for anyone else (#118);
-* the ``user_id`` is injected, never model-supplied (hidden from the
-  model-facing schema).
-
-The second half of SC-6 — the four money tools being *absent* from the MCP tool
-list — is asserted by ``test_booking_tools_absent_from_mcp`` below. Enforcement
-lives in ``app/mcp/server.py``, which skips ``destructive`` tools from the
-unauthenticated MCP surface (specs/review-a-security-hardening E004); adding
-``InjectedState("user_id")`` alone does not drop a tool off MCP.
-"""
+"""Agent booking/cancel tools thread the graph's injected ``user_id`` into the
+owner-scoped ``BookingService``, keep it out of the model-facing schema, and the
+four money tools stay absent from the MCP tool list."""
 
 import pytest
 from app.db.engine import get_session_factory
@@ -26,7 +12,6 @@ INTRUDER = "u_intruder"
 
 
 def _assert_scoped_to_owner(url: str, booking_id: str) -> None:
-    """The booking reads back for OWNER and is not-found for anyone else."""
     with get_session_factory(url)() as s:
         svc = BookingService(s)
         owned = svc.get(booking_id, user_id=OWNER)
@@ -95,7 +80,6 @@ def test_book_hotel_stamps_graph_owner(agent_db):
     ["book_flight", "book_hotel", "cancel_flight", "cancel_hotel"],
 )
 def test_owner_hidden_from_model_facing_schema(tool_name):
-    """The injected ``user_id`` never appears in the model-facing tool schema."""
     from app.tools.registry import ALL_TOOLS
 
     tool = next(t for t in ALL_TOOLS if t.name == tool_name)
@@ -104,7 +88,6 @@ def test_owner_hidden_from_model_facing_schema(tool_name):
 
 
 def test_booking_tools_absent_from_mcp():
-    """SC-6 (second half): the four money tools must be absent from the MCP list."""
     import asyncio
 
     from app.mcp.server import build_mcp_server

@@ -1,14 +1,4 @@
-"""Data-access for cities — SQLAlchemy ORM reads, no business logic.
-
-The ``City`` schema REQUIRES ``hotel_count``, which is NOT an ORM column — it is
-computed from a hotel-count-by-city query. The repo therefore constructs
-``City`` EXPLICITLY (never ``model_validate``) so it can inject ``hotel_count``.
-It reuses ``HotelRepository.count_by_city()`` for that count, so the number
-always matches the hotels table.
-
-Fuzzy name resolution stays in the consumer (Chunk E); ``get`` is an exact
-(case-insensitive) name lookup, mirroring ``GET /cities/{city_name}``.
-"""
+"""Data-access for cities. ``City`` requires a computed ``hotel_count`` (not a column), so the repo constructs it explicitly rather than model_validate."""
 
 from sqlalchemy import select
 
@@ -26,10 +16,7 @@ class CityRepository(Repo):
         self._hotels = HotelRepository(session_or_factory)
 
     def distinct_names(self) -> list[str]:
-        """Return every city name (the fuzzy-resolution target).
-
-        :return: All city names in ``models.City``.
-        """
+        """Return every city name (the fuzzy-resolution target)."""
         with self._session() as s:
             return list(s.scalars(select(models.City.name)).all())
 
@@ -44,13 +31,7 @@ class CityRepository(Repo):
         )
 
     def get(self, name: str) -> City | None:
-        """Return a single city by exact (case-insensitive) ``name``, or ``None``.
-
-        Matches ``GET /cities/{city_name}`` — an exact-name lookup, not fuzzy.
-
-        :param name: The city name to match, compared case-insensitively.
-        :return: The matching city with ``hotel_count`` filled in, or ``None``.
-        """
+        """Return a city by exact (case-insensitive) name, or None — an exact lookup, not fuzzy."""
         target = name.strip().lower()
         counts = self._hotels.count_by_city()
         with self._session() as s:
@@ -60,12 +41,7 @@ class CityRepository(Repo):
         return None
 
     def list_with_counts(self) -> list[City]:
-        """Return every city as a ``City`` schema, with ``hotel_count`` filled.
-
-        Reproduces the cities router's ``_ALL_CITIES`` build (in seed order).
-
-        :return: Every city, in seed order, with ``hotel_count`` filled in.
-        """
+        """Return every city with ``hotel_count`` filled, in seed order."""
         counts = self._hotels.count_by_city()
         with self._session() as s:
             rows = s.scalars(select(models.City).order_by(models.City.id)).all()

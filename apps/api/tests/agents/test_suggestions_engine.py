@@ -1,4 +1,4 @@
-"""Task 6.1 — suggestion rule engine (MIN-65 DESIGN D6)."""
+"""Suggestion rule engine."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -25,9 +25,7 @@ def _catalog() -> set:
 
 
 def test_bare_call_matches_old_static_behavior_for_every_flow():
-    """Calling with only current_flow (no kwargs) reproduces the pre-D6 static
-    map exactly, for every flow — none of the new rules can fire on empty
-    context, so the floor backfill alone determines the result."""
+    """A bare call (no kwargs) reproduces the pre-rules static map for every flow — no rule fires on empty context."""
     expected = {
         "planner": ["planner.addDay", "planner.adjustBudget", "planner.findStay"],
         "concierge": [
@@ -177,9 +175,7 @@ def test_no_budget_signal_does_not_trigger_budget_rule():
 
 
 def test_budget_flow_alone_does_not_force_budget_check():
-    """Deliberate deviation from a literal 'flow=budget always triggers' reading
-    of DESIGN D6 — see suggestions.py rule 5 docstring: firing on flow alone
-    would break the bare-call backward-compat guarantee for the budget flow."""
+    """Deliberate deviation from a literal 'flow=budget always triggers' reading: firing on flow alone would break the bare-call backward-compat guarantee."""
     assert suggestions_for_flow("budget") == _FLOW_SUGGESTIONS["budget"][:3]
 
 
@@ -232,8 +228,7 @@ def test_every_returned_key_is_in_the_catalog(flow, trip_facts, profile, prefere
 
 
 def test_result_never_shorter_than_old_static_map_for_any_flow():
-    """Acceptance-criterion floor: rule-driven results are never shorter than
-    the pre-D6 static map would have given for that flow."""
+    """Rule-driven results are never shorter than the pre-rules static map for any flow."""
     for flow in ("planner", "concierge", "journal", "booking", "budget"):
         old_len = len(_FLOW_SUGGESTIONS.get(flow, [])[:3])
         # A context that fires exactly one rule for most flows.

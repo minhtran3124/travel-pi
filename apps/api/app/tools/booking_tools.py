@@ -1,11 +1,5 @@
-"""Booking lifecycle tools — cancel a flight or hotel booking (MIN-42).
-
-Thin wrappers over ``BookingService.cancel``. Cancellation is irreversible, so
-each tool requires ``confirm=True`` and is annotated destructive in the registry.
-Two type-specific tools (not one generic) give an explicit MCP surface; each
-loads the booking first via ``BookingService.get`` and refuses a booking of the
-other type. Mirrors the ``book_hotel`` error-mapping pattern.
-"""
+"""Booking lifecycle tools over ``BookingService.cancel``; cancellation is irreversible, so each tool
+requires ``confirm=True`` and refuses a booking of the other type."""
 
 from __future__ import annotations
 
@@ -50,12 +44,8 @@ def _cancel(
     tool_name: str,
     user_id: str,
 ) -> dict:
-    """Shared cancel path: guard confirm → load → type-check → cancel → dump.
-
-    ``user_id`` scopes both the load and the cancel to the caller: a booking
-    owned by someone else resolves to the same not-found error as one that does
-    not exist (#118), so a foreign booking can never be cancelled.
-    """
+    """Shared cancel path; ``user_id`` scopes load and cancel so a foreign booking reads as not found
+    and can never be cancelled."""
     log_tool_call(tool_name, {"booking_id": booking_id, "confirm": confirm})
     if not confirm:
         raise ToolException(
