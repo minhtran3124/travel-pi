@@ -11,7 +11,11 @@ from app.memory.store import (
 )
 
 
-def _seed(store, namespace, count):
+def _seed(
+    store,
+    namespace,
+    count,
+):
     texts = [f"note {i}" for i in range(count)]
     for i, text in enumerate(texts):
         store.put(namespace, f"k{i:03d}", {"text": text})
@@ -75,7 +79,11 @@ def test_unqueried_read_stops_when_a_store_ignores_offset():
     calls = []
 
     class RepeatingStore:
-        def search(self, namespace, **kwargs):
+        def search(
+            self,
+            namespace,
+            **kwargs,
+        ):
             calls.append(kwargs["offset"])
             return list(page)
 

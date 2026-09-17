@@ -167,7 +167,10 @@ _PAGE_SIZE = 100
 _SEMANTIC_TOP_K = 10
 
 
-def _read_all(store: BaseStore, namespace: tuple[str, ...]) -> list:
+def _read_all(
+    store: BaseStore,
+    namespace: tuple[str, ...],
+) -> list:
     """Return every item in *namespace*; ``store.search`` has no unlimited mode, so page."""
     items: dict = {}
     offset = 0
@@ -182,7 +185,9 @@ def _read_all(store: BaseStore, namespace: tuple[str, ...]) -> list:
 
 
 def _search_unbounded(
-    store: BaseStore, namespace: tuple[str, ...], query: str | None
+    store: BaseStore,
+    namespace: tuple[str, ...],
+    query: str | None,
 ) -> list:
     """Every row when unqueried; a semantic *query* is a top-k search, so it is never paged."""
     if query is not None:
@@ -201,7 +206,10 @@ def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> 
 
 
 def search_preferences(
-    store: BaseStore, user_id: str, *, query: str | None = None
+    store: BaseStore,
+    user_id: str,
+    *,
+    query: str | None = None,
 ) -> list[dict]:
     """Return every preference for a user, or the top semantic matches when a query is given."""
     results = _search_unbounded(store, _prefs_namespace(user_id), query)
@@ -247,7 +255,10 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
 
 
 def get_instructions(
-    store: BaseStore, user_id: str, *, query: str | None = None
+    store: BaseStore,
+    user_id: str,
+    *,
+    query: str | None = None,
 ) -> list[dict]:
     """Return every instruction for a user, or the top semantic matches when a query is given."""
     results = _search_unbounded(store, _namespace(user_id, "procedural"), query)
