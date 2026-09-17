@@ -189,14 +189,6 @@ def _run_blocklist(flat: str, lined: str) -> None:
     shield the role token once newlines collapse to spaces. Every other category
     is scanned against *flat* (all whitespace collapsed to single spaces) so a
     pattern's literal single space matches regardless of the raw spacing.
-
-    :param flat: Whitespace-collapsed form, scanned for every non-role_spoofing
-        pattern. :func:`_normalize_text` calls this once on the form that still
-        contains ``<``/``>`` (so ``<|…|>`` stays visible) and once on the form
-        with brackets removed and re-collapsed (so a ``<>``-insertion cannot mask
-        a pattern).
-    :param lined: Horizontal-collapsed, newline-preserving form, scanned for
-        ``role_spoofing``'s clause-boundary anchor.
     """
     flat_folded = fold_diacritics(flat.lower())
     lined_folded = fold_diacritics(lined.lower())
@@ -230,8 +222,6 @@ def _normalize_text(text: str) -> str:
     4. Return the de-bracketed form — angle brackets are gone, so stored text
        cannot close a ``<traveller_memory>`` wrapper tag in the system prompt.
 
-    :param text: Raw memory text.
-    :return: The normalized text (may be empty).
     :raises MemoryRejected: ``blocked_pattern:<category>`` if either bracket form
         trips a blocklist category.
     """
@@ -266,13 +256,9 @@ def _apply_content(text: str, cap: int, *, truncate: bool) -> str:
 
     :func:`_normalize_text` runs the blocklist on the full (collapsed but
     un-truncated) text, so over-length poisoned text cannot slip a pattern past
-    the cap.
+    the cap. ``truncate=True`` (read path) truncates over-length text to *cap*
+    instead of raising ``too_long``.
 
-    :param text: Raw memory text.
-    :param cap: Maximum allowed length after normalization.
-    :param truncate: On read, truncate over-length text to *cap*; on write,
-        raise ``too_long`` instead.
-    :return: The normalized (and, on read, possibly truncated) text.
     :raises MemoryRejected: ``blocked_pattern:<category>``, ``empty`` or
         ``too_long``.
     """
@@ -289,12 +275,9 @@ def _apply_content(text: str, cap: int, *, truncate: bool) -> str:
 def check(kind: MemoryKindLiteral, key: str, text: str) -> str:
     """Write-path guard: key allowlist (episodes: shape rule) + content rules.
 
-    :param kind: The memory kind (``preferences`` / ``instructions`` /
-        ``episodes``).
-    :param key: The store key. Preferences / instructions must be in the
-        canonical allowlist; episodes must match the slug shape rule.
-    :param text: The raw memory text to validate and normalize.
-    :return: The normalized text safe to store.
+    Preferences/instructions must be in the canonical allowlist; episodes must
+    match the slug shape rule. Returns the normalized text safe to store.
+
     :raises MemoryRejected: ``key_not_allowed``, ``blocked_pattern:<category>``,
         ``empty`` or ``too_long``.
     """
@@ -316,12 +299,8 @@ def check_content(kind: MemoryKindLiteral, key: str, text: str) -> str:
     Harmless legacy rows with non-canonical keys (e.g. ``food_preference``)
     still surface (B4); a legacy key containing ``<``, ``:`` or spaces is
     dropped. Over-length text is truncated to the cap rather than rejected.
+    Callers MUST use the returned text, never the stored original.
 
-    :param kind: The memory kind (selects the length cap).
-    :param key: The stored key; must match the shape rule for every kind.
-    :param text: The raw stored text.
-    :return: The normalized (and possibly truncated) text — callers MUST use
-        this, never the stored original.
     :raises MemoryRejected: ``key_not_allowed``, ``blocked_pattern:<category>``
         or ``empty``.
     """
@@ -342,12 +321,8 @@ def check_episode(value: dict) -> dict:
     key-shape rule as the episode key (:data:`_KEY_SHAPE_RE`); a value that
     fails — a non-string, or one carrying ``<``, ``:``, spaces or an injection
     phrase — is **dropped** (not raised, so one bad id never costs the traveller
-    the whole memory).
+    the whole memory). Returns a shallow copy with the coerced/normalized fields.
 
-    :param value: The episode value dict.
-    :return: A shallow copy with a coerced ``outcome``, a normalized ``city``
-        (dropped when it is a non-string or normalizes to empty), and a
-        shape-checked ``trip_id`` (dropped when it fails the shape rule).
     :raises MemoryRejected: ``blocked_pattern:<category>`` if ``city`` trips the
         blocklist.
     """
@@ -392,10 +367,6 @@ def normalize_episode_key(key: str, trip_id: str | None = None) -> str:
     non-``[a-z0-9_-]`` with ``_``, and strip leading/trailing ``_`` / ``-`` — so
     ``"Da Nang Trip"`` → ``"da_nang_trip"``. If the result is empty, use a
     slugified *trip_id*; if that is empty too, ``"episode"``.
-
-    :param key: The raw episode key.
-    :param trip_id: Fallback trip id used when *key* slugifies to empty.
-    :return: A slug suitable for the episodes namespace.
     """
     slug = _slugify(key)
     if slug:
@@ -408,11 +379,7 @@ def normalize_episode_key(key: str, trip_id: str | None = None) -> str:
 
 
 def _slugify(text: str) -> str:
-    """Lowercase, fold diacritics, ``_``-join non-slug runs, strip edges.
-
-    :param text: The raw text to slugify.
-    :return: The slug (may be empty).
-    """
+    """Lowercase, fold diacritics, ``_``-join non-slug runs, strip edges (may be empty)."""
     folded = fold_diacritics(text.lower())
     collapsed = re.sub(r"[^a-z0-9_-]+", "_", folded)
     slug = collapsed.strip("_-")

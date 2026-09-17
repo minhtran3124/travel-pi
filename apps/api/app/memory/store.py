@@ -40,11 +40,6 @@ def _guarded_text(guard_kind: MemoryKindLiteral, key: str, raw: str) -> str | No
     :class:`MemoryRejected`" loop that every non-episode read path shares
     (:func:`_guarded_values`, :func:`get_profile`, :func:`search_memory_typed`).
     A dropped row is logged naming only kind/key/reason — never the text.
-
-    :param guard_kind: The guard content kind (``preferences`` / ``instructions``).
-    :param key: The stored key (for the shape rule and the drop log).
-    :param raw: The stored text to normalize.
-    :return: The guard's normalized text, or ``None`` when the row is dropped.
     """
     try:
         return check_content(guard_kind, key, raw)
@@ -66,10 +61,6 @@ def _guarded_values(guard_kind: MemoryKindLiteral, results) -> list[dict]:
     kind/key/reason — never the text. Survivors carry the guard's **normalized**
     text (``<``/``>`` stripped, over-length truncated), so a row poisoned before
     this guard existed is neutralized on read without a migration.
-
-    :param guard_kind: The guard content kind (``preferences`` / ``instructions``).
-    :param results: Iterable of store search items (``.key`` / ``.value``).
-    :return: The surviving values with normalized ``text``.
     """
     out: list[dict] = []
     for item in results:
@@ -89,9 +80,6 @@ def _guarded_episode_payload(item) -> dict | None:
     text-free warning. The returned payload is limited to
     ``text`` / ``city`` / ``outcome`` / ``trip_id`` (§3.1) — store-internal
     fields such as ``updated_at`` are not surfaced.
-
-    :param item: A store search/get item (``.key`` / ``.value``).
-    :return: The limited episode payload, or ``None`` when dropped.
     """
     try:
         text = check_content("episodes", item.key, item.value.get("text", ""))
@@ -178,10 +166,6 @@ def _stamped(value: dict) -> dict:
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single user preference (value must be a JSON dict).
 
-    :param store: Long-term store to write to.
-    :param user_id: Owning user's id.
-    :param key: Preference key within the user's prefs namespace.
-    :param value: JSON-serializable preference payload.
     :raises MemoryRejected: when the key is not allowed or the text is empty,
         over-length or blocklisted (see :func:`app.memory.guard.check`).
     """
@@ -228,10 +212,6 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
     """Store/overwrite a single procedural instruction (value must be a JSON dict
     with a ``text`` field so the semantic index works).
 
-    :param store: Long-term store to write to.
-    :param user_id: Owning user's id.
-    :param key: Instruction key within the user's procedural namespace.
-    :param value: JSON-serializable instruction payload.
     :raises MemoryRejected: when the key is not in the canonical instruction
         allowlist or the text is empty, over-length or blocklisted.
     """
@@ -250,15 +230,11 @@ def get_instructions(
 def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single episodic memory — a past-trip outcome.
 
-    :param store: Long-term store to write to.
-    :param user_id: Owning user's id.
-    :param key: Episode key within the user's episodes namespace (the trip id).
-    :param value: JSON-serializable episode payload.
-    :raises MemoryRejected: when the key breaks the slug shape rule or the text
-        is empty, over-length or blocklisted (``city`` is normalized too).
-
     Key-addressed (overwrite, not append); the natural key is ``trip_id`` so
     re-extracting a trip is idempotent.
+
+    :raises MemoryRejected: when the key breaks the slug shape rule or the text
+        is empty, over-length or blocklisted (``city`` is normalized too).
     """
     text = check("episodes", key, value.get("text", ""))
     cleaned = check_episode(value)

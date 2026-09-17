@@ -84,10 +84,10 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
-        # memory-poisoning-hardening §3.4: read a wider window (limit=20) and cap
-        # to 10 AFTER the guard's read-side drop (poisoned/legacy rows) — so
-        # dropped rows can't consume the read window and leave the block empty
-        # even though valid instructions sit just past the pre-guard limit.
+        # Over-read (limit=20) then cap to 10 AFTER the guard's read-side drop,
+        # so poisoned/legacy rows can't crowd out valid ones near the pre-guard
+        # limit (memory-poisoning-hardening §3.4; same pattern below and in
+        # memory_tools.py).
         try:
             instrs = get_instructions(store, user_id, limit=20)[:10]
             if instrs:
@@ -118,10 +118,8 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         # preserves each preference's store key, needed both to filter and to
         # format the "- {key}: {value}" lines below.
         #
-        # memory-poisoning-hardening §3.4: read a wider window (limit=16) and cap
-        # to 8 AFTER both the guard's read-side drop (poisoned/legacy rows) and the
-        # PROFILE_KEYS exclusion — so dropped rows can't crowd out valid ones and
-        # leave the block short.
+        # Same over-read-then-cap pattern as above (limit=16, cap 8, applied after
+        # both the guard's drop and the PROFILE_KEYS exclusion).
         try:
             prefs = search_memory_typed(
                 store, user_id, MemoryKind.PREFERENCES, limit=16

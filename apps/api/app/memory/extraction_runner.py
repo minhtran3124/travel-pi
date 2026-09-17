@@ -23,22 +23,35 @@ from app.repositories.agent_run import AgentRunRepository
 
 logger = logging.getLogger(__name__)
 
+# A per-item write can fail two ways: a deliberate MemoryRejected (poisoned/
+# invalid content) or a malformed item from untrusted extractor JSON (non-str
+# key/text) tripping a plain TypeError/AttributeError/KeyError/ValueError.
+# Both are caught per-item so one bad item never drops its siblings (§3.3).
+_REJECT_EXCS = (MemoryRejected, TypeError, AttributeError, KeyError, ValueError)
+
 
 def _safe_key(item: object) -> object | None:
-    """Best-effort ``key`` lookup for a reject log line.
-
-    An item that reached a per-item ``except`` may be a non-dict — untrusted
-    extractor output whose upstream ``_parse_content`` filter (dict with both
-    ``key`` and ``text``) was relaxed. ``item.get`` would then raise
-    ``AttributeError`` from inside the handler and unwind to the function-level
-    ``except``, discarding every sibling of the turn — the exact bug the
-    per-item guard exists to prevent. Swallow it so building the log line can
-    never re-raise.
-    """
+    """Best-effort ``key`` lookup for a reject log line (item may be a non-dict)."""
     try:
         return item.get("key")  # type: ignore[attr-defined]
     except AttributeError:
         return None
+
+
+def _log_rejected(kind: str, key: object, exc: Exception) -> None:
+    """Log one skipped extractor item — never the memory text, just kind/key/reason."""
+    if isinstance(exc, MemoryRejected):
+        logger.warning(
+            "memory_rejected kind=%s key=%s reason=%s", kind, key, exc.reason
+        )
+    else:
+        logger.warning(
+            "memory_rejected kind=%s key=%s reason=%s",
+            kind,
+            key,
+            f"malformed:{type(exc).__name__}",
+            exc_info=True,
+        )
 
 
 def run_memory_extraction(
@@ -75,38 +88,11 @@ def run_memory_extraction(
         extracted = extract_memories(
             messages, llm, callbacks=[handler] if handler else None
         )
-        # Each upsert is guarded individually: the store raises MemoryRejected on
-        # a poisoned/invalid item (key allowlist, length, blocklist). Wrapping each
-        # call in its own try/except means one rejected item is skipped with a
-        # text-free WARNING and never drops the siblings after it (§3.3). The reject
-        # log carries kind/key/reason only — never the memory text.
-        #
-        # The per-item try ALSO covers the malformed-item class — a non-str key or
-        # text (or a missing field) that trips a TypeError/AttributeError/KeyError/
-        # ValueError inside the guard or key normalization rather than the guard's
-        # own MemoryRejected. Those raise from a plain dict of untrusted extractor
-        # JSON, so they must skip just that item and keep its siblings, exactly like
-        # a MemoryRejected. The reason names the malformed input's exception class
-        # (never the memory text).
         for pref in extracted.preferences:
             try:
                 upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
-            except MemoryRejected as exc:
-                logger.warning(
-                    "memory_rejected kind=%s key=%s reason=%s",
-                    "preferences",
-                    _safe_key(pref),
-                    exc.reason,
-                )
-                continue
-            except (TypeError, AttributeError, KeyError, ValueError) as exc:
-                logger.warning(
-                    "memory_rejected kind=%s key=%s reason=%s",
-                    "preferences",
-                    _safe_key(pref),
-                    f"malformed:{type(exc).__name__}",
-                    exc_info=True,
-                )
+            except _REJECT_EXCS as exc:
+                _log_rejected("preferences", _safe_key(pref), exc)
                 continue
             logger.info(
                 "[agent] extract_memory saved preference user=%s key=%s text=%r",
@@ -119,22 +105,8 @@ def run_memory_extraction(
                 upsert_instruction(
                     store, user_id, instr["key"], {"text": instr["text"]}
                 )
-            except MemoryRejected as exc:
-                logger.warning(
-                    "memory_rejected kind=%s key=%s reason=%s",
-                    "instructions",
-                    _safe_key(instr),
-                    exc.reason,
-                )
-                continue
-            except (TypeError, AttributeError, KeyError, ValueError) as exc:
-                logger.warning(
-                    "memory_rejected kind=%s key=%s reason=%s",
-                    "instructions",
-                    _safe_key(instr),
-                    f"malformed:{type(exc).__name__}",
-                    exc_info=True,
-                )
+            except _REJECT_EXCS as exc:
+                _log_rejected("instructions", _safe_key(instr), exc)
                 continue
             logger.info(
                 "[agent] extract_memory saved instruction user=%s key=%s text=%r",
@@ -145,15 +117,10 @@ def run_memory_extraction(
         # A turn that passed the plan-approval gate records outcome="approved";
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
+            # key stays inside the try: a non-dict ep or non-str key can raise
+            # here too, and must be caught per-item like the upsert itself.
             key = None
             try:
-                # BOTH the key lookup and normalize_episode_key must sit INSIDE the
-                # try. A non-dict episode makes ``ep.get`` raise AttributeError, and
-                # a non-str key (a JSON number) makes ``normalize_episode_key`` raise
-                # AttributeError from ``_slugify``. If either sat above the try it
-                # would unwind to the function ``except Exception`` and discard every
-                # remaining episode of the turn, defeating the per-item guarantee
-                # this loop exists for.
                 key = ep.get("key") or trip_id or "episode"
                 key = normalize_episode_key(key, trip_id)
                 outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
@@ -168,21 +135,9 @@ def run_memory_extraction(
                         "outcome": outcome,
                     },
                 )
-            except MemoryRejected as exc:
-                logger.warning(
-                    "memory_rejected kind=%s key=%s reason=%s",
-                    "episodes",
-                    key if key is not None else _safe_key(ep),
-                    exc.reason,
-                )
-                continue
-            except (TypeError, AttributeError, KeyError, ValueError) as exc:
-                logger.warning(
-                    "memory_rejected kind=%s key=%s reason=%s",
-                    "episodes",
-                    key if key is not None else _safe_key(ep),
-                    f"malformed:{type(exc).__name__}",
-                    exc_info=True,
+            except _REJECT_EXCS as exc:
+                _log_rejected(
+                    "episodes", key if key is not None else _safe_key(ep), exc
                 )
                 continue
             logger.info(

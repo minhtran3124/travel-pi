@@ -113,10 +113,9 @@ def get_user_preferences(
     :return: Matching saved preferences.
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
-    # memory-poisoning-hardening §3.4: read a wider window (limit=10) and cap to
-    # 5 AFTER the guard's read-side drop, so poisoned/legacy rows nearest the top
-    # can't consume the read window and hide valid preferences that exist just
-    # beyond the pre-guard limit.
+    # Over-read then cap after the guard's drop, same pattern as load_context_node
+    # (app/agents/nodes.py) — keeps poisoned/legacy rows from crowding out valid
+    # ones (memory-poisoning-hardening §3.4).
     return search_preferences(store, user_id, query=query, limit=10)[:5]
 
 
@@ -141,11 +140,8 @@ def recall_past_trips(
     :return: Matching past-trip episodes.
     """
     log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
-    # memory-poisoning-hardening §3.4: read a wider window (limit=6) and cap to 3
-    # AFTER the guard's read-side drop, so poisoned/legacy episode rows nearest the
-    # top can't consume the read window and hide valid episodes that exist just
-    # beyond the pre-guard default limit. Same defect class as get_instructions /
-    # get_user_preferences; the model still sees at most 3 episodes, as before.
+    # Same over-read-then-cap pattern as get_user_preferences above; the model
+    # still sees at most 3 episodes, as before.
     return search_episodes(store, user_id, query=query, limit=6)[:3]
 
 
