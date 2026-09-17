@@ -1,12 +1,5 @@
-"""Long-term memory tools (specs/travel-agent Task 3.4; agent-memory-semantic).
-
-The journal sub-agent uses these to remember traveller preferences across sessions.
-Both the ``store`` and the ``user_id`` are injected by LangGraph at runtime — the store
-via ``InjectedStore`` and the user id via ``InjectedState`` (from the graph's
-``TravelAgentState.user_id``). Both are hidden from the model's tool schema, so the LLM
-only supplies the semantic arguments and can never address another traveller's memory
-(REVIEW.md C3). Backed by the cross-session ``app.memory.store`` helpers.
-"""
+"""Long-term memory tools; ``store`` and ``user_id`` are LangGraph-injected and hidden from the model
+schema, so the LLM can never address another traveller's memory."""
 
 from __future__ import annotations
 
@@ -21,11 +14,8 @@ from app.memory.store import search_episodes, search_preferences, upsert_prefere
 from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
-# NOTE: these tools take ``user_id``/``store`` as LangGraph-injected args
-# (InjectedState/InjectedStore). Each explicit ``args_schema`` DECLARES them:
-# ToolNode derives injection targets from the schema, so an injected param left
-# out of it is never injected ("missing required positional arguments"). Declared,
-# they are still stripped from the model-facing ``tool_call_schema``.
+# Each args_schema must DECLARE the injected user_id/store: ToolNode derives injection targets from
+# the schema, so omitting one breaks injection. They stay stripped from the model-facing schema.
 
 
 class _MemoryInjectedArgs(AppBaseModel):

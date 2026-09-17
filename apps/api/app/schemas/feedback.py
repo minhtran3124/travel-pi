@@ -1,10 +1,4 @@
-"""Feedback schemas (specs/user-feedback-v1 DESIGN §3.3, §5.1).
-
-Request / response shapes for ``POST /agent/feedback`` plus the entity schemas
-the repository returns so the ORM stays confined to ``repositories/``. The
-wire rating is the string ``helpful`` / ``not_helpful``; the stored value is
-``+1`` / ``-1`` (``FeedbackRating``) — the two maps below are the only bridge.
-"""
+"""Feedback schemas for ``POST /agent/feedback``; wire rating ``helpful``/``not_helpful`` maps to stored ``+1``/``-1``."""
 
 from typing import Literal
 from uuid import UUID
@@ -28,11 +22,7 @@ COMMENT_MAX_CHARS = 500
 
 
 class FeedbackRequest(AppBaseModel):
-    """Body of ``POST /agent/feedback`` (DESIGN §5.1).
-
-    Field presence is action-dependent and validated here (a schema ``422``);
-    ownership, rateability and state transitions are the service's job.
-    """
+    """Body of ``POST /agent/feedback``; validates action-dependent field presence at the schema boundary (422)."""
 
     client_event_id: UUID = Field(
         description="Stable id per logical UI action; replays reuse it."
@@ -95,7 +85,7 @@ class FeedbackRequest(AppBaseModel):
 
 
 class EffectiveFeedback(AppBaseModel):
-    """Folded view of one assistant message's feedback log (DESIGN §3.3)."""
+    """Folded view of one assistant message's feedback log."""
 
     rating: RatingLabel
     reason_code: FeedbackReasonCode | None = None
@@ -105,7 +95,7 @@ class EffectiveFeedback(AppBaseModel):
 
 
 class FeedbackResponse(AppBaseModel):
-    """Body of the ``POST /agent/feedback`` reply (DESIGN §5.1)."""
+    """Body of the ``POST /agent/feedback`` reply."""
 
     feedback_event_id: str
     assistant_message_id: str
@@ -136,11 +126,7 @@ class FeedbackEventRecord(AppBaseModel):
 
 
 class MessageForFeedback(AppBaseModel):
-    """A message joined to its conversation owner and linked run status.
-
-    Returned by ``ConversationRepository.get_message_for_feedback``; the
-    rateable decision (role, owner, completed run) is made by the service.
-    """
+    """A message joined to its conversation owner and linked run status."""
 
     id: str
     conversation_id: str

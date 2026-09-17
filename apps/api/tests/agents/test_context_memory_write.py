@@ -1,4 +1,4 @@
-"""Task 1.2 — Context allow_memory_write flag (specs/agent-memory-layers)."""
+"""Context allow_memory_write flag."""
 
 from app.enums import Tier
 
@@ -12,7 +12,7 @@ def test_default_agent_context_allow_memory_write_true():
 
 
 def test_free_tier_does_not_gate_memory_write():
-    """Memory write is NOT tier-gated — free users keep it (per D5)."""
+    """Memory write is NOT tier-gated — free users keep it."""
     from app.agents.context import resolve_agent_context
 
     ctx = resolve_agent_context(tier=Tier.FREE)

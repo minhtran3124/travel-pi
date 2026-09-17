@@ -1,11 +1,4 @@
-"""Data-access for FX rates / currencies — SQLAlchemy ORM reads.
-
-Currency codes are exact identifiers (like IATA codes): exact-code lookups
-return ``None`` for an unknown code and the *service* keeps raising
-``NotFoundError`` (the 404 policy stays in ``currency_service``). ``rate`` and
-``name`` come from the ``fx_rates`` table; ``country_currency`` from the
-``country_currency`` table; ``last_updated`` from the singleton ``fx_meta`` row.
-"""
+"""Data-access for FX rates / currencies. Codes are exact identifiers; an unknown code returns ``None`` and the service keeps raising the 404."""
 
 from sqlalchemy import select
 
@@ -17,11 +10,7 @@ class FxRepository(Repo):
     """Read-only store of FX rows behind a ``session_factory``."""
 
     def rate(self, code: str) -> float | None:
-        """Return the units-per-USD rate for ``code`` (exact), or ``None``.
-
-        :param code: The exact ISO 4217 currency code to look up.
-        :return: The units-per-USD rate, or ``None`` if unknown.
-        """
+        """Return the units-per-USD rate for ``code`` (exact), or ``None``."""
         with self._session() as s:
             row = s.scalars(
                 select(models.FxRate).where(models.FxRate.code == code)
@@ -29,11 +18,7 @@ class FxRepository(Repo):
             return row.rate if row is not None else None
 
     def name(self, code: str) -> str | None:
-        """Return the human currency name for ``code`` (exact), or ``None``.
-
-        :param code: The exact ISO 4217 currency code to look up.
-        :return: The human currency name, or ``None`` if unknown.
-        """
+        """Return the human currency name for ``code`` (exact), or ``None``."""
         with self._session() as s:
             row = s.scalars(
                 select(models.FxRate).where(models.FxRate.code == code)
@@ -41,11 +26,7 @@ class FxRepository(Repo):
             return row.name if row is not None else None
 
     def country_currency(self, country: str) -> str | None:
-        """Return the ISO 4217 code for a resolved ``country``, or ``None``.
-
-        :param country: The exact (already-resolved) country name to look up.
-        :return: The ISO 4217 currency code, or ``None`` if unknown.
-        """
+        """Return the ISO 4217 code for a resolved ``country``, or ``None``."""
         with self._session() as s:
             row = s.scalars(
                 select(models.CountryCurrency).where(
@@ -55,29 +36,17 @@ class FxRepository(Repo):
             return row.code if row is not None else None
 
     def last_updated(self) -> str | None:
-        """Return the snapshot date for the FX table (singleton row).
-
-        :return: The snapshot date, or ``None`` if the ``fx_meta`` row is absent.
-        """
+        """Return the snapshot date for the FX table (singleton row), or ``None``."""
         with self._session() as s:
             row = s.scalars(select(models.FxMeta)).first()
             return row.last_updated if row is not None else None
 
     def valid_codes(self) -> list[str]:
-        """Return every supported currency code, sorted — mirrors ``sorted(RATES)``.
-
-        :return: All supported currency codes, sorted.
-        """
+        """Return every supported currency code, sorted."""
         with self._session() as s:
             return sorted(s.scalars(select(models.FxRate.code)).all())
 
     def country_names(self) -> list[str]:
-        """Return the country names with a known currency, sorted.
-
-        Mirrors ``sorted(COUNTRY_CURRENCY)`` — the fuzzy-resolution target for
-        the ``country`` param in ``currency_service``.
-
-        :return: Sorted country names that have a known currency.
-        """
+        """Return the country names with a known currency, sorted (the fuzzy-resolution target)."""
         with self._session() as s:
             return sorted(s.scalars(select(models.CountryCurrency.country)).all())

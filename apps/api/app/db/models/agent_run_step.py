@@ -1,15 +1,7 @@
-"""AgentRunStep ORM model — one row per step of an agent turn (specs/agent-run-trace-detail).
+"""AgentRunStep ORM model — one row per step of an agent turn, in ``seq`` order.
 
-Each row is a single unit of work inside a turn — an LLM call, a tool call, or a
-graph node — recorded in ``seq`` order so the dashboard can render the turn's call
-chain as a waterfall. ``offset_ms`` and ``ms`` share the handler's monotonic origin,
-so the waterfall needs no wall-clock arithmetic.
-
-No FK to ``agent_runs`` (matches the repo's String-id convention) so it behaves
-identically on SQLite and Postgres.
-
-Content boundary: no user content may reach a step row. ``meta`` accepts only a
-scalar allowlist and ``error_type`` is ``type(exc).__name__``, never ``str(exc)``.
+No user content may reach a step row: ``meta`` accepts only a scalar allowlist and
+``error_type`` is ``type(exc).__name__``, never ``str(exc)``.
 """
 
 from sqlalchemy import JSON, Float, Integer, String

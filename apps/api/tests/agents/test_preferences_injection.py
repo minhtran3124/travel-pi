@@ -1,4 +1,4 @@
-"""Task 4.2 — preference auto-injection at load_context (MIN-65 DESIGN D2)."""
+"""Preference auto-injection at load_context."""
 
 from types import SimpleNamespace
 
@@ -6,8 +6,7 @@ from langchain_core.messages import SystemMessage
 
 
 def test_load_context_node_returns_non_profile_preferences_formatted():
-    """Store has a mix of profile-key and non-profile-key prefs -> only the
-    non-profile ones surface, formatted as "- {key}: {text}" lines."""
+    """Only non-profile-key prefs surface, formatted as ``- {key}: {text}`` lines."""
     from app.agents.nodes import load_context_node
     from app.memory.store import get_store, upsert_preference
 
@@ -16,8 +15,7 @@ def test_load_context_node_returns_non_profile_preferences_formatted():
     upsert_preference(
         store, "u_pref", "hotel_type", {"text": "prefers beachfront 4-5 star"}
     )
-    # Profile-key entries must NOT leak into the preferences block (task 3.1/D2
-    # already surfaces these via the dedicated `profile` block).
+    # Profile-key entries must NOT leak into the preferences block — the dedicated `profile` block already surfaces them.
     upsert_preference(store, "u_pref", "name", {"text": "Minh"})
     upsert_preference(store, "u_pref", "travel_group", {"text": "solo"})
 
@@ -91,11 +89,7 @@ def test_load_context_node_store_error_yields_empty_preferences():
 
 
 def test_preferences_flow_from_load_context_into_system_with_summary():
-    """Integration-style (light, per task 4.2 spec — the detailed rendering test
-    already lives in test_trip_facts.py from task 3.1): prove load_context_node's
-    output actually flows through system_with_summary, without routing through
-    the full graph/supervisor (avoids coupling to task 4.1's in-flight work on
-    supervisor.py, running in parallel on this same branch)."""
+    """Prove load_context_node's output flows through system_with_summary, without routing through the full graph."""
     from app.agents.nodes import load_context_node
     from app.agents.state import system_with_summary
     from app.memory.store import get_store, upsert_preference

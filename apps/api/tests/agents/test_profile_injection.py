@@ -1,4 +1,4 @@
-"""MIN-53 — personalization profile injection into the sub-agent system prompt."""
+"""Personalization profile injection into the sub-agent system prompt."""
 
 from langchain_core.messages import HumanMessage, SystemMessage
 

@@ -1,4 +1,4 @@
-"""Task 3.1 — trip_facts reducer + preferences/pending_flows state foundation (MIN-65 DESIGN D1/D2)."""
+"""trip_facts reducer + preferences state foundation."""
 
 from langchain_core.messages import SystemMessage
 
@@ -47,14 +47,12 @@ def test_merge_trip_facts_new_none_keeps_old_unchanged():
 def test_merge_trip_facts_sequential_turns_preserve_unrelated_keys():
     from app.agents.state import merge_trip_facts
 
-    # Turn 1: destination + party size.
     state = merge_trip_facts(None, {"destination": "Da Nang", "adults": 2})
-    # Turn 2: dates added, destination not mentioned again (None).
+    # Destination is None this turn, so its earlier value must survive.
     state = merge_trip_facts(
         state,
         {"destination": None, "start_date": "2026-08-15", "end_date": "2026-08-20"},
     )
-    # Turn 3: party size updated, everything else untouched.
     state = merge_trip_facts(state, {"adults": 3, "children": 1})
 
     assert state == {
@@ -103,9 +101,7 @@ def test_system_with_summary_folds_trip_facts_bullets():
 
 
 def test_system_with_summary_trip_facts_renders_zero_but_skips_none():
-    """Regression (ce-code-review finding): children=0 ("no kids") is a
-    meaningful, commonly-stated value and must render — only a genuinely
-    absent (None) key should be skipped."""
+    """children=0 ("no kids") is meaningful and must render; only a None key is skipped."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")
@@ -181,8 +177,7 @@ def test_system_with_summary_empty_preferences_unchanged():
 
 
 def test_system_with_summary_full_empty_state_identity():
-    """All six foldable fields empty/absent -> base returned unchanged (no behavior
-    change for new users/turns), matching the existing identity-case convention."""
+    """All six foldable fields empty/absent returns base unchanged."""
     from app.agents.state import system_with_summary
 
     base = SystemMessage(content="BASE")

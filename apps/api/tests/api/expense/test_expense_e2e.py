@@ -25,10 +25,8 @@ def test_full_expense_lifecycle(client):
     trip = _create_trip(client)
     trip_id = trip["id"]
 
-    # Set budget caps
     _set_budget(client, trip_id, flights=500, hotels=400, activities=200, buffer=100)
 
-    # Create VND expense
     vnd_exp = _post_expense(
         client,
         trip_id,
@@ -44,13 +42,11 @@ def test_full_expense_lifecycle(client):
     # 50000 VND / ~25400 per USD ≈ 1.97 USD — just check reasonable range
     assert 1.0 < vnd_usd < 5.0
 
-    # Create USD expense
     usd_exp = _post_expense(
         client, trip_id, amount=20.0, currency="USD", category="transport"
     )
     assert usd_exp["amount_usd"] == pytest.approx(20.0, abs=0.01)
 
-    # List both
     resp = client.get(f"/trips/{trip_id}/expenses")
     assert resp.status_code == 200
     body = resp.json()
@@ -59,7 +55,6 @@ def test_full_expense_lifecycle(client):
     assert vnd_exp["id"] in ids
     assert usd_exp["id"] in ids
 
-    # Summary
     resp = client.get(f"/trips/{trip_id}/expenses/summary")
     assert resp.status_code == 200
     summary = resp.json()
@@ -83,7 +78,6 @@ def test_full_expense_lifecycle(client):
     assert budget["total_remaining"] is not None
     assert budget["total_remaining"] < budget["total_cap"]
 
-    # PATCH: update VND expense amount and re-check summary
     resp = client.patch(
         f"/trips/{trip_id}/expenses/{vnd_exp['id']}",
         json={"amount": 100000},
@@ -91,13 +85,12 @@ def test_full_expense_lifecycle(client):
     assert resp.status_code == 200
     updated = resp.json()
     assert updated["amount"] == 100000
-    assert updated["amount_usd"] > vnd_usd  # doubled amount → doubled USD
+    assert updated["amount_usd"] > vnd_usd
 
     resp = client.get(f"/trips/{trip_id}/expenses/summary")
     new_summary = resp.json()
     assert new_summary["total_usd"] > summary["total_usd"]
 
-    # DELETE one expense and confirm it drops from totals
     resp = client.delete(f"/trips/{trip_id}/expenses/{usd_exp['id']}")
     assert resp.status_code == 204
 
@@ -109,6 +102,5 @@ def test_full_expense_lifecycle(client):
     assert final_summary["expense_count"] == 1
     assert final_summary["total_usd"] < new_summary["total_usd"]
 
-    # Deleted expense is 404
     resp = client.get(f"/trips/{trip_id}/expenses/{usd_exp['id']}")
     assert resp.status_code == 404

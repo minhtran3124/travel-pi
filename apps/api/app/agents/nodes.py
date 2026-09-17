@@ -1,16 +1,4 @@
-"""Cross-cutting graph nodes (specs/travel-agent Task 5.3).
-
-- ``load_context_node``: injects the current trip snapshot as context + procedural
-  instructions from the store.
-- ``make_summarize_node``: compresses long histories (sliding window).
-- ``make_reflection_node``: bounded self-correction — critiques the last answer
-  and loops back to the active sub-agent once if it judges it inadequate.
-- ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
-
-Post-turn memory extraction no longer runs in-graph — see
-``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
-background task after the response is sent.
-"""
+"""Cross-cutting graph nodes: context loading, summarization, reflection, and HITL plan approval."""
 
 from __future__ import annotations
 

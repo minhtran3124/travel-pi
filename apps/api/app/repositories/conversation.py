@@ -1,8 +1,4 @@
-"""Data-access for agent conversations, messages, and jobs (specs/travel-agent).
-
-ORM persistence only — business logic (graph orchestration) lives in the agent
-layer. Returns Pydantic schemas so the ORM stays confined to this tier.
-"""
+"""Data-access for agent conversations, messages, and jobs; graph orchestration lives in the agent layer."""
 
 from sqlalchemy import func, select, update
 
@@ -41,21 +37,7 @@ class ConversationRepository(Repo):
         user_id: str,
         trip_id: str | None = None,
     ) -> str:
-        """Return a conversation id that is guaranteed to have a row.
-
-        Get-or-create: when ``conversation_id`` is None a fresh row is created;
-        when it is supplied (e.g. a client-minted id, or one restored from the
-        browser across reloads) the row is created with that explicit id if it
-        does not exist yet. This prevents orphaned messages — a message must
-        never reference a conversation that is absent from this table — and
-        self-heals ids minted before this guard existed.
-
-        :param conversation_id: The candidate conversation id, or ``None`` to
-            always create a fresh conversation.
-        :param user_id: The owning user's id.
-        :param trip_id: The trip to associate the conversation with, if any.
-        :return: A conversation id guaranteed to have a backing row.
-        """
+        """Get-or-create: return a conversation id guaranteed to have a row, creating one (with the supplied id if given) so a message never references an absent conversation."""
         if conversation_id is None:
             return self.create_conversation(user_id=user_id, trip_id=trip_id).id
         with self._session() as s:
@@ -74,17 +56,7 @@ class ConversationRepository(Repo):
             return Conversation.model_validate(row) if row is not None else None
 
     def reassign_user(self, *, from_user_id: str, to_user_id: str) -> int:
-        """Reassign everything owned by *from_user_id* to *to_user_id*.
-
-        Conversations, ``agent_runs`` and ``feedback_events`` move in the same
-        transaction (specs/user-feedback-v1 §3.4) so the new owner sees the
-        history together with its runs and feedback. Messages follow
-        automatically because they are keyed by ``conversation_id``.
-
-        :param from_user_id: The user id to reassign away from.
-        :param to_user_id: The user id to reassign to.
-        :return: The number of conversation rows updated.
-        """
+        """Reassign everything owned by *from_user_id* to *to_user_id* — conversations, agent_runs and feedback_events in one transaction (messages follow via conversation_id)."""
         with self._session() as s:
             result = s.execute(
                 update(models.Conversation)
@@ -120,13 +92,7 @@ class ConversationRepository(Repo):
         message_id: str | None = None,
         agent_run_id: str | None = None,
     ) -> Message:
-        """Insert one message row.
-
-        :param message_id: Explicit id for the row (e.g. the id already sent to
-            the client over SSE); ``None`` mints a UUID.
-        :param agent_run_id: The ``agent_runs`` row that produced an assistant
-            reply; ``None`` for user turns.
-        """
+        """Insert one message row. ``message_id`` reuses an id already sent to the client; ``agent_run_id`` links the producing run (None for user turns)."""
         row = models.Message(
             conversation_id=conversation_id,
             role=role,
@@ -143,15 +109,7 @@ class ConversationRepository(Repo):
             return Message.model_validate(row)
 
     def get_message_for_feedback(self, message_id: str) -> MessageForFeedback | None:
-        """Load a message with its conversation owner and linked run status.
-
-        One query: messages → conversations on ``conversation_id`` and an outer
-        join to ``agent_runs`` on ``agent_run_id`` (string ids, no FK). Whether
-        the message is rateable is decided by the feedback service.
-
-        :param message_id: The message id.
-        :return: The joined view, or ``None`` when the message does not exist.
-        """
+        """Load a message with its conversation owner and linked run status in one query (rateability is decided by the feedback service)."""
         stmt = (
             select(
                 models.Message.id,
@@ -177,15 +135,7 @@ class ConversationRepository(Repo):
     def run_status_for_messages(
         self, message_ids: list[str]
     ) -> dict[str, tuple[str | None, str | None]]:
-        """Bulk ``(agent_run_id, run_status)`` per message id — one query.
-
-        Used by the history handler to compute the ``rateable`` flag for a whole
-        page without an N+1 (DESIGN §6). Messages with no linked run map to
-        ``(None, None)``; a link to a missing run maps to ``(run_id, None)``.
-
-        :param message_ids: The message ids to look up (empty → empty dict).
-        :return: ``{message_id: (agent_run_id, run_status)}`` for every id found.
-        """
+        """Bulk ``(agent_run_id, run_status)`` per message id in one query (avoids an N+1); no linked run maps to ``(None, None)``, a missing run to ``(run_id, None)``."""
         if not message_ids:
             return {}
         stmt = (
@@ -205,17 +155,7 @@ class ConversationRepository(Repo):
             }
 
     def count_user_turns_since(self, user_id: str, iso_cutoff: str) -> int:
-        """Count user-role messages for *user_id* on or after *iso_cutoff*.
-
-        Joins messages → conversations on conversation_id so no additional FK is
-        needed. ISO-8601 strings sort chronologically, so a ``>=`` string
-        comparison yields the correct day-boundary cutoff.
-
-        :param user_id: The owning user's id.
-        :param iso_cutoff: ISO-8601 timestamp; only messages at or after this
-            cutoff are counted.
-        :return: The number of matching user-role messages.
-        """
+        """Count user-role messages for *user_id* at or after *iso_cutoff* (ISO-8601 strings sort chronologically, so a ``>=`` compare is a correct cutoff)."""
         stmt = (
             select(func.count())
             .select_from(models.Message)

@@ -15,8 +15,7 @@ LIMIT = 3
 
 @pytest.fixture
 def rate_limit_factory(tmp_db):
-    # Cross-engine: Postgres under TEST_DATABASE_URL, else temp SQLite. Clean the
-    # shared table so each test starts empty on the Postgres path.
+    # Clean the shared table so each test starts empty on the Postgres path.
     factory = get_session_factory(tmp_db)
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
     with factory() as s:
@@ -66,7 +65,6 @@ def test_window_reset_allows_again(repo):
 def test_subjects_are_independent(repo):
     for _ in range(LIMIT):
         assert _hit(repo, subject="u1").allowed is True
-    # u2 is unaffected by u1 exhausting its window.
     assert _hit(repo, subject="u2").allowed is True
 
 
@@ -78,9 +76,7 @@ def test_buckets_are_independent(repo):
 
 
 def test_window_size_is_part_of_policy_identity_and_prune_uses_row_expiry(repo):
-    # A rolling config change keeps both same-name policies distinct. The short
-    # window's prune must use the persisted long row's own expiry (10800), not
-    # the incoming policy's 60-second cutoff.
+    # Same-name policies stay distinct: the short window's prune must use the persisted long row's own expiry (10800), not the incoming 60s cutoff.
     repo.hit(
         bucket="feedback",
         subject="u1",
@@ -108,7 +104,6 @@ def test_window_size_is_part_of_policy_identity_and_prune_uses_row_expiry(repo):
 
 
 def test_expired_windows_are_pruned(repo):
-    # Fill an old window.
     for _ in range(LIMIT):
         _hit(repo, now=1000)  # window 960
     # A hit in a much later window prunes the elapsed one.
@@ -120,9 +115,7 @@ def test_expired_windows_are_pruned(repo):
 
 
 def test_one_window_clock_skew_does_not_delete_current_policy_row(repo):
-    # Worker A records the current 60-second window (960). Worker B's clock is
-    # one full window ahead and creates window 1020. Pruning must retain 960 for
-    # the full own-window grace so worker A's next hit observes count=2.
+    # Worker B's clock is one window ahead (1020); pruning must retain A's window 960 for its full grace so A's next hit sees count=2.
     first = _hit(repo, now=1000)
     assert first.remaining == LIMIT - 1
 
@@ -139,8 +132,7 @@ def test_one_window_clock_skew_does_not_delete_current_policy_row(repo):
 
 
 def _synchronized_hit(factory, barrier, *, now, limit=LIMIT):
-    # An explicit caller-owned Session proves workers do not accidentally share
-    # an identity map/transaction. Commit at the simulated request boundary.
+    # A caller-owned Session proves workers don't share an identity map/transaction; commit at the simulated request boundary.
     with factory() as session:
         barrier.wait(timeout=10)
         decision = RateLimitRepository(session).hit(
@@ -178,8 +170,7 @@ def test_concurrent_first_hit_persists_once_per_distinct_session(rate_limit_fact
 
 
 def test_concurrent_existing_row_allows_exactly_limit(rate_limit_factory):
-    # Seed an existing row, then race enough distinct sessions to cross the
-    # boundary. The total number of allowed requests must remain exactly LIMIT.
+    # Race distinct sessions across the boundary from a seeded row: total allowed must stay exactly LIMIT.
     first = RateLimitRepository(rate_limit_factory).hit(
         bucket="feedback",
         subject="concurrent-user",

@@ -1,15 +1,4 @@
-"""Seed-data invariants checked once at startup.
-
-The CLAUDE.md contract promises "every city has ≥3 hotels and ≥3 places".
-Without an enforced check, a typo in a hotel's ``city`` or a forgotten place
-entry quietly violates that promise — and the regression only surfaces when
-a user happens to search the affected city. This module fails loud at boot
-instead.
-
-The check runs AFTER the seeder populates the DB (see ``core/lifespan.py``), so
-it reads the seeded reference tables through the repos rather than the
-``app/data`` caches.
-"""
+"""Startup check enforcing the CLAUDE.md contract that every city has ≥3 hotels and ≥3 places — fails loud at boot rather than at a user's first search."""
 
 from app.core.config import get_settings
 from app.db.engine import get_session_factory
@@ -21,12 +10,7 @@ _MIN_PER_CITY = 3
 
 
 def check_city_coverage() -> None:
-    """Assert every seeded city has at least the minimum hotels and places.
-
-    Reads the seeded ``cities``/``hotels``/``places`` tables via the repos.
-    Raises :class:`RuntimeError` listing the offending cities — fail loud at
-    startup rather than ship data that breaks the contract.
-    """
+    """Assert every seeded city has at least the minimum hotels and places, raising :class:`RuntimeError` listing offenders."""
     session_factory = get_session_factory(get_settings().database_url)
     city_repo = CityRepository(session_factory)
     hotel_repo = HotelRepository(session_factory)

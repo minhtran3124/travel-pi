@@ -1,9 +1,7 @@
-"""The synthesis worker must carry its specialist name into the inner config.
+"""The synthesis worker must carry its specialist name into the inner config metadata.
 
-The inner sub-graph's checkpoint namespace is ``synthesis_worker:<uuid>|
-assistant:<uuid>`` — it has no specialist segment — so the config metadata is
-the only channel that reaches ``on_chat_model_start`` / ``on_tool_start``. The
-merge must not drop the caller's own metadata keys.
+The checkpoint namespace has no specialist segment, so metadata is the only
+channel that reaches the callbacks, and the merge must keep the caller's keys.
 """
 
 import asyncio
@@ -22,8 +20,7 @@ class _CapturingGraph:
     def __init__(self) -> None:
         self.captured_config = None
 
-    # The worker awaits the sub-agent (#178: the specialists bind async-only
-    # tools), so the capture point is the async entry point.
+    # The worker awaits the sub-agent, so the capture point is the async entry point.
     async def ainvoke(self, state: dict, config=None) -> dict:
         self.captured_config = config
         return {**state, "messages": [AIMessage(content="Here are the facts.")]}

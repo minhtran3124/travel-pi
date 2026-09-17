@@ -1,9 +1,4 @@
-"""FeedbackRepository: fold rules, idempotent replay, race recovery (SC-3).
-
-Fold cases follow specs/user-feedback-v1 DESIGN §3.3, ordered by
-``(created_at, id)``. Rows for the fold tests are inserted directly with explicit
-``created_at`` / ``id`` so the order under test is deterministic.
-"""
+"""FeedbackRepository: fold rules, idempotent replay, race recovery. Fold rows are inserted with explicit ``created_at``/``id`` so the ``(created_at, id)`` order under test is deterministic."""
 
 import pytest
 from app.db import models

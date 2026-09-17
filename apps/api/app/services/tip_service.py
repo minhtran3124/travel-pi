@@ -1,19 +1,4 @@
-"""Local-tips lookup over the DB-backed seed data.
-
-Tip records are read through ``TipRepository`` (``app.repositories.tip``) per request;
-``app/data/tips.py`` remains the guarded seed source. Country tips are
-inherited by every city in that country; city tips are merged on top when a
-``city`` is queried. Unknown locations return an empty tip list
-(``count: 0``), never a 404 — consistent with hotels/places.
-
-Positional tip ids (``tip_{scope}_{prefix}_{NN}``) are produced by the seeder
-and ordered by ``position`` in the repo, so they are reproduced verbatim.
-``get_all_tips`` keeps assembling the merged list HERE (iterating the same
-country/city key order as before and attaching the presentation ``location``
-label) — the repo's ``all_tips`` is NOT used (its order is inverted and it
-carries no ``location``). The service is bound to the request session via
-``get_tip_service`` (no module-level singleton).
-"""
+"""Local-tips lookup over DB-backed seed data — country tips inherited by every city, city tips merged on top; unknown locations return an empty list, never a 404."""
 
 from typing import Annotated
 
@@ -52,16 +37,7 @@ class TipService:
     def _resolve_tips(
         self, scope: str, key: str, *, location_label: str | None = None
     ) -> list[Tip]:
-        """Fetch tips for one ``(scope, key)`` and attach the presentation label.
-
-        The repo returns tips ordered by ``position`` with stable ids; this sets the
-        optional ``location`` field used by the dashboard's mixed-destination view.
-
-        :param scope: The tip scope (``"country"`` or ``"city"``).
-        :param key: The country or city name to look up.
-        :param location_label: The presentation label to attach, if any.
-        :return: The tips for the location with the label applied.
-        """
+        """Fetch tips for one ``(scope, key)`` and attach the optional presentation ``location`` label."""
         tips = self._tip_repo.for_location(scope, key)
         if location_label is not None:
             for t in tips:
@@ -76,19 +52,7 @@ class TipService:
         category: str | None = None,
         essential_only: bool = False,
     ) -> TipsResponse:
-        """Return merged country + city tips for a destination.
-
-        Exactly one of ``city`` or ``country`` drives the lookup (city takes
-        precedence and resolves its own country). Both are matched fuzzily — a
-        typo or partial name still resolves. Caller is responsible for rejecting
-        the case where neither is provided.
-
-        :param city: The city to look up; takes precedence over ``country``.
-        :param country: The country to look up when no ``city`` is given.
-        :param category: Restrict tips to this category, if set.
-        :param essential_only: When true, return only essential tips.
-        :return: The merged tips response for the destination.
-        """
+        """Return merged country + city tips for a destination (city takes precedence and resolves its own country; both matched fuzzily)."""
         resolved_country: str | None = None
         resolved_city: str | None = None
         tips: list[Tip] = []
@@ -134,22 +98,7 @@ class TipService:
         category: str | None = None,
         essential_only: bool = False,
     ) -> TipsResponse:
-        """Return every tip across every country and city, with location set.
-
-        Used by the dashboard's "show me everything" landing view — the JSON API
-        keeps requiring a country or city, this just merges the same seed data
-        into one flat list. Each tip carries its ``location`` (``"Hanoi · Vietnam"``
-        for city scope, ``"Vietnam"`` for country scope) so the UI can label cards
-        when destinations are mixed.
-
-        The assembly stays in the service (not ``tip_repo.all_tips``) so the merge
-        order — every country first (alphabetical by name), then every city in seed
-        order — and the ``location`` labels match the previous behaviour exactly.
-
-        :param category: Restrict tips to this category, if set.
-        :param essential_only: When true, return only essential tips.
-        :return: The merged tips response across all destinations.
-        """
+        """Return every tip across every country and city, each carrying its ``location`` label (countries first alphabetically, then cities in seed order)."""
         tips: list[Tip] = []
 
         all_cities = self._city_repo.list_with_counts()
@@ -186,9 +135,5 @@ class TipService:
 def get_tip_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> TipService:
-    """FastAPI dependency: a tip service bound to the request session.
-
-    :param session: The request-scoped DB session.
-    :return: A tip service bound to the session.
-    """
+    """FastAPI dependency: a tip service bound to the request session."""
     return TipService(session)

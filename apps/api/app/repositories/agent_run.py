@@ -1,9 +1,4 @@
-"""Data-access for agent-run metrics (specs/agent-turn-metrics).
-
-ORM persistence only. Persistence is best-effort: ``finish`` on an unknown id
-logs a warning and returns rather than raising into the reply path. Rows carry
-aggregated token / cost / latency metrics only — no message text, tool args, or PII.
-"""
+"""Data-access for agent-run metrics. Persistence is best-effort — ``finish`` on an unknown id logs and returns rather than raising into the reply path. Rows carry aggregated metrics only, no message text or PII."""
 
 import logging
 from datetime import datetime
@@ -15,9 +10,7 @@ from app.repositories.base import Repo
 
 logger = logging.getLogger(__name__)
 
-#: Snapshot keys that map directly onto an ``agent_runs`` column in ``finish``.
-#: ``total_tokens`` is intentionally absent (derivable, not stored); any other
-#: unknown key is ignored.
+#: Keys mapped onto ``agent_runs`` columns in ``finish``; ``total_tokens`` is intentionally absent (derivable, not stored).
 _FINISH_METRIC_KEYS = (
     "llm_calls",
     "llm_errors",
@@ -30,12 +23,7 @@ _FINISH_METRIC_KEYS = (
     "by_node",
 )
 
-#: Columns of ``agent_run_steps`` an ``add_steps`` payload may set. Any other key
-#: in a step dict is ignored, so a caller can pass a superset without raising.
-
-# The handler already allowlists ``meta`` keys, but the content boundary is the
-# point of this table, so it is re-applied here: the boundary should not rest on
-# one caller staying disciplined.
+# Re-applied here even though the handler allowlists meta keys — the content boundary shouldn't rest on one caller staying disciplined.
 _META_KEYS = frozenset({"finish_reason"})
 
 
@@ -52,6 +40,7 @@ def _sanitised(step: dict) -> dict:
     elif meta is not None:
         out["meta"] = None
     return out
+
 
 _STEP_KEYS = frozenset(
     {
@@ -90,20 +79,7 @@ class AgentRunRepository(Repo):
         kind: str,
         started_at: str,
     ) -> None:
-        """Insert a fresh ``running`` row for a starting turn.
-
-        The ``id`` is minted by the router (never generated here) so the caller
-        can correlate the row with the in-flight turn before it finishes.
-
-        :param id: The router-minted run id (primary key).
-        :param user_id: The effective owner's id.
-        :param conversation_id: The conversation this turn belongs to.
-        :param thread_id: The LangGraph thread key.
-        :param trip_id: The associated trip id, if any.
-        :param channel: ``chat`` or ``stream``.
-        :param kind: ``turn`` or ``resume``.
-        :param started_at: ISO-8601 start timestamp.
-        """
+        """Insert a fresh ``running`` row; the ``id`` is router-minted so the caller can correlate the row with the in-flight turn."""
         row = models.AgentRun(
             id=id,
             user_id=user_id,
@@ -129,20 +105,7 @@ class AgentRunRepository(Repo):
         metrics: dict,
         prompt_versions: dict | None = None,
     ) -> None:
-        """Finalize a run: set terminal status and the accumulated metrics.
-
-        Maps the known snapshot keys of *metrics* onto columns; unknown keys
-        (e.g. ``total_tokens``) are ignored. A missing id is logged and skipped
-        so metric persistence never raises into the reply path.
-
-        :param id: The run id set at ``start``.
-        :param status: Terminal status (``completed`` / ``interrupted`` / ``failed``).
-        :param current_flow: The final flow, if any.
-        :param finished_at: ISO-8601 finish timestamp.
-        :param metrics: The turn's metric snapshot.
-        :param prompt_versions: Mapping of prompt name to the version the turn used;
-            ``None`` leaves the stored value unchanged.
-        """
+        """Finalize a run: set terminal status and metrics. Unknown metric keys are ignored; a missing id is logged and skipped so persistence never raises into the reply path."""
         with self._session() as s:
             row = s.get(models.AgentRun, id)
             if row is None:
@@ -159,16 +122,7 @@ class AgentRunRepository(Repo):
             self._commit(s)
 
     def add_steps(self, run_id: str, steps: list[dict]) -> None:
-        """Bulk-insert the per-step call chain of a run.
-
-        Unknown keys in a step dict are ignored (the same tolerance ``finish``
-        applies to its metric snapshot) and an empty list is a no-op. No
-        existence check on *run_id*: steps are supplementary, so a step write for
-        a missing run inserts orphan rows rather than raising into the reply path.
-
-        :param run_id: The run these steps belong to.
-        :param steps: Step payloads; keys outside the step columns are dropped.
-        """
+        """Bulk-insert a run's steps. Unknown keys are ignored and there is no existence check on *run_id* — a step write for a missing run inserts orphans rather than raising into the reply path."""
         if not steps:
             return
         rows = [
@@ -183,11 +137,6 @@ class AgentRunRepository(Repo):
             self._commit(s)
 
     def steps_for(self, run_id: str) -> list[models.AgentRunStep]:
-        """Return a run's steps in ``seq`` order.
-
-        :param run_id: The run whose steps to load.
-        :return: The run's ``AgentRunStep`` rows ordered by ``seq`` ascending.
-        """
         stmt = (
             select(models.AgentRunStep)
             .where(models.AgentRunStep.run_id == run_id)
@@ -197,13 +146,6 @@ class AgentRunRepository(Repo):
             return list(s.scalars(stmt).all())
 
     def add_background(self, id: str, *, llm_calls: int, tokens: int, ms: int) -> None:
-        """Increment the background metric columns after the response is sent.
-
-        :param id: The run id set at ``start``.
-        :param llm_calls: Background LLM calls to add.
-        :param tokens: Background tokens to add.
-        :param ms: Background wall-clock milliseconds to add.
-        """
         with self._session() as s:
             row = s.get(models.AgentRun, id)
             if row is None:
@@ -215,11 +157,6 @@ class AgentRunRepository(Repo):
             self._commit(s)
 
     def list_recent(self, limit: int = 100) -> list[models.AgentRun]:
-        """Return the most recent runs, newest first.
-
-        :param limit: Maximum number of rows to return.
-        :return: A list of ``AgentRun`` rows ordered newest-first.
-        """
         stmt = (
             select(models.AgentRun)
             .order_by(models.AgentRun.created_at.desc())
@@ -229,16 +166,7 @@ class AgentRunRepository(Repo):
             return list(s.scalars(stmt).all())
 
     def totals(self, since: datetime) -> dict:
-        """Aggregate turns, tokens, cost and latencies since *since*.
-
-        Filters on ``created_at`` (always populated) — ISO-8601 strings sort
-        chronologically, so a ``>=`` string comparison is a correct cutoff.
-
-        :param since: Only runs created at or after this instant are counted.
-        :return: ``{turns, tokens, cost, latencies}`` where ``tokens`` sums
-            input + output, ``cost`` sums non-null ``cost_usd``, and
-            ``latencies`` is the list of non-null ``latency_ms`` values.
-        """
+        """Aggregate turns, tokens, cost and latencies since *since* (ISO-8601 strings sort chronologically, so a ``>=`` string compare is a correct cutoff)."""
         cutoff = since.isoformat()
         stmt = select(
             models.AgentRun.input_tokens,
@@ -256,16 +184,7 @@ class AgentRunRepository(Repo):
         }
 
     def llm_steps_since(self, since: datetime) -> list[models.AgentRunStep]:
-        """Return ``llm`` steps created at or after *since*, oldest first.
-
-        Filters on ``kind == "llm"`` (tool and node steps carry no cache tokens)
-        and ``created_at`` using the same ISO-8601 string cutoff idiom as
-        ``totals`` — the timestamps sort chronologically, so a ``>=`` string
-        comparison is a correct cutoff.
-
-        :param since: Only steps created at or after this instant are returned.
-        :return: The matching ``AgentRunStep`` rows ordered by ``created_at``.
-        """
+        """Return ``llm`` steps created at or after *since*, oldest first (tool/node steps carry no cache tokens)."""
         cutoff = since.isoformat()
         stmt = (
             select(models.AgentRunStep)

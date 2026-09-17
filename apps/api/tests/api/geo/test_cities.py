@@ -104,7 +104,6 @@ def test_city_country_is_string(client):
         assert city["country"]
 
 
-# Pagination behaviour
 def test_cities_default_limit(client):
     body = client.get("/cities").json()
     assert body["limit"] == 20
@@ -120,10 +119,18 @@ def test_cities_custom_limit(client):
 
 def test_cities_offset_shifts_page(client):
     all_names = [c["name"] for c in _all_cities(client)]
-    p1 = [c["name"] for c in
-          client.get("/cities", params={"limit": 3, "offset": 0}).json()["results"]]
-    p2 = [c["name"] for c in
-          client.get("/cities", params={"limit": 3, "offset": 3}).json()["results"]]
+    p1 = [
+        c["name"]
+        for c in client.get("/cities", params={"limit": 3, "offset": 0}).json()[
+            "results"
+        ]
+    ]
+    p2 = [
+        c["name"]
+        for c in client.get("/cities", params={"limit": 3, "offset": 3}).json()[
+            "results"
+        ]
+    ]
     assert p1 == all_names[:3]
     assert p2 == all_names[3:6]
 
@@ -179,8 +186,7 @@ def test_cities_fuzzy_ranks_best_match_first(client):
 
 
 def test_cities_fuzzy_by_country(client):
-    # An exact country hit scores 1.0, so every Vietnamese city ranks ahead
-    # of any merely name-similar city from elsewhere.
+    # An exact country hit scores 1.0, so every Vietnamese city ranks ahead of name-similar cities.
     results = _all_cities(client, q="Vietnam")
     vietnam_count = sum(1 for c in results if c["country"] == "Vietnam")
     assert vietnam_count > 0
@@ -221,7 +227,6 @@ def test_all_cities_have_coordinates(client):
 
 
 def test_cities_country_filter_is_fuzzy(client):
-    # lowercase / fuzzy country still filters correctly
     cities = _all_cities(client, country="vietnam")
     assert len(cities) > 0
     assert all(c["country"] == "Vietnam" for c in cities)

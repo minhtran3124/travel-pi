@@ -1,20 +1,4 @@
-"""Static, country-keyed entry-requirement guidance (mock seed data).
-
-This is **general, illustrative guidance** — real visa rules depend on the
-traveller's nationality and change often. The API surfaces a ``disclaimer``
-on every response. Keyed by destination country, like ``tips.py``'s
-``COUNTRY_TIPS``; ``countries.py`` is the single source of truth for the
-country list and the guard at the bottom rejects any drift.
-
-Each record:
-  * ``visa_free_days``           — typical visa-free stay for many nationalities
-                                   (``0`` = a visa is generally required).
-  * ``visa_on_arrival``          — visa-on-arrival is commonly available.
-  * ``e_visa``                   — an online / e-visa option exists.
-  * ``passport_validity_months`` — months of validity typically required beyond
-                                   entry (``0`` = "valid for the duration of stay").
-  * ``summary``                  — one natural-language sentence the agent can quote.
-"""
+"""Illustrative (mock) entry-requirement guidance keyed by destination country; not real visa rules."""
 
 from app.data.countries import COUNTRIES
 
@@ -119,7 +103,6 @@ COUNTRY_VISA: dict[str, dict] = {
     },
 }
 
-# ── Import-time validation (fail loudly on drift, per the seed-data convention) ──
 _country_names = {c["name"] for c in COUNTRIES}
 _missing = _country_names - COUNTRY_VISA.keys()
 if _missing:

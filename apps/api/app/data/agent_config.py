@@ -1,10 +1,4 @@
-"""Single source of truth for the LLM node names seeded into ``agent_config``.
-
-Nodes are grouped for the config dashboard: the main supervisor, the domain
-sub-agents it delegates to, and the support nodes (memory / summarization /
-reflection). ``AGENT_CONFIG_NODES`` is *derived* from the groups so seeding and
-the UI share one source of truth.
-"""
+"""LLM node names seeded into ``agent_config``; ``AGENT_CONFIG_NODES`` is derived from the groups."""
 
 # (section title, one-line blurb, [node name, ...])
 AGENT_CONFIG_GROUPS: list[tuple[str, str, list[str]]] = [
@@ -35,10 +29,7 @@ AGENT_CONFIG_NODES: list[str] = [
     name for _title, _blurb, names in AGENT_CONFIG_GROUPS for name in names
 ]
 
-# One-line role description per node, shown on the config card so the grid reads
-# at a glance. Sourced from each node's active prompt (``app/prompts/<name>``).
-# Static metadata (like the group titles/blurbs above) — not a per-row DB
-# override, so it needs no migration and can't drift between agents.
+# Static metadata (not a per-row DB override, so no migration).
 AGENT_DESCRIPTIONS: dict[str, str] = {
     "supervisor": "Reads each turn and routes it to the right specialist.",
     "planner": "Builds and edits the traveller's itinerary and daily plan.",

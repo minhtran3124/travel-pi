@@ -1,26 +1,14 @@
-"""PII guardrail tests (specs/pii-middleware-guardrail, close-product-loop-s1-booking-ui).
-
-Covers the pure ``redact_pii`` function and the ``pii_guardrail_node`` in-place
-replacement. Scope is credit card only; names, phones, and email are asserted
-UNTOUCHED (names are owned by MIN-53's post-response extractor; email is no
-longer redacted — product decision, booking now offers/confirms the account
-email instead of asking blind, and needs the real address to reach the model).
-"""
+"""PII guardrail tests. Scope is credit card only; names, phones, and email are left untouched (email must reach the model for booking)."""
 
 from app.agents.guardrails import pii_guardrail_node, redact_pii
 from langchain_core.messages import AIMessage, HumanMessage
 
-# A Luhn-valid test card (Visa). "1111 1111 1111 1111" is Luhn-INVALID.
+# Luhn-valid test card; "1111 1111 1111 1111" is Luhn-invalid.
 VALID_CARD = "4111 1111 1111 1111"
 
 
-# ---------------------------------------------------------------------------
-# redact_pii — pure function
-# ---------------------------------------------------------------------------
-
-
 def test_does_not_redact_email():
-    # Product decision: email must survive so the model/booking tools see it.
+    # Email must survive so the model/booking tools see it.
     text = "reach me at john.doe@example.com please"
     assert redact_pii(text) == text
 
@@ -30,14 +18,12 @@ def test_masks_valid_card_keeping_last4():
 
 
 def test_leaves_non_luhn_number_untouched():
-    # 16 digits but not a valid card — must not be masked.
     text = "order 1111 1111 1111 1111 shipped"
     assert redact_pii(text) == text
 
 
 def test_masks_card_followed_by_expiry():
-    # Regression: trailing expiry digits used to inflate the run past Luhn and
-    # leak the whole card. The window search must still find + mask the card.
+    # Trailing expiry digits once inflated the run past Luhn and leaked the card.
     out = redact_pii(f"card {VALID_CARD} 08/25")
     assert VALID_CARD not in out
     assert "****-****-****-1111" in out
@@ -54,7 +40,7 @@ def test_masks_card_glued_to_letters():
 
 
 def test_does_not_redact_name():
-    # Names are captured by MIN-53's extractor; redacting would break it.
+    # Names are captured by the post-response extractor; redacting would break it.
     text = "My name is John Smith and I love Da Nang"
     assert redact_pii(text) == text
 
@@ -74,11 +60,6 @@ def test_email_survives_card_still_masked():
     assert "a@b.co" in out
     assert VALID_CARD not in out
     assert "****-****-****-1111" in out
-
-
-# ---------------------------------------------------------------------------
-# pii_guardrail_node — in-place replacement
-# ---------------------------------------------------------------------------
 
 
 def test_node_replaces_latest_human_in_place():
@@ -114,9 +95,7 @@ def test_node_noop_when_no_id():
 
 def test_node_noop_on_multimodal_content():
     # List (multimodal) content is out of scope; guard must no-op, not crash.
-    multimodal = HumanMessage(
-        content=[{"type": "text", "text": VALID_CARD}], id="m-1"
-    )
+    multimodal = HumanMessage(content=[{"type": "text", "text": VALID_CARD}], id="m-1")
     assert pii_guardrail_node({"messages": [multimodal]}) == {}
 
 

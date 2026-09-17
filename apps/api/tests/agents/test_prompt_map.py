@@ -1,6 +1,6 @@
-"""Prompt attribution map (specs/agent-run-trace-detail §4.2, SC-4).
+"""Prompt attribution map.
 
-The expected node-key set is DERIVED from the compiled graph rather than
+The expected node-key set is derived from the compiled graph rather than
 hardcoded, so adding or renaming a node fails these tests instead of silently
 producing steps with no attribution.
 """
@@ -30,14 +30,7 @@ def graph():
 
 
 def _derived_node_keys(graph) -> set[str]:
-    """Every ``_node_key`` the compiled graph can produce.
-
-    Top-level nodes key on their bare name; a node wrapping a compiled
-    sub-graph also produces ``"<node>/<inner>"`` for each of its inner nodes
-    (that is what ``_node_key`` renders from the checkpoint namespace).
-    LangGraph's own ``__``-prefixed nodes (``__start__``, error handlers) are
-    infrastructure, not agent steps, and are excluded.
-    """
+    """Every _node_key the compiled graph can produce; a node wrapping a sub-graph also yields "<node>/<inner>" keys, and __-prefixed infrastructure nodes are excluded."""
     keys: set[str] = set()
     inner_names: set[str] = set()
     for name, node in graph.nodes.items():

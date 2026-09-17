@@ -1,21 +1,4 @@
-"""File-backed, versioned prompt registry (specs/travel-agent Task 1.2).
-
-Prompts live in a per-name subdirectory holding one markdown file per version::
-
-    prompts/
-      planner/
-        v1.md
-        v2.md
-      booking/
-        v1.md
-
-``active.yaml`` declares which version is the production default per name. The
-registry walks the directory once at import, loads every version into memory,
-and ``get(name)`` returns the active version's text (override with ``version=``).
-
-Zero runtime DB; hot-reload via ``registry.reload()``. Pattern adapted from the
-chat-agents reference repo.
-"""
+"""File-backed, versioned prompt registry; loads all versions into memory at import, no runtime DB."""
 
 from __future__ import annotations
 
@@ -58,12 +41,7 @@ class PromptRegistry:
         )
 
     def get(self, name: str, version: int | None = None) -> str:
-        """Return prompt text. Defaults to the active version for ``name``.
-
-        :param name: The prompt name to look up.
-        :param version: Specific version to return; defaults to the active version.
-        :return: The prompt text.
-        """
+        """Return prompt text, defaulting to the active version for ``name``."""
         if name not in self._prompts:
             raise KeyError(f"Unknown prompt: {name!r}")
         versions = self._prompts[name]
@@ -80,21 +58,13 @@ class PromptRegistry:
         return sorted(self._prompts)
 
     def versions(self, name: str) -> list[int]:
-        """Return all known version numbers for ``name``, ascending.
-
-        :param name: The prompt name to look up.
-        :return: Sorted list of version numbers.
-        """
+        """Return all known version numbers for ``name``, ascending."""
         if name not in self._prompts:
             raise KeyError(f"Unknown prompt: {name!r}")
         return sorted(self._prompts[name])
 
     def active_version(self, name: str) -> int:
-        """Return the active version number for ``name``.
-
-        :param name: The prompt name to look up.
-        :return: The active version, or the newest version if none declared.
-        """
+        """Return the active version for ``name``, or the newest if none is declared."""
         if name not in self._prompts:
             raise KeyError(f"Unknown prompt: {name!r}")
         version = self._active.get(name)
@@ -103,5 +73,5 @@ class PromptRegistry:
         return version
 
 
-# Module-level singleton — import and call registry.get(...).
+# Module-level singleton.
 registry = PromptRegistry()

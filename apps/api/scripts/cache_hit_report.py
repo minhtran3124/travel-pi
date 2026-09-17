@@ -1,43 +1,19 @@
 #!/usr/bin/env python3
-"""Report OpenAI prompt-cache hit rates per node and model (specs/prompt-caching-system-prefix).
+"""Report OpenAI prompt-cache hit rates per node and model.
 
 Aggregates the ``llm`` steps in ``agent_run_steps`` into a per node-and-model
-table of cache hit rates (``cached_tokens`` / ``input_tokens``) so the caching
-work of specs/prompt-caching-system-prefix can be measured against a real
-database. An optional ``--min-ratio`` gates CI-style on the overall hit rate.
+hit-rate table; ``--min-ratio`` gates CI-style on the overall ratio.
 
-Exit codes:
-
-* ``0`` — the report ran; with ``--min-ratio`` the overall hit rate was at or
-  above the threshold, or no gate was requested.
-* ``1`` — measured: the overall hit rate is below ``--min-ratio``.
-* ``2`` — argparse usage error (e.g. a malformed ``--since``).
-* ``3`` — no LLM steps matched the window, so nothing could be measured. With
-  ``--min-ratio`` this fails closed (a gate that cannot measure must not pass);
-  the report never prints a 0.0% hit rate as if it were a measurement.
-
-The table reports two distinct miss measures, so an operator can tell a broad
-low hit rate apart from a few calls that cached nothing:
-
-* ``uncached`` — the number of input *tokens* not served from cache
-  (``input - cached``), summed over the group.
-* ``miss`` — the number of *calls* that read zero cached tokens
-  (``cached_tokens`` of 0 or ``None``). This is the signal for cache misses
-  clustering after idle gaps, which token totals alone cannot reveal.
-
-Run as a module from ``apps/api/`` so ``app`` is importable:
+Run as a module from ``apps/api/``::
 
     python -m scripts.cache_hit_report --since 7d
     python -m scripts.cache_hit_report --since 24h --node supervisor
     python -m scripts.cache_hit_report --since 7d --min-ratio 0.5
 
-The gate is on the *overall* ratio, never per node: nodes whose system prompts
-are under OpenAI's 1,024-token caching floor (``reflection``, ``synthesize``,
-``summarize``) legitimately report a 0% hit rate, so a per-node gate would fail
-on cache behaviour that is working as designed.
-
-Runs against ``settings.database_url`` (so respects DATABASE_URL / .env). No
-database password is read or printed by this script.
+Exit codes: 0 ran (or at/above threshold); 1 below ``--min-ratio``; 2 usage
+error; 3 nothing measured (fails closed under ``--min-ratio``). The gate is on
+the overall ratio, never per node — nodes under OpenAI's 1,024-token caching
+floor legitimately report 0%.
 """
 
 from __future__ import annotations
@@ -69,15 +45,7 @@ def _parse_since(value: str) -> timedelta:
 def build_report(rows) -> dict:
     """Aggregate ``llm`` step rows into per node-and-model hit-rate dicts.
 
-    Pure over *rows* (each needs ``node``, ``model``, ``input_tokens``,
-    ``cached_tokens``) so it is testable without a database.
-
-    :param rows: The ``AgentRunStep`` rows (or equivalents) to aggregate.
-    :return: ``{"rows": [...], "overall": float}`` where each row dict carries
-        ``node, model, calls, input, cached, uncached, miss_calls, ratio``.
-        ``uncached`` is the token delta ``input - cached``; ``miss_calls`` is
-        the count of calls that read zero cached tokens (``None`` treated as 0).
-        ``overall`` is total cached / total input across every row.
+    Pure over *rows* so it is testable without a database.
     """
     agg: dict[tuple[str | None, str | None], dict] = defaultdict(
         lambda: {"calls": 0, "input": 0, "cached": 0, "miss_calls": 0}
@@ -167,16 +135,15 @@ def main(argv: list[str] | None = None) -> int:
                 "nothing to measure."
             )
         else:
-            # Steps matched but none carried input tokens (e.g. closed by an LLM
-            # error or swept as unfinished), so a hit rate would be the 0.0
-            # no-input sentinel, not a measurement.
+            # Steps matched but none carried input tokens, so a hit rate would
+            # be the 0.0 no-input sentinel, not a measurement.
             calls = sum(r["calls"] for r in report["rows"])
             print(
                 f"{calls} LLM step(s) matched --since {args.since!r}{node_desc} "
                 "but none carried input tokens; nothing to measure."
             )
-        # Fail closed when a gate was requested: "no data" is distinct from
-        # "below threshold" (exit 1) and must not read as a passing measurement.
+        # Fail closed when a gate was requested: "no data" must not read as a
+        # passing measurement.
         return 3 if args.min_ratio is not None else 0
 
     _print_table(report)

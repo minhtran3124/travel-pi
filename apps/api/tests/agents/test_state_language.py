@@ -12,11 +12,7 @@ def test_state_language_absent_defaults_via_get():
     assert state.get("language", "en") == "en"
 
 
-# ---------------------------------------------------------------------------
-# with_reply_language: every sub-agent reply is pinned to the supervisor-detected
-# conversation language read from shared state (MIN-68 follow-up)
-# ---------------------------------------------------------------------------
-
+# with_reply_language pins every sub-agent reply to the language in shared state.
 _BASE = SystemMessage(content="style rules")
 
 

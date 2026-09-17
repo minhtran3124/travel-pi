@@ -1,10 +1,4 @@
-"""Data-access for the append-only feedback event log (specs/user-feedback-v1).
-
-ORM persistence only: rows are inserted and read, never updated or deleted
-here. Authorization, rateability and transition policy live in the feedback
-service; this tier folds the log into the effective read model (DESIGN §3.3)
-and recovers the ``(user_id, client_event_id)`` insert race (DESIGN §5.3).
-"""
+"""Data-access for the append-only feedback event log; authorization and policy live in the feedback service. This tier folds the log into the effective read model and recovers the ``(user_id, client_event_id)`` insert race."""
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -25,12 +19,7 @@ class FeedbackRepository(Repo):
     def find_by_client_event(
         self, *, user_id: str, client_event_id: str
     ) -> FeedbackEventRecord | None:
-        """Return the event stored for this actor's idempotency key, if any.
-
-        :param user_id: The effective actor.
-        :param client_event_id: The client-minted key of the logical action.
-        :return: The matching event, or ``None``.
-        """
+        """Return the event stored for this actor's idempotency key, if any."""
         stmt = select(models.FeedbackEvent).where(
             models.FeedbackEvent.user_id == user_id,
             models.FeedbackEvent.client_event_id == client_event_id,
@@ -56,16 +45,7 @@ class FeedbackRepository(Repo):
         locale: str | None = None,
         supersedes_event_id: str | None = None,
     ) -> tuple[FeedbackEventRecord, bool]:
-        """Insert one immutable event and return ``(event, inserted)``.
-
-        On the unique ``(user_id, client_event_id)`` race the insert is rolled
-        back to a savepoint (so a shared unit-of-work session stays usable) and
-        the winning row is returned with ``inserted=False``; the service
-        compares fingerprints to decide between replay and conflict.
-
-        :return: ``(inserted event, True)``, or ``(existing event for the same
-            key, False)`` when this call lost the insert race.
-        """
+        """Insert one immutable event and return ``(event, inserted)``; on the unique ``(user_id, client_event_id)`` race, roll back to a savepoint and return the winner with ``inserted=False``."""
         row = models.FeedbackEvent(
             user_id=user_id,
             conversation_id=conversation_id,
@@ -99,15 +79,7 @@ class FeedbackRepository(Repo):
     def effective_for(
         self, message_ids: list[str]
     ) -> dict[str, EffectiveFeedback | None]:
-        """Fold the log of each message into its effective state (DESIGN §3.3).
-
-        One query for all ids; the fold runs in Python ordered by
-        ``(created_at, id)``. Every requested id is present in the result,
-        ``None`` when the message has no active rating.
-
-        :param message_ids: Assistant message ids to fold.
-        :return: ``{message_id: EffectiveFeedback | None}``.
-        """
+        """Fold each message's log into its effective state in one query; every requested id is present, ``None`` when it has no active rating."""
         result: dict[str, EffectiveFeedback | None] = dict.fromkeys(message_ids)
         if not message_ids:
             return result
@@ -132,7 +104,7 @@ class FeedbackRepository(Repo):
 def _fold(
     state: EffectiveFeedback | None, event: models.FeedbackEvent
 ) -> EffectiveFeedback | None:
-    """Apply one event to the running effective state (DESIGN §3.3 rules 2–4)."""
+    """Apply one event to the running effective state."""
     if event.action == FeedbackAction.SET_RATING.value:
         return EffectiveFeedback(
             rating=VALUE_TO_RATING[event.rating],
@@ -144,8 +116,7 @@ def _fold(
     # add_detail enriches only an active negative rating; anything else is stale.
     if state is None or state.rating != VALUE_TO_RATING[FeedbackRating.NOT_HELPFUL]:
         return state
-    # Rebuild through validation (not ``model_copy``) so ``reason_code`` is
-    # always a ``FeedbackReasonCode`` member, never the raw column string.
+    # Rebuild through validation (not model_copy) so reason_code is always a FeedbackReasonCode, never the raw column string.
     reason_code = (
         _reason_code(event.reason_code)
         if event.reason_code is not None
@@ -162,12 +133,7 @@ def _fold(
 
 
 def _reason_code(raw: str) -> FeedbackReasonCode:
-    """Coerce a stored ``reason_code`` column value to the enum.
-
-    The log is append-only, so a code retired from ``FeedbackReasonCode`` can
-    still sit in old rows; it folds to the catch-all ``OTHER`` rather than
-    crashing the read model.
-    """
+    """Coerce a stored ``reason_code`` to the enum; a code retired from ``FeedbackReasonCode`` folds to ``OTHER`` rather than crashing the read model."""
     try:
         return FeedbackReasonCode(raw)
     except ValueError:

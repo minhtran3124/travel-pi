@@ -1,23 +1,8 @@
-"""Hotel-search intent routing tests (specs/min-51-hotel-search-intent Task 3.2).
+"""Hotel-search intent routing tests.
 
-Verifies that:
-- A hotel-search-style message routed to the concierge sub-agent completes
-  without a plan-approval interrupt (only booking triggers HITL).
-- A booking-intent message still interrupts as before (regression guard).
-- The concierge sub-agent can actually call ``browse_hotels`` (the dateless
-  catalog browse) and get back a ``kind="hotels"`` panel artifact.
-- (#147) The concierge sub-agent now also holds ``search_hotels`` (the dated
-  availability check) alongside ``browse_hotels``, and still has no
-  ``book_hotel``; a dated concierge turn calls ``search_hotels`` and gets
-  back a dated ``kind="hotels"`` panel (``nights > 0``), without pausing for
-  plan approval.
-
-FakeLLM-driven graph tests bypass prompt CONTENT for routing (supervisor
-intent is injected via ``structured_responses``), so (a)/(b)/(d) validate the
-STRUCTURAL wiring (routing target -> interrupt-or-not, tool binding -> tool
-call -> artifact shape), never the model's own tool choice — whether the
-model actually picks ``search_hotels`` over ``browse_hotels`` for a dated
-turn can only be proven by the eval.
+FakeLLM injects supervisor intent, so these validate structural wiring (routing
+target, tool binding, artifact shape) — not the model's own tool choice, which
+only the eval can prove.
 """
 
 from app.agents.graph import build_graph
