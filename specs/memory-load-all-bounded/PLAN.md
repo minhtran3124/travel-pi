@@ -52,6 +52,9 @@ design cap.
 | SC-5 | Episodic recall still returns a valid episode sitting past 3 poisoned ones | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_recall_past_trips_valid_episode_past_poisoned_window_survives -q` | exit 0 |
 | SC-6 | The three changed modules lint clean | `.venv/bin/ruff check apps/api/app/memory/store.py apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | exit 0 |
 | SC-7 | The preferences block in `load_context_node` is no longer sliced after the `PROFILE_KEYS` exclusion | `grep -n "PROFILE_KEYS\]\[:" apps/api/app/agents/nodes.py` | exit 1 — no match |
+| SC-8 | 250 stored instructions are all returned by `get_instructions`, each exactly once, in store order (more than two pages) | `.venv/bin/python -m pytest apps/api/tests/memory/test_search_all.py -q` | exit 0 |
+| SC-9 | No `READ_ALL_LIMIT` constant remains anywhere in the app | `grep -rn "READ_ALL_LIMIT" apps/api/app` | exit 1 — no match |
+| SC-10 | `load_context_node` passes no `limit=` to any memory read | `grep -n "limit=" apps/api/app/agents/nodes.py` | exit 1 — no match |
 
 ## 4. Tasks
 
@@ -102,11 +105,41 @@ design cap.
 - **Criteria:** SC-3, SC-4, SC-5, SC-6
 - **Interfaces:** Consumes `READ_ALL_LIMIT` (Task 1.1). Produces the updated `apps/api/app/tools/memory_tools.py`.
 
+### Task 3.1 — page through the store instead of passing a limit (wave 3)
+
+- **Files:** apps/api/app/memory/store.py, apps/api/app/agents/nodes.py, apps/api/app/tools/memory_tools.py, apps/api/tests/memory/test_search_all.py, apps/api/tests/memory/test_structured_namespaces.py
+- **Action:** Owner decision mid-execution: a `limit` at the read sites confuses reviewers — remove
+  it. `BaseStore.search` needs an integer `limit`, so read everything by paging. First write
+  `tests/memory/test_search_all.py`: seed 250 instructions via raw `store.put` (keys `k000..k249`,
+  text `note {i}`) on an in-memory store from `get_store("sqlite:///:memory:")`, assert
+  `get_instructions(store, uid)` returns 250 items whose texts equal the seeded list in order; a
+  second test does the same for `search_preferences` with 120 rows; a third asserts
+  `search_memory_typed(store, uid, MemoryKind.PREFERENCES)` with no limit returns 12 of 12 seeded
+  rows and that `MemoryKind.EPISODES` with no limit still returns 3 of 5. Run and confirm they
+  fail. Then in `store.py`: add `_PAGE_SIZE = 100` and `_search_all(store, namespace, *, query=None)`
+  looping `store.search(..., limit=_PAGE_SIZE, offset=offset)` until a page is shorter than
+  `_PAGE_SIZE`; remove the `limit` parameter from `get_instructions` and `search_preferences` and
+  have them use `_search_all`; in `search_memory` and `search_memory_typed`, when `limit is None`
+  and the kind is not `EPISODES`, use `_search_all`, otherwise keep the existing limited search
+  (explicit `limit` still honored; episodes default stays 3); replace `_DEFAULT_SEARCH_LIMITS` with
+  `_EPISODE_DEFAULT_LIMIT = 3`; delete `READ_ALL_LIMIT`. In `nodes.py` and `memory_tools.py` drop
+  the `READ_ALL_LIMIT` import and the `limit=` argument at the three call sites. In
+  `test_structured_namespaces.py` replace `test_search_memory_default_limits_per_kind` with a test
+  of the same name asserting `_EPISODE_DEFAULT_LIMIT == 3`.
+- **Verify:** `.venv/bin/python -m pytest apps/api/tests/memory apps/api/tests/agents/test_load_context_memory_guard.py apps/api/tests/tools/test_memory_tools.py -q`
+- **Done:** Verify exits 0; the SC-8 command exits 0; the SC-9 and SC-10 greps exit 1; the SC-1,
+  SC-2, SC-3, SC-5 node-id commands exit 0; the SC-6 ruff command exits 0;
+  `grep -c "limit=" apps/api/app/tools/memory_tools.py` prints 1.
+- **Criteria:** SC-8, SC-9, SC-10
+- **Interfaces:** Consumes `READ_ALL_LIMIT` call sites (Tasks 1.1, 2.1). Produces `_search_all` in `apps/api/app/memory/store.py`.
+
 ## 5. Risks
 
-- **A production user with >50 legacy rows in one namespace** loses the oldest silently — the
-  failure shape that exists today at 10/8/5, moved to 50. Production counts are `unknown`
-  (never queried); dev max is 4 instructions / 5 preferences per user.
+- **Unbounded legacy rows** (revised with Task 3.1): nothing falls off any more, so a user with
+  very many pre-guard rows gets a proportionally long prompt block. Production counts are
+  `unknown` (never queried); dev max is 4 instructions / 5 preferences per user.
+- **Pagination loop** ends on the first page shorter than `_PAGE_SIZE`; a store that ignores
+  `offset` and always returns a full page would not terminate. Both langgraph stores honor it.
 - **Prompt size:** worst case for allowlisted rows is ≈300 tokens (instructions) + ≈500 tokens
   (preferences) per turn; legacy rows add to that until someone cleans them, which this spec does
   not do.
@@ -125,3 +158,6 @@ design cap.
   would also match the in-scope-untouched episodes line; SC-1/2/3 already fail on any reintroduced cap.
 - 2026-09-17 — task 1.1 complete; commits 9d1c623f, e4b3f604 (review: spec pass / quality approved, 3 Minor — 2 fixed, 1 resolved).
 - 2026-09-17 — task 2.1 complete; commit f5a738f9 (review: spec pass / quality approved, 2 Minor recorded).
+- 2026-09-17 — owner, mid final-review: remove `limit` from the read sites entirely ("gây confuse cho ng review").
+  `BaseStore.search` requires an int limit, so owner chose pagination. Six in-flight FIND reviewers stopped
+  (stale diff). Added Task 3.1 + SC-8..SC-10; `READ_ALL_LIMIT` is superseded.

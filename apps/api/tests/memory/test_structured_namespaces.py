@@ -166,9 +166,7 @@ def test_search_memory_typed_returns_typed_objects():
 
 
 def test_search_memory_default_limits_per_kind():
-    """When limit is None, per-kind defaults apply (prefs=5, procedural=10, episodes=3)."""
-    from app.memory.store import _DEFAULT_SEARCH_LIMITS, MemoryKind
+    """Only episodes keep a default recall limit; prefs/instructions return every row."""
+    from app.memory.store import _EPISODE_DEFAULT_LIMIT
 
-    assert _DEFAULT_SEARCH_LIMITS[MemoryKind.PREFERENCES] == 5
-    assert _DEFAULT_SEARCH_LIMITS[MemoryKind.PROCEDURAL] == 10
-    assert _DEFAULT_SEARCH_LIMITS[MemoryKind.EPISODES] == 3
+    assert _EPISODE_DEFAULT_LIMIT == 3

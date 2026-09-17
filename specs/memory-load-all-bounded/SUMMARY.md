@@ -35,6 +35,16 @@ Then, asked how to narrow the hard-gated cleanup script:
 
 > Bỏ script khỏi scope (Recommended)
 
+Mid-execution (tasks 1.1 and 2.1 done, final review running), on seeing `limit=READ_ALL_LIMIT`:
+
+> nếu thực sự bỏ cap 20 thì nên remove cái limit này luôn, đừng đưa vào code, gây confuse cho ng review.
+
+The assistant reported that `BaseStore.search` requires an integer `limit` (default 10; `None`
+crashes), so "no limit" is only reachable by paginating, and offered two implementations. The
+owner chose:
+
+> Phân trang đọc hết (Recommended)
+
 ### Hard-gate narrowing
 
 | Question | Decision | Consequence |
@@ -50,9 +60,12 @@ Production was not queried — `unknown`.
 
 **In scope**
 
-- `load_context_node`: read all instructions and all preferences — a technical ceiling of
-  `limit=50` (the store API requires a limit), no post-guard cap. `PROFILE_KEYS` exclusion stays.
-- `get_user_preferences` tool: same — `limit=50`, no `[:5]` cap.
+- `load_context_node`: read all instructions and all preferences, no post-guard cap.
+  `PROFILE_KEYS` exclusion stays.
+- `get_user_preferences` tool: same, no `[:5]` cap.
+- **Revised 2026-09-17 (owner, mid-execution):** no `limit` at any of these call sites. The store
+  helpers page through `store.search` with `offset` until a short page, so nothing is capped and
+  nothing can fall off silently. Supersedes the first cut's `READ_ALL_LIMIT = 50`.
 - Tests: replace the over-read/cap assertions with the bound that now does the work — what is
   injected is limited by the write allowlist, not by a read window.
 
@@ -124,9 +137,11 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 
 ### Not auto-verified
 
-- Production legacy-row counts were never queried; `limit=50` is assumed ample from dev data only.
-  If a production user holds >50 legacy rows in one namespace, the oldest silently fall off —
-  the same failure shape as today, at a 5× higher threshold.
+- Production legacy-row counts were never queried. With pagination nothing falls off, but a user
+  with very many legacy rows would get a proportionally long prompt block; dev max is 4 / 5.
+- Pagination against `PostgresStore` was not executed — tests run on `InMemoryStore`. Reached
+  provenance only: langgraph 1.2.6 `postgres/base.py` emits `LIMIT %s OFFSET %s` from
+  `op.limit` / `op.offset` for both the plain and the vector query.
 
 ### Rollback
 

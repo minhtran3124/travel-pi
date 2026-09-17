@@ -22,7 +22,6 @@ from app.agents.state import TravelAgentState, with_reply_language
 from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
-    READ_ALL_LIMIT,
     MemoryKind,
     get_instructions,
     get_profile,
@@ -87,7 +86,7 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     if user_id and store is not None:
         # Read all guard-survivor instructions; the write allowlist bounds the rows.
         try:
-            instrs = get_instructions(store, user_id, limit=READ_ALL_LIMIT)
+            instrs = get_instructions(store, user_id)
             if instrs:
                 result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))
@@ -111,9 +110,7 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
 
         # search_memory_typed keeps p.key (search_preferences drops it); PROFILE_KEYS go in profile.
         try:
-            prefs = search_memory_typed(
-                store, user_id, MemoryKind.PREFERENCES, limit=READ_ALL_LIMIT
-            )
+            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES)
             non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
             if non_profile:
                 result["preferences"] = "\n".join(

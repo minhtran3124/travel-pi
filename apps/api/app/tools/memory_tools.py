@@ -11,12 +11,7 @@ from langgraph.store.base import BaseStore
 from pydantic import ConfigDict, Field
 
 from app.memory.guard import PREFERENCE_KEYS, MemoryRejected
-from app.memory.store import (
-    READ_ALL_LIMIT,
-    search_episodes,
-    search_preferences,
-    upsert_preference,
-)
+from app.memory.store import search_episodes, search_preferences, upsert_preference
 from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
@@ -119,7 +114,7 @@ def get_user_preferences(
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
     # Read all rows; the write allowlist already bounds preferences.
-    return search_preferences(store, user_id, query=query, limit=READ_ALL_LIMIT)
+    return search_preferences(store, user_id, query=query)
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
