@@ -250,13 +250,12 @@ def get_instructions(
 def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single episodic memory — a past-trip outcome.
 
-    <<<<<<< HEAD
-        :param store: Long-term store to write to.
-        :param user_id: Owning user's id.
-        :param key: Episode key within the user's episodes namespace (the trip id).
-        :param value: JSON-serializable episode payload.
-        :raises MemoryRejected: when the key breaks the slug shape rule or the text
-            is empty, over-length or blocklisted (``city`` is normalized too).
+    :param store: Long-term store to write to.
+    :param user_id: Owning user's id.
+    :param key: Episode key within the user's episodes namespace (the trip id).
+    :param value: JSON-serializable episode payload.
+    :raises MemoryRejected: when the key breaks the slug shape rule or the text
+        is empty, over-length or blocklisted (``city`` is normalized too).
 
     Key-addressed (overwrite, not append); the natural key is ``trip_id`` so
     re-extracting a trip is idempotent.
