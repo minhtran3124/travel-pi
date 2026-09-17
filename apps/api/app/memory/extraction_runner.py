@@ -17,10 +17,41 @@ from sqlalchemy.orm import sessionmaker
 
 from app.agents.metrics import TurnMetricsHandler
 from app.memory.extractor import extract_memories
+from app.memory.guard import MemoryRejected, normalize_episode_key
 from app.memory.store import upsert_episode, upsert_instruction, upsert_preference
 from app.repositories.agent_run import AgentRunRepository
 
 logger = logging.getLogger(__name__)
+
+# A per-item write can fail two ways: a deliberate MemoryRejected (poisoned/
+# invalid content) or a malformed item from untrusted extractor JSON (non-str
+# key/text) tripping a plain TypeError/AttributeError/KeyError/ValueError.
+# Both are caught per-item so one bad item never drops its siblings (§3.3).
+_REJECT_EXCS = (MemoryRejected, TypeError, AttributeError, KeyError, ValueError)
+
+
+def _safe_key(item: object) -> object | None:
+    """Best-effort ``key`` lookup for a reject log line (item may be a non-dict)."""
+    try:
+        return item.get("key")  # type: ignore[attr-defined]
+    except AttributeError:
+        return None
+
+
+def _log_rejected(kind: str, key: object, exc: Exception) -> None:
+    """Log one skipped extractor item — never the memory text, just kind/key/reason."""
+    if isinstance(exc, MemoryRejected):
+        logger.warning(
+            "memory_rejected kind=%s key=%s reason=%s", kind, key, exc.reason
+        )
+    else:
+        logger.warning(
+            "memory_rejected kind=%s key=%s reason=%s",
+            kind,
+            key,
+            f"malformed:{type(exc).__name__}",
+            exc_info=True,
+        )
 
 
 def run_memory_extraction(
@@ -58,7 +89,11 @@ def run_memory_extraction(
             messages, llm, callbacks=[handler] if handler else None
         )
         for pref in extracted.preferences:
-            upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            try:
+                upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            except _REJECT_EXCS as exc:
+                _log_rejected("preferences", _safe_key(pref), exc)
+                continue
             logger.info(
                 "[agent] extract_memory saved preference user=%s key=%s text=%r",
                 user_id,
@@ -66,7 +101,13 @@ def run_memory_extraction(
                 pref["text"],
             )
         for instr in extracted.instructions:
-            upsert_instruction(store, user_id, instr["key"], {"text": instr["text"]})
+            try:
+                upsert_instruction(
+                    store, user_id, instr["key"], {"text": instr["text"]}
+                )
+            except _REJECT_EXCS as exc:
+                _log_rejected("instructions", _safe_key(instr), exc)
+                continue
             logger.info(
                 "[agent] extract_memory saved instruction user=%s key=%s text=%r",
                 user_id,
@@ -76,19 +117,29 @@ def run_memory_extraction(
         # A turn that passed the plan-approval gate records outcome="approved";
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
-            key = ep.get("key") or trip_id or "episode"
-            outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
-            upsert_episode(
-                store,
-                user_id,
-                key,
-                {
-                    "text": ep["text"],
-                    "trip_id": trip_id,
-                    "city": ep.get("city"),
-                    "outcome": outcome,
-                },
-            )
+            # key stays inside the try: a non-dict ep or non-str key can raise
+            # here too, and must be caught per-item like the upsert itself.
+            key = None
+            try:
+                key = ep.get("key") or trip_id or "episode"
+                key = normalize_episode_key(key, trip_id)
+                outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
+                upsert_episode(
+                    store,
+                    user_id,
+                    key,
+                    {
+                        "text": ep["text"],
+                        "trip_id": trip_id,
+                        "city": ep.get("city"),
+                        "outcome": outcome,
+                    },
+                )
+            except _REJECT_EXCS as exc:
+                _log_rejected(
+                    "episodes", key if key is not None else _safe_key(ep), exc
+                )
+                continue
             logger.info(
                 "[agent] extract_memory saved episode user=%s key=%s city=%s "
                 "outcome=%s text=%r",

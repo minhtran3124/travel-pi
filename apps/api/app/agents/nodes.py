@@ -84,8 +84,12 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
+        # Over-read (limit=20) then cap to 10 AFTER the guard's read-side drop,
+        # so poisoned/legacy rows can't crowd out valid ones near the pre-guard
+        # limit (memory-poisoning-hardening §3.4; same pattern below and in
+        # memory_tools.py).
         try:
-            instrs = get_instructions(store, user_id)
+            instrs = get_instructions(store, user_id, limit=20)[:10]
             if instrs:
                 result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))
@@ -113,9 +117,14 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         # above. search_memory_typed (not search_preferences) is used because it
         # preserves each preference's store key, needed both to filter and to
         # format the "- {key}: {value}" lines below.
+        #
+        # Same over-read-then-cap pattern as above (limit=16, cap 8, applied after
+        # both the guard's drop and the PROFILE_KEYS exclusion).
         try:
-            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
-            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
+            prefs = search_memory_typed(
+                store, user_id, MemoryKind.PREFERENCES, limit=16
+            )
+            non_profile = [p for p in prefs if p.key not in PROFILE_KEYS][:8]
             if non_profile:
                 result["preferences"] = "\n".join(
                     f"- {p.key}: {p.text}" for p in non_profile

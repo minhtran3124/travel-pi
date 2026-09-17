@@ -11,7 +11,7 @@ def test_instructions_reach_system_prompt():
     from langgraph.checkpoint.memory import MemorySaver
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u_inst", "currency", {"text": "always show EUR"})
+    upsert_instruction(store, "u_inst", "price_display", {"text": "always show EUR"})
 
     captured: dict = {}
 
@@ -100,8 +100,8 @@ def test_multiple_instructions_reach_system_prompt():
     from langgraph.checkpoint.memory import MemorySaver
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u_multi", "currency", {"text": "always show EUR"})
-    upsert_instruction(store, "u_multi", "greeting", {"text": "address as Captain"})
+    upsert_instruction(store, "u_multi", "price_display", {"text": "always show EUR"})
+    upsert_instruction(store, "u_multi", "address_as", {"text": "address as Captain"})
 
     captured: dict = {}
 

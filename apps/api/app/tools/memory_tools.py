@@ -3,19 +3,41 @@ schema, so the LLM can never address another traveller's memory."""
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState, InjectedStore
 from langgraph.store.base import BaseStore
 from pydantic import ConfigDict, Field
 
+from app.memory.guard import PREFERENCE_KEYS, MemoryRejected
 from app.memory.store import search_episodes, search_preferences, upsert_preference
 from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
-# Each args_schema must DECLARE the injected user_id/store: ToolNode derives injection targets from
-# the schema, so omitting one breaks injection. They stay stripped from the model-facing schema.
+# Closed enum of the canonical preference keys. Defined as a module-level alias
+# (evaluated eagerly, unlike the string annotations produced by
+# ``from __future__ import annotations``) so pydantic can resolve the forward ref
+# from module globals when it builds ``SaveUserPreferenceArgs``.
+# ``Literal[<tuple>]`` expands the tuple to one literal per member, identical to
+# ``Literal[*PREFERENCE_KEYS]`` but without the star-in-subscript syntax that
+# ruff's Python 3.10 target rejects.
+PreferenceKey = Literal[PREFERENCE_KEYS]
+
+# Model-facing description for the constrained preference key — lists the closed
+# allowlist so the LLM picks a canonical key instead of inventing one that the
+# guard would reject after the call (specs/memory-poisoning-hardening §3.3).
+_PREFERENCE_KEY_DESC = (
+    "Preference key to store under. Must be one of the allowed keys: "
+    + ", ".join(PREFERENCE_KEYS)
+    + "."
+)
+
+# NOTE: these tools take ``user_id``/``store`` as LangGraph-injected args
+# (InjectedState/InjectedStore). Each explicit ``args_schema`` DECLARES them:
+# ToolNode derives injection targets from the schema, so an injected param left
+# out of it is never injected ("missing required positional arguments"). Declared,
+# they are still stripped from the model-facing ``tool_call_schema``.
 
 
 class _MemoryInjectedArgs(AppBaseModel):
@@ -32,7 +54,7 @@ class _MemoryInjectedArgs(AppBaseModel):
 
 
 class SaveUserPreferenceArgs(_MemoryInjectedArgs):
-    key: str = Field(..., description="Preference key/name to store under.")
+    key: PreferenceKey = Field(..., description=_PREFERENCE_KEY_DESC)
     text: str = Field(..., description="Free-text preference value.")
 
 
@@ -46,24 +68,31 @@ class RecallPastTripsArgs(_MemoryInjectedArgs):
 
 @tool(args_schema=SaveUserPreferenceArgs)
 def save_user_preference(
-    key: Annotated[str, Field(description="Preference key/name to store under.")],
+    key: Annotated[PreferenceKey, Field(description=_PREFERENCE_KEY_DESC)],
     text: Annotated[str, Field(description="Free-text preference value.")],
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
 ) -> str:
     """Remember a traveller preference for future trips (e.g. diet, airline, pace).
 
-    :param key: Preference key/name to store under.
+    :param key: Preference key to store under; must be one of the canonical
+        allowlist keys (an unknown key fails schema validation before the call).
     :param text: Free-text preference value.
     :param user_id: The traveller's id, injected from graph state (not model-supplied).
     :param store: The cross-session memory store, injected by LangGraph (not
         model-supplied).
-    :return: Confirmation message.
+    :return: Confirmation message, or a rejection message if the content guard
+        (blocklist / length) refuses the value.
     """
     log_tool_call(
         "save_user_preference", {"key": key, "text": text, "user_id": user_id}
     )
-    upsert_preference(store, user_id, key, {"text": text})
+    try:
+        upsert_preference(store, user_id, key, {"text": text})
+    except MemoryRejected as exc:
+        # Content rejection (blocklist / length) — surface a plain message rather
+        # than a raw exception (specs/memory-poisoning-hardening §3.3).
+        return f"Could not save preference '{key}': {exc.reason}."
     return f"Saved preference '{key}'."
 
 
@@ -84,7 +113,10 @@ def get_user_preferences(
     :return: Matching saved preferences.
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
-    return search_preferences(store, user_id, query=query)
+    # Over-read then cap after the guard's drop, same pattern as load_context_node
+    # (app/agents/nodes.py) — keeps poisoned/legacy rows from crowding out valid
+    # ones (memory-poisoning-hardening §3.4).
+    return search_preferences(store, user_id, query=query, limit=10)[:5]
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
@@ -108,7 +140,9 @@ def recall_past_trips(
     :return: Matching past-trip episodes.
     """
     log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
-    return search_episodes(store, user_id, query=query)
+    # Same over-read-then-cap pattern as get_user_preferences above; the model
+    # still sees at most 3 episodes, as before.
+    return search_episodes(store, user_id, query=query, limit=6)[:3]
 
 
 # Episodic-recall tool, bound to the planner (gated by AgentContext.allow_episodic).

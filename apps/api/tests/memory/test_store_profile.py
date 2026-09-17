@@ -1,4 +1,9 @@
-from app.memory.store import get_profile, get_store, upsert_preference
+from app.memory.store import (
+    _prefs_namespace,
+    get_profile,
+    get_store,
+    upsert_preference,
+)
 
 
 def test_get_profile_returns_reserved_keys_in_order():
@@ -25,7 +30,9 @@ def test_get_profile_returns_reserved_keys_in_order():
 def test_get_profile_omits_missing_and_blank():
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u2", "name", {"text": "Lan"})
-    upsert_preference(store, "u2", "gender", {"text": "   "})  # blank -> omit
+    # The write guard now rejects empty text, so a blank row can only pre-exist
+    # as a legacy row — seed it raw to exercise get_profile's read-side omission.
+    store.put(_prefs_namespace("u2"), "gender", {"text": "   "})  # blank -> omit
     assert get_profile(store, "u2") == {"name": "Lan"}
 
 
@@ -38,8 +45,10 @@ def test_get_profile_skips_non_string_text_without_dropping_others():
     """A non-string text on one reserved key must not poison the others."""
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u3", "name", {"text": "Minh"})
-    upsert_preference(
-        store, "u3", "travel_group", {"text": ["solo", "couple"]}
+    # Non-string text is not writable through the guard; seed it raw so the read
+    # path proves it skips the malformed row without dropping the others.
+    store.put(
+        _prefs_namespace("u3"), "travel_group", {"text": ["solo", "couple"]}
     )  # bad type
     # name survives; the malformed travel_group is skipped, not fatal
     assert get_profile(store, "u3") == {"name": "Minh"}
