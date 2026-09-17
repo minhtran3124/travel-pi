@@ -11,7 +11,12 @@ from langgraph.store.base import BaseStore
 from pydantic import ConfigDict, Field
 
 from app.memory.guard import PREFERENCE_KEYS, MemoryRejected
-from app.memory.store import search_episodes, search_preferences, upsert_preference
+from app.memory.store import (
+    READ_ALL_LIMIT,
+    search_episodes,
+    search_preferences,
+    upsert_preference,
+)
 from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
 
@@ -113,10 +118,8 @@ def get_user_preferences(
     :return: Matching saved preferences.
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
-    # Over-read then cap after the guard's drop, same pattern as load_context_node
-    # (app/agents/nodes.py) — keeps poisoned/legacy rows from crowding out valid
-    # ones (memory-poisoning-hardening §3.4).
-    return search_preferences(store, user_id, query=query, limit=10)[:5]
+    # Read all rows; the write allowlist already bounds preferences.
+    return search_preferences(store, user_id, query=query, limit=READ_ALL_LIMIT)
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
@@ -140,8 +143,7 @@ def recall_past_trips(
     :return: Matching past-trip episodes.
     """
     log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
-    # Same over-read-then-cap pattern as get_user_preferences above; the model
-    # still sees at most 3 episodes, as before.
+    # Read 6 and keep 3 after the guard drops poisoned/legacy episodes.
     return search_episodes(store, user_id, query=query, limit=6)[:3]
 
 

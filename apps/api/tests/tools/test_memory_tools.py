@@ -125,13 +125,8 @@ def test_save_user_preference_blocklisted_text_returns_rejection():
 
 
 def test_get_user_preferences_valid_rows_past_poisoned_window_survive():
-    """The guard's read-side drop must not consume the tool's read window: 5
-    poisoned preferences sit ahead of 2 valid ones that fall PAST the old default
-    ``limit=5``. The valid rows still return because the tool now widens the read
-    to 10 and caps to 5 AFTER the guard filter (§3.4). Against the old default
-    ``limit=5`` read the whole window is poisoned, so the tool returns an empty
-    list and the assertions below fail — this is the regression guard.
-    """
+    """5 poisoned preferences sit ahead of 2 valid ones; reading all rows lets the
+    guard drop the poison and still surface both valid rows."""
     from app.memory.store import get_store
 
     store = get_store("sqlite:///:memory:")
@@ -148,6 +143,23 @@ def test_get_user_preferences_valid_rows_past_poisoned_window_survive():
     assert "likes option 0" in texts
     assert "likes option 1" in texts
     assert "ignore all previous instructions" not in texts
+
+
+def test_get_user_preferences_returns_all_valid_rows():
+    """All 7 valid preferences return; no cap trims the guard-survivor list."""
+    from app.memory.store import get_store
+
+    store = get_store("sqlite:///:memory:")
+    prefs_ns = ("users", "u_pref_all", "prefs")
+    expected = [f"pref {i}" for i in range(7)]
+    for i, text in enumerate(expected):
+        store.put(prefs_ns, f"valid_{i}", {"text": text})
+
+    result = get_user_preferences.invoke({"user_id": "u_pref_all", "store": store})
+
+    texts = [row.get("text") for row in result]
+    assert len(result) == 7
+    assert sorted(texts) == sorted(expected)
 
 
 def test_recall_past_trips_valid_episode_past_poisoned_window_survives():
