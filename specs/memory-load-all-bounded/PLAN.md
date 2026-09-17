@@ -1,6 +1,6 @@
 ---
 slug: memory-load-all-bounded
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-17
 ---
@@ -164,4 +164,5 @@ design cap.
 - 2026-09-17 — task 3.1 complete; commit 42ff7ae3 (review: spec pass / quality approved, 2 Minor — fixed in ed5b1937).
 - 2026-09-17 — correctness review: 6/6 angles found a paging hang on queried reads; fixed ed5b1937, re-review "fix holds";
   follow-up latent finding fixed 3969416f. Three advisories recorded in SUMMARY.md.
+- 2026-09-17 — intent review: 1 material drift (invisible default top-k) fixed 427536c1 by owner decision; receipt pinned at 427536c1. Shipped to PR.
 

@@ -85,7 +85,7 @@ preference instead of over-reading a 2× window and slicing to 10 / 8 / 5 — an
 no `limit` at all. `BaseStore.search` has no unlimited mode, so `app/memory/store.py` pages through
 it (`_read_all`: offset paging, rows told apart by namespace + key, stops on a short page or a page
 with nothing new). A read that carries a semantic `query` is a top-k search and is never paged — it
-uses the store's own default limit. Episodes are untouched (`recall_past_trips` keeps 6 → 3;
+returns the top `_SEMANTIC_TOP_K` (10) matches. Episodes are untouched (`recall_past_trips` keeps 6 → 3;
 default recall stays 3). The read guard and the `PROFILE_KEYS` exclusion are unchanged.
 
 ### Rationale
@@ -128,14 +128,14 @@ legacy rows can exceed that, and the dev DB shows single digits. Reading everyth
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | baseline before change (intake) | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py apps/api/tests/tools/test_memory_tools.py -q` | 0 | 19 passed on `baf46eea` (main with #214), run from repo root | |
-| SC-1 12 instructions reach the prompt | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_all_valid_instructions_reach_prompt_without_cap -q` | 0 | at 3969416f | SC-1 |
-| SC-2 10 valid preferences, no poison/profile | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected -q` | 0 | at 3969416f | SC-2 |
-| SC-3 tool returns all 7 | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_get_user_preferences_returns_all_valid_rows -q` | 0 | at 3969416f | SC-3 |
+| SC-1 12 instructions reach the prompt | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_all_valid_instructions_reach_prompt_without_cap -q` | 0 | at 427536c1 | SC-1 |
+| SC-2 10 valid preferences, no poison/profile | `.venv/bin/python -m pytest apps/api/tests/agents/test_load_context_memory_guard.py::test_ten_valid_six_poisoned_three_profile_preferences_all_valid_injected -q` | 0 | at 427536c1 | SC-2 |
+| SC-3 tool returns all 7 | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_get_user_preferences_returns_all_valid_rows -q` | 0 | at 427536c1 | SC-3 |
 | SC-4 no `limit=NN)[:` left | `grep -nE "limit=[12][0-9]\)\[:" apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 1 | exit 1 = no match (expected) | SC-4 |
-| SC-5 episodic recall unchanged | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_recall_past_trips_valid_episode_past_poisoned_window_survives -q` | 0 | at 3969416f | SC-5 |
-| SC-6 lint | `.venv/bin/ruff check apps/api/app/memory/store.py apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 0 | at 3969416f | SC-6 |
+| SC-5 episodic recall unchanged | `.venv/bin/python -m pytest apps/api/tests/tools/test_memory_tools.py::test_recall_past_trips_valid_episode_past_poisoned_window_survives -q` | 0 | at 427536c1 | SC-5 |
+| SC-6 lint | `.venv/bin/ruff check apps/api/app/memory/store.py apps/api/app/agents/nodes.py apps/api/app/tools/memory_tools.py` | 0 | at 427536c1 | SC-6 |
 | SC-7 preferences not sliced | `grep -n "PROFILE_KEYS\]\[:" apps/api/app/agents/nodes.py` | 1 | exit 1 = no match (expected) | SC-7 |
-| SC-8 paged read returns every row once | `.venv/bin/python -m pytest apps/api/tests/memory/test_search_all.py -q` | 0 | 6 tests at 3969416f, incl. the hang reproduction | SC-8 |
+| SC-8 paged read returns every row once | `.venv/bin/python -m pytest apps/api/tests/memory/test_search_all.py -q` | 0 | 6 tests at 427536c1, incl. the hang reproduction | SC-8 |
 | SC-9 no `READ_ALL_LIMIT` | `grep -rn "READ_ALL_LIMIT" apps/api/app` | 1 | exit 1 = no match (expected) | SC-9 |
 | SC-10 no `limit=` in load_context | `grep -n "limit=" apps/api/app/agents/nodes.py` | 1 | exit 1 = no match (expected) | SC-10 |
 
@@ -163,12 +163,26 @@ regardless of score, so threshold routing was moot. An adversarial re-review of 
 | --- | --- | --- |
 | Queried read through the paging loop never terminated / returned duplicates on `InMemoryStore` (langgraph ignores `offset` for unembedded rows) | P0–P1 | **fixed** `ed5b1937` — a queried read is never paged; unqueried paging dedupes and stops on a page with nothing new |
 | Queried read on `PostgresStore` silently capped at ~201 candidates while claiming "every row" | P2 | **fixed** `ed5b1937` — queried reads are top-k by contract; docstrings say so |
-| `get_user_preferences(query=…)` returned all rows merely re-ranked | P2 | **fixed** `ed5b1937` — queried reads return the store's top matches (≤10; was ≤5 before this branch) |
+| `get_user_preferences(query=…)` returned all rows merely re-ranked | P2 | **fixed** `ed5b1937` — queried reads return the top `_SEMANTIC_TOP_K` (10) matches; was ≤5 before this branch |
 | Dedupe keyed on `key` only, but `store.search` matches a namespace prefix | P3 latent | **fixed** `3969416f` — keyed on `(namespace, key)`, with a test |
 | Legacy (pre-allowlist) rows are no longer capped in the prompt or the tool result | P2, Rule 4 | **advisory — owner decision**, see `### Intent` and PLAN §5; comment wording corrected (the allowlist bounds new writes only) |
 | Unqueried multi-page read is not atomic: a write landing between pages can skip a boundary row; ≥100 concurrent inserts could end the read early | P3 | **advisory** — only reachable above 100 rows in one user namespace (dev max: 5); duplicates are removed by the dedupe |
 | Tool wording "Optional free-text filter" / "Matching saved preferences" overstates a top-k search | P3 | **advisory** — pre-existing (top-k always filled before this branch too); model-facing text left unchanged |
 | Task 3.1 per-task review, 2 Minor (test name overstated; missing return annotations) | Minor | **fixed** `ed5b1937` |
+
+### Intent Findings
+
+Plan-blind intent review on `34fe8ddd` (oracle: `### Intent` verbatim + SC table + Verify table).
+No gap: the read the owner pointed at is `get_instructions(store, user_id)` with no `limit=` in `nodes.py`.
+
+| # | Class | Finding | Outcome |
+| --- | --- | --- | --- |
+| 1 | drift — material | The queried read called `store.search(namespace, query=query)`, silently inheriting langgraph's default `limit=10` — a cap invisible in the code, against "remove cái limit này luôn … gây confuse cho ng review" | **fixed** `427536c1` by owner decision (2026-09-17): a named `_SEMANTIC_TOP_K = 10` inside `store.py`; call sites still carry no number. Behavior unchanged |
+| 2 | drift — equivalent | `_PAGE_SIZE = 100` exists in `store.py` | **advisory** — a page stride, not a result cap; it is the pagination the owner chose |
+| 3 | excess | Preferences were uncapped too, and the public `search_memory` / `search_memory_typed` now default to unbounded for preferences and instructions, while the owner's words say "instructions" | **advisory, report-only** — the owner agreed ("có") to a sketch covering preferences; the dispatcher default follows from removing `limit` at the `load_context` preferences call site. No app caller of `search_memory` exists (`grep -rn "search_memory(" apps/api/app apps/api/eval apps/api/scripts`) |
+
+Reviewer's caveat kept on record: SC-4's regex cannot observe the queried path; nothing in the SC
+table pins `_SEMANTIC_TOP_K`. `test_query_read_terminates_when_rows_have_no_embedding` does.
 
 ### Harness-Delta
 
