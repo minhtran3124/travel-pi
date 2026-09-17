@@ -39,25 +39,40 @@ def test_typed_search_updated_at_none_for_legacy_record():
     assert prefs[0].updated_at is None
 
 
-def test_typed_search_carries_updated_at_all_kinds():
-    """updated_at rides through the typed dataclass for all three kinds."""
+def test_typed_search_carries_updated_at_for_prompt_kinds():
+    """updated_at rides through the typed dataclass for the two kinds the prompt renders.
+
+    Episodes are excluded on purpose: the read guard limits an episode payload to
+    text/city/outcome/trip_id (memory-poisoning-hardening §3.1), and no prompt block
+    renders an episode age — see :func:`test_typed_search_omits_updated_at_for_episodes`.
+    """
     from app.memory.store import (
         get_store,
         search_memory_typed,
-        upsert_episode,
         upsert_instruction,
         upsert_preference,
     )
 
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u", "diet", {"text": "veg"})
-    upsert_instruction(store, "u", "cur", {"text": "EUR"})
-    upsert_episode(store, "u", "t1", {"text": "Da Nang", "city": "Da Nang"})
+    upsert_instruction(store, "u", "price_display", {"text": "EUR"})
 
-    for kind in ("prefs", "procedural", "episodes"):
+    for kind in ("prefs", "procedural"):
         rows = search_memory_typed(store, "u", kind)
         assert rows[0].updated_at is not None
         datetime.fromisoformat(rows[0].updated_at)
+
+
+def test_typed_search_omits_updated_at_for_episodes():
+    """An episode carries no updated_at: the guard's payload limit wins over the marker."""
+    from app.memory.store import get_store, search_memory_typed, upsert_episode
+
+    store = get_store("sqlite:///:memory:")
+    upsert_episode(store, "u", "t1", {"text": "Da Nang", "city": "Da Nang"})
+
+    episodes = search_memory_typed(store, "u", "episodes")
+    assert len(episodes) == 1
+    assert episodes[0].updated_at is None
 
 
 # --- format_age -------------------------------------------------------------

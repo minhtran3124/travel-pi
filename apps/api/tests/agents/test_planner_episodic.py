@@ -1,4 +1,4 @@
-"""Task 2.4 — Planner episodic recall integration + gating (specs/agent-memory-layers P2)."""
+"""Planner episodic recall integration + gating."""
 
 from langchain_core.messages import AIMessage, HumanMessage
 
@@ -13,7 +13,6 @@ def _build_planner_graph(store):
     main = FakeLLM(
         structured_responses=[SupervisorIntent(target_agent="planner")] * 4,
         responses=[
-            # planner assistant: emit a recall_past_trips tool call
             AIMessage(
                 content="",
                 tool_calls=[
@@ -24,7 +23,6 @@ def _build_planner_graph(store):
                     }
                 ],
             ),
-            # planner assistant: final answer after the tool returns
             "Based on your past trips, I suggest a relaxed beach itinerary.",
         ],
     )
@@ -38,7 +36,6 @@ def _build_planner_graph(store):
 
 
 def test_planner_recalls_seeded_episode():
-    """A seeded episode is returned by recall_past_trips during a planner turn."""
     from app.memory.store import upsert_episode
     from langgraph.store.memory import InMemoryStore
 
@@ -58,14 +55,12 @@ def test_planner_recalls_seeded_episode():
         },
         {"configurable": {"thread_id": "t_plan"}},
     )
-    # The tool call was executed and its result is in the messages.
     messages = result["messages"]
     tool_msgs = [m for m in messages if m.__class__.__name__ == "ToolMessage"]
     assert any("Da Nang slow beach trip" in str(m.content) for m in tool_msgs)
 
 
 def test_planner_empty_user_no_episode():
-    """A user with no episodes: recall returns [] and the planner proceeds."""
     from langgraph.store.memory import InMemoryStore
 
     store = InMemoryStore()
@@ -80,8 +75,7 @@ def test_planner_empty_user_no_episode():
     )
     messages = result["messages"]
     tool_msgs = [m for m in messages if m.__class__.__name__ == "ToolMessage"]
-    # The recall tool was still called (planner prompt instructs it), but returned
-    # an empty list (serialized as "[]" or similar empty representation).
+    # Recall is still called but returns an empty list.
     assert tool_msgs, "expected at least one ToolMessage from the recall call"
     assert any("[]" in str(m.content) or m.content == "[]" for m in tool_msgs), (
         f"expected an empty-list tool result, got: {[str(m.content) for m in tool_msgs]}"
@@ -89,11 +83,7 @@ def test_planner_empty_user_no_episode():
 
 
 def _build_tool_spy_subagent():
-    """Build a planner subagent whose bound tool names are captured.
-
-    Returns ``(subgraph, bind_calls, restore)`` where ``restore`` resets the
-    patched ``bind_tools`` (call it in a ``finally``).
-    """
+    """Build a planner subagent capturing bound tool names; ``restore`` resets the patched ``bind_tools``."""
     from app.agents.subagents._base import build_subagent
     from app.clients.llm import FakeLLM
     from app.prompts.registry import registry
@@ -122,7 +112,6 @@ def _build_tool_spy_subagent():
 
 
 def test_allow_episodic_false_strips_recall_tool():
-    """When allow_episodic=False, recall_past_trips is filtered from the planner's tools."""
     from app.agents.context import AgentContext
 
     subgraph, bind_calls, restore = _build_tool_spy_subagent()
@@ -138,7 +127,6 @@ def test_allow_episodic_false_strips_recall_tool():
 
 
 def test_allow_episodic_true_keeps_recall_tool():
-    """When allow_episodic=True (default), recall_past_trips IS bound to the planner."""
     from app.agents.context import AgentContext
 
     subgraph, bind_calls, restore = _build_tool_spy_subagent()

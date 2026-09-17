@@ -1,10 +1,4 @@
-"""Trip itinerary schemas — a freeform, day-by-day plan and its items.
-
-Trips are the second mutable state in the API (alongside bookings): a user or
-agent assembles a day-by-day plan of places, activities, meals, transport legs,
-and notes. This is standalone planning storage — items are freeform and are
-*not* linked to bookings or validated against the place catalog.
-"""
+"""Trip itinerary schemas — freeform day-by-day plans; items are not linked to bookings or validated against the catalog."""
 
 from datetime import date, datetime
 from typing import Annotated
@@ -106,12 +100,7 @@ class TripCreate(AppBaseModel):
 
 
 class TripUpdate(AppBaseModel):
-    """Request body for replacing a trip's top-level fields.
-
-    PUT semantics: every top-level field is replaced. Omitted optional fields
-    reset to their defaults. Items are managed via the item sub-resource
-    endpoints, not here.
-    """
+    """Request body for replacing a trip's top-level fields (PUT: omitted optional fields reset to defaults; items managed separately)."""
 
     title: str = Field(min_length=1, max_length=200)
     city: str | None = Field(default=None, max_length=120)
@@ -335,8 +324,7 @@ class TripBudget(AppBaseModel):
 
 
 class TripBudgetSet(AppBaseModel):
-    """Request body for POST /trips/{id}/budget. Replace semantics: every POST
-    fully replaces the trip's caps — omitted/None categories become uncapped."""
+    """Request body for POST /trips/{id}/budget. Replace semantics: omitted/None categories become uncapped."""
 
     flights: float | None = Field(default=None, ge=0, description="Flights cap (USD).")
     hotels: float | None = Field(default=None, ge=0, description="Hotels cap (USD).")

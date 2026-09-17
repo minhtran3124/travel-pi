@@ -1,10 +1,5 @@
-"""Flight search tools (specs/travel-agent Task 3.3).
-
-Wrap ``FlightService`` as an LLM tool. Opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent
-can self-correct.  Flights are deterministic — same route + date = same 5
-flights — so the agent can reference a specific flight across turns.
-"""
+"""Flight search tools wrapping ``FlightService``; flights are deterministic (same route + date = same
+5 flights), so the agent can reference a specific flight across turns."""
 
 from __future__ import annotations
 
@@ -35,13 +30,8 @@ from app.tools._ranking import rank_by_preference
 
 
 def _flight_keyword_features(flight) -> list[tuple[list[str], str]]:
-    """Preference-matchable features for one flight search result (DESIGN.md D7).
-
-    Time-of-day boundary: "morning" matches a 05:00–11:59 departure, "evening"
-    matches 18:00–23:59 — the two ranges travellers most commonly mean by those
-    words. Midday and red-eye (00:00–04:59) departures are left unboosted
-    (v1 trade-off, boost-only so it never hides a flight that doesn't match).
-    """
+    """Preference-matchable features for one flight: "morning" is a 05:00–11:59 departure and "evening"
+    18:00–23:59; midday and red-eye are left unboosted (boost-only never hides a non-matching flight)."""
     features: list[tuple[list[str], str]] = [
         ([flight.airline.name, flight.airline.code], flight.airline.name)
     ]
@@ -154,10 +144,7 @@ def search_flights(
             "tool on the traveller's original date expression to get a concrete "
             "date — only ask the traveller if resolve_date reports it ambiguous."
         ) from e
-    # 1-day grace: `today` is computed in the server's configured zone, but the
-    # traveller's date was resolved against their own timezone (in the prompt), so
-    # the two "todays" can differ by up to a day. Tolerate that skew rather than
-    # reject a date the traveller correctly considers today/future.
+    # 1-day grace for timezone skew: server `today` and the traveller's `today` can differ by a day.
     if parsed_date < today - timedelta(days=1):
         raise ToolException(
             f"departure_date {departure_date} is in the past (today is "
@@ -214,8 +201,7 @@ def search_flights(
                     "do not invent flights.",
                     None,
                 )
-            # Preference boost layers on top of the requested `sort`, stably —
-            # the caller's chosen order is kept as the tiebreaker.
+            # Preference boost layers stably on top of `sort`, keeping it as the tiebreaker.
             results, matched_reasons = rank_by_preference(
                 results, preferences, keyword_fn=_flight_keyword_features
             )
@@ -225,9 +211,7 @@ def search_flights(
 
             return_results = None
             if return_date is not None:
-                # Mirrors the REST layer's round-trip pattern (routers/flights.py):
-                # a second, independent search on the swapped leg — never a fare
-                # derived from the outbound search.
+                # A second independent search on the swapped leg — never a fare derived from the outbound.
                 return_results = FlightService(s).search_flights(
                     destination,
                     origin,
@@ -414,8 +398,7 @@ def book_flight(
         then created unattached, not refused.
     :return: The confirmed Booking with id, confirmation_code, status, total_price.
     """
-    # Log only the non-PII flight identifiers, not passenger name/email/phone
-    # (guidelines: never log sensitive data).
+    # Log only non-PII flight identifiers, never passenger name/email/phone.
     log_tool_call(
         "book_flight",
         {
@@ -433,21 +416,9 @@ def book_flight(
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
         )
-    # Replay-safety within one traveller turn: a revise loop re-runs this tool
-    # with the same thread + last HumanMessage, so the same key replays the
-    # first booking instead of creating a duplicate (gh-193). Injected plumbing
-    # (user_id/trip_id/messages/config) is stripped from the hash by the helper.
-    # `allow_duplicate` is deliberately OUT of the idempotency args: the key
-    # identifies the booking content, so including the override would let a
-    # same-turn revise re-run with a flipped flag mint a second row when the
-    # first call already succeeded. That key exclusion only stops a *committed*
-    # duplicate, though — a blocked duplicate raises before inserting, leaving no
-    # row to replay, so a same-turn re-run with allow_duplicate=true could slip a
-    # second booking through without the traveller confirming. Guard that per
-    # booking id (gh-200): `warned` is the set of booking ids flagged as
-    # duplicates this turn, so we force the duplicate check back on whenever any
-    # warning stands and honour the override only for a booking that was NOT
-    # flagged (a bare legacy marker flags every booking of this tool).
+    # Idempotency key replays the first booking on a same-turn revise; allow_duplicate is kept OUT of it
+    # so a flipped flag can't mint a second row. But a blocked duplicate leaves no row to replay, so
+    # `warned` (booking ids flagged this turn) forces the duplicate check back on for any flagged booking.
     warned = duplicate_warned_ids_this_turn("book_flight", messages)
     idempotency_key = turn_idempotency_key(
         "book_flight",
@@ -500,10 +471,8 @@ def book_flight(
                     ) from e
                 if not allow_duplicate:
                     raise tool_error(e) from e
-                # The warning was about a *different* booking, so the traveller's
-                # override stands. Re-book without the duplicate check on the same
-                # BookingService/session, so the gh-198 per-owner advisory lock the
-                # first attempt took is still held for this insert.
+                # Warning was about a different booking, so the override stands. Re-book on the same
+                # service/session so the per-owner advisory lock from the first attempt is still held.
                 result = service.book_flight(
                     request,
                     user_id=user_id,
@@ -517,8 +486,7 @@ def book_flight(
             raise ToolException(str(e)) from e
 
 
-# Planner's flight search (no reservation power — booking owns the money tools).
+# Planner gets search only; booking owns the reservation tool.
 FLIGHT_SEARCH_TOOLS = [search_flights]
 FLIGHT_BOOKING_TOOLS = [book_flight]
-# Booking's search + the actual reservation.
 FLIGHT_TOOLS = FLIGHT_SEARCH_TOOLS + FLIGHT_BOOKING_TOOLS

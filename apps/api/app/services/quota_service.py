@@ -1,13 +1,4 @@
-"""Quota guard — daily turn limit for the free tier (specs/runtime-context-config D4).
-
-This is a router-level precondition, NOT part of AgentContext. It runs before the
-graph is invoked. Premium users bypass the check entirely (unlimited). Free users
-are counted against today's UTC-day turn budget; hitting the limit raises
-``QuotaExceededError`` → HTTP 429.
-
-Counting uses existing data: ``messages`` rows with ``role="user"`` joined to
-``conversations.user_id`` via ``conversation_id``. No new table required.
-"""
+"""Quota guard — daily turn limit for the free tier; a router-level precondition (not part of AgentContext) that runs before the graph is invoked."""
 
 import logging
 from datetime import datetime, timezone
@@ -26,12 +17,7 @@ def check_quota(
     tier: Tier,
     repo: ConversationRepository,
 ) -> None:
-    """Raise ``QuotaExceededError`` (429) when a free user exceeds today's limit.
-
-    :param user_id: The authenticated user's id.
-    :param tier: BE-resolved tier (``Tier.FREE`` or ``Tier.PREMIUM``).
-    :param repo: A ``ConversationRepository`` bound to the current session.
-    """
+    """Raise ``QuotaExceededError`` (429) when a free user exceeds today's UTC-day turn limit."""
     if tier == Tier.PREMIUM:
         return  # unlimited
 

@@ -1,28 +1,37 @@
-"""Feedback abuse limit on ``POST /agent/feedback`` — Task 3.2 (SC-7).
-
-The ``feedback_rate_limit_max + 1``-th request in one window from one subject is
-``429`` with ``Retry-After``; an ``anon:`` subject and an authenticated subject
-count separately; a ``404``-rejected request still increments the counter (the
-limiter commits on its own transaction before the request unit of work).
-"""
+"""Feedback abuse limit on ``POST /agent/feedback``: a 404-rejected request still increments the counter (the limiter commits on its own transaction before the request unit of work)."""
 
 from __future__ import annotations
 
+import time
 import uuid
+from types import SimpleNamespace
 
 import pytest
+from app.core import rate_limit as rate_limit_module
 from app.core.config import get_settings
 from fastapi.testclient import TestClient
 from test_feedback import ANON, OWNER, body, make_app, post, seed_message
 
 LIMIT = 2
+WINDOW = 60
 
 
 @pytest.fixture(autouse=True)
 def _small_limit(monkeypatch):
     settings = get_settings()
     monkeypatch.setattr(settings, "feedback_rate_limit_max", LIMIT)
-    monkeypatch.setattr(settings, "feedback_rate_limit_window_seconds", 60)
+    monkeypatch.setattr(settings, "feedback_rate_limit_window_seconds", WINDOW)
+    # Freeze the limiter's clock mid-window. The counter is a FIXED window
+    # aligned to the wall clock (``now - now % window`` in
+    # ``RateLimitRepository.hit``), so a test whose requests straddle a window
+    # boundary sees the count reset and gets 201 where it asserts 429 — exactly
+    # how ``test_rejected_404_requests_still_count`` failed in CI run
+    # 35053539992 (two hits at 03:56:59, the third at 03:57:00). Patch only the
+    # limiter module's ``time`` binding, never the global clock.
+    frozen = (int(time.time()) // WINDOW) * WINDOW + WINDOW // 2
+    monkeypatch.setattr(
+        rate_limit_module, "time", SimpleNamespace(time=lambda: float(frozen))
+    )
 
 
 def _assert_429(resp):
@@ -54,13 +63,12 @@ def test_anonymous_and_authenticated_subjects_count_separately(tmp_path):
         for _ in range(LIMIT):
             assert post(authed, body(mid_owner)).status_code == 201
         _assert_429(post(authed, body(mid_owner)))
-        # A body-supplied id equal to the authenticated id must not share the
-        # exhausted counter: it is namespaced ``anon:<id>``.
+        # A body-supplied id equal to the authenticated id is namespaced
+        # ``anon:<id>`` and must not share the exhausted counter.
         r = post(anon, body(mid_anon, anonymous_user_id=OWNER))
-        assert r.status_code == 404  # not the owner, but the limit let it through
+        assert r.status_code == 404
         r = post(anon, body(mid_anon, anonymous_user_id=ANON))
         assert r.status_code == 201
-        # And the anon subject has its own budget, now with one hit spent.
         assert post(anon, body(mid_anon, anonymous_user_id=ANON)).status_code == 201
         _assert_429(post(anon, body(mid_anon, anonymous_user_id=ANON)))
 

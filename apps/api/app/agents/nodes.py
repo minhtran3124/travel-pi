@@ -1,16 +1,4 @@
-"""Cross-cutting graph nodes (specs/travel-agent Task 5.3).
-
-- ``load_context_node``: injects the current trip snapshot as context + procedural
-  instructions from the store.
-- ``make_summarize_node``: compresses long histories (sliding window).
-- ``make_reflection_node``: bounded self-correction — critiques the last answer
-  and loops back to the active sub-agent once if it judges it inadequate.
-- ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
-
-Post-turn memory extraction no longer runs in-graph — see
-``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
-background task after the response is sent.
-"""
+"""Cross-cutting graph nodes: context loading, summarization, reflection, and HITL plan approval."""
 
 from __future__ import annotations
 
@@ -116,9 +104,9 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
-        # search_memory_typed (not get_instructions) so each instruction carries its
-        # updated_at, which format_age turns into the recorded-age marker below —
-        # matching how the preferences block already reads the typed API.
+        # Every guard-surviving instruction; the allowlist bounds new writes, not legacy
+        # rows. Typed (not get_instructions) so each row carries its updated_at, which
+        # _with_age renders as the recorded-age marker.
         try:
             instrs = search_memory_typed(store, user_id, MemoryKind.PROCEDURAL)
             if instrs:
@@ -144,14 +132,9 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
 
-        # Best-effort: recency-ordered full-read of traveller preferences (MIN-65
-        # DESIGN D2 — bounded full-read beats semantic search at this store size),
-        # excluding PROFILE_KEYS since those already surface via the profile block
-        # above. search_memory_typed (not search_preferences) is used because it
-        # preserves each preference's store key, needed both to filter and to
-        # format the "- {key}: {value}" lines below.
+        # search_memory_typed keeps p.key (search_preferences drops it); PROFILE_KEYS go in profile.
         try:
-            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
+            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES)
             non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
             if non_profile:
                 result["preferences"] = "\n".join(

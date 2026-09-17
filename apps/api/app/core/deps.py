@@ -1,11 +1,4 @@
-"""Shared FastAPI dependencies for the agent layer (specs/travel-agent Task 1.1).
-
-``get_llm_client`` is the seam the agent router resolves a chat model through.
-Following the project's DI convention (``app.db.session.get_session``), callers
-take it via ``Depends`` and tests swap it with ``app.dependency_overrides`` — a
-``FakeLLM`` in tests — instead of binding a module-level singleton. This avoids
-the singleton/test-isolation footgun the di-session refactor removed elsewhere.
-"""
+"""Shared FastAPI dependency for resolving the agent's chat model, overridable in tests via ``app.dependency_overrides`` (a ``FakeLLM``) instead of a module-level singleton."""
 
 from __future__ import annotations
 

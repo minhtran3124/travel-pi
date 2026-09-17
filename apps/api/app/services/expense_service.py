@@ -30,11 +30,7 @@ def _money(value: float, places: int = 2) -> float:
 
 class ExpenseService:
     def __init__(self, session: Session, user_id: str) -> None:
-        """Bind the store to one owner (#118).
-
-        :param session: The request-scoped DB session.
-        :param user_id: The caller who owns the trips this instance may touch.
-        """
+        """Bind the store to one owner."""
         self._repo = ExpenseRepository(session)
         self._trip_repo = TripRepository(session)
         self._fx = FxRepository(session)
@@ -42,11 +38,7 @@ class ExpenseService:
         self._user_id = user_id
 
     def _validate_trip(self, trip_id: str) -> None:
-        """Reject a trip that is missing OR not the caller's (#118).
-
-        Both answer ``NotFoundError`` — an expense route must not become an
-        oracle for whether a guessed trip id exists.
-        """
+        """Missing or not-owned both raise ``NotFoundError`` so the route can't confirm a guessed id."""
         trip = self._trip_repo.get_trip(trip_id, self._user_id)
         if trip is None:
             raise NotFoundError(f"Trip {trip_id!r} not found.")
@@ -193,16 +185,7 @@ def get_expense_service(
     session: Annotated[Session, Depends(get_session)],
     auth_user: Annotated[AuthUser, Depends(get_current_user)],
 ) -> ExpenseService:
-    """FastAPI dependency: an expense store bound to the session AND caller.
-
-    Expenses are reached through their trip, so scoping the trip scopes them —
-    but only if the owner actually reaches ``TripService`` (#118). Required auth
-    here for the same reason as the trip routes: there was none before.
-
-    :param session: The request-scoped DB session.
-    :param auth_user: The authenticated caller.
-    :return: An ``ExpenseService`` bound to the session and caller.
-    """
+    """FastAPI dependency: an expense store bound to the session and caller."""
     return ExpenseService(session, auth_user.id)
 
 

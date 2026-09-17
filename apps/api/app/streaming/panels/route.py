@@ -8,14 +8,7 @@ from app.streaming.panels.base import PanelSpec, register_panel
 
 
 def _gmaps_dir_url(o_lat: float, o_lng: float, d_lat: float, d_lng: float) -> str:
-    """Keyless Google Maps directions deep-link (no API key required).
-
-    :param o_lat: Origin latitude.
-    :param o_lng: Origin longitude.
-    :param d_lat: Destination latitude.
-    :param d_lng: Destination longitude.
-    :return: The Google Maps directions URL.
-    """
+    """Keyless Google Maps directions deep-link (no API key required)."""
     return (
         "https://www.google.com/maps/dir/?api=1"
         f"&origin={o_lat},{o_lng}&destination={d_lat},{d_lng}"
@@ -35,8 +28,6 @@ class RoutePanelLeg(AppBaseModel):
 
 
 class RoutePanel(AppBaseModel):
-    """``data`` payload for a ``kind="route"`` panel — the map drawer's model."""
-
     origin: RoutePanelEndpoint
     destination: RoutePanelEndpoint
     recommended_mode: str
@@ -48,11 +39,7 @@ class RoutePanel(AppBaseModel):
 
     @classmethod
     def from_route_response(cls, r: RouteResponse) -> RoutePanel:
-        """Project a service ``RouteResponse`` into the route panel render model.
-
-        :param r: The service route response to project.
-        :return: The route panel render model.
-        """
+        """Project a service ``RouteResponse`` into the route panel model."""
         return cls(
             origin=RoutePanelEndpoint(
                 name=r.origin.name, lat=r.origin.latitude, lng=r.origin.longitude

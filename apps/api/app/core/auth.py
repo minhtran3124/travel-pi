@@ -1,12 +1,4 @@
-"""Supabase JWT verification (specs/supabase-auth).
-
-A FastAPI dependency that authenticates a request by verifying the Bearer
-access token issued by Supabase Auth against the project's JWKS endpoint
-(asymmetric RS256/ES256 keys). Following the project DI convention
-(``app.db.session.get_session``), routers take ``get_current_user`` via
-``Depends`` and tests override it through ``app.dependency_overrides`` — no
-module-level singleton, mirroring the di-session pattern.
-"""
+"""Supabase JWT verification: a FastAPI dependency authenticating the Bearer access token against the project's JWKS endpoint (RS256/ES256), overridable in tests via ``app.dependency_overrides``."""
 
 from __future__ import annotations
 
@@ -26,12 +18,10 @@ from app.exceptions import AuthError, PremiumRequiredError
 
 logger = logging.getLogger(__name__)
 
-# Supabase signs with RS256 (and ES256 on some projects); accept both so the
-# dependency works regardless of the project's configured signing algorithm.
+# Supabase signs with RS256 or ES256 depending on the project; accept both.
 _ALGORITHMS = ["RS256", "ES256"]
 
-# One PyJWKClient per JWKS URL, cached at module scope. PyJWKClient caches the
-# fetched signing keys internally, so reusing it avoids refetching per request.
+# One PyJWKClient per JWKS URL; it caches fetched signing keys internally.
 _jwks_clients: dict[str, PyJWKClient] = {}
 
 
@@ -49,11 +39,9 @@ class AuthUser:
 
     id: str  # the Supabase user id (``sub`` claim)
     email: str | None
-    # App-level role sourced from ``app_metadata.role`` (admin-controlled, not
-    # user-editable), NOT the top-level ``role`` claim — which Supabase always
-    # sets to the Postgres role (``authenticated``/``anon``/``service_role``)
-    # and so can never identify an application admin. ``"admin"`` here gates
-    # privileged endpoints (e.g. PATCH /admin/users/{id}/tier).
+    # App-level role from ``app_metadata.role`` (admin-controlled), NOT the
+    # top-level ``role`` claim, which is always the Postgres role and can never
+    # identify an application admin.
     role: str | None
     claims: dict
 
@@ -72,15 +60,7 @@ def _extract_bearer_token(request: Request) -> str:
 
 
 def _verify_bearer_token(request: Request, settings) -> AuthUser:
-    """Verify a Bearer token and return the AuthUser.
-
-    Raises :class:`AuthError` on any failure (missing/malformed header, invalid
-    or expired token, missing subject claim).
-
-    :param request: The incoming request, used to read the Authorization header.
-    :param settings: Application settings, used to resolve the JWKS URL/issuer.
-    :return: The authenticated user.
-    """
+    """Verify a Bearer token and return the AuthUser, raising :class:`AuthError` on any failure."""
     jwks_url = settings.resolved_jwks_url
     if not jwks_url:
         raise AuthError(
@@ -116,26 +96,12 @@ def _verify_bearer_token(request: Request, settings) -> AuthUser:
 
 
 def get_current_user(request: Request) -> AuthUser:
-    """Authenticate the request via its Supabase Bearer token.
-
-    Raises :class:`AuthError` (HTTP 401) when the token is missing, malformed,
-    or fails signature / issuer / audience / expiry verification.
-
-    :param request: The incoming request, used to read the Authorization header.
-    :return: The authenticated user.
-    """
+    """Authenticate the request via its Supabase Bearer token (raises :class:`AuthError` / 401 on failure)."""
     return _verify_bearer_token(request, get_settings())
 
 
 def get_current_user_optional(request: Request) -> AuthUser | None:
-    """Return an :class:`AuthUser` when a valid Bearer token is present, else ``None``.
-
-    Never raises or returns 401 — missing, malformed, or expired tokens all
-    yield ``None`` so callers can implement hybrid auth (authed vs anonymous).
-
-    :param request: The incoming request, used to read the Authorization header.
-    :return: The authenticated user, or None for anonymous/invalid callers.
-    """
+    """Return an :class:`AuthUser` for a valid Bearer token, else ``None`` — never raises, so callers can implement hybrid auth."""
     if not request.headers.get("Authorization"):
         return None
     try:
@@ -145,25 +111,15 @@ def get_current_user_optional(request: Request) -> AuthUser | None:
         return None
 
 
-# Routers depend on these; tests override via ``app.dependency_overrides``.
 CurrentUserDep = Annotated[AuthUser, Depends(get_current_user)]
 OptionalUserDep = Annotated[AuthUser | None, Depends(get_current_user_optional)]
 
-# Module-level Depends aliases so FastAPI resolves them correctly under
-# Python 3.14's deferred annotations (mirrors app.core.rate_limit).
+# Module-level Depends alias so FastAPI resolves it under Python 3.14 deferred annotations.
 _SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def require_premium(session: _SessionDep, auth_user: CurrentUserDep) -> None:
-    """Raise :class:`PremiumRequiredError` (403) unless the caller is premium.
-
-    Reads the tier via :class:`~app.repositories.user.UserRepository` — never
-    from the request body/header — and falls back to ``Tier.FREE`` on an
-    unknown stored value, matching ``app.agents.context.resolve_agent_context``.
-
-    :param session: The request-scoped session.
-    :param auth_user: The authenticated caller.
-    """
+    """Raise :class:`PremiumRequiredError` (403) unless the caller is premium (tier read from the DB, falling back to ``Tier.FREE``)."""
     from app.repositories.user import UserRepository
 
     raw_tier = UserRepository(session).get_tier(auth_user.id)

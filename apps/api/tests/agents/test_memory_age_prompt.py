@@ -51,7 +51,9 @@ def test_preferences_carry_a_recorded_age_marker():
 
 def test_standing_instructions_carry_a_recorded_age_marker():
     store = get_store()
-    upsert_instruction(store, "u1", "no_redeye", {"text": "never book red-eye flights"})
+    upsert_instruction(
+        store, "u1", "exclude_options", {"text": "never book red-eye flights"}
+    )
 
     result = _load(store)
 

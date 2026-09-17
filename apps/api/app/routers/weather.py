@@ -1,12 +1,4 @@
-"""Weather endpoint: live current conditions + short forecast by city name.
-
-Backed by Open-Meteo (free, no API key). This is the one router that makes a
-real outbound call — everything else in this backend is mock/in-memory.
-
-Errors are domain exceptions raised by the service layer
-(``CityNotFoundError`` → 404, ``WeatherUnavailableError`` → 502); the global
-handler in ``app.main`` turns them into HTTP responses.
-"""
+"""Live weather (current + short forecast) by city name, via Open-Meteo — the one router making a real outbound call."""
 
 from typing import Annotated
 
@@ -46,15 +38,7 @@ async def get_weather(
         ),
     ] = 3,
 ) -> WeatherResponse:
-    """Resolve ``city`` to coordinates and return live weather from Open-Meteo.
-
-    Returns 404 if the city name cannot be geocoded, and 502 if the upstream
-    Open-Meteo service is unreachable.
-
-    :param city: City name to look up.
-    :param days: Number of forecast days (1-16).
-    :return: The current weather and short forecast.
-    """
+    """Resolve ``city`` to coordinates and return live weather from Open-Meteo."""
     return await weather_service.get_weather(city, days=days)
 
 
@@ -82,12 +66,5 @@ async def get_packing(
         ),
     ] = 3,
 ) -> PackingResponse:
-    """Resolve ``city`` and return clothing/gear suggestions from the forecast.
-
-    Returns 404 if the city cannot be geocoded, 502 if Open-Meteo is unreachable.
-
-    :param city: City name to look up.
-    :param days: Number of forecast days (1-16).
-    :return: The packing and gear suggestions.
-    """
+    """Resolve ``city`` and return clothing/gear suggestions from the forecast."""
     return await weather_service.get_packing(city, days=days)

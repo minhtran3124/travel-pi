@@ -1,8 +1,4 @@
-"""Unit tests for checkpointer selection logic (Task 1.2 — conversation-persistence).
-
-Asserts that a postgres-prefixed DATABASE_URL routes to AsyncPostgresSaver and any
-non-postgres URL yields MemorySaver, without requiring a live database connection.
-"""
+"""Checkpointer selection: postgres URL routes to AsyncPostgresSaver, else MemorySaver."""
 
 import asyncio
 from contextlib import asynccontextmanager
@@ -32,7 +28,6 @@ def _make_async_postgres_mock():
 
 
 def test_postgres_url_selects_async_postgres_saver():
-    """A postgres-prefixed DATABASE_URL must yield AsyncPostgresSaver (not MemorySaver)."""
     from app.agents.checkpointer import open_checkpointer
 
     mock_cls, fake_saver = _make_async_postgres_mock()
@@ -51,7 +46,6 @@ def test_postgres_url_selects_async_postgres_saver():
 
 
 def test_non_postgres_url_yields_memory_saver():
-    """A non-postgres DATABASE_URL must degrade to MemorySaver (no Postgres required)."""
     from app.agents.checkpointer import open_checkpointer
 
     async def _run():
@@ -65,7 +59,6 @@ def test_non_postgres_url_yields_memory_saver():
 
 
 def test_postgres_prefix_variants_all_route_to_postgres_saver():
-    """Both 'postgres://' and 'postgresql+psycopg://' prefixes select the durable path."""
     from app.agents.checkpointer import open_checkpointer
 
     urls = [

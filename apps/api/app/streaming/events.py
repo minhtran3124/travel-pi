@@ -1,30 +1,9 @@
 """Typed agent SSE event taxonomy.
 
-Every emission on ``/agent/stream`` is a named JSON event. Each factory returns
-a :class:`~app.core.streaming.TypedSSEEvent` whose ``data`` is a compact JSON
-string, so the frontend parses one shape regardless of channel (tokens
-included — JSON escapes newlines, so no per-line markdown splitting is needed).
-
-Wire shape: ``event: <name>\\ndata: <json>\\n\\n``.
-
-Taxonomy
---------
-* ``start``       — stream opened: ``{conversation_id}``
-* ``token``       — assistant text delta: ``{content}``
-* ``reset``       — discard the superseded draft (reflection revision): ``{}``
-* ``subagent``    — active specialist changed: ``{name}``
-* ``tool_call``   — a tool invocation started: ``{id, name, args_preview, subagent}``
-* ``tool_result`` — a tool finished: ``{id, status}`` (``status`` ∈ ``ok|error``)
-* ``panel``       — structured side-panel payload from a tool's artifact:
-  ``{tool_call_id, kind, data, language}`` (``kind`` ∈ ``route|places|weather``)
-* ``interrupt``   — HITL plan-approval pending: ``{conversation_id, payload}``
-* ``done``        — terminal success: ``{conversation_id, assistant_message_id,
-  agent_run_id, current_flow, suggestions, language, trip_id, usage}``
-  (``assistant_message_id`` / ``agent_run_id`` are filled in by
-  ``persist_assistant_turn`` once the reply row is committed — ``done`` means
-  the answer is durable; ``trip_id`` is informational — see ``ChatResponse.trip_id``'s field description
-  for why the client must not resend it as the next request's ``trip_id``)
-* ``error``       — terminal failure: ``{code, message}``
+Each factory returns a compact-JSON ``TypedSSEEvent`` on the wire shape
+``event: <name>\\ndata: <json>\\n\\n``. ``done``'s ``assistant_message_id`` /
+``agent_run_id`` are filled in by ``persist_assistant_turn`` once the reply row
+is committed, so ``done`` means the answer is durable.
 """
 
 from __future__ import annotations

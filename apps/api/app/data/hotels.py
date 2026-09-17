@@ -1,23 +1,8 @@
-"""Seed list of hotels.
-
-Grouped by city. ``id`` is a UUID5 derived from the original slug
-(e.g. ``h_dn_01``), so IDs are stable across restarts. To add more records,
-run::
-
-    python scripts/generate_data.py hotels --city "Da Nang" --count 3
-
-and paste the generated dicts into the matching city block below.
-
-Each record stores only ``city``; the ``country`` is filled in
-automatically from ``cities.py`` (which is itself guarded against
-``countries.py``), so the country never has to be hand-written or kept in
-sync here.
-"""
+"""Seed hotels, grouped by city. ``id`` is a stable UUID5 of the original slug."""
 
 from app.data.cities import CITIES as _CITIES
 
 HOTELS: list[dict] = [
-    # --- Da Nang -------------------------------------------------------------
     {
         "id": "0acc4018-3bb2-5760-8101-630dda1d011a",
         "code": "DAD001",
@@ -546,7 +531,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # --- Hanoi ---------------------------------------------------------------
     {
         "id": "f59c85a5-d17d-5f0c-830a-aeb1f26e61bf",
         "code": "HAN001",
@@ -613,7 +597,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # --- Ho Chi Minh City ----------------------------------------------------
     {
         "id": "32a154e0-1b54-597c-aa6d-86171804b765",
         "code": "SGN001",
@@ -680,7 +663,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # --- Hoi An --------------------------------------------------------------
     {
         "id": "ed87eeb6-5ad2-5e4b-a448-eaf9ad6a4caf",
         "code": "HOI001",
@@ -725,7 +707,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # --- Phu Quoc ------------------------------------------------------------
     {
         "id": "40af44a9-be84-5f01-be83-ae4b4f35fa6d",
         "code": "PQC001",
@@ -770,7 +751,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # --- Nha Trang -----------------------------------------------------------
     {
         "id": "0d5a6026-acb8-5fdc-8a3e-4abdbcbea095",
         "code": "CXR001",
@@ -837,7 +817,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # --- Bangkok -------------------------------------------------------------
     {
         "id": "5a5e4574-7d14-5f4e-899b-edfe7a25f3d1",
         "code": "BKK001",
@@ -948,7 +927,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Thai"],
     },
-    # --- Phuket --------------------------------------------------------------
     {
         "id": "04263f23-9363-5163-b2c5-c0771955bc69",
         "code": "HKT001",
@@ -1037,7 +1015,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Thai"],
     },
-    # --- Chiang Mai ----------------------------------------------------------
     {
         "id": "d48eb6ea-f1bc-5800-908f-6bc2b5a0bda1",
         "code": "CNX001",
@@ -1104,7 +1081,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Thai"],
     },
-    # --- Singapore -----------------------------------------------------------
     {
         "id": "36fd0e7c-3d30-5130-b619-b66e6ca8f15d",
         "code": "SIN001",
@@ -1193,7 +1169,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Mandarin", "Malay"],
     },
-    # --- Kuala Lumpur --------------------------------------------------------
     {
         "id": "8f4bf72d-871b-5e28-9ab8-96453cdfb1c8",
         "code": "KUL001",
@@ -1260,7 +1235,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Malay"],
     },
-    # --- Bali ----------------------------------------------------------------
     {
         "id": "b00f6341-5b97-5568-b1ad-a577966edf7a",
         "code": "DPS001",
@@ -1371,7 +1345,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # --- Jakarta -------------------------------------------------------------
     {
         "id": "2eece9af-bc20-578e-a79b-5340d56cc61c",
         "code": "CGK001",
@@ -1416,7 +1389,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # --- Siem Reap -----------------------------------------------------------
     {
         "id": "75d461c6-ef14-513d-8403-5513483cb507",
         "code": "REP001",
@@ -1461,7 +1433,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Khmer"],
     },
-    # --- Luang Prabang -------------------------------------------------------
     {
         "id": "1c0b6d53-704a-5a6e-93cb-f4e2f634a6ab",
         "code": "LPQ001",
@@ -1506,7 +1477,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Lao"],
     },
-    # --- Yangon --------------------------------------------------------------
     {
         "id": "2a2e436c-9225-5c94-a7b7-d53e1fa1b554",
         "code": "RGN001",
@@ -1529,7 +1499,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Burmese"],
     },
-    # --- Manila --------------------------------------------------------------
     {
         "id": "de3fc2fc-ed7d-564d-9bb8-65ddab0e77f1",
         "code": "MNL001",
@@ -1574,7 +1543,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # --- Cebu ----------------------------------------------------------------
     {
         "id": "a49eaf55-1643-5eec-877e-84ad2100eb78",
         "code": "CEB001",
@@ -1597,8 +1565,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # ════════ Additional hotels — top-ups + new Vietnam cities ════════
-    # -- Hoi An --
     {
         "id": "cd5e2648-7206-503f-a692-bb61001e0aa4",
         "code": "HOI003",
@@ -1621,7 +1587,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Phu Quoc --
     {
         "id": "1468272d-4a62-5353-8777-75730fac8293",
         "code": "PQC003",
@@ -1644,7 +1609,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Jakarta --
     {
         "id": "00f67c33-9e38-5a9b-8c68-527317d7eac0",
         "code": "CGK003",
@@ -1667,7 +1631,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # -- Siem Reap --
     {
         "id": "10bf483d-9df3-5f64-9ab1-1897a51897f4",
         "code": "REP003",
@@ -1690,7 +1653,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Khmer"],
     },
-    # -- Luang Prabang --
     {
         "id": "3515ea2e-2321-5c00-a4e9-1eb92e5fe2fb",
         "code": "LPQ003",
@@ -1713,7 +1675,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Lao"],
     },
-    # -- Yangon --
     {
         "id": "b5372cf4-32f6-54a5-afa6-251f2a342469",
         "code": "RGN002",
@@ -1758,7 +1719,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Burmese"],
     },
-    # -- Manila --
     {
         "id": "8065f70d-238e-533a-844f-227647be9f70",
         "code": "MNL003",
@@ -1781,7 +1741,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # -- Cebu --
     {
         "id": "4a04d208-0014-5b43-a6f3-c315d51774b4",
         "code": "CEB002",
@@ -1826,7 +1785,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # -- Can Tho --
     {
         "id": "5ee4e3a9-4fcf-583c-b8f8-7208b09edbfa",
         "code": "VCA001",
@@ -1893,7 +1851,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Da Lat --
     {
         "id": "f9810ddf-94ac-5567-87ce-896ec63df891",
         "code": "DLI001",
@@ -1960,7 +1917,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Hai Phong --
     {
         "id": "3809c083-95da-54a7-8be3-1154f54b033c",
         "code": "HPH001",
@@ -2027,7 +1983,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Hue --
     {
         "id": "fa389ece-9c6c-58f8-b359-c8d3e090c23e",
         "code": "HUI001",
@@ -2094,7 +2049,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Quy Nhon --
     {
         "id": "70c831af-4a31-5165-b3ab-7cf5b2f91f3e",
         "code": "UIH001",
@@ -2161,7 +2115,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # -- Vinh --
     {
         "id": "bf490478-8165-519d-876f-2aedf932ea0b",
         "code": "VII001",
@@ -2228,8 +2181,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Vietnamese"],
     },
-    # ════════ Additional hotels — new Thailand & Malaysia cities ════════
-    # -- Hat Yai --
     {
         "id": "b1291505-833b-5847-af0a-73c68fe4cdfa",
         "code": "HDY001",
@@ -2296,7 +2247,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Thai"],
     },
-    # -- Koh Samui --
     {
         "id": "731c027c-ef28-5533-8124-9825a6fdcde0",
         "code": "USM001",
@@ -2363,7 +2313,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Thai"],
     },
-    # -- Krabi --
     {
         "id": "20d0145c-3e7a-5575-968a-fc3a4772d2f0",
         "code": "KBV001",
@@ -2430,7 +2379,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Thai"],
     },
-    # -- Johor Bahru --
     {
         "id": "c2a5d7e8-6d13-54bf-8e3b-9b8e63b793fd",
         "code": "JHB001",
@@ -2497,7 +2445,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Malay"],
     },
-    # -- Kota Kinabalu --
     {
         "id": "9a2bbe8b-2377-5d6d-8312-cc7949751f6a",
         "code": "BKI001",
@@ -2564,7 +2511,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Malay"],
     },
-    # -- Kuching --
     {
         "id": "926f438e-b24e-5e19-8ce4-35043bcbf35f",
         "code": "KCH001",
@@ -2631,7 +2577,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Malay"],
     },
-    # -- Langkawi --
     {
         "id": "a5714e69-629c-59f3-ab70-4691d70bff48",
         "code": "LGK001",
@@ -2698,7 +2643,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Malay"],
     },
-    # -- Penang --
     {
         "id": "e3ba7de2-8aa0-5867-a77f-cf81718b2af0",
         "code": "PEN001",
@@ -2765,8 +2709,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Malay"],
     },
-    # ════════ Additional hotels — new Indonesia & Philippines cities ════════
-    # -- Balikpapan --
     {
         "id": "a5ca1548-d400-51d1-a3f5-b3d4f1128430",
         "code": "BPN001",
@@ -2833,7 +2775,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # -- Makassar --
     {
         "id": "362ea206-cafe-56b3-843a-f07735e77bbe",
         "code": "UPG001",
@@ -2900,7 +2841,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # -- Medan --
     {
         "id": "911bd4ed-8851-597c-b8ee-89c1722028a6",
         "code": "KNO001",
@@ -2967,7 +2907,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # -- Surabaya --
     {
         "id": "7338498d-2555-504b-b2ea-07371b5888ea",
         "code": "SUB001",
@@ -3034,7 +2973,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Indonesian"],
     },
-    # -- Angeles --
     {
         "id": "830f53ad-f3d5-543c-bb7e-a9486d68467a",
         "code": "CRK001",
@@ -3101,7 +3039,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # -- Davao --
     {
         "id": "e628ac64-2419-537a-acfc-cba0589e6373",
         "code": "DVO001",
@@ -3168,7 +3105,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # -- Kalibo (Boracay) --
     {
         "id": "15533147-14aa-5ce5-b04a-c1005497a7bc",
         "code": "KLO001",
@@ -3235,7 +3171,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Filipino"],
     },
-    # -- Puerto Princesa --
     {
         "id": "a410157b-d049-59dd-a5d5-9bc0f5601f99",
         "code": "PPS001",
@@ -3302,8 +3237,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Filipino"],
     },
-    # ════════ Additional hotels — new Cambodia, Laos, Myanmar, Brunei, Timor-Leste & East Asia cities ════════
-    # -- Phnom Penh --
     {
         "id": "f5ed6932-0d5c-5526-ad2d-f057365bbb35",
         "code": "PNH001",
@@ -3370,7 +3303,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Khmer"],
     },
-    # -- Sihanoukville --
     {
         "id": "ee694d56-5bdf-565c-976e-e87e8b5861bf",
         "code": "KOS001",
@@ -3437,7 +3369,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Khmer"],
     },
-    # -- Vientiane --
     {
         "id": "53b10693-1685-58b5-96e0-1f6cf2de89ac",
         "code": "VTE001",
@@ -3504,7 +3435,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Lao"],
     },
-    # -- Mandalay --
     {
         "id": "dd3cf5ed-0903-57c5-af71-dc0608688655",
         "code": "MDL001",
@@ -3571,7 +3501,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Burmese"],
     },
-    # -- Bandar Seri Begawan --
     {
         "id": "57263c9b-1fcc-5c26-874b-9a8142b1266f",
         "code": "BWN001",
@@ -3638,7 +3567,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Malay"],
     },
-    # -- Dili --
     {
         "id": "8b706d2e-8835-5283-af78-ab8c234a4d34",
         "code": "DIL001",
@@ -3705,7 +3633,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Portuguese", "Tetum"],
     },
-    # -- Hong Kong --
     {
         "id": "c3e2e160-55ee-5c0d-a89b-0057ad623283",
         "code": "HKG001",
@@ -3772,7 +3699,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Cantonese", "Mandarin"],
     },
-    # -- Seoul --
     {
         "id": "71926d8e-235d-5c9d-8bda-61db8f38765e",
         "code": "ICN001",
@@ -3839,7 +3765,6 @@ HOTELS: list[dict] = [
         "free_cancellation": True,
         "languages_spoken": ["English", "Korean"],
     },
-    # -- Tokyo --
     {
         "id": "347dddc1-28a3-5d47-b3ef-41468b452387",
         "code": "TYO001",
@@ -3906,7 +3831,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["English", "Japanese"],
     },
-    # --- My Son ----------------------------------------------------------
     {
         "id": "d199742b-37b3-508d-9e51-647f0e8f4f5a",
         "code": "MSN001",
@@ -3973,7 +3897,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["Vietnamese"],
     },
-    # --- Tam Ky ------------------------------------------------------------
     {
         "id": "cb52c260-6d1a-557e-8854-8b59db6fa70c",
         "code": "TKY001",
@@ -4040,7 +3963,6 @@ HOTELS: list[dict] = [
         "free_cancellation": False,
         "languages_spoken": ["Vietnamese"],
     },
-    # --- Cu Lao Cham ---------------------------------------------------------
     {
         "id": "d2748cd5-82b0-59e9-8084-eaa3939de40c",
         "code": "CLC001",
@@ -4109,19 +4031,13 @@ HOTELS: list[dict] = [
     },
 ]
 
-# Fill in each hotel's ``country`` from its city via cities.py — the single
-# source of truth for the city→country mapping. The dict lookup also acts as
-# a consistency guard: a hotel naming a city absent from cities.py raises a
-# KeyError at import time instead of shipping a country-less record.
+# A hotel naming a city absent from cities.py raises KeyError at import.
 _COUNTRY_BY_CITY: dict[str, str] = {c["name"]: c["country"] for c in _CITIES}
 
 for _hotel in HOTELS:
     _hotel["country"] = _COUNTRY_BY_CITY[_hotel["city"]]
 
-# CLAUDE.md promises every city in cities.py has ≥3 hotels — enforce it at
-# import time so a future edit can't silently drop below the threshold (or
-# leave a city with no hotels at all). Failing here is loud and obvious;
-# tracking it down at request time would not be.
+# Enforce the invariant that every city has ≥3 hotels at import time.
 _MIN_HOTELS_PER_CITY = 3
 _HOTEL_COUNTS: dict[str, int] = {}
 for _hotel in HOTELS:

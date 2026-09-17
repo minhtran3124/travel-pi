@@ -1,20 +1,4 @@
-"""Plan-as-state task ledger — supervisor emits an ordered ``plan``, and
-``dispatch_next`` drains it in one turn (P1, specs/agent-task-ledger).
-
-Covers:
-- A multi-step ordered plan runs every sub-agent in order, then reflection,
-  leaving ``pending_flows == []`` (graph-level, FakeLLM-driven).
-- A full ledger (target + ``MAX_LEDGER_STEPS - 1`` follow-ons) completes under
-  ``recursion_limit=25`` without ``GraphRecursionError``.
-- Supervisor-level task-list normalization: ``booking``, a duplicate of the
-  target or an earlier step, and a tier-gated agent are dropped; the follow-on
-  count is capped at ``MAX_LEDGER_STEPS - 1``.
-- A one-item ``plan`` yields the target plus the single follow-on task agent.
-
-Wave 1 (specs/multi-intent-single-path): the supervisor emits a DEDUPLICATED
-``tasks`` list and no longer writes ``pending_flows``; these tests read the task
-agents from ``cmd.update["tasks"]``.
-"""
+"""Plan-as-state task ledger: the supervisor emits a DEDUPLICATED ordered ``tasks`` list — filtered (booking / duplicates / tier-gated dropped) and capped at ``MAX_LEDGER_STEPS`` — which the graph drains in one turn."""
 
 from __future__ import annotations
 
@@ -33,13 +17,7 @@ from langgraph.store.memory import InMemoryStore
 
 
 def _drive(graph, *args, **kwargs):
-    """Run the graph the way production does — asynchronously.
-
-    ``synthesis_worker`` is an async node (#178: the specialists bind async-only
-    tools), and a sync ``graph.invoke`` cannot execute one. Production always uses
-    ``ainvoke``/``astream``, so driving the graph this way is also the more
-    faithful test.
-    """
+    """Run the graph asynchronously, as production does: ``synthesis_worker`` is async-only and ``graph.invoke`` cannot execute it."""
     return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
@@ -72,10 +50,8 @@ def _runtime(ctx: AgentContext) -> SimpleNamespace:
 
 
 def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
-    # GH-117 Path A: a multi-step plan is dispatched to parallel synthesis
-    # workers; the synthesizer combines all findings into one answer. The
-    # repeated planner in the plan is deduped, so exactly two distinct workers
-    # run (planner + concierge).
+    # A multi-step plan fans out to parallel workers, then synthesizes; the repeated
+    # planner is deduped, so exactly two distinct workers run.
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", plan=["concierge", "planner"])
@@ -89,14 +65,11 @@ def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
     )
     out = _invoke(graph, "plan my Tokyo weekend: flights, weather, itinerary", "t-a")
 
-    # Both distinct specialist tasks ran and produced results.
     agents = {r["agent"] for r in out.get("task_results", [])}
     assert agents == {"planner", "concierge"}
 
-    # The graph ended after synthesis.
     assert out["current_flow"] == "synthesize"
 
-    # The synthesized answer appears in the final messages.
     contents = [m.content for m in out["messages"]]
     assert "combined answer" in contents
 
@@ -107,9 +80,8 @@ def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
 
 
 def test_full_task_list_completes_within_recursion_limit():
-    # GH-117 Path A: target + (MAX_LEDGER_STEPS - 1) follow-ons run as parallel
-    # workers, then synthesize + reflection. The full graph must still complete
-    # under the default recursion limit.
+    # Target + (MAX_LEDGER_STEPS - 1) follow-ons run as parallel workers, then
+    # synthesize + reflection — the full graph must still fit the default recursion limit.
     follow_ons = ["concierge", "journal", "budget"][: MAX_LEDGER_STEPS - 1]
     worker_count = 1 + len(follow_ons)
     answers = [f"answer {i}" for i in range(worker_count)] + ["combined answer"]

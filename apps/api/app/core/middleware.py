@@ -15,22 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 def register_middleware(app: FastAPI, settings: Settings) -> None:
-    """Register request-ID, logging, rate-limit-header, GZip, and CORS middleware.
+    """Register request-ID, logging, rate-limit-header, GZip, and CORS middleware (declared inner-first so inbound order is CORS → GZip → request-ID → rate-limit → logging → route)."""
 
-    ``@app.middleware`` prepends (last-declared runs outermost), and
-    ``add_middleware`` runs after all of them — so declaring ``_log_requests``
-    before ``_rate_limit_headers`` before ``_request_id`` keeps the net inbound
-    order CORS → GZip → request-ID → rate-limit → logging → route. ``_request_id``
-    is declared last so it runs earliest inbound, setting
-    ``request.state.request_id`` before ``_log_requests`` reads it.
-
-    :param app: The FastAPI app to register middleware on.
-    :param settings: Application settings, used for rate-limit and CORS values.
-    """
-
-    # Log one line per request: method, path, status, and how long it took.
-    # This is the single source of access logs (Uvicorn's is silenced in
-    # app.core.logging), so it works the same however the app is launched.
+    # The single source of access logs (Uvicorn's is silenced), consistent however the app launches.
     @app.middleware("http")
     async def _log_requests(
         request: Request,
@@ -40,9 +27,8 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
         try:
             response = await call_next(request)
         except Exception:
-            # The catch-all Exception handler is bound to the outermost
-            # ServerErrorMiddleware (above this one), so the failed request
-            # never reaches the access line below — log it here and re-raise.
+            # The outer ServerErrorMiddleware handles the exception, so the failed
+            # request never reaches the access line below — log here and re-raise.
             elapsed_ms = (time.perf_counter() - start) * 1000
             logger.exception(
                 "%s %s → 500 (%.1fms)",
@@ -62,9 +48,7 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
         )
         return response
 
-    # Real policy headers on enforced routes; nominal informational headers on
-    # all other responses. The dependency/error handler records the enforced
-    # decision on request.state before control returns through this middleware.
+    # Real policy headers on enforced routes; nominal informational headers elsewhere.
     @app.middleware("http")
     async def _rate_limit_headers(
         request: Request,
@@ -84,13 +68,11 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
             response.headers["X-RateLimit-Limit"] = str(policy["limit"])
             response.headers["X-RateLimit-Remaining"] = str(policy["remaining"])
             response.headers["X-RateLimit-Reset"] = str(policy["reset"])
-        # A RateLimitError without policy metadata keeps Retry-After from the
-        # exception handler but honestly omits unknown X-RateLimit capacity.
+        # A metadata-less RateLimitError keeps Retry-After but omits unknown X-RateLimit capacity.
         return response
 
-    # Correlate logs and error envelopes across a request. Declared last so it
-    # runs earliest inbound and sets request.state.request_id before
-    # _log_requests reads it; echoes a caller-supplied id or generates one.
+    # Declared last so it runs earliest inbound, setting request.state.request_id
+    # before _log_requests reads it; echoes a caller-supplied id or generates one.
     @app.middleware("http")
     async def _request_id(
         request: Request,
@@ -102,10 +84,9 @@ def register_middleware(app: FastAPI, settings: Settings) -> None:
         response.headers["X-Request-ID"] = rid
         return response
 
-    # Compress responses over 1KB; small payloads stay uncompressed.
     app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-    # CORS — wide open for local dev so the FE/agent can call from anywhere.
+    # CORS — wide open for local dev.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

@@ -3,6 +3,61 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## memory-poisoning-hardening — memory extractor rejects tool output and injections (wave 1)
+
+specs/memory-poisoning-hardening (§3.6): persistent memory is re-injected into every future
+system prompt, and nothing between the extractor and the store constrained what became memory.
+Two gaps closed here — the extractor's input, and its prompt contract.
+
+- **extractor `_last_exchange`** (code half) — now returns only the last `HumanMessage` and the
+  final answer `AIMessage`; ToolMessages and intermediate tool-calling AIMessages are excluded on
+  both the main path and the no-HumanMessage `messages[-2:]` fallback, so tool/RAG text (which can
+  carry a smuggled "from now on …" directive) can no longer become memory.
+- **memory_extraction v6** — copied v5, then: the preference key set is **closed** (dropped the
+  "only invent a new key for a genuinely new kind of fact" clause; a fact fitting no canonical key
+  is not stored) and gains `accessibility`; the **instructions** category is pinned to six
+  canonical keys (`reply_length`, `reply_tone`, `address_as`, `price_display`, `exclude_options`,
+  `format`); two new leading rules require storing only what the traveller states about themselves
+  in a **user** message (never tool output or pasted/quoted text) and never storing content that
+  asks the assistant to change role, ignore rules, reveal prompts, or change behaviour beyond reply
+  style/format. The canonical keys are listed as literal prompt text (the `guard.py` allowlist
+  constants are wired up in a sibling task).
+
+`active.yaml`: memory_extraction → 6. Others unchanged.
+
+## gh-148 — supervisor v13, communication_style v9, planner v16: trip-brief routing fixes
+
+Fixes minhtran3124/travel-pi#148–#152, five failures from one trip-brief conversation: an
+explicit "reply in English" asked in Vietnamese was ignored, adding an item to a day went to
+the journal, a general price question went to budget, flights + weather fanned out, and a
+known trip budget was ignored when planning.
+
+- **supervisor v13** — copied v12. #148: the language rule now also switches on an explicit
+  request to reply in a language — it wins immediately, whatever language the request is
+  written in, and stays sticky; a question *about* a language is not a switch (with a ❌
+  example). #150: the journal "never adds or moves itinerary items" — adding an activity or
+  meal to a day is a **planner** edit. #151: budget is scoped to THIS trip's money; general
+  cost knowledge ("how much does X usually cost") is a **concierge** question. #149: new
+  routing example — flights + weather is one planner job (`plan=[]`). v12's fan-out rules are
+  unchanged.
+- **communication_style v9** — copied v8. #148: an explicit request to reply in a language
+  wins over the typed-language default and stays in effect until the traveller asks for
+  another; carried into every language absolute, including the blocked-on-traveller line.
+  ✅/❌ examples pin the request-vs-question-about-a-language distinction.
+- **planner v16** — copied v15. #152: new "Plan to a known budget" section — a `budget` in
+  Known trip facts is a firm target; size choices to it, state one approximate (≈) estimate
+  against it, never ask for it again. Guardrails names that estimate as the sole exception to
+  "never compute prices yourself" — it is never a price quote.
+
+Code-level wording (live since wave 1, not versioned prompts): `SupervisorIntent.language`'s
+`Field(description=...)` and the established-language hint in `app/agents/supervisor.py`, and
+the `with_reply_language` wording in `app/agents/state.py`, say the same explicit-switch rule
+(the model reads prompt and schema independently — #156 lesson).
+
+The live eval (7 goldens) is recorded in `specs/gh-148-trip-brief-routing-fixes/`.
+
+`active.yaml`: supervisor → 13, communication_style → 9, planner → 16.
+
 ## gh-191 — a flight/hotel search with no date asks instead of using today
 
 A bare "find me a flight from Hanoi to Singapore" ran `search_flights(departure_date=<today>)`

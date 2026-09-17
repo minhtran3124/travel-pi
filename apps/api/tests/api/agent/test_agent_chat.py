@@ -1,10 +1,4 @@
-"""Agent API: /agent/chat, /agent/stream, /agent/manifest (Task 6.1).
-
-Includes HITL stream tests (feat/agent-stream-hitl):
-- test_stream_booking_emits_interrupt_event
-- test_stream_booking_resume_approved
-- test_stream_booking_resume_rejected
-"""
+"""Agent API: /agent/chat, /agent/stream, /agent/manifest, incl. HITL stream tests."""
 
 import json
 
@@ -24,10 +18,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 from pydantic import PrivateAttr
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
 
 def _make_app(
     tmp_path,
@@ -43,7 +33,6 @@ def _make_app(
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
-    # Seed any users that need premium tier before the app handles requests.
     if premium_users:
         s = get_session_factory(url)()
         try:
@@ -66,10 +55,8 @@ def _make_app(
         finally:
             s.close()
 
-    # Build the graph ONCE per app instance so the MemorySaver checkpointer
-    # survives across requests within a test. Per-request rebuild loses checkpoint
-    # state and breaks HITL resume (second request gets a fresh graph with no
-    # interrupt checkpoint, so plan_node fires again instead of resuming).
+    # Build the graph ONCE per app so the MemorySaver checkpointer survives across
+    # requests; a per-request rebuild loses interrupt state and breaks HITL resume.
     main = FakeLLM(
         structured_responses=[SupervisorIntent(target_agent=intent_target)] * 6,
         responses=responses if responses is not None else [answer] * 6,
@@ -85,22 +72,18 @@ def _make_app(
         return _graph
 
     app.dependency_overrides[get_session] = _override_session
-    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
-    # traveller.
     app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = _override_graph
     app.dependency_overrides[get_travel_graph_optional] = _override_graph
-    # Test-only introspection hook: lets tests reach the same store/llm the
-    # request handler sees. Deliberately NOT named `app.state.travel_graph` —
-    # the real lifespan (app/core/lifespan.py) sets that attribute on startup
-    # with a production (Postgres-backed) graph, which would clobber this one
-    # once `TestClient(app)` triggers the ASGI startup event.
+    # Deliberately NOT `app.state.travel_graph`: the real lifespan sets that on
+    # startup with a Postgres-backed graph, clobbering this one once TestClient
+    # triggers the ASGI startup event.
     app.state.test_graph = _graph
 
-    # Premium requires authentication (hybrid identity — anonymous is always free).
-    # Simulate being logged in as the first premium user so tier resolves correctly.
+    # Premium requires authentication (anonymous is always free); log in as the
+    # first premium user so tier resolves.
     if premium_users:
         _puid = premium_users[0]
         app.dependency_overrides[get_current_user] = lambda: AuthUser(
@@ -119,7 +102,7 @@ def client(tmp_path):
 
 @pytest.fixture
 def booking_client(tmp_path):
-    # D.1: booking is premium-only; seed "u1" as premium so HITL tests still pass.
+    # booking is premium-only; seed "u1" as premium so HITL tests still pass.
     app = _make_app(tmp_path, "booking", "Hotel booked!", premium_users=["u1"])
     with TestClient(app) as c:
         yield c
@@ -127,24 +110,15 @@ def booking_client(tmp_path):
 
 @pytest.fixture
 def planner_client(tmp_path):
-    # Hotel/flight *search* (not booking) routes to the planner sub-agent, which
-    # owns the trip/flight/hotel tools. planner is free-tier and non-interrupting,
-    # so the turn completes and returns follow-up suggestions.
+    # Hotel/flight search routes to the free-tier, non-interrupting planner, so the
+    # turn completes and returns follow-up suggestions.
     app = _make_app(tmp_path, "planner", "Here are some options for your trip.")
     with TestClient(app) as c:
         yield c
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
 def _parse_sse(text: str) -> list[dict]:
-    """Parse raw SSE text into a list of {event?, data} dicts.
-
-    SSE event blocks are separated by blank lines (double newline).
-    """
+    """Parse raw SSE text into a list of {event?, data} dicts."""
     events = []
     for block in text.split("\n\n"):
         block = block.strip()
@@ -161,11 +135,6 @@ def _parse_sse(text: str) -> list[dict]:
     return events
 
 
-# ---------------------------------------------------------------------------
-# Existing tests (non-booking, regression guards)
-# ---------------------------------------------------------------------------
-
-
 def test_chat_returns_reply_and_persists(client):
     resp = client.post(
         "/agent/chat",
@@ -177,7 +146,6 @@ def test_chat_returns_reply_and_persists(client):
     assert body["current_flow"] == "concierge"
     assert body["conversation_id"]
 
-    # continuing the same conversation persists more messages
     resp2 = client.post(
         "/agent/chat",
         json={
@@ -191,9 +159,7 @@ def test_chat_returns_reply_and_persists(client):
 
 
 def test_chat_masks_card_but_keeps_email_in_persisted_messages(client):
-    """Card PII must still be sanitized before persisting. Email is no longer
-    redacted (close-product-loop-s1-booking-ui) — booking needs the real
-    address, and it must survive into the conversation history."""
+    """Card PII is sanitized before persisting; email is no longer redacted because booking needs the real address in history."""
     raw = "reach me at secret@leak.com, card 4111 1111 1111 1111"
     resp = client.post(
         "/agent/chat",
@@ -215,8 +181,7 @@ def test_chat_masks_card_but_keeps_email_in_persisted_messages(client):
 
 
 class _RecordingLLM(FakeLLM):
-    """FakeLLM that also records the messages of every ``_generate`` call, so a
-    test can assert what the leading system message actually contained."""
+    """FakeLLM that records every ``_generate`` call's messages so a test can inspect the leading system message."""
 
     _seen: list = PrivateAttr(default_factory=list)
 
@@ -226,9 +191,7 @@ class _RecordingLLM(FakeLLM):
 
 
 def _make_recording_app(tmp_path, *, email: str | None):
-    """Like ``_make_app`` (concierge intent), but with a signed-in caller whose
-    email is ``email``, and a recording LLM so the test can inspect the system
-    message the model actually saw (close-product-loop-s1-booking-ui)."""
+    """Like ``_make_app`` (concierge), but with a signed-in caller of the given email and a recording LLM to inspect the system message the model saw."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -298,9 +261,7 @@ def test_chat_anonymous_caller_with_no_email_does_not_break_the_turn(tmp_path):
 
 
 def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
-    """Regression (#117 Path A): a multi-intent turn runs parallel workers and
-    returns a single synthesized answer from /agent/chat — no duplicated prose
-    from intermediate specialists."""
+    """A multi-intent turn runs parallel workers and returns one synthesized answer, with no duplicated prose from intermediate specialists."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -317,8 +278,7 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
         finally:
             s.close()
 
-    # Provide enough responses for two workers + synthesizer across both the
-    # /agent/chat and /agent/stream invocations.
+    # Enough responses for two workers + synthesizer across the chat and stream calls.
     main = FakeLLM(
         structured_responses=[
             SupervisorIntent(target_agent="planner", plan=["concierge"])
@@ -332,8 +292,6 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
     )
 
     app.dependency_overrides[get_session] = _override_session
-    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
-    # traveller.
     app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
@@ -350,13 +308,11 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
         )
     assert resp.status_code == 200
     reply = resp.json()["reply"]
-    # The final answer is the synthesizer's output, not raw worker findings.
     assert reply == "combined answer"
 
 
 def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
-    """Regression (#117 acceptance): /agent/chat and /agent/stream must agree on
-    the final synthesized answer text for a multi-intent turn."""
+    """/agent/chat and /agent/stream must agree on the final synthesized answer text for a multi-intent turn."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -413,8 +369,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
         assert stream_resp.status_code == 200
         stream_text = stream_resp.text
 
-    # Accumulate tokens like the FE / persistence layer: append token content,
-    # but clear the buffer on every reset event.
+    # Accumulate tokens like the FE: append token content, clear on every reset.
     accumulated = ""
     for raw_event in stream_text.split("\n\n"):
         if not raw_event.strip():
@@ -447,7 +402,7 @@ def test_chat_returns_flow_scoped_suggestions(client):
     assert body["current_flow"] == "concierge"
     suggestions = body["suggestions"]
     assert isinstance(suggestions, list)
-    assert suggestions  # non-empty for a known flow
+    assert suggestions
     assert all(s.startswith("concierge.") for s in suggestions)
 
 
@@ -466,7 +421,7 @@ def test_chat_returns_no_suggestions_when_interrupt_pending(booking_client):
 
 
 def test_chat_response_suggestions_match_flow_map():
-    """Focused unit check: ChatResponse carries the flow-scoped keys verbatim."""
+    """ChatResponse carries the flow-scoped keys verbatim."""
     from app.agents.suggestions import suggestions_for_flow
     from app.schemas.agent import ChatResponse
 
@@ -483,11 +438,7 @@ def test_chat_response_suggestions_match_flow_map():
 
 
 def test_chat_hotel_search_returns_flow_scoped_suggestions(planner_client):
-    """MIN-55 e2e — a literal hotel-search message drives the full
-    message→route→flow→suggestions path. Flow-agnostic: the assertion couples the
-    suggestion keys to whatever flow the router actually picked, so it holds no
-    matter which sub-agent handles the search.
-    """
+    """A hotel-search message drives the full message→route→flow→suggestions path; the assertion couples suggestion keys to whatever flow the router picked."""
     resp = planner_client.post(
         "/agent/chat",
         json={"message": "Find me a cheap hotel in Da Nang", "user_id": "u1"},
@@ -495,18 +446,15 @@ def test_chat_hotel_search_returns_flow_scoped_suggestions(planner_client):
     assert resp.status_code == 200
     body = resp.json()
     flow = body["current_flow"]
-    assert flow  # non-null known flow
+    assert flow
     suggestions = body["suggestions"]
     assert isinstance(suggestions, list)
-    assert suggestions  # non-empty for a known flow
+    assert suggestions
     assert all(s.startswith(flow + ".") for s in suggestions)
 
 
 def test_chat_flight_search_returns_flow_scoped_suggestions(planner_client):
-    """MIN-55 e2e — a literal flight-search message drives the full
-    message→route→flow→suggestions path. Same flow-agnostic assertion as the
-    hotel case: suggestion keys must be scoped to the flow the router chose.
-    """
+    """A flight-search message drives the full message→route→flow→suggestions path; suggestion keys must be scoped to the flow the router chose."""
     resp = planner_client.post(
         "/agent/chat",
         json={"message": "Find flights to Tokyo next month", "user_id": "u1"},
@@ -514,10 +462,10 @@ def test_chat_flight_search_returns_flow_scoped_suggestions(planner_client):
     assert resp.status_code == 200
     body = resp.json()
     flow = body["current_flow"]
-    assert flow  # non-null known flow
+    assert flow
     suggestions = body["suggestions"]
     assert isinstance(suggestions, list)
-    assert suggestions  # non-empty for a known flow
+    assert suggestions
     assert all(s.startswith(flow + ".") for s in suggestions)
 
 
@@ -531,21 +479,14 @@ def test_stream_emits_sse_events(client):
     text = resp.text
     assert "data:" in text
     assert "event: done" in text
-    # The concierge answer streams; the reflection critic's verdict ("OK", scripted
-    # in the fixture's fast LLM) must NOT leak into the SSE feed (REVIEW.md C4).
+    # The reflection critic's "OK" verdict must not leak into the SSE feed.
     assert "Visit Tokyo Tower" in text
     assert "OK" not in text
-    # Non-booking flow must NOT emit an interrupt event.
     assert "event: interrupt" not in text
 
 
 def test_stream_emits_reset_on_revised_answer(tmp_path):
-    """When reflection revises (re-runs the sub-agent), a `reset` event must
-    separate the superseded draft from the final answer so the FE can drop it.
-
-    fast LLM says REVISE once (then OK), so the concierge answers twice with two
-    distinct message ids; the stream must carry exactly one `event: reset`.
-    """
+    """When reflection revises, a `reset` event must separate the superseded draft from the final answer so the FE can drop it."""
     app = _make_app(
         tmp_path,
         "concierge",
@@ -562,7 +503,6 @@ def test_stream_emits_reset_on_revised_answer(tmp_path):
     assert "DRAFT answer" in text
     assert "FINAL answer" in text
     assert text.count("event: reset") == 1
-    # The reset must come between the draft and the final answer.
     assert text.index("DRAFT") < text.index("event: reset") < text.index("FINAL")
 
 
@@ -956,7 +896,7 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
         "Visit Tokyo Tower at sunset.",
         fast_responses=[
             "OK",
-            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '{"preferences": [{"key": "seat", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
     )

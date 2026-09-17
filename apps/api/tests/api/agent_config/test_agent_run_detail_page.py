@@ -1,9 +1,4 @@
-"""SC-9: the /dashboard/agent-runs/{run_id} detail page (specs/agent-run-trace-detail).
-
-Renders one turn's call chain behind the dashboard guard. Built like
-``test_agent_runs_dashboard.py``: a fresh app + settings per test so the guard's
-dev-open vs production-hidden behaviour can be exercised directly.
-"""
+"""The /dashboard/agent-runs/{run_id} detail page: a fresh app + settings per test."""
 
 from datetime import UTC, datetime
 
@@ -136,12 +131,10 @@ def test_detail_page_renders_chain_in_dev(tmp_db, monkeypatch):
         resp = client.get("/dashboard/agent-runs/run-detail-chain")
         assert resp.status_code == 200
         body = resp.text
-        # Chain rows: a node name, a tool name, the model, and the error marker.
         assert "supervisor" in body
         assert "search_flights" in body
         assert "gpt-5-mini" in body
         assert "TimeoutError" in body
-        # Header + totals render.
         assert "completed" in body
         assert "flights" in body
 

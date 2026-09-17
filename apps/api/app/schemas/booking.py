@@ -12,13 +12,7 @@ from app.schemas.pagination import PagedResponse
 
 
 def confirmation_code_for(booking_id: str) -> str:
-    """Derive a stable 6-char PNR-style confirmation code from a booking ID.
-
-    Real airlines/GDS issue a 6-character alphanumeric *record locator* (PNR),
-    and hotels a similar *confirmation number* — far friendlier than a raw
-    UUID. We derive it deterministically from the UUID so it needs no extra
-    storage and never drifts: the same booking always has the same code.
-    """
+    """Derive a stable 6-char PNR-style confirmation code deterministically from a booking ID."""
     return short_code_for(booking_id)
 
 
@@ -28,12 +22,7 @@ def _trim_iso(value: str) -> str:
 
 
 class FlightBookingDetails(AppBaseModel):
-    """Flight-specific payload stored on a ``Booking``.
-
-    The ``kind`` discriminator lets ``Booking.details`` be a tagged union so
-    OpenAPI / FE codegen produce a real ``FlightBookingDetails | HotelBookingDetails``
-    type instead of an untyped object.
-    """
+    """Flight-specific payload stored on a ``Booking`` (``kind``-tagged for the discriminated union)."""
 
     kind: Literal["flight"] = Field(
         default="flight",
@@ -82,11 +71,7 @@ BookingDetails = Annotated[
 def build_summary(
     booking_type: BookingType, customer_name: str, details: BookingDetails
 ) -> str:
-    """Build a one-line, human-readable description of a booking.
-
-    Agents (and people) shouldn't have to dig through ``details`` to know
-    what a booking *is* — this is the at-a-glance version.
-    """
+    """Build a one-line, human-readable description of a booking."""
     if booking_type == BookingType.FLIGHT and isinstance(details, FlightBookingDetails):
         return (
             f"{details.airline} {details.flight_number} · "
@@ -106,12 +91,7 @@ def build_summary(
 
 
 class Booking(AppBaseModel):
-    """A confirmed flight or hotel booking.
-
-    ``id`` is the canonical UUID (stable, used in URLs); ``confirmation_code``
-    is the friendly 6-character reference a human or agent would actually
-    quote — either can be passed to ``GET /bookings/{id}``.
-    """
+    """A confirmed flight or hotel booking."""
 
     id: str = Field(
         description="Canonical booking UUID. Accepted by /bookings/{id}.",

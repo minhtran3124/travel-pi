@@ -1,10 +1,4 @@
-"""Tool registry (specs/travel-agent Task 3.4).
-
-Single source of truth for the agent's tools. ``get_tools_for(domain)`` returns
-the tool group bound to a sub-agent so we bind only the relevant tools per turn
-(avoids tool sprawl). ``TOOL_METADATA`` carries MCP-style readOnly/destructive
-annotations (roadmap B1) surfaced by ``/agent/manifest`` and the MCP server.
-"""
+"""Single source of truth for the agent's tools, grouped by sub-agent domain."""
 
 from __future__ import annotations
 
@@ -34,10 +28,8 @@ from app.tools.trip_tools import (
 from app.tools.visa_tools import VISA_TOOLS
 from app.tools.weather_tools import WEATHER_TOOLS
 
-# Tools grouped by the sub-agent that should bind them.
 TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
-    # Planner searches flights/hotels but never books — the money tools live in
-    # the booking domain only, whose route is HITL-gated via plan_node.
+    # Planner searches but never books: the money tools live only in the HITL-gated booking domain.
     "planner": (
         TRIP_TOOLS
         + [create_trip]
@@ -76,8 +68,6 @@ ALL_TOOLS: list[BaseTool] = list(
     {t.name: t for group in TOOLS_BY_DOMAIN.values() for t in group}.values()
 )
 
-# MCP-style annotations per tool name. readOnly=True => safe GET-like call;
-# destructive=True => irreversible side effect (money / cancellation).
 _DESTRUCTIVE = {"book_hotel", "book_flight", "cancel_flight", "cancel_hotel"}
 _WRITE = {
     "add_place_to_trip",
@@ -104,9 +94,5 @@ TOOL_METADATA: dict[str, dict[str, bool]] = {t.name: _meta(t.name) for t in ALL_
 
 
 def get_tools_for(domain: str) -> list[BaseTool]:
-    """Return the tool group for a sub-agent domain (empty list if unknown).
-
-    :param domain: The sub-agent domain name (e.g. 'planner', 'concierge').
-    :return: The tools bound to that domain.
-    """
+    """Return the tool group for a sub-agent domain (empty list if unknown)."""
     return TOOLS_BY_DOMAIN.get(domain, [])

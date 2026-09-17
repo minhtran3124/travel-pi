@@ -15,7 +15,6 @@ from app.core.codes import prefixed_code
 from app.schemas.base import AppBaseModel
 from app.schemas.pagination import PagedResponse
 
-# Prefix used for the friendly hotel short code, e.g. "HTL-AB23XY".
 HOTEL_CODE_PREFIX = "HTL"
 
 
@@ -96,12 +95,7 @@ class Hotel(AppBaseModel):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def short_code(self) -> str:
-        """Friendly ``HTL-XXXXXX`` reference derived from ``id``.
-
-        Accepted anywhere a ``hotel_id`` is — easier to read aloud or quote
-        in a chat message than the raw ID. The legacy ``code`` field is the
-        OTA-style property code from the seed data, kept for compatibility.
-        """
+        """Friendly ``HTL-XXXXXX`` reference derived from ``id``."""
         return prefixed_code(HOTEL_CODE_PREFIX, self.id)
 
 
@@ -186,13 +180,7 @@ class HotelAvailabilityResponse(PagedResponse[HotelAvailability]):
 
 
 class HotelBookingRequest(AppBaseModel):
-    """Request body for ``POST /hotels/book``.
-
-    Mirrors what a hotel actually collects to hold rooms: the chosen hotel,
-    the stay dates, party size, and the guest's name and contact details.
-    The nightly rate is *not* sent by the client — ``total_price`` is
-    computed server-side (``price_per_night × nights × rooms``).
-    """
+    """Request body for ``POST /hotels/book`` — nightly rate is not client-sent; ``total_price`` is computed server-side."""
 
     hotel_id: str = Field(
         description=(
@@ -239,12 +227,7 @@ class HotelBookingRequest(AppBaseModel):
     @field_validator("check_in", "check_out")
     @classmethod
     def _valid_date(cls, value: str) -> str:
-        """Reject a malformed date at the schema boundary → 422.
-
-        Without this, a bad date reaches ``book_hotel`` and the
-        ``count_nights`` call there raises an uncaught ``ValueError`` → 500.
-        Caught here it becomes a clean per-field validation error instead.
-        """
+        """Reject a malformed date at the schema boundary → 422 (else ``count_nights`` raises an uncaught 500)."""
         try:
             datetime.strptime(value, "%Y-%m-%d")
         except ValueError as exc:

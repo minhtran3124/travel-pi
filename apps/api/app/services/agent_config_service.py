@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.llm_providers import PROVIDER_NAMES
-from app.data.agent_config import (  # first app.data import outside seed.py — accepted plan decision
+from app.data.agent_config import (  # first app.data import outside seed.py
     AGENT_CONFIG_GROUPS,
     AGENT_CONFIG_NODES,
     AGENT_DESCRIPTIONS,

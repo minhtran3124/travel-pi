@@ -1,24 +1,7 @@
-"""A fanned-out worker must execute tools exactly like a single-specialist turn (#178).
+"""A fanned-out worker must execute tools exactly like a single-specialist turn.
 
-`synthesis_worker` used to run each specialist with a **sync** ``subagent.invoke``.
-Six agent tools are ``async def`` — ``get_weather``, ``get_packing``,
-``get_air_quality``, ``get_climate``, ``get_route``, ``get_city_route`` — and both
-the planner and the concierge bind all of them. Under a sync invocation one such
-call raises ``NotImplementedError: StructuredTool does not support sync
-invocation``, which kills the whole ``tools`` node; ``TOOL_FAULT``'s
-``graceful_fallback`` then hands the model one fallback message for **every** pending
-call in that batch — including healthy synchronous ones. The specialist duly told
-the traveller the data was temporarily unavailable, which was false and identical
-on retry.
-
-These tests assert on what the tools actually RETURNED. That is the point: the
-pre-existing fan-out test (``test_plan_everything.py``) asserts topology and the
-recursion budget only, so it passed for months while the tools node crashed
-underneath it.
-
-Hermetic: the seeded temp SQLite DB backs the real tools, and the ONE networked
-tool has its *service* stubbed — never its wrapper, since replacing an async
-wrapper with a sync stub would recreate exactly the blind spot under test.
+These tests assert on what the tools actually RETURNED, so a tools-node crash
+surfaces instead of hiding behind topology-only assertions.
 """
 
 from __future__ import annotations
@@ -68,12 +51,7 @@ def agent_db(tmp_path, monkeypatch):
 
 @pytest.fixture
 def offline_weather(monkeypatch):
-    """Remove the network under ``get_weather`` while keeping the tool async.
-
-    Stubbing the *service* rather than the ``@tool`` wrapper is deliberate: the
-    wrapper's async-ness is the property under test, so replacing it with a sync
-    callable would make these tests pass against the very bug they exist to catch.
-    """
+    """Stub the service, not the async ``@tool`` wrapper — the wrapper's async-ness is under test."""
 
     async def _no_network(*args: Any, **kwargs: Any):
         raise CityNotFoundError("weather stubbed offline for the hermetic test")
@@ -100,16 +78,7 @@ _SCRIPTS: dict[str, list[AIMessage]] = {
 
 
 class _RecordingLLM(BaseChatModel):
-    """Per-specialist scripted model that also records what the concierge saw.
-
-    Two properties matter here and neither is available from ``FakeLLM``:
-
-    * it **clamps** to the last scripted response instead of cycling, so an extra
-      round ends the ReAct loop rather than replaying the tool call forever; and
-    * it captures the concierge's inbound messages, which is the only way to see
-      the ``ToolMessage``s — ``synthesis_worker`` deliberately does not propagate
-      the inner sub-agent's messages to the parent state.
-    """
+    """Scripted per-specialist model that clamps to the last response and records the concierge's inbound messages."""
 
     intent: Any = None
     seen: Any = None
@@ -156,8 +125,6 @@ class _RecordingLLM(BaseChatModel):
 
 
 def _fan_out_and_capture_tool_messages() -> list[ToolMessage]:
-    """Run one fanned-out turn through the real graph and return the ToolMessages
-    the concierge worker's inner sub-agent actually received."""
     seen: list[ToolMessage] = []
     llm = _RecordingLLM(
         intent=SupervisorIntent(
@@ -181,8 +148,7 @@ def _fan_out_and_capture_tool_messages() -> list[ToolMessage]:
     return seen
 
 
-# Either one means the tools node died before the tool ran (#178). #186 split
-# the node-death message in two, so the regression guard must exclude both.
+# Either message means the tools node died before the tool ran.
 _NODE_DIED = (GRACEFUL_MSG, INTERNAL_FAULT_MSG)
 
 
@@ -193,13 +159,7 @@ def _by_name(messages: list[ToolMessage], name: str) -> ToolMessage:
 
 
 def test_async_tool_succeeds_in_a_fanned_out_worker(agent_db, offline_weather):
-    """The async-only tool must reach its own body, not the tools-node fallback.
-
-    With the service stubbed, its honest outcome is a domain error naming the
-    stub. What must never appear is a node-death fallback message — that means
-    the node died
-    before the tool ran, which is #178.
-    """
+    """The async-only tool must reach its own body, not the tools-node fallback."""
     weather = _by_name(_fan_out_and_capture_tool_messages(), ASYNC_TOOL)
 
     assert not any(m in str(weather.content) for m in _NODE_DIED), (
@@ -210,12 +170,7 @@ def test_async_tool_succeeds_in_a_fanned_out_worker(agent_db, offline_weather):
 
 
 def test_sibling_sync_tool_is_not_collateral_damaged(agent_db, offline_weather):
-    """A healthy sync tool batched with an async one must still return its data.
-
-    This is the half that made #178 user-visible: ``get_local_tips`` cannot fail
-    on its own, yet it was reported to the model as an outage because a sibling
-    call in the same batch took the node down.
-    """
+    """A healthy sync tool batched with an async one must still return its data."""
     tips = _by_name(_fan_out_and_capture_tool_messages(), SYNC_TOOL)
 
     assert not any(m in str(tips.content) for m in _NODE_DIED), (

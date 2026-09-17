@@ -1,15 +1,4 @@
-"""Server-rendered read-only dashboard pages for browsing prompt versions.
-
-Separate from ``dashboard.py`` (which covers the domain-data pages) since this
-group is scoped to ``app.prompts.registry`` — a file-backed, versioned prompt
-store, not a DB-backed repository. Same idiom: Jinja2 templates, excluded from
-the OpenAPI schema.
-
-Pages:
-    GET /dashboard/prompts                    browse: sidebar of names + latest version
-    GET /dashboard/prompts/{name}              one prompt's version (defaults to latest)
-    GET /dashboard/prompts/{name}/diff         side-by-side diff of two versions
-"""
+"""Server-rendered read-only Jinja2 pages for browsing versioned prompts, excluded from OpenAPI."""
 
 from pathlib import Path
 
@@ -30,17 +19,12 @@ router = APIRouter(
     dependencies=[Depends(require_dashboard_access)],
 )
 
-# Templates live in app/templates/ — resolve the path relative to this file
-# so it works regardless of the current working directory.
+# Path relative to this file so it works regardless of the current working directory.
 _TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
 
 def _parse_version(raw: str) -> int:
-    """Parse a version string like ``"3"`` or ``"v3"`` into an int.
-
-    :param raw: The raw version string from a query param.
-    :raises ValueError: If ``raw`` isn't a valid version number.
-    """
+    """Parse a version string like ``"3"`` or ``"v3"`` into an int."""
     return int(raw[1:] if raw.startswith("v") else raw)
 
 
@@ -53,11 +37,7 @@ def _names_meta() -> list[dict]:
 
 
 def _render_detail(request: Request, name: str, version: str | None) -> HTMLResponse:
-    """Render the browse workspace (sidebar + one prompt version on the right).
-
-    Defaults the right pane to the *latest* version; the compare bar defaults to
-    "previous → latest". ``version`` (``vN``/``N``) overrides the shown version.
-    """
+    """Render the browse workspace (sidebar + one prompt version), defaulting to latest."""
     try:
         versions = registry.versions(name)
         active = registry.active_version(name)

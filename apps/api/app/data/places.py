@@ -1,20 +1,9 @@
-"""Seed data for places / attractions.
-
-Covers 8 cities with real venues across 6 categories:
-  attraction | restaurant | cafe | activity | nightlife | shopping
-
-IDs are UUID5(NAMESPACE_DNS, slug) — stable across restarts.
-
-``countries.py`` is the single source of truth for the country list — the
-consistency guard at the bottom of this file rejects any place whose
-``country`` is not defined there.
-"""
+"""Seed places / attractions; IDs are UUID5(slug), stable across restarts."""
 
 from app.data.cities import CITIES as _CITIES
 from app.data.countries import COUNTRIES as _COUNTRIES
 
 PLACES: list[dict] = [
-    # ── Da Nang ──────────────────────────────────────────────────────────────
     {
         "id": "56f5b6d7-f0e2-5867-a9dd-087a98cff34c",
         "name": "Dragon Bridge",
@@ -3561,7 +3550,6 @@ PLACES: list[dict] = [
         "latitude": 16.0460,
         "longitude": 108.2470,
     },
-    # ── Hanoi ─────────────────────────────────────────────────────────────────
     {
         "id": "c6344c64-8715-5484-81e6-da35061431a6",
         "name": "Hoan Kiem Lake & Ngoc Son Temple",
@@ -3742,7 +3730,6 @@ PLACES: list[dict] = [
         "latitude": 21.0370,
         "longitude": 105.8508,
     },
-    # ── Ho Chi Minh City ──────────────────────────────────────────────────────
     {
         "id": "0aaa8111-f460-57eb-b122-aab6a25c525e",
         "name": "Ben Thanh Market",
@@ -3923,7 +3910,6 @@ PLACES: list[dict] = [
         "latitude": 10.7756,
         "longitude": 106.6869,
     },
-    # ── Bangkok ───────────────────────────────────────────────────────────────
     {
         "id": "36bcba05-0d2c-5682-acd7-5eef2082fc8e",
         "name": "Grand Palace & Wat Phra Kaew",
@@ -4068,7 +4054,6 @@ PLACES: list[dict] = [
         "latitude": 13.7299,
         "longitude": 100.5418,
     },
-    # ── Phuket ────────────────────────────────────────────────────────────────
     {
         "id": "dec3c02e-196c-55c9-8c89-71511260aeab",
         "name": "Big Buddha of Phuket",
@@ -4195,7 +4180,6 @@ PLACES: list[dict] = [
         "latitude": 7.8156,
         "longitude": 98.2960,
     },
-    # ── Bali ──────────────────────────────────────────────────────────────────
     {
         "id": "ab3eccf6-1c97-5d25-aaf3-e2a485aba048",
         "name": "Tanah Lot Temple",
@@ -4340,7 +4324,6 @@ PLACES: list[dict] = [
         "latitude": -8.7200,
         "longitude": 115.1681,
     },
-    # ── Singapore ─────────────────────────────────────────────────────────────
     {
         "id": "c19334a9-7788-54a1-b038-0d49252a62f0",
         "name": "Gardens by the Bay",
@@ -4503,7 +4486,6 @@ PLACES: list[dict] = [
         "latitude": 1.3066,
         "longitude": 103.8519,
     },
-    # ── Hue ───────────────────────────────────────────────────────────────────
     {
         "id": "d6ab8736-e5dd-5f84-8e30-d4439afea91f",
         "name": "Hue Imperial Citadel",
@@ -4612,8 +4594,6 @@ PLACES: list[dict] = [
         "latitude": 16.4693,
         "longitude": 107.5764,
     },
-    # ════════ Additional cities — Vietnam ════════
-    # -- Can Tho, Vietnam --
     {
         "id": "76bc5fdf-8b64-5fa1-b259-10d62ad84fe0",
         "name": "Cai Rang Floating Market",
@@ -4686,7 +4666,6 @@ PLACES: list[dict] = [
         "latitude": 10.0339,
         "longitude": 105.7888,
     },
-    # -- Da Lat, Vietnam --
     {
         "id": "a286ea20-3f46-523b-ae0b-e225e3e1e7e8",
         "name": "Xuan Huong Lake",
@@ -4759,7 +4738,6 @@ PLACES: list[dict] = [
         "latitude": 11.9347,
         "longitude": 108.4275,
     },
-    # -- Hai Phong, Vietnam --
     {
         "id": "630a3b5f-f737-516c-ad0f-a5e7353b447f",
         "name": "Hai Phong Opera House",
@@ -4832,7 +4810,6 @@ PLACES: list[dict] = [
         "latitude": 20.8576,
         "longitude": 106.6905,
     },
-    # -- Hoi An, Vietnam --
     {
         "id": "0732b089-a453-5b1d-937f-9b843da1baf3",
         "name": "Hoi An Ancient Town",
@@ -4905,7 +4882,6 @@ PLACES: list[dict] = [
         "latitude": 15.9135,
         "longitude": 108.3470,
     },
-    # -- Hoi An additions --
     {
         "id": "2f276f6f-3ebb-5e9a-8d96-65435e838d6d",
         "name": "Tan Ky Old House",
@@ -6058,7 +6034,6 @@ PLACES: list[dict] = [
         "latitude": 15.876,
         "longitude": 108.33,
     },
-    # -- My Son, Vietnam --
     {
         "id": "46636265-a968-56bc-be9b-e869ee7d35fb",
         "name": "My Son Temple Group B-C-D",
@@ -6149,7 +6124,6 @@ PLACES: list[dict] = [
         "latitude": 15.765,
         "longitude": 108.12,
     },
-    # -- Tam Ky, Vietnam --
     {
         "id": "f2a91704-f22a-56ae-a7d5-ed01bd75c3c0",
         "name": "Tam Thanh Mural Village",
@@ -6258,7 +6232,6 @@ PLACES: list[dict] = [
         "latitude": 15.573,
         "longitude": 108.474,
     },
-    # -- Cu Lao Cham, Vietnam --
     {
         "id": "580047cc-1e3d-58d0-b301-e9f0a045c732",
         "name": "Bai Lang (Pier & Village)",
@@ -6367,7 +6340,6 @@ PLACES: list[dict] = [
         "latitude": 15.94,
         "longitude": 108.511,
     },
-    # -- Nha Trang, Vietnam --
     {
         "id": "03939931-a885-59bc-a21d-6f03f9283d5b",
         "name": "Nha Trang Beach",
@@ -6440,7 +6412,6 @@ PLACES: list[dict] = [
         "latitude": 12.2369,
         "longitude": 109.1944,
     },
-    # -- Phu Quoc, Vietnam --
     {
         "id": "cc4f75f0-a03e-5cc8-a65f-5f23ab09f3f2",
         "name": "Sao Beach",
@@ -6513,7 +6484,6 @@ PLACES: list[dict] = [
         "latitude": 10.1903,
         "longitude": 103.9586,
     },
-    # -- Quy Nhon, Vietnam --
     {
         "id": "3b7c33a2-8447-5da2-becf-88200d5cd427",
         "name": "Ky Co Beach",
@@ -6586,7 +6556,6 @@ PLACES: list[dict] = [
         "latitude": 13.7720,
         "longitude": 109.2230,
     },
-    # -- Vinh, Vietnam --
     {
         "id": "d8fd1fcb-0cad-500f-8e16-dca032f2bfa5",
         "name": "Kim Lien Relic Site (Ho Chi Minh's Hometown)",
@@ -6659,8 +6628,6 @@ PLACES: list[dict] = [
         "latitude": 18.6700,
         "longitude": 105.6810,
     },
-    # ════════ Additional cities — Thailand & Malaysia ════════
-    # -- Chiang Mai, Thailand --
     {
         "id": "7c37eb23-c126-5cf7-8e99-7b19663bdb6c",
         "name": "Wat Phra That Doi Suthep",
@@ -6733,7 +6700,6 @@ PLACES: list[dict] = [
         "latitude": 19.2167,
         "longitude": 98.8556,
     },
-    # -- Hat Yai, Thailand --
     {
         "id": "eaaffc7b-e46a-5a60-ba26-8d83d8982b1f",
         "name": "Wat Hat Yai Nai",
@@ -6806,7 +6772,6 @@ PLACES: list[dict] = [
         "latitude": 7.0125,
         "longitude": 100.4669,
     },
-    # -- Koh Samui, Thailand --
     {
         "id": "f71c395c-b355-5f55-9b49-423c5827a4c8",
         "name": "Big Buddha Temple (Wat Phra Yai)",
@@ -6879,7 +6844,6 @@ PLACES: list[dict] = [
         "latitude": 9.4633,
         "longitude": 100.0067,
     },
-    # -- Krabi, Thailand --
     {
         "id": "8d104627-75ee-51d0-843a-0b2e244a0723",
         "name": "Railay Beach",
@@ -6952,7 +6916,6 @@ PLACES: list[dict] = [
         "latitude": 8.0289,
         "longitude": 98.8348,
     },
-    # -- Johor Bahru, Malaysia --
     {
         "id": "55b2a6dc-05a0-57ad-9406-616ce51ff928",
         "name": "Legoland Malaysia Resort",
@@ -7025,7 +6988,6 @@ PLACES: list[dict] = [
         "latitude": 1.4625,
         "longitude": 103.7637,
     },
-    # -- Kota Kinabalu, Malaysia --
     {
         "id": "16075fa9-2730-503e-988c-dba9ed8d4087",
         "name": "Tunku Abdul Rahman Marine Park",
@@ -7098,7 +7060,6 @@ PLACES: list[dict] = [
         "latitude": 5.9847,
         "longitude": 116.0817,
     },
-    # -- Kuala Lumpur, Malaysia --
     {
         "id": "d6e2a049-a907-50ee-8c00-7e4d28a9d480",
         "name": "Petronas Twin Towers",
@@ -7171,7 +7132,6 @@ PLACES: list[dict] = [
         "latitude": 3.1486,
         "longitude": 101.7080,
     },
-    # -- Kuching, Malaysia --
     {
         "id": "f853bdaa-8856-5031-b0f1-4bdc61e5fe70",
         "name": "Kuching Waterfront",
@@ -7244,7 +7204,6 @@ PLACES: list[dict] = [
         "latitude": 1.5573,
         "longitude": 110.3438,
     },
-    # -- Langkawi, Malaysia --
     {
         "id": "6ac2bf30-0429-502a-b6f4-6bc14f0655e3",
         "name": "Langkawi SkyCab & SkyBridge",
@@ -7317,7 +7276,6 @@ PLACES: list[dict] = [
         "latitude": 6.2870,
         "longitude": 99.7270,
     },
-    # -- Penang, Malaysia --
     {
         "id": "a30a0455-6968-57cc-9fe1-58a59908cd67",
         "name": "George Town Street Art",
@@ -7390,8 +7348,6 @@ PLACES: list[dict] = [
         "latitude": 5.4378,
         "longitude": 100.3090,
     },
-    # ════════ Additional cities — Indonesia & Philippines ════════
-    # -- Balikpapan, Indonesia --
     {
         "id": "1a76b798-9cb7-5fd6-8d87-d5102a1f90d8",
         "name": "Kemala Beach",
@@ -7464,7 +7420,6 @@ PLACES: list[dict] = [
         "latitude": -1.2671,
         "longitude": 116.8312,
     },
-    # -- Jakarta, Indonesia --
     {
         "id": "b296eb56-327b-5d2b-9ac9-0aa03e23911e",
         "name": "National Monument (Monas)",
@@ -7537,7 +7492,6 @@ PLACES: list[dict] = [
         "latitude": -6.1949,
         "longitude": 106.8230,
     },
-    # -- Makassar, Indonesia --
     {
         "id": "dde1704d-379b-59e0-8745-544519a2c636",
         "name": "Fort Rotterdam",
@@ -7610,7 +7564,6 @@ PLACES: list[dict] = [
         "latitude": -5.1620,
         "longitude": 119.4045,
     },
-    # -- Medan, Indonesia --
     {
         "id": "d0d4854d-6eab-5247-bf20-e82ee1925872",
         "name": "Maimun Palace",
@@ -7683,7 +7636,6 @@ PLACES: list[dict] = [
         "latitude": 3.5839,
         "longitude": 98.6664,
     },
-    # -- Surabaya, Indonesia --
     {
         "id": "e7ef5491-bb04-5193-bac8-50dd38b2cda5",
         "name": "House of Sampoerna",
@@ -7756,7 +7708,6 @@ PLACES: list[dict] = [
         "latitude": -7.2624,
         "longitude": 112.7400,
     },
-    # -- Angeles, Philippines --
     {
         "id": "06e82cc9-c01b-5864-913c-06497f271e29",
         "name": "Holy Rosary Parish Church",
@@ -7829,7 +7780,6 @@ PLACES: list[dict] = [
         "latitude": 15.1693,
         "longitude": 120.5780,
     },
-    # -- Cebu, Philippines --
     {
         "id": "a1484896-739c-5b57-be15-47cbac01febe",
         "name": "Magellan's Cross",
@@ -7902,7 +7852,6 @@ PLACES: list[dict] = [
         "latitude": 9.8137,
         "longitude": 123.3886,
     },
-    # -- Davao, Philippines --
     {
         "id": "b12c6212-0fd4-56ad-8f45-c41cb3b2ffb0",
         "name": "Philippine Eagle Center",
@@ -7975,7 +7924,6 @@ PLACES: list[dict] = [
         "latitude": 7.0617,
         "longitude": 125.5933,
     },
-    # -- Kalibo (Boracay), Philippines --
     {
         "id": "4636fb8e-68ec-56f0-a578-195deaebccfa",
         "name": "White Beach Boracay",
@@ -8048,7 +7996,6 @@ PLACES: list[dict] = [
         "latitude": 11.9627,
         "longitude": 121.9270,
     },
-    # -- Manila, Philippines --
     {
         "id": "94dec225-e515-5516-a7aa-cb12de97f670",
         "name": "Intramuros",
@@ -8121,7 +8068,6 @@ PLACES: list[dict] = [
         "latitude": 14.5352,
         "longitude": 120.9822,
     },
-    # -- Puerto Princesa, Philippines --
     {
         "id": "c3e1e000-4d19-593d-bd36-67d070b7f1bd",
         "name": "Puerto Princesa Underground River",
@@ -8194,8 +8140,6 @@ PLACES: list[dict] = [
         "latitude": 9.7836,
         "longitude": 118.7186,
     },
-    # ════════ Additional cities — Cambodia, Laos, Myanmar, Brunei, Timor-Leste & East Asia ════════
-    # -- Phnom Penh, Cambodia --
     {
         "id": "1c6b937f-6b12-5fcb-96c0-c0928fbacdab",
         "name": "Royal Palace of Cambodia",
@@ -8268,7 +8212,6 @@ PLACES: list[dict] = [
         "latitude": 11.5697,
         "longitude": 104.9210,
     },
-    # -- Siem Reap, Cambodia --
     {
         "id": "45012473-5679-58e8-8279-7d72d60bfa7b",
         "name": "Angkor Wat",
@@ -8341,7 +8284,6 @@ PLACES: list[dict] = [
         "latitude": 13.3514,
         "longitude": 103.8475,
     },
-    # -- Sihanoukville, Cambodia --
     {
         "id": "1d314a43-6e0b-5917-abe8-b4a9cdb51738",
         "name": "Otres Beach",
@@ -8414,7 +8356,6 @@ PLACES: list[dict] = [
         "latitude": 10.6280,
         "longitude": 103.5120,
     },
-    # -- Luang Prabang, Laos --
     {
         "id": "d930ecb8-6a09-576c-88a8-1b01848f57b0",
         "name": "Kuang Si Falls",
@@ -8487,7 +8428,6 @@ PLACES: list[dict] = [
         "latitude": 19.8915,
         "longitude": 102.1385,
     },
-    # -- Vientiane, Laos --
     {
         "id": "77c63c96-8db6-518f-81f7-0dc13b258bc3",
         "name": "Pha That Luang",
@@ -8560,7 +8500,6 @@ PLACES: list[dict] = [
         "latitude": 17.9667,
         "longitude": 102.6088,
     },
-    # -- Mandalay, Myanmar --
     {
         "id": "9a98c550-47d9-5917-b950-fca262dabb91",
         "name": "Mandalay Hill",
@@ -8633,7 +8572,6 @@ PLACES: list[dict] = [
         "latitude": 21.9783,
         "longitude": 96.0836,
     },
-    # -- Yangon, Myanmar --
     {
         "id": "19368a87-10fe-530a-b7f2-df1180ab8a45",
         "name": "Shwedagon Pagoda",
@@ -8706,7 +8644,6 @@ PLACES: list[dict] = [
         "latitude": 16.7950,
         "longitude": 96.1620,
     },
-    # -- Bandar Seri Begawan, Brunei --
     {
         "id": "cc8f79e3-3ba6-581d-a059-6fa66db84c3c",
         "name": "Sultan Omar Ali Saifuddien Mosque",
@@ -8779,7 +8716,6 @@ PLACES: list[dict] = [
         "latitude": 4.9217,
         "longitude": 114.9163,
     },
-    # -- Dili, Timor-Leste --
     {
         "id": "4ceac173-bc45-54ec-a06b-c3a48333aa00",
         "name": "Cristo Rei of Dili",
@@ -8852,7 +8788,6 @@ PLACES: list[dict] = [
         "latitude": -8.5512,
         "longitude": 125.5610,
     },
-    # -- Hong Kong, Hong Kong --
     {
         "id": "2b389043-39df-5aef-a4eb-a2712fd190fb",
         "name": "Victoria Peak",
@@ -8925,7 +8860,6 @@ PLACES: list[dict] = [
         "latitude": 22.3060,
         "longitude": 114.1700,
     },
-    # -- Seoul, South Korea --
     {
         "id": "219d9acb-1942-5888-b5fe-f9ae5aebbc33",
         "name": "Gyeongbokgung Palace",
@@ -8998,7 +8932,6 @@ PLACES: list[dict] = [
         "latitude": 37.5475,
         "longitude": 126.9148,
     },
-    # -- Tokyo, Japan --
     {
         "id": "a46b3dd8-b714-5bd2-bd4e-8e31e8e9149a",
         "name": "Senso-ji Temple",
@@ -9073,13 +9006,9 @@ PLACES: list[dict] = [
     },
 ]
 
-# Consistency guard: every country named above must exist in countries.py,
-# the single source of truth for the country list. A typo or a new country
-# without a countries.py entry fails loudly at import time.
+# Reject any place whose country is absent from countries.py.
 _VALID_COUNTRIES: set[str] = {c["name"] for c in _COUNTRIES}
-# A place's country must also match its city's country in cities.py — this
-# catches a place tagged with the wrong (but otherwise valid) country, which
-# the check above alone cannot.
+# A place's country must also match its city's country in cities.py.
 _COUNTRY_BY_CITY: dict[str, str] = {c["name"]: c["country"] for c in _CITIES}
 for _place in PLACES:
     if _place["country"] not in _VALID_COUNTRIES:
@@ -9100,9 +9029,7 @@ for _place in PLACES:
             f"{_COUNTRY_BY_CITY[_city]!r}"
         )
 
-# CLAUDE.md promises every city in cities.py has ≥3 places — same invariant
-# the hotels.py guard enforces. Failing at import time prevents a future
-# trim from silently leaving a city with one or two places (or none).
+# Enforce the invariant that every city has ≥3 places at import time.
 _MIN_PLACES_PER_CITY = 3
 _PLACE_COUNTS: dict[str, int] = {}
 for _place in PLACES:

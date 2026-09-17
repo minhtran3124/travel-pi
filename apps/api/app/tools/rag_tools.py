@@ -1,16 +1,7 @@
-"""Travel-knowledge retrieval tool (specs/travel-knowledge-rag).
+"""Travel-knowledge retrieval tool over the vector store via hybrid search.
 
-Lets the concierge pull visa / entry-requirement and local-tips knowledge from the
-vector store via hybrid (semantic + lexical, RRF) search. Backed by pgvector in
-production; against the in-memory store (SQLite/tests) it returns documents once
-the corpus has been auto-ingested at startup (see ``core/lifespan``).
-
-Follows the same conventions as the other service-wrapping tools: a hand-authored
-``AppBaseModel`` args schema, ``log_tool_call`` first, and a plain dict return
-(``{results, count}``) that is always JSON-able. An empty result is a signal
-(``count: 0``), never an error — the concierge answers from its other tools when
-retrieval is empty, and a store/embeddings failure degrades to the same signal
-rather than raising.
+An empty result is a signal (``count: 0``), never an error, and a store/embeddings failure degrades
+to the same signal rather than raising.
 """
 
 from __future__ import annotations
@@ -32,8 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class SearchTravelKnowledgeArgs(AppBaseModel):
-    """Args for ``search_travel_knowledge`` (hand-authored schema)."""
-
     query: str = Field(
         ...,
         description=(
@@ -68,18 +57,8 @@ class SearchTravelKnowledgeArgs(AppBaseModel):
 def _resolve_location(
     country: str | None, city: str | None
 ) -> tuple[str | None, str | None]:
-    """Resolve free-text ``country``/``city`` to their seeded canonical names.
-
-    The vector store filters metadata by exact equality, so a near-but-inexact
-    name ('vietnam', 'USA') would otherwise exclude matching documents and return
-    a spurious ``count: 0``. Mirrors the fuzzy resolution ``visa_service`` /
-    ``tip_service`` apply. An unresolvable name passes through unchanged (the
-    destination is simply not in the corpus).
-
-    :param country: Free-text country filter, or ``None``.
-    :param city: Free-text city filter, or ``None``.
-    :return: The (country, city) resolved to seeded names where a match exists.
-    """
+    """Fuzzy-resolve ``country``/``city`` to seeded canonical names: the store filters metadata by exact
+    equality, so an inexact name would otherwise exclude matches and return a spurious ``count: 0``."""
     if not country and not city:
         return country, city
     with session_scope() as s:

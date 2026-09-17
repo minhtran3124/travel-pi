@@ -1,23 +1,4 @@
-"""Trip & itinerary tools (specs/travel-agent Task 3.1).
-
-Wrap ``TripService`` as LLM tools. Each opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent can
-self-correct. ``readOnly`` / ``destructive`` metadata is attached for the
-manifest + MCP layer (roadmap B1) and lives in ``registry.py``.
-
-``trip_id`` is injected by LangGraph from ``TravelAgentState.trip_id``
-(``InjectedState``), mirroring ``user_id`` in ``memory_tools.py`` — the model
-never sees or supplies the internal trip UUID (specs/agent-trip-context).
-
-NOTE: every tool passes an explicit ``args_schema`` that DECLARES its injected
-args (``InjectedState`` / ``InjectedToolCallId``) alongside the model-facing
-ones. ToolNode derives injection targets from that schema, so an injected param
-left out of it is never injected ("missing required positional arguments");
-declared, it is still stripped from the model-facing ``tool_call_schema``. The
-signatures keep their ``Annotated`` metadata too: the trip guard
-(``subagents/_base.py``) reads ``InjectedState("trip_id")`` from the function's
-type hints, and MCP serves the raw signature.
-"""
+"""Wrap ``TripService`` as LLM tools; injected args must be DECLARED in each ``args_schema`` or ToolNode never injects them."""
 
 from __future__ import annotations
 
@@ -49,17 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def _no_active_trip() -> dict:
-    """Guidance returned when a trip-scoped tool runs with no active trip.
-
-    A plain dict return (not a raised ``ToolException`` / ``Command``) so
-    ``ToolNode`` wraps it into a success ``ToolMessage`` that never passes
-    through ``handle_tool_errors`` — the wording is identical across every
-    sub-agent (specs/gh-125-trip-id-injection-keyerror/design.md).
-
-    Worded for both callers: on the agent path ``trip_id`` is injected from
-    graph state, but an MCP client may also omit it (it is optional in the
-    served schema, ESCALATIONS E001), and that caller has no traveller to ask.
-    """
+    """A plain dict (not a raised exception) so ToolNode wraps it into a success ToolMessage that skips error handling."""
     return {
         "error": "no_active_trip",
         "message": "No trip was supplied for this call.",
@@ -72,10 +43,7 @@ def _no_active_trip() -> dict:
 
 
 class TripScopedArgs(AppBaseModel):
-    """Injected owner + active trip shared by every trip-scoped tool.
-
-    Also the whole schema of the read tools that take no model-facing args.
-    """
+    """Injected owner + active trip shared by every trip-scoped tool."""
 
     user_id: Annotated[str | None, InjectedState("user_id")] = Field(
         default=None,
@@ -444,12 +412,7 @@ def list_trips(
             raise tool_error(e) from e
     entries = []
     for trip in trips:
-        # Project from dump() (model_dump(mode="json")) rather than the model's
-        # attributes: that is what turns the date fields into strings, so the
-        # payload stays JSON-serialisable into the graph checkpoint. No `id` is
-        # emitted (nothing consumes one, and the prompts forbid showing it), and
-        # `items` is the count — the repo attaches every item, which would flood
-        # the model's context.
+        # dump() stringifies dates so the payload stays JSON-serialisable into the checkpoint.
         d = dump(trip)
         entries.append(
             {
@@ -526,13 +489,7 @@ def create_trip(
             "travelers": travelers,
         },
     )
-    # #118: a trip needs a real owner. On the agent path an anonymous caller's
-    # id is a client-supplied string, so a trip stamped with it belongs to
-    # whoever sends that string next — refuse rather than create something
-    # unownable. Only the agent path is judged here: off-graph (direct call or
-    # MCP) there is no runtime and the caller passed `user_id` explicitly, so
-    # there is nothing to infer. MCP has no caller identity at all, which is
-    # recorded as out of scope on #118.
+    # Refuse to stamp a trip with an anonymous caller's client-supplied id; only the agent path has a runtime to judge.
     try:
         runtime = get_runtime(AgentContext)
     except RuntimeError:
@@ -751,11 +708,7 @@ def estimate_trip_budget(
         raise ToolException(str(e)) from e
     estimate = estimate_trip(request)
     b = estimate.breakdown
-    # Only cap categories whose estimated amount is > 0: a 0.0 cap (no price
-    # given, ``flight_total_usd=0`` for already-paid flights, activity_level
-    # none) would be stored as a real cap that rejects the first booking.
-    # ``buffer`` is always > 0 (local transport is charged per night), so the
-    # mapping is never empty.
+    # Only cap categories > 0: a stored 0.0 cap would reject the first booking.
     amounts = {
         "flights": round(b.flights, 2),
         "hotels": round(b.accommodation, 2),

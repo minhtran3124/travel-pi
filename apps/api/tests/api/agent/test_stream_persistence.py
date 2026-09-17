@@ -289,7 +289,7 @@ def test_stream_schedules_memory_extraction_after_drain(tmp_path):
         tmp_path,
         fast_responses=[
             "OK",
-            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '{"preferences": [{"key": "seat", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
         auth_user_id="user-extract",

@@ -1,10 +1,9 @@
-"""Tests for preference-aware re-ranking (MIN-65 task 6.2, DESIGN.md D7).
+"""Tests for preference-aware re-ranking.
 
-Two layers: pure unit tests of ``rank_by_preference`` against synthetic items,
-and tool-level tests proving the wiring into ``search_hotels``/``browse_hotels``
-(``app/tools/hotel_tools.py``) and ``search_flights`` (``app/tools/flight_tools.py``)
-— injection stays hidden from the model's schema, matching hotels/flights bubble
-to the top, ties keep their original order, and results are deterministic.
+Pure unit tests of ``rank_by_preference`` plus tool-level tests proving the
+wiring into ``search_hotels``/``browse_hotels``/``search_flights``: injection
+stays hidden from the model's schema, matches bubble up, ties keep order, and
+results are deterministic.
 """
 
 from __future__ import annotations
@@ -30,9 +29,8 @@ def _is_evening(flight: dict) -> bool:
 def _find_han_sgn_date_with_evening_flight() -> str:
     """Return a future HAN->SGN date whose fixture includes an evening flight.
 
-    ``generate_flights`` samples hours uniformly from 05-22, so about 20% of
-    dates have no evening departure. Looping forward avoids flaky failures when
-    ``datetime.now() + 10 days`` happens to land on one of those dates.
+    Fixture hours are sampled uniformly, so ~20% of dates have none; looping
+    forward avoids a flaky failure on a fixed offset.
     """
     for days in range(1, 90):
         departure = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
@@ -43,9 +41,6 @@ def _find_han_sgn_date_with_evening_flight() -> str:
         if any(_is_evening(f) for f in flights):
             return departure
     raise RuntimeError("No fixture date with an evening HAN->SGN flight found")
-
-
-# --- rank_by_preference: pure unit tests -----------------------------------
 
 
 @dataclass
@@ -64,7 +59,6 @@ def test_rank_by_preference_boosts_matching_item_to_top():
         items, "I really want a luxury stay", keyword_fn=_tag_keyword_fn
     )
     assert ranked[0].name == "luxury"
-    # non-matches keep their original relative order
     assert [i.name for i in ranked[1:]] == ["budget", "mid"]
     assert reasons == ["luxury"]
 
@@ -116,32 +110,29 @@ def test_rank_by_preference_dedupes_reasons_first_seen_order():
     ranked, reasons = rank_by_preference(
         items, "wants a spa and a pool please", keyword_fn=_tag_keyword_fn
     )
-    assert reasons == ["spa", "pool"]  # deduped, first-seen order
+    assert reasons == ["spa", "pool"]
     assert len(ranked) == 3
 
 
 def test_rank_by_preference_does_not_false_match_short_keyword_inside_a_word():
-    """Regression: a short keyword like the 2-letter airline code "ke" must not
-    match as a substring of ordinary words like "likes"/"weekend"/"tickets"."""
+    """A short keyword must not match as a substring inside an ordinary word."""
     items = [Item("first", "ke"), Item("second", "other")]
     ranked, reasons = rank_by_preference(
         items, "Traveller likes booking tickets early", keyword_fn=_tag_keyword_fn
     )
-    assert [i.name for i in ranked] == ["first", "second"]  # unchanged order
+    assert [i.name for i in ranked] == ["first", "second"]
     assert reasons == []
 
 
 def test_rank_by_preference_does_not_false_match_word_inside_a_longer_token():
-    """Regression: "hotel" must not match inside the store key "hotel_type" —
-    the preferences block folds `- {key}: {text}` lines, so the key text is
-    part of the haystack (see nodes.py load_context_node)."""
+    """A keyword must not match inside a longer store key; folded pref lines include the key text."""
     items = [Item("first", "hotel"), Item("second", "other")]
     ranked, reasons = rank_by_preference(
         items,
         "- hotel_type: Traveller prefers boutique stays",
         keyword_fn=_tag_keyword_fn,
     )
-    assert [i.name for i in ranked] == ["first", "second"]  # unchanged order
+    assert [i.name for i in ranked] == ["first", "second"]
     assert reasons == []
 
 
@@ -155,11 +146,8 @@ def test_rank_by_preference_real_word_boundary_match_still_works():
     assert reasons == ["spa"]
 
 
-# --- Tool wiring: injection stays hidden from the model-facing schema ------
-
-
 def _facing(tool):
-    """Model-facing schema fields (matches the convention in test_memory_tools.py)."""
+    """Model-facing schema fields."""
     return tool.tool_call_schema.model_fields
 
 

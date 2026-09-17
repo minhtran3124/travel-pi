@@ -1,10 +1,8 @@
-"""Conversation summarisation (specs/travel-agent Task 2.2).
+"""Conversation summarisation.
 
-Long agent threads bloat the checkpoint and overflow the context window. When
-the message count crosses ``summarize_threshold``, the graph compresses the
-older turns into a rolling summary (via the cheap/fast model) and drops them,
-keeping only the last few verbatim. Mirrors the reference chatbot's sliding
--window memory node.
+When the message count crosses ``summarize_threshold``, the graph compresses
+older turns into a rolling summary and drops them, keeping only the last few
+verbatim.
 """
 
 from __future__ import annotations
@@ -45,19 +43,11 @@ _MERGE_SYSTEM = (
 
 
 def _safe_split(messages: list[BaseMessage], keep_last: int) -> int:
-    """Index into ``messages`` where the kept (verbatim) tail should start.
+    """Index where the kept (verbatim) tail should start.
 
-    A naive ``len(messages) - keep_last`` can land in the middle of an
-    AIMessage-with-``tool_calls`` + its ``ToolMessage`` response(s): if the
-    ToolMessage lands in the kept tail but its parent AIMessage falls in the
-    removed portion, the next model call sends an orphaned tool result and the
-    provider rejects it ("No tool call found for function call output with
-    call_id ..."). Walk the boundary back past any ``ToolMessage`` run so a
-    tool-call/tool-result pair is always kept or removed together.
-
-    :param messages: The full conversation history being split.
-    :param keep_last: Requested number of trailing messages to keep verbatim.
-    :return: The (possibly earlier) index where the kept tail actually starts.
+    Walk the naive ``len(messages) - keep_last`` boundary back past any
+    ``ToolMessage`` run so a tool-call/tool-result pair is never split across it
+    — an orphaned tool result gets rejected by the provider on the next call.
     """
     split = max(len(messages) - keep_last, 0)
     while split > 0 and isinstance(messages[split], ToolMessage):

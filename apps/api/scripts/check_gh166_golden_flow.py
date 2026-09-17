@@ -1,19 +1,10 @@
 #!/usr/bin/env python3
-"""SC-10: the gh-166 counting golden must name a real, observed sub-agent flow.
+"""Assert the counting golden's ``expected_flow`` is a flow the supervisor can route to.
 
-`expected_flow` is filled from an actual eval run (PLAN.md Task 4.1), never
-guessed. This check cannot prove provenance — that stays in the SUMMARY's
-`### Not auto-verified` section — but it does prove the value is present and
-is a flow the supervisor can route to.
-
-The valid set is `ALL_SUBAGENTS` (`app/agents/constants.py`, which calls itself
-the single source of truth) plus `SYNTHESIZE_NODE`. The latter matters: on the
-multi-intent fan-out path `nodes.py` sets `current_flow` to the synthesize
-node's own name, and the eval runner copies `current_flow` straight into the
-`Trace.flow` that `expected_flow` is compared against — so "synthesize" is a
-value an honest observation can legitimately produce. Deriving the set rather
-than restating it means a renamed or added sub-agent cannot leave this check
-asserting against a stale list.
+The valid set is derived (``ALL_SUBAGENTS`` plus ``SYNTHESIZE_NODE``) rather than
+restated, so a renamed or added sub-agent cannot leave it asserting a stale list.
+``SYNTHESIZE_NODE`` is included because the multi-intent fan-out path sets
+``current_flow`` to the synthesize node's own name.
 """
 
 from __future__ import annotations

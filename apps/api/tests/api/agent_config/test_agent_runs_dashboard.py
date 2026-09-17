@@ -1,9 +1,4 @@
-"""SC-8: the /dashboard/agent-runs page (specs/agent-turn-metrics).
-
-Renders the recent agent runs + 24h / 7d totals behind the dashboard guard.
-Built like ``test_dashboard_auth.py``: a fresh app + settings per test so the
-guard's dev-open vs production-hidden behaviour can be exercised directly.
-"""
+"""The /dashboard/agent-runs page: a fresh app + settings per test."""
 
 from datetime import UTC, datetime
 
@@ -91,7 +86,6 @@ def test_agent_runs_page_renders_in_dev(tmp_db, monkeypatch):
         body = resp.text
         assert id_a in body
         assert id_b in body
-        # A totals field and a per-run field both render.
         assert "Last 24h" in body
         assert "flights" in body
 

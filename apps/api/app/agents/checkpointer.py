@@ -1,18 +1,4 @@
-"""Graph checkpointer selection (specs/travel-agent Task 2.1; agent-graph-lifecycle).
-
-The checkpointer is what makes the agent stateful across turns and sessions:
-LangGraph snapshots graph state per ``thread_id`` after every node.
-
-Per ``specs/agent-graph-lifecycle`` (E001) the durable backend is **Postgres only**,
-via the **async** saver: ``open_checkpointer`` is an async context manager entered once
-in the app ``lifespan`` and held open for the process lifetime — never per request. A
-non-Postgres URL (local dev / the SQLite test suite) degrades to an in-memory
-``MemorySaver`` so a missing Postgres never blocks startup; tests inject their own
-``MemorySaver`` directly. A *configured* Postgres that fails to initialise is the
-dangerous case — the app would otherwise run on an ephemeral checkpointer and silently
-stop persisting conversation history across restarts — so it **fails fast in production**
-and degrades with a **loud warning** in dev/test.
-"""
+"""Graph checkpointer selection: async Postgres saver, else in-memory MemorySaver."""
 
 from __future__ import annotations
 
@@ -29,11 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def _libpq_dsn(url: str) -> str:
-    """Strip SQLAlchemy's ``+driver`` so psycopg/libpq accepts the DSN.
-
-    :param url: A SQLAlchemy-style database URL.
-    :return: The URL with any ``+psycopg`` driver suffix stripped.
-    """
+    """Strip SQLAlchemy's ``+driver`` so psycopg/libpq accepts the DSN."""
     return url.replace("postgresql+psycopg://", "postgresql://").replace(
         "postgres+psycopg://", "postgresql://"
     )
@@ -43,16 +25,7 @@ def _libpq_dsn(url: str) -> str:
 async def open_checkpointer(
     database_url: str | None = None,
 ) -> AsyncIterator[BaseCheckpointSaver]:
-    """Yield the agent checkpointer for the app's lifetime (``lifespan``-managed).
-
-    Postgres URL -> ``AsyncPostgresSaver`` (tables created via ``setup()``), opened
-    once with ``async with`` and closed on shutdown. A non-Postgres URL -> ``MemorySaver``.
-    A configured Postgres that fails to initialise raises in production (refusing to start
-    on an ephemeral checkpointer), else degrades to ``MemorySaver`` with a warning.
-
-    :param database_url: Database URL to select the backend; defaults to
-        ``settings.database_url``.
-    """
+    """Yield the agent checkpointer for the app's lifetime (``lifespan``-managed)."""
     url = database_url or get_settings().database_url
     if url.startswith("postgres"):
         try:
@@ -63,10 +36,8 @@ async def open_checkpointer(
                 yield saver
             return
         except Exception as exc:
-            # Configured-but-unreachable Postgres is the silent trap: the app
-            # keeps running on an in-memory checkpointer, so agent conversation
-            # history quietly stops surviving restarts. Fail fast in production;
-            # in dev/test, degrade but make the loss unmistakable.
+            # Configured-but-unreachable Postgres silently drops to ephemeral state:
+            # fail fast in production, degrade loudly in dev/test.
             if get_settings().is_production:
                 logger.critical(
                     "AsyncPostgresSaver init failed for %s in production; "
@@ -86,13 +57,5 @@ async def open_checkpointer(
 
 
 def get_checkpointer(database_url: str | None = None) -> BaseCheckpointSaver:
-    """In-memory saver for tests / non-Postgres degrade.
-
-    Production code builds the durable saver through :func:`open_checkpointer` so its
-    connection is lifecycle-managed; this sync helper exists only for the ephemeral
-    in-memory case.
-
-    :param database_url: Unused; kept for signature parity with :func:`open_checkpointer`.
-    :return: A fresh ``MemorySaver``.
-    """
+    """In-memory saver for tests / non-Postgres degrade."""
     return MemorySaver()

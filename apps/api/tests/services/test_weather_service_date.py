@@ -1,21 +1,4 @@
-"""Tests for the optional ``date`` parameter on ``get_weather``/``get_packing``.
-
-MIN-66 / specs/weather-trip-date-accuracy: asking about weather on a
-far-future date used to silently return today's forecast. These tests cover
-the three behaviors from Task 1.1:
-
-- ``date=None`` is byte-identical to the pre-existing behavior (still sends
-  ``forecast_days``, never ``start_date``/``end_date``).
-- An in-range ``date`` narrows the Open-Meteo query to that single day via
-  ``start_date``/``end_date``.
-- An out-of-horizon ``date`` raises ``DomainValidationError`` instead of
-  falling back to today, and names ``get_climate`` as the alternative.
-
-Hermetic: ``weather_service._fetch_json`` is monkeypatched, modelled on
-``tests/api/weather/test_climate.py``. No network calls are made. The
-autouse ``_clear_geocode_cache`` fixture in ``tests/conftest.py`` keeps
-geocode lookups isolated between cases.
-"""
+"""Optional ``date`` parameter on ``get_weather``/``get_packing``: None keeps the ``forecast_days`` query, an in-range date narrows to a single day, and an out-of-horizon date raises ``DomainValidationError`` naming ``get_climate``."""
 
 import asyncio
 import datetime
@@ -56,12 +39,7 @@ _FORECAST_RESPONSE = {
 
 
 def _fake_fetch(captured_params):
-    """Return an async ``_fetch_json`` stand-in recording forecast params.
-
-    Geocode requests (``"name"`` in params) are answered from ``_GEOCODE_HIT``
-    without being recorded; forecast requests are recorded and answered from
-    ``_FORECAST_RESPONSE``.
-    """
+    """Async ``_fetch_json`` stand-in: geocode requests are answered but not recorded; forecast requests are recorded."""
 
     async def _inner(url: str, params: dict) -> dict:
         if "name" in params:

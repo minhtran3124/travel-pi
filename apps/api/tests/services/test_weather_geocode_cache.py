@@ -1,14 +1,4 @@
-"""Tests for the ``geocode_city`` memoisation added in specs/geocode-cache.
-
-City coordinates are static, so ``weather_service.geocode_city`` caches successful
-lookups process-wide: a repeat lookup (a single agent turn geocoding the same city
-from two tools, or a tools-node retry after a transient timeout) skips the outbound
-Open-Meteo call. Only hits are cached — a miss stays retryable, and a transport
-error propagates before the store is touched.
-
-The autouse ``_clear_geocode_cache`` fixture (tests/conftest.py) empties the cache
-around every test, so each case below starts cold.
-"""
+"""``geocode_city`` caches successful lookups process-wide; misses stay retryable and transport errors propagate before the store is touched."""
 
 import asyncio
 

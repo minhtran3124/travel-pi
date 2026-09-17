@@ -1,19 +1,7 @@
-"""Sub-agent factory (specs/travel-agent Task 5.1).
+"""Sub-agent factory: a specialist is a small ReAct subgraph (assistant + ToolNode).
 
-A specialist sub-agent is a small ReAct subgraph: an ``assistant`` node binds the
-domain's tools and answers; if it emits tool calls, ``ToolNode`` runs them
-(catching ``ToolException`` -> ``ToolMessage(status="error")`` so the model can
-self-correct) and control returns to the assistant; otherwise the loop ends.
-
-Compiled subgraphs are added as nodes to the supervisor graph (Task 5.4); the
-parent's checkpointer and store propagate into these nested nodes at runtime, so
-tools using ``InjectedStore`` work without per-sub-agent wiring.
-
-C.1 (specs/runtime-context-config): ``build_subagent`` accepts a
-``resolve_model`` callable instead of a fixed ``llm``. The ``assistant`` node
-resolves + binds the model via ``resolve_model(None)`` — the per-request model
-hint was removed in MIN-43; model selection now comes from the DB/env-backed
-``get_agent_llm`` config.
+Compiled subgraphs are added as nodes to the supervisor graph; the parent's
+checkpointer and store propagate in, so ``InjectedStore`` tools need no wiring.
 """
 
 from __future__ import annotations

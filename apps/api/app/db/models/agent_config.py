@@ -15,8 +15,7 @@ class AgentConfig(UUIDBase):
     base_url: Mapped[str | None] = mapped_column(String, default=None)
     temperature: Mapped[float | None] = mapped_column(Float, default=None)
     max_tokens: Mapped[int | None] = mapped_column(Integer, default=None)
-    # None == "enabled" (backward-compatible default); only an explicit False
-    # disables the agent. Currently read only for the `reflection` node.
+    # None == "enabled"; only an explicit False disables the agent.
     enabled: Mapped[bool | None] = mapped_column(Boolean, default=None)
 
     __table_args__ = (Index("ix_agent_config_agent_name", "agent_name", unique=True),)

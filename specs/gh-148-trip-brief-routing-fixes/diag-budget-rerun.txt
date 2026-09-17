@@ -1,0 +1,60 @@
+
+========== budget-ambiguous-en-02
+turns: ['Compare Hanoi and Ho Chi Minh City for a 5-day trip: food, culture, and budget']
+flow: synthesize | tasks: ['concierge', 'budget']
+state.language: en
+state.trip_facts: {}
+detect_language(final reply): vi
+--- AI msg 0 ---
+For a 5-day trip, I’d recommend **Hanoi** if you want a more cultural, old-world feel and a slightly easier budget. It’s especially good for **classic Vietnamese food, temples, colonial streets, cafés, and walkable neighborhoods**.
+
+Choose **Ho Chi Minh City** instead if you want **more energy, a bigger food scene, nightlife, shopping, and a more modern city vibe**. It’s still affordable, but it can feel a bit more expensive in central areas and for getting around.
+
+**My quick pick:**
+- **Hanoi** = best for culture + traditional food + relaxed pace  
+- **Ho Chi Minh City** = best for variety + nightlife + lively urban experience
+
+If you want, I can also turn either city into a **simple 5-day itinerary**.
+
+========== budget-ambiguous-en-03
+turns: ['Break down a typical daily budget for backpacking in Vietnam by category']
+flow: concierge | tasks: ['concierge']
+state.language: en
+state.trip_facts: {}
+detect_language(final reply): en
+--- AI msg 1 ---
+A typical backpacker day in Vietnam often lands around **$20–40 USD** if you keep it simple 🌴
+
+Here’s a practical breakdown by category:
+
+- **Hostel bed:** **$6–15**
+- **Food:** **$5–12**
+- **Local transport:** **$2–6**
+- **Activities / sights:** **$3–10**
+- **Drinks / snacks / misc:** **$2–5**
+
+A few travel-smart notes for Vietnam:
+
+- **Cash is king** — many small shops, street food stalls, and taxis are cash-only, so keep small notes handy.
+- **Use Grab** for rides when you can; it’s usually cheaper and avoids taxi surprises.
+- **Street food is a great budget win** if you choose busy stalls with lots of locals.
+
+If you want, Tin can also break this down for **budget / mid-range / party backpacker** styles, or by city like **Hanoi, Da Nang, or Ho Chi Minh City**.
+--- AI msg 2 ---
+Here’s a more useful backpacker budget split for **Vietnam** 🌴
+
+**Typical daily total:** **$20–40 USD**
+
+- **Hostel bed:** **$6–15**
+- **Food:** **$5–12**
+- **Transport:** **$2–6**
+- **Activities:** **$3–10**
+- **Snacks, drinks, SIM, extras:** **$2–5**
+
+A few money tips that help stretch the budget:
+
+- **Carry small cash notes** — many street stalls, taxis, and local shops still prefer cash.
+- **Use Grab** for short rides instead of hailing taxis on the street.
+- **Eat street food** at busy stalls; it’s usually the best value and often very good.
+
+If you’re planning a specific route, Tin can turn this into a **per-day budget for Hanoi, Da Nang, or Ho Chi Minh City**.

@@ -1,4 +1,4 @@
-"""Specialists receive the supervisor's task folded into their single leading system message (SC-5/SC-6)."""
+"""Specialists receive the supervisor's task folded into their single leading system message."""
 
 import asyncio
 import types
@@ -11,8 +11,8 @@ from app.clients.llm import FakeLLM
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 QUERY = "find flights to Tokyo"
-# Differs from QUERY: the note is only added when the supervisor actually split
-# the message (E001), so delivery tests need a user sentence != the task query.
+# The note is only added when the supervisor actually split the message, so
+# delivery tests need a user sentence != the task query.
 USER = "flights to Tokyo and a visa question"
 
 
@@ -64,8 +64,8 @@ def test_single_intent_receives_note():
 
 
 def test_single_intent_same_sentence_gets_no_note():
-    # E001: when the task query is the traveller's own sentence, the model input
-    # is main's — one plain leading SystemMessage, no task note.
+    # When the task query is the traveller's own sentence, there is one plain
+    # leading SystemMessage and no task note.
     llm = _llm()
     _run_planner(
         llm,
@@ -138,8 +138,7 @@ def test_revise_note_stays_last():
     call = llm.seen[-1]
     assert isinstance(call[-1], SystemMessage)
     assert call[-1].content == REFLECTION_REVISE_NOTE
-    # The history carries reflection's own system note by design (as on main);
-    # only the FIRST system message may carry the task.
+    # The history carries reflection's own system note; only the first system message may carry the task.
     systems = _systems(call)
     assert call[0] is systems[0]
     assert TASK_NOTE_PREAMBLE in str(systems[0].content)

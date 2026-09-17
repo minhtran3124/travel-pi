@@ -1,11 +1,4 @@
-"""HITL plan-approval interrupt tests (REVIEW.md M1).
-
-Verifies that:
-- A booking request pauses at plan_node with __interrupt__ in state.
-- Resuming with approved=True proceeds to the booking sub-agent.
-- Resuming with approved=False ends gracefully without booking.
-- Non-booking flows complete without any interrupt.
-"""
+"""HITL plan-approval interrupt tests."""
 
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
@@ -39,11 +32,6 @@ def _invoke(graph, msg: str, thread_id: str, **extra):
     )
 
 
-# ---------------------------------------------------------------------------
-# Booking flow: interrupt fires, then resumes
-# ---------------------------------------------------------------------------
-
-
 def test_booking_triggers_plan_interrupt():
     graph = _build(intent_target="booking", answer="Hotel booked!")
     result = _invoke(graph, "book me a hotel in Paris", thread_id="t-book-1")
@@ -58,7 +46,6 @@ def test_booking_resume_approved_continues_to_booking():
     graph = _build(intent_target="booking", answer="Hotel booked!")
     cfg = {"configurable": {"thread_id": "t-book-2"}}
 
-    # First turn — triggers interrupt.
     graph.invoke(
         {
             "messages": [HumanMessage(content="book me a hotel")],
@@ -68,7 +55,6 @@ def test_booking_resume_approved_continues_to_booking():
         cfg,
     )
 
-    # Resume with approval.
     result = graph.invoke(Command(resume={"approved": True}), cfg)
     assert not result.get("__interrupt__"), "no interrupt after approval"
     assert any("Hotel booked" in (m.content or "") for m in result["messages"])
@@ -90,13 +76,7 @@ def test_booking_resume_rejected_ends_gracefully():
     result = graph.invoke(Command(resume={"approved": False}), cfg)
     assert not result.get("__interrupt__"), "no interrupt after rejection"
     assert any("cancelled" in (m.content or "").lower() for m in result["messages"])
-    # Must NOT contain any booking confirmation.
     assert not any("Hotel booked" in (m.content or "") for m in result["messages"])
-
-
-# ---------------------------------------------------------------------------
-# Non-booking flows: no interrupt
-# ---------------------------------------------------------------------------
 
 
 def test_non_booking_flow_has_no_interrupt():
@@ -109,18 +89,8 @@ def test_non_booking_flow_has_no_interrupt():
         assert result["current_flow"] == agent
 
 
-# ---------------------------------------------------------------------------
-# plan_approved must reset per turn (issue #63)
-# ---------------------------------------------------------------------------
-
-
 def test_plan_approved_resets_on_next_turn():
-    """A booking approval must not leak outcome="approved" onto later turns.
-
-    The approving turn keeps plan_approved=True (so its episode records
-    "approved"), but the next fresh turn on the SAME thread must reset it to
-    False — otherwise every subsequent episode is mislabeled (issue #63).
-    """
+    """A booking approval must not leak outcome="approved" onto later turns."""
     # Turn 1 supervises to booking; turn 2 to concierge (structured cursor cycles).
     main = FakeLLM(
         structured_responses=[
@@ -135,7 +105,6 @@ def test_plan_approved_resets_on_next_turn():
     )
     cfg = {"configurable": {"thread_id": "t-reset"}}
 
-    # Turn 1: book → interrupt → approve. plan_node sets the flag True.
     graph.invoke(
         {
             "messages": [HumanMessage(content="book me a hotel")],
@@ -149,7 +118,6 @@ def test_plan_approved_resets_on_next_turn():
         "approving turn must carry plan_approved=True"
     )
 
-    # Turn 2: a fresh, unrelated turn on the same thread must clear the flag.
     nxt = graph.invoke(
         {
             "messages": [HumanMessage(content="weather in Hanoi?")],

@@ -30,6 +30,7 @@ from typing import Any
 
 from app.agents.context import AgentContext
 from app.agents.suggestions import suggestions_for_flow
+from app.memory.extraction_runner import run_memory_extraction
 from evalkit.types import Golden, Trace
 from evalkit.types import ToolCall as EvalToolCall
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -145,6 +146,70 @@ def _model_name(model: BaseChatModel | None) -> str | None:
     )
 
 
+# Metrics whose golden fields the memory-capture path feeds. Extraction runs an
+# extra LLM call and writes to the store, so capture is opt-in: only a golden
+# declaring one of these metrics pays for it (design §5, SC-9). A golden that
+# sets `forbidden_memory`/`expected_memory` without naming the metric is inert —
+# guarded by a dataset test, the false-green trap one layer out.
+_MEMORY_METRICS = frozenset({"no_injected_memory", "memory_stored"})
+
+# Store namespace kind -> the flat `kind` label emitted on Trace.meta["memory"].
+_MEMORY_KINDS: dict[str, str] = {
+    "prefs": "preferences",
+    "procedural": "instructions",
+    "episodes": "episodes",
+}
+
+
+def _wants_memory_capture(golden: Golden) -> bool:
+    """True when *golden* declares a metric that reads ``Trace.meta['memory']``."""
+    return bool(_MEMORY_METRICS.intersection(golden.metrics or ()))
+
+
+def _eval_user_id(golden_id: str) -> str:
+    """Per-golden store user id so one golden's captured memory never leaks to another.
+
+    The eval CLI builds ONE ``LangGraphRunner`` (one ``build_eval_graph`` → one
+    ``InMemoryStore``) for the whole run and drives every golden through it. If
+    every golden wrote under a single fixed user id, ``_capture_memory`` would
+    persist into a namespace ``load_context_node`` then re-reads for every LATER
+    golden — the positive golden's stored "always show prices in EUR" would stand
+    as a standing instruction in every subsequent system prompt (shifting results
+    and the ``eval-check`` baseline), and within the memory goldens a negative
+    could be reddened, or a positive pass, on an item another golden wrote.
+
+    Deriving the id from the golden's unique, stable id gives each golden its own
+    ``("users", "eval-<id>", …)`` subtree. Deterministic (no uuid): the same
+    golden always reads back exactly and only what it wrote.
+
+    :param golden_id: The golden's dataset id.
+    :return: A user id unique to that golden.
+    """
+    return f"eval-{golden_id}"
+
+
+def _stored_memory(store: Any, user_id: str) -> list[dict[str, Any]]:
+    """Snapshot every memory item persisted for *user_id*, flattened for the metrics.
+
+    Reads the store namespaces directly rather than through the read-guard
+    helpers: the memory metrics gate on what the write path actually PERSISTED,
+    so a poisoned item the write guard dropped must be genuinely absent here (not
+    merely hidden by a read-side filter). Each item is emitted with a flat
+    ``text`` key — ``no_injected_memory`` reads ``item["text"]`` and
+    ``memory_stored`` reads ``item["key"]`` (design §5).
+
+    :param store: The compiled graph's LangGraph store.
+    :param user_id: Owning user id the eval turn wrote under.
+    :return: ``{"kind", "key", "text"}`` dicts across all three memory kinds.
+    """
+    items: list[dict[str, Any]] = []
+    for ns_kind, label in _MEMORY_KINDS.items():
+        for it in store.search(("users", user_id, ns_kind), limit=100):
+            value = it.value if isinstance(it.value, dict) else {}
+            items.append({"kind": label, "key": it.key, "text": value.get("text")})
+    return items
+
+
 class LangGraphRunner:
     """`AgentRunner` port impl: drives the compiled travel graph for one golden.
 
@@ -197,11 +262,59 @@ class LangGraphRunner:
         """
         return asyncio.run(self._graph.ainvoke(payload, cfg, context=self._context))
 
+    def _capture_memory(
+        self, out: dict[str, Any], user_id: str
+    ) -> list[dict[str, Any]]:
+        """Run post-turn extraction against the eval graph's store, then snapshot it.
+
+        Mirrors production: ``run_memory_extraction`` writes through the same
+        store write-guard the API uses (``compiled.store``) with the graph's own
+        ``extract_memory_llm`` (``graph.py:200``), so what lands on
+        ``Trace.meta['memory']`` is exactly what a real turn would persist — a
+        poisoned item the guard rejects is absent. Best-effort: extraction already
+        swallows its own errors, and a graph missing the store/LLM seam yields an
+        empty snapshot.
+
+        The snapshot is read back from *user_id*'s own per-golden namespace: the
+        shared eval store is written and read under a user id derived from this
+        golden's id (see ``_eval_user_id``), so nothing another golden stored is
+        visible here.
+
+        The vacuity trap — an empty snapshot from a rejected poison looking
+        identical to one where nothing was extracted at all — is closed by the
+        adversarial goldens themselves: each carries a legitimate preference
+        alongside the injection, so a healthy run stores that preference and an
+        empty snapshot is itself the anomaly signal.
+
+        :param out: The final graph state for this golden's last turn.
+        :param user_id: This golden's isolated store user id.
+        :return: The flattened stored-memory items.
+        """
+        store = getattr(self._graph, "store", None)
+        llm = getattr(self._graph, "extract_memory_llm", None)
+        if store is None or llm is None:
+            return []
+        messages = out.get("messages", [])
+        run_memory_extraction(
+            messages=messages,
+            user_id=user_id,
+            trip_id=out.get("trip_id"),
+            plan_approved=out.get("plan_approved", False),
+            allow_memory_write=True,
+            store=store,
+            llm=llm,
+        )
+        return _stored_memory(store, user_id)
+
     def run(self, golden: Golden) -> Trace:
         """Invoke the graph for *golden* (single input or multi-turn) -> Trace."""
         thread_id = f"eval-{golden.id}-{uuid.uuid4().hex[:8]}"
         cfg = {"configurable": {"thread_id": thread_id}}
         turns = golden.turns if golden.turns is not None else [golden.input]
+        # Per-golden store namespace: the runner's InMemoryStore is shared across
+        # every golden in the run, so a fixed user id would leak one golden's
+        # captured memory into every later golden (see _eval_user_id).
+        user_id = _eval_user_id(golden.id)
 
         start = time.monotonic()
         out: dict[str, Any] = {}
@@ -211,7 +324,7 @@ class LangGraphRunner:
             if i == 0:
                 # Only the first turn on a fresh thread needs the initial state
                 # shape; the checkpointer carries it forward on later turns.
-                payload["user_id"] = "eval"
+                payload["user_id"] = user_id
                 payload["trip_id"] = None
             out = self._drive(payload, cfg)
 
@@ -238,20 +351,27 @@ class LangGraphRunner:
         elapsed = time.monotonic() - start
 
         messages = out.get("messages", [])
+        meta: dict[str, Any] = {
+            "thread_id": thread_id,
+            "model": self._model,
+            "elapsed_s": elapsed,
+            "n_turns": len(turns),
+            "tasks": [t.get("agent") for t in out.get("tasks") or []],
+            "suggestions": suggestions_for_flow(
+                out.get("current_flow"), trip_facts=out.get("trip_facts")
+            ),
+            "interrupts": interrupts,
+        }
+        # Opt-in: only goldens that declare a memory metric pay for the extra
+        # extraction call. The key must be PRESENT (even as []) for those goldens
+        # — the metrics treat a missing "memory" key as a hard fail (extraction
+        # never ran), so absence is never a silent pass.
+        if _wants_memory_capture(golden):
+            meta["memory"] = self._capture_memory(out, user_id)
         return Trace(
             reply=_final_reply(messages),
             tool_calls=_pair_tool_calls(messages),
             flow=out.get("current_flow"),
             messages=[_serialize_message(m) for m in messages],
-            meta={
-                "thread_id": thread_id,
-                "model": self._model,
-                "elapsed_s": elapsed,
-                "n_turns": len(turns),
-                "tasks": [t.get("agent") for t in out.get("tasks") or []],
-                "suggestions": suggestions_for_flow(
-                    out.get("current_flow"), trip_facts=out.get("trip_facts")
-                ),
-                "interrupts": interrupts,
-            },
+            meta=meta,
         )

@@ -1,10 +1,4 @@
-"""Synthesis worker state-propagation tests (GH-117 Path A / Codex Comment 2).
-
-The worker runs a specialist sub-agent inside a LangGraph ``Send`` and must
-propagate graph-state mutations performed by tools (e.g. ``create_trip`` sets
-``trip_id``, ``needs_clarification`` sets ``awaiting_user``) back to the parent
-graph while keeping the sub-agent's inner messages private.
-"""
+"""Synthesis worker must propagate tool-driven graph-state mutations to the parent while keeping the sub-agent's inner messages private."""
 
 import asyncio
 from types import SimpleNamespace
@@ -17,14 +11,10 @@ from langchain_core.messages import AIMessage, HumanMessage
 
 
 def _fake_subagent(mutated_state: dict):
-    """Return a compiled-graph-like builder whose invoke() merges ``mutated_state``.
-
-    :param mutated_state: Key/value pairs to overlay on the input state.
-    """
+    """Return a compiled-graph-like builder whose invoke() overlays ``mutated_state`` on the input state."""
 
     class FakeGraph:
-        # The worker awaits the sub-agent (#178: the specialists bind async-only
-        # tools), so the stand-in exposes the async entry point the worker uses.
+        # The worker awaits the sub-agent, so the stand-in exposes async ainvoke.
         async def ainvoke(self, state: dict, config=None) -> dict:
             merged = dict(state)
             merged.update(mutated_state)
@@ -37,7 +27,6 @@ def _fake_subagent(mutated_state: dict):
 
 
 def test_worker_propagates_trip_id_when_tool_creates_trip(monkeypatch):
-    """A planner worker that calls create_trip must set trip_id in the parent."""
     monkeypatch.setitem(
         _AGENT_BUILDERS,
         "planner",
@@ -66,7 +55,6 @@ def test_worker_propagates_trip_id_when_tool_creates_trip(monkeypatch):
 
 
 def test_worker_propagates_awaiting_user_when_tool_blocks(monkeypatch):
-    """A worker that calls needs_clarification must set awaiting_user in the parent."""
     monkeypatch.setitem(
         _AGENT_BUILDERS,
         "planner",
@@ -95,7 +83,6 @@ def test_worker_propagates_awaiting_user_when_tool_blocks(monkeypatch):
 
 
 def test_worker_does_not_overwrite_unchanged_state(monkeypatch):
-    """A worker that does not mutate a whitelisted field must not emit it."""
     monkeypatch.setitem(
         _AGENT_BUILDERS,
         "concierge",

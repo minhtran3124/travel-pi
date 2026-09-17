@@ -8,7 +8,6 @@ from app.schemas.expense import Expense
 
 
 def _make_expense(**over) -> Expense:
-    """Build a minimal valid Expense for repo.add()."""
     base = {
         "id": "exp-1",
         "trip_id": "trip-abc",
@@ -160,7 +159,6 @@ def test_update_mutates_fields(repo):
     assert updated is not None
     assert updated.amount == 25.0
     assert updated.description == "new"
-    # Verify the change is persisted
     fetched = repo.get("e1")
     assert fetched.amount == 25.0
     assert fetched.description == "new"

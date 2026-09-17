@@ -1,8 +1,4 @@
-"""ORM models package. Reference via the namespace: `models.Hotel`, `models.Booking`.
-
-Class names intentionally match app/schemas Pydantic models — disambiguate by import
-(`from app.db import models` → models.X) vs (`from app.schemas.x import X`).
-"""
+"""ORM models package. Class names match app/schemas Pydantic models — disambiguate by import path."""
 
 from app.db.models.agent_config import AgentConfig
 from app.db.models.agent_run import AgentRun

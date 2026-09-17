@@ -1,20 +1,9 @@
-"""Long-term cross-session memory (specs/travel-agent Task 2.2; agent-graph-lifecycle;
-agent-memory-semantic).
+"""Long-term cross-session memory: preferences and past-trip facts keyed by
+``(namespace, key)``, backed by an embedding-indexed LangGraph Store.
 
-The LangGraph Store holds memory that outlives a single thread — the traveller's
-preferences and past-trip facts, addressable by ``(namespace, key)`` and retrievable
-across different conversations.
-
-Built **once** in the app ``lifespan`` via :func:`open_store` (a context manager held
-open for the process lifetime) rather than per request. Postgres in docker/prod;
-``InMemoryStore`` locally / in tests and as the degrade path.
-
-Both backends are constructed with a semantic ``index`` (REVIEW.md C3) so
-``store.search(ns, query=...)`` ranks by embedding similarity — without it, ``query`` is
-silently ignored and search degrades to recency. The index embeds the ``text`` field of
-each stored value using the shared ``app.core.embeddings`` model (real OpenAI when keyed,
-deterministic fake otherwise). On a Postgres image without pgvector the indexed
-``PostgresStore`` fails to initialise and degrades to an indexed ``InMemoryStore``.
+Built once in the app ``lifespan`` via :func:`open_store`. A Postgres image
+without pgvector degrades to an indexed ``InMemoryStore``. Without the semantic
+index, ``query`` is silently ignored and search degrades to recency.
 """
 
 from __future__ import annotations
@@ -32,26 +21,94 @@ from langgraph.store.postgres import PostgresStore
 
 from app.core.config import get_settings
 from app.core.embeddings import EMBED_DIM, get_embeddings
+from app.memory.guard import (
+    PROFILE_KEYS,
+    MemoryKindLiteral,
+    MemoryRejected,
+    check,
+    check_content,
+    check_episode,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def _libpq_dsn(url: str) -> str:
-    """Strip SQLAlchemy's ``+driver`` so psycopg/libpq accepts the DSN.
+def _guarded_text(guard_kind: MemoryKindLiteral, key: str, raw: str) -> str | None:
+    """Run the read guard on one row's *raw* text; return normalized text or ``None``.
 
-    :param url: SQLAlchemy-style database URL.
-    :return: The URL with the ``+driver`` suffix removed.
+    Single source of truth for the "check_content, drop-and-log on
+    :class:`MemoryRejected`" loop that every non-episode read path shares
+    (:func:`_guarded_values`, :func:`get_profile`, :func:`search_memory_typed`).
+    A dropped row is logged naming only kind/key/reason — never the text.
     """
+    try:
+        return check_content(guard_kind, key, raw)
+    except MemoryRejected as exc:
+        logger.warning(
+            "memory_filtered kind=%s key=%s reason=%s",
+            guard_kind,
+            key,
+            exc.reason,
+        )
+        return None
+
+
+def _guarded_values(guard_kind: MemoryKindLiteral, results) -> list[dict]:
+    """Filter preference/instruction search *results* through the read guard.
+
+    Each item's text is re-checked with :func:`_guarded_text`; a row that
+    fails (blocklist / bad-shape key) is dropped with a warning naming only
+    kind/key/reason — never the text. Survivors carry the guard's **normalized**
+    text (``<``/``>`` stripped, over-length truncated), so a row poisoned before
+    this guard existed is neutralized on read without a migration.
+    """
+    out: list[dict] = []
+    for item in results:
+        text = _guarded_text(guard_kind, item.key, item.value.get("text", ""))
+        if text is None:
+            continue
+        out.append({**item.value, "text": text})
+    return out
+
+
+def _guarded_episode_payload(item) -> dict | None:
+    """Read-guard one episode item, returning the limited payload or ``None``.
+
+    Runs :func:`guard.check_content` on the episode ``text`` and
+    :func:`guard.check_episode` on the metadata (coerce ``outcome``, normalize
+    ``city``); on any :class:`MemoryRejected` the row is dropped with a
+    text-free warning. The returned payload is limited to
+    ``text`` / ``city`` / ``outcome`` / ``trip_id`` (§3.1) — store-internal
+    fields such as ``updated_at`` are not surfaced.
+    """
+    try:
+        text = check_content("episodes", item.key, item.value.get("text", ""))
+        cleaned = check_episode(item.value)
+    except MemoryRejected as exc:
+        logger.warning(
+            "memory_filtered kind=%s key=%s reason=%s",
+            "episodes",
+            item.key,
+            exc.reason,
+        )
+        return None
+    payload: dict = {"text": text, "outcome": cleaned["outcome"]}
+    if cleaned.get("city") is not None:
+        payload["city"] = cleaned["city"]
+    if cleaned.get("trip_id") is not None:
+        payload["trip_id"] = cleaned["trip_id"]
+    return payload
+
+
+def _libpq_dsn(url: str) -> str:
+    """Strip SQLAlchemy's ``+driver`` so psycopg/libpq accepts the DSN."""
     return url.replace("postgresql+psycopg://", "postgresql://").replace(
         "postgres+psycopg://", "postgresql://"
     )
 
 
 def _index_config() -> dict:
-    """Semantic-search index for the store: embed the ``text`` field of each value.
-
-    :return: Index config (dims, embedding model, indexed fields).
-    """
+    """Semantic-search index for the store: embed the ``text`` field of each value."""
     return {
         "dims": EMBED_DIM,
         "embed": get_embeddings(),
@@ -63,12 +120,8 @@ def _index_config() -> dict:
 async def open_store(database_url: str | None = None) -> AsyncIterator[BaseStore]:
     """Yield the long-term store for the app's lifetime (``lifespan``-managed).
 
-    Postgres URL -> ``PostgresStore`` with a pgvector semantic index (tables created via
-    ``setup()``), opened once and closed on shutdown. Anything else, or any init failure
-    (e.g. a Postgres image without pgvector) -> an indexed ``InMemoryStore``.
-
-    :param database_url: Database URL to connect to; defaults to
-        ``settings.database_url`` when omitted.
+    Postgres URL -> ``PostgresStore`` with a pgvector semantic index; anything
+    else, or any init failure, -> an indexed ``InMemoryStore``.
     """
     url = database_url or get_settings().database_url
     if url.startswith("postgres"):
@@ -90,13 +143,9 @@ async def open_store(database_url: str | None = None) -> AsyncIterator[BaseStore
 def get_store(database_url: str | None = None) -> BaseStore:
     """Indexed in-memory store for tests / non-Postgres degrade.
 
-    Production code builds the durable store through :func:`open_store` so its
-    connection is lifecycle-managed; this sync helper exists only for the ephemeral
-    in-memory case. It carries the same semantic index so ``query`` search works.
-
-    :param database_url: Unused — accepted for interface symmetry with
-        :func:`open_store`.
-    :return: A fresh indexed ``InMemoryStore``.
+    Production builds the durable store through :func:`open_store`; this sync
+    helper exists only for the ephemeral in-memory case. ``database_url`` is
+    unused, accepted for interface symmetry.
     """
     return InMemoryStore(index=_index_config())
 
@@ -110,67 +159,87 @@ def _prefs_namespace(user_id: str) -> tuple[str, str, str]:
 
 
 def _stamped(value: dict) -> dict:
-    """Return *value* with ``updated_at`` set to the current UTC time (D5 store
-    hygiene). Does not mutate the caller's dict; index config is untouched —
-    ``text`` remains the only embedded field.
-
-    :param value: JSON-serializable payload about to be written.
-    :return: A shallow copy of *value* with ``updated_at`` added/refreshed.
-    """
+    """Return a shallow copy of *value* with ``updated_at`` set to now (UTC)."""
     return {**value, "updated_at": datetime.now(timezone.utc).isoformat()}
+
+
+_PAGE_SIZE = 100
+_SEMANTIC_TOP_K = 10
+
+
+def _read_all(
+    store: BaseStore,
+    namespace: tuple[str, ...],
+) -> list:
+    """Return every item in *namespace*; ``store.search`` has no unlimited mode, so page."""
+    items: dict = {}
+    offset = 0
+    while True:
+        page = store.search(namespace, limit=_PAGE_SIZE, offset=offset)
+        fresh = [item for item in page if (item.namespace, item.key) not in items]
+        items.update(((item.namespace, item.key), item) for item in fresh)
+        # Also stop on a page with nothing new, so a store that mishandles offset cannot spin.
+        if len(page) < _PAGE_SIZE or not fresh:
+            return list(items.values())
+        offset += len(page)
+
+
+def _search_unbounded(
+    store: BaseStore,
+    namespace: tuple[str, ...],
+    query: str | None,
+) -> list:
+    """Every row when unqueried; a semantic *query* is a top-k search, so it is never paged."""
+    if query is not None:
+        return store.search(namespace, query=query, limit=_SEMANTIC_TOP_K)
+    return _read_all(store, namespace)
 
 
 def upsert_preference(store: BaseStore, user_id: str, key: str, value: dict) -> None:
     """Store/overwrite a single user preference (value must be a JSON dict).
 
-    :param store: Long-term store to write to.
-    :param user_id: Owning user's id.
-    :param key: Preference key within the user's prefs namespace.
-    :param value: JSON-serializable preference payload.
+    :raises MemoryRejected: when the key is not allowed or the text is empty,
+        over-length or blocklisted (see :func:`app.memory.guard.check`).
     """
-    store.put(_prefs_namespace(user_id), key, _stamped(value))
+    text = check("preferences", key, value.get("text", ""))
+    store.put(_prefs_namespace(user_id), key, _stamped({**value, "text": text}))
 
 
 def search_preferences(
-    store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 5
+    store: BaseStore,
+    user_id: str,
+    *,
+    query: str | None = None,
 ) -> list[dict]:
-    """Return preference values for a user (semantic when a query is given).
-
-    :param store: Long-term store to search.
-    :param user_id: Owning user's id.
-    :param query: Optional free-text query; when given, results are ranked by
-        semantic similarity.
-    :param limit: Maximum number of results to return.
-    :return: Matching preference values.
-    """
-    results = store.search(_prefs_namespace(user_id), query=query, limit=limit)
-    return [item.value for item in results]
+    """Return every preference for a user, or the top semantic matches when a query is given."""
+    results = _search_unbounded(store, _prefs_namespace(user_id), query)
+    return _guarded_values("preferences", results)
 
 
-# Reserved preference keys for MIN-53 personalization. These three ride the
-# existing prefs namespace (no schema) and are auto-injected each turn.
-PROFILE_KEYS: tuple[str, ...] = ("name", "gender", "travel_group")
+# ``PROFILE_KEYS`` (the reserved MIN-53 personalization keys) is defined once in
+# ``app.memory.guard`` and imported at the top of this module, so the guard and
+# the store share one source of truth. It is re-exported here (``store.PROFILE_KEYS``)
+# because ``app.agents.nodes`` imports it from ``store``; the import direction is
+# store → guard only.
 
 
 def get_profile(store: BaseStore, user_id: str) -> dict[str, str]:
-    """Return the traveller's personalization profile: reserved preference keys
-    (:data:`PROFILE_KEYS`) that exist with non-empty text, in reserved-key order.
+    """Return ``{key: text}`` for each :data:`PROFILE_KEYS` present with non-blank text.
 
     Uses direct keyed ``store.get`` rather than semantic ``search_preferences`` so
-    the three fields are exact and never reordered/dropped by similarity ranking.
-
-    :param store: Long-term store to read from.
-    :param user_id: Owning user's id.
-    :return: ``{key: text}`` for each reserved key present with non-blank text.
+    the fields are exact and never reordered/dropped by similarity ranking.
     """
     profile: dict[str, str] = {}
     for key in PROFILE_KEYS:
         item = store.get(_prefs_namespace(user_id), key)
-        if item is not None:
-            raw = item.value.get("text")
-            text = raw.strip() if isinstance(raw, str) else ""
-            if text:
-                profile[key] = text
+        if item is None:
+            continue
+        raw = item.value.get("text")
+        if not isinstance(raw, str):
+            continue
+        text = _guarded_text("preferences", key, raw)
+        if text:
+            profile[key] = text
     return profile
 
 
@@ -178,66 +247,49 @@ def upsert_instruction(store: BaseStore, user_id: str, key: str, value: dict) ->
     """Store/overwrite a single procedural instruction (value must be a JSON dict
     with a ``text`` field so the semantic index works).
 
-    :param store: Long-term store to write to.
-    :param user_id: Owning user's id.
-    :param key: Instruction key within the user's procedural namespace.
-    :param value: JSON-serializable instruction payload.
+    :raises MemoryRejected: when the key is not in the canonical instruction
+        allowlist or the text is empty, over-length or blocklisted.
     """
-    store.put(_namespace(user_id, "procedural"), key, _stamped(value))
+    text = check("instructions", key, value.get("text", ""))
+    store.put(_namespace(user_id, "procedural"), key, _stamped({**value, "text": text}))
 
 
 def get_instructions(
-    store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 10
+    store: BaseStore,
+    user_id: str,
+    *,
+    query: str | None = None,
 ) -> list[dict]:
-    """Return procedural instruction values for a user (semantic when a query is given).
-
-    :param store: Long-term store to search.
-    :param user_id: Owning user's id.
-    :param query: Optional free-text query; when given, results are ranked by
-        semantic similarity.
-    :param limit: Maximum number of results to return.
-    :return: Matching instruction values.
-    """
-    results = store.search(_namespace(user_id, "procedural"), query=query, limit=limit)
-    return [item.value for item in results]
+    """Return every instruction for a user, or the top semantic matches when a query is given."""
+    results = _search_unbounded(store, _namespace(user_id, "procedural"), query)
+    return _guarded_values("instructions", results)
 
 
 def upsert_episode(store: BaseStore, user_id: str, key: str, value: dict) -> None:
-    """Store/overwrite a single episodic memory — a past-trip outcome (value is a
-    JSON dict whose ``text`` field is embedded by the semantic index; ``trip_id`` /
-    ``city`` / ``outcome`` are stored metadata). Key-addressed (overwrite, not
-    append); the natural key is ``trip_id`` so re-extracting a trip is idempotent.
+    """Store/overwrite a single episodic memory — a past-trip outcome.
 
-    :param store: Long-term store to write to.
-    :param user_id: Owning user's id.
-    :param key: Episode key within the user's episodes namespace (the trip id).
-    :param value: JSON-serializable episode payload.
+    Key-addressed (overwrite, not append); the natural key is ``trip_id`` so
+    re-extracting a trip is idempotent.
+
+    :raises MemoryRejected: when the key breaks the slug shape rule or the text
+        is empty, over-length or blocklisted (``city`` is normalized too).
     """
-    store.put(_namespace(user_id, "episodes"), key, _stamped(value))
+    text = check("episodes", key, value.get("text", ""))
+    cleaned = check_episode(value)
+    cleaned["text"] = text
+    store.put(_namespace(user_id, "episodes"), key, _stamped(cleaned))
 
 
 def search_episodes(
     store: BaseStore, user_id: str, *, query: str | None = None, limit: int = 3
 ) -> list[dict]:
-    """Return episodic-memory values for a user (semantic when a query is given).
-
-    :param store: Long-term store to search.
-    :param user_id: Owning user's id.
-    :param query: Optional free-text query; when given, results are ranked by
-        semantic similarity.
-    :param limit: Maximum number of results to return.
-    :return: Matching episode values.
-    """
+    """Return episodic-memory values for a user (semantic when a query is given)."""
     results = store.search(_namespace(user_id, "episodes"), query=query, limit=limit)
-    return [item.value for item in results]
-
-
-# --- Structured namespaces: typed search (research P2 row 2) -----------------
-# The three memory kinds are isolated under ("users", user_id, <kind>). This block
-# makes that structure explicit and typed: a MemoryKind enum (single source of
-# truth for the valid kinds), a unified search_memory dispatcher, and typed result
-# dataclasses (Preference / Instruction / Episode) so callers can opt into typed
-# access instead of raw dicts. The per-kind helpers above stay unchanged.
+    return [
+        payload
+        for item in results
+        if (payload := _guarded_episode_payload(item)) is not None
+    ]
 
 
 class MemoryKind(str, Enum):
@@ -248,11 +300,31 @@ class MemoryKind(str, Enum):
     EPISODES = "episodes"
 
 
-# Per-kind default recall limits (mirror the per-kind helpers' defaults).
-_DEFAULT_SEARCH_LIMITS: dict[MemoryKind, int] = {
-    MemoryKind.PREFERENCES: 5,
-    MemoryKind.PROCEDURAL: 10,
-    MemoryKind.EPISODES: 3,
+# Episodes are unbounded by key, so they alone keep a default recall limit.
+_EPISODE_DEFAULT_LIMIT = 3
+
+
+def _search_kind(
+    store: BaseStore,
+    user_id: str,
+    kind: MemoryKind,
+    query: str | None,
+    limit: int | None,
+) -> list:
+    """Search one kind; with no *limit*, episodes default to 3 and the others are unbounded."""
+    ns = _namespace(user_id, kind.value)
+    if limit is None and kind is not MemoryKind.EPISODES:
+        return _search_unbounded(store, ns, query)
+    eff_limit = limit if limit is not None else _EPISODE_DEFAULT_LIMIT
+    return store.search(ns, query=query, limit=eff_limit)
+
+
+# Store namespace kind -> guard content kind (the guard's vocabulary differs from
+# the namespace strings: prefs -> preferences, procedural -> instructions).
+_GUARD_KIND: dict[MemoryKind, MemoryKindLiteral] = {
+    MemoryKind.PREFERENCES: "preferences",
+    MemoryKind.PROCEDURAL: "instructions",
+    MemoryKind.EPISODES: "episodes",
 }
 
 
@@ -331,24 +403,19 @@ def search_memory(
 ) -> list[dict]:
     """Unified dispatcher over the structured memory namespaces.
 
-    Validates *kind* against :class:`MemoryKind`, resolves the
-    ``("users", user_id, kind)`` namespace, and returns the matching values as
-    dicts (semantic ranking when *query* is given). When *limit* is ``None`` the
-    per-kind default is used (prefs=5, procedural=10, episodes=3).
-
-    :param store: Long-term store to search.
-    :param user_id: Owning user's id.
-    :param kind: Which memory namespace to search.
-    :param query: Optional free-text query; when given, results are ranked by
-        semantic similarity.
-    :param limit: Maximum number of results; defaults to the per-kind limit when
-        ``None``.
-    :return: Matching memory values as dicts.
+    Returns matching values as dicts (semantic ranking when *query* is given).
+    With no *limit*: episodes return 3; preferences and instructions return every row
+    (or the top semantic matches when a *query* is given).
     """
     kind = MemoryKind(kind)
-    ns = _namespace(user_id, kind.value)
-    eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
-    return [item.value for item in store.search(ns, query=query, limit=eff_limit)]
+    results = _search_kind(store, user_id, kind, query, limit)
+    if kind is MemoryKind.EPISODES:
+        return [
+            payload
+            for item in results
+            if (payload := _guarded_episode_payload(item)) is not None
+        ]
+    return _guarded_values(_GUARD_KIND[kind], results)
 
 
 def search_memory_typed(
@@ -362,26 +429,43 @@ def search_memory_typed(
     """Typed variant of :func:`search_memory`.
 
     Returns ``Preference`` / ``Instruction`` / ``Episode`` dataclass instances
-    (selected by *kind*) instead of raw dicts, so callers get typed, named fields
-    including the store key.
-
-    :param store: Long-term store to search.
-    :param user_id: Owning user's id.
-    :param kind: Which memory namespace to search.
-    :param query: Optional free-text query; when given, results are ranked by
-        semantic similarity.
-    :param limit: Maximum number of results; defaults to the per-kind limit when
-        ``None``.
-    :return: Matching memory values as typed dataclass instances.
+    (selected by *kind*) instead of raw dicts.
     """
     kind = MemoryKind(kind)
-    ns = _namespace(user_id, kind.value)
-    eff_limit = limit if limit is not None else _DEFAULT_SEARCH_LIMITS[kind]
+    results = _search_kind(store, user_id, kind, query, limit)
+
+    if kind is MemoryKind.EPISODES:
+        typed: list[Preference | Instruction | Episode] = []
+        for item in results:
+            payload = _guarded_episode_payload(item)
+            if payload is None:
+                continue
+            typed.append(
+                Episode(
+                    key=item.key,
+                    text=payload["text"],
+                    trip_id=payload.get("trip_id"),
+                    city=payload.get("city"),
+                    outcome=payload["outcome"],
+                )
+            )
+        return typed
+
+    guard_kind = _GUARD_KIND[kind]
     result_type = _MEMORY_RESULT_TYPES[kind]
-    return [
-        result_type.from_item(item)
-        for item in store.search(ns, query=query, limit=eff_limit)
-    ]
+    typed_values: list[Preference | Instruction | Episode] = []
+    for item in results:
+        text = _guarded_text(guard_kind, item.key, item.value.get("text", ""))
+        if text is None:
+            continue
+        typed_values.append(
+            result_type(
+                key=item.key,
+                text=text,
+                updated_at=item.value.get("updated_at"),
+            )
+        )
+    return typed_values
 
 
 # --- Fact age + management helpers (specs/agent-memory-layer-5 Task 1.1) ------

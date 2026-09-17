@@ -1,14 +1,11 @@
-"""Best-effort ``agent_runs`` recorder for the SSE stream (specs/agent-turn-metrics §4.5).
+"""Best-effort ``agent_runs`` recorder for the SSE stream.
 
-Sibling of ``persist_assistant_turn``: an async pass-through that yields every SSE
-event unchanged while, on stream exhaustion, closing the turn's ``agent_runs`` row
-with a status derived from the events it saw (``interrupt`` → ``interrupted``,
-``error`` or an exception / cancellation → ``failed``, else ``completed``).
-
-Uses an **isolated** ``session_factory`` (not the request-scoped session, which
-may be torn down before the stream drains). Persistence is best-effort: a repo
-failure is logged and never raised into the reply path. A ``CancelledError`` (or
-any exception from the inner iterator) marks the row ``failed`` and is re-raised.
+Async pass-through that yields every SSE event unchanged while, on stream
+exhaustion, closing the turn's ``agent_runs`` row with a status derived from the
+events seen (``interrupt`` → ``interrupted``, ``error`` or exception/cancellation
+→ ``failed``, else ``completed``). Uses an isolated ``session_factory``;
+persistence is best-effort and never raised into the reply path. A
+``CancelledError`` marks the row ``failed`` and is re-raised.
 """
 
 from __future__ import annotations
@@ -42,19 +39,8 @@ async def record_agent_run(
 ) -> AsyncIterator[TypedSSEEvent]:
     """Pass every SSE event through unchanged while closing the ``agent_runs`` row.
 
-    Tracks ``interrupt`` / ``error`` events and reads ``current_flow`` from the
-    ``done`` event payload (the only place a pass-through can observe it). In a
-    ``finally`` the run row is finalized via ``AgentRunRepository.finish`` on an
-    isolated session; the status is ``interrupted`` if an interrupt event was
-    seen, ``failed`` on an error event or when the inner iterator raised
-    (including ``CancelledError``, which is re-raised), else ``completed``.
-
-    :param events_iter: The upstream SSE event stream to pass through.
-    :param run_id: The router-minted ``agent_runs`` id to finalize.
-    :param metrics: The turn's ``TurnMetricsHandler`` (its ``snapshot()`` is stored).
-    :param session_factory: Isolated sessionmaker used to write the row.
-    :param prompt_versions: The compiled graph's build-time prompt snapshot,
-        stored on the run row and used to attribute prompts to each step.
+    Reads ``current_flow`` from the ``done`` payload (the only place a pass-through
+    can observe it) and finalizes the row in a ``finally`` on an isolated session.
     """
     saw_interrupt = False
     saw_error = False
@@ -86,10 +72,9 @@ async def record_agent_run(
         else:
             status = "completed"
         try:
-            # A failed / cancelled turn never reaches the mapper's success-path
-            # metrics block, so close and price here before persisting. Both are
-            # no-ops when the success path already did them: the dashboard's
-            # latency and cost rollups must not silently exclude failed turns.
+            # A failed/cancelled turn never reaches the mapper's success-path
+            # metrics block, so close and price here (no-ops if already done) — the
+            # dashboard's latency/cost rollups must not exclude failed turns.
             metrics.close_if_open()
             if metrics.cost_usd is None:
                 metrics.cost_usd = estimate_cost(metrics.snapshot()["by_model"])
@@ -111,9 +96,9 @@ async def record_agent_run(
             )
 
         try:
-            # Steps are written here, on the isolated factory, alongside ``finish``
-            # — never from a background task against a row the request session has
-            # flushed but not committed (that deadlocked the parent branch).
+            # Steps are written here on the isolated factory alongside ``finish``,
+            # never from a background task against a flushed-but-uncommitted row
+            # (that deadlocked).
             AgentRunRepository(session_factory).add_steps(
                 run_id, enrich_steps(metrics.steps(), prompt_versions)
             )

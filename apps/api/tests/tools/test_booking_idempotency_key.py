@@ -1,10 +1,6 @@
-"""Tests for the turn-scoped idempotency key helper (gh-193, task 1.1).
-
-The helper is pure and side-effect free: it derives a stable key from the
-turn context (thread id + last HumanMessage id), the tool name, and the
-model-visible args, ignoring injected/config plumbing. No DB fixture is
-needed — these tests only call the helper.
-"""
+"""Tests for the turn-scoped idempotency key helper: a pure function deriving a
+stable key from the turn context, tool name, and model-visible args, ignoring
+injected/config plumbing."""
 
 from app.tools._idempotency import INJECTED_ARG_NAMES, turn_idempotency_key
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
@@ -168,9 +164,8 @@ def test_empty_human_message_id_returns_none():
 
 
 def test_trailing_system_message_does_not_change_key():
-    """A revise note appended as a trailing SystemMessage after the last
-    HumanMessage must not change the key — the key is turn-scoped to the last
-    HumanMessage id, not the message tail."""
+    """A trailing SystemMessage must not change the key: it is turn-scoped to the
+    last HumanMessage id, not the message tail."""
     base = turn_idempotency_key(
         TOOL, dict(ARGS), user_id=USER, config=_config(), messages=_messages()
     )

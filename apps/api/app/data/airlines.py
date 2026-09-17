@@ -1,4 +1,4 @@
-"""Seed list of airlines used by the deterministic flight generator."""
+"""Seed airlines."""
 
 AIRLINES: list[dict[str, str]] = [
     {"code": "VN", "name": "Vietnam Airlines"},
@@ -10,17 +10,15 @@ AIRLINES: list[dict[str, str]] = [
     {"code": "TG", "name": "Thai Airways"},
 ]
 
-# Brand accent colors for the airline badge on the flight board.
-# Presentation only — evocative, not official brand specs.
+# Presentation-only accent colors; evocative, not official brand specs.
 AIRLINE_COLORS: dict[str, str] = {
-    "VN": "#0a3d91",  # Vietnam Airlines — blue
-    "VJ": "#e30613",  # VietJet Air — red
-    "QH": "#00843d",  # Bamboo Airways — green
-    "OZ": "#d4002a",  # Asiana Airlines — red
-    "KE": "#0067a3",  # Korean Air — sky blue
-    "SQ": "#1d2d5c",  # Singapore Airlines — navy
-    "TG": "#5b2d8e",  # Thai Airways — purple
+    "VN": "#0a3d91",
+    "VJ": "#e30613",
+    "QH": "#00843d",
+    "OZ": "#d4002a",
+    "KE": "#0067a3",
+    "SQ": "#1d2d5c",
+    "TG": "#5b2d8e",
 }
 
-# Fallback color for any airline code without an explicit brand color.
 AIRLINE_COLOR_DEFAULT = "#444b55"

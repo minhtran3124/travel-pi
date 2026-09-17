@@ -1,10 +1,4 @@
-"""Tests for GET /hotels/availability and the booking availability gate.
-
-Availability is deterministic (hotel + date range → seeded RNG), so these
-tests assert structure and invariants rather than exact room counts. The
-booking-gate tests monkeypatch ``hotel_service.available_rooms`` to drive the
-available / fully-booked branches deterministically.
-"""
+"""Tests for /hotels/availability and the booking gate; availability is deterministic (seeded RNG) and booking-gate tests monkeypatch available_rooms."""
 
 import pytest
 from app.services import hotel_service
@@ -105,7 +99,6 @@ def test_availability_rooms_validation(client):
 
 def test_availability_only_filter(client, monkeypatch):
     """available_only=true drops the fully-booked hotels."""
-    # Make exactly nothing available, then everything.
     monkeypatch.setattr(hotel_service, "available_rooms", lambda *a, **k: 0)
     body = _availability(client, available_only=True).json()
     assert body["total"] == 0
