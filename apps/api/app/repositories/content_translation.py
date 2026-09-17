@@ -1,10 +1,4 @@
-"""Data-access for ``content_translations`` — one lookup, one upsert, no logic.
-
-``get_many`` is the hot path (one ``IN`` query per panel, ≤ a handful of ids on
-the unique index); ``upsert_many`` is the cold path that fills misses. Business
-rules (which fields, batching, the translator) live in
-``app.services.content_translation_service``.
-"""
+"""Data-access for ``content_translations`` — one lookup, one upsert; business rules live in content_translation_service."""
 
 from __future__ import annotations
 
@@ -26,14 +20,7 @@ class ContentTranslationRepo(Repo):
         fields: Sequence[str],
         language: str,
     ) -> dict[tuple[str, str], str]:
-        """Return stored text for the requested entities/fields in ``language``.
-
-        :param entity_type: The catalog entity kind (``"place"``, ``"hotel"``).
-        :param entity_ids: Entity ids to look up (empty → empty result, no query).
-        :param fields: Field names to look up (empty → empty result, no query).
-        :param language: The target language code.
-        :return: ``{(entity_id, field): text}`` for every row found.
-        """
+        """Return stored text for the requested entities/fields in ``language`` (empty ids/fields → empty result, no query)."""
         if not entity_ids or not fields:
             return {}
         stmt = select(
@@ -50,14 +37,7 @@ class ContentTranslationRepo(Repo):
             return {(eid, field): text for eid, field, text in s.execute(stmt)}
 
     def upsert_many(self, rows: Iterable[dict]) -> int:
-        """Insert or overwrite rows by their unique key.
-
-        Each row: ``{"entity_type", "entity_id", "field", "language", "text", "source"}``.
-        Existing rows get ``text``/``source`` overwritten (seed re-runs, re-translation).
-
-        :param rows: The rows to write.
-        :return: The number of rows written.
-        """
+        """Insert or overwrite rows by their unique key; existing rows get ``text``/``source`` overwritten."""
         rows = list(rows)
         if not rows:
             return 0

@@ -1,14 +1,4 @@
-"""Feedback service — authorization, idempotency and transition policy.
-
-Implements DESIGN §5.3 (specs/user-feedback-v1) over the append-only
-``feedback_events`` log: resolve the effective actor, fingerprint the accepted
-input, replay or ``409`` on the ``(actor, client_event_id)`` key, apply the
-single rateable rule, validate the state transition, append.
-
-Privacy: comment bodies never reach ``logger.*`` — only ids and enum values
-are logged. This module must not import from ``app.memory`` (pinned by
-``tests/architecture/test_feedback_no_memory_edge.py``).
-"""
+"""Feedback service: authorization, idempotency, and state-transition policy over the append-only feedback log. Comment bodies are never logged; must not import from ``app.memory``."""
 
 import hashlib
 import json
@@ -40,26 +30,14 @@ from app.schemas.feedback import (
 
 logger = logging.getLogger(__name__)
 
-#: The one non-enumerating ``404`` message (DESIGN §5.2: never reveal which
-#: condition failed — unknown, foreign, user-role and non-completed all match).
+#: Non-enumerating 404: never reveal which rateable condition failed.
 NOT_RATEABLE_DETAIL = "Assistant message not found or not rateable."
 
-#: Linked-run status that makes an assistant message rateable.
 RATEABLE_RUN_STATUS = "completed"
 
 
 def is_rateable(role: str, agent_run_id: str | None, run_status: str | None) -> bool:
-    """The single rateable rule (DESIGN §3.1): assistant role, linked to a run
-    that finished ``completed``.
-
-    Shared by ``FeedbackService.submit`` (the ``404`` decision) and the history
-    handler (the ``rateable`` flag on each item) so the client and the write
-    path can never disagree. Ownership is checked separately by the caller.
-
-    :param role: The message role (``user`` / ``assistant``).
-    :param agent_run_id: The linked ``agent_runs`` id, or ``None``.
-    :param run_status: The linked run's status, or ``None`` when unlinked.
-    """
+    """The single rateable rule: assistant role, linked to a run that finished ``completed``. Ownership is checked separately by the caller."""
     return (
         role == "assistant"
         and agent_run_id is not None
@@ -68,7 +46,7 @@ def is_rateable(role: str, agent_run_id: str | None, run_status: str | None) -> 
 
 
 def _noop_export(event: FeedbackEventRecord) -> None:
-    """Export seam — a no-op this round (provider export is deferred, DESIGN §2)."""
+    """Export seam — a no-op for now (provider export deferred)."""
 
 
 #: Best-effort post-commit hook, called with each newly appended event.
@@ -84,10 +62,7 @@ class FeedbackOutcome:
 
 
 def resolve_actor(auth_user: AuthUser | None, anonymous_user_id: str | None) -> str:
-    """Effective actor with the agent endpoints' precedence: JWT, else anonymous.
-
-    :raises AuthError: when neither principal is available (``401``).
-    """
+    """Effective actor: JWT principal, else anonymous id; raises AuthError when neither is present."""
     if auth_user is not None:
         return auth_user.id
     if anonymous_user_id:
@@ -120,11 +95,7 @@ class FeedbackService:
         *,
         schedule: Callable[..., None] | None = None,
     ) -> None:
-        """
-        :param session: The request-scoped unit-of-work session.
-        :param schedule: How to defer the export hook past the commit (e.g.
-            ``BackgroundTasks.add_task``); ``None`` runs it inline.
-        """
+        """``schedule`` defers the export hook past commit (e.g. ``BackgroundTasks.add_task``); ``None`` runs it inline."""
         self._feedback = FeedbackRepository(session)
         self._conversations = ConversationRepository(session)
         self._schedule = schedule
@@ -136,23 +107,14 @@ class FeedbackService:
         auth_user: AuthUser | None,
         idempotency_key: str | None = None,
     ) -> FeedbackOutcome:
-        """Apply one feedback action (DESIGN §5.3) and return the folded state.
-
-        :param body: The validated request body.
-        :param auth_user: The JWT principal, or ``None`` for anonymous callers.
-        :param idempotency_key: Optional ``Idempotency-Key`` header; when present
-            it must equal ``client_event_id`` (``422`` otherwise).
-        :return: The response body and the status code (``201`` new event,
-            ``200`` replay or retract no-op).
-        """
+        """Apply one feedback action and return the folded state (``201`` new event, ``200`` replay or retract no-op)."""
         client_event_id = str(body.client_event_id)
         if idempotency_key is not None and idempotency_key != client_event_id:
             raise DomainValidationError(
                 "Idempotency-Key header must equal client_event_id."
             )
         if body.locale is not None and body.locale not in SUPPORTED_LANGUAGES:
-            # DESIGN §3.2: allowlisted short locale. Enum values only — the
-            # rejected value is never logged.
+            # Enum values only — the rejected locale value is never logged.
             raise DomainValidationError(
                 "locale must be one of: " + ", ".join(SUPPORTED_LANGUAGES) + "."
             )
@@ -192,9 +154,7 @@ class FeedbackService:
             supersedes_event_id=current.rating_event_id if current else None,
         )
         if not inserted:
-            # Lost the same-key insert race: the repository returned the
-            # winner. Same fingerprint → ``200 replayed`` (no log line, no
-            # second export); different payload → ``409``.
+            # Lost the same-key insert race: replay on matching fingerprint, else 409.
             return self._replay_or_conflict(event, fp)
 
         logger.info(
@@ -237,12 +197,7 @@ class FeedbackService:
     def _check_transition(
         action: FeedbackAction, current: EffectiveFeedback | None
     ) -> bool:
-        """Validate the action against the folded state (DESIGN §3.2 rules).
-
-        :return: Whether the event changes the effective state (``201`` vs the
-            documented retract no-op ``200``).
-        :raises ConflictError: ``add_detail`` without an active negative rating.
-        """
+        """Validate the action against the folded state; returns whether it changes the effective state."""
         if action is FeedbackAction.ADD_DETAIL:
             negative = VALUE_TO_RATING[RATING_TO_VALUE["not_helpful"]]
             if current is None or current.rating != negative:

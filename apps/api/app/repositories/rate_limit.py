@@ -1,13 +1,4 @@
-"""Data-access for the DB-backed rate limiter (specs/rate-limit-primitive).
-
-Business rules (which policy, what subject) live in ``app.core.rate_limit``.
-This tier owns only the atomic fixed-window increment and opportunistic pruning.
-
-The increment is performed as a DB-level ``UPDATE ... SET count = count + 1`` so
-concurrent workers cannot under-count via read-modify-write; a first hit in a
-window inserts the row race-safely via the ``begin_nested()`` savepoint +
-``IntegrityError`` convention shared with the booking/trip repositories.
-"""
+"""Data-access for the DB-backed rate limiter; policy lives in app.core.rate_limit. Owns the atomic fixed-window increment (DB-level ``count = count + 1`` so concurrent workers can't under-count) and opportunistic pruning."""
 
 from dataclasses import dataclass
 
@@ -22,13 +13,7 @@ from app.repositories.base import Repo
 
 @dataclass(frozen=True)
 class RateLimitDecision:
-    """The outcome of a single rate-limit hit.
-
-    :param allowed: True when the request is within the limit for its window.
-    :param remaining: Requests left in the current window (never negative).
-    :param reset_at: Epoch seconds when the current window ends.
-    :param retry_after: Seconds until the window resets; ``0`` when allowed.
-    """
+    """The outcome of a single rate-limit hit."""
 
     allowed: bool
     remaining: int
@@ -48,33 +33,19 @@ class RateLimitRepository(Repo):
         limit: int,
         window_seconds: int,
     ) -> RateLimitDecision:
-        """Record one request and report whether it is within the limit.
-
-        :param bucket: Policy name (e.g. ``"feedback"``).
-        :param subject: Effective actor id (JWT subject or anonymous id).
-        :param now_epoch: Current time in epoch seconds.
-        :param limit: Max requests allowed per window.
-        :param window_seconds: Fixed-window length in seconds.
-        :return: A :class:`RateLimitDecision`.
-        """
+        """Record one request and report whether it is within the limit."""
         window_start = now_epoch - (now_epoch % window_seconds)
         reset_at = window_start + window_seconds
         prune_after = window_start + (2 * window_seconds)
         with self._session() as s:
-            # The limiter runs in its own connection (see app.core.rate_limit).
-            # On SQLite, make a concurrent writer wait for the lock rather than
-            # raise "database is locked"; no-op on Postgres.
+            # On SQLite, make a concurrent writer wait for the lock rather than raise "database is locked"; no-op on Postgres.
             if s.get_bind().dialect.name == "sqlite":
                 s.execute(text("PRAGMA busy_timeout = 5000"))
             count, inserted = self._increment(
                 s, bucket, subject, window_seconds, window_start, prune_after
             )
             if inserted:
-                # Prune only when a NEW window is created — not on every hit — so
-                # the cleanup DELETE stays off the hot update path. Scoped to THIS
-                # bucket. Each row persists its own expiry plus one-window
-                # clock-skew grace, so cleanup stays correct across rolling
-                # window-size changes and uses the (bucket, prune_after) index.
+                # Prune only when a NEW window is created (keeps the DELETE off the hot path), scoped to this bucket.
                 s.execute(
                     delete(models.RateLimitCounter).where(
                         models.RateLimitCounter.bucket == bucket,
@@ -101,11 +72,7 @@ class RateLimitRepository(Repo):
         window_start: int,
         prune_after: int,
     ) -> tuple[int, bool]:
-        """Atomically add 1 to the window's counter.
-
-        :return: ``(new_count, inserted)`` — ``inserted`` is True only when this
-            call created the window's row (used to gate the opportunistic prune).
-        """
+        """Atomically add 1 to the window's counter; returns ``(new_count, inserted)`` where ``inserted`` gates the opportunistic prune."""
         upd = (
             update(models.RateLimitCounter)
             .where(
@@ -146,10 +113,7 @@ class RateLimitRepository(Repo):
                 return self._read_count(
                     s, bucket, subject, window_seconds, window_start
                 ), False
-            # Defensive: the row vanished between the failed insert and this
-            # update. Row-expiry pruning includes one full own-window grace, so
-            # this is effectively unreachable — but treat it as a fresh first
-            # hit rather than raising NoResultFound (HTTP 500).
+            # Defensive: the row vanished between the failed insert and this update (effectively unreachable given prune grace); treat as a fresh first hit rather than raising.
             return 1, False
 
     def _read_count(

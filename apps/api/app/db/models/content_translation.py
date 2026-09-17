@@ -1,12 +1,7 @@
-"""Language-keyed catalog text (specs/catalog-content-i18n).
+"""Language-keyed catalog text, one row per ``(entity_type, entity_id, field, language)``.
 
-One row per ``(entity_type, entity_id, field, language)``: the translated
-``text`` of a free-form catalog field (e.g. a place's ``description``). The
-source language (``app.core.languages.DEFAULT_LANGUAGE``) stays on the entity
-row itself; only other languages get rows here. ``source`` records whether the
-text came from the checked-in seed file or was filled lazily by the translator
-LLM on a cache miss. Entities live in different tables, so ``entity_id`` is
-deliberately not a foreign key.
+Only non-default languages get rows. Entities live in different tables, so ``entity_id``
+is deliberately not a foreign key.
 """
 
 from sqlalchemy import Index, String, Text, UniqueConstraint

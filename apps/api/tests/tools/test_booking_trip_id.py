@@ -1,13 +1,7 @@
 """``book_flight`` / ``book_hotel`` thread the graph's active trip into the
-booking (chat bookings must carry a trip like REST bookings do).
-
-Like ``user_id``, ``trip_id`` is injected via ``InjectedState("trip_id")`` and
-passed here in the invoke dict the way the graph injects it from state — it is
-hidden from the model-facing schema. Booking without an active trip stays
-legitimate: with no ``trip_id`` in state, the tool must NOT refuse and must
-NOT raise the "no active trip" guidance; it creates the booking with
-``trip_id=None``, unchanged from today.
-"""
+booking. ``trip_id`` is injected via ``InjectedState`` and hidden from the
+model-facing schema; with no trip in state the tool books with ``trip_id=None``
+rather than refusing."""
 
 from app.db.engine import get_session_factory
 from app.schemas.trip import TripCreate
@@ -142,8 +136,6 @@ def test_book_hotel_no_active_trip_books_unattached(agent_db):
 
 
 def test_trip_id_hidden_from_model_facing_schema():
-    """The injected ``trip_id`` never appears in the model-facing tool schema,
-    mirroring the ``user_id`` injection guard (review-A, SC-6)."""
     from app.tools.registry import ALL_TOOLS
 
     for tool_name in ("book_flight", "book_hotel"):

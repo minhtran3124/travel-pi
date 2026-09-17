@@ -1,10 +1,4 @@
-"""No user content may reach a step row (specs/agent-run-trace-detail §4.3, SC-2).
-
-The intake decision is that a step holds structure and pointers only. This test drives a
-distinctive marker through every reachable content source — the tool's ``input_str`` and
-``inputs``, the chain's ``outputs`` (graph state, which carries ``messages``), and an
-exception message — then asserts the marker survives into no field of any step.
-"""
+"""No user content may reach a step row: a step holds structure and pointers only."""
 
 import json
 from uuid import uuid4
@@ -132,13 +126,7 @@ def test_steps_are_json_serialisable_without_a_default_encoder():
 
 
 def test_marker_does_not_survive_enrichment_and_persistence(tmp_path):
-    """The boundary must hold through the whole write path, not just the handler.
-
-    The handler-level assertions above prove no hook copies content into a step.
-    This closes the other half: enrichment adds ``prompts``/``cost_usd`` and the
-    repository writes the row, so the marker must be absent from what is actually
-    stored and read back — otherwise the guarantee stops at the object boundary.
-    """
+    """The boundary must hold through enrichment and persistence, not just the handler."""
     from app.agents.prompt_map import enrich_steps
     from app.db.base import Base
     from app.db.engine import get_engine, get_session_factory
@@ -172,15 +160,7 @@ def test_marker_does_not_survive_enrichment_and_persistence(tmp_path):
 
 
 def test_specialist_is_attribution_input_only_and_never_persisted(tmp_path):
-    """The specialist steers prompt attribution but must not reach the database.
-
-    It is a trusted field by contract — the worker only ever sets a registered
-    agent name, after the unknown-specialist early return. This pins the second
-    line of defence: even handed a hostile value, the repository drops it, since
-    ``specialist`` is neither a column nor an allowlisted key. Asserting it here
-    means a future change that adds the column has to justify itself against a
-    failing test rather than silently widening what a step stores.
-    """
+    """The specialist steers prompt attribution but must never reach the database."""
     from app.agents.prompt_map import enrich_steps
     from app.db.base import Base
     from app.db.engine import get_engine, get_session_factory

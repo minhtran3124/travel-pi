@@ -1,12 +1,5 @@
-"""Long-term memory tools (specs/travel-agent Task 3.4; agent-memory-semantic).
-
-The journal sub-agent uses these to remember traveller preferences across sessions.
-Both the ``store`` and the ``user_id`` are injected by LangGraph at runtime — the store
-via ``InjectedStore`` and the user id via ``InjectedState`` (from the graph's
-``TravelAgentState.user_id``). Both are hidden from the model's tool schema, so the LLM
-only supplies the semantic arguments and can never address another traveller's memory
-(REVIEW.md C3). Backed by the cross-session ``app.memory.store`` helpers.
-"""
+"""Long-term memory tools; ``store`` and ``user_id`` are LangGraph-injected and hidden from the model
+schema, so the LLM can never address another traveller's memory."""
 
 from __future__ import annotations
 

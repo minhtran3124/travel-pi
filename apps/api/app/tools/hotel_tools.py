@@ -1,15 +1,4 @@
-"""Hotel search and booking tools (specs/travel-agent Task 3.3).
-
-Wrap ``HotelService`` and ``BookingService`` as LLM tools. Each opens its own
-session via ``session_scope`` and maps domain errors to ``ToolException``.
-The booking tool requires ``confirm=True`` to guard against accidental
-reservations — mutable state in an agent graph needs an explicit opt-in.
-``search_hotels`` (dated availability) and ``browse_hotels`` (dateless catalog)
-are both panel-capable: on matches they return a
-short summary plus a ``kind="hotels"`` side-panel artifact; on no match they
-return a message and no panel (the mapper never sends an empty panel to the
-drawer).
-"""
+"""Hotel search and booking tools; booking requires confirm=True to guard against accidental reservations."""
 
 from __future__ import annotations
 
@@ -42,14 +31,7 @@ from app.tools._ranking import rank_by_preference
 
 
 def _hotel_keyword_features(hotel) -> list[tuple[list[str], str]]:
-    """Preference-matchable features for one hotel search result (DESIGN.md D7).
-
-    Star rating and property type are matched by exact keyword; the beach/area
-    check only fires when the hotel's own address/description actually mentions
-    a beach — a keyword heuristic, not semantic understanding of "beachfront",
-    so paraphrases can be missed (v1 trade-off, boost-only so it never hides a
-    hotel that doesn't match).
-    """
+    """Preference-matchable features; beach match is keyword-only (boost-only, never hides a non-match)."""
     stars = hotel.star_rating
     features: list[tuple[list[str], str]] = [
         ([f"{stars} sao", f"{stars}-star", f"{stars} star"], f"{stars}-star"),
@@ -115,8 +97,7 @@ class SearchHotelsArgs(AppBaseModel):
         default="",
         description="Injected — never supplied by the model.",
     )
-    # Injected conversation language (TravelAgentState.language); hotel
-    # descriptions are localized to it at tool time (specs/catalog-content-i18n).
+    # Injected conversation language; descriptions are localized to it at tool time.
     language: Annotated[str, InjectedState("language")] = Field(
         default="",
         description="Injected — never supplied by the model.",
@@ -146,8 +127,7 @@ class BrowseHotelsArgs(AppBaseModel):
         default="",
         description="Injected — never supplied by the model.",
     )
-    # Injected conversation language (TravelAgentState.language); hotel
-    # descriptions are localized to it at tool time (specs/catalog-content-i18n).
+    # Injected conversation language; descriptions are localized to it at tool time.
     language: Annotated[str, InjectedState("language")] = Field(
         default="",
         description="Injected — never supplied by the model.",
@@ -280,8 +260,7 @@ def search_hotels(
             "concrete dates — only ask the traveller if resolve_date reports one "
             "ambiguous."
         ) from e
-    # 1-day grace for timezone skew between the server-configured `today` and the
-    # traveller's own zone (their dates were resolved against their tz in the prompt).
+    # 1-day grace for timezone skew between server `today` and the traveller's zone.
     if parsed_check_in < today - timedelta(days=1):
         raise ToolException(
             f"check_in {check_in} is in the past (today is {today.isoformat()}). "
@@ -331,10 +310,7 @@ def search_hotels(
             results, matched_reasons = rank_by_preference(
                 results, preferences, keyword_fn=_hotel_keyword_features
             )
-            # `check_availability` returns every hotel matching the city and filters,
-            # flagging each one — a sold-out property is in `results` with
-            # available=False. Name and count only the bookable ones, or the model
-            # quotes "cheapest $190" for a hotel with no free room.
+            # results include sold-out properties (available=False); count only bookable ones.
             free = [h for h in results if h.available]
             stay = (
                 f"{results[0].city} for {check_in} to {check_out} "
@@ -448,17 +424,12 @@ def browse_hotels(
                     "and suggest relaxing the filters — do not invent hotels.",
                     None,
                 )
-            # Default sort: cheapest nightly rate first, so the panel leads with
-            # the best-value option (ties keep the seed order — sorted() is stable).
+            # Cheapest first; preference boost layers on top stably (price is the tiebreaker).
             results = sorted(results, key=lambda h: h.price_per_night)
-            # Preference boost layers on top, stably — cheapest-first is preserved
-            # as the tiebreaker among hotels with equal preference-match scores.
             results, matched_reasons = rank_by_preference(
                 results, preferences, keyword_fn=_hotel_keyword_features
             )
-            # Re-ranking can move a pricier preferred hotel to position 0, so the
-            # "cheapest" callout must still look up the actual min price — not
-            # just index 0 — regardless of preference re-order.
+            # Preference re-order can move a pricier hotel to index 0; look up actual min price.
             cheapest = min(results, key=lambda h: h.price_per_night)
             top_rated = max(results, key=lambda h: h.rating)
             summary = (
@@ -530,8 +501,7 @@ def book_hotel(
         then created unattached, not refused.
     :return: The confirmed Booking with id, confirmation_code, and total_price.
     """
-    # Log only the booking identifiers, never guest name/email/phone
-    # (guidelines: never log sensitive contact details).
+    # Log only booking identifiers, never guest name/email/phone.
     log_tool_call(
         "book_hotel",
         {
@@ -549,15 +519,7 @@ def book_hotel(
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
         )
-    # Replay-safety within one traveller turn (gh-193): see book_flight.
-    # `allow_duplicate` is deliberately OUT of the idempotency args, and — because
-    # a blocked duplicate raises before inserting, leaving no row to replay — a
-    # same-turn re-run with allow_duplicate=true could otherwise slip a second
-    # booking through without the traveller confirming. Guard that per booking id
-    # (gh-200): `warned` is the set of booking ids flagged as duplicates this
-    # turn, so we force the duplicate check back on whenever any warning stands
-    # and honour the override only for a booking that was NOT flagged (a bare
-    # legacy marker flags every booking of this tool).
+    # Replay-safe per turn: allow_duplicate stays out of the idempotency hash, and a blocked duplicate leaves no row to replay, so re-force the duplicate check per warned booking id.
     warned = duplicate_warned_ids_this_turn("book_hotel", messages)
     idempotency_key = turn_idempotency_key(
         "book_hotel",
@@ -610,10 +572,7 @@ def book_hotel(
                     ) from e
                 if not allow_duplicate:
                     raise tool_error(e) from e
-                # The warning was about a *different* booking, so the traveller's
-                # override stands. Re-book without the duplicate check on the same
-                # BookingService/session, so the gh-198 per-owner advisory lock the
-                # first attempt took is still held for this insert.
+                # Override stands (warning was a different booking); re-book on the same session so the per-owner advisory lock is still held.
                 result = service.book_hotel(
                     request,
                     user_id=user_id,
@@ -627,10 +586,9 @@ def book_hotel(
             raise ToolException(str(e)) from e
 
 
-# Concierge's dateless catalog browse (MIN-51) — never asks for dates/occupancy.
+# Concierge browse — never asks for dates/occupancy.
 HOTEL_SEARCH_TOOLS = [browse_hotels]
-# Planner's dated availability search (no reservation power — booking owns the money tools).
+# Planner availability search — never books.
 HOTEL_AVAILABILITY_TOOLS = [search_hotels]
 HOTEL_BOOKING_TOOLS = [book_hotel]
-# Booking's dated availability search + the actual reservation.
 HOTEL_TOOLS = HOTEL_AVAILABILITY_TOOLS + HOTEL_BOOKING_TOOLS

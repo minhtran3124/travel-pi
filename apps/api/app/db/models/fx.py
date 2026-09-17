@@ -11,7 +11,7 @@ class FxRate(UUIDBase):
 
     code: Mapped[str] = mapped_column(String, nullable=False, unique=True)  # ISO 4217
     rate: Mapped[float] = mapped_column(Float, nullable=False)  # units per 1 USD
-    name: Mapped[str] = mapped_column(String, nullable=False)  # from CURRENCY_NAMES
+    name: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class CountryCurrency(UUIDBase):

@@ -1,9 +1,4 @@
-"""Repo base dual-mode contract (specs/di-session-refactor, wave 2).
-
-A repo built from a ``sessionmaker`` commits each operation standalone (legacy).
-A repo built from a live ``Session`` only flushes — the commit is deferred to the
-request boundary (unit-of-work), so the caller can still roll the whole thing back.
-"""
+"""Repo base dual-mode contract: a ``sessionmaker`` commits standalone; a live ``Session`` only flushes, deferring the commit to the request boundary."""
 
 from app.db.engine import get_session_factory
 from app.repositories.base import Repo
@@ -54,8 +49,7 @@ def test_session_mode_does_not_close_caller_session(tmp_path):
     with sf() as live:
         repo = _ScratchRepo(live)
         repo.write("c")
-        # _session() must hand back the caller's session without closing it,
-        # so further work on the same session still succeeds.
+        # _session() hands back the caller's session without closing it, so further work still succeeds.
         repo.write("d")
         live.commit()
     assert _ScratchRepo(sf).count() == 2

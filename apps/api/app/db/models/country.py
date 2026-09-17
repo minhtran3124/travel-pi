@@ -12,9 +12,7 @@ class Country(UUIDBase):
     code: Mapped[str] = mapped_column(String, nullable=False, unique=True)  # "VN"
     name: Mapped[str] = mapped_column(String, nullable=False)
     region: Mapped[str] = mapped_column(String, nullable=False)
-    # Curated COUNTRIES seed order (symmetric with Airline.position) so
-    # country_repo.list() can ORDER BY it and the dashboard region tiles keep
-    # their hand-curated ordering.
+    # Curated COUNTRIES seed order so the repo can ORDER BY it (dashboard region tiles).
     position: Mapped[int] = mapped_column(Integer, nullable=False)
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)

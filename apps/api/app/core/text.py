@@ -1,10 +1,4 @@
-"""Lightweight fuzzy text matching for query-by-name endpoints.
-
-Agents (and humans) rarely send a perfectly-spelled city or airport name,
-so the list endpoints accept a free-text ``q`` and rank candidates by
-closeness rather than demanding an exact match. No external dependency —
-just the stdlib ``difflib``.
-"""
+"""Lightweight fuzzy text matching (stdlib ``difflib``) for query-by-name endpoints."""
 
 import difflib
 import unicodedata
@@ -18,51 +12,19 @@ _FUZZY_THRESHOLD = 0.6
 
 
 def fold_diacritics(text: str) -> str:
-    """Fold Vietnamese (and other Latin) diacritics to their base ASCII letters.
-
-    Shared by :mod:`app.core.text` (fuzzy city/airport matching) and
-    :mod:`app.core.dates` (weekday/phrase matching), so an accented seed name
-    ("Đà Nẵng") or date phrase ("thứ Sáu") matches its unaccented form ("Da
-    Nang", "thu sau") against a single dictionary/threshold, instead of
-    doubling every entry. ``đ`` (U+0111) has no canonical NFD decomposition,
-    so it is mapped explicitly; the remaining Vietnamese/Latin accents (à, ẵ,
-    ế, …) decompose to a base letter plus a combining mark, which is then
-    dropped.
-
-    :param text: The text to fold (case is left as-is; callers typically
-        lowercase first).
-    :return: The diacritic-folded text.
-    """
+    """Fold Vietnamese/Latin diacritics to base ASCII (``đ`` has no NFD decomposition so it is mapped explicitly; other accents decompose and their combining mark is dropped)."""
     folded = text.replace("đ", "d")
     decomposed = unicodedata.normalize("NFD", folded)
     return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 
 def _norm(text: str) -> str:
-    """Normalise for comparison: trim, lowercase, and fold diacritics.
-
-    Folding lets an accented free-text query ("Đà Nẵng") match an ASCII seed
-    name ("Da Nang") — without it, difflib scores the two below the match
-    threshold and the lookup wrongly returns nothing.
-
-    :param text: The raw text to normalise.
-    :return: The trimmed, lowercased, diacritic-folded text.
-    """
+    """Normalise for comparison: trim, lowercase, fold diacritics so an accented query matches an ASCII seed name."""
     return fold_diacritics(text.strip().lower())
 
 
 def match_score(query: str, candidate: str) -> float:
-    """Return a 0.0–1.0 relevance score for ``query`` against ``candidate``.
-
-    An exact match scores 1.0, a prefix 0.9, any substring 0.8, and anything
-    else falls back to a difflib similarity ratio. Ratios below
-    :data:`_FUZZY_THRESHOLD` are flattened to 0.0 ("no match"). An empty
-    query matches everything (score 1.0).
-
-    :param query: The free-text search query.
-    :param candidate: The candidate string to score against.
-    :return: A relevance score between 0.0 (no match) and 1.0 (exact match).
-    """
+    """Return a 0.0–1.0 relevance score: exact 1.0, prefix 0.9, substring 0.8, else difflib ratio (below :data:`_FUZZY_THRESHOLD` → 0.0); an empty query scores 1.0."""
     q, c = _norm(query), _norm(candidate)
     if not q:
         return 1.0
@@ -81,18 +43,7 @@ def fuzzy_filter(
     items: Iterable[T],
     keys: list[Callable[[T], str]],
 ) -> list[T]:
-    """Filter and rank ``items`` by how well any of ``keys`` matches ``query``.
-
-    ``keys`` maps an item to its searchable string fields; an item's score
-    is the best score across its keys. Items scoring 0.0 are dropped, and
-    the survivors come back sorted best-match-first (stable for ties). An
-    empty or whitespace-only ``query`` returns ``items`` unchanged.
-
-    :param query: The free-text search query, or None.
-    :param items: The candidate items to filter and rank.
-    :param keys: Accessors mapping an item to a searchable string field.
-    :return: ``items`` filtered to matches and sorted best-match-first.
-    """
+    """Filter and rank ``items`` by the best match of any of ``keys`` against ``query`` (0.0 dropped, ties stable); an empty query returns ``items`` unchanged."""
     items = list(items)
     if not query or not query.strip():
         return items
@@ -109,18 +60,7 @@ def best_match(
     items: Iterable[T],
     keys: list[Callable[[T], str]],
 ) -> T | None:
-    """Return the single best fuzzy match for ``query``, or ``None``.
-
-    A thin wrapper over :func:`fuzzy_filter` for "resolve this free-text
-    name to one canonical record" lookups. Unlike ``fuzzy_filter``, an
-    empty/whitespace query yields ``None`` (not the first item), so callers
-    can treat "no input" and "no match" the same way.
-
-    :param query: The free-text search query, or None.
-    :param items: The candidate items to search.
-    :param keys: Accessors mapping an item to a searchable string field.
-    :return: The best-matching item, or None if no match / no query.
-    """
+    """Return the single best fuzzy match for ``query``, or ``None`` — unlike :func:`fuzzy_filter`, an empty query yields ``None`` so "no input" and "no match" read the same."""
     if not query or not query.strip():
         return None
     matches = fuzzy_filter(query, items, keys)

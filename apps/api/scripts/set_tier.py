@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
-"""Set a user's tier in the BE users table (specs/agent-identity-tier Task 2.1).
+"""Grant or revoke a user's tier in the users table (the source of truth).
 
-The users table is the source of truth for tier; this is the manual/operational
-way to grant or revoke premium. The ``user_id`` is the Supabase user id (the JWT
-``sub``) the agent now keys on for authenticated callers.
-
-Run as a module from ``apps/api/`` so ``app`` is importable:
+``user_id`` is the Supabase user id (JWT ``sub``). Run as a module from ``apps/api/``::
 
     python -m scripts.set_tier <supabase-user-id> premium
     python -m scripts.set_tier <supabase-user-id> free
-
-Runs against ``settings.database_url`` (so respects DATABASE_URL / .env).
 """
 
 from __future__ import annotations
@@ -22,7 +16,6 @@ from app.db.engine import get_session_factory
 from app.enums import Tier
 from app.repositories.user import UserRepository
 
-# Valid tier string values (the enum members' wire/storage values).
 _TIER_VALUES = sorted(t.value for t in Tier)
 
 

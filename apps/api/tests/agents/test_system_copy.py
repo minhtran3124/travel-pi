@@ -1,8 +1,4 @@
-"""system_reply — code-authored replies served in the conversation language.
-
-English is the single source; other languages are translated once by the
-content-translation service and cached; any failure serves English.
-"""
+"""system_reply: English is the single source; other languages are translated once, cached, and any failure serves English."""
 
 from __future__ import annotations
 
@@ -81,7 +77,7 @@ def test_vi_is_translated_once_then_served_from_cache(scope):
 
     second = system_reply("booking_upgrade", "vi", translator=spy)
     assert second == first
-    assert len(spy.calls) == 1  # cache hit — zero translator calls
+    assert len(spy.calls) == 1
 
 
 def test_default_translator_carries_the_assistant_persona(scope, monkeypatch):
@@ -119,8 +115,7 @@ def test_no_session_serves_english(monkeypatch):
 
 
 def test_supervisor_tier_gate_replies_in_the_detected_language(monkeypatch):
-    """A first-turn Vietnamese booking request from a free user gets the
-    upgrade notice in Vietnamese (this turn's detected language), not English."""
+    """A free user's Vietnamese booking request gets the upgrade notice in this turn's detected language, not English."""
     seen: list[tuple[str, str | None]] = []
 
     def fake_reply(key, language, **_):
@@ -154,15 +149,13 @@ def test_editing_the_english_source_invalidates_the_cached_translation(
         system_reply("booking_cancelled", "vi", translator=spy)
         == "VI:Cancelled. Nothing booked."
     )
-    assert len(spy.calls) == 2  # new source text → fresh translation, not stale
+    assert len(spy.calls) == 2  # edited source → fresh translation, not stale cache
 
 
 def test_plan_node_reject_uses_the_conversation_language_and_approve_is_silent(
     monkeypatch,
 ):
-    """Reject replies in the conversation language; approve emits NO message —
-    approval is state (plan_approved) so the booking reply is the only bubble
-    text and the mapper never resets it (specs/plan-approved-line-reset)."""
+    """Reject replies in the conversation language; approve emits no message since approval is state (plan_approved)."""
     from app.agents import nodes as nodes_mod
 
     seen: list[tuple[str, str | None]] = []
@@ -185,8 +178,7 @@ def test_plan_node_reject_uses_the_conversation_language_and_approve_is_silent(
 
 
 def test_no_literal_user_facing_aimessage_outside_copy_helper():
-    """Convention: every code-authored reply goes through ``system_reply`` so it
-    is localized. A new literal here would leak English to non-English users."""
+    """Every code-authored reply must go through ``system_reply``; a literal would leak English to non-English users."""
     root = Path(__file__).resolve().parents[2] / "app"
     files = [
         *root.joinpath("agents").rglob("*.py"),

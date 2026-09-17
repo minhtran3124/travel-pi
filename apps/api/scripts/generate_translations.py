@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
 """Pre-fill ``app/data/content_translations.<lang>.json`` for the seeded catalog.
 
-Runs the same ``ContentTranslationService.localize`` the tools use, over every
-seeded place and hotel (``description``), against the configured LLM, and writes the
-resulting ``content_translations`` rows for ``--language`` to the checked-in JSON
-so a fresh deployment never pays a runtime translation for seed data. Rows that
-already exist (from an earlier run or a lazy tool-time fill) are reused, so
-re-running only translates what is still missing.
+Localizes every seeded place and hotel description so a fresh deployment never pays
+a runtime translation for seed data; existing rows are reused (only missing ones
+are translated).
 
-Run as a module from ``apps/api/`` with a real provider key configured::
+Run as a module from ``apps/api/`` with a real provider key and a seeded DB::
 
     python -m scripts.generate_translations --language vi
-
-Runs against ``settings.database_url`` (respects ``DATABASE_URL`` / ``.env``);
-the DB must be seeded (``make seed``). The JSON is data — hand-edit freely.
 """
 
 from __future__ import annotations
@@ -50,14 +44,7 @@ def generate(
     translator: Translator | None = None,
     batch: int = 20,
 ) -> list[dict]:
-    """Localize the seeded catalog and return the rows for ``language``.
-
-    :param session_factory: Callable returning a session (context manager).
-    :param language: Target language code (never the default).
-    :param translator: Optional translator override (tests); default = the LLM.
-    :param batch: Entities per translator call.
-    :return: ``[{"entity_type","entity_id","field","text"}]`` sorted by key.
-    """
+    """Localize the seeded catalog and return the rows for ``language``, sorted by key."""
     with session_factory() as s:
         svc = ContentTranslationService(s, translator)
         for entity_type, (load, fields) in _CATALOG.items():
@@ -85,10 +72,7 @@ def generate(
 
 
 def write(rows: list[dict], language: str, data_dir: Path = DATA_DIR) -> Path:
-    """Write ``rows`` to ``content_translations.<language>.json``.
-
-    :return: The written path.
-    """
+    """Write ``rows`` to ``content_translations.<language>.json`` and return the path."""
     path = data_dir / f"content_translations.{language}.json"
     path.write_text(json.dumps(rows, ensure_ascii=False, indent=2) + "\n")
     return path
@@ -103,8 +87,8 @@ def main() -> None:
     )
     args = parser.parse_args()
     factory = get_session_factory(get_settings().database_url)
-    # Outside the app lifespan the per-agent config cache is empty and
-    # get_agent_llm would fall back to the env model; load the DB rows first.
+    # Outside the app lifespan the config cache is empty; load DB rows so
+    # get_agent_llm does not fall back to the env model.
     reload_from_db(factory)
     rows = generate(factory, args.language)
     path = write(rows, args.language)

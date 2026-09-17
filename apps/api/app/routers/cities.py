@@ -22,15 +22,7 @@ router = APIRouter(prefix="/cities", tags=[Tags.cities], responses=error_respons
 def get_city_repo(
     session: Annotated[Session, Depends(get_session)],
 ) -> CityRepository:
-    """FastAPI dependency: a city repository bound to the request session.
-
-    ``list_with_counts()`` reproduces the old ``_ALL_CITIES`` build (City incl.
-    hotel_count, in seed order); ``get`` is the case-insensitive exact-name
-    lookup.
-
-    :param session: The request-scoped DB session.
-    :return: A city repository bound to ``session``.
-    """
+    """City repository bound to the request session."""
     return CityRepository(session)
 
 
@@ -39,12 +31,7 @@ RoutingDep = Annotated[RoutingService, Depends(get_routing_service)]
 
 
 def _distinct_countries(city_repo: CityRepository) -> list[str]:
-    """Distinct country names over the seeded cities — the fuzzy-resolution
-    target for the ``?country=`` filter (mirrors ``sorted({c.country ...})``).
-
-    :param city_repo: The city repository.
-    :return: The sorted distinct country names.
-    """
+    """Distinct country names — the fuzzy-resolution target for the ``?country=`` filter."""
     return sorted({c.country for c in city_repo.list_with_counts()})
 
 
@@ -76,20 +63,7 @@ def list_cities(
         examples=[True],
     ),
 ) -> CityListResponse:
-    """Return known cities with pagination.
-
-    Each entry includes the city name, country, IATA airport codes, and hotel
-    count. ``total`` reflects the full match count before pagination. When
-    ``q`` is given, results are fuzzy-matched and ranked by relevance instead
-    of left in seed order.
-
-    :param city_repo: The city repository.
-    :param pagination: The pagination params (limit/offset).
-    :param q: Optional fuzzy search on city name / country.
-    :param country: Optional fuzzy filter by country name.
-    :param has_hotels: Optional filter for whether the city has hotel data.
-    :return: The matching cities, paginated.
-    """
+    """Return known cities with pagination; ``q`` fuzzy-ranks by relevance."""
     results: list[City] = city_repo.list_with_counts()
     if country:
         # Fuzzy-resolve the country name; an unrecognised one matches nothing.
@@ -114,7 +88,7 @@ def list_cities(
     )
 
 
-# Note: declare "/route" before "/{city_name}" so it is not captured as a name.
+# Declare "/route" before "/{city_name}" so it isn't captured as a name.
 @router.get(
     "/route",
     response_model=RouteResponse,
@@ -132,19 +106,9 @@ async def route_between_cities(
         Query(description="City name to travel to", examples=["Hoi An"]),
     ],
 ) -> RouteResponse:
-    """Return distance and duration per travel mode (walk / bike / car)
-    between two cities, plus the recommended mode for the distance.
+    """Distance/duration per travel mode plus the recommended mode between two cities.
 
-    City names are matched case-insensitively. Uses OpenRouteService for real
-    road routing when ``ORS_API_KEY`` is configured; otherwise falls back to
-    an offline straight-line estimate (see the ``source`` field). Returns 404
-    if either city name is unknown, and 502 if a configured routing provider
-    is unreachable.
-
-    :param routing: The routing service.
-    :param origin: City name to start from.
-    :param destination: City name to travel to.
-    :return: Distance/duration per travel mode plus the recommended mode.
+    Uses OpenRouteService when ``ORS_API_KEY`` is set, else an offline straight-line estimate.
     """
     return await routing.get_city_route(origin, destination)
 
@@ -162,15 +126,7 @@ def get_city(
         Path(description="City name (case-insensitive)", examples=["Da Nang"]),
     ],
 ) -> City:
-    """Return a single city record, or 404 if unknown.
-
-    ``city_name`` is matched case-insensitively (it is still an exact-name
-    lookup — for typo-tolerant search use ``GET /cities?q=``).
-
-    :param city_repo: The city repository.
-    :param city_name: City name (case-insensitive).
-    :return: The matching city.
-    """
+    """Return a single city record (exact case-insensitive name), or 404 if unknown."""
     city = city_repo.get(city_name)
     if city is None:
         raise NotFoundError(

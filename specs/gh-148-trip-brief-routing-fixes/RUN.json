@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-15T09:57:26Z",
+  "last_event_id": "f4f1281e-c11f-4b68-9d5f-aaac7f8795fb",
+  "resume_event": null,
+  "run_id": "a0c4d97c-cb78-4e92-b351-30b1564ff235",
+  "seq": 6,
+  "sha": null,
+  "slug": "gh-148-trip-brief-routing-fixes",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-15T11:28:29Z",
+  "waiting_on": null
+}

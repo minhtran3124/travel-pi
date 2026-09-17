@@ -1,8 +1,7 @@
-"""``POST /agent/feedback`` — rate a completed assistant reply (specs/user-feedback-v1).
+"""``POST /agent/feedback`` — rate a completed assistant reply.
 
-Thin router: the abuse limit runs first (before any session work), then the
-:class:`~app.services.feedback_service.FeedbackService` owns identity,
-idempotency, rateability and transitions. Statuses per DESIGN §5.2.
+Thin router: the abuse limit runs first (before any session work), then
+``FeedbackService`` owns identity, idempotency, rateability and transitions.
 """
 
 from typing import Annotated
@@ -37,8 +36,7 @@ def feedback_subject(
     """Rate-limit subject: the JWT id, else the namespaced anonymous id, else None.
 
     The ``anon:`` namespace keeps a body-supplied id from exhausting an
-    authenticated user's counter (DESIGN §5.2). ``None`` skips the limit; the
-    service then answers ``401``.
+    authenticated user's counter; ``None`` skips the limit and the service answers 401.
     """
     if auth_user is not None:
         return auth_user.id

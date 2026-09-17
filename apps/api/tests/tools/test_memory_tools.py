@@ -1,4 +1,4 @@
-"""Memory-tools schema tests (specs/standardize-tool-args-schema Task 1.2).
+"""Memory-tools schema tests.
 
 Critical edge case: ``user_id``/``store`` are injected via ``InjectedState`` /
 ``InjectedStore``. These tools pass an explicit ``args_schema=`` (e.g.
@@ -21,7 +21,6 @@ from app.tools.memory_tools import (
 
 
 def test_registry_still_builds():
-    """Sanity check: the memory tools wire into the registry."""
     import app.tools.registry  # noqa: F401
 
 
@@ -35,7 +34,6 @@ def test_save_user_preference_model_facing_schema():
     assert set(fields) == {"key", "text"}
     assert "user_id" not in fields and "store" not in fields
     assert fields["key"].is_required() and fields["text"].is_required()
-    # descriptions carried inline via Annotated[..., Field(description=...)]
     assert fields["key"].description and fields["text"].description
 
 
@@ -43,7 +41,7 @@ def test_get_user_preferences_model_facing_schema():
     fields = _facing(get_user_preferences)
     assert set(fields) == {"query"}
     assert "user_id" not in fields and "store" not in fields
-    assert not fields["query"].is_required()  # optional
+    assert not fields["query"].is_required()
     assert fields["query"].description
 
 
@@ -56,10 +54,7 @@ def test_recall_past_trips_model_facing_schema():
 
 
 def test_injected_params_remain_in_function_signature():
-    """The Annotated[..., InjectedState/InjectedStore] params must still be present
-    on the underlying function so LangGraph's ToolNode can inject them at call
-    time — only the model-facing schema excludes them.
-    """
+    """Injected params must stay on the underlying function so ToolNode can inject them."""
     import inspect
 
     for tool in (save_user_preference, get_user_preferences, recall_past_trips):

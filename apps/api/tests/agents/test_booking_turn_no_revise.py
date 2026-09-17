@@ -1,27 +1,4 @@
-"""End-to-end booking turn does not revise (gh-193, task 2.2, SC-5).
-
-Drives the whole graph (plan interrupt → approve → booking → reflection) with a
-judge scripted to say REVISE, and pins the two halves of the fix:
-
-- **Part B (the guard, case 1):** a turn that committed a booking is terminal.
-  Reflection ends it *before* calling the judge, the booking sub-agent runs once,
-  exactly one booking row exists, and no revise note is persisted.
-- **Part A (idempotency, case 2):** with the guard disabled the judge REVISEs,
-  the booking sub-agent runs a second time, but the second ``book_flight`` call
-  replays the first booking via the turn-scoped key — still one row, and the two
-  ``book_flight`` ToolMessages carry the same booking id.
-
-The ``HumanMessage`` is created id-less on purpose: LangGraph's ``add_messages``
-assigns it a stable id when it enters state, and the checkpointer keeps that id
-across the interrupt/resume, so the idempotency key is identical on both booking
-runs of the same turn — that stability is part of what case 2 proves.
-
-``book_flight`` is trip-scoped (``trip_id`` via ``InjectedState``): the booking
-sub-agent's trip guard blocks it with an *error* ToolMessage and ends the turn
-when no trip is active. The turn therefore runs with a real OWNER-owned trip and
-``trip_id`` in state, and every ``book_flight`` ToolMessage is asserted
-``status == "success"`` so a guard block cannot masquerade as a passing case 1.
-"""
+"""End-to-end booking turn does not revise even when the judge says REVISE."""
 
 from __future__ import annotations
 
@@ -49,10 +26,7 @@ OWNER = "u_booking_turn"
 
 @pytest.fixture
 def agent_db(tmp_path, monkeypatch):
-    """Point DATABASE_URL at a fresh seeded temp SQLite DB so the real booking
-    tools run in-graph (they resolve their session from the setting, not a
-    request). Mirrors ``tests/agents/test_plan_everything.py``; kept local so this
-    module is self-contained and free of a cross-package fixture import."""
+    """Fresh seeded temp SQLite DB so in-graph booking tools resolve a session from the setting."""
     url = f"sqlite:///{tmp_path / 'booking_turn.db'}"
     monkeypatch.setenv("DATABASE_URL", url)
     get_settings.cache_clear()
@@ -63,8 +37,7 @@ def agent_db(tmp_path, monkeypatch):
 
 
 def _drive(graph, *args, **kwargs):
-    """Run the graph the way production does — asynchronously (a specialist binds
-    async-only tools, so a sync ``invoke`` cannot execute its worker node)."""
+    """Run the graph asynchronously; a specialist binds async-only tools, so sync invoke cannot execute its worker node."""
     return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
@@ -75,9 +48,9 @@ def _build(main: FakeLLM, fast: FakeLLM):
 
 
 def _invoke(graph, msg: str, *, trip_id: str, thread_id: str):
-    # HumanMessage is intentionally id-less: add_messages assigns a stable id
-    # that the checkpointer keeps across interrupt/resume (the turn boundary the
-    # idempotency key is built from).
+    # HumanMessage is id-less on purpose: add_messages assigns a stable id the
+    # checkpointer keeps across interrupt/resume, the turn boundary the
+    # idempotency key is built from.
     return _drive(
         graph,
         {
@@ -106,11 +79,7 @@ def _seed_trip_and_flight(url: str) -> tuple[str, str]:
 
 
 def _book_flight_call(flight_number: str, call_id: str) -> AIMessage:
-    """A scripted assistant turn calling book_flight with the seeded flight.
-
-    ``trip_id`` / ``user_id`` are injected from graph state, so they are *not* in
-    the model-visible args — keeping the args (and thus the idempotency key)
-    identical across both booking runs of the turn."""
+    """Scripted book_flight call; trip_id/user_id inject from state, so args (and the idempotency key) match across both booking runs."""
     return AIMessage(
         content="",
         tool_calls=[
@@ -144,16 +113,11 @@ def _book_flight_tool_messages(messages: list) -> list[ToolMessage]:
 
 
 def _booking_id(tool_message: ToolMessage) -> str:
-    # book_flight returns ``dump(result)`` (a dict); ToolNode serialises a
-    # non-string tool return into ToolMessage.content as JSON.
+    # book_flight returns a dict; ToolNode serialises a non-string return into ToolMessage.content as JSON.
     return json.loads(tool_message.content)["id"]
 
 
-# ---------------------------------------------------------------------------
 # Case 1 (guard on): reflection ends before the judge; booking runs once.
-# ---------------------------------------------------------------------------
-
-
 def test_booking_turn_with_guard_never_revises(agent_db):
     trip_id, flight_number = _seed_trip_and_flight(agent_db)
     main = FakeLLM(
@@ -204,14 +168,9 @@ def test_booking_turn_with_guard_never_revises(agent_db):
     assert out.get("revisions", 0) == 0
 
 
-# ---------------------------------------------------------------------------
 # Case 2 (guard off): REVISE re-runs booking; the second call replays the key.
-# ---------------------------------------------------------------------------
-
-
 def test_booking_turn_without_guard_revises_but_replays_booking(agent_db, monkeypatch):
-    # Disable the reflection guard so REVISE re-runs the booking sub-agent — the
-    # literal issue this whole change fixes end to end (part A).
+    # Disable the reflection guard so REVISE re-runs the booking sub-agent.
     monkeypatch.setattr("app.agents.nodes.BOOKING_WRITE_TOOLS", frozenset())
 
     trip_id, flight_number = _seed_trip_and_flight(agent_db)
@@ -239,10 +198,9 @@ def test_booking_turn_without_guard_revises_but_replays_booking(agent_db, monkey
 
     assert not out.get("__interrupt__")
 
-    # The judge ran once and said REVISE, so the booking sub-agent ran a second
-    # time; DEFAULT_MAX_REVISIONS is 1, so the second reflection short-circuits at
-    # revisions=1 and ends the turn BEFORE a second judge call (the scripted "OK"
-    # is never reached — mirrors tests/agents/test_multi_intent_routing.py).
+    # Judge said REVISE so the sub-agent ran twice; DEFAULT_MAX_REVISIONS is 1,
+    # so the second reflection short-circuits at revisions=1 and ends the turn
+    # before a second judge call (the scripted "OK" is never reached).
     assert fast._cursor == 1
     assert main._cursor == 4
 
@@ -256,22 +214,9 @@ def test_booking_turn_without_guard_revises_but_replays_booking(agent_db, monkey
     assert _rows(agent_db) == 1
 
 
-# ---------------------------------------------------------------------------
-# Retry (guard on): a transient LLM fault AFTER the write is retried, books once.
-# ---------------------------------------------------------------------------
-
-
+# Retry (guard on): a transient LLM fault after the write is retried, books once.
 class _RetryOnceFakeLLM(FakeLLM):
-    """``FakeLLM`` that raises a retryable fault once, on a chosen response slot.
-
-    ``fail_at`` is the ``responses`` cursor position whose FIRST delivery raises a
-    ``ConnectionError`` -- a fault ``app.agents.retry._is_retryable_llm`` accepts --
-    *without* consuming the slot, so the assistant node's ``LLM_RETRY`` re-runs it
-    and the retried call returns that same scripted response normally. ``_calls``
-    counts every delivery attempt (the failed one included), so a test can assert
-    it is exactly one higher than the number of responses actually consumed
-    (``_cursor``) -- i.e. that one retry happened.
-    """
+    """FakeLLM whose fail_at slot raises a retryable ConnectionError once without consuming the slot; _calls counts every attempt so a test can prove one retry happened."""
 
     fail_at: int = 0
     _failed: bool = PrivateAttr(default=False)
@@ -286,10 +231,8 @@ class _RetryOnceFakeLLM(FakeLLM):
 
 
 def test_booking_turn_llm_retry_after_write_books_once(agent_db):
-    # Fail the narration call (cursor 1) -- the assistant turn that runs AFTER the
-    # successful book_flight tool call, so the write has already happened when the
-    # retry re-runs the assistant. LLM_RETRY on the booking assistant node must
-    # re-run it and finish the turn with a single booking, not a second write.
+    # Fail the narration call (cursor 1), which runs after the successful write,
+    # so LLM_RETRY re-running the assistant must not produce a second write.
     trip_id, flight_number = _seed_trip_and_flight(agent_db)
     main = _RetryOnceFakeLLM(
         fail_at=1,

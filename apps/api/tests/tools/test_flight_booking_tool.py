@@ -1,9 +1,5 @@
-"""Tests for the book_flight agent tool (MIN-42).
-
-``book_flight`` takes ``user_id`` via ``InjectedState`` (review-A hardening,
-E004); it is passed here in the invoke dict the way the graph injects it from
-state (it is hidden from the model-facing schema).
-"""
+"""book_flight takes user_id via InjectedState (hidden from the model-facing
+schema); tests pass it in the invoke dict the way the graph injects it."""
 
 import pytest
 from langchain_core.tools import ToolException
@@ -74,11 +70,8 @@ def test_book_flight_happy_path_returns_booking(agent_db):
 
 
 def test_book_flight_repeated_call_creates_distinct_bookings(agent_db):
-    """Two identical book_flight calls create two DISTINCT bookings — the tool
-    has no idempotency collapse, matching a REST POST with no Idempotency-Key.
-    Guards against re-introducing a content-hash idempotency key, which would
-    silently swallow an intentional second booking (and, worse, replay a
-    cancelled one) — see the PR #80 deep-review revert."""
+    """Two identical calls create two DISTINCT bookings: the tool has no idempotency
+    collapse, so a content-hash key must not silently swallow a real second booking."""
     from app.db.engine import get_session_factory
     from app.services.flight_service import FlightService
     from app.tools.flight_tools import book_flight
@@ -100,10 +93,7 @@ def test_book_flight_repeated_call_creates_distinct_bookings(agent_db):
         "user_id": OWNER,
     }
     first = book_flight.invoke(dict(args))
-    # gh-194: the agent tool now opts into the duplicate check, so a genuine
-    # second identical booking must set allow_duplicate=True (the override the
-    # model passes only after the traveller confirms). This still exercises the
-    # no-idempotency-collapse invariant this test guards.
+    # A genuine second identical booking must opt in via allow_duplicate=True.
     second = book_flight.invoke({**args, "allow_duplicate": True})
 
     assert second["id"] != first["id"]

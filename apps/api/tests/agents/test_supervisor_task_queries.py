@@ -1,13 +1,4 @@
-"""Supervisor per-task queries (specs/specialist-task-description Task 1.1).
-
-``SupervisorIntent.task_queries`` carries one self-contained restatement per
-specialist in ``[target_agent, *plan]`` order. The supervisor aligns those to
-the emitted tasks by agent name and falls back to the last user message for
-any missing, blank, short or mis-aligned entry.
-
-Direct supervisor calls with a FakeLLM structured response (the pattern in
-``test_supervisor_plan_semantics.py``).
-"""
+"""Supervisor per-task queries: task_queries align to tasks by agent, falling back to the last user message for any missing, blank, short or mis-aligned entry."""
 
 from __future__ import annotations
 
@@ -80,9 +71,7 @@ def test_fallback_when_entry_blank_or_short():
 
 
 def test_alignment_survives_plan_dedup():
-    # plan repeats the primary: the dedup loop drops the second planner, but the
-    # queries are aligned to the pre-dedup [target, *plan] positions, so the
-    # concierge still receives the third entry.
+    # Queries align to pre-dedup [target, *plan] positions, so concierge still gets the third entry.
     tasks = _tasks_for(
         SupervisorIntent(
             target_agent="planner",
@@ -114,8 +103,7 @@ def test_task_queries_defaults_to_none():
     assert SupervisorIntent(target_agent="planner").task_queries is None
 
 
-# --- malformed task_queries degrade instead of raising (function_calling is not
-# strict-schema, so the model can emit any JSON). Built through model_validate:
+# Malformed task_queries degrade instead of raising; built via model_validate because
 # FakeLLM returns instances verbatim and would bypass the validator.
 
 
@@ -156,8 +144,7 @@ def test_task_queries_wire_schema_stays_string_array():
 
 
 def test_single_task_ignores_task_queries():
-    # A single specialist always gets the whole message: the model's paraphrase
-    # can drop details the traveller wrote (counts, dates).
+    # A single specialist gets the whole message; a paraphrase can drop details (counts, dates).
     message = "find flights to Tokyo for 2 adults on 15/8"
     supervisor = make_supervisor(
         FakeLLM(
@@ -174,8 +161,7 @@ def test_single_task_ignores_task_queries():
 
 
 def test_plan_deduped_to_single_task_ignores_task_queries():
-    # plan repeats the primary, so dedup leaves one task; the lengths match but
-    # the single task still carries the user message.
+    # Dedup leaves one task; the single task still carries the user message.
     tasks = _tasks_for(
         SupervisorIntent(
             target_agent="planner",

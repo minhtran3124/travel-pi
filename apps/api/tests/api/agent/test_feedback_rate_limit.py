@@ -1,10 +1,4 @@
-"""Feedback abuse limit on ``POST /agent/feedback`` — Task 3.2 (SC-7).
-
-The ``feedback_rate_limit_max + 1``-th request in one window from one subject is
-``429`` with ``Retry-After``; an ``anon:`` subject and an authenticated subject
-count separately; a ``404``-rejected request still increments the counter (the
-limiter commits on its own transaction before the request unit of work).
-"""
+"""Feedback abuse limit on ``POST /agent/feedback``: a 404-rejected request still increments the counter (the limiter commits on its own transaction before the request unit of work)."""
 
 from __future__ import annotations
 
@@ -69,13 +63,12 @@ def test_anonymous_and_authenticated_subjects_count_separately(tmp_path):
         for _ in range(LIMIT):
             assert post(authed, body(mid_owner)).status_code == 201
         _assert_429(post(authed, body(mid_owner)))
-        # A body-supplied id equal to the authenticated id must not share the
-        # exhausted counter: it is namespaced ``anon:<id>``.
+        # A body-supplied id equal to the authenticated id is namespaced
+        # ``anon:<id>`` and must not share the exhausted counter.
         r = post(anon, body(mid_anon, anonymous_user_id=OWNER))
-        assert r.status_code == 404  # not the owner, but the limit let it through
+        assert r.status_code == 404
         r = post(anon, body(mid_anon, anonymous_user_id=ANON))
         assert r.status_code == 201
-        # And the anon subject has its own budget, now with one hit spent.
         assert post(anon, body(mid_anon, anonymous_user_id=ANON)).status_code == 201
         _assert_429(post(anon, body(mid_anon, anonymous_user_id=ANON)))
 

@@ -1,8 +1,4 @@
-"""Expense / budget tools (specs/travel-agent Task 3.4).
-
-Wrap ``ExpenseService`` for the budget sub-agent: record spend, list it, and roll
-it up. Pairs with ``get_trip_budget`` (trip_tools) for cap-vs-spent answers.
-"""
+"""Expense / budget tools wrapping ``ExpenseService`` for the budget sub-agent."""
 
 from __future__ import annotations
 
@@ -20,10 +16,8 @@ from app.services.expense_service import ExpenseService
 from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
-# Each schema DECLARES the injected ``user_id``: ToolNode derives injection
-# targets from ``args_schema``, so leaving it out would break injection. It is
-# still stripped from the model-facing ``tool_call_schema``. The signatures keep
-# their ``Annotated`` metadata because MCP serves the raw signature.
+# Each schema must DECLARE the injected user_id or ToolNode never injects it; it stays hidden from the
+# model. Signatures keep their Annotated metadata because MCP serves the raw signature.
 class _ExpenseOwnerArgs(AppBaseModel):
     user_id: Annotated[str, InjectedState("user_id")] = Field(
         ...,

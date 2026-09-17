@@ -1,16 +1,10 @@
 #!/usr/bin/env python
-"""Guard the routing eval against the GH-180 supervisor crash.
+"""Guard the routing eval against a supervisor crash on ``routing-multi_turn-*`` cases.
 
-Loads a report JSON produced by ``python -m eval`` and inspects the
-``routing-multi_turn-*`` cases. The pre-fix crash surfaces as an ``agent_run``
-check with ``passed: false`` and a ``detail`` starting
-``agent run raised ValidationError``. This checker exits non-zero when any such
-crash is present (or when fewer than two distinct routing cases are found) so it
-can gate both the pre-fix fixture (must fail) and a fresh post-fix report (must
-pass).
+Exits non-zero when any such case crashed (an ``agent_run`` check failed) or when
+fewer than two distinct routing cases are found.
 
-Usage:
-    python scripts/check_gh180_routing_report.py <report.json>
+Usage: ``python scripts/check_gh180_routing_report.py <report.json>``
 """
 
 from __future__ import annotations
@@ -55,12 +49,9 @@ def main(argv: list[str]) -> int:
         print(f"{golden_id}\tpassed={entry.get('passed')}\t{shown}")
         for check in entry.get("checks") or []:
             check_detail = str(check.get("detail") or "")
-            # Any crashed turn, not only a pydantic ValidationError: the eval
-            # harness records one as a check named ``agent_run`` whose detail
-            # reads "agent run raised <ExcName>". Gating on the literal string
-            # "ValidationError" would report green for a turn that died with a
-            # TypeError, which is precisely how a regression of this fix would
-            # look.
+            # Match any crashed turn, not the literal "ValidationError": a
+            # regression could die with a different exception and still read
+            # green if gated on that one string.
             if "raised" in check_detail or (
                 check.get("name") == "agent_run" and check.get("passed") is False
             ):

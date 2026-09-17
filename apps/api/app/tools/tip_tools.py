@@ -1,12 +1,4 @@
-"""Local-tips tool (wraps ``TipService`` as an LLM tool).
-
-Read-only lookup over the DB-backed seed tips (``app/data/tips.py``). Plain
-``@tool`` returning text/JSON the model relays — no side-panel artifact (cf.
-``weather_tools`` which use ``panel_result``). Opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent can
-self-correct. An unknown location returns ``count: 0`` (the service's documented
-behaviour), never an error.
-"""
+"""Local-tips tool wrapping ``TipService`` (an unknown location returns ``count: 0``, never an error)."""
 
 from __future__ import annotations
 

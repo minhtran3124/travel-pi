@@ -1,4 +1,4 @@
-"""Ordered step capture in TurnMetricsHandler (specs/agent-run-trace-detail §4.1, SC-1/SC-3)."""
+"""Ordered step capture in TurnMetricsHandler."""
 
 from uuid import uuid4
 
@@ -283,11 +283,7 @@ def test_llm_end_without_usage_still_closes_the_step():
 
 
 def test_close_sweeps_a_step_whose_end_hook_never_fired():
-    """A cancelled turn must not leave a step stranded as `open`.
-
-    Without the sweep the row persists with status "open" and ms 0, which the
-    waterfall would draw as a zero-width bar of unknown outcome.
-    """
+    """A cancelled turn must not leave a step stranded as `open`."""
     h = TurnMetricsHandler()
     rid = uuid4()
     h.on_chat_model_start(

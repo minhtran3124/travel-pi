@@ -1,25 +1,15 @@
 #!/usr/bin/env python3
 """Generate additional mock hotel records for the Travel Planner Mock API.
 
-This is a *manual* developer tool. It prints ready-to-paste Python dict
-literals (or JSON) for new hotels in a given city. Review the output, then
-paste the dicts into the matching city block in ``app/data/hotels.py``.
+A manual developer tool: it prints ready-to-paste Python dict literals (or JSON)
+for new hotels in a given city, to paste into ``app/data/hotels.py``. IDs continue
+from existing records so they never collide.
 
-By default the ID index continues from the hotels already in that city, so
-generated records never collide with existing ones.
+Examples::
 
-Examples
---------
-    # 3 new Da Nang hotels, IDs continue from existing data
     python scripts/generate_data.py hotels --city "Da Nang" --count 3
-
-    # Reproducible output with a fixed seed
     python scripts/generate_data.py hotels --city "Hoi An" --count 2 --seed 42
-
-    # Emit JSON instead of Python literals
     python scripts/generate_data.py hotels --city "Hanoi" --count 1 --json
-
-    # A brand-new city (provide an ID prefix explicitly)
     python scripts/generate_data.py hotels --city "Hue" --prefix hue --count 2
 """
 
@@ -32,7 +22,7 @@ import random
 import sys
 from pathlib import Path
 
-# Allow `from app...` imports when the script is run directly.
+# Allow `from app...` imports when the script is run directly by path.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
@@ -67,7 +57,6 @@ CITY_PREFIXES: dict[str, str] = {
     "Cebu": "cb",
 }
 
-# Amenity pool from the spec (§6.3).
 AMENITY_POOL = [
     "Pool",
     "Spa",
@@ -78,13 +67,9 @@ AMENITY_POOL = [
     "Free WiFi",
 ]
 
-# ── Hotel enrichment ─────────────────────────────────────────────────────
-# Derives the richer descriptive fields (description, property_type, chain,
-# check-in/out, breakfast/cancellation, languages) from a hotel's existing
-# facts — name, amenities, star rating and country. Everything is a pure
-# function of the record, so the same hotel always enriches identically and
-# the seed file and freshly generated records stay consistent. This is the
-# single source of truth: app/data/hotels.py was populated by running it.
+# Enrichment derives the richer descriptive fields as a pure function of a
+# record, so the seed file and freshly generated records stay consistent.
+# This is the single source of truth: app/data/hotels.py was populated by it.
 
 # Front-desk languages by country (English is assumed everywhere here).
 COUNTRY_LANGUAGES: dict[str, list[str]] = {
@@ -104,8 +89,7 @@ COUNTRY_LANGUAGES: dict[str, list[str]] = {
     "Japan": ["English", "Japanese"],
 }
 
-# Brand keyword -> operating group, checked most-specific first. A hotel whose
-# name matches none of these is "Independent".
+# Brand keyword -> operating group, checked most-specific first.
 HOTEL_CHAINS: list[tuple[tuple[str, ...], str]] = [
     (("Ritz-Carlton",), "The Ritz-Carlton (Marriott)"),
     (
@@ -284,9 +268,7 @@ def _resolve_prefix(city: str, explicit: str | None) -> str:
 def _existing_index(city: str) -> int:
     """Highest hotel index already used for ``city`` (0 if none / unreadable).
 
-    Lets generated IDs continue from existing data instead of colliding with
-    it. Reading the seed file is a convenience only — if the import fails
-    (e.g. run from an odd working directory) we just fall back to 0.
+    Reading the seed file is best-effort; a failed import falls back to 0.
     """
     try:
         from app.data.hotels import HOTELS
@@ -326,8 +308,8 @@ def _make_hotel(
         "rating": round(rng.uniform(4.0, 4.9), 1),
         "review_count": rng.randint(500, 5000),
     }
-    # Country drives the languages field; derive it from cities.py (the same
-    # source app/data/hotels.py uses) so generated records match the seed.
+    # Derive country from cities.py (the source hotels.py uses) so generated
+    # records' languages match the seed.
     try:
         from app.data.cities import CITIES
 

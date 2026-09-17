@@ -1,11 +1,4 @@
-"""Booking business logic: creation, filtering, sorting, and retrieval.
-
-This is the service tier — it owns the rules (pricing a hotel stay,
-resolving the referenced flight/hotel, searching and sorting the ledger)
-and delegates all persistence to :class:`~app.repositories.booking.BookingRepository`.
-Bookings are the only mutable state in the API; everything else is
-in-memory / read-only.
-"""
+"""Booking business logic: creation, filtering, sorting, and retrieval."""
 
 import logging
 import uuid
@@ -46,24 +39,12 @@ BOOKING_SORTS = {
 
 
 def _as_date(value: str) -> date:
-    """Parse a ``YYYY-MM-DD`` date string to a :class:`date` for comparison.
-
-    The hotel duplicate check compares stored vs requested dates as *dates*, not
-    raw strings, so unpadded input like ``"2027-4-10"`` (which the schema
-    validator accepts unchanged) still matches the padded ``"2027-04-10"`` of an
-    existing booking instead of escaping the check (gh-194).
-
-    :param value: A date string in ``YYYY-MM-DD`` form.
-    :return: The parsed calendar date.
-    """
+    """Parse a ``YYYY-MM-DD`` string to a ``date`` so unpadded input still matches padded stored dates."""
     return datetime.strptime(value, "%Y-%m-%d").date()
 
 
 def _new_booking_id() -> str:
-    """Return a new random UUID4 booking ID.
-
-    :return: A new UUID4 string.
-    """
+    """Return a new random UUID4 booking ID."""
     return str(uuid.uuid4())
 
 
@@ -75,22 +56,7 @@ def _filter_and_sort(
     trip_id: str | None,
     sort: str,
 ) -> list[Booking]:
-    """Filter a booking list by ``q``/``booking_type``/``trip_id`` and sort it.
-
-    Shared by the owner-scoped :meth:`BookingService.query` and the dashboard's
-    :meth:`BookingService.query_unscoped`, which differ only in which rows they
-    fetch. ``q`` is a case-insensitive substring over id/confirmation
-    code/customer name/email; ``booking_type`` keeps only ``"flight"`` or
-    ``"hotel"``; ``trip_id`` keeps only bookings linked to that trip; unknown
-    ``sort`` falls back to newest-first.
-
-    :param bookings: The bookings to filter and sort.
-    :param q: Case-insensitive substring filter, or ``None``.
-    :param booking_type: Keep only this type, or ``None`` for all.
-    :param trip_id: Keep only bookings linked to this trip, or ``None`` for all.
-    :param sort: Sort key; unknown values fall back to newest-first.
-    :return: The filtered, sorted bookings.
-    """
+    """Filter a booking list by ``q``/``booking_type``/``trip_id`` and sort it."""
     needle = (q or "").strip().lower()
     if needle:
         bookings = [
@@ -105,8 +71,7 @@ def _filter_and_sort(
     if booking_type in (BookingType.FLIGHT.value, BookingType.HOTEL.value):
         bookings = [b for b in bookings if b.type == booking_type]
 
-    # Filtered in Python because it mirrors q and type, not because the
-    # scale demands it.
+    # Filtered in Python to mirror q and type, not because scale demands it.
     if trip_id is not None:
         bookings = [b for b in bookings if b.trip_id == trip_id]
 
@@ -116,15 +81,10 @@ def _filter_and_sort(
     return sorted(bookings, key=sort_key, reverse=reverse)
 
 
-# Bound on confirmation-code collision retries when minting a booking ID. The
-# code is a 6-char hash over a 31-char alphabet (31**6 ≈ 887M), so a collision
-# is astronomically rare; the loop just guards the unique
-# ``ix_bookings_confirmation_code`` index so a collision regenerates the UUID
-# instead of failing the insert.
+# Guards the unique confirmation_code index; a collision regenerates the UUID.
 _MAX_ID_ATTEMPTS = 8
 
-# Shared recovery hint for a possible-duplicate booking (gh-194). The agent
-# relays it verbatim: ask the traveller, then only retry with the override.
+# Shared recovery hint; the agent relays it verbatim.
 _DUPLICATE_HINT = (
     "This looks like a duplicate of an existing booking. Do NOT rebook "
     "silently — tell the traveller about the existing booking and ask whether "
@@ -143,13 +103,7 @@ class BookingService:
     def _mint_booking_id(self) -> str:
         """Return a fresh UUID whose derived confirmation_code is unused.
 
-        ``confirmation_code`` is unique (``ix_bookings_confirmation_code``) and
-        derived deterministically from the ID, so on the rare hash collision we
-        regenerate the UUID rather than let the insert fail. The collision check
-        is deliberately unscoped: the UNIQUE index spans all owners, so an
-        owner-scoped check would miss a cross-user collision.
-
-        :return: A UUID string whose derived ``confirmation_code`` is unused.
+        The collision check is unscoped: the UNIQUE index spans all owners.
         """
         for _ in range(_MAX_ID_ATTEMPTS):
             booking_id = _new_booking_id()
@@ -162,24 +116,13 @@ class BookingService:
         )
 
     def ping(self) -> bool:
-        """Return True if the booking store is reachable. Used by /readyz.
-
-        :return: ``True`` if the booking store is reachable.
-        """
+        """Return True if the booking store is reachable."""
         return self._repo.ping()
 
     def get(self, booking_id: str, *, user_id: str) -> Booking:
         """Return the caller's booking by UUID *or* confirmation code.
 
-        Callers can use the friendly 6-char ``confirmation_code`` wherever a
-        booking UUID is accepted — we try the UUID first, then look up the
-        code via the ``ix_bookings_confirmation_code`` index. Both paths are
-        O(log n); no full-table scan. A booking owned by someone else raises
-        the same :class:`NotFoundError` as one that does not exist (#118).
-
-        :param booking_id: A booking UUID or 6-char confirmation code.
-        :param user_id: The caller who must own the booking.
-        :return: The matching booking.
+        A booking owned by someone else raises the same NotFoundError as a missing one.
         """
         booking = self._repo.get(booking_id, user_id) or (
             self._repo.get_by_confirmation_code(booking_id, user_id)
@@ -196,39 +139,17 @@ class BookingService:
         return booking
 
     def list_all(self, *, user_id: str) -> list[Booking]:
-        """Return the caller's bookings, newest first.
-
-        :param user_id: The owner whose bookings to return.
-        :return: The caller's bookings, newest first.
-        """
+        """Return the caller's bookings, newest first."""
         return self._repo.list_all(user_id)
 
     def list_all_unscoped(self) -> list[Booking]:
-        """Return every booking, newest first — operator dashboard only.
-
-        The dashboard ledger has no signed-in caller (it is Basic-auth
-        operator access) and shows all bookings across users. No user-facing
-        route may call this.
-
-        :return: Every booking, newest first.
-        """
+        """Return every booking, newest first — operator dashboard only; no user-facing route may call this."""
         return self._repo.list_all_unscoped()
 
     def cancel(self, booking_id: str, *, user_id: str) -> Booking:
-        """Cancel the caller's booking (by UUID or confirmation code).
+        """Cancel the caller's booking (idempotent).
 
-        A soft state change — the row is kept, ``status`` becomes
-        ``cancelled``. Idempotent: cancelling an already-cancelled booking
-        just returns it unchanged. Raises :class:`NotFoundError` if no
-        booking matches the caller (#118).
-
-        Cancelling releases the booking's idempotency key, so a cancelled
-        booking is never a replay target: re-booking with the same key/turn
-        creates a fresh row rather than replaying the cancelled one (gh-193).
-
-        :param booking_id: A booking UUID or confirmation code.
-        :param user_id: The caller who must own the booking.
-        :return: The cancelled booking.
+        Releases the idempotency key so a cancelled booking is never a replay target.
         """
         booking = self.get(booking_id, user_id=user_id)
         if booking.status == BookingStatus.CANCELLED:
@@ -251,24 +172,7 @@ class BookingService:
         trip_id: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
-        """Return the caller's bookings filtered by ``q``/``booking_type``/``trip_id`` and sorted.
-
-        ``q`` is a case-insensitive substring matched against the booking ID,
-        confirmation code, customer name, and customer email. ``booking_type``
-        keeps only ``"flight"`` or ``"hotel"`` rows (other values are
-        ignored). ``trip_id`` keeps only bookings linked to that trip. Unknown
-        ``sort`` values fall back to newest-first.
-
-        :param user_id: The owner whose bookings to search.
-        :param q: Case-insensitive substring filter over the booking ID,
-            confirmation code, customer name, and customer email.
-        :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows; other
-            values are ignored.
-        :param trip_id: Keep only bookings linked to this trip, or ``None``
-            for all.
-        :param sort: Sort key; unknown values fall back to newest-first.
-        :return: The filtered, sorted bookings.
-        """
+        """Return the caller's bookings filtered by ``q``/``booking_type``/``trip_id`` and sorted."""
         return _filter_and_sort(
             self._repo.list_all(user_id),
             q=q,
@@ -285,18 +189,7 @@ class BookingService:
         trip_id: str | None = None,
         sort: str = BookingSort.CREATED_DESC.value,
     ) -> list[Booking]:
-        """Filter and sort every booking (all owners) — operator dashboard only.
-
-        Same filter/sort semantics as :meth:`query` but over the unscoped
-        ledger. No user-facing route may call this.
-
-        :param q: Case-insensitive substring filter (see :meth:`query`).
-        :param booking_type: Keep only ``"flight"`` or ``"hotel"`` rows.
-        :param trip_id: Keep only bookings linked to this trip, or ``None``
-            for all.
-        :param sort: Sort key; unknown values fall back to newest-first.
-        :return: The filtered, sorted bookings across all owners.
-        """
+        """Filter and sort every booking (all owners) — operator dashboard only; no user-facing route may call this."""
         return _filter_and_sort(
             self._repo.list_all_unscoped(),
             q=q,
@@ -306,18 +199,7 @@ class BookingService:
         )
 
     def _replay(self, idempotency_key: str | None, user_id: str) -> Booking | None:
-        """Return a prior booking for ``idempotency_key`` owned by the caller.
-
-        This is what makes booking POSTs replay-safe: an agent that retries
-        after a timeout (or re-runs a plan) sends the same key and gets the
-        original booking back instead of creating a duplicate. Scoped to the
-        owner so a key collision across users never replays another user's
-        booking (#118).
-
-        :param idempotency_key: The client-supplied idempotency key, if any.
-        :param user_id: The caller who must own the replayed booking.
-        :return: The prior booking for the key, or ``None`` if none exists.
-        """
+        """Return a prior booking for ``idempotency_key`` owned by the caller (owner-scoped, replay-safe)."""
         if not idempotency_key:
             return None
         existing = self._repo.get_by_idempotency_key(idempotency_key, user_id)
@@ -332,13 +214,7 @@ class BookingService:
     def _verify_trip_ownership(self, trip_id: str | None, user_id: str) -> None:
         """Raise :class:`NotFoundError` if ``trip_id`` is set but not the caller's.
 
-        Mirrors the ``_validate_trip`` check in ``expense_service.py``: both a
-        missing and a foreign trip answer the same ``NotFoundError`` so this
-        route can't become an oracle for whether a guessed trip id exists
-        (#118). ``None`` (no trip requested) is a no-op.
-
-        :param trip_id: The trip id to attach the booking to, or ``None``.
-        :param user_id: The caller who must own the trip.
+        Missing and foreign trips answer the same error, so this can't be an existence oracle.
         """
         if trip_id is None:
             return
@@ -357,30 +233,11 @@ class BookingService:
         idempotency_key: str | None = None,
         check_duplicate: bool = False,
     ) -> Booking:
-        """Create a flight booking for the caller. 404 if the flight is unknown.
+        """Create a flight booking for the caller (404 if the flight is unknown).
 
-        When ``idempotency_key`` matches an earlier request by the same owner,
-        the original booking is returned and nothing new is stored.
-
-        When ``check_duplicate`` is True (the opt-in the agent book tools pass;
-        the REST route keeps the default False), a prior *active* booking by the
-        same owner for the same flight row with the same ``passengers`` raises
-        :class:`~app.exceptions.DuplicateBookingError` instead of silently
-        creating a second identical booking (gh-194). The check runs after
-        idempotency replay — so a same-turn revise re-run still replays the
-        original rather than tripping the check against itself — and after the
-        flight is resolved. On Postgres the check and the insert are
-        serialized per owner by a transaction-scoped advisory lock, so two
-        concurrent requests cannot both pass the check and both insert (gh-198).
-
-        :param request: The flight booking request.
-        :param user_id: The owner stamped on the booking (#118).
-        :param idempotency_key: Optional key that replays an earlier booking
-            instead of creating a duplicate.
-        :param check_duplicate: When True, raise
-            :class:`~app.exceptions.DuplicateBookingError` if the same owner
-            already has an active booking for this flight + passenger count.
-        :return: The created (or replayed) booking.
+        With ``check_duplicate``, a prior active booking for the same flight and
+        passenger count raises ``DuplicateBookingError``; on Postgres the check and
+        insert are serialized per owner by a transaction-scoped advisory lock.
         """
         replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
@@ -421,10 +278,8 @@ class BookingService:
         if check_duplicate:
             self._repo.lock_owner_bookings(user_id)
             # Re-run the replay under the lock: a concurrent same-key request may
-            # have committed the winner's row while we waited, and the idempotency
-            # contract owes that caller the original booking, not a
-            # DuplicateBookingError. Postgres READ COMMITTED sees it now (gh-198
-            # CR-1); the pre-lock replay above still short-circuits plain replays.
+            # have committed the winner's row while we waited, and idempotency owes
+            # that caller the original booking, not a DuplicateBookingError.
             replayed = self._replay(idempotency_key, user_id)
             if replayed is not None:
                 return replayed
@@ -436,10 +291,8 @@ class BookingService:
                 if existing.details.passengers == request.passengers
             ]
             if matches:
-                # list_active_by_reference is newest-first, so matches[0] is the
-                # newest; naming it keeps the message/marker unchanged. All
-                # matches ride along so the tool can refuse a same-turn override
-                # flagged against any of them, not only the newest (gh-200 C1).
+                # Newest-first; all matches ride along so an override flagged
+                # against any of them is refused, not only the newest.
                 existing = matches[0]
                 raise DuplicateBookingError(
                     f"You already have booking {existing.confirmation_code} "
@@ -489,32 +342,12 @@ class BookingService:
     ) -> Booking:
         """Create a hotel booking for the caller.
 
-        Raises :class:`NotFoundError` if the hotel is unknown, and
-        :class:`ConflictError` (409) if the hotel cannot take the requested
-        rooms/party for those dates. ``total_price`` is computed server-side
-        as ``price_per_night × nights × rooms``. When ``idempotency_key``
-        matches an earlier request by the same owner, the original booking is
-        returned unchanged.
-
-        When ``check_duplicate`` is True (the opt-in the agent book tools pass;
-        the REST route keeps the default False), a prior *active* booking by the
-        same owner for the same hotel with the exact same ``check_in`` and
-        ``check_out`` raises :class:`~app.exceptions.DuplicateBookingError`
-        instead of silently creating a second identical booking (gh-194). The
-        check runs after idempotency replay and after the hotel is resolved, and
-        after the availability check (a sold-out hotel reports sold-out first,
-        gh-200). On Postgres the check and the insert are
-        serialized per owner by a transaction-scoped advisory lock, so two
-        concurrent requests cannot both pass the check and both insert (gh-198).
-
-        :param request: The hotel booking request.
-        :param user_id: The owner stamped on the booking (#118).
-        :param idempotency_key: Optional key that replays an earlier booking
-            instead of creating a duplicate.
-        :param check_duplicate: When True, raise
-            :class:`~app.exceptions.DuplicateBookingError` if the same owner
-            already has an active booking for this hotel + exact dates.
-        :return: The created (or replayed) booking.
+        Raises ``NotFoundError`` if the hotel is unknown and ``ConflictError`` if it
+        can't take the requested rooms/party for those dates; ``total_price`` is
+        ``price_per_night × nights × rooms``. With ``check_duplicate``, a prior active
+        booking for the same hotel and exact dates raises ``DuplicateBookingError``
+        (after the sold-out check); on Postgres check and insert are serialized per
+        owner by a transaction-scoped advisory lock.
         """
         replayed = self._replay(idempotency_key, user_id)
         if replayed is not None:
@@ -558,10 +391,8 @@ class BookingService:
         if check_duplicate:
             self._repo.lock_owner_bookings(user_id)
             # Re-run the replay under the lock: a concurrent same-key request may
-            # have committed the winner's row while we waited, and the idempotency
-            # contract owes that caller the original booking, not a
-            # DuplicateBookingError. Postgres READ COMMITTED sees it now (gh-198
-            # CR-1); the pre-lock replay above still short-circuits plain replays.
+            # have committed the winner's row while we waited, and idempotency owes
+            # that caller the original booking, not a DuplicateBookingError.
             replayed = self._replay(idempotency_key, user_id)
             if replayed is not None:
                 return replayed
@@ -578,9 +409,8 @@ class BookingService:
                 )
             ]
             if matches:
-                # Newest-first, so matches[0] is the newest; naming it keeps the
-                # message/marker unchanged. All matches ride along so a same-turn
-                # override flagged against any of them is refused (gh-200 C1).
+                # Newest-first; all matches ride along so an override flagged
+                # against any of them is refused, not only the newest.
                 existing = matches[0]
                 raise DuplicateBookingError(
                     f"You already have booking {existing.confirmation_code} "
@@ -639,9 +469,5 @@ def init_db() -> None:
 def get_booking_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> BookingService:
-    """FastAPI dependency: a booking store bound to the request session.
-
-    :param session: The request-scoped SQLAlchemy session.
-    :return: A :class:`BookingService` bound to ``session``.
-    """
+    """FastAPI dependency: a booking store bound to the request session."""
     return BookingService(session)

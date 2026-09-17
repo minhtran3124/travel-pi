@@ -1,19 +1,4 @@
-"""Agent auth-required tests — SC-1 (specs/review-a-security-hardening).
-
-Every ``/agent/*`` route except ``/manifest`` (and ``POST /conversations/claim``,
-covered in test_claim.py) now requires a valid Supabase JWT. Verifies:
-
-- No token → ``/chat``, ``/stream``, ``GET /conversations``, ``GET
-  /conversations/{id}/messages`` all return 401.
-- With a valid JWT the body / query ``user_id`` is ignored — identity is the
-  token subject (``sub``); a forged ``user_id`` never keys the conversation.
-- The daily quota is keyed on the JWT sub, not on the client-supplied id.
-
-Uses a FakeLLM-backed graph + ``dependency_overrides``. The authenticated
-"token" is simulated by overriding ``get_current_user`` with a fixed AuthUser —
-no real JWT is minted; the 401 tests simply leave that dependency un-overridden
-so the real required-auth gate runs.
-"""
+"""Every /agent/* route except /manifest requires a JWT; identity is the token sub, so a forged body/query user_id is ignored and the daily quota keys on the sub."""
 
 from __future__ import annotations
 
@@ -39,12 +24,7 @@ _FORGED_UID = "forged-other-user"
 
 
 def _make_app(tmp_path, *, auth_user_id: str | None = None, db_name: str = "auth.db"):
-    """Build a FakeLLM-backed agent app.
-
-    When ``auth_user_id`` is given the app authenticates as that user; when it is
-    ``None`` the real required-auth dependency runs, so unauthenticated requests
-    401.
-    """
+    """auth_user_id given → authenticated as that user; None → real auth gate runs (401)."""
     url = f"sqlite:///{tmp_path / db_name}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     app = create_app()
@@ -76,11 +56,6 @@ def _make_app(tmp_path, *, auth_user_id: str | None = None, db_name: str = "auth
             id=auth_user_id, email="user@test.com", role=None, claims={}
         )
     return app, url
-
-
-# ---------------------------------------------------------------------------
-# SC-1: every /agent/* route (except /manifest) requires a JWT → 401
-# ---------------------------------------------------------------------------
 
 
 def test_chat_without_token_is_401(tmp_path):
@@ -119,22 +94,15 @@ def test_manifest_stays_public(tmp_path):
     assert resp.status_code == 200
 
 
-# ---------------------------------------------------------------------------
-# SC-1: with a valid JWT the body/query user_id is ignored (identity = sub)
-# ---------------------------------------------------------------------------
-
-
 def test_authed_chat_uses_jwt_sub_not_body_user_id(tmp_path):
     """The conversation is keyed by the JWT sub even when body.user_id differs."""
     app, _ = _make_app(tmp_path, auth_user_id=_SUPABASE_UID, db_name="authed_sub.db")
     with TestClient(app) as client:
-        # body.user_id carries a different id; it must be ignored.
         resp = client.post(
             "/agent/chat", json={"message": "Hello", "user_id": _FORGED_UID}
         )
         assert resp.status_code == 200
 
-        # GET (also authed as the sub) must list the conversation under the sub.
         conv_resp = client.get("/agent/conversations")
         assert conv_resp.status_code == 200
         convs = conv_resp.json()
@@ -175,17 +143,11 @@ def test_authed_list_ignores_query_user_id(tmp_path):
     with TestClient(app) as client:
         post = client.post("/agent/chat", json={"message": "hi"})
         assert post.status_code == 200
-        # A forged ?user_id must not enumerate another user's conversations.
         resp = client.get("/agent/conversations", params={"user_id": _FORGED_UID})
         assert resp.status_code == 200
         convs = resp.json()
         assert len(convs) == 1
         assert convs[0]["user_id"] == _SUPABASE_UID
-
-
-# ---------------------------------------------------------------------------
-# SC-1: the daily quota is keyed on the JWT sub
-# ---------------------------------------------------------------------------
 
 
 def _seed_turns_today(url, user_id, n):
@@ -206,7 +168,6 @@ def test_free_quota_enforced_by_jwt_sub(tmp_path):
 
     app, url = _make_app(tmp_path, auth_user_id=_SUPABASE_UID, db_name="free_quota.db")
     limit = get_settings().agent_free_daily_turn_limit
-    # Seed the sub (not the forged id) over the limit.
     _seed_turns_today(url, _SUPABASE_UID, limit)
 
     with TestClient(app) as client:
