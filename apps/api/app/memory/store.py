@@ -172,8 +172,8 @@ def _read_all(store: BaseStore, namespace: tuple[str, ...]) -> list:
     offset = 0
     while True:
         page = store.search(namespace, limit=_PAGE_SIZE, offset=offset)
-        fresh = [item for item in page if item.key not in items]
-        items.update((item.key, item) for item in fresh)
+        fresh = [item for item in page if (item.namespace, item.key) not in items]
+        items.update(((item.namespace, item.key), item) for item in fresh)
         # Also stop on a page with nothing new, so a store that mishandles offset cannot spin.
         if len(page) < _PAGE_SIZE or not fresh:
             return list(items.values())

@@ -68,7 +68,8 @@ def test_unqueried_read_stops_when_a_store_ignores_offset():
     from app.memory.store import _PAGE_SIZE, _read_all
 
     page = [
-        SimpleNamespace(key=f"k{i}", value={"text": str(i)}) for i in range(_PAGE_SIZE)
+        SimpleNamespace(namespace=("users", "u", "prefs"), key=f"k{i}", value={})
+        for i in range(_PAGE_SIZE)
     ]
     calls = []
 
@@ -81,3 +82,16 @@ def test_unqueried_read_stops_when_a_store_ignores_offset():
 
     assert [item.key for item in items] == [item.key for item in page]
     assert calls == [0, _PAGE_SIZE]
+
+
+def test_same_key_in_a_deeper_namespace_is_not_collapsed():
+    """``store.search`` matches a namespace prefix; rows are told apart by namespace + key."""
+    from app.memory.store import _read_all
+
+    store = get_store("sqlite:///:memory:")
+    store.put(("users", "u_ns", "prefs"), "diet", {"text": "vegetarian"})
+    store.put(("users", "u_ns", "prefs", "sub"), "diet", {"text": "other"})
+
+    items = _read_all(store, ("users", "u_ns", "prefs"))
+
+    assert sorted(item.value["text"] for item in items) == ["other", "vegetarian"]
