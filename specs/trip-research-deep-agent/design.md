@@ -188,12 +188,12 @@ the Supabase id). Routers thin; `ResearchService` owns the checks and the run bo
 `SupervisorIntent.target_agent` + `_Target` gain `"research"`; supervisor prompt **v14** ("research
 / plan the whole trip in depth → research; a plain search stays planner; needs an active trip").
 `ALL_SUBAGENTS` gains `"research"`; `PREMIUM_ONLY_SUBAGENTS` gains `"research"` (free tier gets
-the existing premium notice through `allowed_subagents`). New node `research_launch`
-(`destinations=("reflection", END)`, no LLM): no `trip_id` → `awaiting_user` +
+the existing premium notice through `allowed_subagents`). New node **`research`** (named like a
+specialist so the existing `for name in SUBAGENTS` wiring and reflection destinations cover it;
+no LLM): no `trip_id` → `awaiting_user` +
 `system_reply("research_needs_trip")`; else `ResearchService.start` (own `session_scope()`),
 reply `system_reply("research_started")`, `current_flow="research"`. Suggestion keys
-`research.view_progress`, `research.start` (+ i18n en/vi). Eval: `research` capability with
-routing goldens `research-*` en/vi.
+`research.view_progress`, `research.start` (+ i18n en/vi). Eval: routing goldens `research-*` en/vi under the existing `routing` capability (see §12).
 
 ## 7. Trip page (apps/web)
 
@@ -229,8 +229,10 @@ checkpoint resume. Keyed smoke `eval/research_smoke.py` (not CI): one real run o
 1. Dependency (`deepagents>=0.7.15,<0.8`) · `app/research/{context,state,tools,agent}.py` · skills directory · prompts `trip_research` v1 + grader v1 · seeded agent_config rows · offline build/turn tests.
 2. `runner.py`, `progress.py`, `service.py` (start/status/latest/resume), memory seeding + policy hook, lifespan wiring, sweep, tests.
 3. Routes + `research_events.py` + FE stream mirror + rate limit + tests.
-4. Chat entry (supervisor v14, launcher node, tier gate, suggestions, i18n, eval goldens) + `techstacks/langgraph.md` exception paragraph.
-5. Research tab + apply flow + `gen:api` · keyed smoke script.
+4. Chat entry (supervisor v14, `research` node, reflection guard, tier gate, suggestions, i18n, eval goldens) + `techstacks/langgraph.md` exception paragraph.
+5. Research tab + apply flow + `gen:api` · keyed smoke script · flip `research_enabled` default to true.
+
+Waves 1–3 ship with `research_enabled=false`, so the chat product is untouched until wave 4 is reviewed.
 
 ## 11. Alternatives considered
 
@@ -242,3 +244,45 @@ checkpoint resume. Keyed smoke `eval/research_smoke.py` (not CI): one real run o
 - Bind write tools with `interrupt_on` / `permissions mode="interrupt"`: rejected by E004 for v1;
   the harness supports it later without redesign.
 - One namespace per user with trip in the path: rejected (`ls/glob/grep` scan a whole namespace).
+
+## 12. Non-replacement guarantee and blast radius (owner requirement, 2026-09-18)
+
+**Goal restated:** add a deep-agent research capability *beside* the existing product. Nothing
+that works today changes behaviour; the feature is additive and can be switched off.
+
+### 12.1 What is touched, and how
+
+| Surface | Kind of change | Guard |
+|---|---|---|
+| `requirements-ai.txt` | **add** `deepagents` (transitive `langsmith` 0.9→0.12) | same gate as PR #219: full suite ×2 interpreters, Docker suite, eval-smoke baseline compare |
+| `app/research/**`, `app/research/skills/**`, `prompts/trip_research*/v1.md` | **new** | isolated package; nothing imports it except lifespan, the router and the launcher node |
+| `app/agents/supervisor.py` `_Target`, `SupervisorIntent`, prompt **v14** | **modify (routing enum + new prompt version)** | v13 stays on disk; v14 = v13 + one rule + two examples; routing goldens for every existing capability re-run and must be unchanged; the unknown-target fallback already exists |
+| `app/agents/constants.py` `ALL_SUBAGENTS` + `PREMIUM_ONLY_SUBAGENTS` | **append** `"research"` | the graph wires `for name in SUBAGENTS: add_edge(name, "reflection")` and `reflection.destinations=(*SUBAGENTS, ...)`, so the launcher node **is named `research`** and registered like a specialist; free tier excludes it through the existing `allowed_subagents` path |
+| `app/agents/graph.py` | **add** one node `research` | no existing edge changes |
+| `app/agents/nodes.py` reflection | **add** a guard in the shape of `_booking_committed_this_turn` (`_research_started_this_turn`) so a REVISE never re-launches a job | existing guards untouched |
+| `app/agents/suggestions.py`, `apps/web/messages/*.json` | **append** keys | existing keys untouched |
+| `app/db/seed.py` | **append** two `agent_config` rows | idempotent seed; existing rows untouched |
+| `app/core/lifespan.py` | **add** `app.state.research_agent` | build failure is caught and logged; chat graph startup is unaffected; research routes answer 503 |
+| `app/streaming/research_events.py`, `apps/web/src/lib/stream/research.ts` | **new** | chat SSE taxonomy and parser untouched; the chat parser already ignores unknown events |
+| `app/routers/research.py` | **new** router under `/agent/...` | no existing route changes; `/agent/manifest` and MCP unchanged because `validate_proposal` lives in `app/research/`, **not** in `tools/registry.py` |
+| `tools/registry.py`, the 5 specialists, `plan_node`, memory extraction, `pii_guardrail`, summarize, `route_tasks` | **untouched** | asserted by the plan's "unchanged files" list + `blast-radius-check.sh` |
+| store / checkpointer | **new namespaces / thread ids** (`("users", uid, "research", trip)`, `("users", uid, "research_memory")`, `research:{uid}:{trip}`) | disjoint from `prefs/procedural/episodes` and from chat thread ids; `_search_kind` and memory guard are not consulted for them |
+| `agent_runs` | **new row values** `kind="research"`, `channel="research"` | no schema change; dashboard lists them like any run |
+| eval | **add** routing goldens `research-*` under the existing `routing` capability | no TAXONOMY change (a new capability would perturb `eval-compare` against the committed baseline) |
+| `techstacks/langgraph.md` | **add** one paragraph | documentation only |
+| web | **new** Research tab + hook + parser | existing tabs and the chat widget untouched |
+
+### 12.2 Kill switch
+
+`settings.research_enabled` (default **true** once shipped, **false** during rollout waves 1–4):
+when false, the research router returns 404, the launcher node replies
+`system_reply("research_unavailable")`, the web tab is hidden, and lifespan skips building the
+research agent. Flipping it never touches the chat graph.
+
+### 12.3 Proof obligations carried into PLAN.md
+
+- SC: full BE suite passes with the **same count** as `main` before the feature (additive tests only add).
+- SC: eval-smoke per-capability results equal the baseline (routing goldens for planner/concierge/journal/booking/budget unchanged under v14).
+- SC: `ALL_TOOLS` names, `/agent/manifest` and the MCP tool list are byte-identical before/after.
+- SC: with `research_enabled=false` the whole new surface is invisible (routes 404, tab hidden) and the chat suite is green.
+- SC: the launcher never starts a second job in the same turn (reflection guard test).
