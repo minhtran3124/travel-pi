@@ -12,6 +12,7 @@ from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
+from app.research.progress import ProgressBus
 from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
 
@@ -110,6 +111,31 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         except Exception:
             logger.exception("Agent graph build failed; agent endpoints disabled")
             app.state.travel_graph = None
+
+        # The trip-research deep agent is a second, independent graph sharing this
+        # checkpointer/store; it is off until wave 4 flips ``research_enabled``. Its
+        # build is isolated in its own try/except so a failure never touches the chat
+        # graph above — research routes degrade to 503 with the agent left None.
+        app.state.research_agent = None
+        app.state.research_bus = ProgressBus()
+        if settings.research_enabled:
+            try:
+                from app.research.agent import build_research_agent
+                from app.research.service import ResearchService
+
+                app.state.research_agent = build_research_agent(
+                    store=store, checkpointer=checkpointer
+                )
+                ResearchService(
+                    session_factory=get_session_factory(settings.database_url),
+                    store=store,
+                    agent=app.state.research_agent,
+                    bus=app.state.research_bus,
+                ).sweep_stale()
+                logger.info("Trip-research agent ready")
+            except Exception:
+                logger.exception("Trip-research agent build failed; research disabled")
+                app.state.research_agent = None
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
         yield
