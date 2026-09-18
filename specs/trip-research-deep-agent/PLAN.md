@@ -1,6 +1,6 @@
 ---
 slug: trip-research-deep-agent
-status: proposed
+status: shipped
 owner: minhtran3124
 created: 2026-09-18
 ---
@@ -91,7 +91,7 @@ E005 premium-only · E006 dedicated Research tab.
   `research_daily_limit: int = 3`, `research_stale_minutes: int = 30`. Reinstall the repo venv
   (`uv pip install --python .venv/bin/python -r apps/api/requirements.txt`) and record the
   resolved `langsmith` version in SUMMARY.
-- **Verify:** `cd apps/api && ../../.venv/bin/python -c "import deepagents, langchain_openai; from importlib.metadata import version as v; from packaging.version import Version as V; assert V(v('deepagents'))>=V('0.7.15') and V(v('langchain-openai'))<V('1.0'); from app.core.config import settings; assert settings.research_enabled is False"`
+- **Verify:** `cd apps/api && ../../.venv/bin/python -c "import deepagents, langchain_openai; from importlib.metadata import version as v; from packaging.version import Version as V; assert V(v('deepagents'))>=V('0.7.15') and V(v('langchain-openai'))<V('1.0'); from app.core.config import get_settings; assert get_settings().research_enabled is False"`
 - **Done:** SC-1 passes; `uv pip check --python .venv/bin/python` prints "All installed packages are compatible".
 - **Criteria:** SC-1
 - **Interfaces:** Consumes the deepagents 0.7.15 floors from research-brief.md. Produces `apps/api/requirements-ai.txt`, `settings.research_*`.
@@ -152,7 +152,7 @@ E005 premium-only · E006 dedicated Research tab.
 
 ### Task 3.1 — Runner, service, lifespan wiring, stale sweep (wave 3)
 
-- **Files:** apps/api/app/research/runner.py, apps/api/app/research/service.py, apps/api/app/core/lifespan.py, apps/api/tests/research/test_runner.py, apps/api/tests/research/test_service.py, apps/api/tests/research/test_resume.py
+- **Files:** apps/api/app/research/runner.py, apps/api/app/research/service.py, apps/api/app/core/lifespan.py, apps/api/app/repositories/agent_run.py, apps/api/tests/research/test_runner.py, apps/api/tests/research/test_service.py, apps/api/tests/research/test_resume.py
 - **Action:** Test-first. `run_trip_research(*, run_id, ctx, instruction, agent, bus, session_factory)` (async): `seed_agents_md`, `astream_events(version="v3")` over `{"messages":[HumanMessage], "rubric": ..., "trip_id","user_id","preferences","language"}` or `None` when resuming, `TurnMetricsHandler` in callbacks, `asyncio.timeout(settings.research_timeout_s)`, finalise via `AgentRunRepository.finish/add_steps` on the isolated factory, terminal bus event, never raises. `ResearchService` (`start`, `status`, `latest`, `resume`, `file`, `write_file`, `sweep_stale`) per design §4–5 using `AgentRunRepository` with `kind="research"`, `channel="research"`, thread id `research:{uid}:{trip}`. Lifespan: when `settings.research_enabled`, build `app.state.research_agent` next to the chat graph inside a try/except that logs and leaves it `None`; run `sweep_stale` once.
 - **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_runner.py tests/research/test_service.py tests/research/test_resume.py -q`
 - **Done:** SC-11, SC-12 and SC-29 pass; the chat lifespan tests in `tests/api/agent/test_agent_chat.py` still collect the same count.
@@ -204,9 +204,9 @@ E005 premium-only · E006 dedicated Research tab.
 - **Criteria:** SC-27
 - **Interfaces:** Consumes `app/prompts/supervisor/v14.md`. Produces `specs/trip-research-deep-agent/SUMMARY.md` eval rows.
 
-### Task 6.1 — Chat node `research` and reflection guard (wave 6)
+### Task 6.1 — Chat node `research` and reflection guard (wave 6; ships atomically with 5.1)
 
-- **Files:** apps/api/app/research/launcher.py, apps/api/app/agents/graph.py, apps/api/app/agents/nodes.py, apps/api/tests/agents/test_research_node.py, apps/api/tests/agents/test_reflection_research_guard.py
+- **Files:** apps/api/app/research/launcher.py, apps/api/app/agents/graph.py, apps/api/app/agents/nodes.py, apps/api/app/agents/prompt_map.py, apps/api/app/routers/agent.py, apps/api/tests/agents/test_research_node.py, apps/api/tests/agents/test_reflection_research_guard.py, apps/api/tests/agents/test_prompt_map.py, apps/api/tests/agents/test_agent_config_coverage.py, apps/api/tests/research/test_registry_snapshot.py
 - **Action:** Test-first. `make_research_node(service_factory)` in `app/research/launcher.py`: no LLM; flag off → `system_reply("research_unavailable")`; no `trip_id` → `awaiting_user=True` + `research_needs_trip`; else `ResearchService.start` under `session_scope()` and `research_started`, `current_flow="research"`, appends an `AIMessage` with `additional_kwargs={"research_started": True}`. Register `builder.add_node("research", ...)` in `graph.py` (the existing `for name in SUBAGENTS` loop wires the edge). In `nodes.py` add `_research_started_this_turn(messages)` beside `_booking_committed_this_turn` and short-circuit reflection the same way.
 - **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/agents/test_research_node.py tests/agents/test_reflection_research_guard.py -q`
 - **Done:** SC-18 and SC-19 pass; `tests/agents/test_reflection*.py` existing files pass unchanged.
@@ -242,6 +242,16 @@ E005 premium-only · E006 dedicated Research tab.
 
 ## 5. Risks
 
+- **Accepted 2026-09-18 (task 2.1):** the design's per-subagent `recursion_limit=60` cannot be
+  bound on a declarative `SubAgent` in deepagents 0.7.15 — no such field exists, and subagents
+  inherit the parent's ambient limit via langgraph config-merge (`middleware/subagents.py:786-788`,
+  deepagents#3634). Binding 60 needs a `CompiledSubAgent`, which forfeits the profile-driven
+  `execute` exclusion, `skills`, `permissions` and `state_schema` forwarding the declarative path
+  gives for free. Kept subagents bounded by the parent's 150 (still a hard ceiling, just not a
+  tighter one per specialist). No SC covers 60 specifically, so nothing regresses; revisit if a
+  later deepagents release adds the field.
+
+
 - `register_harness_profile("openai", ...)` may not match the app's `ChatOpenAI` instance (`ls_provider` lookup): fall back to `FilesystemMiddleware(tools=[...])` allowlist and an explicit `general-purpose` `SubAgent` override (Task 2.1 checks both paths).
 - `InjectedState("preferences")`/`("language")` inside isolated subagents depends on `state_schema` forwarding; if a key is dropped, wrap the two search tools in `app/research/tools.py` with bound closures (no registry change).
 - Supervisor v14 could shift existing routing; the replay test (Task 5.1) and the eval-smoke baseline compare at branch finish are the gates; the flag stays off until wave 7.
@@ -250,5 +260,15 @@ E005 premium-only · E006 dedicated Research tab.
 
 ## 6. Status Log
 
+- 2026-09-18 — Task 1.1 green. Plan fix (Rule 1): its Verify imported a `settings` singleton that does not exist; `app/core/config.py` exposes `get_settings()` only. Verify corrected; no singleton added.
+- 2026-09-18 — shipped. Final review chain found 5 findings (3 blocking); all fixed. A verification pass over those fixes then found that my own A1 fix had introduced a blocking regression (a subscriber mid-replay lost the terminal event) and, after fixing that, a narrower variant in the route itself — both fixed with mutation-checked regression tests. Final state: backend 2901 passed / 8 skipped from a clean environment with the flag on, frontend 366 passed, all 30 SC commands re-run at exit 0, advisory lock proven on real Postgres.
+- 2026-09-18 — **a suite hang that looked like our bug was the local `.env`.** After the B3/A1 fixes the suite stopped completing, hanging in `TestClient.__enter__` (lifespan startup) partway through `tests/api/agent/test_agent_chat.py`. A faulthandler dump put it on a lock inside app startup. Bisecting by stashing B3/A1 showed the hang persisted without them, and it persisted with `RESEARCH_ENABLED=false`, so the feature was not implicated. Root cause: run from `apps/api/`, pydantic-settings loads the local `.env`, whose real `OPENAI_API_KEY` makes lifespan perform a live embeddings call per TestClient startup; that intermittently blocks. The same file run from a cwd without `.env` passes in 17 s (33 passed). This is why every Verify in this plan runs from a scratch directory with `--rootdir`/`-c` pointing at `apps/api` — not a stylistic choice. Worth noting for anyone who sees a "hang" here and reaches for the feature code first, as I did.
+- 2026-09-18 — **a real regression from wave 1 went undetected for six waves, through a gap in the controller's own verification.** `tests/db/test_seed_agent_config.py` asserts that seeding produces exactly one NULL row per `AGENT_CONFIG_NODES` entry; task 1.4's research rows are two extra rows carrying a deliberate non-NULL provider/model, so all three of its assertions broke the moment wave 1 landed. It stayed hidden because every per-wave check ran `tests/research`, `tests/agents`, `tests/api`, `tests/repositories` or `tests/eval` — never `tests/db`, and never the whole suite until after the final task. Per-wave verification scoped to the directories a task touches cannot see a shared-fixture invariant asserted elsewhere; only the full suite can. Fixed by splitting the test into the two families it now has to describe — chat nodes seeded NULL, research nodes seeded with a concrete model — rather than relaxing the count, so the invariant the original test protected (`new-agent-config-node-seeds-null-model`) is still asserted for the family it applies to.
+- 2026-09-18 — task 6.3 (eval gate) PASSED, but only after the first run's result was checked rather than believed. Run 1 under v14 put `dates` at 50% vs a 75% baseline and `make eval-compare` exited 1 (REGRESSED). The two failing cases were `dates-happy-en-01` (reply language flipped en->vi) and `dates-ambiguous-en-02` (invented date) — the same two shown to be non-deterministic during the langchain stack upgrade, where three pinned re-runs on the OLD stack reproduced both failures. Three consecutive `--capability dates` runs on v14 then gave 3/4 every time (exactly the 75% baseline), so the 50% was a single bad sample, not a routing regression from the new prompt. A re-run of the full smoke compared clean: `dates` +0.0%, every other capability above baseline, `exit_code=0`. Recorded because a reader should not have to rediscover that this gate is single-sample against a k=3 baseline and can therefore fail on noise.
+- 2026-09-18 — task 6.1 Files set widened to the full blast radius of registering a promptless specialist in `ALL_SUBAGENTS`, which the plan failed to enumerate: `prompt_map.py` (assumed every subagent is a ReAct subgraph with a prompt), its test, the agent-config coverage test, and `routers/agent.py` — where `agent_manifest()` listed `SUBAGENTS` verbatim, so `research` leaked into the public manifest. The SC-26 snapshot oracle caught that leak, which is precisely what it was written for. The exclusion is flag-gated rather than unconditional, and the oracle now asserts both halves: byte-identical with the flag off, and differing by exactly the added `research` entry with it on.
+- 2026-09-18 — **plan defect found and corrected during wave 5.** Task 5.1 appends `"research"` to `ALL_SUBAGENTS`, but `app/agents/graph.py` consumes that tuple at BUILD time (`for name in SUBAGENTS: add_edge(name, "reflection")` and `reflection`'s `destinations`), so the constant and the node registration are a single atomic change — splitting them across 5.1 and 6.1 left an intermediate state where `StateGraph.compile()` raises `Found edge starting at unknown node 'research'` and ~65 existing tests go red. The brief's premise that the supervisor's runtime unknown-target fallback would cover the gap was wrong: that branch never runs because compilation fails first. Correction: 5.1 and 6.1 are implemented against one working tree and land in ONE commit; neither is committed alone. Reported by the implementer as BLOCKED rather than worked around.
+- 2026-09-18 — wave 4: design §5's `GET /agent/research/{run_id}/files` index route dropped as redundant — the status response (`ResearchRunDetail.files`) already carries the file list, so the FE derives the index from `getResearch` and the BE serves only `/files/{path}` for content. Route table updated in design.md and design.vi.md.
+- 2026-09-18 — wave 3, task 3.1: Files set widened by the controller to include `apps/api/app/repositories/agent_run.py`. SC-29 requires `meta.resumed_from` on a resumed run's first step, but the repository sanitises step `meta` against a `_META_KEYS` allowlist, so the key was silently dropped. The fix is one additive entry (`resumed_from`, an internal run id, never user content); no existing caller's behaviour changes. Escape was reported by the implementer rather than resolved silently.
+- 2026-09-18 — wave 1 (tasks 1.1-1.5) landed. Commit note: `bd9d4045` (titled as the unrelated gh-193 status fix) unintentionally also carries wave 1's code — a prior commit attempt failed after the code was already `git add`-ed, and the index was not re-checked before the next commit. Content is correct and verified (27/27 tests green post-commit); not amended per policy. `specs/trip-research-deep-agent/` itself stays uncommitted through execution — the SC-coverage evidence gate requires every declared SC covered by any commit touching this dir, so the full SUMMARY lands once, at the end (matches the gh-198 precedent).
 - 2026-09-18 — plan reviewed (approve-with-changes): memory guard moved to wave 1 and wired in Task 2.1 (SC-30), registry/manifest/MCP snapshot oracle (SC-26), eval-compare gate after v14 (Task 6.3, SC-27), resume row (SC-29), SC-23 split (SC-28), gen:api env note, rate-limit factory wording.
 - 2026-09-18 — plan written from design.md v2 (skills/memory/permissions/rubric/thread resume) and §12 non-replacement guarantees; 14 tasks, 7 waves; flag off until Task 7.2.
