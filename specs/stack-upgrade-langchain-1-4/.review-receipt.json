@@ -1,0 +1,22 @@
+{
+  "reviewed_head_sha": "96abcb4fe508486e5050382c5100c97c9b6387d1",
+  "created": "2026-09-18T04:15:01+00:00",
+  "reviews": [
+    {
+      "reviewer": "reviewer-agent (correctness)",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "PASS at 707aa9b3 (0 blocking, 5 advisory); advisories 1-4 applied in 3bebffd8 (packaging.version compare, checkpoint wording, checkpoint-sqlite/-postgres>=3.1.0, langchain-postgres>=0.0.17), advisory 5 (langsmith>=0.12.6 comes with deepagents) recorded in SUMMARY. Re-checked PASS at 3bebffd8 and at 96abcb4f (comment-only apps/ delta). Open advisory: langgraph-prebuilt>=1.0.2 floor is dead text (resolver picks 1.1.0)."
+    },
+    {
+      "reviewer": "reviewer-agent (intent)",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "PASS at 707aa9b3 (0 blocking, 3 advisory): make test/test-docker substitutions now disclosed in SUMMARY Verify rows; py3.14 repo-venv suite row added (2806 passed); .env neutralisation in Docker explained. Re-checked PASS at 3bebffd8 (three extra floors justified as must-move) and at 96abcb4f."
+    }
+  ]
+}
