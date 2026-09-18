@@ -191,6 +191,21 @@ def _finalize(
             "[research] terminal publish failed run=%s", run_id, exc_info=True
         )
 
+    # Release the channel now the run is terminal: without this every finished run
+    # leaks its ring buffer for the life of the process, and ``bus.has(run_id)``
+    # stays True forever, so the SSE snapshot fallback becomes unreachable for any
+    # run this process ever saw. Ordering is safe with no grace period: the terminal
+    # event was already enqueued on every subscriber above, and ``close`` only
+    # appends a sentinel after it — an ``asyncio.Queue`` is FIFO and both puts run
+    # synchronously here with no ``await`` between, so a mid-stream subscriber always
+    # dequeues the terminal event before the sentinel. A late subscriber (arriving
+    # after close) instead takes the DB-snapshot branch, which the finished run row
+    # already backs. ``close`` is synchronous, so this never delays the return.
+    try:
+        bus.close(run_id)
+    except Exception:
+        logger.warning("[research] bus close failed run=%s", run_id, exc_info=True)
+
 
 async def run_trip_research(
     *,

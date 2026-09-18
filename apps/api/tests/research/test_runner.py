@@ -55,8 +55,27 @@ def _tool_call(name: str, args: dict, call_id: str) -> dict:
     return {"content": "", "tool_calls": [{"name": name, "args": args, "id": call_id}]}
 
 
-def _buffered(bus: ProgressBus, run_id: str) -> list:
-    return list(bus._runs[run_id].buffer)
+async def _run_and_collect(bus: ProgressBus, run_id: str, **kwargs) -> list:
+    """Drive the runner while a subscriber attached beforehand records every event.
+
+    The runner now closes the channel on the terminal state (A1), so the buffer is
+    gone once it returns — a subscriber that attached before the run is the honest
+    way to prove the terminal event was delivered. The subscriber registers first
+    (a couple of event-loop turns), so no publish is missed; ``close``'s sentinel
+    ends its loop after the terminal event.
+    """
+    events: list = []
+
+    async def _sub() -> None:
+        async for event in bus.subscribe(run_id):
+            events.append(event)
+
+    task = asyncio.create_task(_sub())
+    for _ in range(3):  # let the subscriber register its queue before we publish
+        await asyncio.sleep(0)
+    await run_trip_research(run_id=run_id, bus=bus, **kwargs)
+    await asyncio.wait_for(task, timeout=1.0)
+    return events
 
 
 @pytest.mark.asyncio
@@ -79,12 +98,12 @@ async def test_scripted_run_completes_with_tool_step_and_done_event(tmp_path) ->
     agent = build(store, llm=model, grader=FakeLLM(responses=[{"content": "ok"}]))
     bus = ProgressBus()
 
-    await run_trip_research(
-        run_id=run_id,
+    events = await _run_and_collect(
+        bus,
+        run_id,
         ctx=context(),
         instruction="research my trip in depth",
         agent=agent,
-        bus=bus,
         session_factory=factory,
     )
 
@@ -95,8 +114,9 @@ async def test_scripted_run_completes_with_tool_step_and_done_event(tmp_path) ->
     steps = AgentRunRepository(factory).steps_for(run_id)
     assert any(step.kind == "tool" for step in steps)
 
-    events = _buffered(bus, run_id)
     assert any(isinstance(e, ResearchDone) and e.status == "completed" for e in events)
+    # A1: the channel is released once the run is terminal.
+    assert bus.has(run_id) is False
 
 
 @pytest.mark.asyncio
@@ -126,12 +146,12 @@ async def test_timeout_finishes_failed_and_never_raises(tmp_path, monkeypatch) -
     bus = ProgressBus()
 
     # Must return normally, not raise, even though the run times out.
-    await run_trip_research(
-        run_id=run_id,
+    events = await _run_and_collect(
+        bus,
+        run_id,
         ctx=context(),
         instruction="research",
         agent=_SleepAgent(),
-        bus=bus,
         session_factory=factory,
     )
 
@@ -142,7 +162,8 @@ async def test_timeout_finishes_failed_and_never_raises(tmp_path, monkeypatch) -
     steps = AgentRunRepository(factory).steps_for(run_id)
     assert any(step.error_type == "TimeoutError" for step in steps)
 
-    events = _buffered(bus, run_id)
     assert any(
         isinstance(e, ResearchError) and e.code == "TimeoutError" for e in events
     )
+    # A1: the channel is released even on the failure path.
+    assert bus.has(run_id) is False

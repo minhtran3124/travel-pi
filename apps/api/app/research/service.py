@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
 from app.db.base import _utc_now_iso
+from app.db.locks import advisory_xact_lock
 from app.db.models.agent_run import AgentRun
 from app.exceptions import ConflictError, NotFoundError
 from app.repositories.agent_run import AgentRunRepository
@@ -48,6 +49,16 @@ def research_thread_id(
 ) -> str:
     """The per-dossier checkpoint thread id (design §4): one thread per trip."""
     return f"research:{user_id}:{trip_id}"
+
+
+def research_lock_name(
+    user_id: str,
+    trip_id: str,
+) -> str:
+    """The advisory-lock subject that serializes ``start`` for one trip's dossier.
+    Keyed per (user, trip) — the granularity of the one-run-per-trip rule — so a
+    user's other trips are never blocked."""
+    return f"research_start:{user_id}:{trip_id}"
 
 
 def _store_key(path: str) -> str:
@@ -99,10 +110,20 @@ class ResearchService:
         the caller's, ``ConflictError`` if a run for this trip is already ``running``."""
         if TripRepository(self._sf).get_trip(trip_id, user_id) is None:
             raise NotFoundError("Trip not found")
-        if self._running_for(trip_id) is not None:
-            raise ConflictError("A research run is already in progress for this trip")
         run_id = str(uuid4())
-        self._insert_run(run_id, user_id, trip_id)
+        # One transaction holds a per-trip advisory lock across the check AND the
+        # insert, so two concurrent starts for the same trip serialize: the first
+        # books the run, the second wakes to see the running row and raises. Without
+        # this both could pass the guard and drive the same checkpoint thread + store
+        # namespace, corrupting each other's dossier. No-op on SQLite (sequential).
+        with self._sf() as s:
+            advisory_xact_lock(s, research_lock_name(user_id, trip_id))
+            if self._running_for(s, trip_id) is not None:
+                raise ConflictError(
+                    "A research run is already in progress for this trip"
+                )
+            self._insert_run(run_id, user_id, trip_id, session=s)
+            s.commit()
         return run_id
 
     async def launch(
@@ -230,8 +251,13 @@ class ResearchService:
         run_id: str,
         user_id: str,
         trip_id: str,
+        *,
+        session: Session | None = None,
     ) -> None:
-        AgentRunRepository(self._sf).start(
+        # A caller-owned ``session`` keeps the insert inside the lock's transaction
+        # (the repo flushes; the caller commits); ``start`` uses this. ``resume``
+        # passes none and the repo commits on its own factory session.
+        AgentRunRepository(session if session is not None else self._sf).start(
             run_id,
             user_id=user_id,
             conversation_id=research_thread_id(user_id, trip_id),
@@ -242,15 +268,16 @@ class ResearchService:
             started_at=_utc_now_iso(),
         )
 
-    def _running_for(self, trip_id: str) -> AgentRun | None:
-        with self._sf() as s:
-            return s.scalars(
-                select(AgentRun).where(
-                    AgentRun.trip_id == trip_id,
-                    AgentRun.kind == RESEARCH_KIND,
-                    AgentRun.status == _RUNNING,
-                )
-            ).first()
+    def _running_for(self, session: Session, trip_id: str) -> AgentRun | None:
+        """The trip's ``running`` research run, if any, read on the caller's
+        locked ``session`` so the check shares the insert's transaction."""
+        return session.scalars(
+            select(AgentRun).where(
+                AgentRun.trip_id == trip_id,
+                AgentRun.kind == RESEARCH_KIND,
+                AgentRun.status == _RUNNING,
+            )
+        ).first()
 
     def _get_run(self, run_id: str) -> AgentRun | None:
         with self._sf() as s:

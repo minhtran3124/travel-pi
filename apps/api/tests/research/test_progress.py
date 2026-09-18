@@ -4,6 +4,7 @@ replay for a late subscriber, ``close`` ending the iterator, and no ``content``/
 
 from __future__ import annotations
 
+import asyncio
 import json
 
 import pytest
@@ -64,6 +65,30 @@ async def test_close_ends_iterator_and_clears_state() -> None:
     with pytest.raises(StopAsyncIteration):
         await agen.__anext__()
     assert bus.has("run-3") is False
+
+
+@pytest.mark.asyncio
+async def test_mid_stream_subscriber_gets_terminal_event_before_close_sentinel() -> (
+    None
+):
+    """A1 ordering: the runner publishes the terminal event and then closes the
+    channel with no ``await`` between. A subscriber parked mid-stream must still
+    dequeue that terminal event (FIFO) before the close sentinel ends its loop."""
+    bus = ProgressBus()
+    agen = bus.subscribe("run-a1")  # registers the queue, then parks
+    # Drive the generator to its first ``await queue.get()`` (empty buffer, no replay).
+    task = asyncio.ensure_future(agen.__anext__())
+    for _ in range(3):
+        await asyncio.sleep(0)
+
+    # Back-to-back, exactly as _finalize does: publish terminal, then close.
+    bus.publish("run-a1", {"seq": "terminal"})
+    bus.close("run-a1")
+
+    assert await task == {"seq": "terminal"}  # terminal event delivered first
+    with pytest.raises(StopAsyncIteration):
+        await agen.__anext__()  # then the sentinel ends the stream
+    assert bus.has("run-a1") is False  # channel released
 
 
 def test_tool_and_file_events_leak_no_content_or_args() -> None:

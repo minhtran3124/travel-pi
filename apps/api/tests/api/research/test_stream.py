@@ -80,6 +80,25 @@ def test_live_bus_replays_then_tails(tmp_path):
     assert "/flights.md" in resp.text
 
 
+def test_finished_run_after_channel_close_takes_snapshot_branch(tmp_path):
+    """A1: once the runner closes the channel on a terminal run, ``bus.has`` is
+    False, so a viewer arriving late falls through to the DB snapshot (start →
+    phase → done) instead of an empty live tail."""
+    app, url, _store = build_app(tmp_path)
+    insert_run(url, "run-closed", USER_ID, "t1", status="completed")
+    bus = app.state.research_bus
+    # Simulate the run having streamed live earlier in this process, then finished:
+    # events were buffered and the channel was closed on the terminal state.
+    bus.publish("run-closed", ResearchStart(run_id="run-closed", trip_id="t1"))
+    bus.close("run-closed")
+    assert bus.has("run-closed") is False
+
+    resp = TestClient(app).get("/agent/research/run-closed/stream")
+    assert resp.status_code == 200
+    names = _events(resp.text)
+    assert names == ["research_start", "research_phase", "research_done"]
+
+
 def test_stream_foreign_run_is_404(tmp_path):
     app, url, _store = build_app(tmp_path)
     insert_run(url, "run-x", "someone-else", "t1", status="completed")
