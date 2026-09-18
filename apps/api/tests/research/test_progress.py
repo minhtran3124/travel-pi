@@ -122,3 +122,39 @@ def test_tool_and_file_events_leak_no_content_or_args() -> None:
 def test_unrecognized_event_maps_to_empty() -> None:
     assert derive_events({"event": "on_chat_model_stream", "data": {}}) == []
     assert derive_events({}) == []
+
+
+@pytest.mark.asyncio
+async def test_subscriber_mid_replay_still_receives_the_terminal_event() -> None:
+    """NEW-1 regression: a subscriber can be *inside* its buffered replay when the
+    run finishes, because every ``yield`` suspends. The terminal event lands in its
+    queue and the channel closes while it is still catching up. Stopping on the
+    closed flag at that moment drops the terminal frame, and the client reads a
+    completed run as a stream that died early."""
+    bus = ProgressBus()
+    bus.publish("run-new1", {"seq": 1})
+    bus.publish("run-new1", {"seq": 2})
+
+    agen = bus.subscribe("run-new1")
+    seen = [await agen.__anext__()]  # consume one replayed event, stay mid-replay
+
+    # The run finishes while the subscriber is still working through the replay.
+    bus.publish("run-new1", {"seq": "terminal"})
+    bus.close("run-new1")
+
+    async for event in agen:
+        seen.append(event)
+
+    assert seen == [{"seq": 1}, {"seq": 2}, {"seq": "terminal"}]
+
+
+@pytest.mark.asyncio
+async def test_subscriber_arriving_after_close_declines_instead_of_parking() -> None:
+    """A late viewer must not wait on a queue that will never see a sentinel; it
+    gets nothing here so the SSE endpoint serves the DB snapshot instead."""
+    bus = ProgressBus()
+    bus.publish("run-late", {"seq": 1})
+    bus.close("run-late")
+
+    assert [event async for event in bus.subscribe("run-late")] == []
+    assert bus.has("run-late") is False

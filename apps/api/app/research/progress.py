@@ -34,7 +34,12 @@ class ProgressBus:
         self._runs: dict[str, _RunChannel] = {}
 
     def has(self, run_id: str) -> bool:
-        return run_id in self._runs
+        """True only while the run is still live here. A finished run keeps a
+        closed tombstone so a late subscriber can be told "not live" instead of
+        parking on a queue forever — but ``has`` reports it as gone, so the SSE
+        endpoint takes the DB-snapshot branch."""
+        channel = self._runs.get(run_id)
+        return channel is not None and not channel.closed
 
     def _channel(self, run_id: str) -> _RunChannel:
         channel = self._runs.get(run_id)
@@ -45,21 +50,34 @@ class ProgressBus:
     def publish(self, run_id: str, event: Any) -> None:
         channel = self._channel(run_id)
         if channel.closed:
+            # Never resurrect a finished run: its subscribers are gone and its
+            # tombstone is what tells a late one to use the snapshot instead.
             return
         channel.buffer.append(event)
         for queue in channel.queues:
             queue.put_nowait(event)
 
     async def subscribe(self, run_id: str) -> AsyncIterator[Any]:
+        # A subscriber may legitimately arrive before the first publish (the SSE
+        # endpoint opens while the runner is still starting), so an absent channel
+        # is created live. An already-closed one is not: there is nothing left to
+        # tail and no sentinel would ever arrive, so the caller falls back to the
+        # DB snapshot, which is what a late viewer should get.
         channel = self._channel(run_id)
+        if channel.closed:
+            return
         queue: asyncio.Queue[Any] = asyncio.Queue()
         replay = list(channel.buffer)
         channel.queues.add(queue)
         try:
             for event in replay:
                 yield event
-            if channel.closed:
-                return
+            # Deliberately no ``if channel.closed: return`` here. Each ``yield``
+            # above suspends, so the run can finish mid-replay — publishing its
+            # terminal event into ``queue`` and closing. Stopping on the flag would
+            # drop that event and end the SSE stream with no terminal frame, which
+            # the client reads as a failed run. ``close`` posts the sentinel, so
+            # draining the queue below always terminates.
             while True:
                 event = await queue.get()
                 if event is _SENTINEL:
@@ -69,9 +87,16 @@ class ProgressBus:
             channel.queues.discard(queue)
 
     def close(self, run_id: str) -> None:
-        channel = self._runs.pop(run_id, None)
-        if channel is None:
+        """End the run's live stream: wake every subscriber with the sentinel and
+        release the buffered events. The channel object itself is kept as a closed
+        tombstone (a couple of empty containers, not the ~200 buffered events that
+        made this leak) so a later ``subscribe`` can tell "finished" from "never
+        started" and decline instead of parking forever."""
+        channel = self._runs.get(run_id)
+        if channel is None or channel.closed:
             return
         channel.closed = True
         for queue in channel.queues:
             queue.put_nowait(_SENTINEL)
+        channel.queues.clear()
+        channel.buffer.clear()
