@@ -65,3 +65,33 @@ Default: **deny-on-no-response**. No recorded decision → work stays blocked.
 - decision: A — propose-only v1: dossier carries /plan/proposal.json; user applies via existing REST from the trip page; no write tool bound to the job.
 - decided_by: Minh Tran (owner)
 - decided_at: 2026-09-18
+
+## E005
+
+- raised_by: orchestrator (xia2 follow-up question 1)
+- date: 2026-09-18
+- trigger: hard-gate
+- question: Which tiers may start a research run?
+- context: Decides `require_premium` on the routes and `PREMIUM_ONLY_SUBAGENTS` for the chat entry.
+- options:
+  - A) All tiers, 3 starts/day/user, one running per trip.
+  - B) Premium only (like booking), same rate limits.
+- default_if_no_response: BLOCK
+- decision: B — premium only.
+- decided_by: Minh Tran (owner)
+- decided_at: 2026-09-18
+
+## E006
+
+- raised_by: orchestrator (xia2 follow-up question 2)
+- date: 2026-09-18
+- trigger: ambiguous-direction
+- question: Where does research live on the trip page?
+- context: Decides the FE surface in wave 5.
+- options:
+  - A) Dedicated Research tab.
+  - B) Card on the Today tab.
+- default_if_no_response: BLOCK
+- decision: A — dedicated Research tab.
+- decided_by: Minh Tran (owner)
+- decided_at: 2026-09-18

@@ -83,7 +83,7 @@ POST …/research/{run_id}/revise       ──► same job on the existing dossi
 
 | Method | Path | Notes |
 |---|---|---|
-| POST | `/agent/trips/{trip_id}/research` | body `{instruction?: str, language?: str}` → 202 `{run_id}`; 403 not owner; 409 a run is already running for the trip; 429 rate limit (`research_start`: 3/day/user, `enforce_rate_limit`) or quota. |
+| POST | `/agent/trips/{trip_id}/research` | body `{instruction?: str, language?: str}` → 202 `{run_id}`; 403 not owner or not premium; 409 a run is already running for the trip; 429 rate limit (`research_start`: 3/day/user, `enforce_rate_limit`) or quota. |
 | GET | `/agent/trips/{trip_id}/research` | latest run summary or 404. |
 | GET | `/agent/research/{run_id}` | status (above). |
 | GET | `/agent/research/{run_id}/stream` | SSE. |
@@ -92,16 +92,16 @@ POST …/research/{run_id}/revise       ──► same job on the existing dossi
 | PUT | `/agent/research/{run_id}/files/{path:path}` | user edit (allowlisted path). |
 | POST | `/agent/research/{run_id}/revise` | `{instruction}` → 202 new `run_id` on the same dossier. |
 
-All under `CurrentUserDep`; ownership by `trip.user_id == user.id` (REST `X-User-Id` is the same Supabase id, `apps/web/src/lib/identity/provider.tsx`). Tier: all tiers in v1 (open question 1 in the brief). Routes stay thin: validation + `ResearchService` + `HTTPException` mapping.
+All under `CurrentUserDep` **and `require_premium`** (decided 2026-09-18: research is premium-only, like booking); ownership by `trip.user_id == user.id` (REST `X-User-Id` is the same Supabase id, `apps/web/src/lib/identity/provider.tsx`). Free users get 403 `PremiumRequiredError` from the route and, in chat, the existing tier gate. Rate limit stays (3 starts/day/user, one running per trip). Routes stay thin: validation + `ResearchService` + `HTTPException` mapping.
 
 ## 6. Chat entry
 
 - `SupervisorIntent.target_agent` gains `"research"`; prompt **v14** documents it ("research/plan the whole trip in depth" → research, needs an active trip; a mere search stays planner). `ALL_SUBAGENTS` gains `"research"`; `route_tasks` unchanged in shape (single agent name). New node `research_launch` registered with `destinations=("reflection", END)`: no LLM; if no `trip_id` → `awaiting_user` + `system_reply("research_needs_trip")`; else calls `ResearchService.start` through the same path the router uses (session from `session_scope()`), replies with `system_reply("research_started")` naming the trip page, sets `current_flow="research"`; reflection skips it via the existing `awaiting_user`-style guard (flag `research_started` in state, LastValue reducer). Suggestion chip key `research.view_progress` (+ `research.start` on `current_flow="planner"` when a trip is active). i18n keys in `apps/web/messages/{en,vi}.json`.
-- Tier gating: `research` is not in `PREMIUM_ONLY_SUBAGENTS` (v1). Eval: routing goldens `research-*` (en/vi) with `expected_flow="research"` under a new `research` capability + dataset file.
+- Tier gating: `research` **is added to `PREMIUM_ONLY_SUBAGENTS`** so `allowed_subagents` excludes it on the free tier and the supervisor's existing unknown/blocked-target fallback answers with the premium notice (same path as booking). Eval: routing goldens `research-*` (en/vi) with `expected_flow="research"` under a new `research` capability + dataset file.
 
 ## 7. Trip page (apps/web)
 
-- New tab **Research** (`trips/[tripId]` tab id `research`): empty state with "Research this trip" (POST), live progress list (SSE via `streamBaseUrl()`, JWT; hook `useResearchStream(runId)` mirroring `useAgentStream` structure), file tree + markdown viewer (`react-markdown` already a dependency? — verify; else render pre-formatted), inline edit for `.md` files (PUT), proposal panel with "Apply to trip" that calls existing REST endpoints (`POST /trips/{id}/items`, shortlist add) through the REST client with `X-User-Id`, one request per item with the existing `Idempotency-Key` whitelist, progress + partial-failure summary.
+- New tab **Research** (decided 2026-09-18; `trips/[tripId]` tab id `research`, hidden or locked with an upgrade hint for free-tier users): empty state with "Research this trip" (POST), live progress list (SSE via `streamBaseUrl()`, JWT; hook `useResearchStream(runId)` mirroring `useAgentStream` structure), file tree + markdown viewer (`react-markdown` already a dependency? — verify; else render pre-formatted), inline edit for `.md` files (PUT), proposal panel with "Apply to trip" that calls existing REST endpoints (`POST /trips/{id}/items`, shortlist add) through the REST client with `X-User-Id`, one request per item with the existing `Idempotency-Key` whitelist, progress + partial-failure summary.
 - `schema.d.ts` regenerated (`gen:api`) after the BE contract lands.
 
 ## 8. Data and safety

@@ -91,7 +91,7 @@ No waiver requested.
 - **Technical risks:** background run dies with the process (accepted for v1; status stays `running` → add a stale-run sweep on start: any `research` run older than N min with no steps becomes `failed`); token cost of a multi-subagent run on `gpt-5.4-mini` (cap: `max_iterations=2` rubric, per-subagent `recursion_limit`, tool-result eviction default 20k tokens); dossier poisoning via tool outputs is contained because v1 never feeds dossier text into the chat graph; `agent_runs` must keep holding no content (dossier lives only in the store).
 - **Evidence gaps:** progress-bus behaviour under uvicorn `--reload` (dev) and multi-worker (prod) — bus is per-process; poll fallback covers it; `astream_events(v3)` projections not yet exercised against `FakeLLM` (PoC used `ainvoke`).
 - **Version uncertainties:** langsmith 0.9.2 → 0.12.6 bump ships with deepagents (app has no direct langsmith import; `langchain-core` allows `<1.0`).
-- **Follow-up questions:** (1) tier/limits: all tiers with 3 starts/day/user and one running per trip — OK? (2) trip page: dedicated **Research** tab — OK?
+- **Follow-up questions:** answered 2026-09-18 — (1) premium-only (E005); (2) dedicated Research tab (E006).
 
 ## Source Pack
 
