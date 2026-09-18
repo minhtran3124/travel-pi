@@ -14,10 +14,15 @@
 # `deepagents 0.7.15` declares, so it can be added later without a second stack
 # move: langchain>=1.4.1 (itself needs langgraph>=1.2.11 and langchain-core>=1.6.0),
 # langchain-core>=1.6.3, langchain-anthropic>=1.7.2, langchain-google-genai>=4.4.0.
-# deepagents is NOT a dependency yet.
 langgraph>=1.2.11,<2.0
 langchain>=1.4.1,<2.0
 langchain-core>=1.6.3,<2.0
+
+# Deep-agent harness for the trip-research graph (specs/trip-research-deep-agent):
+# skills, memory, permissions, rubric-with-tools, thread resume, large-tool-result
+# offload come from here rather than being hand-rolled. Pulls langsmith>=0.12.6;
+# resolves against the floors above (raised in specs/stack-upgrade-langchain-1-4).
+deepagents>=0.7.15,<0.8
 
 # Transitive via langgraph (1.2.11 itself requires >=1.1.0,<1.2), but pinned
 # explicitly because we import from it:

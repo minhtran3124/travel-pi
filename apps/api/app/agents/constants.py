@@ -33,6 +33,7 @@ FAST_AGENTS: frozenset[str] = frozenset(
         "reflection",
         "extract_memory",
         "date_resolution",
+        "trip_research_grader",
     }
 )
 
