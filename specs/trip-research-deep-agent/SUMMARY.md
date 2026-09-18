@@ -28,6 +28,8 @@ Escalate: resolved 2026-09-18 — E001 StoreBackend · E002 BackgroundTask + pol
 
 ## What changed
 
+PR: https://github.com/minhtran3124/travel-pi/pull/221 (branch `feat/trip-research-deep-agent`, base `main`).
+
 **Wave 1 (tasks 1.1-1.5) landed.** `app/research/` package foundation: `deepagents`
 0.7.15 pinned with four off-by-default `research_*` settings (task 1.1); `ResearchContext`
 / `ResearchState` / `research_tools()` + per-subagent tool lists resolved against the
