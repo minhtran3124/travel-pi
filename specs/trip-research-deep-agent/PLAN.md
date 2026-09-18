@@ -58,7 +58,7 @@ E005 premium-only · E006 dedicated Research tab.
 | SC-6 | Permissions: a scripted `write_file` to `/skills/x/SKILL.md` returns a permission-denied tool message and no store key is created; a write to `/research/flights.md` succeeds and the store holds key `/research/flights.md` under `("users","u1","research","t1")` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_agent_permissions.py -q` | exit 0 |
 | SC-7 | A scripted full turn writes `/research/overview.md` and `/plan/proposal.json`; `validate_proposal` reports one unknown place id on the first grade, the agent revises, the second grade is `satisfied`; `aget_state` shows `_rubric_status == "satisfied"` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_agent_turn.py -q` | exit 0 |
 | SC-8 | A second turn on thread `research:u1:t1` reuses the checkpoint (the `HumanMessage` count is 2) and edits `/research/overview.md` via `edit_file` instead of `write_file` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_agent_revise.py -q` | exit 0 |
-| SC-9 | Memory: first run seeds `/memory/AGENTS.md` from 2 stored preferences (both lines present); a write containing an injection phrase from the guard's rule set is rejected by the `/memory/` policy hook | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_memory.py -q` | exit 0 |
+| SC-9 | Memory helpers: `seed_agents_md` writes `/memory/AGENTS.md` from 2 stored preferences (both lines present) and is a no-op when the file exists; `GuardedStoreBackend` rejects a write containing an injection phrase from the guard's rule set | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_memory_unit.py -q` | exit 0 |
 | SC-10 | Progress bus: events for one run arrive in publish order, a late subscriber receives the ring buffer first, and `close` ends the iterator; event payloads contain no `content`/`args` keys | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_progress.py -q` | exit 0 |
 | SC-11 | Runner: a scripted run finishes with `agent_runs.status == "completed"`, ≥ 1 step of kind `tool`, and a terminal `research_done` bus event; a run exceeding the timeout finishes `failed` with `error_type == "TimeoutError"` and never raises | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_runner.py -q` | exit 0 |
 | SC-12 | Service: `start` refuses a trip the user does not own (`NotFoundError`), refuses a second start while one is `running` (`ConflictError`), returns a `run_id` otherwise; `latest(trip_id)` returns that run; a stale `running` row older than 30 min is marked `interrupted` by the sweep | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_service.py -q` | exit 0 |
@@ -69,12 +69,17 @@ E005 premium-only · E006 dedicated Research tab.
 | SC-17 | Supervisor: "research my trip in depth" (en) and "nghiên cứu kỹ cả chuyến đi giúp mình" (vi) route to `research`; the v13 routing examples still route unchanged under v14 (planner/concierge/journal/booking/budget fixtures) | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/agents/test_supervisor_research_routing.py -q` | exit 0 |
 | SC-18 | Chat node `research`: without a trip → `awaiting_user` and the `research_needs_trip` copy; with a trip and premium → one job started and the `research_started` copy; with the flag off → `research_unavailable`; on the free tier the supervisor's existing premium notice is returned and no job starts | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/agents/test_research_node.py -q` | exit 0 |
 | SC-19 | Reflection guard: a REVISE verdict after a `research` turn ends the turn without re-entering `research` (start called exactly once) | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/agents/test_reflection_research_guard.py -q` | exit 0 |
-| SC-20 | Non-replacement: the tool registry, the specialist package and the chat stream taxonomy are unchanged versus `main` | `git diff --quiet main -- apps/api/app/tools/registry.py apps/api/app/agents/subagents apps/api/app/streaming/events.py apps/web/src/lib/stream/parseSSE.ts` | exit 0 |
+| SC-20 | Non-replacement (file level): the tool registry, the specialist package and the chat stream taxonomy are unchanged versus `main` (run after rebasing onto `main`) | `git diff --quiet main -- apps/api/app/tools/registry.py apps/api/app/agents/subagents apps/api/app/streaming/events.py apps/web/src/lib/stream/parseSSE.ts` | exit 0 |
 | SC-21 | Eval goldens: `research-routing-en-01` and `research-routing-vi-01` exist under `routing` with `expected_flow == "research"` and validate against the taxonomy | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_research_goldens.py -q` | exit 0 |
 | SC-22 | Lint clean on the API scope | `cd apps/api && ../../.venv/bin/ruff check app scripts tests/research tests/api/research` | exit 0 |
-| SC-23 | Web typecheck + lint clean | `cd apps/web && pnpm exec tsc --noEmit && pnpm lint` | exit 0 |
+| SC-23 | Web typecheck clean | `cd apps/web && pnpm exec tsc --noEmit` | exit 0 |
 | SC-24 | Research tab: renders the locked state for a free user, the empty state with a start button for premium, and a file list after a mocked status response | `cd apps/web && pnpm exec vitest run src/components/trips/research` | exit 0 |
 | SC-25 | Keyed smoke script exists, has a `--dry-run` that lists the seeded trip and exits 0 without a key | `cd apps/api && DATABASE_URL=sqlite:///:memory: OPENAI_API_KEY= ../../.venv/bin/python -m eval.research_smoke --dry-run` | exit 0 |
+| SC-26 | Non-replacement (behaviour level): sorted `ALL_TOOLS` names, the `/agent/manifest` payload and the MCP tool list equal the snapshot captured before the feature | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_registry_snapshot.py -q` | exit 0 |
+| SC-27 | Eval regression gate: the latest keyed eval-smoke report shows no capability below the committed baseline after supervisor v14 | `cd apps/api && make eval-compare` | exit 0 |
+| SC-28 | Web lint clean | `cd apps/web && pnpm lint` | exit 0 |
+| SC-29 | Resume: a `running` research row with a checkpoint on thread `research:u1:t1` is resumed by `ResearchService.resume` with `None` input under a new run row whose first step `meta.resumed_from` is the old run id, and finishes `completed` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_resume.py -q` | exit 0 |
+| SC-30 | The agent built by `build_research_agent` rejects a scripted `write_file` to `/memory/AGENTS.md` whose content contains an injection phrase from the guard's rule set (tool message names the guard, store unchanged) and accepts a plain preference line | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_agent_memory.py -q` | exit 0 |
 
 ## 4. Tasks
 
@@ -93,12 +98,12 @@ E005 premium-only · E006 dedicated Research tab.
 
 ### Task 1.2 — Research context, state and tool selection (wave 1)
 
-- **Files:** apps/api/app/research/__init__.py, apps/api/app/research/context.py, apps/api/app/research/state.py, apps/api/app/research/tools.py, apps/api/tests/research/__init__.py, apps/api/tests/research/test_tools.py
-- **Action:** Test-first. `ResearchContext` frozen dataclass (`user_id, trip_id, run_id, language, timezone`); `ResearchState(DeepAgentState)` with channels `trip_id, user_id, preferences, language`; `research_tools()` = planner ∪ concierge tools filtered by `TOOL_METADATA[...]["readOnly"]` minus `EXCLUDED = {"list_trips","recall_past_trips","get_user_preferences","parse_nl_query", EPISODIC_TOOL_NAME}`; `SUBAGENT_TOOLS` dict per design §3 table, resolved by name against the registry with an assertion at import.
-- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_tools.py -q`
-- **Done:** SC-2 passes; `research_tools()` length equals the count printed by the test's registry filter.
-- **Criteria:** SC-2
-- **Interfaces:** Consumes the tool registry (app/tools/registry.py, read-only, existing). Produces `app/research/tools.py`, `app/research/state.py`, `app/research/context.py`.
+- **Files:** apps/api/app/research/__init__.py, apps/api/app/research/context.py, apps/api/app/research/state.py, apps/api/app/research/tools.py, apps/api/tests/research/__init__.py, apps/api/tests/research/test_tools.py, apps/api/tests/research/test_registry_snapshot.py, apps/api/tests/fixtures/tools_snapshot.json
+- **Action:** Test-first. First, before any other change in this task, write `tests/fixtures/tools_snapshot.json` = `{"all_tools": sorted ALL_TOOLS names, "manifest": GET /agent/manifest payload, "mcp": sorted MCP tool names}` captured from the current tree, and `test_registry_snapshot.py` asserting the live values equal the fixture (this is the non-replacement oracle, SC-26). Then `ResearchContext` frozen dataclass (`user_id, trip_id, run_id, language, timezone`); `ResearchState(DeepAgentState)` with channels `trip_id, user_id, preferences, language`; `research_tools()` = planner ∪ concierge tools filtered by `TOOL_METADATA[...]["readOnly"]` minus `EXCLUDED = {"list_trips","recall_past_trips","get_user_preferences","parse_nl_query", EPISODIC_TOOL_NAME}`; `SUBAGENT_TOOLS` dict per design §3 table, resolved by name against the registry with an assertion at import.
+- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_tools.py tests/research/test_registry_snapshot.py -q`
+- **Done:** SC-2 and SC-26 pass; `research_tools()` length equals the count printed by the test's registry filter.
+- **Criteria:** SC-2, SC-26
+- **Interfaces:** Consumes the tool registry (app/tools/registry.py, read-only, existing). Produces `app/research/tools.py`, `app/research/state.py`, `app/research/context.py`, `tests/fixtures/tools_snapshot.json`.
 
 ### Task 1.3 — Skills directory and prompts (wave 1)
 
@@ -118,14 +123,23 @@ E005 premium-only · E006 dedicated Research tab.
 - **Criteria:** SC-4
 - **Interfaces:** Consumes the existing seeding helpers in app/db/seed.py. Produces `app/db/seed.py` rows trip_research and trip_research_grader, `FAST_AGENTS` entry.
 
+### Task 1.5 — Memory seeding helper and guarded store backend (wave 1)
+
+- **Files:** apps/api/app/research/memory.py, apps/api/tests/research/test_memory_unit.py
+- **Action:** Test-first. `seed_agents_md(store, user_id)`: if `/memory/AGENTS.md` is absent in `("users", uid, "research_memory")`, write it from `search_preferences` (formatted as MIN-65 D2) via `StoreBackend.upload_files`; `GuardedStoreBackend(StoreBackend)` overriding the write path to run the `app/memory/guard.py` content rules and return a permission-style error message on rejection. Unit test seeds from 2 stored preferences and rejects an injection phrase from the guard's rule set.
+- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_memory_unit.py -q`
+- **Done:** SC-9 passes.
+- **Criteria:** SC-9
+- **Interfaces:** Consumes the existing search_preferences helper and memory guard (app/memory). Produces `app/research/memory.py`.
+
 ### Task 2.1 — Build the deep agent and the grader tool (wave 2)
 
-- **Files:** apps/api/app/research/agent.py, apps/api/app/research/validate.py, apps/api/tests/research/test_agent_build.py, apps/api/tests/research/test_agent_permissions.py, apps/api/tests/research/test_agent_turn.py, apps/api/tests/research/test_agent_revise.py
-- **Action:** Test-first. `build_research_agent(*, store, checkpointer, llm=None, grader_llm=None)` per design §2 (CompositeBackend routes, permissions, subagents from `SUBAGENT_TOOLS` with `skills=["/skills/"]` and `TodoListMiddleware()`, `RubricMiddleware(model, tools=[validate_proposal, read_file], max_iterations=2)`, `context_schema`, `state_schema`, `name="trip_research"`, `.with_config(recursion_limit=150)`); register an OpenAI `HarnessProfile` excluding `execute` and disabling the general-purpose subagent. `validate_proposal` (`app/research/validate.py`): reads `/plan/proposal.json` through the backend for the run's namespace and checks every id against places / flight offers / hotels with `session_scope()`; returns `{"valid": bool, "unknown_ids": [...]}`. Tests script `FakeLLM` tool calls for the permission, full-turn and revise scenarios.
-- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_agent_build.py tests/research/test_agent_permissions.py tests/research/test_agent_turn.py tests/research/test_agent_revise.py -q`
-- **Done:** SC-5, SC-6, SC-7, SC-8 pass.
-- **Criteria:** SC-5, SC-6, SC-7, SC-8
-- **Interfaces:** Consumes `app/research/tools.py`, `app/research/state.py`, `app/research/context.py`, `app/research/skills/**`, `app/prompts/trip_research/v1.md`, `app/prompts/trip_research_grader/v1.md`, and the existing get_agent_llm resolver. Produces `app/research/agent.py`, `app/research/validate.py`.
+- **Files:** apps/api/app/research/agent.py, apps/api/app/research/validate.py, apps/api/tests/research/test_agent_build.py, apps/api/tests/research/test_agent_permissions.py, apps/api/tests/research/test_agent_turn.py, apps/api/tests/research/test_agent_revise.py, apps/api/tests/research/test_agent_memory.py
+- **Action:** Test-first. `build_research_agent(*, store, checkpointer, llm=None, grader_llm=None)` per design §2 (CompositeBackend routes with `GuardedStoreBackend` from Task 1.5 on `/memory/`, permissions, subagents from `SUBAGENT_TOOLS` with `skills=["/skills/"]` and `TodoListMiddleware()`, `RubricMiddleware(model, tools=[validate_proposal, read_file], max_iterations=2)`, `context_schema`, `state_schema`, `name="trip_research"`, `.with_config(recursion_limit=150)`, each subagent compiled with `recursion_limit=60`); register an OpenAI `HarnessProfile` excluding `execute` and disabling the general-purpose subagent. `validate_proposal` (`app/research/validate.py`): reads `/plan/proposal.json` through the backend for the run's namespace and checks every id against places / flight offers / hotels with `session_scope()`; returns `{"valid": bool, "unknown_ids": [...]}`. Tests script `FakeLLM` tool calls for the permission, full-turn and revise scenarios.
+- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_agent_build.py tests/research/test_agent_permissions.py tests/research/test_agent_turn.py tests/research/test_agent_revise.py tests/research/test_agent_memory.py -q`
+- **Done:** SC-5, SC-6, SC-7, SC-8, SC-30 pass.
+- **Criteria:** SC-5, SC-6, SC-7, SC-8, SC-30
+- **Interfaces:** Consumes `app/research/tools.py`, `app/research/state.py`, `app/research/context.py`, `app/research/memory.py`, `app/research/skills/**`, `app/prompts/trip_research/v1.md`, `app/prompts/trip_research_grader/v1.md`, and the existing get_agent_llm resolver. Produces `app/research/agent.py`, `app/research/validate.py`.
 
 ### Task 2.2 — Progress bus and research SSE event schema (wave 2)
 
@@ -136,22 +150,13 @@ E005 premium-only · E006 dedicated Research tab.
 - **Criteria:** SC-10
 - **Interfaces:** Consumes the existing SSE encoding helpers in app/streaming/events.py (read-only). Produces `app/research/progress.py`, `app/streaming/research_events.py`.
 
-### Task 2.3 — Memory seeding and policy hook (wave 2)
-
-- **Files:** apps/api/app/research/memory.py, apps/api/tests/research/test_memory.py
-- **Action:** Test-first. `seed_agents_md(store, user_id)`: if `/memory/AGENTS.md` is absent in `("users", uid, "research_memory")`, write it from `search_preferences` (formatted as MIN-65 D2) via `StoreBackend.upload_files`; `GuardedStoreBackend(StoreBackend)` overriding the write path to run `app/memory/guard.py` content rules and reject with a permission-style error message.
-- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_memory.py -q`
-- **Done:** SC-9 passes.
-- **Criteria:** SC-9
-- **Interfaces:** Consumes the existing search_preferences helper and memory guard (app/memory). Produces `app/research/memory.py`.
-
 ### Task 3.1 — Runner, service, lifespan wiring, stale sweep (wave 3)
 
-- **Files:** apps/api/app/research/runner.py, apps/api/app/research/service.py, apps/api/app/core/lifespan.py, apps/api/tests/research/test_runner.py, apps/api/tests/research/test_service.py
+- **Files:** apps/api/app/research/runner.py, apps/api/app/research/service.py, apps/api/app/core/lifespan.py, apps/api/tests/research/test_runner.py, apps/api/tests/research/test_service.py, apps/api/tests/research/test_resume.py
 - **Action:** Test-first. `run_trip_research(*, run_id, ctx, instruction, agent, bus, session_factory)` (async): `seed_agents_md`, `astream_events(version="v3")` over `{"messages":[HumanMessage], "rubric": ..., "trip_id","user_id","preferences","language"}` or `None` when resuming, `TurnMetricsHandler` in callbacks, `asyncio.timeout(settings.research_timeout_s)`, finalise via `AgentRunRepository.finish/add_steps` on the isolated factory, terminal bus event, never raises. `ResearchService` (`start`, `status`, `latest`, `resume`, `file`, `write_file`, `sweep_stale`) per design §4–5 using `AgentRunRepository` with `kind="research"`, `channel="research"`, thread id `research:{uid}:{trip}`. Lifespan: when `settings.research_enabled`, build `app.state.research_agent` next to the chat graph inside a try/except that logs and leaves it `None`; run `sweep_stale` once.
-- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_runner.py tests/research/test_service.py -q`
-- **Done:** SC-11 and SC-12 pass; the chat lifespan tests in `tests/api/agent/test_agent_chat.py` still collect the same count.
-- **Criteria:** SC-11, SC-12
+- **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_runner.py tests/research/test_service.py tests/research/test_resume.py -q`
+- **Done:** SC-11, SC-12 and SC-29 pass; the chat lifespan tests in `tests/api/agent/test_agent_chat.py` still collect the same count.
+- **Criteria:** SC-11, SC-12, SC-29
 - **Interfaces:** Consumes `app/research/agent.py`, `app/research/progress.py`, `app/research/memory.py`, `settings.research_*`, and the existing AgentRunRepository, TurnMetricsHandler and isolated-session factory pattern. Produces `app/research/runner.py`, `app/research/service.py`, `app.state.research_agent`.
 
 ### Task 3.2 — FE research stream parser (wave 3)
@@ -166,7 +171,7 @@ E005 premium-only · E006 dedicated Research tab.
 ### Task 4.1 — Research router, rate limit, SSE endpoint (wave 4)
 
 - **Files:** apps/api/app/routers/research.py, apps/api/app/main.py, apps/api/app/schemas/research.py, apps/api/tests/api/research/__init__.py, apps/api/tests/api/research/test_routes_disabled.py, apps/api/tests/api/research/test_routes.py, apps/api/tests/api/research/test_stream.py
-- **Action:** Test-first. Routes per design §5 under `CurrentUserDep` + `require_premium`; `research_start` rate limit via `enforce_rate_limit` (`settings.research_daily_limit`/24 h) in the `feedback_rate_limit` dependency shape; the router is included in `main.py` only when `settings.research_enabled` (else every path is 404). SSE endpoint: bus tail when `bus.has(run_id)`, else DB snapshot + 2 s re-poll until terminal, using the same `StreamingResponse` headers as `/agent/stream`. Pydantic schemas for start/status/file bodies.
+- **Action:** Test-first. Routes per design §5 under `CurrentUserDep` + `require_premium`; `research_start` rate limit built with the dependency factory in `app/core/rate_limit.py` (`settings.research_daily_limit` per 24 h), the same factory `routers/feedback.py` uses; the router is included in `main.py` only when `settings.research_enabled` (else every path is 404). SSE endpoint: bus tail when `bus.has(run_id)`, else DB snapshot + 2 s re-poll until terminal, using the same `StreamingResponse` headers as `/agent/stream`. Pydantic schemas for start/status/file bodies.
 - **Verify:** `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/api/research -q`
 - **Done:** SC-13, SC-14, SC-15 pass.
 - **Criteria:** SC-13, SC-14, SC-15
@@ -190,6 +195,15 @@ E005 premium-only · E006 dedicated Research tab.
 - **Criteria:** SC-17, SC-21
 - **Interfaces:** Consumes the existing supervisor v13 prompt text. Produces `app/prompts/supervisor/v14.md`, `app/agents/constants.py` research entries, `app/agents/copy.py` research keys, `app/agents/suggestions.py` research keys, `eval/datasets/routing.json` research goldens.
 
+### Task 6.3 — Eval-smoke regression gate after supervisor v14 (wave 6)
+
+- **Files:** specs/trip-research-deep-agent/SUMMARY.md
+- **Action:** After Task 5.1 lands, run the keyed smoke `make eval-smoke` (cited in SUMMARY prose with its per-capability table; needs the Docker db + `apps/api/.env`), then compare it against the committed baseline. Any capability below its baseline blocks the wave until v14 is corrected.
+- **Verify:** `cd apps/api && make eval-compare`
+- **Done:** SC-27 passes; SUMMARY `### Verify` carries the eval-smoke row with its exit code.
+- **Criteria:** SC-27
+- **Interfaces:** Consumes `app/prompts/supervisor/v14.md`. Produces `specs/trip-research-deep-agent/SUMMARY.md` eval rows.
+
 ### Task 6.1 — Chat node `research` and reflection guard (wave 6)
 
 - **Files:** apps/api/app/research/launcher.py, apps/api/app/agents/graph.py, apps/api/app/agents/nodes.py, apps/api/tests/agents/test_research_node.py, apps/api/tests/agents/test_reflection_research_guard.py
@@ -211,10 +225,10 @@ E005 premium-only · E006 dedicated Research tab.
 ### Task 7.1 — Research tab, file viewer, revise, apply flow (wave 7)
 
 - **Files:** apps/web/src/app/trips/[tripId]/page.tsx, apps/web/src/components/trips/research/ResearchTab.tsx, apps/web/src/components/trips/research/FileViewer.tsx, apps/web/src/components/trips/research/ProposalPanel.tsx, apps/web/src/components/trips/research/ResearchTab.test.tsx, apps/web/src/lib/api/schema.d.ts
-- **Action:** Test-first. Add tab id `research` (locked state for free tier, hidden when the BE returns 404 for the feature); `ResearchTab` = empty state → start; progress list from `useResearchStream`; file tree + markdown viewer with inline edit (PUT); revise box (POST with instruction); `ProposalPanel` applies items/shortlist through the existing REST client one request per entry with a partial-failure summary. Regenerate `schema.d.ts` with `pnpm gen:api` against a running API with the flag on.
+- **Action:** Test-first. Add tab id `research` (locked state for free tier, hidden when the BE returns 404 for the feature); `ResearchTab` = empty state → start; progress list from `useResearchStream`; file tree + markdown viewer with inline edit (PUT); revise box (POST with instruction); `ProposalPanel` applies items/shortlist through the existing REST client one request per entry with a partial-failure summary. Regenerate `schema.d.ts` with `pnpm gen:api` against an API started with `RESEARCH_ENABLED=true` in its environment (the default flips in Task 7.2, which may run in either order).
 - **Verify:** `cd apps/web && pnpm exec vitest run src/components/trips/research`
-- **Done:** SC-24 passes; SC-23 passes.
-- **Criteria:** SC-24, SC-23
+- **Done:** SC-24, SC-23 and SC-28 pass.
+- **Criteria:** SC-24, SC-23, SC-28
 - **Interfaces:** Consumes `apps/web/src/lib/api/research.ts`, `apps/web/src/components/trips/research/useResearchStream.ts`, `apps/web/messages/en.json`, `apps/web/messages/vi.json`. Produces `apps/web/src/components/trips/research/ResearchTab.tsx`, `apps/web/src/components/trips/research/FileViewer.tsx`, `apps/web/src/components/trips/research/ProposalPanel.tsx`, `apps/web/src/lib/api/schema.d.ts`.
 
 ### Task 7.2 — Keyed smoke script, flag default, docs (wave 7)
@@ -236,4 +250,5 @@ E005 premium-only · E006 dedicated Research tab.
 
 ## 6. Status Log
 
+- 2026-09-18 — plan reviewed (approve-with-changes): memory guard moved to wave 1 and wired in Task 2.1 (SC-30), registry/manifest/MCP snapshot oracle (SC-26), eval-compare gate after v14 (Task 6.3, SC-27), resume row (SC-29), SC-23 split (SC-28), gen:api env note, rate-limit factory wording.
 - 2026-09-18 — plan written from design.md v2 (skills/memory/permissions/rubric/thread resume) and §12 non-replacement guarantees; 14 tasks, 7 waves; flag off until Task 7.2.
