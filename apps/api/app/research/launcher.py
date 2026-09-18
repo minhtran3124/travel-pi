@@ -13,8 +13,10 @@ with no hand-written edges (design §12.1).
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import TYPE_CHECKING
+import asyncio
+import logging
+from collections.abc import Callable, Coroutine
+from typing import TYPE_CHECKING, Any
 
 from langchain_core.messages import AIMessage
 from langgraph.store.base import BaseStore
@@ -27,9 +29,25 @@ from app.exceptions import AppError, ConflictError
 if TYPE_CHECKING:  # keep the research package (and deepagents) off the import path
     from app.research.service import ResearchService
 
+logger = logging.getLogger(__name__)
+
 #: Factory the node calls to obtain a ready service; kept as a factory so the node
 #: never captures a request session and tests can inject a stub.
 ResearchServiceFactory = Callable[[], "ResearchService"]
+
+#: Strong references to in-flight research drivers. The chat node schedules the run
+#: with ``asyncio.create_task`` and returns immediately; without a live reference the
+#: event loop may garbage-collect the task mid-run, so it is parked here until done.
+_BACKGROUND_TASKS: set[asyncio.Task[None]] = set()
+
+
+def _schedule(coro: Coroutine[Any, Any, None]) -> None:
+    """Run ``coro`` as a background task off the current turn, holding a strong
+    reference until it completes so the loop cannot collect it mid-flight. The node
+    runs on the event loop (an async graph node), so ``create_task`` is valid here."""
+    task = asyncio.create_task(coro)
+    _BACKGROUND_TASKS.add(task)
+    task.add_done_callback(_BACKGROUND_TASKS.discard)
 
 
 def _research_started(language: str | None) -> dict:
@@ -55,16 +73,19 @@ def make_research_node(service_factory: ResearchServiceFactory):
     :return: A node function ``research(state) -> dict``.
     """
 
-    def research(state: TravelAgentState) -> dict:
+    def _unavailable(language: str | None) -> dict:
+        return {
+            "messages": [
+                AIMessage(content=system_reply("research_unavailable", language))
+            ]
+        }
+
+    async def research(state: TravelAgentState) -> dict:
         language = state.get("language")
         # Kill switch (design §12.2): the whole feature is off during rollout, so
         # the launcher declines instead of booking a run.
         if not get_settings().research_enabled:
-            return {
-                "messages": [
-                    AIMessage(content=system_reply("research_unavailable", language))
-                ]
-            }
+            return _unavailable(language)
         trip_id = state.get("trip_id")
         # Deep research digs into one concrete trip; without one, ask the traveller
         # which trip they mean (awaiting_user ends the turn via reflection's guard).
@@ -75,12 +96,19 @@ def make_research_node(service_factory: ResearchServiceFactory):
                     AIMessage(content=system_reply("research_needs_trip", language))
                 ],
             }
+        service = service_factory()
+        # No built agent (flag on but the build failed) means nothing can drive a
+        # booked run. Decline without touching the DB rather than stranding a
+        # ``running`` row that only the 30-min sweep would ever clear.
+        if not service.runnable:
+            return _unavailable(language)
+        user_id = state.get("user_id")
         try:
-            service_factory().start(state.get("user_id"), trip_id)
+            run_id = service.start(user_id, trip_id)
         except ConflictError:
-            # A run for this trip is already in flight: reassure with the same
-            # "started" copy ("...follow along in the Research tab") rather than
-            # surfacing a 500 — the dossier the traveller wants is already coming.
+            # A run for this trip is already in flight (already being driven): reassure
+            # with the same "started" copy rather than surfacing a 500, and do not
+            # schedule a second driver for the same thread.
             return _research_started(language)
         except AppError:
             # Any other domain failure (e.g. the trip is not the caller's) becomes a
@@ -90,6 +118,9 @@ def make_research_node(service_factory: ResearchServiceFactory):
                     AIMessage(content=system_reply("agent_error_fallback", language))
                 ]
             }
+        # Book succeeded: drive the run off this turn. The node must NOT await it —
+        # the chat reply returns now and the dossier streams into the Research tab.
+        _schedule(service.launch(run_id, user_id, trip_id))
         return _research_started(language)
 
     return research
@@ -98,17 +129,21 @@ def make_research_node(service_factory: ResearchServiceFactory):
 def build_research_service(store: BaseStore | None):
     """Build a ``ResearchService`` on the shared session factory for the chat node.
 
-    The service manages its own sessions (never a request session, design §5);
-    ``start`` — all the launcher needs — touches only the DB, so the agent/bus are
-    left unbuilt here and the background runner is driven from the research surface.
+    The service manages its own sessions (never a request session, design §5). The
+    agent and bus come from the process-level runtime holder that lifespan populated
+    (``app/research/runtime.py``), so the chat node drives the **same** compiled
+    agent and progress bus as the REST routes. When research is off or the build
+    failed the holder yields ``(None, None)`` and ``service.runnable`` is ``False``,
+    so the node declines instead of booking an unrunnable row.
     """
     from app.db.engine import get_session_factory
-    from app.research.progress import ProgressBus
+    from app.research.runtime import get_research_runtime
     from app.research.service import ResearchService
 
+    agent, bus = get_research_runtime()
     return ResearchService(
         session_factory=get_session_factory(get_settings().database_url),
         store=store,
-        agent=None,
-        bus=ProgressBus(),
+        agent=agent,
+        bus=bus,
     )

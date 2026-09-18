@@ -12,6 +12,7 @@ import logging
 from datetime import date, datetime, timezone
 from typing import Any
 
+from app.core.config import get_settings
 from app.core.text import fold_diacritics
 from app.memory.store import get_profile
 
@@ -102,11 +103,19 @@ def suggestions_for_flow(
     trip_facts: dict | None = None,
     profile: dict | None = None,
     preferences: str = "",
+    allowed_subagents: frozenset[str] | None = frozenset(),
 ) -> list[str]:
     """Return up to MAX_SUGGESTIONS follow-up suggestion keys for a flow.
 
     An ordered rule table runs first; the static per-flow map backfills the rest, so
     a bare ``current_flow`` call reproduces the static-only behaviour exactly.
+
+    ``allowed_subagents`` mirrors ``AgentContext.allowed_subagents``: ``None`` means
+    every specialist is reachable (premium), a frozenset restricts routing. It gates
+    the ``research`` nudge (Rule 7) so research never leaks to a caller who cannot
+    reach it. It defaults to the empty frozenset — "no premium specialist reachable"
+    — so any caller that does not pass it (including a bare call) reproduces the
+    pre-research behaviour exactly.
     """
     if not current_flow:
         return []
@@ -152,8 +161,18 @@ def suggestions_for_flow(
 
     # Rule 7 — planner flow with an established trip: nudge deep research. Gated
     # on a known destination (not flow alone) so a bare ``planner`` call still
-    # reproduces the static map exactly (the budget-flow deviation, Rule 5).
-    if current_flow == "planner" and trip_facts.get("destination"):
+    # reproduces the static map exactly (the budget-flow deviation, Rule 5), AND on
+    # the feature being live (``research_enabled``) plus this caller being able to
+    # reach the research specialist (``None`` = all reachable, else membership). Both
+    # gates keep the chip from changing behaviour for a free-tier user or when the
+    # kill switch is off (design §12).
+    research_reachable = allowed_subagents is None or "research" in allowed_subagents
+    if (
+        current_flow == "planner"
+        and trip_facts.get("destination")
+        and research_reachable
+        and get_settings().research_enabled
+    ):
         _add("research.start")
 
     # Fallback floor: never fewer than the static map alone would give.

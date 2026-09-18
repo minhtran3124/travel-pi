@@ -261,6 +261,9 @@ async def stream_agent_events(
                     state.values.get("user_id") if state else None,
                 ),
                 preferences=(state.values.get("preferences", "") if state else ""),
+                # ``None`` (premium) keeps every specialist reachable; a missing
+                # context falls back to "no premium specialist", never all-allowed.
+                allowed_subagents=getattr(context, "allowed_subagents", frozenset()),
             )
         )
         usage = None

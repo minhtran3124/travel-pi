@@ -76,6 +76,53 @@ def test_latest_returns_the_started_run(service) -> None:
     assert latest.id == run_id
 
 
+def test_runnable_reflects_whether_an_agent_was_built(factory) -> None:
+    """The chat node checks ``runnable`` before booking, so a run is never stranded
+    when no research agent was built (flag off / build failed)."""
+    store = InMemoryStore()
+    assert (
+        ResearchService(
+            session_factory=factory, store=store, agent=None, bus=ProgressBus()
+        ).runnable
+        is False
+    )
+    assert (
+        ResearchService(
+            session_factory=factory,
+            store=store,
+            agent=object(),
+            bus=ProgressBus(),
+        ).runnable
+        is True
+    )
+
+
+@pytest.mark.asyncio
+async def test_launch_drives_the_runner_for_the_booked_run(
+    service, factory, monkeypatch
+) -> None:
+    """``launch`` is what the chat node schedules after ``start``; it must actually
+    invoke the runner for that run id (a fresh turn, ``resumed_from=None``)."""
+    from app.research import runner as runner_mod
+
+    run_id = service.start(OWNER, TRIP)
+
+    calls: list[dict] = []
+
+    async def fake_runner(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(runner_mod, "run_trip_research", fake_runner)
+
+    await service.launch(run_id, OWNER, TRIP)
+
+    assert len(calls) == 1
+    assert calls[0]["run_id"] == run_id
+    assert calls[0]["resumed_from"] is None
+    assert calls[0]["ctx"].trip_id == TRIP
+    assert calls[0]["ctx"].user_id == OWNER
+
+
 def test_sweep_stale_flips_only_aged_running_rows(service, factory) -> None:
     # An aged running run for a different trip (older than the 30-min threshold).
     aged_id = "run-aged"

@@ -13,6 +13,7 @@ from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.research.progress import ProgressBus
+from app.research.runtime import set_research_runtime
 from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
 
@@ -132,6 +133,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                     agent=app.state.research_agent,
                     bus=app.state.research_bus,
                 ).sweep_stale()
+                # Share the built agent + bus with the chat graph's ``research``
+                # node (which was wired before this agent existed) and the REST
+                # routes, so both drive one agent through one bus. On the failure
+                # path below the holder is left unset, so the node declines.
+                set_research_runtime(app.state.research_agent, app.state.research_bus)
                 logger.info("Trip-research agent ready")
             except Exception:
                 logger.exception("Trip-research agent build failed; research disabled")

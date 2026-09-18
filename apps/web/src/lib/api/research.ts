@@ -31,24 +31,19 @@ export interface StartResearchResponse {
   thread_turn: number;
 }
 
-export interface ResearchTodoDto {
-  content: string;
-  status: string;
-}
-
-/** Latest-run summary for a trip (`GET /agent/trips/{trip_id}/research`). */
+/**
+ * Latest-run summary for a trip (`GET /agent/trips/{trip_id}/research`), and the
+ * same projected state returned by `GET /agent/research/{run_id}`. Mirrors the
+ * backend `ResearchStatusResponse` (see `apps/web/src/lib/api/schema.d.ts`)
+ * field-for-field: `trip_id` is nullable and the turn is `thread_turn`.
+ */
 export interface ResearchRunSummary {
   run_id: string;
-  trip_id: string;
+  trip_id: string | null;
   status: string;
-  turn: number;
+  thread_turn: number;
   files: string[];
   proposal_ready: boolean;
-}
-
-/** Full run detail (`GET /agent/research/{run_id}`): summary + phase + files. */
-export interface ResearchRunDetail extends ResearchRunSummary {
-  todos: ResearchTodoDto[];
 }
 
 /** File content envelope (`GET`/`PUT /agent/research/{run_id}/files/{path}`). */
@@ -125,14 +120,14 @@ export function getLatestResearch(tripId: string): Promise<ResearchRunSummary> {
   return agentGet(`/agent/trips/${encodeURIComponent(tripId)}/research`);
 }
 
-/** Full detail (status + todos + file index) for one run. */
-export function getResearch(runId: string): Promise<ResearchRunDetail> {
+/** Projected state (status + file index) for one run. */
+export function getResearch(runId: string): Promise<ResearchRunSummary> {
   return agentGet(`/agent/research/${encodeURIComponent(runId)}`);
 }
 
 /**
  * The run's file index. Design §5 has no dedicated list route — the index is a
- * field of the detail response — so this derives it from `getResearch` rather
+ * field of the status response — so this derives it from `getResearch` rather
  * than hitting a non-existent endpoint (see the report's Deviations note).
  */
 export async function getResearchFiles(runId: string): Promise<string[]> {

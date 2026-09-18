@@ -71,7 +71,7 @@ class ResearchService:
         session_factory: sessionmaker[Session],
         store: BaseStore,
         agent: CompiledStateGraph | None,
-        bus: ProgressBus,
+        bus: ProgressBus | None,
     ) -> None:
         self._sf = session_factory
         self._store = store
@@ -80,15 +80,23 @@ class ResearchService:
 
     # -- launch / resume -------------------------------------------------
 
+    @property
+    def runnable(self) -> bool:
+        """Whether a booked run can actually be driven — ``False`` when no research
+        agent was built (flag off or build failed). The chat node checks this before
+        ``start`` so it never books a row nothing can execute."""
+        return self._agent is not None
+
     def start(
         self,
         user_id: str,
         trip_id: str,
         instruction: str | None = None,
     ) -> str:
-        """Book a fresh research run and return its id (the router schedules the
-        runner). Raises ``NotFoundError`` if the trip is not the caller's,
-        ``ConflictError`` if a run for this trip is already ``running``."""
+        """Book a fresh research run and return its id. The caller schedules the
+        runner — the REST surface via ``BackgroundTasks`` (``routers/research.py``),
+        the chat node via :meth:`launch`. Raises ``NotFoundError`` if the trip is not
+        the caller's, ``ConflictError`` if a run for this trip is already ``running``."""
         if TripRepository(self._sf).get_trip(trip_id, user_id) is None:
             raise NotFoundError("Trip not found")
         if self._running_for(trip_id) is not None:
@@ -96,6 +104,22 @@ class ResearchService:
         run_id = str(uuid4())
         self._insert_run(run_id, user_id, trip_id)
         return run_id
+
+    async def launch(
+        self,
+        run_id: str,
+        user_id: str,
+        trip_id: str,
+        instruction: str | None = None,
+    ) -> None:
+        """Drive a freshly booked run (from :meth:`start`) to a terminal state.
+
+        A graph node cannot use FastAPI ``BackgroundTasks``, so the chat launcher
+        schedules this coroutine with ``asyncio.create_task``; the REST surface
+        schedules the runner directly. Never raises — the runner folds every
+        failure (timeout included) into the run row (``runner.run_trip_research``)."""
+        ctx = self._context(run_id, user_id, trip_id)
+        await self._drive(run_id, ctx, instruction=instruction, resumed_from=None)
 
     async def resume(self, run_id: str) -> str:
         """Resume an interrupted run's checkpointed thread under a new run row whose

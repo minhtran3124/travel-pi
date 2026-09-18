@@ -1,41 +1,70 @@
 """Chat node ``research`` (trip-research-deep-agent, Task 6.1, SC-18).
 
 The launcher makes **no** LLM call: the supervisor already routed the intent. It
-books a background run through ``ResearchService.start`` and replies with
-code-authored copy. These tests drive the node function directly with a stub
-service factory, so nothing touches the DB or the network. ``language=None`` keeps
-``system_reply`` on the English source (no translation store lookup).
+books a background run through ``ResearchService.start`` and then *schedules* the
+run's driver as an ``asyncio`` task so the dossier actually gets produced — the bug
+this suite guards is a booked ``running`` row that nothing ever executes. The node
+is async because it runs on the event loop (an async graph node) and must launch
+the driver without awaiting it; the chat turn returns immediately.
 
-The free-tier guarantee is enforced one step earlier, by the supervisor's
-``allowed_subagents`` gate (research is premium-only), so the node is never
-reached and ``start`` is never called — asserted here against the real supervisor.
+Most tests drive the node function directly with a stub service factory, so nothing
+touches the DB or the network. ``language=None`` keeps ``system_reply`` on the
+English source (no translation store lookup). The free-tier guarantee is enforced
+one step earlier, by the supervisor's ``allowed_subagents`` gate (research is
+premium-only), so the node is never reached — asserted here against the real
+supervisor.
 """
 
 from __future__ import annotations
 
+import asyncio
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from app.agents.constants import (
     RESEARCH_NEEDS_TRIP_MSG,
     RESEARCH_STARTED_MSG,
     RESEARCH_UNAVAILABLE_MSG,
 )
 from app.agents.context import AgentContext, resolve_agent_context
+from app.db.base import Base
+from app.db.engine import get_engine, get_session_factory
+from app.db.models.agent_run import AgentRun
+from app.db.models.trip import Trip
 from app.enums import Tier
 from app.exceptions import ConflictError
-from app.research import launcher
+from app.research import launcher, runtime
+from app.research import runner as runner_mod
 from app.research.launcher import make_research_node
+from app.research.progress import ProgressBus
 from langchain_core.messages import AIMessage, HumanMessage
+from langgraph.store.memory import InMemoryStore
 
 OWNER = "u_research"
 TRIP = "trip-1"
 
 
-def _flag(monkeypatch, *, enabled: bool) -> None:
-    """Point the launcher's settings read at a fixed ``research_enabled`` value."""
+@pytest.fixture(autouse=True)
+def _reset_runtime_and_tasks():
+    """Keep the process-level research runtime holder and the launcher's task set
+    hermetic between tests (both are module globals)."""
+    runtime.set_research_runtime(None, None)
+    launcher._BACKGROUND_TASKS.clear()
+    yield
+    launcher._BACKGROUND_TASKS.clear()
+    runtime.set_research_runtime(None, None)
+
+
+def _flag(monkeypatch, *, enabled: bool, database_url: str | None = None) -> None:
+    """Point the launcher's settings read at a fixed ``research_enabled`` (and, for
+    the paths that build a real service, a ``database_url``)."""
     monkeypatch.setattr(
-        launcher, "get_settings", lambda: SimpleNamespace(research_enabled=enabled)
+        launcher,
+        "get_settings",
+        lambda: SimpleNamespace(
+            research_enabled=enabled, database_url=database_url
+        ),
     )
 
 
@@ -50,39 +79,51 @@ def _state(**overrides) -> dict:
     return state
 
 
-def _service_factory() -> tuple[MagicMock, callable]:
-    """A stub ``ResearchService`` whose ``start`` records its calls, and a factory
-    returning it. The factory itself is a MagicMock so "never constructed" is
-    provable, not just "start never called"."""
+def _service_factory() -> tuple[MagicMock, MagicMock]:
+    """A stub ``ResearchService`` (``runnable`` true, ``launch`` an AsyncMock so the
+    node can schedule it) whose ``start`` records its calls, and a factory returning
+    it. The factory is a MagicMock so "never constructed" is provable, not just
+    "start never called"."""
     service = MagicMock(name="ResearchService")
+    service.runnable = True
+    service.launch = AsyncMock(name="launch")
     factory = MagicMock(name="service_factory", return_value=service)
     return service, factory
+
+
+async def _drain() -> None:
+    """Await every driver the node scheduled this turn (so an AsyncMock coroutine is
+    never left un-awaited)."""
+    await asyncio.gather(*list(launcher._BACKGROUND_TASKS))
 
 
 # -- flag off -----------------------------------------------------------------
 
 
-def test_flag_off_replies_unavailable_and_never_touches_the_service(monkeypatch):
+@pytest.mark.asyncio
+async def test_flag_off_replies_unavailable_and_never_touches_the_service(monkeypatch):
     _flag(monkeypatch, enabled=False)
     service, factory = _service_factory()
 
-    result = make_research_node(factory)(_state())
+    result = await make_research_node(factory)(_state())
 
     assert result["messages"][0].content == RESEARCH_UNAVAILABLE_MSG
     assert "current_flow" not in result
     assert not result.get("awaiting_user")
     factory.assert_not_called()
     service.start.assert_not_called()
+    service.launch.assert_not_called()
 
 
 # -- no active trip -----------------------------------------------------------
 
 
-def test_no_trip_asks_the_traveller_and_never_starts(monkeypatch):
+@pytest.mark.asyncio
+async def test_no_trip_asks_the_traveller_and_never_starts(monkeypatch):
     _flag(monkeypatch, enabled=True)
     service, factory = _service_factory()
 
-    result = make_research_node(factory)(_state(trip_id=None))
+    result = await make_research_node(factory)(_state(trip_id=None))
 
     assert result["awaiting_user"] is True
     assert result["messages"][0].content == RESEARCH_NEEDS_TRIP_MSG
@@ -90,11 +131,12 @@ def test_no_trip_asks_the_traveller_and_never_starts(monkeypatch):
     service.start.assert_not_called()
 
 
-def test_empty_string_trip_is_treated_as_no_trip(monkeypatch):
+@pytest.mark.asyncio
+async def test_empty_string_trip_is_treated_as_no_trip(monkeypatch):
     _flag(monkeypatch, enabled=True)
     service, factory = _service_factory()
 
-    result = make_research_node(factory)(_state(trip_id=""))
+    result = await make_research_node(factory)(_state(trip_id=""))
 
     assert result["awaiting_user"] is True
     service.start.assert_not_called()
@@ -103,13 +145,19 @@ def test_empty_string_trip_is_treated_as_no_trip(monkeypatch):
 # -- premium + trip: exactly one job -----------------------------------------
 
 
-def test_premium_with_trip_starts_exactly_one_job(monkeypatch):
+@pytest.mark.asyncio
+async def test_premium_with_trip_starts_and_schedules_exactly_one_job(monkeypatch):
     _flag(monkeypatch, enabled=True)
     service, factory = _service_factory()
 
-    result = make_research_node(factory)(_state())
+    result = await make_research_node(factory)(_state())
 
     service.start.assert_called_once_with(OWNER, TRIP)
+    # The booked run is actually scheduled for execution — exactly once, keyed to the
+    # run id ``start`` returned. This is the regression guard: booking is not enough.
+    service.launch.assert_called_once_with(service.start.return_value, OWNER, TRIP)
+    assert len(launcher._BACKGROUND_TASKS) == 1
+
     assert result["current_flow"] == "research"
     msg = result["messages"][0]
     assert isinstance(msg, AIMessage)
@@ -117,21 +165,140 @@ def test_premium_with_trip_starts_exactly_one_job(monkeypatch):
     # The guard flag reflection reads to end the turn (no second job on a REVISE).
     assert msg.additional_kwargs.get("research_started") is True
 
+    await _drain()
 
-def test_already_running_is_reassured_not_errored(monkeypatch):
-    """A ConflictError (a run is already in flight) is not a 500: reply with the
-    same 'started' copy and set the guard, so a REVISE cannot launch a second."""
+
+@pytest.mark.asyncio
+async def test_already_running_is_reassured_and_schedules_no_second_driver(monkeypatch):
+    """A ConflictError (a run is already in flight) is not a 500: reply with the same
+    'started' copy and set the guard — and, since a driver already owns that thread,
+    do NOT schedule a second one."""
     _flag(monkeypatch, enabled=True)
     service, factory = _service_factory()
     service.start.side_effect = ConflictError("already running")
 
-    result = make_research_node(factory)(_state())
+    result = await make_research_node(factory)(_state())
 
     service.start.assert_called_once_with(OWNER, TRIP)
+    service.launch.assert_not_called()
+    assert set() == launcher._BACKGROUND_TASKS
     msg = result["messages"][0]
     assert msg.content == RESEARCH_STARTED_MSG
     assert msg.additional_kwargs.get("research_started") is True
     assert result["current_flow"] == "research"
+
+
+# -- runtime holds no agent: decline, book nothing ---------------------------
+
+
+@pytest.mark.asyncio
+async def test_no_built_agent_replies_unavailable_and_inserts_no_run(
+    monkeypatch, tmp_path
+):
+    """Flag on but the runtime holds no agent (build failed): the node must decline
+    with ``research_unavailable`` and leave the DB untouched — booking a row nothing
+    can execute is the defect. Exercises the real ``build_research_service`` path."""
+    url = f"sqlite:///{tmp_path / 'noagent.db'}"
+    Base.metadata.create_all(get_engine(url))
+    with get_session_factory(url)() as s:
+        s.add(Trip(id=TRIP, user_id=OWNER, title="Trip", travelers=2))
+        s.commit()
+    _flag(monkeypatch, enabled=True, database_url=url)
+    runtime.set_research_runtime(None, None)  # explicit: build failed / flag-off holder
+
+    store = InMemoryStore()
+    node = make_research_node(lambda: launcher.build_research_service(store))
+    result = await node(_state())
+
+    assert result["messages"][0].content == RESEARCH_UNAVAILABLE_MSG
+    assert "current_flow" not in result
+    with get_session_factory(url)() as s:
+        assert s.query(AgentRun).count() == 0
+
+
+# -- end to end: booked run is actually executed by the runner ----------------
+
+
+@pytest.mark.asyncio
+async def test_chat_entry_books_and_executes_one_run(monkeypatch, tmp_path):
+    """A premium chat turn on an active trip books a run AND drives it: the runner is
+    invoked exactly once, for the booked run id, on the agent/bus from the runtime
+    holder. Proves the run is executed, not merely booked. Uses the real service and
+    launcher wiring with a fake agent injected through the runtime holder and the
+    runner faked so no LLM/network is touched."""
+    url = f"sqlite:///{tmp_path / 'exec.db'}"
+    Base.metadata.create_all(get_engine(url))
+    with get_session_factory(url)() as s:
+        s.add(Trip(id=TRIP, user_id=OWNER, title="Trip", travelers=2))
+        s.commit()
+    _flag(monkeypatch, enabled=True, database_url=url)
+
+    fake_agent = SimpleNamespace(store=InMemoryStore())
+    fake_bus = ProgressBus()
+    runtime.set_research_runtime(fake_agent, fake_bus)
+
+    calls: list[dict] = []
+
+    async def fake_runner(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(runner_mod, "run_trip_research", fake_runner)
+
+    store = InMemoryStore()
+    node = make_research_node(lambda: launcher.build_research_service(store))
+    result = await node(_state())
+
+    assert result["current_flow"] == "research"
+    # The row is booked ``running`` before the driver runs.
+    with get_session_factory(url)() as s:
+        booked = s.query(AgentRun).all()
+        assert len(booked) == 1
+        run_id = booked[0].id
+        assert booked[0].status == "running"
+
+    await _drain()
+
+    assert len(calls) == 1, "the runner must be invoked exactly once"
+    assert calls[0]["run_id"] == run_id, "the executed run is the booked run"
+    assert calls[0]["agent"] is fake_agent
+    assert calls[0]["bus"] is fake_bus
+    assert calls[0]["resumed_from"] is None
+
+
+@pytest.mark.asyncio
+async def test_node_returns_without_awaiting_the_run(monkeypatch, tmp_path):
+    """The chat turn must not block on the run. With a driver that never completes,
+    the node still returns its 'started' reply promptly and the driver stays pending."""
+    url = f"sqlite:///{tmp_path / 'nowait.db'}"
+    Base.metadata.create_all(get_engine(url))
+    with get_session_factory(url)() as s:
+        s.add(Trip(id=TRIP, user_id=OWNER, title="Trip", travelers=2))
+        s.commit()
+    _flag(monkeypatch, enabled=True, database_url=url)
+
+    runtime.set_research_runtime(SimpleNamespace(store=InMemoryStore()), ProgressBus())
+
+    never = asyncio.Event()
+
+    async def blocking_runner(**kwargs):
+        await never.wait()
+
+    monkeypatch.setattr(runner_mod, "run_trip_research", blocking_runner)
+
+    store = InMemoryStore()
+    node = make_research_node(lambda: launcher.build_research_service(store))
+
+    result = await asyncio.wait_for(node(_state()), timeout=1.0)
+
+    assert result["current_flow"] == "research"
+    assert result["messages"][0].content == RESEARCH_STARTED_MSG
+    # The driver is still running — the node did not await it.
+    assert len(launcher._BACKGROUND_TASKS) == 1
+    assert not next(iter(launcher._BACKGROUND_TASKS)).done()
+
+    # Cleanup: release and drain so no task is left pending at teardown.
+    never.set()
+    await _drain()
 
 
 # -- free tier: gated at the supervisor, node never reached -------------------

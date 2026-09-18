@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import asyncio
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.agents import graph as graph_module
@@ -104,8 +104,11 @@ def agent_db(tmp_path, monkeypatch):
 
 
 def test_graph_revise_after_research_launch_starts_one_job(agent_db, monkeypatch):
-    # Stub the service the launcher node builds, so no real run is booked.
+    # Stub the service the launcher node builds, so no real run is booked. ``launch``
+    # is an AsyncMock because the node schedules it as an asyncio task after ``start``.
     service = MagicMock(name="ResearchService")
+    service.runnable = True
+    service.launch = AsyncMock(name="launch")
     monkeypatch.setattr(graph_module, "build_research_service", lambda store: service)
 
     main = FakeLLM(structured_responses=[SupervisorIntent(target_agent="research")])

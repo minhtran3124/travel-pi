@@ -58,8 +58,17 @@ export function ResearchTab({ tripId }: { tripId: string }) {
 
   const summary = latest.data ?? null;
   const runId = liveRunId ?? summary?.run_id ?? null;
-  const isRunning = liveRunId != null || summary?.status === RUNNING;
-  const stream = useResearchStream(isRunning ? runId : null);
+  // Subscribe while EITHER this session started/revised a run (`liveRunId`) or
+  // the latest summary still reports one running. The live stream is what tells
+  // us the run finished, so keep the id even after it terminates.
+  const wantsStream = liveRunId != null || summary?.status === RUNNING;
+  const stream = useResearchStream(wantsStream ? runId : null);
+  // A terminal stream event (done or error) leaves the running view even though
+  // `liveRunId` / the stale summary still point at the run — otherwise the
+  // "Researching…" card would spin forever after a completed run. Starting a
+  // new run swaps `runId`, which resets the stream back to `streaming`.
+  const streamSettled = stream.status === "done" || stream.status === "error";
+  const isRunning = wantsStream && !streamSettled;
 
   const filePaths = useMemo(() => {
     const paths = new Set<string>();

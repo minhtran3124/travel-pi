@@ -383,6 +383,7 @@ async def agent_chat(
                 trip_facts=result.get("trip_facts"),
                 profile=profile_for_suggestions(graph.store, uid),
                 preferences=result.get("preferences", ""),
+                allowed_subagents=ctx.allowed_subagents,
             )
         ),
         interrupt_pending=interrupt_pending,
