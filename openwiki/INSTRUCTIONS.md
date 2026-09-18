@@ -78,6 +78,15 @@ that part of the system. Keep its routing table in sync whenever pages move.
   comments in this repository hold most of the "why", and those are the highest
   value lines to preserve.
 
+## Refresh
+
+This repository runs no scheduled OpenWiki workflow. The wiki is refreshed
+manually with `openwiki code --update` from a local checkout, so read the
+generated pointer block in `AGENTS.md` with that in mind: its mention of a
+scheduled workflow is boilerplate this repository does not use. Expect the wiki
+to lag `main`, and re-read source whenever a page looks older than the code it
+describes.
+
 ## Language
 
 English, matching the run language `en`, even though the team also works in
