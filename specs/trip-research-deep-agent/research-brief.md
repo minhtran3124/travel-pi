@@ -81,7 +81,7 @@ No waiver requested.
 
 ## Recommendation
 
-- **Primary:** adapt upstream — `deepagents` for the research job only, wired to existing seams (design.md).
+- **Primary:** adapt upstream — `deepagents` for the research job only, wired to existing seams (design.md v2: skills, memory, permissions, rubric-with-tools and thread resume are all harness features; app code is limited to domain tools, identity/tier, run bookkeeping and the web wire).
 - **Why lightest:** one new dependency (already resolves cleanly), zero schema migration (dossier in the store; progress from `agent_run_steps`), zero new tools, no change to the 5 specialists; the supervisor change is a routing hop to a no-LLM launcher node.
 - **Why the next-best lost:** (a) hand-rolled second `StateGraph` with a file-store tool set — rebuilds filesystem tools, subagent isolation, rubric loop and todo ledger that deepagents ships and tests; (b) extending the chat turn — ceilings + SSE contract growth; (c) Managed Deep Agents — hosting/identity/LangSmith-key mismatch (intake).
 - **What would flip it:** if `general-purpose` subagent cannot be disabled for the OpenAI instance or `StoreBackend` writes turn out to need the memory guard's semantics, fall back to `FilesystemMiddleware(tools=[...])` allowlists and a thin `research_files` service in front of the store.

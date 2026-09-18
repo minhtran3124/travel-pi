@@ -2,132 +2,243 @@
 slug: trip-research-deep-agent
 doc: design
 created: 2026-09-18
+revised: 2026-09-18 (v2 — "leverage deepagents, do not rewrite": skills, memory, permissions, rubric-with-tools, thread resume)
 status: proposed
-depends_on: research-brief.md, ESCALATIONS.md (E001 StoreBackend · E002 BackgroundTask + poll + SSE · E003 chat + trip page · E004 propose-only), PR #219 (stack floors)
+depends_on: research-brief.md, ESCALATIONS.md (E001 StoreBackend · E002 BackgroundTask + poll + SSE · E003 chat + trip page · E004 propose-only · E005 premium-only · E006 Research tab), PR #219
 ---
 
-# Design — trip-research-deep-agent
+# Design — trip-research-deep-agent (v2)
 
 File paths relative to `apps/api/` unless noted.
 
+## 0. Principle (owner, 2026-09-18)
+
+Use the deep-agent harness for everything it already does; write code only for what is
+*ours* — domain tools (already exist), identity/tier/ownership, run bookkeeping, and the wire to
+the web app. v1 of this design had six pieces that re-implemented harness features; v2 removes
+them:
+
+| v1 (rewrite) | v2 (harness feature) |
+|---|---|
+| per-dimension methodology in 6 registry prompts | **Skills** (`SKILL.md` per dimension, progressive disclosure) |
+| preferences pasted into `system_prompt`; `memory=` rejected | **Memory** `AGENTS.md` per user, agent-editable |
+| `files.py` path allowlist for writes | **Permissions** rules (`deny` writes outside `/research/**`, `/plan/**`, `/memory/**`) |
+| `proposal.py` validator injecting a `HumanMessage` retry loop | **RubricMiddleware grader with tools** (`validate_proposal` tool + rubric text) |
+| "revise" = new run that re-reads the dossier | **Thread resume**: one checkpointed thread per dossier; revise = next turn |
+| stale-run sweep marks `failed` | **Resume from checkpoint** (`ainvoke(None, config)`) + sweep only as last resort |
+| custom truncation of big tool outputs | built-in **large-tool-result offloading** + `SummarizationMiddleware` |
+
 ## 1. Position in the architecture
 
-A **second, independent graph** built with `deepagents.create_deep_agent`, living in a new package
-`app/research/`. It shares the process-lifetime checkpointer and store with the chat graph, reuses
-the tool registry's read-only tools and the `agent_runs` persistence, and is launched either by a
-REST call on the agent (JWT) surface or by a no-LLM launcher node the supervisor routes to.
-
-This is a deliberate, documented exception to `techstacks/langgraph.md` ("no create_agent /
-middleware in the top graph"): the top chat graph stays hand-built; the research job adopts the
-1.x middleware harness because its needs (file-backed artifact, isolated subagents, rubric loop,
-todo ledger) are exactly what that harness standardises — which is the condition the profile's
-*Direction* section names. The profile gets a paragraph recording this (Task in wave 4).
+A second, independent graph built with `deepagents.create_deep_agent`, in a new package
+`app/research/`. It shares the process-lifetime checkpointer and store with the chat graph,
+binds the registry's read-only tools unchanged, records runs in `agent_runs`, and is launched
+from the agent (JWT) surface or by a no-LLM launcher node the supervisor routes to. The top chat
+graph and the 5 specialists stay hand-built; this is the documented exception foreseen in
+`techstacks/langgraph.md` *Direction* (wave 4 records it there).
 
 ```
 trip page ──POST /agent/trips/{id}/research──► router ──► ResearchService.start()
-chat "research my trip" ──supervisor──► research_launch node ──┘        │
-                                                                       ▼
-                                          BackgroundTask run_trip_research(run_id, ctx)
-                                                                       │
-                     agent_runs/agent_run_steps ◄── metrics ◄── deep agent (main + 5 subagents)
-                     progress bus (in-process)  ◄── events  ◄──   │ StoreBackend
-                                                                   ▼
-                                            store ns ("users", uid, "research", trip_id)
-                                            /research/*.md   /plan/proposal.json
-GET /agent/research/{run_id}          ◄── status + steps + file index (DB + store)
-GET /agent/research/{run_id}/stream   ◄── SSE: bus if live, else DB snapshot + poll
-GET /agent/research/{run_id}/files/… ◄── file content (store)
-POST …/research/{run_id}/revise       ──► same job on the existing dossier with an instruction
+chat "research my trip" ──supervisor──► research_launch ──┘          │
+                                                                     ▼
+                                        BackgroundTask run_trip_research(run_id, ctx, turn)
+                                                                     │  thread = research:{uid}:{trip}
+   agent_runs / steps ◄── TurnMetricsHandler ◄── deep agent ─────────┤
+   progress bus       ◄── astream_events(v3) + rubric events         │
+                                                                     ▼  CompositeBackend
+   /skills/**  ← FilesystemBackend(app/research/skills, read-only)   │
+   /memory/AGENTS.md ← StoreBackend ns ("users", uid, "research_memory")
+   /research/**, /plan/** ← StoreBackend ns ("users", uid, "research", trip_id)
+   everything else (large_tool_results, conversation_history) ← StateBackend (thread-scoped)
 ```
 
-## 2. Package layout (`app/research/`)
+## 2. The agent (`app/research/agent.py`)
 
-| File | Responsibility |
-|---|---|
-| `context.py` | `ResearchContext` frozen dataclass: `user_id, trip_id, run_id, language, timezone, tier`. Passed as `context=` to the deep agent; the `StoreBackend` namespace factory and the launcher read it. |
-| `state.py` | `ResearchState(DeepAgentState)`: `trip_id: str`, `user_id: str` (plain channels so existing tools with `InjectedState("trip_id")` resolve inside subagents), plus `progress: Annotated[list[dict], _append]` kept private to the parent. |
-| `tools.py` | `research_tools()` = union of planner + concierge tools filtered by `TOOL_METADATA[name]["readOnly"]`, minus `EPISODIC_TOOL_NAME` and the clarification tool; grouped per subagent (flights / stays / days / entry-season / budget). No new tool. |
-| `prompts.py` | reads `prompts/trip_research/vN.md` (main), `prompts/trip_research_<dimension>/vN.md` (subagents) and `prompts/trip_research_grader/vN.md` through the registry; `active.yaml` gains the pointers. |
-| `agent.py` | `build_research_agent(*, store, checkpointer, llm=None, grader_llm=None)`: `create_deep_agent(model=get_agent_llm("trip_research"), tools=..., subagents=[SubAgent(...) ×5], backend=CompositeBackend(default=StateBackend(), routes={"/research/": StoreBackend(store, ns), "/plan/": StoreBackend(store, ns)}), middleware=[TodoListMiddleware(), RubricMiddleware(model=get_agent_llm("trip_research_grader"), max_iterations=2, on_evaluation=...)], context_schema=ResearchContext, state_schema=ResearchState, checkpointer=..., store=..., name="trip_research")`. Registers `HarnessProfile(excluded_tools={"execute"}, general_purpose_subagent=disabled)` for the OpenAI instance. Built once at lifespan (`app.state.research_agent`) and rebuilt with the chat graph on config generation change. |
-| `runner.py` | `run_trip_research(run_id, ctx, *, instruction=None, session_factory, agent, bus)`: sync entry point for `BackgroundTask` that drives `asyncio.run(...)`? **No** — FastAPI `BackgroundTask` accepts an `async def`; the runner is `async`, calls `agent.astream_events(..., version="v3")`, publishes progress to the bus, records steps through `TurnMetricsHandler`, and finalises `AgentRun` on an isolated session. Every failure ends in `finish(status="failed", error_type=...)` and a terminal bus event; nothing raises out of the task. |
-| `progress.py` | `ProgressBus`: `dict[run_id, list[asyncio.Queue]]` + last-N ring buffer per run, `publish(run_id, event)`, `subscribe(run_id) -> AsyncIterator`, `close(run_id)`. Per-process; documented limitation. |
-| `service.py` | `ResearchService`: `start(user, trip_id, instruction=None)` — ownership check (trip.user_id == user.id, via `TripService`), tier/rate gate, "one running per trip" guard (query `agent_runs` kind=research status=running for trip), mints `run_id`, `AgentRunRepository.start(kind="research", channel="research")`, commits, schedules the task; `status(run_id)` — run row + steps summary + file index from the store; `file(run_id, path)`; `latest(trip_id)`; `revise(run_id, instruction)` → new run on the same namespace with the instruction and the previous run id in `meta`. |
-| `files.py` | `ResearchFiles(store, user_id, trip_id)`: `list()`, `read(path)`, `write(path, text)` (user edits from the UI), `proposal()` (parsed + validated `/plan/proposal.json`). Uses `store.aget/asearch/aput` with the same `("users", uid, "research", trip_id)` namespace; **no memory guard** (different namespace kind, content never enters the chat graph); path allowlist `^/(research|plan)/[A-Za-z0-9._/-]+$`. |
-| `proposal.py` | `Proposal` pydantic schema: `itinerary: list[{day, time, place_id|None, title, notes}]`, `shortlist: list[place_id]`, `flights: list[offer_id]`, `hotels: list[hotel_id]`, `budget_estimate`. `validate_against_db(session)`: every id must exist (places/flight offers/hotels). Deterministic check run **before** the LLM rubric; failure → a `HumanMessage(name="proposal_validator")` with the invalid ids, at most 2 retries. |
+```python
+def build_research_agent(*, store, checkpointer, llm=None, grader_llm=None):
+    model  = llm or get_agent_llm("trip_research")
+    grader = grader_llm or get_agent_llm("trip_research_grader")
+    backend = CompositeBackend(
+        default=StateBackend(),
+        routes={
+            "/skills/":   FilesystemBackend(root_dir=SKILLS_DIR, virtual_mode=True),
+            "/memory/":   StoreBackend(store=store, namespace=lambda rt: ("users", rt.context.user_id, "research_memory")),
+            "/research/": StoreBackend(store=store, namespace=lambda rt: ("users", rt.context.user_id, "research", rt.context.trip_id)),
+            "/plan/":     StoreBackend(store=store, namespace=lambda rt: ("users", rt.context.user_id, "research", rt.context.trip_id)),
+        },
+    )
+    return create_deep_agent(
+        model=model,
+        tools=research_tools(),                       # registry read-only tools, no new tool
+        system_prompt=registry.get("trip_research"),  # short: role, dossier layout, output contract
+        skills=["/skills/"],
+        memory=["/memory/AGENTS.md"],
+        permissions=[
+            FilesystemPermission(operations=["read"],  paths=["/**"], mode="allow"),
+            FilesystemPermission(operations=["write"], paths=["/research/**", "/plan/**", "/memory/**"], mode="allow"),
+            FilesystemPermission(operations=["write"], paths=["/**"], mode="deny"),   # first match wins
+        ],
+        subagents=SUBAGENTS,                          # §3
+        middleware=[
+            TodoListMiddleware(),
+            RubricMiddleware(model=grader, tools=[validate_proposal, *fs_read_tools()], max_iterations=2,
+                             on_evaluation=progress.on_rubric),
+        ],
+        backend=backend,
+        context_schema=ResearchContext,
+        state_schema=ResearchState,
+        checkpointer=checkpointer,
+        store=store,
+        name="trip_research",
+    )
+```
 
-## 3. Agent design
+- `HarnessProfile` registered for the OpenAI instance: `excluded_tools={"execute"}`,
+  `general_purpose_subagent=disabled` (no untargeted delegation). Verified path: profile lookup
+  keys off `ls_provider:model` of a `BaseChatModel` instance.
+- `ResearchContext` (frozen dataclass): `user_id, trip_id, run_id, language, timezone`. Passed
+  as `context=`; the namespace factories read it; the grader inherits it.
+- `ResearchState(DeepAgentState)`: `trip_id`, `user_id`, `preferences`, `language` — the keys
+  the registry tools inject (`search_flights`/`search_hotels` take `InjectedState("preferences")`
+  and `("language")`; trip tools take `("trip_id")`). Isolated subagents receive these keys
+  because `state_schema` is forwarded to declarative subagents. `todos` stays per agent.
+- Built at lifespan next to the chat graph (`app.state.research_agent`), rebuilt on config
+  generation change (same trigger as `resolve_travel_graph`).
+- Two seeded `agent_config` rows: `trip_research`, `trip_research_grader` (grader in
+  `FAST_AGENTS`). Missing rows degrade silently — the KB entry — so the seed is a wave-1 task.
 
-- **Main agent** (`trip_research`, prompt v1): given the trip snapshot (`get_trip_summary`), traveller preferences block (existing `search_preferences`, formatted like D2 in MIN-65), language and today's date; writes todos for the five dimensions; delegates each to a subagent via `task()`; reads back their reports from `/research/`; writes `/research/overview.md` and `/plan/proposal.json`; on `instruction` (revise), edits in place with `edit_file` instead of regenerating.
-- **Subagents (isolated):**
-  | name | tools | writes |
-  |---|---|---|
-  | `flights` | `search_flights`, `get_airports`, `resolve_date` | `/research/flights.md` |
-  | `stays` | `search_hotels`, `check_hotel_availability`, `search_places` | `/research/stays.md` |
-  | `days` | `search_places`, `get_route`, `get_city_route`, `get_weather`, `get_climate` | `/research/days/day-N.md` |
-  | `entry_season` | `get_visa`, `get_local_tips`, `search_travel_knowledge`, `get_climate` | `/research/entry-and-season.md` |
-  | `budget` | `get_trip_budget`, `estimate_trip_budget`, `get_fx_rate` | `/research/budget.md` |
-  Each has `TodoListMiddleware()`, its own short prompt, `model` = same instance; tool names are taken from the registry at build time and asserted to exist (a missing name fails the build, not the run).
-- **Rubric** (grader prompt v1): every dimension file exists and cites tool-backed facts; every day has meals + ≤3 activities; proposal ids validated; total within trip budget if set; language matches. Deterministic checks (file presence, proposal validation) run in `on_evaluation`-adjacent code before the grader, so the LLM grader never sees a structurally broken dossier.
-- **Budgets:** parent `recursion_limit` 120, subagents 60 (via `.with_config` on the compiled subagent — verify API at implementation), rubric `max_iterations=2`, tool-result eviction default. Whole run wall-clock guard 10 min via `asyncio.timeout` → `failed(timeout)`.
-- **LLM config:** two new seeded `agent_config` rows: `trip_research` (sibling provider/model) and `trip_research_grader` (in `FAST_AGENTS`). `get_agent_llm` resolution as everywhere.
+## 3. Skills, subagents, memory, rubric
 
-## 4. Progress and streaming
+**Skills (`app/research/skills/`, in git, read-only at runtime):**
+`dossier-format/` (file layout, headings, citation rule "every fact names the tool that produced
+it"), `flights/`, `stays/`, `day-plans/`, `entry-and-season/`, `budget/`, `proposal/` (schema and
+id rules for `/plan/proposal.json`). Each `SKILL.md` ≤ 500 lines, `name` = directory. Only the
+name+description index rides in the system prompt; bodies load on activation. Subagents declare
+`skills=["/skills/"]` explicitly (custom subagents do not inherit).
 
-- Events (BE `streaming/research_events.py`, mirrored in `apps/web/src/lib/stream/research.ts`):
-  `research_start{run_id,trip_id}`, `research_phase{todos:[{content,status}]}`, `research_subagent{name,status}`, `research_tool{name,status}`, `research_file{path,bytes}`, `research_eval{iteration,result,explanation}`, `research_done{status,files:[...],proposal:bool}`, `research_error{code,message}`. No message text or tool args cross the wire (same posture as `agent_runs`).
-- Sources: `astream_events(v3)` projections (`run.subagents`, `run.tool_calls`, `values.todos`), `RubricMiddleware.on_evaluation`, `StoreBackend` writes detected by diffing the file index after each subagent completes.
-- `GET .../stream`: if the bus has the run (live, same process) replay the ring buffer then tail; otherwise emit a snapshot built from `agent_run_steps` + file index and re-poll every 2 s until terminal. Terminal → `research_done`/`research_error` then close.
-- Poll: `GET /agent/research/{run_id}` returns `{status, started_at, finished_at, phase (todos), steps_summary{tool_calls, subagents}, files[], proposal_ready, error}`.
+**Subagents (isolated, same model instance, each with `TodoListMiddleware()` and `skills`):**
 
-## 5. Public contract (agent surface, JWT)
+| name | tools (registry names, asserted at build) | writes |
+|---|---|---|
+| `flights` | `search_flights`, `get_airports`, `resolve_date` | `/research/flights.md` |
+| `stays` | `search_hotels`, `check_hotel_availability`, `search_places` | `/research/stays.md` |
+| `days` | `search_places`, `get_route`, `get_city_route`, `get_weather`, `get_climate` | `/research/days/day-N.md` |
+| `entry_season` | `get_visa`, `get_local_tips`, `search_travel_knowledge`, `get_climate` | `/research/entry-and-season.md` |
+| `budget` | `get_trip_budget`, `estimate_trip_budget`, `get_fx_rate` | `/research/budget.md` |
+
+The main agent: reads `get_trip_summary` + `/memory/AGENTS.md`, writes todos, `task()`s the five
+subagents, reads their files, writes `/research/overview.md` and `/plan/proposal.json`, and updates
+`/memory/AGENTS.md` with durable learnings about how this traveller wants research done
+("prefers boutique stays", "skip museums"). On a revise turn it uses `edit_file`, not rewrites.
+
+**Memory:** `/memory/AGENTS.md` per user, seeded once (code, wave 2) from the existing
+preference store (`search_preferences`, formatted as in MIN-65 D2) so the first run is not cold;
+afterwards the agent owns it. It is read only by the research agent — never by the chat graph —
+so the chat memory guard stays the authority for chat memory. A `StoreBackend` policy hook on the
+`/memory/` route runs the guard's content rules on write (wave 2), so injection text cannot be
+persisted there.
+
+**Rubric (`prompts/trip_research_grader/v1.md`, activated by `state["rubric"]` on every run):**
+every dimension file exists and cites tools; each day has meals and ≤ 3 activities; the proposal
+passes `validate_proposal`; totals respect the trip budget if set; language matches the request.
+`validate_proposal` is the one new tool, **grader-only** (not bound to the agent): it reads
+`/plan/proposal.json` through the backend and checks every id against the DB
+(places, flight offers, hotels) — deterministic "code computes", surfaced to the grader as
+evidence. `max_iterations=2`; the terminal status is read post-run via `aget_state`.
+
+## 4. Runs, threads, progress
+
+- **Thread = dossier.** `thread_id = f"research:{user_id}:{trip_id}"`. The first run is turn 1;
+  every "revise" is the next `HumanMessage` on the same thread, so the agent keeps its context
+  and the files; the built-in `SummarizationMiddleware` (offloads to `/conversation_history/`)
+  bounds history. Each turn still gets its own `agent_runs` row (`kind="research"`,
+  `channel="research"`, `trip_id`) for metrics; the row's first step `meta` carries
+  `{"turn": n, "revise": bool}` — never text.
+- **Runner** (`app/research/runner.py`, `async def`, scheduled with FastAPI `BackgroundTask`):
+  `async for` over `agent.astream_events(input, version="v3", config={"configurable": {"thread_id": ...}, "callbacks": [metrics]}, context=ctx)` → publishes progress; wraps in
+  `asyncio.timeout(RESEARCH_TIMEOUT_S)`; always finalises the run row on an isolated session;
+  never raises out of the task.
+- **Resume, not restart.** If the process died mid-run (row `running`, no terminal step), the
+  next `POST` for that trip resumes the checkpointed thread with `ainvoke(None, config)` under a
+  new run row (`meta.resumed_from`). The lifespan sweep only marks rows `running` for > 30 min
+  as `interrupted`.
+- **Progress bus** (`app/research/progress.py`): in-process `run_id → (ring buffer, queues)`;
+  events are derived, not authored: `run.tool_calls` (tool name + status; for `write_file`/
+  `edit_file` the path only), `run.subagents` (name, status), `values.todos` (phase), rubric
+  `on_evaluation` (iteration, result), terminal status. No message text, no tool args.
+- **SSE** `GET /agent/research/{run_id}/stream`: live from the bus when present, else a snapshot
+  from `agent_run_steps` + file index, re-polled every 2 s until terminal.
+
+## 5. Public contract (agent surface, JWT, premium)
 
 | Method | Path | Notes |
 |---|---|---|
-| POST | `/agent/trips/{trip_id}/research` | body `{instruction?: str, language?: str}` → 202 `{run_id}`; 403 not owner or not premium; 409 a run is already running for the trip; 429 rate limit (`research_start`: 3/day/user, `enforce_rate_limit`) or quota. |
-| GET | `/agent/trips/{trip_id}/research` | latest run summary or 404. |
-| GET | `/agent/research/{run_id}` | status (above). |
-| GET | `/agent/research/{run_id}/stream` | SSE. |
-| GET | `/agent/research/{run_id}/files` | index. |
-| GET | `/agent/research/{run_id}/files/{path:path}` | content (`text/markdown` or JSON for proposal). |
-| PUT | `/agent/research/{run_id}/files/{path:path}` | user edit (allowlisted path). |
-| POST | `/agent/research/{run_id}/revise` | `{instruction}` → 202 new `run_id` on the same dossier. |
+| POST | `/agent/trips/{trip_id}/research` | `{instruction?, language?}` → 202 `{run_id, thread_turn}`; 403 not owner / not premium; 409 running; 429 `research_start` 3/day/user. First call = turn 1, later calls on the same trip = revise turns. |
+| GET | `/agent/trips/{trip_id}/research` | latest run summary (status, turn, files, proposal_ready) or 404 |
+| GET | `/agent/research/{run_id}` | status + phase (todos) + steps summary + file index |
+| GET | `/agent/research/{run_id}/stream` | SSE (§4) |
+| GET | `/agent/research/{run_id}/files/{path:path}` | content via `backend.download_files` |
+| PUT | `/agent/research/{run_id}/files/{path:path}` | user edit via `backend.upload_files`; same permission rules evaluated by the backend, so no separate allowlist |
 
-All under `CurrentUserDep` **and `require_premium`** (decided 2026-09-18: research is premium-only, like booking); ownership by `trip.user_id == user.id` (REST `X-User-Id` is the same Supabase id, `apps/web/src/lib/identity/provider.tsx`). Free users get 403 `PremiumRequiredError` from the route and, in chat, the existing tier gate. Rate limit stays (3 starts/day/user, one running per trip). Routes stay thin: validation + `ResearchService` + `HTTPException` mapping.
+`CurrentUserDep` + `require_premium`; ownership `trip.user_id == user.id` (REST `X-User-Id` is
+the Supabase id). Routers thin; `ResearchService` owns the checks and the run bookkeeping.
 
 ## 6. Chat entry
 
-- `SupervisorIntent.target_agent` gains `"research"`; prompt **v14** documents it ("research/plan the whole trip in depth" → research, needs an active trip; a mere search stays planner). `ALL_SUBAGENTS` gains `"research"`; `route_tasks` unchanged in shape (single agent name). New node `research_launch` registered with `destinations=("reflection", END)`: no LLM; if no `trip_id` → `awaiting_user` + `system_reply("research_needs_trip")`; else calls `ResearchService.start` through the same path the router uses (session from `session_scope()`), replies with `system_reply("research_started")` naming the trip page, sets `current_flow="research"`; reflection skips it via the existing `awaiting_user`-style guard (flag `research_started` in state, LastValue reducer). Suggestion chip key `research.view_progress` (+ `research.start` on `current_flow="planner"` when a trip is active). i18n keys in `apps/web/messages/{en,vi}.json`.
-- Tier gating: `research` **is added to `PREMIUM_ONLY_SUBAGENTS`** so `allowed_subagents` excludes it on the free tier and the supervisor's existing unknown/blocked-target fallback answers with the premium notice (same path as booking). Eval: routing goldens `research-*` (en/vi) with `expected_flow="research"` under a new `research` capability + dataset file.
+`SupervisorIntent.target_agent` + `_Target` gain `"research"`; supervisor prompt **v14** ("research
+/ plan the whole trip in depth → research; a plain search stays planner; needs an active trip").
+`ALL_SUBAGENTS` gains `"research"`; `PREMIUM_ONLY_SUBAGENTS` gains `"research"` (free tier gets
+the existing premium notice through `allowed_subagents`). New node `research_launch`
+(`destinations=("reflection", END)`, no LLM): no `trip_id` → `awaiting_user` +
+`system_reply("research_needs_trip")`; else `ResearchService.start` (own `session_scope()`),
+reply `system_reply("research_started")`, `current_flow="research"`. Suggestion keys
+`research.view_progress`, `research.start` (+ i18n en/vi). Eval: `research` capability with
+routing goldens `research-*` en/vi.
 
 ## 7. Trip page (apps/web)
 
-- New tab **Research** (decided 2026-09-18; `trips/[tripId]` tab id `research`, hidden or locked with an upgrade hint for free-tier users): empty state with "Research this trip" (POST), live progress list (SSE via `streamBaseUrl()`, JWT; hook `useResearchStream(runId)` mirroring `useAgentStream` structure), file tree + markdown viewer (`react-markdown` already a dependency? — verify; else render pre-formatted), inline edit for `.md` files (PUT), proposal panel with "Apply to trip" that calls existing REST endpoints (`POST /trips/{id}/items`, shortlist add) through the REST client with `X-User-Id`, one request per item with the existing `Idempotency-Key` whitelist, progress + partial-failure summary.
-- `schema.d.ts` regenerated (`gen:api`) after the BE contract lands.
+**Research tab** (E006), locked with an upgrade hint on free tier. Empty state → "Research this
+trip"; live progress (`useResearchStream(runId)` over `streamBaseUrl()` with JWT; parser in
+`lib/stream/research.ts` mirroring `streaming/research_events.py`); file tree + markdown viewer;
+inline edit (PUT); "Revise" box (POST with instruction); proposal panel with "Apply to trip" that
+calls the existing REST endpoints (`POST /trips/{id}/items`, shortlist add) via the REST client
+with `X-User-Id`, one request per item, partial-failure summary. `gen:api` after the BE lands.
 
 ## 8. Data and safety
 
-- No migration. Dossier lives in the store namespace; `agent_runs` row per research run (`kind="research"`, `channel="research"`, `trip_id`), steps via existing table; `meta` on the run's first step carries `{"instruction_present": bool, "revise_of": run_id}` — never the instruction text.
-- PII: the user's `instruction` passes through the existing `pii_guardrail` redaction helper before it enters the agent; dossier content is user data, read only by its owner.
-- Stale runs: on lifespan start, `research` runs still `running` are marked `failed(error_type="process_restart")`.
-- Cost logging: existing token accounting via `TurnMetricsHandler` → `agent_runs` totals per run.
+No migration. `agent_runs` keeps holding structure only; dossier, memory and history live in the
+store / checkpointer. `instruction` passes the existing PII redaction before it becomes a
+`HumanMessage`. Dossier text never enters the chat graph. Cost accounting through
+`TurnMetricsHandler` per run; hard caps: `RESEARCH_TIMEOUT_S=600`, rubric `max_iterations=2`,
+agent `recursion_limit` 150 (deepagents sets 9 999 by default — we override via
+`.with_config`), subagent `recursion_limit` 60.
 
-## 9. Testing strategy
+## 9. Testing
 
-- Offline (FakeLLM, `InMemoryStore`, `MemorySaver`): build; scripted parent → `task` → subagent writes a file → proposal validation fails once → retry → done; bus events order; router 202/403/409/429; SSE snapshot path when no bus; file PUT allowlist; launcher node with/without trip; supervisor routing unit test (FakeLLM structured response). Postgres (`make test-docker` variant): `StoreBackend` on `PostgresStore` round-trip.
-- Keyed smoke (`eval/research_smoke.py`, not in CI): one real run on a seeded trip; asserts files exist, proposal validates, cost under a cap; report JSON to `eval/reports/`.
-- Web: vitest for the SSE parser mirror and the apply flow; Playwright e2e optional.
+Offline (`FakeLLM`, `InMemoryStore`, `MemorySaver`): build with the real skills directory; scripted
+turn: todos → `task(flights)` → subagent `write_file` → main `write_file` proposal → grader calls
+`validate_proposal` (invalid id once) → revision → satisfied; permissions deny a write to
+`/skills/x`; second turn on the same thread edits instead of rewriting; runner finalises on
+timeout; bus ordering; routes 202/403(owner)/403(premium)/409/429; SSE snapshot path; launcher
+node; supervisor routing. Postgres variant: `StoreBackend` on `PostgresStore` round-trip +
+checkpoint resume. Keyed smoke `eval/research_smoke.py` (not CI): one real run on a seeded trip
+→ files exist, proposal validates, cost ≤ cap.
 
 ## 10. Waves (input to writing-plans)
 
-1. Dependency + `app/research/{context,state,tools,agent,prompts}` + seeded agent_config + offline build/invoke tests (no routes).
-2. `runner.py`, `progress.py`, `service.py`, `files.py`, `proposal.py`, lifespan wiring, stale-run sweep, tests.
-3. Routes + SSE events + FE stream mirror + poll; rate limit; tests.
-4. Chat entry (supervisor v14, launcher node, suggestions, i18n, eval goldens) + `techstacks/langgraph.md` exception paragraph.
-5. Trip page Research tab + apply flow + `gen:api`; keyed smoke script; docs.
+1. Dependency (`deepagents>=0.7.15,<0.8`) · `app/research/{context,state,tools,agent}.py` · skills directory · prompts `trip_research` v1 + grader v1 · seeded agent_config rows · offline build/turn tests.
+2. `runner.py`, `progress.py`, `service.py` (start/status/latest/resume), memory seeding + policy hook, lifespan wiring, sweep, tests.
+3. Routes + `research_events.py` + FE stream mirror + rate limit + tests.
+4. Chat entry (supervisor v14, launcher node, tier gate, suggestions, i18n, eval goldens) + `techstacks/langgraph.md` exception paragraph.
+5. Research tab + apply flow + `gen:api` · keyed smoke script.
 
 ## 11. Alternatives considered
 
-- Progress via DB polling only (no bus): simpler, but 2 s latency on every event and heavier DB reads per open tab; kept as the fallback path instead of the only path.
-- One namespace per user with `trip_id` in the path: rejected — `ls/glob/grep` scan the whole namespace.
-- `memory=["/memory/AGENTS.md"]` for preferences: rejected — designed for agent-editable memory; preferences are injected as text in the system prompt (existing helper), keeping the memory guard authoritative.
-- Bind write tools with `interrupt_on`: rejected by E004.
+- `response_format=Proposal` (typed structured output) instead of the agent writing
+  `/plan/proposal.json`: typed for free, but the proposal would no longer be a file the agent
+  can `edit_file` on a revise turn and the user can read in the tree; kept as a fallback if the
+  file route proves brittle.
+- Progress by DB polling only: kept as the fallback path, not the only one.
+- Bind write tools with `interrupt_on` / `permissions mode="interrupt"`: rejected by E004 for v1;
+  the harness supports it later without redesign.
+- One namespace per user with trip in the path: rejected (`ls/glob/grep` scan a whole namespace).
