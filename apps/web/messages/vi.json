@@ -121,6 +121,23 @@
       "daysNeedPlan": "{count, plural, other {# ngày còn cần lên kế hoạch}}",
       "noStay": "{count, plural, other {# ngày còn cần chỗ ở}}",
       "dayChip": "Ngày {day}"
+    },
+    "research": {
+      "tabLabel": "Nghiên cứu",
+      "lockedTitle": "Nghiên cứu chuyên sâu là tính năng cao cấp",
+      "lockedHint": "Nâng cấp để trợ lý nghiên cứu chuyên sâu chuyến đi này — điểm đến, chỗ ở và hoạt động, tổng hợp thành một hồ sơ bạn có thể áp dụng vào kế hoạch.",
+      "upgradeCta": "Nâng cấp gói",
+      "emptyTitle": "Nghiên cứu chuyến đi này",
+      "emptyHint": "Để trợ lý tìm hiểu kỹ điểm đến và tổng hợp một hồ sơ ý tưởng chi tiết mà bạn có thể thêm vào kế hoạch.",
+      "start": "Nghiên cứu chuyến đi này",
+      "running": "Đang nghiên cứu chuyến đi của bạn…",
+      "reviseTitle": "Muốn điều chỉnh?",
+      "revisePlaceholder": "Cho trợ lý biết bạn muốn thay đổi điều gì",
+      "revise": "Chỉnh sửa",
+      "filesHeading": "Tệp nghiên cứu",
+      "proposalHeading": "Đề xuất bổ sung",
+      "apply": "Áp dụng vào chuyến đi",
+      "error": "Đã xảy ra lỗi khi nghiên cứu. Vui lòng thử lại."
     }
   },
   "Budget": {
@@ -628,6 +645,10 @@
         "addExpense": { "label": "Thêm chi phí ➕", "prompt": "Thêm một khoản chi vào ngân sách của tôi" },
         "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
         "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
+      },
+      "research": {
+        "start": { "label": "Nghiên cứu chuyến đi 🔎", "prompt": "Nghiên cứu chuyên sâu chuyến đi này" },
+        "view_progress": { "label": "Xem nghiên cứu 🔎", "prompt": "Cho tôi xem tiến trình nghiên cứu chuyến đi này" }
       },
       "book_hotel_next": { "label": "Tìm khách sạn tiếp 🏨", "prompt": "Tìm khách sạn cho chuyến đi này" },
       "transport_to_hotel": { "label": "Đến khách sạn thế nào 🚕", "prompt": "Làm sao để đến khách sạn từ sân bay?" },

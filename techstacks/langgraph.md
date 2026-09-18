@@ -116,3 +116,10 @@ introducing prebuilt abstractions that hide them.
   verification. New agency should land through those seams, not new parallel mechanisms.
 - Related in-flight specs: `llm-chat-suggestions`, `min-58/59` (eval loop), `web-content-enrichment`
   (concierge web-RAG tool). Check `specs/` before adding overlapping capability.
+- **Documented exception — `app/research/`.** The one place we depart from "hand-built
+  `StateGraph`, no `create_agent`/middleware" is the long-horizon trip-research job, a second graph
+  built on the `deepagents` harness (`create_deep_agent`). It earns the exception because the harness
+  ships *exactly* the capabilities this job needs and nothing we'd otherwise hand-roll: skills,
+  file-backed artifacts, isolated subagents, and a rubric-with-tools grading loop. It shares the chat
+  graph's checkpointer and store but runs as its own graph; the top chat graph and the 5 specialists
+  stay hand-built and untouched. See `specs/trip-research-deep-agent/design.md` (§0–§1) and PR #TBD.
