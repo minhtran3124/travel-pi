@@ -118,11 +118,13 @@ name+description đi vào system prompt; nội dung nạp khi kích hoạt. Suba
 
 | tên | tool (tên trong registry, assert lúc build) | ghi |
 |---|---|---|
-| `flights` | `search_flights`, `get_airports`, `resolve_date` | `/research/flights.md` |
-| `stays` | `search_hotels`, `check_hotel_availability`, `search_places` | `/research/stays.md` |
-| `days` | `search_places`, `get_route`, `get_city_route`, `get_weather`, `get_climate` | `/research/days/day-N.md` |
-| `entry_season` | `get_visa`, `get_local_tips`, `search_travel_knowledge`, `get_climate` | `/research/entry-and-season.md` |
-| `budget` | `get_trip_budget`, `estimate_trip_budget`, `get_fx_rate` | `/research/budget.md` |
+| `flights` | `search_flights`, `resolve_date` | `/research/flights.md` |
+| `stays` | `search_hotels`, `browse_hotels`, `search_places`, `nearby_places` | `/research/stays.md` |
+| `days` | `search_places`, `nearby_places`, `resolve_place`, `get_route`, `get_city_route`, `get_weather`, `get_climate`, `get_air_quality` | `/research/days/day-N.md` |
+| `entry_season` | `get_visa`, `get_local_tips`, `search_travel_knowledge`, `get_climate`, `get_packing` | `/research/entry-and-season.md` |
+| `budget` | `get_trip_budget`, `estimate_trip_budget`, `expense_summary` | `/research/budget.md` |
+
+Tên tool ở trên là tên read-only thật trong registry (xác minh 2026-09-18); `list_trips`, `recall_past_trips`, `get_user_preferences` và `parse_nl_query` cố ý bị loại khỏi research agent.
 
 Agent chính: đọc `get_trip_summary` + `/memory/AGENTS.md`, ghi todos, `task()` năm subagent, đọc
 file của chúng, ghi `/research/overview.md` và `/plan/proposal.json`, và cập nhật

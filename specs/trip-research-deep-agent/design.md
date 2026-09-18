@@ -120,11 +120,13 @@ name+description index rides in the system prompt; bodies load on activation. Su
 
 | name | tools (registry names, asserted at build) | writes |
 |---|---|---|
-| `flights` | `search_flights`, `get_airports`, `resolve_date` | `/research/flights.md` |
-| `stays` | `search_hotels`, `check_hotel_availability`, `search_places` | `/research/stays.md` |
-| `days` | `search_places`, `get_route`, `get_city_route`, `get_weather`, `get_climate` | `/research/days/day-N.md` |
-| `entry_season` | `get_visa`, `get_local_tips`, `search_travel_knowledge`, `get_climate` | `/research/entry-and-season.md` |
-| `budget` | `get_trip_budget`, `estimate_trip_budget`, `get_fx_rate` | `/research/budget.md` |
+| `flights` | `search_flights`, `resolve_date` | `/research/flights.md` |
+| `stays` | `search_hotels`, `browse_hotels`, `search_places`, `nearby_places` | `/research/stays.md` |
+| `days` | `search_places`, `nearby_places`, `resolve_place`, `get_route`, `get_city_route`, `get_weather`, `get_climate`, `get_air_quality` | `/research/days/day-N.md` |
+| `entry_season` | `get_visa`, `get_local_tips`, `search_travel_knowledge`, `get_climate`, `get_packing` | `/research/entry-and-season.md` |
+| `budget` | `get_trip_budget`, `estimate_trip_budget`, `expense_summary` | `/research/budget.md` |
+
+Tool names above are the registry's real read-only names (verified 2026-09-18); `list_trips`, `recall_past_trips`, `get_user_preferences` and `parse_nl_query` are deliberately excluded from the research agent.
 
 The main agent: reads `get_trip_summary` + `/memory/AGENTS.md`, writes todos, `task()`s the five
 subagents, reads their files, writes `/research/overview.md` and `/plan/proposal.json`, and updates
