@@ -26,6 +26,8 @@ Escalate: no — hard gate is the dependency manifest itself, which is the entir
 
 ## What changed
 
+PR: https://github.com/minhtran3124/travel-pi/pull/219 (branch `chore/stack-upgrade-langchain-1-4`, base `main`).
+
 `apps/api/requirements-ai.txt` raises the floors `langgraph>=1.2.11`, `langchain>=1.4.1`,
 `langchain-anthropic>=1.7.2`, `langchain-google-genai>=4.4.0` and adds an explicit
 `langchain-core>=1.6.3` line, with a comment naming why (deepagents 0.7.15 floors). No code, no
