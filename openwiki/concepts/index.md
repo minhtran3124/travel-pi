@@ -1,0 +1,4 @@
+# Files
+
+- [Authentication and user tiers](auth-and-tiers.md) - How identity works end to end — Supabase sessions in the browser, bearer tokens verified by the API against the project JWKS, the AuthUser principal and owner-scoped data access, the backend-resolved free/premium tier that gates booking on both the REST and agent paths, dashboard basic auth, the operational scripts for users and tiers, and how tests replace the auth dependency.
+- [Rate limiting and quotas](rate-limiting-and-quotas.md) - The two throttling mechanisms in the API — a reusable database-backed per-subject fixed-window rate limiter with atomic increments, independent transactions and opportunistic pruning, applied today to feedback submissions; and the free-tier daily agent-turn quota checked before any graph work — plus how each surfaces as 429 responses and headers.

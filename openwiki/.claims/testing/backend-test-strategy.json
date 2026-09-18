@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e28123ac311e58995da91c94a0fafe0abb043832a6f637cb0bb58b931f1d1b6e",
+  "claims": [
+    {
+      "id": "claim_3cce1b1009fa4e678dbaed94cbdd438b",
+      "statement": "The session-scoped client fixture creates the schema and seeds a temp SQLite file (or TEST_DATABASE_URL), seeds the shared caller as premium so book routes are not gated, builds the real app, and overrides exactly two dependencies: get_session and get_current_user.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/conftest.py#L26-L73",
+          "version": "repo-lines-v1:sha256:61f084a31c282426fc4340d3f49e933f2a28fb453f0443b7a0f39fa67c5eb02c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMDM2NWQxNGM3ZGFiM2Q2NWIyMGVlYjNhZmU3ZTVkNGUzMGU4Zjc5OGU3OWFkMDZlNTk0MjI4Nzc0YTc0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2NDY4MWQzMTRiYmFmNjgwY2EwZDk0MGNiYjIwNDI2NTgwOTFjODk0NmI5NWRhZDA3OTllNTViMzgwNTk5MDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkMjJkOWRjM2RhNzQxMjcwZTc5MTQxN2ViYjU2NGFhMWE3MTA4MGNlYTYyMDg0YjgzYTA2Y2Q2MWI4NTU2ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYmY2ODkxZWQxODZjN2ExOTk5MWM0NzlmYWFmZjgzNDNkNmRiNmM4MzcxNmE2MGY0YzZhOTY0YmJlYmI5MDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4748ad713e954ae987735ab9301ceb0f",
+      "statement": "An autouse fixture clears the process-wide geocode cache around every test because the weather service memoizes successful geocodes for the life of the process.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/weather_service.py#L115-L121",
+          "version": "repo-lines-v1:sha256:0a97d2fbc06f19102d6e99816cd6e03b547fd0a709fdeb12462b1485acfd6974:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzU1NjYwMzZjYTdiMWEzMjNmYTZhODE2ZjIxZjg2Njk3ODdlYmU3YzUwMjIyNWI2YTAxOWU4YzdmODNjNzhkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGY0NTFhY2I0YjAxZTRiMzVhNzE2NjRmOTA1Mjc2ODcxYzhhODQ1ZDFjNzBmYmViZTMxNzUyMTBmMzE4ZTE0YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjFkNzFjMzk5OTA2NjhhMjk1Y2U4NjZmMGI5NjFiZDg2MTlkZTRjMTc5MDNkNmU3MWJhYjIwZmE1NWNmYjFlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2U2ODUxNmZiN2I3MWRjYTUyMzE3ZWVkMzljMzJiY2I5MjZiNzRhMWRkNDZkN2Y5ZTdjZWIwMmFkYzljMWJjMiJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/conftest.py#L18-L23",
+          "version": "repo-lines-v1:sha256:4868f42b1ff121b9383ab9a0989fb2b5666cea59dddf505820bb9e7d7ed9220b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmYwODY2ZjQwMTFlNTg1ZmZjMDkwOTJlZGYwODMyZTE3YjUyZjRjOTBjNGNhMGI0MmRjZmEwNTBmYTM3NWI1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjg3NzA5ZWFjMzU1MDk3N2I0ZDVhNTFhYWZjMGY5NGEzNGM5ZTQ4MDQzMjI4Yzg2ZTUxYmFlMDE4NDdmODk5MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTFhNmQyMmRiOTU3YTVjZTNhNTJjMDMyYzE1Njg0MGIwMWZlZTgzYTllOTM3YWRiYWQ3NzBkMTc2ZjZlODdjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzIzNzVmN2NkNWQxYzNhYjVjMWUyMTU3ZWI2MWE2NGEwNGU5NmJkMDVhODU1OGRiZjQxZGZlZTExMThiNzEwNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_820a88b0939e4510b5b736971435d25e",
+      "statement": "Tool and RAG tests repoint DATABASE_URL to a fresh seeded temp database and clear the settings cache because tools open their own session from settings, and reset the URL-keyed vector store cache while forcing fake embeddings so a real key in .env never reaches OpenAI.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/rag/conftest.py#L1-L10",
+          "version": "repo-lines-v1:sha256:26b8976207e14270de685aea8f56b1b60aae5ceb6d9f895b771ddf24c480d812:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZWVkZmI2ODBjODBhY2QzY2MwY2Q2YWY2MjZhNzdjZDVlZjgwYWYyZjQyMTQ2ZmYxZjA1ZDc1NTg0ZGFlMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzNzAwOGQ4NWRmY2VkM2UwOTM3OWE1NTBlM2Y0ZTdjNzJkMjFlNDMxNzA3MTZmYzQ4NTJkNDc4ZjRmZWM4ZmUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/conftest.py#L1-L50",
+          "version": "repo-lines-v1:sha256:21ed93c9ab2648dce86b0d745b8a62f60f1e694d13aa68d96b4c972b1b57b913:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1MTE3MDA3YTJmZGJjZGRlMjFlZjNmZmIxYjQ0MDU4YTkwODE1NzY2NWEwODhiNDQ2MjMyMDVhMzVlMGNhMzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYjNiMDdmMzRhYzRmZGE5NDNhYzlhM2IwYjU5OWFmM2RjZDExZjVjNTkxODBmYWNkODM1NWQ2ZTk2NzNkMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_427240559334497faddf262b61fa470b",
+      "statement": "Agent tests inject FakeLLM for both model tiers with an in-memory checkpointer and store, and API-level agent tests build the graph once per app and override the graph dependencies rather than app.state so the in-memory checkpointer survives across requests for HITL resume.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/agents/test_graph.py#L6-L23",
+          "version": "repo-lines-v1:sha256:82d00ce05e7bb4f1bb1c7ec2e9d5c944e9d8be6fd6775dc8b73dfc0c858465f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMzZkYjQ4MTI3YjdmNGMyZDc4ZjMxMzE4YTAwN2E1MGQ0N2Y5ODU0ZjJkYjYzZTFiMmM2OWVjNWNjMWM2ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1N2MzOTMyNmViNTE0ZDQzNjJjZGVhYWRjZTE0YzQ5ZmYwYjMwYWFmZWFkMWFmN2JiNTQ1ZmNhM2FlZmI0YTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTFhZDdlMjkzNjlhZDhiMzI0MmNhMmIzNTQ4OGUzMTBkYzI0MjNlODEyM2IzNGVlZjhiYTg3MjkwM2M1ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZGM1ZTkwYWNiNDFiMTlmMDhhYzUzZGYxNTE0NmZmNDMxMTdlOTAzY2VmNzBhZGU1NTQyZDZkZTMxNjM1M2IifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent/test_agent_chat.py#L58-L79",
+          "version": "repo-lines-v1:sha256:b20c8f78870fd7f258fe2d55678fca38a12045eb10de7a09e41033ef056d9f29:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3MmZlMTI0Y2VjYmYzNmMzODYyMTc0ZGMyZWRhMjIwNTQzN2U2MmNkYjg3MjZhMTQzZTQ4ZDVlN2Y0NGYzZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiMTE3YTg4ZWNmZGRlMjFlYjFiYTY0MGJiNDU4MDczMTEzZTJkODk4ODNlNjQ3NTFlNWVlOGYxMTQ3ZDliM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmMjc3OTllZDA1NzdjMjNjODFmNThjNzMxMzQwYzUzMmNlMDg4Yzk3NmU1NmU4NDEyMzJhYWM4NTI3MWVjMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhYTM0NDBiOWM0YTExMDUzYTU2NTcxMDVlODY5MmUwNmUwNzJlZmM4ZTg2ZWEwN2E3N2QwN2M4NTFkMGI2ZjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4df843c8a3c74ffca985644cc5213a50",
+      "statement": "Architecture tests enforce no module-level repository or service singletons in services and routers, no inline language literals outside the languages module, and no static import edge from the feedback write path to any memory module or the LangGraph store package.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/architecture/test_feedback_no_memory_edge.py#L1-L20",
+          "version": "repo-lines-v1:sha256:620f7ed24a23e7f65b1afa3f55c7812bbf9ea2357d8cefb1066f713575d1326c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3YjZmNTFhZjViY2RjNGI3YzBkMDlmMDc2YmY2MmQ1YzU1ZjQ0OWQxYjQyNzZlZmZhM2I1ZDY0NDE0NzcyY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4YWY2YjYwZmRjYTE4YjllY2Y3Nzk5ZGI1NzcxMDk5ZDEyZTQxZWZhMjc4M2UyM2E3ZmE0Y2RhMDYzZWMxZDcifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/architecture/test_feedback_no_memory_edge.py#L91-L111",
+          "version": "repo-lines-v1:sha256:ebb3e18a36c3704e63c20039397f8c0821c487865b5387bafa58569dc433e4c1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2YjRiMWQ3MmNlNzMxYTZkMDM0NGE4OWExOWI2Mjg0MDBkNzIwMTZlZjkwMDcxYjk1M2U4NDVlMTQ3OThmNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5Yjk0NmZmYjFiNGMwYzBlYjQ4ZjFhMDYwODJhNzE3MmI3ZjI2YmU1Mzk3MGM3YWMyYmJhYjA5Zjg2MjM4NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYxNWNlMjhmYjZjNDU3ZmQzMDVjNjU3NGI4YmRjNjY5ZTFmMzRmOWUxMTk0MTAxZDYzZThkYWNjMzMyMWRjNzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/architecture/test_language_literals.py#L1-L12",
+          "version": "repo-lines-v1:sha256:eeb685c441835edae209d873e485122f630ffd9bb6f28fe4f0676e139dd806b6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiMzUzMDQwYjc2MjU0MjQ5OTQ5ZWZkODY3MDI1MzhiNTQ3M2I0NTNkMjBiYTc3NWJmMjY0OGE0NzIyNWJlY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1YjVkZDc5YTFiZDFhOWUyMjBhN2UwYjc0OGFiODU2N2NlYmRhODQwYzUyODBhOWMwZmJmNTdhNmE2OGIwYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2MjUyMGY5NDg2YTFjMzBkYTVkOTY2YjI0ZTc4YWU1OGZjMmY4ZWQ2YWI2MTM3OWNmZGQyMTVjNDUxZjc5MDIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/architecture/test_no_singletons.py#L1-L44",
+          "version": "repo-lines-v1:sha256:6bc3730602e9c76ac52559e293c9b9632c4fe0565ded7ce8a970a2071f21d6b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1ZjUzMmEzN2U4ZjA5NDg3NDk1NDVhM2UxMzAwMzU5ZjY4ZWNhOWVmNjUzYjQwNTQwOWM3MDQwODA4MmI2ODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c768d467a9fe4337bb2184d7a6323b5f",
+      "statement": "The session dependency's commit-on-success, rollback-on-exception and close-always contract is pinned by dedicated tests.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/db/test_session.py#L42-L68",
+          "version": "repo-lines-v1:sha256:27e69b6cebe4a2b23fbeced3c3e778672ef9b787c2b10ee34ed134845ef111e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNTg2NzQ0OTEyMWZkNmU5YWM4ZmFjMWU3YmU4ZDlmYzgyY2NiMDE4YWMwNTEyN2IxMGUzNGNjNWQ4MGJjMDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkZWI1NzhlMTU1YjkxN2RkYTdiOWQ1Y2YzZmZlMTg1N2MwMjI5MWI3NDY0ZThhNjk0OTE4YTY5ZDMwZmZkMjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMzEwNDgyYTU1Mzk1YmRlNTU4YjRhZjExZDIzZTNmMjQ0ZDljY2E0YmNmMWQ0ZTZjZmVmZDQwZDgwMWM3ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_27d3bda2abfd46a2b346e0c7ecc30bed",
+      "statement": "The suite runs identically on Postgres through the Docker test stack, which sets TEST_DATABASE_URL, migrates with Alembic and runs pytest, and only app and scripts are lint-gated by ruff while alembic is excluded.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/docker-compose.test.yml#L14-L27",
+          "version": "repo-lines-v1:sha256:2447a39a62c8ee4b695c7168f6f5641bf50197c28ad92ca2eb1a9b6489cc4ebf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZWU4NDMzYzMxOGY2Mzc3NzM0ZWExNjMwM2NiNTViMWMxMjg1YTkzZDNiYmM1MzJkY2Q5Y2I3ZThkZmE0MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjNmI5NTQ2NGMyYTEyNTY0ZDk2N2Y4YTNmN2Y5YWY1MGEwY2NhOTI0ODAxNTQ3YjZhZDc3YmNiY2NmYWMzM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZhM2Q0NjhlNGI3YzFmZjg4MzZhOGQ3NjdkOGVkMWU1ZjhhYjkzOTEzZDhlMDMwOWUyZTVhN2E5NjdiYWMyNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/pyproject.toml#L18-L27",
+          "version": "repo-lines-v1:sha256:8c1aec7ee213ca916654e97d3f90a753a23c5e4797bb2199f9da300791b5ac66:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiNGMyZGZhYWZlYzY4ZmFjZjdiNTYwYzQwYzUyMDZjYjM3M2U2ZTUyNzc2ZGNmMThiZThkYWFiMThhZWE0ZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExM2M3NDMwYWJlNWI5OTgxZTVkZWE1YTc2ZWRhMWMyM2FmMjZlNTllZWU0MjZkMzFiYmIzMTk4MGZkZjExNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4MjFlOWFhNDMyYTE3MjExMjcxMjFmZjlmYzNiMWYzYjM4OWEwZGI3ZDljNzY0MzBmOGUwNTkxZmQwODBkODMifQ"
+        },
+        {
+          "resource": "repo://apps/api/scripts/test-docker.sh#L1-L5",
+          "version": "repo-lines-v1:sha256:2a60206379fba080934c37a244b84266c69b9a738485eabfb3ee220c82e2022b:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NmQxMTJkZThiZWQxMDI3ODZhNGExZmE5MDE4MWIzZjA4NDFhMjBhMWFiY2EyNTVmODA0NjIzNmI4YjAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDU5M2YxYmQ4YWRkMzQ4NjQ5ZmNhZDA1ZTA5OTU5N2ViMjY2ZGMxYjU3ZWU3MzRmMjdjNmNlNWUxOTc1OTMyZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

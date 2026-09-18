@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:9f9b1978e7d1025593e5373807c25002d332db3c1ef7d18a914fb20389bf8531",
+  "claims": [
+    {
+      "id": "claim_6361c5440d7e41c7b85683beae624b04",
+      "statement": "get_vector_store selects PGVector for postgres URLs and InMemoryVectorStore otherwise, caches the store per (database_url, collection) because in-memory contents live on the instance, and builds under a reentrant lock with double-checked locking because PGVector's first construction registers tables on a non-thread-safe global Base.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/rag/embeddings.py#L1-L73",
+          "version": "repo-lines-v1:sha256:c0867ec4c65b0e7b576d02cda225de50d4bfe60bb0a7daa6b933e154bf068d2e:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3NjViMTAwNDNhZjI3MDE0OTE4NWQ1OGExZmRhMDkyODQ2YWFhM2RlNTEwYmZkNzUzOWQyZjE3YmI3ZWJhNmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwOTU4MGNjZWUwNTMyOTdhZWQyMTdlZTQzOTFhMGMxZjk0OWRhYWY3NzU5MGJkMzhhODQ5Yjc5MmI3YjU0M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YWQ3Y2VjNGUxYzc0ZGVhNGJlOGYwZTJhMzc0NzE5YmE2ODFjYThjMzc3OGFkYmI1ZjFjMTlkNWRjMDIyM2YifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/rag/test_vector_store.py#L15-L60",
+          "version": "repo-lines-v1:sha256:f7f945b8e278f318ba2b6f9598129c048ef617edf9bbc069fe0c85d5abe4881e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhMGJhMjAwMDE5NjBhY2E5Y2RiODM1MjU5NGUxOGUzOTk3NDMyMDUyZDBhODNlZjQwNDAxMTllMWIzZjFkM2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNzdhMTYxMjdmNzViZDE1MjRlYmQyZTAzNTdjOWJlMzZlM2ZkNzhmNDExZTA5MDA0YjViNzJlNGQxOTA3MGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyZGY5N2YzM2NmZDkwMDA4NmRiNzE2Mjc3NTE3NjVlMjIwZTgyNjNlMThkZGQzMmZiYzExYTJhOWQ2OGU5YjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwOTVhZGYwMzdmZDMwMzgxOTY0OGEwYjc2N2RhODJhMDA5MDI5NGVhNzNhMzM4ZjE4MTNkNTRkMmEwNTk3NmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_69b6941395e84e0383332c59d2c7fd90",
+      "statement": "The knowledge corpus is built through the repository layer from seeded visa, tip and country-summary rows, each serialized to a natural-language template rather than raw JSON.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/rag/ingest.py#L1-L5",
+          "version": "repo-lines-v1:sha256:30039da6fc89f74cb1d8e68448b1caab8dd5a03234c5c59313c8261982a933e1:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGQzOTBiN2VjNjRhMjkxOWRhOGIwYjZlNTdjYTE2MzRlNTY0ZjFlMjRiYTYzYmYyNzQ0ZjQ5MWEwNjFmZTc0YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/rag/ingest.py#L34-L120",
+          "version": "repo-lines-v1:sha256:9ca113a8f739f79baee9a701fac5edc80fcb85dd4b0c0a0448f3fab8c3d54d56:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjYmQ5NGEyNTEwYjRkZWM5YzhmOGJiYzg1MGRlZDJjOWU3ZWJjZDAwOTE4ODEwMjZiMTQ4YjNjNWIyYjY1MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMmQ5ZTBhZjBhMGRhNjA4ZTE3MjJhZWYwYjQ3NjRiMjhkNGQ4MThlZDU4Yjg5Njc1N2I0NzJkNzJhZDdkNmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0ZWFlYWRjZDg4MjFhM2Q0Y2JmYmY0MzM0ZTY2NGFiOGM2MDcwMDAzNWU0NzgzN2E0Y2U3Njk5NjI2MWYwY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiYmEyNzRkZjY0NDNiNjg4YWU3YWEwM2IxNDM5ZWYxMmQ2OTNiOWNkZDc3ZmM1ZjkxMGY1MGQ0M2E0MDc4NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ceeec65402074913ae3d2dbaf9b767c3",
+      "statement": "Ingestion chunks long content (400 characters, 50 overlap) and derives stable per-document ids with chunk suffixes so add_documents is an idempotent upsert; tip ids include category so same-titled tips in one location do not collide.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/rag/ingest.py#L123-L159",
+          "version": "repo-lines-v1:sha256:c3a8b1c8ceb44109c254bae6fe678fdd1b623928de95a483bf79a5f2f9d9e039:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlYWUyOWUyZDJhNmFmOWNhY2FkMzcyZGYzMjJlYTg0YjBhNzMxMzAzODA1YmVkMmIwODM0NWZmMDU3YjQxNzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4NGFmM2M4MTlkNzhjZjJmNGUzY2ZlMWM0NGQ1ODVhYmQ4NjhmMGQ0YWRmZWNlODI4ZmUzYzAxMTIxYzA3NTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhMmJlZGViN2JiMTc2NjdhZjJkM2YzNWUyMDUxZGFkNjg3NzhkOGExZTM1ZmM4NWZhZjUxMWM3YWE5Y2IxODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/rag/ingest.py#L21-L26",
+          "version": "repo-lines-v1:sha256:a7d53062f49cb90d355cb9420b182a9d43f702605f828673bc67240a00d37cff:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGEwZjczOTg3ZmNkYjNjZWQ1OGU3YTRjNTlhMWUyZDk3YjlkMjU4YzY2MjY5ZWJjYjE0NGUwZmEyZTcyMGU5MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjI4Njc0ZTA4MjZiYTlmN2RiNDNlYzJkYjE5MGI0Y2Q3OWU1ZTllZGEzZThkZDQ3NWNiMjg3YjkyZTM5NGFjZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmFhN2NjYTZhZTJhMjVjOGUyOTc4M2VjZjA2ZDc4ZTkzYzY1ODc4NGNmZTVhNjk3YWExMTU5NjkyZjQyZDIxNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTNmZDBjMTFkYjczYjM4NzI3MzQxY2U3MWUzMTkzZDI0ZDQyNzQyYWQ2MzM1M2I1NzYzOTFmYmZiYTE0OGQ2MCJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/rag/test_retriever.py#L109-L122",
+          "version": "repo-lines-v1:sha256:2cea69cdd545a781320434b7d996f8f8a6113fa6d55b03dcade7beef5d577ef9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkMTdiNTMzMDQ2MGJmODJiZGE2MGJmZDY5ZmZhMjM3NmIxNmEyMmZkZjRmNDFhMzM1ODc1NzVmODhjYzg1ODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjNjVlNmRiZTQxMmI3OWYxYjE3YWZhNzAxMzIwMTk3ZDAyNTk1MDQxZWNjZGFjNWVhZTY3NmFlZmQ2ZGU1YjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyNGYzYmQyM2IwNWUwZWU3YzVkODA3MjRkOWE3Zjk4NDMyMjMzZTU0ZTk1NzE0OGE4NjRhMTJhODRhNmVlNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a8ad70131fc74c3ca4f941d4aae04a67",
+      "statement": "The lifespan pre-warms the RAG store at startup, skips re-embedding on a persisted backend that already returns results for a probe query, always re-ingests an in-memory store, and wraps the whole step so a failure only logs and the tool degrades to empty results.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L43-L74",
+          "version": "repo-lines-v1:sha256:d40450a8f43220f924b9e4bff49e3ea253325a4f3cadf21df35ace37ea6426c0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzOGY0MTgyYzllMWEwMTlhMGM2MDI2M2JjZWEwMzJjMGUxY2JmMmQzNDk4YmMzODExY2RhNGNiNjhhNDJlZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZGE1YTc3NTVhODVmMTkzNTAyOGQ4NWU2ZGMwZTU3Y2Q0MmIyMjk3NTA0MGZhN2YzZTA5ZGEwYzlkNWE0ZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzMTE4MzlmNjJkMmNmYWY0YTk3ZDViNWRjZjQ1MmZlOTU4MTcxZmEyZGNkZjc4ZjQ0MGY0MDU3MTk4M2I5ZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9a6ad0f3884f4e26a7d78b8e8f48459a",
+      "statement": "hybrid_search fetches 4k semantic candidates with the metadata filter pushed into similarity_search to avoid result starvation, ranks the same candidates by lexical token overlap, fuses both orderings with Reciprocal Rank Fusion (k=60) and returns the top k; the filter form adapts to the backend.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/rag/retriever.py#L1-L65",
+          "version": "repo-lines-v1:sha256:53ccf602e38426bac12043ae204fbc41fabaa69ae6952b451b6367cbc649e3e0:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjYzAzYWY2N2EwOGU0NGQ5N2QzN2JlMmU5N2EzOTg5NjkwMGU3OWQzNGEzNzVmMTM5MTg3OGIyZmUwYjJiYTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0YTg5Y2I3ZTQ1ZTgxN2NiYWFhNzZhZmYxMGJiNDdiOTk3MjJkNTYzY2MwNWUwYjcwYzYyODBiYzU5YTk2ODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/rag/test_retriever.py#L38-L97",
+          "version": "repo-lines-v1:sha256:a6e0cf27bd7455b679d5e0a0fb4b602f21b115c498934ab448284ddfd15b7ee4:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkZDY1M2Q5OWQ5OTUxOWNkNzQyNTdkMWYxODI1ZWRmMDA1YTg3OGNkN2M5NmQ2MmRiM2VhYzVhZmEwNGFiMDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljOTIwMjc0M2NmNWUxZGU0OTBmMGQ0MjI3N2RhYmI4NDI3YmMyYWMwMmMxNmVlNThlNDcwN2JmMjFhZTFiZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY4NTJmYTFmMjQ3ODExMGM0YWNkYjM2OTUyZGNmYzM2YzlhZmMzNzNmZGQ2YmQ4NGUyM2M4NDlhODc0ZGZhMTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2785ff835e3542fab82b478ed017b6f1",
+      "statement": "search_travel_knowledge fuzzy-resolves country and city to seeded canonical names before filtering because the store matches metadata by exact equality, returns count 0 as a signal rather than an error, and catches any retrieval failure to return the same empty shape.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/rag_tools.py#L1-L4",
+          "version": "repo-lines-v1:sha256:8a01d90335419fa9cd4c937213a50f9f81aa26acab3e7275a8b3fc29eb7c5b36:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWYzNzIyNDc4YmQ0NTAwMmU1ZmVhZWU0ZTBjOGQzZmFmMzZhNjI4MjY1MDRmYTIxODNmMjQxNzhmOTY3NzQ3MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWIyYzc2MzRhODIwZmM1MjJiYzYxMzRiZjJmOTcwN2QzMmYzZTFjYjlmNTZlMDQ5MzQ0ZmQyMzM0ZmZkNGNiMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWFhZjc2MzdjYjZlN2U1ZGI4NWQ2MzQyNzQ2MDE0ZGYwNDFjY2Q1NThhOTIwYjI5ZWI2YWM3MTlkN2JhZjVjMiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/rag_tools.py#L57-L132",
+          "version": "repo-lines-v1:sha256:f27d59fc2c2b606aca087c2bca51e1f1e53c378d1051205344a0d0ab7ed1e48b:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViYWVlM2M2MWMzYzdhMjliYTYxODRkMzAxZWViM2FmMWNkOWNkYjNmMjQ5MjQyZDRiYmUyNDQ5NWE1YTc4NmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4NDU5NGE5ZGQ2ZjdiNTNhZTA2OWQxNDU1Mzc5ZmQ2MGEwNGEwM2VhYjkwZjU2ZjUxZjBiNjJiNmI5NWMxODUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5YzllN2JlZjE0ZDhhMTI0ZmQxMDFiZmZjNmI4NzU0ZTk4MTllNGM4M2VlYzY4NzgwMDUyODE1NDgzZDRmZTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_525008bba58e4454a5ad6db9f0813830",
+      "statement": "The knowledge tool belongs to the concierge's tool group in the registry.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/rag_tools.py#L135-L135",
+          "version": "repo-lines-v1:sha256:d4c840ccf6b15b852f27c6ab0ef22f3d52716b8e83805c7936805c0beb4fc924:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRjODQwY2NmNmIxNWI4NTJmMjdjNmFiMGVmMjJmM2Q1MjcxNmI4ZTgzODA1Yzc5MzY4MDVjMGJlYjRmYzkyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRjODQwY2NmNmIxNWI4NTJmMjdjNmFiMGVmMjJmM2Q1MjcxNmI4ZTgzODA1Yzc5MzY4MDVjMGJlYjRmYzkyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2QxYzVkNjlhMzg3ZWI0YjViNTAwODYxOTJkMDlmYTQxMjIzOGQ5N2MzZDNiN2ViYjgzYmJiNjgwZmVmMTk5NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L44-L56",
+          "version": "repo-lines-v1:sha256:b9ec25930ac578c05d21ef48917aabacc1967d69cb5ea86db5816c1dd384770e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwMmM0MTRiNTRjZjg2ZGZiNGY5MGRmZTdkN2JkYmZhNjY2YjdkZGRkMzJmMTI4NmYyMzBhNWI1MzI0MTgxOGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwMmM0MTRiNTRjZjg2ZGZiNGY5MGRmZTdkN2JkYmZhNjY2YjdkZGRkMzJmMTI4NmYyMzBhNWI1MzI0MTgxOGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMzZjOWZkMGMyY2RmZDBhY2IzOWQ0MTQyMWJkZTlkMDk5YTk1MGUxZGI0NmI0YWQyOWVjNDIyOGZmYzI5NjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyMzE4ZmViOGMxZTY5ODNhYjY4OWVkZTQzMWRiNjJkNmUyYTdjOTZkNTM0MzA3OGE2Y2FlNGZlNzY3MmQyMTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_93804d8d9deb4d43befbef04cb888ac1",
+      "statement": "Embeddings are OpenAI text-embedding-3-small when an OpenAI key is configured and a deterministic fake of the same 1536 dimensions otherwise, so dev and test need no network and vector dimensions stay stable across modes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/embeddings.py#L1-L20",
+          "version": "repo-lines-v1:sha256:4927a5e5409ffddf2e2de5b4b186ccd9070f9e95a8b02cadb65026547dd7d661:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2YWE2OTY2ZjlkNTAwMTMwNmU4ZDk1Mzc5YmJkYmUxNzVmN2I5OGI2OWQ5ZmYyNWQ2YmRkMzI0MWIwMzEwODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMWYyNDIyMzAzZTVjZmVlM2NlMThjNGQ1ODU1MzA4OTAzMmNiMjAwY2UxOWVkN2RkNTZjNmJjMzAxM2YzMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/rag/test_vector_store.py#L101-L110",
+          "version": "repo-lines-v1:sha256:c2fa7bb580a4828e72cce6631e7de927d4b41f07ad107bf2780ba05088a57af9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzMjRlOTdmZWZjZmY4OGMyYzlhZGFlYzExNzQ1Mzg1ZTM4OWI4ZDQ5ZDYwN2UzNmVlMTIwOTM0MzNhYjBjODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiZDliM2U0Njk5ODA3ZGVlYTRhNDE3NDMzNmNhYTBmMmJiYjY1NjIyZjQ5Njk5MmQ2OGI1YzgyNjFjMmJkMzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNhNGIyNjRmYTNlNWQ0ZjQ0YjlkMzJkZTQyYWMwMTdiZWYyNzU0ZWQ1ZGZiMWVlM2Y2NjVkNTA3MDZlOGNjYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4NTIwMTQwM2U3ZTRjYjI0ODEyZDY1Nzc0ZWIwMzM5ZGNiNWU1MzI5YjcwYmE2NWYwYjc2MjUxYmVkYTk5NDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}
