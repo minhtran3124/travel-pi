@@ -23,7 +23,7 @@ Scope-deciding sentences from the same session (2026-09-18, the deepagents asses
 
 > Tái dùng 100% tool từ `app/tools` (read tools của planner + concierge + RAG). Không viết tool mới.
 
-Route: brainstorming (resolve E001–E004 below) → xia2 (Deep) → writing-plans → in-place branch → subagent-driven-development → correctness/intent review → PR
+Route: brainstorming (E001–E004 decided) → xia2 Deep ✅ research-brief.md + design.md (2026-09-18) → writing-plans → subagent-driven-development on `feat/trip-research-deep-agent` → correctness/intent review → PR
 Escalate: resolved 2026-09-18 — E001 StoreBackend · E002 BackgroundTask + poll + SSE progress in v1 · E003 both chat and trip page · E004 propose-only. Confidence after decisions: high for direction; ceremony stays high-risk.
 
 ## What changed
