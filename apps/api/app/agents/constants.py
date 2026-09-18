@@ -12,9 +12,10 @@ ALL_SUBAGENTS: tuple[str, ...] = (
     "journal",
     "booking",
     "budget",
+    "research",
 )
 # Sub-agents unavailable on the free tier (routing is restricted to the rest).
-PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
+PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking", "research"})
 
 # Convergence node label. Must equal a declared routing destination or LangGraph
 # silently drops a reflection REVISE routed back via ``goto=current_flow``.
@@ -84,6 +85,24 @@ BOOKING_UPGRADE_MSG = (
 )
 
 NOT_SURE_MSG = "I'm not sure how to help with that yet."
+
+# Deep-trip-research launcher replies (English SOURCE; emitted via
+# ``app.agents.copy.system_reply`` for translation). Never name a trip id.
+RESEARCH_NEEDS_TRIP_MSG = (
+    "Deep trip research needs an active trip to dig into. Tell me which trip you "
+    "mean — by destination and rough dates — or start a new one, and I'll "
+    "research it in depth for you."
+)
+
+RESEARCH_STARTED_MSG = (
+    "I've started researching your trip in depth — pulling flights, stays, "
+    "things to do and local tips together into one dossier. This takes a little "
+    "while; feel free to keep chatting, and follow along in the Research tab."
+)
+
+RESEARCH_UNAVAILABLE_MSG = (
+    "Deep trip research isn't available right now. Please try again a little later."
+)
 
 # HITL plan reject outcome. Approval has no reply line: it is state (plan_approved).
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."

@@ -30,6 +30,7 @@ _FLOW_SUGGESTIONS: dict[str, list[str]] = {
         "planner.findStay",
         "weather_before_trip",
         "packing_tips",
+        "research.start",
     ],
     "concierge": [
         "concierge.nearbyPlaces",
@@ -53,6 +54,7 @@ _FLOW_SUGGESTIONS: dict[str, list[str]] = {
         "budget.breakdown",
         "budget_check",
     ],
+    "research": ["research.view_progress"],
 }
 
 #: Trip starts within this many days -> nudge weather/packing prep.
@@ -147,6 +149,12 @@ def suggestions_for_flow(
     # Rule 6 — concierge flow with a known destination.
     if current_flow == "concierge" and trip_facts.get("destination"):
         _add("local_tips_destination")
+
+    # Rule 7 — planner flow with an established trip: nudge deep research. Gated
+    # on a known destination (not flow alone) so a bare ``planner`` call still
+    # reproduces the static map exactly (the budget-flow deviation, Rule 5).
+    if current_flow == "planner" and trip_facts.get("destination"):
+        _add("research.start")
 
     # Fallback floor: never fewer than the static map alone would give.
     floor = min(len(fallback), MAX_SUGGESTIONS)

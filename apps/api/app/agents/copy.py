@@ -14,6 +14,9 @@ from app.agents.constants import (
     BOOKING_UPGRADE_MSG,
     NOT_SURE_MSG,
     PLAN_CANCELLED_MSG,
+    RESEARCH_NEEDS_TRIP_MSG,
+    RESEARCH_STARTED_MSG,
+    RESEARCH_UNAVAILABLE_MSG,
 )
 from app.core.languages import DEFAULT_LANGUAGE, normalize
 from app.services.content_translation_service import (
@@ -34,6 +37,9 @@ SYSTEM_COPY: dict[str, str] = {
     "unknown_intent": NOT_SURE_MSG,
     "booking_cancelled": PLAN_CANCELLED_MSG,
     "agent_error_fallback": AGENT_ERROR_FALLBACK_MSG,
+    "research_needs_trip": RESEARCH_NEEDS_TRIP_MSG,
+    "research_started": RESEARCH_STARTED_MSG,
+    "research_unavailable": RESEARCH_UNAVAILABLE_MSG,
 }
 
 
