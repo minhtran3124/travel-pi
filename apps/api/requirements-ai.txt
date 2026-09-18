@@ -19,7 +19,8 @@ langgraph>=1.2.11,<2.0
 langchain>=1.4.1,<2.0
 langchain-core>=1.6.3,<2.0
 
-# Transitive via langgraph, but pinned explicitly because we import from it:
+# Transitive via langgraph (1.2.11 itself requires >=1.1.0,<1.2), but pinned
+# explicitly because we import from it:
 # app/agents/retry.py uses `ToolInvocationError` and reads its `filtered_errors`
 # to tell "the model passed bad arguments" apart from "an injected/runtime arg is
 # missing" (#113). Neither exists before 1.0.2 — verified by unpacking the wheels:
@@ -47,7 +48,7 @@ langchain-google-genai>=4.4.0,<5.0  # provider="google_genai" (Gemini / AI Studi
 # the suite runs with no Postgres and no network. Re-added after the
 # specs/remove-rag-feature deletion, re-scoped from places to visa + local tips.
 # Verified pip-check clean with the langchain 1.3.11 / langgraph 1.2.6 stack.
-langchain-postgres>=0.0.13,<0.1
+langchain-postgres>=0.0.17,<0.1  # <0.0.17 pins langchain-core<0.4
 pgvector>=0.3,<1.0
 
 # app/rag/ingest.py chunks long prose with RecursiveCharacterTextSplitter.
@@ -59,8 +60,9 @@ langchain-text-splitters>=0.3,<1.0
 # Checkpointers — SQLite local/test, Postgres in docker/prod.
 # Pin >=3.0 to match langgraph-checkpoint 4.x core serializer (2.x calls a
 # removed JsonPlusSerializer.dumps and breaks at runtime).
-langgraph-checkpoint-sqlite>=3.0,<4.0
-langgraph-checkpoint-postgres>=3.0,<4.0
+# 3.0.x pins langgraph-checkpoint<4.0, which langgraph>=1.2.11 no longer allows.
+langgraph-checkpoint-sqlite>=3.1.0,<4.0
+langgraph-checkpoint-postgres>=3.1.0,<4.0
 
 # Observability.
 langfuse>=3.0,<5.0
