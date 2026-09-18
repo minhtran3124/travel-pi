@@ -99,6 +99,41 @@ def test_finished_run_after_channel_close_takes_snapshot_branch(tmp_path):
     assert names == ["research_start", "research_phase", "research_done"]
 
 
+def test_run_finishing_between_has_and_subscribe_still_gets_a_verdict(tmp_path):
+    """NEW-4: the route reads ``bus.has`` and only then enters the subscribe loop,
+    and entering it suspends. A run that finishes in that gap leaves ``has`` true
+    while ``subscribe`` declines, so the live tail yields nothing. The stream must
+    still end with a terminal frame — an SSE response that just stops is read by
+    the client as a run that died, which is exactly the completed-run-shown-as-
+    failed bug this route is supposed to avoid.
+
+    The gap is simulated by closing the channel after ``has`` would have been read
+    but before the generator runs, which is what a real interleaving produces.
+    """
+    app, url, _store = build_app(tmp_path)
+    insert_run(url, "run-gap", USER_ID, "t1", status="completed")
+    bus = app.state.research_bus
+    bus.publish("run-gap", ResearchStart(run_id="run-gap", trip_id="t1"))
+
+    real_has = bus.has
+
+    def has_then_close(run_id: str) -> bool:
+        """True (the run was live when the route looked), then the run finishes."""
+        live = real_has(run_id)
+        bus.close(run_id)
+        return live
+
+    bus.has = has_then_close  # type: ignore[method-assign]
+    try:
+        resp = TestClient(app).get("/agent/research/run-gap/stream")
+    finally:
+        bus.has = real_has  # type: ignore[method-assign]
+
+    assert resp.status_code == 200
+    names = _events(resp.text)
+    assert names[-1] == "research_done", names
+
+
 def test_stream_foreign_run_is_404(tmp_path):
     app, url, _store = build_app(tmp_path)
     insert_run(url, "run-x", "someone-else", "t1", status="completed")

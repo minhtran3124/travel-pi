@@ -413,7 +413,13 @@ def stream_research(
                 yield event.to_sse()
                 if isinstance(event, (ResearchDone, ResearchError)):
                     return
-            return
+            # Falling out of that loop without a terminal event is possible: the
+            # run can finish in the gap between ``has`` above and this generator's
+            # first step (entering the loop suspends), in which case ``subscribe``
+            # declines and yields nothing at all. Returning here would end the SSE
+            # response with no terminal frame, and the client reads that as a run
+            # that died. Fall through to the snapshot instead, so the stream always
+            # terminates with a verdict regardless of how that race lands.
         # Snapshot path — no live channel, so read the durable state and poll.
         yield ResearchStart(run_id=run_id, trip_id=run.trip_id or "").to_sse()
         yield ResearchPhase(
