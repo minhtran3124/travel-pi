@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:3ee200548b0474bd990b3e6aaf8b3f17c0e236ced2d0572c4fd5a3e692a9caae",
+  "claims": [
+    {
+      "id": "claim_5bf8cb8e20b74bd6866e09e27ca9d676",
+      "statement": "evalkit is a framework-free engine whose only runtime dependency is pydantic; a boundary test walks every file under it with ast and fails on any import of app, fastapi, sqlalchemy, langgraph or langchain.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/evalkit/README.md#L1-L22",
+          "version": "repo-lines-v1:sha256:268a49a0a34d20aa7a5261767f05572085433bfc5248b0160db17dd413b2a46f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3YzU4NDc5NDc2NTY0Mzk5NjczMGVhNjhiYTE1OTJkZGQxN2UwNDk0NGViNDNkN2ZiOTQ4YjZhYmFlYzVhOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExZWMwZGY3OTljODc0NWNhMjhkMGE4N2NhMDRjOWRhZDBiZjQ1NGM3ZTRhYjMwYzdhNjQwNzg0YzhiNzM5MWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0ZmIwMTJhYmU2ZDA2ZDNkODlkNTIwNWJmMmRjZDNmY2UzYzM2MDIwYTMwYTVkNzIxMGNjZDc0MzIxYTcyYzQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/eval/test_boundary.py#L44-L54",
+          "version": "repo-lines-v1:sha256:e1848504a9d701edd80b972a5cd9b48d2590afa7382887632b8587b3786ed8fe:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1N2Y2MTNmYmQwZjYxMGIzOWJlM2Y4ZTlhM2QxMDBlYWRkNjBjODYyMGEzZDcxMTA3ZDdjN2IyMjQ5OWQ4YTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5ODJhM2I1MTlmNGJkMmRhZjdlMmY5Y2Q3YjRiY2U3YzNhZmRmYjRiNTZmNjFkNzZjNDEzNDQ0ZjQ2NWU5OTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiNjM1YzIwNTNmMmQ5MmFlOWY0Yzk4NzQ4ZDcwMTYwMDNhYmNjMTE2MjY5Y2I5YjliOWMzODAzNDU4YTM3YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e81b08506774964856bb336e1c49c75",
+      "statement": "Everything project-specific enters evalkit through five Protocol ports (AgentRunner, Oracle, Metric, DatasetStore, BaselineStore) and a Taxonomy that is host-supplied data rather than a core enum.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/evalkit/README.md#L24-L80",
+          "version": "repo-lines-v1:sha256:5a1e63699c1da6e93216044ba920baa2452ba644d8478130b65eda5fd040b281:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZGIzNWE4YjdhZDA1ZGRmYzUxNzU4MzcwNjcwNGViZmUyMjAwZDRkZGMyYzNjOGM4ZTNkMmUwNzZmOTA2ZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwMzNlMTcxZDhiZmRkZjdjZDlhYjEwYWUxN2M0MTVhODI1NTc0ZjcyNjFhN2I4ZDRlODg1MWEwYmVkYzI5OTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjNmJkMDNjNWU1ZjRjYTk3MjQ1OTk0N2QwY2EwMWFjOTUxZjE0MWY0ZGNiZGVkMDYxZjYwM2ZlYzA1ZDk1ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjNmYwM2E1ZTIzNGFlMzhkNzY4YzBkZjk2YzNmYTM1ZTMwODA2ODQ5MjA0OTZhNmMzNWNhOTNhYTQ3MTI2YWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/evalkit/ports.py#L17-L58",
+          "version": "repo-lines-v1:sha256:cb81568c9821b824cb749cde484e430c2ced366cb5cd533c31d733d689f0d90c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1NmNhODUxOTlhNTgyMTkwNzY4YWM0ZTIxMWYwZDg0MDc3MTY5OTFmMGM3ZTlmMjc5ZTc3ZjFkM2JmMGZjMjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3NjhkNmY3YmY2OTU0ZDJmZjk1NDNhMGZlNzlkOWE0ZjAwMzNiYWJmYjE0YjhmZjQyYzJiZWU2Zjg2OTVhNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzYzYyNWY5MWRmYjhlNGMzZDFlYjFjN2NjNDU3NWNjOGE1NWJhOGE2N2E4ZmM1MjA1MjYwYTBiZDgyYTgyYjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3686833fecc34d2eb21a1705b166ee91",
+      "statement": "Each golden declares explicit metrics, falling back to the capability default and then to a keyless DEFAULT_METRIC_NAMES set, and non_empty_reply is always evaluated because every reply-dependent metric reports not-applicable on an empty reply.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/README.md#L131-L138",
+          "version": "repo-lines-v1:sha256:ca76b2f952378743cb14ad8c73933ac72c34a685bf480f01587164eca7887991:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmMzOWRlMzM2ZGNiODg0NDVhYjE1ZGYxNmE4ZGZiNmVmZTk1MTRmYjI2NDMxZGFmOTBkODI0OWRkMjg0OGQwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQ2YjYyMTc5YzI1ZjRjM2QyMmI4NmRlMzA1ZTRlMmVlNzYzY2ZhM2QxNzgzOGU4OTM5ZDRhNWY1ZGUyM2UzOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTgzNzc1ODRhNWY0M2JkMTVjYTViMmU3ZGU5NzRmYzY4MDg0MDIyODcyNTk1YTA2ZmRkMmNiMGQyNjRhNzUzNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDZmMDI2MjFiNzdhMDY1N2Y1MzUxNjI4NDQwYjY4OTE0YjQxZTY2ODZlMjQyMTc3NmI3MzU2YmNjNjIxYWEwOSJ9"
+        },
+        {
+          "resource": "repo://apps/api/evalkit/runner.py#L40-L58",
+          "version": "repo-lines-v1:sha256:4da6c11b44c1816f627ab44f6d310667726ecda43237d657784aef8442c0a631:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlYzg5YTI0M2EyOWMxNTQ2NTQ5MjU3MTc2MzBiMWE1MjI5NWUwN2RhY2EwMmQ1ZTNlNWM1ZGUzOTNlY2E1ZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZTljMmY1M2IwZDliYmFlZjI1ZWU3MGFkY2NlMjZlMmVjNTJjYmE1ZTJjMjdlZmEzNGNiMTExMjRhYjMwZjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjNGNhNTI1YWNmNTM5NmY4YTUyYTdkNDdiODI0YjY5ZWM5NjNiMjIwNzVmOTFlYTUwMTI2MWQ5YzA3M2U4ZmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5498d2bf2e634c71b392ca5891f88f61",
+      "statement": "The baseline comparison is the regression gate: its exit code is non-zero when a capability's pass rate drops more than the tolerance below baseline or when a case flips pass to fail inside a capability whose rate dropped by any amount, while a capability with no baseline never trips it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/README.md#L50-L64",
+          "version": "repo-lines-v1:sha256:decee7ae00e1bdc695e5cd745d7f3dc57e6a344dccb32d6b5ae2fcc4c0cfce1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NGE2NjI3M2Q4MmI3MjRlODdkNzk0ODFkMzk1MjJhM2I4NmRjOWY0NzBkZGE4MWIzYTFkZDNmMzA4MjIwOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViZWIzMzBhZDVkNWI3OWJjZDY0OGFmODhkZDE3N2ViZTA2NTFhMGY1NjAzZGE3Nzg4OTMzYTRiOWY2NDYwOTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiMmRlMzQ5MWVkMzBmNGIwY2U1M2E1YTljNTM4YmU4MzhjMzQ4NzRmMzU1MzNiOWNhZDM4OTJiY2VlNGI5OWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1ODc3ZDc5YjVlMWY5MmUxMjJlYjZkNzliMmRkNzAxNDUwZjFhNGIxMDNlYWFkZjgzMTc2Y2RlZDdjMDBiOWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/evalkit/baseline.py#L37-L70",
+          "version": "repo-lines-v1:sha256:7fe3688fd1efce27d1600d198498a8fcb84b41a2dbf5e6bfa43e0ca9c80e69a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxMzA0ZjFkMzg2YmY4ZTAwYzQ1ZjZjM2UzZjI5M2M5MmVkYjMyMjk5OTg4ZmZkZmNjNWJlODY3ZDQ4MjEyZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlYmRjZjE3NzQ0NjYwZmU4OTgwZjg4NGYxMTVkOGEwMTM0YzQzNzkxOTM3NzBmMTI5ODAyMzBhZWZiOGIzODIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMzM2Nzc0ZjM2MTE3YTRlNmU2MzkzZjcxOTMxMWFjNzM1ZTM2ZWJhN2EzMzgxOWVkNzA0YmU1NjRkYzI2M2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3MDVjN2Q0YTZlOTA3MjZhMWYyOGMzYmUxMWI5ZDk4MmI2MTViZWEwNmNiZmE2OGE2NjBlNjU0NzFkNTExZDUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/eval/test_baseline.py#L108-L160",
+          "version": "repo-lines-v1:sha256:c54f9fa4579aea40896f80c330ae85e6dd6dda487677f3f78c4c799f02cf35b6:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2ODY2YTM0ZDA5NzE0YWY5MjNhNDFhNzc0OTRlYjEzMzIzNDY3M2MxYjQ1YTVkMTM2NGY3MWI1NjE5ODkxYWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkNGM2YTFiOTA3MTgzZTBhOGVjNmY0MTE2OTdmOTkwODcyYWNlNWFmODFmMDhiZDFmZTc0ZDg4ZmM5MTliZTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyNjVkNmM4NzQwZTk1ZWI5NThkMGYzOWUwYmU4NzYzZjRhOTk0NTgwZjczMjYxYzgwNWJkYTU1MTU1ZWQyYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3YjE5ZDI1MTE0MTM1MzA0ZjJiZjAxZTFiMDkyYzM3MjQyM2M2ZGJkN2UxNzk5OGMwMjA2MTM5MmE5MmJmYjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b17789b4b616460ca0311023abbb9ea2",
+      "statement": "eval/__main__.py is the only binding allowed to import app, wires the dataset store with the taxonomy and known metric names so unregistered names fail at load, registers the real oracle extractor only when a non-placeholder OpenAI key is present, and uses a stand-in runner for --dry-run so no agent, key or DB is touched.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/__main__.py#L1-L11",
+          "version": "repo-lines-v1:sha256:65fc7ff64d6b3ebaa44406506346d55bb436e0320f1cffd3074c1c0fa03f9758:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkODY2ODUwODI5OWFiOTNlNmQwOWYxMzgzZTkyNGUzMjMxNDZmZjczZDgyNWU5YmEyNWRiMDFlMzdiOWQ0YWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1YjZlODcwNmI0MzA0N2YyYTZkYjY3ZjEzMjYzODU5NTYwNGU2N2YzNjk2Njg3NmNlMDE1OGYwMDUzZTZiZDEifQ"
+        },
+        {
+          "resource": "repo://apps/api/eval/__main__.py#L112-L170",
+          "version": "repo-lines-v1:sha256:051d087c6b6349242679e2fc53574c437ed5943741131c8203eb6fa887a20a4c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiMzk3OTMzYTI0YTgwMWVlOTIzMzI3YmQ2OWEwMTA0OWMwNzc5MTUwMjFjZjJlYzM5ZGRhNGY4MWFhODM3ZTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNDEzNDBjYzIzOWExNTljZTliNjAyMmU5ZjYzMjI4MzJlMmVhZDc2Y2FlOWU0NzU0ZDIxMGViOGZiNmQ1ZTgifQ"
+        },
+        {
+          "resource": "repo://apps/api/eval/__main__.py#L34-L66",
+          "version": "repo-lines-v1:sha256:21912333785036114df7a6eb3f77e7b0735541450cc58bf81e0570df9689b30d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0ZjE2YmZmOTk3MjJjMDA1Yjg0NmRiNjlkNjBlNTA1NDU5ZjliNjU3MGNjMzBhMDE1ZDQ1NmYwYzk5NzExZTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNmM4YjQ0MDNiMDZjMGNjY2FjZjE2YzQwZGU3ZDlkMjRmNTc4ZDlmZjNkZTNhMmZjZDdhNDUyMDkyZDEyYzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3NzMwYjY4YmM2Nzk5MjE2M2IwYTU5ZWU5ODIwNjEwMDIyY2RjNWQ3YTU1YmRjNzA4ZGI2ZTY0ZTcwZDhlZTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c5437b3e5cc34107862e5224ab535cca",
+      "statement": "Before a real run the harness loads the DB agent config and builds a premium, authenticated context mirroring the router, because a free or anonymous context would route booking goldens into the tier gate and env-default models would grade an agent nobody ships.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/__main__.py#L79-L109",
+          "version": "repo-lines-v1:sha256:051fc28d1a851c2a5ad771e51b9c501df9684f6660f10270e221f3406c1367d1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwZmI1NWNjNDE1MWIyMDAxMTBjZGU3NmI2MTkxMDAzMGNhZDAyNGQxNDliODA0NTU0M2RkNjZmMzAxZjBmOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhMTQ0NjhkNDFjNDkyZDYyMDQxMTM2Mjc2ZTIxZTAwY2FhZmZhYjcxMWM3MDM3YzBiNDY4ZGY4NjQyYzRmZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0OGQ3NDgzZDA2MGYxNzIyZTI0NTM2ODg4MzM0MjU2YjU0OTBlOGJiZTg2OTgyMDY3NmNhOWVhZjM1MDljYzkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3763c9142cc5464b829acfc1aa3f3052",
+      "statement": "The travel-pi taxonomy has eleven capabilities and five scenarios with a 0.7 threshold for every capability, and the oracle extractor model is configured by EVAL_EXTRACTOR_MODEL rather than seeded into agent_config.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/adapters/config.py#L1-L67",
+          "version": "repo-lines-v1:sha256:9456e3cb550abe57a901116f113c95834c629daf3d313008fe583b7e88c3fda5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiOGNkM2E2YjI0NGY0MDY4YjNkOTdhYjA0MzNmOTY2YzU3OWQyZTRjMzgyNDAyNDJhYTQ5ZjAzMmFmZDAzYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMTE4YjcwZTk0N2Q2YzgyOGVmYjIyZjQ3YWMxZWMzOWIwZGY2NjU2OWY0NTkwNTFkZThmMWNjMjBiMTM5YzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_126bd873542b4e6ea185432c032d65c7",
+      "statement": "LangGraphRunner pairs tool outputs to tool calls by id rather than position and serializes messages to plain dicts so no LangChain object reaches evalkit, and DbOracle recomputes truth through the same services the tools call rather than re-deriving seed math or asking the agent.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/adapters/db_oracle.py#L1-L20",
+          "version": "repo-lines-v1:sha256:58779d010d71cdb7fca6e17be2fefdacd34c6f16c719eeb4341cf880c7569d62:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MGY1OTM1MjdlMGNjZjlhNTYwM2U5ZjRmMzJmYjQ0NmM4MzhkMzNjOTg0YTM1NWI4YjNmYTU1YTRmYjkwNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2NjkyNzYyMDJiMGEyYmQ1NzU0MDc3MWIwN2FiMWYxNGYwNmUyNTJlMjQ2ZGY3MjJmMjQwOWRjMzg3N2ZiNDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViMTE2YjY2MzExOGQyYWIwNTFkOGZiNjRiZTk4ZjcxYjk1YjQxMzhiNWIzMmNiNGUyNzY0YTFlYzIyZDI5NzEifQ"
+        },
+        {
+          "resource": "repo://apps/api/eval/adapters/langgraph_runner.py#L1-L20",
+          "version": "repo-lines-v1:sha256:517d0efb3a2abdecd7827c2a5d80ea695065bdb0efe37d76817c123795887b46:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MGU4ZTc5OTEyMTc3MzEzYzZmODQ5NTk5ZDBiNDE1NTY0MDljOGE0NDIxY2M5ZTM5NjM0MTRkMDJjNWIyMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmYTI5ZjI3Yzg3MWY2YTBjOWJiZGJmN2JlOTliZDY5YmMwYWE1MmM0Mzc4MzgzMjM4ZTM2MDE5YWVkYmVkZWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYWY3NjM3Y2I2ZTdlNWRiODVkNjM0Mjc0NjAxNGRmMDQxY2NkNTU4YTkyMGIyOWViNmFjNzE5ZDdiYWY1YzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9b356e65fd224a92a1433dd5364acf37",
+      "statement": "Golden ids must be unique across dataset files, a golden needs exactly one of input or turns, hitl resumes a plan-approval interrupt like the chat API does, and a smoke golden may only declare keyless metrics, which the dataset tests enforce along with minimum case counts.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/eval/README.md#L108-L150",
+          "version": "repo-lines-v1:sha256:f42612340c223adeb8a642c046c564ae2e35bb5718ef215ed14bd9d953b0d5e3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MGZlN2QwNDk5MThmNWNkZWZlMjAyYTY4NzAyY2Y0YjA3YzU5NGRkY2U5OWIxNGY2MDMwN2QzZWQ4YTQ0NjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2ZDU4OGQ5YzlkM2MwMWI1NmI0M2RhNTAwNDRlYjdiMTVlMDM0NWM1NDAzYjVjYmJmYjVhZjBlZTIxZTVmNzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRjMDM2ZGEyMTVlMDY2MzAyYzFlNmZhODYxZDA1MmU3MzkxMjk3NGY3NTBmYzk1ZTAwMDg3NGE1ZmM0OTVkZWIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/eval/test_datasets.py#L48-L114",
+          "version": "repo-lines-v1:sha256:8e506bed4cc55ac5b1bd65adb0cd718969798c09e9785200013b2148b69874b9:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlZmQ4NTQwNDM4OTdkZTZhY2VhYjljYTQ4MzY4NjJlZjBmZDkwNjg1OWU1MmQ1Yjg1NzE4ZTQ2ZjE5NDUxOWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyZmYxZGI4Nzc0NmM4OGM2M2U4NjQ2MTA2YzllZDM5YzQ3ZDY0NjA4MzVlNzRhY2Y5YjdlY2Y5ZTVlNWZkNmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1MWVjM2UxNDY3N2I3OWJiMTIxZTA1M2JkZDZmMWMxNGE5ZDM3M2QwNTg1NTg2ZTc5NzA4YzllYzBjZTRiNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdkNTY0YWRiNzgwNWZjNjA1MjM0YTcwNzY5NzlmY2NiZGEyMzRmNjA1YjA4MmY5Y2UzZTdhZWIwZWE3NTU3ZmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dd65760ec4aa414393d24678f55df13d",
+      "statement": "The judged eval never runs on CI by decision; the eval workflow runs only the offline tests/eval suite and a dry-run, and make eval-check (full judged run then compare) is the local human-gated regression gate.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/eval.yml#L1-L30",
+          "version": "repo-lines-v1:sha256:bd6abd4c06ba78e4ce0602f95e34c020b3dafaa1e9fe832690cd9d2d887bc349:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjMWQwY2NmM2JiODA4MThkMGFkMzBiZGNiZmUxYTZkZjQxOTZlNzJmZGQ2NTc1OWVjNzRlMzY1ZjU0ZThhNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmOGNiODk0Yzc3YzQyNWZjY2Q1OGVhZjJlZGY1MjcwZmFiMjljOGQ5NmFkZjExNmEwNTIyN2I0ZWUxMGM3OTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmYmRlMGJjY2E0YTA5NDI5M2MyODJjZThiMmI4ZjMwM2RmNTMwMjg0ZTE5NTJhYmM1MzRkOTM0MzY3YzU2ZDIifQ"
+        },
+        {
+          "resource": "repo://apps/api/Makefile#L54-L71",
+          "version": "repo-lines-v1:sha256:77f3150d0d54d631a821063a9e8229ff1913e785a0d38663f230ce63947ec571:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNjUyM2Y2YmRjNmJiNWQ5YTA4Y2RkZThjZGIwYmI5ZWVkZDkyYmUyN2I0ZGFmZjQyYTVlNzVlZDZjNTU4YzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3N2I0ZjM3YjU5ZjEwMDAzODNlMTI0YmYzZTNmYmFmNzE3MjY5ZGQ1YTU4Yzc4OGMwMWJjZTQ2MmUwNjE2ODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0c6d263c4ed3f846247c70404f844e9feb6647292393e6ce230a2ac67d75ce67",
+  "claims": [
+    {
+      "id": "claim_73928376aeb243dfb1913c540816dfbd",
+      "statement": "Settings is a pydantic-settings model that reads environment variables with a .env fallback, ignores unknown keys, gives every value a dev-safe default so the API runs without any .env, and is cached process-wide by get_settings.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/.env.example#L1-L3",
+          "version": "repo-lines-v1:sha256:f05167d1da06e3e4b8034ab7f03c272029b1ab1fba1cb5bde2c5d7bc9adfb031:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjgzOTQ5MjY0MjM4YWEyYTY3ZDI4MDNlYjFiNzFhYmE1Y2ExNzcxMmFjYzU4ZDAyY2QzNGQ4ZTk2OWE2MDJlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTI0M2ZlODFlNmJmOWU0MDRjODRjMmZlNTUyY2I0MWZlNjRhMDNiNTQ4NzJiNGFlOWNhMDhlNTU5ODQwMWQzYiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/core/config.py#L1-L32",
+          "version": "repo-lines-v1:sha256:043a627adcbbbef835fb90fcac8220fd613c62accf1d7796444d8c7b910a50b3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNGMwNjM2MzQzMzIyMjVhOGI1NWIxMTZiNDYwYTAwNDczN2QyNTljZWNlZDI5YmI1NGNkNmZlNWUwODBkOGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzZmRhZmMzNjcyYzUwYzcyNjVlOGIyNTQyYzM3MDZhOWUyZWRhYjdkODJlYTg1ZmI2ZWNiYTMyNjg2MTViMTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/config.py#L197-L200",
+          "version": "repo-lines-v1:sha256:b9c91ec814694c7ecbeff71645f7df5ad6794f5f25dc638cec6a0a47c7c2a182:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmU5Y2M1ZjhmYWNjZmRlYmVlOThkYTk5ZGUxZjc0N2FkYzU5ZGM4ODczNGYyMTBhYmY0MzAyOWZiYjNjZjM0MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWJlOWI0ZDMyNWFlMDJhNjg2ZTUzM2Q1NzY5MGI2NmRhOTE3NzdkOTNjZDk2MzAxYjgwYjBiMmNmZmE5ZmU1NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGI1MzBlZGU0ZjNlODgyZDZlODVlOWU2YTc3YmJhMjk1OTk5OTcxZTY1OTk0ZTRlMDQxYmMwMDNiMTU3OGQyZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c1aacbf37ab34720a579a8e88ed9680e",
+      "statement": "ENVIRONMENT is a validated Literal normalized to lower case so a typo fails startup instead of silently running in development, and LOG_LEVEL is upper-cased and validated before dictConfig.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L11-L12",
+          "version": "repo-lines-v1:sha256:01531113c7e8fcb3069dc1e6e772ebf64585786580891f8c3c969cafc19348e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTAyYzI0MWYwMmZkYjA3MjA5NzljMTBhZDc1MjA0OGJlYjFmNGU3MGJjOWNiY2Y4MmNkN2FiNTI3MTI5M2Y1NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDJhMzBiMjA1ZWZlZGE1MmJiZTA1N2ViNTZjYjhiYWUxMmI2MzhmNzMwOGU4YTFjNGU2NWEwNmZlODQ1MDRlYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGNmYTAzOGY2YTIzODZmYmM0Y2MyZTYxZWU5ZjMwMWUyMjEyZjg4NGE4NDEyNjdmNWFmODA0MzhjYWU1NmYxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDI1NGQwOGJiOTBjMmM4Mzg5ZThhMDBiMzE4YWVkZjNkMTdkM2Q3NmMzODE5YjA0YTI5MDY2YjE1MTUwMTQyOCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/core/config.py#L34-L55",
+          "version": "repo-lines-v1:sha256:80f4596a4df053769fd2afaa0141992fc89d06a11d4a35d29d9c39f5450b7012:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2MjExYzEwNDY4OThkY2JjNzgyMjQ4MjU0NGY4MTk2MjRlMjU2ZjZiNTQwZDNmNDk2MWZhYzZjZGNlOWM0OWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyOTE4OGMzM2RkZDE1ZjJjZmQ3YjI4YWZmNWViMGMyMTg4YzhjNjk1NzUwYTc1ZDI4YmNlOTE2ZTJlMTkzZjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkODA1NTViMDI1YTUxNDEwZThhOTBmNmIyODY4ZTdmNTZlZjQ5M2ZiMDk1OThiOTUxYzUxNGNkNzI5ZWQ5OGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5OTAxZGE1MzhkZmI2ZTM3OTBmNTdkNjhiOWZhMjk1NWQyNWFmZTE5MDhiNTZkMGMzNGE0ODczOWVlZjQ5OWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8ed5244c4b1f46ac8de6a29d961316d7",
+      "statement": "Routing uses OpenRouteService only when an API key is configured and otherwise falls back to an offline haversine estimate, while weather, climate and air quality use keyless Open-Meteo endpoints.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/.env.example#L33-L44",
+          "version": "repo-lines-v1:sha256:044475aed0c7ab187c2c357ab3227f89bc749d554bec628c734dc785b50e838c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNGVkYzdiNWM1NDEwNjUzZTIxZmE5OThhNWJmZjM5YWQ1MzY5MGExNWE4YzE3ZjgwYmJhODgxODI2NTQ3NTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxMDU0NjY2NzlmNDM0MjRlN2JmNTA0OTUxZWZhZmY0Y2YxYjg0MmFhNjkzZThkNmUzMmRkNzA1NzBjNTA5OTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDU5NGZlYjNhMWIxYmNjYWI3ZWU0MDMyZDYwNGI4NWY3NzA1Nzc0MWE2NTM5MGUxNDMyMDY0NWFkNzA2ZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3YWI4ZjZkY2E3ZTQ5OWQ5NDhkNzY5NjE4YjhiMzdjN2M3NDQxMzRhNTBmZTUxMTVhNWU0MGQ0ZTA1ZWI0ZDMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/config.py#L60-L82",
+          "version": "repo-lines-v1:sha256:3526cde01b28f7dbce9ec3f34ecac7fcc7059a7cfb880c44ad08a4062f55e71b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkNGVmODA3MjkxMGRjNmNlMzE5Y2Y4YTVhMmE2OGIzYWFlN2E0YTVhY2RlMGNlODEyOTIyMDQwM2RmMDk5MzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwYTY1ZTk5ZDg2YjZlNWMxNjUyMjYyMzg1ZDVmOGM4YmRmNDhkNjQ5Y2VkOGM0M2JlOTAwMzlkYjQ0YTcyNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUyMmYxYmMxMGRkNjg5MzI1YWQ0NTYzNTEyNDdhZjI1NTFiNWVhYjAxMWU4M2U5YTk1MzYyM2I1YzBlNzgyMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyM2M0ZWY3NDg4OTE5ZjgwYWFiOTgzM2NjYjllMjlmZDQ4MmU2YjJhZWQ3ZTU1ZjdiMDQ3OTZjNzNlNTdmZmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_55f1aa44a1d44bf5b123de38a80eb861",
+      "statement": "The app refuses to start in production when CORS allows credentials together with a wildcard origin.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L183-L194",
+          "version": "repo-lines-v1:sha256:bf48ee3e850de0cb7ecab69bad83b7f4a2f57443538c8bf96aece6145d8e340b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlZjFjZGQwZjU3NDMzY2U1MDc3OTA3MjJlMmY1MWQ5NzM1NmNiZmZhN2IyNGRkN2NhMTM0NDgzMmQ0ZTUyNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyYWIwOTBiY2QxNjIwZmE2MmVhZWUxNTdhNzRmY2E2MzVhYTI5ZTEyY2JmZmQ2MThiNTc5MmQ4N2JjMDNhM2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiZThiOTZkY2U2MjQ4MDJkOWJlYzlmYjhkZmIyMTJhMjE5YTlmYjYxZjhkOGRhNDA1MWQ1NWJjYTJmYzA3YzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcxZjhjMGE5ZDVmZDlmOTM1ZmVkNWE0MmIxYzliNDBjNDY0YTEwOTYwOWJiMTAyZGEzNGZlZWJmZDg0YWI3ZjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a28f8b3e020f4630aec5804abc87322c",
+      "statement": "rate_limit_nominal is informational only while the feedback rate-limit settings are the enforced DB-backed policy.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L90-L95",
+          "version": "repo-lines-v1:sha256:0dd213223735c0be103f19c91154221e08ef04896af8be9bf05713fdce960310:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTRiYmVjNzhhMjVkMDQ3ZGY4NjQwNmIxMDllMTBmODc3NTAwNGI1MTQyYzAyMjY0OWI2YzliZWJiYWZkZDk1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGQ0Nzg2MjhiM2YyZjdiYzJmMDg0MzZmNjFhMDdkZjc5NDY3OWVlOGQ3MWQ4M2VjMWQzOTNhYjIxMmQxNjAzOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDgwNzU1NGZiZDY4MmRjNDkxZTgxMDk1NjY2OTZkZWE5Y2MwYzQzYzI2MmRiMDk3N2JmYjM5ZmIzOGUzMmJmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWQ0YTMxYTM3NmQ4MjZlZGFlYzE2NTczMGViYjZlZDg0NmZhMGQ1ZTdhM2ExNmNkNGE1NDA4ODk5MGFhYzJkYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4beff8d0779449119b5f641b51da2747",
+      "statement": "LLM_PROVIDER must be a known provider profile name or validation fails, each profile has its own dedicated API-key setting, no key is required because tests use FakeLLM, LLM_BASE_URL applies only to profiles without their own gateway, and embeddings never route through a gateway.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/.env.example#L58-L84",
+          "version": "repo-lines-v1:sha256:83ba688e72f50bb5e0243a409c45f2dd03341a343b06a549f53712cc8dff263b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5ZTMzNTQxMWNhOTc0NDVlZjMzN2FjNTc0ZmUwNTEyMmUyM2IwODZkNDZmNzZmMTNhNjMyZGNmODc2ZDJhODYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlNjg0MmQ4MGU4NmU4MjVkNjA1MTYxMTlmZTQ3N2MzMmExYWZjYjhiNzE0NzgyYWU4MDE2ZjI0YzliYzFkNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkNzBlM2VjYzljZDc5NmY5N2NiZWQ5YjI0NmY5NTQwZmNmMzhmMDhlYWJlNDdlOWM2ZjE1YjBlMmZhMGVlZTgifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/config.py#L15-L22",
+          "version": "repo-lines-v1:sha256:61f4527ffac138714f82d0ef623732511994629492e1e9234e209ba49bbb4aae:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI0ZTM2ZmJiOTQ0M2ZiN2NjZTNkZjRmZjI1ZThhMDM2NjQxMmE0OGFmMDFjZDE2YTk4ZGNjMjIxZjQwNjkyMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTkzYTEzMDYyZjEwZWU0ZjEyMThkOTNlMzdhNmY4MWQzNDZmZjExZWM3ZTU1ZGQ1NDJlMmQyZDJlZjA3MTFmMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2ZlOWJhMjk1YjUyZGE5OTdlMTg1ZjQ4MmUxZDQyMDc5OGU1OWIyMDQ1OTJmMTI5YmQzZmY0NGYzMDQxZGJmYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzcyYzc2ZDUyZmU1OTk3YTliZTY5NDM2MjA4NmM3MDFhMWQ1NTEyZjBkYmU4ODFiNDFiOTVlYzg1ZDRkNzhmZSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/core/config.py#L97-L118",
+          "version": "repo-lines-v1:sha256:8c9cb2e0166e9a2b6384996cfc5099eac066b5c2727a5f1b8e0673e431479240:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhM2RjN2JlYTU2YzQ2MzIyZmViMzZmNzMxOWQ0YTFkMTBmZmVmZjczOTFlOGM3YmM4ODk1MTYyZjA2YTVhNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNzgxNWVkYTc4ZGJlOWYxMjU4ZGYxODBjZjQ0Mzk1Mzg2ZDE2NTUxM2Q5MDU0NWRkYWNmYTgwOGFiYTMxYWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzMWE4ZjQ0NDM3MzA2OThmOTI5MWIxYTg5MmJlMmQ1OGYxNjczM2I1NmZjYmY3N2Y2MDAyMjM5YjM1MThlZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZmMGJkNzJjNTY4NWY0ODcwODVlNTcyYjdmOTQ4YTc2ZmIzOTU4NWUxY2FiYmM3MDgwNWY1MGY1MGMxMzg1OTYifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/core/test_config_llm.py#L62-L78",
+          "version": "repo-lines-v1:sha256:f782578a31e280ad5ef43615fc30a04ee40895cbb406e994b24775407d61cce0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxZDA3ZDkxZWY4YWI2MzQyYjgzMmE5ZDY0NDc1MTYzZjcxZjE5OTAyYjQzYTc1NzMzZjFkZDAzYmMxMTliNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4NDJhNmMyYzExNDJhZjgyMDdhYzhjOWUxMmY5OTljYTY2ZWJjODEyY2FhOTc5ODJlNDZiMzQ2NWVlZDJhODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViNjBlYzMwMTRhYmYwMmEzNWZhZjA5ODQzZTNkOWMyYTgwMTQ1MDY2NjU1YzdhNDRjMTQ0MTkyOWY5MDUyMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b48a2b7077ea42fd92220b73e5c1fc58",
+      "statement": "Langfuse tracing is disabled by default so CI needs no keys, and the agent runtime knobs default to recursion limit 25, summarize threshold 20, free daily turn limit 20, a 5-second config poll interval that also accepts the legacy AGENT_CONFIG_CACHE_TTL_SECONDS alias, and the Asia/Ho_Chi_Minh timezone.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L120-L140",
+          "version": "repo-lines-v1:sha256:fd81d314f61ddb07bf5194ad79129d395ff96a1a40784ea654d91392576d6067:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlODU4MzQ5ZTZiZGQ0OTg1NTBjZWI5ODgyY2VjOGRiYjRhNjg0OGYxMDA1Zjg4MTJmMDgwMTVjZmE1YWNjMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmNDVkZTZiMzY5ODA0YjhlNzUyNzNkN2VlZmViMDIwZmJjYjIzNmZmY2YyZDg1ODZiZTlkOGVlMGYwYTlhZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1OTY3ZjBiMmY2NDE5MGQwNmE5ZWU3NjEyOTQ3MmNmNzBlZWNhYmZjMzliNDU4MGM0MzExZGVlN2FlNTQ5OGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4OGY1NGJlZTRiMDBiOWVjMzdkMzRjZTBmYjAwZWU4MDczODU4ZDdiNTY1Zjg4MDY1MjRlNjRjNDAzNDA2OTQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/core/test_config_llm.py#L26-L60",
+          "version": "repo-lines-v1:sha256:6542c61d3459d0673f4ba4f9d190b6ba3e5f68897d497edd38562aad3ca77d2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllYjczNGIzM2Y1MDE3MmY3ZjEyMWMzYTc5MTcxZTJkZTVkOTc3N2I4Mzc3NTA5NjIzMmRkNWNhZmQ1OWFmZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0NWNhNGUyM2UyNjUzMzNlMDY3YTU1ZGQ0OWNkY2FhNzljMzMxNjgyNGZhODFlNzRkZGIzOTQ0ODkwODg4ZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2NzljMzVlMjQwM2UzMzk5YTk0OGJmZTcwNTYxYzNmMDMxZmE4MDgwNjEyMDU4ZjcxNjhiYzE1NjQxOGQzYTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd43c810aefa4289a2503f1a844b71e4",
+      "statement": "Dashboard pages require HTTP Basic with constant-time comparison when both credentials are set, are open in development when unset, and return 404 in production when unset.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L142-L144",
+          "version": "repo-lines-v1:sha256:f4dd651f697bfa937d5f5b291c6d3549abe8b3d6fcdcf008ba1e013cdaa30e4e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQzOGEyZDg3M2Y2MzA4MDZlMzM5ZjFlY2IwNjBhYWZmM2EwOWU0NjBjMGQ0NzlhYjEzOThmZGFiM2NjNzU2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGUxZTEwYTg1NThiYjliYjY1NmY4YzlhZDYxMjdlZDExMzdkMmY1ZmExYjI5NDNkYzlmMWIxNTVmNjVlM2VlYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWU4ZjBkYzFjNjdiYTUyYzg4YjVjNDk1Y2E2ZjliOGEwMTU5YThhZDkzODQ2YjMyMzY3MjZhMjFlOWZhYTE2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWEyNzVlYjEwZTk5YTFhOTlmY2RjMmVkYzA4ZjVmMzNjMmQzMzMzNjRmOTRlZDkwOWEyNjQ0MDA1YzIxMWU5YiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/core/dashboard_auth.py#L1-L40",
+          "version": "repo-lines-v1:sha256:64151577c1f40719bbec20536792062cd4f1ae402328f4db6f78705fab31234b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYzE4NzJmNzA2ODhiMDVjZjJhN2FiZDFiZjRkNDUzNDcxYmRiMTdlYTI3OWFkYzExNmYxODA0YmQxNTRhYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MDljMDVlYjc4N2QxZjdjOWIwMDRkZTM4NTE0OWVhYjJkNjlkNzVkNDBkYjE1ZGNjZGExMjM4MGM1YTg3ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmMzExM2NjOTI2YjRkNDIxZmQ1ODVmZDQ5ZTBjMTljYjY0YmNmZDQ3OTIyZDg1MDYwYjEyOTQyZDA4ODgzMTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1fb1afc634344c739a6e0f2d7fcdedd6",
+      "statement": "Supabase JWT verification is off until a project URL or ref is configured; the JWKS URL and expected issuer are derived from either with explicit overrides available, and the audience defaults to authenticated.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L146-L176",
+          "version": "repo-lines-v1:sha256:02fe5c5501c11fc08018530f3683a9802aeac28e4500edfe8d28e1e86901393d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkNDg0ZjQ4YWFhZjM0ZDI3MzQ1MjRhZmVhNjEyMzZjMmZiODA1MjhiZDU1OTk0ODFmMmRlNGUzZWMwYWY5MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2NmRmZTUwNDY4YTA3MThhMWY4OTEyYTdiYzk3YmI3ODcyNjFlMjI5M2I3OWI1MWIxYTJmMjliOWYyNTRkZjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2YjJlYTdmMGZkNjAzYjM5ZDYwYmM5MzMzNDM2M2IwNzVjZWZlMDQwMWEzNWY5ZWZjYjZiMjdlOWNmNDRmNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjMDE1MTJiZmQ3ZDM3NTViMDgzZjhmZmQ4ZGE5YjgxOWNkYmM3NzIyY2RjNTBjZjYxZTBkOTdlYmFlMWQ4ZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_976af02c766b47f7b0d34ad7a01e3d0e",
+      "statement": "The Docker dev stack runs pgvector Postgres 17 on host port 5433 with a persistent volume and overrides DATABASE_URL to the db service while bind-mounting the source for uvicorn reload; the test stack uses a tmpfs Postgres and points both DATABASE_URL and TEST_DATABASE_URL at it so the pytest suite runs on Postgres after alembic upgrade head.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/docker-compose.test.yml#L1-L27",
+          "version": "repo-lines-v1:sha256:bc50475d7b7d5e89de40859b126f28822056c5cf6ea6fe81a1bfd3591314f526:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhNzNmY2NkYzk5ZWE4MzU5NjdjN2RlZTdlZmJlZDFmM2NhODcyNjBkOTI5MzE4NTBmZGQ2NmRhOGNiMTJmMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjNmI5NTQ2NGMyYTEyNTY0ZDk2N2Y4YTNmN2Y5YWY1MGEwY2NhOTI0ODAxNTQ3YjZhZDc3YmNiY2NmYWMzM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/docker-compose.yml#L1-L37",
+          "version": "repo-lines-v1:sha256:ab4e37310348f682348a349ee89b005408ed21b7145d51f4294e1a1b645fb7f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhNzNmY2NkYzk5ZWE4MzU5NjdjN2RlZTdlZmJlZDFmM2NhODcyNjBkOTI5MzE4NTBmZGQ2NmRhOGNiMTJmMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxZThiOWY4MDZmNTcxOTJmNzZkOWEwYmRhMThmZGY5OGIxYzlhMmNhZTlkZDBjYmQ3MzZhODkzZDQyMDIxNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_32d87ecbea8f4bf98f1049784be40b3e",
+      "statement": "The API image is Python 3.12 slim and its entrypoint always runs alembic upgrade head before starting the server, which is a no-op on SQLite because the lifespan creates that schema itself.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/Dockerfile#L1-L16",
+          "version": "repo-lines-v1:sha256:f3897251bb3409960230ba7a9f082f32e445fdf244036f91fb7d725ca79fc7be:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlOTA0MGI2YzE2YjY1ZTM5NDI5ZTEzZmZmMTg5OWZhZmUzYzgwNDJlNzQ2MWNkNDdiYzlmY2RlYmUwZDUzNzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1NzJiOGIxZGUwYzhjNDUyM2ExMTZhNWZhZjM4NWU0MjBlOGZjMjhiNzZmNWI4M2ZkZTVhNjhlZjEzNDg5N2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/docker/entrypoint.sh#L1-L8",
+          "version": "repo-lines-v1:sha256:62edf644db24cb6fa3b47d50b4583aecf6a429dc409f1174300f65b1c1b8f37d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NmQxMTJkZThiZWQxMDI3ODZhNGExZmE5MDE4MWIzZjA4NDFhMjBhMWFiY2EyNTVmODA0NjIzNmI4YjAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmUxMjRiMzAxMTNkZDJhYmJlNjg0ZDkyMmMwOTdhYTQ5OGNlNWE4YTVmMjI1NWE5NDFmZjJjMWUwNWQ0ZTE5NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c693987a2c6145fc9086835f951c38fa",
+      "statement": "Process logging installs one console handler for app and uvicorn loggers and silences uvicorn.access because the request-logging middleware is the single source of per-request lines.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/logging.py#L1-L37",
+          "version": "repo-lines-v1:sha256:5667821d06b5788eac1ead0ad0b03ca9559372d6114a2ffe1e60b49b8fed541d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmZmI5MDE5ZmUzM2JlMWMzOWUyM2VlNDQ3NGE3ZWI4NDhhMWZkMzdlMzdhODFiYjI0YTZiOGQyMDA2MTcyMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_41745ac90a0b46ad8636daaebc0cfb0e",
+      "statement": "The web app requires NEXT_PUBLIC_API_URL and the public Supabase URL and publishable key even in local development, and the E2E credentials are read only by the Playwright runner with specs skipping when they are absent.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/.env.example#L1-L13",
+          "version": "repo-lines-v1:sha256:0c02edcd1963eb9c19ffd15d11476b61352152bbeddfb09b9d8479b55c6b1a9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMDc4YTNmZjYwZWFhNWYyMTdiZWRhNTMwMzhhYTEwZmIzYzkzZjgxMTZkMDI5NzBkZTJlYzhiZDU2ZjgwZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3ZWJlNDQwYWE4MTkzZDk5YzhlNzI3YWYzZjdmODJiYjljODVjNzI0YzA5M2VlMTUyZDBjNmM5YmY1ZTVmNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

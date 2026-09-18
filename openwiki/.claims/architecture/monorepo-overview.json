@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d522e5b023fe6f474666133054b89a736f4e427f49585dc1053de6e47b0183dc",
+  "claims": [
+    {
+      "id": "claim_73c6441651ea45dd937c6722e40da865",
+      "statement": "The repository is a pnpm workspace orchestrated by Turborepo with apps/* and packages/* as workspace globs, pinned to pnpm 11.9.0 and Node 22.13 or newer, and Turbo defines build (cached, dependent on upstream builds), persistent uncached dev, lint and test tasks.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L1-L17",
+          "version": "repo-lines-v1:sha256:5d4cef72edf3063cebfd2559ab499ba2a6750600a3e46e3f69ef5a3f6a57dcaa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://pnpm-workspace.yaml#L1-L3",
+          "version": "repo-lines-v1:sha256:08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWRiMDc2ZWI4MGFkZTE5ZmVhM2UwYTQzMTk4NmI2NTVmNWZhNTllZDYyNjdlMTA3ZDY4OGI2MWMzZjQyMTc5NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODlkNjdjMzRmZGJlMGVkMzRlN2Y5ODcxYjA4OTU5ZjgzZTJmMmYwOTM3ZDAxZWU5Mzg0YWU4YWRlYjFkMjU2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjE4N2UxYzZiZGRhMWE1ODk5ZDBiZjA1NDVkMTQ4NTcxOGM3MDJlZDAwM2I2MzE2YTAyNmJjN2QyZWYzYzhhZSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L1-L16",
+          "version": "repo-lines-v1:sha256:9c1e438a8db799f23a558bc896c3e89dccd570189e2b25f00a7db49e970b6157:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_385dee484f294b33a8e8ad5b61324e50",
+      "statement": "The product keeps trips, bookings, expenses, saved places, journals, conversations and agent configuration as real persisted data while flight results, hotel availability and FX are synthetic, with no payment processing or external booking provider and a deterministic FakeLLM in tests.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L14-L30",
+          "version": "repo-lines-v1:sha256:cb9013b13ac71dd04fe8c4e51853f59e9a55199ed264125c0e564a4c35b727eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2MDhiYWYxODZlOGVjZTkxOWM4MGZlZjI1YmI3ZWU1M2NmN2RiMzQxYThmYzYyYjRmNmUzNjUyZjM0MmJmNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkMmNkNDFiZTg5NDFjYWE2NmY0NGVlYTgyYzY1M2RiNmY1MDkxNjI1YTg3MTM4ZGRjOTQyMzlkM2RhNWYwNDIifQ"
+        },
+        {
+          "resource": "repo://README.md#L10-L20",
+          "version": "repo-lines-v1:sha256:e7a98fd6d6a9b2cd296eb8690e09e52e1fa5d50c8d2feae084aff98e67f75372:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxMTYwYjhjYTA4MmI1NzA4NzdmZjVlMDY2ODZlOWNmNjZlYTc5OWIxNDZmNGI0YTZiNDMyNWRmMDVhZTBjMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkZDFlMDZlYWZjNDJjOTQ5Yzc1NDJiOTc2NjAzZjU3NWM5MDQ0MjZhNWJmZDNkZmUyMTRhNDExNDVkNjU5NTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5YjExYTM5YWU5Y2I0YmRlZGY2MWFkZWE4OTMzYzZmYTk1OGIzZTU5NzcxOGViYTA3Mjc1MGE0ZWU2YThkN2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhMDI2ODQ5MTQwMDlmMmQwNzlmZGVmZmNhZTQ1OTFmYjEwZmVmYWJlZWU2MWM5MWNiYzJjYzE0MWRhYjIyMzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1fa0b807bcda4d66bd770e7d9011fe30",
+      "statement": "The web app reaches the API through a relative /api/be base URL that next.config.ts rewrites to NEXT_PUBLIC_API_URL (default http://localhost:8000), and its typed client is generated from the backend's OpenAPI schema by the gen:api script.",
+      "evidence": [
+        {
+          "resource": "repo://TECHSTACKS.md#L45-L47",
+          "version": "repo-lines-v1:sha256:b9d49043f4157081c7cc6e5abd8fc330ed2ec2cad858f73c50e34fcfe3aff8df:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDNkYWU0M2NlZmU3Mzg5MmIwNjAxMmFiYzgyNTU3MDM5MGVjYzZiYmRlOWIzY2M0YWRjMTcwYWZhNGUzMGIzOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2UyZDVkZTQ0MzYxN2VlYjFmNzkxODNhNTc1NjhhYzdjM2JhNTQ5MTlkOGRjOTIwYTA4OGY3ZDQ0MjU0NDYyYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGM0ZTUzODI2MDhkNTk2ZjlmOGJhZThlNDFlMmRmNTIzMDk3NjU0MDIwMDdiMTM0NDRmNTM1OTE5NjljYjU5YiJ9"
+        },
+        {
+          "resource": "repo://apps/web/next.config.ts#L1-L27",
+          "version": "repo-lines-v1:sha256:62002223bd7581d458f4e189e924edd1dddf235aa4b15290c69866a335ce03e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwY2JiMzU4Mzk2MWRjMWRhZDc0YWMwNjZhOWQ1MDE5YWUxMTJiMDMwN2U4ODFkYTAxY2ZmYjZkYmUzYzNlMjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4NTRiYTVhNjAyNmU0YTcxZWVmOTQxZGU3NTFkYzg1N2ZhMzM5YWQwYjA4NWIxMTJiODE4MzhhMDg0YWFlZDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/package.json#L5-L14",
+          "version": "repo-lines-v1:sha256:0a6fbaecdade00b7ed863b840699ea8c67a36a7588566f06ed5994e73fe8c3d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRhYjExOGQ1NzU2ZTc1MjlmYTgzYjkwZTlhM2M0MTY5NjM0YjY0NzZlYzc5ZThhZjVjZGQyNGZlZTE5N2JmYWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5YWI3YjkyODk4ZDA0OWI3Mjg3OWMxNzc1YzViNzZkZjFiZWEzYWU2NWY5N2U5OTU5Zjc0MzQ2NTI1YTE4OGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_278a6fa3ddcf461db0c4bd287881978f",
+      "statement": "The backend package is organized as an app factory plus core, routers, services, repositories, db/data/alembic, schemas, the agent subsystem folders, an MCP server and dashboard templates, following a routers to services to repositories layering with agents, tools and MCP as thin adapters.",
+      "evidence": [
+        {
+          "resource": "repo://techstacks/architecture.md#L22-L60",
+          "version": "repo-lines-v1:sha256:f9747d52b8405529960a03fea9130deb8e534d34ae1b055737851823b8a74512:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjNzY0ODlkZGM3MDcwMmVjNjY3YzAwNzZiZDI2ZTkxOTk3NjQ0ODc1NTA0YmU5YTVkMTIzNWNiYzRiZjU1MjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MWZkMzZiZjhmZmQwYmEwYTEzM2NmM2FkZmJmYTg2MDdmYzY3NWZiNjdmNmZiNTUwNjU2NmY2YjZkMmQyOTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzMmU1NzE1ODE4Njg1NzBiODRjMGI5NmYxMjRkM2MxY2EyMGQ3NDkxMTExNTk0MjkyZjZlMWZiYWY2NjNmZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmODAwYTQ5OWY5OWYyMjRiZDg1MjgzMzJjMzk3ODEzNDlmMTJlOTUwYzU2NWE3NDRmNzljOTFhZTczOGM2NzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9a2602298714448987f328fbc426df42",
+      "statement": "The root Makefile is a thin delegation layer: dev runs both servers through Turbo, api/web run one side, test and test-docker run the backend suite on SQLite or Postgres, up/down manage Docker, and the eval targets delegate to apps/api.",
+      "evidence": [
+        {
+          "resource": "repo://Makefile#L1-L48",
+          "version": "repo-lines-v1:sha256:8f9958f51391e88b8ff72543080d4454454b02250ab8760c43d53604825e209a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmEyMTQ3OWVmZDNmODE5MmJlZWY2MDg0YmM3ZTRmNDI2NTIxYWEyYTQxNTQ5OGEyMjI5YTA1NDZmZjVjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3c13f6657e0e435081b6e1a865bf7d6b",
+      "statement": "Python dependencies live in a single root .venv managed with uv, which the backend Makefile resolves as ../../.venv, and backend commands run from apps/api.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L44-L56",
+          "version": "repo-lines-v1:sha256:b9c9e0429b478fdac42fe858ac74b8f16fade7c597d3c99a6cf50c3f765852af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0MTljYTRiMDFlNDFjOTc5MDczMzY4NmI5NzhiNGUwYTJkNzYwZThlMjgyNzUwM2VmN2JmMDA1MzZlMTRlOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlMjliNGEyZjE3YjM2NGU4ZjE3NDEwNmIyZDg5NDVmODZhMTU4OGI2YzEwMzY3NzAyMmU5Y2M5MDQ3OTI0YzYifQ"
+        },
+        {
+          "resource": "repo://apps/api/Makefile#L4-L5",
+          "version": "repo-lines-v1:sha256:aba4c109dc94699c7c31c081ce041fb1fad83b9bc9c352f44149d6fa00382d75:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY1OGQwZjBhZWMyZGI2YzdmMmY0NzljNGY3MGFhMWEwMDMzYzVjMjUwZWNkZTMyNmM1ZGZmOWRlMTJkMzI5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmU0NDNjODllN2NhNjU2YzljNzg0MGY5OGUwZDZkNWJmMjQ4ZWJmZjkxOGM3ODkzZDAwNTBkNzZhNzAxZTI5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmMyYWY3Y2U1NTA3Zjc3NGQwYmQyYWY0N2U1MjFlYWM3NDc0NjE5ZDk1ZWI4OTE5M2E0NGE5N2FhYTQ3YjdmMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWNmYzliODM2NmQxNGFlYmEyZmFiMzE0YTcwNjEwNzJiMmUzNjIyY2Q4YTExZDI4NmM5YmU4ZjQ2MzliOTNiZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_342ce10446bb471a99807988b0d49d3e",
+      "statement": "Cross-cutting documentation is split across README.md, AGENTS.md, CLAUDE.md, TECHSTACKS.md and WORKFLOW.md at the root, techstacks/ profiles, docs/decisions ADRs, docs/solutions learnings, and per-feature specs/<slug> folders.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L55-L85",
+          "version": "repo-lines-v1:sha256:f3d2bf920542283940910e1d3e9834311fb8389f81ca2c31960bda0ed46f4b9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ZWZhNTlkNjZjODU3YWU2ZjIyOTU4MTE5NzI1ZDE1N2Q3NGM5MWQ2M2VjNzhhZjdmNGIzMDcxNTBhMDVmOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViN2IyODg5OGM3N2E2Y2EwYWJjNmY1YWE1MmExODkwNThiOGFkYmVjZDcyZDk5OGFmYWFmOTljYTdhYzk4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjYmI1OGVjOGMzNmM0YjFiNDY1MGE4NzI2ZjcyMmY2Yzc2NjMzMTZiZjJjY2Y3ZDg0MTYwMzNmZDVjMzExYjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiNjY5NjhmYTRmNWE3OWMwMTAwMjUwODk2ZGRkYTk4NzM1ZTMxYzdlNGJlMGVlNTVkMzkwZjJmYWViYmViNzcifQ"
+        },
+        {
+          "resource": "repo://TECHSTACKS.md#L1-L6",
+          "version": "repo-lines-v1:sha256:285db5e446edc0179ef9195a5e0991ef7d9518271dd80c4450bc1d111729cc02:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWMzMzdhZDFkYTQzMTlkNzNiNTVmZjgwNzhlYTgzMzg2NWVkN2VjNDlkYThlNDcwYWMyZjQ3MzE4OWI0MDU2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2EyMzFiMjRhY2U4OGUyN2ZkOWI4N2FmNDk5Yjc0ZmI1MDNmYjhiZTdhZjAyNTJkMTA2MGVjMGM4NTJlMTYxOCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

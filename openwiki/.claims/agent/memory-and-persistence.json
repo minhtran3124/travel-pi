@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:cc2766c6c2bb0aa8161c09db66c7b325322fc6c873d6783d122e4280973883a0",
+  "claims": [
+    {
+      "id": "claim_628663a10d924a529e1e2ea58389be2e",
+      "statement": "open_checkpointer selects AsyncPostgresSaver for postgres URLs (stripping the SQLAlchemy driver suffix) and MemorySaver otherwise; an unreachable configured Postgres re-raises in production but degrades to an ephemeral MemorySaver with a warning in dev/test.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/checkpointer.py#L17-L56",
+          "version": "repo-lines-v1:sha256:05adcd1d01c26ec02fa1245f128f5baa24720c691bf53d4bd5c7ad98b9946f4a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyYTllOWRmY2NhMTQyNDcwODMyNTQyNzg0MDVhY2E5Mzk5YjMxOWRlMTA5YjgxMjlkYTIwMWYzYzMzNDQ3MWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmNGY4OTU1OTIyZGMyNjA4MDFhZjNiMjg0ZTRkYWU1YWE0ZWRjZTcwYzk2YzVjZWEwZGMzY2Q4MzVlNjRhMDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkYTc2ZTQ4ZjNhOTBmNzNlODVhYTRkMDBkMmFiMjk2NWI4NDEwOWUzMTM3ZDg0YWU5YmVlYjY2NDg4NjZkNTMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_checkpointer.py#L21-L65",
+          "version": "repo-lines-v1:sha256:67f0068049ea7282ab7f64ec900ef9c765d6f4094d62e7e2057d8dc143afa3ef:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZTEzZDk3ZmIzMzg2ZDQ0ZDQ2MDZmMDQzZmMzZmIwMGMxNWI1YzRlNmQxMmQ1N2RmZGY2NGEzMTM5ZmMwYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0M2UxNTQ4NDIyNzY0N2Y5M2MzMTQ4NDI1NGQzY2Y2ODIwNzlhM2RmOWJkMjc3MjEyMzM0MTA3NDEwYTk1ZWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljZDg4MzAwYTZmNWJlNTIwOTM2NWFkMzdkZWMzOTM4ZDdiNjVhN2MyMGM2ODA5OTFhNmE5MGQ5ZDFkYmJlNDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e23cf7dd05d0444db67bd92e04560138",
+      "statement": "The agent router builds the checkpointer thread id from user id, trip id and conversation id, sets the recursion limit from settings, attaches tracing callbacks plus the metrics handler, and uses the agent_runs row id as the LangChain root run_id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L94-L114",
+          "version": "repo-lines-v1:sha256:3e56a5baa21258ed07a4ce287aee6e3b8d8a6835afb1b8c6778be3d6dfb6ff55:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyODJjZmE0ZjcwM2Q4NWNiNDUxMGIyZDljZGUwMjJjOGE0NGFkNzk2MGY4NzI1MWFiOGZmNTJmNWNlMTlkYzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZGZhOWJhZjEyMzM2M2YyMjM5ZmFiODlkNDkzYTkyOGViNDMyNmRlODg0NzQ2NjIxODNlNmQ1NzRhYmJkYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0Y2M0YjA1OGU4MGFiM2U5ZGE4ZDlmZDIzOWU4NmYxYjI4OWI3OGZiMmFjNTIwODcxNTY4YTFkZDYwZWU5ODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c0b7258227045418cb1834179520f56",
+      "statement": "A new turn's graph input includes trip_id only when the client supplied one, because the trip_id channel has no reducer and an explicit None would clobber a trip selected mid-conversation.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L117-L133",
+          "version": "repo-lines-v1:sha256:77ba4b860e08ce1a2baed0f8b4bb055b6500b978f65d3663fc522b067cafd63c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkNzc2NGNhZmJlNGI1ZGE4ZGI0ZWYyNDAzZDRmNGQwYjg0ZDYzNDQwYzE0OTMyZmRiMDc0ZjFjYTg0MGFlZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MDkyMDczOTViZmFhZGNmOWU5MzZhMzIwNzQwZjQ3NzBiM2QzYzRjYjIwMzUxODdmZjM4Yzg2OGNhODcwNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmYmQwMDkzMTRiYzI3MDg0MTY3MzRhMDJhZTVmZjM5YTFlNDhhMDUwYmU5MWY0M2IyZmFhOTIwMDJjNjJiZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjNmU4NzRjYTQ5M2ZjYWM5Mzk2OGRjYWVmNzNjMmQ4Yjg3ZmJiZGQ5MjRiYjYzMmFiOGI2OGM2YTRkNjRmMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2f14cec7844411f99b0a14ba2a7d1b8",
+      "statement": "Summarization triggers when the message count exceeds summarize_threshold, keeps at least the last five messages verbatim, and walks the split point back past any ToolMessage run so a tool-call/tool-result pair is never separated.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/summarizer.py#L28-L69",
+          "version": "repo-lines-v1:sha256:fae0a73b63956c1073034ab167d273e10d367703e20d7bc5382f537b129c37ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YzgwMjZhZGUxZDk2ZjRkZTI3NjZhMGFiZmYxZjMxYTJlMTAxY2Y2ZTE3NjFjZDMyYjg5OTgzY2QzY2YxZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MjNjMThiMDMxOTA2NmU5MjhlYjQ2MWYzOWE2YmYxOTVhMDQ3M2VhMDI1N2M2ZTEwMWI4NzdhYmM3OTA1MjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e9d085041a9f44be810bec667f784837",
+      "statement": "open_store yields a PostgresStore with a semantic index for postgres URLs and falls back to an indexed InMemoryStore for any other URL or any init failure; the index embeds the text field with 1536 dimensions using OpenAI embeddings when keyed and a deterministic fake otherwise.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/embeddings.py#L1-L20",
+          "version": "repo-lines-v1:sha256:4927a5e5409ffddf2e2de5b4b186ccd9070f9e95a8b02cadb65026547dd7d661:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2YWE2OTY2ZjlkNTAwMTMwNmU4ZDk1Mzc5YmJkYmUxNzVmN2I5OGI2OWQ5ZmYyNWQ2YmRkMzI0MWIwMzEwODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMWYyNDIyMzAzZTVjZmVlM2NlMThjNGQ1ODU1MzA4OTAzMmNiMjAwY2UxOWVkN2RkNTZjNmJjMzAxM2YzMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L110-L150",
+          "version": "repo-lines-v1:sha256:155c9a4ae325a60a5dc66801c30cdaebb85ea0b8b892691797a4b3b4c77d221c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5Yjk4ODk1MmNhMDg3YmMwYzNhNGEyZDkwOTBiZDNlODExZGRmYTg3NmQ2MTI1ODY0MzQ0YjUxNWZlYWFkZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMmY0MzgwZjg4YzE3YTc5MDk3MWE2M2JlMGU4M2Y0ZTQ1NDc1YmEzY2ZhMDNmNjhhMGVjMzQxMzdiOWU5MmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1MGI3YTM2YjRmY2I4MDE0YmNhMWQwNDFhMGNjNjlmNGM2MWZjMDIwMjYxMWE5NmQ5MDcxNWNlYWQ4MDMwOGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b317ba45c6e449f18ea580474e0a4590",
+      "statement": "Long-term memory is namespaced as (\"users\", user_id, kind) with the kinds prefs, procedural and episodes; the reserved prefs keys name, gender and travel_group form the profile, and every upsert stamps updated_at.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/guard.py#L72-L72",
+          "version": "repo-lines-v1:sha256:2cd5cf7effbc061ea89e18b93ba79517990930ffa1e078f4f212d1578a5a848a:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNkNWNmN2VmZmJjMDYxZWE4OWUxOGI5M2JhNzk1MTc5OTA5MzBmZmExZTA3OGY0ZjIxMmQxNTc4YTVhODQ4YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNkNWNmN2VmZmJjMDYxZWE4OWUxOGI5M2JhNzk1MTc5OTA5MzBmZmExZTA3OGY0ZjIxMmQxNTc4YTVhODQ4YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWQyYzUxYjdmNzUyZTVhNDc0ZjEwNGE5NzU4MTFiM2ZmMjZlNzQwYTFhNzA4OGQyMTRkY2E2NGU0ODBkZmYyZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDliZjExYjI3MWRhODZlMGI3M2FkNTgxZGQ0NTU4NWEzNTM4YjA5YTM2YWQzODJhMWQ3ZDhhMzgyNDBjYzliNSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L153-L163",
+          "version": "repo-lines-v1:sha256:07ef30f3c0d4e2acf06b07785399b1c629c6d1c14e60bec7baa69d33b62221f3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NzEwYWI3ZDI5MzUzYjgwZmM4ZDJjMjliNjMwZmIzMjdmN2MxYjA4NTExZDlmMDc5MWFhMDMxZTc1ZTYyZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjODYzYTEyOThlYmE5MzAxYmRmNGE3MmU5NDg5NDhiMDIxNjkxNDY1YzdhMDA2NzA5YzM3YjIzNGVhOGMwNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3YjI0Yzc1M2YyYTY3MzYzMWU3OTVmMDZlM2Y1NDc3MDkyZWY0MjA2MGNmZDlmMjcyNjA0MGI4NTE3Zjc0ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiNjAwZGQ1NTA5OTNmNGU2Y2NlZTE1Njc1ZDc2MjFiZGU1ZDg2YTI4YjU2NzJiYWIwYWNmYTYwY2VhYjQ4NmMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L295-L300",
+          "version": "repo-lines-v1:sha256:621188e5694ace51676e24af047d4bd04f3d8801ae89f10a8ad52892f25fb31e:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2M5OTAzNTU1NDJhM2VhN2MyZWZkZjk0YTQ0ZmIxMjlmZTdkZDgyZjk0YzYzY2Q1NTBjMGYyZDBmZGZlZjkxOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzA1ZGM0NzBkZmVkMGJhN2Q5YWFmYmYxNWUzNTI4ZmMwZjlhY2RhYjFkMzQxZDhhMjYxYTM5YTI5YTExMWY3ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWE4MmViZTllZDQwN2MzYTZiYTRiMDAzNDI5MmJhYTUyYzExY2U1YWUyODYxMDc0MDJkZTQ3OTJlZWVjYWNmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWIzMTEyNzMzMjZmNWMwMDVhMWFhNTJjMGQyODEzNjZhOTJlOGZjMjg4NGUzYTA3ZTBjOGI3YjlmMGE5OTI4YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e31e4ae91557473295800aa03bd50ef6",
+      "statement": "Episodes are key-addressed by trip id or normalized slug so re-extracting a trip overwrites rather than appends, and the write runs both the text guard and the episode metadata guard.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L268-L280",
+          "version": "repo-lines-v1:sha256:24cde33570a7350951c114b954df1a2bae081fe301da27452527cb3a6dca1200:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZjJjY2VhY2ExOTI4ZDE1YThjYjI3MzRiMDQzNjBhNWUxN2YzZGEzYzQxZjY0ZWIyMDJjYWVjYmQ4NzAxMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3ZDU0YjY3MmE3YWY3YTI4NmFjODNkNThiYjRkYzIwODQ5ZTEyMGJhZjEzMWVhNWZmMTc3ZTYzZjExMjAyMzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGQxOTVlMjAyZjkwYjk4NjY1MzEzYmVkMWM3M2EwMWRkMzhmYmM1YzQ4MzI4OGQyNzI4M2VjZjNlZmFmYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlMzhjMjFlNTdhMjRjMTliMDhhYmE4MzJjMWVmMTAxYTk1MzI3MTlhZDE3ODJjZWZkNTQyZjQ5N2Y5ZjA4ZDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_407f67ec65ce4c209dcfedd1944d2c0e",
+      "statement": "Unqueried store reads page through the namespace in pages of 100, de-duplicate by (namespace, key) and stop on a short page or a page with nothing new, while a semantic query is a top-10 search that is never paged.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L166-L195",
+          "version": "repo-lines-v1:sha256:812430814835bf30595ca546d71e99ea7842df64403a7a6c974d90a0f0fccd9f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5MzA1NjE2ZmQ0OTQzMWI5OWRjMjFjN2JiZjFhOTdjYTczOGI5Yjg2NDcyMDZhNzc5N2U1OWRmNTFhZjRkNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ3ZTlmZmQyYmFkYzNiYmU0N2MzYTRkZTllOGNiYTU1ZjJiM2YxODIxM2E0NmEzOTMyOWUyZGUwNWE5ZjhkZjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmYWUyMTM1OTcwNzNjZmE1N2RmMzdlOTVlZDVkZmY0YzZhZTYzYTcwMjIxM2FkMWI4ODBmOTUwMmE5NTVlOTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxMDkwMGNhOTNiY2YzMjcwNDc4ZmYzMzY1ODYxZTQyNTRhMjFiYjFjZDU3ZGE4NzcyYTdhZDc0MzczYmU5MjAifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/memory/test_search_all.py#L25-L95",
+          "version": "repo-lines-v1:sha256:2b1afa7fe7e7e1279905d67ae7aaecfbaaf85339fb78396029d0074879c44809:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MzgxODAwNzlkYmU5NzE3Mzg4MDdiNTY5NzM4MGZiZDMxMjcxZTNhMDU5ODA1YWI1ODY1ZjdkZjFmYWEyM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiY2ZhMDdmNDJiMDdlYTZjMjkxMWM5M2ZiMjE3YjQzMmI2YjQ4ZWIyNGViNjUzYWViNDBhNGY1ZDRmNDc1NTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhMDlkNjc2M2EzNTEyMmI3OGI4YWUwOTNjNTA4MjU5ZjhmNTU4ZDAxZjhjN2U5M2I2YWMzMzVkOTMyOWZlNDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_636276d64c914dc1a4323918d0e3b4be",
+      "statement": "The episodic-recall tool recall_past_trips is bound to the planner and removed from the tool set when AgentContext.allow_episodic is False.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L229-L236",
+          "version": "repo-lines-v1:sha256:a182e87a5ef8f439838019a4d4d4269071b78c173e25b8d14ead22d0e38d237a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjA1NmY3YzBkYmUxM2YxODk4MjFmMWIyOGQ1MzFhZjNjODY3MTllNTkxYWYyZjJiOTVkMDJmY2E1MThiNmI2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmFhZThhMGNhNzZmOThmN2I3ZGM3OTg0OTUxZDYzZTU3ZGIzYzY0NTU3OWNhNTFiYWQ2YTUzOWQ2MTRlZGJiZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDlkYWZiMWU3MDFiNTMwOWE1YWIyYjFiMTJhYmM2NDI1Yjc0YTdiZjQ4ZGQ0N2FmYzQyNzI5MGQ0MzM3Yzc4NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzkyYmY4MDVjNTc4ZTUwNDk0ZTZkNjU4Yzc3NjQzNjYzNmIwYzg0YWJjMTI3NGQ0YTc2MjcwNWJkYjljYzgyMiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/memory_tools.py#L145-L146",
+          "version": "repo-lines-v1:sha256:b927dda6a4bbcadc6e7d72c73961d36524942136f1b3e9e1367d3761b77a8749:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmRhMWU2NTkyYTVhZDJlNDIwM2E3ODgzZGE3YzQ2ZmIzOWVlMzFhZWZmMTZhNjQ5MjQ4MzA3ZTk1Mzk1MjlmZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTljODMwZGY2NThjNmRlODdkN2EyZGQ1YmM5ZmYyYTQ1NDY5YmM0NDFlYTFhZmU3ZDhjOWM1NWYxMmQ1ZmU1NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWZlODhjNzYyZmNiMjc4YTg3ZGVlNzkyYWRlZjU0NmZmZWUxZDMwNDI1YmVjZGQ1MmVjZTc5YjIxMGM0ZmQyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b3d724915b2b4a2eb6d7a7b17e9f46e8",
+      "statement": "Memory extraction runs as a background task after a completed turn rather than as a graph node; the streaming variant reads final graph values from a post-drain sink and is a no-op when the sink is empty or an interrupt is pending.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/extraction_runner.py#L178-L209",
+          "version": "repo-lines-v1:sha256:2eb79df1a356b6f5cd141dde331a67adc61da7f7806ea9d073137fc8ab4e5331:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3YzFmODlhYWUzZTQyMWEwMGI0YTNjMmViZmRhMDhjZDdjNDgyMzI3MWVhYWMwNmJmMmQ3NzUxZDRjOTgwOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTYwMGE3M2QyZTAyZjM1MmI5MGZlZjFkOGQ2MzgxMWJhNGE4ZWUwYzFiZWFhN2FlNDY1OGYzNmFhMmUxOTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MDE0OWUwNjlhZDY3ZWNjZjQ3MzY0NmZmMWM3NTAwNTBkMzI5ZDExMDAxOGRjNTc2Njg3OGVhZmExZDYwN2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L351-L363",
+          "version": "repo-lines-v1:sha256:5498a6d2811430fd301d56afd8ffb3f2dc2709b0d3667f4964c0511de779a5f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZjE4Y2E0ZTg3NjViOGVlNWUwOWU4YTI2NjAzODdmZDk3MGU2MWY1MDkyMjU0Yzg0NTM0ODU3NTg3MjhkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhMWI5Mzg3YmM4Y2QzYTJjM2VmOWE3NDdlYTk2NTU4OTk5NmJlYmFjMDk5YTM2OGY1ZDU5ODZjZDg3MjIyM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzNzdlZDQ5MTU5ZDU0NjI1NGMyYzZkYzRkZTdiMTI1YzdiMzA5YTA1ZDc2YjQ2ZWQyMjhlOTRiMzE1NzBmM2IifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L455-L465",
+          "version": "repo-lines-v1:sha256:ce21af1da02c4e60e825b2310759c37a6ad12eb05137d21b528610e60d2ca171:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNzNmNDE4YTJhYzY3NjE3ODcwYTMzMzI0ZGQ4NjE0MWJiNGQzYmM1YTAxMGYwNzczOTVkNGNkM2Y3MDdmMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5MmEwMzE1NmRjMWM4MzhlNmU1OWQ2Nzg4YzY0M2QzMTc0NWQ5YjgxOTE4ZGRmOTYxOGFiMTNhNmEyZGRhNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1MDZjNjk0NjNiMWM1MjI2OGM0MGEwNzI2MmJkYTM5YzU5N2NkZTVhOTkzOTRkYWNiZTU4ODVkNGMwZDljZGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2ca639a997034b4c83acbc41b31c029d",
+      "statement": "The extractor sends only the last user turn and the final non-tool-calling assistant answer, excluding ToolMessages and tool-calling AIMessages so tool or RAG output cannot smuggle directives into memory, and any LLM or parse failure yields an empty result.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/extractor.py#L125-L151",
+          "version": "repo-lines-v1:sha256:7b0cdc11755a00f1d8b290d67b4d5185b4264f3d665d73c8d86b54b6efa2e75c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2OTA3ZDQyZWYyMjk2OGY5YWNlMjJmMWE0ZTExZTU1MDdjYmNiNDU1NTUxOTVjZmJkNzU3Y2U0MmEyZTdkM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyMWMzMjZkOGRhM2UyZjU4ZWMyMzk1ZmYzOTE4ODA1OWIzZGM4MjVmZTEzZmQwMzI5YTBhOTliYzllOGY1NjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1NWZlZjRjY2IwMDAwYTJlNDdmZjljMzJiOTUwMTYyYTdkMGM2YTFiNWYyNDdiM2M4Yzk1MjBjNTdiZDdjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjMDZkZTFhMmZiZTgxYWVlM2QzODZjMDU3ZDU3OTBhOWZmYzNjNjQwYzM3OWEzNjNjNmFiZTQwNTU3OTAxNTIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/extractor.py#L44-L78",
+          "version": "repo-lines-v1:sha256:67e5f7cf4c2d4ebb0284ffaf804db42118ec0cfc4c18556aabe2bae6dbc1b895:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyMTM5ZWY2MzMwMDAyZTU3NzE5MTI3ZjY3NjFkMGMwMTgzMDQyMjNkNjEzZTZjNTlkZTAwZjE3NWJiOWU3YzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMTFjMDU2N2QwYTVmOWU5YjEzNWY2NWNkMjUzNzJkZmQ2Mjg3NzVmN2MxZWQyNTNmOGJhZDQyZGQyZDY2NjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmODIzNjIzOWM3MGFjMDY5MjM3NTIwMGZlMThlZjZhYjAwN2ZiMjkzZWI4ZmI1M2UxYTBhNjQxZTdiZjUwNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwNDEyOGJjZTA2Y2JhMWNmZWY1Nzc3OTgwNmM0ZDdiNTdhMTU4ZDQ1NDE4N2Y5MDRjYWJlOTBmNjg2MWI2NjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b22ed37ccc094366aa95da7a52948d4c",
+      "statement": "run_memory_extraction upserts each item individually, catching MemoryRejected and malformed-item exceptions per item so one bad item never drops its siblings, records outcome=approved for episodes when the plan-approval gate was passed, skips entirely without allow_memory_write, user id or store, and records background metrics in a separate try block.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/extraction_runner.py#L26-L30",
+          "version": "repo-lines-v1:sha256:fdfb708005d1ce866a2f5bb4809e05582c7c357540aeb136a24f1c8b8556547f:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTI3YzlmMjViOTkxY2M0ZTI2MTkwOWVkMjE2YjdmMDE1MWNkZTkxODUxZWY1MzIyODZhYmQ1YWI5OTY0YmU5ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTYyNGMxY2M2MTdmZjMzZDdhN2JmYzdkYmE0MjBiM2FiZTgzM2M5YTAyMzNjMTVhNTg5YmI1MDVlMWEzMzc2ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU3OWY5ZDZjYjU2NWQ2ZmJhMmIxMzQ4MTIyMjY1NmM1NGZkMTIzMzc4NGZlMjA5ZTY4MTJmOGNmZTUzNGEwMyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/extraction_runner.py#L57-L175",
+          "version": "repo-lines-v1:sha256:2f3fe9a0c32f7c6b44e7f7c8d3161d3b8154c666baf1be00e04245eda4c14802:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlMmY0Mjc5ZWMxNjY0NGE4NTg5NDhlZGZlNzAwNmUwY2E5MTliMjk2NWQyZTY1Y2UxOGZiYmJhOGI1MTBkMzU1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODk2MDBhNzNkMmUwMmYzNTJiOTBmZWYxZDhkNjM4MTFiYTRhOGVlMGMxYmVhYTdhZTQ2NThmMzZhYTJlMTk4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiM2RmMmFjZjA2ZThjM2YwM2M3MTM1YzZlOGFjNWE5Y2E1NDMyYWJlMDZhNzRhY2EwZmRkOWE1M2EwMDhmOTg3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5YWNjNmQ2YmNlNjEyNmEyZGYzZmUyMWVkYzQzODJjODk4NWE1N2ZmYzhjY2ZhODAwMGNlNGY3OTA1NjMyMTEwIn0"
+        },
+        {
+          "resource": "repo://apps/api/tests/memory/test_extraction_runner.py#L59-L100",
+          "version": "repo-lines-v1:sha256:8fa9c7e9a7466df12c90622cbf669b6128f30cfd56cc51bce3977628ef414fdf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiNTAwOTQxODEyMzQ5ZTYwYjZhNjgwNzdmYjE3Y2YxZjhhNzFlN2NjNzczNmVjZmRkNzIzZjk0MzAzY2VmM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhMzJiOTgzMjE2NmU1MTIwYTk1YTU1YWI1NDdlMzE4MjdhYmE3MWNhNWY1ZmIwYmU3Y2U1NjJmMzkxYWZlZmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_daa09767fa694cc4bd0f5f40a854b4ea",
+      "statement": "Conversation rows carry user_id, optional trip_id, title and domain; Message rows carry role, content, optional tool_calls JSON and an agent_run_id linking assistant replies to their run, and append_message can reuse a message id already sent to the client.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/conversation.py#L9-L15",
+          "version": "repo-lines-v1:sha256:84c7e8dcb37a0c6e363eef2eec4aa344d2f10fcaf9c9950cbb3d1705fbc91579:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjBiM2I0MDMxYjI4OTcxMTczOGQ4MWNlOGM0YzJjMjg0NGZhYjRmZGU4NzBhZDlmZTVjMjVmNTIwMmNjN2NiOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjhlZDc1MDkwM2IwOWRkOWVlZGQ3ODVlMjEyMTljYjhlMDFlMTU4MGQ3MTVjZTg0OWUzMDM0YjNkMWU1ZTJkMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDYwN2IzYjM5ODYxNWYwNTljOTY2N2MwZmJiYTgxMDlmZjc5MDY0NTE3Y2VkMWFiNDg5ODM2NjAzZmYyYzUzNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/db/models/message.py#L9-L17",
+          "version": "repo-lines-v1:sha256:431d5db94442d653ee49a3b7c32df9cc18c4e4b709ed8a2b2710f23ef0289be6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY2M2QwZGE4NTRhODhiZjljYzExN2NiOGM4ZWUxODc2ZjliNWViOWU1MTc5MWQwY2Q3OTdjY2E5NTE3MWRlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGM4YTEyOWQ0NDY5NzU0OWMzNDdlZGE5Yjk1MTAzNWYxY2Q0ODY4YmZjYzQ1NjBhZGYwMDQwZWFiZDNhYmNmOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDYwN2IzYjM5ODYxNWYwNTljOTY2N2MwZmJiYTgxMDlmZjc5MDY0NTE3Y2VkMWFiNDg5ODM2NjAzZmYyYzUzNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/repositories/conversation.py#L85-L109",
+          "version": "repo-lines-v1:sha256:214c1b6d553253930a1c6bf804e19df989e8ec55d02a1bec7a00a48c3fa6cf30:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1YzJkOWQxYTU1ZjI5ZmYwNjAxYzA0ZDE0YzI2NTViYjE1NGU4MzZlNDJjOTI5NjhiZTBiODI1MTgxZjU5NzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzNjU4NWIzOTY0ZDIyOWE4NzQ4YzFjNGI3OWUyMWUxZWFkY2Y5NDQ1YmIzZWYxYWViYTVjYjIwMGM2M2Q1ZDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlYTlhYzg1NzFjYTBlOWNkNTQxNjY0YWI4MGM3YjdlZjlkZTQwOTFmNThhMzBjOWYyNGJhYjk0ODJhMWZiYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwMjBkMzIyNzM0NWQ3MzdmODQ0OWVlNjc3ZTA5YTZhNGYxY2UzYjE1ZmY3ZDJhMTdiZTU2OGM4MzFiYmUyOWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1c2444c4fbbc42768a3cfbc9cbdc1241",
+      "statement": "The streaming endpoint persists the redacted user turn before streaming so the row survives an abandoned stream, and skips that insert on a client retry to avoid a duplicate bubble.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L441-L448",
+          "version": "repo-lines-v1:sha256:4cbbddafdfe9546fdf2156847e4f933f883a66f5599f4ae561a18e6464c15751:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljNzE0OTdjZmM4MmU2ZmUwZmZmZjBiMDYyMzY1ZWY0OTcxNTM4OGE2NTQ3Yjk3YTEzMDBmN2VlYTI4ZjAyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGQ3MmZlYjEzZDAwM2M0Y2E4M2EwMTJiMDUxMDg4MzRjMzUzZWJmZWE4ZWJkN2Q1MDBhYzU1OTk2YTM2ZjUxNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmQ5MGYyNTU5MDY1YmZkYzQ1N2U1MjZjYTk0ZTMwNDI2ZjZhYjAzMTdkYjc4OThjMDI4YjhjODA3ZTFjNTY4OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjRmMTY4ODhmN2RhN2Q0ODg3ZjA1MGIwNTQyOTZlYTYzZmU5MzhmZWUzODFjOTg4NWM3OGM0ZjBlZTQzNjkxZiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

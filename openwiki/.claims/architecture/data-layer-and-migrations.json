@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:68c025ccd4d47d4c7c44c296f09285da7db39053910d055f9e22902af919f68d",
+  "claims": [
+    {
+      "id": "claim_80b987dc187f40d7841431a983a6504d",
+      "statement": "All ORM models live one file per entity under app/db/models and are re-exported from the package so importing it registers every table on Base.metadata; ORM class names match the Pydantic schema names and are disambiguated by the models namespace.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/__init__.py#L1-L27",
+          "version": "repo-lines-v1:sha256:ebda53034b7e29d2d2391918905d538974493adb1fa1c7b5657c11514e62cd2b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhMmEyYjVmNmZkNmU2ZTU1MWQ4ZDk5NGYwZTYxNzlmNjdjNjcyOTE0ZGQ2OGM1NjNhNzk0N2FhZmUwNmI0ZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwOTBjMjkxYTI5MGY5OTgyMTkzYmQyNDllYmIwYTYwNmU5ODk2ZGQ4ODk2Njk0MmNiMmZlZjg4MDU5Mjg0YTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/test_db_models.py#L5-L38",
+          "version": "repo-lines-v1:sha256:4c9c7332c84a4a7efd6b5069a3e4225077e451a45a515f6280f82b17477a41be:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3ZDAzZmM1MjI3Zjc2MmIyMDdkM2EyNzg2NDcyMWQ0YjAxYzZmM2Q3NzE4ZWExMDcxNTU3N2RhOWJjOTQzY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjYWJkMzQyZmE5YzRmNzViNDkzNDBjZGI3OGM2NDc3MDFlMzQwMDcxZGIwMzQ0MjkyMjhmNGFlZmRkZGE4NDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVmZTBhNjA0MTAxNzZhOWNhZjlmMjE1ZWQzOTBlMmQwYTA0ZjQ0ODJiMjJiMTQzNjk2NGQ3Mjc3ODk1MDA3NjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5e10e7b3cab9435280e815b273ea7791",
+      "statement": "UUIDBase gives runtime rows a random UUID4 string primary key with ISO-8601 created_at and updated_at, while deterministic_uuid derives a stable UUID5 from a natural key so seeded rows keep the same id across machines and runs; importing the base has no DB side effects.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/base.py#L1-L54",
+          "version": "repo-lines-v1:sha256:53d8608c689591fe9fa80178fb395e4e69e4e7958e6d2de4a9dbd5969fbabe26:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNGNhNmMzZDczMTZjMTIzZjY5YjRkMWNhMGI2YmMyZWEyZWYyMjcwODZhODc5Y2UxNTY3ZTc2ZTMyODBiMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkZWQ3OWUyYTdlNTY2ODk4OGI1NGIwZDA1YWM1NTlkNDlhYjIyNWJmN2VmNzc1Yzg5Y2ZjNjBkZjRjODNiYTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_36890f9021d342819bee2edc2f82935f",
+      "statement": "Models stay portable across SQLite and Postgres by using the generic JSON type and partial unique indexes declared with both sqlite_where and postgresql_where, as on bookings' idempotency_key and confirmation_code.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/booking.py#L3-L41",
+          "version": "repo-lines-v1:sha256:453ba3b4fd72ba0b0f13f87ee80e15b71ab32fcfa8bd03fa9d28e9d5a53633d6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNDk1OWExMTlhMmUwMDkwZmI5NmM3MTk5Y2MyOWRlZmNiZGFjZDRiMmZlZjE0ZGYxMzE1ZTM5ZWRmYmMyNjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlMGNlODM0MjI2ZDAzZTg3OTVjYWM5ZTRkNWM3NWExYzJkZmUyYmIyOWNmMmFmN2YzY2IyYzJlNzk2NDJmZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/test_db_models.py#L119-L122",
+          "version": "repo-lines-v1:sha256:63b2c5e9efbffa3c412dd061f7d3fb5bd0747d6ebe99424a340b08677a070b03:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjYxMDNmYjdiOTBjMjE2Zjg5N2QzMmJhNzYyNTU1ZDVkYzc3OWU0ZGFmNmVmYThjZmYxMzY3N2Y4NTRiNTdiMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGZiZDAwOTMxNGJjMjcwODQxNjczNGEwMmFlNWZmMzlhMWU0OGEwNTBiZTkxZjQzYjJmYWE5MjAwMmM2MmJmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDZhNTc0NmMzYTNkMTQ4MzM0NjMyY2NjZTI3ZTIxZDUxMjAzODBjOTUwNzkyMzcyZDQ2MjIzZjkzNDE5NDExYiJ9"
+        },
+        {
+          "resource": "repo://docs/decisions/0001-orm-and-postgres.md#L21-L31",
+          "version": "repo-lines-v1:sha256:0f2a7c9ac2a2872c60381e8c7c186a5c5808c25ced26b016d3a88baff94766ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzMWE4MmRmOWU2Yzg3OTkyOTQ5OTc2MDA5MWYwNjYxZDMyODY0MjRiM2M3YzA4NDNjNjUzZjI3YmVkYTU5OTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmMmEyYTYxZDAwMDNhNzA2YjJhNjhhMGUyYTliYWNkYjA0ZGFmNDk4MDE4NmE0MmJlMTE0NGY0NjQwMmU1ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiMTU3YTZkMjc2N2ZmN2Y0MTMzZWUyNzY1MTM2N2M2ZmRmZjdhYjRmZDliYTNjYjQyNjJlMmFhNDQ5MGNjYTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmNzMyODlkZTFiYjVlM2E4NDM0Y2ZmMzYxNjczOGY4NWU3ZDQzMmM5MTM2Y2E4MDk0MGI0NTk4MGE4YWViOGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4cbfbb1e8a104ad592e6fd4f668620e0",
+      "statement": "Engines and session factories are cached per URL with lru_cache, Postgres connections use pool_pre_ping, and SQLite connections allow cross-thread use.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/engine.py#L1-L30",
+          "version": "repo-lines-v1:sha256:5b5b35220ea2a2648bea37590dac150029ec318b3b74bcc38a6852fa154e1616:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhNjQ4NTY3NDdmNWM1ZmVmMWYyYzBjMWIzZTNkMzRlNmZiMWVmNjY4MTc3NTA2MGU3NWZkMGE4NjY0OTRmYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkOTE2ZTMyOTJjZDAzZDJkZjM0MDU5Mjg3ZDUyNGM1OGNkODM1MDI3MTM5NWQzYzE4Y2Y5YmQ0ZjBlZmEzODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/test_db_engine.py#L7-L29",
+          "version": "repo-lines-v1:sha256:67a0c362d25de86c8ac2c229ef4b7ec412f897733fbd9236bd72e1a3327617fa:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViYWI4ZGFkMzkyNTk4NjM3MGZjNTc3NmY0NWEzYmI4MGQ4ODJmMDk0NWMzM2QzOTA1ZjE3ZTIwNTYwMDU4NTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2YmU1MThmMDlmYjMxYTQ1NTc2MzNkZTIxNGM3N2E2OTQwNGNiODJlZTQwYzBlMTBmY2RkYWQzY2RjZjEzYTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNhOTQ5Mzk2OTlmN2UxZjJmNTU4MmQ3NmYwNGM3N2QwNzkwZDQ1YzllMDJmYmY2YzdjYjZmNGFlZjQwY2U2MjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f7876506dce248bda660e1190c3d7962",
+      "statement": "On startup the schema is created with create_all only for the SQLite dialect; on Postgres it is Alembic-owned, the Docker entrypoint runs alembic upgrade head before serving, and env.py takes its URL from application settings.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/alembic/env.py#L10-L30",
+          "version": "repo-lines-v1:sha256:6729e6e79d15e3b282abad8fe93fbc68f62d5a2d2b69407073a4a223dd72fe6e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1NDczZDU0YWZkOTM3NmM4NmMwNTI4MGVlZDBiOTAxYjFjNDVjZjQwMzQyMWMzNDI4ZjI4N2JmZjZmNWI1ODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YTc3NzIwYmNiY2E0NmJjZjExNWVmZWUwY2FmOWI0ZjQ3YzhkZmIwOTVlMDA5YTk4MDA2ZWFjMzg1YTZkNjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5N2VlYmQwZDE5NTQyNWY0YTZlNzIyMWM2MWQ1NmI3MTQ0NzQ4OTQ4NDk3ZWFjMzMwYzkwYTkwNGE2YmUzMGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlNGE4Nzg5YjViODQxYzBjNjk2ODczN2VkZmVkODdlNGVhYWMwY2RlNGNlZGJmMDIwNDY5NDYzNzc2OGM4MWEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L22-L29",
+          "version": "repo-lines-v1:sha256:4360d3816d6236e419d18f874f1b7ddeea7aeaa1f4e3d88e5d098717cbcff37a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTdkMTdlNTY4YTc3OTI2NDA3NzEwNjljNjhmNmY3YmQ3NjAzMTQ3NzZiMjQyYjNkMjNkY2Q0MDViYmQzNTY1NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGMzMDViMDlmZThlNWRiOGEzOGQxZjZjMzY1MjJiMTY5OTEyMDU1YzY3Yzc4MmU0NGM4ZjA5OTQwNDYyNGEwOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzE0MmExMGRkZTRhYTMzMWU3NjUwYzYwY2FjZWMxOWM3OTJiZDIzYTNlZmQ5MDQxMGZmYzljNmQ5OGNlZDMxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWRjMGZkNjk0ZDIyNzRlN2EyYzUwOGQxMjEzMzgzZmJhZjdhNTA3NWYxZWZlMTUzYzliNzk0YjEwYTIxODQ4ZSJ9"
+        },
+        {
+          "resource": "repo://apps/api/docker/entrypoint.sh#L1-L8",
+          "version": "repo-lines-v1:sha256:62edf644db24cb6fa3b47d50b4583aecf6a429dc409f1174300f65b1c1b8f37d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NmQxMTJkZThiZWQxMDI3ODZhNGExZmE5MDE4MWIzZjA4NDFhMjBhMWFiY2EyNTVmODA0NjIzNmI4YjAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmUxMjRiMzAxMTNkZDJhYmJlNjg0ZDkyMmMwOTdhYTQ5OGNlNWE4YTVmMjI1NWE5NDFmZjJjMWUwNWQ0ZTE5NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_678b7641fdd14e6c8343ff54133aeebb",
+      "statement": "The pgvector migration is Postgres-only and tolerant: it probes pg_available_extensions before creating the extension, warns instead of failing when the extension is unavailable so the migration chain survives a stock image, and its downgrade is a no-op.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/alembic/versions/b68656f68e88_enable_pgvector_extension_postgres_only.py#L20-L51",
+          "version": "repo-lines-v1:sha256:cc3725bd5528096a1935f889f802315571b0a6502d50bc2a56344142bd9a897f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmODc2NjQ5ODM4M2FmYjA3NjIwYzg3YzAzNjVjYjYwMzEzMjljOGVjMWVhMGYyYTMwYzNlZTk1YzRmYjhiOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0NDVlMTdhZGVkMzA5NzQ1ZmZkYTMyOWZjZDY1ODYyZDUyOTZjNGVkN2IwZmVjZWIzMzA0NzVmNmUyNzRjNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiNjhjZGYxMTNhNTNiZjg0NWNlZjU0YzE4MTcyNWRlY2ZiYjExZmVmZDA5ZWM5OTIxNDY4N2NhM2MyYTllMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f2f07f9c6ffd458b9313927510bf034e",
+      "statement": "seed_all upserts every app/data reference entity in one transaction and is idempotent: most entities are merged under a deterministic UUID5, City is upserted by its (name, country) natural key because its autoincrement key would duplicate on merge, and agent_config rows are created by name only when absent.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L1-L1",
+          "version": "repo-lines-v1:sha256:2f31a530e1c3336b61672793874880fd14a57b4103813372fa830e4f5841ddec:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmYzMWE1MzBlMWMzMzM2YjYxNjcyNzkzODc0ODgwZmQxNGE1N2I0MTAzODEzMzcyZmE4MzBlNGY1ODQxZGRlYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmYzMWE1MzBlMWMzMzM2YjYxNjcyNzkzODc0ODgwZmQxNGE1N2I0MTAzODEzMzcyZmE4MzBlNGY1ODQxZGRlYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L238-L245",
+          "version": "repo-lines-v1:sha256:664a56d8ff96ce76efbef7e7c635acd1a0c7477baf42252a8d468d6e6046d348:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODEzYTM4MDI2NWE5YjliNWU1YWZlOTJkYjY0YTMzNWE2M2E3ZDQ0ZGRjYTdmMTNmYzAzZmU5MDAzN2RhOTY4OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDcyMThhZjZlNjExNmIwNTM2YWU5MTBlYzE5YmQwNDRkN2Q2N2I4OTBiMmFhNWEzZTQ5N2FhZmNiY2QwN2IxYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGNjNGE3ZDFjYzc5NmFiYTNlNDY3MjMzMjdmNTE3ZTlmODExOTgyZDI1MGYwNzAyOTg2ZTRiNTc2NGFkOTU4OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWQxYjIxMDgxODJmNWIyOTUyZmFmZGU5NDY0OGM1MGJhMTY5ODlmOGNmYmVkNDk2Y2JmNDUyMmJhYTA5ZGQ0YiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L302-L319",
+          "version": "repo-lines-v1:sha256:3a2ae73cfd6d20974568e4c2eb4baf785b41b5a45fe3449b8675ea25bd986337:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlNzE2NDNmYjI2NWNkMzEyMjMxZjQ5NzJmYjA0ZDU1YzhiODRkMzk0NTc0ZTY5NmZkMTA2NTIyNGNmOTQ3NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyN2U2MDZjMDQ0NmFmZGNkOGE5MzZiNzg2NWQ2YjVmZjQ2ZTY4ODkyZGUwYWFlYjQ5NWU3ZTJiYWNjNWI5MzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyODUwNzg1ZjQyNDhjYTBkZDhlM2FjMjI5ZmNlN2JmOTMxZTM4NDM2MWFiZDdiZTk0Mzg4MzQ3M2I1NjE1NjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L34-L47",
+          "version": "repo-lines-v1:sha256:7125f5cd3feadd76f158ab4aa235984e959d765effd177024213c85675d34782:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZjM1ZjgyYzVmNjY1ZjcwNDFiODZiOGI2OTMyN2I2MWU5ZTBmYWMxZjc5M2FjMGZhZmIwYzg2ZmMyMTI4ZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkMDk2M2M2MjA5ZWVmYzYxZTI5Y2ZmOTRkMWUzNDg1NmQyMjRhMDNlYmY4MTU5YTFhMGZjYTRhOTM5M2ZiMWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L80-L107",
+          "version": "repo-lines-v1:sha256:f88674489e3787b673ba3888bb48ed012f5ca17c2aa5f4365fe347e9ceb901c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5NDhmOTJmOThhZWRhNjNhZTQ4ZjM4NjdlM2FiOTRjODVhZjdiMWVjNmJmYTUzMzFjZmIyOTA5ZDVjMWQ5ZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzZGYyYWNmMDZlOGMzZjAzYzcxMzVjNmU4YWM1YTljYTU0MzJhYmUwNmE3NGFjYTBmZGQ5YTUzYTAwOGY5ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5MDczZDJkMTY1Y2Q2NmZmNzg1NDk5OTU3ZDBhZGFlZDg3MjNlNTM4NWNmMTNhNGMwNjg1Yzk0MDU4ODljNTQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/db/test_seed.py#L27-L46",
+          "version": "repo-lines-v1:sha256:9f32bb7a2eb33486c038578c5aed8a91b85706a2e2482759b114044e778c0383:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2Yjk4NmUxNzc0Y2Q3OWU0Y2VmNzkyNmU5YzcxY2EzNTQ5MTY1ODllODZjYjdjNTAxY2U2OTJkYTJjMThiN2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliMTVhMDkxNzg2NjcwYWNjODIzYzlhOWRjZTAzZmM0ODc5MmMwNTdhZTg1MjFmYTY2YWEwZjNkNzViZjViNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4YTI1MDA3MDI1MjNjMDYyOTI3ZTdhY2Q2NjNjZjYwZTU5ODU5MWU5MGU5ZWZmNGQ4OWJjYmE4ZjlmODdiMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4c2d845176e3458aaa135cf89fdd0bf6",
+      "statement": "Checked-in catalog translation files are validated against the supported-language list and upserted with source seed, and after flushing the seeder raises on any hotel or place short-code collision.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L248-L299",
+          "version": "repo-lines-v1:sha256:4de9f248a2d120a778c01cf06c7ed180ec513bae91cfe1e24ea316c1d943dff3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhMmM5YmI4NjAzNjNhZjIxNjgyNWVhMGY3ZWVjODU5ZTkwYTMxY2UyM2U2ZDQ4ODMyMWZhZTBiMTllYmQ2NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjMjBhODA2NDQyZTkzMTAwZjRhYmM4YTVjNDQ0ZjQ5Njc5ZWU3ZTRjNjUzMzQ0ZTAwYTExZjM2MDg3YTBhMjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkMjYzYTE1YWI3MWEwNDQzNWZkNDBkYmM1NzhkOTZjNzUyNTdlMzJjMTU4OWU2Y2MwYTBhZTdmYThiYjJmNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzZThkODdjMGNhNmFiOTI5NDg5ODc0YTBkYzhmZmJjODY5MGJjMDQ4NTY2Y2U4OTMzMWNlMDZjOGRjMDY4YzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd9b6a4bf50c414dbd75b6492e7afe98",
+      "statement": "Reference entities carry seed-order position columns and repository list reads order by position because synthetic flight and hotel generation is order-sensitive and unordered Postgres reads drift after the every-boot merge; golden cross-engine determinism tests pin byte-equal output.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/hotel_ref.py#L17-L21",
+          "version": "repo-lines-v1:sha256:c6bba9558bd5a612e3c5c6f0a158ce546a1733373231734a309a43ca9654c483:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWNmMDcxZjFmNjBmNTE1NjRjYTk4NDJjMmM0ZTU2MTY4ZDBiNTYzYWQyNWIzOGVlMzAwYWI4ZGM5NjQ5ZjUxMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWY5ODQ2M2I3M2MyMGY2ODE5MDQwMmRhZjY2MGI5MWE2N2Y5YWMzMWFjZTBjYjhjNzcxZmZkMDIzMWIwYzJhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzRjYzBhYTgyMDNhZDMxMzlhNzg3OTcxOWU4MjBjOTJlOWIxMWQ5ODgwMDA5YWIxYTY4NDg3NzUwYjJjY2YyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2IzYWIwNDYxYzY1ZmJmNzY4MGFhN2VjOTMyYjE0ZDAxMDNhZmVlZTBmOTBiMWYzMTcxMGQ3OTRhODZiNjdkNCJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/db/test_determinism.py#L17-L30",
+          "version": "repo-lines-v1:sha256:afa0fb45c115e64912ffac2f3aaef9088d7e919108d6fdd7e6f511bf2e074273:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNmEyODczYWViMzMxYjc1MWVhMWUzOGE0ZWZhNTAzYWFiZTVjNDRjZjcwZmZlZTRjMWFmMDlhNzc2NjVkYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZDkzNzk5OTBmMTk3ZTMyMTc0NzgxY2Y1NGYxYjkwOTNjZTE4NDM4ODEzMWViOWI1NmZjYjdjY2QzMWMxMGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmYTBjYTJiZTZmMmJmN2E5M2ZmY2NiOTkzOWM4ZTIwOTQzOWUxODRkYWZkN2NkZjE0OWNiOTcwZjIwOWM3MTEifQ"
+        },
+        {
+          "resource": "repo://docs/decisions/0002-reference-data-in-db.md#L36-L43",
+          "version": "repo-lines-v1:sha256:3b83ddf195ade234003aebf7837dc582b3c73d52e77ed9e18e23c08789941f76:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODQ2NmFlNWZiNzM5NTA0OTJjMWZjY2Y3MjBlMTg3ODIyYmU2NDFhOGIwMWMxOTQyZGRiOGJmZmM4ZTIxM2ZlZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTUxMzUyM2Q1MzRhODc1NWFlMDIyYmY2MDQ2NjRlOTViOWU5MmMxYjFjODVlZWRhMDc1ZjZmZWRhZDAxZGE4NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzFjYTQ5NGIzYWY5Mjk2YmVjYmE5ZTU0NWRmZjFhMTYwN2ZhYmEzZGExZTM1MTBhNGEwZDI2Y2Q1OGE0YWUwNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTNmZGYxY2MzZWY2YmVmZmNkNmM0OTZkNjgwMDdhNTNiMWE1OTEzNzM4MGY3YWJkZTE2ZjAyNTk5MWJhN2ViNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1c0a69faf46f469fae6e695ef52fa037",
+      "statement": "Alembic migration tests in tests/db run upgrade and downgrade round trips for the agent-run, agent-run-step, feedback, rate-limit and content-translation revisions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/db/test_agent_run_steps_migration.py#L55-L60",
+          "version": "repo-lines-v1:sha256:7806758a8fbb602e7fb4f0b93e60c907116dc53a8f1a9c371a2fea956ae56d02:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzNjNDEzMzY5OTY4NTNjYWEzMWFjOGIzNzkwMTM0YjFiZDU5NmE4ZWI4ZDQ0ZGYxOGZkZDRkYTFhOGM2NjAyYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTJiM2IwN2YzNGFjNGZkYTk0M2FjOWEzYjBiNTk5YWYzZGNkMTFmNWM1OTE4MGZhY2Q4MzU1ZDZlOTY3M2QxNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGEyOWRiZmZmZGQ1Nzc3ZmE3ZjRkNTEwMWJhYTc5MDcxMzE1Mjg5MDhmMWNkYWIxOGU3YjliM2MyYTJkM2Y3MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDQ2MDE1M2FkMzM1ZTVlNzFlMzFhNjExZmU3OGE0MzdhMzdjOTIyNTNkOGMxZGFmN2JmMWNmOTIyNTdhYTI5ZSJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/db/test_agent_runs_migration.py#L56-L60",
+          "version": "repo-lines-v1:sha256:85761bc86a00c1bdf4a2bcea5782e17cf60e6e0c11cb032dafdf79f5c79dcbc3:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWQ0OTUzOTU2OGUzNzQwZWUyZmRjMjllMmI2ZGEwMjhhZDIzMTA0MDZmNTdhMjliZDVkMzMxNDc3NWNiNzlhZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJlZGJlNjIyNTEzZGE5ZTRiNDA5YTA0Mzc2NjEwNTVkMTUyMmY2ODM4ZGY0MWVjMmNiMzM3NTNhMTc2MmU3NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2RjZGJkODgxZDc3YzBhMWRhNzU5OTJhZjNjNjQzYjQ5MTU4MmY5NTBiODk5OTMxODEwMmJmYzBiY2Q2OWU1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODE2OWQ1YWQ1YzYzYmNiYmU5YTQzY2E2ZjA4OTY2ZTJiYjJkZDI0NGM5ODMxZWE5NmNiZTNlYTVhYjM5YTMxMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e320df40394f48bab74823075a993ee9",
+      "statement": "The ORM decision replaced hand-written per-dialect SQL so a backend swap is a URL change, and the same test suite is required to pass on both SQLite and Postgres via make test and make test-docker.",
+      "evidence": [
+        {
+          "resource": "repo://docs/decisions/0001-orm-and-postgres.md#L7-L40",
+          "version": "repo-lines-v1:sha256:87e89e23f90b191774df5af47417d2ae61d00888816d533902acf1daf2881215:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlMzYzNGRiYjgwMWE3M2I3MGU4OWVkNzc1NDZjNzdiMTA5M2JiODhjOWU0NzkxOGU5NjY1OTRkYTQ5OTRhZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmODE3MDU2NjMyODJhZDk5NjI0MGQyMTYxMDRhY2Y1ZjhjMTUzNTkwMTgwYWZhNTgzNGM0NzcxOWIxYjUwMTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhNWVjNWNiYjk2ZGFmYWE0NjNhZjNlZDNhNGE4ZWJjYjdkMzA1ZmExMzc1YWFjZTAzYjJjZGZhZGMyZTA1MmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyNzM3NWMzMzkxNzZkZjM3NWU4OWQxOWNkYjY2ODQ4YjI1MGZkMTJmZDUxOTQ5NzM5YjA4MWE0YmY0YmM5OTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

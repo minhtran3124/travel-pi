@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0829d85e9f0fb92d24ca15d5220a60bf7089d4dbffd19804912885dd510366f6",
+  "claims": [
+    {
+      "id": "claim_8238a48962fd4ad6bca3983cf6358082",
+      "statement": "merge_trip_facts overlays only non-None keys so a None value means no information this turn rather than deletion, preserving facts stated in earlier turns.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L36-L43",
+          "version": "repo-lines-v1:sha256:7b72a04e12818359f659fba37eb784543302724abc979a9f06367d3e0a5fbd4d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGNiODE4ZDc0YjZiYzYwN2U1NGFkYjZmMzFhOTg1NWFiMmJlYmI3Yjg2OTVlOTc3YWJiMmJkNWVkZjRmMDA5NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjcyMTU4MTY0ODdhMTA0YzI4YzQ1MzRkNjY3ODg5NTY0NjEwYzQxNDBlMWIyMWQxZTBkNTIyMWQ5N2YyMTEwMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWMyYWRkNDU1YmM0Mzg1NjVlZGVhZGQ4N2NlZjRmMzNiYmUxNTdiMjdmMmUwMzFhNWFmMTY2ZGNmMTQ1MGZhMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmVkYjYwNWQ2OWYwZjk4Njc2ZDJjYWI4MWJkYzEyODljZTU0Y2UxMGFjYmNlMTE3MDJiMDE0ODhkNWU5MTk0YSJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_trip_facts.py#L10-L70",
+          "version": "repo-lines-v1:sha256:3ea37f134d3bcc7405841eb77580ccdce560e2abb8750707ed6b05ef9f27a896:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlNjFkZWVlNmZmMmQzOWU1N2Y1NzVjMDZjMWM5NjhiNTlhOGExNGZmYjYxOWY5MjE4ZTc4N2NhODhmNmU3MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MjY3NmM4ODhjMWE0ZDlmYTc3MmZjZGMzMDJmNzczYmM3MjkwZWViZmY5ZGEzNmEzOWY0NGMzMjExOTgzODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ZDQ4NzhjN2FhMDAyYmNlZTg4YWE0MjE3MWY0NzU5NWY5MmFlNzI1ZjAwNTZjNjBmMzNkNjFkNzA2ZDA0YTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_18045956ed784f41babbc3ee97ed945d",
+      "statement": "awaiting_user uses a last-write-wins reducer rather than a sticky or, so parallel worker writes do not crash the turn and the per-turn False reset applies; task_results appends but an explicit empty list resets, and tasks is replaced per turn.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L24-L49",
+          "version": "repo-lines-v1:sha256:9cce41965686b365c4ec2f2498150f678e89a24d5116ce6ba3ecf8d08e071fa6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3YWJmMmIzNGUyMjhlN2NhOTJhMTUwNDE3ZTJjZDRkNjFmM2U1YTY5Y2ZjZjRiM2I0YjIyZmYwYTVlMTY1NzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiMjM1MTMwZmExZmI5MDY1Mzk1ZjJlNDMxYTUyNzkxYjg2MWNlZmY1NGRlMmZiNzdhZjI3NDUwZWQ2ZGRhZjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIzYzE0NDFmNDg2MWQ2YjEwN2Q4ZDlhMjhkMTc2ZjM2YjA5ZDcxNDI5N2IzMjY0MDg4MzNjYTQ2ZDJmNGEyYWUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L79-L87",
+          "version": "repo-lines-v1:sha256:a991cc3a3d9c478d38080540aed85320f9868066762b008f59e2de7da84d7ec5:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZjZjNlMzQ4NWVhMTM0ZjI4OThhY2UwZjY3MThkYjI2NDMwODVhYTZhNDE1Y2EwMjlhN2ExNDk2OTdjZmEzOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODY3NmFkNGVhZDhiOWUzMWMyYTY1NGJlYmI2YzlhYTg3NjQ1NTliYTY1NzU4M2FmYWE1Yjg5YjU2NDI1ZjQ3NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVhNjhmMDEzMjJmZDE5ZTY4Njg2NmE5MGQ1NTYzZTE4MmFlODFiOGNlMGE2NTk4YmI3NWI0ZjE5NDU5YWQ0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTEzZTgzZmNlZWFmOWQ4NzU4NmY0OGU5NGFhZGVmZjliM2I4OWVhMDk1ZjYwYTVhMWJlNDgwMjk5ZjcyMDc5NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5d308b6687264280908edcfb42598700",
+      "statement": "AgentContext is a frozen per-run dataclass whose defaults equal the pre-context behaviour, with authenticated defaulting to False so a path that forgets to resolve identity is treated as anonymous; resolve_agent_context restricts free-tier routing by excluding premium-only specialists and coerces an unknown tier to the default.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/context.py#L15-L65",
+          "version": "repo-lines-v1:sha256:fffd498b6f0f5f6852c13b6511c422507f18bbadef53a9da0d2ce172acbe0454:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2OWExMzk3NWMyNTZlYzgzMjBlMjAxNjA4M2M5NmRmNjM3Y2EzZDM1YmViZGUyMzE0YmVlM2E0NzExYjU2Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3MDk0OGU2ZWZhYTFkNDczOTMzMWYwMDg4NTE5YWFiNGM3ZDc2MTlhYzU1ZmQwOGU3OTA4ZTVmNDljNWZjNzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_tier_gating.py#L23-L60",
+          "version": "repo-lines-v1:sha256:9a378720e5532dfa11963cff415bc6dc7e1ed85698fd84af375d6d2d3328ecaa:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2YWU1ZTkyOTZkMDFiMDEzZDIwYjdlM2FhY2EwNDUxNjQzY2M5NzljNDU3ZDgyZmNiNGIwZTA2NjAyNWQwZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmODQwOTczZGUwNDUyOGU0ODZkNzhhMTYwYTMwMGFmNGE2NzkyZmMzM2IxMzdmM2EwMWVkZGQzZGE4M2JkOWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmODE2MzJkZGQ1ZWJhYmEyOWM5ZWU5NmY4NzdiYmQ0OGQ3ODliOTViYzg0ZGY1Y2JmYWMxNGNkNDMwNmZjMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQzZTM3YTEwZGE2MGQyNmUwMTZkZDAzNGZlOGI5ZWU4MjFkYmI5NjBhODRlNGI5MDE3ZTdhYjQyNjA2OTNkNzcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_253041c0e948476b827c1c567361580a",
+      "statement": "The router resolves the tier server-side from the users table (anonymous callers are always free), reads the reflection toggle from agent config, and replaces the context timezone with a validated client-supplied IANA zone falling back to the configured default.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L141-L172",
+          "version": "repo-lines-v1:sha256:946ceaf4ecd1c11fa3842fcb3818fdec05f4c1838c0b0f5e5af82b5e6f58830c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlMGIxMzhlMDI2NmEyZTRmZTVmZDg5MjZkYmUyMzg3ZjcwYjM1MjY5MWRmODcyNWZkMjhjY2U1YjgyYjRiYjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyZmE1M2M3NDM2N2ZhMjc4MzJhZTNmN2FkNmU2YmMyNDRiM2VjYTFkZGM5ZTJhN2RhMGJhNmEyY2U2NTQwM2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllNDNhMmViZWE4MTRkNzdhODUyOTgzODhhMGJjNjYxZTc5YjhiMTczMDJmNzEyNmI5OTc2NDQwYmUyOGNhOTIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L186-L187",
+          "version": "repo-lines-v1:sha256:abe896072c5bfdfec5adf842325081dcb46d5c36fe1f75542d510b38097ac387:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQ2OGQ2ZjM2MThlNjNlYjUzNzIwNzhhMGU2MDEyNjNlMjk2MjIyMTFkNWUzN2Y5OGFhZjU5ZGZhZGZkOTRhMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFkNzA2MWFjZGQ3ZWY5NzQ2MTdkZGRlNWE1ZGFhMmZhZDY2NjI0NjE0ZGVjYjM3NWQ5MjA2NzNmYmM2Yjg2YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjhjNTg3N2RkZDk1NWQzZTc2N2UwNmRmZjNiMzkxZTk4MjFlMWQyYzU3ZjE1ZjU3Y2U2ODhhYWQxZTc3MDEyMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDZiZDhmYTM4NDZmNzM5ZmZlNzI2ODlhMzA2NmY3ZmFmYTIwMjgxMWUwODA1MWJmZWIzMTYwMzMyMGUyMmIwMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c4908135d7854c55b1850b2525383c88",
+      "statement": "system_with_summary folds profile, account email, instructions, trip context, summary, trip facts and preferences into one leading SystemMessage in priority order, returning the base unchanged when all are empty, because providers reject multiple system messages and add_messages would place context after the human turn.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L90-L172",
+          "version": "repo-lines-v1:sha256:909654948f0d8b0d7cc8c285142736194db55626255c591df50b2f310446af5d:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhMTlkNzVmMWExMTYzMTIzYmNlZGZlYWY3YTgzN2YwNzI0NGMxZWNhYTg2ZjM3YmZlN2UyMTYwMjliNTkxZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5MDRlNWZhYzI0MTFkMGE5MDY1ZGIwYzc2MmYxYzUxZGNhMjNmNWUwMGY2OWM3MzQ4MjcwZjQwNDRkZTQxOWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllNDdmMWM2MDQ5NzEwMmU2YTc1OGIwYTUzZDBlYTJjM2IzMjg1Y2YyZjdiM2M3Y2JlNGMxNmQ1MDc5MDI4ZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMTA0MDI2MDVmYjc4ZGZiZmY2OWI4MjMyNzBjMDZiM2RlZTBmZGFlNzc5MTZlMTI2ZDZjNTY3ZTAxNzgwMjAifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_trip_facts.py#L89-L185",
+          "version": "repo-lines-v1:sha256:f356be89491b5a9977f4b3924aa108330c88e7e17e0a8fef0543249dfaf861c3:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljZGMzZjM4NmU2MWRmYTZjMTk4NDQwZWQ3OWVkNDJhMDE3NDBkMTYwZDlhMDgzMGEzMTVjZDQ4N2E0NDhlZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4NWNiNzk0ZDhiNmM1MDJmNDdmN2MyMWI1NjE0YzJkZjQ0YWU1ZmVlZmI4MGI3NTJhMjU3OGMyMTBkYjQ4MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MjY3NmM4ODhjMWE0ZDlmYTc3MmZjZGMzMDJmNzczYmM3MjkwZWViZmY5ZGEzNmEzOWY0NGMzMjExOTgzODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwNGU4YWU0ZWU4NGUyZGNmYzJlOTM1OWQwMDYwNDc5MDM5OTdhM2U4ZDc1NjM3MmI1ZDM0YzdjOTcxMzJiODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5366a883189d4af897e32ef724a8aaaa",
+      "statement": "with_task_note folds the specialist's task query into the same leading system message and skips it when the query equals the last user message so a single-intent turn keeps the cached prefix intact.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L195-L211",
+          "version": "repo-lines-v1:sha256:dee2247199fb18c481ee410a145d93008a34bf50130d72ddf964c5789265e2eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkN2NlZjBmNjQ2MGQ0YjliNTVkZjlhNmUwZmZiYmRlN2Q3MWUwZGQ0OWNiM2NhNDRjMzA3YjdhZWU4NTU4ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2YjdkZjU4ZGNkN2UxNWZjYWIwNzA3ZmY3MjE1ZjUyOWRkNjZkNmM0Mjk5MjU1Y2EzOTM3MGE2YmFlYzhiNzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0Y2ExNTEzNzg1ZjJiMDQ5ZjQ4NGM1MDc2NjNlNWVhNmM2YTQzYzVkMzdjMjM3YmIwY2I4MDEyMWE4MmM0YTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_26863186f46f48f59f6f4d1f218de108",
+      "statement": "ground_current_date computes today per request in the context timezone (falling back to UTC on an invalid zone), is appended last to keep the cacheable prefix stable, routes relative dates to the resolve_date tool, requires asking when no date was given before a date-bound tool, and exempts undated day-by-day suggestions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L214-L246",
+          "version": "repo-lines-v1:sha256:43b02508f2f87c1eeff8f17168a9eaa1979b19e014ecfb2f424a82c81d32b494:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4ZjczM2M5NjViZDMwNDI1OTAzNjY0MzFhYzZhOTUyZmY4NjVjODRlZmVhMmYwNDYwY2I5M2I5ZTFkZjIzY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhOTdhNDhjNzMzYTkxN2E2NjcyODc1YWJlYmE2YmVjNjQ4ODc3ZDk1NzBlMjRmMDJlZmU4ZWYzYTY1YzA0Y2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzOTYzYmZjOTZjMzhmNDY0MTZiZWQ5YTRhMWM0OGFmNTI0ZTQ3MDY1ODgwN2JiNWZlMzc1NDNmNzNhZWFmMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_state.py#L326-L400",
+          "version": "repo-lines-v1:sha256:85234aaf0820296e2012f787ae88da4958179113ab4baee944211c5fa500e61c:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2OWM2ZjAxZWU5ODZhYzViNzJlZjEyYjE1MWIwNmY0YTg2MWMwMDBiNGFkNWU4ZDMzZDM2MjdkNGFhODZlYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MGM1YTU0NThjNGEyMTBhZTViMDAwN2M3OGFhZTMzYWM5MDU1ZjkyYzI1NzllMjBlOTZhNTAxMDY5MDQ1M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjNGNlYTM0YWQxZWM0ODZkZDlkNjc3ZGYwY2Q5ZDQxY2YxNWMzYWQxMDFlY2JlZDU3ZTQzZWViM2RjYjBkMzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ2ZTM2OGEyODNhN2M3NTFhNGIxYzkyYTEwNGMxZTY3OGFkMzNkOWQ5ZjZmOGJkZDY5NDFmYTE2MThmNWM3MjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f768c333efa34c32a8b286644580b7ee",
+      "statement": "The supervisor writes the detected language to state before any terminal branch so code-authored replies use this turn's language, and with_reply_language pins every model reply to state language while stating that tool results and place names never change it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L175-L192",
+          "version": "repo-lines-v1:sha256:6446561d51cd220d08c55e0659d019ada28bb8b69a675c6ee8271c3bb206ea2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3NTFkNTg1YTM1MTNlNTQwMDI1NTg5NTg3MjUxYTA2OGE5ZmU2OGVhNjQ1NzM1Y2FmYzNmYThlZDA3MTA0N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmMWM2ZTMyMGQ0MTdjODY5MTNmZmUxZjI4YTA0ZjZiODVmNzAxZTVlODZjMGQzMzE4Y2IzOTI2ZmNlYmY1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4NGQ4ZTRlMzdjYmQ2NzYwYmY1NjM5ZjZhZTUyMzFiZmMxYWZmMWMzMDBiZmU4NTEwY2U0NzA2MTNmNjgwMDIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L350-L368",
+          "version": "repo-lines-v1:sha256:b044ba2996a602de4a279694a9ba913d823494f283922085cbcd3d4d0ea99f8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMTEyODJkZWQyNTg5NGMxNmQ3YzZkNWI3YWNkNGE0NmJiNDFmOWU4MmE2MzkxZmRmNTBkMzg2YTU0NGZkZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5OWRjYWVkNjhmZDIyMGFiNDlmYzk1Yzg3YjgxYjU2Y2I4YjU1NTNkNjllNGE0NGU2Y2FiNjc3ZjEzNTY1OGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhNTVkMzJiNDI5ZmMxODc2Nzk3YjY5YzhiYmNmZDZjNmIxNzdlOTdhMmQwNmJjMmFiZDY4YjViZGQ2M2UxOTEifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_state_language.py#L19-L53",
+          "version": "repo-lines-v1:sha256:09f6dedc87a4d11b6f88ce73040c85050da0db2bf48b31f269e44188fd2e8068:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzZWJmZmI2MzM3YjQxY2FhYjI2MjRlZTRmZDBlMmJmZjM4MzZhOTY2NGY0YThkNmU4MjBlNGE5ZDUzNGYwNGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MzhhZmI4OWFhZWI2MTAzM2UzNmQxZjZmOGNkOGVjM2FjYzFhOTZkNmYzMTA1ZTY4YzJhZGM1NWVhYzk4MGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3NjQ2NGVmZmU5MDE5YTFhOTIyMmY2OGQzNWYwYzI5YzM3NmRlNmE3MzNiN2Y2OWRmYmNiOTg2MmE0NWU3NWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9495c4d78e1947b6a6531f13b2ddc333",
+      "statement": "Supported language codes are defined once in app/core/languages.py with English as default and a normalize helper, and an architecture test forbids inline language literals in the agent modules.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/languages.py#L1-L24",
+          "version": "repo-lines-v1:sha256:5f13f541f9a237317e5328cc8e6ff7e7bab496d30972ca0a4b43325c87c43acd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZDFmN2UwM2EzMzk4NTk0M2I2ZjVlOTFmZGU3YjlhNjk1Mzc0YjJkODJjZGEzMmUzN2M4NWViNTM3OTdjODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2NjM0NjhjYzVjMWNkNGFlNThlNWZiNWQxNTlmMzA5NGExMDQ4YmY4MzhkZmVlODY4ODAzOGM4ZmU4NWVmYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/architecture/test_language_literals.py#L1-L30",
+          "version": "repo-lines-v1:sha256:1e404a972051d170ad28a089699b162798cc58dbb6c2b4bb3434b1074662f76d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiMzUzMDQwYjc2MjU0MjQ5OTQ5ZWZkODY3MDI1MzhiNTQ3M2I0NTNkMjBiYTc3NWJmMjY0OGE0NzIyNWJlY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5N2JkZDY4YjM4NDI0NDNiMjRhMDMyMjY2OTExZDY5YTdmMWY1ZjE3ZDY2NDNjYzAyNGI5ZTEyMjI2ODcwY2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyOWZlYjc2MjQ0NGM3ZDg0MjM4MWM4ZjY5NGM4YTAwNjIxNDQ4YTEyY2RlNzc5OWZhMGMwMTgzYjk2ODM2YzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9428c1a73b27402d844ba7fe3f96ba75",
+      "statement": "system_reply stores only English source copy, translates once per target language through the LLM translator with a persona note, caches the result under a key including a digest of the source so edits invalidate stale translations, and serves English on any failure.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/copy.py#L28-L77",
+          "version": "repo-lines-v1:sha256:02122a2a89fe6662d3dbfbb77d24bc0b53247becb02f0a26537ff82b4d688db7:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YjMzYzJkZTA0ZjMzYjQwMzE4MDAwNDg4ZWMyOTZiOWNhMGFlMWM5MGRlNWNmYmQ5NTI0NDc0OGU0MGNhNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZjNkYjg2Zjg4ODAyMmJmZmYwNjYzYjQwMzg2MGU1NzNhYjNmNjJmZWE0MTIxM2FjMDZhZmMyOTU4NGRmODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_system_copy.py#L58-L110",
+          "version": "repo-lines-v1:sha256:06c6e33607277166cfba26962af6f8a51be193430cf0da01d715a396e0bf1c11:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3ZTkzNjAzZWZlNzUxY2VhNzgwNTI3ZmVmZWM2ODUyY2MxYjhlMTJhZmI1MTYxYjA4ZTlkN2E2NDZlOTRlOWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZGNlODdlYjY1M2NlNTcxNDYzMGQwMTBiNmRjZTBmMTI1ZGIwZTAyZjk5NDlkM2IyOTUxYmUwMTJmNmQ4MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmNjJmYWNlZjNhN2IwYjVjMjRmNzFjNjc3M2FlZmZmZmQ3YjRlNjJiZTU0YWVjM2E0YjY4NGY1NWEzNzA5ODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0OGViM2RlZWE5ZGZlMjQ2MmQwZTU5OGU5MDMyM2JjYmJlOWE4YWZjY2NiY2I2YWZiZjIzZGQ2N2U2YTNhYTcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

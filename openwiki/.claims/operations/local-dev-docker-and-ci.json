@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:4f694d3b9dcf924807795977b6a4b8aaad434b73f3da7e69b68e26e2920cb5dd",
+  "claims": [
+    {
+      "id": "claim_70669d98c17e49eaa8bad2117eb7dfef",
+      "statement": "Frontend work requires Node 24 with pnpm 11 (pnpm 11 needs Node 22.13 or newer and the nvm default may be older), and the backend uses a single uv-managed venv at the repository root that the backend Makefile resolves as ../../.venv.",
+      "evidence": [
+        {
+          "resource": "repo://CLAUDE.md#L38-L48",
+          "version": "repo-lines-v1:sha256:f68280e343dd8a61aea6e6e11faf0935d9b399f3dc808bf54e863e9fb5f3c247:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4ZWJkZGQ5MDE0ZGQ4YWViM2U3ZjViODI4OTIzN2EwZGRmOTM2MTcwODdiOGM4ZDVlMDg4ZjA0ZTY4NWU5ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMmIzYWRjZWEwNzAyMTc5Yzk0YjVkZTY4ZTUxNzQzYzZiNmYxZTY4NGRjMTFiZDUyZmU0ZDZiYjA1NTc3ZmMifQ"
+        },
+        {
+          "resource": "repo://apps/api/Makefile#L4-L5",
+          "version": "repo-lines-v1:sha256:aba4c109dc94699c7c31c081ce041fb1fad83b9bc9c352f44149d6fa00382d75:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY1OGQwZjBhZWMyZGI2YzdmMmY0NzljNGY3MGFhMWEwMDMzYzVjMjUwZWNkZTMyNmM1ZGZmOWRlMTJkMzI5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmU0NDNjODllN2NhNjU2YzljNzg0MGY5OGUwZDZkNWJmMjQ4ZWJmZjkxOGM3ODkzZDAwNTBkNzZhNzAxZTI5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmMyYWY3Y2U1NTA3Zjc3NGQwYmQyYWY0N2U1MjFlYWM3NDc0NjE5ZDk1ZWI4OTE5M2E0NGE5N2FhYTQ3YjdmMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWNmYzliODM2NmQxNGFlYmEyZmFiMzE0YTcwNjEwNzJiMmUzNjIyY2Q4YTExZDI4NmM5YmU4ZjQ2MzliOTNiZiJ9"
+        },
+        {
+          "resource": "repo://apps/web/.nvmrc#L1-L1",
+          "version": "repo-lines-v1:sha256:98182b41c9ce3357797985cf12dc3b0124490ef88bc918a905373e7688e6aec9:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTgxODJiNDFjOWNlMzM1Nzc5Nzk4NWNmMTJkYzNiMDEyNDQ5MGVmODhiYzkxOGE5MDUzNzNlNzY4OGU2YWVjOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTgxODJiNDFjOWNlMzM1Nzc5Nzk4NWNmMTJkYzNiMDEyNDQ5MGVmODhiYzkxOGE5MDUzNzNlNzY4OGU2YWVjOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://package.json#L5-L8",
+          "version": "repo-lines-v1:sha256:3dd33f4ea3a80939349edb3f8956d765be2c543ace0ace0b1c3fe2c4325ac18d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjIxNTA2YTRiYzcyNmY1ODZjNDdjODk0YjQyMGZjZWM3MzQzODJhNTczZjg1NTExNGE0YTMzNGRkNmU5NTY4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjRkYjRjMjgzNzQwNWI5ZmNmYjc1YzVlZWE1MzcyYzQzM2MwNWFlNTkwNzQyMWNjMGJlM2RjMWQ2ZjZjZGZjNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTBlMTMzZDI1OWVkMjAxM2YxMjQ4MGI0MjUyNGE3MDlhZmZiMjBjY2RhNjJkNGY2OTI1YjQ5MWI5OTAxZTRiMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9976075c395c4b09bbcab8d3afacefac",
+      "statement": "The root Makefile delegates backend targets to apps/api and frontend targets to Turbo or pnpm, while the backend Makefile owns dev, Docker up/down, migrate, seed, test, test-docker, fmt/lint and the eval targets including eval-check as full plus compare.",
+      "evidence": [
+        {
+          "resource": "repo://Makefile#L1-L48",
+          "version": "repo-lines-v1:sha256:8f9958f51391e88b8ff72543080d4454454b02250ab8760c43d53604825e209a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmEyMTQ3OWVmZDNmODE5MmJlZWY2MDg0YmM3ZTRmNDI2NTIxYWEyYTQxNTQ5OGEyMjI5YTA1NDZmZjVjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/Makefile#L1-L71",
+          "version": "repo-lines-v1:sha256:11715f420ed013afe377cc63fa555eed14c96bbd504439e7ed22c80aaa06f27e:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzOTdmM2IwMjI2MzYyM2ZhYjgxZTU1NjVlYzBhMjAwZGYzODAxNDc2Y2MwMzU5ZjU3Y2IyZTM3NzFjYTFkYTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNjUyM2Y2YmRjNmJiNWQ5YTA4Y2RkZThjZGIwYmI5ZWVkZDkyYmUyN2I0ZGFmZjQyYTVlNzVlZDZjNTU4YzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4661a704e1a144d49e4085da63839664",
+      "statement": "The Docker dev stack runs pgvector Postgres 17 on host port 5433 with a persistent volume and an api container that overrides DATABASE_URL to the db service, bind-mounts the source and reloads, with an entrypoint that migrates before serving.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/docker-compose.yml#L1-L37",
+          "version": "repo-lines-v1:sha256:ab4e37310348f682348a349ee89b005408ed21b7145d51f4294e1a1b645fb7f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhNzNmY2NkYzk5ZWE4MzU5NjdjN2RlZTdlZmJlZDFmM2NhODcyNjBkOTI5MzE4NTBmZGQ2NmRhOGNiMTJmMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxZThiOWY4MDZmNTcxOTJmNzZkOWEwYmRhMThmZGY5OGIxYzlhMmNhZTlkZDBjYmQ3MzZhODkzZDQyMDIxNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/docker/entrypoint.sh#L1-L8",
+          "version": "repo-lines-v1:sha256:62edf644db24cb6fa3b47d50b4583aecf6a429dc409f1174300f65b1c1b8f37d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NmQxMTJkZThiZWQxMDI3ODZhNGExZmE5MDE4MWIzZjA4NDFhMjBhMWFiY2EyNTVmODA0NjIzNmI4YjAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmUxMjRiMzAxMTNkZDJhYmJlNjg0ZDkyMmMwOTdhYTQ5OGNlNWE4YTVmMjI1NWE5NDFmZjJjMWUwNWQ0ZTE5NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/api/scripts/start.sh#L1-L3",
+          "version": "repo-lines-v1:sha256:7d243a303b89d2cb2195602eec1236d59ee896127447190eec63989c03ea29d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NmQxMTJkZThiZWQxMDI3ODZhNGExZmE5MDE4MWIzZjA4NDFhMjBhMWFiY2EyNTVmODA0NjIzNmI4YjAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTVhYmRhY2I0MzkyMzQ2MGUxM2Q2YmU5NzZkOThiN2VlNDk1MTdlZjQwNzlkNzIwODk5ZjliZDI2ZTQyMjYyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3108c2dfa5e4dc0846043618b3f52b5",
+      "statement": "The Docker test stack runs the full pytest suite against a tmpfs Postgres after migrating, and make test-docker tears it down with volumes removed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/Makefile#L45-L48",
+          "version": "repo-lines-v1:sha256:367f31d74d45a8f2eb8faddccb02d8767b80c6283d84d706505c03b7ed82eab2:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzQyOTM5NGY3NDY3YzZmZTg2ZjIzYTYxYzE5NGZjYjkxMDQwZGRlMjM2Nzc0NDY2ZGIyMmRkMWNjODY1ZjQyOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWRjNDc5NTA1ZDZlN2RjMmI2MTc5NDlhYWUyZTIyYjNkNWIwNmQyNmNlODEwMTYyZmFkYzAyMjQxNWM3YWFlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmI5NzM5N2UxY2FiZDQzMmJkMjEzMWQyYWRkMjY4YWJlYTVlODAwMWJkYzA5ZGQ2NzUwMzVjOGVlOWI0N2FmMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/docker-compose.test.yml#L1-L27",
+          "version": "repo-lines-v1:sha256:bc50475d7b7d5e89de40859b126f28822056c5cf6ea6fe81a1bfd3591314f526:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhNzNmY2NkYzk5ZWE4MzU5NjdjN2RlZTdlZmJlZDFmM2NhODcyNjBkOTI5MzE4NTBmZGQ2NmRhOGNiMTJmMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjNmI5NTQ2NGMyYTEyNTY0ZDk2N2Y4YTNmN2Y5YWY1MGEwY2NhOTI0ODAxNTQ3YjZhZDc3YmNiY2NmYWMzM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ca18b388113442bf839930ef36833939",
+      "statement": "requirements.txt pins upper bounds to current majors, caps FastAPI below 0.137 and Starlette below 1.3 because that release breaks the operation-id and route-enumeration tests, and splits the LangChain stack into requirements-ai.txt which must never force those caps upward.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/requirements-ai.txt#L1-L20",
+          "version": "repo-lines-v1:sha256:418058e8cf3db795438e1b2f20bb9c293ac71f7b6cdd1565c1d46f2233961f60:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3ODVhMzhiOTBlNjUxYzAyMzVkZTgyM2I5ZDUyNDZhNmE0MDc1MWZiODcwODhjYTEzYjVkMDZmMzAzMTRlODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3MjUyNDUwY2YwMjViYjlmNGE3ZGEwNjYwNDlkZjlmNjYyODE1NjNiNGQwNTdmZWYwN2QzNzczYTljYTVjMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlMzRjNDM4MTg2MDMyNTJiOTkzYWI5NGVlNjEwNGNhYTg4YTVkZjUzNThhZWYxY2JkMGQ4MDU5MjQzMjc3YzIifQ"
+        },
+        {
+          "resource": "repo://apps/api/requirements.txt#L1-L32",
+          "version": "repo-lines-v1:sha256:0c4fbf578f7bcb52402974176bf38cd1a8f00defacf5cf61dd5872ce3c45c9a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwOTZiMWEzYjFlODkxMDI4YmEyYTAyOWIzY2E4ODVlZWYxZmQ0ZjQ4ODBiNWQ4MzUzZjgyNTA2ZmQ5MmFmM2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2OWY2OTJkYTQ0MGEyNWE3MWY1MGFjMTE5ZmU1Y2FlZmZhOGFkNmJlNDc3ZmQ2NjE0YjE3ZTk0NjNkZDQ0OGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_aa09dfbff0e1467d98515145031374e5",
+      "statement": "CI scans each PR's own commit range with a pinned checksum-verified gitleaks binary rather than a third-party action, with credentials not persisted so the scanner never receives a token, then runs the backend suite on Python 3.12 and lint, test and build for the web app on Node 24.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L1-L86",
+          "version": "repo-lines-v1:sha256:e0520d80679ade6e35a2eb90b15e040cd1d21445f109977377c78938c68f7591:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2ZTFiMzJmYTA5MDc5YWUyZjAwMDFmZmYwZWNhMjdiNDk4NTk1N2Q0ZWI0ODU3OTI5YjNjZjA1OGZhYWU1NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwMTliNGI0Nzc0YjhmY2U1NWE4NTljZGYyZWY4NDVkMWRkYjVhZTUyODMyMGY2NzIzMTY5YTExMTUwOTBlNzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxYzU1Y2QyY2Q4NTg4YWU2NTE4YjFlMTI4MzBiNDkxOTVkZDZlM2VhZmM5YjUwY2M5MTdjMzNiZTM1MzBmODIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c01f83d3ec8944e58be7d7d0e656b6af",
+      "statement": "The web-e2e job runs only when all four e2e secrets are present, starts the backend on SQLite with LLM keys blanked and waits for /docs, runs Playwright against the shared account, uploads reports on failure, and prints a skip note instead of reporting green when secrets are missing.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L88-L196",
+          "version": "repo-lines-v1:sha256:73203ddb7a3af319485a2f4c8576d66424832fc14d08b00523d3adb1a298926d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4OTc0NjMxODVkZGE1ZjllODU3MjBhOTIxZTkxYmRkMTg0MWRmM2Y0NjVlMWYzYzlmOTkxYmJlYjM2YjMzMTI2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiZjU1OTc5Y2U3MzAyMDMzZTZiMmZkN2Q4OGY1MzdhM2I4ZTA5MWVhMzA1YzgxMWZmYTEyNzRiZjU3NjRlYTVlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2ZTU4ZjQ3MzhiZTkzNjY4ZmJiNDdkMGI0ZmIzYzMyOGQ1NjU1MGVkMDhlM2NiMjRlZGQwOGJlZDNjYzQ3NGJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_842318fcabac4fe5b62ef951dc413459",
+      "statement": "The agent-eval workflow runs the offline tests/eval suite and a dry-run of the smoke suite on PRs touching agent, prompt, tool or eval code, and the judged eval never runs on CI by decision, leaving make eval-check as the local gate.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/eval.yml#L1-L68",
+          "version": "repo-lines-v1:sha256:1dd396cc121a65a964526c19bb3837fb4b96e709929642570fa46dba28d806cc:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjMWQwY2NmM2JiODA4MThkMGFkMzBiZGNiZmUxYTZkZjQxOTZlNzJmZGQ2NTc1OWVjNzRlMzY1ZjU0ZThhNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkNTc0Y2ZiNTEwOWQxYjA2Y2U0OTBjN2FiYTk4NzcxNjM2M2Q5ZDY1NGIyNGMzZmM4NjBkM2NkNDQ2NWZiZTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e1e9747a8c1548079ac803add773f11f",
+      "statement": "After a same-repository PR merges into main, the state-on-merge workflow marks the matching spec shipped and refreshes specs/STATE.md, pushing to main with up to three rebase retries; a GITHUB_TOKEN push cannot retrigger workflows so it cannot loop.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/state-on-merge.yml#L1-L77",
+          "version": "repo-lines-v1:sha256:e0b397abedf3905928d1a6988076267df7436c26c05f210f8c9c604f87efec82:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNDNjMGFiZmZmMmUzOTg1N2UzYzIyMDQyYjgwOTk0OThlZTMyODlhODUzN2UzYjNmYjQyZDM1NmM0MzY0NDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxODdjZTRmMDJhYjRmY2Y3Y2Q4MTc2ODMxNTgzNDVjN2ZjNTI0OTc5MzEwMWMxYWVkNWM4NGMxNGViMjg3ZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5d37f9e32f7a46499d9da922da8cdd5a",
+      "statement": "A scheduled workflow installs a pinned OpenWiki, runs the update with full git history, removes transient run state and opens a docs pull request that preserves partial progress on failure.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml#L1-L77",
+          "version": "repo-lines-v1:sha256:e00fd4758bb921d6a844798ef36364d7fe8cb024ca16497bf8f05bb4ac765419:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MDI3ODdhZjZkY2MwODM0ZGUxMjFjYmIxY2I5NWY5NDU5YjcyMWVhYjAzNDlmMTA1MDFiOTk2YzFjNzdmZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2NzE4ZjA2N2I1ZTVjMWYwOTkxYTZlNzQ3MjZmZTJhMjNkMjY0MzQ1ZTA4ZTRlYWQwNGZhZjczYzI3ZWQ0NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_43a38aab25c8448c9ded9ab2c5f7bdca",
+      "statement": "Feature PRs target the integration branch rather than main, and staging and committing must be separate commands because a local hook blocks compound git add and commit invocations.",
+      "evidence": [
+        {
+          "resource": "repo://CLAUDE.md#L50-L55",
+          "version": "repo-lines-v1:sha256:4f2c64068260dc1573477a77802808ff650cf78e05be0d05bb679b76c12ae33b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFhZDUxOTg5NTkwNjNlYzBkNjNkZWQ0YjQ2YjU4OWJiODI5YjdjNTI5ZjNlMzlkZTJhMGI4YWYyM2NjYzEyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY1NTVmNjU0OWNjYmRhMzQ0YzJmY2YxODU5NTRlNDhlYjE2NjJkODA5NzJhOWNiODE0NDQ4NjYxZDMxMGI2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDYwNGZhYjYwZTZiZDhlNjcwYWJhZWMwYWJkNzMyMmU2MzkwZDIzZWIyYmJkYTkwMmM5ZjRlOTY3NjZhOWJiYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

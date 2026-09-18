@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:06725fb6eb41b6d3c82c5e5718bba0677fe40f2b6664d3f4ffb8712254164b55",
+  "claims": [
+    {
+      "id": "claim_53bc1ee9dd82424d8aa26fcb35f5ab6f",
+      "statement": "The repository is a pnpm and Turborepo monorepo with a Next.js web app and a FastAPI backend that also hosts the LangGraph travel agent; the backend runs on SQLite with no .env or LLM key, tests use FakeLLM, and the root Makefile provides the everyday dev, api, web, up, test, test-docker, lint and eval targets.",
+      "evidence": [
+        {
+          "resource": "repo://Makefile#L1-L48",
+          "version": "repo-lines-v1:sha256:8f9958f51391e88b8ff72543080d4454454b02250ab8760c43d53604825e209a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmEyMTQ3OWVmZDNmODE5MmJlZWY2MDg0YmM3ZTRmNDI2NTIxYWEyYTQxNTQ5OGEyMjI5YTA1NDZmZjVjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://README.md#L1-L20",
+          "version": "repo-lines-v1:sha256:9848c8ca0b4068b64609b4725e6c6454a5bcbf9a87ae1c4b0742840b947bdd42:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmMDI3YTUyNjBiMTA4ZGJkZmY3ZGNiOGIzNGZhZTEyY2IwMjlkMDVlNjRlMGQwZGUyNjQ3MjZjNTY0MDI0N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkZDFlMDZlYWZjNDJjOTQ5Yzc1NDJiOTc2NjAzZjU3NWM5MDQ0MjZhNWJmZDNkZmUyMTRhNDExNDVkNjU5NTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhMDI2ODQ5MTQwMDlmMmQwNzlmZGVmZmNhZTQ1OTFmYjEwZmVmYWJlZWU2MWM5MWNiYzJjYzE0MWRhYjIyMzIifQ"
+        },
+        {
+          "resource": "repo://README.md#L43-L91",
+          "version": "repo-lines-v1:sha256:a9d10eee9d1267f7df6c2efa8faa800957e10f7423d8e82e798e436f6ca571df:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1M2ZiMjQ5MTZhYTk5ZDZkNTdiMTI2NzM1ZDVjZDNlNGJkOWVlNmQwNGU3YTFhYzViYTE5MjNhNGQxMTJhMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmNWVkODQzMDhhOGYxNDRjYmNkMzk1NWNiODFlMzQxYjJiOGE4MjNiMDBlOTU2OGU2ZGFhM2U5ZjU2N2ZlYTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1OTJiMzcyMmRhMjdjNjFjYTVmZWM1YWQxOWQzNTRhNzg5Nzk0ODNjNTFlY2I4NWM4ZWE2ZDI4MTQzOWQ5ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0NjkxMjdkNjViZDFkNjM4N2Q4MDg0Y2JmNDUxMjIzYjk4NGRhNWYzMTRjYzgyMzU3YzIxNDYyNzhhNzljYTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_482e278559db4ae294c15f4fe18d9ce0",
+      "statement": "Backend commands run from apps/api with the single root venv, frontend commands run from apps/web on Node 24 because pnpm 11 needs Node 22.13 or newer, and git staging and committing must be separate commands.",
+      "evidence": [
+        {
+          "resource": "repo://CLAUDE.md#L38-L55",
+          "version": "repo-lines-v1:sha256:bdfb32fda2978b725a313ab8d4721c1773f6264137c22ca552db8dcf9626cd8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNTU1ZjY1NDljY2JkYTM0NGMyZmNmMTg1OTU0ZTQ4ZWIxNjYyZDgwOTcyYTljYjgxNDQ0ODY2MWQzMTBiNmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViMWJjNWJjNGEyMzdmNTc4ZTZhZjRhNDE1ZDA2NDdmOTkxMGIwM2IzNjRlMWUyN2MxZjFkYmFhNzQzZDAzYmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7feb5da9cd32493ba6fa2f8558e03f40",
+      "statement": "The backend follows routers to services to repositories, the frontend consumes the API through the /api/be proxy and generates its types from the OpenAPI document, and feature history lives in specs with longer-form docs in docs.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L46-L78",
+          "version": "repo-lines-v1:sha256:5e462c43b180128c40ea31829732356fb63dac81f42ace35ba7fdb374b75c753:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMTZiZDg1MzA1OWRiNTE1MzQ2NjEzOGJiNzdhZDE4OTg1ZjQyN2VjMDRlYzk5ZDViMzFkNWY0ODUxNGVjZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiNzA1ZGQ4ODZjODc5ZjU1ODIwMWNkZjA0MzA5ZWM3N2QxNzQxZTg4YWMwMjZmMDQ2MGM0YjVjYjIzOTgxZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjczM2VkNmI2ZmY5ZmMwMTQxZGM1NmUxZmVjMmViY2U4MzhmODYwMzMyYzQwNTM2NmQ3Y2I3YTc3NWM5ODI5NjUifQ"
+        },
+        {
+          "resource": "repo://README.md#L97-L110",
+          "version": "repo-lines-v1:sha256:e589b6ab6a8b53657adffae7b54be6898640abbfff0b8226a0faed6195929c04:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4MGI5YWMwNWE1OTM5ODZiNmE5N2RkMjAxMTA1MDZiZjM0NGJlNjc3OGNjYWYwMjc0MzY5YWJlMDA3MDY0NTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkZWUzYTZkM2ZjNzM4YWZkOTMwMzhjZmQ0NTJhYzAyZmMyODcyMWFkMzg4YzVjZGYxZmE3YzQzMjM3ZDMxMTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3ZWI3ZDMyZDFmNDkyNDM0MzJjNWRhMjk5MTY0NzJmMzIyZWNhMjQ0MjkzZjZlOWM2OWNhMDFlMDE4MDE4YWUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

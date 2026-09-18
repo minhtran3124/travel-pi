@@ -53,3 +53,11 @@ ruff format app scripts
   `git add … && git commit …`.
 - **PRs:** feature PRs target the latest integration branch, not `main`; use the
   `minhtran3124` gh account (`gh auth switch --user minhtran3124`).
+
+<!-- OPENWIKI:START -->
+
+## OpenWiki
+
+@AGENTS.md
+
+<!-- OPENWIKI:END -->

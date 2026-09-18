@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:030729df537bde5ebf8920fdbfd1126964b300e05b0c8e1a6a1830bf258a01e1",
+  "claims": [
+    {
+      "id": "claim_2d851715447848a5a0e20ec68847d2b7",
+      "statement": "Each specialist is compiled by build_subagent as a ReAct subgraph with assistant, trip_guard and tools nodes; the assistant resolves its model per request, filters the episodic tool by AgentContext.allow_episodic, and layers summary, reply language, date grounding and the task note onto the build-time style+domain prompt in that fixed order.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L218-L296",
+          "version": "repo-lines-v1:sha256:2ee4b123b582867f9822f70bc048319bcd9553f10fc0156410cc64e83d04e316:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyYWQ5YzBjODUzMTRlMWVmNzJkYmYwNjM5MmRkMDg5Njk5YTE4Y2RhNDZjMmU4NmM5ZjBmZjQxZGE0ZmEyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwNmZjMTdiZjAyYzEzMGM2YmIxODZhMWZhMTg1MjFjMDg1NzcxOGYwZDA3ZjA0YzQyMWQ4MzBjMzM3NmQwZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5ZjEwZTIyNjNlODg0NzUzZjJhMjBiYzBiZjRjM2Y1NzQ4NWI5ODA3ZTRjMDkyZjE5ZjJkNmZmMGRmNDQwZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlNDVlMWZlZjIyOTg0ZDgwOGMxMTc2MGVhMzNlYjJhNDFjNTBkMmQ0MTYxOWNjMDA4NWIyZjcyYjdkMGRkODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4b3c5ff1996748da94d5089e16484bb3",
+      "statement": "The set of tools that require an active trip is derived from InjectedState(\"trip_id\") annotations rather than a hand-maintained list; a tool whose annotations cannot be read is excluded from the guard with a warning instead of blocking graph build.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L61-L101",
+          "version": "repo-lines-v1:sha256:b4f0ec8557d9c82122695834e3a31bc3c672ff317b5770178ea3b568f599ff0e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNjI0NzIyMjIwMjVjZWZkZWNiNDY4NjEwY2VmNWYxOTk5MmMwY2UwMTNlNGNhY2YzZDg2ZWZmN2YxZWExYWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2MjJkNGE1NzFmODdjMTUyM2I5ZWJhODE1ZTRjOTcwNmExODc0OGY0NTM2NDFhNDg2ZWY2OWQ4ZmRjNDNlZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc3NGRmMTE2NDI4MWE0YTEzYWRlYTA2MDhmYWE2NjMzNmIwZWZiMjU4ZTIwNWFiNWU0ZTNiNzZjNjcyYjcyM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiMjg3MTQyNzAxZWI4MjM3NzkwNDA4NGVlZjQzMjQzMDgwODkxODBkYTgwMTIwOGEyNTZiNWRjNDQxNThmNzMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_trip_guard.py#L51-L76",
+          "version": "repo-lines-v1:sha256:f2ec7bbead121b3ac1aef2fc83ca461bb2e1a82a4a0a996a8fe58b0c44770fc6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmMTdjNGYzMDRhOGU5MTU3MDQwMTlhYTdhMzAwMzg1YzdhNDE0NjAyNzEyMGYwNzBhNmFiMmMwY2VlZmNkMjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MjY3NmM4ODhjMWE0ZDlmYTc3MmZjZGMzMDJmNzczYmM3MjkwZWViZmY5ZGEzNmEzOWY0NGMzMjExOTgzODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlZDE0OGRhN2I0YmZjMzc2ZWQ4NzU3ODFhYmUzOTM1YjAxYjEyOTBmZWNhYjk1ZTk4NjczZTlhOWM0YTMyYmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bcd57221f8444799979e43495493f086",
+      "statement": "The conditional edge after the assistant routes straight to tools unless a pending call genuinely needs the trip guard, because visiting the guard every round would spend a super-step and shrink the round budget under agent_recursion_limit.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L162-L187",
+          "version": "repo-lines-v1:sha256:c97e71aff5024cf57164c0836aa591ae6ad9fd15008973119a6cf546e02519c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwY2QyYjc5YTI0MDc0OWI1YWRkM2NiZmI5Y2YzMTNlODMwZWI5NGZjMzZhODE2ZmEwNjgwNmYyZGMwMTA3NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NGRlM2RkODk1NzNiNWYwMTMyNDE5YmRlZGRmZWE0ZWVmNTQyMWUzOTk0ZjU5MDM1M2NkNjE4OWRiOTQ5MTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3ZGJkNzQ2ZDkwZTU2NTAzNzgzYjc1Nzg2Y2QxYjAyMjhlN2IyOGRhNzJhZGNmMzYxZjNlODhkYTI1Yzg0ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5MzY0Y2QzMzFjOGQyZjQ4NzlkNzNmMTIwOTg3NWEyYmIwNzFhNGMxZmU4OTQxNGRkZjAwMDE2MGU0OGQ1ODYifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L285-L294",
+          "version": "repo-lines-v1:sha256:4b4169564734b41e4701458cfdd9a6cf2be4d5f067a2e166bec157c8f1740140:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5ZTk1MWQ5MzYxZjMwM2I4MmE1NDUwYWFkODg1MmEyMzI5N2M2MzNkMDU3NzZiOTk3OTE2NTM2ZDlmZmRlYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3MDkxYWE3MmNiNWU0MGM4MDk3MThlZWRmYWFjMWE0MWY4YjFiMDM1N2UwYjBlNjE1OTFhMTUwMDRiYTRjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3NTRhNzZkZTAyYTliYTBmZjNjNTYyMzVlMWVlZDNhNTc0OWZhZTQzZDllZTliODQyYWE5YjE1NjZhNzQyOTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAzMzgwZWExY2UzMWFmMTYwMzA3ZGI4MGEwZjZjMDUzYTFmZjI3NjZiYjgyZmQzYjI1ZjhhYjRkZDNkMjhjZGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d7a39044c99245b3baa9c5e1c1d67e9a",
+      "statement": "TOOLS_BY_DOMAIN gives the planner search and availability tools plus create_trip but never the booking or cancellation tools, which live only in the HITL-gated booking domain.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L31-L64",
+          "version": "repo-lines-v1:sha256:971c4042db5142f570a8a7184215bb861f07886fa340e5cf5a23d887cbe2f154:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzYzQ5M2Y3OTFlZWU0YzYxNDZjNzA4ZTBmYTc3MjE3ZDBmMmQ5Nzg4YmRlOWEzM2UzOTNlYmZkYTc2ZjliOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxYzA4MTg0ZDA3ZjE2NWM0NGUxN2UzZjJlYjVmZTM4YTlhZDc5YWEyZjk5NGU3Y2I3MDcwZmQ5YjlhMjI3NmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxNGRlMDRkZTg5ODMxYjc1YWVmMTAxZTFlOTY4MjgxMDk5YWE4MDM1OWU0NTIyMWRmNzczNGYzNGRjNTdhMzkifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_tool_registry.py#L302-L336",
+          "version": "repo-lines-v1:sha256:431fe8c79212a5e69d4c3100fb04a8d4fd3d714b24d2373b86e9aed83a26f365:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlN2JiNDQzOGYyYzhhODM5ODU2ZmRmYmI1MWVlMGI5NGU0ZGQ0MjViNzNjOTcxMWRiYWM4YjAyOTQ4OTA5ZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxMjUxZmYwNzYxNTZhYWM5MGYwN2ZhMjQyZDE1MTEzNTJkZTZlMGNjZmQ0YjI1YzNmOWZiNjE5YTc4ZGY5MzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3MzEwZTM1OTY3YzUzYmNhOGI4NmIwNzk0Mzk1ZjI5MzQyYWM4OTY4OTMwMDk4NjNjZDZiOTEyOWI1M2JmZGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dfa2156cee7b4dada2a5c90e2f7e21fe",
+      "statement": "ALL_TOOLS de-duplicates tools by name across domains and TOOL_METADATA derives readOnly and destructive flags from the _WRITE and _DESTRUCTIVE sets.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L66-L93",
+          "version": "repo-lines-v1:sha256:8c613c81c34b52f124e00d3215c9fe2f6a9f2e2a44f17f82cdb6e206047380d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MDc2NDFlOWIwNDk5MTYzZjc5NWI5NGIxNzYzMmRiMzQ0NTUwZjc0NWFkYWM0YTRkN2UxN2Y1MWE3OGU1MDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlN2JiZWYyYzJhM2QxNzExY2ZiNDE4ZGY3NWQxY2VjOWMwMzViNjc1ZjkxOGFkMDdiYzRiNjI2MWM5YjJjOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5YmE0ODRkYjBkYTBjMTRmNWZlMDkzMmYwMGU3NGUwZjczMjA1ZTMzZTZkNDM3NTc1MTExYmUyMjg4NDJlMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2YzlhOTAzMTU4ZDI5YmQxMDVlY2FhYTFmNzIxNTY2MTA2MDQxM2YxYWRjOTA2MGI4OWZkYTA5ZDIxMGQyYjUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_tool_registry.py#L91-L112",
+          "version": "repo-lines-v1:sha256:f9586f5f3a7e4e2380d7f488818b7a4268bc703a6f2e8c69556b6ba3c4cd5f3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ3YmIzNTcyOWY2ZmM2MzQ0NjU3ZDEyNDMzMzI0ZjM1NGY4ZjUwNGUxYmJlYzJhOTE0ZjZhYmM4YjRmZDI5MWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNjVmOTFjZmFjMzE3YzJiYTA2ODRkYmUwNjE5ZjhjY2FhZTI2ZDI2MTM1YWE5NjYwOTExM2VjODBhYjhiOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmYmQwMDkzMTRiYzI3MDg0MTY3MzRhMDJhZTVmZjM5YTFlNDhhMDUwYmU5MWY0M2IyZmFhOTIwMDJjNjJiZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcyOGJmMDUyNTIzZDZkZTQ4NmM5MTgyOTYzYTBmM2M1NDMxNTZmZWJmNjBjYjI3ZDE5Y2VjMmQ0M2NmNTkyYTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_96227267382d4766b791eab3c6d53ade",
+      "statement": "Tools with runtime-injected arguments must declare them in their explicit args_schema because ToolNode derives injection targets from the schema; declared injected fields are still hidden from the model-facing schema.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/memory_tools.py#L36-L50",
+          "version": "repo-lines-v1:sha256:2591db98f18f5be70ed833309839f8ed565704ff6ba8f1a710df8ecd0e475c5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1NjMxN2E0Y2VjY2I1YTc5NDkzNDdhNDY4NTJjMjc3NDlhYTI4NzdhNjA3ZGU3ODczZmNjMjRjMDJmMzFkNWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2Y2JmMjBlNjRiOWM3NWFkZjljNmNlNTM1ZjFlNmRjNzA0OTY5OWY3NGJiNTJiMTZmY2IzMzMwYmZjNDY0ZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxZWVlMDZmMTBjOTE0ZmY5ZjI0NGJkYjJiODdjN2NhMWM3NTkzMjFjMDY2MjVkMDBlNDk0MTkyYjU4OTc5NzIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_tool_registry.py#L113-L143",
+          "version": "repo-lines-v1:sha256:d2d2dc3b08905e5211a5077a794b7872ca7d8a8a1afdc81126b161966f758de3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5NzcwNzc0NTQ1MTBiNjI2Mzk0MTQyZjJlZTlhODIwNGY0MjA1N2EzNGIxNGZlOWRmZjMyMWNhNWY4NzRiYjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4NjRhM2YwNTUxY2ZkNzUwMTkwNmFmZDJhZGVjOThkZjA4ZjY5NGE1NmVmNWRjODY0MGVmODc2ODcwOTI0NzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhM2Y0Y2I0MjdlZjljYmY3Zjk3OTlkOTFiY2QzOWJjMDgyNWE1NGM0ODc2OGU2YWYzNWE2ZTMzNTQwMjJlNDcifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_tool_registry.py#L72-L90",
+          "version": "repo-lines-v1:sha256:9ef14b357b5ebe30aef48d6564e1340f2ebea53a3958bba45e2e1b58ca9db7b9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiNWZkMGNhNzc1MDYxNjJmOTEzNmVmOWRjOWUxNWE3ZGFjYTJhOGVhZjhiNDFkYmY3OTQyZmQ0M2YwYzM0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyYjk0NWZlNDUxNGFiYjdjZjhhYmQyMGM2NmZiMzQ1NWFmOTUyM2E4MGQwMjMyMzVhMmNhMmNlOTljYzI0ODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyZDU2ODc1N2NmZmU3ZTU4OTQ1ZDJiODQ3MTg3NjllNDNiNDQxNTYzODVmNzdjZDE5YTAzN2Q5YjMyY2I4YWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f64a8ef137cd47d4a9f281ade2221b93",
+      "statement": "needs_clarification is appended to every specialist inside build_subagent and deliberately not registered in the tool registry so it stays off the MCP server and manifest; it returns a Command setting awaiting_user and emitting the paired ToolMessage.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L218-L221",
+          "version": "repo-lines-v1:sha256:cb297297ad87b975785cda47f18558a8911567e8a933f3fa8acb4e9ae69a9be1:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTJhZDljMGM4NTMxNGUxZWY3MmRiZjA2MzkyZGQwODk2OTlhMThjZGE0NmMyZTg2YzlmMGZmNDFkYTRmYTIzMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQyZGU4NzI1N2NkYWYyNDczODdjNTU4Y2M3MDQzNTlhZDYwMDg0YzUzNDA1ZDAxZGVlZmM3ZGRlYjc1ZGJhNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzlmMTBlMjI2M2U4ODQ3NTNmMmEyMGJjMGJmNGMzZjU3NDg1Yjk4MDdlNGMwOTJmMTlmMmQ2ZmYwZGY0NDBlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTA2ZTRiMWVkZmM2ZWU3NGI5ZDNhZjE2ZTYxZWRkZTkzNGY2MTQyMjYxZTg2MzY2MDQ1YWQ1NGZhZjJiMmMyNSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/clarification_tools.py#L1-L60",
+          "version": "repo-lines-v1:sha256:962f072dcf422d1135516abad4b2c376baaf63e03af2ff2c8536e653487ba878:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3Mjc4Y2IwNjIyNjFmM2IxYjFlYzBlNjJlNDA3MTRhNTc4ZDg3MDZlOTU3M2QwOGY3YWM1YjczZjY1NWI4NjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_clarification_tools.py#L10-L34",
+          "version": "repo-lines-v1:sha256:d6ff5f796cd650844641b59e6b57d0aef81f6b0af2b9595c0a7e68356455a8cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1NGM3YzI1YmZmOGQ0MmYwMjA2NWQ0ZGU2YWY4ZTdhYTg3NGJjY2QwNjljYTZlZWNjNWI3MzgyYjYxNDQyNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZDFjNWFmYmNkMDY3NDcwMjBlMDRjZDlmZDc5MDNjN2RmNmIzNDY1NTJjYzY4OThjYWZjMjRiYzJkOTZhYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1ZjNlOTBmZDRjMmRkY2Q5MGZmYTI3YTliZmE4MGU4NjNlY2ZkZjgzMzBjNDhkZGZjYzQ0Yjk1NGY4MDI2YzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bbb1bca2faec48aca2046fda418a0ee9",
+      "statement": "resolve_date takes a zero-token numeric fast path, otherwise asks the date_resolution model for a structured intent and computes the date in code, grounds today on the per-request traveller timezone falling back to the global setting, and turns ambiguity or provider failure into a ToolException that asks for a concrete date.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/dates.py#L1-L1",
+          "version": "repo-lines-v1:sha256:9dd9db23f03014bd806e11ad7e31842e3b3ac03c098a1c0bafd68939292b1b39:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRkOWRiMjNmMDMwMTRiZDgwNmUxMWFkN2UzMTg0MmUzYjNhYzAzYzA5OGExYzBiYWZkNjg5MzkyOTJiMWIzOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRkOWRiMjNmMDMwMTRiZDgwNmUxMWFkN2UzMTg0MmUzYjNhYzAzYzA5OGExYzBiYWZkNjg5MzkyOTJiMWIzOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/date_tools.py#L1-L2",
+          "version": "repo-lines-v1:sha256:cd8d62660d62120755c53d85cb941bb80be43879e371302cf98ca9a989a05f00:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDJhNTM4OTU1MWQwMmRkNjczNGQ2MzI0NGQ2OTcyNzBlMzgxZDVhMmZkZjRkZDQxOTA2MTE1MDlhMzQ0YmEyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDAyZTljMDFlNTcwMTM3ZTA0MzM1MjlhMDU0ODllZTkxNjliMGNlYWU2MTM4OWZjZmNhMjMxZWFjMjBlOGU0NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/date_tools.py#L40-L110",
+          "version": "repo-lines-v1:sha256:3fc68ce767ede005936e8d6944ae99f1d67fda264d7b2592c0cf8c81d98f9c1a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhMTYwZDJjMTAyZTlhZGZlNmE3MTA3NDA3ZDgwYmVmYjFlOGQyYzU2ZmZkZjQ1NWEyMjIzNDg1NGU0NmVhMzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1NjljYjA5MjgwZWUwNzgxOTQ1ZTQ4ZDQwNDFiZDJkZmFhZTY5MWFkMmVhYmY1ZDNjYmEwODQ2YzcyMTZjYWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwNWU2NDdlNDY0ZDFmNmRkZmQ1NmYxZmJjNDI1ZGM4ZGM4NDFhMmVlNTRmZWFiOGZjNzhmZmMzOTAwYzdjNDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c68e355313eb42b8ba7eac29254a62d1",
+      "statement": "LLM_RETRY retries transient provider failures identified by status code, httpx connection/timeout errors or SDK exception class names, so the agent layer never imports a provider SDK; the graph is the single retry owner.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/retry.py#L1-L62",
+          "version": "repo-lines-v1:sha256:30f556368489ead7926590e8b68d1743d07df5b3ee1e0f6fbc4c40bcec70f2d5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5MmJkNDhjYWY3OWUzMzdiMzBmNzIxMjRlMGFhOWFjNmNmOWU4YmRkNWM1YWE5NzYyZDFjZWFiNzVjYmUwOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlZmUzNDYwMDViZDNmOTAzNTU3ZTZlNzM1MzM2YTE4MjMwNWFjNWRiODM4NmEwOWE5OGU0NTI5ZDVkNzdjZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhMjE4NjUyZDk4MTJlOWUyZDgwMTgyNWFlZTA5ODMwYjMyNjQzYWVmZmE5MzE2YWUxZjc4OWYwMDQyMDIwYTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9851d6fd2c054ae8805460c6d1eb075c",
+      "statement": "Planner and concierge are built with TOOL_FAULT, whose tools node retries only UpstreamError and, after exhaustion, graceful_fallback emits one error ToolMessage per pending call with wording chosen by failure class so an unevidenced outage is never claimed; other specialists use a broad handler that catches every tool exception.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/retry.py#L122-L181",
+          "version": "repo-lines-v1:sha256:d9b4a32b17790e26fa4ba12f89d014f62e71fd8986d2c874236d7a4b462a16cb:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzNGE3MDRkMGFmMTU5NjdhNzJlNTc0NDc4N2IzN2IzNmNjMDNkMjc1ZDhjNDllMWZmY2JjZjM1N2Y4MjYyODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc3NGRmMTE2NDI4MWE0YTEzYWRlYTA2MDhmYWE2NjMzNmIwZWZiMjU4ZTIwNWFiNWU0ZTNiNzZjNjcyYjcyM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L37-L58",
+          "version": "repo-lines-v1:sha256:3092638c829bd1f9b53893afdd87bc350f504e9cd7957494f899685e7fa8a5bf:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkOWFlM2EzMzYwOWEyZGU3NGQwYzQ3MzJlNTU3MDBjYmVhMmQzZWJhZjIzYmZjY2ZiYzFkNzdjNDYwNTJmNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyZGI1YTAzODI2OWU2ZjQxMGRiNGJiMDRmMGNiZjRkNmZkZTVlMzlhNDZhMjE5NzkzYzJjMWU2ZTlhODQ4OGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxZGY5ZWVkNDUyZDJmMTI1Yzc5MWZiODZhMWVkOGM4OTdmYmU5NjhkMDliZGQxMmVkZDI4OWExZGIzYTVlZTYifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/subagents/planner.py#L22-L28",
+          "version": "repo-lines-v1:sha256:f00c8f592dec4b1c760ec9213fae2362314d5e0a3366b881551829b1959af683:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGVlNDYwMGY1ODRkODJjYjZhYmViOTQ5OGVkOTZiODg1MzgzZTk0M2I0YTViOTY2MjZjYTZiMjRmNmE5NTQzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODYzMWQ1M2U4ODc0YmFlNzkwZmVlYzc1YTJjMTQ0MTg3NzQ2YjU5ZTE4ZTc3N2FlMjgyNWJiZjg5YjI3YjJjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_subagent_fault_tolerance.py#L78-L118",
+          "version": "repo-lines-v1:sha256:ae38fbb9a421953ef658476a4cf1f21e55519400fc8ff4e514ae02a43cf11c3a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjZmVjZmU4NTkyNDI1NGFhOTBkNTFjNzNjNDRjYzE5ZDg5ZTgwNDcxMGY1MDM2NThhZTU1NzUxNDAxOWQ2NGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzOWFhZWVhMTFjNzM1YzZlOGM1NGJmYWM4ZTQ3YWE5YjhlMDRhZDA4ZTNmY2UwNDJkMDA3ODY5MzRjMDJhMGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_32d0254a0d8e4ce098a9443f2f9d18ea",
+      "statement": "describe_tool_failure is the single source of truth for tool-failure verdicts, distinguishing invalid arguments, missing injected context, upstream errors, domain AppErrors, bare ToolExceptions and unknown causes so the model never narrates a deterministic fault as a retryable outage.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/retry.py#L65-L113",
+          "version": "repo-lines-v1:sha256:5e0e484475d0b0d3c4a117af59691485c909f0efdaceef5732fbd3ec10202b47:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMWFmZmMxZjJiY2MwZTYwOGUwN2NhYTNkODY3ODMxYjM2YTQ0NmZjYjc4ZWJkMDMzMDQ0YmVhNjI2YjYxNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhmMmFlM2UxZTUzNGU0NjQ4MjgwYjcwM2U1Y2Y0N2NjZmM3ZjdmYjAzMjkwMGJkYjEwZTJlYjZiOTgzNDU1ZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzkyMWY3NWVhYzM2ZTU3OTU3MTBkNjIzODFiMjM4NmYzNDU3NjBhMDRlYjZkMzg4MTZhOTllMWRkOTFjNzYifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_tool_error_classification.py#L57-L130",
+          "version": "repo-lines-v1:sha256:12a8021ef225647843f383e5eed630980d6b450a6975417f575cad5c1a6507dd:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmZDQzOWFiZWJmZGUzMDkyODNiYjY1NjU2MTc2OWFiZmY0OGNlMzBhZmFiMWUxNjQxYzM5NjNlN2VmYjNkZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZDMyNzFkNDRhMjU2NjZjYjBmNTIyZjlkYmU4Zjc5MTU1N2Y2NWI0ZTM3NGJiNDVlNTAyMjViNTQ3YmZjNzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmYTA3YjAyMzY4YTA5ODg2NzVjOGFiYjg5NWUwYjIzMmIxNTI0YTJhNGQyODdkMDhkMDZmYWMzM2YyNmU0MTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3MzEwNjg5NDlhNzY0NjI2M2VmYzlhNjQxYTdkMTBhNzBmMWE3YTc1ZjExMDU4YjQ0ZWY5NWVmMWVjZjA2ZTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d7b3cc4dfe8f403eafb380b4657991c3",
+      "statement": "Shared tool helpers provide a per-call session scope, AppError-to-ToolException folding that preserves the hint, parameter logging with redaction, and a panel_result builder that fails loudly on an unknown panel kind.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/_base.py#L22-L80",
+          "version": "repo-lines-v1:sha256:6b55579292d2f4ab0154165dea9d94d7d5d5b99235baed93d9ecb28f55e06ca0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3N2MyMTI0YWI1Y2FhYTQwNGQ0YTQ2MzU3NTNkMTk5ZTVkOGQwNTVlOGRmYmY3NTZkM2MzYmY0MjIzOGQ2MTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmZGY1MWI3MDY2MDBjODAyMzIxZWU1OWZiZTZkZjBlOTQ3ZGM3MmMzZWNkMzg2YjAwMmE5MjAwMTFhNDFjNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljNTdjZmVmMjg1MWMzZTlmMjQ4ZDI2YmY2NGE4YTVkNDBlNzYyOGI2MGU0ODk2M2NmOTZjMGMzOTAwY2M3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}
