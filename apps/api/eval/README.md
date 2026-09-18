@@ -275,6 +275,36 @@ and `errors-ambiguous-en-01` deliberately do **not** set `hitl`: their pass cond
 clarifying reply, not an approved booking — resuming past the interrupt would grade the wrong
 behaviour (see `specs/gh-153-eval-hitl-auto-approve/design.md`).
 
+## Trip-research keyed smoke (`research_smoke.py`) — NOT in CI
+
+`eval/research_smoke.py` is a standalone smoke for the trip-research deep agent
+(`specs/trip-research-deep-agent`, design §9) — separate from the capability × scenario
+suite above, and **never run on CI**. It seeds one deterministic trip
+(`research-smoke-trip`, owner `research-smoke-user`) and drives one real research turn
+against it.
+
+```bash
+# Keyless, CI-safe: lists the seeded trip and exits 0 — no key, no agent, no LLM spend.
+DATABASE_URL=sqlite:///:memory: OPENAI_API_KEY= ../../.venv/bin/python -m eval.research_smoke --dry-run
+make research-smoke ARGS='--dry-run'
+
+# Real run: one research turn, then asserts dossier files exist, validate_proposal is
+# valid, and the run's recorded cost is at or below --max-usd. Writes a report to
+# eval/reports/research-smoke.json. Needs a real OPENAI_API_KEY and a seeded, reachable
+# DB (Postgres via `docker compose up -d db` + `make seed`) so the agent's tools and
+# validate_proposal resolve real place/flight/hotel ids.
+make seed
+OPENAI_API_KEY=sk-... make research-smoke ARGS='--max-usd 1.00'
+```
+
+Flags: `--dry-run` (keyless listing), `--max-usd` (cost ceiling, default `1.0`),
+`--timeout` (hard bound in seconds; defaults to `settings.research_timeout_s`, so the run
+can never hang), `--instruction` (override the default research prompt). The dry-run is the
+gate the plan's SC-25 checks; the real run is a paid, manual check the branch owner runs
+before shipping — **one live agent turn plus its grader, on the order of a few cents to a
+dollar** depending on model and how many revision rounds the grader asks for (bounded by
+`--max-usd`).
+
 ## CI: the local gate ritual
 
 `.github/workflows/eval.yml` runs exactly one job, `eval-smoke` — keyless, no DB, no network:

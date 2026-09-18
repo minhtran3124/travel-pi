@@ -139,8 +139,8 @@ class Settings(BaseSettings):
     # Default IANA timezone grounding "today" when the client sends no valid timezone.
     agent_timezone: str = "Asia/Ho_Chi_Minh"
 
-    # Trip-research deep agent (specs/trip-research-deep-agent); off by default so no existing behaviour changes.
-    research_enabled: bool = False
+    # Trip-research deep agent (specs/trip-research-deep-agent); on by default now that the feature ships (kill switch, design §12.2).
+    research_enabled: bool = True
     research_timeout_s: int = 600
     research_daily_limit: int = 3
     research_stale_minutes: int = 30
