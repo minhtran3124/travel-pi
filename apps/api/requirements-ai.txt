@@ -48,7 +48,7 @@ langchain-google-genai>=4.4.0,<5.0  # provider="google_genai" (Gemini / AI Studi
 # the suite runs with no Postgres and no network. Re-added after the
 # specs/remove-rag-feature deletion, re-scoped from places to visa + local tips.
 # Verified pip-check clean with the langchain 1.3.11 / langgraph 1.2.6 stack.
-langchain-postgres>=0.0.17,<0.1  # <0.0.17 pins langchain-core<0.4
+langchain-postgres>=0.0.17,<0.1  # 0.0.13-0.0.15 pin langchain-core<0.4
 pgvector>=0.3,<1.0
 
 # app/rag/ingest.py chunks long prose with RecursiveCharacterTextSplitter.

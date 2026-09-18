@@ -1,6 +1,6 @@
 ---
 slug: stack-upgrade-langchain-1-4
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-18
 ---
@@ -63,3 +63,7 @@ See `design.md`. One manifest file changes; the proof is the whole agent harness
 - **Done:** SC-4 and SC-5 rows recorded; no capability regression, or each regression triaged.
 - **Criteria:** SC-4, SC-5
 - **Interfaces:** Consumes the baseline report. Produces `specs/stack-upgrade-langchain-1-4/research-brief.md`.
+
+## Status log
+
+- 2026-09-18 — shipped on branch `chore/stack-upgrade-langchain-1-4` (commits 707aa9b3, 3bebffd8 + this record); correctness + intent reviews PASS, 0 blocking.
