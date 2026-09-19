@@ -8,6 +8,7 @@ a rubric grader. Nothing here is wired into a router or lifespan — that is a l
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from deepagents import (
@@ -23,13 +24,15 @@ from deepagents.backends.composite import CompositeBackend
 from deepagents.backends.state import StateBackend
 from deepagents.backends.store import StoreBackend
 from deepagents.middleware.filesystem import FilesystemBackend, FilesystemMiddleware
-from langchain.agents.middleware import TodoListMiddleware
+from langchain.agents.middleware import AgentMiddleware, TodoListMiddleware
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import ToolMessage
 from langchain_core.tools import BaseTool
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.store.base import BaseStore
 
+from app.agents.retry import describe_tool_failure
 from app.clients.llm import get_agent_llm
 from app.prompts.registry import registry
 from app.research.context import ResearchContext
@@ -37,6 +40,8 @@ from app.research.memory import GuardedStoreBackend
 from app.research.state import ResearchState
 from app.research.tools import SUBAGENT_TOOLS
 from app.research.validate import make_validate_proposal
+
+logger = logging.getLogger(__name__)
 
 SKILLS_DIR = str(Path(__file__).resolve().parent / "skills")
 
@@ -131,10 +136,54 @@ def _subagents() -> list[SubAgent]:
             description=_SUBAGENT_DESCRIPTIONS[name],
             tools=SUBAGENT_TOOLS[name],
             skills=["/skills/"],
-            middleware=[TodoListMiddleware()],
+            middleware=[TodoListMiddleware(), _ToolErrorsToMessages()],
         )
         for name in SUBAGENT_TOOLS
     ]
+
+
+class _ToolErrorsToMessages(AgentMiddleware):
+    """Turn a tool failure into a ToolMessage the model can read and recover from.
+
+    Without this one ``ToolException`` ends the whole run: a research turn is minutes
+    of work across five subagents, and the first ambiguous date or upstream hiccup
+    threw all of it away (seen on a live run — ``resolve_date`` rejected a phrase and
+    the turn died). The chat graph has handled this since #113; routing through
+    :func:`describe_tool_failure` keeps ONE verdict per failure class instead of a
+    second, drifting opinion here.
+
+    Both halves are implemented on purpose: the runner drives the agent with
+    ``astream_events`` while the offline tests drive it with ``invoke``, and a
+    middleware that implements only one raises ``NotImplementedError`` on the other
+    (the sync/async split in
+    ``docs/solutions/agent/sync-node-breaks-async-only-tools.md``).
+    """
+
+    @staticmethod
+    def _as_message(request, exc: Exception) -> ToolMessage:
+        logger.warning(
+            "[research] tool %s failed: %s",
+            request.tool_call.get("name"),
+            type(exc).__name__,
+        )
+        return ToolMessage(
+            content=describe_tool_failure(exc),
+            tool_call_id=request.tool_call["id"],
+            name=request.tool_call.get("name"),
+            status="error",
+        )
+
+    def wrap_tool_call(self, request, handler):
+        try:
+            return handler(request)
+        except Exception as exc:  # noqa: BLE001 — breadth is the point, the verdict is not
+            return self._as_message(request, exc)
+
+    async def awrap_tool_call(self, request, handler):
+        try:
+            return await handler(request)
+        except Exception as exc:  # noqa: BLE001 — breadth is the point, the verdict is not
+            return self._as_message(request, exc)
 
 
 def _read_file_tool(
@@ -177,6 +226,7 @@ def build_research_agent(
         subagents=_subagents(),
         middleware=[
             TodoListMiddleware(),
+            _ToolErrorsToMessages(),
             RubricMiddleware(
                 model=grader,
                 tools=[validate_proposal, _read_file_tool(backend, permissions)],
