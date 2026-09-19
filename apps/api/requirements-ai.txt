@@ -44,7 +44,12 @@ langgraph-prebuilt>=1.0.2,<2.0
 numpy>=1.21,<3
 
 # Provider integrations (provider-agnostic via init_chat_model()).
-langchain-openai>=0.3,<1.0
+# 1.6.2 floor, not 0.3.x: deepagents emits langchain v1 content blocks, and
+# 0.3.x serializes them to the OpenAI wire format as an unknown part type — the
+# provider rejects the request with 400 `Invalid value: 'tool_call'` on the
+# second turn of every research run. FakeLLM never serializes, so only a keyed
+# run catches it (eval/research_smoke.py).
+langchain-openai>=1.6.2,<2.0
 langchain-anthropic>=1.7.2,<2.0
 langchain-google-genai>=4.4.0,<5.0  # provider="google_genai" (Gemini / AI Studio)
 
