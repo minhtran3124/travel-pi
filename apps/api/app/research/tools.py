@@ -23,12 +23,35 @@ EXCLUDED: frozenset[str] = frozenset(
     }
 )
 
+# Identifiers the RUN owns and the model cannot know. A research run is started for
+# one trip by one owner; inside it the model has no legitimate way to learn either id,
+# so a tool that asks for one can only be answered with a guess — which is exactly what
+# happened on the first live run (a subagent invented ``trip_id="current"`` and the turn
+# died on ``Trip 'current' not found``). Registry tools normally take these through
+# ``InjectedState``, invisible to the model; one did not.
+_RUN_OWNED_IDS: frozenset[str] = frozenset({"trip_id", "user_id"})
+
 _BY_NAME: dict[str, BaseTool] = {t.name: t for t in ALL_TOOLS}
 
 
+def _assert_bindable(tool: BaseTool) -> None:
+    """Reject a tool the research agent must not bind, at import rather than mid-run."""
+    asked = _RUN_OWNED_IDS & set(tool.args)
+    assert not asked, (
+        f"{tool.name} exposes {sorted(asked)} to the model; inside a research run the "
+        "model cannot know them and will invent a value. Bind a tool that takes them "
+        "through InjectedState, or leave it out."
+    )
+    assert tool.name not in EXCLUDED, f"{tool.name} is excluded from research"
+    assert TOOL_METADATA[tool.name]["readOnly"], f"{tool.name} is not read-only"
+
+
 def _resolve(names: list[str]) -> list[BaseTool]:
+    """Resolve subagent tool names against the registry under the same rules the
+    parent's pool obeys — a subagent must not reach past the parent's filter."""
     for name in names:
         assert name in _BY_NAME, f"unknown tool in SUBAGENT_TOOLS: {name}"
+        _assert_bindable(_BY_NAME[name])
     return [_BY_NAME[name] for name in names]
 
 
@@ -40,6 +63,7 @@ def research_tools() -> list[BaseTool]:
             continue
         if not TOOL_METADATA[tool.name]["readOnly"]:
             continue
+        _assert_bindable(tool)
         seen[tool.name] = tool
     return list(seen.values())
 
@@ -76,11 +100,14 @@ SUBAGENT_TOOLS: dict[str, list[BaseTool]] = {
             "get_packing",
         ]
     ),
+    # ``expense_summary`` is deliberately absent: it takes ``trip_id`` from the MODEL
+    # rather than from state, and this agent is built once and shared across trips, so
+    # there is no build-time value to bind. ``get_trip_budget`` already gives the trip's
+    # caps through InjectedState.
     "budget": _resolve(
         [
             "get_trip_budget",
             "estimate_trip_budget",
-            "expense_summary",
         ]
     ),
 }
