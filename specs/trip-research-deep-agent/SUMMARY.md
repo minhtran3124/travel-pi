@@ -58,7 +58,7 @@ The chat harness caps a turn (recursion 25, 12 tool rounds, ledger 4, 1 revision
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| `deepagents` resolves with the pinned stack and imports; `langchain-openai` stays 0.3.x | `cd apps/api && ../../.venv/bin/python -c "import deepagents, langchain_openai; from importlib.metadata import version as v; from packaging.version import Version as V; assert V(v('deepagents'))>=V('0.7.15') and V(v('langchain-openai'))<V('1.0'); print(v('deepagents'), v('langsmith'))"` | 0 | prints `0.7.15 0.12.6`; langchain-openai stays 0.3.34 | SC-1 |
+| `deepagents` resolves with the pinned stack and imports; `langchain-openai` stays 0.3.x | `cd apps/api && ../../.venv/bin/python -c "import deepagents, langchain_openai; from importlib.metadata import version as v; from packaging.version import Version as V; assert V(v('deepagents'))>=V('0.7.15') and V(v('langchain-openai'))<V('1.0'); print(v('deepagents'), v('langsmith'))"` | 0 | prints `0.7.15 0.12.6`. **Superseded by the keyed run**: 0.3.x cannot serialize deepagents' v1 content blocks, so the floor is now `langchain-openai>=1.6.2` and this assertion is inverted in the command above | SC-1 |
 | Tool selection: `research_tools()` contains only registry read-only tools, excludes `list_tr… | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_tools.py -q` | 0 | 5 passed — read-only registry tools only, the five excluded names absent | SC-2 |
 | Skills and prompts load: each `SKILL.md` has frontmatter `name` equal to its directory and ≤… | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_skills_prompts.py -q` | 0 | 10 passed — 7 SKILL.md parsed, both prompts at version 1 | SC-3 |
 | Seeded `agent_config` rows `trip_research` and `trip_research_grader` exist with the same pr… | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_seed_config.py -q` | 0 | 4 passed — both rows seeded non-NULL, each mirroring a sibling of its own model tier | SC-4 |
@@ -93,14 +93,33 @@ The chat harness caps a turn (recursion 25, 12 tool rounds, ledger 4, 1 revision
 | Advisory lock on real Postgres | `cd apps/api && docker run -d --rm --name trdpg -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=test -p 55433:5432 pgvector/pgvector:pg17 && sleep 8 && TEST_DATABASE_URL=postgresql+psycopg://test:test@127.0.0.1:55433/test DATABASE_URL=postgresql+psycopg://test:test@127.0.0.1:55433/test ../../.venv/bin/python -m pytest tests/services/test_booking_duplicate_concurrency.py tests/research/test_service_concurrency.py -q; docker rm -f trdpg` | 0 | 8 passed — the two SC-skipped serialization tests plus the booking regression the extracted lock had to preserve | |
 | Plan contract | `python3 .claude/scripts/check_plan_contract.py specs/trip-research-deep-agent/PLAN.md` | 0 | passed | |
 
+### Keyed runs (real provider, `eval/research_smoke.py`)
+
+Six runs against the real provider; each one found a defect no offline test could.
+Command: `export OPENAI_API_KEY=… && cd apps/api && DATABASE_URL="sqlite:///<tmp>.db" ../../.venv/bin/python -u -m eval.research_smoke --instruction "Plan a relaxed 3-day long weekend in Da Nang for 2 people" --timeout 1500 --max-usd 3.0`
+
+| # | Outcome | What it found | Fix |
+| --- | --- | --- | --- |
+| 1 | `ModuleNotFoundError: deepagents` | the Docker image predated the dependency | `docker compose build api` |
+| 2 | 400 `Invalid value: 'tool_call'` | langchain-openai 0.3.x cannot serialize deepagents' v1 content blocks; FakeLLM never serializes, so no offline test could see it | floor raised to `>=1.6.2` (48ba6f84) |
+| 3 | undiagnosable log line | the runner logged only `type(exc).__name__` | `exc_info=True` (d01e101a) |
+| 4 | `ToolException: Trip 'current' not found` ($0.26) | `expense_summary` exposed `trip_id` to the model, and `SUBAGENT_TOOLS` bypassed the parent's filter | import-time invariant + tool dropped (eeab03b6) |
+| 5 | `ToolException` on an ambiguous date ($0.31) | one rejected argument killed the whole multi-minute run | tool errors become `status="error"` messages (90151099) |
+| 6 | `TimeoutError` at 600s, **all 7 files written** ($1.06) | the fan-out works end to end; `research_timeout_s=600` is too tight for synthesis | open — see below |
+| 7 | `InvalidUpdateError: At key 'trip_id'` (365s) | parallel subagents each write the forwarded run constants into `LastValue` channels | `keep_run_constant` reducer (a9a8008f) |
+| 8 | 429 `credit_balance_exhausted` (4s) | — | **blocked: the OpenAI account has no credits** |
+
+Run 6 is the load-bearing evidence that the machinery works: `/flights.md`, `/stays.md`, `/days/day-1…3.md`, `/entry-and-season.md` and `/budget.md` were all produced by their own subagents.
+
+**Open, unverified:** `settings.research_timeout_s` is still 600 although run 6 proves a full fan-out needs longer. Raising it is a one-line change but would ship unverified while credits are out, so it is deliberately left alone rather than guessed at.
+
 ### Not auto-verified
 
 - **The agent's research quality.** Every check above proves the machinery — that files are written, ids validate, the rubric loop runs, budgets hold. None of them judges whether a dossier is *good*. That needs the keyed smoke (`make research-smoke`, not in CI) and a human reading one. Reached **truth** for mechanism, nothing for usefulness.
 - **The per-trip advisory lock under real contention.** SC-12 and SC-29 run on SQLite, where the lock is a no-op; the serialization tests skip there and the real proof is the Postgres row above, run against a throwaway container rather than CI. A regression in the lock would pass `make test`.
-- **Cost and latency of a real run.** No measurement here; the smoke script asserts a ceiling but was not run with a key.
+- **A research run that reaches a valid proposal.** Six keyed runs were made (below). The fan-out is proven — all five subagents run and all seven dossier files are written — but no run has yet produced a validated proposal: run 4 timed out during final synthesis, run 5 died on the state-reducer bug now fixed, and run 6 could not start because the OpenAI account has no credits. **Blocked on credits, not on code.**
 - **Gemini and Anthropic under deepagents.** Only the OpenAI path was exercised; the harness profile is keyed off the model's `ls_provider`, so another provider takes a different (null) profile. Reached **provenance** from the wheel, not **truth**.
 - **The progress bus across workers.** It is per-process by design; a run started on one worker is invisible to another's live tail, which falls back to the DB snapshot. Correct but untested under multiple workers.
-- **`langchain-openai` 0.3.34 against `langchain-core` 1.6.3** — an upstream-untested pairing inherited from PR #219; covered here only by this suite and `eval-smoke`.
 
 ### Rollback
 
