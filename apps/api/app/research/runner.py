@@ -258,7 +258,14 @@ async def run_trip_research(
         # Includes asyncio.timeout's TimeoutError. Nothing may escape a BackgroundTask.
         status = "failed"
         error_type = type(exc).__name__
-        logger.warning("[research] run=%s failed: %s", run_id, error_type)
+        # exc_info: the class name alone ("BadRequestError") cannot be debugged —
+        # the provider's message is the whole diagnosis.
+        logger.warning(
+            "[research] run=%s failed: %s",
+            run_id,
+            error_type,
+            exc_info=True,
+        )
     finally:
         _finalize(
             run_id=run_id,
