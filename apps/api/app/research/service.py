@@ -38,6 +38,7 @@ RESEARCH_KIND = "research"
 RESEARCH_CHANNEL = "research"
 _RUNNING = "running"
 _INTERRUPTED = "interrupted"
+_COMPLETED = "completed"
 _DEFAULT_LANGUAGE = "en"
 RESEARCH_START_BUCKET = "research_start"
 _DAY_SECONDS = 24 * 60 * 60
@@ -234,6 +235,23 @@ class ResearchService:
                 .where(AgentRun.trip_id == trip_id, AgentRun.kind == RESEARCH_KIND)
                 .order_by(AgentRun.created_at.desc())
             ).first()
+
+    def chat_state(
+        self,
+        user_id: str,
+        trip_id: str,
+    ) -> str | None:
+        """What a chat turn should report instead of booking: ``"running"`` when the
+        caller's latest run for the trip is live in this process, ``"completed"``
+        when it finished; ``None`` (start, or resume an orphan) otherwise."""
+        run = self.latest(trip_id)
+        if run is None or run.user_id != user_id:
+            return None
+        if run.status == _RUNNING and self._is_live(run.id):
+            return _RUNNING
+        if run.status == _COMPLETED:
+            return _COMPLETED
+        return None
 
     # -- dossier files ---------------------------------------------------
 

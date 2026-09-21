@@ -1,7 +1,7 @@
 # Active prompt versions. name -> version number.
 # get(name) returns this version unless an explicit version= is passed.
 communication_style: 9
-supervisor: 14
+supervisor: 15
 concierge: 13
 planner: 16
 journal: 3

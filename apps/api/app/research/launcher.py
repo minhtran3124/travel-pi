@@ -64,6 +64,30 @@ def _research_started(language: str | None) -> dict:
     }
 
 
+#: ``ResearchService.chat_state`` value → the status copy the chat replies with.
+_STATUS_COPY: dict[str, str] = {
+    "running": "research_in_progress",
+    "completed": "research_completed",
+}
+
+
+def _research_status(
+    run_state: str,
+    language: str | None,
+) -> dict:
+    """The existing-run reply; ``research_status`` makes it terminal for
+    ``reflection`` just like the launch flag."""
+    return {
+        "current_flow": "research",
+        "messages": [
+            AIMessage(
+                content=system_reply(_STATUS_COPY[run_state], language),
+                additional_kwargs={"research_status": run_state},
+            )
+        ],
+    }
+
+
 def make_research_node(service_factory: ResearchServiceFactory):
     """Return the ``research`` node bound to a service factory (design §6).
 
@@ -103,6 +127,12 @@ def make_research_node(service_factory: ResearchServiceFactory):
         if not service.runnable:
             return _unavailable(language)
         user_id = state.get("user_id")
+        # A trip with a finished or live run gets its status, never a new run: the
+        # chat passes no instruction, so a re-run would be an empty revise that
+        # spends the daily cap. Revising goes through the Research tab.
+        run_state = service.chat_state(user_id, trip_id)
+        if run_state in _STATUS_COPY:
+            return _research_status(run_state, language)
         try:
             run_id = service.start(user_id, trip_id)
         except ConflictError:

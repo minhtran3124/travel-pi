@@ -68,6 +68,14 @@ def test_helper_true_only_for_a_started_reply_this_turn():
     ]
     assert _research_started_this_turn(earlier) is False
 
+    # A status reply (run already running/completed) is terminal too: a REVISE
+    # would re-enter the launcher and emit the same reply twice.
+    status = [
+        HumanMessage(content="is my research done?"),
+        AIMessage(content="done", additional_kwargs={"research_status": "completed"}),
+    ]
+    assert _research_started_this_turn(status) is True
+
 
 # -- the reflection node ------------------------------------------------------
 

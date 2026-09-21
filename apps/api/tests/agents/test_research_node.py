@@ -23,6 +23,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.agents.constants import (
+    RESEARCH_COMPLETED_MSG,
+    RESEARCH_IN_PROGRESS_MSG,
     RESEARCH_LIMIT_REACHED_MSG,
     RESEARCH_NEEDS_TRIP_MSG,
     RESEARCH_STARTED_MSG,
@@ -202,6 +204,125 @@ async def test_daily_cap_reached_says_so_and_schedules_no_driver(monkeypatch):
     msg = result["messages"][0]
     assert msg.content == RESEARCH_LIMIT_REACHED_MSG
     assert "research_started" not in msg.additional_kwargs
+
+
+# -- existing run: answer its status, book nothing ----------------------------
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("state", "copy"),
+    [
+        ("completed", RESEARCH_COMPLETED_MSG),
+        ("running", RESEARCH_IN_PROGRESS_MSG),
+    ],
+)
+async def test_existing_run_replies_its_status_and_books_nothing(
+    monkeypatch,
+    state,
+    copy,
+):
+    """A trip whose latest run finished or is live here gets its status, not a new
+    run: a chat re-run carries no instruction, so it would only spend the daily cap
+    on an empty revise and reply 'started' again."""
+    _flag(monkeypatch, enabled=True)
+    service, factory = _service_factory()
+    service.chat_state.return_value = state
+
+    result = await make_research_node(factory)(
+        _state(messages=[HumanMessage(content="bạn chạy research xong chưa?")])
+    )
+
+    service.chat_state.assert_called_once_with(OWNER, TRIP)
+    service.start.assert_not_called()
+    service.launch.assert_not_called()
+    assert result["current_flow"] == "research"
+    msg = result["messages"][0]
+    assert msg.content == copy
+    assert msg.additional_kwargs.get("research_status") == state
+    assert "research_started" not in msg.additional_kwargs
+
+
+def _seed_run(url: str, *, status: str, user_id: str = OWNER) -> None:
+    with get_session_factory(url)() as s:
+        s.add(
+            AgentRun(
+                user_id=user_id,
+                conversation_id="research:x",
+                thread_id="research:x",
+                trip_id=TRIP,
+                channel="research",
+                kind="research",
+                status=status,
+            )
+        )
+        s.commit()
+
+
+def _real_service_db(monkeypatch, tmp_path, name: str) -> str:
+    url = f"sqlite:///{tmp_path / name}"
+    Base.metadata.create_all(get_engine(url))
+    with get_session_factory(url)() as s:
+        s.add(Trip(id=TRIP, user_id=OWNER, title="Trip", travelers=2))
+        s.commit()
+    _flag(monkeypatch, enabled=True, database_url=url)
+    runtime.set_research_runtime(SimpleNamespace(store=InMemoryStore()), ProgressBus())
+
+    async def fake_runner(**kwargs):
+        return None
+
+    monkeypatch.setattr(runner_mod, "run_trip_research", fake_runner)
+    return url
+
+
+@pytest.mark.asyncio
+async def test_completed_run_on_the_real_service_books_no_second_run(
+    monkeypatch,
+    tmp_path,
+):
+    url = _real_service_db(monkeypatch, tmp_path, "done.db")
+    _seed_run(url, status="completed")
+
+    node = make_research_node(lambda: launcher.build_research_service(InMemoryStore()))
+    result = await node(_state())
+
+    assert result["messages"][0].content == RESEARCH_COMPLETED_MSG
+    with get_session_factory(url)() as s:
+        assert s.query(AgentRun).count() == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", ["failed", "interrupted"])
+async def test_failed_run_on_the_real_service_starts_a_new_one(
+    monkeypatch,
+    tmp_path,
+    status,
+):
+    url = _real_service_db(monkeypatch, tmp_path, f"{status}.db")
+    _seed_run(url, status=status)
+
+    node = make_research_node(lambda: launcher.build_research_service(InMemoryStore()))
+    result = await node(_state())
+    await _drain()
+
+    assert result["messages"][0].content == RESEARCH_STARTED_MSG
+    with get_session_factory(url)() as s:
+        assert s.query(AgentRun).count() == 2
+
+
+@pytest.mark.asyncio
+async def test_another_users_completed_run_does_not_answer_for_this_user(
+    monkeypatch,
+    tmp_path,
+):
+    url = _real_service_db(monkeypatch, tmp_path, "other.db")
+    _seed_run(url, status="completed", user_id="someone-else")
+
+    node = make_research_node(lambda: launcher.build_research_service(InMemoryStore()))
+    result = await node(_state())
+    await _drain()
+
+    assert result["messages"][0].content == RESEARCH_STARTED_MSG
 
 
 # -- runtime holds no agent: decline, book nothing ---------------------------

@@ -51,7 +51,7 @@ def test_real_dataset_directory_loads_without_error():
 
 
 def test_total_case_count_at_least_60():
-    assert len(_real_store().load()) == 115
+    assert len(_real_store().load()) == 117
 
 
 def test_journal_list_trips_goldens_declare_tools_expected():

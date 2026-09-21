@@ -100,6 +100,18 @@ RESEARCH_STARTED_MSG = (
     "while; feel free to keep chatting, and follow along in the Research tab."
 )
 
+RESEARCH_IN_PROGRESS_MSG = (
+    "I'm still researching your trip in depth. You can follow the progress live "
+    "in the Research tab — I'll have the full dossier there as soon as it's done."
+)
+
+RESEARCH_COMPLETED_MSG = (
+    "Your in-depth trip research is done! The full dossier — flights, stays, "
+    "things to do, local tips and a proposed plan — is ready in the Research tab. "
+    "Open it to review the proposal and apply what you like to your trip; to "
+    "change anything, use Revise there."
+)
+
 RESEARCH_UNAVAILABLE_MSG = (
     "Deep trip research isn't available right now. Please try again a little later."
 )

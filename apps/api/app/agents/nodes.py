@@ -252,10 +252,11 @@ def _booking_committed_this_turn(messages: list) -> bool:
 
 
 def _research_started_this_turn(messages: list) -> bool:
-    """True when the research launcher started a job since the last HumanMessage.
+    """True when the research launcher started a job — or answered an existing
+    run's status — since the last HumanMessage.
 
     The launcher (``app.research.launcher``) marks its reply with
-    ``additional_kwargs={"research_started": True}``. Reflection ends — never
+    ``additional_kwargs={"research_started": True}`` (or ``research_status``). Reflection ends — never
     REVISEs — such a turn, so a REVISE cannot route ``goto=current_flow``
     ('research') back into the launcher and start a second job (mirrors the
     booking guard above).
@@ -265,7 +266,10 @@ def _research_started_this_turn(messages: list) -> bool:
         if isinstance(msg, HumanMessage):
             last_human = i
     for msg in messages[last_human + 1 :]:
-        if isinstance(msg, AIMessage) and msg.additional_kwargs.get("research_started"):
+        if isinstance(msg, AIMessage) and (
+            msg.additional_kwargs.get("research_started")
+            or msg.additional_kwargs.get("research_status")
+        ):
             return True
     return False
 

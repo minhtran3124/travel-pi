@@ -3,6 +3,15 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## research-chat-status — supervisor v15: research status questions route to research
+
+- **supervisor v15** — copied v14; Rule 6 also routes a question about the status or result of
+  the trip's deep research ("is my research done?") to **research**, plus en/vi examples. The
+  launcher now answers such turns from the latest run (in progress / done) instead of booking a
+  new run. Goldens `research-status-{en,vi}-01`.
+
+`active.yaml`: supervisor → 15. Others unchanged.
+
 ## memory-poisoning-hardening — memory extractor rejects tool output and injections (wave 1)
 
 specs/memory-poisoning-hardening (§3.6): persistent memory is re-injected into every future

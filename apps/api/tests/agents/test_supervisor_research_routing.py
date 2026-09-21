@@ -52,6 +52,16 @@ def test_active_supervisor_prompt_is_v14_with_research_rule():
     assert "You never reply to" in text
 
 
+def test_active_supervisor_prompt_routes_research_status_questions():
+    """v15: asking whether the deep research is done routes to ``research`` (which
+    answers from the run's status) — not to a specialist that cannot see the run."""
+    from app.prompts.registry import registry
+
+    text = registry.get("supervisor")
+    assert "status or result of that deep research" in text
+    assert '"Bạn chạy research xong chưa?" → **research**' in text
+
+
 def test_supervisor_intent_accepts_research_target():
     from app.agents.supervisor import SupervisorIntent
 
