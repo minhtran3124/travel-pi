@@ -104,6 +104,11 @@ RESEARCH_UNAVAILABLE_MSG = (
     "Deep trip research isn't available right now. Please try again a little later."
 )
 
+RESEARCH_LIMIT_REACHED_MSG = (
+    "You've used today's deep trip research runs. You can start another one "
+    "tomorrow — meanwhile, your existing dossier stays in the Research tab."
+)
+
 # HITL plan reject outcome. Approval has no reply line: it is state (plan_approved).
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."
 

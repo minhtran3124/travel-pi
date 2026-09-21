@@ -98,3 +98,22 @@ def test_status_foreign_run_is_404(tmp_path):
 
     resp = client.get("/agent/research/run-x")
     assert resp.status_code == 404, resp.text
+
+
+def test_revise_counts_against_the_daily_cap(tmp_path):
+    """A revise books a full run, so it spends the same ``research_start`` cap as a
+    start (design §5); without that, one completed dossier revised over and over is
+    an unbounded run launcher."""
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    client = TestClient(app)
+
+    run_id = client.post("/agent/trips/t1/research", json={}).json()["run_id"]
+    for _ in range(2):
+        resp = client.post(f"/agent/research/{run_id}/revise", json={})
+        assert resp.status_code == 202, resp.text
+        run_id = resp.json()["run_id"]
+
+    resp = client.post(f"/agent/research/{run_id}/revise", json={})
+    assert resp.status_code == 429, resp.text
+    assert client.post("/agent/trips/t1/research", json={}).status_code == 429

@@ -23,7 +23,6 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.agents.guardrails import redact_pii
 from app.core.auth import CurrentUserDep, require_premium
 from app.core.config import get_settings
-from app.core.rate_limit import enforce_rate_limit
 from app.core.streaming import sse_response
 from app.db.models.agent_run import AgentRun
 from app.db.session import get_session
@@ -58,13 +57,13 @@ router = APIRouter(prefix="/agent", tags=[Tags.agent], responses=error_responses
 SessionDep = Annotated[Session, Depends(get_session)]
 
 _DEFAULT_LANGUAGE = "en"
-_DAY_SECONDS = 24 * 60 * 60
 _PROPOSAL_KEY = "/proposal.json"
 _TERMINAL = frozenset({"completed", "failed", "interrupted"})
 _UNAVAILABLE = "Trip research is temporarily unavailable."
 
 # 429/503 are outside error_responses()'s supported set, so declare them inline.
-_RATE_LIMITED = {429: {"model": ErrorResponse, "description": "Daily start limit"}}
+# Both booking routes spend the daily cap, enforced in ``ResearchService.start``.
+_RATE_LIMITED = {429: {"model": ErrorResponse, "description": "Daily research limit"}}
 _UNAVAILABLE_RESP = {503: {"model": ErrorResponse, "description": _UNAVAILABLE}}
 
 
@@ -112,31 +111,6 @@ def get_research_service(
 
 
 ResearchServiceDep = Annotated[ResearchService, Depends(get_research_service)]
-
-
-# -- rate limit ---------------------------------------------------------------
-
-
-def research_start_rate_limit(
-    request: Request,
-    session: SessionDep,
-    auth_user: CurrentUserDep,
-) -> None:
-    """Per-user daily cap on new research runs (design §5: ``research_start`` N/day).
-
-    Listed before any session-using dependency and reading the policy per request
-    so env overrides apply — the same shape ``routers/feedback.py`` uses. The route
-    already requires a current user, so the subject is always the JWT id.
-    """
-    settings = get_settings()
-    enforce_rate_limit(
-        session,
-        name="research_start",
-        subject=auth_user.id,
-        limit=settings.research_daily_limit,
-        window_seconds=_DAY_SECONDS,
-        request=request,
-    )
 
 
 # -- helpers ------------------------------------------------------------------
@@ -217,7 +191,7 @@ def _status_body(
     response_model=ResearchStartResponse,
     status_code=202,
     summary="Start (or revise) in-depth research for a trip",
-    dependencies=[Depends(research_start_rate_limit), Depends(require_premium)],
+    dependencies=[Depends(require_premium)],
     responses={**error_responses(403, 409), **_RATE_LIMITED, **_UNAVAILABLE_RESP},
 )
 def start_research(
@@ -267,7 +241,7 @@ def start_research(
     status_code=202,
     summary="Revise a trip's dossier as the next turn on its thread",
     dependencies=[Depends(require_premium)],
-    responses=error_responses(403, 404, 409),
+    responses={**error_responses(403, 404, 409), **_RATE_LIMITED},
 )
 def revise_research(
     run_id: _RUN_ID,

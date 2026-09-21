@@ -23,6 +23,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from app.agents.constants import (
+    RESEARCH_LIMIT_REACHED_MSG,
     RESEARCH_NEEDS_TRIP_MSG,
     RESEARCH_STARTED_MSG,
     RESEARCH_UNAVAILABLE_MSG,
@@ -33,7 +34,7 @@ from app.db.engine import get_engine, get_session_factory
 from app.db.models.agent_run import AgentRun
 from app.db.models.trip import Trip
 from app.enums import Tier
-from app.exceptions import ConflictError
+from app.exceptions import ConflictError, RateLimitError
 from app.research import launcher, runtime
 from app.research import runner as runner_mod
 from app.research.launcher import make_research_node
@@ -62,9 +63,7 @@ def _flag(monkeypatch, *, enabled: bool, database_url: str | None = None) -> Non
     monkeypatch.setattr(
         launcher,
         "get_settings",
-        lambda: SimpleNamespace(
-            research_enabled=enabled, database_url=database_url
-        ),
+        lambda: SimpleNamespace(research_enabled=enabled, database_url=database_url),
     )
 
 
@@ -186,6 +185,23 @@ async def test_already_running_is_reassured_and_schedules_no_second_driver(monke
     assert msg.content == RESEARCH_STARTED_MSG
     assert msg.additional_kwargs.get("research_started") is True
     assert result["current_flow"] == "research"
+
+
+@pytest.mark.asyncio
+async def test_daily_cap_reached_says_so_and_schedules_no_driver(monkeypatch):
+    """The chat path spends the same daily cap as the REST start. Over it, the
+    traveller is told why — not the generic error copy — and nothing is scheduled."""
+    _flag(monkeypatch, enabled=True)
+    service, factory = _service_factory()
+    service.start.side_effect = RateLimitError(retry_after=60)
+
+    result = await make_research_node(factory)(_state())
+
+    service.launch.assert_not_called()
+    assert set() == launcher._BACKGROUND_TASKS
+    msg = result["messages"][0]
+    assert msg.content == RESEARCH_LIMIT_REACHED_MSG
+    assert "research_started" not in msg.additional_kwargs
 
 
 # -- runtime holds no agent: decline, book nothing ---------------------------

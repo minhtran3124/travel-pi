@@ -9,11 +9,12 @@ aged ``running`` row to ``interrupted`` while leaving a fresh one alone.
 from __future__ import annotations
 
 import pytest
+from app.core.config import get_settings
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.models.agent_run import AgentRun
 from app.db.models.trip import Trip
-from app.exceptions import ConflictError, NotFoundError
+from app.exceptions import ConflictError, NotFoundError, RateLimitError
 from app.research.progress import ProgressBus
 from app.research.service import ResearchService
 from langgraph.store.memory import InMemoryStore
@@ -149,3 +150,42 @@ def test_sweep_stale_flips_only_aged_running_rows(service, factory) -> None:
 
     assert _get(factory, aged_id).status == "interrupted"
     assert _get(factory, fresh_id).status == "running"
+
+
+def _complete(factory, run_id: str) -> None:
+    with factory() as s:
+        s.get(AgentRun, run_id).status = "completed"
+        s.commit()
+
+
+@pytest.fixture
+def daily_limit(monkeypatch):
+    monkeypatch.setenv("RESEARCH_DAILY_LIMIT", "2")
+    get_settings.cache_clear()
+    yield 2
+    get_settings.cache_clear()
+
+
+def test_start_enforces_the_daily_cap_for_every_caller(
+    service, factory, daily_limit
+) -> None:
+    """The cap lives in ``start`` itself, so the REST start, the REST revise and the
+    chat launcher are all bounded — before, only the start route's dependency
+    counted, and revise or chat booked unlimited multi-minute LLM runs."""
+    for _ in range(daily_limit):
+        _complete(factory, service.start(OWNER, TRIP))
+
+    with pytest.raises(RateLimitError):
+        service.start(OWNER, TRIP)
+
+
+def test_a_conflicting_start_does_not_spend_the_daily_cap(
+    service, factory, daily_limit
+) -> None:
+    run_id = service.start(OWNER, TRIP)
+    for _ in range(3):
+        with pytest.raises(ConflictError):
+            service.start(OWNER, TRIP)
+    _complete(factory, run_id)
+
+    assert service.start(OWNER, TRIP)

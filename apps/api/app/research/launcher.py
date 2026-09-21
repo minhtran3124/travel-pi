@@ -24,7 +24,7 @@ from langgraph.store.base import BaseStore
 from app.agents.copy import system_reply
 from app.agents.state import TravelAgentState
 from app.core.config import get_settings
-from app.exceptions import AppError, ConflictError
+from app.exceptions import AppError, ConflictError, RateLimitError
 
 if TYPE_CHECKING:  # keep the research package (and deepagents) off the import path
     from app.research.service import ResearchService
@@ -110,6 +110,14 @@ def make_research_node(service_factory: ResearchServiceFactory):
             # with the same "started" copy rather than surfacing a 500, and do not
             # schedule a second driver for the same thread.
             return _research_started(language)
+        except RateLimitError:
+            # Over the daily cap shared with the REST start and revise: say so, rather
+            # than the generic error copy that invites an immediate retry.
+            return {
+                "messages": [
+                    AIMessage(content=system_reply("research_limit_reached", language))
+                ]
+            }
         except AppError:
             # Any other domain failure (e.g. the trip is not the caller's) becomes a
             # readable reply, never an unhandled 500 out of the graph.

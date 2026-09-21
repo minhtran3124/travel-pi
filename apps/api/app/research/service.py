@@ -11,6 +11,7 @@ background code never reuses a request session.
 from __future__ import annotations
 
 import logging
+import time
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
@@ -24,8 +25,9 @@ from app.core.config import get_settings
 from app.db.base import _utc_now_iso
 from app.db.locks import advisory_xact_lock
 from app.db.models.agent_run import AgentRun
-from app.exceptions import ConflictError, NotFoundError
+from app.exceptions import ConflictError, NotFoundError, RateLimitError
 from app.repositories.agent_run import AgentRunRepository
+from app.repositories.rate_limit import RateLimitRepository
 from app.repositories.trip import TripRepository
 from app.research.context import ResearchContext
 from app.research.progress import ProgressBus
@@ -37,6 +39,8 @@ RESEARCH_CHANNEL = "research"
 _RUNNING = "running"
 _INTERRUPTED = "interrupted"
 _DEFAULT_LANGUAGE = "en"
+RESEARCH_START_BUCKET = "research_start"
+_DAY_SECONDS = 24 * 60 * 60
 
 # Dossier / plan store routes collapse onto one namespace; a user-facing path keeps
 # its route prefix, the store key drops it (mirrors the composite backend strip).
@@ -107,9 +111,18 @@ class ResearchService:
         """Book a fresh research run and return its id. The caller schedules the
         runner — the REST surface via ``BackgroundTasks`` (``routers/research.py``),
         the chat node via :meth:`launch`. Raises ``NotFoundError`` if the trip is not
-        the caller's, ``ConflictError`` if a run for this trip is already ``running``."""
+        the caller's, ``ConflictError`` if a run for this trip is already ``running``,
+        ``RateLimitError`` over the per-user daily cap."""
         if TripRepository(self._sf).get_trip(trip_id, user_id) is None:
             raise NotFoundError("Trip not found")
+        # Unlocked pre-check so a plain 409 never spends the daily cap; the locked
+        # check below stays the authority on a concurrent double start.
+        with self._sf() as s:
+            if self._running_for(s, trip_id) is not None:
+                raise ConflictError(
+                    "A research run is already in progress for this trip"
+                )
+        self._spend_daily_cap(user_id)
         run_id = str(uuid4())
         # One transaction holds a per-trip advisory lock across the check AND the
         # insert, so two concurrent starts for the same trip serialize: the first
@@ -267,6 +280,29 @@ class ResearchService:
             kind=RESEARCH_KIND,
             started_at=_utc_now_iso(),
         )
+
+    def _spend_daily_cap(self, user_id: str) -> None:
+        """Count one booking against ``research_start`` (design §5). It lives here, not
+        on a route, because every launch path books through ``start``: the REST start,
+        the REST revise and the chat node. Committed on its own session before the
+        locked booking transaction, so a SQLite writer never waits on itself."""
+        limit = get_settings().research_daily_limit
+        decision = RateLimitRepository(self._sf).hit(
+            bucket=RESEARCH_START_BUCKET,
+            subject=user_id,
+            now_epoch=int(time.time()),
+            limit=limit,
+            window_seconds=_DAY_SECONDS,
+        )
+        if not decision.allowed:
+            raise RateLimitError(
+                "Daily research limit reached.",
+                retry_after=decision.retry_after,
+                limit=limit,
+                remaining=decision.remaining,
+                reset_at=decision.reset_at,
+                hint="Wait for the Retry-After window, then retry.",
+            )
 
     def _running_for(self, session: Session, trip_id: str) -> AgentRun | None:
         """The trip's ``running`` research run, if any, read on the caller's
