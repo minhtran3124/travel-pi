@@ -47,6 +47,12 @@ class ProgressBus:
             channel = self._runs[run_id] = _RunChannel()
         return channel
 
+    def open(self, run_id: str) -> None:
+        """Make a just-booked run live before its runner publishes anything, so an
+        SSE client that connects on the 202 tails it instead of taking the snapshot
+        branch. A closed tombstone stays closed."""
+        self._channel(run_id)
+
     def publish(self, run_id: str, event: Any) -> None:
         channel = self._channel(run_id)
         if channel.closed:

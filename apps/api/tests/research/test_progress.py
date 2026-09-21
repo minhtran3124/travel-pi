@@ -158,3 +158,34 @@ async def test_subscriber_arriving_after_close_declines_instead_of_parking() -> 
 
     assert [event async for event in bus.subscribe("run-late")] == []
     assert bus.has("run-late") is False
+
+
+@pytest.mark.asyncio
+async def test_opened_run_is_live_before_its_first_publish() -> None:
+    """A run is booked before its runner publishes anything, and the client opens
+    the stream right on the 202. ``open`` makes it live at booking time, so that
+    subscriber tails the live events instead of falling to the DB snapshot."""
+    bus = ProgressBus()
+    bus.open("r1")
+    assert bus.has("r1") is True
+
+    received: list[object] = []
+
+    async def consume() -> None:
+        async for event in bus.subscribe("r1"):
+            received.append(event)
+
+    task = asyncio.create_task(consume())
+    await asyncio.sleep(0)
+    bus.publish("r1", "tool")
+    bus.close("r1")
+    await asyncio.wait_for(task, timeout=1)
+    assert received == ["tool"]
+
+
+def test_open_never_revives_a_closed_run() -> None:
+    bus = ProgressBus()
+    bus.open("r1")
+    bus.close("r1")
+    bus.open("r1")
+    assert bus.has("r1") is False

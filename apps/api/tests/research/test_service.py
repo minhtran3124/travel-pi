@@ -189,3 +189,24 @@ def test_a_conflicting_start_does_not_spend_the_daily_cap(
     _complete(factory, run_id)
 
     assert service.start(OWNER, TRIP)
+
+
+def test_start_makes_the_run_live_on_the_bus_before_any_event(factory) -> None:
+    """The Research tab opens the stream on the 202, before the runner's first event.
+    If the run is not live on the bus by then, the SSE route takes the snapshot
+    branch for the whole run and the tab never sees tool/subagent/file progress."""
+    bus = ProgressBus()
+    service = ResearchService(
+        session_factory=factory, store=InMemoryStore(), agent=None, bus=bus
+    )
+
+    run_id = service.start(OWNER, TRIP)
+
+    assert bus.has(run_id) is True
+
+
+def test_a_refused_start_opens_no_channel(service, factory) -> None:
+    service.start(OWNER, TRIP)
+    with pytest.raises(ConflictError):
+        service.start(OWNER, TRIP)
+    assert len(service._bus._runs) == 1

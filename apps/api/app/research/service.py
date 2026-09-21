@@ -137,6 +137,7 @@ class ResearchService:
                 )
             self._insert_run(run_id, user_id, trip_id, session=s)
             s.commit()
+        self._open_on_bus(run_id)
         return run_id
 
     async def launch(
@@ -164,6 +165,7 @@ class ResearchService:
             raise NotFoundError("Research run not found")
         new_run_id = str(uuid4())
         self._insert_run(new_run_id, prior.user_id, prior.trip_id)
+        self._open_on_bus(new_run_id)
         ctx = self._context(new_run_id, prior.user_id, prior.trip_id)
         await self._drive(new_run_id, ctx, instruction=None, resumed_from=run_id)
         return new_run_id
@@ -280,6 +282,13 @@ class ResearchService:
             kind=RESEARCH_KIND,
             started_at=_utc_now_iso(),
         )
+
+    def _open_on_bus(self, run_id: str) -> None:
+        """Make the booked run live on the bus now: the client opens the stream on
+        the 202, before the runner's first event, and the SSE route only tails a
+        run the bus already reports live. The runner closes it on every exit."""
+        if self._bus is not None:
+            self._bus.open(run_id)
 
     def _spend_daily_cap(self, user_id: str) -> None:
         """Count one booking against ``research_start`` (design §5). It lives here, not
