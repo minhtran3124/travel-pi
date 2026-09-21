@@ -3,9 +3,6 @@ type: concept
 title: Internationalization and theming
 description: How the web app localizes and themes itself — cookie-based next-intl locale resolution without URL routing, the en/vi message catalogs and the tests that keep them in parity with each other and with the backend's supported languages, how the UI locale differs from the agent's detected reply language and the side-panel language, dark mode via next-themes with a class-based Tailwind variant, and the design-token system whose colors flip between themes through CSS-variable indirection.
 tags: [i18n, next-intl, locale, theming, dark-mode, tailwind, design-tokens, frontend]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-04db353a082c76c88c1af099
     resource: repo://apps/api/app/core/languages.py
@@ -34,6 +31,9 @@ sources:
   - id: openwiki-source-ca9eabc24825e6ff0edc2967
     resource: repo://DESIGN.md
 generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:36:49.315Z
 ---
 
 # Internationalization and theming

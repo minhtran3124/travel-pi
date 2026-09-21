@@ -3,9 +3,6 @@ type: guide
 title: Quickstart
 description: The entry page for the travel-pi wiki — what the product and repository are, the commands to run, test and lint both apps, the invariants that most often trip newcomers, and a task-routing map from the kind of work you are doing to the wiki page that explains that part of the system.
 tags: [quickstart, onboarding, routing, commands, overview]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
@@ -16,6 +13,9 @@ sources:
   - id: openwiki-source-23775c3de52f3ab95a13cb8b
     resource: repo://README.md
 generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:36:49.315Z
 ---
 
 # Quickstart

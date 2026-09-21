@@ -44,7 +44,7 @@ expenses, journals) is real, persisted CRUD.
                                           │  (LangGraph, provider-agnostic)
                                           └──────────────────────────────┘
                                                    │
-                                          SQLite (local) / Postgres (Docker)
+                                          Postgres (Docker dev) / SQLite (tests)
 ```
 
 - **Backend layering:** `routers → services → repositories`. Services raise domain
@@ -68,11 +68,14 @@ apps/
       agents/         LangGraph supervisor + sub-agents + nodes + state
       tools/          agent tools, grouped by domain (registry.py)
       clients/llm.py  provider-agnostic LLM client
-      memory/         conversation memory (summarizer/store)
+      memory/         conversation summarizer + long-term store (poisoning guard, background extraction)
+      rag/            hybrid retrieval over visa/tips/country prose (pgvector or in-memory)
       schemas/ db/    Pydantic v2 models + ORM models
   web/        Next.js frontend (TypeScript)
-docs/         longer-form documentation
-specs/        per-feature folders: PLAN.md / SUMMARY.md / REVIEW.md (git-tracked)
+docs/         longer-form documentation (incl. docs/solutions/ accepted learnings)
+openwiki/     generated evidence index (optional just-in-time context)
+specs/        per-feature folders: PLAN.md / SUMMARY.md / REVIEW.md (git-tracked); STATE.md indexes them
+.github/workflows/  CI: api tests, web lint+test+build, web-e2e, gitleaks, agent eval smoke, post-merge STATE.md
 .claude/rules/  the working agreement for agents (see below)
 ```
 
@@ -84,10 +87,13 @@ specs/        per-feature folders: PLAN.md / SUMMARY.md / REVIEW.md (git-tracked
 |---|---|
 | Get the project running | `README.md` (root) → `apps/api/README.md` |
 | Know the stack & versions | `TECHSTACKS.md` (root) |
-| Work on the **backend** | `CLAUDE.md` (architecture, conventions, run/test) |
+| Work on the **backend** | `CLAUDE.md` + `techstacks/architecture.md`, `techstacks/guidelines.md` |
+| See the full feature inventory | `FEATURES.md` (root) |
 | Understand the **AI agent** | `WORKFLOW.md` + `WORKFLOW_DIAGRAM.md` (root) |
-| See the agent roadmap/plan | `specs/travel-agent/PLAN.md`, `REVIEW.md` |
-| Work on the **frontend** | `apps/web/` + `specs/monorepo-fe/`, `specs/web-trip-planner/` |
+| Run/extend the **agent eval** | `apps/api/eval/README.md` |
+| See the agent roadmap/plan | `specs/travel-agent/PLAN.md`, `REVIEW.md`; `specs/STATE.md` for shipped status |
+| Work on the **frontend** | `apps/web/`, `DESIGN.md` + `PRODUCT.md` (web design system), `specs/monorepo-fe/` |
+| Learn from past fixes | `docs/solutions/` (accepted learnings, indexed by `docs/solutions/INDEX.md`) |
 | Find prior work on a feature | `specs/<feature-slug>/` (one folder per feature) |
 
 ---
@@ -118,6 +124,9 @@ single root `.venv`.
 3. The interesting part is the **LangGraph agent** in `apps/api/app/agents/`.
 4. Features live in **`specs/<slug>/`** with a PLAN + SUMMARY; read the relevant one first.
 5. Read **`CLAUDE.md`** before touching backend code, and follow **`.claude/rules/`**.
+6. The **`openwiki/`** wiki is refreshed **manually** (`openwiki code --update` from a local
+   checkout). No scheduled workflow runs here: the "scheduled OpenWiki GitHub Actions workflow"
+   line in the generated block below is upstream boilerplate that the tool rewrites on each run.
 
 <!-- OPENWIKI:START -->
 

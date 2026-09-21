@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:06725fb6eb41b6d3c82c5e5718bba0677fe40f2b6664d3f4ffb8712254164b55",
+  "pageVersion": "sha256:e5c5c3e378bf656d5848fded0d7f244931f8a20104d39c41cd4027162a42bb32",
   "claims": [
     {
       "id": "claim_53bc1ee9dd82424d8aa26fcb35f5ab6f",
@@ -25,8 +25,8 @@
       "statement": "Backend commands run from apps/api with the single root venv, frontend commands run from apps/web on Node 24 because pnpm 11 needs Node 22.13 or newer, and git staging and committing must be separate commands.",
       "evidence": [
         {
-          "resource": "repo://CLAUDE.md#L38-L55",
-          "version": "repo-lines-v1:sha256:bdfb32fda2978b725a313ab8d4721c1773f6264137c22ca552db8dcf9626cd8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNTU1ZjY1NDljY2JkYTM0NGMyZmNmMTg1OTU0ZTQ4ZWIxNjYyZDgwOTcyYTljYjgxNDQ0ODY2MWQzMTBiNmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViMWJjNWJjNGEyMzdmNTc4ZTZhZjRhNDE1ZDA2NDdmOTkxMGIwM2IzNjRlMWUyN2MxZjFkYmFhNzQzZDAzYmEifQ"
+          "resource": "repo://CLAUDE.md#L38-L57",
+          "version": "repo-lines-v1:sha256:fe621b05b06539d84b169113a223d84ea0817d6d891f4453a116c86fd462dc40:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkMWIxNWU3MDA1YTY2YTRlYmUwNzE1YzJhNDFiNTgxM2JlYzNhNTAxOWM0NGE1ZmI5NmZmNzEyNWM2MTZmODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViMWJjNWJjNGEyMzdmNTc4ZTZhZjRhNDE1ZDA2NDdmOTkxMGIwM2IzNjRlMWUyN2MxZjFkYmFhNzQzZDAzYmEifQ"
         }
       ]
     },
@@ -35,8 +35,8 @@
       "statement": "The backend follows routers to services to repositories, the frontend consumes the API through the /api/be proxy and generates its types from the OpenAPI document, and feature history lives in specs with longer-form docs in docs.",
       "evidence": [
         {
-          "resource": "repo://AGENTS.md#L46-L78",
-          "version": "repo-lines-v1:sha256:5e462c43b180128c40ea31829732356fb63dac81f42ace35ba7fdb374b75c753:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMTZiZDg1MzA1OWRiNTE1MzQ2NjEzOGJiNzdhZDE4OTg1ZjQyN2VjMDRlYzk5ZDViMzFkNWY0ODUxNGVjZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiNzA1ZGQ4ODZjODc5ZjU1ODIwMWNkZjA0MzA5ZWM3N2QxNzQxZTg4YWMwMjZmMDQ2MGM0YjVjYjIzOTgxZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjczM2VkNmI2ZmY5ZmMwMTQxZGM1NmUxZmVjMmViY2U4MzhmODYwMzMyYzQwNTM2NmQ3Y2I3YTc3NWM5ODI5NjUifQ"
+          "resource": "repo://AGENTS.md#L33-L80",
+          "version": "repo-lines-v1:sha256:1bb2c564c015833640ea763dfb7d1f971e21cb6163d9ebae0665ab1e95a75aee:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMjU4NmRiNDZlNzNjYjVlMDFhOTdlYWI4ZmYyMDBiZmRiODJhMjRmYjJjMmEzZjJhMjc4NWNlZDcwOTdjM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwMWYyZWMxNzU5M2MxMDU0ZWI0NjM2N2Q4NDUzZWYyNGExNzNjZTk2YjcxMTdkOTFmOWE2OGQ0NGZlZjhiMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMWYyZWMxNzU5M2MxMDU0ZWI0NjM2N2Q4NDUzZWYyNGExNzNjZTk2YjcxMTdkOTFmOWE2OGQ0NGZlZjhiMDEifQ"
         },
         {
           "resource": "repo://README.md#L97-L110",
@@ -47,6 +47,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-21T09:36:49.315Z"
   }
 }

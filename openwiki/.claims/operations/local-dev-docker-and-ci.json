@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0f99e4e385d1f9225b014ad34b5c6835fde4a074fae00210d7d0f2a210d353a5",
+  "pageVersion": "sha256:6ff5a2c58471411082ede530960a5aacaa16adfde6ac278f2df18d3c6935a702",
   "claims": [
     {
       "id": "claim_70669d98c17e49eaa8bad2117eb7dfef",
       "statement": "Frontend work requires Node 24 with pnpm 11 (pnpm 11 needs Node 22.13 or newer and the nvm default may be older), and the backend uses a single uv-managed venv at the repository root that the backend Makefile resolves as ../../.venv.",
       "evidence": [
         {
-          "resource": "repo://CLAUDE.md#L38-L48",
-          "version": "repo-lines-v1:sha256:f68280e343dd8a61aea6e6e11faf0935d9b399f3dc808bf54e863e9fb5f3c247:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4ZWJkZGQ5MDE0ZGQ4YWViM2U3ZjViODI4OTIzN2EwZGRmOTM2MTcwODdiOGM4ZDVlMDg4ZjA0ZTY4NWU5ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMmIzYWRjZWEwNzAyMTc5Yzk0YjVkZTY4ZTUxNzQzYzZiNmYxZTY4NGRjMTFiZDUyZmU0ZDZiYjA1NTc3ZmMifQ"
+          "resource": "repo://CLAUDE.md#L38-L49",
+          "version": "repo-lines-v1:sha256:69640d1048a631926a900bb4e6b0b1de263bdecaabdc79770988b09f63fbf3aa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4ZWJkZGQ5MDE0ZGQ4YWViM2U3ZjViODI4OTIzN2EwZGRmOTM2MTcwODdiOGM4ZDVlMDg4ZjA0ZTY4NWU5ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMmIzYWRjZWEwNzAyMTc5Yzk0YjVkZTY4ZTUxNzQzYzZiNmYxZTY4NGRjMTFiZDUyZmU0ZDZiYjA1NTc3ZmMifQ"
         },
         {
           "resource": "repo://apps/api/Makefile#L4-L5",
@@ -126,17 +126,27 @@
     },
     {
       "id": "claim_43a38aab25c8448c9ded9ab2c5f7bdca",
-      "statement": "Feature PRs target the integration branch rather than main, and staging and committing must be separate commands because a local hook blocks compound git add and commit invocations.",
+      "statement": "main is the integration branch that feature PRs target, the git remote is named github so gh commands pass --repo, and staging and committing must be separate commands because a local hook blocks compound git add and commit invocations.",
       "evidence": [
         {
-          "resource": "repo://CLAUDE.md#L50-L55",
-          "version": "repo-lines-v1:sha256:4f2c64068260dc1573477a77802808ff650cf78e05be0d05bb679b76c12ae33b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFhZDUxOTg5NTkwNjNlYzBkNjNkZWQ0YjQ2YjU4OWJiODI5YjdjNTI5ZjNlMzlkZTJhMGI4YWYyM2NjYzEyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY1NTVmNjU0OWNjYmRhMzQ0YzJmY2YxODU5NTRlNDhlYjE2NjJkODA5NzJhOWNiODE0NDQ4NjYxZDMxMGI2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDYwNGZhYjYwZTZiZDhlNjcwYWJhZWMwYWJkNzMyMmU2MzkwZDIzZWIyYmJkYTkwMmM5ZjRlOTY3NjZhOWJiYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+          "resource": "repo://CLAUDE.md#L51-L57",
+          "version": "repo-lines-v1:sha256:0f9ea9f254595ca2f3e5d5866d677a2b727d1d67ef53f0e9a2189812a6363f65:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFhZDUxOTg5NTkwNjNlYzBkNjNkZWQ0YjQ2YjU4OWJiODI5YjdjNTI5ZjNlMzlkZTJhMGI4YWYyM2NjYzEyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmQxYjE1ZTcwMDVhNjZhNGViZTA3MTVjMmE0MWI1ODEzYmVjM2E1MDE5YzQ0YTVmYjk2ZmY3MTI1YzYxNmY4OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDYwNGZhYjYwZTZiZDhlNjcwYWJhZWMwYWJkNzMyMmU2MzkwZDIzZWIyYmJkYTkwMmM5ZjRlOTY3NjZhOWJiYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd740eefd3194d258528f65d6fcfd0cc",
+      "statement": "Day-to-day development runs on the Docker Postgres stack started with make up, while SQLite is the configuration default and backs the fast unit-test suite run by make test.",
+      "evidence": [
+        {
+          "resource": "repo://CLAUDE.md#L44-L46",
+          "version": "repo-lines-v1:sha256:2789fd11a8b1a2e525533cedf94a53e0f667e11750cb33f7ab018b731386371e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGY0MWQxMzc4Y2Y4MmE0Y2ZiNjcyNDUzZTc2MmU5OGQyNzZhNGRhMTY1MDM3YjlhYTA4Yjc1MDU1Y2U5MTFhMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTYxMmZmNmJmZjZjM2FlZDI0ZDNkZjhmMjVmY2FhNzQ5OTIyNzNmMWM5NWEwZTg5MjY5ZjBlYzJiNmIwNDE3NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjE5ZWRkZjY0MThlZWUwZjZkYjBmYjhlZWJkMDM3NWExNGExODVkZTlkOTRmMjg1NDYwZTFkM2FjNzZkMjk0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjk0YzQ0MzQwNzNhNzc2ZGQyN2VhZDcxOGZmNjFiY2ViN2NhNmJmNDJmMmQxYzZmNzc4OGYzMGU5ODk1NWM1YiJ9"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:19:54.601Z"
+    "at": "2026-09-21T09:36:49.315Z"
   }
 }

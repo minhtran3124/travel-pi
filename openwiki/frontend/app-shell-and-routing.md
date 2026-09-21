@@ -3,9 +3,6 @@ type: architecture
 title: Web app shell, routing and auth
 description: How the Next.js App Router frontend is assembled — the single server layout and its load-bearing provider order, the client-side app shell and route map, the Supabase session middleware that refreshes cookies and gates user-scoped routes, the password, magic-link and OAuth sign-in flows with a same-origin return-path guard, the identity context, and the typed openapi-fetch client whose middleware attaches the bearer token and mints idempotency keys behind the /api/be proxy.
 tags: [nextjs, app-router, frontend, supabase, auth, middleware, api-client, openapi-fetch, tanstack-query, providers]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-999f60ece775e48a66373ded
     resource: repo://apps/web/next.config.ts
@@ -47,12 +44,15 @@ sources:
     resource: repo://apps/web/src/middleware.ts
   - id: openwiki-source-ac7a0884b0d373d783827e69
     resource: repo://techstacks/frontend.md
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-21T09:36:49.315Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:36:49.315Z
 ---
 
 # Web app shell, routing and auth
 
-`apps/web` is a Next.js 16 App Router application (React 19, TypeScript, Tailwind v4). Its job is to render user-scoped pages over the FastAPI REST surface and to host the agent chat widget. `techstacks/frontend.md` is the review profile for this app; where that profile and the code disagree (it still describes a localStorage pseudo-identity header and a non-redirecting middleware), the code described here is current.
+`apps/web` is a Next.js 16 App Router application (React 19, TypeScript, Tailwind v4). Its job is to render user-scoped pages over the FastAPI REST surface and to host the agent chat widget. `techstacks/frontend.md` is the review profile for this app and describes the same identity model as the code: a Supabase bearer token on both REST and SSE, and a middleware that redirect-gates protected route prefixes.
 
 ## The root layout and provider order
 

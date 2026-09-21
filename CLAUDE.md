@@ -41,8 +41,9 @@ ruff format app scripts
 - **Node:** use **v24** for any FE/pnpm work
   (`export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`) — the `nvm` default is 18,
   and pnpm 11 requires Node ≥22.13.
-- **Database:** SQLite locally, Postgres in Docker — selected by `DATABASE_URL`.
-  Schema versioned by Alembic (`../../.venv/bin/alembic current | upgrade head` from `apps/api/`).
+- **Database:** dev runs on Postgres in Docker (`make up`); SQLite is the config default and
+  backs the fast unit-test suite (`make test`). Selected by `DATABASE_URL`. Schema versioned by
+  Alembic (`../../.venv/bin/alembic current | upgrade head` from `apps/api/`).
 - **LLM:** real provider when API keys are set; `FakeLLM` in tests (no network).
 - **Shell:** zsh. Run BE commands from `apps/api/`, FE commands from `apps/web/`
   (or via the root `Makefile`).
@@ -51,8 +52,9 @@ ruff format app scripts
 
 - **Stage and commit as SEPARATE commands** — a PreToolUse hook blocks compound
   `git add … && git commit …`.
-- **PRs:** feature PRs target the latest integration branch, not `main`; use the
-  `minhtran3124` gh account (`gh auth switch --user minhtran3124`).
+- **PRs:** `main` is the integration branch — feature PRs target `main`. The git remote is named
+  `github`, so `gh` commands need `--repo minhtran3124/travel-pi`. Use the `minhtran3124` gh
+  account (`gh auth switch --user minhtran3124`).
 
 <!-- OPENWIKI:START -->
 
