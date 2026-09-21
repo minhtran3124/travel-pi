@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 #: Main-graph nodes whose terminal AIMessage never streams via ``messages`` mode,
 #: so the mapper surfaces it from ``updates`` gated on this set to avoid double-emit.
-_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan"})
+_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "research"})
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
