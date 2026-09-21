@@ -124,6 +124,9 @@ single root `.venv`.
 3. The interesting part is the **LangGraph agent** in `apps/api/app/agents/`.
 4. Features live in **`specs/<slug>/`** with a PLAN + SUMMARY; read the relevant one first.
 5. Read **`CLAUDE.md`** before touching backend code, and follow **`.claude/rules/`**.
+6. The **`openwiki/`** wiki is refreshed **manually** (`openwiki code --update` from a local
+   checkout). No scheduled workflow runs here: the "scheduled OpenWiki GitHub Actions workflow"
+   line in the generated block below is upstream boilerplate that the tool rewrites on each run.
 
 <!-- OPENWIKI:START -->
 
