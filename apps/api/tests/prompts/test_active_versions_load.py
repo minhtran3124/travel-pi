@@ -119,7 +119,7 @@ def test_active_communication_style_is_v10_tool_output_hardened():
         " ".join(line.split()) for line in v9.splitlines() if line.startswith("#")
     ]
     assert v9_headings, "v9 communication_style should have markdown headings"
-    for heading in v8_headings:
+    for heading in v9_headings:
         assert heading in collapsed, heading
 
 
