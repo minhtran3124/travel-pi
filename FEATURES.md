@@ -258,11 +258,13 @@ OAuth buttons render but the action is deliberately stubbed — see [gaps](#12-k
 
 - **Verification** — Supabase JWT (RS256/ES256) verified against JWKS. `get_current_user` raises
   401; `get_current_user_optional` returns `None` so the agent can serve anonymous callers.
-- **Ownership** — trips and expenses are scoped by `user_id` at the repository layer (migration
-  `trips.user_id` was a destructive one). A conversation-claim endpoint reassigns an anonymous
-  conversation once the user signs in.
+- **Ownership** — trips, expenses, bookings and saved places are scoped by `user_id` at the
+  repository layer (a foreign id reads as a 404, never a 403); the `trips.user_id` migration was a
+  destructive one. A conversation-claim endpoint reassigns an anonymous conversation once the user
+  signs in.
 - **Roles** — `PATCH /admin/users/{id}/tier` requires `app_metadata.role == "admin"` (403 otherwise).
-- **Tiers** — free vs premium. Premium unlocks the `booking` sub-agent.
+- **Tiers** — free vs premium. Premium unlocks the `booking` sub-agent and the REST
+  `POST /flights/book` / `POST /hotels/book` routes (`require_premium` → 403 otherwise).
 - **Quotas** — free tier gets a daily UTC-day agent-turn limit counted from `messages` rows;
   exceeding it raises `QuotaExceededError` → HTTP 429.
 - **Rate-limit primitive** — a reusable DB-backed per-user limiter (`rate_limit_counters`) with
@@ -273,18 +275,24 @@ OAuth buttons render but the action is deliberately stubbed — see [gaps](#12-k
 
 ## 8. MCP server
 
-`python -m app.mcp.server` builds a `FastMCP` server named `travel-pi` from the **same**
-`ALL_TOOLS` registry the agent uses, so new agent tools are exposed automatically with no server
-edit. Each tool carries `readOnlyHint` / `destructiveHint` annotations, and destructive tools get
-" Cannot be undone." appended to their description. Tools requiring runtime injection (`store`,
-`tool_call_id`) are skipped because an external MCP client can't supply them.
+`build_mcp_server()` (`app/mcp/server.py`) builds a `FastMCP` server named `travel-pi` from the
+**same** `ALL_TOOLS` registry the agent uses, so new agent tools are exposed automatically with no
+server edit. Each tool carries `readOnlyHint` / `destructiveHint` annotations, and destructive tools
+get " Cannot be undone." appended to their description.
 
-> **E004 caveat (review-A):** the four booking/cancel tools now take `user_id` via
-> `InjectedState("user_id")`. Unlike `store` / `tool_call_id`, an `InjectedState` arg is **not**
-> skipped by the server — `get_trip_summary` (also `InjectedState("user_id")`) is exposed too — so
-> these tools **remain on the MCP surface**, now with a `user_id` parameter. E004's intent (drop
-> them, since MCP has no auth) is therefore **not yet enforced**; achieving it needs an explicit
-> filter in `app/mcp/server.py`. See `.harness-state/sdd/report-3.1.md`.
+Three exclusion rules keep the unauthenticated surface safe:
+
+- Tools needing a runtime-injected `store` or `tool_call_id` are skipped — an external MCP client
+  can supply neither.
+- The four **destructive** tools (`book_flight`, `book_hotel`, `cancel_flight`, `cancel_hotel`) are
+  withheld, because MCP can't provide the authenticated owner, HITL approval or premium gate they
+  require; booking and cancellation stay on the in-agent path.
+- `list_trips` is excluded **by name** (`_MCP_EXCLUDED_BY_NAME`): its injected `user_id` would become
+  a caller-supplied argument that alone could enumerate a user's trips. Other trip-scoped tools
+  survive because they need a `trip_id` the caller cannot guess.
+
+What remains is the read-only search/lookup set. `tests/mcp/` pins that destructive and clarification
+tools stay off the server.
 
 ---
 
@@ -360,12 +368,14 @@ judged matrix (k=3), and `make eval-compare`/`eval-check` gate a run against the
 
 These are real, verified in code — worth knowing before treating anything above as production-ready.
 
-1. **`/dashboard/*` has no authentication.** The prompt browser and the agent-model-config editor
-   are reachable without a JWT or admin role, unlike `/admin`. Fine for a local operator tool,
-   not for a deployed environment.
-2. **Bookings, saved places and the travel-inventory endpoints are unauthenticated and
-   un-scoped.** `Booking` and `SavedPlace` have no `user_id` column, so any caller can read or
-   cancel any booking by id. Ownership scoping exists only for trips and expenses.
+1. **`/dashboard/*` uses optional HTTP Basic, not the JWT/admin system.** `require_dashboard_access`
+   enforces HTTP Basic when `DASHBOARD_BASIC_USER`/`DASHBOARD_BASIC_PASSWORD` are set; with neither
+   set the pages are open in development but return 404 in production, so the dashboard is never
+   reachable in production without credentials.
+2. **Read-only travel-inventory endpoints are public.** Flight/hotel search, the places catalog and
+   the destination-intelligence reads take no auth — they expose only synthetic or reference data.
+   Bookings and saved places, by contrast, carry a non-null `user_id` and are owner-scoped (a
+   foreign id reads as a 404), and the `POST` book routes are premium-gated.
 3. **OAuth is UI-only.** `OAuthButtons` renders Google/GitHub, but the server action returns
    "not enabled yet — configure the provider in Supabase first."
 4. **`/expenses` is gated in middleware but has no page yet.**

@@ -136,9 +136,11 @@ includes `booking` because booking must enter through HITL.
   `plan` node, or parallel `synthesis_worker` fan-out. **`synthesize`** merges the workers' structured
   `task_results` into one answer. If any specialist calls the private `needs_clarification` tool,
   `awaiting_user=True` and reflection ends the turn early.
-- **`reflection`** skips review while awaiting the traveller, when disabled, or after the single
-  revision cap. Otherwise it judges `REVISE`/accept: `REVISE` adds an internal `SystemMessage` and
-  returns to `current_flow`; accepted answers end the graph.
+- **`reflection`** skips review while awaiting the traveller, after a booking-write tool
+  (`book_flight`/`book_hotel`) succeeded this turn (so a `REVISE` cannot re-run the booking
+  specialist and double-book, gh-193), when disabled, or after the single revision cap. Otherwise it
+  judges `REVISE`/accept: `REVISE` adds an internal `SystemMessage` and returns to `current_flow`;
+  accepted answers end the graph.
 - **`plan_node`** interrupts before the booking specialist. Resume with `{approved: true}` reaches
   booking and sets `plan_approved=True`; rejection ends with a cancellation message.
 - There is **no `extract_memory` graph node**. Reflection terminal paths go directly to `END`.
