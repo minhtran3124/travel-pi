@@ -5,7 +5,7 @@ description: How the LangGraph travel-agent graph is assembled and how a turn fl
 tags: [langgraph, agent, supervisor, routing, multi-intent, reflection, hitl]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-21T09:19:54.601Z
 sources:
   - id: openwiki-source-653637f2675661d4499c6d01
     resource: repo://apps/api/app/agents/constants.py
@@ -23,7 +23,7 @@ sources:
     resource: repo://apps/api/tests/agents/test_ledger_early_exit.py
   - id: openwiki-source-fd4516e413d1199b3d2e9be7
     resource: repo://apps/api/tests/agents/test_multi_intent_routing.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
 ---
 
 # Agent graph and supervisor routing
@@ -53,9 +53,9 @@ The graph is always driven asynchronously in production (`ainvoke` / `astream` f
 
 ## Pre-routing nodes
 
-**`load_context`** (`nodes.py`) is best-effort and resets per-turn state before anything else runs: `plan_approved`, `awaiting_user`, `tasks` and `task_results` are cleared at the start of every fresh turn. A resume turn (`Command(resume=...)`) does *not* re-enter this node, which is exactly why the approving turn keeps `plan_approved=True` long enough for background memory extraction to read it. It then loads, into plain state fields rather than into `messages`, the active trip snapshot (through the owner-scoped `TripService`, so a foreign `trip_id` yields nothing rather than leaking a title into the prompt), standing instructions, profile and non-profile preferences from the long-term store. Carrying context in state fields rather than as an appended `SystemMessage` keeps a single leading system message intact for providers that require it; `system_with_summary` injects them at the front of every model call (see [Agent state, runtime context and reply language](state-context-and-language.md)).
+**`load_context`** (`nodes.py`) is best-effort and resets per-turn state before anything else runs: `plan_approved`, `awaiting_user`, `tasks` and `task_results` are cleared at the start of every fresh turn. A resume turn (`Command(resume=...)`) does *not* re-enter this node, which is exactly why the approving turn keeps `plan_approved=True` long enough for background memory extraction to read it. It then loads, into plain state fields rather than into `messages`, the active trip snapshot (through the owner-scoped `TripService`, so a foreign `trip_id` yields nothing rather than leaking a title into the prompt), standing instructions, profile and non-profile preferences from the long-term store. Instructions and preferences are read as typed rows so each line can carry a month-granularity `(recorded …)` age marker built by `_with_age`; a row without a usable `updated_at` renders with no marker. Carrying context in state fields rather than as an appended `SystemMessage` keeps a single leading system message intact for providers that require it; `system_with_summary` injects them at the front of every model call (see [Agent state, runtime context and reply language](state-context-and-language.md)).
 
-**`summarize`** compresses older turns into `state["summary"]` only when `should_summarize` says the history is long enough; otherwise it is a no-op. Details live in [Conversation memory and persistence](memory-and-persistence.md).
+**`summarize`** compresses older turns into `state["summary"]` only when `should_summarize` says the history is long or token-heavy enough; otherwise it is a no-op. It passes the existing rolling summary back in so a new compression merges with it, and returns no update when nothing was removable, so an existing summary is never blanked. Details live in [Conversation memory and persistence](memory-and-persistence.md).
 
 ## The supervisor
 

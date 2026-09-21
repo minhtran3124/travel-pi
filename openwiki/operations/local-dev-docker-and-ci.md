@@ -1,18 +1,13 @@
 ---
 type: operations
 title: Local development, Docker and CI
-description: How to run, test and ship the monorepo — toolchain requirements (Node 24 with pnpm 11, Python via a single root uv venv), the root and backend Make targets, the Docker Compose dev stack with pgvector Postgres and the throwaway Postgres test stack, seeding and data-generation scripts, the pinned dependency policy, and every GitHub Actions workflow (secrets scan, API and web CI, the opt-in e2e job, the keyless agent-eval gate, the state-on-merge spec bookkeeping and the scheduled OpenWiki refresh).
+description: How to run, test and ship the monorepo — toolchain requirements (Node 24 with pnpm 11, Python via a single root uv venv), the root and backend Make targets, the Docker Compose dev stack with pgvector Postgres and the throwaway Postgres test stack, seeding and data-generation scripts, the pinned dependency policy, and every GitHub Actions workflow (secrets scan, API and web CI, the opt-in e2e job, the keyless agent-eval gate and the state-on-merge spec bookkeeping).
 tags: [operations, makefile, docker, ci, github-actions, pnpm, uv, toolchain]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-164e2da859b5277df81c7d94
     resource: repo://.github/workflows/ci.yml
   - id: openwiki-source-9ea7004cd60fc78ed888a032
     resource: repo://.github/workflows/eval.yml
-  - id: openwiki-source-6d4b4e707b8d60b6ccfa3425
-    resource: repo://.github/workflows/openwiki-update.yml
   - id: openwiki-source-732ec7ab6498165b4e6d98af
     resource: repo://.github/workflows/state-on-merge.yml
   - id: openwiki-source-005fa33a80365b59c59a2523
@@ -37,7 +32,10 @@ sources:
     resource: repo://Makefile
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:19:54.601Z
 ---
 
 # Local development, Docker and CI
@@ -80,7 +78,7 @@ The root `Makefile` delegates: `dev`, `build`, `lint` run through Turbo; `test`,
 
 ## Seeding and data scripts
 
-Startup, `make seed` and the test fixtures all run the idempotent seeder. `scripts/generate_data.py` prints ready-to-paste hotel dict literals for a city with ids that continue from existing records; `scripts/generate_translations.py` pre-fills catalog translation files; `scripts/ingest_rag.py` upserts the knowledge corpus into a persisted vector store; `scripts/seed_agent_config.py`, `scripts/set_tier.py` and `scripts/seed_supabase_user.py` are the operational scripts described on [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md) and [Authentication and user tiers](../concepts/auth-and-tiers.md).
+Startup, `make seed` and the test fixtures all run the idempotent seeder. `scripts/generate_data.py` prints ready-to-paste hotel dict literals for a city with ids that continue from existing records; `scripts/generate_translations.py` pre-fills catalog translation files; `scripts/ingest_rag.py` upserts the knowledge corpus into a persisted vector store; `scripts/seed_agent_config.py` and `scripts/set_tier.py` are the operational scripts described on [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md) and [Authentication and user tiers](../concepts/auth-and-tiers.md).
 
 ## GitHub Actions
 
@@ -92,7 +90,6 @@ Startup, `make seed` and the test fixtures all run the idempotent seeder. `scrip
 | `ci.yml` `web-e2e` | after `web`, only when all four e2e secrets are set | Starts the backend on SQLite with every LLM key blanked and the Supabase URL from secrets, waits for `/docs`, installs Chromium, runs the Playwright suite against the shared e2e account, and uploads the report and traces on failure. A half-configured repository skips the job with a note instead of reporting green on skipped tests. |
 | `eval.yml` | PRs touching agents, prompts, tools, `eval/` or `evalkit/` | Runs the offline `tests/eval` suite (portability boundary, dataset validation, deterministic and trajectory metrics) and a `--dry-run` of the smoke suite. The judged eval **never runs on CI** by decision; `make eval-check` is the local, human-gated regression gate (see [Agent evaluation harness](../testing/agent-eval-harness.md)). |
 | `state-on-merge.yml` | a PR merged into `main` from the same repository | Lists the PR's changed files, runs `.github/scripts/state_on_merge.py` to mark the matching `specs/<slug>` shipped and refresh `specs/STATE.md`, and pushes straight to `main` with up to three rebase retries; a `GITHUB_TOKEN` push cannot retrigger workflows, so it cannot loop. |
-| `openwiki-update.yml` | daily schedule or manual | Installs a pinned OpenWiki, runs `openwiki code --update --print` with full history, removes transient run state, and opens a `docs: update OpenWiki` pull request that preserves partial progress when the run fails. |
 
 The frontend e2e suite is opt-in locally too: `pnpm e2e` from `apps/web` with the backend already on `:8000` and the e2e credentials in `.env.local` (see [Frontend unit tests and Playwright e2e](../testing/frontend-tests-and-e2e.md)).
 

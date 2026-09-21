@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:61e3833b029728fbf738057db11893ab69a8eacbde9253aa9909d62c3248e382",
+  "pageVersion": "sha256:81747281814a3dad9b8e36ec21ee661fc5aaee5c715d4da9920f733d813015f0",
   "claims": [
     {
       "id": "claim_0b956684395b4f8288df1c073cde2ca6",
@@ -197,8 +197,8 @@
       "statement": "End-to-end tests verify that a poisoned instruction never reaches the prompt, that a row with a poisoned key is dropped, that valid rows beyond a poisoned window still arrive, and that a failing read helper omits only its own block.",
       "evidence": [
         {
-          "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L185-L240",
-          "version": "repo-lines-v1:sha256:6e87a1be25cc1882732ba57bc507f22afb2736af8563a13eeb0ecbf6ef1c7cc3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZDBlOTBmMjAyNjJjMDNkZTQ5ZjZhMTA5OWFiNjBkMGQ5YTEzMDUxZDM4YzU2MTg0NDIzYzFlNDNlOTc3ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1NGRkNjMxY2ZhZGE3OTQwMWJiOTEwMmNjOTI0YWMyODYxMzgyY2RlN2U5YTQwMTBhMDAwMGY3MGVlZGQ4NDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkNjIyNWJmOGUxYjk1Mjg2NGRiOWFkMGFmYmMyMmRkMjU3N2UzMjUxYWUwNjMyODU4NzU3MThiZjZhZTVlNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyMTUxMGVlNmZkNDFmNzlmODdkOWY4YTgwNWRkNjk5YmVjYzU4ZGU2OTgzZjBkNzZkNTdjMTliYTIyNjE0MTAifQ"
+          "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L185-L246",
+          "version": "repo-lines-v1:sha256:c5778209ca89493b0c68942bc7050b40f34807f409d163923d37eaa39677bc95:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZDBlOTBmMjAyNjJjMDNkZTQ5ZjZhMTA5OWFiNjBkMGQ5YTEzMDUxZDM4YzU2MTg0NDIzYzFlNDNlOTc3ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyMTUxMGVlNmZkNDFmNzlmODdkOWY4YTgwNWRkNjk5YmVjYzU4ZGU2OTgzZjBkNzZkNTdjMTliYTIyNjE0MTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkNjIyNWJmOGUxYjk1Mjg2NGRiOWFkMGFmYmMyMmRkMjU3N2UzMjUxYWUwNjMyODU4NzU3MThiZjZhZTVlNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L40-L100",
@@ -209,6 +209,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-21T09:19:54.601Z"
   }
 }
