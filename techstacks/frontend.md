@@ -1,6 +1,6 @@
 <!-- Frontend counterpart to architecture.md / guidelines.md (those cover the FastAPI BE only).
      Authoritative profile for apps/web/ — read before implementing, debugging, or reviewing FE
-     work. Reflects the codebase as of 2026-07-17 (Next 16.2.9). Design SoT stays repo-root
+     work. Reflects the codebase as of 2026-09-21 (Next 16.2.9). Design SoT stays repo-root
      DESIGN.md + PRODUCT.md; this file is the layer/pattern/convention SoT for review. -->
 
 # Frontend Profile — travel-pi (`apps/web/`, Next.js)
@@ -28,13 +28,14 @@ commands from `apps/web/`** with **Node v24** (`.nvmrc` → `24.17.0`; the `nvm`
 
 ```
 app/            # App Router: layout.tsx (providers), page routes, auth route handlers
-  trips/ trips/[tripId]/ places/ bookings/ auth/*   # feature routes ("use client" pages)
+  trips/ trips/[tripId]/ places/ flights/ hotels/ bookings/ guide/[city]/ auth/*  # feature routes ("use client" pages)
   layout.tsx    # server: locale, providers, AppShell + ChatWidget
   error.tsx not-found.tsx
 middleware.ts   # Supabase session refresh ONLY — does not guard/redirect routes
 components/
-  ui/           # design-system primitives (Button, Modal, ConfirmDialog, Field, …)
-  app-shell/ trips/ bookings/ places/ auth/ theme/   # domain components
+  ui/           # design-system primitives (Button, Card, Modal, ConfirmDialog, Field,
+                #   Select, Textarea, Tabs, Pill, Meter, EmptyState, Spinner)
+  app-shell/ trips/ bookings/ places/ flights/ hotels/ map/ auth/ theme/   # domain components
   chat/         # agent chat widget + panel/ side-panels + useAgentStream.ts
 lib/
   api/          # client.ts (openapi-fetch), schema.d.ts (generated), keys.ts (qk), errors.ts
