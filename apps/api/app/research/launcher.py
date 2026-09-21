@@ -74,14 +74,17 @@ _STATUS_COPY: dict[str, str] = {
 def _research_status(
     run_state: str,
     language: str | None,
+    summary: str | None = None,
 ) -> dict:
-    """The existing-run reply; ``research_status`` makes it terminal for
-    ``reflection`` just like the launch flag."""
+    """The existing-run reply, followed by the dossier's traveller summary when one
+    exists; ``research_status`` makes it terminal for ``reflection`` just like the
+    launch flag."""
+    copy = system_reply(_STATUS_COPY[run_state], language)
     return {
         "current_flow": "research",
         "messages": [
             AIMessage(
-                content=system_reply(_STATUS_COPY[run_state], language),
+                content=f"{copy}\n\n{summary}" if summary else copy,
                 additional_kwargs={"research_status": run_state},
             )
         ],
@@ -132,7 +135,12 @@ def make_research_node(service_factory: ResearchServiceFactory):
         # spends the daily cap. Revising goes through the Research tab.
         run_state = service.chat_state(user_id, trip_id)
         if run_state in _STATUS_COPY:
-            return _research_status(run_state, language)
+            summary = (
+                service.completed_summary(user_id, trip_id)
+                if run_state == "completed"
+                else None
+            )
+            return _research_status(run_state, language, summary)
         try:
             run_id = service.start(user_id, trip_id)
         except ConflictError:
@@ -158,7 +166,7 @@ def make_research_node(service_factory: ResearchServiceFactory):
             }
         # Book succeeded: drive the run off this turn. The node must NOT await it —
         # the chat reply returns now and the dossier streams into the Research tab.
-        _schedule(service.launch(run_id, user_id, trip_id))
+        _schedule(service.launch(run_id, user_id, trip_id, language=language))
         return _research_started(language)
 
     return research

@@ -56,9 +56,21 @@ def test_skill_frontmatter_and_body(skill_dir: Path) -> None:
     assert len(body_lines) <= _MAX_BODY_LINES
 
 
-@pytest.mark.parametrize("name", ["trip_research", "trip_research_grader"])
-def test_prompt_loads_at_version_1(name: str) -> None:
-    assert registry.active_version(name) == 1
+@pytest.mark.parametrize(
+    ("name", "version"),
+    [("trip_research", 2), ("trip_research_grader", 1)],
+)
+def test_prompt_loads_at_active_version(name: str, version: int) -> None:
+    assert registry.active_version(name) == version
     text = registry.get(name)
     assert text.strip()
-    assert registry.get(name, version=1) == text
+    assert registry.get(name, version=version) == text
+
+
+def test_research_prompt_and_layout_require_the_traveller_summary() -> None:
+    """research-chat-summary: the chat's done card and reply read summary.md."""
+    prompt = registry.get("trip_research")
+    assert "/research/summary.md" in prompt
+    assert "Language:" in prompt
+    layout = (_SKILLS_DIR / "dossier-format" / "SKILL.md").read_text(encoding="utf-8")
+    assert "| `/research/summary.md` | main agent |" in layout

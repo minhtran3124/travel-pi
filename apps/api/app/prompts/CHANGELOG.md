@@ -3,6 +3,16 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## research-chat-summary — trip_research v2: a traveller summary, in the traveller's language
+
+- **trip_research v2** — copied v1; a final step writes `/research/summary.md` (≤5 plain
+  bullets, shown in the chat's research-done card and "done" reply), and a rule to write the
+  dossier and summary in the language named on the request's `Language:` line (the runner now
+  appends it — the model never saw `state["language"]`, although grader criterion 5 required it).
+  The `dossier-format` skill gains the summary.md row and a "Summary file" section.
+
+`active.yaml`: trip_research → 2. Others unchanged.
+
 ## research-chat-status — supervisor v15: research status questions route to research
 
 - **supervisor v15** — copied v14; Rule 6 also routes a question about the status or result of

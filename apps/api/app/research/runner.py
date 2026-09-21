@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.agents.metrics import TurnMetricsHandler
 from app.agents.prompt_map import enrich_steps
 from app.core.config import get_settings
+from app.core.languages import LANGUAGE_NAMES, normalize
 from app.core.pricing import estimate_cost
 from app.db.base import _utc_now_iso
 from app.prompts.registry import registry
@@ -56,9 +57,12 @@ def _build_input(
     instruction: str | None,
 ) -> dict:
     """The fresh-turn graph input (design §4); ``instruction`` is already PII-redacted
-    by the caller (design §8)."""
+    by the caller (design §8). The message names the traveller's language: the model
+    never sees ``state['language']``, which only the tools read."""
+    language = LANGUAGE_NAMES[normalize(ctx.language)]
+    content = f"{instruction or _DEFAULT_INSTRUCTION}\n\nLanguage: {language}"
     return {
-        "messages": [HumanMessage(content=instruction or _DEFAULT_INSTRUCTION)],
+        "messages": [HumanMessage(content=content)],
         "rubric": _grader_rubric(),
         "trip_id": ctx.trip_id,
         "user_id": ctx.user_id,

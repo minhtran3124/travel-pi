@@ -167,3 +167,18 @@ async def test_timeout_finishes_failed_and_never_raises(tmp_path, monkeypatch) -
     )
     # A1: the channel is released even on the failure path.
     assert bus.has(run_id) is False
+
+
+@pytest.mark.parametrize(
+    ("language", "name"),
+    [("vi", "Vietnamese"), ("en", "English"), ("xx", "English")],
+)
+def test_turn_input_names_the_travellers_language(language, name) -> None:
+    """The model never sees ``state['language']`` (only tools read it), so the turn
+    message itself names the language the dossier and summary are written in."""
+    from dataclasses import replace
+
+    ctx = replace(context(), language=language)
+    for instruction in (None, "add more street food"):
+        content = runner_mod._build_input(ctx, instruction)["messages"][0].content
+        assert content.endswith(f"Language: {name}")

@@ -16,6 +16,7 @@ Write only to these paths. Never invent new top-level files.
 | Path | Owner | Contents |
 |---|---|---|
 | `/research/overview.md` | main agent | trip summary, the traveller's ask, phase status, links to the dimension files |
+| `/research/summary.md` | main agent | the traveller-facing overview shown in the chat when research finishes |
 | `/research/flights.md` | flights subagent | flight options with offer ids and prices |
 | `/research/stays.md` | stays subagent | hotel shortlist with hotel ids, area, price |
 | `/research/days/day-N.md` | days subagent | one file per day (`day-1.md`, `day-2.md`, …) |
@@ -58,6 +59,20 @@ that returned it, in parentheses: `(search_flights)`, `(get_weather)`, `(get_vis
 - a short pointer line to each dimension file that exists.
 
 It never duplicates the dimension bodies — it links to them.
+
+## Summary file
+
+`/research/summary.md` is what the traveller reads first — in the chat, not the Research
+tab. Write it last, for a person, not for the grader:
+
+- at most 5 bullets and about 100 words, in the traveller's language;
+- one bullet per highlight worth deciding on, each opening with a short bold label
+  (`**Flights:**`, `**Stay:**`, `**Days:**`, `**Budget:**`, `**Season:**`, in the
+  traveller's language): the best flight, the recommended stay and area, the shape of the
+  days, the budget picture vs. any cap, one entry/season note that matters;
+- plain words only — no headings, tables, ids, file paths or `(tool)` tags. It restates
+  facts already cited in the dimension files; never add a fact that is not in them;
+- when a dimension found nothing, say so in one short bullet instead of guessing.
 
 ## Revise turns
 

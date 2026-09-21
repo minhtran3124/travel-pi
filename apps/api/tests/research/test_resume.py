@@ -237,7 +237,7 @@ async def test_an_orphan_with_nothing_to_continue_runs_the_new_turn(
         for m in (await service._agent.aget_state(THREAD_CONFIG)).values["messages"]
         if m.type == "human"
     ]
-    assert humans == ["focus stays"]
+    assert humans == ["focus stays\n\nLanguage: English"]
 
 
 def test_resuming_an_orphan_does_not_spend_the_daily_cap(

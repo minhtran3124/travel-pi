@@ -592,6 +592,7 @@
       "hint": "Xem qua và thêm những gì bạn thích vào chuyến đi nhé.",
       "hintNoPlan": "Bạn xem qua lúc nào tiện nhé.",
       "open": "Xem kết quả",
+      "openDetails": "Xem chi tiết",
       "dismiss": "Đóng",
       "sections": {
         "days": "📅 Lịch trình {count} ngày",

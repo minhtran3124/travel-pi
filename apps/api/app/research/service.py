@@ -39,6 +39,7 @@ RESEARCH_CHANNEL = "research"
 _RUNNING = "running"
 _INTERRUPTED = "interrupted"
 _COMPLETED = "completed"
+_SUMMARY_PATH = "/research/summary.md"
 _DEFAULT_LANGUAGE = "en"
 RESEARCH_START_BUCKET = "research_start"
 _DAY_SECONDS = 24 * 60 * 60
@@ -252,6 +253,19 @@ class ResearchService:
         if run.status == _COMPLETED:
             return _COMPLETED
         return None
+
+    def completed_summary(
+        self,
+        user_id: str,
+        trip_id: str,
+    ) -> str | None:
+        """The traveller-facing ``summary.md`` of the caller's latest completed run,
+        or ``None`` when there is none (older dossier, or the agent skipped it)."""
+        run = self.latest(trip_id)
+        if run is None or run.user_id != user_id or run.status != _COMPLETED:
+            return None
+        text = (self.file(run.id, _SUMMARY_PATH) or "").strip()
+        return text or None
 
     # -- dossier files ---------------------------------------------------
 

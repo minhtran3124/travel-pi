@@ -592,6 +592,7 @@
       "hint": "Take a look and add what you like to your trip.",
       "hintNoPlan": "Take a look whenever you're ready.",
       "open": "See the research",
+      "openDetails": "See all the details",
       "dismiss": "Dismiss",
       "sections": {
         "days": "📅 {count}-day plan",
