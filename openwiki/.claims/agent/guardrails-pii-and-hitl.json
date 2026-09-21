@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:81747281814a3dad9b8e36ec21ee661fc5aaee5c715d4da9920f733d813015f0",
+  "claims": [
+    {
+      "id": "claim_0b956684395b4f8288df1c073cde2ca6",
+      "statement": "The PII guardrail node redacts only credit-card numbers in the latest HumanMessage, replacing it in place with the same id so add_messages overwrites and the raw text never reaches the checkpointer; names, phones and emails are intentionally left intact.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/guardrails.py#L1-L5",
+          "version": "repo-lines-v1:sha256:ec3f12d5cb44336c6c27dfb4c7f7faab9f927c89412622d3dc08dbf1ce40b6d5:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJlODE3OGYyOTkxNjZiMmYzNzZlMjU2YjE0ZDg0NDU2NGY3MzU2ZGIyMWU5YzkwMTkwZTkzZjViNDFjMDVkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/guardrails.py#L65-L89",
+          "version": "repo-lines-v1:sha256:9805f1d0131fe196a1d7142ff7e37ebd91233eef440c02b4b1e9dda92201f5f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkY2JjZTEwYjllMjQ0YmRiYmRlMDBmN2Y4MDlhZjUxODJlOWM4MmRlNTRiZGUwN2Y4M2E2YTYzZTE3MDMwNzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllM2JkZjc3N2E0YjIyMWY1OWQ3M2M1ZmFiODlkOTQxNzUyOWM3MGU5NzNmYmQ4ZmNlN2NmOTg4M2QzMzhiYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzYTI2MmRmMjdlNjhiMjA1OTU4Y2ZkMmRlMjRhMTg1NzIzNGFiMTA1NWM2YmI1MTk3YmRkMzc3NTJmODRlOTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e386b316408d45ccb14e3e67454a1126",
+      "statement": "Card detection uses a broad digit-run regex followed by a Luhn check over sliding windows of common card lengths, so a card glued to expiry/CVV digits is still masked while non-Luhn digit runs are spared.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/guardrails.py#L18-L62",
+          "version": "repo-lines-v1:sha256:24b177440aa1d14cd692f40bf60a963f6995fa678c28f6d44a4ea32cf01b9ff6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3Y2MyYjQ0ODU0NzU5N2M4YThhMDg0MDgzNGIxN2E3NGNkMWVlNzFjMjZlMzM3Y2IxNjUxMTZjYWE1ZWI1NmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhYjEwZjI4MzhhZDE2MjVkMzA4ZWNlOTZmMWJlZjlkOTczZjc0ZmJjYWMwZTEzMjk2NTFjYzA5NTA2YWZhN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkNjU5MDU0MWQ4NjA2NDY4MTg0ZjdiYzdiMmZhNTg5ZjJlMTAyZmVjYmNiOWJiOWQ2MjJmOWJiMzE4YjhiNWIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_pii_redaction.py#L16-L40",
+          "version": "repo-lines-v1:sha256:926f64726b53eb080486d74edfd62ff312db0247fc8f138d3ba8f94e225fea00:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhODVmNDg3MWRjMmRlZWFmMDYwMTZiNjg2NTBiY2ViN2I2NjYzMGI2MTRjYjZhZjYyYzRkOWZlOWJkODA0YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhZTRhOWUzMDM0MzE1OThiZjQ4ZTQ2MjQwMGVlNDkxZjM0ODNhMGQ0ZDI5YzQ2N2FlMzQ2YzA1OTJmNGViMmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZTc0OGZmYzcxZjc1Y2JmM2U3MThhMzc5NjhmMjNhY2M5OWYwNWI4OGFhN2Y5YjQ1NTAxZDU5ZmJhYzdjZTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b6579a15de9544cbbf14c1580838c57d",
+      "statement": "The agent router applies redact_pii to the user message before persisting the user turn and before invoking the graph, on both the JSON and streaming endpoints.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L269-L279",
+          "version": "repo-lines-v1:sha256:dc6cb42a59405a4b9f68c4d18b817607d86b2d333ee8d466ca30a84057e346ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5N2I0N2JiODFjZTkzY2JhNjdhZmMwODY5OGE4MGNmYTA5M2E4NjY3ZTljOWY5NjUzMzc4MThkNjU3OGQxODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0OGIzNWYxNTEzMGE4MzI3NzU4OTE2YWU0ZTQ1MTUyZDE1ZGE3ZDAwYzM4Mjg5MDExMDUyNmU4NWY2NDM5M2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MThmOTQwZDU3Y2QyNTVjYTU1MjBmNjcxYTIxMjY0ZTZhMDVhZjE3ZjVlMGU1YmJlZWJlN2I0ZmNhZDA2OWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L439-L448",
+          "version": "repo-lines-v1:sha256:121e9b7781e4d68912d3c332ca4ce6bf2653f31fce1fb31c2530483b83dc19eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhNzUyZjFjMzIzMzI5MTY5YTczYzcyOTg2ODYzMThlY2ZmNmY0M2VmNmMzMTA5ZThmOTBlZjE2M2Q4N2ExNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkNzJmZWIxM2QwMDNjNGNhODNhMDEyYjA1MTA4ODM0YzM1M2ViZmVhOGViZDdkNTAwYWM1NTk5NmEzNmY1MTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NWIxOWUwNjRlYzMzODE4NzI5ZmNjZjFjY2ZlMzliZmZmMDk3ZDhkYWI2ZWRkMjkyODNiZmQyNzhhOTJiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0ZjE2ODg4ZjdkYTdkNDg4N2YwNTBiMDU0Mjk2ZWE2M2ZlOTM4ZmVlMzgxYzk4ODVjNzhjNGYwZWU0MzY5MWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5708a6130ca945fcb2c97cac90c0406a",
+      "statement": "On a pending plan_approval interrupt the router returns interrupt_pending with the payload, an empty reply, no assistant message id and no suggestions, and it only schedules background memory extraction from the non-interrupt branch.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L321-L327",
+          "version": "repo-lines-v1:sha256:a2dd6544aa093db5d12b5f75ee29fa3f11d25df8deb1301d2462d13c1666eed3:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzk2NDUyM2MzY2Q4MTM5NzJhODBiY2UwODYwNzcwMTY3OTEzYTBhMjIyNWQzNDc3NGM5MGY5MTc2N2EwZTE1NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljNzE0OTdjZmM4MmU2ZmUwZmZmZjBiMDYyMzY1ZWY0OTcxNTM4OGE2NTQ3Yjk3YTEzMDBmN2VlYTI4ZjAyZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDA2MzAwZTZjMTljYjJmMGI3MDBmN2NmN2IxYTQ1ZTAzZDBiMDYyOTc4NmM2YWZlZDY0MmI0NjFhODk0NWMyNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBjYjUyZmM2N2IwNjdkNmE3NDU1ZWEyMjA5ZDk3ZmNjNGUzMDNhMWNmZmY0Mjg2YWQwODUyZGE0ODlkYjgxZSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L351-L363",
+          "version": "repo-lines-v1:sha256:5498a6d2811430fd301d56afd8ffb3f2dc2709b0d3667f4964c0511de779a5f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZjE4Y2E0ZTg3NjViOGVlNWUwOWU4YTI2NjAzODdmZDk3MGU2MWY1MDkyMjU0Yzg0NTM0ODU3NTg3MjhkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhMWI5Mzg3YmM4Y2QzYTJjM2VmOWE3NDdlYTk2NTU4OTk5NmJlYmFjMDk5YTM2OGY1ZDU5ODZjZDg3MjIyM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzNzdlZDQ5MTU5ZDU0NjI1NGMyYzZkYzRkZTdiMTI1YzdiMzA5YTA1ZDc2YjQ2ZWQyMjhlOTRiMzE1NzBmM2IifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L370-L390",
+          "version": "repo-lines-v1:sha256:aa7d890b19901a392817877119d0ea396ca544401370fe7c2c94740286dd2ebe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3NjAwNzQ4ZGNmODkyZjNlMWRkMzZjYTRkYjcwNzEyZDc0ZDU4ZGI4MDg0ZDVhMGQ3MDNhYjM0MzFlNzJlMWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1YWQwZjEzYmZkOGQ0YzM3NDJiMDMyZDg0NGRkNzBhYzhkZjBjY2MzZTRhMjk4NzFjNzg5ZmQ4OTI3OGIxNjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNWI4ZGQ5NDVhOTg4NjUwZWI2ZWEzNWUyMzExNzZkMjBjZjYzZTllMTc0NjJkMDRmMDllMjllNjdlZjA4NzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_95c770f810874755a193fa6f5e89e383",
+      "statement": "A client resumes the HITL gate by sending resume, which both agent endpoints convert into Command(resume=...) instead of a new human turn; the chat endpoint commits its session before the resumed run so tool session scopes can write.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L264-L268",
+          "version": "repo-lines-v1:sha256:005ec496814cf848668af45379912822867fce091126905ca454c575b7fc4f77:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWRhNWM2NmUxN2IxNDUzOTc4MzRiOGM4NTRkYzQxOTNlMjEyNTE4MGE4OTk2YTE0YzMxODgzMzI2YjJlZmJjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RiN2ZmMTgyNjcyZDNkNWEzOGJjMWQ5YTNlYTRjYWJmZGNiYjUyY2Q0YWIzM2I2OTY4MzQxMjQ4MGFmMjUyYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmU3M2E3ZmNjMjdmMjdmMDgyNjNjODY1NzMzZTNhNDkzZmQ0MTMwODY1NjQ1NDM4YjRkZjQyMzBjZjJkMDMyZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGQzOTFlYTdjODIxOWM1NjkxYzE0MmY2NTIzMjliNjI0NzUwOTRkYjQxMTlkMTVkMDY1MDE3ZWNiYTJhZGY5ZCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L439-L440",
+          "version": "repo-lines-v1:sha256:aff75e7077dccdcfdc1f31d6d371c6d0775cbb70cf5e2e8f1753374e8e23c8f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWE3NTJmMWMzMjMzMjkxNjlhNzNjNzI5ODY4NjMxOGVjZmY2ZjQzZWY2YzMxMDllOGY5MGVmMTYzZDg3YTE1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDEzNGNjYWQxOWEyYzQ5ODk1MmUwYjc3ODVmODQyZWY3YTU4NTY0NDEzNjQxMDA2Zjk4ODU3Y2NhNWIxMzQ4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjU1YjE5ZTA2NGVjMzM4MTg3MjlmY2NmMWNjZmUzOWJmZmYwOTdkOGRhYjZlZGQyOTI4M2JmZDI3OGE5MmJlMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2E1N2QwZjAzNmNiYTJhOGMxNjk5N2MwMzYzMWQxZDk0NTg1NzNlMDNhMTQzYzg3Mjc5ZTdkMDJmNzYzYzJkMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0a6a25fbd29548a7a8aee2a4fe6057d1",
+      "statement": "Free-tier contexts exclude the premium-only booking specialist from allowed_subagents, so the supervisor's tier gate prevents free users from ever reaching the plan/booking HITL path.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L16-L17",
+          "version": "repo-lines-v1:sha256:98d8168dea7ec5722545714fd46223eebdb917604a39e23c1efe37f99bd497cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc1OGVkNmY0YzA5NmIxOTEyMWQzMjdmZjFkMjY2NmUwZjY5YmFiZjAxMTRkZWQ5MWY2ZDI0MzE2OGY2MDRhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk5ZTY5NThlZTBjY2I0MWQzNmJmNjBhMjcxMzM4OGI2N2FiYTNkYWFkYmQ1MzZkNGMzMjMwNzNlNDMyMTY4MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWM4YjdjYzhlMTY1OWY0MWFmYWZlMDVhYmYzMGU0MzM1NmNlOWY2OGE1MmJmZDQ3ZTQyMmRhMzYzNjJiNDNiNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWI0NDEwZDkxNTRiMWU5ZmZiMDk2YWI3NjAyNWU1NTdlYjI0N2E5ZTJiMDA1MzQwYzUzMDA1ZDIwZmVkODA4MSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/context.py#L40-L65",
+          "version": "repo-lines-v1:sha256:1b20a18d06bbc831ee793ff888f437a78fb31be34596d44a1a0c651127843a62:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3YmRkODZjMzgxYjk3NmE0Y2I4NDliMDkzODc5MzBjNWM5NWUxY2QwZjk3MzE5NTY4OGRjZDg2ODE0NDg5MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwNmRlMGUzNjJkMDhkMDljNTdhZGM0ZjBiMGVmNmMyZDZiYjkyMTA3MTQ2ZGM1YjBiNzk3YWYzZTEyMzBlZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L369-L382",
+          "version": "repo-lines-v1:sha256:550856f556e2acc8eb8c166875b631137f29a0f683e10178cd7ba0faf679cf9d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MzlhODU2NDMyNjM1MGEwYmYyOTNkNDY1NTY1OWM2Mjc2ZThiNTk1YzU2Njg0Yjc2MzY2YTYyZDFiNmE2NzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4NDViOGNlYzgyYmY0NTVmMDNmZGE5YmU5OWM5NzQ3N2E2OGI1YzA0YTJiMTdjNWM4ZTc0NTI5ZTg0ZGNjYzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1Y2VmMjQzMjAzMDI1NmJiMTViMTFjYzg5NGEzMjFhMjc2NWU2ZjdkZjUzOGIwODgxOThkNzk1OWZkYjVjNDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_466ad7bb67d4497182c2bbc23e943fe2",
+      "statement": "The tool registry marks book_hotel, book_flight, cancel_flight and cancel_hotel as destructive and derives readOnly from a write-tool set; this TOOL_METADATA drives tool annotations and exclusions elsewhere.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L71-L93",
+          "version": "repo-lines-v1:sha256:89c28fe65aa722a3c3b3439d2f6ad3cbd3948cdb0c760144e2612e123af056a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2OWU1NWJhMDFmNDdjMzQyYTg0MmIxZGRjMWVhN2YxYjYxZDMzMjJmZGY5NTdhOGFkZDcxN2VhZDg4NDFlNDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlN2JiZWYyYzJhM2QxNzExY2ZiNDE4ZGY3NWQxY2VjOWMwMzViNjc1ZjkxOGFkMDdiYzRiNjI2MWM5YjJjOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmM2IxMWVhZDA3ZDQ4MmY2OWQ5MmUzNWIyYmY4Y2RjOTM0Y2E2MDE4NzU5OTQ3NWYzNDJkYWNkMDEyNjJiNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2YzlhOTAzMTU4ZDI5YmQxMDVlY2FhYTFmNzIxNTY2MTA2MDQxM2YxYWRjOTA2MGI4OWZkYTA5ZDIxMGQyYjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9bbf74c7f9344b12a1366e3bbe0385f4",
+      "statement": "Booking and cancellation tools default confirm to False and refuse to act until confirm=True; the owner id is injected from graph state rather than model-supplied, so a foreign booking reads as not found and cannot be cancelled, and cancellation tools refuse a booking of the other type.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/booking_tools.py#L1-L2",
+          "version": "repo-lines-v1:sha256:dbe1efed35125dbb672e975324ecdbdcfcca13d2b17b28a2806e1734d0afdf13:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTZjNWM0NTkxNGZhYzZhODMyOGM4NDJlZWM1NzlmZjdlNzg4ZDZmMzU5YTAxYmQ3MGUyZDE1Y2UxZTBmOWViNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJmNzhhMjFjNTZkZGFiYTJjYTk2NTUyMGM4MWYxODdhYzQwZjc0OTVkNGRkOTJmM2RjNjU2ZmE0OTlkNzBjMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/booking_tools.py#L19-L68",
+          "version": "repo-lines-v1:sha256:110c87f453c3e6b1779522aa7b83d49a462516ec29c33c8c84f2869af6da2688:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3YjljM2E4ZTE5YjA0NWQxNjRjNWVmMDZiYTM4ZmIzZjhjYzc5YWY2OTRmZWM1OGIwM2VkZTI2ODBiODBiYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2MDQ4ZGZmZGQzNTA2ZGRjMDVhMTkwM2E3MTEzOTFlMzk4ZjJkYWMwMzM1OTYzMWZjNjAyMjA5MjdjZjBhMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3YjgyNWQ5ODYxNmY2MTIxODJiNThlZWYxNmU1NjA3MTAyMjQxODkzYWMyMGM3Yzc4ZTgxYjQ1YzhmZmYwYzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0Mzk5ZjZjOWMzMTlmZGVlYTM4NWM0MGRiNDE3Mzc4ZTRlMDAxZTkyNjY3Njg3N2QzNzUwOTMxN2FlMzY5OGEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/hotel_tools.py#L158-L178",
+          "version": "repo-lines-v1:sha256:f0e460a9411e424ff9dc8a3c5c8b141432b8149ecfb7ed3a69eaf746b2c6a4f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyZTNjYTlmNjExZDg3ZWE4MjExYjgwZTljZjQyZjQ5ODI5OGE0YmQ5MjU3OTRjNDYyOGJiNWYwYzFlMTMzNDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiNzI0N2MzM2QxNTU3M2I3ZjZmY2VlN2UwY2ZkYmU2ZTRjNTliMTVhYTkxY2I5Yzc5MDBkNzYyYmY3MjQ1YTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmNmYyMGU2NGZjMzcyMWI4YWQ0NTk4M2MyYTY3M2E4YzdhYWIzNzUzZWM2NTM0OTcwN2NjNGQwNjc1NTY5NDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fdb95b6815e47a3b46b377c72f382be",
+      "statement": "The specialist trip guard runs before the tools node and, when a trip-scoped tool is called with no active trip, emits an error ToolMessage for every pending call, sets awaiting_user=True and routes back to the assistant so the blocked tool never executes and the traveller is asked deterministically.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L104-L159",
+          "version": "repo-lines-v1:sha256:ab2c4d0f41e28448d89cc05aa6b7038ea83ebf343fe3fe04ff83f0431d0f2978:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZWY0MTFlMWJlMDQwOTc4NTlhY2VhNDUyNWEyMzlmZGEzMWM0NDAxMGI3ZmY2Mzg5ZjVkOTM3MDliODE4MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4NDE0ZWMzMDY0MTQ3MDM1M2U3NTgzZTczNzVmNTU1MDc5YWIwMTNlOWFiYjgwYjk1MjRiYWFkZWEyNDgyZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyNDI1NTEzYzAwYTEzNmMyMzM1ZmIyNzk0Y2U2ODE2NWUzMGYzYzRiNjMxNDIyMTQ0MTFiOTEyZDE0OGQyNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4MDNhNzZlMDYzNjVlYWVmMmExZWQ0OWExOTFlODA3MDI0ZGVhNWVmYWI5ZWFiMGQ3NDBiZjRhZjZkODcyZDEifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_trip_guard.py#L97-L120",
+          "version": "repo-lines-v1:sha256:d027272b4498d1354aa2cf80df07f507531a48fe9773ab71c227209d052cbc70:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjMThmNDcyOWIwNDRjYmI5NDNkZDE3NzAzYjI5MjdjMThhNWQ2ZTRhN2EyMTFlYjNlYzJhZjdkY2MwYTFhNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YWViMzAyYzQ1ZGNhMWEyOWM3NTIxMmZmNzgwZWI4OTNmMGFkMWFlYmUwNjM2MmQ4YzNiM2Y1YmMzOTIyZjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MjY3NmM4ODhjMWE0ZDlmYTc3MmZjZGMzMDJmNzczYmM3MjkwZWViZmY5ZGEzNmEzOWY0NGMzMjExOTgzODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzNTI1YTg2YzVmNTE0ZDhlYTM4NDU1ZTQ4Yjg5NDA2Mjg0ZWY4NjlhNTc2MjFlODQxMzJhNTkwODg4YWRjNWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_21589a3e80a74cbf8ab6fb1052f6a3e6",
+      "statement": "The memory write guard enforces per-kind key allowlists (slug shape for episodes), a normalized EN+VI blocklist and length caps, raising MemoryRejected (a 422 AppError whose reason names the rule and never carries the text) that every caller catches.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/guard.py#L101-L118",
+          "version": "repo-lines-v1:sha256:54304c25ff2ade5c8060ada72ea219f360f2c5aa0e5e760d9ec96ff99cf93cca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1ODM3MmNlNDE5YTMxZDgxMzMxMThhNmI3ODQ0YzIxODRjNmJlYWU3YmRhNmE2ODIwOTBkNjc0MDQ1MzlkZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiMGVmYWVmMGU2NGM0NjY4OGE2NDE2MzM2MTU1MmNiN2Y5ZGRmNGY3NWFkYjlhNDVmZWQ2MDA5MGNmY2Q0MGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5ZTE1NDU4ODc4MDM2YTM4MjgxYzlkZTkwNDg4YzgzMDM2NDE4NmI4YjA0MDIyNDdhOTc5MjllNzI2M2YzMWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3NDNmZDZlYTA3M2UzMTE5ZDg2N2FjNjBiMDVmM2Y3NDQyNDZkNGYxMjNhMGEwYjczNmU4MDZmMmQ5OTI1NTcifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/guard.py#L275-L293",
+          "version": "repo-lines-v1:sha256:5b095af8379cad2e5f40e407ef2e1068992da5cbbad8fb487a181b24ef0a1c32:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwZDg0Y2E0YWNkODhjM2VjMDU2OTNmNDNhNjRjZmI5ZmUyOGIyNTRmNWEzYmIxODJiNmRkMzRhYzU0ZTdhZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxY2E0MzQ1YTZkYTY3NWU1ZThlODI2MzI1ZWY2OGZjMmEwOWJmNjk2MGZjZGIwYzI3NzEyYmY4ZTE2NmRhYzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkYjI4Yzk1ZTQ0ODE2MmYyN2IzYWM1NjY5ZThmMjU0NTllMjkyMzViZTIyOTFhZGMyNzEzMzkzYzQ3YzAxNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExNjQ5ZDAwZjg2OGI0ZjhkYzI5ZjUwNGNjNDcxOGNmNWU5MzQ2NDdhMjA2ZmRlYjUyYTE5YjEwZmM2ZjAwZWQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/guard.py#L49-L66",
+          "version": "repo-lines-v1:sha256:4ad267a643ed0080612ae68af89784067a8cbe48f1d16d231787dc3ae3b768f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNTI3NTA3YTJhNjZlMTA2OTgzMjRjMDk2OGFjNWVlYWE3M2I0MzExZDA4NjM0MDczNGQyNWVkNTMyZDllOTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1ZjViNDI2NmE4OGNjYzgzNjZhM2IwNDRlZThhZjBlZWUwMzZiOGM4YjE0OTg1ZTNlMWYwM2M5MWE1ODViODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyZTIwYzIxODVhZTMyMjIzOWNhNzdkMzFhYjNhMGMyODcwNmRhMGM1OWY0OGQwZjk2OGFlNzIzYzhjMGJkNmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7274bfd23c984e53956aa6a81c9add8e",
+      "statement": "The memory read guard requires only the key shape rule so legacy keys still surface, truncates over-length text instead of rejecting it, and callers must use the returned text rather than the stored original.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/guard.py#L296-L309",
+          "version": "repo-lines-v1:sha256:f96df59df9412c5f49fe2656feb5e867373d3d5d7521dd2891eb6f2d105cb3d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmY2ZiNWFmZjFhMzI1NWIwMzUzNjIwNGQ3MzdlNGM1NGJmMmM2NDg5OGIxYTA3OWM0YWNlMjAxNTA4MTZmNjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0OTdhMGU4ZDk3YWQ0MzY0ODkxZTY5YmY4YWRkOTNjMDRiZDNhZWY4MGEwODk2OTE3MmJmNDJlOGYzNGU1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxMGJkNGVlYmNmMDRjMzA3ZTdjNDFmOWI1NmZjOTNkMDU3MzdhY2MyNGU5MzI5MGVhMTJhZjY1M2JlNTljNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiZDVhZDMyNWI5ODFlMzRmODM4MDJmNTBhOGFhYzhiMTgzZDVlOTJhY2RiYTg3YTVkMWJjMmNlMDY1MGJkY2QifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/memory/test_guard.py#L196-L215",
+          "version": "repo-lines-v1:sha256:7e0b90741b7dc37220f77501ab142ec73132cd7a6b2400b99809276b75294f72:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNDY5MWFmYjUzZmM2M2IyMWQxZmIyMmYzZWE4MDBiMWUyMzZkZjI2MTFlNWE1NDhlY2IwMTU5ZGFlYzdkODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNTc1NzhlZDcxMDIxNjhhYTc4NDlmMmYzZmEwMmIxZWNkZWQ1NGFmNDBhNmM1Mzk5NjRkNzg3MWM2YTAzYWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNjI3NGUyZGJjYzg5NzEwMmNhYWU0NGI1YjNlNGI1YTQ2MTE2YjBjYTFlNWYyNTVmNDJiZmI0YjJmYWMyYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4ZTljMTIxZTAxZjc0ODliYmNhNjRhYzliOGNkZWE4ZmQyYTJiNTMyNDhhZGQ1NzZlMmRlM2IxOGVhY2EzZWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b411583083714206a20c9816ebd60f24",
+      "statement": "system_with_summary wraps the profile, instructions and preferences blocks in <traveller_memory kind=...> tags preceded once by MEMORY_PREAMBLE marking them as untrusted data, while account email, trip context, summary and trip facts stay outside the tags.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L14-L21",
+          "version": "repo-lines-v1:sha256:c8d4b3b70f5ce04faec4d0028346c1c00e0b044b3ade9ac2a93f1a8f17b2878e:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjRjMTBhNDQ1MGY4YzU4NmY3NmExNTYyODEwYmRjYmJlOGVmMjk1MThjNjE1MTA0ODgyMzJhZGVmNGM2YzNmOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFmYmEwNTI3YzM5NTNjNGI2ZTBlNWI1NzM5YmE4MzYxMmY4MDUzYmNkYzk0NjY3MzAxOTNjZDFkNTkwYjQwOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWFiYzRhYWI0YzhiZjUxZjJjM2ExNzU2YzFkNTI2M2NjYjhmODE5N2FlY2M2NDllZDgwMjNhYjkwNGU0YTJlMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmM0OGFmMjFmNTgyNzExOWI3MmY1ZjEwMjkxNTJiMGY0Zjk4MGJkMTYwMjU0OTZmM2FlOWZjMDEwM2I5YmY1ZCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L99-L134",
+          "version": "repo-lines-v1:sha256:8785c1bfbfcabb51dcac4dbd651f6b4f7295c0634b3a09c0d97d89949a2f620a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkNTNiZjM1MzMxNGI3MzM1ZjMyMGRmN2FhZmRiZGZhOWQxNThjMzRjZGQ5NTFjNzFkZjIyYjEyZmViNmE5ZDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmODE5MTlhNGVhYjIzYTNlODJlYTI1NDVmMzRmODc1ZjhiNDlmOTRhOWNjZGQ0NjFmNjBjNWRjMWJiYjllMDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0NDBlMzUxMjRjZDIyNTc4MDcxYjMyYTA1ZTkzMjFhNzJlMTM1ZDVmZGJhMTEwMWZjMWMwNzgwMTMxNzgzYTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea224268e56240999779942822159c85",
+      "statement": "The memory blocklist is documented as bypassable (zero-width characters are not stripped because stored text must equal scanned text), so the allowlist, length cap and prompt wrapping are the primary controls.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/guard.py#L22-L33",
+          "version": "repo-lines-v1:sha256:0fb4f26a58476e4fbbf9d081e608152b61042e32bf876795527f39173f6055ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3YzI3M2NlZDU0NjRmMzMwYjkzMjQxYjVmMmUwNGQ5YmE3OTFjNWRjZmI0YmUwYzYwNDRjMTJkYzdjNTUwMjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjMDA1MDQ3ZDBjZGEwOTAxMjE4ODQwZDk4YTNiZDIxYTNiN2JmOTg5Y2NlYTIzOTFhMjYwNjBmNWJjNDllZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1YjZlODcwNmI0MzA0N2YyYTZkYjY3ZjEzMjYzODU5NTYwNGU2N2YzNjk2Njg3NmNlMDE1OGYwMDUzZTZiZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_678b7a1ef73e42df848421c9b6317336",
+      "statement": "End-to-end tests verify that a poisoned instruction never reaches the prompt, that a row with a poisoned key is dropped, that valid rows beyond a poisoned window still arrive, and that a failing read helper omits only its own block.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L185-L246",
+          "version": "repo-lines-v1:sha256:c5778209ca89493b0c68942bc7050b40f34807f409d163923d37eaa39677bc95:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZDBlOTBmMjAyNjJjMDNkZTQ5ZjZhMTA5OWFiNjBkMGQ5YTEzMDUxZDM4YzU2MTg0NDIzYzFlNDNlOTc3ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyMTUxMGVlNmZkNDFmNzlmODdkOWY4YTgwNWRkNjk5YmVjYzU4ZGU2OTgzZjBkNzZkNTdjMTliYTIyNjE0MTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkNjIyNWJmOGUxYjk1Mjg2NGRiOWFkMGFmYmMyMmRkMjU3N2UzMjUxYWUwNjMyODU4NzU3MThiZjZhZTVlNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L40-L100",
+          "version": "repo-lines-v1:sha256:7c66af42cb26baf36ef6e0e8aeae3f4d9b7147b33cb6de305e2e169d96372be1:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiNjUyZDQyMjRiZjU2OWQwZWVkNmE1N2E3NzBhNGIyZGNhNmMyYmJlYTE0YTRlOGExMDY2ZGRjM2ZlY2QxOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1MDNjY2I5MTZjODFlMjE1NzAyMGRkMWZmN2FiMWNkZWM2NmQ4NTRhZTQ0ZWI5MzYwNjAzMjYyYjJiMjhkZTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0MmE4ZjNiOGIyMzEyNGJhZWQ5ZGVkYTg5YjFkMzhmZGRhOTFjOGUzODk3MzE3YWYxYjY0YmVjNDk2NmM0MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY3MzA4MzQ4MDZlODNiNjI3NmMzOTFmMDRiM2YwMDFmODAwYzU3MWJiNzM0NjUwYzVhMjRiYTZmN2U5MGYzMjUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-21T09:19:54.601Z"
+  }
+}

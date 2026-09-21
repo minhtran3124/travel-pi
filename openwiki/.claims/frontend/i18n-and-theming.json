@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5cd9282a619c61dbd2db35827b9e1bcac720d2e541590e07209636e6c0fb1df8",
+  "claims": [
+    {
+      "id": "claim_2aa6df63cd2541d68d66f688c1eae6e1",
+      "statement": "The locale is cookie-based with no URL segment: config declares en and vi with en as default, the next-intl request config reads the locale cookie per request with a default fallback, loads the matching message file and returns shared date and currency formatting presets.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/i18n/config.ts#L1-L13",
+          "version": "repo-lines-v1:sha256:ad868885896125f21074d5ff26e08f00598b5f6cb878d78e0a0f2b6f0691062e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyYTg3NzYxNGYxMWYxODNiZWQ1ODg4MmQ1YzEyMGFlYWFlNDQzZDBhMzBjZTRlNTU4NTU0NzIzYWU5OTQ2MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/i18n/request.ts#L1-L28",
+          "version": "repo-lines-v1:sha256:264eb5ba62945c7e956055d9880020485b83c55b7ecb0188dfe583a82716c326:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYTU0NTY5ODYzYzNlYzJjMzcyY2IwMjY3MTAyYTMzM2ZiNjE3ZDU1YzYzYmVkNjA0NGI0MjI0MGExZTQ0ZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d963ca0f93604d56a15be80799a69781",
+      "statement": "The locale switcher writes the cookie through a server action with a one-year lax cookie and then refreshes the router so the server tree re-renders in the new locale.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/app-shell/LocaleSwitcher.tsx#L11-L27",
+          "version": "repo-lines-v1:sha256:f4fe544949780b478d3de40595f8d47e117400148e26e592e92467177b5a6036:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0MzQzNDUxMzNlZjBlZDBhNzlkMzFlNDA0MDIzNDlmZTNlMzc4YmFmNjkyZTUyZWJjZjgyN2NhOTQ5NmU2MDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmMGFlZDMwMDc3Y2I1NDdjM2Y0MmY3M2EyY2EzYzE2MjAwZmY4NDBiOGMwYzVkYmU2ZjlkZWYxNmVkMWZkZmIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/i18n/locale.ts#L1-L22",
+          "version": "repo-lines-v1:sha256:217e80517628c3a95ed0920bdf49f2e24a032d474e95812981a92e1b6f15970f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5ZmRiNmE5NjYxNWI2MDQzZGRhYzA0OWM0YTg3ZGZmMDgyZDIyZmJhNGZkOTkzMTBhMGRkOTJhNGU3Yjk5NjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88de2056b5d54e9cb7ff91620e6688b8",
+      "statement": "A parity test flattens every leaf key path in en.json and vi.json and fails when a key exists in one catalog but not the other in either direction.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/messages.parity.test.ts#L1-L39",
+          "version": "repo-lines-v1:sha256:74d01243b8fb4d8587e37a7615bef726c8d71cdad5f5af5e35ebbebb2b2643ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOTUwNmIyMWY0ODNkYzk1ZGYyZjJiMzVmNzBjMGE0NDNiMDUzYTdiOTY0OWY3NzQ2N2U2ODhhMzMyMDA0MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_51ac777b432141f990f2314adb1b30f7",
+      "statement": "A backend test parses the frontend locale config and asserts its locales and default equal the backend's SUPPORTED_LANGUAGES and DEFAULT_LANGUAGE so the two language lists cannot drift.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/languages.py#L1-L16",
+          "version": "repo-lines-v1:sha256:9ca915ef4221dbf12ee2116fcc8f51a4a2319f1daa9a7ffcb6308bf75ac8f0fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZDFmN2UwM2EzMzk4NTk0M2I2ZjVlOTFmZGU3YjlhNjk1Mzc0YjJkODJjZGEzMmUzN2M4NWViNTM3OTdjODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiZTE1YWNkNmNiZDA4NzhiNzY2NzI4MzU5NmM0NTAyYzlkZThlN2QyYmUyMWNhMzBjNjlkNjg0MmVlNWY0MjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzZmEyMThmYWJjNGU0NmMzYzllYWJkNDc5MDRlMGYxMjMwMTJjNDVkYzgzN2Q0NDAyNTY0NjY0NzkzYTVjNjYifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/core/test_languages.py#L35-L42",
+          "version": "repo-lines-v1:sha256:a01a03bfff5e325130559a88936f9aa99b716301082992cc62998b260ef73219:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGJmODVmMGFiZjc3MTVhZWUzOWVjMzVmZTdkZDA2NjY3NmQ4ZDhlYzk4MWUyNTc2NGJhMDVkYTI5YzY4NDVkYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWE1ZDk4MGE3NGU4ZWRiNzEzNzQyOWE5ZGNmMDA5ZTg1ZWIyMjgzZDM2MThiM2Y2NDBlZTc2MzdlMGYwZjIyMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDA0ZDk0ZTIyNDQ4YmUwNjU5OTYxMGI5ZTc3OGY1ZjQ2NDFiNTU0ZjJhMzUzNTA0ZTBhMmIzMTViZjYwY2Y4ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_76e15b355fed4b2d8dc8bab45807abb6",
+      "statement": "The side-panel subtree renders in the backend-detected conversation language through a nested NextIntlClientProvider fed only the Panel catalog slice, which can differ from the cookie locale driving the rest of the app.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/panel/PanelIntlProvider.tsx#L1-L29",
+          "version": "repo-lines-v1:sha256:f4de4445733fffdf7d3056e3beb9b19190bae40f9d2112a31254c3840c4f81a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb0fd14ea32343229992ca9430387dad",
+      "statement": "Theming uses next-themes with a class attribute, system default and enableSystem, and globals.css registers a Tailwind v4 custom dark variant scoped to the .dark class.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/playwright/theme.spec.ts#L43-L66",
+          "version": "repo-lines-v1:sha256:7eb3eefee5afb6f9db36c256ad5b7b8750abb941f9b0f9173c2eca9615c4d1d9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4MDkzMGMxNDgyMjllNDAyMmZiMDljMGFhZWM0MjUzYzlkNGQzYTdlYTEzYzM0ZWY0YTBhZGNhMzg0NGRhN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNzNmMDA3OGY1NmU2MmU5YjBkZjkzNmRmOWQ0YzE4NDk3ZWY1MmQwZmY2MzY5ZTg2N2Y3NDEwZjJlNmU4NDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1ODU5NjExMTk2ZjY0MjNlOWYyNGVmMmU5YjM3OTM3ZWJjMDY0YmQ1NzRjOGVlZjk2NWFlNWZlNGJlNmM4ODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZmODcxNzE0MTQ5MzhiOTZmNDg3ZWFmNTkxMjJiZDhlYzEwZmU1NjE1NmJlNTFlNjIxNDA4MzU2ZGE4MjUzN2QifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L7-L8",
+          "version": "repo-lines-v1:sha256:470e55dc5eb2aea1bb9235a09acac384e2dd4a464ebe85fb4932d29f1c138266:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjA3NGUwMmI4NWNhNjgzMmQ5ZWNmZWNkMjA2OTUxOTg1ZTkzMGEwZjczNGE2NGU4YWY2MWZjYjA1ZGQ4OWEwMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjc4MTViOTg4Mjk2YmU0MjExZmRkN2UwNzI5NDY3MDUxYzdhMjNjZmE5NGQ3OGY3Mzg4NjZkY2RlNmExYzI0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzM1OTM0Y2Y2MzBkMjQ3ZTJhN2MxYWU3MTM4NDBmNGQxMDc5NDk0OTUzYzUzZWE4MjliOTc2MWZjZmNlYjBlYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmY5OTZlMzliZjAzOGM2YjE0OGMwZWU5NGNhZWNkOGVmYThkZTZkMWRiNjJjY2NlMzhlNTUxNzRlMjkwZTBhYyJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/theme/ThemeProvider.tsx#L1-L16",
+          "version": "repo-lines-v1:sha256:6f6b6ed43bee44857ff3fb00d74a8928d34dd0d17378349666ac0908d23907c6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_12ad65aee90548d1b1961c2f6f739532",
+      "statement": "ThemeToggle defers theme-dependent rendering past hydration with a useSyncExternalStore mounted flag and shows a same-size aria-hidden placeholder first, avoiding hydration mismatch and layout shift.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/theme/ThemeToggle.tsx#L9-L56",
+          "version": "repo-lines-v1:sha256:61b4ca22eda8e9470f0766de660f7fa56f8f0f8f76d073d13896fb2bfbaffc2b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1ZTE3MzZhYmYxMjA1NjM5ODQzYmI3NjgxMGRkYjYwMGE4OTdiOTBlODZkYjgwZWUzMjliZDg4ZTNiMDcxODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzMTMwNTIyYjM5NzA0MzQ0OTYzNzRlZDg5NTNjYjFhYjYwNjMwOTdkODY2OGEzMjk0ZmFkZjlmYzU4N2FlNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmZWRmZGQ3NDNmOWFhMjI4OWJjZDlmNWUzOTVkNjc2NmExMWFlNzg5YTM5ODU5NzI3NTkyNWNmY2Q3MGYxMTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_43131940d2544c8685f0ec0c5e10742b",
+      "statement": "Color and shadow tokens flip between themes through @theme inline indirection to bare CSS variables defined under :root for light and .dark for dark, while radii, spacing and typography are declared in a plain @theme block and do not flip.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L100-L102",
+          "version": "repo-lines-v1:sha256:78e99c2e33eebe8e61c3ccd070930399a8d6ef3e67bf714635ab6fc923abf313:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM4NWNlMjY4OGRmZGFmODRlMGZlZjc4YjY3ZTA0ODNlM2I3MGNmYzliMGU0ZmQ3ZjY4YTkwOGMxMTNkODhkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzJiYjZkODA2OGYxNDYzNWJmYThiYWU3M2Q2YmIxNWIzOWQ5YWRhMTgxOGMzNmE1YzYyMGI1NWViOWI0NmQyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTczM2RkNGMxOGFiMmYxNWQyYTc1NzBjMTAzZTMzZjdkYWFlODRjYmNkODI5ZTcyMTE3MDcwZTRjYWQ5OTA0MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTYyMGRhMjdmYjlmZjJlNmYwYmU5M2RkOTJlNjMzZjM5Nzk3MDlkZmJiM2UzMmM5ZWU4YmMxZTE1ZTc1NjkzNSJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L160-L162",
+          "version": "repo-lines-v1:sha256:535ccb98f44c765632fe4412de2e4de1abe368fd9cb24d88695b9c6f3549d14c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI3ZjVkNzMwZjI1ZmUwMDllNzNkNDRkNTc2ZDE4OTU5OGI2OTRiMjZlMTg3M2Y2MGFmOGM0NjQyNThkNzIyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjgxZWIyZWFjZDkxNzljMTdiNWFmZjdkOWVkY2I2Zjc1MmJhY2JmNmU2ZjFmOWEwNDBhODY5OWQ3MmQxYjcyNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2RlODRmZWYwMTg4MjJhNDJhZTMwZTdlYzFjMjExOTQ3Yjc3ZGQwMjNkZGQwYmQ5NGNkNzU3NzUwZTBmZjEyNiJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L18-L98",
+          "version": "repo-lines-v1:sha256:4d7a485e263dc9c89be2a46d4cef22739e2aef5bbb64bdb5af665cf4b4731662:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3MzI3NzVlZWU3NzAwMThkYjdkNzlkMDM1YTAxNjMwMTVhMDE2ZGUxN2ViYmY4ODg0OTAyZWM2ZDFkOWZjZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1Mjk4M2E0NTJhMTIwYmFmNzJmMzM0NTU2OWFmZWU3OTM2YTI3ZDI2NzlhMzc5NzdiM2UxOWRhYjE2MzBiNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlMDUyN2Q0MWJhNmUzOGYwMWQ0YmUwZDI1NWZjODJmMzMzNDY2ZDU4ZDY1MTY0NDdmNmJkYjI1ZTQ4MzFhN2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_202abf2cb7da4de4b01661f398d466d3",
+      "statement": "on-accent is the text color on the lime fill and stays dark in both themes, while on-ink is the text color on ink action fills and must invert with the theme to stay readable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L113-L115",
+          "version": "repo-lines-v1:sha256:30054a9dca7f953c89d5731181ca9c5bf21eefed61563e920b0df34d4ed685f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDVhMjkzYTdkMGVhM2Q3YWE3M2M4NTljZDA3NjdmYTk1MDZiZWJmMTEzZmU5ZGZmNTg3OWNmZDc2NDQxNmI0YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTY5ZGYyNjhiYTM3MWIyNjY0MWZhZmIyM2Q0NDY1MGY0OGIwZDliYjI0MzFiZGJhZGM2YWUzNTgyYWRiZmY3ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjQ2OThmMjAzNDkxMmQ0YzJiNzExZDUyZDdlMTI3OTRjN2MxMTJmYzJhZDIxMTJjZjg1MTA0OWY0MjgxZGFiOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk3ZjE0NjdhOGY4Zjg5OGU5ODY0YWM4YTQ1M2JiODA3MTA5NTYzNThiYmVlZWZiOTAwNmRkM2IzNDFlYjExYyJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L174-L174",
+          "version": "repo-lines-v1:sha256:c611f27705c23797c95cbdff5a1f2142eb216bc923d78142bdcc2f3ae7fd6c90:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzYxMWYyNzcwNWMyMzc5N2M5NWNiZGZmNWExZjIxNDJlYjIxNmJjOTIzZDc4MTQyYmRjYzJmM2FlN2ZkNmM5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzYxMWYyNzcwNWMyMzc5N2M5NWNiZGZmNWExZjIxNDJlYjIxNmJjOTIzZDc4MTQyYmRjYzJmM2FlN2ZkNmM5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGVmZDk0MTM3NDdkOGMxMWJhZjMxYjIzMmU0ZWQ2Y2VlMDQ1ZjhhODJhMzljNzk0ZmJhOTg5MzUwY2Q3MzNiZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzkxNWE4NjgxZGY0NGJiMzAxYjUzZWNiZmQ5YzM1NTAxYzNjOTgwNDlhZjZhN2RjODVmNWVjY2E5ODEwMzNlMyJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L36-L40",
+          "version": "repo-lines-v1:sha256:900c1909763dee4e26ec7ece37fa086702e090303c4253fff143d26dbfadb877:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGYyY2ZkZjA5ZWNkZmY0YWE3ZTBlMzBjYTY3MmZmMjVjYzg0NDRkMjQyYzFkMzZhNGIyNzI3Y2Q5NjRhYTA2OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjc5MzdkMzg2OTU0NTNlNzg1M2I2MGRlMWFkZjJkMzgyNjU4MGFjZjM5YTBmZDM0MDY0OGVjNjM4MWQ2MzE2MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTg0Y2ZlMDZlMzkxMDc2MDk0OWM0NjcyM2NlZjg4MTRlMzg0YTYwYjI2OWI4Yjc2MWE0YWY4NzVlNzY0M2E0MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjZmZGE4Y2Q3MGUyNTlmMjFjZDFjN2FiZTgzZTcyZDNmMmFkMGY2MGY0NGZkZTU2MTU4MjU0ODgyMWZhOTkwNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a990b5de2e7e4dbdb0835fcc4b1bad08",
+      "statement": "DESIGN.md is the design source of truth and mandates a single lime accent on at most ten percent of any screen for active and highlight states, an ink primary action, no native browser dialogs, and reduced-motion handling, which globals.css implements with a neutral focus-visible ring and a prefers-reduced-motion block.",
+      "evidence": [
+        {
+          "resource": "repo://DESIGN.md#L166-L175",
+          "version": "repo-lines-v1:sha256:a30b87694355644147ab4ceae6bde7288d2686df226ef875663f3a3e31976ee7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0ZDJhYzExYWY5YTEzNTNlMGM2N2EyY2M3Y2U0NGYxMjM3NGQyYWZlNDNhYjczNzAyZTU5YmIwZWM1NmIyZDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlZmJiYjFkNzQwMmE0MDg2OTgzYmExNmFjOTQ0ZGRmYjkxZjNmYzE5ZDc1YzhjM2E0ZmU2MjdlNWE0OTgwZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4NWQwMDA4OWM3NWQ0YTZhYjI4ZGMwZTZhZTM4MWE0ODc2M2I2MDhhOGVhMDkzNTA3OGEzZDViYzViZmRkNTUifQ"
+        },
+        {
+          "resource": "repo://DESIGN.md#L219-L225",
+          "version": "repo-lines-v1:sha256:9718824b951b5891c3aa5f010964c1d091b38a9d47948a2a4501ff6e9d2b4cb2:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWFkZGJiMDZhZGJiMjhlZmZkMGRmN2M4YzdhZjMxNWMwZTMwNDczZGM0M2I5ODliMDBkMDAwYzk4YWY5OWI4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmY4ZTlhNGYyN2JmODczZTMzN2ZkZDE0OTA4NjMyNGMxOWFjYWY1OWQ3MDU1NmQ1ZWU1ZTgzZjhiY2Y1YmFhOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDcyMjk4NGFjZDBmMjBjNWE4NzMzMzAyZTY4YjI4ODdlY2Y0OGNjODA1ZTcwOTJjZjRiZDY4MTUxZmMzOWQ2NCJ9"
+        },
+        {
+          "resource": "repo://DESIGN.md#L380-L383",
+          "version": "repo-lines-v1:sha256:c8af3c3dbe211cc8c59863533548ec86b677eb60be052ffdfc86bf3c9839531d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTJiZjljZGVkZjA5MGZmZTMxYjlkNDdjNGRlYTMwYjE1MDU0YmM4MzRiNDBlYWFlZDZiOWQ2NzBlMTRkZjkxOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzFiZDhkODUzMTQxNzkyYmEyMzMyNzk2OGRiZWRlMGQ1ODY2MWEwZjA5Y2M5ZWVmOThiYzkzNjBhZjExNWEwYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzhlYzJmNzI1ZTI0ZDRlMzhkYWMwZGMyNGM1ODM3MGRkNTkwNjFmYjI2YzYxZjI4MTA4NTU4M2NhMjA0ZDliYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWY3NzJlNzBkMTkzOWNjODg4ZDZmOTc4NjMyMDQxNTAxMzJmYzE4OGE0NDhkYzMyNjdlYWI5NWQyZGI3NjlhNyJ9"
+        },
+        {
+          "resource": "repo://DESIGN.md#L453-L454",
+          "version": "repo-lines-v1:sha256:dccd4dca6fa84c98fd17357c5bf3dc56d8aa32166297926d4db3ad9ce1cd6695:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY3ODQ5Y2I5MmFiODIxOWYzNThiZmM3M2MxMjQ5MWQwYjFiYzEyZDFiMzBlOWJjMTBjNmEzY2UwNDZlOWFmMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDIzMmVlZTM2MWE3OTI4NmNhMmVmNjIxOTc5MWZmMjIwMDk1MjVhZjE0Mzc2OGI0NzlmZjliZGUwZTQ4NTNjYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjhkMDFmNDVhOTQ1OTYwYzA4Yzc0OTBiZmI3NDg0NzhiN2ZlYjM2YTBkN2E0ZDk5OTM2NzFmNTk4ZTFiZWE1MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmVkNDNjYTdhNTBjMzhjNTRjYzdlNmRhM2JmMzhkMWE2NWEwMzc2NjkyMTA5YWFiYWRhZmZiNzE3MGU4NmY0OCJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L222-L222",
+          "version": "repo-lines-v1:sha256:30edb20bb603ae820fc4e6879e75e407bb2b109305506e131c4d1759c87d5a2a:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBlZGIyMGJiNjAzYWU4MjBmYzRlNjg3OWU3NWU0MDdiYjJiMTA5MzA1NTA2ZTEzMWM0ZDE3NTljODdkNWEyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBlZGIyMGJiNjAzYWU4MjBmYzRlNjg3OWU3NWU0MDdiYjJiMTA5MzA1NTA2ZTEzMWM0ZDE3NTljODdkNWEyYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWEwOTJmNGJmMjA4ZGMyOTRkZWZkNWUwNWNjMWJjYzY3MjUzNmUyZjJlNjBkMzRjMDNiYjY4YzFjMTM2NTFjYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTg5ZTE5OTI1YTE1ZTVlYTQ3YjUwYTY0NTAwZDQyNDMxNmRiMzE3NGZlZGVkZmEyMzg3YzcwNzhlM2EzZjBjNyJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/app/globals.css#L387-L387",
+          "version": "repo-lines-v1:sha256:93a69741729ade685f867badf99e69727fd6609c8dce197e206910713654c646:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTNhNjk3NDE3MjlhZGU2ODVmODY3YmFkZjk5ZTY5NzI3ZmQ2NjA5YzhkY2UxOTdlMjA2OTEwNzEzNjU0YzY0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTNhNjk3NDE3MjlhZGU2ODVmODY3YmFkZjk5ZTY5NzI3ZmQ2NjA5YzhkY2UxOTdlMjA2OTEwNzEzNjU0YzY0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzM1YjBjZWY3MWFmM2Y4Mjg3OTNkYThmYmRmOGMxNjVlYjlhZTA3MDM4ZWE0NDllM2I2MGJkYzdmZTI2ZWU4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjJhM2EzMDAxMTk2NmY2NDEwMzlhYTZhM2RlMzlhYzJmOGY3MDJmYjdmMTljODA3Zjg1ZjFjMmQwZTNlZmE1YyJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-21T09:36:49.315Z"
+  }
+}

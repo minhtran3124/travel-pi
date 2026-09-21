@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:83707076dca8747bcfd5c9ef97ff64c29d250d5d71e68a9c18daddbee65cd002",
+  "claims": [
+    {
+      "id": "claim_6f878e22bb5c4e849fbde64563a92481",
+      "statement": "The rate limiter is a reusable DB-backed per-subject fixed-window primitive whose default subject is the verified bearer id; anonymous callers resolve to None and skip the limit, and a client-supplied id is never used as the subject by default because it is spoofable and shares the auth id space.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/rate_limit.py#L1-L26",
+          "version": "repo-lines-v1:sha256:a35ca342377fb461fe2b82962318f09e61b2e0e2b642b4b89762bd7c3860f528:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3YWQwMzYxMTIyMWE4ODNkMmQzZTUyODY3ZjJiMGJkYzYxYjA1NWEyMTEzM2FiZGM2NGFhYWU3NzExY2ZhYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1MTlhYjcyNjIwOWY4MjRmNDRhZTBjZDU3ZDZjMWNhM2YwYTAyODMwNTk5NjdhYWQyYzhmZjI3ZjE2N2I3OWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU3N2U2NThhNTdjNTM4MmNiNTAxNDc1ZWI3YzMwM2M1NDhlNGE4NjVlY2NjNDkyNzIyMDc2NTY3ZGZlNTM3MTAifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/rate_limit.py#L94-L122",
+          "version": "repo-lines-v1:sha256:5777e69a865b6ae9b0b598bcc81a256c40fa6b329b7682ba8035c7cd25d1fc0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzZTJiYTg4ZDk2YTY2MGI2Njg1ZTJlM2U4MGZiNTJkNDIzZjI5YWIxOGIwMjBjZWM2YTJhYWQ5MTVmZjJhZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2MDIwMzJjYzU2YjYwMWFlM2FmZGIxNDFmYzEyYzU3Y2E1MjVjZmJhOGVhZmE2NzYyNmQwZTQyYjUwMjk5MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5Zjg1NzBkOWJhNDI2MmQ1N2FiZDVmMDBkOTEwMjlmNDRkNzQ2NGRjODM5NTBiYmQ2YjI5ZmQxY2ZjMDAyZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/test_rate_limit_dependency.py#L201-L230",
+          "version": "repo-lines-v1:sha256:d4b699d56f5ed26008697ff60a988018e6062789453121b7d82e96cb8390cecf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ODBkMTMwMTRiN2UxYWI5OWE3MTFmMjIyZjljZWI4MGNjY2EwMGY4OTIzZDdlM2FhZTIyYmYyNDQ1NmNkMmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjOTVkZjNkYTllMmQ1YWI4ZDI1NjgyMzI4MWYyMTlmYzg4YjcwZjFhZDQ3NDE0MmVjNGFkMjc0Zjk2MDQxMDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4YjMzNzg3MmE5OTBhZjc4ZTQ0YmZhMGEzNTg4NjMzZmM0NzMwODU5ODg0NjA1YTY2MjIyODE0OGFjOTgwNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2NDk0MzcwYzdhMDdhMzhkNjkxNmI2YzI1ZjE0NTc5YWZhNWE4YjVhN2M3YjNjZDY4ZjQ0NzdkZmVmZjFmMWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_62f9551f5c6b4458acb60b88b20fe816",
+      "statement": "A policy with a non-positive limit or window is rejected when the dependency is built and again at enforcement, because a zero window would cause a ZeroDivisionError.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/rate_limit.py#L102-L103",
+          "version": "repo-lines-v1:sha256:39a18ab9fc7a4da997a75ba5a8cc068b263d7e1396bcf93abff5c2fc7dd027ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2YwMjZhZThlMWVhZWQ1NjEwNmQzNTZjNGJmNDc1YTg1YWUzMTZhYzFiZDk5YjI5ZTU5MDMyMDllYTFiNzA5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWIyZTMxOTI4MzAxYzJhNzBhYzE3ZWIxODk0ZWM1ZTBiMDhiNDZhMGIyZjRjYzg5OThiZWNlN2NlYjM5Y2U1MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWM1NTZjNjIxYzg5MzFhMTlhMjEzMGIxMzA4MmNkMWY0NWY3Njk3OGY1YWU4ZWIxNzY5YmEwOTIxMDA3MDlhNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzIwOGZmM2Q0YzRkZTA2NTI3ZDBhMDkzODY3ZmI4NGY0MmRjYmYyNTA3NWRhZmNiNDVmNzgwNjIyMmFhYTZlNyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/core/rate_limit.py#L29-L35",
+          "version": "repo-lines-v1:sha256:ea6fb53b23ca093a4c61419d06108aa8f29744b4faa83fead2b3e3c99d7b7b2c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzc0OTUyZWE0NDI5N2YwNGRiOTllODM4MTVkZjgxYWVjZGQwMDZkZTNjOWVlZDE5MDBiZTFkZTJiOGEwNzFjNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkwOWE1M2E2MThkMDI4ZTFkMzAwMGMwYTdhYmNlZWNiZTVmYjM3ZjRlNTExZWZlNDY2NDNmYWQ2ZTY2ODcyZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmQzODcyZjdhNTFlZGJjNzRhMGVmYjcyYTBlZTkzM2YwZGEyMzBkNmZhNjg1MzI0ZGQ2MzA5OTFjNTIwNDQzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2E4NTQyOThiZmQxZWE5YWJmYTkxMTNiZjdmMTNmNTEyMjgxZTk3M2E1ZTUxNDU0ODZmNWExMDdjOWE5YmEzOSJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/test_rate_limit_dependency.py#L54-L59",
+          "version": "repo-lines-v1:sha256:0f7cd97ddd29124857a8232c460262ed013a70b4737d97f4afe6cd495bc6141b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTk3MTBlMWVjYTM0OTcwMGFmODNhZjBlZmJjZjQyZjY5ZThlZWM3MzVkNjQ3Njc0NzIxNDBhYTAwN2Y2NGE1YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTcwZmNiNDQ4ZDc0NjJiNTlhOTM3M2U4MDQ4MDY3NGVjOWM5M2U5MzNmY2ZhYWM2OTkzYjUxMWExNjJiZjFkZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODM3NjQwMGMxOTUwZTY3NTBkMzQ0YjQyYjRjZTc4MWQ0OTg1MGU0ZTU1YzM5OGE0MDNhYmQ5MjE4NTQ1ZjEwMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_efe5e1a44dbc42a7b1a72afa4eaec4d3",
+      "statement": "enforce_rate_limit must run before the request session starts a transaction and commits the hit on an independent session bound to the same engine, so the increment persists even when the request later fails or rolls back.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/rate_limit.py#L44-L75",
+          "version": "repo-lines-v1:sha256:df4eb3dfc2a44a1d7b182d6f3816fc4bb0de5b056627da543b7e58b4169fcbd5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZmI1MWEwZTdkODUzZmNjMDY0OTk1OWM3ODg4NjA5YzVmMDc2MDZlNTgzMjliMWVmZmY3MWYwM2Q0OGEyMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzZGZmZTU1Y2VjZmJkNGZlZTUwODY4YzQ0ZDk0NDJlNjNiOTc4ZmY3MGI3MjhmOGYxMmExODIxZmI3ZjAwODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3ODhhMzc5ZTI4MmMxNWVmYTI3NmIwNGVlMGMxNzk5OTNlOWM1MGRhNTM1ZWE4Y2U3ODI0NjJhZjg4NDg5NzUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/test_rate_limit_dependency.py#L251-L259",
+          "version": "repo-lines-v1:sha256:a28003b5e222761f96542642b52d5ad43de619cd3c08c7c88e2d27af4f0e7998:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWYzZTQwZTE0OGYzY2UzYzIxYTJhMDM1MzZhODgxZDI1YTI2ZmFjOGU3YTBiNjNkMzE5YTEzMWJiMjkzOWE0YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzc2MGRmY2Q4YjQ4MDNhOWY1M2FmYjU4NTk4OTVkODFhZDdmZjJmMTUzMmMzZGFkNTI3OTdiMmQyYTQyNGYxYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmI4ZmViZTQyNDAwYmJjMmNmZDI1NmRjNzhjNDM5ZGE5OTBjMjkzMzg0MTk3ZmRjNjI1MDlmYWU4NjBjMjgzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/test_rate_limit_dependency.py#L75-L90",
+          "version": "repo-lines-v1:sha256:8cda4776eac2a181f77aeb6a83bb852c627f0b39b6a8e3c1c2bca2fcb2477dbb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZTMwMGE4NmM4NTI1ZGE3OWUyMmFiMDhlODg3YmFmODEzMjc1ZTk5ODhiYzRjNTY5NGY1NDNlZGUyNDM1MTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1ZjQwOWYwODczNjMzNGE3ODdjNjVkMGIxOGU0MTRmZWU0YzZjNWQzZmEzZTAxMGYzYWUxZGZhNjhhMjZlNzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxODkzOTdlOTVhMmIyNTZhNGUwMjkxMTYxN2YxN2FiODI5MjE1MTY4N2U2MmEwOGEwYTdiN2I0ZmExYTI5NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkODQzNDQyZDFhMDlhOTFiOTliYTY3N2QzMjZkZGJjNjI1NDg0ODlhMDFlYTBlZTQyMjI2ZTIzMzAxYjNjYTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_86665e5dfbe845bcb1232fb817190d88",
+      "statement": "When a subject is resolved the limiter stores the decision on request.state so the header middleware emits real X-RateLimit values, and over the limit it raises RateLimitError with retry_after and policy metadata that become the Retry-After and X-RateLimit headers.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/errors.py#L65-L88",
+          "version": "repo-lines-v1:sha256:e6d3fe031a79154d3f8a07eb72ae8f10d1029ca0307abfc61ba1408f1011e788:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyYWExMmY3ZWYxZTgzNjhkMTY1NDdhNWQ0MDY0NTdlMmQ5YTExNzA4MWUyZWNkMDRjOGI0ZWFjNmU4ZDY1YjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4MmUwZDA0MjJiMzAwMmI4OGEyNmVlMGQ5MTA0M2EzYTAxMmUyMTUwZDUwZjY1MzlhOTJiODFmNDU1NmE0M2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4NjNkNjJmNzI1M2U0MDkzNDhmZGE4N2VhNDZjMTJmYmYyOTU1ZGRiYjM5N2Y0YWQ0YWE1YjFmM2JkYzdmZGUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/rate_limit.py#L76-L91",
+          "version": "repo-lines-v1:sha256:2a19df8ba540397f66dd9d67753bcb1c7fef4dcb4d6d27e1e702d445e8330f44:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlZTJlNmVlYjUyOTZkYTk0OGQ4ZTk2OTA1Y2YwMjJjYmEzN2M3Y2UxODU2NWNjZGQ3ODg1MDAxZmQ5OGQ3ZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZGFkMGU1NTk5NDIwODI2YzViMzRjOWYyMjg1MWUxZmI1NjAwYmFmZDkyOGQ3MTRmNTVlOWM1NWZjNGYwMDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0OGVmNzM0MTUzM2VjOTdmZTc0ZWIxYzRiYTA3ODhhOTg0ZGNmM2QwYzJlYjVhMGUzZWFiYjUwOWY0MzhiMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5MjA1OWEyZDc3MDczYjU3ZDFkYzM3NmFhNzhkMDdjODNmYjFmYTdhODUzMzRhMzllYjFjNGE0ODhkYWQ5M2UifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/exceptions.py#L130-L151",
+          "version": "repo-lines-v1:sha256:7e36f0bb16469fbb395fba08f4670f73a6c3a2acc5fb37ecbe266f44a63a995a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmYTIwYjU2M2U3YTczZjg4YjUzNGZkMGJkOWJlYjRkN2JkZTViOTQ3ODg5NDE2MGYwOWE5ZGNjNjliMjIyNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MzA2ZjhhZWJkNDM1M2UwNWI4ZDcwOWVlYzA5ODZjNDFkNWI3ZjkyYjJkZjhiNTczZTBkNjk0MDQ2MWFkODEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d7840dedbbc642abb62f705274cf5b22",
+      "statement": "The counter repository increments atomically with a DB-level count = count + 1 scoped by bucket, subject, window size and window start, inserts the first hit inside a nested transaction with IntegrityError fallback for racing workers, sets a SQLite busy_timeout, and prunes expired rows only when a new window row is created.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/rate_limit.py#L1-L1",
+          "version": "repo-lines-v1:sha256:ce49ad92ff823a26adce0f7610b5501e4a7ef2e01a23f662a299aa54f7275da0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2U0OWFkOTJmZjgyM2EyNmFkY2UwZjc2MTBiNTUwMWU0YTdlZjJlMDFhMjNmNjYyYTI5OWFhNTRmNzI3NWRhMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2U0OWFkOTJmZjgyM2EyNmFkY2UwZjc2MTBiNTUwMWU0YTdlZjJlMDFhMjNmNjYyYTI5OWFhNTRmNzI3NWRhMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWM0NGUyNDJkZGQ0MzlmODY2M2RlMjU1YmIyZGY0MDJlNWNmZWQ4YWVmMTY2Zjk0NjZjOTAwYTFlYjM5MDQ0MCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/repositories/rate_limit.py#L27-L117",
+          "version": "repo-lines-v1:sha256:2c624e13f264fe116ec602f1d095296bbc9d3a1065b15c8e99f7312eba137a2c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjM2M1NTg4Y2QzNDJjODBhMjUzN2JjZTFkN2MxMDUzZTBjNzgyMzAwMGVlMDMxOTZhNTM5YTgyOTAyMGVhZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNTI5MzkyZTRhMjdmNzljN2FmMGY3NjA5NGU1OTVlMWU1N2JhOGEzM2JmOGY4ZGI0MjJmZTc1MDc1NDA2NzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzNGIzZWEyZDkzOWRhMDBlYmY2ZDhkNjI0NjZhYjY1OWM4MDdhZWE3MzA4M2NmMDU0ZTE0MmI1M2I5NzkzZGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMTY3NDY3MjFlMDlkZGIxNWJkYjQxZDVkOTY0MGRiNmEwOTAzOTI0NTA2MGRhODg5Y2M1MGQ4MWNkYjBmZGMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/db/test_rate_limit_repository.py#L159-L190",
+          "version": "repo-lines-v1:sha256:b2bab6358198077a756b721fbb2188242468372a24763c8913879e1a1f7e928e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NWMyNzM4Y2I4MTA1MWMzYTU0M2RlZDU3NTNiNWMwNTM2MjdhN2MxN2FmY2UxZTEzNTU2NDQ3N2MzODVjODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYTg3ZmI3ZTgxYTkxYmQzMzlkY2E5YjlkMDU2NTdlNjkxZjJkNTIwNDE5NzM3OWJkMDMzMjc3MmQwY2JjOTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0MmYzZmY1MmYyMzEyZTZjMzU3NTBhZWZmOTk2ODBkYmQ3ZThjYmI2MjMxYTI2MGQ2NDVlZjY4ZDc0MjlhNjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRjOTlhOGUzYWYwYmM3MzFhZmRjOTMxN2UyOTVjOGRhNWNjNTZmYjYxYjcxYmIwZDRmNDM4ZmVkODZmN2JlNzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bb9710397e4e4b2aa4ccb2cdcf40e0be",
+      "statement": "rate_limit_counters has a unique constraint over bucket, subject, window_seconds and window_start so the window size is part of the policy identity, and stores prune_after as the window boundary plus one window of clock-skew grace with an index for pruning.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/rate_limit_counter.py#L1-L34",
+          "version": "repo-lines-v1:sha256:62bce55ed6d64e4d7be2bce7a7b5f6ea4c6fea2676f168e41d3614817410480f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5YmFjMjgzMjllYmNkNDMzODRmMmU4MDQ3NTIwM2E1NzBkZjAxMDBlMDkxZWQxNGExMzZhZTcwZTUxMGVmM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/db/test_rate_limit_repository.py#L78-L130",
+          "version": "repo-lines-v1:sha256:929f0b57224301c730962c1f65377452327df82859071ea6f95aad93fa1ec5e2:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmOWI4MDY2MGQxZmQ3OGY0NGY4M2RlOTFlYWEyYzAyZjEwMTQyYjI5ODRlMzE3MzI3MTJjNWFiZWRmZWFhZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExMjhlNjIzYWM1YTUwNTAwM2VlNDYxYjQ2NTUzZWIxMDFkYTBiMjExZmM0YWI0MGM3MGQ5ZDczNWQ3Mzg1MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjliZWRkNGRkODYwZTcwMWVmOWM4YmYwYmQ0YWMzMjc3MDUyYzdiYmJiMmE0MWI5N2Q4MDc0NjM2MThiOGIyOWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6fcb7c6453b24503a58db49c983383ca",
+      "statement": "The feedback endpoint is the only enforced rate-limit policy: its limiter dependency runs before any session-using dependency, reads the feedback limit settings per request, and resolves the subject as the JWT id, else a namespaced anon: id from the body, else None which skips the limit and lets the service answer 401.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/feedback.py#L1-L5",
+          "version": "repo-lines-v1:sha256:6f96adf8f8fcbe52ea8c58df6d9cfff422c940a01e18d090bf35d95dc539dad5:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDliYzRhODE4OGQ4YmM2YWM0NWQ1Nzc5YWVhNjA2ODY1ZTZjYzgyNDRlMTlkYzc4MGZhOTkzZWM4YjZlM2Y4OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWU4MzRhMTRjNjBhMzMwY2EyMTg5OGI3OWNlOWM4NGE3ODU4ZDllMmJkZjU4YjEzNGE5ZTg5MDZmNjIwNzRjNSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/feedback.py#L33-L78",
+          "version": "repo-lines-v1:sha256:53317bb6f71cdacf1737ccb75e780e43514cbf3918eb9f2676a9d9b2a191f84e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5N2RjZDk3Zjk4MThhZGMzNTRiOTYyYmYyMzE5ZTgzYjFlMzFiMDNlZjRkNTEwMzM1NWUzM2MzYTQ2NzIwNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYWM5YjBlMzIxYTFkNmU3YjhkMmQ1OWEzMjFiNTUyN2Q3ZDEyNGI5MWJjNTcyZTExM2NhYjg0MDg1M2ZiYjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzZDE3MWRlNzU0MzFhMDIxYTBkOTRmYTc2ZmFiZjBkNzEzOWM4OThjMWEwYjQ0YjQzY2E2MDkwM2ZhMWI4NDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyZmIwZDA5NjYwYjkwM2U5MzI4YmRiMTgwMDZjOTk0YTY2MTkyOWZkYmZmZWM4NmNmNDBhYWUxMzRkODViYzIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent/test_feedback_rate_limit.py#L45-L92",
+          "version": "repo-lines-v1:sha256:c6678a466be64d9c913828c1c6057ecdab068094045975e30a1ac53c84978a1d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlOTEzNTg1MDllNzJkODJjYmJlZGQwNGU3NWRmYjUyNmQyNGJmNmU3MTE0NTVhMTRiYmQ5MmM0YzUzYzU3MDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhZDI5NGQ0YjQyODMxZjRkOWEwODk3OTE5MTkxMGViOTRkOTYzNDhhMDgzODk0ODFmZDI3NWRkZGMwYzA5ZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA2MDMyNzJkNDZlNTYzMGFhYjg3MTU3NDFhMWM1ZTI0ZDkzNTUyMTQ0NmU0ZTUzY2I1ZWRjOWE0YjE3OTg2MGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ec3ed88439e047a8860deb6843a18799",
+      "statement": "check_quota runs before any conversation, run or graph work in both agent endpoints, bypasses premium users, counts the free user's user-role messages since midnight UTC via a join on conversation owner, and raises a 429 QuotaExceededError once the daily limit is reached.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/conversation.py#L157-L171",
+          "version": "repo-lines-v1:sha256:b2991ba495473338f607844e7c9ce16baed4c123cdd01ca76f36010d5218285d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1Mzk2MWNlNzc5ZWY3MWI5NTU0MzQxOTU2MmIzMjBlMDdjNWJiNzZmNDkyNGIxNzZiYjNlZDhhM2JhZDkzYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwYWIzZjdlZTM3Zjg2ZGVlNTQzMDNhMTFlMWNmYzAxMjU5ZmQ5NDliOTQ5NmIyMWQ1MTU2NzQ5NTZmMzIzOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjFhMzhjMzY2NThlNmZmMTE0MDk3Njk0YzhlOTlkNzgyMjNiZTIxMGVhZTI0NmU2OGQ1OGE0MTIzYzVjZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwY2E2NGI3YzNjNjAyOTU0N2FiOWNjOGEzMzU5YjVlZDIyN2U0MWFlZWZiYTNiOGE1ZmViNTAwZjk1NDk0NTcifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L188-L189",
+          "version": "repo-lines-v1:sha256:f0cac8bd497037c4966821768000f707e88f96eae133982c88d396da371f18c3:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGRlMTU2ZjNhYmZhYzU1Njc0MDJmZTc1NGRlMmFjZWQ2OTU0YTJjMWU4Mjg3NDQxMjhlZWExNmUxODBmZWQ4YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjhmYmZmNzE3MWNkZDdlNzAxYWNjNzgxYTM2MzZlNTBmZDY1MTk5ZDIwNTQ1YzAxNjg4ZjY5NWQ2MmUyNjE4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2VhMDNlNDlkZjU3NTE5ZmU3MzZjOWIzZTAyMzA5MGNhYmE5NThhMzlhMzE0YjBjMTk0ZjQ5ZDFiMTk2NTExYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzBhYjIyY2Y1MjZkODc4OTk5ZTE4YWVmMTM1MjBkNGE3MDhmNTQyYzY5MjRjMjhjMDg2YjlhYTY5OGFlMzgxMCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L406-L407",
+          "version": "repo-lines-v1:sha256:363f1d55dfd68778f789f7272b4c7da8ace663d0a9e707da8fba4fa26beb19ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWY2Njk4NTQ4YTg2NjZhNDVhYjUzM2RkZmE1ZTg4ZDhiOTJkNWJjNGFjMjRiOWVkMmIxMGUxNTI1OGMyYjkwZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjhmYmZmNzE3MWNkZDdlNzAxYWNjNzgxYTM2MzZlNTBmZDY1MTk5ZDIwNTQ1YzAxNjg4ZjY5NWQ2MmUyNjE4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2VhMDNlNDlkZjU3NTE5ZmU3MzZjOWIzZTAyMzA5MGNhYmE5NThhMzlhMzE0YjBjMTk0ZjQ5ZDFiMTk2NTExYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjdiZmU3ZDdiYjU3NzhmNzNmZDMxYTYwYzhlMmMyMjRkYzBhMTdkZmIyNDI1MTZmYTg4YThiMWNkMzQ2NTBhMCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/quota_service.py#L1-L45",
+          "version": "repo-lines-v1:sha256:ff6c87b1f2699a0493076bce872fca27f4f65e9e753fc0bc2e055eb4270b1ed8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMWQ5ZWM5ODAzZjJmNWFhYzhjZGUzMGIwZTkyZWIwZDNlMDcwNmE2M2YwZjY5YmUwYzQxYTA5ZWNjMTc1MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent/test_quota.py#L155-L228",
+          "version": "repo-lines-v1:sha256:b4ed9a9966527b25320f7411565e37b0bf1624bda730c2cf8e80daa86a2ed9fd:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2ZmU1NzdiOTE5Zjk3N2M5ZDkwM2E0ZmNkYmY5MzY4NWM2MzI2MGIxNzJjNjk4ZTIyODBlMjc4ZWY4M2I1OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNjllNDgzYTBjMzRkMjYzYjdkNDhkYTAyMjJhNjBkOTBiZGE2ZTA4N2VkMmNjOTAyMzYwNDM5ODgzMzc4ZWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MjY3NmM4ODhjMWE0ZDlmYTc3MmZjZGMzMDJmNzczYmM3MjkwZWViZmY5ZGEzNmEzOWY0NGMzMjExOTgzODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_73c0fbff310a466e8f9ce2799319eec2",
+      "statement": "The rate limiter and the quota are distinct: RateLimitError is a short-window abuse limit while QuotaExceededError is the per-day free-tier product limit, and the nominal rate limit advertised in headers is informational only.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L90-L95",
+          "version": "repo-lines-v1:sha256:0dd213223735c0be103f19c91154221e08ef04896af8be9bf05713fdce960310:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTRiYmVjNzhhMjVkMDQ3ZGY4NjQwNmIxMDllMTBmODc3NTAwNGI1MTQyYzAyMjY0OWI2YzliZWJiYWZkZDk1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGQ0Nzg2MjhiM2YyZjdiYzJmMDg0MzZmNjFhMDdkZjc5NDY3OWVlOGQ3MWQ4M2VjMWQzOTNhYjIxMmQxNjAzOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDgwNzU1NGZiZDY4MmRjNDkxZTgxMDk1NjY2OTZkZWE5Y2MwYzQzYzI2MmRiMDk3N2JmYjM5ZmIzOGUzMmJmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWQ0YTMxYTM3NmQ4MjZlZGFlYzE2NTczMGViYjZlZDg0NmZhMGQ1ZTdhM2ExNmNkNGE1NDA4ODk5MGFhYzJkYyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/exceptions.py#L121-L134",
+          "version": "repo-lines-v1:sha256:6adb73cb6249222591d036f2657a56a578e615ac9240658fc4673d0a15871153:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNjZkZjc1MTM5ZDE5MmRiZGMzMTNjYmJjMmI4OGI5NTE5NWNhNmNkYzUxMjUyNjE5ZDAzYzc4YzBkNjQxMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4N2M0NjNhOTEzNGExMTU1ZDIzMzJkNzgzMDI1MTBjODg4NWYzNDY5ZDE5ZjgwYmFjYzU4ZmQ0ZWM2YjAxNWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiYjE3OGY5ZWFjMDg0YTdkODNhZTExZWI2MTZiMTc0M2VlNDZhYWJiNmQ3MjJiYTg4ZGQ2ZWY2ZmUwZTdlYWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzMzEwOTVkNWZkOTQ5N2Y0M2RkNjkwMWE5M2Y3NDNiYjY1NTUwNmEwNTBlMTVjMjgxNWJmMWM5ZDRmMTMyOTgifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

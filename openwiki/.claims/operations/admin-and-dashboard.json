@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:525cb5861da97f996b8040ee422d68e61b07450191fba42502fe26b5941ea5ae",
+  "claims": [
+    {
+      "id": "claim_6ccca3d3419846ef8ae25d47c2223709",
+      "statement": "PATCH /admin/users/{user_id}/tier requires a verified bearer token whose app_metadata role is admin, returning 403 otherwise, and upserts the raw tier string before reading it back.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/admin.py#L21-L53",
+          "version": "repo-lines-v1:sha256:5c0496f775a1f75e2a4c95d3cce75d2e3096c456cb76f7f66888154fdd0e7e8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YmFkNmYxY2NmNTQ3MDNhYjRlOTdmYmU5NjBkYThlNTI5ZDQ2MjFlMWQ2NTRiZTcyYjQ2NjExYWJhNWY4NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1OGZkZDUyNWY5MWEwZTkwMmRlNmIxOTEwZWUyMGUxOGZiYzkxM2U5NGY2NjIwMmI0M2VlMGQyODQ5M2FiNWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/admin/test_admin_tier.py#L49-L161",
+          "version": "repo-lines-v1:sha256:52ecfa4a0059e3ee4674c2492f4862ade4c590f62bdb4398edfdcd2cc1c9cd3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlY2IzNzBiZTY3NjA1MjcwM2QzN2JmMDFmY2VhNjdlNGU0N2ZmMTQxZjE4OGIwMjdiMmNkMDk2ZDlhMDJjYjUyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJhZjgwYjFiNTJmYWY1MTVjZjFlOTAxZDdmNWVhMTc0NjdjNzE0M2Y1ZjgzY2YyZGNkNzM4Y2FjMjY0N2RmZjUwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiMjQ5NDAwODJmZDQyMjMwZGM0Mjk5Yzg1MWJiYjQ2NzU3NzdlMWIzODY4YzljMjljNzFiMDE2ZmJmZGEwMDFjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_f55ae5842be3450c818ae76acef2de8a",
+      "statement": "The dashboard router is excluded from the OpenAPI schema and every route depends on require_dashboard_access, which enforces HTTP Basic when credentials are configured, is open in development when they are not, and returns 404 in production when they are not.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/dashboard_auth.py#L1-L40",
+          "version": "repo-lines-v1:sha256:64151577c1f40719bbec20536792062cd4f1ae402328f4db6f78705fab31234b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYzE4NzJmNzA2ODhiMDVjZjJhN2FiZDFiZjRkNDUzNDcxYmRiMTdlYTI3OWFkYzExNmYxODA0YmQxNTRhYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MDljMDVlYjc4N2QxZjdjOWIwMDRkZTM4NTE0OWVhYjJkNjlkNzVkNDBkYjE1ZGNjZGExMjM4MGM1YTg3ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmMzExM2NjOTI2YjRkNDIxZmQ1ODVmZDQ5ZTBjMTljYjY0YmNmZDQ3OTIyZDg1MDYwYjEyOTQyZDA4ODgzMTcifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/dashboard.py#L51-L56",
+          "version": "repo-lines-v1:sha256:ef65c5ab4ea20376789a9b359beaca86832536cc1b7fdef1428e22a2c49d0c0c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjliYWQ2ZjFjY2Y1NDcwM2FiNGU5N2ZiZTk2MGRhOGU1MjlkNDYyMWUxZDY1NGJlNzJiNDY2MTFhYmE1Zjg1YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFmYmEwNTI3YzM5NTNjNGI2ZTBlNWI1NzM5YmE4MzYxMmY4MDUzYmNkYzk0NjY3MzAxOTNjZDFkNTkwYjQwOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTg0N2NlMWFiZmRlZGM2MzI0MDVlYWZkMzE4ZGMzMWNhMWM3MTAzNmUxN2E3N2M1MzczZGNmMDcxYTJlZTQ5NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2M5MGQwMzgwNGNjNzRmY2NmZmJlZmZjYzkxNjEwNjhiMGJkOWI1YmMzNDAxMWMwYTA5ZThhNjJiMmQ2MmI4MCJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent_config/test_dashboard_auth.py#L46-L120",
+          "version": "repo-lines-v1:sha256:13467e1bdf3ea9d3f27cd4203c3b6a3ffaa576cc5e72a5c73db0ae7639a87ede:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlMGQ4YjA1NDljZWJkZGZmNWNkYjJkNGVjYjg5NjFkOWFiN2YyMWViOWExNjU4NTYzNTczZWQ4ZTIzYzBmYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkMTY0MDZlMWFkM2QwYmYxODRjZDkzYjk2Yjk2MTM1MDY4YmY1OGY5NGI4MGI4MWFlMmYyNmJlMTVhYjQ1M2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwNzk5Yjg4MGQyZjBlMjhjYWM0Zjk2ZTg5NGIxMWYwNGY2ODFmNjdkYjk1ZDUwMGJkNzQ1Y2JkNDBmMzc0ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_46dfc15117d34486b659a02cdabddf40",
+      "statement": "Dashboard catalog pages resolve their language from a ?lang= parameter first and a dashboard_lang cookie second, persisting an explicit choice for a year and normalizing unknown codes to the default.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/dashboard.py#L66-L81",
+          "version": "repo-lines-v1:sha256:922b08f2d7db27912bd01afc900310708779f1e18e091722faaf469e32832415:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkNTYzNTA5MjEzZTUxZGJkM2U5NDk4YjA1MjFlZTIyMWExNzdhZTViOTIzYTA2ODRlNTRkMGQxMjIwMGI2NDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1NzE1YjljMTg0NTA0YTAyMjQwNmRlMjNmMGUyMjNjOTIwOWRmYjQ3NjM3NWMwZDdjYzhlNzUwZjczM2EzZGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkODRkYzc0NjQzZWEyYzM5OTYxYjU3NjVhN2UwZmVmZGQ2NzYwYTNjZjI0MTQ0MDc4NmIyNzQ3OTM1YjE3YmQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/routes/test_dashboard_language.py#L19-L54",
+          "version": "repo-lines-v1:sha256:c05b80ea6ac6ee7d07080e7c68c58f46aeff583217d6a608dbaf25c6a17bbee0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzNjg2Y2ZmNTc0YjYwZDc1YjRjZmIwZTZkZWY5ODgwODllMmZkMmY2ZGU5NDAyZjY0OGE0ZTlmMGM2MmM5MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczNzQ4NTU3ZDFmMDQ0NjAyNDQzYzFiMGYxNjY5Mjg4M2VlNTY4Mjk3YjA2NWU5YjRhNjg4OGE1ZWE5MjgxMmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjZWJjY2EzZGFiYTA1Nzg3YTFiODk2M2NmM2JiN2M0YmVjNjYxOGY0NTg0NjU3YTY4ZmZmMTFlZjBmYzAyYmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a82909daf8ef47f587cfee378a7e66cf",
+      "statement": "The agent-config page lists every configurable node grouped into sections with the provider catalog and per-provider model lists, and the save handler resolves the agent before any write, validates through the service, re-renders with a 400 on validation error, and redirects on success following post-redirect-get.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/dashboard.py#L762-L842",
+          "version": "repo-lines-v1:sha256:202bd79a5d7e2b63584075beac9d2ba81c6b0372764cee28819bacaeefb2eb29:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkMjE0MWEzYmEyN2MyZTYyMjYyMDE4MmE2YTIxMmE4MDA3ZGE0MjFjNGE5ZjA0MWFmNzJlNGFiZGNiNDM2NmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1MmUyZGZkOGIwMzhiNmIzNmU1YmIyYjRjMzQ5M2QzMGUxYjU5NDhkMmMxYTNhNThmNmUwNjQ5YzE1YjIyNTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMjhjZWJiMmIwYTI4ZTVjZGQ1YjBmYjQ2NDNhYzc4OGJiNDllYmU4ZjhhMjNlMTEzZDE0YTRlNmRmZmZhMjcifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent_config/test_agent_config_dashboard.py#L8-L40",
+          "version": "repo-lines-v1:sha256:e000cc5982ab0529220b849c3176e5f343d9ced5db30e9d798b4d5485e475331:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwOGQ2MzM3ODkyMDdiMWM3ZDc3MmE2Yjk4MjIxZDg4OWQzZGM2ZjdmZjI1NDFjYjhhNzkxNzVhZGNjN2JkOGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzNWUyNDI2NGNhM2U0ZDg3OTU3OWU5ZTM5ODkzNzc0ZDRkZTM3ODgzNzNjNjc4N2Y4YzRkYjJmNGY0N2U4YzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmZDE3MzE5YWFiOWM2YjZkZDlmNTRkZTUxYzNjYmIxZWJjY2E4NDlkOTE4NjlkMWZkNWQ5ZTY1YzdlZWQzNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5ZmY2YzlkOTRjY2ZiZmE4NDcyOTA1ZWZkYjlkNDVhNGUxMDQ4YzA3MDlkZDNmYmJhNzQ2MDBhZDFiYTNmODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d50afc5b607e4a39b2091e33dac68695",
+      "statement": "The enabled checkbox is submitted with a hidden marker so a form that does not own the flag preserves it while an unchecked box on an owning form submits False; saving invalidates the agent config cache so the running agent picks the change up within the poll interval without a restart.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L152-L176",
+          "version": "repo-lines-v1:sha256:53147f2667711aef321b5ba0ea445ebd2577d2094032cfead357282edf3ee6d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyNmY0NWY1MTIzNGJhOTc5NTExMGM4NzM0NThhOWI3MGNiNGIyZTA4MWU2ODM3NWNlMDZhOThlNDA1MmY1MjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhODkxZjA2OWU4NjdkMTc5M2MzYzBmZWU2MzUwMWYyNjlmOGFiOWJjNjJhYjJjODA3NDg4YmQ5ODY4NTMwMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/dashboard.py#L811-L819",
+          "version": "repo-lines-v1:sha256:a90e34ed6cb5702b3c2cfa6e43b8bfcdc03378cd3e059f9b1186afdc09ddd298:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzJiMWZlYTEzYTk4OTY4Y2UwMzg5NmQ5YjkzZmM5ZGVkNDM1ZTYxMGVhMDFmMzZkNDk3MjNkNWM0Yzg3Y2YxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjJhMTc5N2IwMWY3ODI0ODY1MTBiY2Y2OWFhNTdiOGVlMzM5NTY5MTVkNjFlYzdhNDExMzMzMjVmYTRkNzM2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTBmMTM5NjNiNTllMjE2NzA0NWJkNjk1YWU1NzkyZTZhNTZlZTVmY2JhMjk2ZGZjYWVkMDIwZDg4ZjhkOTUwZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTc5MTBlZjViZGVjOTI3NzhkMzE4MWFhYTNlYmJiNTkyNTJlZDFjYzY2NGRjOTk2OTU0YWVmNzRlNjFhMWRmMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/agent_config_service.py#L110-L121",
+          "version": "repo-lines-v1:sha256:dca303f4eea27b6860a067ba68174d03f0da0be9bbab8468ebd0c7d19d75458f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1MjY1YTY3N2ExMGQxNzllNjI4NzFiMGVhZDgyMjNmODg5ZDc2NTc0MWQ2ZWYwOGI3OGY5MmM5ODhmN2MzMjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3MmY3MjQwZmQ5N2RiYjk4YmRjNGUzMWQ0OGVjMDBmNmMzOTgzYTlhM2IzNWIyMDUzYmQ3N2E2MWNiNTljNjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmNjkzMjlhYTVmMDdhOWYwNDUzYjNiYmRiMTlkMTU2NDgwMWNmMWM3MDUxYjk3ZTVkZmVkZDQxNjBhYTI0MDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzMTZjOWU5NTA5YjFmZjY2NDEyNDhiOTNhY2ZlZDJiOGE2NTZiNWQ0Y2M3NjFmMGIyZjAxNTZhMTQ0YjY3YWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent_config/test_agent_config_service.py#L94-L103",
+          "version": "repo-lines-v1:sha256:45f4bd75321a35ca9c87cf859c41682f71631010bd74cbda17146aa0282cc205:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhZDZhNzZlMzc3NDkwYWJlODdmNTA5NWZkODVlMTUwZTE4ZjNlZTdkNWRkMTI0OTc4NTBkNWJmNDcwMGNiODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3YTQ2NzZkYjBhNmEyOWJjZjZlY2FmOGEwMzZhOGNkNzBhNzc4ZDM2YjAzMDI3OWRhZjk2N2NiZGY3MjYxNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyYmFiOWNjOTQ5MDNkOTQwZDc3NGM3NDY5NzcxYThlNGMxZThjODdkYTc4MDRlODBlN2NiZTY5OGU3ODc1ZDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9c309c7871614d21b624002813d81cbe",
+      "statement": "The agent-runs page lists the 100 most recent runs with 24-hour and 7-day rollups of turns, tokens, cost and nearest-rank p50 and p95 latency.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/dashboard.py#L845-L888",
+          "version": "repo-lines-v1:sha256:bb33eaf9a2c230019cb7350b1abf9e4508d5eeda66eaef5227a98a4e1634aaba:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MzI3ZGNlYzVjYzBkZWI1ZmMxMWQ0YjBmNjcyZmQwMmNjMzU5YzY5MmRiYWVhZjFiOTI4OGQ1YTAxMDk3ZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwMjg1MGI3ZjJlNGRlOGU2ZDIxZThjNTU0YmExMjEwNGJkZmYwZmI1OWY1MDdkOTk0NjhmNzc1OTU3ODJjYTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0NjM3YTYxOTUyZjAxMTgwOGRhMWI3YzA0OTlmY2ViODU4Y2Y0YTk0YjQ3MWNjNjFiZWZiYzlmOWE5YTM1MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyYmE3MWVhNjA0YTk4NDU1MDE1ZWMxN2QyMjliZjRmMmNmZGQxYjRkNTliY2I1MGRhMTBlY2ZlY2I2Y2FjZTkifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent_config/test_agent_runs_dashboard.py#L79-L99",
+          "version": "repo-lines-v1:sha256:d49d917d1f778447cfb5a35221bdb5eb7c20d8617e64b2795338ece22acd02e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkNGEzZWJiZGJlYjE4ODI5NDYyMTdiNDI4ZDgyOWM0MGJkMWUwYmVmNTE5ZjgyMTllYWU1MTE4MWFmNjFjMzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3NmIxYWI2YjI4NjIwMTcwYmFlMzkyMTQ3OTIzYWJhMmVkNTE2NmVhMzJmZWUyMDEyZGNiZTBjN2M1Yjg1NDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0YzQ5YTAyOWQ0ZTRmMjJmMmVkNWYwMzM0NWY0NDFjMzA4NGViNWJjZmFhMGU2OTFiYTFlY2U1NGU5YzNjY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_02b9e4d6dee24d6280587142f362b784",
+      "statement": "The run detail page renders a turn's steps as a waterfall with span, cost by model, tool calls and the graph's prompt-version snapshot flagged by attribution, marks a full page of steps as possibly truncated because the dropped count is not persisted, and returns 404 for an unknown run.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/dashboard.py#L981-L1011",
+          "version": "repo-lines-v1:sha256:6659c45cdb3a7e40edb37d5f9a042297d5b476174ba108df6fd2f8190da73306:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkNzZjNzlmYThiZTY1OTI2ZDBhODFkOTVmZTA0NWIzYzc5MDQ1ODRlNGU0MzgxMDBkMWJjMGIyMjc0MGEzYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU4ZDcyNmM2ODVlYWNkZTEwY2I1NTk4ZmU0MTMyZmFmNzhhNzdhNmY5YTEzM2Q4MTZmN2NjMTEzMWNiYTQ1ZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzY2IwNjliZWE4ZDUwZWQ0OWI4MjgyNTI0YmZlOWI4MzY5YjY2YzcxMjk2ZWY5Njg5N2FhNjhjNjAzNWI1ZmQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/agent_config/test_agent_run_detail_page.py#L127-L172",
+          "version": "repo-lines-v1:sha256:8e386e9757f7c98f879723aef4e010a364a58ac0e0ad613f22d6cd4fedf53a46:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmU4NDgxOTY5YTcwNDA0YWRlODkwZDM5ZGRmNmIzM2E5MTdlYzMzNjkyNmY4MzQ1Yzc5NWE0YzM1OTcwYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxZjU5ZTU2NjVmMzEyNmU0N2ZkYTgyMmM0MGJmN2E2MDYyYmM3N2ViYWYyM2NlMzg4ZDM0MDRhZmI1NmZmZjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4OTczYWI1ZjliMzYxZjQ1ZmYzOTg0ZjI4YmU2YjQwZWUxYjk1Nzg0M2FlZDgxNzVjNTQyMTBiZmVhZGFlZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

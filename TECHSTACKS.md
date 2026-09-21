@@ -2,7 +2,7 @@
 
 > The technology stack for both apps in this monorepo, with versions sourced from the
 > actual manifests (`package.json`, `requirements*.txt`, `pyproject.toml`).
-> Companion to `AGENTS.md` (orientation) and `README.md` (setup). Last verified: 2026-06-26.
+> Companion to `AGENTS.md` (orientation) and `README.md` (setup). Last verified: 2026-09-21.
 
 ---
 
@@ -12,7 +12,7 @@
 |---|---|---|---|
 | Package manager (JS) | **pnpm** (workspaces) | `11.9.0` | root `package.json` → `packageManager` |
 | Task runner / build orchestration | **Turborepo** | `^2` | root `package.json`, `turbo.json` |
-| Node runtime | **Node.js** | `>=20` | root `package.json` → `engines` |
+| Node runtime | **Node.js** | `>=22.13` (CI actions on Node 24) | root `package.json` → `engines`; `.github/workflows/ci.yml` |
 | Python runtime | **Python** | `>=3.10` (lint target `py310`) | `apps/api/pyproject.toml` |
 | Python env / installer | **uv** + single root `.venv` | — | `README.md`, `apps/api/Makefile` |
 
@@ -32,6 +32,11 @@ Turbo pipeline (`turbo.json`): `build` (depends on upstream `^build`, caches `.n
 | Server state / data fetching | **TanStack Query** (`@tanstack/react-query`) | `^5.101` |
 | API client | **openapi-fetch** (typed against the BE OpenAPI schema) | `^0.17` |
 | API types codegen | **openapi-typescript** | `^7.13` |
+| Auth | **Supabase** (`@supabase/ssr`, `@supabase/supabase-js`) | `^0.12` / `^2.108` |
+| i18n | **next-intl** (cookie-based `en`/`vi`, no URL prefix) | `^4.13` |
+| Theming | **next-themes** (class-based dark mode) | `^0.4.6` |
+| Maps | **maplibre-gl** | `^5.24` |
+| Streaming markdown | **streamdown** (chat token reveal) | `^2.5` |
 
 **Testing & quality**
 
@@ -85,14 +90,20 @@ a static snapshot.
 
 | Concern | Choice | Version |
 |---|---|---|
-| Agent graph runtime | **LangGraph** | `>=1.0,<2.0` |
-| LLM framework | **LangChain** | `>=1.0,<2.0` |
-| LLM providers | **langchain-openai** / **langchain-anthropic** (provider-agnostic via `init_chat_model()`) | `>=0.3,<1.0` / `>=1.0,<2.0` |
-| Checkpointers | **langgraph-checkpoint-sqlite** / **-postgres** | `>=3.0,<4.0` |
+| Agent graph runtime | **LangGraph** (+ `langgraph-prebuilt` `>=1.0.2`) | `>=1.2.11,<2.0` |
+| LLM framework | **LangChain** / **langchain-core** | `>=1.4.1,<2.0` / `>=1.6.3,<2.0` |
+| LLM providers | **langchain-openai** / **-anthropic** / **-google-genai** (provider-agnostic via `init_chat_model()`) | `>=0.3,<1.0` / `>=1.7.2,<2.0` / `>=4.4.0,<5.0` |
+| RAG | **langchain-postgres** + **pgvector** (Postgres) / in-memory degrade; **langchain-text-splitters** | `>=0.0.17,<0.1` / `>=0.3,<1.0` / `>=0.3,<1.0` |
+| Checkpointers | **langgraph-checkpoint-sqlite** / **-postgres** | `>=3.1.0,<4.0` |
 | Observability | **Langfuse** (optional, off by default) | `>=3.0,<5.0` |
 | Tool exposure | **MCP** (Model Context Protocol server) | `>=1.2,<2.0` |
+| Eval-only | **deepeval** / **agentevals** (not imported by the runtime app) | `>=4.0,<5` / `==0.0.9` |
 
-Default models (`app/core/config.py`): `gpt-4.1` (reasoning), `gpt-4.1-mini` (fast),
+> Floors raised 2026-09-18 (`specs/stack-upgrade-langchain-1-4`) to the minimums `deepagents 0.7.15`
+> declares, so it can be added later without a second stack move; `deepagents` is **not** a
+> dependency yet.
+
+Default models (`app/core/config.py`): `gpt-5` (reasoning), `gpt-5-mini` (fast),
 `text-embedding-3-small` (embeddings). See `WORKFLOW.md` for the agent architecture.
 
 **Testing & quality**
@@ -109,7 +120,7 @@ Default models (`app/core/config.py`): `gpt-4.1` (reasoning), `gpt-4.1-mini` (fa
 
 ```
 Monorepo:  pnpm workspaces + Turborepo
-           Node >=20  ·  Python >=3.10 (uv, root .venv)
+           Node >=22.13 (CI on 24)  ·  Python >=3.10 (uv, root .venv)
 
 apps/web   Next.js 16 · React 19 · TypeScript 5 · Tailwind 4
            TanStack Query · openapi-fetch  ──/api/be/*──▶  apps/api
@@ -117,7 +128,7 @@ apps/web   Next.js 16 · React 19 · TypeScript 5 · Tailwind 4
 
 apps/api   FastAPI · Starlette · Uvicorn · Pydantic v2
            SQLAlchemy 2 · Alembic · SQLite/Postgres (psycopg 3)
-           LangGraph 1 · LangChain 1 · OpenAI/Anthropic · pgvector · MCP · Langfuse
+           LangGraph 1 · LangChain 1 · OpenAI/Anthropic/Google · pgvector RAG · MCP · Langfuse
            pytest · Ruff
 ```
 

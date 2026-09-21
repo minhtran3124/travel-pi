@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:91c7e3fc2f92919f76288058461b0b37d15291950059eb77117613cbce1caba7",
+  "claims": [
+    {
+      "id": "claim_e2bbe02b164e4289b42795476467ce5c",
+      "statement": "The travel agent graph is a single StateGraph whose linear prefix is START -> pii_guardrail -> load_context -> summarize -> supervisor, followed by the conditional route_tasks edge; every specialist and the synthesize node edge into reflection.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L136-L162",
+          "version": "repo-lines-v1:sha256:9c80fe7a11ac324d77a1a85e170bab4d32aadb7c48a21478bb0160c9f35a1359:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3NjI1ZTY3MzY1NjA3Njc5YzhlMWQzMTQ3Zjc5MjI3NDViOTVlYTI3NTdiYjlmMjkyNmM3ZWNjMjVmYjdjMzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzYWQyOTQ0Y2JlOGE2YzBlOTllODJhMDhmNDM3YjkwZjVhODdlZmExNmE4ZDVlZDZmN2NjN2M3ZTI2ZDkyZDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4MzJiZDI3NzVmYTg3YzQ4M2JjYzZkNmQwOGMyNWE5YTRkYTJhZjQ4ZTIxYjYzYWQwMWU3NzA3MDQ1MWNhMWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1NTRhYWVlMWRjZjBmNzYzNWNhNzUyMjBkNWE5ZTE4ZDg4ODkyMDU1NzVhYjllMmRmNjg3OWM3ZWU5NGQ1MDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0ef63b6cd7404ef08adbc80239f13041",
+      "statement": "The PII guardrail is registered as the first graph node so it runs before any model call, checkpointer write, or memory extraction observes the turn.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L92-L96",
+          "version": "repo-lines-v1:sha256:e9523b2f4691f6a43a1ec9a9dd727ec624c7dad06e6f8440b3407fdec17e5b5d:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWJiMmE1YmIzYzllOTcwMjk2Yjg4NDMwYmE4MDkzYzM4OWVjMjQ5MDQ0ZDhiYTZmMTE4NjY1M2JmYTg4Nzc3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzIzZjJkYmMyYTg2YTk1MTY3MjE4MTUyNzc2YjBhNDQwNDZiZDBmM2QyMjUxYjc1YzVlMmM0MWU4ODA4MzdkYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTgwNjQwZTgxMjExNDU1NTE2NjM2OTUyNDgzNWQyMmE1NjBhNjA2Njg5MDQyMzc0ZGExOWNhMDVkNjI4Mjc3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTE1MTg1ZjFiNGU2YTRjYzc5OTNhN2UzM2U2ZTRlYTcxOWY4Mjk5OTE4YTVmOTYwOTZiYzE1MzQ1MjYyNzVjYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f17b5f08f4ea45f0855c8b98df78a875",
+      "statement": "Non-specialist nodes get a fixed model chosen at build time while specialist nodes get a deferred per-request resolver that memoizes models per ctx_model hint; injected test fakes override the whole tier regardless of the hint.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L55-L90",
+          "version": "repo-lines-v1:sha256:297200a1ee177eb3a79219941699613316b914fe8ecfa7d333346aed71316d01:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0MGFlN2RlOGI0ZDUzNDBhZWEzOTgxOWQ5Mjg2NjI0OWNkNzI2N2I0M2Y4MmU4OTViZTI4NmNmMzVjNTUzZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4YTg5Yzk2OGZjMTc4ZWU2NzAyMThlODA0ZDdjZmE5MzYzZTMyNTdjNmRhYWI3YWQzZDRkMzE0MmM1MWUwNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1N2QxY2E2ZmVkZjE2ZmUxNTU5MzUzMDk4MjE0YjQwMDI4NDhkYmRmYzc0NDExNWM0NmVmM2VkNWJkNWIwNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiZTg1OTA0YjZkODAyZmU1ZmFlYzFkZDJhNGY2NWRjYTM0ZDI3MDI3Nzk0N2U5NWRkNjU3MTBmYzc0NTcxNjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_080f590f7409443c8fbb42e3b6cc90f2",
+      "statement": "The reflection node declares every specialist, the synthesize node and END as destinations, and SYNTHESIZE_NODE must match a declared destination or a REVISE routed via goto=current_flow is silently dropped.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L19-L21",
+          "version": "repo-lines-v1:sha256:d91cda86f2d5d7e3a99803faa443781c021fd85f541e4f9c77ad0326e8e2d4de:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjQxMTFhOTE1YjdjODU0NTE2NTg5OWNiNTA2NzkyNjc4NjIxNDMwMTM1MDUxYjc2MDNmOTVmY2JiNjhkZWQxOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2M3MGVhMmEyYjRhMzhiNTNkZTNhZDk5MGUyMmE5YWY5NDYwYTA1ZDc4MzQ3ZTRmY2QyMzY3YzQ1MGY5ODg2MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjA3MjA2Njg5OGM2YjY1ZWQ2YzBmNDVhYTk1YmNmNjc2YzcxY2ZjNmEwZjUwOGYxOGZmYzVlNzdlNTg1MDgwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzk1YmZkZDc3MzRmM2YyMjliYWE4OTEzNzUxNmQ0YjVjMjBiNjY0NzM3NmRhMDlmODIwYTA4NDliNjBjNDA1NiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L128-L134",
+          "version": "repo-lines-v1:sha256:55561304f2ef3d4570588afee6bb035f76eb15f2eda283a776f67b1c6deb247c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FkNzU3Y2YzOWJiNDY5YmE4YzkyZDc2NGZkYWRiZDk2ODNmZmY4Mzg2ZmE0ZWNkNTA5YzI5ZDcwNzk4MWY2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDcxMzBkNDMzZWJmNWQ3MWQxNjg1ZTFmZDViMzA0NjU3ZDdlZThiYmZjYmM3OWY4YjFmNTcxNWY2YzQ2M2M4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDM0MTY5MDY3MmE4NDQyMTQ2ZWRmMTA3ZmFjYjgzMzQ0Mzc4MGQyMGY1NzVjYzNmMjhmMGJkOTI1YzU1YzMwMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVlMzFlNGY0NjFhNzA3MWVkZWYyNjViMDhkNzVmNzViOWZjNGExMjQzYzJjNzFjYzk2OWVjZWRmYzBjODI2ZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f3cd3b0fa0a54b5b88a5b2cff002fb59",
+      "statement": "The compiled graph carries extract_memory_llm and a prompt_versions snapshot taken at build time so run attribution reports the prompt versions actually baked in rather than the current active.yaml.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L164-L171",
+          "version": "repo-lines-v1:sha256:7bbb1eaabca3467098ebe6ade3d5428df71361a77093aac34dc9cd217e3ef651:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjg0NGQ1NDc3YzgwNzllOThkOGI2MGNmNDc2M2I1M2U2MDIzZWU5YTM0ZDZlNWQwODM4NmExZTQ3MjUxZWM5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTkzYTg3ZGU3YTU5YjYxNjRiYzA2ZGQ0ZDc0ODA1ODIyOTFkMWFjMWU2MzA4YWI0Zjk5ZDIxOTYzNmYyYjcxOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTUzYmZiYjM1Y2M1YzVjODBkOTlmOWMzYzU4ODZmNmViNzc4ZTA2ODMxNWRiNmFlNTcyYzQ0YjE3MzYwN2VjNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDEwOTA5MzY4MmVmMDY5MTc5OGQ1ODRhZmQyY2NhZTVkODU5OTdlYzM0N2Q5OTRmNmI3YjgxZWFlNzg3MTIxNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_851ed508e60244489f846d7a11de07bb",
+      "statement": "load_context resets plan_approved, awaiting_user, tasks and task_results at the start of every fresh turn, and a resume turn does not re-enter it so the approving turn keeps plan_approved=True for background memory extraction.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L52-L66",
+          "version": "repo-lines-v1:sha256:ead4c11a52a038946e04d7572d20acf9f424633b2aecd0d20475bd90650263cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMDRkYjNiNWQxYWU1OTViNDJkM2NiZDE3YTZkMjllMTcyNWIyYzk5NDVlMGUwODI4ZDAzNzliYWNjMmVhMDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg4MmI2OTI3NzIzNDQ0MjM3NTkzYTc1YmRmOWQ0Njk3MTA1Yjg4MjMwZmE3NjRjZDQ5NGI2MmIxZTEwMmVjM2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdkYjNiMjg0YTEwYmY3MmNmNDMwN2NiY2UxYmE3YzJmYTZiZTQ0OGMxYjdlYmYyOTMyYzg0ZTUyN2Q3ZDM2NDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_782f5c688c8e4ef3b40c035ccc04f59a",
+      "statement": "load_context loads the active trip snapshot through the owner-scoped TripService and stores trip context, instructions, profile and preferences in plain state fields rather than appending a SystemMessage to messages.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L58-L149",
+          "version": "repo-lines-v1:sha256:470b6d15069bac4dd6c7f1a23cf8471ad2268af555bb18971a02959661fcd261:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmM2NjOGIxNjY4ZGNhZjc1ZGFlMDU0MzI4YTBjMDhkMzI3ZjVjNjg2ZTE5NTk1NzE2YzdiZTdiZDg2ZGQ0YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMTFjMDU2N2QwYTVmOWU5YjEzNWY2NWNkMjUzNzJkZmQ2Mjg3NzVmN2MxZWQyNTNmOGJhZDQyZGQyZDY2NjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1YWRkNjBhMGMzNmUwZDZjOGM3YWQ5YmYxZTUwMGMxOWI3ZmRkOTVkMDcxYjA1MzdhN2JiZWIzNzU5YzczNmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0OGY0YjM1MWE4MmRiY2MzOGVkNTZkNTI5YTA5OTE4MGM2N2Y2MzRjMDBjNDczODllMzMxOTFjNzFkYzNmM2YifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c42bac6d6be741d6af17f435a15dd5df",
+      "statement": "The supervisor uses with_structured_output(SupervisorIntent, method=\"function_calling\") and prepends the established conversation language to its system prompt so the router returns a sticky language value.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L313-L348",
+          "version": "repo-lines-v1:sha256:11b8059647621be6a4421dd92e6141509b96547dce069f933880adbae90c8290:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzMWVlMTdmNmU3NDc3ZTllZThlMjg4YmFkYWZlZWZjZTEzNDFkMzk2ZTJmYzYzMTAxZjM4MGZiOGJhZmIzZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwZjQ3ZGQxMDQ1ZTIxNDlmNGE3MGExNjI4NWQ5YWE3MWM5NDlkMmZhOWVhZDEyZDBkNjYyZTNmY2Y3N2NjODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0NTRjMjg3NjdjZDgzMzhjYjkwYjM2Njk1YjIzOTIyMjJhZDhkMzVmNTQ1OTgzZGI1YWUyOWZjZjc0YzUyZDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e18ffd23f58e459c9074e2bd93a0f3ae",
+      "statement": "A secondary plan step can never be booking, and before-validators coerce malformed plan and task_queries values (nested objects, non-lists, non-string entries) into bare names or blanks instead of raising a ValidationError that would kill the turn.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L122-L193",
+          "version": "repo-lines-v1:sha256:0212d99dbd872463a1436fc4472da8da243315195236aa0c7426667e97597e79:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5NjE2NWUxOWU5ZDViMzM0YjMxZWQyNzI4NDA1MjZlZThjYmVmNTA2N2ZiOWViNTgyZTM2N2Y4ZmVhMWI2MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlYjI4MTQyYzE3Y2RjZWEzZmZmZjc5YmFkZDk1ZGMxZDM5N2IzYjIyODJhODI5Y2Y3NGRjZmU1MzQ1NTZiMDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyZWNlZWFmZGI2Mjc4OTViZDBlZDYwNGM5ZmNlZGI2ODY5Nzg2NTYxOGNiZDI0NDlhMDY2YzAwM2U5NDhiZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZlNmQwMDgyYzA3ODY3Y2RiZTg0N2VmN2U2NjBhMzVhOTBkN2Q3N2Y4ZGQwNmFmMDU0NzUwODhjZTgxYjU0NWEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L34-L37",
+          "version": "repo-lines-v1:sha256:3f41dd43793ff1e5abdd6790c8554a1278e5663fb087c9cdcc2748f3d6c9a6c7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTNlMDJjZTUyNmFlODJiYzA1MWE5ZjIyOGM3NTA1OWEyNDU4NWU0NTA3OTlhZTViZjUyYmE3ODExYWFiNDdiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQzYjRkMjIxNDk5M2U3ODhlN2U3Y2RhMGVmNzI2MDg4OGY5ZDdlZjg1NTdmMmYyZjFlN2ZhOGE2NjlmOTAzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2UyNWQ4NjMyNDE1NjZmMWU4Zjg4NjZjMDZhNmM0MWIwYjM0MjlmZmE0ODBhN2JlOGFlMzYxZjAwZmI5ODgwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_96a59b5e76d54757968e2aaf38196ace",
+      "statement": "An unknown intent or a tier-gated target ends the turn with a localized code-authored reply, and because the plan node is only reachable through the supervisor's routing branch, the tier gate also blocks free users from the booking HITL path.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L359-L382",
+          "version": "repo-lines-v1:sha256:b1e860a90cab40d0a227a446efb2e7736c0a8802988e640027fc9d13b0432f61:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4YmFhZjIxNGMxMWI1ODNlNGQ1NWJkZjFjMzliNzgwNWVjMDU3MTFjYmI0N2FlNDNkOWNiZWJjYzdiZDFiNmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5ZDk0YTIxZTlkNWQ4MzdiNTc5MTMyYzU5ODM0ZGMzZTcwZDI0Yjc4NDM3OGRjNjY5MDBjMjcyNmU0Yzk3M2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1Y2VmMjQzMjAzMDI1NmJiMTViMTFjYzg5NGEzMjFhMjc2NWU2ZjdkZjUzOGIwODgxOThkNzk1OWZkYjVjNDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cc2daed71a2745b78112f010f09e5e46",
+      "statement": "Supervisor slot normalization happens in code: unresolvable or ambiguous date text is dropped rather than guessed, non-positive adult/room counts are dropped while zero children is kept, and only resolved keys are emitted as trip_facts because an absent key means no update.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L206-L304",
+          "version": "repo-lines-v1:sha256:29a7fbc40c37e539741fe30e7cb09cc78ad0de02b135315e9a66713abf4f98d8:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YzZiN2Q4ZDkyNmUxOTYxNGI0NWZlZTdlNzhiOWVjM2U3NWMxZDJiOGVmNDZiNDM3ZDdmMWU1MTViYTcwN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMTI3MTViZWM1OWE0NDFmMTY4MmZmYjUyZTg5YmZhZDk5NzdmNTBmZmY3YWQzZjhhMWQxOTFkZGMzMDhkNDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3ZWVkNjZiY2RiMWQxZGI2YjEyYzI1NTg5N2Q4MmJkMzBmODNiYThjYWM4Y2Q5ZGE3MjdmM2E4MTU1MDk5YjkifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L383-L387",
+          "version": "repo-lines-v1:sha256:fa85ead6f4e8cc6bf8bf64f098aa4918de8a415ed06648d74d95274a37bc0383:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGViZmJmOWQ5MTEwZGNkOGVmNTVjYzQ5MzRhM2Q2MDU2Y2EwNzVhY2VkMTNjMWEwNmE3YWNhZDdhNWYwODQzMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkwOWE1M2E2MThkMDI4ZTFkMzAwMGMwYTdhYmNlZWNiZTVmYjM3ZjRlNTExZWZlNDY2NDNmYWQ2ZTY2ODcyZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjg0NWI4Y2VjODJiZjQ1NWYwM2ZkYTliZTk5Yzk3NDc3YTY4YjVjMDRhMmIxN2M1YzhlNzQ1MjllODRkY2NjNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDhiMTA4OTZmZjE3NGFmZWQ0NGE0YmU3MTlkODI4MTc1ZDJmMjFkNGQ1MTkzZGU5NDRmN2VmY2EzYWU5NDkzNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_474253fd3ded4183b07db4a5572f7e74",
+      "statement": "The supervisor builds the task list in code: primary intent first, follow-ons deduplicated and filtered against booking and the tier allow-list, capped at MAX_LEDGER_STEPS (4), and a booking target always yields exactly one task with no follow-ons.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L23-L25",
+          "version": "repo-lines-v1:sha256:0d9b3786e6a2df82159ee199213bff485296624a186c1967fab482373c8f28a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJiNjRlZTQ4NTZlODU3MjM4NTc5ZjVjOWNkOGIwMTBjOWZjN2YwMjMzYjJmNDZhNmEzNDZiNjliYWViNWRkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjYxNmQ5NmIwNDFhZDE2YWExZTE3YzhiZGM4NTU0Zjg4NDIxOGFiNjFlZDFlYWY0NTNiYmMyYjhlMmM4ZmFmMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmViMzg2MWMyYmM5YjU1YTEzODBkNzVlMjc5ZTE4NjExMjkzNWQxOTc3Y2I1YTYxYTgxNGE2ZGZlZTgzYjY4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmFmNGIzYzJjMGE0MzMzZDc4OTZlMjlkODlkMTBiNDI1ZDczZDUwYTkwMGM2MTM2MGVkZDM3YmMxN2UyNDE2NiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L404-L420",
+          "version": "repo-lines-v1:sha256:56e863f9d03754bc57f614e38b37144f2d39f6d1047d62df5395edcd70449d5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2YmJiZGI2ZThlMzI0N2QwNmRjYjRmMGZjOGUxOGQwYzA5ZWYzYzI1MWUyNmE1Njg0MzUzNGEyMmU3MmJiNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzQ4YWE3NTY2MzNlNjBkY2M4NTcyYTc1ODBhNTkxYzRlZTM2MDBmODNiNWU2OWMzZWFlNjgxZDk3ZGYyYzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlYmZlMjZkZjBlMGM4M2JjYzc5NTRmMGE0NjY5NzZjM2FiNmJiNGU2ZmU4Y2Q4OTUzMjcyM2JhMjUxYjZjNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0YmNiN2I1Nzk4NWNjZWI5OTNmMmNjZTZjOWMyNzEyMGI1MTEwMmNiM2I3ZjAxZmUyOWY4Y2YxODJhZDZjN2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_42344a4846854b2ea2e07470e26d8e60",
+      "statement": "Per-task queries from task_queries are trusted only when there is more than one task and the list length equals the model's own [target, *plan] list; otherwise, and always for a single task, the last user message is used verbatim.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L424-L450",
+          "version": "repo-lines-v1:sha256:84bc735fb4ef6eb35060154e93b22197cb2ba06310c7e0e2ec7dfb6d4a753e09:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkNzZmODNmMTYxZGNmMjNiMjE1OWJmMzY4MDMxOTZlMjQxZWI4NDczYjBmOWE5YjRlNDRhNjk2NTgxZTk0ZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhYzg2MjJjZDhiMjNlNTYxNzgzMWFmNDA5YTI0MmM3NjQ5NzNjZTQ2MTNjNTZmZDQ0NzQ3MDRhZjY5ZDQzNDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0YmNiN2I1Nzk4NWNjZWI5OTNmMmNjZTZjOWMyNzEyMGI1MTEwMmNiM2I3ZjAxZmUyOWY4Y2YxODJhZDZjN2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhOTdiODQ0YjgzZWFiMDEzNTJlOWZiNzg5ZjYzZWI1MTVjYTE1YmQ2NzI5NjZjOTU0MzA3ODcyZmFmY2Y5MTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_be79b41a22424a64946edbf32afd98a7",
+      "statement": "route_tasks returns END when there are no tasks, 'plan' when the first task is booking, the specialist node name for a single task, and a list of Send('synthesis_worker', {**state, 'task': t}) for multiple tasks because Send does not merge parent state into the worker input.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L323-L354",
+          "version": "repo-lines-v1:sha256:346bab28b3d3ff6285b538e677156f6569d164f85dceddb144070423ad6ed6c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0NTFlMjIzMzc1NmJhMGE4MTE0MjljMjQ0NWRmMzA4MDI3MzkxNDM1NGMyNDllYzU1NzIzZDY4OWEwZDg5ZDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2NzhmNzQ5ZThjYmM2Mjc4YmFlZTJiNDI2NzhkMWEyNDFjNGJkYjkzZTkwOGFjZjhjOGE3YzFjMWUwODc0YTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_multi_intent_routing.py#L95-L119",
+          "version": "repo-lines-v1:sha256:a3907ce783f807b5124b1a88d3e90576e4d2f38978e8eab9b5e5bb596e624e4d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyODAwNThiYTg2N2IxODY2NTA5Y2FiNGI1MjVmNzc0OGNlYjAwNTczZmE4MDljZDZmYzJkOWMxOWMxYjM2YTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzZGFjZmJiYTQ3MTJhYjc4ZDczZWIwNGRlZTU2MjVlNDQ1MGE1NDM4YzJlMzQ0ZDllMmE1MWQ1NTAxMDUyNTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_af6fc2a885024a1683727a5b1a6ada8a",
+      "statement": "A synthesis worker reuses the same compiled specialist subgraph as the single-intent path, deep-copies messages so the parent list is never mutated, narrows tasks to the single task, and propagates back only trip_id and awaiting_user when they actually changed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/synthesis_worker.py#L97-L151",
+          "version": "repo-lines-v1:sha256:aa1cfaea8b2d10b039946fe84dc10fc0a022a1eed6d7bb3206d55d9a839395c5:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmOWQ1OThmZjAxMjFmZDNjODcxYmUyNDU3ZDJhODZiMzNiMzc2YTAzN2MxY2ZjYzI4ZjU4NTkwNmI1YjI0MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5NWEwNDZhMGEwYzYxNTNhNTE5NmE0Y2NjZWQ1YzhlZDQyMTg1YzA2YjMwM2Y0M2Y4ZmUwZjkzODM0YjRmNDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZDU5MjRlYTQ1ZWE2ODlkOTY3MGRmNzc2MzZjMzJiMGU4MWVkNDYxNGFjMzgxMWNkNDY2OGFjMGE3YjUxYjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_73f64647ebc245c682d6a5a0de7dbfbc",
+      "statement": "The synthesis worker node is async because several planner and concierge tools are async-only; a sync inner invoke failed the entire tools node and produced false 'temporarily unavailable' reports.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/synthesis_worker.py#L13-L23",
+          "version": "repo-lines-v1:sha256:a51f18bd2602a673b0e0b5acbdefbfa7b823dc399684f120a33997ad02061eda:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiYzM2NGUxMmUzYjJmMzA4YzU1NTQ1MGYxZTk2Mjg4ZWU1MjRkOWE3NWY4NGZmZTg0NGEyMTViYzEyMTU3OGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwOWE3M2IzZjI0ZGY0YTgwZmRhYzA1YzRhMGE2MzFlMTNkNjJhNWE2ZGZmNmU3OGQwZjM0MDIxNWU3NTQ0N2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0NzhjMTlmY2Y4NTU0MDQ4OGI1ZWMyODViMjljZWVkNDUzMzk5ZmM0NTljNzNlOTFhODk4MDFkNzFjMmFiNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYWY3NjM3Y2I2ZTdlNWRiODVkNjM0Mjc0NjAxNGRmMDQxY2NkNTU4YTkyMGIyOWViNmFjNzE5ZDdiYWY1YzIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/subagents/synthesis_worker.py#L78-L80",
+          "version": "repo-lines-v1:sha256:43b75f79f734ad7aa6fddbd7f9196305d2e265222c068e3ecc7b0b85d99d9068:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTI0MWNkNGE4MmYwM2U0ZTM0MGViMTc2MTk5NTlmNDc0YTllODA0OGVmOGQ5NmMwMTRlYTY3ZWIzYmExNTAxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2RiZGVlYjVkM2NmOTk1Mjc3NTFhNTI4NmJlODg1Mzc4ZmVhNmVmYzliNmQ1Yzg5YzQzNzljNmJhYWY0MTRiNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWI0NTgyMzk3ZDdiNTNkZGQ0YzEyODY2ZDliNmExODBiMGZkZDZiODMxZGNmNGU5ZGMyN2NiMzExMjA4ZWRiOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjRiZGExMDAyM2UyNTc4NGZiZjBlNGQzYmUzNjQ2NzdiYTQzNDUxNzI1ZGJlYzhkODc3M2Q2ODYyNzJmYTRmZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c7719c8700954f018d0fea95a79a8f14",
+      "statement": "The synthesize node sorts task_results by index, writes one answer in the conversation language, and sets current_flow to its own node name so a reflection REVISE re-enters synthesis instead of being dropped.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L164-L188",
+          "version": "repo-lines-v1:sha256:806f0b83f07756e6d12a276cccf599db6bc507ee9826fdd7bff2445e5e9600fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0M2MyZGJmYTdkNWFlNzJhZmJiZTc0OTc3MzYzNTM5MTk5NGNiODg1NDZlOTlhMjZkNjgyNDRhYzJkOGM2ZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxY2QyNDA4ZjMwOTI0NWIyZjU2Mjk4ODcxNGNmNjYzZWQ1M2MwZjNjYzU4ZTIwYzUwMmNkNWM4MzJiYzNmMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMyM2U1ZmVmMjk4ZTNjYjc4YjBiYzc1ZDc0NGNjNDJlYzFhZDVjNTVhYzU1MGZlMTVmYzY3OTU5NThiMTAxZjAifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_multi_intent_routing.py#L63-L94",
+          "version": "repo-lines-v1:sha256:c30d15abb20fe5fabe32900460cc6f3635d0f3b842c8efa3e2f42c6ff7534e9f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzdiY2RjMGZiMWI1Y2YzZWQ4OWIzMzAxMDRkYzZiNTI3MGI0MGI1NTU5MjAzODI0NDBjNTJiYzc0NTk1NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkYjE1MDljYmRmNTYzY2EyOWZlMWExNmVlYThjZTJkYzZjN2EwNTlkODVjYjNkYTc0NTYzN2YxOTJjYzgxMDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwYmYxNmYzZTc0MTNiMTQzYTMwMGZlNjk1NzkzODYyNGI0MDE1MDk1Yzc0ZWJiNWJiNzYwNmE4ODlhM2NkZTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c490ba9921f40caae1b6a231c2961ff",
+      "statement": "plan_node interrupts with a plan_approval payload and resumes on Command(resume={'approved': bool}); rejection ends with a localized cancellation reply, while approval sets plan_approved=True and routes to booking without emitting an AI message because that line would be wiped by the stream mapper's handoff reset.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L285-L320",
+          "version": "repo-lines-v1:sha256:31e619de9741c61cd0c9a6a5bb4a131f2d35edd28a3be136daddbf636c5d983a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNWNjYjc1YTFlOTVhOTVjYzQyOWMzZGM3ZmIwNWI0ZmU1NmUxMzRiMzhiOTk5OGE3ODZlNTBhZjM5YTcxOGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzZDY2MjY1ZGM0ZWNkMzg0MjFmNzBmMWZiZjMzYjBmOTUxYTEwNzgzOWE4MWRlYmFjZmYzZmU0MTNjMWMyYWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkMzQzZjExMTI4MmU5ZWIwYTY2YmIwM2Y2MGJiYjIxMDc0ZTkzZTg3YjRjOWQ0NDQ0ZjUwODI1NmIxYTI1OTIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_hitl_plan.py#L35-L100",
+          "version": "repo-lines-v1:sha256:91aabb48d7b6a38135822fa46b0b4b1c1ddd6df565aebf5ddd9ecfd3a7295856:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1ZDhlYjA4NjI2N2EyMmM5OGNkMDVlZTk2ODQ4ZTA1ODZiYTlkZjcyYjE4YTc0YjhlMDJkMjg4NTQ5ODU5MDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwYzdkNjFhYjJmYmRlZWZiY2I5MmIxNDZmZWEwODQ0NjdiZDkwODE2NWZiZDdkZGM1ODY5ZTdhMTNjYTY0ZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhMTE0ZDU5M2Q2OWQ3ZjJjYjE2YmU5YzBhMmJlZjRiYjMyNzAxYTI1NWY3NDYwZTRiODExZDgwMzUxMmE0MjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_de1b4c46fc2f4b65b154cc73a0a26102",
+      "statement": "Reflection ends the turn before calling the judge when awaiting_user is set, when a booking write tool succeeded since the last HumanMessage, or when reflection is disabled or the revision cap from AgentContext is reached; a REVISE increments revisions, appends the revise note as a SystemMessage, and routes goto=current_flow.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L42-L54",
+          "version": "repo-lines-v1:sha256:d9e52c7839aeb8167712671230f58d212be364ddee3e7879db29b48c16b11c51:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiOWFhM2U0YTU5ZjBlZDc3MTJjNjNlYWU2ODI0NzAyMTY0ZWZkOTIwZGM0MzU2N2FjZWY3MDlkYTE1YzY5YzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzY2IwNTdhMzJhODc4OTRkOTc4ZGI3YzFkN2ZiNmM5YmVhMjEyMjUzZWNhZGYxNjMzNDczOTg0NTkzNjI3ZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkZGRhMjhkZGNlZmY3NmE0NjJjYTZiZjk0ODQwZDZhOGFjNThkNDZkOTc3MWQ5NTQ2YjlhY2Q0MzU3ZWFmYWUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L193-L280",
+          "version": "repo-lines-v1:sha256:5153ef870916abe2cb3f20d291304593c48a147717afab33239b880379b5c35b:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzM2MyMTAwOTg4ZmMxODI0ZGUwNDc3Y2RlOWMwOGU1YWMzZWZlMjcwN2MwNDJlYjc0ZmFmYzNmYTU4ZTE4ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1ZjNkYWFhZTIxYzI3ZmQ3MTZlZDNhM2UwYjU0OTUyMTRjNzI0OWE2NzhjNmU2MWY5NjY1NGRhM2ZjMGMyOTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4ZjUyMmYzZGUyNjljZDQxMWI4Mjc0NDJiMGMxZTY3OGI1NDc1MWI5YmVmMjg0ZTY2YjY5MjBiYTI2MGUyOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2NjVjYmIwNjJlNjdhZjk4NTg0NDgyOWViY2RjODA5YmU4ZDBmMjViOWIxOWYxNWIzNWM3OGJiMmZjMDhkMjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cd311091413341af9e185b3920d7e58a",
+      "statement": "awaiting_user is a single-turn flag: a blocked turn ends without review and the next turn's load_context clears it so fresh work is not abandoned.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L58-L66",
+          "version": "repo-lines-v1:sha256:cfcbe1733afea5bb18503e7216aa5e743c8cf4431d1c438738aec90fbb226798:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzZmOTgyMDJkZTc5MjdhZGNiYWNmNjI3NWM5MTI3ODBlZGE1ZDk0NzQ3NGU0MTYwZGUyMGU2MGY4NGZhYTc3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjQ0ZDRkYWRhZDRiNzFhNDhiM2Q0OGQ3YmMyNTUyZDkyMjRhNzA1ZWJkMDJlYjkzZTEzMDc4NjE3MzNhZDE3MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2RiM2IyODRhMTBiZjcyY2Y0MzA3Y2JjZTFiYTdjMmZhNmJlNDQ4YzFiN2ViZjI5MzJjODRlNTI3ZDdkMzY0NiJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_ledger_early_exit.py#L22-L140",
+          "version": "repo-lines-v1:sha256:1b19c5c85c91a14a890a6a4354173888f6f3b3bb726f28b3df5269770a7723a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZjk3ZmM1M2RhNzhiOTA1MWJlMmQ0M2IxOGUwYTJlYjNlY2E2YWJlOGU5OTYyNzFjMzlmNjQ4NWNjNWM0Zjc1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1NDg0YTU2ZTIxZDM4Y2Q1ZTYxMTEyOGZlODI1YzE4NmUxZmEzMWJhZmQzYzM0NDY3YmZhMWVmOWUxMDEyODcxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlMzQ0Y2VjMjgzNmUzM2FjYjI5ZWQzZDMzYzdkNjI2Y2JkYjVlMDhjYjYwODRlZmYxYWJlYTQ0OTE5YWMzZjM5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ecb3c461208b41ba832e8033e9e28a61",
+      "statement": "The summarize node passes the existing rolling summary into summarize_conversation so compression merges rather than replaces it, and returns an empty update when nothing was removable so an existing summary is never blanked.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L152-L181",
+          "version": "repo-lines-v1:sha256:9151d67dfa8d660d806237d1fc4a244a128d5b35ef852e4e9cf3017b96152755:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkOGIwN2QwODI5MDViMmJjOTdlOGUxNDc5ZTU2ZTMzNjczZWFmODlkZDdlNGZmNWM2MTUwMjRhZWQzYjVhZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNTlhYzljZTNlZjVmMGY2MTU3YjBhZTg2NTFlYTRiM2M2MmQ3YzYyMjFiMTE1ODY4N2Q4ZjhjNTdhOTBlZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkYTU3NTliODE5Y2NmZDA3ZjIxMjBjZDQ4YzFkMDE5YTRjYzZmMzVjZTlkYTc3MjNlZjFjMzJjYjk4MzBiMGQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-21T09:19:54.601Z"
+  }
+}

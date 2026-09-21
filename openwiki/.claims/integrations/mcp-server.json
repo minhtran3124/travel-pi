@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:3c5643c621e976ae390d9eb215dc2ac0f255aebc6f2d226ce12cb7e3518a92bb",
+  "claims": [
+    {
+      "id": "claim_4c899a75734549d8a36fa33f21e1bf9c",
+      "statement": "The MCP server is a standalone FastMCP process built from ALL_TOOLS in the registry, registering each tool's raw function with readOnlyHint and destructiveHint annotations derived from TOOL_METADATA and appending a cannot-be-undone note to destructive descriptions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/mcp/server.py#L1-L56",
+          "version": "repo-lines-v1:sha256:0005ae22357b0dff5fe465f76683e85d72a5f0d8e4ce44366f9f118d03ddf445:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3YWM2OGUzYzZmZTczZDQyMjk5NWJjYzUxZGI0ZDIyYzVjMjExNTgzYTdmOGNkZjlkZGM4ZGEzZTMwZjkyMmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5ZjgwZGJhOTcxNDgxNmRiY2IyY2Q5ZDRlMzE0MDc3YWM3NjFiNDczNDhhZTY1Mzc5YjZmYWYyNWRiYzA2YjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L66-L93",
+          "version": "repo-lines-v1:sha256:8c613c81c34b52f124e00d3215c9fe2f6a9f2e2a44f17f82cdb6e206047380d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MDc2NDFlOWIwNDk5MTYzZjc5NWI5NGIxNzYzMmRiMzQ0NTUwZjc0NWFkYWM0YTRkN2UxN2Y1MWE3OGU1MDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlN2JiZWYyYzJhM2QxNzExY2ZiNDE4ZGY3NWQxY2VjOWMwMzViNjc1ZjkxOGFkMDdiYzRiNjI2MWM5YjJjOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5YmE0ODRkYjBkYTBjMTRmNWZlMDkzMmYwMGU3NGUwZjczMjA1ZTMzZTZkNDM3NTc1MTExYmUyMjg4NDJlMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2YzlhOTAzMTU4ZDI5YmQxMDVlY2FhYTFmNzIxNTY2MTA2MDQxM2YxYWRjOTA2MGI4OWZkYTA5ZDIxMGQyYjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_032b276958244e499f7e831ac840c032",
+      "statement": "Tools whose signature needs an injected store or tool_call_id are skipped because an external MCP client cannot supply either, and destructive tools are never registered because the unauthenticated MCP surface cannot supply the authenticated owner and HITL path they require.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/mcp/server.py#L24-L44",
+          "version": "repo-lines-v1:sha256:b8e9b2316d9ae4390e20a7fe24cc7bb1b8fbf46b027fc7cf340ca3c9462e9e50:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4MGE4NDBiZTYxNTEwZDU2MjQ4ZGFjZGE4ZjllMThmOTlmYjJkNDQ0YWU0NzBmZjNjZjkyZTkwZGUwMjU1MjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2ODViYjI5ODQyM2E2ZWVhNzVlYjFkMDNhYmYzZmJhY2RmMjE2NWQ3ZTcwMjk0MzA1MDgwYjllNDRjYzA2OGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyMWUzMTEzMjAyMjc4NmQyYmI2MzQ5MTI5N2MxOWM3YWM1NDJjMzllZWU2YmVlOWQ5MDAxYjcwODgyNjU4ZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2MWZlMzQ4YTk2Y2Y0ZmE1NDI1ZDlhODI1OGVmYzlmZDk4ZmI5NWIwZWVhNWM1MDhkMWY1Yjk4YWYxNjFiMDIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_clarification_tools.py#L29-L34",
+          "version": "repo-lines-v1:sha256:c990fb5b70d5de043076409341ec1fdd766c2e33ebf26f6f665bdac9bc4c99e6:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjJlNDIyYWE4YzQxMWUwODcyMzZmOThlZDllMjhlNWMxMDdiMDk2MWMwODI3NDc1MjI2NjhiZDUxY2U0ZTFiZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGZkMWM1YWZiY2QwNjc0NzAyMGUwNGNkOWZkNzkwM2M3ZGY2YjM0NjU1MmNjNjg5OGNhZmMyNGJjMmQ5NmFiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzU5YjcxNWYwNWE3N2VlZDRkOTE0MDIzNGVhNTk2ZTI2MTE3ZmU3OWRmZjhiNzg5NzIxZjc5M2NlYmI3MzM4ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c279073f4a1748c49f10b81c7a91c05e",
+      "statement": "list_trips is excluded by name because FastMCP serves the raw signature, turning its injected user_id into a caller-supplied argument that alone could enumerate any user's trips.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/mcp/server.py#L15-L18",
+          "version": "repo-lines-v1:sha256:ad622b7476150a460f5c7027b400bc19433f653a2d696b6357bc3d9a60946319:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzNiMzk1NmNjMTRlMGU4YWRjMzNhZWIzMWQzOTJlMmRiMTQzYTM2ZDBkODJkNzEyZjMxYzdlNDdjYmIxN2I3OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDg3YWFiYjk0ODI5MzlkZTY0ZWQyYmM4MmJjNTdlOWY2MmRhZWE2ZGFmOTc1MjMzY2VmMjkwZDZkYTEyYTg0YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGUzMzM5MGFmMmMxZGVmODA0ZWFkYjQzOGE3ODlhNWMzY2RkNDU3NDY2ZDc5NzcxZDg4OWE0ZmYyYTJkMWJhOCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/mcp/server.py#L45-L46",
+          "version": "repo-lines-v1:sha256:432732b02a4562fae098159eae9cf037bd2dfa96707e9ab5ecf1bc0243d62ecd:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FjYTdmM2Y2OGY4MTcyODI4M2E2MGNhZjQwNmViZDgzOTcxNTk0YTBmNDk2NWExYWExN2I2YjQ2NTA1YmI0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTU1MzcyZWYwYmFkMzUxN2JmZWIzM2EzNjZjYWVmNmEzZjU5MDRjYzIzNDU1MzAyYzcxODg1YWZjMGNjZWMxNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2Y2Y2M1NGVhNmI5N2IwODA2ZDIwZDRkMDJjNzM5N2M2NjI1MjAwOTRkYzRjZmYzZGM5MWZlZTdmYmYwYTA1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIyOTNkYmRiMWRiYWIxZTY1NGEwNTJhNjI3NGM5MjA4N2Q3ZGU5NTg1MDc1ZDkwNzFlNDRlZTA0OWRkOWNkMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e188d7c76161453d96421b448c821aa8",
+      "statement": "The authenticated agent manifest endpoint publishes the same registry with read-only and destructive flags, so both surfaces change together when the registry's groups or write and destructive sets change.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L558-L572",
+          "version": "repo-lines-v1:sha256:25dcaf73528999f30cfcf12d2ffa505c022e0863150726ccf3d1f0ad421b5246:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2Q5OWE1YTFmOWM0N2YzMjg4OTcwYTI2NWVmM2QzNDg3ZDYzMWJiNjY2ODNkN2QxYTRmNzViNmI0NTM4OTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3OWFjMTA2MzI2OGE5YTFhNzZmMTJmYzM3OTBkNjIxMDM5MDA2ZWNiOWU0NGQ5NmQ5ODFiZWNlOTIyNDM1OTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjNjAwMmVmNDc2NWUyNzE4NzhlMjg4OGM1ODRjYWE2N2U0YjllZDAyMWMwODU4OWFhNWY3MWQ0NTI4ZDI1ZWUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L71-L93",
+          "version": "repo-lines-v1:sha256:89c28fe65aa722a3c3b3439d2f6ad3cbd3948cdb0c760144e2612e123af056a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2OWU1NWJhMDFmNDdjMzQyYTg0MmIxZGRjMWVhN2YxYjYxZDMzMjJmZGY5NTdhOGFkZDcxN2VhZDg4NDFlNDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlN2JiZWYyYzJhM2QxNzExY2ZiNDE4ZGY3NWQxY2VjOWMwMzViNjc1ZjkxOGFkMDdiYzRiNjI2MWM5YjJjOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmM2IxMWVhZDA3ZDQ4MmY2OWQ5MmUzNWIyYmY4Y2RjOTM0Y2E2MDE4NzU5OTQ3NWYzNDJkYWNkMDEyNjJiNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2YzlhOTAzMTU4ZDI5YmQxMDVlY2FhYTFmNzIxNTY2MTA2MDQxM2YxYWRjOTA2MGI4OWZkYTA5ZDIxMGQyYjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1ee8c1df465e485a9dffc634f9069bf8",
+      "statement": "Trip-scoped tools called outside the graph without a trip return a plain no_active_trip guidance dict rather than raising, which is the behaviour a direct MCP caller sees.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/trip_tools.py#L32-L42",
+          "version": "repo-lines-v1:sha256:e55a70dd985789d9d2368e232edad6c9052976584a6ca1e22ec28362409c7294:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2ZTFiMzkyMjI5ZWZiZWMwYjk4YzZhOGZkNTI4ZjE2MWQwYWU5MTA4YWUxMTMwNjk4YmJhMTRkODhmN2M1OTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0NGEwNTU2M2FlYzljMzc2ODliYjZhZmE4ZjI1NGM1OTdkNWQ0OTgyNDNkNzEwNzFkZjgyNGM5MDY4ODY3MDgifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d529b55095a13a68e007adf12318898112862819a8e71ef4d243b26ecbb4722f",
+  "claims": [
+    {
+      "id": "claim_1f8a92a4d349487a99995748b53b4e7f",
+      "statement": "Chat models are built through init_chat_model with per-provider dedicated API keys, base URL precedence of explicit argument over profile gateway over global setting, temperature forwarded only when set, max_retries defaulting to 0 because the graph owns retries, stream_usage=True for OpenAI-SDK profiles, and streaming enabled.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/clients/llm.py#L28-L60",
+          "version": "repo-lines-v1:sha256:fb63ea3d61b862a93284c8943c4dba5830246c270b249056f6857c86b47df170:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0MzFmMWY1ZjE5MTkyOWM4YTJiNDMyZTI0NzdhZmMyNTEyNzI2ZjgzM2Y4OGIzMzY1M2YxZGU0YmEzYzZmN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmYTA4N2EzMzEwNjcwNjE4YTRmZjNmNWViOTllOTljNzU0OGVmNDQ4NmNmZDM4NTdjOTcwNmE4MDc0OTI3ODUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmY2IwNGYyZGUxYmJiYTRkNzJmMjQyNWU4MWUxMTc5NGRmZWM2NzM4MDVkMzkzNjE0MzkxNmNmYzc5N2FmMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljZGZmOTFmMmUyNjFjYzBmMGM0MGIxNWIxZjJjNDA0ODRkYTQxNWU3MjE5NzQ0YTU4MjQzNGFkM2E0YjNiZDcifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/clients/test_llm_max_retries.py#L6-L16",
+          "version": "repo-lines-v1:sha256:b248f834e798dbc26b79eb6fe975df1d054aadb1da04c6d917aa5548bb58d659:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkYjcxYTIzYTIzMGQ4ZjQyMWU3ZWMzNzZlYjMwNWZkY2UyZjU2NzUwMTQwMzA5NTEzNTg5NzVlODE4MTU4NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzYWVhMjcwMDE2MDQxMTcxZWNiNTFmMTFhZDA5ZTJlNzI3ZTJhMmM1YzA4MDc4YmJiMzc3ZjlkMGIyYzliMTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmNjRjNzY4YzZmNzkyZDAyMjM2NDVlYTQxMjM3NjEwODFiNGJhYjc1MmQxNzAyNDFhMGZhMmViZmIxNDNiMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c42f4d79c02a4d8d98f6beb16de700f2",
+      "statement": "The provider catalog is a reference list rather than an allowlist for building: an unknown provider name falls back to a bare profile whose SDK is the name itself, while PROVIDER_NAMES is the allowlist used to validate stored overrides.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/clients/llm.py#L20-L25",
+          "version": "repo-lines-v1:sha256:886c5eae76f5ef07f2f01ba5f227fdd7747233840d36b8f4769ae71036512f5f:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzA2MDgyYmExZTJmMGViNjZlYzYwNDNmN2UwMDUxMjI3NmEwOTE5ZDcyOGJkNGVhYTZhMzIxNzlhOGE5NWE1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ3ZWI3ZjQwZTJjODg2NDM4ZTg2NjI2ODJkOTYzMGIzYjZjZTNkN2E3ZjYyOGVhZTJjYzhhMTMyNWMzOWVhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ2NjdhMzA5MjA3OWZhMmJjNGE3OTNhMTdmYmY3NmFjNGY2ZmU2YmMyMWJlNjNmMDBlNTdkYmJjM2ZjMDgwYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2IwMGZjNzM3NDNjNTZjOTE4NTc4ODJkMzZiNTM3NzMxNTdiMDEwZGNkODUyZDk3NmVhZTZmZTI1MTE1MDI4MyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/core/llm_providers.py#L91-L97",
+          "version": "repo-lines-v1:sha256:fde8800ec91af466c1988b3bb0c9d3930a739c94f75238b776f03c31cc131ff8:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmJlODU5ZWY5NzQ5ZGFiZTk5MmRkZDQ3YWJjM2E3YWE3ZDVlZmE5ZGI0ODdjZTliMjI3NGFiY2MzODAyOTVhMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmViNmZlODczYjFmMWU4NzBmYzZmZDk0ZjVkNmI5OTc3OWU3N2NmZjAyN2YxMTliYjViMzkyZTRjMTZmN2NhMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTliYTQ4NGRiMGRhMGMxNGY1ZmUwOTMyZjAwZTc0ZTBmNzMyMDVlMzNlNmQ0Mzc1NzUxMTFiZTIyODg0MmUwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTcyMmFiNjZkM2IzOTk2MGEzMjBlM2IyNTFlZTllYmIwMTY3YzEwN2U1Yzk4M2UwNTJhYzJlMmVjMWE0Y2YyMCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/agent_config_service.py#L96-L99",
+          "version": "repo-lines-v1:sha256:d06ec416d3ca94d03d0afd3e2d89f68c31b9518ad2af877d34e9b39eafdde2e2:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODk4MzZmYWNiMGIzMDliOWMzYjkxNWUxNDYwMGQ0NGVmOTgwZDZmYzkxMTkwODBiYWMwZjBkYmVmYmEyZjA0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzhiNjdiMGFmNTU3MGYxNDRkYzM3N2E4ZDRjOTVmNzY4YTI1ZDQ0N2I3YTc4MzFmOTM0YzFjY2YwMzEzZDk5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWNkZWMwODI2ZmU3NzNiYmNjMTY4MzI3OGNkNWY3YzIyMTEzZjM4NjBkZTBlNmNiYWVjNjFkZGU3ZmU0MGI1ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGIxMDYxZmFkYjhmOWZhZGYzYzc0Mzc2NjIwMmM1NGRjYWZjNGZkY2FhOTRiNjJkMTVmZWJjMzYwZDY5OGU4ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb727b4400b54fb8978d76be7b05fa57",
+      "statement": "Gateway profiles such as clinepass and claude reuse a native SDK against a custom base_url, native profiles carry no base_url, and import-time assertions require every profile to own its own api_key_field.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/llm_providers.py#L100-L112",
+          "version": "repo-lines-v1:sha256:8faf76afb9007a66b66ba708b130bf4595371922ad32547576ea821a89c8c5a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjYjI2MjA2NzBjNzFmYjAwNWU4MmQyOGVkYmUzNTliOGU2MWI1YjQxNGFlZTZiN2M1NDQ5N2QyMWI0MDg3MzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmYmVjYzIwYjE2NmM0NTBkZDM1MDg4NzBlMzNjYzBlODc0NjJmODg4ZjQ3YWMxZTZiODlkMDkxNjE2ODgyODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjNDY1MGFhZDA2NWVlMzRlYjkwNjQ1YmVmMjQ1ZDA0YzE0NjMzMTJkZTNjMzcyMTEyMDlhY2ZlOGI1OTRlMWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/llm_providers.py#L37-L89",
+          "version": "repo-lines-v1:sha256:88b19a6121e32bd9ffc4ce0591d7a16175ff4ba6270aa4d92d25d74038b14a62:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3MWQ0ZGMwNDhhZGNmOGI5ZjliMTg0MzhkYjUyNzgxMDdiMGUxMGI1OTEyN2QzZWU2MmQzOTM5NzNlOTRmYjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3OTMwMWQ1N2U3MmZjNjIxODhlNmUwYmMwZGY3MDNkZWJmYTIyZGY5MWYxN2M1ZWJlNjk4MjRlMjE2NDEzYzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4cc92e1cba7a45f983fec79fb0ae47de",
+      "statement": "FAST_AGENTS names the nodes that default to the cheap fast_llm_model (summarize, journal, budget, reflection, extract_memory, date_resolution); all other model-resolving nodes default to the full llm_model.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L27-L37",
+          "version": "repo-lines-v1:sha256:6a5d241ecea44db7f65e05cc607b74407fdc1648cad2c0944e5daee9b4ff6b79:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwNDc3MjE3MjRmZTA1ZGRkMTZiNjc5Nzc0N2E3NjQzYmRmMzE4NjQ4MDFkY2MwMDk0MWJiNzlkMGM2ODJjNTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhZDkzYThkYTJjNDJjZmYzMGExMmEyM2RhMzgyMDJhZGY3OTVkOTA2NzQ4ODE0MWRjNDIyZDcxYmM5NmJkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyNjgwNGI3NTZhNDQzNWFlMGNhNWExYjE5NzI0N2Y5ODM4NWFjYzY3Yzk3YWFhNmE1MGExOTI0Mjk0ODk0MzIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/clients/llm.py#L63-L82",
+          "version": "repo-lines-v1:sha256:e1bf44a1c0da3597ee889885b03ab7879f639bd5095a0fc5cb76796b3497275a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZDNjNGFhNDQyN2RhNmJkNWVjNTE1ZjY2NDYxYTM5ZGIyY2RjMzk0OGJjZTliZjI0NDlkYzdmYTc5MzQzOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNWE2ZTFiOGU3YjFmODVhM2ViN2VlMTIyMjZjMjhjODczNTY3ZjljZjRiMTU2NTNmMGUyNDMyZThiODY5MjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkODgyM2Q4MzZhZDc2YTFlOTI2MmFjMDIzODgyMDY0NDdmMWFhMDJhYmM3ZDlkMWZhZjIxMDViMzExMTQzNTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5MWJlN2IyZTU0NmQzNzBhYjlmOWYyYTFkMWQxZTY2Y2NhZWJiYjQ0Nzk0Yzk1YzE2ODA3NzFmOTk4YjQ3ZDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_759d63d30c3843f1a76c9a08460bfb24",
+      "statement": "get_agent_llm resolves DB overrides per field: with no row it behaves like get_llm, and with a row each NULL column (provider, model, base_url, temperature, max_tokens) individually falls back to the global default.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/clients/llm.py#L75-L94",
+          "version": "repo-lines-v1:sha256:75856a35dccebdb706a1d3bd97a03949d6a74ad7f44b94649eac89974d9d8d5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1ZTI3OTMyY2NhYWFiZmIwYjgwNjY5MTFiN2I5YmE1NDdiM2M5NWZmNGFmZDllYTJkMDM5ZmNlOGViZWM3M2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkxNDRiY2M5MDE2NTM2YmFhNzI3OGM3N2VkYzk3MzQ1NDQ2Yzg1NTc3MDU0MDQzMWYwZDkyNDQ2ZjNhYzMwYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5ODFiNDA3YzNlMDk1ZTQyZDVmZDcwYTAxMGNlYzFmOTA0ZDQ1NGUyOGYyMjg5MWIxN2E5YWYxNTA3MWZlZjQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/clients/test_get_agent_llm_db_config.py#L45-L72",
+          "version": "repo-lines-v1:sha256:0aa80568c1990f83d435b18b1a98c576e7237eb751b671e478783de772d6a2e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5OTFkZWUzYjdlY2M1NGVjMGZlNzgxYjZlODZkZjBjY2FhNzFiZDkxMWIxMTU1OWY3ODQyZTkyMTQ1NGY1ODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlOWQzZmYxYzE3YWIxYTM5NDNmMTU0MjhiNDc3Y2U2ZDMzNTIxMjgwNzNmZTdhZTkyYTBmOTM5NDEyMGQzOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjNmRlZGQ3M2U5NzliYjc3NjFiNjBhOGRjMzFkOGQ1ZjE2MjJmNWE1OGU5Y2Q3MjRmNWQ0MTRhMTQ1NmY1YjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_30a96e9791c444d6a89b527973ff7145",
+      "statement": "The agent_config table holds one row per agent_name with nullable override columns, where enabled=None means enabled and only an explicit False disables; the router maps the reflection row's enabled flag to AgentContext.allow_reflection.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/agent_config.py#L9-L21",
+          "version": "repo-lines-v1:sha256:aaee8050a9537ebbc4ba644e738544c47c06ef818dd0b3d2d93b090ac81b4c87:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzNzFjZTg2ZmJjMzk2MWU5NDhmODJkNzkxZmM2YWUzN2I2MzNhZmQ5NTMyNjUzNTUxODcyOTAwYzNiZWE2ZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwZTJiMDExMGNjNTdiNWJjYmNiYjc5YTljZTJjM2M0ZTFkZmUwOTQ0YTBkOTNiMjk4N2Q5MDEzYWI3MGFjYjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2MDdiM2IzOTg2MTVmMDU5Yzk2NjdjMGZiYmE4MTA5ZmY3OTA2NDUxN2NlZDFhYjQ4OTgzNjYwM2ZmMmM1MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L168-L172",
+          "version": "repo-lines-v1:sha256:6d084092c0c1501b163a0691ce08ff594941a718866a08a75de2d2aa1fc234fd:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmIxMDkzMDQ3MGE0YTE1ZWY1ZDM5YjVkNjEwZmM4MmEyMGQxMTI1YTlmNjNmZWZjMzdmNzJhZjJmMmU5ZDI3OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjcyYzdkMDA1ODQ3MTQyMTRlNTY1NjY0YzE5ZjkzMTI5NmRlOGYyNGNiOGFjZTlhOTQxY2Y5NWYxMGJiNDE1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWU0M2EyZWJlYTgxNGQ3N2E4NTI5ODM4OGEwYmM2NjFlNzliOGIxNzMwMmY3MTI2Yjk5NzY0NDBiZTI4Y2E5MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1e640ed0090746f2a137a81950925773",
+      "statement": "AgentConfigService.update_config validates the provider against PROVIDER_NAMES, temperature within 0 to 2 and max_tokens at least 1, always stores base_url as NULL because the client derives it from the profile, upserts the row, and then invalidates the cache.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/agent_config_service.py#L85-L121",
+          "version": "repo-lines-v1:sha256:e58d510983955d10978ef7912cfced0bc13b96cb48b283f1879df0c159ef2a7e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmNGVkMjU3YWE5MDJmOTg5MTVlZTg0OGFlYjI1ZWE1Y2UwZTNjZWFiMmY2MmVlOWEyYWQ1OWM3MGY3ZTdhNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3MmY3MjQwZmQ5N2RiYjk4YmRjNGUzMWQ0OGVjMDBmNmMzOTgzYTlhM2IzNWIyMDUzYmQ3N2E2MWNiNTljNjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmYzQ1MTUxOTdiMDRmMDI1MzMwMjI3YjRiMGRkZDhkZTU5MjgxMDFhNTAxNWY0ODZlODBjZTJkODk2ZTk2ZDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzMTZjOWU5NTA5YjFmZjY2NDEyNDhiOTNhY2ZlZDJiOGE2NTZiNWQ0Y2M3NjFmMGIyZjAxNTZhMTQ0YjY3YWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dd7550d50ef9456ba8c6f4b0ff19aca2",
+      "statement": "A coverage test scans source for every node name passed to get_agent_llm or pick and asserts each has a config row name, with synthesis_worker excluded by design because it resolves the specialist's own name at runtime.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/agents/test_agent_config_coverage.py#L12-L30",
+          "version": "repo-lines-v1:sha256:6ba9c579a454a0917f54b564c4cc5ebf8352e89e082352b4fcf799d6b7d4fc68:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMzMzZDlkNWYxZDFmYWFiMmFkMmQ0NmE4YzM4OTVjNjg3ZWRhYjFiNTVjMjk2ZjI2NDUyMmRkNGI5YjEwMTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViODFkZjQyODQ3ODNkYzc2MmY2ZDFhOTJjZmNlMWQzOTJkZDVlY2M4OGIwMzYxYWQ0OGQ3MDA1ODgxNzI2MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5NzhlY2Y4ZWE0OWYxNGJjZjA3OGUwODdkNDUyOGNkOWExYTEzNzMxM2FjOWMyNTY1ZjNiZTI0ZDc1NTQxN2IifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_agent_config_coverage.py#L59-L90",
+          "version": "repo-lines-v1:sha256:10435fb176231029f0f4a6a9db33eff0049d77272459d4d526c69389373918f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1OTU2ZTlmOWE0MDk3YjFiNjljNmI5M2Y2MzhkNGI5MmU0MDdlNmQ1ZGU3NzAxYzI5NGY5NGIyNjViYjMyMWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZGJhN2U2ZWJkNTFhNzhkZGU0OTBlYmNmMDU3YmE0MmJjMDExYWMwMzZmZmY5NWQ1ZDVjNzQyNDYwOGU2MGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4ZTU3N2ZkODE4N2JiMjRiYzA4MDdhNDc0MjQxMGE5Nzg0YmIyMmU0OGRkMmRkM2FlNTEwOGIzMDJkNWExMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a27aad3ca5a24ebaa8b77e7cb14c7496",
+      "statement": "AgentConfigCache refreshes lazily on read past the poll interval using a cheap max_updated_at probe before a full reload, serves the last-known-good cache on any SQLAlchemyError, preserves a pending invalidation across a failed poll, and bumps its generation counter only when a reload actually changes the data.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/agent_config_cache.py#L52-L119",
+          "version": "repo-lines-v1:sha256:e94fbf215cc2c0b8a9038d12f1d1cb135cc7a94984d9613c3715da8014ba24ad:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGI0NTNmNWUwYzkyZDVmNmMyNTFhNWVhMTk2MGQ3MmYzYmQwNzk1NmFlODU3ZGEyMGUzMWE4OGM1NTk2OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkNWU1ZTFiOTVhNTAwODg2Mjg1MGViMzk1MWM0ZmQ3YmFlYTI1MzU3NTFmNDdlMGYyZDA3ZWQ2NTZlODRlNTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5ZWQ5MWNiNzZlN2Y4MGZmYTZjZTMwYmJiNjVlZTRjNzQ2Y2E2NTUwZmFjYTAyNTAzYWIyNjU5NThhNmYyMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkYzIyOWZjYjg3MjQ4ZTZjNzM3YWM2ZTZiYzliY2Q4ZTNlNjNlMTNlNzgwZWJiNjIxZWUyMDhmODhhM2JlNjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dc531f7a5756454da5b84e53870086c8",
+      "statement": "resolve_travel_graph rebuilds the compiled graph when the config generation differs from the one stamped at build time, reusing the process-lifetime checkpointer and store so conversation state is preserved, and keeps the previous graph if the rebuild fails.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L152-L176",
+          "version": "repo-lines-v1:sha256:53147f2667711aef321b5ba0ea445ebd2577d2094032cfead357282edf3ee6d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyNmY0NWY1MTIzNGJhOTc5NTExMGM4NzM0NThhOWI3MGNiNGIyZTA4MWU2ODM3NWNlMDZhOThlNDA1MmY1MjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhODkxZjA2OWU4NjdkMTc5M2MzYzBmZWU2MzUwMWYyNjlmOGFiOWJjNjJhYjJjODA3NDg4YmQ5ODY4NTMwMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_graph_refresh.py#L16-L60",
+          "version": "repo-lines-v1:sha256:01734dc3d2fe809862383757537f3c77f4a792cf7d58ded45827cb39d870f23c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMzEzMzBmMjdkZTRlYWFiYjQ4NzJmYTgzYWNmZGYyZjRiYjdjYmQ3MDRjOTlkY2MxYmU5ZjBhZjhiMDg0N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxZTM3Njk5NWRlMmVlYzJiYzJhZWFlNzQwYjNjZTQwMjdmYzk2ZDdkN2JkYWIyYjFlZTZmOGRhZDYyOTJkMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlODk5NmYxNTFkYWNmNDYxMjgyY2QwNmMwZmEyZmZjYjBlNDE2OGQ1Y2RiMDU5NmFlZTYyZDBjOGVjN2I4ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwZWU3MWVjNDgzNWQ4NzZlNzVkY2IyMTE4NzJkZDY5YTFmZDE1NDdjYTliNTkzMDg5YmRlZjZkMWZhM2MzNmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_40011b054754462cbe8dfc686974dd29",
+      "statement": "The lifespan configures the cache with the session factory and poll interval and performs an initial reload so overrides resolve from the first request.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L33-L39",
+          "version": "repo-lines-v1:sha256:3741650c5cc9e281edb32d9071b14f93d3ffc14ece78b57a2cca3df27807f454:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWRjMGZkNjk0ZDIyNzRlN2EyYzUwOGQxMjEzMzgzZmJhZjdhNTA3NWYxZWZlMTUzYzliNzk0YjEwYTIxODQ4ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmNkYTVhNzc1NWE4NWYxOTM1MDI4ZDg1ZTZkYzBlNTdjZDQyYjIyOTc1MDQwZmE3ZjNlMDlkYTBjOWQ1YTRkYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e1de606fb2b741799a6e98dd06c6978c",
+      "statement": "Fresh databases have no agent_config override rows and inherit env globals; scripts/seed_agent_config.py is the idempotent operational path to switch a deployment to DB-driven config.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/scripts/seed_agent_config.py#L1-L15",
+          "version": "repo-lines-v1:sha256:9dbc83e15a52b29e9e121fd33e5ea1d0c5a9ecc05baef540548d4b8c8f66a42f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ODJjYmRiNGM4YjA3NTE4YmY0ODZjNTg5OTBmYzM5MTc4M2FhMjBhOTE2YmZiMjdhZDIxMWViMWQ1YzM2NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4Njc4OGRjOTUzMWE3ZjkxOGVkOWYxZDY3ODY5NGFhYTNmZWYzN2UxNjE2MDdiYTQxOWUzZThkMWEwNmJjNzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c931706e332a430cb5a47c0f33617d8b",
+      "statement": "estimate_cost sums per-model USD cost from a static price table and returns None rather than a false 0.0 whenever the input is empty or any model is missing from the table.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/pricing.py#L53-L70",
+          "version": "repo-lines-v1:sha256:43be4d5acf94caa288b931073ff8c454f37db3b4a865099d0713250b3a441d2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyMTFjNjBiNmJlMmM5NWY0ZDliZWQxMDY4OWE4MWZlYWM4ZTU3NzQ1ZTFmODMxZWQwN2QzNDEzOTRmNjA2YzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5OThjODBkOGEzNWExYzM0ZDc1YmUzMjVmZTZkZDQzOGI5NDA0MWVjOGM4YjQzZmZmYzcyYWRhNzdjYzk1ZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlMDU2OTA3Zjg1NWRiNTA4NzMzMjYzNDExZDk3YjkxYzM5OWI4ZWI2Mjc5MTFkZGNmNTAxY2ZjMTdjZTUxMDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d68bd2af50d641509abf234ecc085db0",
+      "statement": "FakeLLM cycles scripted responses and structured_responses with no network, treats bind_tools as a no-op because scripted tool_calls drive tool execution, and stamps deterministic usage metadata so offline turns exercise the metrics path.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/clients/llm.py#L97-L162",
+          "version": "repo-lines-v1:sha256:be4701ab743821a0386358a382274627953ec367160b1b1fd8bd3f127ff71d9f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzN2ExYzk0NzVkYTI4ZDkzZTA4MzE1YzRkZTIzZDgzZjY4MWRjMjhlMjA0ZjViYWY5Zjc0OTIxNjVjN2U2ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZGZmYTU2YTkyN2JkNTZmNGU0NTc1MzMyYjg1Nzc1MjEzNjU3NDg5MDE5YzVhMmZlZmM5OWJiZjZiMWZmY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/clients/test_llm_stream_usage.py#L81-L90",
+          "version": "repo-lines-v1:sha256:28ff0c42463fcd343441a972e438973d2ec55a1303543cad14e64ec8db7b582b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYjRiNTMyOGEzNGJlNDIyNWYyNGRjZDk5M2FjOGZlM2EyODA3ZTIzZTRiZTMwNDU5ZjQ5NDc1YTU2NDNkNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NzAyN2NiODJjNTAzNDFjYmIyMDYxYmViZWI4MTQ1YTBkNGE1MzMyYjNhZjQxZGU3YmE3NWRhNmUzMmFlODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFjOTE3OWFiOWYyYzA2MWFmNjlhZTk4YzIwZDI3YjA2ZDliM2U1YjY5NThjMTkxOWZmYTJmODA3YmExNjBhNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-18T04:47:06.927Z"
+  }
+}
