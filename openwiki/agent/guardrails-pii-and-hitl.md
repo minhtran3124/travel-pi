@@ -3,9 +3,6 @@ type: concept
 title: "Guardrails: PII, memory poisoning and human-in-the-loop"
 description: The safety layers around the travel agent — credit-card redaction before any model call, the booking plan-approval interrupt and resume path, confirm/ownership protections on destructive tools, the trip guard, and the deterministic write/read guard plus prompt wrapping that contain long-term memory poisoning.
 tags: [guardrails, pii, hitl, interrupt, memory-poisoning, booking, safety, langgraph]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-653637f2675661d4499c6d01
     resource: repo://apps/api/app/agents/constants.py
@@ -38,6 +35,9 @@ sources:
   - id: openwiki-source-332dfb1424208ef02de55e80
     resource: repo://apps/api/tests/memory/test_guard.py
 generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:19:54.601Z
 ---
 
 # Guardrails: PII, memory poisoning and human-in-the-loop
