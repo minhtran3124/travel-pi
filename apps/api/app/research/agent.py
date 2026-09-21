@@ -38,7 +38,7 @@ from app.prompts.registry import registry
 from app.research.context import ResearchContext
 from app.research.memory import GuardedStoreBackend
 from app.research.state import ResearchState
-from app.research.tools import SUBAGENT_TOOLS
+from app.research.tools import MAIN_TOOLS, SUBAGENT_TOOLS
 from app.research.validate import make_validate_proposal
 
 logger = logging.getLogger(__name__)
@@ -218,7 +218,7 @@ def build_research_agent(
 
     return create_deep_agent(
         model=model,
-        tools=[],
+        tools=MAIN_TOOLS,
         system_prompt=registry.get("trip_research"),
         skills=["/skills/"],
         memory=["/memory/AGENTS.md"],

@@ -68,6 +68,10 @@ def research_tools() -> list[BaseTool]:
     return list(seen.values())
 
 
+# The main agent's own tools (design §2): the trip summary is its only source for the
+# destination, dates and party — a Research-tab run starts with a generic instruction.
+MAIN_TOOLS: list[BaseTool] = _resolve(["get_trip_summary"])
+
 # Per-dimension tool sets (design §3), resolved by name so a typo fails at import.
 SUBAGENT_TOOLS: dict[str, list[BaseTool]] = {
     "flights": _resolve(["search_flights", "resolve_date"]),
