@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0c6d263c4ed3f846247c70404f844e9feb6647292393e6ce230a2ac67d75ce67",
+  "pageVersion": "sha256:12cc1fa828da17defeccc65129dcb222e6731e5bb37c501f106d2cd56b35dc72",
   "claims": [
     {
       "id": "claim_73928376aeb243dfb1913c540816dfbd",
@@ -92,11 +92,11 @@
     },
     {
       "id": "claim_b48a2b7077ea42fd92220b73e5c1fc58",
-      "statement": "Langfuse tracing is disabled by default so CI needs no keys, and the agent runtime knobs default to recursion limit 25, summarize threshold 20, free daily turn limit 20, a 5-second config poll interval that also accepts the legacy AGENT_CONFIG_CACHE_TTL_SECONDS alias, and the Asia/Ho_Chi_Minh timezone.",
+      "statement": "Langfuse tracing is disabled by default so CI needs no keys, and the agent runtime knobs default to recursion limit 25, summarize threshold 20, summarize token budget 12000, free daily turn limit 20, a 5-second config poll interval that also accepts the legacy AGENT_CONFIG_CACHE_TTL_SECONDS alias, and the Asia/Ho_Chi_Minh timezone.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/core/config.py#L120-L140",
-          "version": "repo-lines-v1:sha256:fd81d314f61ddb07bf5194ad79129d395ff96a1a40784ea654d91392576d6067:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlODU4MzQ5ZTZiZGQ0OTg1NTBjZWI5ODgyY2VjOGRiYjRhNjg0OGYxMDA1Zjg4MTJmMDgwMTVjZmE1YWNjMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmNDVkZTZiMzY5ODA0YjhlNzUyNzNkN2VlZmViMDIwZmJjYjIzNmZmY2YyZDg1ODZiZTlkOGVlMGYwYTlhZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1OTY3ZjBiMmY2NDE5MGQwNmE5ZWU3NjEyOTQ3MmNmNzBlZWNhYmZjMzliNDU4MGM0MzExZGVlN2FlNTQ5OGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4OGY1NGJlZTRiMDBiOWVjMzdkMzRjZTBmYjAwZWU4MDczODU4ZDdiNTY1Zjg4MDY1MjRlNjRjNDAzNDA2OTQifQ"
+          "resource": "repo://apps/api/app/core/config.py#L120-L144",
+          "version": "repo-lines-v1:sha256:88215208fce2168ff3eb2f4c7e6e6902703ca0fba5119053f4f301add23d472e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlODU4MzQ5ZTZiZGQ0OTg1NTBjZWI5ODgyY2VjOGRiYjRhNjg0OGYxMDA1Zjg4MTJmMDgwMTVjZmE1YWNjMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmNDVkZTZiMzY5ODA0YjhlNzUyNzNkN2VlZmViMDIwZmJjYjIzNmZmY2YyZDg1ODZiZTlkOGVlMGYwYTlhZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1OTY3ZjBiMmY2NDE5MGQwNmE5ZWU3NjEyOTQ3MmNmNzBlZWNhYmZjMzliNDU4MGM0MzExZGVlN2FlNTQ5OGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4OGY1NGJlZTRiMDBiOWVjMzdkMzRjZTBmYjAwZWU4MDczODU4ZDdiNTY1Zjg4MDY1MjRlNjRjNDAzNDA2OTQifQ"
         },
         {
           "resource": "repo://apps/api/tests/core/test_config_llm.py#L26-L60",
@@ -179,6 +179,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-21T09:19:54.601Z"
   }
 }

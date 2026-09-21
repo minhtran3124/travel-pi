@@ -3,14 +3,15 @@ type: architecture
 title: Conversation memory and persistence
 description: The three persistence layers behind an agent conversation — the LangGraph checkpointer (Postgres or ephemeral in-memory) keyed by thread id, the embedding-indexed long-term Store with per-user preference, procedural and episodic namespaces, and the conversations/messages tables — plus rolling summarization and the best-effort background memory extraction that writes to the store after each turn.
 tags: [memory, checkpointer, langgraph-store, postgres, pgvector, summarization, extraction, persistence, conversations]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-a64c3aced180db6f1a30c537
     resource: repo://apps/api/app/agents/checkpointer.py
+  - id: openwiki-source-aab651981316f0a542a5e4dd
+    resource: repo://apps/api/app/agents/state.py
   - id: openwiki-source-0e29236b52482e5a3cdf5f04
     resource: repo://apps/api/app/agents/subagents/_base.py
+  - id: openwiki-source-5300fab0b97a7cfb93201ea7
+    resource: repo://apps/api/app/core/config.py
   - id: openwiki-source-f0d67c8926258128935ee4fb
     resource: repo://apps/api/app/core/embeddings.py
   - id: openwiki-source-bd6cd21e04f99bedcd541c52
@@ -35,11 +36,20 @@ sources:
     resource: repo://apps/api/app/tools/memory_tools.py
   - id: openwiki-source-0f2058c2da25b533f22d98bc
     resource: repo://apps/api/tests/agents/test_checkpointer.py
+  - id: openwiki-source-1062a6db2b17199c8d24141d
+    resource: repo://apps/api/tests/api/routes/test_no_memory_route_yet.py
   - id: openwiki-source-3080a957448998af5aa6ff21
     resource: repo://apps/api/tests/memory/test_extraction_runner.py
+  - id: openwiki-source-5d1a7ebf1f2fd5e5efecdbe7
+    resource: repo://apps/api/tests/memory/test_fact_age.py
   - id: openwiki-source-aa2fa0188bf2b6bd24abe74f
     resource: repo://apps/api/tests/memory/test_search_all.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+  - id: openwiki-source-36b2a5e944066755363a2812
+    resource: repo://apps/api/tests/memory/test_summarize_token_budget.py
+generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:19:54.601Z
 ---
 
 # Conversation memory and persistence
@@ -62,7 +72,14 @@ The agent router derives the thread id as `user_{user_id}_trip_{trip_id or 'none
 
 ## Rolling summarization
 
-`summarize_conversation` (`app/memory/summarizer.py`) runs from the graph's `summarize` node once `len(messages)` exceeds `SUMMARIZE_THRESHOLD` (default 20). It asks the summarize model for a terse running summary that preserves destinations, dates, budget, booked items and stated constraints, then returns `RemoveMessage`s for everything before a split point. The split keeps at least the last five messages verbatim and **walks back past any `ToolMessage` run** so a tool-call/tool-result pair is never separated; an orphaned tool result is rejected by the provider on the next call. The summary is injected at the front of every model call by `system_with_summary` (see [Agent state, runtime context and reply language](state-context-and-language.md)).
+The graph's `summarize` node calls `should_summarize` and, when it fires, `summarize_conversation` (`app/memory/summarizer.py`). The trigger is an **OR** of two branches:
+
+- **Message count** — `len(messages)` exceeds `SUMMARIZE_THRESHOLD` (default 20). This branch is never bypassed.
+- **Token pressure** — the estimated token count exceeds `SUMMARIZE_TOKEN_BUDGET * 0.85` (default budget 12000; the 15% headroom is left for the system prompt and the next reply). The estimate is `chars / 4` over message content **plus tool-call names and arguments**, so a fan-out turn that carries most of its weight in tool payloads is caught even below the message threshold. It deliberately avoids `llm.get_num_tokens_from_messages()`, whose base implementation needs `transformers` (not installed) and raises for models that do not override it, including the test `FakeLLM`. The branch is floored at `DEFAULT_KEEP_LAST` (5): with five or fewer messages there is nothing the compressor could remove, so it does not fire.
+
+`summarize_conversation` computes the split **before** calling the model. The split keeps at least the last five messages verbatim and **walks back past any `ToolMessage` run** so a tool-call/tool-result pair is never separated; an orphaned tool result is rejected by the provider on the next call. If nothing is removable it returns `("", [])` without an LLM call, and the node returns no update, so "the node fired" and "the node made progress" stay the same event and an existing summary is never blanked.
+
+When a rolling summary already exists, the node passes it back in as `previous_summary` and the model is asked to **merge** it with the newer messages into one summary of at most 250 words that never drops a concrete fact (destinations, dates, budget, booked items, preferences, constraints), because the messages behind the old summary are already deleted. Without the merge, repeated compression would narrow the summary to the latest window and the agent would forget facts stated earlier in the same session. The word limit is only a request, so code also caps the stored summary at 1800 characters and logs a warning when the cap truncates; that warning signals a prompt problem, since truncation can cut carried-forward facts. The summary is injected at the front of every model call by `system_with_summary` (see [Agent state, runtime context and reply language](state-context-and-language.md)). `tests/memory/test_summarize_token_budget.py` covers both trigger branches, the tool-payload count, the nothing-removable early return and the merge.
 
 ## Long-term store
 
@@ -81,6 +98,23 @@ Every upsert stamps `updated_at` (UTC ISO) and runs the write guard; every read 
 ### Read semantics
 
 `store.search` has no unlimited mode, so unqueried reads page through the namespace in pages of 100, de-duplicating by `(namespace, key)` and stopping on a short page **or a page with nothing new**, so a backend that mishandles `offset` cannot spin. A semantic `query` is a top-k search (k=10) and is deliberately never paged. Episodes default to a limit of 3. `search_memory` / `search_memory_typed` dispatch over the three kinds and return typed `Preference`, `Instruction` and `Episode` records; the typed variant keeps the key so `load_context` can separate profile keys from other preferences. `tests/memory/test_search_all.py` pins the paging and termination rules.
+
+### Recorded age of remembered facts
+
+Typed `Preference`, `Instruction` and `Episode` records carry the stored `updated_at`, and `load_context` renders it as a `(recorded …)` suffix on each standing-instruction and preference line (see [Agent graph and supervisor](graph-and-supervisor.md)). `format_age` computes whole **elapsed months** in code — the model only reads the phrase — and never produces a day count, because a string that changed daily would churn the cached system prompt for every user. It returns `None`, and the line renders with no marker, when the stamp is missing, unparseable or in the future; a future stamp (clock skew, bad backfill) would otherwise be labelled maximally fresh.
+
+There are two vocabularies, chosen by where the block sits in the system prompt:
+
+| Vocabulary | Used for | Phrases |
+|---|---|---|
+| Coarse | standing instructions (early in the prompt, ahead of `summary`) | `in the last month`, `1-11 months ago`, `over a year ago` |
+| Fine | preferences (last block, after which only the daily date note follows) | `in the last month`, `1-3 months ago`, `4-8 months ago`, `9-15 months ago`, `over a year ago` |
+
+The coarse table changes at most twice in a row's lifetime to protect the cached prefix; the fine table can afford more churn because the cached prefix already ends before it. The freshest phrase is "in the last month", not "this month", because elapsed months do not map to calendar months. `AGE_FRESH` is a public constant that `state.py` imports to build the prompt rule that only fresh lines may be acted on without confirmation, so the rule and the emitted vocabulary cannot drift apart. `tests/memory/test_fact_age.py` pins the buckets, the future-stamp rule and the shared literal.
+
+### Management helpers (no HTTP route yet)
+
+`list_memory` returns a user's rows for one kind with the store `key` preserved (the key is spread last so a stored value cannot shadow the delete handle), and `delete_memory` hard-deletes one row by `(kind, key)`, idempotently. Both coerce `kind` through `MemoryKind` before building the namespace, so an unknown kind raises instead of reaching the store; on an indexed `PostgresStore` the delete also removes the pgvector row by cascade. Nothing reachable calls them yet: the `/memory` list/delete routes and their settings UI are deferred, and `tests/api/routes/test_no_memory_route_yet.py` fails if a `/memory` path appears in the OpenAPI document before that deferral is lifted.
 
 ### Tools over the store
 

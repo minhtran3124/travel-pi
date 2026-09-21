@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f1c9bfd8fd90e263778eb37f48b9b3c9912ab775d09f5d7abf96d2fd25460751",
+  "pageVersion": "sha256:91c7e3fc2f92919f76288058461b0b37d15291950059eb77117613cbce1caba7",
   "claims": [
     {
       "id": "claim_e2bbe02b164e4289b42795476467ce5c",
@@ -71,8 +71,8 @@
       "statement": "load_context loads the active trip snapshot through the owner-scoped TripService and stores trip context, instructions, profile and preferences in plain state fields rather than appending a SystemMessage to messages.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/nodes.py#L38-L124",
-          "version": "repo-lines-v1:sha256:20933b2678e0c97501c3592be7ddc6aeeb6efa8cda50c9e55d75f6fc2e8bc390:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmM2NjOGIxNjY4ZGNhZjc1ZGFlMDU0MzI4YTBjMDhkMzI3ZjVjNjg2ZTE5NTk1NzE2YzdiZTdiZDg2ZGQ0YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMTFjMDU2N2QwYTVmOWU5YjEzNWY2NWNkMjUzNzJkZmQ2Mjg3NzVmN2MxZWQyNTNmOGJhZDQyZGQyZDY2NjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0OGY0YjM1MWE4MmRiY2MzOGVkNTZkNTI5YTA5OTE4MGM2N2Y2MzRjMDBjNDczODllMzMxOTFjNzFkYzNmM2YifQ"
+          "resource": "repo://apps/api/app/agents/nodes.py#L58-L149",
+          "version": "repo-lines-v1:sha256:470b6d15069bac4dd6c7f1a23cf8471ad2268af555bb18971a02959661fcd261:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmM2NjOGIxNjY4ZGNhZjc1ZGFlMDU0MzI4YTBjMDhkMzI3ZjVjNjg2ZTE5NTk1NzE2YzdiZTdiZDg2ZGQ0YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMTFjMDU2N2QwYTVmOWU5YjEzNWY2NWNkMjUzNzJkZmQ2Mjg3NzVmN2MxZWQyNTNmOGJhZDQyZGQyZDY2NjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1YWRkNjBhMGMzNmUwZDZjOGM3YWQ5YmYxZTUwMGMxOWI3ZmRkOTVkMDcxYjA1MzdhN2JiZWIzNzU5YzczNmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0OGY0YjM1MWE4MmRiY2MzOGVkNTZkNTI5YTA5OTE4MGM2N2Y2MzRjMDBjNDczODllMzMxOTFjNzFkYzNmM2YifQ"
         }
       ]
     },
@@ -241,10 +241,20 @@
           "version": "repo-lines-v1:sha256:1b19c5c85c91a14a890a6a4354173888f6f3b3bb726f28b3df5269770a7723a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZjk3ZmM1M2RhNzhiOTA1MWJlMmQ0M2IxOGUwYTJlYjNlY2E2YWJlOGU5OTYyNzFjMzlmNjQ4NWNjNWM0Zjc1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1NDg0YTU2ZTIxZDM4Y2Q1ZTYxMTEyOGZlODI1YzE4NmUxZmEzMWJhZmQzYzM0NDY3YmZhMWVmOWUxMDEyODcxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlMzQ0Y2VjMjgzNmUzM2FjYjI5ZWQzZDMzYzdkNjI2Y2JkYjVlMDhjYjYwODRlZmYxYWJlYTQ0OTE5YWMzZjM5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
         }
       ]
+    },
+    {
+      "id": "claim_ecb3c461208b41ba832e8033e9e28a61",
+      "statement": "The summarize node passes the existing rolling summary into summarize_conversation so compression merges rather than replaces it, and returns an empty update when nothing was removable so an existing summary is never blanked.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/nodes.py#L152-L181",
+          "version": "repo-lines-v1:sha256:9151d67dfa8d660d806237d1fc4a244a128d5b35ef852e4e9cf3017b96152755:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkOGIwN2QwODI5MDViMmJjOTdlOGUxNDc5ZTU2ZTMzNjczZWFmODlkZDdlNGZmNWM2MTUwMjRhZWQzYjVhZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNTlhYzljZTNlZjVmMGY2MTU3YjBhZTg2NTFlYTRiM2M2MmQ3YzYyMjFiMTE1ODY4N2Q4ZjhjNTdhOTBlZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkYTU3NTliODE5Y2NmZDA3ZjIxMjBjZDQ4YzFkMDE5YTRjYzZmMzVjZTlkYTc3MjNlZjFjMzJjYjk4MzBiMGQifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-21T09:19:54.601Z"
   }
 }

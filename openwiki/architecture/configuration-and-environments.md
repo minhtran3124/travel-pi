@@ -3,9 +3,6 @@ type: reference
 title: Configuration and environments
 description: The pydantic-settings Settings model that drives the backend, every environment-variable group (database, external travel APIs, CORS, rate limits, LLM providers and keys, Langfuse, agent runtime knobs, dashboard auth, Supabase), what changes between development and production, the frontend's public variables, and how the Docker dev and test stacks inject their own values.
 tags: [configuration, environment-variables, settings, docker, postgres, sqlite, production, supabase]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-5df10578b47a3ab545818aba
     resource: repo://apps/api/.env.example
@@ -27,7 +24,10 @@ sources:
     resource: repo://apps/api/tests/core/test_config_llm.py
   - id: openwiki-source-37186b9bfb98e1af333ad420
     resource: repo://apps/web/.env.example
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:19:54.601Z
 ---
 
 # Configuration and environments
@@ -50,7 +50,7 @@ All backend configuration is one `Settings` class in `apps/api/app/core/config.p
 
 **Langfuse.** `LANGFUSE_ENABLED` defaults to false so CI emits no traces and needs no keys; `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST` apply when enabled.
 
-**Agent runtime.** `AGENT_RECURSION_LIMIT` (25) bounds each graph invocation, `SUMMARIZE_THRESHOLD` (20) triggers history compression, `AGENT_FREE_DAILY_TURN_LIMIT` (20) is the free-tier quota, `AGENT_CONFIG_POLL_INTERVAL_SECONDS` (5) governs the config cache refresh and still accepts the legacy name `AGENT_CONFIG_CACHE_TTL_SECONDS` through an alias, and `AGENT_TIMEZONE` (`Asia/Ho_Chi_Minh`) grounds "today" when a client sends no valid timezone.
+**Agent runtime.** `AGENT_RECURSION_LIMIT` (25) bounds each graph invocation, `SUMMARIZE_THRESHOLD` (20 messages) or `SUMMARIZE_TOKEN_BUDGET` (12000, compared at 85% against a character-based token estimate) triggers history compression, `AGENT_FREE_DAILY_TURN_LIMIT` (20) is the free-tier quota, `AGENT_CONFIG_POLL_INTERVAL_SECONDS` (5) governs the config cache refresh and still accepts the legacy name `AGENT_CONFIG_CACHE_TTL_SECONDS` through an alias, and `AGENT_TIMEZONE` (`Asia/Ho_Chi_Minh`) grounds "today" when a client sends no valid timezone.
 
 **Dashboard.** `DASHBOARD_BASIC_USER` and `DASHBOARD_BASIC_PASSWORD` enable HTTP Basic on every `/dashboard/*` route, compared in constant time. With neither set, the dashboard is open in development but returns 404 in production, so it is never reachable in production without credentials (see [Admin API and server-rendered dashboard](../operations/admin-and-dashboard.md)).
 
