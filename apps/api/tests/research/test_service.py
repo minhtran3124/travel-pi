@@ -210,3 +210,45 @@ def test_a_refused_start_opens_no_channel(service, factory) -> None:
     with pytest.raises(ConflictError):
         service.start(OWNER, TRIP)
     assert len(service._bus._runs) == 1
+
+
+def test_the_loser_of_a_concurrent_start_does_not_spend_the_daily_cap(
+    service, factory, daily_limit, monkeypatch
+) -> None:
+    """Two clicks race: both see no running row, then the winner books while the
+    loser waits on the per-trip lock and wakes to a 409. The loser launched
+    nothing, so it must not have spent a slot of the daily cap."""
+    import app.research.service as service_mod
+
+    real_lock = service_mod.advisory_xact_lock
+    winner: list[str] = []
+
+    def winner_books_while_we_wait(session, name):
+        real_lock(session, name)
+        with factory() as other:
+            other.add(
+                AgentRun(
+                    id="winner",
+                    user_id=OWNER,
+                    conversation_id=f"research:{OWNER}:{TRIP}",
+                    thread_id=f"research:{OWNER}:{TRIP}",
+                    trip_id=TRIP,
+                    channel="research",
+                    kind="research",
+                    status="running",
+                    started_at="2026-09-21T00:00:00+00:00",
+                )
+            )
+            other.commit()
+        winner.append("winner")
+        service._bus.open("winner")
+
+    monkeypatch.setattr(service_mod, "advisory_xact_lock", winner_books_while_we_wait)
+    with pytest.raises(ConflictError):
+        service.start(OWNER, TRIP)
+    monkeypatch.setattr(service_mod, "advisory_xact_lock", real_lock)
+    assert winner == ["winner"]
+    _complete(factory, "winner")
+
+    for _ in range(daily_limit):
+        _complete(factory, service.start(OWNER, TRIP))

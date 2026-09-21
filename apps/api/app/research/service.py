@@ -115,14 +115,6 @@ class ResearchService:
         ``RateLimitError`` over the per-user daily cap."""
         if TripRepository(self._sf).get_trip(trip_id, user_id) is None:
             raise NotFoundError("Trip not found")
-        # Unlocked pre-check so a plain 409 never spends the daily cap; the locked
-        # check below stays the authority on a concurrent double start.
-        with self._sf() as s:
-            if self._running_for(s, trip_id) is not None:
-                raise ConflictError(
-                    "A research run is already in progress for this trip"
-                )
-        self._spend_daily_cap(user_id)
         run_id = str(uuid4())
         # One transaction holds a per-trip advisory lock across the check AND the
         # insert, so two concurrent starts for the same trip serialize: the first
@@ -135,6 +127,9 @@ class ResearchService:
                 raise ConflictError(
                     "A research run is already in progress for this trip"
                 )
+            # Spent only once the lock says this start wins, so a 409 — including
+            # the loser of a double click — never costs a slot.
+            self._spend_daily_cap(user_id)
             self._insert_run(run_id, user_id, trip_id, session=s)
             s.commit()
         self._open_on_bus(run_id)
@@ -293,8 +288,8 @@ class ResearchService:
     def _spend_daily_cap(self, user_id: str) -> None:
         """Count one booking against ``research_start`` (design §5). It lives here, not
         on a route, because every launch path books through ``start``: the REST start,
-        the REST revise and the chat node. Committed on its own session before the
-        locked booking transaction, so a SQLite writer never waits on itself."""
+        the REST revise and the chat node. Committed on its own session, so the hit
+        counts even if the booking then fails."""
         limit = get_settings().research_daily_limit
         decision = RateLimitRepository(self._sf).hit(
             bucket=RESEARCH_START_BUCKET,
