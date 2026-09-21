@@ -15,6 +15,7 @@ import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
 import { TodayTab } from "@/components/trips/today/TodayTab";
 import { TripHeader, TripHeaderSkeleton } from "@/components/trips/TripHeader";
 import { Tabs, type Tab } from "@/components/ui/Tabs";
+import { researchEnabled } from "@/lib/features";
 import { useTrip } from "@/lib/query/trips";
 
 export default function TripDetailPage() {
@@ -33,7 +34,9 @@ export default function TripDetailPage() {
     { id: "bookings", label: t("tabs.bookings") },
     { id: "shortlist", label: t("tabs.shortlist") },
     { id: "map", label: t("tabs.map") },
-    { id: "research", label: t("research.tabLabel") },
+    ...(researchEnabled()
+      ? [{ id: "research", label: t("research.tabLabel") }]
+      : []),
   ];
 
   if (isPending) {
