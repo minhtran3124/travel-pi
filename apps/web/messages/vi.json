@@ -588,17 +588,17 @@
   },
   "Chat": {
     "researchDone": {
-      "title": "Đã nghiên cứu xong chuyến đi của bạn",
-      "covers": "Hồ sơ gồm {sections}.",
-      "proposalReady": "Đã có kế hoạch đề xuất để bạn xem và áp dụng vào chuyến đi.",
-      "open": "Mở tab Nghiên cứu",
+      "title": "Đã nghiên cứu xong chuyến đi!",
+      "hint": "Xem qua và thêm những gì bạn thích vào chuyến đi nhé.",
+      "hintNoPlan": "Bạn xem qua lúc nào tiện nhé.",
+      "open": "Xem kết quả",
       "dismiss": "Đóng",
       "sections": {
-        "days": "lịch trình {count} ngày",
-        "flights": "chuyến bay",
-        "stays": "chỗ ở",
-        "entry": "nhập cảnh & mùa",
-        "budget": "ngân sách"
+        "days": "📅 Lịch trình {count} ngày",
+        "flights": "✈️ Chuyến bay",
+        "stays": "🏨 Chỗ ở",
+        "entry": "🛂 Thủ tục & mùa đẹp",
+        "budget": "💰 Ngân sách"
       }
     },
     "headerTitle": "Tin",

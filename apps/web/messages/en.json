@@ -588,17 +588,17 @@
   },
   "Chat": {
     "researchDone": {
-      "title": "Your trip research is ready",
-      "covers": "The dossier covers {sections}.",
-      "proposalReady": "A proposed plan is ready to review and apply to your trip.",
-      "open": "Open the Research tab",
+      "title": "Your trip research is ready!",
+      "hint": "Take a look and add what you like to your trip.",
+      "hintNoPlan": "Take a look whenever you're ready.",
+      "open": "See the research",
       "dismiss": "Dismiss",
       "sections": {
-        "days": "a {count}-day plan",
-        "flights": "flights",
-        "stays": "stays",
-        "entry": "entry & season",
-        "budget": "budget"
+        "days": "📅 {count}-day plan",
+        "flights": "✈️ Flights",
+        "stays": "🏨 Stays",
+        "entry": "🛂 Entry & best time",
+        "budget": "💰 Budget"
       }
     },
     "headerTitle": "Tin",

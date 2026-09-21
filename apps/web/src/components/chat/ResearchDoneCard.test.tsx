@@ -55,18 +55,22 @@ describe("dossierSections", () => {
 });
 
 describe("ResearchDoneCard", () => {
-  it("summarizes the dossier and links to the Research tab", () => {
+  it("lists what the research covers as chips and links to the Research tab", () => {
     renderCard("en");
 
     expect(screen.getByText(en.Chat.researchDone.title)).toBeInTheDocument();
+    expect(screen.getByText(en.Chat.researchDone.hint)).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "The dossier covers a 2-day plan · flights · stays · entry & season · budget.",
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText(en.Chat.researchDone.proposalReady)).toBeInTheDocument();
+      screen.getAllByRole("listitem").map((li) => li.textContent),
+    ).toEqual([
+      "📅 2-day plan",
+      "✈️ Flights",
+      "🏨 Stays",
+      "🛂 Entry & best time",
+      "💰 Budget",
+    ]);
     expect(
-      screen.getByRole("link", { name: en.Chat.researchDone.open }),
+      screen.getByRole("link", { name: /See the research/ }),
     ).toHaveAttribute("href", "/trips/trip-1?tab=research");
   });
 
@@ -75,24 +79,28 @@ describe("ResearchDoneCard", () => {
 
     expect(screen.getByText(vi_.Chat.researchDone.title)).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Hồ sơ gồm lịch trình 2 ngày · chuyến bay · chỗ ở · nhập cảnh & mùa · ngân sách.",
-      ),
-    ).toBeInTheDocument();
+      screen.getAllByRole("listitem").map((li) => li.textContent),
+    ).toEqual([
+      "📅 Lịch trình 2 ngày",
+      "✈️ Chuyến bay",
+      "🏨 Chỗ ở",
+      "🛂 Thủ tục & mùa đẹp",
+      "💰 Ngân sách",
+    ]);
   });
 
-  it("omits the proposal line and the covers line when there is nothing to list", () => {
+  it("uses the no-plan hint and no chips when the dossier has nothing to list", () => {
     renderCard("en", { ...RUN, files: ["overview.md"], proposal_ready: false });
 
-    expect(screen.queryByText(en.Chat.researchDone.proposalReady)).toBeNull();
-    expect(screen.queryByText(/The dossier covers/)).toBeNull();
+    expect(screen.getByText(en.Chat.researchDone.hintNoPlan)).toBeInTheDocument();
+    expect(screen.queryByRole("list")).toBeNull();
   });
 
   it("dismisses from the close button and from opening the tab", () => {
     const onDismiss = renderCard("en");
 
     fireEvent.click(screen.getByRole("button", { name: en.Chat.researchDone.dismiss }));
-    const link = screen.getByRole("link", { name: en.Chat.researchDone.open });
+    const link = screen.getByRole("link", { name: /See the research/ });
     link.addEventListener("click", (e) => e.preventDefault()); // jsdom cannot navigate
     fireEvent.click(link);
 
