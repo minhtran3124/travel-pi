@@ -291,3 +291,17 @@ def test_merge_output_is_capped_in_code_not_only_by_the_prompt():
     msgs = [_HM(content=f"m{i}", id=str(i)) for i in range(10)]
     summary, _ = summarize_conversation(msgs, _Runaway(), previous_summary="prior")
     assert len(summary) <= _SUMMARY_MAX_CHARS + 1  # +1 for the ellipsis
+
+
+def test_format_age_none_for_same_day_future_stamp():
+    from app.memory.store import format_age
+
+    assert format_age((_NOW + timedelta(hours=1)).isoformat(), now=_NOW) is None
+
+
+def test_format_age_none_for_future_stamp_with_offset():
+    from app.memory.store import format_age
+
+    # 18:00+07:00 is 11:00 UTC (before _NOW), 19:30+07:00 is 12:30 UTC (after it).
+    assert format_age("2026-09-16T18:00:00+07:00", now=_NOW) == "in the last month"
+    assert format_age("2026-09-16T19:30:00+07:00", now=_NOW) is None

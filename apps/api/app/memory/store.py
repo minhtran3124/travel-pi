@@ -576,7 +576,11 @@ def format_age(
         stamp = stamp.replace(tzinfo=timezone.utc)
     if ref.tzinfo is None:
         ref = ref.replace(tzinfo=timezone.utc)
+    stamp = stamp.astimezone(timezone.utc)
+    ref = ref.astimezone(timezone.utc)
 
+    if stamp > ref:
+        return None
     months = _months_elapsed(stamp, ref)
     # M3: a stamp in the future cannot be an age. Clock skew, a bad backfill or a
     # hand-edited row would otherwise be shown to the model as maximally FRESH — the
