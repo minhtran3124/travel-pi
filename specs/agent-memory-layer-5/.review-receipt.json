@@ -1,0 +1,22 @@
+{
+  "reviewed_head_sha": "0f2fc1efb2a6d00a4f7786e7fbee7573635dc63d",
+  "created": "2026-09-16T12:56:22+00:00",
+  "reviews": [
+    {
+      "reviewer": "reviewer-agent (read-only binding, distinct model class) \u2014 4 rounds",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Round 1 @49bd91df (whole branch): 9 findings. HIGH: H1 the token branch fired every turn while compressing zero messages (<=keep_last => _safe_split 0 => nothing removable), a paid summarizer call per turn with no context relief \u2014 a regression the OR branch introduced, independently found by the intent reviewer as D-3; H2 the rolling summary was replaced rather than merged, so repeated firing over a short window lost facts already deleted from messages. MEDIUM: M1/D-2 'more than a few months ago' self-excluded the 1-11 month bucket format_age actually emits, LOOSER than the base text; M2 'this month' asserted a calendar fact the code (elapsed months) never computes; M3 future stamps clamped to 0 and rendered as the freshest label; M4/M4b/M5 latent defects in the deferred list_memory/delete_memory (dishonest True on a wrong-kind delete, unmapped ValueError, silent 50-row truncation); M6 SUMMARY recorded 'Deviations: none' while the prompt block had been rewritten past a plan constraint. Round 2 @94c4e9a6 (the 491-line fix commit): PASS, all nine fixes correct; 5 new minor items F1-F5. F1 mattered: the new _AGE_FINE reintroduced M2's false-calendar-claim defect one line below its fix ('2-3 months ago' for 1 elapsed month). Round 3 @4a22a58a (F1-F4, 151 lines): PASS; one real defect \u2014 the cap's justifying comment asserted _MERGE_SYSTEM orders facts first, which it does not. Round 4 @0f2fc1ef (35 lines): PASS, no change required. Fixes for every round are committed BEFORE this sha; nothing is pinned that a review did not see. Advisory open: F5 (_safe_split can return 0 with >5 messages; node fires and returns {} with no LLM call \u2014 accepted), and M4/M4b/M5 pinned as must-fix-on-unfencing in PLAN.md section 6 (unreachable today, no route)."
+    },
+    {
+      "reviewer": "reviewer-agent (read-only binding, plan-blind against SUMMARY.md Intent) \u2014 2 rounds",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Round 1 @49bd91df: no missing requested behaviour beyond the E001-recorded deferral of P0#3 (absence verified by grep of app/routers and apps/web, not assumed); no unapproved scope. Two findings: D-1 the prompt-cache rationale behind month granularity was FALSE for the block that matters \u2014 state.py appends preferences LAST, so the argument holds for instructions (position 3) and not for preferences (position 8) \u2014 and the owner's approval had rested on that premise; D-2 as M1 above. Round 2 @94c4e9a6: FAIL on one row \u2014 the Verify table still described the PRE-fix eval run and read as a no-regression claim for shipped code, while the new dates-happy-en-01 failure appeared nowhere in the record (grep 'dates-happy|flak|2/4' -> 0 hits); also '18 cases' where the smoke suite has 20. Both fixed in 4a22a58a: each of the three eval failures is now attributed separately, with dates-happy-en-01 recorded as flaky (1 of 3 runs) and the explicit caveat that n=3 here vs n=1 at base cannot rule out a raised flip rate. Record accuracy re-verified PASS: the deviation is disclosed, the PLAN constraint amendment states it was widened after the fact, and the false prefix-order claim is corrected in all 6 places it appeared. Advisory open: P0#2 is partial for the profile block (get_profile drops updated_at, so name/gender/travel_group carry no marker), disclosed in SUMMARY; the prompt-cache AFTER reading does not exist, so the granularity decision rests on the documented mechanism rather than measurement."
+    }
+  ]
+}

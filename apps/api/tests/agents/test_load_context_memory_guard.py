@@ -218,12 +218,17 @@ def test_read_helper_runtime_error_omits_only_that_block(monkeypatch):
     returning (best-effort) without that block — the turn is not broken, and the
     other blocks still load."""
     import app.agents.nodes as nodes
-    from app.memory.store import get_store
+    from app.memory.store import MemoryKind, get_store, search_memory_typed
 
-    def _boom(*args, **kwargs):
-        raise RuntimeError("guard exploded")
+    # Instructions and preferences now share one read helper, so the explosion is
+    # scoped to the instruction kind — otherwise both blocks would fail and the test
+    # would no longer show that a failure is contained to its own block.
+    def _boom_on_instructions(store, user_id, kind, **kwargs):
+        if MemoryKind(kind) is MemoryKind.PROCEDURAL:
+            raise RuntimeError("guard exploded")
+        return search_memory_typed(store, user_id, kind, **kwargs)
 
-    monkeypatch.setattr(nodes, "get_instructions", _boom)
+    monkeypatch.setattr(nodes, "search_memory_typed", _boom_on_instructions)
 
     store = get_store("sqlite:///:memory:")
     store.put(_proc_ns("u_boom"), "reply_length", {"text": "keep it short"})
