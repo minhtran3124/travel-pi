@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { BookingsTab } from "@/components/trips/bookings/BookingsTab";
@@ -23,7 +23,14 @@ export default function TripDetailPage() {
   const tToday = useTranslations("Today");
   const params = useParams<{ tripId: string }>();
   const tripId = params.tripId;
-  const [activeTab, setActiveTab] = useState("itinerary");
+  // `?tab=` opens a tab directly (the chat's research-done card links here).
+  const tabParam = useSearchParams().get("tab");
+  const [tabState, setActiveTab] = useState(tabParam ?? "itinerary");
+  const [seenTabParam, setSeenTabParam] = useState(tabParam);
+  if (tabParam !== seenTabParam) {
+    setSeenTabParam(tabParam);
+    if (tabParam) setActiveTab(tabParam);
+  }
   const { data: trip, isPending, isError } = useTrip(tripId);
 
   const tabs: Tab[] = [
@@ -38,6 +45,10 @@ export default function TripDetailPage() {
       ? [{ id: "research", label: t("research.tabLabel") }]
       : []),
   ];
+  // An unknown or disabled `?tab=` falls back rather than rendering no tab.
+  const activeTab = tabs.some((tab) => tab.id === tabState)
+    ? tabState
+    : "itinerary";
 
   if (isPending) {
     return <TripHeaderSkeleton />;

@@ -6,7 +6,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import en from "../../../../messages/en.json";
 import TripDetailPage from "./page";
 
-vi.mock("next/navigation", () => ({ useParams: () => ({ tripId: "trip-1" }) }));
+const search = vi.hoisted(() => ({ tab: null as string | null }));
+vi.mock("next/navigation", () => ({
+  useParams: () => ({ tripId: "trip-1" }),
+  useSearchParams: () => new URLSearchParams(search.tab ? { tab: search.tab } : {}),
+}));
 vi.mock("@/lib/query/trips", () => ({
   useTrip: () => ({
     data: { id: "trip-1" },
@@ -21,6 +25,9 @@ vi.mock("@/components/trips/TripHeader", () => ({
 vi.mock("@/components/trips/itinerary/ItineraryTab", () => ({
   ItineraryTab: () => null,
 }));
+vi.mock("@/components/trips/research/ResearchTab", () => ({
+  ResearchTab: () => null,
+}));
 
 function renderPage() {
   return render(
@@ -33,7 +40,10 @@ function renderPage() {
 }
 
 describe("TripDetailPage research tab", () => {
-  afterEach(() => vi.unstubAllEnvs());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    search.tab = null;
+  });
 
   it("shows the Research tab while research is enabled", () => {
     vi.stubEnv("NEXT_PUBLIC_RESEARCH_ENABLED", "true");
@@ -56,5 +66,23 @@ describe("TripDetailPage research tab", () => {
     expect(
       screen.getByRole("tab", { name: en.TripDetail.tabs.itinerary }),
     ).toBeInTheDocument();
+  });
+
+  it("opens the Research tab from ?tab=research (the chat card's link)", () => {
+    vi.stubEnv("NEXT_PUBLIC_RESEARCH_ENABLED", "true");
+    search.tab = "research";
+    renderPage();
+    expect(
+      screen.getByRole("tab", { name: en.TripDetail.research.tabLabel }),
+    ).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("falls back to the itinerary for ?tab=research while research is disabled", () => {
+    vi.stubEnv("NEXT_PUBLIC_RESEARCH_ENABLED", "false");
+    search.tab = "research";
+    renderPage();
+    expect(
+      screen.getByRole("tab", { name: en.TripDetail.tabs.itinerary }),
+    ).toHaveAttribute("aria-selected", "true");
   });
 });

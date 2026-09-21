@@ -7,13 +7,16 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { qk } from "@/lib/api/keys";
+import { researchEnabled } from "@/lib/features";
 import { useIdentity } from "@/lib/identity/useUserId";
 import { panelKey } from "@/lib/stream/panel";
 import { ChatLauncher } from "./ChatLauncher";
 import { ChatPanel } from "./ChatPanel";
+import { ResearchDoneCard } from "./ResearchDoneCard";
 import { PanelIntlProvider } from "./panel/PanelIntlProvider";
 import { SidePanel } from "./panel/SidePanel";
 import { useAgentStream } from "./useAgentStream";
+import { useResearchWatch } from "./useResearchWatch";
 
 /** Extract a trip id from a `/trips/{id}` route, else undefined. */
 function tripIdFromPath(pathname: string | null): string | undefined {
@@ -108,13 +111,30 @@ export function ChatWidget() {
   const tripId = tripIdFromPath(pathname);
   const queryClient = useQueryClient();
 
-  const onTurnComplete = useCallback(() => {
-    if (!tripId) return;
-    queryClient.invalidateQueries({ queryKey: qk.trip(tripId) });
-    queryClient.invalidateQueries({ queryKey: qk.items(tripId) });
-    queryClient.invalidateQueries({ queryKey: qk.budget(tripId) });
-    queryClient.invalidateQueries({ queryKey: qk.expenses(tripId) });
-  }, [queryClient, tripId]);
+  const research = useResearchWatch(tripId, researchEnabled() && !signedOut);
+  const checkResearch = research.check;
+
+  const onTurnComplete = useCallback(
+    ({ currentFlow }: { currentFlow: string | null }) => {
+      if (!tripId) return;
+      queryClient.invalidateQueries({ queryKey: qk.trip(tripId) });
+      queryClient.invalidateQueries({ queryKey: qk.items(tripId) });
+      queryClient.invalidateQueries({ queryKey: qk.budget(tripId) });
+      queryClient.invalidateQueries({ queryKey: qk.expenses(tripId) });
+      // A research turn may have just started a run: follow it to completion.
+      if (currentFlow === "research") checkResearch();
+    },
+    [queryClient, tripId, checkResearch],
+  );
+
+  const researchNotice =
+    tripId && research.done ? (
+      <ResearchDoneCard
+        run={research.done}
+        tripId={tripId}
+        onDismiss={research.dismiss}
+      />
+    ) : null;
 
   const stream = useAgentStream({ tripId, onTurnComplete });
 
@@ -154,7 +174,12 @@ export function ChatWidget() {
           {signedOut ? (
             <SignedOutPrompt />
           ) : (
-            <ChatPanel stream={stream} onClose={closeWidget} isCompact />
+            <ChatPanel
+              stream={stream}
+              onClose={closeWidget}
+              isCompact
+              notice={researchNotice}
+            />
           )}
         </div>
       ) : null}
@@ -180,6 +205,7 @@ export function ChatWidget() {
             <ChatPanel
               stream={stream}
               onClose={() => setOpen(false)}
+              notice={researchNotice}
               onOpenPanel={(panel) => {
                 setMapHidden(false);
                 focusNonce.current += 1;

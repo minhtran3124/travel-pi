@@ -587,6 +587,20 @@
     "bookViaAssistantHint": "Ask the assistant in chat to book this for you."
   },
   "Chat": {
+    "researchDone": {
+      "title": "Your trip research is ready",
+      "covers": "The dossier covers {sections}.",
+      "proposalReady": "A proposed plan is ready to review and apply to your trip.",
+      "open": "Open the Research tab",
+      "dismiss": "Dismiss",
+      "sections": {
+        "days": "a {count}-day plan",
+        "flights": "flights",
+        "stays": "stays",
+        "entry": "entry & season",
+        "budget": "budget"
+      }
+    },
     "headerTitle": "Tin",
     "dialogLabel": "Travel Assistant",
     "statusReady": "Ready when you are",

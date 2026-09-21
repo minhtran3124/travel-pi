@@ -18,10 +18,36 @@ const { mockPanels } = vi.hoisted(() => ({
     data: unknown;
   }>,
 }));
+const stream = vi.hoisted(() => ({
+  onTurnComplete: undefined as
+    | ((turn: { currentFlow: string | null }) => void)
+    | undefined,
+}));
 vi.mock("./useAgentStream", () => ({
-  useAgentStream: () => ({
-    panels: mockPanels,
-    panelLanguage: "en",
+  useAgentStream: (opts: {
+    onTurnComplete?: (turn: { currentFlow: string | null }) => void;
+  }) => {
+    stream.onTurnComplete = opts.onTurnComplete;
+    return { panels: mockPanels, panelLanguage: "en" };
+  },
+}));
+
+const research = vi.hoisted(() => ({
+  done: null as null | {
+    run_id: string;
+    trip_id: string;
+    status: string;
+    thread_turn: number;
+    files: string[];
+    proposal_ready: boolean;
+  },
+  check: vi.fn(),
+}));
+vi.mock("./useResearchWatch", () => ({
+  useResearchWatch: () => ({
+    done: research.done,
+    check: research.check,
+    dismiss: vi.fn(),
   }),
 }));
 
@@ -29,11 +55,14 @@ vi.mock("./useAgentStream", () => ({
 vi.mock("./ChatPanel", () => ({
   ChatPanel: ({
     onOpenPanel,
+    notice,
   }: {
     onOpenPanel?: (panel: { toolCallId: string; kind: string; data: unknown }) => void;
+    notice?: React.ReactNode;
   }) => (
     <section data-testid="chat-panel">
       panel
+      {notice}
       <button
         type="button"
         aria-label="open-cafe-panel"
@@ -164,5 +193,39 @@ describe("ChatWidget — responsive shell", () => {
     const sidePanel = screen.getByTestId("side-panel");
     expect(sidePanel.dataset.focusKey).toBe("places:cafe");
     expect(sidePanel.dataset.focusNonce).toBe("2");
+  });
+});
+
+describe("ChatWidget — research completion", () => {
+  afterEach(() => {
+    research.done = null;
+    research.check.mockClear();
+  });
+
+  it("follows research only after a turn the research specialist handled", () => {
+    setViewport(false);
+    render(<ChatWidget />);
+
+    stream.onTurnComplete?.({ currentFlow: "planner" });
+    expect(research.check).not.toHaveBeenCalled();
+
+    stream.onTurnComplete?.({ currentFlow: "research" });
+    expect(research.check).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the research-done card in the open panel once a run completes", () => {
+    research.done = {
+      run_id: "run-1",
+      trip_id: "abc",
+      status: "completed",
+      thread_turn: 1,
+      files: ["flights.md"],
+      proposal_ready: true,
+    };
+    setViewport(false);
+    render(<ChatWidget />);
+    open();
+
+    expect(screen.getByTestId("research-done-card")).toBeInTheDocument();
   });
 });

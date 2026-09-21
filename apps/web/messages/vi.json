@@ -587,6 +587,20 @@
     "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
   },
   "Chat": {
+    "researchDone": {
+      "title": "Đã nghiên cứu xong chuyến đi của bạn",
+      "covers": "Hồ sơ gồm {sections}.",
+      "proposalReady": "Đã có kế hoạch đề xuất để bạn xem và áp dụng vào chuyến đi.",
+      "open": "Mở tab Nghiên cứu",
+      "dismiss": "Đóng",
+      "sections": {
+        "days": "lịch trình {count} ngày",
+        "flights": "chuyến bay",
+        "stays": "chỗ ở",
+        "entry": "nhập cảnh & mùa",
+        "budget": "ngân sách"
+      }
+    },
     "headerTitle": "Tin",
     "dialogLabel": "Trợ lý Du lịch",
     "statusReady": "Sẵn sàng khi bạn cần",
