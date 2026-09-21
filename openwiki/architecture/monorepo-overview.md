@@ -3,9 +3,6 @@ type: overview
 title: Monorepo overview
 description: The shape of the travel-pi repository — a pnpm and Turborepo workspace holding a Next.js web app and a FastAPI backend that also hosts the LangGraph travel agent, how the web app reaches the API through a proxy and a generated typed client, the backend's layering, the product boundary between real user data and synthetic inventory, the run and build entrypoints, and where the cross-cutting documents live.
 tags: [monorepo, pnpm, turborepo, nextjs, fastapi, architecture, overview, entrypoints]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
@@ -29,7 +26,10 @@ sources:
     resource: repo://techstacks/architecture.md
   - id: openwiki-source-440ae1e215cb02721dda855c
     resource: repo://turbo.json
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-21T09:36:49.315Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-21T09:36:49.315Z
 ---
 
 # Monorepo overview
@@ -83,7 +83,7 @@ The root `Makefile` is a thin layer: `make dev` runs both dev servers through Tu
 
 ## Where the cross-cutting documents live
 
-- `README.md` (setup and product boundaries), `AGENTS.md` (orientation and mental model for agents and new contributors), `CLAUDE.md` (run, test and git conventions), `TECHSTACKS.md` (versions sourced from the manifests), `WORKFLOW.md` and `WORKFLOW_DIAGRAM.md` (the agent's request flow).
+- `README.md` (setup and product boundaries), `AGENTS.md` (orientation, mental model and a "where to go next" routing table for agents and new contributors), `CLAUDE.md` (run, test and git conventions), `TECHSTACKS.md` (versions sourced from the manifests), `FEATURES.md` (the feature inventory), `WORKFLOW.md` and `WORKFLOW_DIAGRAM.md` (the agent's request flow), and `DESIGN.md` + `PRODUCT.md` (the web design system and product brief).
 - `techstacks/` holds the architecture, guidelines, frontend and LangGraph profiles that reviews are measured against.
 - `docs/decisions/` holds the architecture decision records; `docs/solutions/` is the compounded knowledge base of bugs, patterns and decisions; `specs/<slug>/` holds one folder per feature with its plan, summary and review, and is git-tracked as the feature history.
 - `.claude/` is the engineering harness (rules, skills, hooks) and is not part of the runtime.

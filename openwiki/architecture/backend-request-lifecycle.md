@@ -5,7 +5,7 @@ description: How the FastAPI backend boots and serves a request — the app fact
 tags: [fastapi, lifespan, middleware, dependency-injection, error-handling, layering, unit-of-work, startup]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-21T09:36:49.315Z
 sources:
   - id: openwiki-source-3b8ef62288ae24dc8e4a52ed
     resource: repo://apps/api/app/core/deps.py

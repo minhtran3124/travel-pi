@@ -32,10 +32,10 @@ sources:
     resource: repo://Makefile
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
-generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+generated: { by: "claude-code", at: "2026-09-21T09:36:49.315Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:19:54.601Z
+    at: 2026-09-21T09:36:49.315Z
 ---
 
 # Local development, Docker and CI
@@ -58,7 +58,7 @@ make web    # Next.js on :3000
 make dev    # both, through Turbo
 ```
 
-The API runs on its SQLite default with no `.env` and no LLM key; the web app needs its public Supabase variables to construct its auth clients (see [Configuration and environments](../architecture/configuration-and-environments.md)). Swagger and the OpenAPI schema are served only outside production.
+The API runs on its SQLite default with no `.env` and no LLM key, though day-to-day development runs against the Docker Postgres stack (`make up`) and SQLite mainly backs the fast unit suite; the web app needs its public Supabase variables to construct its auth clients (see [Configuration and environments](../architecture/configuration-and-environments.md)). Swagger and the OpenAPI schema are served only outside production.
 
 ## Make targets
 
@@ -95,4 +95,4 @@ The frontend e2e suite is opt-in locally too: `pnpm e2e` from `apps/web` with th
 
 ## Git conventions
 
-Feature PRs target the current integration branch rather than `main` directly, staging and committing are separate commands (a local hook blocks compound `git add … && git commit …`), and the repository owner's GitHub account is used for pushes and pull requests.
+`main` is the integration branch, so feature PRs target `main`. The git remote is named `github` rather than `origin`, so `gh` commands pass `--repo minhtran3124/travel-pi`. Staging and committing are separate commands (a local hook blocks compound `git add … && git commit …`), and the repository owner's GitHub account is used for pushes and pull requests.
