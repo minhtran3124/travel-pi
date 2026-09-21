@@ -101,12 +101,21 @@ def _running_count(factory, trip: str) -> int:
         )
 
 
-def _hold_lock_and_row(session, owner: str, trip: str) -> None:
+def _hold_lock_and_row(
+    session,
+    owner: str,
+    trip: str,
+    bus: ProgressBus,
+) -> None:
     """Simulate a concurrent start mid-transaction: take the per-trip lock and
-    flush an (uncommitted) running run row, holding both until the caller commits."""
+    flush an (uncommitted) running run row, holding both until the caller commits.
+    Like ``start``, the run goes live on the bus before its commit — otherwise the
+    waiting start would read the committed row as a dead process's orphan."""
     advisory_xact_lock(session, research_lock_name(owner, trip))
+    run_id = uuid4().hex
+    bus.open(run_id)
     AgentRunRepository(session).start(
-        uuid4().hex,
+        run_id,
         user_id=owner,
         conversation_id=research_thread_id(owner, trip),
         thread_id=research_thread_id(owner, trip),
@@ -149,7 +158,7 @@ def test_concurrent_start_serializes_to_one_run_and_one_conflict() -> None:
     thread, result = _start_in_thread(service, owner, trip)
     try:
         # A holds the lock + an uncommitted running row for this trip.
-        _hold_lock_and_row(a, owner, trip)
+        _hold_lock_and_row(a, owner, trip, service._bus)
         thread.start()
 
         # Poll a third session until B is parked on the advisory lock.
@@ -188,7 +197,7 @@ def test_concurrent_start_without_lock_double_books() -> None:
         with patch("app.research.service.advisory_xact_lock", return_value=None):
             # A holds an uncommitted running row; with the lock a no-op B never
             # waits and its pre-insert check misses A's uncommitted row.
-            _hold_lock_and_row(a, owner, trip)
+            _hold_lock_and_row(a, owner, trip, service._bus)
             thread.start()
             thread.join(timeout=5)
             finished_while_a_uncommitted = not thread.is_alive()

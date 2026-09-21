@@ -22,14 +22,11 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.agents.guardrails import redact_pii
 from app.core.auth import CurrentUserDep, require_premium
-from app.core.config import get_settings
 from app.core.streaming import sse_response
 from app.db.models.agent_run import AgentRun
 from app.db.session import get_session
 from app.exceptions import ForbiddenError, NotFoundError
-from app.research.context import ResearchContext
 from app.research.progress import ProgressBus
-from app.research.runner import run_trip_research
 from app.research.service import (
     RESEARCH_KIND,
     ResearchService,
@@ -199,8 +196,6 @@ def start_research(
     body: ResearchStartRequest,
     auth_user: CurrentUserDep,
     service: ResearchServiceDep,
-    agent: ResearchAgentDep,
-    bus: ResearchBusDep,
     session: SessionDep,
     background: BackgroundTasks,
 ) -> ResearchStartResponse:
@@ -213,21 +208,15 @@ def start_research(
         raise ForbiddenError("This trip is not available for research.") from exc
 
     factory = _isolated_factory(session)
-    ctx = ResearchContext(
-        user_id=auth_user.id,
-        trip_id=trip_id,
-        run_id=run_id,
-        language=body.language or _DEFAULT_LANGUAGE,
-        timezone=get_settings().agent_timezone,
-    )
+    # Through the service, not the runner directly: ``launch`` knows whether this
+    # booking resumes a run its dead process left behind.
     background.add_task(
-        run_trip_research,
-        run_id=run_id,
-        ctx=ctx,
+        service.launch,
+        run_id,
+        auth_user.id,
+        trip_id,
         instruction=redact_pii(body.instruction) if body.instruction else None,
-        agent=agent,
-        bus=bus,
-        session_factory=factory,
+        language=body.language or _DEFAULT_LANGUAGE,
     )
     return ResearchStartResponse(
         run_id=run_id,
@@ -248,8 +237,6 @@ def revise_research(
     body: ResearchStartRequest,
     auth_user: CurrentUserDep,
     service: ResearchServiceDep,
-    agent: ResearchAgentDep,
-    bus: ResearchBusDep,
     session: SessionDep,
     background: BackgroundTasks,
 ) -> ResearchStartResponse:
@@ -262,21 +249,15 @@ def revise_research(
         raise ForbiddenError("This trip is not available for research.") from exc
 
     factory = _isolated_factory(session)
-    ctx = ResearchContext(
-        user_id=auth_user.id,
-        trip_id=prior.trip_id,
-        run_id=new_run_id,
-        language=body.language or _DEFAULT_LANGUAGE,
-        timezone=get_settings().agent_timezone,
-    )
+    # Through the service, not the runner directly: ``launch`` knows whether this
+    # booking resumes a run its dead process left behind.
     background.add_task(
-        run_trip_research,
-        run_id=new_run_id,
-        ctx=ctx,
+        service.launch,
+        new_run_id,
+        auth_user.id,
+        prior.trip_id,
         instruction=redact_pii(body.instruction) if body.instruction else None,
-        agent=agent,
-        bus=bus,
-        session_factory=factory,
+        language=body.language or _DEFAULT_LANGUAGE,
     )
     return ResearchStartResponse(
         run_id=new_run_id,

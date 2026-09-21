@@ -54,10 +54,27 @@ def test_start_conflicts_while_one_running(tmp_path):
     app, url, _store = build_app(tmp_path)
     create_trip(url, "t1", USER_ID)
     insert_run(url, "existing-run", USER_ID, "t1", status="running")
+    # Live: this process is driving it.
+    app.state.research_bus.open("existing-run")
     client = TestClient(app)
 
     resp = client.post("/agent/trips/t1/research", json={})
     assert resp.status_code == 409, resp.text
+
+
+def test_start_resumes_a_run_left_running_by_a_dead_process(tmp_path):
+    """A row still ``running`` that no process here is driving (a restart landed
+    mid-run, inside the stale window the startup sweep skips) must not 409 the
+    trip until the next restart: the start resumes it under a new run."""
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "orphan-run", USER_ID, "t1", status="running")
+    client = TestClient(app)
+
+    resp = client.post("/agent/trips/t1/research", json={})
+    assert resp.status_code == 202, resp.text
+    assert resp.json()["run_id"] != "orphan-run"
+    assert client.get("/agent/research/orphan-run").json()["status"] == "interrupted"
 
 
 def test_fourth_start_in_a_day_is_429(tmp_path):
