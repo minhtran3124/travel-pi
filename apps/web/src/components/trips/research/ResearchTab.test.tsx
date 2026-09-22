@@ -87,7 +87,7 @@ describe("ResearchTab", () => {
     expect(start).toBeDisabled();
   });
 
-  it("lists the dossier files from a mocked status response", async () => {
+  it("renders the plan view with a collapsible detailed report", async () => {
     server.use(
       http.get(`${BASE}/agent/trips/:tripId/research`, () =>
         HttpResponse.json({
@@ -99,17 +99,32 @@ describe("ResearchTab", () => {
           proposal_ready: false,
         }),
       ),
+      // The plan view resolves the proposal + budget for its sections; empty
+      // here so every section falls back to prose without crashing.
+      http.get(`${BASE}/agent/research/:runId/files/*`, () =>
+        HttpResponse.json({ content: "" }),
+      ),
+      http.get(`${BASE}/trips/:tripId/budget`, () =>
+        HttpResponse.json({ message: "no budget" }, { status: 404 }),
+      ),
     );
 
     renderTab();
 
+    // The plan header replaces the old flat file list.
     await waitFor(() =>
       expect(
-        screen.getByText(en.TripDetail.research.filesHeading),
+        screen.getByText(en.TripDetail.research.plan.readyTitle),
       ).toBeInTheDocument(),
     );
-    expect(screen.getByText("/research/overview.md")).toBeInTheDocument();
-    expect(screen.getByText("/plan/proposal.json")).toBeInTheDocument();
+    // The dossier stays reachable under a collapsible report.
+    const report = screen.getByRole("button", {
+      name: new RegExp(en.TripDetail.research.plan.report.title),
+    });
+    fireEvent.click(report);
+    expect(
+      screen.getByText(en.TripDetail.research.plan.report.overview),
+    ).toBeInTheDocument();
   });
 
   it("leaves the running state and shows the dossier once the stream reaches done", async () => {
@@ -124,6 +139,10 @@ describe("ResearchTab", () => {
         startBody = await request.json();
         return HttpResponse.json({ run_id: RUN_ID, thread_turn: 1 }, { status: 202 });
       }),
+      // The plan view (shown once the run finishes) resolves the trip budget.
+      http.get(`${BASE}/trips/:tripId/budget`, () =>
+        HttpResponse.json({ message: "no budget" }, { status: 404 }),
+      ),
     );
 
     // The live SSE bypasses the `/api/be` proxy and hits the origin directly via
@@ -177,10 +196,15 @@ describe("ResearchTab", () => {
           screen.queryByText(en.TripDetail.research.running),
         ).not.toBeInTheDocument(),
       );
+      // The finished run lands on the plan view, dossier under the report.
       expect(
-        screen.getByText(en.TripDetail.research.filesHeading),
+        screen.getByText(en.TripDetail.research.plan.readyTitle),
       ).toBeInTheDocument();
-      expect(screen.getByText("/research/overview.md")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", {
+          name: new RegExp(en.TripDetail.research.plan.report.title),
+        }),
+      ).toBeInTheDocument();
       // The trimmed departure point went to the start request.
       expect(startBody).toMatchObject({ origin: "Ho Chi Minh City" });
     } finally {

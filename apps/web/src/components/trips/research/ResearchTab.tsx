@@ -4,8 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { FileViewer } from "@/components/trips/research/FileViewer";
-import { ProposalPanel } from "@/components/trips/research/ProposalPanel";
+import { ProgressStepper } from "@/components/trips/research/ProgressStepper";
+import { ResearchPlan } from "@/components/trips/research/ResearchPlan";
 import { useResearchStream } from "@/components/trips/research/useResearchStream";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -50,7 +50,6 @@ export function ResearchTab({ tripId }: { tripId: string }) {
   const [origin, setOrigin] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionFailed, setActionFailed] = useState(false);
-  const [openFile, setOpenFile] = useState<string | null>(null);
 
   const latest = useQuery({
     queryKey: latestKey(tripId),
@@ -79,15 +78,12 @@ export function ResearchTab({ tripId }: { tripId: string }) {
     return [...paths].sort();
   }, [summary?.files, stream.files]);
 
-  const proposalReady = Boolean(summary?.proposal_ready) || stream.proposalReady;
-
   async function runAction(action: () => Promise<{ run_id: string }>) {
     setActionFailed(false);
     setBusy(true);
     try {
       const res = await action();
       setLiveRunId(res.run_id);
-      setOpenFile(null);
       await queryClient.invalidateQueries({ queryKey: latestKey(tripId) });
     } catch {
       // A start against the flag-gated (absent) router 404s; surface a calm
@@ -188,54 +184,22 @@ export function ResearchTab({ tripId }: { tripId: string }) {
               {t("running")}
             </h2>
           </div>
-          <Progress
-            todos={stream.todos}
+          <ProgressStepper
             subagents={stream.subagents}
-            tools={stream.tools}
+            files={stream.files}
             lastEval={stream.lastEval}
           />
         </Card>
-      ) : null}
+      ) : (
+        <ResearchPlan
+          tripId={tripId}
+          runId={runId}
+          files={filePaths}
+          review={summary?.review ?? null}
+        />
+      )}
 
       {stream.status === "error" ? <Notice>{t("error")}</Notice> : null}
-
-      {filePaths.length > 0 ? (
-        <section className="flex flex-col gap-sm">
-          <h2 className="text-sm font-bold uppercase tracking-[0.08em] text-muted">
-            {t("filesHeading")}
-          </h2>
-          <div className="flex flex-col gap-md md:flex-row md:items-start">
-            <ul className="flex shrink-0 flex-col gap-xs md:w-[16rem]">
-              {filePaths.map((path) => (
-                <li key={path}>
-                  <button
-                    type="button"
-                    onClick={() => setOpenFile(path)}
-                    aria-pressed={openFile === path}
-                    className={
-                      "w-full truncate rounded-sm border px-sm py-xs text-left text-sm transition " +
-                      (openFile === path
-                        ? "border-line bg-panel-raised text-ink"
-                        : "border-line-soft text-muted hover:bg-panel-raised hover:text-ink")
-                    }
-                  >
-                    {path}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <div className="min-w-0 flex-1">
-              {openFile ? (
-                <FileViewer runId={runId} path={openFile} />
-              ) : null}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {proposalReady ? (
-        <ProposalPanel tripId={tripId} runId={runId} files={filePaths} />
-      ) : null}
 
       <Card className="flex flex-col gap-sm">
         <h2 className="text-sm font-bold uppercase tracking-[0.08em] text-muted">
@@ -248,6 +212,19 @@ export function ResearchTab({ tripId }: { tripId: string }) {
           rows={2}
           className="w-full resize-y rounded-sm border border-line bg-panel px-sm py-xs text-sm text-ink outline-none placeholder:text-faint focus:border-faint"
         />
+        <ul className="flex flex-wrap gap-xs">
+          {REVISE_CHIPS.map((key) => (
+            <li key={key}>
+              <button
+                type="button"
+                onClick={() => setInstruction(t(`reviseChips.${key}`))}
+                className="rounded-pill border border-line bg-panel px-sm py-[2px] text-xs text-ink transition hover:bg-panel-raised"
+              >
+                {t(`reviseChips.${key}`)}
+              </button>
+            </li>
+          ))}
+        </ul>
         <div className="flex items-center gap-sm">
           <Button
             onClick={handleRevise}
@@ -262,6 +239,9 @@ export function ResearchTab({ tripId }: { tripId: string }) {
   );
 }
 
+/** Quick-instruction chips that prefill the revise box (localized). */
+const REVISE_CHIPS = ["cheaper", "localFood", "relaxed"] as const;
+
 /** A calm, non-crashing inline notice reused across the tab's error paths. */
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -271,64 +251,5 @@ function Notice({ children }: { children: React.ReactNode }) {
     >
       {children}
     </p>
-  );
-}
-
-interface ProgressProps {
-  todos: { content: string; status: string }[];
-  subagents: { name: string; status: string }[];
-  tools: { name: string; status: string }[];
-  lastEval: { iteration: number; result: string; explanation: string } | null;
-}
-
-/**
- * Live progress rendered entirely from streamed values (todo text, subagent /
- * tool names, rubric verdict) — the tab holds no copy for these, so no strings
- * are invented for the projected states.
- */
-function Progress({ todos, subagents, tools, lastEval }: ProgressProps) {
-  const named = [...subagents, ...tools];
-  return (
-    <div className="flex flex-col gap-sm">
-      {todos.length > 0 ? (
-        <ul className="flex flex-col gap-xs">
-          {todos.map((todo, i) => (
-            <li key={`${todo.content}-${i}`} className="flex items-start gap-xs text-sm">
-              <span aria-hidden="true" className="text-muted">
-                {todo.status === "completed" ? "✓" : "•"}
-              </span>
-              <span
-                className={
-                  todo.status === "completed" ? "text-muted line-through" : "text-ink"
-                }
-              >
-                {todo.content}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {named.length > 0 ? (
-        <ul className="flex flex-wrap gap-xs">
-          {named.map((entry) => (
-            <li
-              key={entry.name}
-              className="inline-flex items-center gap-xs rounded-pill bg-panel-raised px-sm py-px text-xs font-bold text-muted ring-1 ring-line"
-            >
-              <span className="text-ink">{entry.name}</span>
-              <span>{entry.status}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {lastEval ? (
-        <p className="text-xs text-muted">
-          <span className="font-bold text-ink">{lastEval.result}</span>
-          {lastEval.explanation ? ` — ${lastEval.explanation}` : null}
-        </p>
-      ) : null}
-    </div>
   );
 }

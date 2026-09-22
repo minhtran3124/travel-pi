@@ -139,7 +139,54 @@
       "filesHeading": "Tệp nghiên cứu",
       "proposalHeading": "Đề xuất bổ sung",
       "apply": "Áp dụng vào chuyến đi",
-      "error": "Đã xảy ra lỗi khi nghiên cứu. Vui lòng thử lại."
+      "error": "Đã xảy ra lỗi khi nghiên cứu. Vui lòng thử lại.",
+      "progress": {
+        "flights": "Chuyến bay",
+        "stays": "Chỗ ở",
+        "days": "Lịch trình",
+        "budget": "Ngân sách",
+        "entry": "Thủ tục & thời tiết",
+        "quality": "Kiểm tra chất lượng"
+      },
+      "reviseChips": {
+        "cheaper": "Rẻ hơn",
+        "localFood": "Thêm quán địa phương",
+        "relaxed": "Nhịp độ thong thả hơn"
+      },
+      "plan": {
+        "navLabel": "Các mục của kế hoạch",
+        "readyTitle": "Kế hoạch đã sẵn sàng",
+        "readyTitleNeedsReview": "Kế hoạch đã sẵn sàng — còn vài phần cần xem lại",
+        "needsReviewHint": "Một số lựa chọn chưa xác nhận được — mở báo cáo chi tiết hoặc dùng Chỉnh sửa để bổ sung.",
+        "statDays": "{count} ngày",
+        "statFlights": "{count} chuyến bay",
+        "budgetLine": "{spent} / {cap} USD",
+        "budgetLineNoCap": "Ước tính {spent} USD",
+        "itineraryHeading": "Lịch trình",
+        "flightsHeading": "Chuyến bay",
+        "staysHeading": "Chỗ ở",
+        "budgetHeading": "Ngân sách",
+        "entryHeading": "Thủ tục & thời tiết",
+        "dayLabel": "Ngày {n}",
+        "includeStop": "Thêm điểm dừng này khi áp dụng",
+        "perNight": "{price}/đêm",
+        "nonstop": "Bay thẳng",
+        "stops": "{count} điểm dừng",
+        "unavailable": "Không tải được lựa chọn này.",
+        "applyResult": "Đã thêm {applied}/{total}",
+        "report": {
+          "title": "Báo cáo chi tiết",
+          "count": "{count} mục",
+          "summary": "Tóm tắt",
+          "overview": "Tổng quan",
+          "flights": "Chuyến bay",
+          "stays": "Chỗ ở",
+          "entry": "Thủ tục & thời tiết",
+          "budget": "Ngân sách",
+          "day": "Ngày {n}",
+          "proposal": "Dữ liệu đề xuất"
+        }
+      }
     }
   },
   "Budget": {

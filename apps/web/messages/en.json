@@ -139,7 +139,54 @@
       "filesHeading": "Research files",
       "proposalHeading": "Proposed additions",
       "apply": "Apply to trip",
-      "error": "Something went wrong while researching. Please try again."
+      "error": "Something went wrong while researching. Please try again.",
+      "progress": {
+        "flights": "Flights",
+        "stays": "Stays",
+        "days": "Itinerary",
+        "budget": "Budget",
+        "entry": "Entry & weather",
+        "quality": "Quality check"
+      },
+      "reviseChips": {
+        "cheaper": "Make it cheaper",
+        "localFood": "Add local food spots",
+        "relaxed": "A more relaxed pace"
+      },
+      "plan": {
+        "navLabel": "Plan sections",
+        "readyTitle": "Your plan is ready",
+        "readyTitleNeedsReview": "Your plan is ready — a few parts to check",
+        "needsReviewHint": "Some options couldn't be confirmed — open the detailed report or use Revise to fill the gaps.",
+        "statDays": "{count} days",
+        "statFlights": "{count} flights",
+        "budgetLine": "{spent} / {cap} USD",
+        "budgetLineNoCap": "{spent} USD estimated",
+        "itineraryHeading": "Itinerary",
+        "flightsHeading": "Flights",
+        "staysHeading": "Stays",
+        "budgetHeading": "Budget",
+        "entryHeading": "Entry & weather",
+        "dayLabel": "Day {n}",
+        "includeStop": "Include this stop when applying",
+        "perNight": "{price}/night",
+        "nonstop": "Nonstop",
+        "stops": "{count} stop(s)",
+        "unavailable": "This option couldn't be loaded.",
+        "applyResult": "{applied}/{total} added",
+        "report": {
+          "title": "Detailed report",
+          "count": "{count} sections",
+          "summary": "Summary",
+          "overview": "Overview",
+          "flights": "Flights",
+          "stays": "Stays",
+          "entry": "Entry & weather",
+          "budget": "Budget",
+          "day": "Day {n}",
+          "proposal": "Proposal data"
+        }
+      }
     }
   },
   "Budget": {
