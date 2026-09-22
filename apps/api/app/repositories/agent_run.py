@@ -25,7 +25,7 @@ _FINISH_METRIC_KEYS = (
 
 # Re-applied here even though the handler allowlists meta keys — the content boundary shouldn't rest on one caller staying disciplined.
 # ``resumed_from`` is an internal run id (never user content) stamped on a resume's first step so the chain of resumed runs is auditable.
-_META_KEYS = frozenset({"finish_reason", "resumed_from"})
+_META_KEYS = frozenset({"finish_reason", "resumed_from", "rubric_status"})
 
 
 def _sanitised(step: dict) -> dict:

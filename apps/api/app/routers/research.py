@@ -26,10 +26,12 @@ from app.core.streaming import sse_response
 from app.db.models.agent_run import AgentRun
 from app.db.session import get_session
 from app.exceptions import ForbiddenError, NotFoundError
+from app.repositories.agent_run import AgentRunRepository
 from app.research.progress import ProgressBus
 from app.research.service import (
     RESEARCH_KIND,
     ResearchService,
+    review_from_steps,
 )
 from app.routers.tags import Tags
 from app.schemas.error import ErrorResponse, error_responses
@@ -177,6 +179,7 @@ def _status_body(
         thread_turn=_thread_turn(factory, run.trip_id, upto=run.created_at),
         files=_file_index(store, run.user_id, run.trip_id),
         proposal_ready=_proposal_ready(store, run.user_id, run.trip_id),
+        review=review_from_steps(AgentRunRepository(factory), run.id),
     )
 
 

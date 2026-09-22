@@ -92,6 +92,28 @@ describe("ResearchDoneCard", () => {
     expect(screen.queryByTestId("research-summary")).toBeNull();
   });
 
+  it("tells the traveller when the grader never accepted the dossier", async () => {
+    api.getResearchFile.mockResolvedValue("- **Flights:** one option found");
+    renderCard("en", {
+      ...RUN,
+      files: [...RUN.files, "summary.md"],
+      review: "needs_review",
+    });
+
+    expect(await screen.findByTestId("research-summary")).toBeInTheDocument();
+    expect(screen.getByText(en.Chat.researchDone.titleNeedsReview)).toBeInTheDocument();
+    expect(screen.getByText(en.Chat.researchDone.hintNeedsReview)).toBeInTheDocument();
+    expect(screen.queryByText(en.Chat.researchDone.title)).toBeNull();
+  });
+
+  it("uses the needs-review hint instead of the ready hint without a summary", () => {
+    renderCard("vi", { ...RUN, review: "needs_review" });
+
+    expect(screen.getByText(vi_.Chat.researchDone.titleNeedsReview)).toBeInTheDocument();
+    expect(screen.getByText(vi_.Chat.researchDone.hintNeedsReview)).toBeInTheDocument();
+    expect(screen.queryByText(vi_.Chat.researchDone.hint)).toBeNull();
+  });
+
   it("does not fetch a summary the dossier does not have", () => {
     renderCard("en");
     expect(api.getResearchFile).not.toHaveBeenCalled();

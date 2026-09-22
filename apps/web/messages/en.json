@@ -589,6 +589,8 @@
   "Chat": {
     "researchDone": {
       "title": "Your trip research is ready!",
+      "titleNeedsReview": "Your research is ready — a few gaps to check",
+      "hintNeedsReview": "Some options couldn't be confirmed. Review them in the Research tab and use Revise to fill the gaps.",
       "hint": "Take a look and add what you like to your trip.",
       "hintNoPlan": "Take a look whenever you're ready.",
       "open": "See the research",

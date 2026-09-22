@@ -68,6 +68,7 @@ def _research_started(language: str | None) -> dict:
 _STATUS_COPY: dict[str, str] = {
     "running": "research_in_progress",
     "completed": "research_completed",
+    "needs_review": "research_needs_review",
 }
 
 
@@ -137,7 +138,7 @@ def make_research_node(service_factory: ResearchServiceFactory):
         if run_state in _STATUS_COPY:
             summary = (
                 service.completed_summary(user_id, trip_id)
-                if run_state == "completed"
+                if run_state != "running"
                 else None
             )
             return _research_status(run_state, language, summary)

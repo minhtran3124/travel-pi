@@ -20,10 +20,14 @@ for the file path, headings, and the citation rule.
 1. Read the trip summary and the traveller's ask from the overview / the task prompt:
    origin, destination, dates, party size, cabin.
 2. If a date is expressed in words, call `resolve_date` first; cite it.
-3. Call `search_flights` with the resolved parameters. Repeat with a sensible variation
-   (nearby dates, other cabin) only if it helps the traveller decide — stay within the
-   subagent tool-round budget.
-4. Record each offer you keep: **offer id**, origin→destination, depart/arrive times,
+3. Call `search_flights` **once per leg, one-way**: the outbound leg, then the return leg
+   with origin and destination swapped and the return date as `departure_date`. A
+   round-trip call lists only the outbound offers' ids, so it cannot give you a return
+   `offer_id`. Repeat with a sensible variation (nearby dates, other cabin) only if it
+   helps the traveller decide — stay within the subagent tool-round budget.
+4. Record each offer you keep: **offer id** — the value after `offer_id` in the tool's
+   "Ids for the proposal" list, never the flight number (`VN422` is not an offer id) —
+   origin→destination, depart/arrive times,
    duration, stops, cabin, and price. Every one of these is followed by `(search_flights)`.
 5. Recommend a shortlist (2–4 offers) and say briefly why (cheapest, fastest, best
    time), citing the tool for every figure.

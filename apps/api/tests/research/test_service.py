@@ -252,3 +252,42 @@ def test_the_loser_of_a_concurrent_start_does_not_spend_the_daily_cap(
 
     for _ in range(daily_limit):
         _complete(factory, service.start(OWNER, TRIP))
+
+
+@pytest.mark.parametrize(
+    ("rubric_status", "review"),
+    [
+        ("satisfied", "passed"),
+        ("max_iterations_reached", "needs_review"),
+        ("failed", "needs_review"),
+        ("grader_error", "needs_review"),
+        (None, None),
+    ],
+)
+def test_review_maps_the_recorded_grader_verdict(
+    service,
+    factory,
+    rubric_status,
+    review,
+) -> None:
+    from app.repositories.agent_run import AgentRunRepository
+
+    run_id = service.start(OWNER, TRIP)
+    _complete(factory, run_id)
+    if rubric_status is not None:
+        AgentRunRepository(factory).add_steps(
+            run_id,
+            [
+                {
+                    "seq": 0,
+                    "kind": "node",
+                    "node": "rubric",
+                    "status": "ok",
+                    "meta": {"rubric_status": rubric_status},
+                }
+            ],
+        )
+
+    assert service.review(run_id) == review
+    expected_state = "needs_review" if review == "needs_review" else "completed"
+    assert service.chat_state(OWNER, TRIP) == expected_state

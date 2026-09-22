@@ -40,6 +40,9 @@ _RUNNING = "running"
 _INTERRUPTED = "interrupted"
 _COMPLETED = "completed"
 _SUMMARY_PATH = "/research/summary.md"
+_NEEDS_REVIEW = "needs_review"
+#: Name of the terminal step the runner writes with the grader's verdict.
+RUBRIC_STEP_NODE = "rubric"
 _DEFAULT_LANGUAGE = "en"
 RESEARCH_START_BUCKET = "research_start"
 _DAY_SECONDS = 24 * 60 * 60
@@ -65,6 +68,23 @@ def research_lock_name(
     Keyed per (user, trip) — the granularity of the one-run-per-trip rule — so a
     user's other trips are never blocked."""
     return f"research_start:{user_id}:{trip_id}"
+
+
+def review_from_steps(
+    repo: AgentRunRepository,
+    run_id: str,
+) -> str | None:
+    """Map the run's recorded grader verdict: ``satisfied`` → ``"passed"``; any other
+    terminal verdict (``max_iterations_reached``, ``failed``, ``grader_error``) →
+    ``"needs_review"``; no rubric step (grading off, older runs) → ``None``."""
+    verdicts = [
+        (s.meta or {}).get("rubric_status")
+        for s in repo.steps_for(run_id)
+        if s.node == RUBRIC_STEP_NODE
+    ]
+    if not verdicts or verdicts[-1] is None:
+        return None
+    return "passed" if verdicts[-1] == "satisfied" else _NEEDS_REVIEW
 
 
 def _store_key(path: str) -> str:
@@ -251,8 +271,14 @@ class ResearchService:
         if run.status == _RUNNING and self._is_live(run.id):
             return _RUNNING
         if run.status == _COMPLETED:
-            return _COMPLETED
+            # A dossier the grader never accepted is finished too — never re-run on
+            # the chat's own — but the traveller hears it needs a look.
+            return _NEEDS_REVIEW if self.review(run.id) == _NEEDS_REVIEW else _COMPLETED
         return None
+
+    def review(self, run_id: str) -> str | None:
+        """The run's grader verdict — see :func:`review_from_steps`."""
+        return review_from_steps(AgentRunRepository(self._sf), run_id)
 
     def completed_summary(
         self,

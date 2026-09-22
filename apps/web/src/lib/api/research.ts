@@ -44,6 +44,8 @@ export interface ResearchRunSummary {
   thread_turn: number;
   files: string[];
   proposal_ready: boolean;
+  /** The grader's verdict; `needs_review` = it never accepted the dossier. */
+  review?: "passed" | "needs_review" | null;
 }
 
 /** File content envelope (`GET`/`PUT /agent/research/{run_id}/files/{path}`). */

@@ -112,6 +112,12 @@ RESEARCH_COMPLETED_MSG = (
     "change anything, use Revise there."
 )
 
+RESEARCH_NEEDS_REVIEW_MSG = (
+    "Your trip research is done, but a few parts couldn't be confirmed — some "
+    "options may be missing or need a second look. Check the Research tab, and "
+    "use Revise there to fill any gaps."
+)
+
 RESEARCH_UNAVAILABLE_MSG = (
     "Deep trip research isn't available right now. Please try again a little later."
 )

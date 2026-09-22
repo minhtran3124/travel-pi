@@ -69,6 +69,7 @@ export function ResearchDoneCard({ run, tripId, onDismiss }: ResearchDoneCardPro
   const t = useTranslations("Chat.researchDone");
   const { sections, days } = dossierSections(run.files);
   const summary = useResearchSummary(run);
+  const needsReview = run.review === "needs_review";
   const chips = [
     ...(days > 0 ? [t("sections.days", { count: days })] : []),
     ...sections.map((key) => t(`sections.${key}`)),
@@ -81,7 +82,18 @@ export function ResearchDoneCard({ run, tripId, onDismiss }: ResearchDoneCardPro
       data-testid="research-done-card"
       className="tp-msg-in flex gap-sm border-t border-line bg-lime-soft/40 px-lg py-md"
     >
-      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-lime text-on-accent">
+      <span
+        className={
+          needsReview
+            ? "grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-status-estimated text-on-accent"
+            : "grid h-6 w-6 shrink-0 place-items-center rounded-pill bg-lime text-on-accent"
+        }
+      >
+        {needsReview ? (
+          <span aria-hidden="true" className="text-sm font-bold leading-none">
+            !
+          </span>
+        ) : (
         <svg
           width="14"
           height="14"
@@ -95,11 +107,14 @@ export function ResearchDoneCard({ run, tripId, onDismiss }: ResearchDoneCardPro
         >
           <path d="M20 6 9 17l-5-5" />
         </svg>
+        )}
       </span>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-sm">
-          <p className="pt-[2px] text-sm font-bold text-ink">{t("title")}</p>
+          <p className="pt-[2px] text-sm font-bold text-ink">
+            {needsReview ? t("titleNeedsReview") : t("title")}
+          </p>
           <button
             type="button"
             onClick={onDismiss}
@@ -117,11 +132,14 @@ export function ResearchDoneCard({ run, tripId, onDismiss }: ResearchDoneCardPro
           >
             <AssistantMarkdown content={summary} isStreaming={false} />
           </div>
-        ) : (
+        ) : needsReview ? null : (
           <p className="mt-xs text-sm text-muted">
             {run.proposal_ready ? t("hint") : t("hintNoPlan")}
           </p>
         )}
+        {needsReview ? (
+          <p className="mt-xs text-sm text-status-estimated">{t("hintNeedsReview")}</p>
+        ) : null}
 
         {/* The summary already walks through each section; chips only stand in for it. */}
         {!summary && chips.length > 0 ? (

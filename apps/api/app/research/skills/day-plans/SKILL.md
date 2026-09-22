@@ -13,7 +13,9 @@ Turn the trip into day-by-day plans, one file per day at `/research/days/day-N.m
 - `search_places` — find candidate attractions, restaurants, and sights; the source of
   place ids.
 - `nearby_places` — cluster things that are close together so a day flows.
-- `resolve_place` — turn a named place into a concrete place record with an id.
+- `resolve_place` — fetch the full record of a place you already have a `place_id` or
+  `PLC-XXXX` code for. It does not search by name: find places with `search_places` and
+  take the `place_id` from its "Ids for the proposal" list.
 - `get_route`, `get_city_route` — check travel time between the day's stops so the day
   is realistic.
 - `get_weather` — near-term forecast for dated trips.

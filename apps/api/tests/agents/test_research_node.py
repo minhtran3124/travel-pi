@@ -26,6 +26,7 @@ from app.agents.constants import (
     RESEARCH_COMPLETED_MSG,
     RESEARCH_IN_PROGRESS_MSG,
     RESEARCH_LIMIT_REACHED_MSG,
+    RESEARCH_NEEDS_REVIEW_MSG,
     RESEARCH_NEEDS_TRIP_MSG,
     RESEARCH_STARTED_MSG,
     RESEARCH_UNAVAILABLE_MSG,
@@ -216,6 +217,7 @@ async def test_daily_cap_reached_says_so_and_schedules_no_driver(monkeypatch):
     ("state", "copy"),
     [
         ("completed", RESEARCH_COMPLETED_MSG),
+        ("needs_review", RESEARCH_NEEDS_REVIEW_MSG),
         ("running", RESEARCH_IN_PROGRESS_MSG),
     ],
 )
@@ -261,17 +263,26 @@ async def test_chat_launch_runs_in_the_chat_language(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_completed_reply_carries_the_research_summary(monkeypatch):
+@pytest.mark.parametrize(
+    ("state", "copy"),
+    [
+        ("completed", RESEARCH_COMPLETED_MSG),
+        ("needs_review", RESEARCH_NEEDS_REVIEW_MSG),
+    ],
+)
+async def test_completed_reply_carries_the_research_summary(monkeypatch, state, copy):
     _flag(monkeypatch, enabled=True)
     service, factory = _service_factory()
-    service.chat_state.return_value = "completed"
-    service.completed_summary.return_value = "- Cheapest flight 1.2M VND\n- Stay in Duong Dong"
+    service.chat_state.return_value = state
+    service.completed_summary.return_value = (
+        "- Cheapest flight 1.2M VND\n- Stay in Duong Dong"
+    )
 
     result = await make_research_node(factory)(_state())
 
     service.completed_summary.assert_called_once_with(OWNER, TRIP)
     assert result["messages"][0].content == (
-        f"{RESEARCH_COMPLETED_MSG}\n\n- Cheapest flight 1.2M VND\n- Stay in Duong Dong"
+        f"{copy}\n\n- Cheapest flight 1.2M VND\n- Stay in Duong Dong"
     )
     service.start.assert_not_called()
 
@@ -324,10 +335,14 @@ async def test_completed_run_on_the_real_service_books_no_second_run(
     assert result["messages"][0].content == RESEARCH_COMPLETED_MSG
 
     service = launcher.build_research_service(store)
-    service.write_file(service.latest(TRIP).id, "/research/summary.md", "- Two easy days")
+    service.write_file(
+        service.latest(TRIP).id, "/research/summary.md", "- Two easy days"
+    )
     result = await node(_state())
 
-    assert result["messages"][0].content == f"{RESEARCH_COMPLETED_MSG}\n\n- Two easy days"
+    assert (
+        result["messages"][0].content == f"{RESEARCH_COMPLETED_MSG}\n\n- Two easy days"
+    )
     with get_session_factory(url)() as s:
         assert s.query(AgentRun).count() == 1
 

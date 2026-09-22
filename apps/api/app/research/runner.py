@@ -31,7 +31,7 @@ from app.repositories.agent_run import AgentRunRepository
 from app.research.context import ResearchContext
 from app.research.memory import seed_agents_md
 from app.research.progress import ProgressBus
-from app.research.service import research_thread_id
+from app.research.service import RUBRIC_STEP_NODE, research_thread_id
 from app.streaming.research_events import ResearchDone, ResearchError, derive_events
 
 logger = logging.getLogger(__name__)
@@ -128,6 +128,37 @@ def _error_step(
     }
 
 
+def _rubric_step(
+    steps: list[dict],
+    rubric_status: str,
+) -> dict:
+    """A terminal step carrying the grader's verdict. ``status`` stays ``ok``: the run
+    itself succeeded (the dossier exists); whether it *passed* is the verdict."""
+    return {
+        "seq": len(steps),
+        "kind": "node",
+        "node": RUBRIC_STEP_NODE,
+        "status": "ok",
+        "meta": {"rubric_status": rubric_status},
+    }
+
+
+async def _read_rubric_status(
+    agent: CompiledStateGraph,
+    config: dict,
+) -> str | None:
+    """``RubricMiddleware``'s terminal verdict for this turn, from the checkpoint. It
+    never alters the reply on a rejected dossier, so this is the only place the
+    runner can learn that the grader gave up (``max_iterations_reached``)."""
+    try:
+        state = await agent.aget_state(config)
+    except Exception:  # noqa: BLE001 — a missing verdict must not fail a finished run
+        logger.warning("[research] rubric status read failed", exc_info=True)
+        return None
+    value = (state.values or {}).get("_rubric_status")
+    return value if isinstance(value, str) else None
+
+
 def _finalize(
     *,
     run_id: str,
@@ -140,6 +171,7 @@ def _finalize(
     error_type: str | None,
     started: float,
     resumed_from: str | None,
+    rubric_status: str | None = None,
 ) -> None:
     """Write the terminal run row + steps on the isolated factory and publish the
     terminal bus event. Every sub-step is best-effort so finalisation never raises."""
@@ -169,6 +201,8 @@ def _finalize(
             steps = [*steps, _error_step(steps, error_type)]
         if resumed_from is not None:
             steps = _mark_resumed(steps, resumed_from)
+        if rubric_status is not None:
+            steps = [*steps, _rubric_step(steps, rubric_status)]
         repo.add_steps(run_id, steps)
     except Exception:
         logger.exception("[research] add_steps failed run=%s", run_id)
@@ -246,6 +280,7 @@ async def run_trip_research(
 
     status = "completed"
     error_type: str | None = None
+    rubric_status: str | None = None
     try:
         async with asyncio.timeout(settings.research_timeout_s):
             # v3 astream_events returns a coroutine resolving to the event stream.
@@ -258,6 +293,7 @@ async def run_trip_research(
             async for event in stream:
                 for research_event in derive_events(event):
                     bus.publish(run_id, research_event)
+        rubric_status = await _read_rubric_status(agent, config)
     except Exception as exc:
         # Includes asyncio.timeout's TimeoutError. Nothing may escape a BackgroundTask.
         status = "failed"
@@ -282,4 +318,5 @@ async def run_trip_research(
             error_type=error_type,
             started=started,
             resumed_from=resumed_from,
+            rubric_status=rubric_status,
         )

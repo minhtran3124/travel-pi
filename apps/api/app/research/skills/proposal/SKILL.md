@@ -40,6 +40,11 @@ the database. Get the schema and the ids exactly right.
 
 **Every id in the proposal must come from a tool result. Never invent one.**
 
+`search_places`, `search_flights`, `search_hotels` and `browse_hotels` end with an
+"Ids for the proposal" list — `Name → place_id <id>`, `VN1823 SGN→PQC … → offer_id <id>`,
+`Hotel name → hotel_id <id>`. Copy the id after the arrow exactly. A name, a flight number
+(`VN422`) or a hotel code is not an id and fails validation.
+
 - `place_id` values come from `search_places`, `nearby_places`, or `resolve_place`.
 - `offer_id` values come from `search_flights`.
 - `hotel_id` values come from `search_hotels` or `browse_hotels`.

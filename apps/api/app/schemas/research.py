@@ -6,6 +6,8 @@ file text a user edits; never message text, tool arguments or LLM output.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from app.schemas.base import AppBaseModel
@@ -42,6 +44,12 @@ class ResearchStatusResponse(AppBaseModel):
     thread_turn: int
     files: list[str]
     proposal_ready: bool
+    review: Literal["passed", "needs_review"] | None = Field(
+        default=None,
+        description="The grader's verdict on a finished run: 'passed', "
+        "'needs_review' (the grader never accepted it — some parts are missing or "
+        "unconfirmed), or null when the run was not graded.",
+    )
 
 
 class ResearchFileContent(AppBaseModel):

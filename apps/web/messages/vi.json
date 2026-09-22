@@ -589,6 +589,8 @@
   "Chat": {
     "researchDone": {
       "title": "Đã nghiên cứu xong chuyến đi!",
+      "titleNeedsReview": "Đã nghiên cứu xong — còn vài chỗ cần xem lại",
+      "hintNeedsReview": "Một số lựa chọn chưa xác nhận được. Hãy xem trong tab Nghiên cứu và dùng Revise để bổ sung.",
       "hint": "Xem qua và thêm những gì bạn thích vào chuyến đi nhé.",
       "hintNoPlan": "Bạn xem qua lúc nào tiện nhé.",
       "open": "Xem kết quả",

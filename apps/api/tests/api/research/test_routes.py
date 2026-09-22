@@ -106,6 +106,34 @@ def test_status_returns_state_files_and_proposal_flag(tmp_path):
     assert body["status"] == "completed"
     assert body["files"] == ["/flights.md", "/proposal.json"]
     assert body["proposal_ready"] is True
+    assert body["review"] is None  # not graded
+
+
+def test_status_reports_a_rejected_run_as_needs_review(tmp_path):
+    from app.db.engine import get_session_factory
+    from app.repositories.agent_run import AgentRunRepository
+
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="completed")
+    AgentRunRepository(get_session_factory(url)).add_steps(
+        "run-1",
+        [
+            {
+                "seq": 0,
+                "kind": "node",
+                "node": "rubric",
+                "status": "ok",
+                "meta": {"rubric_status": "max_iterations_reached"},
+            }
+        ],
+    )
+    client = TestClient(app)
+
+    for path in ("/agent/research/run-1", "/agent/trips/t1/research"):
+        body = client.get(path).json()
+        assert body["status"] == "completed"
+        assert body["review"] == "needs_review"
 
 
 def test_status_foreign_run_is_404(tmp_path):

@@ -136,7 +136,12 @@ def _subagents() -> list[SubAgent]:
             description=_SUBAGENT_DESCRIPTIONS[name],
             tools=SUBAGENT_TOOLS[name],
             skills=["/skills/"],
-            middleware=[TodoListMiddleware(), _ToolErrorsToMessages()],
+            # Errors outermost: an ids pass only ever sees a successful result.
+            middleware=[
+                TodoListMiddleware(),
+                _ToolErrorsToMessages(),
+                _ToolIdsToContent(),
+            ],
         )
         for name in SUBAGENT_TOOLS
     ]
@@ -184,6 +189,82 @@ class _ToolErrorsToMessages(AgentMiddleware):
             return await handler(request)
         except Exception as exc:  # noqa: BLE001 — breadth is the point, the verdict is not
             return self._as_message(request, exc)
+
+
+def _price(
+    amount: object,
+    currency: object,
+) -> str:
+    return f"{currency} {float(amount):.0f}" if amount is not None else ""
+
+
+def _place_line(p: dict) -> str:
+    return f"- {p.get('name')} ({p.get('category')}) → place_id {p['id']}"
+
+
+def _flight_line(f: dict) -> str:
+    departs = str(f.get("departure_time", "")).replace("T", " ")[:16]
+    return (
+        f"- {f.get('flight_number')} {f.get('origin')}→{f.get('destination')} "
+        f"{departs}, {_price(f.get('price'), f.get('currency'))} → offer_id {f['id']}"
+    )
+
+
+def _hotel_line(h: dict) -> str:
+    availability = "available" if h.get("available", True) else "sold out"
+    return (
+        f"- {h.get('name')} ({h.get('star_rating')}★, "
+        f"{_price(h.get('price_per_night'), h.get('currency'))}/night, {availability}) "
+        f"→ hotel_id {h['id']}"
+    )
+
+
+#: Panel kind → (list key in the panel data, one line per item). Kept to the panels
+#: whose items the proposal cites; ``nearby_places`` / ``resolve_place`` already
+#: return whole objects, ids included.
+_ID_PANELS = {
+    "places": ("places", _place_line),
+    "flights": ("flights", _flight_line),
+    "hotels": ("hotels", _hotel_line),
+}
+
+
+class _ToolIdsToContent(AgentMiddleware):
+    """Append the ids the proposal must cite to what the research model reads.
+
+    The shared chat tools keep ids in the side-panel ``artifact`` and show the model
+    only names and flight numbers, so a live run could not cite a single real
+    ``place_id`` / ``hotel_id`` and put flight numbers where ``offer_id``s belong.
+    Adding them here leaves the tools — and the chat and MCP output — unchanged.
+    """
+
+    @staticmethod
+    def _with_ids(result):
+        if not isinstance(result, ToolMessage) or result.status == "error":
+            return result
+        artifact = result.artifact
+        if not isinstance(artifact, dict) or artifact.get("kind") not in _ID_PANELS:
+            return result
+        key, line = _ID_PANELS[artifact["kind"]]
+        items = [
+            item
+            for item in (artifact.get("data") or {}).get(key) or []
+            if isinstance(item, dict) and item.get("id")
+        ]
+        if not items:
+            return result
+        ids = "\n".join(line(item) for item in items)
+        content = (
+            f"{result.content}\n\nIds for the proposal — cite these exactly, "
+            f"never a name or flight number:\n{ids}"
+        )
+        return result.model_copy(update={"content": content})
+
+    def wrap_tool_call(self, request, handler):
+        return self._with_ids(handler(request))
+
+    async def awrap_tool_call(self, request, handler):
+        return self._with_ids(await handler(request))
 
 
 def _read_file_tool(
