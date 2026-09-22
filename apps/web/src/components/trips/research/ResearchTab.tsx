@@ -46,6 +46,8 @@ export function ResearchTab({ tripId }: { tripId: string }) {
   // latest-summary query has refetched to see it.
   const [liveRunId, setLiveRunId] = useState<string | null>(null);
   const [instruction, setInstruction] = useState("");
+  // Flights need a departure point the trip does not hold: ask, never assume.
+  const [origin, setOrigin] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionFailed, setActionFailed] = useState(false);
   const [openFile, setOpenFile] = useState<string | null>(null);
@@ -97,7 +99,11 @@ export function ResearchTab({ tripId }: { tripId: string }) {
   }
 
   function handleStart() {
-    void runAction(() => startResearch(tripId, { language: locale }));
+    const trimmed = origin.trim();
+    if (!trimmed) return;
+    void runAction(() =>
+      startResearch(tripId, { language: locale, origin: trimmed }),
+    );
   }
 
   function handleRevise() {
@@ -139,9 +145,27 @@ export function ResearchTab({ tripId }: { tripId: string }) {
             title={t("emptyTitle")}
             hint={t("emptyHint")}
             action={
-              <Button onClick={handleStart} disabled={busy}>
-                {busy ? t("running") : t("start")}
-              </Button>
+              <form
+                className="flex w-full max-w-[22rem] flex-col items-stretch gap-sm"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleStart();
+                }}
+              >
+                <label className="flex flex-col gap-xs text-left text-sm font-medium text-ink">
+                  {t("originLabel")}
+                  <input
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    placeholder={t("originPlaceholder")}
+                    maxLength={120}
+                    className="w-full rounded-sm border border-line bg-panel px-sm py-xs text-sm font-normal text-ink outline-none placeholder:text-faint focus:border-faint"
+                  />
+                </label>
+                <Button type="submit" disabled={busy || origin.trim().length === 0}>
+                  {busy ? t("running") : t("start")}
+                </Button>
+              </form>
             }
           />
           {actionFailed ? <Notice>{t("error")}</Notice> : null}

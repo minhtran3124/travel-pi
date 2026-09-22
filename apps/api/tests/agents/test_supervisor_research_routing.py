@@ -60,6 +60,10 @@ def test_active_supervisor_prompt_routes_research_status_questions():
     text = registry.get("supervisor")
     assert "status or result of that deep research" in text
     assert '"Bạn chạy research xong chưa?" → **research**' in text
+    # research-origin-and-seed: the answer to "where are you travelling from?"
+    # goes back to research, with the place as the origin slot.
+    assert "travelling **from**" in text
+    assert '"Từ Sài Gòn nhé" → **research**, `origin` = "Sài Gòn"' in text
 
 
 def test_supervisor_intent_accepts_research_target():

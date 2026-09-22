@@ -18,7 +18,16 @@ for the file path, headings, and the citation rule.
 ## Procedure
 
 1. Read the trip summary and the traveller's ask from the overview / the task prompt:
-   origin, destination, dates, party size, cabin.
+   destination, dates, party size, cabin. **The origin comes only from the request's
+   `Departing from:` line** — the traveller's own words. Never take it from the
+   destination, the traveller's profile, a nearby city or a "likely" hub.
+   - **No `Departing from:` line → do not call `search_flights`.** Write the file with
+     "Departure point not provided — ask the traveller where they are travelling from
+     before searching flights." and leave the proposal's `flights` empty.
+   - Turn the stated place into its IATA code for `search_flights` (Saigon / Ho Chi Minh
+     City → `SGN`); the destination is the trip city's airport (Phu Quoc → `PQC`). If the
+     place has several airports or you are unsure of the code, say which you chose and
+     why in the file.
 2. If a date is expressed in words, call `resolve_date` first; cite it.
 3. Call `search_flights` **once per leg, one-way**: the outbound leg, then the return leg
    with origin and destination swapped and the return date as `departure_date`. A
@@ -45,6 +54,9 @@ If `search_flights` returns no offers, still write the file: state the parameter
 searched and "No offers returned (search_flights)." Do not fabricate an alternative.
 
 ## Never invent
+
+Never invent a departure point either: a route the traveller did not give is a guess,
+and a flight search on a guessed route is worse than none.
 
 Never write a flight offer id, price, time, or date that a tool did not return. An id
 that does not come from `search_flights` cannot go into `/plan/proposal.json` and will

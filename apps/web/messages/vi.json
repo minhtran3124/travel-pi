@@ -124,6 +124,8 @@
     },
     "research": {
       "tabLabel": "Nghiên cứu",
+      "originLabel": "Bạn sẽ đi từ đâu?",
+      "originPlaceholder": "VD: TP. Hồ Chí Minh hoặc SGN",
       "lockedTitle": "Nghiên cứu chuyên sâu là tính năng cao cấp",
       "lockedHint": "Nâng cấp để trợ lý nghiên cứu chuyên sâu chuyến đi này — điểm đến, chỗ ở và hoạt động, tổng hợp thành một hồ sơ bạn có thể áp dụng vào kế hoạch.",
       "upgradeCta": "Nâng cấp gói",

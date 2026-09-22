@@ -124,6 +124,8 @@
     },
     "research": {
       "tabLabel": "Research",
+      "originLabel": "Where are you travelling from?",
+      "originPlaceholder": "e.g. Ho Chi Minh City or SGN",
       "lockedTitle": "Deep research is a premium feature",
       "lockedHint": "Upgrade to let the assistant research this trip in depth — destinations, stays, and things to do, gathered into a dossier you can apply to your plan.",
       "upgradeCta": "Upgrade plan",

@@ -23,6 +23,8 @@ const AGENT_BASE = "/api/be";
 export interface StartResearchBody {
   instruction?: string;
   language?: string;
+  /** The traveller's departure city or airport; never inferred. */
+  origin?: string;
 }
 
 /** 202 payload from a start/revise POST. */

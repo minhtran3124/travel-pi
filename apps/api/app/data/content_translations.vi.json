@@ -355,6 +355,12 @@
   },
   {
     "entity_type": "hotel",
+    "entity_id": "4b1d21a4-a77c-57ca-a3fd-79e197cd755a",
+    "field": "description",
+    "text": "Ong Lang Beach Bungalows là một khu nghỉ dưỡng 2 sao ở Phu Quoc, Vietnam, cung cấp lối ra bãi biển, nhà hàng và wifi miễn phí. Khách sạn nhận được đánh giá 4,1/5 từ 560 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
     "entity_id": "5043303d-c8f7-5bd8-beca-206cb7e1860e",
     "field": "description",
     "text": "Tọa lạc tại Quy Nhon, Vietnam, Anantara Quy Nhon Villas là khu nghỉ dưỡng biệt thự 5 sao nổi tiếng với hồ bơi, spa, lối ra bãi biển, nhà hàng và quầy bar. Du khách chấm điểm 4,8/5 từ 720 đánh giá."
@@ -424,6 +430,12 @@
     "entity_id": "5fbd8e52-6e5c-59b6-9132-c706db3b8e50",
     "field": "description",
     "text": "Grand Hyatt Seoul là một khách sạn 5 sao ở Seoul, South Korea, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn đạt 4,7/5 trên 2.980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "60d645af-111a-53fa-8355-8f5983ff25e9",
+    "field": "description",
+    "text": "An Thoi Boutique Hotel mang đến sự tiện nghi 4 sao cho Phu Quoc, Vietnam, với hồ bơi, nhà hàng, quầy bar, phòng gym và wifi miễn phí. Khách sạn đạt 4,4/5 qua 1.150 đánh giá của khách."
   },
   {
     "entity_type": "hotel",
@@ -526,6 +538,12 @@
     "entity_id": "75d461c6-ef14-513d-8403-5513483cb507",
     "field": "description",
     "text": "Raffles Grand Hotel d'Angkor là một khách sạn 5 sao ở Siem Reap, Cambodia, cung cấp hồ bơi, spa, nhà hàng và quầy bar. Khách lưu trú chấm 4,8/5 trên tổng số 2.760 bài đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7661dd38-cc1b-5d4c-8a2f-d576cbdd757b",
+    "field": "description",
+    "text": "Duong Dong Backpackers Hostel là một khách sạn 1 sao ở Phu Quoc, Vietnam, cung cấp wifi miễn phí và quầy bar. Khách sạn nhận được đánh giá 4,0/5 từ 1.320 đánh giá."
   },
   {
     "entity_type": "hotel",
@@ -925,6 +943,12 @@
   },
   {
     "entity_type": "hotel",
+    "entity_id": "d4e87607-0bc1-5124-93ff-3e64fbe1cdc1",
+    "field": "description",
+    "text": "Ham Ninh Bay Hotel là một khách sạn 3 sao ở Phu Quoc, Vietnam, cung cấp hồ bơi, nhà hàng, quầy bar và wifi miễn phí. Khách sạn nhận được đánh giá 4,3/5 từ 640 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
     "entity_id": "daf82516-ecda-53cb-8b37-3793d6e3c7c2",
     "field": "description",
     "text": "The Langham Hong Kong là một khách sạn 5 sao ở Hong Kong, Hong Kong, cung cấp hồ bơi, spa, nhà hàng, quầy bar và wifi miễn phí. Khách sạn đạt 4,7/5 trên 2.760 đánh giá của khách."
@@ -1072,6 +1096,12 @@
     "entity_id": "f59c85a5-d17d-5f0c-830a-aeb1f26e61bf",
     "field": "description",
     "text": "Sofitel Legend Metropole Hanoi là khách sạn 5 sao ở Hanoi, Vietnam, cung cấp hồ bơi, spa, nhà hàng, quầy bar và phòng gym. Khách sạn nhận được đánh giá 4,9/5 từ 4.502 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f5b6ede2-4943-59ab-bccf-ca6778fbd6f8",
+    "field": "description",
+    "text": "Long Beach Guesthouse là một khách sạn 3 sao ở Phu Quoc, Vietnam, cung cấp hồ bơi, nhà hàng và wifi miễn phí. Khách sạn nhận được đánh giá 4,2/5 từ 880 đánh giá."
   },
   {
     "entity_type": "hotel",
@@ -1363,6 +1393,12 @@
   },
   {
     "entity_type": "place",
+    "entity_id": "19ed4a37-a591-5552-bac1-d6aad007da49",
+    "field": "description",
+    "text": "Một quán hải sản Việt Nam do gia đình điều hành lâu năm ở Duong Dong, được cả người địa phương lẫn du khách ưa chuộng nhờ cá nướng tươi, nghêu hấp và giá cả phải chăng."
+  },
+  {
+    "entity_type": "place",
     "entity_id": "1a76b798-9cb7-5fd6-8d87-d5102a1f90d8",
     "field": "description",
     "text": "Bãi biển đô thị nổi tiếng trên Eo biển Makassar, được biết đến với cảnh hoàng hôn, các quầy bán đồ ăn và các sự kiện cuối tuần."
@@ -1528,6 +1564,12 @@
     "entity_id": "2639a24d-6a37-5320-a429-efb99338067a",
     "field": "description",
     "text": "Quán cà phê rộng rãi, phong cách gần bãi biển với thực đơn specialty đa dạng và latte art nổi bật — đủ thoải mái cho một buổi làm việc từ xa kéo dài."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "26ae8d28-1d66-5ee0-a9c6-1960e804a139",
+    "field": "description",
+    "text": "Một quán hải sản thoải mái gần Duong Dong phục vụ từng xô cua, tôm và nghêu sốt bơ tỏi hoặc me. Khẩu phần hào phóng và cua gạch là món đặc trưng."
   },
   {
     "entity_type": "place",
@@ -2320,6 +2362,12 @@
     "entity_id": "6ae07d85-0274-5648-a583-721eeaa23a1b",
     "field": "description",
     "text": "Khu định cư rộng lớn gồm các nhà sàn trên sông Brunei, được khám phá bằng taxi nước và có một phòng trưng bày văn hóa và du lịch."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6c1c53ab-8e19-56b9-89fb-52f51ba75d9e",
+    "field": "description",
+    "text": "Một quán cà phê góc phố nhỏ giản dị pha cà phê phin Việt Nam đậm đà và cà phê sữa đá với giá chỉ bằng một phần nhỏ so với khu nghỉ dưỡng. Một thói quen buổi sáng của người địa phương gần chợ Duong Dong."
   },
   {
     "entity_type": "place",
@@ -3301,6 +3349,12 @@
   },
   {
     "entity_type": "place",
+    "entity_id": "c01d37a8-54b7-5643-8770-c3227d447238",
+    "field": "description",
+    "text": "Một quán cà phê ven biển thư giãn trên bãi Ong Lang yên tĩnh hơn, với ghế nằm trên cát, nước ép tươi, cà phê và một trong những điểm ngắm hoàng hôn đẹp nhất đảo."
+  },
+  {
+    "entity_type": "place",
     "entity_id": "c0511310-eafd-5063-8b79-fac530aebb4f",
     "field": "description",
     "text": "Được xem rộng rãi là quán com ga ngon nhất Da Nang, phục vụ gà xé luộc đặt trên cơm nghệ cùng đu đủ ngâm và chén chấm chanh ớt tươi sáng."
@@ -3433,6 +3487,12 @@
   },
   {
     "entity_type": "place",
+    "entity_id": "ca4b12f2-3948-56f6-b145-aff708aeb08e",
+    "field": "description",
+    "text": "Một quán cà phê đặc sản hiện đại có máy lạnh ở Duong Dong với wifi ổn định, không gian yên tĩnh thích hợp làm việc và cả cà phê pha kiểu Việt lẫn kiểu Tây."
+  },
+  {
+    "entity_type": "place",
     "entity_id": "caa61bce-541d-5ed8-bc08-9ef5524b6338",
     "field": "description",
     "text": "Nhà thờ Hồi giáo lớn nhất của Brunei, được xây dựng nhân dịp lễ bạc của Sultan, với 29 mái vòm vàng và khuôn viên cầu kỳ có đài phun nước."
@@ -3502,6 +3562,12 @@
     "entity_id": "cd0bb221-e5fa-512d-8bd2-89c3ce0f3d8c",
     "field": "description",
     "text": "Khu phức hợp giải trí ven biển quy mô lớn nằm giữa đường đến Hoi An, nổi bật với hai tòa tháp đôi cao 200 mét nối với nhau bằng cầu trên không, cùng beach club và các địa điểm giải trí."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "cf89da98-1764-52d2-99e0-f266dca9b48a",
+    "field": "description",
+    "text": "Những dãy bếp nướng ngoài trời ở chợ đêm Duong Dong, nơi bạn chọn hải sản tươi từ khay đá và được chế biến ngay tại chỗ. Rẻ, náo nhiệt và là lựa chọn ăn tối yêu thích của người địa phương."
   },
   {
     "entity_type": "place",
@@ -3868,6 +3934,12 @@
     "entity_id": "e79049b0-5e60-5c38-baff-8284b1ac4d23",
     "field": "description",
     "text": "Quán ăn địa phương được yêu thích với bun cha ca, món bún cá đặc trưng của thành phố, nấu bằng nước dùng trong và thơm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e7aa1a9a-3ba7-5275-85fe-0e8be01a9c8a",
+    "field": "description",
+    "text": "Một quán ăn địa phương tấp nập nổi tiếng với bún quậy, món bún nước tươi đặc sản của Phu Quoc mà thực khách tự nêm nếm tại bàn. Một bữa sáng đảo rẻ, no bụng được người dân địa phương yêu thích."
   },
   {
     "entity_type": "place",

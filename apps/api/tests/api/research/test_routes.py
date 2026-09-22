@@ -31,6 +31,25 @@ def test_start_returns_202_with_run_id(tmp_path):
     assert body["thread_turn"] == 1
 
 
+def test_start_passes_the_departure_point_to_the_run(tmp_path, monkeypatch):
+    from app.research.service import ResearchService
+
+    seen: dict = {}
+
+    async def fake_launch(self, run_id, user_id, trip_id, **kwargs):
+        seen.update(kwargs)
+
+    monkeypatch.setattr(ResearchService, "launch", fake_launch)
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    client = TestClient(app)
+
+    resp = client.post("/agent/trips/t1/research", json={"origin": "Ho Chi Minh City"})
+
+    assert resp.status_code == 202, resp.text
+    assert seen["origin"] == "Ho Chi Minh City"
+
+
 def test_start_free_tier_is_403(tmp_path):
     app, url, _store = build_app(tmp_path, premium=False)
     create_trip(url, "t1", USER_ID)

@@ -220,6 +220,7 @@ def start_research(
         trip_id,
         instruction=redact_pii(body.instruction) if body.instruction else None,
         language=body.language or _DEFAULT_LANGUAGE,
+        origin=(body.origin or "").strip() or None,
     )
     return ResearchStartResponse(
         run_id=run_id,

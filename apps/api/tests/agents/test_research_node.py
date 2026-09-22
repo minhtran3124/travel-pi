@@ -26,6 +26,7 @@ from app.agents.constants import (
     RESEARCH_COMPLETED_MSG,
     RESEARCH_IN_PROGRESS_MSG,
     RESEARCH_LIMIT_REACHED_MSG,
+    RESEARCH_NEEDS_ORIGIN_MSG,
     RESEARCH_NEEDS_REVIEW_MSG,
     RESEARCH_NEEDS_TRIP_MSG,
     RESEARCH_STARTED_MSG,
@@ -47,6 +48,7 @@ from langgraph.store.memory import InMemoryStore
 
 OWNER = "u_research"
 TRIP = "trip-1"
+ORIGIN = "Ho Chi Minh City"
 
 
 @pytest.fixture(autouse=True)
@@ -76,6 +78,7 @@ def _state(**overrides) -> dict:
         "user_id": OWNER,
         "trip_id": TRIP,
         "language": None,
+        "trip_facts": {"origin": ORIGIN},
     }
     state.update(overrides)
     return state
@@ -158,7 +161,7 @@ async def test_premium_with_trip_starts_and_schedules_exactly_one_job(monkeypatc
     # The booked run is actually scheduled for execution — exactly once, keyed to the
     # run id ``start`` returned. This is the regression guard: booking is not enough.
     service.launch.assert_called_once_with(
-        service.start.return_value, OWNER, TRIP, language=None
+        service.start.return_value, OWNER, TRIP, language=None, origin=ORIGIN
     )
     assert len(launcher._BACKGROUND_TASKS) == 1
 
@@ -207,6 +210,42 @@ async def test_daily_cap_reached_says_so_and_schedules_no_driver(monkeypatch):
     msg = result["messages"][0]
     assert msg.content == RESEARCH_LIMIT_REACHED_MSG
     assert "research_started" not in msg.additional_kwargs
+
+
+# -- no departure point: ask, never assume -----------------------------------
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("trip_facts", [None, {}, {"origin": None}, {"origin": "  "}])
+async def test_unknown_origin_asks_the_traveller_and_books_nothing(
+    monkeypatch,
+    trip_facts,
+):
+    """Flights need a departure point and nothing on the trip holds one; a live run
+    invented DNA→DAD. The chat asks before booking a run, never assumes."""
+    _flag(monkeypatch, enabled=True)
+    service, factory = _service_factory()
+    service.chat_state.return_value = None
+
+    result = await make_research_node(factory)(_state(trip_facts=trip_facts))
+
+    assert result["messages"][0].content == RESEARCH_NEEDS_ORIGIN_MSG
+    assert result["awaiting_user"] is True
+    assert result["current_flow"] == "research"
+    service.start.assert_not_called()
+    service.launch.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_a_finished_run_answers_its_status_even_without_an_origin(monkeypatch):
+    _flag(monkeypatch, enabled=True)
+    service, factory = _service_factory()
+    service.chat_state.return_value = "completed"
+    service.completed_summary.return_value = None
+
+    result = await make_research_node(factory)(_state(trip_facts=None))
+
+    assert result["messages"][0].content == RESEARCH_COMPLETED_MSG
 
 
 # -- existing run: answer its status, book nothing ----------------------------
@@ -258,7 +297,7 @@ async def test_chat_launch_runs_in_the_chat_language(monkeypatch):
     await _drain()
 
     service.launch.assert_called_once_with(
-        service.start.return_value, OWNER, TRIP, language="vi"
+        service.start.return_value, OWNER, TRIP, language="vi", origin=ORIGIN
     )
 
 

@@ -24,6 +24,12 @@ class ResearchStartRequest(AppBaseModel):
         default=None,
         description="Optional reply language; defaults to English when omitted.",
     )
+    origin: str | None = Field(
+        default=None,
+        max_length=120,
+        description="The traveller's departure city or airport, as they stated it. "
+        "Never inferred: without it the run researches no flights.",
+    )
 
 
 class ResearchStartResponse(AppBaseModel):

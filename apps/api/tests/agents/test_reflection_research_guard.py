@@ -131,6 +131,7 @@ def test_graph_revise_after_research_launch_starts_one_job(agent_db, monkeypatch
                 "messages": [HumanMessage(content="research my whole trip in depth")],
                 "user_id": OWNER,
                 "trip_id": TRIP,
+                "trip_facts": {"origin": "Ho Chi Minh City"},
             },
             {"configurable": {"thread_id": "t-research-guard"}},
         )

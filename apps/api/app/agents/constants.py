@@ -100,6 +100,11 @@ RESEARCH_STARTED_MSG = (
     "while; feel free to keep chatting, and follow along in the Research tab."
 )
 
+RESEARCH_NEEDS_ORIGIN_MSG = (
+    "Happy to research this trip in depth! First, where will you be travelling "
+    "from? Tell me your departure city or airport and I'll get started."
+)
+
 RESEARCH_IN_PROGRESS_MSG = (
     "I'm still researching your trip in depth. You can follow the progress live "
     "in the Research tab — I'll have the full dossier there as soon as it's done."

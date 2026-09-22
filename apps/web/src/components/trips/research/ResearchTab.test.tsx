@@ -78,9 +78,13 @@ describe("ResearchTab", () => {
         screen.getByText(en.TripDetail.research.emptyHint),
       ).toBeInTheDocument(),
     );
-    expect(
-      screen.getByRole("button", { name: en.TripDetail.research.start }),
-    ).toBeInTheDocument();
+    // No departure point yet: Start stays disabled — the tab never assumes one.
+    const start = screen.getByRole("button", { name: en.TripDetail.research.start });
+    expect(start).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(en.TripDetail.research.originLabel), {
+      target: { value: "   " },
+    });
+    expect(start).toBeDisabled();
   });
 
   it("lists the dossier files from a mocked status response", async () => {
@@ -109,15 +113,17 @@ describe("ResearchTab", () => {
   });
 
   it("leaves the running state and shows the dossier once the stream reaches done", async () => {
+    let startBody: unknown = null;
     // No run yet → premium empty state with a Start button; POST books a run
     // this session streams live (before the latest-summary query refetches).
     server.use(
       http.get(`${BASE}/agent/trips/:tripId/research`, () =>
         HttpResponse.json({ message: "no run" }, { status: 404 }),
       ),
-      http.post(`${BASE}/agent/trips/:tripId/research`, () =>
-        HttpResponse.json({ run_id: RUN_ID, thread_turn: 1 }, { status: 202 }),
-      ),
+      http.post(`${BASE}/agent/trips/:tripId/research`, async ({ request }) => {
+        startBody = await request.json();
+        return HttpResponse.json({ run_id: RUN_ID, thread_turn: 1 }, { status: 202 });
+      }),
     );
 
     // The live SSE bypasses the `/api/be` proxy and hits the origin directly via
@@ -152,6 +158,9 @@ describe("ResearchTab", () => {
       const startButton = await screen.findByRole("button", {
         name: en.TripDetail.research.start,
       });
+      fireEvent.change(screen.getByLabelText(en.TripDetail.research.originLabel), {
+        target: { value: " Ho Chi Minh City " },
+      });
       fireEvent.click(startButton);
 
       // The spinner card appears while the run streams…
@@ -172,6 +181,8 @@ describe("ResearchTab", () => {
         screen.getByText(en.TripDetail.research.filesHeading),
       ).toBeInTheDocument();
       expect(screen.getByText("/research/overview.md")).toBeInTheDocument();
+      // The trimmed departure point went to the start request.
+      expect(startBody).toMatchObject({ origin: "Ho Chi Minh City" });
     } finally {
       vi.unstubAllGlobals();
     }

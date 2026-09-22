@@ -142,6 +142,17 @@ def make_research_node(service_factory: ResearchServiceFactory):
                 else None
             )
             return _research_status(run_state, language, summary)
+        # Flights need a departure point and the trip holds none: ask, never assume.
+        # The supervisor lifts the answer into ``trip_facts`` and routes it back here.
+        origin = ((state.get("trip_facts") or {}).get("origin") or "").strip()
+        if not origin:
+            return {
+                "current_flow": "research",
+                "awaiting_user": True,
+                "messages": [
+                    AIMessage(content=system_reply("research_needs_origin", language))
+                ],
+            }
         try:
             run_id = service.start(user_id, trip_id)
         except ConflictError:
@@ -167,7 +178,15 @@ def make_research_node(service_factory: ResearchServiceFactory):
             }
         # Book succeeded: drive the run off this turn. The node must NOT await it —
         # the chat reply returns now and the dossier streams into the Research tab.
-        _schedule(service.launch(run_id, user_id, trip_id, language=language))
+        _schedule(
+            service.launch(
+                run_id,
+                user_id,
+                trip_id,
+                language=language,
+                origin=origin,
+            )
+        )
         return _research_started(language)
 
     return research

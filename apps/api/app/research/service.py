@@ -188,6 +188,7 @@ class ResearchService:
         trip_id: str,
         instruction: str | None = None,
         language: str | None = None,
+        origin: str | None = None,
     ) -> None:
         """Drive a run booked by :meth:`start` to a terminal state. Never raises —
         the runner folds every failure (timeout included) into the run row
@@ -196,7 +197,13 @@ class ResearchService:
         A resume continues the checkpointed turn with no new input, so
         ``instruction`` is dropped; if the dead run never reached a checkpoint there
         is nothing to continue and the new turn runs instead."""
-        ctx = self._context(run_id, user_id, trip_id, language=language)
+        ctx = self._context(
+            run_id,
+            user_id,
+            trip_id,
+            language=language,
+            origin=origin,
+        )
         resumed_from = self._resumes.pop(run_id, None)
         if resumed_from is not None and not await self._has_unfinished_turn(ctx):
             resumed_from = None
@@ -341,6 +348,7 @@ class ResearchService:
         trip_id: str,
         *,
         language: str | None = None,
+        origin: str | None = None,
     ) -> ResearchContext:
         return ResearchContext(
             user_id=user_id,
@@ -348,6 +356,7 @@ class ResearchService:
             run_id=run_id,
             language=language or _DEFAULT_LANGUAGE,
             timezone=get_settings().agent_timezone,
+            origin=origin,
         )
 
     def _insert_run(

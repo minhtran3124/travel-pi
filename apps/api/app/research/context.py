@@ -14,3 +14,6 @@ class ResearchContext:
     run_id: str
     language: str
     timezone: str
+    #: The traveller's stated departure point for this turn; ``None`` on revise /
+    #: resume turns, whose thread already carries it. Never inferred.
+    origin: str | None = None

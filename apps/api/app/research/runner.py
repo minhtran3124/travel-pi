@@ -60,7 +60,10 @@ def _build_input(
     by the caller (design §8). The message names the traveller's language: the model
     never sees ``state['language']``, which only the tools read."""
     language = LANGUAGE_NAMES[normalize(ctx.language)]
-    content = f"{instruction or _DEFAULT_INSTRUCTION}\n\nLanguage: {language}"
+    departing = f"Departing from: {ctx.origin}\n" if ctx.origin else ""
+    content = (
+        f"{instruction or _DEFAULT_INSTRUCTION}\n\n{departing}Language: {language}"
+    )
     return {
         "messages": [HumanMessage(content=content)],
         "rubric": _grader_rubric(),

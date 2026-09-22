@@ -246,3 +246,14 @@ async def test_the_grader_verdict_is_recorded_on_a_terminal_step(
         s for s in AgentRunRepository(factory).steps_for(run_id) if s.node == "rubric"
     ]
     assert [s.meta for s in rubric] == [{"rubric_status": rubric_status}]
+
+
+def test_turn_input_names_the_departure_point_when_known() -> None:
+    from dataclasses import replace
+
+    ctx = replace(context(), origin="Ho Chi Minh City")
+    content = runner_mod._build_input(ctx, None)["messages"][0].content
+    assert content.endswith("Departing from: Ho Chi Minh City\nLanguage: English")
+
+    content = runner_mod._build_input(context(), None)["messages"][0].content
+    assert "Departing from" not in content

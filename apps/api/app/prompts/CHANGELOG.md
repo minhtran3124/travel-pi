@@ -18,7 +18,8 @@ rollback / A-B. Newest first.
 - **supervisor v15** — copied v14; Rule 6 also routes a question about the status or result of
   the trip's deep research ("is my research done?") to **research**, plus en/vi examples. The
   launcher now answers such turns from the latest run (in progress / done) instead of booking a
-  new run. Goldens `research-status-{en,vi}-01`.
+  new run. Goldens `research-status-{en,vi}-01`. Also: when research asked for the departure
+  point, the traveller's answer routes back to **research** with `origin` extracted.
 
 `active.yaml`: supervisor → 15. Others unchanged.
 
