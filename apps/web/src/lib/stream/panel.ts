@@ -12,7 +12,11 @@ export type PanelKind =
   | "weather"
   | "air_quality"
   | "flights"
-  | "hotels";
+  | "hotels"
+  // Derived FE-only panel (not streamed): the finished trip-research plan. Its
+  // `toolCallId` is `research-plan:<runId>`, so `panelKey` ("research_plan")
+  // stays stable and a plan never renders twice.
+  | "research_plan";
 
 /** Sky-mood bucket — drives the hero gradient + card tint. Mirror of `_condition`. */
 export type WeatherCondition =

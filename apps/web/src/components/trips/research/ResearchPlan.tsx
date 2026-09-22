@@ -19,13 +19,13 @@ import { HotelCard } from "./HotelCard";
 import { PlaceCard } from "./PlaceCard";
 import { useProposal, type Proposal } from "./proposal";
 
-type ApplyState = "idle" | "pending" | "ok" | "error";
+export type ApplyState = "idle" | "pending" | "ok" | "error";
 
 /** Strip a leading slash so `/research/x.md` and `research/x.md` compare equal. */
 const norm = (path: string) => path.replace(/^\/+/, "");
 
 /** The full path in `files` whose basename matches `suffix`, or null. */
-function findFile(files: string[], suffix: string): string | null {
+export function findFile(files: string[], suffix: string): string | null {
   return files.find((f) => norm(f).endsWith(suffix)) ?? null;
 }
 
@@ -58,65 +58,23 @@ function reportLabel(path: string, t: Translate): string {
 }
 
 /** Distinct itinerary days, ascending. */
-function itineraryDays(proposal: Proposal | undefined): number[] {
+export function itineraryDays(proposal: Proposal | undefined): number[] {
   if (!proposal) return [];
   return [...new Set(proposal.itinerary.map((e) => e.day))].sort((a, b) => a - b);
 }
 
 /**
- * The finished-run view: a plan the traveller can read and apply. Structured
- * sections come from `/plan/proposal.json` + per-id REST lookups; each section
- * degrades to the matching dossier prose when the proposal carries no ids for
- * it. The full dossier stays reachable (and editable) under a collapsed report.
+ * Apply-to-trip state + action, shared by the Research tab plan and the chat
+ * plan panel so there is one copy of the write logic. Adds each un-excluded
+ * itinerary stop as a trip item and each shortlist id to the shortlist; an
+ * already-shortlisted place counts as applied, not an error.
  */
-export function ResearchPlan({
-  tripId,
-  runId,
-  files,
-  review,
-}: {
-  tripId: string;
-  runId: string;
-  files: string[];
-  review?: ResearchRunSummary["review"];
-}) {
-  const t = useTranslations("TripDetail.research");
-  const proposalQuery = useProposal(runId, files);
-  const proposal = proposalQuery.data;
-  const budget = useBudget(tripId);
-
-  const summaryPath = findFile(files, "summary.md");
-  const summary = useQuery({
-    queryKey: ["research", "file", runId, summaryPath ?? ""],
-    enabled: summaryPath != null,
-    retry: false,
-    queryFn: () => getResearchFile(runId, summaryPath!),
-  });
-
+export function useApplyProposal(tripId: string) {
   const addItem = useAddItem(tripId);
   const addToShortlist = useAddToShortlist(tripId);
   const [excluded, setExcluded] = useState<Set<number>>(new Set());
   const [results, setResults] = useState<Record<string, ApplyState>>({});
   const [busy, setBusy] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [openFile, setOpenFile] = useState<string | null>(null);
-
-  const days = itineraryDays(proposal);
-  const flightIds = proposal?.flights ?? [];
-  const hotelIds = proposal?.hotels ?? [];
-  const dayCount = days.length > 0 ? days.length : dayFiles(files).length;
-
-  const sortedFiles = useMemo(() => [...files].sort(), [files]);
-
-  const flightsFile = findFile(files, "flights.md");
-  const staysFile = findFile(files, "stays.md");
-  const budgetFile = findFile(files, "budget.md");
-  const entryFile = findFile(files, "entry-and-season.md");
-  const showItinerary = days.length > 0 || dayFiles(files).length > 0;
-  const showFlights = flightIds.length > 0 || flightsFile != null;
-  const showStays = hotelIds.length > 0 || staysFile != null;
-  const showBudget = proposal?.budgetEstimate != null || budgetFile != null;
-  const showEntry = entryFile != null;
 
   async function applyOne(key: string, run: () => Promise<unknown>) {
     setResults((prev) => ({ ...prev, [key]: "pending" }));
@@ -129,8 +87,7 @@ export function ResearchPlan({
     }
   }
 
-  async function applyAll() {
-    if (!proposal) return;
+  async function applyAll(proposal: Proposal) {
     setBusy(true);
     for (const [i, entry] of proposal.itinerary.entries()) {
       if (excluded.has(i)) continue;
@@ -163,13 +120,66 @@ export function ResearchPlan({
     });
   }
 
-  const applyCount =
-    (proposal
-      ? proposal.itinerary.filter((_, i) => !excluded.has(i)).length +
-        proposal.shortlist.length
-      : 0);
   const applied = Object.values(results).filter((s) => s === "ok").length;
   const total = Object.keys(results).length;
+  return { excluded, toggleStop, applyAll, busy, applied, total };
+}
+
+/**
+ * The finished-run view: a plan the traveller can read and apply. Structured
+ * sections come from `/plan/proposal.json` + per-id REST lookups; each section
+ * degrades to the matching dossier prose when the proposal carries no ids for
+ * it. The full dossier stays reachable (and editable) under a collapsed report.
+ */
+export function ResearchPlan({
+  tripId,
+  runId,
+  files,
+  review,
+}: {
+  tripId: string;
+  runId: string;
+  files: string[];
+  review?: ResearchRunSummary["review"];
+}) {
+  const t = useTranslations("TripDetail.research");
+  const proposalQuery = useProposal(runId, files);
+  const proposal = proposalQuery.data;
+  const budget = useBudget(tripId);
+
+  const summaryPath = findFile(files, "summary.md");
+  const summary = useQuery({
+    queryKey: ["research", "file", runId, summaryPath ?? ""],
+    enabled: summaryPath != null,
+    retry: false,
+    queryFn: () => getResearchFile(runId, summaryPath!),
+  });
+
+  const apply = useApplyProposal(tripId);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [openFile, setOpenFile] = useState<string | null>(null);
+
+  const days = itineraryDays(proposal);
+  const flightIds = proposal?.flights ?? [];
+  const hotelIds = proposal?.hotels ?? [];
+  const dayCount = days.length > 0 ? days.length : dayFiles(files).length;
+
+  const sortedFiles = useMemo(() => [...files].sort(), [files]);
+
+  const flightsFile = findFile(files, "flights.md");
+  const staysFile = findFile(files, "stays.md");
+  const budgetFile = findFile(files, "budget.md");
+  const entryFile = findFile(files, "entry-and-season.md");
+  const showItinerary = days.length > 0 || dayFiles(files).length > 0;
+  const showFlights = flightIds.length > 0 || flightsFile != null;
+  const showStays = hotelIds.length > 0 || staysFile != null;
+  const showBudget = proposal?.budgetEstimate != null || budgetFile != null;
+  const showEntry = entryFile != null;
+
+  const applyCount = proposal
+    ? proposal.itinerary.filter((_, i) => !apply.excluded.has(i)).length +
+      proposal.shortlist.length
+    : 0;
   const needsReview = review === "needs_review";
 
   const stats = [
@@ -216,12 +226,12 @@ export function ResearchPlan({
 
         {proposal && applyCount > 0 ? (
           <div className="flex items-center gap-sm">
-            <Button onClick={applyAll} disabled={busy}>
+            <Button onClick={() => apply.applyAll(proposal)} disabled={apply.busy}>
               {t("apply")}
             </Button>
-            {total > 0 && !busy ? (
+            {apply.total > 0 && !apply.busy ? (
               <output className="text-sm font-bold text-ink">
-                {t("plan.applyResult", { applied, total })}
+                {t("plan.applyResult", { applied: apply.applied, total: apply.total })}
               </output>
             ) : null}
           </div>
@@ -268,8 +278,8 @@ export function ResearchPlan({
                   <PlaceCard
                     key={`item:${i}`}
                     entry={entry}
-                    checked={!excluded.has(i)}
-                    onToggle={(next) => toggleStop(i, next)}
+                    checked={!apply.excluded.has(i)}
+                    onToggle={(next) => apply.toggleStop(i, next)}
                     toggleLabel={t("plan.includeStop")}
                   />
                 ))}
@@ -310,7 +320,11 @@ export function ResearchPlan({
           <BudgetBar
             spent={proposal.budgetEstimate}
             cap={budget.data?.total_cap ?? null}
-            label={t}
+            lineLabel={(spent, cap) =>
+              cap != null
+                ? t("plan.budgetLine", { spent, cap })
+                : t("plan.budgetLineNoCap", { spent })
+            }
           />
         ) : (
           <SectionFallback runId={runId} path={budgetFile} />
@@ -395,14 +409,15 @@ function SectionFallback({ runId, path }: { runId: string; path: string | null }
   return <FileProse runId={runId} path={path} />;
 }
 
-function BudgetBar({
+export function BudgetBar({
   spent,
   cap,
-  label,
+  lineLabel,
 }: {
   spent: number;
   cap: number | null;
-  label: Translate;
+  /** Render the value line; receives the rounded spent and cap (cap may be null). */
+  lineLabel: (spent: number, cap: number | null) => string;
 }) {
   const over = cap != null && spent > cap;
   const pct = cap && cap > 0 ? Math.min(100, Math.round((spent / cap) * 100)) : 0;
@@ -417,12 +432,7 @@ function BudgetBar({
         </div>
       ) : null}
       <p className="text-sm font-bold tabular-nums text-ink">
-        {cap != null
-          ? label("plan.budgetLine", {
-              spent: Math.round(spent),
-              cap: Math.round(cap),
-            })
-          : label("plan.budgetLineNoCap", { spent: Math.round(spent) })}
+        {lineLabel(Math.round(spent), cap != null ? Math.round(cap) : null)}
       </p>
     </div>
   );

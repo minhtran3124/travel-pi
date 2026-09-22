@@ -644,6 +644,7 @@
       "hintNoPlan": "Bạn xem qua lúc nào tiện nhé.",
       "open": "Xem kết quả",
       "openDetails": "Xem chi tiết",
+      "viewPlan": "Xem kế hoạch",
       "dismiss": "Đóng",
       "sections": {
         "days": "📅 Lịch trình {count} ngày",
@@ -830,7 +831,8 @@
       "weather": "Thời tiết",
       "airQuality": "Chất lượng không khí",
       "flights": "Chuyến bay",
-      "hotels": "Khách sạn"
+      "hotels": "Khách sạn",
+      "researchPlan": "Kế hoạch"
     },
     "route": {
       "mapLabel": "Bản đồ lộ trình",
@@ -893,6 +895,30 @@
       "allInTotal": "Tổng trọn gói",
       "roomsLeftLabel": "Số phòng còn lại",
       "amenities": "Tiện nghi"
+    },
+    "researchPlan": {
+      "title": "Kế hoạch",
+      "tabs": {
+        "overview": "Tổng quan",
+        "byDay": "Theo ngày",
+        "flightsStays": "Bay & ở"
+      },
+      "verdictPassed": "Sẵn sàng",
+      "verdictNeedsReview": "Vài phần cần kiểm tra",
+      "needsReviewHint": "Một số lựa chọn chưa xác nhận được — mở tab Nghiên cứu để bổ sung.",
+      "statDays": "{count} ngày",
+      "statFlights": "{count} chuyến bay",
+      "budgetLine": "{spent} / {cap} USD",
+      "budgetLineNoCap": "{spent} USD dự kiến",
+      "apply": "Áp dụng vào chuyến đi",
+      "applyResult": "Đã thêm {applied}/{total}",
+      "dayChip": "Ngày {n}",
+      "mapLabel": "Bản đồ theo ngày",
+      "flightsHeading": "Chuyến bay",
+      "staysHeading": "Chỗ ở",
+      "byDayEmpty": "Chưa có lịch trình theo ngày — mở tab Nghiên cứu để xem đầy đủ.",
+      "empty": "Chưa có chuyến bay hay chỗ ở — mở tab Nghiên cứu để xem đầy đủ.",
+      "fullReport": "Xem đầy đủ ở tab Nghiên cứu"
     }
   },
   "Errors": {

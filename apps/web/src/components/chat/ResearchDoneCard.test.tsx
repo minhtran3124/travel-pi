@@ -160,6 +160,30 @@ describe("ResearchDoneCard", () => {
     expect(screen.queryByTestId("research-chips")).toBeNull();
   });
 
+  it("shows View plan and calls the callback when given one", () => {
+    const onViewPlan = vi.fn();
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ResearchDoneCard
+          run={RUN}
+          tripId="trip-1"
+          onDismiss={vi.fn()}
+          onViewPlan={onViewPlan}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: en.Chat.researchDone.viewPlan }));
+    expect(onViewPlan).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides View plan when no callback is given", () => {
+    renderCard("en");
+    expect(
+      screen.queryByRole("button", { name: en.Chat.researchDone.viewPlan }),
+    ).toBeNull();
+  });
+
   it("dismisses from the close button and from opening the tab", () => {
     const onDismiss = renderCard("en");
 

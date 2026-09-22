@@ -10,6 +10,12 @@ export const RESEARCH_POLL_MS = 5000;
 export interface ResearchWatch {
   /** The run that finished while this chat was watching it, until dismissed. */
   done: ResearchRunSummary | null;
+  /**
+   * The trip's latest run once it is `completed`, seen from the mount check or
+   * from polling — unlike `done`, it does not require having seen the run
+   * running, so a plan panel can be derived on a plain page load too.
+   */
+  completed: ResearchRunSummary | null;
   /** Look at the trip's latest run and, if it is running, follow it to the end. */
   check: () => void;
   dismiss: () => void;
@@ -26,6 +32,10 @@ export function useResearchWatch(
   enabled: boolean,
 ): ResearchWatch {
   const [done, setDone] = useState<{
+    tripId: string;
+    run: ResearchRunSummary;
+  } | null>(null);
+  const [completed, setCompleted] = useState<{
     tripId: string;
     run: ResearchRunSummary;
   } | null>(null);
@@ -57,8 +67,9 @@ export function useResearchWatch(
         return;
       }
       following.current = false;
-      if (run.status === "completed" && watchedRunId === run.run_id) {
-        setDone({ tripId, run });
+      if (run.status === "completed") {
+        setCompleted({ tripId, run });
+        if (watchedRunId === run.run_id) setDone({ tripId, run });
       }
     };
 
@@ -78,6 +89,8 @@ export function useResearchWatch(
 
   return {
     done: done !== null && done.tripId === tripId ? done.run : null,
+    completed:
+      completed !== null && completed.tripId === tripId ? completed.run : null,
     check,
     dismiss,
   };

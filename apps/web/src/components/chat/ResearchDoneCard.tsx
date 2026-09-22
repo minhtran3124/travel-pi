@@ -14,6 +14,11 @@ export interface ResearchDoneCardProps {
   run: ResearchRunSummary;
   tripId: string;
   onDismiss: () => void;
+  /**
+   * Desktop only: open the plan in the side drawer. Wired by ChatWidget when a
+   * drawer exists; omitted in the compact sheet, where the card hides the action.
+   */
+  onViewPlan?: () => void;
 }
 
 const SECTION_FILES: ReadonlyArray<[string, string]> = [
@@ -65,7 +70,12 @@ function useResearchSummary(run: ResearchRunSummary): string | null {
  * completes: the agent's short overview, what the dossier covers, and a way
  * into the Research tab for the details.
  */
-export function ResearchDoneCard({ run, tripId, onDismiss }: ResearchDoneCardProps) {
+export function ResearchDoneCard({
+  run,
+  tripId,
+  onDismiss,
+  onViewPlan,
+}: ResearchDoneCardProps) {
   const t = useTranslations("Chat.researchDone");
   const { sections, days } = dossierSections(run.files);
   const summary = useResearchSummary(run);
@@ -155,14 +165,25 @@ export function ResearchDoneCard({ run, tripId, onDismiss }: ResearchDoneCardPro
           </ul>
         ) : null}
 
-        <Link
-          href={`/trips/${encodeURIComponent(tripId)}?tab=research`}
-          onClick={onDismiss}
-          className="mt-md inline-flex items-center gap-xs rounded-pill bg-ink px-md py-[6px] text-sm font-bold text-on-ink transition duration-150 hover:bg-ink-hover active:translate-y-px"
-        >
-          {summary ? t("openDetails") : t("open")}
-          <span aria-hidden="true">→</span>
-        </Link>
+        <div className="mt-md flex flex-wrap items-center gap-sm">
+          {onViewPlan ? (
+            <button
+              type="button"
+              onClick={onViewPlan}
+              className="inline-flex items-center gap-xs rounded-pill bg-lime px-md py-[6px] text-sm font-bold text-on-accent shadow-lift transition duration-150 hover:brightness-105 active:translate-y-px"
+            >
+              {t("viewPlan")}
+            </button>
+          ) : null}
+          <Link
+            href={`/trips/${encodeURIComponent(tripId)}?tab=research`}
+            onClick={onDismiss}
+            className="inline-flex items-center gap-xs rounded-pill bg-ink px-md py-[6px] text-sm font-bold text-on-ink transition duration-150 hover:bg-ink-hover active:translate-y-px"
+          >
+            {summary ? t("openDetails") : t("open")}
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (k: string) => k }));
@@ -32,22 +32,27 @@ vi.mock("./useAgentStream", () => ({
   },
 }));
 
+type Run = {
+  run_id: string;
+  trip_id: string;
+  status: string;
+  thread_turn: number;
+  files: string[];
+  proposal_ready: boolean;
+  review?: "passed" | "needs_review" | null;
+};
 const research = vi.hoisted(() => ({
-  done: null as null | {
-    run_id: string;
-    trip_id: string;
-    status: string;
-    thread_turn: number;
-    files: string[];
-    proposal_ready: boolean;
-  },
+  done: null as null | Run,
+  completed: null as null | Run,
   check: vi.fn(),
+  dismiss: vi.fn(),
 }));
 vi.mock("./useResearchWatch", () => ({
   useResearchWatch: () => ({
     done: research.done,
+    completed: research.completed,
     check: research.check,
-    dismiss: vi.fn(),
+    dismiss: research.dismiss,
   }),
 }));
 
@@ -78,8 +83,19 @@ vi.mock("./ChatPanel", () => ({
   ),
 }));
 vi.mock("./panel/SidePanel", () => ({
-  SidePanel: ({ focus }: { focus?: { key: string; nonce: number } }) => (
-    <div data-testid="side-panel" data-focus-key={focus?.key} data-focus-nonce={focus?.nonce}>
+  SidePanel: ({
+    panels,
+    focus,
+  }: {
+    panels: Array<{ kind: string }>;
+    focus?: { key: string; nonce: number };
+  }) => (
+    <div
+      data-testid="side-panel"
+      data-kinds={panels.map((p) => p.kind).join(",")}
+      data-focus-key={focus?.key}
+      data-focus-nonce={focus?.nonce}
+    >
       drawer
     </div>
   ),
@@ -197,8 +213,19 @@ describe("ChatWidget — responsive shell", () => {
 });
 
 describe("ChatWidget — research completion", () => {
+  const RUN: Run = {
+    run_id: "run-1",
+    trip_id: "abc",
+    status: "completed",
+    thread_turn: 1,
+    files: ["flights.md"],
+    proposal_ready: true,
+    review: null,
+  };
+
   afterEach(() => {
     research.done = null;
+    research.completed = null;
     research.check.mockClear();
   });
 
@@ -214,18 +241,67 @@ describe("ChatWidget — research completion", () => {
   });
 
   it("shows the research-done card in the open panel once a run completes", () => {
-    research.done = {
-      run_id: "run-1",
-      trip_id: "abc",
-      status: "completed",
-      thread_turn: 1,
-      files: ["flights.md"],
-      proposal_ready: true,
-    };
+    research.done = RUN;
+    research.completed = RUN;
+    setViewport(false);
+    render(<ChatWidget />);
+    // A completed run auto-opens the widget, so the card is visible already.
+
+    expect(screen.getByTestId("research-done-card")).toBeInTheDocument();
+  });
+
+  it("adds a plan tab to the drawer whenever a completed run exists", () => {
+    research.completed = RUN;
     setViewport(false);
     render(<ChatWidget />);
     open();
 
-    expect(screen.getByTestId("research-done-card")).toBeInTheDocument();
+    expect(screen.getByTestId("side-panel").dataset.kinds).toContain("research_plan");
+  });
+
+  it("does not auto-open on a plain page load with a completed run", () => {
+    research.completed = RUN;
+    setViewport(false);
+    render(<ChatWidget />);
+
+    // No launcher click: the drawer (and the docked row) stays closed.
+    expect(screen.queryByTestId("side-panel")).toBeNull();
+    expect(screen.queryByTestId("chat-docked")).toBeNull();
+  });
+
+  it("auto-opens the plan drawer when a followed run completes", () => {
+    research.completed = RUN;
+    setViewport(false);
+    const { rerender } = render(<ChatWidget />);
+    expect(screen.queryByTestId("side-panel")).toBeNull();
+
+    // `done` transitions to the run: the drawer opens focused on the plan tab.
+    research.done = RUN;
+    rerender(<ChatWidget />);
+
+    const sidePanel = screen.getByTestId("side-panel");
+    expect(sidePanel.dataset.focusKey).toBe("research_plan");
+  });
+
+  it("auto-opens the plan after a research turn when a plan already exists", () => {
+    research.completed = RUN;
+    setViewport(false);
+    render(<ChatWidget />);
+    expect(screen.queryByTestId("side-panel")).toBeNull();
+
+    act(() => stream.onTurnComplete?.({ currentFlow: "research" }));
+
+    expect(screen.getByTestId("side-panel").dataset.focusKey).toBe("research_plan");
+  });
+
+  it("wires View plan on the desktop done card only", () => {
+    research.done = RUN;
+    research.completed = RUN;
+    setViewport(false);
+    render(<ChatWidget />);
+
+    // done auto-opened the widget; the desktop card carries the View plan action.
+    fireEvent.click(screen.getByRole("button", { name: "viewPlan" }));
+    expect(research.dismiss).toHaveBeenCalled();
   });
 });

@@ -644,6 +644,7 @@
       "hintNoPlan": "Take a look whenever you're ready.",
       "open": "See the research",
       "openDetails": "See all the details",
+      "viewPlan": "View plan",
       "dismiss": "Dismiss",
       "sections": {
         "days": "📅 {count}-day plan",
@@ -830,7 +831,8 @@
       "weather": "Weather",
       "airQuality": "Air Quality",
       "flights": "Flights",
-      "hotels": "Hotels"
+      "hotels": "Hotels",
+      "researchPlan": "Plan"
     },
     "route": {
       "mapLabel": "Route map",
@@ -893,6 +895,30 @@
       "allInTotal": "All-in total",
       "roomsLeftLabel": "Rooms left",
       "amenities": "Amenities"
+    },
+    "researchPlan": {
+      "title": "Plan",
+      "tabs": {
+        "overview": "Overview",
+        "byDay": "By day",
+        "flightsStays": "Flights & stays"
+      },
+      "verdictPassed": "Ready",
+      "verdictNeedsReview": "A few parts to check",
+      "needsReviewHint": "Some options couldn't be confirmed — open the Research tab to fill the gaps.",
+      "statDays": "{count, plural, one {# day} other {# days}}",
+      "statFlights": "{count, plural, one {# flight} other {# flights}}",
+      "budgetLine": "{spent} / {cap} USD",
+      "budgetLineNoCap": "{spent} USD estimated",
+      "apply": "Apply to trip",
+      "applyResult": "{applied}/{total} added",
+      "dayChip": "Day {n}",
+      "mapLabel": "Day map",
+      "flightsHeading": "Flights",
+      "staysHeading": "Stays",
+      "byDayEmpty": "No day-by-day itinerary yet — open the Research tab for the full report.",
+      "empty": "No flights or stays yet — open the Research tab for the full report.",
+      "fullReport": "See it all in the Research tab"
     }
   },
   "Errors": {

@@ -59,6 +59,31 @@ describe("useResearchWatch", () => {
     expect(result.current.done).toBeNull();
   });
 
+  it("exposes the latest completed run from the mount check, without done", async () => {
+    api.getLatestResearch.mockResolvedValue(run("completed"));
+    const { result } = renderHook(() => useResearchWatch("trip-1", true));
+    await flush();
+
+    expect(result.current.completed?.run_id).toBe("run-1");
+    expect(result.current.done).toBeNull();
+  });
+
+  it("exposes completed when a followed run finishes", async () => {
+    api.getLatestResearch
+      .mockResolvedValueOnce(run("running"))
+      .mockResolvedValueOnce(run("completed"));
+    const { result } = renderHook(() => useResearchWatch("trip-1", true));
+    await flush();
+    expect(result.current.completed).toBeNull();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RESEARCH_POLL_MS);
+    });
+
+    expect(result.current.completed?.run_id).toBe("run-1");
+    expect(result.current.done?.run_id).toBe("run-1");
+  });
+
   it("does not raise done when the run fails", async () => {
     api.getLatestResearch
       .mockResolvedValueOnce(run("running"))

@@ -13,6 +13,24 @@ export type Hotel = components["schemas"]["Hotel"];
 // (not in `qk`) since only the research plan reads them; React Query dedupes
 // repeated ids across cards by key, so each id is fetched at most once.
 
+/**
+ * Query options for one place, shared by {@link usePlaceLookup} and the plan
+ * panel's `useQueries` day-map lookup so both hit the same cache key (each id is
+ * fetched at most once) with no second copy of the fetch.
+ */
+export function placeQueryOptions(id: string) {
+  return {
+    queryKey: ["research", "place", id] as const,
+    retry: false,
+    queryFn: () =>
+      unwrap(
+        client.GET("/places/{place_id}", {
+          params: { path: { place_id: id } },
+        }),
+      ),
+  };
+}
+
 /** GET /places/{id} — resolves one itinerary/shortlist place. */
 export function usePlaceLookup(id: string | null) {
   return useQuery({
