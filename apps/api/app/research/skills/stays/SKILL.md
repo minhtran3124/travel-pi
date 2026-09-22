@@ -24,16 +24,18 @@ Research where the traveller sleeps and write `/research/stays.md`. Follow
    to pin the area when the ask is vague.
 2. Call `search_hotels` for those areas and the trip dates. Fall back to
    `browse_hotels` if availability is thin.
-3. Keep a shortlist (2–5 hotels). For each, record the **hotel id**, name, area, nightly
-   price, and one line on why it fits (location, price, amenities), each figure cited.
-4. Note the recommended hotel id(s) to carry into the proposal.
+3. Keep a shortlist (2–5 hotels). For each, record the name, area, nightly price, and one
+   line on why it fits (location, price, amenities), each figure cited; its **hotel id**
+   goes in the file's `## Ids` section (see `dossier-format`), not the body.
+4. Name the recommended hotel(s) to carry into the proposal.
 
 ## What belongs in `/research/stays.md`
 
-- `# Stays` H1.
+- The `# Stays` H1, in the traveller's language.
 - The area(s) and dates searched.
-- A shortlist, each entry with its **hotel id** and price, each cited to its tool.
-- A short recommendation naming the hotel ids for the proposal.
+- A shortlist by hotel name with price, each cited to its tool.
+- A short recommendation naming the hotels for the proposal.
+- A final `## Ids` section: `<hotel name>: <hotel_id>` per shortlisted hotel.
 
 ## When a tool returns nothing
 

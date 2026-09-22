@@ -29,8 +29,10 @@ The per-day files live in the `days/` subdirectory: `/research/days/day-1.md`,
 
 ## Heading conventions
 
-Each Markdown file starts with a single H1 naming the dimension, e.g. `# Flights` or
-`# Day 1 — <city>`. Use H2 for sections within the file. Keep prose tight; prefer short
+Each Markdown file starts with a single H1 naming the dimension **in the traveller's
+language**, e.g. `# Flights` / `# Chuyến bay` or `# Day 1 — <city>` / `# Ngày 1 — <city>`.
+Use H2 for sections within the file. Headings, prose and notes are all in the
+traveller's language; only paths, ids and tool names stay as they are. Keep prose tight; prefer short
 paragraphs and bullet lists over long narration. A dimension file that a tool returned
 nothing for still exists, with an H1 and a one-line note stating what was searched and
 that the tool returned no results (see the dimension skill for the exact wording).
@@ -47,6 +49,25 @@ that returned it, in parentheses: `(search_flights)`, `(get_weather)`, `(get_vis
   (search_flights)."
 - The grader checks that every dimension file cites tools; an uncited claim fails the
   rubric.
+- Tool names appear **only** inside those citation parentheses — never in a sentence
+  ("I searched with `search_places`…"). The traveller reads these files with the
+  citations stripped, so a tool named in prose is left behind as jargon.
+
+## Ids section (load-bearing)
+
+The traveller never sees an id, but the proposal is assembled from them. So every
+dimension file that cites items **ends with an `## Ids` section** (that exact English
+heading, always last) and ids appear nowhere else in the file:
+
+```markdown
+## Ids
+
+- Cham Hotel Danang: 77a8ed7c-78d0-5eb2-82e5-cf29d90c8705
+- VN456 SGN→DAD 2026-10-25: 38382e5c-a32e-5d1e-9d08-8d2d69c51dca
+```
+
+One line per item you recommend or list, `<name as written above>: <id>`, copied from the
+tool's "Ids for the proposal" list. In the body, refer to items by name only.
 
 ## Overview file
 

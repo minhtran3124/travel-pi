@@ -58,7 +58,7 @@ def test_skill_frontmatter_and_body(skill_dir: Path) -> None:
 
 @pytest.mark.parametrize(
     ("name", "version"),
-    [("trip_research", 2), ("trip_research_grader", 1)],
+    [("trip_research", 2), ("trip_research_grader", 2)],
 )
 def test_prompt_loads_at_active_version(name: str, version: int) -> None:
     assert registry.active_version(name) == version
@@ -74,3 +74,15 @@ def test_research_prompt_and_layout_require_the_traveller_summary() -> None:
     assert "Language:" in prompt
     layout = (_SKILLS_DIR / "dossier-format" / "SKILL.md").read_text(encoding="utf-8")
     assert "| `/research/summary.md` | main agent |" in layout
+
+
+def test_layout_keeps_ids_out_of_the_traveller_prose() -> None:
+    """research-dossier-reader: ids live in a trailing ``## Ids`` section the reader
+    view hides, and the grader fails an off-language file."""
+    layout = (_SKILLS_DIR / "dossier-format" / "SKILL.md").read_text(encoding="utf-8")
+    assert "## Ids section (load-bearing)" in layout
+    for skill in ("flights", "stays", "day-plans"):
+        text = (_SKILLS_DIR / skill / "SKILL.md").read_text(encoding="utf-8")
+        assert "`## Ids` section" in text, skill
+    grader = registry.get("trip_research_grader")
+    assert "One file in another language fails this criterion" in grader

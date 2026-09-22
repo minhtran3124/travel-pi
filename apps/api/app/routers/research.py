@@ -28,6 +28,7 @@ from app.db.session import get_session
 from app.exceptions import ForbiddenError, NotFoundError
 from app.repositories.agent_run import AgentRunRepository
 from app.research.progress import ProgressBus
+from app.research.reader import reader_view
 from app.research.service import (
     RESEARCH_KIND,
     ResearchService,
@@ -324,6 +325,9 @@ def read_research_file(
     content = service.file(run_id, path)
     if content is None:
         raise NotFoundError("Dossier file not found")
+    # Markdown is read by the traveller; the JSON proposal keeps its ids for Apply.
+    if path.endswith(".md"):
+        content = reader_view(content)
     return ResearchFileContent(path=path, content=content)
 
 

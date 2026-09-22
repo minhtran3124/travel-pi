@@ -155,6 +155,26 @@ def test_status_reports_a_rejected_run_as_needs_review(tmp_path):
         assert body["review"] == "needs_review"
 
 
+def test_markdown_is_served_as_the_reader_view_and_json_untouched(tmp_path):
+    app, url, store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="completed")
+    ns = ("users", USER_ID, "research", "t1")
+    uid = "38382e5c-a32e-5d1e-9d08-8d2d69c51dca"
+    store.put(
+        ns,
+        "/flights.md",
+        {"content": f"- VN456, USD 139, offer_id `{uid}` (search_flights).\n"},
+    )
+    store.put(ns, "/proposal.json", {"content": f'{{"flights": ["{uid}"]}}'})
+    client = TestClient(app)
+
+    md = client.get("/agent/research/run-1/files/research/flights.md").json()
+    assert md["content"] == "- VN456, USD 139.\n"
+    raw = client.get("/agent/research/run-1/files/plan/proposal.json").json()
+    assert uid in raw["content"]
+
+
 def test_status_foreign_run_is_404(tmp_path):
     app, url, _store = build_app(tmp_path)
     insert_run(url, "run-x", "someone-else", "t1", status="completed")

@@ -55,6 +55,6 @@ nothing, leave its list empty rather than fabricating an id.
 
 ## Building and revising
 
-Assemble the proposal only from ids already written (with citations) in the dimension
-files. On a revise turn, use `edit_file` to change only the entries that change; keep the
+Assemble the proposal only from ids already written in the dimension files' `## Ids`
+sections (each id belongs to an item cited in that file's body). On a revise turn, use `edit_file` to change only the entries that change; keep the
 schema and the surviving ids intact.

@@ -31,6 +31,7 @@ from app.repositories.rate_limit import RateLimitRepository
 from app.repositories.trip import TripRepository
 from app.research.context import ResearchContext
 from app.research.progress import ProgressBus
+from app.research.reader import reader_view
 
 logger = logging.getLogger(__name__)
 
@@ -297,7 +298,7 @@ class ResearchService:
         run = self.latest(trip_id)
         if run is None or run.user_id != user_id or run.status != _COMPLETED:
             return None
-        text = (self.file(run.id, _SUMMARY_PATH) or "").strip()
+        text = reader_view(self.file(run.id, _SUMMARY_PATH) or "").strip()
         return text or None
 
     # -- dossier files ---------------------------------------------------

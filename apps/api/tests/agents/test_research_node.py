@@ -375,7 +375,9 @@ async def test_completed_run_on_the_real_service_books_no_second_run(
 
     service = launcher.build_research_service(store)
     service.write_file(
-        service.latest(TRIP).id, "/research/summary.md", "- Two easy days"
+        service.latest(TRIP).id,
+        "/research/summary.md",
+        "- Two easy days (search_places)",
     )
     result = await node(_state())
 

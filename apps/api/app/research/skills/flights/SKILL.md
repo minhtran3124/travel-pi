@@ -38,15 +38,17 @@ for the file path, headings, and the citation rule.
    "Ids for the proposal" list, never the flight number (`VN422` is not an offer id) —
    origin→destination, depart/arrive times,
    duration, stops, cabin, and price. Every one of these is followed by `(search_flights)`.
+   The offer id goes in the file's `## Ids` section (see `dossier-format`), not the body.
 5. Recommend a shortlist (2–4 offers) and say briefly why (cheapest, fastest, best
    time), citing the tool for every figure.
 
 ## What belongs in `/research/flights.md`
 
-- `# Flights` H1.
+- The `# Flights` H1, in the traveller's language.
 - The search parameters actually used (origin, destination, resolved dates, party).
-- A list or table of offers, each with its **offer id** and price, each cited.
-- A short recommendation naming the offer ids to carry into the proposal.
+- A list or table of offers by flight number, route, time and price, each cited.
+- A short recommendation naming the offers to carry into the proposal.
+- A final `## Ids` section: `<flight number, route, date>: <offer_id>` per listed offer.
 
 ## When a tool returns nothing
 

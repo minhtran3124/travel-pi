@@ -37,10 +37,11 @@ Turn the trip into day-by-day plans, one file per day at `/research/days/day-N.m
 
 ## What belongs in each `/research/days/day-N.md`
 
-- `# Day N — <area/city>` H1.
+- `# Day N — <area/city>` H1, in the traveller's language.
 - A short line on weather/air quality for the day, cited.
-- The ordered stops with times, each activity and meal naming its **place id** and the
-  tool that produced it.
+- The ordered stops with times, each activity and meal by place name, cited to the tool
+  that produced it.
+- A final `## Ids` section: `<place name>: <place_id>` per stop (see `dossier-format`).
 - No more than three activities; meals are present.
 
 ## When a tool returns nothing

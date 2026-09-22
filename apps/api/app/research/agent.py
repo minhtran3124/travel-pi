@@ -26,7 +26,7 @@ from deepagents.backends.store import StoreBackend
 from deepagents.middleware.filesystem import FilesystemBackend, FilesystemMiddleware
 from langchain.agents.middleware import AgentMiddleware, TodoListMiddleware
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import SystemMessage, ToolMessage
 from langchain_core.tools import BaseTool
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
@@ -34,6 +34,7 @@ from langgraph.store.base import BaseStore
 
 from app.agents.retry import describe_tool_failure
 from app.clients.llm import get_agent_llm
+from app.core.languages import LANGUAGE_NAMES, normalize
 from app.prompts.registry import registry
 from app.research.context import ResearchContext
 from app.research.memory import GuardedStoreBackend
@@ -139,6 +140,7 @@ def _subagents() -> list[SubAgent]:
             # Errors outermost: an ids pass only ever sees a successful result.
             middleware=[
                 TodoListMiddleware(),
+                _WriteInTravellerLanguage(),
                 _ToolErrorsToMessages(),
                 _ToolIdsToContent(),
             ],
@@ -267,6 +269,35 @@ class _ToolIdsToContent(AgentMiddleware):
         return self._with_ids(await handler(request))
 
 
+class _WriteInTravellerLanguage(AgentMiddleware):
+    """Name the traveller's language in every model call's system message.
+
+    The ``Language:`` line reaches only the main agent's message; a subagent sees just
+    the task text the main agent wrote, so a live run produced a Vietnamese summary
+    over English dimension files. ``state["language"]`` is forwarded to every
+    subagent (tools already read it), so it is the one source both can use.
+    """
+
+    @staticmethod
+    def _with_language(request):
+        code = (request.state or {}).get("language")
+        if not code:
+            return request
+        name = LANGUAGE_NAMES[normalize(code)]
+        note = (
+            f"\n\nWrite every file and note in {name} — headings included. File paths, "
+            "ids and tool names stay exactly as they are."
+        )
+        base = request.system_message.content if request.system_message else ""
+        return request.override(system_message=SystemMessage(content=f"{base}{note}"))
+
+    def wrap_model_call(self, request, handler):
+        return handler(self._with_language(request))
+
+    async def awrap_model_call(self, request, handler):
+        return await handler(self._with_language(request))
+
+
 def _read_file_tool(
     backend: CompositeBackend,
     permissions: list[FilesystemPermission],
@@ -307,6 +338,7 @@ def build_research_agent(
         subagents=_subagents(),
         middleware=[
             TodoListMiddleware(),
+            _WriteInTravellerLanguage(),
             _ToolErrorsToMessages(),
             RubricMiddleware(
                 model=grader,

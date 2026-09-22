@@ -3,6 +3,18 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## research-dossier-reader — trip_research_grader v2: per-file language, readable bodies
+
+- **trip_research_grader v2** — copied v1. Criterion 5 now opens every `/research/` file and
+  fails on any one written in another language than the `Language:` line (a live run passed v1
+  with a Vietnamese summary over English dimension files). New criterion 6: ids only in each
+  file's trailing `## Ids` section, tool names only inside citations, none in `summary.md`.
+- Code half: `_WriteInTravellerLanguage` names the language in every research model call
+  (subagents never saw the `Language:` line); the traveller-facing file reads go through
+  `reader_view`, which strips citations, ids and the `## Ids` section.
+
+`active.yaml`: trip_research_grader → 2. Others unchanged.
+
 ## research-chat-summary — trip_research v2: a traveller summary, in the traveller's language
 
 - **trip_research v2** — copied v1; a final step writes `/research/summary.md` (≤5 plain
