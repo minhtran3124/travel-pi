@@ -198,6 +198,13 @@
     box-shadow: var(--shadow);
     transition: transform .2s, border-color .2s, box-shadow .2s;
   }
+  /* Tiles are all photo under a dark scrim, so Daylight keeps the bright
+     on-dark tokens inside them. */
+  html[data-theme="daylight"] .place-card {
+    --ink: #efe9e6; --accent-dim: #ffa99c;
+    --yellow: #fbbf24; --green: #34d399; --orange: #fb923c; --cyan: #38bdf8; --red: #f87171;
+    color: var(--ink);
+  }
   .place-card.feat { grid-column: span 2; grid-row: span 2; }
   .place-card.wide { grid-column: span 2; }
   .place-card:focus-visible { outline: 2px solid var(--c, var(--accent)); outline-offset: 2px; }
