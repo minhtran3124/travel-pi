@@ -65,10 +65,10 @@
     "scenario": "ambiguous",
     "language": "en",
     "suite": "full",
-    "input": "What's the cheapest flight from Hanoi to Tokyo in May?",
+    "input": "How much does a hotel in Da Nang cost per night?",
     "expected_flow": "concierge",
     "forbidden_tools": ["search_web", "find_events", "find_places_live"],
-    "metrics": ["tools_forbidden"],
-    "notes": "Flight pricing belongs to the synthetic flight-search inventory, not a live web tool — the web tools must stay unused."
+    "metrics": ["flow_match", "tools_forbidden"],
+    "notes": "Hotel price question lands on the concierge, where the web tools are bound — prices come from the internal hotel tools, never a live web search."
   }
 ]

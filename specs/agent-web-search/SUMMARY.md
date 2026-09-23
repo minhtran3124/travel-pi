@@ -38,6 +38,10 @@ Web search is a new external, paid, non-deterministic data source whose output i
 ### Deviations
 
 - Rule 1 (Task 1.1) — the off-defaults config test `monkeypatch.delenv`s `TAVILY_API_KEY`/`SERPAPI_API_KEY`, so the `None` default is observable under a Verify env that blanks them to `""`. `apps/api/tests/core/test_config_web_search.py`.
+- Rule 1 (Task 5.1 review) — golden `web_search-ambiguous-en-02` changed from the brief's flight-price wording to a hotel-price question with `flow_match`: a flight question routes to the planner, where the web tools are never bound, so the golden could not fail. `apps/api/eval/datasets/web_search.json`.
+- Rule 3 (Task 5.1) — removed stray tool markup after the closing `]` in `web_search.json`.
+- Rule 3 (Task 4.2) — `ruff format` added one blank line at a pre-existing function boundary in `tests/prompts/test_concierge_prompt.py`.
+- Filter location (Task 4.1, planned) — research-brief delta 7 put the filter in research `_resolve`; with research descoped (E004 = A) the filter lives only in `get_tools_for`.
 - Environment (Task 1.1, controller) — the worktree `.venv` was a symlink to the main checkout's venv; installing this branch's requirements downgraded `langchain-openai` 1.6.2→0.3.34 and `openai` 3.16.2→2.54.0 there (PR #221's branch pins `langchain-openai>=1.6.2`). Restored the shared venv (`uv pip install -r <main>/apps/api/requirements.txt`, `openai==3.16.2`; `uv pip check` clean) and gave the worktree its own `.venv`.
 
 ### Verify
@@ -45,6 +49,18 @@ Web search is a new external, paid, non-deterministic data source whose output i
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | intake lane evidence | `python .claude/scripts/verify_summary.py --lane agent-web-search` | 0 | intake-stage record | |
+| config + SDK pins | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_web_search.py -q` | 0 | 4 passed | SC-1 |
+| service error mapping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k error` | 0 | 18 passed, 10 deselected | SC-2 |
+| service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k cache` | 0 | 7 passed, 21 deselected | SC-3 |
+| user_id gate + rate limit | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "user_id or rate_limit"` | 0 | 5 passed, 14 deselected | SC-4 |
+| content escaping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k content` | 0 | 5 passed, 14 deselected | SC-5 |
+| schema + error order | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "schema or error"` | 0 | 9 passed, 10 deselected | SC-6 |
+| conditional binding | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | 0 | 4 passed | SC-7 |
+| MCP exclusion | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 8 passed | SC-8 |
+| tools_forbidden metric | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_deterministic.py -q -k forbidden` | 0 | 3 passed, 30 deselected | SC-9 |
+| concierge v14 prompt | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | 0 | 7 passed | SC-10 |
+| web_search dataset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | 0 | 26 passed | SC-11 |
+| lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed | |
 
 ### Not auto-verified
 
@@ -62,6 +78,7 @@ Web search is a new external, paid, non-deterministic data source whose output i
 - Task 3.1 (fixed in follow-up commit) — the user_id gate and error-mapping tests now run across all three tools, not only `search_web`.
 - Task 3.1 — the review returned `cannot_verify` on SC-4 (count mismatch it suspected); the controller re-ran all three selectors (3/5/5 passed, exit 0, test names listed) — the report count was right because the schema test name also contains `user_id`.
 - Task 4.2 — concierge v14 names the three web tools unconditionally; with the flag off (default) they are unbound. The mitigation ("only when actually available; never claim a search") is prose-only and unmeasured. Owed: run the concierge-relevant eval goldens with the flag off before merge; fallback if a regression shows is conditional prompt text.
+- Task 5.1 (fixed in follow-up commit) — the dataset guard now pairs each metric with its field; README matrix gains a `web_search` row and a stale-total note.
 - Task 1.2 — `apps/api/evalkit/README.md:134` metric inventory omits `tools_forbidden` (and pre-existing `no_invented_date`, `no_injected_memory`, `memory_stored`).
 
 ### Harness-Delta

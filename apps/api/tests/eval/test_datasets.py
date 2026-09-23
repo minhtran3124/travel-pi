@@ -87,6 +87,14 @@ def test_web_search_goldens_declare_a_tool_metric_and_avoid_smoke():
             f"web_search golden {case.id!r} declares neither 'tools_expected' "
             "nor 'tools_forbidden' — its tool expectation would never be checked"
         )
+        assert ("tools_expected" in declared) == (case.expected_tools is not None), (
+            f"web_search golden {case.id!r}: 'tools_expected' and 'expected_tools' "
+            "must come together — one without the other is a hollow gate"
+        )
+        assert ("tools_forbidden" in declared) == (case.forbidden_tools is not None), (
+            f"web_search golden {case.id!r}: 'tools_forbidden' and 'forbidden_tools' "
+            "must come together — one without the other is a hollow gate"
+        )
         assert case.suite != "smoke", (
             f"web_search golden {case.id!r} is in suite=smoke, but web goldens "
             "need provider keys and the flag on — full suite only"
