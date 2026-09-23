@@ -316,6 +316,18 @@ def test_error_serpapi_no_results_body_returns_found_false(monkeypatch):
     assert out == {"found": False, "events": []}
 
 
+def test_error_serpapi_no_results_on_4xx_returns_found_false(monkeypatch):
+    _patch_serp(
+        monkeypatch,
+        raises=_serp_http_error(
+            400,
+            {"error": "Google hasn't returned any results for this query."},
+        ),
+    )
+    out = asyncio.run(wss.find_places_live("pho", "Nowhereville"))
+    assert out == {"found": False, "places": []}
+
+
 # --- cache -----------------------------------------------------------------
 
 
@@ -393,3 +405,11 @@ def test_cache_serpapi_no_results_is_cached(monkeypatch):
     asyncio.run(wss.find_events("Nowhereville"))
     asyncio.run(wss.find_events("Nowhereville"))
     assert counter["calls"] == 1
+
+
+def test_cache_serpapi_hit_is_not_served_once_unavailable(monkeypatch):
+    _patch_serp(monkeypatch, result={"events_results": [{"title": "Lantern night"}]})
+    asyncio.run(wss.find_events("Hoi An"))
+    _patch_settings(monkeypatch, serpapi_search_available=False)
+    with pytest.raises(WebSearchError):
+        asyncio.run(wss.find_events("Hoi An"))

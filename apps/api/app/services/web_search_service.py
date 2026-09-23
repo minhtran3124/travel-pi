@@ -146,6 +146,8 @@ async def find_events(
     if date_filter:
         params["htichips"] = f"date:{date_filter}"
 
+    if not get_settings().serpapi_search_available:
+        raise WebSearchError()
     cache_key = ("serpapi", "google_events", place.strip().casefold(), date_filter, hl)
     cached = _cache_get(cache_key)
     if cached is not None:
@@ -177,6 +179,8 @@ async def find_places_live(
         "hl": hl,
     }
 
+    if not get_settings().serpapi_search_available:
+        raise WebSearchError()
     cache_key = (
         "serpapi",
         "google_maps",
@@ -226,6 +230,8 @@ async def _serpapi_search(params: dict) -> dict | None:
     except serpapi.HTTPError as exc:
         if exc.status_code >= 500:
             raise WebSearchUpstreamError() from exc
+        if _NO_RESULTS_MARKER in (exc.error or ""):
+            return None
         raise WebSearchError() from exc
 
     body = raw.as_dict() if hasattr(raw, "as_dict") else dict(raw)

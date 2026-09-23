@@ -57,6 +57,8 @@ Web search is a new external, paid, non-deterministic data source whose output i
 
 ### Minor review findings (forwarded to final review)
 
+- Task 2.1 — `include_published_date=True` reaches Tavily via `**kwargs` as an unnamed body field; if the API rejects it, every live `search_web` fails. Offline fakes cannot catch this — covered only by the owed real-key smoke run.
+- Task 2.1 (fixed in follow-up commit) — SerpAPI availability check now runs before the cache lookup; the no-results marker is honoured on a 4xx `HTTPError` too.
 - Task 1.2 — `apps/api/evalkit/README.md:134` metric inventory omits `tools_forbidden` (and pre-existing `no_invented_date`, `no_injected_memory`, `memory_stored`).
 
 ### Harness-Delta
