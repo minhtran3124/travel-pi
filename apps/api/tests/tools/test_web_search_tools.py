@@ -320,4 +320,5 @@ def test_search_web_content_caps_title_and_source(monkeypatch):
     monkeypatch.setattr(web_search_tools.web_search_service, "search_web", fake)
     content = _run(search_web, {"query": "q"})
     assert "t" * 501 not in content
-    assert "u" * 501 not in content
+    assert "t" * 500 in content
+    assert "u" * 900 in content

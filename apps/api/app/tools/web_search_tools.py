@@ -26,6 +26,8 @@ from app.tools._base import session_scope, tool_error
 
 _NO_RESULTS = "No web results for this query."
 _SNIPPET_MAX = 500
+# URLs are identifiers the model must cite verbatim: bound them loosely, never mid-snippet.
+_URL_MAX = 2048
 
 DateFilter = Literal["today", "tomorrow", "week", "next_week", "month", "next_month"]
 
@@ -75,13 +77,13 @@ class FindPlacesLiveArgs(AppBaseModel):
     )
 
 
-def _esc(value: object) -> str:
-    return html.escape(str(value)[:_SNIPPET_MAX], quote=True)
+def _esc(value: object, limit: int = _SNIPPET_MAX) -> str:
+    return html.escape(str(value)[:limit], quote=True)
 
 
 def _block(source: object, title: object, body: str) -> str:
     return (
-        f'<web_result source="{_esc(source or "")}" title="{_esc(title or "")}">'
+        f'<web_result source="{_esc(source or "", _URL_MAX)}" title="{_esc(title or "")}">'
         f"{body}</web_result>"
     )
 

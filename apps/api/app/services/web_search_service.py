@@ -279,7 +279,9 @@ def _map_events(body: dict | None) -> dict:
                 "title": item.get("title") or "",
                 "date": when,
                 "venue": venue.get("name") if isinstance(venue, dict) else None,
-                "address": ", ".join(address) if isinstance(address, list) else address,
+                "address": ", ".join(str(a) for a in address)
+                if isinstance(address, list)
+                else address,
                 "url": item.get("link"),
             }
         )

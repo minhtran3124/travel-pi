@@ -73,6 +73,11 @@ Fixed (score ≥ 75, Rule 1):
 
 Fix re-review (round 2): C5 and C8 confirmed resolved. One new finding (85): `title`/`source` in the `<web_result>` tag were uncapped — `_esc` now cuts every value at 500 chars. Also fixed in the same round: `_hours_text` flattens nested list/dict hours (60), and `_map_tavily` slices to `_MAX_ITEMS` like the SerpAPI mappers (45).
 
+Fix re-review (round 3, the configured cap): round 2 held, but it regressed one behaviour. Capping `source` at 500 chars would cut a long URL into a broken citation (NF-1, 70). Fixed: URLs get their own 2048-char bound. Also fixed: a mixed-type `address` list no longer raises `TypeError` (NF-4, 45). The Tavily fake now records call kwargs, and a test pins the exact argument set, so the removal of `include_published_date` is proven (NF-5, 90). Left advisory:
+- NF-2 (85) — the 500 cap applies before escaping, so a field of `"` expands to at most 3000 prompt chars. It is still bounded, only by ~6× the nominal size.
+- NF-3 (40) — `address`/`rating` arriving as a dict would render a repr. Latent: google_maps returns strings.
+- NF-6 (60) — the ToolMessage artifact keeps the raw provider dict (capped at 5 items, fields uncapped) in the checkpoint. It has no consumer (`grep -rn "\.artifact" apps/api/app` returns nothing).
+
 Advisory (score < 75, not fixed — recorded for follow-up):
 - C1 (50) — `include_published_date=True` is not a tavily-python 0.8.4 parameter. **Removed** after the intent review flagged it as an unverified provider decision.
 - C2 (50) — availability checks `key.strip()` but the raw key is sent; a key with surrounding whitespace binds the tools and then 401s. Same pattern as the existing `ors_api_key`.

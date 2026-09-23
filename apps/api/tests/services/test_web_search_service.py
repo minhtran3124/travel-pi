@@ -54,6 +54,7 @@ class _FakeTavily:
         self._result = result if result is not None else {"results": []}
         self._raises = raises
         self._counter = counter
+        self.calls = []
 
     async def __aenter__(self):
         return self
@@ -62,6 +63,7 @@ class _FakeTavily:
         return False
 
     async def search(self, query, **kwargs):
+        self.calls.append((query, kwargs))
         if self._counter is not None:
             self._counter["calls"] += 1
         if self._raises is not None:
@@ -440,3 +442,30 @@ def test_find_places_live_flattens_nested_hours(monkeypatch):
     out = asyncio.run(wss.find_places_live("pho", "Hanoi"))
     assert out["places"][0]["hours"] == "monday: 8am-12pm; 1pm-9pm"
     assert out["places"][1]["hours"] == "tuesday: 9am-5pm"
+
+
+def test_search_web_sends_only_supported_tavily_arguments(monkeypatch):
+    fake = _FakeTavily(result={"results": []})
+    monkeypatch.setattr(wss, "AsyncTavilyClient", lambda *a, **k: fake)
+    asyncio.run(wss.search_web("typhoon da nang", topic="news", time_range="week"))
+    query, kwargs = fake.calls[0]
+    assert query == "typhoon da nang"
+    assert kwargs == {
+        "search_depth": "basic",
+        "topic": "news",
+        "max_results": 5,
+        "include_answer": False,
+        "include_raw_content": False,
+        "time_range": "week",
+        "include_domains": None,
+        "timeout": 10.0,
+    }
+
+
+def test_find_events_joins_mixed_address_list(monkeypatch):
+    _patch_serp(
+        monkeypatch,
+        result={"events_results": [{"title": "Fest", "address": ["Hoi An", 42]}]},
+    )
+    out = asyncio.run(wss.find_events("Hoi An"))
+    assert out["events"][0]["address"] == "Hoi An, 42"
