@@ -71,8 +71,10 @@ Fixed (score ≥ 75, Rule 1):
 - C8 (75) — `web_search-ambiguous-en-01` / `-vi-01` forbade web tools without `flow_match`, so a misroute passed trivially. Both now declare `flow_match`; the dataset test requires it for every golden with `forbidden_tools`.
 - Suite regression found by the branch-vs-main comparison (Rule 1): `tests/eval/test_memory_goldens.py` keeps its own taxonomy copy without `web_search`, so 3 tests failed; added the capability.
 
+Fix re-review (round 2): C5 and C8 confirmed resolved. One new finding (85): `title`/`source` in the `<web_result>` tag were uncapped — `_esc` now cuts every value at 500 chars. Also fixed in the same round: `_hours_text` flattens nested list/dict hours (60), and `_map_tavily` slices to `_MAX_ITEMS` like the SerpAPI mappers (45).
+
 Advisory (score < 75, not fixed — recorded for follow-up):
-- C1 (50) — `include_published_date=True` is not a tavily-python 0.8.4 parameter; it goes into the POST body. Either a no-op or a 400 on every live call; settle with the owed real-key smoke run, then drop it if unneeded.
+- C1 (50) — `include_published_date=True` is not a tavily-python 0.8.4 parameter. **Removed** after the intent review flagged it as an unverified provider decision.
 - C2 (50) — availability checks `key.strip()` but the raw key is sent; a key with surrounding whitespace binds the tools and then 401s. Same pattern as the existing `ors_api_key`.
 - C3 (50) — rate-limit hits are charged on every TRANSIENT_RETRY attempt (up to 3 per failing turn) and on cache hits (the latter by design).
 - C4 (50) — `_map_places` ignores SerpAPI `place_results` (single-venue answer); unverified provider shape.
@@ -85,9 +87,19 @@ Advisory (score < 75, not fixed — recorded for follow-up):
 - C7 (25) — `web_search` joins the 0.7 threshold map; with the flag off it sits below threshold (adds a 4th below-threshold capability to `eval-full`; the regression gate treats it as new and does not fail).
 - C9 (0) — `/agent/manifest` lists the three tools with the flag off; accepted in PLAN (manifest = registry tools), router line not in the diff.
 
+### Intent Findings
+
+Intent review (fc5a6869..b5a2dc9a, plan-blind), 6 findings:
+- gap — `find_events` has no `weekend` filter while design.md's use-case table named one. Resolution: design.md corrected. The research brief (delta 1) dropped `date:weekend` because SerpAPI does not document it, so the code follows the evidence and the design table was stale.
+- drift (behaviour) — an unverified provider decision: `include_published_date=True` was not a tavily-python 0.8.4 parameter (correctness C1). Resolution: removed. `published_date` still arrives for `topic=news`, and the mapper tolerates its absence. The SerpAPI `place_results` shape (C4) remains unverified until the owed smoke run.
+- drift (behaviour, advisory) — web tools are bound to the concierge only, so a planner-routed turn cannot search. This was the user's decision (E002 = A: concierge, last resort; E004 = A: research wiring deferred).
+- drift (equivalent, advisory) — three tools rather than one "search internet" tool. The user approved approach A (split by job) in brainstorming.
+- excess (report-only) — the generic `forbidden_tools` / `tools_forbidden` eval metric and the `web_search` capability. They exist to prove the must-not-call use cases; they were in the plan the user saw, not in the original ask.
+- excess (report-only) — the per-user hourly rate limit, the bounded TTL cache and five tuning settings. These are the E003 = A guards the user approved; they are not in the original ask.
+
 ### Not auto-verified
 
-- Live provider behaviour — no real Tavily/SerpAPI call was made: `include_published_date` acceptance (C1), `place_results` shape (C4), `hl=vi` quality, latency. Owed: one manual smoke run per tool with real keys and `WEB_SEARCH_ENABLED=true`.
+- Live provider behaviour — no real Tavily/SerpAPI call was made: `place_results` shape (C4), `hl=vi` quality, latency. Owed: one manual smoke run per tool with real keys and `WEB_SEARCH_ENABLED=true`.
 - Concierge v14 with the flag off (default) — prompt names tools that are unbound; `make eval-check` on concierge goldens with the flag off not run (paid).
 - Lane classification — reached traceability; flags assigned by judgment from the request, no diff exists yet to corroborate against `hooks/risk-corroboration.sh`.
 - "No existing web-search tool" — searched `apps/api/app`, `apps/api/requirements.txt`, `specs/` for `tavily|serpapi|web_search|websearch`; only hit is a mention in `specs/web-trip-planner/research-brief.md`.

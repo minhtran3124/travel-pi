@@ -102,7 +102,6 @@ async def search_web(
                 include_domains=domains,
                 include_answer=False,
                 include_raw_content=False,
-                include_published_date=True,
                 timeout=settings.web_search_timeout_seconds,
             )
     except TavilyTimeoutError as exc:
@@ -253,14 +252,16 @@ def _map_tavily(data: dict) -> dict:
             "snippet": item.get("content") or "",
             "published_date": item.get("published_date"),
         }
-        for item in data.get("results") or []
+        for item in (data.get("results") or [])[:_MAX_ITEMS]
     ]
     return {"found": bool(results), "results": results}
 
 
 def _hours_text(value: object) -> object:
+    if isinstance(value, list):
+        return "; ".join(str(_hours_text(v)) for v in value)
     if isinstance(value, dict):
-        return "; ".join(f"{day}: {hours}" for day, hours in value.items())
+        return "; ".join(f"{day}: {_hours_text(hours)}" for day, hours in value.items())
     return value
 
 

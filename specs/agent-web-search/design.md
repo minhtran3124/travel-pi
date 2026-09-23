@@ -31,7 +31,7 @@ Decisions already made (see ESCALATIONS.md and the brainstorming turns of 2026-0
 | Traveller question | Tool (provider / engine) | Use? |
 |---|---|---|
 | Festivals or events in a city during the trip week | `find_events` (SerpAPI `google_events`, date filter) | yes |
-| "What's on in Tokyo this weekend" | `find_events` | yes |
+| "What's on in Tokyo this week" | `find_events` (`date_filter=week`; SerpAPI documents no `weekend` chip) | yes |
 | Best-rated phở near the hotel | `find_places_live` (SerpAPI `google_maps`) | yes |
 | Is the Louvre open on Tuesday | `search_web` (Tavily, official `domains`) | yes |
 | Current Japan entry rules for a VN passport | `search_web` after `get_visa`, with an official-source link required | yes |
@@ -121,7 +121,7 @@ every other provider setting in the app.
 | Tool | Args | Provider call | Returns |
 |---|---|---|---|
 | `search_web` | `query`, `topic: general\|news`, `time_range: day\|week\|month\|None`, `domains: list[str]\|None` | Tavily `/search`, `search_depth=basic`, `max_results=5`, no `raw_content`, no `answer` | `{found, results:[{title,url,snippet,published_date}]}` |
-| `find_events` | `place`, `date_filter: today\|tomorrow\|week\|weekend\|month\|None` | SerpAPI `google_events` (`htichips=date:…`) | `{found, events:[{title,date,venue,address,url}]}` |
+| `find_events` | `place`, `date_filter: today\|tomorrow\|week\|next_week\|month\|next_month\|None` (research-brief delta 1: `weekend` is undocumented) | SerpAPI `google_events` (`htichips=date:…`) | `{found, events:[{title,date,venue,address,url}]}` |
 | `find_places_live` | `query`, `near` | SerpAPI `google_maps` | `{found, places:[{name,rating,reviews,address,hours,url}]}` |
 
 Rules shared by all three tools:

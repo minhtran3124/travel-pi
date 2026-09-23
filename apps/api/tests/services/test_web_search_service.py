@@ -422,3 +422,21 @@ def test_find_events_and_places_cap_results_at_five(monkeypatch):
     places = asyncio.run(wss.find_places_live("cafe", "Hanoi"))
     assert len(events["events"]) == 5
     assert len(places["places"]) == 5
+
+
+def test_find_places_live_flattens_nested_hours(monkeypatch):
+    _patch_serp(
+        monkeypatch,
+        result={
+            "local_results": [
+                {
+                    "title": "Pho",
+                    "operating_hours": {"monday": ["8am-12pm", "1pm-9pm"]},
+                },
+                {"title": "Bun", "hours": [{"tuesday": "9am-5pm"}]},
+            ]
+        },
+    )
+    out = asyncio.run(wss.find_places_live("pho", "Hanoi"))
+    assert out["places"][0]["hours"] == "monday: 8am-12pm; 1pm-9pm"
+    assert out["places"][1]["hours"] == "tuesday: 9am-5pm"

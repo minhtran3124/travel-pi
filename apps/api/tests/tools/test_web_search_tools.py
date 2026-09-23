@@ -301,3 +301,23 @@ def test_find_places_live_content_caps_each_field(monkeypatch):
     assert "x" * 501 not in content
     assert "x" * 500 in content
     assert "hours: monday: 8am-9pm" in content
+
+
+def test_search_web_content_caps_title_and_source(monkeypatch):
+    async def fake(*a, **k):
+        return {
+            "found": True,
+            "results": [
+                {
+                    "title": "t" * 900,
+                    "url": "http://x/" + "u" * 900,
+                    "snippet": "s",
+                    "published_date": None,
+                }
+            ],
+        }
+
+    monkeypatch.setattr(web_search_tools.web_search_service, "search_web", fake)
+    content = _run(search_web, {"query": "q"})
+    assert "t" * 501 not in content
+    assert "u" * 501 not in content

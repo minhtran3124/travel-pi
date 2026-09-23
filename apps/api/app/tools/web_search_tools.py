@@ -76,7 +76,7 @@ class FindPlacesLiveArgs(AppBaseModel):
 
 
 def _esc(value: object) -> str:
-    return html.escape(str(value), quote=True)
+    return html.escape(str(value)[:_SNIPPET_MAX], quote=True)
 
 
 def _block(source: object, title: object, body: str) -> str:
@@ -88,9 +88,7 @@ def _block(source: object, title: object, body: str) -> str:
 
 def _lines(item: dict, fields: tuple[str, ...]) -> str:
     return "\n".join(
-        f"{key}: {_esc(str(item[key])[:_SNIPPET_MAX])}"
-        for key in fields
-        if item.get(key) is not None
+        f"{key}: {_esc(item[key])}" for key in fields if item.get(key) is not None
     )
 
 
