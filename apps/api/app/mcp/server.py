@@ -14,7 +14,12 @@ from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 
 # Excluded by name: FastMCP serves the raw signature, so an injected user_id becomes a caller-supplied
 # arg on this unauthenticated surface — and list_trips would need only that to dump a user's inventory.
-_MCP_EXCLUDED_BY_NAME = {"list_trips"}
+_MCP_EXCLUDED_BY_NAME = {
+    "list_trips",
+    "search_web",
+    "find_events",
+    "find_places_live",
+}
 
 
 def build_mcp_server(name: str = "travel-pi") -> FastMCP:

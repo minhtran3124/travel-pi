@@ -61,6 +61,7 @@ Web search is a new external, paid, non-deterministic data source whose output i
 - Task 2.1 (fixed in follow-up commit) — SerpAPI availability check now runs before the cache lookup; the no-results marker is honoured on a 4xx `HTTPError` too.
 - Task 3.1 (fixed in follow-up commit) — the user_id gate and error-mapping tests now run across all three tools, not only `search_web`.
 - Task 3.1 — the review returned `cannot_verify` on SC-4 (count mismatch it suspected); the controller re-ran all three selectors (3/5/5 passed, exit 0, test names listed) — the report count was right because the schema test name also contains `user_id`.
+- Task 4.2 — concierge v14 names the three web tools unconditionally; with the flag off (default) they are unbound. The mitigation ("only when actually available; never claim a search") is prose-only and unmeasured. Owed: run the concierge-relevant eval goldens with the flag off before merge; fallback if a regression shows is conditional prompt text.
 - Task 1.2 — `apps/api/evalkit/README.md:134` metric inventory omits `tools_forbidden` (and pre-existing `no_invented_date`, `no_injected_memory`, `memory_stored`).
 
 ### Harness-Delta
