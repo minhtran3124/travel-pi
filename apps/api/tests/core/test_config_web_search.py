@@ -12,7 +12,7 @@ def test_web_search_settings_have_off_defaults(monkeypatch):
     # genuine None default is observable rather than the env override.
     monkeypatch.delenv("TAVILY_API_KEY", raising=False)
     monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
-    s = Settings()
+    s = Settings(_env_file=None)
     assert s.web_search_enabled is False
     assert s.tavily_api_key is None
     assert s.serpapi_api_key is None

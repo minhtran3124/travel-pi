@@ -37,7 +37,8 @@ Web search is a new external, paid, non-deterministic data source whose output i
 
 ### Deviations
 
-- none
+- Rule 1 (Task 1.1) — the off-defaults config test `monkeypatch.delenv`s `TAVILY_API_KEY`/`SERPAPI_API_KEY`, so the `None` default is observable under a Verify env that blanks them to `""`. `apps/api/tests/core/test_config_web_search.py`.
+- Environment (Task 1.1, controller) — the worktree `.venv` was a symlink to the main checkout's venv; installing this branch's requirements downgraded `langchain-openai` 1.6.2→0.3.34 and `openai` 3.16.2→2.54.0 there (PR #221's branch pins `langchain-openai>=1.6.2`). Restored the shared venv (`uv pip install -r <main>/apps/api/requirements.txt`, `openai==3.16.2`; `uv pip check` clean) and gave the worktree its own `.venv`.
 
 ### Verify
 
@@ -54,6 +55,10 @@ Web search is a new external, paid, non-deterministic data source whose output i
 
 - Intake-only: `rm -r specs/agent-web-search` (nothing committed). After implementation: `git revert <sha>`; the feature ships behind off-by-default settings, so unsetting the API keys / flag disables it without a deploy.
 
+### Minor review findings (forwarded to final review)
+
+- Task 1.2 — `apps/api/evalkit/README.md:134` metric inventory omits `tools_forbidden` (and pre-existing `no_invented_date`, `no_injected_memory`, `memory_stored`).
+
 ### Harness-Delta
 
-- none
+- backlog — the sibling-worktree recipe (symlink the main `.venv`) silently mutates another branch's environment when the branches pin different versions; a worktree needs its own venv when its requirements differ.
