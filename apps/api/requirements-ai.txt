@@ -86,3 +86,11 @@ deepeval>=4.0,<5
 # pulls in `langchain_core` at runtime as its own dependency, not ours —
 # `evalkit/` itself never imports langchain directly (test_boundary.py).
 agentevals==0.0.9
+
+# Web search tools for the concierge agent (specs/agent-web-search). Off by
+# default (WEB_SEARCH_ENABLED=false); the concierge tool list is unchanged until
+# the flag and a provider key are set. tavily-python is the official async
+# client; serpapi is SerpApi's official SDK — never the third-party
+# google-search-results package.
+tavily-python>=0.8.4,<0.9
+serpapi>=1.1.2,<2

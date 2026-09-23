@@ -81,6 +81,34 @@ class Settings(BaseSettings):
         """True when an OpenRouteService API key is configured."""
         return bool(self.ors_api_key and self.ors_api_key.strip())
 
+    # Web search for the concierge agent (specs/agent-web-search). Off by default; a provider is live only when the flag is on and its key is non-blank.
+    web_search_enabled: bool = False
+    tavily_api_key: str | None = None
+    serpapi_api_key: str | None = None
+    web_search_timeout_seconds: float = 10.0
+    web_search_cache_ttl_seconds: int = 3600
+    web_search_news_cache_ttl_seconds: int = 900
+    web_search_cache_max_entries: int = 512
+    web_search_user_hourly_limit: int = 30
+
+    @property
+    def tavily_search_available(self) -> bool:
+        """True when web search is on and a Tavily API key is configured."""
+        return bool(
+            self.web_search_enabled
+            and self.tavily_api_key
+            and self.tavily_api_key.strip()
+        )
+
+    @property
+    def serpapi_search_available(self) -> bool:
+        """True when web search is on and a SerpAPI key is configured."""
+        return bool(
+            self.web_search_enabled
+            and self.serpapi_api_key
+            and self.serpapi_api_key.strip()
+        )
+
     # CORS — wide open by default for local dev.
     cors_origins: list[str] = ["*"]
     cors_methods: list[str] = ["*"]
