@@ -8,6 +8,7 @@ Affects: apps/api/requirements-ai.txt (dependency manifest); app/core/config.py 
 Input-type: new spec
 Route: brainstorming ✅ design.md (2026-09-23) → xia2 Deep ✅ research-brief.md (2026-09-23; PR #215 interaction = A, own wrapper) → writing-plans ✅ PLAN.md (2026-09-23, 7 tasks / 5 waves, review approved) → using-git-worktrees → subagent-driven-development → correctness/intent review → PR
 Route-original: brainstorming (use-case catalogue + provider split, E001–E003) → xia2 Deep (external surface: Tavily + SerpAPI official docs, pricing, rate limits, LangChain integrations) → writing-plans ✅ PLAN.md (2026-09-23, 7 tasks / 5 waves, review approved) → using-git-worktrees → subagent-driven-development → correctness/intent review → PR
+PR: https://github.com/minhtran3124/travel-pi/pull/227 (branch `feat/agent-web-search`, base `main`).
 Escalate: no (E001–E004 decided 2026-09-23: option A on all four)
 
 > `Lane` drives **ceremony** (how much proof). `Confidence` drives **interruption**
