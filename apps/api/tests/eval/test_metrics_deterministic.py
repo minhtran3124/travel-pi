@@ -12,6 +12,7 @@ from evalkit.metrics.deterministic import (
     TasksExpectedMetric,
     ToolArgsShapeMetric,
     ToolsExpectedMetric,
+    ToolsForbiddenMetric,
     make_tool_args_shape_metric,
 )
 from evalkit.registry import get_metric, list_metrics
@@ -163,6 +164,39 @@ def test_tools_expected_invalid_mode_raises():
     except ValueError:
         return
     raise AssertionError("expected ValueError for invalid mode")
+
+
+# --- tools_forbidden (SC-9) ---------------------------------------------
+
+
+def test_tools_forbidden_fails_when_a_forbidden_tool_was_called():
+    golden = _golden(forbidden_tools=["web_search"])
+    trace = _trace(
+        tool_calls=[
+            ToolCall(name="web_search", args={}, output={}),
+            ToolCall(name="geocode_city", args={}, output={}),
+        ]
+    )
+    result = ToolsForbiddenMetric().evaluate(golden, trace, None)
+    assert not result.passed
+    assert "web_search" in result.detail
+
+
+def test_tools_forbidden_passes_when_none_were_called():
+    golden = _golden(forbidden_tools=["web_search"])
+    trace = _trace(tool_calls=[ToolCall(name="geocode_city", args={}, output={})])
+    result = ToolsForbiddenMetric().evaluate(golden, trace, None)
+    assert result.passed
+
+
+def test_tools_forbidden_not_applicable_when_unconfigured():
+    golden = _golden()  # no forbidden_tools
+    trace = _trace(tool_calls=[ToolCall(name="web_search", args={}, output={})])
+    result = ToolsForbiddenMetric().evaluate(golden, trace, None)
+    assert result.passed
+    assert result.detail.startswith("not_applicable")
+    # registry lookup returns the metric
+    assert isinstance(get_metric("tools_forbidden"), ToolsForbiddenMetric)
 
 
 # --- reply_language ------------------------------------------------------
