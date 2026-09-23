@@ -62,8 +62,33 @@ Web search is a new external, paid, non-deterministic data source whose output i
 | web_search dataset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | 0 | 26 passed | SC-11 |
 | lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed | |
 
+### Correctness review (final gate, fc5a6869..560cf595)
+
+Six FIND angles → 14 deduplicated locations → one independent scorer each (threshold 75).
+
+Fixed (score ≥ 75, Rule 1):
+- C5 (75) — places `hours` fell back to SerpAPI `operating_hours` (a dict) and reached the model as an escaped Python repr; SerpAPI events/places were uncapped. Now flattened to `day: hours; …`, both lists capped at 5 (`_MAX_ITEMS`, shared with Tavily `max_results`), each rendered field cut to 500 chars.
+- C8 (75) — `web_search-ambiguous-en-01` / `-vi-01` forbade web tools without `flow_match`, so a misroute passed trivially. Both now declare `flow_match`; the dataset test requires it for every golden with `forbidden_tools`.
+- Suite regression found by the branch-vs-main comparison (Rule 1): `tests/eval/test_memory_goldens.py` keeps its own taxonomy copy without `web_search`, so 3 tests failed; added the capability.
+
+Advisory (score < 75, not fixed — recorded for follow-up):
+- C1 (50) — `include_published_date=True` is not a tavily-python 0.8.4 parameter; it goes into the POST body. Either a no-op or a 400 on every live call; settle with the owed real-key smoke run, then drop it if unneeded.
+- C2 (50) — availability checks `key.strip()` but the raw key is sent; a key with surrounding whitespace binds the tools and then 401s. Same pattern as the existing `ors_api_key`.
+- C3 (50) — rate-limit hits are charged on every TRANSIENT_RETRY attempt (up to 3 per failing turn) and on cache hits (the latter by design).
+- C4 (50) — `_map_places` ignores SerpAPI `place_results` (single-venue answer); unverified provider shape.
+- C10 (50) — `WEB_SEARCH_USER_HOURLY_LIMIT <= 0` raises a raw `ValueError` in the tool; operator misconfiguration only. Fix: `Field(ge=1)`.
+- C11 (50) — a new `serpapi.Client`/`requests.Session` per cache miss; freed by refcount, but no connection reuse.
+- C12 (50) — SerpAPI 200 with a non-JSON body returns `str`; `dict(raw)` raises `ValueError` → `graceful_fallback` "internal fault" instead of "temporarily unavailable".
+- C13 (50) — Tavily non-JSON 200 (`JSONDecodeError`) or non-200 2xx (`TypeError` inside the SDK) escape the except chain the same way.
+- C14 (50) — `html.escape(quote=True)` on `url`/`title` shows the model `&amp;`/`&#x27;`; with the `[title](url)` citation rule a verbatim copy yields a broken link. Plan-mandated; mitigation would escape only `<`, `>`, `"`.
+- C6 (25) — cache re-insert ordering / negative `max_entries`; unreachable in practice.
+- C7 (25) — `web_search` joins the 0.7 threshold map; with the flag off it sits below threshold (adds a 4th below-threshold capability to `eval-full`; the regression gate treats it as new and does not fail).
+- C9 (0) — `/agent/manifest` lists the three tools with the flag off; accepted in PLAN (manifest = registry tools), router line not in the diff.
+
 ### Not auto-verified
 
+- Live provider behaviour — no real Tavily/SerpAPI call was made: `include_published_date` acceptance (C1), `place_results` shape (C4), `hl=vi` quality, latency. Owed: one manual smoke run per tool with real keys and `WEB_SEARCH_ENABLED=true`.
+- Concierge v14 with the flag off (default) — prompt names tools that are unbound; `make eval-check` on concierge goldens with the flag off not run (paid).
 - Lane classification — reached traceability; flags assigned by judgment from the request, no diff exists yet to corroborate against `hooks/risk-corroboration.sh`.
 - "No existing web-search tool" — searched `apps/api/app`, `apps/api/requirements.txt`, `specs/` for `tavily|serpapi|web_search|websearch`; only hit is a mention in `specs/web-trip-planner/research-brief.md`.
 

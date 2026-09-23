@@ -278,3 +278,26 @@ def test_wraps_websearch_error_with_cause(tool, service_attr, args, monkeypatch)
     with pytest.raises(ToolException) as ei:
         _run(tool, args)
     assert isinstance(ei.value.__cause__, WebSearchError)
+
+
+def test_find_places_live_content_caps_each_field(monkeypatch):
+    async def fake(*a, **k):
+        return {
+            "found": True,
+            "places": [
+                {
+                    "name": "Cafe",
+                    "rating": 4.5,
+                    "reviews": 10,
+                    "address": "x" * 900,
+                    "hours": "monday: 8am-9pm",
+                    "url": "http://p",
+                }
+            ],
+        }
+
+    monkeypatch.setattr(web_search_tools.web_search_service, "find_places_live", fake)
+    content = _run(find_places_live, {"query": "coffee", "near": "Hanoi"})
+    assert "x" * 501 not in content
+    assert "x" * 500 in content
+    assert "hours: monday: 8am-9pm" in content

@@ -196,7 +196,7 @@ def test_find_places_live_builds_maps_url_without_website(monkeypatch):
     assert place["name"] == "Pho House"
     assert place["rating"] == 4.5
     assert place["reviews"] == 120
-    assert place["hours"] == {"monday": "8am-9pm"}
+    assert place["hours"] == "monday: 8am-9pm"
     assert place["url"] == "https://www.google.com/maps/place/?q=place_id:PID123"
 
 
@@ -413,3 +413,12 @@ def test_cache_serpapi_hit_is_not_served_once_unavailable(monkeypatch):
     _patch_settings(monkeypatch, serpapi_search_available=False)
     with pytest.raises(WebSearchError):
         asyncio.run(wss.find_events("Hoi An"))
+
+
+def test_find_events_and_places_cap_results_at_five(monkeypatch):
+    many = [{"title": f"t{i}"} for i in range(12)]
+    _patch_serp(monkeypatch, result={"events_results": many, "local_results": many})
+    events = asyncio.run(wss.find_events("Hanoi"))
+    places = asyncio.run(wss.find_places_live("cafe", "Hanoi"))
+    assert len(events["events"]) == 5
+    assert len(places["places"]) == 5

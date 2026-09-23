@@ -29,6 +29,8 @@ logger = logging.getLogger(__name__)
 
 # A SerpAPI HTTP-200 body carrying this marker in ``error`` is "no results", not a failure.
 _NO_RESULTS_MARKER = "hasn't returned any results"
+# Matches Tavily's max_results so every provider hands the model the same bounded list.
+_MAX_ITEMS = 5
 
 # cache key -> (expires_at, value); insertion order drives oldest-first eviction.
 _cache: dict[tuple, tuple[float, dict]] = {}
@@ -96,7 +98,7 @@ async def search_web(
                 search_depth="basic",
                 topic=topic,
                 time_range=time_range,
-                max_results=5,
+                max_results=_MAX_ITEMS,
                 include_domains=domains,
                 include_answer=False,
                 include_raw_content=False,
@@ -256,9 +258,15 @@ def _map_tavily(data: dict) -> dict:
     return {"found": bool(results), "results": results}
 
 
+def _hours_text(value: object) -> object:
+    if isinstance(value, dict):
+        return "; ".join(f"{day}: {hours}" for day, hours in value.items())
+    return value
+
+
 def _map_events(body: dict | None) -> dict:
     events = []
-    for item in (body or {}).get("events_results") or []:
+    for item in ((body or {}).get("events_results") or [])[:_MAX_ITEMS]:
         date = item.get("date")
         when = None
         if isinstance(date, dict):
@@ -279,7 +287,7 @@ def _map_events(body: dict | None) -> dict:
 
 def _map_places(body: dict | None) -> dict:
     places = []
-    for item in (body or {}).get("local_results") or []:
+    for item in ((body or {}).get("local_results") or [])[:_MAX_ITEMS]:
         url = item.get("website")
         place_id = item.get("place_id")
         if not url and place_id:
@@ -290,7 +298,7 @@ def _map_places(body: dict | None) -> dict:
                 "rating": item.get("rating"),
                 "reviews": item.get("reviews"),
                 "address": item.get("address"),
-                "hours": item.get("hours") or item.get("operating_hours"),
+                "hours": _hours_text(item.get("hours") or item.get("operating_hours")),
                 "url": url,
             }
         )

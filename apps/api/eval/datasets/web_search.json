@@ -44,7 +44,7 @@
     "input": "Tell me about Da Nang",
     "expected_flow": "concierge",
     "forbidden_tools": ["search_web", "find_events", "find_places_live"],
-    "metrics": ["tools_forbidden"],
+    "metrics": ["flow_match", "tools_forbidden"],
     "notes": "General destination overview the concierge answers from its own knowledge — no live web lookup warranted."
   },
   {
@@ -56,7 +56,7 @@
     "input": "Mùa nào đẹp nhất để đi Hội An?",
     "expected_flow": "concierge",
     "forbidden_tools": ["search_web", "find_events", "find_places_live"],
-    "metrics": ["tools_forbidden"],
+    "metrics": ["flow_match", "tools_forbidden"],
     "notes": "Evergreen best-season advice — answerable from general knowledge, no live web search needed."
   },
   {

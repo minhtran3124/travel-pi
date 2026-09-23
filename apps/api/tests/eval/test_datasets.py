@@ -95,6 +95,12 @@ def test_web_search_goldens_declare_a_tool_metric_and_avoid_smoke():
             f"web_search golden {case.id!r}: 'tools_forbidden' and 'forbidden_tools' "
             "must come together — one without the other is a hollow gate"
         )
+        if case.forbidden_tools is not None:
+            assert "flow_match" in declared, (
+                f"web_search golden {case.id!r} forbids web tools but does not "
+                "declare 'flow_match' — a turn routed away from the concierge "
+                "(where the web tools are bound) would pass trivially"
+            )
         assert case.suite != "smoke", (
             f"web_search golden {case.id!r} is in suite=smoke, but web goldens "
             "need provider keys and the flag on — full suite only"
