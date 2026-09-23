@@ -100,19 +100,31 @@ def test_web_search_tools_export_list():
     assert list(WEB_SEARCH_TOOLS) == [search_web, find_events, find_places_live]
 
 
+# Each tool paired with its service function name and its model-facing args.
+_TOOL_CASES = [
+    (search_web, "search_web", {"query": "x"}),
+    (find_events, "find_events", {"place": "Hanoi"}),
+    (find_places_live, "find_places_live", {"query": "coffee", "near": "Hanoi"}),
+]
+_TOOL_IDS = [t.name for t, _, _ in _TOOL_CASES]
+
+
 # --- user_id gate: missing id refuses before any provider call ---
 
 
-def test_search_web_missing_user_id_raises_and_service_not_called(monkeypatch):
+@pytest.mark.parametrize("tool, service_attr, args", _TOOL_CASES, ids=_TOOL_IDS)
+def test_missing_user_id_raises_and_service_not_called(
+    tool, service_attr, args, monkeypatch
+):
     calls = {"n": 0}
 
     async def fake(*a, **k):
         calls["n"] += 1
-        return {"found": False, "results": []}
+        return {"found": False, "results": [], "events": [], "places": []}
 
-    monkeypatch.setattr(web_search_tools.web_search_service, "search_web", fake)
+    monkeypatch.setattr(web_search_tools.web_search_service, service_attr, fake)
     with pytest.raises(ToolException):
-        asyncio.run(search_web.ainvoke({"query": "x"}))
+        asyncio.run(tool.ainvoke(dict(args)))
     assert calls["n"] == 0
 
 
@@ -247,20 +259,22 @@ def test_find_places_live_content_uses_web_result_tag(monkeypatch):
 # --- error mapping: transient propagates, logic wraps with __cause__ ---
 
 
-def test_search_web_reraises_upstream_error(monkeypatch):
+@pytest.mark.parametrize("tool, service_attr, args", _TOOL_CASES, ids=_TOOL_IDS)
+def test_reraises_upstream_error(tool, service_attr, args, monkeypatch):
     async def boom(*a, **k):
         raise WebSearchUpstreamError()
 
-    monkeypatch.setattr(web_search_tools.web_search_service, "search_web", boom)
+    monkeypatch.setattr(web_search_tools.web_search_service, service_attr, boom)
     with pytest.raises(UpstreamError):
-        _run(search_web, {"query": "x"})
+        _run(tool, args)
 
 
-def test_search_web_wraps_websearch_error_with_cause(monkeypatch):
+@pytest.mark.parametrize("tool, service_attr, args", _TOOL_CASES, ids=_TOOL_IDS)
+def test_wraps_websearch_error_with_cause(tool, service_attr, args, monkeypatch):
     async def boom(*a, **k):
         raise WebSearchError()
 
-    monkeypatch.setattr(web_search_tools.web_search_service, "search_web", boom)
+    monkeypatch.setattr(web_search_tools.web_search_service, service_attr, boom)
     with pytest.raises(ToolException) as ei:
-        _run(search_web, {"query": "x"})
+        _run(tool, args)
     assert isinstance(ei.value.__cause__, WebSearchError)

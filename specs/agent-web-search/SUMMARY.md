@@ -59,6 +59,8 @@ Web search is a new external, paid, non-deterministic data source whose output i
 
 - Task 2.1 — `include_published_date=True` reaches Tavily via `**kwargs` as an unnamed body field; if the API rejects it, every live `search_web` fails. Offline fakes cannot catch this — covered only by the owed real-key smoke run.
 - Task 2.1 (fixed in follow-up commit) — SerpAPI availability check now runs before the cache lookup; the no-results marker is honoured on a 4xx `HTTPError` too.
+- Task 3.1 (fixed in follow-up commit) — the user_id gate and error-mapping tests now run across all three tools, not only `search_web`.
+- Task 3.1 — the review returned `cannot_verify` on SC-4 (count mismatch it suspected); the controller re-ran all three selectors (3/5/5 passed, exit 0, test names listed) — the report count was right because the schema test name also contains `user_id`.
 - Task 1.2 — `apps/api/evalkit/README.md:134` metric inventory omits `tools_forbidden` (and pre-existing `no_invented_date`, `no_injected_memory`, `memory_stored`).
 
 ### Harness-Delta
