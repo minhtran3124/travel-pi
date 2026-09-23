@@ -24,7 +24,17 @@ Escalate: no (E001–E004 decided 2026-09-23: option A on all four)
 
 ## What changed
 
-Intake only — no code yet. Classified the request, recorded the lane and the open design forks.
+The concierge agent gets three last-resort live-web tools. `search_web` runs on Tavily. `find_events` runs on SerpAPI google_events. `find_places_live` runs on SerpAPI google_maps.
+
+- They are bound only when `WEB_SEARCH_ENABLED` is on and the matching provider key is set. The default is off, which leaves the concierge tool list unchanged.
+- Every call is rate-limited per user (30 an hour) and cached (1 h, 15 min for news, 512 entries).
+- Results reach the model as escaped `<web_result>` blocks: at most 5 items, 500 chars per text field. The prompt treats them as data and cites each fact as `[title](url)`.
+- The tools are excluded from MCP. `/agent/manifest` lists them.
+- Concierge prompt v14 adds the last-resort rung and the "never for prices" rule.
+- A generic `tools_forbidden` eval metric and 6 `web_search` goldens were added.
+- The trip-research wiring is deferred until PR #221 merges (E004).
+
+Full suite at ba156717: 2920 passed, 7 skipped. The later commit 7bc03be2 touched only the web-search files, whose tests were re-run.
 
 ### Rationale
 
@@ -49,18 +59,18 @@ Web search is a new external, paid, non-deterministic data source whose output i
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | intake lane evidence | `python .claude/scripts/verify_summary.py --lane agent-web-search` | 0 | intake-stage record | |
-| config + SDK pins | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_web_search.py -q` | 0 | 4 passed | SC-1 |
-| service error mapping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k error` | 0 | 18 passed, 10 deselected | SC-2 |
-| service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k cache` | 0 | 7 passed, 21 deselected | SC-3 |
-| user_id gate + rate limit | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "user_id or rate_limit"` | 0 | 5 passed, 14 deselected | SC-4 |
-| content escaping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k content` | 0 | 5 passed, 14 deselected | SC-5 |
-| schema + error order | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "schema or error"` | 0 | 9 passed, 10 deselected | SC-6 |
-| conditional binding | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | 0 | 4 passed | SC-7 |
-| MCP exclusion | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 8 passed | SC-8 |
-| tools_forbidden metric | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_deterministic.py -q -k forbidden` | 0 | 3 passed, 30 deselected | SC-9 |
-| concierge v14 prompt | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | 0 | 7 passed | SC-10 |
-| web_search dataset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | 0 | 26 passed | SC-11 |
-| lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed | |
+| config + SDK pins | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_web_search.py -q` | 0 | 4 passed (at 7bc03be2) | SC-1 |
+| service error mapping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k error` | 0 | 18 passed, 14 deselected (at 7bc03be2) | SC-2 |
+| service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k cache` | 0 | 7 passed, 25 deselected (at 7bc03be2) | SC-3 |
+| user_id gate + rate limit | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "user_id or rate_limit"` | 0 | 5 passed, 16 deselected (at 7bc03be2) | SC-4 |
+| content escaping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k content` | 0 | 7 passed, 14 deselected (at 7bc03be2) | SC-5 |
+| schema + error order | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "schema or error"` | 0 | 9 passed, 12 deselected (at 7bc03be2) | SC-6 |
+| conditional binding | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | 0 | 4 passed (at 7bc03be2) | SC-7 |
+| MCP exclusion | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 8 passed (at 7bc03be2) | SC-8 |
+| tools_forbidden metric | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_deterministic.py -q -k forbidden` | 0 | 3 passed, 30 deselected (at 7bc03be2) | SC-9 |
+| concierge v14 prompt | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | 0 | 7 passed (at 7bc03be2) | SC-10 |
+| web_search dataset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | 0 | 26 passed (at 7bc03be2) | SC-11 |
+| lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed (at 7bc03be2) | |
 
 ### Correctness review (final gate, fc5a6869..560cf595)
 
@@ -77,6 +87,10 @@ Fix re-review (round 3, the configured cap): round 2 held, but it regressed one 
 - NF-2 (85) — the 500 cap applies before escaping, so a field of `"` expands to at most 3000 prompt chars. It is still bounded, only by ~6× the nominal size.
 - NF-3 (40) — `address`/`rating` arriving as a dict would render a repr. Latent: google_maps returns strings.
 - NF-6 (60) — the ToolMessage artifact keeps the raw provider dict (capped at 5 items, fields uncapped) in the checkpoint. It has no consumer (`grep -rn "\.artifact" apps/api/app` returns nothing).
+
+Round-3 re-review (7bc03be2): NF-1, NF-4 and NF-5 resolved; 53 targeted tests pass. The fix-round cap has been reached, so two new findings are recorded as advisory:
+- (62) a mixed `address` list with `None` or dict elements now renders as `"… , None"` instead of raising. Suggested filter: `isinstance(a, str) and a`.
+- (90, coverage) no test pins the 2048 `_URL_MAX` ceiling; only the lower bound is asserted.
 
 Advisory (score < 75, not fixed — recorded for follow-up):
 - C1 (50) — `include_published_date=True` is not a tavily-python 0.8.4 parameter. **Removed** after the intent review flagged it as an unverified provider decision.

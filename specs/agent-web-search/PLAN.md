@@ -1,6 +1,6 @@
 ---
 slug: agent-web-search
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-23
 ---
@@ -329,3 +329,4 @@ cached, and every result reaches the model as untrusted data.
 - 2026-09-23 — task 2.1 complete; commits ec07a91f + 9ff6cb1a (review Minor fixes); review pass/approved.
 - 2026-09-23 — tasks 3.1, 4.1, 4.2 complete; commits 76bd8233, 8a612d98, 46fdb515, dc4f98b4, 904875fc; reviews pass/approved (3.1 cannot_verify resolved by controller re-run).
 - 2026-09-23 — task 5.1 complete; commits cb9b177e, 69951a3d; review pass/approved. All 7 tasks complete.
+- 2026-09-23 — correctness + intent reviews complete; fixes b5a2dc9a, ba156717, 7bc03be2; receipt at 7bc03be2.
