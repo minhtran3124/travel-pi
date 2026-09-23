@@ -1,8 +1,8 @@
 """Conditional web-search binding for the concierge (specs/agent-web-search Task 4.1, SC-7).
 
-``get_tools_for`` reads provider availability at call time, so the concierge tool
-list changes with the flag/keys without a graph rebuild. With the flag off it must
-equal the pre-change list byte-for-byte.
+``get_tools_for`` reads provider availability when it is called, i.e. on the next
+graph build. With the flag off the concierge list must equal the pre-change list
+byte-for-byte.
 """
 
 import pytest
