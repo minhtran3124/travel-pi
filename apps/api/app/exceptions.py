@@ -93,6 +93,24 @@ class UpstreamError(AppError):
     default_detail = "Upstream service unavailable"
 
 
+class WebSearchError(AppError):
+    """A live web-search provider returned a logic error (bad key, quota, malformed request); a non-transient failure (HTTP 502)."""
+
+    status_code = 502
+    default_detail = "Web search is unavailable."
+
+    def __init__(self, detail: str | None = None, *, hint: str | None = None) -> None:
+        super().__init__(
+            detail,
+            hint=hint
+            or "Answer from the other sources and say that live web results were unavailable.",
+        )
+
+
+class WebSearchUpstreamError(UpstreamError):
+    """A live web-search provider call failed transiently (timeout, 5xx, connection error)."""
+
+
 class CityNotFoundError(NotFoundError):
     """Geocoding could not resolve a city name to coordinates."""
 

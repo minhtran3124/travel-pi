@@ -325,3 +325,4 @@ cached, and every result reaches the model as untrusted data.
 - 2026-09-23 — Plan written after design approval and the xia2 Deep brief. Status: proposed.
 - 2026-09-23 — Plan review: round 1 found 6 issues, all fixed; round 2 approved. `check_plan_contract.py` passes.
 - 2026-09-23 — E004 = A: `app/research/` is absent on `main` (only on PR #221). Research wiring, the snapshot and SC-12 were removed; concierge-only v1. Branch `feat/agent-web-search` from `main` fc5a6869.
+- 2026-09-23 — tasks 1.1, 1.2 complete; commits 647cd62f, eca9e5ce (+ review fix); both task reviews pass/approved.
