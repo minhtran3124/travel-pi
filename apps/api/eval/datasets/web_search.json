@@ -1,0 +1,74 @@
+[
+  {
+    "id": "web_search-happy-vi-01",
+    "capability": "web_search",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tôi đi Hội An từ ngày 15 đến 20 tháng 11 năm 2026, trong tuần đó có lễ hội hay sự kiện gì đang diễn ra không?",
+    "expected_flow": "concierge",
+    "expected_tools": ["find_events"],
+    "metrics": ["tools_expected"],
+    "notes": "Time-boxed local events for a dated trip week -> find_events. Concrete future dates (Nov 2026) so the date rules don't force a clarification. Needs WEB_SEARCH_ENABLED=true + provider keys; with the flag off the tool is unbound and this fails."
+  },
+  {
+    "id": "web_search-happy-en-01",
+    "capability": "web_search",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Are there any strikes or travel advisories in Paris next week I should know about?",
+    "expected_flow": "concierge",
+    "expected_tools": ["search_web"],
+    "metrics": ["tools_expected"],
+    "notes": "Fresh news/advisory lookup -> search_web (general web, not events or places). Needs WEB_SEARCH_ENABLED=true + provider keys; fails with the flag off."
+  },
+  {
+    "id": "web_search-happy-vi-02",
+    "capability": "web_search",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Quán phở nào được đánh giá cao nhất gần khách sạn Sofitel Legend Metropole Hà Nội?",
+    "expected_flow": "concierge",
+    "expected_tools": ["find_places_live"],
+    "metrics": ["tools_expected"],
+    "notes": "Best-rated place near a named landmark -> find_places_live. Needs WEB_SEARCH_ENABLED=true + provider keys; fails with the flag off."
+  },
+  {
+    "id": "web_search-ambiguous-en-01",
+    "capability": "web_search",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Tell me about Da Nang",
+    "expected_flow": "concierge",
+    "forbidden_tools": ["search_web", "find_events", "find_places_live"],
+    "metrics": ["tools_forbidden"],
+    "notes": "General destination overview the concierge answers from its own knowledge — no live web lookup warranted."
+  },
+  {
+    "id": "web_search-ambiguous-vi-01",
+    "capability": "web_search",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Mùa nào đẹp nhất để đi Hội An?",
+    "expected_flow": "concierge",
+    "forbidden_tools": ["search_web", "find_events", "find_places_live"],
+    "metrics": ["tools_forbidden"],
+    "notes": "Evergreen best-season advice — answerable from general knowledge, no live web search needed."
+  },
+  {
+    "id": "web_search-ambiguous-en-02",
+    "capability": "web_search",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "What's the cheapest flight from Hanoi to Tokyo in May?",
+    "expected_flow": "concierge",
+    "forbidden_tools": ["search_web", "find_events", "find_places_live"],
+    "metrics": ["tools_forbidden"],
+    "notes": "Flight pricing belongs to the synthetic flight-search inventory, not a live web tool — the web tools must stay unused."
+  }
+]

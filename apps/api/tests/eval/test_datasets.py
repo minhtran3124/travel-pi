@@ -35,6 +35,7 @@ CAPABILITIES = [
     "errors",
     "routing",
     "suggestions",
+    "web_search",
 ]
 SCENARIOS = ["happy", "ambiguous", "multi_turn", "tool_failure", "adversarial"]
 
@@ -51,7 +52,7 @@ def test_real_dataset_directory_loads_without_error():
 
 
 def test_total_case_count_at_least_60():
-    assert len(_real_store().load()) == 113
+    assert len(_real_store().load()) == 119
 
 
 def test_journal_list_trips_goldens_declare_tools_expected():
@@ -68,6 +69,27 @@ def test_journal_list_trips_goldens_declare_tools_expected():
         assert "tools_expected" in (case.metrics or []), (
             f"golden {case_id!r} declares expected_tools but not the "
             "'tools_expected' metric — the expectation would never be checked"
+        )
+
+
+def test_web_search_goldens_declare_a_tool_metric_and_avoid_smoke():
+    """SC-11: every `web_search` golden must declare either `tools_expected`
+    (must-call) or `tools_forbidden` (must-not-call) in `metrics`, or its
+    tool expectation would never be checked. None may sit in `suite=smoke` —
+    they need `WEB_SEARCH_ENABLED=true` plus provider keys and run under
+    `make eval-check`, so they belong to the judged full suite only.
+    """
+    cases = _real_store().load(capability="web_search")
+    assert len(cases) == 6
+    for case in cases:
+        declared = set(case.metrics or [])
+        assert declared & {"tools_expected", "tools_forbidden"}, (
+            f"web_search golden {case.id!r} declares neither 'tools_expected' "
+            "nor 'tools_forbidden' — its tool expectation would never be checked"
+        )
+        assert case.suite != "smoke", (
+            f"web_search golden {case.id!r} is in suite=smoke, but web goldens "
+            "need provider keys and the flag on — full suite only"
         )
 
 

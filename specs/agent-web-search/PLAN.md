@@ -327,3 +327,4 @@ cached, and every result reaches the model as untrusted data.
 - 2026-09-23 — E004 = A: `app/research/` is absent on `main` (only on PR #221). Research wiring, the snapshot and SC-12 were removed; concierge-only v1. Branch `feat/agent-web-search` from `main` fc5a6869.
 - 2026-09-23 — tasks 1.1, 1.2 complete; commits 647cd62f, eca9e5ce (+ review fix); both task reviews pass/approved.
 - 2026-09-23 — task 2.1 complete; commits ec07a91f + 9ff6cb1a (review Minor fixes); review pass/approved.
+- 2026-09-23 — tasks 3.1, 4.1, 4.2 complete; commits 76bd8233, 8a612d98, 46fdb515, dc4f98b4, 904875fc; reviews pass/approved (3.1 cannot_verify resolved by controller re-run).

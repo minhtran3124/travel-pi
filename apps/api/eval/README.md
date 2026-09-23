@@ -66,6 +66,10 @@ are the backlog for a future golden-generation pass, not a bug in this README.
 Every capability's threshold is `0.7` (`eval/adapters/config.py::DEFAULT_THRESHOLD`) — a
 capability's aggregate pass rate below that fails `make eval-compare`/the CI gate.
 
+The `web_search` goldens (`eval/datasets/web_search.json`) need `WEB_SEARCH_ENABLED=true` plus
+both provider keys (`TAVILY_API_KEY`, `SERPAPI_API_KEY`) and run under `make eval-check`; with
+the flag off the live tools are unbound and the must-call goldens fail.
+
 ## Add a golden
 
 Append a JSON object to the right `eval/datasets/<capability>.json` file (create the file if
