@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { AssistantMarkdown } from "@/components/chat/AssistantMarkdown";
 import { Button } from "@/components/ui/Button";
@@ -74,16 +74,23 @@ export function useApplyProposal(tripId: string) {
   const addToShortlist = useAddToShortlist(tripId);
   const [excluded, setExcluded] = useState<Set<number>>(new Set());
   const [results, setResults] = useState<Record<string, ApplyState>>({});
+  // Mirror of `results` read synchronously so re-clicking Apply skips entries
+  // already applied — otherwise every click re-adds the whole itinerary.
+  const resultsRef = useRef<Record<string, ApplyState>>({});
   const [busy, setBusy] = useState(false);
 
   async function applyOne(key: string, run: () => Promise<unknown>) {
+    if (resultsRef.current[key] === "ok") return;
+    resultsRef.current[key] = "pending";
     setResults((prev) => ({ ...prev, [key]: "pending" }));
     try {
       await run();
+      resultsRef.current[key] = "ok";
       setResults((prev) => ({ ...prev, [key]: "ok" }));
     } catch (err) {
-      const ok = err instanceof AlreadyShortlistedError;
-      setResults((prev) => ({ ...prev, [key]: ok ? "ok" : "error" }));
+      const next = err instanceof AlreadyShortlistedError ? "ok" : "error";
+      resultsRef.current[key] = next;
+      setResults((prev) => ({ ...prev, [key]: next }));
     }
   }
 
@@ -136,11 +143,14 @@ export function ResearchPlan({
   runId,
   files,
   review,
+  applyEnabled = true,
 }: {
   tripId: string;
   runId: string;
   files: string[];
   review?: ResearchRunSummary["review"];
+  /** When false, the dossier stays readable but the Apply control is hidden. */
+  applyEnabled?: boolean;
 }) {
   const t = useTranslations("TripDetail.research");
   const proposalQuery = useProposal(runId, files);
@@ -224,7 +234,7 @@ export function ResearchPlan({
           <p className="text-xs font-medium text-muted">{stats.join(" · ")}</p>
         ) : null}
 
-        {proposal && applyCount > 0 ? (
+        {applyEnabled && proposal && applyCount > 0 ? (
           <div className="flex items-center gap-sm">
             <Button onClick={() => apply.applyAll(proposal)} disabled={apply.busy}>
               {t("apply")}

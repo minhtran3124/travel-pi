@@ -172,14 +172,25 @@ def _status_body(
     run: AgentRun,
     store: Any,
     factory: sessionmaker[Session],
+    bus: ProgressBus,
 ) -> ResearchStatusResponse:
+    # A ``running`` row not live on this bus is an orphan; show it as interrupted
+    # without writing the DB, so the next ``start`` still resumes it.
+    status = run.status
+    if status == "running" and not bus.has(run.id):
+        status = "interrupted"
+    proposal_ready = (
+        _proposal_ready(store, run.user_id, run.trip_id)
+        if status == "completed"
+        else False
+    )
     return ResearchStatusResponse(
         run_id=run.id,
         trip_id=run.trip_id,
-        status=run.status,
+        status=status,
         thread_turn=_thread_turn(factory, run.trip_id, upto=run.created_at),
         files=_file_index(store, run.user_id, run.trip_id),
-        proposal_ready=_proposal_ready(store, run.user_id, run.trip_id),
+        proposal_ready=proposal_ready,
         review=review_from_steps(AgentRunRepository(factory), run.id),
     )
 
@@ -263,6 +274,7 @@ def revise_research(
         prior.trip_id,
         instruction=redact_pii(body.instruction) if body.instruction else None,
         language=body.language or _DEFAULT_LANGUAGE,
+        origin=(body.origin or "").strip() or None,
     )
     return ResearchStartResponse(
         run_id=new_run_id,
@@ -282,12 +294,13 @@ def latest_research(
     auth_user: CurrentUserDep,
     service: ResearchServiceDep,
     agent: ResearchAgentDep,
+    bus: ResearchBusDep,
     session: SessionDep,
 ) -> ResearchStatusResponse:
     run = service.latest(trip_id)
     if run is None or run.user_id != auth_user.id:
         raise NotFoundError("No research run for this trip")
-    return _status_body(run, agent.store, _isolated_factory(session))
+    return _status_body(run, agent.store, _isolated_factory(session), bus)
 
 
 @router.get(
@@ -302,10 +315,11 @@ def research_status(
     auth_user: CurrentUserDep,
     service: ResearchServiceDep,
     agent: ResearchAgentDep,
+    bus: ResearchBusDep,
     session: SessionDep,
 ) -> ResearchStatusResponse:
     run = _owned_run(service, run_id, auth_user.id)
-    return _status_body(run, agent.store, _isolated_factory(session))
+    return _status_body(run, agent.store, _isolated_factory(session), bus)
 
 
 @router.get(
@@ -402,6 +416,14 @@ def stream_research(
                     yield ResearchError(
                         code=status, message="research run did not complete"
                     ).to_sse()
+                return
+            # A ``running`` row with no live channel here is an orphan: the process
+            # driving it died, so it will never reach a terminal status on this
+            # bus. End with a terminal error rather than polling forever.
+            if status == "running" and not bus.has(run_id):
+                yield ResearchError(
+                    code="interrupted", message="research run was interrupted"
+                ).to_sse()
                 return
             await asyncio.sleep(2)
 

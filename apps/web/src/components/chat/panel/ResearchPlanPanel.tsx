@@ -47,6 +47,8 @@ export interface ResearchPlanPanelData {
   runId: string;
   files: string[];
   review?: ResearchRunSummary["review"];
+  /** A newer run is refreshing this plan: lock Apply until it settles. */
+  updating?: boolean;
 }
 
 // Reused cards translate under `TripDetail.research`, so the plan panel supplies
@@ -100,7 +102,13 @@ const CATEGORY_ICON: Record<string, string> = {
   shopping: "🛍️",
 };
 
-function ResearchPlanBody({ tripId, runId, files, review }: ResearchPlanPanelData) {
+function ResearchPlanBody({
+  tripId,
+  runId,
+  files,
+  review,
+  updating = false,
+}: ResearchPlanPanelData) {
   const t = useTranslations("Panel.researchPlan");
   const trip = useTrip(tripId);
   const budget = useBudget(tripId);
@@ -221,11 +229,15 @@ function ResearchPlanBody({ tripId, runId, files, review }: ResearchPlanPanelDat
               <div className="flex items-center gap-sm">
                 <Button
                   onClick={() => proposal && apply.applyAll(proposal)}
-                  disabled={apply.busy}
+                  disabled={apply.busy || updating}
                 >
                   {t("apply")}
                 </Button>
-                {apply.total > 0 && !apply.busy ? (
+                {updating ? (
+                  <span role="status" className="text-sm font-medium text-muted">
+                    {t("updating")}
+                  </span>
+                ) : apply.total > 0 && !apply.busy ? (
                   <output className="text-sm font-bold text-ink">
                     {t("applyResult", { applied: apply.applied, total: apply.total })}
                   </output>
@@ -341,31 +353,44 @@ function DayView({
     queries: ordered.map((e) => placeQueryOptions(e.place_id)),
   });
 
-  const stops: DayStop[] = ordered.map((entry, i) => {
-    const place = lookups[i]?.data;
-    const lat = place?.latitude;
-    const lng = place?.longitude;
-    return {
-      entry,
-      n: i + 1,
-      name: place?.name ?? entry.title,
-      category: place?.category ?? null,
-      rating: place?.rating ?? null,
-      position: lat != null && lng != null ? { lat, lng } : null,
-    };
-  });
+  const stops: DayStop[] = useMemo(
+    () =>
+      ordered.map((entry, i) => {
+        const place = lookups[i]?.data;
+        const lat = place?.latitude;
+        const lng = place?.longitude;
+        return {
+          entry,
+          n: i + 1,
+          name: place?.name ?? entry.title,
+          category: place?.category ?? null,
+          rating: place?.rating ?? null,
+          position: lat != null && lng != null ? { lat, lng } : null,
+        };
+      }),
+    [ordered, lookups],
+  );
 
-  const markers: TripMapMarker[] = stops
-    .filter((s) => s.position != null)
-    .map((s) => ({
-      position: s.position!,
-      label: s.name,
-      badge: String(s.n),
-    }));
-  const route =
-    markers.length > 1
-      ? { line: markers.map((m) => m.position), dashed: true }
-      : undefined;
+  // Memoized so TripMap (effect deps [markers, route]) doesn't tear down and
+  // rebuild the MapLibre map on every unrelated re-render.
+  const markers: TripMapMarker[] = useMemo(
+    () =>
+      stops
+        .filter((s) => s.position != null)
+        .map((s) => ({
+          position: s.position!,
+          label: s.name,
+          badge: String(s.n),
+        })),
+    [stops],
+  );
+  const route = useMemo(
+    () =>
+      markers.length > 1
+        ? { line: markers.map((m) => m.position), dashed: true }
+        : undefined,
+    [markers],
+  );
 
   return (
     <div className="flex flex-col gap-sm">

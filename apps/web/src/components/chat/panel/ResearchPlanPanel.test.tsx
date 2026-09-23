@@ -305,6 +305,24 @@ describe("ResearchPlanPanel", () => {
     expect(screen.queryByText("Lighthouse Coffee")).toBeNull();
   });
 
+  it("disables Apply and shows the updating notice while a newer run is running", async () => {
+    useHandlers({ proposal: FULL_PROPOSAL, totalCap: 375 });
+    renderPanel(FILES, { updating: true });
+
+    const apply = await screen.findByRole("button", { name: rp.apply });
+    expect(apply).toBeDisabled();
+    expect(screen.getByText(rp.updating)).toBeInTheDocument();
+  });
+
+  it("enables Apply and hides the updating notice when not updating", async () => {
+    useHandlers({ proposal: FULL_PROPOSAL, totalCap: 375 });
+    renderPanel(FILES);
+
+    const apply = await screen.findByRole("button", { name: rp.apply });
+    expect(apply).not.toBeDisabled();
+    expect(screen.queryByText(rp.updating)).toBeNull();
+  });
+
   it("renders the Vietnamese tab labels", async () => {
     useHandlers({ proposal: FULL_PROPOSAL, totalCap: 375 });
     renderPanel(FILES, {}, "vi");

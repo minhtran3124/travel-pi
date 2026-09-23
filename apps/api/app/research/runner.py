@@ -175,9 +175,13 @@ def _finalize(
     started: float,
     resumed_from: str | None,
     rubric_status: str | None = None,
+    cancelled: bool = False,
 ) -> None:
     """Write the terminal run row + steps on the isolated factory and publish the
-    terminal bus event. Every sub-step is best-effort so finalisation never raises."""
+    terminal bus event. Every sub-step is best-effort so finalisation never raises.
+
+    A cancelled run keeps its ``running`` row, so the next ``start`` resumes it as an
+    orphan without spending the daily cap; subscribers still get a terminal event."""
     try:
         metrics.close(started)
         metrics.close_if_open()
@@ -187,31 +191,39 @@ def _finalize(
 
     snapshot = metrics.snapshot()
     repo = AgentRunRepository(session_factory)
-    try:
-        repo.finish(
-            run_id,
-            status=status,
-            current_flow=_RESEARCH_NS_KIND,
-            finished_at=_utc_now_iso(),
-            metrics=snapshot,
-        )
-    except Exception:
-        logger.exception("[research] finish failed run=%s", run_id)
+    if not cancelled:
+        try:
+            repo.finish(
+                run_id,
+                status=status,
+                current_flow=_RESEARCH_NS_KIND,
+                finished_at=_utc_now_iso(),
+                metrics=snapshot,
+            )
+        except Exception:
+            logger.exception("[research] finish failed run=%s", run_id)
+
+        try:
+            steps = enrich_steps(metrics.steps(), snapshot)
+            if error_type is not None:
+                steps = [*steps, _error_step(steps, error_type)]
+            if resumed_from is not None:
+                steps = _mark_resumed(steps, resumed_from)
+            if rubric_status is not None:
+                steps = [*steps, _rubric_step(steps, rubric_status)]
+            repo.add_steps(run_id, steps)
+        except Exception:
+            logger.exception("[research] add_steps failed run=%s", run_id)
 
     try:
-        steps = enrich_steps(metrics.steps(), snapshot)
-        if error_type is not None:
-            steps = [*steps, _error_step(steps, error_type)]
-        if resumed_from is not None:
-            steps = _mark_resumed(steps, resumed_from)
-        if rubric_status is not None:
-            steps = [*steps, _rubric_step(steps, rubric_status)]
-        repo.add_steps(run_id, steps)
-    except Exception:
-        logger.exception("[research] add_steps failed run=%s", run_id)
-
-    try:
-        if status == "completed":
+        if cancelled:
+            bus.publish(
+                run_id,
+                ResearchError(
+                    code="interrupted", message="research run was interrupted"
+                ),
+            )
+        elif status == "completed":
             bus.publish(
                 run_id,
                 ResearchDone(
@@ -284,6 +296,7 @@ async def run_trip_research(
     status = "completed"
     error_type: str | None = None
     rubric_status: str | None = None
+    cancelled = False
     try:
         async with asyncio.timeout(settings.research_timeout_s):
             # v3 astream_events returns a coroutine resolving to the event stream.
@@ -297,6 +310,11 @@ async def run_trip_research(
                 for research_event in derive_events(event):
                     bus.publish(run_id, research_event)
         rubric_status = await _read_rubric_status(agent, config)
+    except asyncio.CancelledError:
+        # A BaseException, so ``except Exception`` would miss it and finalise the
+        # run as completed.
+        cancelled = True
+        raise
     except Exception as exc:
         # Includes asyncio.timeout's TimeoutError. Nothing may escape a BackgroundTask.
         status = "failed"
@@ -322,4 +340,5 @@ async def run_trip_research(
             started=started,
             resumed_from=resumed_from,
             rubric_status=rubric_status,
+            cancelled=cancelled,
         )

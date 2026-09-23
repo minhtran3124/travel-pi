@@ -101,6 +101,51 @@ describe("useResearchWatch", () => {
     expect(api.getLatestResearch).toHaveBeenCalledTimes(2);
   });
 
+  it("marks updating while a newer run runs, then clears it once it completes", async () => {
+    // Mount sees run-1 completed (the shown plan), then a newer run-2 goes
+    // running (updating), and finally run-2 completes (updating clears).
+    api.getLatestResearch
+      .mockResolvedValueOnce(run("completed", "run-1"))
+      .mockResolvedValueOnce(run("running", "run-2"))
+      .mockResolvedValueOnce(run("completed", "run-2"));
+    const { result } = renderHook(() => useResearchWatch("trip-1", true));
+    await flush();
+    expect(result.current.completed?.run_id).toBe("run-1");
+    expect(result.current.updating).toBe(false);
+
+    // A follow-up turn triggers a fresh check: run-2 is running → updating.
+    act(() => result.current.check());
+    await flush();
+    expect(result.current.updating).toBe(true);
+    expect(result.current.completed?.run_id).toBe("run-1");
+
+    // run-2 completes: completed moves forward and updating clears.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RESEARCH_POLL_MS);
+    });
+    expect(result.current.updating).toBe(false);
+    expect(result.current.completed?.run_id).toBe("run-2");
+  });
+
+  it("clears updating when the newer run fails", async () => {
+    api.getLatestResearch
+      .mockResolvedValueOnce(run("completed", "run-1"))
+      .mockResolvedValueOnce(run("running", "run-2"))
+      .mockResolvedValueOnce(run("failed", "run-2"));
+    const { result } = renderHook(() => useResearchWatch("trip-1", true));
+    await flush();
+    act(() => result.current.check());
+    await flush();
+    expect(result.current.updating).toBe(true);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RESEARCH_POLL_MS);
+    });
+    expect(result.current.updating).toBe(false);
+    // A failed run never advances the shown plan.
+    expect(result.current.completed?.run_id).toBe("run-1");
+  });
+
   it("check() after a research turn starts following a new run", async () => {
     api.getLatestResearch.mockRejectedValueOnce(new Error("404"));
     const { result } = renderHook(() => useResearchWatch("trip-1", true));

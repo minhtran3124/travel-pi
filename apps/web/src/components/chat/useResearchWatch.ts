@@ -16,6 +16,12 @@ export interface ResearchWatch {
    * running, so a plan panel can be derived on a plain page load too.
    */
   completed: ResearchRunSummary | null;
+  /**
+   * True while the trip's latest run is running and it is a *newer* run than the
+   * one `completed` still points at — i.e. a refresh is in flight over an
+   * already-shown plan. Cleared once that run completes or fails.
+   */
+  updating: boolean;
   /** Look at the trip's latest run and, if it is running, follow it to the end. */
   check: () => void;
   dismiss: () => void;
@@ -39,10 +45,17 @@ export function useResearchWatch(
     tripId: string;
     run: ResearchRunSummary;
   } | null>(null);
+  const [updating, setUpdating] = useState(false);
   // Bumped by `check` to start a fresh follow; the effect below owns the loop.
   const [checks, setChecks] = useState(0);
   // A read in flight or a poll scheduled: `check` must not start a second chain.
   const following = useRef(false);
+  // Mirror of `completed`'s run id, read synchronously inside the poll loop so
+  // `updating` can tell a newer running run from the one already on screen.
+  const completedRunId = useRef<string | null>(null);
+  useEffect(() => {
+    completedRunId.current = completed?.run.run_id ?? null;
+  }, [completed]);
 
   // Also runs on mount, so a run already going (page reload mid-run) is followed.
   useEffect(() => {
@@ -63,10 +76,15 @@ export function useResearchWatch(
       if (cancelled) return;
       if (run.status === "running") {
         watchedRunId = run.run_id;
+        // A run newer than the shown plan is refreshing it: lock Apply until it
+        // settles. The first run for a trip (no `completed` yet) counts too.
+        setUpdating(run.run_id !== completedRunId.current);
         timer = setTimeout(() => void poll(), RESEARCH_POLL_MS);
         return;
       }
       following.current = false;
+      // Any terminal state (completed / failed / interrupted) ends the refresh.
+      setUpdating(false);
       if (run.status === "completed") {
         setCompleted({ tripId, run });
         if (watchedRunId === run.run_id) setDone({ tripId, run });
@@ -91,6 +109,7 @@ export function useResearchWatch(
     done: done !== null && done.tripId === tripId ? done.run : null,
     completed:
       completed !== null && completed.tripId === tripId ? completed.run : null,
+    updating,
     check,
     dismiss,
   };

@@ -177,6 +177,7 @@ export function ChatWidget() {
           runId: completedRun.run_id,
           files: completedRun.files,
           review: completedRun.review ?? null,
+          updating: research.updating,
         },
       }
     : null;

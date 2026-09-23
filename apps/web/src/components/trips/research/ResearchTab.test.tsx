@@ -127,6 +127,140 @@ describe("ResearchTab", () => {
     ).toBeInTheDocument();
   });
 
+  // A proposal with a shortlist entry so Apply renders on a completed run
+  // (shortlist alone gives applyCount > 0 without needing place lookups).
+  const APPLYABLE_PROPOSAL = {
+    itinerary: [],
+    shortlist: ["p1"],
+    flights: [],
+    hotels: [],
+    budget_estimate: null,
+  };
+
+  /** Register a latest-run summary with `status` plus the plan-view lookups. */
+  function useStatusHandlers(status: string) {
+    server.use(
+      http.get(`${BASE}/agent/trips/:tripId/research`, () =>
+        HttpResponse.json({
+          run_id: RUN_ID,
+          trip_id: TRIP_ID,
+          status,
+          thread_turn: 1,
+          files: ["/plan/proposal.json", "/research/overview.md"],
+          proposal_ready: status === "completed",
+        }),
+      ),
+      http.get(`${BASE}/agent/research/:runId/files/*`, ({ request }) => {
+        const url = new URL(request.url);
+        if (url.pathname.endsWith("proposal.json")) {
+          return HttpResponse.json({ content: JSON.stringify(APPLYABLE_PROPOSAL) });
+        }
+        return HttpResponse.json({ content: "" });
+      }),
+      http.get(`${BASE}/trips/:tripId/budget`, () =>
+        HttpResponse.json({ message: "no budget" }, { status: 404 }),
+      ),
+    );
+  }
+
+  it("shows the unfinished notice, keeps the dossier, and hides Apply for a failed run", async () => {
+    useStatusHandlers("failed");
+    renderTab();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(en.TripDetail.research.unfinishedTitle),
+      ).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByText(en.TripDetail.research.failedHint),
+    ).toBeInTheDocument();
+    // The dossier files stay reachable under the detailed report.
+    expect(
+      screen.getByRole("button", {
+        name: new RegExp(en.TripDetail.research.plan.report.title),
+      }),
+    ).toBeInTheDocument();
+    // Apply is hidden even though the proposal has appliable ids.
+    expect(
+      screen.queryByRole("button", { name: en.TripDetail.research.apply }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the interrupted hint for an interrupted run", async () => {
+    useStatusHandlers("interrupted");
+    renderTab();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(en.TripDetail.research.unfinishedTitle),
+      ).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByText(en.TripDetail.research.interruptedHint),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: en.TripDetail.research.apply }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows Apply and no unfinished notice for a completed run", async () => {
+    useStatusHandlers("completed");
+    renderTab();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: en.TripDetail.research.apply }),
+      ).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByText(en.TripDetail.research.unfinishedTitle),
+    ).not.toBeInTheDocument();
+  });
+
+  it("Run again revises the unfinished run with the resume instruction", async () => {
+    let reviseBody: unknown = null;
+    useStatusHandlers("interrupted");
+    server.use(
+      http.post(`${BASE}/agent/research/:runId/revise`, async ({ request }) => {
+        reviseBody = await request.json();
+        return HttpResponse.json({ run_id: RUN_ID, thread_turn: 2 }, { status: 202 });
+      }),
+    );
+
+    // The re-run swaps in a live stream; stub the direct-to-origin SSE (see the
+    // done-stream test above for why undici needs this) with an empty stream.
+    const realFetch = globalThis.fetch;
+    vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/stream")) {
+        return Promise.resolve(
+          new HttpResponse(sseStream([]), {
+            headers: { "Content-Type": "text/event-stream" },
+          }),
+        );
+      }
+      return realFetch(input, init);
+    });
+
+    try {
+      renderTab();
+
+      const runAgain = await screen.findByRole("button", {
+        name: en.TripDetail.research.runAgain,
+      });
+      fireEvent.click(runAgain);
+
+      await waitFor(() =>
+        expect(reviseBody).toMatchObject({
+          instruction: en.TripDetail.research.resumeInstruction,
+        }),
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("leaves the running state and shows the dossier once the stream reaches done", async () => {
     let startBody: unknown = null;
     // No run yet → premium empty state with a Start button; POST books a run

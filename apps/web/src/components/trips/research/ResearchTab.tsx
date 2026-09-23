@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ProgressStepper } from "@/components/trips/research/ProgressStepper";
 import { ResearchPlan } from "@/components/trips/research/ResearchPlan";
@@ -70,6 +70,25 @@ export function ResearchTab({ tripId }: { tripId: string }) {
   // new run swaps `runId`, which resets the stream back to `streaming`.
   const streamSettled = stream.status === "done" || stream.status === "error";
   const isRunning = wantsStream && !streamSettled;
+  // A run in view that ended without completing: the backend reports `failed` or
+  // (a `running` row no longer live on the bus) `interrupted`, and a live stream
+  // that errored is treated the same. The dossier stays readable, but Apply is
+  // hidden and the traveller is offered a re-run.
+  const unfinished: "failed" | "interrupted" | null = isRunning
+    ? null
+    : summary?.status === "interrupted"
+      ? "interrupted"
+      : summary?.status === "failed" || stream.status === "error"
+        ? "failed"
+        : null;
+
+  // Once a live stream settles, the latest-summary query still holds the pre-run
+  // (or "running") snapshot; refetch it so the plan view reflects the finished run.
+  useEffect(() => {
+    if (streamSettled) {
+      void queryClient.invalidateQueries({ queryKey: latestKey(tripId) });
+    }
+  }, [streamSettled, tripId, queryClient]);
 
   const filePaths = useMemo(() => {
     const paths = new Set<string>();
@@ -106,7 +125,12 @@ export function ResearchTab({ tripId }: { tripId: string }) {
     const trimmed = instruction.trim();
     if (!runId || !trimmed) return;
     setInstruction("");
-    void runAction(() => reviseResearch(runId, trimmed));
+    void runAction(() => reviseResearch(runId, trimmed, locale));
+  }
+
+  function handleRunAgain() {
+    if (!runId) return;
+    void runAction(() => reviseResearch(runId, t("resumeInstruction"), locale));
   }
 
   // -- Gate: pending / locked / empty / error before any run is in view -------
@@ -191,15 +215,43 @@ export function ResearchTab({ tripId }: { tripId: string }) {
           />
         </Card>
       ) : (
-        <ResearchPlan
-          tripId={tripId}
-          runId={runId}
-          files={filePaths}
-          review={summary?.review ?? null}
-        />
+        <>
+          {unfinished ? (
+            <Card className="flex flex-col gap-sm">
+              <div className="flex items-start gap-sm">
+                <span
+                  aria-hidden="true"
+                  className="grid size-6 shrink-0 place-items-center rounded-pill bg-status-estimated text-on-accent text-sm font-bold"
+                >
+                  !
+                </span>
+                <div className="flex flex-col gap-xs">
+                  <h2 className="pt-[2px] text-base font-bold text-ink">
+                    {t("unfinishedTitle")}
+                  </h2>
+                  <p className="text-sm text-muted">
+                    {unfinished === "interrupted"
+                      ? t("interruptedHint")
+                      : t("failedHint")}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Button onClick={handleRunAgain} disabled={busy}>
+                  {busy ? t("running") : t("runAgain")}
+                </Button>
+              </div>
+            </Card>
+          ) : null}
+          <ResearchPlan
+            tripId={tripId}
+            runId={runId}
+            files={filePaths}
+            review={summary?.review ?? null}
+            applyEnabled={unfinished == null}
+          />
+        </>
       )}
-
-      {stream.status === "error" ? <Notice>{t("error")}</Notice> : null}
 
       <Card className="flex flex-col gap-sm">
         <h2 className="text-sm font-bold uppercase tracking-[0.08em] text-muted">

@@ -111,11 +111,12 @@ export function startResearch(
 export function reviseResearch(
   runId: string,
   instruction: string,
+  language?: string,
 ): Promise<StartResearchResponse> {
   return agentSend(
     "POST",
     `/agent/research/${encodeURIComponent(runId)}/revise`,
-    { instruction },
+    { instruction, language },
   );
 }
 

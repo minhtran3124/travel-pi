@@ -265,4 +265,42 @@ describe("ResearchPlan", () => {
     await waitFor(() => expect(posted).toHaveLength(1));
     expect(posted[0]).toMatchObject({ place_id: "p1" });
   });
+
+  it("adds each entry only once when Apply is clicked twice", async () => {
+    const posted: unknown[] = [];
+    useHandlers({
+      proposal: {
+        itinerary: [
+          { day: 1, time: "08:00", place_id: "p1", title: "Coffee" },
+          { day: 1, time: "09:30", place_id: "p2", title: "Bridge" },
+        ],
+        shortlist: [],
+        flights: [],
+        hotels: [],
+        budget_estimate: null,
+      },
+    });
+    server.use(
+      http.post(`${BASE}/trips/:tripId/items`, async ({ request }) => {
+        posted.push(await request.json());
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+
+    renderPlan(["plan/proposal.json"]);
+
+    await screen.findByText("Lighthouse Coffee");
+    const applyButton = screen.getByRole("button", {
+      name: en.TripDetail.research.apply,
+    });
+
+    fireEvent.click(applyButton);
+    await waitFor(() => expect(posted).toHaveLength(2));
+
+    // A second click only retries pending/failed entries — the two already-ok
+    // stops are skipped, so no duplicate items are posted.
+    fireEvent.click(applyButton);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(posted).toHaveLength(2);
+  });
 });

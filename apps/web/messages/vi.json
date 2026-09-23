@@ -186,7 +186,12 @@
           "day": "Ngày {n}",
           "proposal": "Dữ liệu đề xuất"
         }
-      }
+      },
+      "unfinishedTitle": "Nghiên cứu chưa hoàn tất",
+      "failedHint": "Lần chạy này đã dừng trước khi hoàn tất. Chạy lại để tiếp tục từ chỗ đang dở.",
+      "interruptedHint": "Lần chạy này bị gián đoạn trước khi hoàn tất. Chạy lại để hoàn thành.",
+      "runAgain": "Chạy lại",
+      "resumeInstruction": "Hoàn tất phần nghiên cứu đã bị gián đoạn."
     }
   },
   "Budget": {
@@ -918,7 +923,8 @@
       "staysHeading": "Chỗ ở",
       "byDayEmpty": "Chưa có lịch trình theo ngày — mở tab Nghiên cứu để xem đầy đủ.",
       "empty": "Chưa có chuyến bay hay chỗ ở — mở tab Nghiên cứu để xem đầy đủ.",
-      "fullReport": "Xem đầy đủ ở tab Nghiên cứu"
+      "fullReport": "Xem đầy đủ ở tab Nghiên cứu",
+      "updating": "Đang cập nhật…"
     }
   },
   "Errors": {

@@ -50,6 +50,30 @@ def test_start_passes_the_departure_point_to_the_run(tmp_path, monkeypatch):
     assert seen["origin"] == "Ho Chi Minh City"
 
 
+def test_revise_forwards_origin_and_language_to_the_run(tmp_path, monkeypatch):
+    from app.research.service import ResearchService
+
+    seen: dict = {}
+
+    async def fake_launch(self, run_id, user_id, trip_id, **kwargs):
+        seen.update(kwargs)
+
+    monkeypatch.setattr(ResearchService, "launch", fake_launch)
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="completed")
+    client = TestClient(app)
+
+    resp = client.post(
+        "/agent/research/run-1/revise",
+        json={"origin": "Ho Chi Minh City", "language": "vi"},
+    )
+
+    assert resp.status_code == 202, resp.text
+    assert seen["origin"] == "Ho Chi Minh City"
+    assert seen["language"] == "vi"
+
+
 def test_start_free_tier_is_403(tmp_path):
     app, url, _store = build_app(tmp_path, premium=False)
     create_trip(url, "t1", USER_ID)
@@ -173,6 +197,78 @@ def test_markdown_is_served_as_the_reader_view_and_json_untouched(tmp_path):
     assert md["content"] == "- VN456, USD 139.\n"
     raw = client.get("/agent/research/run-1/files/plan/proposal.json").json()
     assert uid in raw["content"]
+
+
+def test_status_running_not_live_reads_as_interrupted(tmp_path):
+    """A ``running`` row no process here is driving (not live on the bus) is an
+    orphan; status reads ``interrupted`` for display without writing the DB."""
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="running")
+    client = TestClient(app)
+
+    body = client.get("/agent/research/run-1").json()
+    assert body["status"] == "interrupted"
+    assert body["proposal_ready"] is False
+
+
+def test_status_running_live_reads_as_running(tmp_path):
+    """A ``running`` row this process is driving (live on the bus) still reads
+    ``running`` — only orphans flip to ``interrupted``."""
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="running")
+    app.state.research_bus.open("run-1")
+    client = TestClient(app)
+
+    body = client.get("/agent/research/run-1").json()
+    assert body["status"] == "running"
+
+
+def test_status_failed_run_hides_the_proposal(tmp_path):
+    """Apply is only offered on a genuinely completed run, so
+    ``proposal_ready`` is false on a failed run even when a proposal.json exists."""
+    app, url, store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="failed")
+    ns = ("users", USER_ID, "research", "t1")
+    store.put(ns, "/proposal.json", {"content": "{}"})
+    client = TestClient(app)
+
+    body = client.get("/agent/research/run-1").json()
+    assert body["status"] == "failed"
+    assert body["files"] == ["/proposal.json"]
+    assert body["proposal_ready"] is False
+
+
+def test_write_file_round_trips_for_the_owner(tmp_path):
+    """A run owner writes a dossier file, then reads back exactly what was written."""
+    app, url, _store = build_app(tmp_path)
+    create_trip(url, "t1", USER_ID)
+    insert_run(url, "run-1", USER_ID, "t1", status="completed")
+    client = TestClient(app)
+
+    put = client.put(
+        "/agent/research/run-1/files/research/notes.md",
+        json={"content": "Updated the plan."},
+    )
+    assert put.status_code == 200, put.text
+
+    got = client.get("/agent/research/run-1/files/research/notes.md").json()
+    assert got["content"] == "Updated the plan."
+
+
+def test_write_file_foreign_run_is_404(tmp_path):
+    """A foreign run is indistinguishable from missing, so a write to it is a 404."""
+    app, url, _store = build_app(tmp_path)
+    insert_run(url, "run-x", "someone-else", "t1", status="completed")
+    client = TestClient(app)
+
+    resp = client.put(
+        "/agent/research/run-x/files/research/notes.md",
+        json={"content": "hi"},
+    )
+    assert resp.status_code == 404, resp.text
 
 
 def test_status_foreign_run_is_404(tmp_path):

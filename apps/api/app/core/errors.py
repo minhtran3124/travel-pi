@@ -24,6 +24,7 @@ _HTTP_ERROR_LABELS = {
     409: "Conflict",
     422: "UnprocessableEntity",
     429: "TooManyRequests",
+    503: "ServiceUnavailable",
 }
 
 

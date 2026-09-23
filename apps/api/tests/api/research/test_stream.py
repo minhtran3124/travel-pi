@@ -134,6 +134,22 @@ def test_run_finishing_between_has_and_subscribe_still_gets_a_verdict(tmp_path):
     assert names[-1] == "research_done", names
 
 
+def test_running_row_not_on_bus_ends_with_interrupted_error(tmp_path):
+    """An orphaned ``running`` row (no live channel here — the driving process
+    died) must not poll forever: the snapshot loop ends with a terminal
+    ``research_error`` carrying ``interrupted`` instead of hanging."""
+    app, url, _store = build_app(tmp_path)
+    insert_run(url, "run-orphan", USER_ID, "t1", status="running")
+    client = TestClient(app)
+
+    resp = client.get("/agent/research/run-orphan/stream")
+    assert resp.status_code == 200
+    names = _events(resp.text)
+    assert names[0] == "research_start"
+    assert names[-1] == "research_error"
+    assert "interrupted" in resp.text
+
+
 def test_stream_foreign_run_is_404(tmp_path):
     app, url, _store = build_app(tmp_path)
     insert_run(url, "run-x", "someone-else", "t1", status="completed")

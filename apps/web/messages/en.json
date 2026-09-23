@@ -186,7 +186,12 @@
           "day": "Day {n}",
           "proposal": "Proposal data"
         }
-      }
+      },
+      "unfinishedTitle": "Research didn't finish",
+      "failedHint": "This run stopped before it could finish. Run it again to pick up where it left off.",
+      "interruptedHint": "This run was interrupted before it finished. Run it again to complete it.",
+      "runAgain": "Run again",
+      "resumeInstruction": "Finish the research that was interrupted."
     }
   },
   "Budget": {
@@ -918,7 +923,8 @@
       "staysHeading": "Stays",
       "byDayEmpty": "No day-by-day itinerary yet — open the Research tab for the full report.",
       "empty": "No flights or stays yet — open the Research tab for the full report.",
-      "fullReport": "See it all in the Research tab"
+      "fullReport": "See it all in the Research tab",
+      "updating": "Updating…"
     }
   },
   "Errors": {

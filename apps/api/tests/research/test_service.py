@@ -254,6 +254,39 @@ def test_the_loser_of_a_concurrent_start_does_not_spend_the_daily_cap(
         _complete(factory, service.start(OWNER, TRIP))
 
 
+def test_chat_state_running_live_vs_not_live(service, factory) -> None:
+    """A chat turn reports ``"running"`` only while this process drives the run (live
+    on the bus). Once the channel is gone (the driving turn ended, e.g. cancelled),
+    the ``running`` row is an orphan and ``chat_state`` returns ``None`` so the next
+    turn starts/resumes instead of reporting a run that is not being driven."""
+    run_id = service.start(OWNER, TRIP)  # ``start`` opens the run on the bus
+    assert service.chat_state(OWNER, TRIP) == "running"
+
+    service._bus.close(run_id)  # driving turn gone; row still ``running``
+    assert service.chat_state(OWNER, TRIP) is None
+
+
+def test_start_after_a_cancelled_run_resumes_without_spending_the_cap(
+    service, factory, daily_limit
+) -> None:
+    """A cancelled run leaves its row ``running`` and releases its bus channel
+    (``runner.run_trip_research``). The next ``start`` for the trip finds that orphan,
+    resumes it (``resumed_from`` set, row flipped to ``interrupted``) and — because a
+    resume was already paid for — does not spend another daily-cap slot."""
+    run_a = service.start(OWNER, TRIP)  # spends 1 of 2
+    service._bus.close(run_a)  # mirror the runner's cancel path: channel released
+
+    run_b = service.start(OWNER, TRIP)  # resumes the orphan, spends nothing
+    assert service._resumes.get(run_b) == run_a
+    assert _get(factory, run_a).status == "interrupted"
+
+    # Only one real slot was spent, so exactly one more start fits under the cap of 2.
+    _complete(factory, run_b)
+    _complete(factory, service.start(OWNER, TRIP))
+    with pytest.raises(RateLimitError):
+        service.start(OWNER, TRIP)
+
+
 @pytest.mark.parametrize(
     ("rubric_status", "review"),
     [

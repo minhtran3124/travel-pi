@@ -169,6 +169,67 @@ async def test_timeout_finishes_failed_and_never_raises(tmp_path, monkeypatch) -
     assert bus.has(run_id) is False
 
 
+@pytest.mark.asyncio
+async def test_cancellation_finishes_interrupted_and_publishes_no_done(
+    tmp_path,
+) -> None:
+    """A cancelled run (BaseException, not Exception) is NOT finalised. The row is
+    left ``running`` so the next ``start`` resumes it as an orphan; no ResearchDone is
+    published, an interrupted error is, the channel is released, and the cancellation
+    still propagates."""
+    factory = _factory(tmp_path)
+    run_id = "run-cancel"
+    _seed_running_row(factory, run_id)
+    started = asyncio.Event()
+
+    class _HangAgent:
+        store = InMemoryStore()
+
+        async def astream_events(self, inp, config=None, *, version, context=None):
+            async def _gen():
+                started.set()
+                await asyncio.sleep(3600)  # hang until cancelled
+                yield  # pragma: no cover — never reached
+
+            return _gen()
+
+    bus = ProgressBus()
+    events: list = []
+
+    async def _sub() -> None:
+        async for event in bus.subscribe(run_id):
+            events.append(event)
+
+    sub_task = asyncio.create_task(_sub())
+    for _ in range(3):  # let the subscriber register before the run publishes
+        await asyncio.sleep(0)
+
+    run_task = asyncio.create_task(
+        run_trip_research(
+            run_id=run_id,
+            ctx=context(),
+            instruction="research",
+            agent=_HangAgent(),
+            bus=bus,
+            session_factory=factory,
+        )
+    )
+    await asyncio.wait_for(started.wait(), timeout=1.0)
+    run_task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await run_task
+
+    await asyncio.wait_for(sub_task, timeout=1.0)
+
+    row = _get_run(factory, run_id)
+    assert row is not None
+    # The row stays ``running`` (not finalised) so the next start resumes it.
+    assert row.status == "running"
+    assert not any(isinstance(e, ResearchDone) for e in events)
+    assert any(isinstance(e, ResearchError) and e.code == "interrupted" for e in events)
+    assert bus.has(run_id) is False
+
+
 @pytest.mark.parametrize(
     ("language", "name"),
     [("vi", "Vietnamese"), ("en", "English"), ("xx", "English")],
