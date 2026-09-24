@@ -170,6 +170,10 @@ The conflicts were in three files:
 - C10: `web_search_user_hourly_limit` is `Field(default=30, gt=0)`, so 0 or a negative value is rejected when settings load, not inside a tool call.
 - C12: a SerpAPI response that is neither `SerpResults` nor a dict (a non-JSON 200) raises `WebSearchUpstreamError` instead of a raw `ValueError`.
 - C13: `ValueError` or `TypeError` from inside the Tavily SDK (a non-JSON 200, or a non-200 2xx) maps to `WebSearchUpstreamError`.
+- Re-review found two gaps; both are fixed in the next commit:
+  - C12 did not yet cover a 200 whose JSON is an array or a scalar. `SerpResults` raises `ValueError`/`TypeError` inside the SDK; that now maps to `WebSearchUpstreamError`.
+  - The C13 `except` also caught a construction error: a bad `TAVILY_HTTP(S)_PROXY` is a permanent misconfiguration, and it was being retried as if transient. The client is now built outside the `try`, and a test pins that such an error is not masked.
+- Accepted as by design: a persistent SerpAPI HTML page is still classified as transient (the C3 retry re-charge interaction). SerpAPI does not bill errored searches.
 
 ### Harness-Delta
 

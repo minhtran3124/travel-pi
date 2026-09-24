@@ -91,8 +91,11 @@ async def search_web(
         return cached
 
     started = _now()
+    # Built outside the try: a bad proxy setting raises ValueError here, and that is a
+    # permanent misconfiguration, not a transient upstream failure.
+    tavily = AsyncTavilyClient(api_key=key)
     try:
-        async with AsyncTavilyClient(api_key=key) as client:
+        async with tavily as client:
             data = await client.search(
                 query,
                 search_depth="basic",
@@ -205,6 +208,9 @@ async def _serpapi_search(params: dict) -> dict | None:
         if _NO_RESULTS_MARKER in (exc.error or ""):
             return None
         raise WebSearchError() from exc
+    except (ValueError, TypeError) as exc:
+        # SerpResults(...) on a 200 whose JSON is an array or scalar.
+        raise WebSearchUpstreamError() from exc
 
     if hasattr(raw, "as_dict"):
         body = raw.as_dict()

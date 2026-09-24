@@ -504,3 +504,19 @@ def test_provider_keys_are_stripped_before_use(monkeypatch):
     asyncio.run(wss.search_web("q"))
     asyncio.run(wss.find_places_live("pho", "Hanoi"))
     assert seen == {"tavily": "tvly-key", "serpapi": "serp-key"}
+
+
+@pytest.mark.parametrize("raised", [ValueError("bad json"), TypeError("not a mapping")])
+def test_error_serpapi_unparseable_json_maps_upstream(monkeypatch, raised):
+    _patch_serp(monkeypatch, raises=raised)
+    with pytest.raises(WebSearchUpstreamError):
+        asyncio.run(wss.find_places_live("pho", "Hanoi"))
+
+
+def test_error_tavily_client_construction_error_is_not_masked(monkeypatch):
+    def bad_client(*args, **kwargs):
+        raise ValueError("Unknown scheme for proxy URL")
+
+    monkeypatch.setattr(wss, "AsyncTavilyClient", bad_client)
+    with pytest.raises(ValueError):
+        asyncio.run(wss.search_web("q"))
