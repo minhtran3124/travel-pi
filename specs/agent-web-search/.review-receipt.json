@@ -1,5 +1,5 @@
 {
-  "reviewed_head_sha": "ff52e7e4c7a847d8e615e44f6d5ddcdb41ca5a6f",
+  "reviewed_head_sha": "8a030407aec3ecf7f34d26757de621cdf926116e",
   "created": "2026-09-24T00:00:00+00:00",
   "reviews": [
     {
@@ -89,6 +89,14 @@
       "blocking_open": 0,
       "advisory_open": 0,
       "notes": "Plan-blind re-check vs verbatim intent + E005: both services still used (Tavily search_web, SerpAPI find_places_live); no stale find_events presented as live. Four design.md drift items fixed at d33dbc3f."
+    },
+    {
+      "reviewer": "merge-resolution-review",
+      "type": "merge-main",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Merge 8a030407 of github/main (PR #221). Conflict resolution verified (active.yaml keeps main versions + concierge 14; changelog both sides; golden count 123 real). Snapshot +2 tools only, mcp unchanged. research_tools() sees web tools, _assert_bindable passes; SUBAGENT_TOOLS unaffected. Advisory: research_tools() unused by app code. Full suite on merged tree: 3110 passed, 9 skipped."
     }
   ]
 }

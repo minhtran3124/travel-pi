@@ -35,7 +35,7 @@ The concierge agent gets two last-resort live-web tools. `search_web` runs on Ta
 - A generic `tools_forbidden` eval metric and 6 `web_search` goldens were added.
 - The trip-research wiring is deferred until PR #221 merges (E004).
 
-Full suite at 3b20af0b (after E005): 2916 passed, 7 skipped. The later commit ff52e7e4 changed only two field descriptions; its targeted tests were re-run.
+Full suite on the merged tree (8a030407, after `main` with PR #221): 3110 passed, 9 skipped, 0 failed.
 
 ### Rationale
 
@@ -154,6 +154,15 @@ Review of the E005 change (d5918dfe..3b20af0b): no finding reached 75. The `plac
 - F1 (60) — the `topic` field said "'news' for current events", which contradicted the new routing of events to `general`.
 - F2 (55) — `time_range` is a publish-date recency filter. Its description now says to leave it unset for upcoming events.
 Advisory: F3 (45) — Tavily calls carry no locale hint for Vietnamese event questions (the removed SerpAPI tool sent `hl`/`gl`).
+
+### Merge of `main` (PR #221 landed), 8a030407
+
+The conflicts were in three files:
+- `active.yaml`: `main`'s supervisor 15 and trip_research/grader 2 are kept; concierge is set to 14.
+- The prompt `CHANGELOG.md`: both entries are kept.
+- The golden count: 117 + 6 = 123.
+
+`tests/fixtures/tools_snapshot.json` (new on `main`) gains `search_web` and `find_places_live` in `all_tools` and `manifest.tools`; `mcp` is unchanged. An independent review of the resolution found it clean; `research_tools()` sees the web tools and they pass `_assert_bindable`.
 
 ### Harness-Delta
 
