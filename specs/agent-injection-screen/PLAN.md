@@ -55,7 +55,7 @@ only then `enforce`. It fails open with a mark, so the tool never breaks because
   `screened=False` always has `flagged=False`, `p=None`.
 - **Fail-open mapping.** Any `httpx.HTTPError`, any non-2xx status (including 429 and 529),
   JSON without `answers.injection.noul`, or a task still pending at the budget → that item is
-  `screened=False`. The service never raises. Empty `text` → `Verdict(True, False, 0.0, None)`
+  `screened=False`. The service never raises. Empty title and text → `Verdict(True, False, 0.0, None)`
   without a request.
 - **Concurrency.** One `asyncio.create_task` per cache miss, `asyncio.wait(tasks,
   timeout=injection_screen_timeout_seconds)`; pending tasks are cancelled and awaited before

@@ -157,13 +157,8 @@ async def screen(items: list[ScreenItem]) -> list[Verdict]:
     cached = 0
     pending_idx: list[int] = []
     for i, item in enumerate(items):
-        if not item.text:
+        if not item.title and not item.text:
             verdicts[i] = Verdict(screened=True, flagged=False, p=0.0, model=None)
-            _cache_set(
-                _cache_key(item),
-                verdicts[i],
-                settings.injection_screen_cache_ttl_seconds,
-            )
             continue
         hit = _cache_get(_cache_key(item))
         if hit is not None:

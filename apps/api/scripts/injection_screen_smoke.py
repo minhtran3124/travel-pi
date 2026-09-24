@@ -8,7 +8,8 @@ Screens three canned items (benign, obvious injection, subtle injection) with
 
 Prints one line per item: ``p=<value> flagged=<bool> screened=<bool> model=<id>``.
 
-Exit codes: 0 all items printed; 2 ``TYPESAFE_API_KEY`` is not set.
+Exit codes: 0 all items screened; 2 ``TYPESAFE_API_KEY`` is not set;
+3 at least one item was not screened.
 """
 
 from __future__ import annotations
@@ -48,7 +49,7 @@ def main() -> None:
         verdicts = asyncio.run(injection_screen_service.screen(ITEMS))
     for v in verdicts:
         print(f"p={v.p} flagged={v.flagged} screened={v.screened} model={v.model}")
-    sys.exit(0)
+    sys.exit(0 if all(v.screened for v in verdicts) else 3)
 
 
 if __name__ == "__main__":
