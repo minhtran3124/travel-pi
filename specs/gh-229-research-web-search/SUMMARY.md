@@ -24,7 +24,12 @@ Issue #229 (scope as filed):
 
 ## What changed
 
-Intake only. PR #227 was merged as 2b8949bf. The worktree and branch are created, and the forks are recorded.
+The trip-research subagents can now use the #227 web tools as a last resort. `entry_season` gets `search_web`; `days` gets `search_web` and `find_places_live`.
+
+- The tools are filtered by `registry.available()` when the agent is built, so with the flag off every subagent's tools are unchanged.
+- Web facts are cited `(search_web)` or `(find_places_live)`. Each such file lists its pages under a fixed English `## Sources` heading, placed before `## Ids`. The reader keeps that section byte for byte.
+- Grader v3 adds criterion 7: web-cited facts need Sources, and no price may be cited to a web tool.
+- A per-run cap allows 6 web calls per research run (`web_search_research_run_limit`), keyed on the `ResearchContext.run_id`. It sits on top of the per-user hourly limit; chat is never capped.
 
 ### Rationale
 
@@ -53,11 +58,19 @@ The dossier is persisted, and it is read by the traveller with citations strippe
 
 ### Not auto-verified
 
-- Lane classification — reached traceability. The flags were assigned by judgement; no diff exists yet.
+- Real-key smoke research run (issue #229 acceptance): **not run yet — owed.** It should show at least one fact cited `(search_web)` with a `## Sources` link and no web-cited price. It should also leave a `web_search_run` rate-limit row for that run's `run_id`; that row is the only proof that deepagents passes `ResearchContext` to subagent tool calls, because the offline tests monkeypatch `get_runtime`.
+- Model compliance with the skill rules (last resort, Sources placement): unmeasured, and graded only by v3 at run time.
+- Lane classification — reached traceability; the flags were assigned by judgement.
 
 ### Rollback
 
 - Intake-only: `git worktree remove ../travel-pi-gh-229-research-web-search` and `git branch -D feat/gh-229-research-web-search`. After implementation: `git revert <sha>`. The tools stay behind `WEB_SEARCH_ENABLED`.
+
+### Intent review (2026-09-24)
+
+- **Gap, fixed.** The data-not-instructions sentence was missing from `entry-and-season` and `day-plans` (it existed only in `dossier-format`). It is now in both, and the test asserts it.
+- **Record gap.** The smoke research run is recorded above as owed.
+- **Drift, accepted.** The per-user check runs before the run cap, so a call the run cap refuses still uses one per-user token. The reverse order would spend one of the run's 6 on a call the per-user limit refuses. Of the two, the larger budget should absorb the cost.
 
 ### Harness-Delta
 
