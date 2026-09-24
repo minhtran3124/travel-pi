@@ -75,18 +75,19 @@ item as E001 (RAG / tool-output wrapping).
 | service inactive + verdict | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k "inactive or verdict"` | 0 | 7 passed | SC-2 |
 | service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k cache` | 0 | 4 passed | SC-3 |
 | service timeout / errors / empty | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k "timeout or error or empty"` | 0 | 9 passed | SC-4 |
+| title-only item is sent to the vendor (correctness fix F1) | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k title_only` | 0 | 1 passed | SC-4 |
 | tool enforce attributes | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k enforce` | 0 | 5 passed | SC-5 |
 | tool shadow/off byte-identical | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "shadow or off_mode"` | 0 | 3 passed | SC-6 |
 | pre-existing web tool + binding tests | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py tests/tools/test_web_search_binding.py -q` | 0 | 28 passed | SC-7 |
 | concierge v15 + active versions | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py tests/prompts/test_active_versions_load.py -q` | 0 | 10 passed | SC-8 |
-| smoke script exits 2 without key | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/scripts/test_injection_screen_smoke.py -q` | 0 | 1 passed | SC-9 |
+| smoke script exits 2 without key, 3 when an item is unscreened | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/scripts/test_injection_screen_smoke.py -q` | 0 | 2 passed | SC-9 |
 | ruff on new/touched files | `cd apps/api && ../../.venv/bin/ruff check app/services/injection_screen_service.py app/tools/web_search_tools.py app/core/config.py scripts/injection_screen_smoke.py` | 0 | All checks passed | SC-10 |
 
 ### Intent Findings
 
 Intent review over 2b8949bf..0e785c7b (plan-blind). One gap was fixed; the rest are recorded.
 
-- **gap, fixed.** "viết 4 cái trên xuống phần research": `specs/jev-harness-research/research-brief.md` held the four ranked use cases but was never committed. It is now part of this branch (commit INTENTSHA).
+- **gap, fixed.** "viết 4 cái trên xuống phần research": `specs/jev-harness-research/research-brief.md` held the four ranked use cases but was never committed. It is now part of this branch (commit fe3dcdd3).
 - **gap, owner-narrowed.** The intake use case names "the RAG retriever". The owner scoped v1 to web tools only during brainstorming (`design.md` §1). RAG screening is a follow-up, not dropped.
 - **drift, equivalent.** Transport is plain `httpx` rather than `langchain-typesafe` (ESCALATIONS E001: the wrapper is alpha).
 - **drift, different.** The capability ships inert: `INJECTION_SCREEN_MODE=off` by default, so nothing is classified until the mode and key are set (`design.md` §1 rollout off → shadow → enforce).
