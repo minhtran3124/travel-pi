@@ -61,6 +61,19 @@ class FlightIndexRepository(Repo):
                         pass
                 self._commit(s)
 
+    def known_ids(self, ids: list[str]) -> set[str]:
+        """Return the subset of ``ids`` present as ``flight_id`` rows; empty input skips the query."""
+        if not ids:
+            return set()
+        with self._session() as s:
+            return set(
+                s.scalars(
+                    select(models.FlightIndex.flight_id).where(
+                        models.FlightIndex.flight_id.in_(ids)
+                    )
+                ).all()
+            )
+
     def lookup(self, flight_id: str) -> tuple[str, str, str] | None:
         with self._session() as s:
             row = s.scalars(
