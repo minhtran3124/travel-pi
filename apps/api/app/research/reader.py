@@ -5,7 +5,8 @@ proposal is built from — the grader checks the citations and the main agent as
 ``/plan/proposal.json`` from the ids — so both stay in the file. They are noise to a
 traveller, so every traveller-facing read goes through :func:`reader_view`: citation
 parentheses and labelled ids are dropped, and so are lines that only list bare ids and
-the trailing ``## Ids`` section.
+the trailing ``## Ids`` section. A ``## Sources`` section is left byte-for-byte: its
+links are the traveller-facing evidence, so ids, uuids and citations inside it stay.
 """
 
 from __future__ import annotations
@@ -31,6 +32,7 @@ _BARE_UUID = re.compile(
     re.IGNORECASE,
 )
 _IDS_HEADING = re.compile(r"^##[ \t]+Ids[ \t]*$", re.IGNORECASE)
+_SOURCES_HEADING = re.compile(r"^##[ \t]+Sources[ \t]*$", re.IGNORECASE)
 _SECTION_HEADING = re.compile(r"^#{1,2}[ \t]")
 
 
@@ -70,8 +72,21 @@ def _tidy(line: str) -> str:
 
 def reader_view(text: str) -> str:
     """Return *text* as the traveller should read it."""
-    lines = []
+    lines: list[str] = []
+    sources: list[list[str]] = []
+    block: list[str] | None = None
     for line in _without_ids_section(text.split("\n")):
+        if block is not None and _SECTION_HEADING.match(line):
+            block = None
+        if _SOURCES_HEADING.match(line):
+            block = [line]
+            sources.append(block)
+            lines.append(f"\x00SOURCES{len(sources) - 1}\x00")
+            continue
+        if block is not None:
+            # Verbatim: the ``## Sources`` links are the traveller-facing evidence.
+            block.append(line)
+            continue
         line = _LABELLED_ID.sub("", line)
         # An id with no label around it is a line written only to list ids for the
         # proposal ("shortlist: `a`, `b` and `c`"); cutting it out mid-sentence
@@ -80,5 +95,10 @@ def reader_view(text: str) -> str:
             continue
         line = _CITATION.sub(_drop_citation, line)
         lines.append(_tidy(line).rstrip())
-    out = re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).rstrip("\n")
+    # Collapse blank runs before restoring the sections, so the collapse can never
+    # reach the verbatim ``## Sources`` lines (their sentinel breaks every run).
+    out = re.sub(r"\n{3,}", "\n\n", "\n".join(lines))
+    for index, section in enumerate(sources):
+        out = out.replace(f"\x00SOURCES{index}\x00", "\n".join(section))
+    out = out.rstrip("\n")
     return f"{out}\n" if text.endswith("\n") else out

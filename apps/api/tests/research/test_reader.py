@@ -82,3 +82,59 @@ def test_a_line_that_only_lists_bare_ids_is_dropped() -> None:
     assert reader_view(raw) == (
         "## Recommendation\n- Cham Hotel Danang is the cheapest.\n"
     )
+
+
+def test_a_body_citation_is_stripped_around_the_sources_section() -> None:
+    raw = "Lantern night on 23 Oct (search_web)."
+    assert reader_view(raw) == "Lantern night on 23 Oct."
+
+
+def test_the_sources_section_survives_byte_for_byte() -> None:
+    raw = (
+        "# Guide\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n"
+        "- [Cafe](https://www.google.com/maps/place/?q=place_id:ChIJabc)\n"
+        f"- [Doc](https://example.com/{UUID})\n"
+    )
+    assert reader_view(raw) == raw
+
+
+def test_a_place_id_in_the_body_outside_sources_is_still_stripped() -> None:
+    raw = f"- 08:00 Breakfast at Lighthouse, place_id `{UUID}` (search_places)."
+    assert reader_view(raw) == "- 08:00 Breakfast at Lighthouse."
+
+
+def test_sources_renders_and_a_following_ids_section_is_dropped() -> None:
+    raw = (
+        "# Guide\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n\n"
+        f"## Ids\n\n- Hoi An events: {UUID}\n"
+    )
+    assert reader_view(raw) == (
+        "# Guide\n\n## Sources\n\n- [Hoi An events](https://example.com/e)\n"
+    )
+
+
+def test_a_sources_section_at_the_end_runs_to_the_end_of_the_file() -> None:
+    raw = (
+        "# Guide\n\n- Lantern night (search_web).\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n"
+        "- [Cafe](https://www.google.com/maps/place/?q=place_id:ChIJabc)\n"
+    )
+    assert reader_view(raw) == (
+        "# Guide\n\n- Lantern night.\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n"
+        "- [Cafe](https://www.google.com/maps/place/?q=place_id:ChIJabc)\n"
+    )
+
+
+def test_blank_line_runs_inside_sources_are_not_collapsed() -> None:
+    raw = (
+        "# Guide\n\n## Sources\n\n"
+        "- [A](https://example.com/a)\n\n\n- [B](https://example.com/b)\n"
+    )
+    assert reader_view(raw) == raw
