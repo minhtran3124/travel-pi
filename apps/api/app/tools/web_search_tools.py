@@ -133,8 +133,13 @@ def _enforce_run(run_id: str) -> None:
             name="web_search_run",
             subject=run_id,
             limit=settings.web_search_research_run_limit,
-            window_seconds=86400,
+            # run_id is unique per run, so one window far longer than any run means the
+            # count never resets mid-run (fixed windows align to the epoch).
+            window_seconds=_RUN_WINDOW_SECONDS,
         )
+
+
+_RUN_WINDOW_SECONDS = 10 * 365 * 24 * 3600
 
 
 async def _apply_run_cap() -> None:
@@ -148,11 +153,11 @@ async def _apply_run_cap() -> None:
         return
     try:
         await asyncio.to_thread(_enforce_run, ctx.run_id)
-    except RateLimitError as e:
+    except RateLimitError:
         raise ToolException(
             "The web budget for this research run is used up; "
             "continue with the seeded tools."
-        ) from e
+        ) from None
 
 
 @tool(args_schema=SearchWebArgs, response_format="content_and_artifact")
@@ -174,8 +179,9 @@ async def search_web(
     if not user_id:
         raise ToolException("Web search needs a signed-in traveller.")
     try:
-        await asyncio.to_thread(_enforce, user_id)
+        # Run cap first: a call it refuses must not spend the traveller's hourly quota.
         await _apply_run_cap()
+        await asyncio.to_thread(_enforce, user_id)
         result = await web_search_service.search_web(query, topic, time_range, domains)
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
@@ -201,8 +207,9 @@ async def find_places_live(
     if not user_id:
         raise ToolException("Web search needs a signed-in traveller.")
     try:
-        await asyncio.to_thread(_enforce, user_id)
+        # Run cap first: a call it refuses must not spend the traveller's hourly quota.
         await _apply_run_cap()
+        await asyncio.to_thread(_enforce, user_id)
         result = await web_search_service.find_places_live(query, near, language)
     except UpstreamError:
         raise

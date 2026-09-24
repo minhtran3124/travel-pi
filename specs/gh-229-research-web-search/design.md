@@ -29,7 +29,7 @@ A dossier can then carry facts that seed data lacks. Chat behaviour is unchanged
 
 - A web fact is cited like any other: `(search_web)` or `(find_places_live)`.
 - Every dimension file that cites a web tool has a `## Sources` section. It is a list of `- [title](url)` lines, placed **immediately before `## Ids`** (`## Ids` stays last), or last when the file has no ids.
-- `app/research/reader.py` `reader_view` keeps the `## Sources` section verbatim. It skips `_LABELLED_ID`/`_BARE_UUID` stripping for lines inside that section. Without this, a Google Maps fallback URL (`...?q=place_id:<id>`) is cut, and a line whose URL holds a UUID is dropped. Citation stripping stays as it is; it already leaves `[title](url)` intact.
+- `app/research/reader.py` `reader_view` keeps the `## Sources` section verbatim. (Superseded by the correctness review: every markdown link passes through untouched, wherever it is; see SUMMARY.) It skips `_LABELLED_ID`/`_BARE_UUID` stripping for lines inside that section. Without this, a Google Maps fallback URL (`...?q=place_id:<id>`) is cut, and a line whose URL holds a UUID is dropped. Citation stripping stays as it is; it already leaves `[title](url)` intact.
 - A web place never enters the proposal. The day-plans rule stays: place ids come only from `search_places`, `nearby_places` or `resolve_place`.
 
 ## 4. Skills

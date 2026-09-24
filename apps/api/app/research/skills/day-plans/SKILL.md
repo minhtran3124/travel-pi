@@ -38,7 +38,8 @@ Turn the trip into day-by-day plans, one file per day at `/research/days/day-N.m
 4. **Each day must include meals and no more than three activities.** Meals (breakfast
    / lunch / dinner as fits) are named places with ids where a tool provided them.
    Keep activities to three so the day is achievable, not a checklist.
-5. Use the web tools only when the seeded tools return nothing for what the day needs:
+5. If the web tools are among your tools, use them only when the seeded tools return
+   nothing for what the day needs:
    `search_web` for events or festivals on the trip's dates, which the seeded tools
    do not cover; `find_places_live` for a place the seeded tools did not return, or to
    check the live hours of one they did. A web place never goes into the proposal —

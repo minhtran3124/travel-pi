@@ -132,12 +132,24 @@ def test_a_sources_section_at_the_end_runs_to_the_end_of_the_file() -> None:
     )
 
 
-def test_blank_line_runs_inside_sources_are_not_collapsed() -> None:
-    raw = (
-        "# Guide\n\n## Sources\n\n"
-        "- [A](https://example.com/a)\n\n\n- [B](https://example.com/b)\n"
-    )
+def test_a_link_survives_under_any_heading_spelling() -> None:
+    raw = f"### Sources:\n\n- [Visa notice](https://gov.example/notice/{UUID})\n"
     assert reader_view(raw) == raw
+
+
+def test_a_citation_after_a_source_link_is_stripped() -> None:
+    raw = "- [Gov visa rules](https://gov.vn/visa) (search_web)"
+    assert reader_view(raw) == "- [Gov visa rules](https://gov.vn/visa)"
+
+
+def test_prose_after_the_sources_list_is_stripped_as_usual() -> None:
+    raw = (
+        "## Sources\n\n- [A](https://example.com/a)\n\n"
+        "### Lunch\n\nPho Bat Dan, place_id: `plc_abc123` (search_places).\n"
+    )
+    assert reader_view(raw) == (
+        "## Sources\n\n- [A](https://example.com/a)\n\n### Lunch\n\nPho Bat Dan.\n"
+    )
 
 
 def test_blank_lines_after_sources_are_still_collapsed():

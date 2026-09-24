@@ -66,6 +66,16 @@ The dossier is persisted, and it is read by the traveller with citations strippe
 
 - Intake-only: `git worktree remove ../travel-pi-gh-229-research-web-search` and `git branch -D feat/gh-229-research-web-search`. After implementation: `git revert <sha>`. The tools stay behind `WEB_SEARCH_ENABLED`.
 
+### Correctness review (six angles over 2b8949bf..9ec51987)
+
+Deduplicated into 7 locations. The fixes were cheap and unambiguous, so they were applied directly without the per-location independent scorer. This is a deviation from the correctness-review pipeline, recorded here; the fixes were re-reviewed afterwards.
+- **A (4 angles, fixed).** The run cap ran after the per-user check, so every refused call still spent one of the traveller's hourly slots, and a retrying subagent could drain the chat quota. The run cap now runs first, and a test asserts `_enforce` is called 6 times for 7 calls.
+- **B (4 angles, fixed).** The 86400 s window is aligned to the epoch, so a run crossing 00:00 UTC got 12 calls. It now uses a 10-year window; `run_id` is unique per run.
+- **C (1 angle, by design).** A resume gets a fresh budget, because it has a new `run_id`. The design (§6) chose that start, revise and resume each get 6.
+- **D (1 angle, fixed).** The budget `ToolException` was chained from `RateLimitError`, so `describe_tool_failure` took the AppError branch ("not found or not allowed"). It now raises `from None`; a test asserts `__cause__ is None`.
+- **E+F (4 angles, fixed).** The verbatim `## Sources` block kept every line up to the next H1/H2, so an H3 or prose placed after the links leaked ids and tool names. A heading spelled differently lost the protection altogether. Replaced with a simpler rule: every markdown link `[title](url)` passes through untouched wherever it is, and everything else is stripped as usual. A citation after a link on the same line is stripped. Tests cover a heading variant, a trailing citation, and prose after the list.
+- **G (1 angle, fixed).** The skills told the subagent to use web tools that are not bound when the flag is off. Both steps now say "If … is among your tools".
+
 ### Intent review (2026-09-24)
 
 - **Gap, fixed.** The data-not-instructions sentence was missing from `entry-and-season` and `day-plans` (it existed only in `dossier-format`). It is now in both, and the test asserts it.

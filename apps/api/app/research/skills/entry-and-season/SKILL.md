@@ -27,7 +27,7 @@ and the citation rule.
 3. Call `get_local_tips` and `search_travel_knowledge` for etiquette, safety, and
    practical advice relevant to this trip.
 4. Call `get_packing` and summarise what to bring for that climate.
-5. Use `search_web` only when the seeded tools (`get_visa`,
+5. If `search_web` is among your tools, use it only when the seeded tools (`get_visa`,
    `search_travel_knowledge`, `get_local_tips`) return nothing, or when the fact
    depends on the date (current entry rules, advisories). Prefer official domains.
    Never use it for prices. Cite each web fact and list its page under `## Sources`.

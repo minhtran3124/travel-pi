@@ -155,3 +155,20 @@ def test_find_places_live_shares_the_run_budget(monkeypatch):
             find_places_live.ainvoke({"query": "pho", "near": "Hanoi", "user_id": "u1"})
         )
     assert calls["n"] == 6
+
+
+def test_a_refused_call_does_not_spend_the_user_quota(monkeypatch):
+    _set_runtime(monkeypatch, _research_ctx())
+    _fake_service(monkeypatch)
+    seen = []
+    monkeypatch.setattr(
+        web_search_tools, "_enforce", lambda user_id: seen.append(user_id)
+    )
+
+    for _ in range(6):
+        _run()
+    with pytest.raises(ToolException) as ei:
+        _run()
+
+    assert len(seen) == 6
+    assert ei.value.__cause__ is None
