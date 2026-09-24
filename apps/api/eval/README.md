@@ -58,6 +58,9 @@ eval/
 | language | 5 | 2 | 2 | 0 | 0 | 9 |
 | memory | 2 | 2 | 8 | 0 | 0 | 12 |
 | routing | 6 | 3 | 2 | 0 | 0 | 11 |
+| web_search | 3 | 3 | 0 | 0 | 0 | 6 |
+
+(The total line above predates later datasets; the store now loads 119 goldens — see `tests/eval/test_datasets.py`.)
 
 `tool_failure`/`adversarial` are thin (2 and 1 cases total, both in `errors`) — the visible,
 countable gaps this schema was built to surface (`specs/agent-eval-pipeline/PLAN.md` §4); they
@@ -65,6 +68,10 @@ are the backlog for a future golden-generation pass, not a bug in this README.
 
 Every capability's threshold is `0.7` (`eval/adapters/config.py::DEFAULT_THRESHOLD`) — a
 capability's aggregate pass rate below that fails `make eval-compare`/the CI gate.
+
+The `web_search` goldens (`eval/datasets/web_search.json`) need `WEB_SEARCH_ENABLED=true` plus
+both provider keys (`TAVILY_API_KEY`, `SERPAPI_API_KEY`) and run under `make eval-check`; with
+the flag off the live tools are unbound and the must-call goldens fail.
 
 ## Add a golden
 

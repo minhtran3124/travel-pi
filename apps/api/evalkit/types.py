@@ -38,6 +38,11 @@ class Golden(BaseModel):
     turns: list[str] | None = None
     expected_flow: str | None = None
     expected_tools: list[str] | None = None
+    # Tools that must NOT be called (checked by `tools_forbidden`). Declared
+    # explicitly because `Golden` uses pydantic's default extra handling — an
+    # undeclared field is silently dropped, which would make the metric a
+    # permanent false green.
+    forbidden_tools: list[str] | None = None
     # Agent names the supervisor fans out to; order-free because tasks run in parallel.
     expected_tasks: list[str] | None = None
     # Opt-in resume of the plan-approval interrupt; the adapter owns the mechanics.

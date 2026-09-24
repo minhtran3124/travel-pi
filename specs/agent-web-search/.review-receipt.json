@@ -1,0 +1,110 @@
+{
+  "reviewed_head_sha": "b88ed4ed7925faca29b16ef6cd76865976c7eda1",
+  "created": "2026-09-24T00:00:00+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Pins + off-by-default settings + availability properties. Minor fixed (b8fe5598): defaults test ignores local .env."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "forbidden_tools field + tools_forbidden metric. Minor: evalkit README metric inventory stale (recorded)."
+    },
+    {
+      "reviewer": "task-review-2.1",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Service: SDK error mapping, bounded TTL cache. Minors fixed (9ff6cb1a): SerpAPI availability before cache; no-results marker on 4xx. Tavily kwarg risk later removed."
+    },
+    {
+      "reviewer": "task-review-3.1",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Tools: user_id gate, rate limit, escaped <web_result>. cannot_verify on SC-4 resolved by controller re-run (3/5/5 passed). Parametrized gate tests added (8a612d98)."
+    },
+    {
+      "reviewer": "task-review-4.1",
+      "type": "task-4.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Conditional binding via available() in get_tools_for; MCP exclusion. Docstring minor fixed (904875fc)."
+    },
+    {
+      "reviewer": "task-review-4.2",
+      "type": "task-4.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Concierge v14 pure insertion over v13. Advisory: prompt names tools unbound when flag off; eval with flag off owed."
+    },
+    {
+      "reviewer": "task-review-5.1",
+      "type": "task-5.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "web_search dataset. Minors fixed (69951a3d): metric/field pairing guard, concierge-bound price golden, README row."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 14,
+      "notes": "6 angles over fc5a6869..560cf595, 14 deduped locations scored independently. C5 (75) and C8 (75) fixed at b5a2dc9a; memory-goldens taxonomy regression fixed. Fix rounds 2 (ba156717) and 3 (7bc03be2) re-reviewed resolved; cap reached. Advisory: C2,C3,C4,C10,C11,C12,C13,C14 (50), C6,C7 (25), C9 (0), NF-2 (85, bounded), NF-3 (40), NF-6 (60), round-3 address-None (62) and URL-cap coverage (90). All recorded in SUMMARY."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Plan-blind vs verbatim intent. gap (weekend filter) resolved by correcting stale design table; drift (unverified include_published_date) resolved by removal (ba156717). Advisory: concierge-only binding (E002/E004 user decisions), three tools vs one (approach A approved); excess report-only: tools_forbidden metric, rate limit/cache/settings (E003 guards)."
+    },
+    {
+      "reviewer": "correctness-review-e005",
+      "type": "correctness-e005",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Change request E005 (d5918dfe..3b20af0b): find_events removed, events -> search_web, place_results fallback (C4). Real-key smoke run confirmed search_web, find_places_live (vi) and the single-venue fallback. No finding >=75; F1 (60) and F2 (55) model-facing description fixes applied at ff52e7e4 and re-reviewed pass; F3 (45) advisory. Full suite at 3b20af0b: 2916 passed."
+    },
+    {
+      "reviewer": "intent-review-e005",
+      "type": "intent-e005",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind re-check vs verbatim intent + E005: both services still used (Tavily search_web, SerpAPI find_places_live); no stale find_events presented as live. Four design.md drift items fixed at d33dbc3f."
+    },
+    {
+      "reviewer": "merge-resolution-review",
+      "type": "merge-main",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Merge 8a030407 of github/main (PR #221). Conflict resolution verified (active.yaml keeps main versions + concierge 14; changelog both sides; golden count 123 real). Snapshot +2 tools only, mcp unchanged. research_tools() sees web tools, _assert_bindable passes; SUBAGENT_TOOLS unaffected. Advisory: research_tools() unused by app code. Full suite on merged tree: 3110 passed, 9 skipped."
+    },
+    {
+      "reviewer": "correctness-review-advisory-fixes",
+      "type": "correctness-advisory",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "C2/C10/C12/C13 fixes (533d2781) reviewed: C2, C10, C13 resolved; C12 was partial (JSON array/scalar) and C13's except masked Tavily construction errors. Both fixed at 0f1a62a9 and re-reviewed pass. The reviewer's suggestion to build the SerpAPI client outside the try was applied at b88ed4ed. Full suite 3116 passed at 533d2781; targeted 444 passed at b88ed4ed; real-key calls succeeded with padded keys."
+    }
+  ]
+}

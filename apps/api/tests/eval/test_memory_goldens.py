@@ -51,6 +51,7 @@ TAXONOMY = Taxonomy(
         "errors",
         "routing",
         "suggestions",
+        "web_search",
     ],
     scenarios=["happy", "ambiguous", "multi_turn", "tool_failure", "adversarial"],
 )

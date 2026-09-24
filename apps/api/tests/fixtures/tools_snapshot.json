@@ -11,6 +11,7 @@
     "create_trip",
     "estimate_trip_budget",
     "expense_summary",
+    "find_places_live",
     "get_air_quality",
     "get_city_route",
     "get_climate",
@@ -36,6 +37,7 @@
     "search_hotels",
     "search_places",
     "search_travel_knowledge",
+    "search_web",
     "set_trip_budget"
   ],
   "manifest": {
@@ -201,6 +203,18 @@
         "description": "Search the travel knowledge base for visa rules and local tips matching a query.",
         "destructive": false,
         "name": "search_travel_knowledge",
+        "read_only": true
+      },
+      {
+        "description": "Search the live web for general facts, recent news, or current events.",
+        "destructive": false,
+        "name": "search_web",
+        "read_only": true
+      },
+      {
+        "description": "Find live places (venues, restaurants, shops) near a location.",
+        "destructive": false,
+        "name": "find_places_live",
         "read_only": true
       },
       {
