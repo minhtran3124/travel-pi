@@ -90,6 +90,7 @@ class Settings(BaseSettings):
     web_search_news_cache_ttl_seconds: int = 900
     web_search_cache_max_entries: int = 512
     web_search_user_hourly_limit: int = Field(default=30, gt=0)
+    web_search_research_run_limit: int = Field(default=6, gt=0)
 
     @property
     def tavily_search_available(self) -> bool:

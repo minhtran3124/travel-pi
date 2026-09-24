@@ -15,11 +15,13 @@ from typing import Annotated, Literal
 
 from langchain_core.tools import ToolException, tool
 from langgraph.prebuilt import InjectedState
+from langgraph.runtime import get_runtime
 from pydantic import Field
 
 from app.core.config import get_settings
 from app.core.rate_limit import enforce_rate_limit
-from app.exceptions import AppError, UpstreamError
+from app.exceptions import AppError, RateLimitError, UpstreamError
+from app.research.context import ResearchContext
 from app.schemas.base import AppBaseModel
 from app.services import web_search_service
 from app.tools._base import session_scope, tool_error
@@ -123,6 +125,36 @@ def _enforce(user_id: str) -> None:
         )
 
 
+def _enforce_run(run_id: str) -> None:
+    settings = get_settings()
+    with session_scope() as session:
+        enforce_rate_limit(
+            session,
+            name="web_search_run",
+            subject=run_id,
+            limit=settings.web_search_research_run_limit,
+            window_seconds=86400,
+        )
+
+
+async def _apply_run_cap() -> None:
+    """Cap web calls per research run; a no-op outside a ``ResearchContext`` run."""
+    try:
+        runtime = get_runtime(ResearchContext)
+    except RuntimeError:
+        return
+    ctx = runtime.context if runtime is not None else None
+    if not isinstance(ctx, ResearchContext):
+        return
+    try:
+        await asyncio.to_thread(_enforce_run, ctx.run_id)
+    except RateLimitError as e:
+        raise ToolException(
+            "The web budget for this research run is used up; "
+            "continue with the seeded tools."
+        ) from e
+
+
 @tool(args_schema=SearchWebArgs, response_format="content_and_artifact")
 async def search_web(
     query: str,
@@ -143,6 +175,7 @@ async def search_web(
         raise ToolException("Web search needs a signed-in traveller.")
     try:
         await asyncio.to_thread(_enforce, user_id)
+        await _apply_run_cap()
         result = await web_search_service.search_web(query, topic, time_range, domains)
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
@@ -169,6 +202,7 @@ async def find_places_live(
         raise ToolException("Web search needs a signed-in traveller.")
     try:
         await asyncio.to_thread(_enforce, user_id)
+        await _apply_run_cap()
         result = await web_search_service.find_places_live(query, near, language)
     except UpstreamError:
         raise
