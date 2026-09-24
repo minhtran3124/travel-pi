@@ -18,7 +18,6 @@ from uuid import uuid4
 from deepagents.backends.store import StoreBackend
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.store.base import BaseStore
-from sqlalchemy import select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
@@ -258,12 +257,7 @@ class ResearchService:
 
     def latest(self, trip_id: str) -> AgentRun | None:
         """The most recent research run for the trip, or ``None``."""
-        with self._sf() as s:
-            return s.scalars(
-                select(AgentRun)
-                .where(AgentRun.trip_id == trip_id, AgentRun.kind == RESEARCH_KIND)
-                .order_by(AgentRun.created_at.desc())
-            ).first()
+        return AgentRunRepository(self._sf).latest_for_trip(trip_id, RESEARCH_KIND)
 
     def chat_state(
         self,
@@ -327,18 +321,7 @@ class ResearchService:
         ``interrupted`` (design §4). Returns the number of rows swept."""
         minutes = get_settings().research_stale_minutes
         cutoff = (datetime.now(UTC) - timedelta(minutes=minutes)).isoformat()
-        with self._sf() as s:
-            result = s.execute(
-                update(AgentRun)
-                .where(
-                    AgentRun.kind == RESEARCH_KIND,
-                    AgentRun.status == _RUNNING,
-                    AgentRun.started_at < cutoff,
-                )
-                .values(status=_INTERRUPTED)
-            )
-            s.commit()
-            return int(result.rowcount or 0)
+        return AgentRunRepository(self._sf).sweep_running_before(RESEARCH_KIND, cutoff)
 
     # -- internals -------------------------------------------------------
 
@@ -432,17 +415,10 @@ class ResearchService:
     def _running_for(self, session: Session, trip_id: str) -> AgentRun | None:
         """The trip's ``running`` research run, if any, read on the caller's
         locked ``session`` so the check shares the insert's transaction."""
-        return session.scalars(
-            select(AgentRun).where(
-                AgentRun.trip_id == trip_id,
-                AgentRun.kind == RESEARCH_KIND,
-                AgentRun.status == _RUNNING,
-            )
-        ).first()
+        return AgentRunRepository(session).running_for(trip_id, RESEARCH_KIND)
 
     def _get_run(self, run_id: str) -> AgentRun | None:
-        with self._sf() as s:
-            return s.get(AgentRun, run_id)
+        return AgentRunRepository(self._sf).get(run_id)
 
     def _require_run(self, run_id: str) -> AgentRun:
         run = self._get_run(run_id)
