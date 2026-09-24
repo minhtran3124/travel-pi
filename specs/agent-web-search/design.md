@@ -33,7 +33,8 @@ Decisions already made (see ESCALATIONS.md and the brainstorming turns of 2026-0
 | Festivals or events in a city during the trip week | `search_web` (Tavily, `topic="general"`, city + month/dates in the query) | yes |
 | "What's on in Tokyo this week" | `search_web` (Tavily, `topic="general"`, city + week/month in the query) | yes |
 | Best-rated phở near the hotel | `find_places_live` (SerpAPI `google_maps`) | yes |
-| Is the Louvre open on Tuesday | `search_web` (Tavily, official `domains`) | yes |
+| Is the Louvre open on Tuesday (official schedule) | `search_web` (Tavily, official `domains`) | yes |
+| Is this café/restaurant open now, current hours of a specific business | `find_places_live` (Google Maps hours) | yes |
 | Current Japan entry rules for a VN passport | `search_web` after `get_visa`, with an official-source link required | yes |
 | Strikes or advisories in Paris next week | `search_web` with `topic=news` and `time_range=week` | yes |
 | Typhoon news for Da Nang right now | `search_web` with `topic=news` | yes |
@@ -58,11 +59,10 @@ Research will re-verify them against the exact SDK versions.
 ## 3. Architecture
 
 ```
-concierge  ─┐
-research    ├─ app/tools/web_search_tools.py   search_web · find_events · find_places_live
- (entry_season: search_web; days: all 3)        │  explicit args_schema, InjectedState user_id
-            │                                   ▼
-            └─ app/services/web_search_service.py
+concierge ── app/tools/web_search_tools.py   search_web · find_places_live
+                │  explicit args_schema, InjectedState user_id / language
+                ▼
+             app/services/web_search_service.py
                  ├─ TavilyProvider   AsyncTavilyClient (tavily-python)
                  ├─ SerpApiProvider  serpapi SDK (sync) via asyncio.to_thread
                  ├─ TTL cache        key (provider, engine, normalized params)
@@ -91,15 +91,14 @@ key. Both follow the pattern of `routing_provider_enabled`. They are read when t
 are built (graph build time), so changing the flag or a key needs a restart. That matches
 every other provider setting in the app.
 
-### Binding (`app/tools/registry.py`, `app/research/tools.py`)
+### Binding (`app/tools/registry.py`)
 
 - A tool is bound only when its provider is available. With the flag off or the key missing,
   the agent never sees the tool.
-- The three tools are read-only (not in `_WRITE`). They are **excluded from the MCP server**:
+- The two tools are read-only (not in `_WRITE`). They are **excluded from the MCP server**:
   every call costs money, and MCP has no user to rate-limit.
-- Research `SUBAGENT_TOOLS` gives `entry_season` the `search_web` tool and gives `days` all
-  three tools. They must pass `_assert_bindable`: `user_id` is injected, never shown to the model.
-- `tests/fixtures/tools_snapshot.json` is regenerated to include the new tools.
+- Concierge only (E002, E004). The trip-research wiring (`SUBAGENT_TOOLS`, `_assert_bindable`,
+  `tools_snapshot.json`) is a follow-up once PR #221 merges; see §9.
 
 ### Prompt
 
@@ -121,9 +120,9 @@ every other provider setting in the app.
 | Tool | Args | Provider call | Returns |
 |---|---|---|---|
 | `search_web` | `query`, `topic: general\|news`, `time_range: day\|week\|month\|None`, `domains: list[str]\|None` | Tavily `/search`, `search_depth=basic`, `max_results=5`, no `raw_content`, no `answer` | `{found, results:[{title,url,snippet,published_date}]}` |
-| `find_places_live` | `query`, `near` | SerpAPI `google_maps` | `{found, places:[{name,rating,reviews,address,hours,url}]}` |
+| `find_places_live` | `query`, `near` (+ injected `language` → `hl`) | SerpAPI `google_maps` (`type=search`; falls back to a single `place_results`) | `{found, places:[{name,rating,reviews,address,hours,url}]}` |
 
-Rules shared by all three tools:
+Rules shared by both tools:
 
 - `user_id` comes from `Annotated[str | None, InjectedState("user_id")]`, declared in the
   explicit args schema (`docs/solutions/agent/explicit-args-schema-breaks-tool-injection.md`).
@@ -186,7 +185,7 @@ insert goes past `web_search_cache_max_entries`.
   - a cache hit on the second identical call
   - no binding when the key is missing or the flag is off
   - research `_assert_bindable` passes, and the registry snapshot is updated
-  - MCP excludes the three tools
+  - MCP excludes the two tools
 - **Eval.** Add `eval/datasets/web_search.json` with 6 concierge goldens:
   - 3 must call a tool: events in the trip week, a travel advisory, a restaurant near the hotel
   - 3 must not call a web tool: a general city question, the best season to visit (answered
