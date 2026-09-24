@@ -35,7 +35,7 @@ The concierge agent gets two last-resort live-web tools. `search_web` runs on Ta
 - A generic `tools_forbidden` eval metric and 6 `web_search` goldens were added.
 - The trip-research wiring is deferred until PR #221 merges (E004).
 
-Full suite on the merged tree (8a030407, after `main` with PR #221): 3110 passed, 9 skipped, 0 failed.
+Full suite on the merged tree after the advisory fixes (533d2781): 3116 passed, 9 skipped, 0 failed. The two later commits (0f1a62a9, b88ed4ed) touched only `web_search_service.py`; the targeted tests and one real-key call were re-run.
 
 ### Rationale
 
@@ -60,18 +60,18 @@ Web search is a new external, paid, non-deterministic data source whose output i
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | intake lane evidence | `python .claude/scripts/verify_summary.py --lane agent-web-search` | 0 | intake-stage record | |
-| config + SDK pins | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_web_search.py -q` | 0 | 4 passed (at ff52e7e4) | SC-1 |
-| service error mapping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k error` | 0 | 18 passed, 14 deselected (at ff52e7e4) | SC-2 |
-| service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k cache` | 0 | 7 passed, 25 deselected (at ff52e7e4) | SC-3 |
-| user_id gate + rate limit | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "user_id or rate_limit"` | 0 | 4 passed, 12 deselected (at ff52e7e4) | SC-4 |
-| content escaping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k content` | 0 | 6 passed, 10 deselected (at ff52e7e4) | SC-5 |
-| schema + error order | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "schema or error"` | 0 | 6 passed, 10 deselected (at ff52e7e4) | SC-6 |
-| conditional binding | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | 0 | 4 passed (at ff52e7e4) | SC-7 |
-| MCP exclusion | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 8 passed (at ff52e7e4) | SC-8 |
-| tools_forbidden metric | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_deterministic.py -q -k forbidden` | 0 | 3 passed, 30 deselected (at ff52e7e4) | SC-9 |
-| concierge v14 prompt | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | 0 | 7 passed (at ff52e7e4) | SC-10 |
-| web_search dataset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | 0 | 26 passed (at ff52e7e4) | SC-11 |
-| lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed (at ff52e7e4) | |
+| config + SDK pins | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_web_search.py -q` | 0 | 6 passed (at b88ed4ed) | SC-1 |
+| service error mapping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k error` | 0 | 24 passed, 15 deselected (at b88ed4ed) | SC-2 |
+| service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_web_search_service.py -q -k cache` | 0 | 7 passed, 32 deselected (at b88ed4ed) | SC-3 |
+| user_id gate + rate limit | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "user_id or rate_limit"` | 0 | 4 passed, 12 deselected (at b88ed4ed) | SC-4 |
+| content escaping | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k content` | 0 | 6 passed, 10 deselected (at b88ed4ed) | SC-5 |
+| schema + error order | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "schema or error"` | 0 | 6 passed, 10 deselected (at b88ed4ed) | SC-6 |
+| conditional binding | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | 0 | 4 passed (at b88ed4ed) | SC-7 |
+| MCP exclusion | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | 0 | 8 passed (at b88ed4ed) | SC-8 |
+| tools_forbidden metric | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_deterministic.py -q -k forbidden` | 0 | 3 passed, 30 deselected (at b88ed4ed) | SC-9 |
+| concierge v14 prompt | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | 0 | 7 passed (at b88ed4ed) | SC-10 |
+| web_search dataset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | 0 | 26 passed (at b88ed4ed) | SC-11 |
+| lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed (at b88ed4ed) | |
 
 ### Correctness review (final gate, fc5a6869..560cf595)
 

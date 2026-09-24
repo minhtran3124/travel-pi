@@ -1,5 +1,5 @@
 {
-  "reviewed_head_sha": "8a030407aec3ecf7f34d26757de621cdf926116e",
+  "reviewed_head_sha": "b88ed4ed7925faca29b16ef6cd76865976c7eda1",
   "created": "2026-09-24T00:00:00+00:00",
   "reviews": [
     {
@@ -97,6 +97,14 @@
       "blocking_open": 0,
       "advisory_open": 1,
       "notes": "Merge 8a030407 of github/main (PR #221). Conflict resolution verified (active.yaml keeps main versions + concierge 14; changelog both sides; golden count 123 real). Snapshot +2 tools only, mcp unchanged. research_tools() sees web tools, _assert_bindable passes; SUBAGENT_TOOLS unaffected. Advisory: research_tools() unused by app code. Full suite on merged tree: 3110 passed, 9 skipped."
+    },
+    {
+      "reviewer": "correctness-review-advisory-fixes",
+      "type": "correctness-advisory",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "C2/C10/C12/C13 fixes (533d2781) reviewed: C2, C10, C13 resolved; C12 was partial (JSON array/scalar) and C13's except masked Tavily construction errors. Both fixed at 0f1a62a9 and re-reviewed pass. The reviewer's suggestion to build the SerpAPI client outside the try was applied at b88ed4ed. Full suite 3116 passed at 533d2781; targeted 444 passed at b88ed4ed; real-key calls succeeded with padded keys."
     }
   ]
 }
