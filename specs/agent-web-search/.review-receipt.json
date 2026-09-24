@@ -1,6 +1,6 @@
 {
-  "reviewed_head_sha": "7bc03be2d705e43c0300362067fbabef08eb33f8",
-  "created": "2026-09-23T00:00:00+00:00",
+  "reviewed_head_sha": "ff52e7e4c7a847d8e615e44f6d5ddcdb41ca5a6f",
+  "created": "2026-09-24T00:00:00+00:00",
   "reviews": [
     {
       "reviewer": "task-review-1.1",
@@ -73,6 +73,22 @@
       "blocking_open": 0,
       "advisory_open": 4,
       "notes": "Plan-blind vs verbatim intent. gap (weekend filter) resolved by correcting stale design table; drift (unverified include_published_date) resolved by removal (ba156717). Advisory: concierge-only binding (E002/E004 user decisions), three tools vs one (approach A approved); excess report-only: tools_forbidden metric, rate limit/cache/settings (E003 guards)."
+    },
+    {
+      "reviewer": "correctness-review-e005",
+      "type": "correctness-e005",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Change request E005 (d5918dfe..3b20af0b): find_events removed, events -> search_web, place_results fallback (C4). Real-key smoke run confirmed search_web, find_places_live (vi) and the single-venue fallback. No finding >=75; F1 (60) and F2 (55) model-facing description fixes applied at ff52e7e4 and re-reviewed pass; F3 (45) advisory. Full suite at 3b20af0b: 2916 passed."
+    },
+    {
+      "reviewer": "intent-review-e005",
+      "type": "intent-e005",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind re-check vs verbatim intent + E005: both services still used (Tavily search_web, SerpAPI find_places_live); no stale find_events presented as live. Four design.md drift items fixed at d33dbc3f."
     }
   ]
 }

@@ -331,3 +331,4 @@ cached, and every result reaches the model as untrusted data.
 - 2026-09-23 — task 5.1 complete; commits cb9b177e, 69951a3d; review pass/approved. All 7 tasks complete.
 - 2026-09-23 — correctness + intent reviews complete; fixes b5a2dc9a, ba156717, 7bc03be2; receipt at 7bc03be2.
 - 2026-09-24 — change request after the real-key smoke run: E005 = A removes `find_events` (SerpAPI `google_events` deprecated; `engine=google` returned no `events_results`), events route to `search_web`; C4 fixed (`place_results` fallback). SC-7, SC-8, SC-10 wording updated; task sections above are kept as history.
+- 2026-09-24 — E005 change reviewed (correctness + intent pass), receipt refreshed at ff52e7e4.
