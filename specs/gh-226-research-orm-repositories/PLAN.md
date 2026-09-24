@@ -1,6 +1,6 @@
 ---
 slug: gh-226-research-orm-repositories
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-24
 ---
@@ -133,3 +133,4 @@ keep SQLAlchemy ORM access in `app/repositories/`. The research module added in 
   `refactor/gh-226-research-orm-repositories` from `2919b566`; baseline 194 passed, 2 skipped
   (`tests/research tests/api/research tests/repositories`).
 - 2026-09-24 — plan review: Approved (1 advisory applied: Task 2.1 Done also greps `s.get(AgentRun`).
+- 2026-09-24 — tasks 1.1, 1.2, 2.1, 2.2 complete; commits 4ca86233, 259f6e52, 1c3fb323, 14b2ae09, 209b0084; correctness 0 findings, intent no material mismatch.
