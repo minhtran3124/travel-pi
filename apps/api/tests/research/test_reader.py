@@ -169,3 +169,8 @@ def test_a_link_with_parentheses_in_its_url_survives() -> None:
 def test_a_bare_source_url_survives() -> None:
     raw = f"## Sources\n\n- https://gov.example/notice/{UUID}\n"
     assert reader_view(raw) == raw
+
+
+def test_punctuation_after_a_bare_url_is_not_part_of_it() -> None:
+    raw = "Hotel https://h.example/x, hotel_id: `hzz123` (search_hotels)."
+    assert reader_view(raw) == "Hotel https://h.example/x."

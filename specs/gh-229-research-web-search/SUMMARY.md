@@ -80,6 +80,7 @@ Deduplicated into 7 locations. The fixes were cheap and unambiguous, so they wer
   - (95) a bare source URL with a UUID was dropped. Bare `http(s)://` URLs are now protected too.
   - (88) the 10-year window left one row per run that was never pruned. The window is now 7 days, so rows are pruned within 14 days; a ≤ 600 s run crosses a boundary about 0.1% of the time. This is an accepted trade-off.
 
+- **Fix re-review, round 3 (the cap).** Round 2 held, but its bare-URL arm swallowed trailing punctuation: `https://h.example/x,` kept the comma, which then left a stray `,.`. That is fixed: a bare URL never ends in `.,;:!?)]`, and a test pins it. Accepted (85): a bare URL in body prose that embeds an internal id is now shown, because it is only ever inside a URL.
   Recorded as accepted (80, bounded): with the run cap checked first, a call the per-user limit refuses spends a run slot, and after 6 such calls the message says "run budget" rather than "hourly quota".
 
 ### Intent review (2026-09-24)
