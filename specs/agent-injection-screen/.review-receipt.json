@@ -1,0 +1,62 @@
+{
+  "reviewed_head_sha": "0e785c7b932aacac4f9871627f8804bb97d0e918",
+  "created": "2026-09-24T13:28:03+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Settings + mode Literal + injection_screen_active. Minor: blank-key test uses whitespace only."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Service: vendor POST, sha256 FIFO TTL cache, asyncio.wait budget, fail-open. Minors: _warned_blank_key not reset by clear_cache; threshold read outside try."
+    },
+    {
+      "reviewer": "task-review-2.1",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Tool attributes screened/flagged/p; shadow/off byte-identical; raw text screened. Minors: unannotated callables; screen([]) logs items=0; unguarded p format."
+    },
+    {
+      "reviewer": "task-review-2.2",
+      "type": "task-2.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Concierge v15 additive only; active.yaml concierge 15. Minors: recheck open-PR v15 before PR; expected PR #230 conflict on active.yaml/CHANGELOG."
+    },
+    {
+      "reviewer": "task-review-3.1",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Smoke script + subprocess test; SUMMARY evidence. Minor stderr assertion relaxed in 0e785c7b."
+    },
+    {
+      "reviewer": "correctness-review",
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 9,
+      "notes": "6 FIND angles, 10 deduplicated locations, independent scoring. Two at 75 fixed in 0e785c7b (title-only item stamped clean; smoke exit 0 when unscreened) and re-review closed both with no new runtime finding. Eight below threshold + merge-overlap note recorded in SUMMARY Advisory Findings."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Plan-blind review vs verbatim intent. Gap fixed in fe3dcdd3 (research brief with the four use cases was never committed). RAG scope narrowed by owner, httpx transport (E001), inert-by-default rollout, and design-level extras recorded in SUMMARY Intent Findings."
+    }
+  ]
+}
