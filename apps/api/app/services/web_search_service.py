@@ -189,15 +189,14 @@ async def _serpapi_search(params: dict) -> dict | None:
     # A fresh dict per call: the SDK mutates params to inject the (never-logged) api_key.
     call_params = dict(params)
 
-    def _run():
-        client = serpapi.Client(
-            api_key=key,
-            timeout=settings.web_search_timeout_seconds,
-        )
-        return client.search(call_params)
+    # Built outside the try, like the Tavily client: a setup error is not transient.
+    client = serpapi.Client(
+        api_key=key,
+        timeout=settings.web_search_timeout_seconds,
+    )
 
     try:
-        raw = await asyncio.to_thread(_run)
+        raw = await asyncio.to_thread(client.search, call_params)
     except serpapi.TimeoutError as exc:
         raise WebSearchUpstreamError() from exc
     except serpapi.HTTPConnectionError as exc:
@@ -209,7 +208,7 @@ async def _serpapi_search(params: dict) -> dict | None:
             return None
         raise WebSearchError() from exc
     except (ValueError, TypeError) as exc:
-        # SerpResults(...) on a 200 whose JSON is an array or scalar.
+        # SerpResults(...) raises TypeError on a 200 whose JSON is a scalar or a list of non-pairs.
         raise WebSearchUpstreamError() from exc
 
     if hasattr(raw, "as_dict"):
