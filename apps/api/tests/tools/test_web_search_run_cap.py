@@ -14,7 +14,7 @@ import pytest
 from app.agents.context import AgentContext
 from app.research.context import ResearchContext
 from app.tools import web_search_tools
-from app.tools.web_search_tools import search_web
+from app.tools.web_search_tools import find_places_live, search_web
 from langchain_core.tools import ToolException
 
 
@@ -131,3 +131,27 @@ def test_no_runtime_is_never_capped(monkeypatch):
         _run()
 
     assert calls["n"] == 8
+
+
+def test_find_places_live_shares_the_run_budget(monkeypatch):
+    _set_runtime(monkeypatch, _research_ctx())
+    calls = {"n": 0}
+
+    async def fake_places(*a, **k):
+        calls["n"] += 1
+        return {"found": False, "places": []}
+
+    monkeypatch.setattr(
+        web_search_tools.web_search_service,
+        "find_places_live",
+        fake_places,
+    )
+    for _ in range(6):
+        asyncio.run(
+            find_places_live.ainvoke({"query": "pho", "near": "Hanoi", "user_id": "u1"})
+        )
+    with pytest.raises(ToolException, match="web budget"):
+        asyncio.run(
+            find_places_live.ainvoke({"query": "pho", "near": "Hanoi", "user_id": "u1"})
+        )
+    assert calls["n"] == 6
