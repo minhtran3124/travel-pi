@@ -1,6 +1,6 @@
 ---
 slug: agent-injection-screen
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-24
 ---
@@ -291,3 +291,4 @@ only then `enforce`. It fails open with a mark, so the tool never breaks because
 - 2026-09-24 — plan written from the approved design and Deep research brief; plan reviewer approved after one fix round; status `proposed`.
 - 2026-09-24 — executed autonomously in 3 waves (69c919c7, 773a2ec1, 36b3644d, f83dc786, fc9e0994); every task review passed with Minor findings only.
 - 2026-09-24 — correctness review: 2 findings at 75 fixed in 0e785c7b; intent review gap fixed in fe3dcdd3; receipt written at 0e785c7b.
+- 2026-09-24 — shipped: targeted suite 574 passed, ruff clean, receipt gate passed; branch pushed and PR opened against `main`.

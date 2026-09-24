@@ -44,19 +44,19 @@
     },
     {
       "reviewer": "correctness-review",
-      "type": "correctness-review",
+      "type": "correctness",
       "result": "pass",
       "blocking_open": 0,
       "advisory_open": 9,
-      "notes": "6 FIND angles, 10 deduplicated locations, independent scoring. Two at 75 fixed in 0e785c7b (title-only item stamped clean; smoke exit 0 when unscreened) and re-review closed both with no new runtime finding. Eight below threshold + merge-overlap note recorded in SUMMARY Advisory Findings."
+      "notes": "6 FIND angles, 10 deduplicated locations, independent scoring. Two at 75 fixed in 0e785c7b (title-only item stamped clean; smoke exit 0 when unscreened) and re-review closed both with no new runtime finding. Eight below threshold + merge-overlap note recorded in SUMMARY Advisory Findings. (type renamed from 'correctness-review' to the repo convention when the finish gate ran; same review, same result.)"
     },
     {
       "reviewer": "intent-review",
-      "type": "intent-review",
+      "type": "intent",
       "result": "pass",
       "blocking_open": 0,
       "advisory_open": 4,
-      "notes": "Plan-blind review vs verbatim intent. Gap fixed in fe3dcdd3 (research brief with the four use cases was never committed). RAG scope narrowed by owner, httpx transport (E001), inert-by-default rollout, and design-level extras recorded in SUMMARY Intent Findings."
+      "notes": "Plan-blind review vs verbatim intent. Gap fixed in fe3dcdd3 (research brief with the four use cases was never committed). RAG scope narrowed by owner, httpx transport (E001), inert-by-default rollout, and design-level extras recorded in SUMMARY Intent Findings. (type renamed from 'intent-review' to the repo convention when the finish gate ran; same review, same result.)"
     }
   ]
 }
