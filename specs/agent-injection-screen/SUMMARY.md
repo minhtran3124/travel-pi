@@ -108,6 +108,13 @@ Correctness review, below the 75 threshold. Recorded, not fixed.
 - **Merge overlap with PR #230 (not scored).** Both tool `try` blocks, `config.py`, `active.yaml` and CHANGELOG. Rebase and run `test_web_search_tools.py` with `test_web_search_run_cap.py` together. PR #230's research agent binds the same tools but its prompts do not explain `screened`/`flagged`.
 - Task reviews (Minor): blank-key config test uses whitespace only; `_warned_blank_key` is not reset by `clear_cache()`; threshold read sits outside the `try` in `_screen_one`; `fmt`/`build_item` are unannotated; an empty result still logs one `items=0` line.
 
+### Full suite
+
+`pytest -n auto` from `apps/api` with provider keys blanked and SQLite: 3150 passed, 9 skipped, 3 failed. None come from this branch:
+
+- `test_config_llm.py::test_llm_defaults_require_no_key` and `test_flight_tools_dates.py::test_one_day_tz_skew_is_tolerated` fail the same way on `main` at 2b8949bf.
+- `test_persistence.py::test_insert_failure_still_yields_done_with_null_id` passes when the file runs on its own; it fails only under `-n auto`.
+
 ### Not auto-verified
 
 - Jev's real accuracy on travel snippets and the `0.7` enforce threshold — reached traceability only; not run because no `TYPESAFE_API_KEY` is available on this machine. The smoke script was not run against the real vendor. Next step: set the key, run `python -m scripts.injection_screen_smoke`, then run `shadow` on the dev stack before `enforce`.
