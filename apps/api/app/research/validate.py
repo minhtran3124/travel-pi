@@ -13,11 +13,10 @@ from typing import Any
 
 from deepagents.backends.protocol import BackendProtocol
 from langchain_core.tools import BaseTool, tool
-from sqlalchemy import select
 
-from app.db.models.flight_index import FlightIndex
-from app.db.models.hotel import Hotel
-from app.db.models.place import Place
+from app.repositories.flight import FlightIndexRepository
+from app.repositories.hotel_ref import HotelRepository
+from app.repositories.place_ref import PlaceRepository
 from app.tools._base import session_scope
 
 PROPOSAL_PATH = "/plan/proposal.json"
@@ -45,27 +44,9 @@ def _unknown_ids(
 ) -> list[str]:
     """Return every id that does not resolve to a real row, in place/offer/hotel order."""
     with session_scope() as s:
-        known_places = (
-            set(s.scalars(select(Place.id).where(Place.id.in_(place_ids))).all())
-            if place_ids
-            else set()
-        )
-        known_offers = (
-            set(
-                s.scalars(
-                    select(FlightIndex.flight_id).where(
-                        FlightIndex.flight_id.in_(offer_ids)
-                    )
-                ).all()
-            )
-            if offer_ids
-            else set()
-        )
-        known_hotels = (
-            set(s.scalars(select(Hotel.id).where(Hotel.id.in_(hotel_ids))).all())
-            if hotel_ids
-            else set()
-        )
+        known_places = PlaceRepository(s).known_ids(place_ids)
+        known_offers = FlightIndexRepository(s).known_ids(offer_ids)
+        known_hotels = HotelRepository(s).known_ids(hotel_ids)
     unknown = [pid for pid in place_ids if pid not in known_places]
     unknown += [oid for oid in offer_ids if oid not in known_offers]
     unknown += [hid for hid in hotel_ids if hid not in known_hotels]
