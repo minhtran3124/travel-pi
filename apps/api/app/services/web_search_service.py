@@ -73,7 +73,7 @@ async def search_web(
     domains: list[str] | None = None,
 ) -> dict:
     settings = get_settings()
-    key = settings.tavily_api_key
+    key = (settings.tavily_api_key or "").strip()
     if not settings.tavily_search_available or not key:
         raise WebSearchError()
 
@@ -119,6 +119,9 @@ async def search_web(
         BadRequestError,
     ) as exc:
         raise WebSearchError() from exc
+    except (ValueError, TypeError) as exc:
+        # Inside the SDK: a non-JSON 200 body (ValueError) or a non-200 2xx (TypeError).
+        raise WebSearchUpstreamError() from exc
 
     result = _map_tavily(data)
     ttl = (
@@ -176,7 +179,7 @@ async def find_places_live(
 
 async def _serpapi_search(params: dict) -> dict | None:
     settings = get_settings()
-    key = settings.serpapi_api_key
+    key = (settings.serpapi_api_key or "").strip()
     if not settings.serpapi_search_available or not key:
         raise WebSearchError()
 
@@ -203,7 +206,13 @@ async def _serpapi_search(params: dict) -> dict | None:
             return None
         raise WebSearchError() from exc
 
-    body = raw.as_dict() if hasattr(raw, "as_dict") else dict(raw)
+    if hasattr(raw, "as_dict"):
+        body = raw.as_dict()
+    elif isinstance(raw, dict):
+        body = raw
+    else:
+        # The SDK returns plain text for a non-JSON 200 (a proxy or maintenance page).
+        raise WebSearchUpstreamError()
     error = body.get("error")
     if error:
         if _NO_RESULTS_MARKER in error:

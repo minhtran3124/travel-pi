@@ -2,9 +2,11 @@
 
 from importlib import metadata
 
+import pytest
 from app.core.config import Settings
 from packaging.requirements import Requirement
 from packaging.version import Version
+from pydantic import ValidationError
 
 
 def test_web_search_settings_have_off_defaults(monkeypatch):
@@ -73,3 +75,9 @@ def test_sdks_import_at_pinned_versions():
         installed = Version(metadata.version(name))
         req = Requirement(f"{name}{spec}")
         assert installed in req.specifier, f"{name} {installed} does not satisfy {spec}"
+
+
+@pytest.mark.parametrize("limit", [0, -1])
+def test_web_search_hourly_limit_must_be_positive(limit):
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, web_search_user_hourly_limit=limit)

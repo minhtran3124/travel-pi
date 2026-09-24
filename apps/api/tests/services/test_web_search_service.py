@@ -468,3 +468,39 @@ def test_search_web_sends_only_supported_tavily_arguments(monkeypatch):
         "include_domains": None,
         "timeout": 10.0,
     }
+
+
+@pytest.mark.parametrize("raised", [ValueError("not json"), TypeError("raise None")])
+def test_error_tavily_unparseable_response_maps_upstream(monkeypatch, raised):
+    _patch_tavily(monkeypatch, raises=raised)
+    with pytest.raises(WebSearchUpstreamError):
+        asyncio.run(wss.search_web("q"))
+
+
+def test_error_serpapi_non_json_body_maps_upstream(monkeypatch):
+    _patch_serp(monkeypatch, result="<html>maintenance</html>")
+    with pytest.raises(WebSearchUpstreamError):
+        asyncio.run(wss.find_places_live("pho", "Hanoi"))
+
+
+def test_provider_keys_are_stripped_before_use(monkeypatch):
+    _patch_settings(
+        monkeypatch,
+        tavily_api_key="  tvly-key\n",
+        serpapi_api_key=" serp-key ",
+    )
+    seen = {}
+
+    def tavily_client(*args, **kwargs):
+        seen["tavily"] = kwargs.get("api_key")
+        return _FakeTavily(result={"results": []})
+
+    def serp_client(**kwargs):
+        seen["serpapi"] = kwargs.get("api_key")
+        return _FakeSerp(result={"local_results": []})
+
+    monkeypatch.setattr(wss, "AsyncTavilyClient", tavily_client)
+    monkeypatch.setattr(serpapi, "Client", serp_client)
+    asyncio.run(wss.search_web("q"))
+    asyncio.run(wss.find_places_live("pho", "Hanoi"))
+    assert seen == {"tavily": "tvly-key", "serpapi": "serp-key"}

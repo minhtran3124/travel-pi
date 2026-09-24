@@ -95,13 +95,13 @@ Round-3 re-review (7bc03be2): NF-1, NF-4 and NF-5 resolved; 53 targeted tests pa
 
 Advisory (score < 75, not fixed — recorded for follow-up):
 - C1 (50) — `include_published_date=True` is not a tavily-python 0.8.4 parameter. **Removed** after the intent review flagged it as an unverified provider decision.
-- C2 (50) — availability checks `key.strip()` but the raw key is sent; a key with surrounding whitespace binds the tools and then 401s. Same pattern as the existing `ors_api_key`.
+- C2 (50, **fixed 2026-09-24**) — availability checks `key.strip()` but the raw key is sent; a key with surrounding whitespace binds the tools and then 401s. Same pattern as the existing `ors_api_key`.
 - C3 (50) — rate-limit hits are charged on every TRANSIENT_RETRY attempt (up to 3 per failing turn) and on cache hits (the latter by design).
 - C4 (50) — `_map_places` ignores SerpAPI `place_results` (single-venue answer); unverified provider shape.
-- C10 (50) — `WEB_SEARCH_USER_HOURLY_LIMIT <= 0` raises a raw `ValueError` in the tool; operator misconfiguration only. Fix: `Field(ge=1)`.
+- C10 (50, **fixed 2026-09-24**) — `WEB_SEARCH_USER_HOURLY_LIMIT <= 0` raises a raw `ValueError` in the tool; operator misconfiguration only. Fix: `Field(ge=1)`.
 - C11 (50) — a new `serpapi.Client`/`requests.Session` per cache miss; freed by refcount, but no connection reuse.
-- C12 (50) — SerpAPI 200 with a non-JSON body returns `str`; `dict(raw)` raises `ValueError` → `graceful_fallback` "internal fault" instead of "temporarily unavailable".
-- C13 (50) — Tavily non-JSON 200 (`JSONDecodeError`) or non-200 2xx (`TypeError` inside the SDK) escape the except chain the same way.
+- C12 (50, **fixed 2026-09-24**) — SerpAPI 200 with a non-JSON body returns `str`; `dict(raw)` raises `ValueError` → `graceful_fallback` "internal fault" instead of "temporarily unavailable".
+- C13 (50, **fixed 2026-09-24**) — Tavily non-JSON 200 (`JSONDecodeError`) or non-200 2xx (`TypeError` inside the SDK) escape the except chain the same way.
 - C14 (50) — `html.escape(quote=True)` on `url`/`title` shows the model `&amp;`/`&#x27;`; with the `[title](url)` citation rule a verbatim copy yields a broken link. Plan-mandated; mitigation would escape only `<`, `>`, `"`.
 - C6 (25) — cache re-insert ordering / negative `max_entries`; unreachable in practice.
 - C7 (25) — `web_search` joins the 0.7 threshold map; with the flag off it sits below threshold (adds a 4th below-threshold capability to `eval-full`; the regression gate treats it as new and does not fail).
@@ -163,6 +163,13 @@ The conflicts were in three files:
 - The golden count: 117 + 6 = 123.
 
 `tests/fixtures/tools_snapshot.json` (new on `main`) gains `search_web` and `find_places_live` in `all_tools` and `manifest.tools`; `mcp` is unchanged. An independent review of the resolution found it clean; `research_tools()` sees the web tools and they pass `_assert_bindable`.
+
+### Change request 2026-09-24 — advisory fixes C2, C10, C12, C13
+
+- C2: both provider keys are stripped before they reach the SDK. A test asserts the exact `api_key` each client receives. A real-key call with keys padded by trailing spaces succeeded.
+- C10: `web_search_user_hourly_limit` is `Field(default=30, gt=0)`, so 0 or a negative value is rejected when settings load, not inside a tool call.
+- C12: a SerpAPI response that is neither `SerpResults` nor a dict (a non-JSON 200) raises `WebSearchUpstreamError` instead of a raw `ValueError`.
+- C13: `ValueError` or `TypeError` from inside the Tavily SDK (a non-JSON 200, or a non-200 2xx) maps to `WebSearchUpstreamError`.
 
 ### Harness-Delta
 
