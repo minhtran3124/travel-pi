@@ -9,6 +9,7 @@ Input-type: spec slice (follow-up of specs/agent-web-search, E004)
 Route: brainstorming (E001–E003 below) → xia2 Deep (local-only: no new dependency or provider; Source Pack "none (local-only)") → writing-plans → subagent-driven-development in worktree ../travel-pi-gh-229-research-web-search (branch feat/gh-229-research-web-search from main 2b8949bf) → correctness/intent review → PR
 Escalate: no (E001–E003 decided 2026-09-24: A on all three)
 Issue: https://github.com/minhtran3124/travel-pi/issues/229
+PR: https://github.com/minhtran3124/travel-pi/pull/230
 
 > `Lane` drives **ceremony** (how much proof). `Confidence` drives **interruption**
 > (whether a human is asked). A hard gate forces `high-risk`. Low confidence or an
