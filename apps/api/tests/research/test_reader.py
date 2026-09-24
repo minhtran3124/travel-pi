@@ -138,3 +138,12 @@ def test_blank_line_runs_inside_sources_are_not_collapsed() -> None:
         "- [A](https://example.com/a)\n\n\n- [B](https://example.com/b)\n"
     )
     assert reader_view(raw) == raw
+
+
+def test_blank_lines_after_sources_are_still_collapsed():
+    text = (
+        "# Day 1\n\n## Sources\n\n- [a](https://example.com/a)\n\n\n\n## Next\n\nBody"
+    )
+    out = reader_view(text)
+    assert "- [a](https://example.com/a)\n\n## Next" in out
+    assert "\n\n\n" not in out

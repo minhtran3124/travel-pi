@@ -38,6 +38,13 @@ The dossier is persisted, and it is read by the traveller with citations strippe
 
 - none
 
+### Task reviews
+
+- **Task 1.1** (af36a52d): pass/approved. Minor: the report said 6 tests; the file has 5. The controller re-ran it: 25 passed.
+- **Task 1.2** (b078b529): the reviewer returned `cannot_verify` because it could not run tests. The controller re-ran it: 28 passed. The reviewer's Minor (no `find_places_live` run-cap test) was fixed at 729c305b. Minor recorded: `get_runtime` is monkeypatched in every test, so runtime inheritance remains an open risk for the smoke run.
+- **Task 1.3** (420281fe): pass/approved. Minor fixed at the next commit: trailing blank lines after the Sources links went back to the blank-run collapse. Minor recorded: the `\x00SOURCES{n}\x00` sentinel could collide only if model text contained a NUL byte, which is practically unreachable.
+- **Task 1.4** (a58f27c1): needs_fixes (Important: `## Sources` was not pinned as an English heading). Fixed at 569b8425 together with the Ids-rule/Sources-URL conflict and the self-cancelling day-plans gate; re-reviewed pass. The rewrap is at cfd7440c.
+
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |

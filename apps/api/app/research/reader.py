@@ -70,6 +70,14 @@ def _tidy(line: str) -> str:
     return re.sub(r"[,;]+(?=[.!?]|$)", "", line)
 
 
+def _close_block(block: list[str], lines: list[str]) -> None:
+    # Trailing blank lines go back to normal processing so the blank-run collapse
+    # still applies between the last source link and the next section.
+    while len(block) > 1 and not block[-1].strip():
+        block.pop()
+        lines.append("")
+
+
 def reader_view(text: str) -> str:
     """Return *text* as the traveller should read it."""
     lines: list[str] = []
@@ -77,6 +85,7 @@ def reader_view(text: str) -> str:
     block: list[str] | None = None
     for line in _without_ids_section(text.split("\n")):
         if block is not None and _SECTION_HEADING.match(line):
+            _close_block(block, lines)
             block = None
         if _SOURCES_HEADING.match(line):
             block = [line]
@@ -95,6 +104,8 @@ def reader_view(text: str) -> str:
             continue
         line = _CITATION.sub(_drop_citation, line)
         lines.append(_tidy(line).rstrip())
+    if block is not None:
+        _close_block(block, lines)
     # Collapse blank runs before restoring the sections, so the collapse can never
     # reach the verbatim ``## Sources`` lines (their sentinel breaks every run).
     out = re.sub(r"\n{3,}", "\n\n", "\n".join(lines))
