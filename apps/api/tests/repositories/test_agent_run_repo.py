@@ -195,7 +195,12 @@ def test_get_returns_row_or_none(repo):
 def test_latest_for_trip_newest_and_excludes_other_kind_and_trip(repo, factory):
     _insert(factory, id="old", trip_id="trip-1", created_at="2026-09-03T00:00:01+00:00")
     _insert(factory, id="new", trip_id="trip-1", created_at="2026-09-03T00:00:09+00:00")
-    _insert(factory, id="other-trip", trip_id="trip-2", created_at="2026-09-03T00:00:20+00:00")
+    _insert(
+        factory,
+        id="other-trip",
+        trip_id="trip-2",
+        created_at="2026-09-03T00:00:20+00:00",
+    )
     _insert(
         factory,
         id="other-kind",
@@ -258,17 +263,52 @@ def test_count_for_trip_upto_bounds_the_count(repo, factory):
     _insert(factory, id="a", trip_id="trip-1", created_at="2026-09-03T00:00:01+00:00")
     _insert(factory, id="b", trip_id="trip-1", created_at="2026-09-03T00:00:05+00:00")
     _insert(factory, id="c", trip_id="trip-1", created_at="2026-09-03T00:00:09+00:00")
-    assert repo.count_for_trip("trip-1", "research", upto="2026-09-03T00:00:05+00:00") == 2
-    assert repo.count_for_trip("trip-1", "research", upto="2026-09-03T00:00:00+00:00") == 0
+    assert (
+        repo.count_for_trip("trip-1", "research", upto="2026-09-03T00:00:05+00:00") == 2
+    )
+    assert (
+        repo.count_for_trip("trip-1", "research", upto="2026-09-03T00:00:00+00:00") == 0
+    )
     assert repo.count_for_trip("trip-1", "research") == 3
 
 
 def test_sweep_running_before_flips_stale_and_leaves_at_or_after_cutoff(repo, factory):
-    _insert(factory, id="stale", trip_id="trip-1", status="running", started_at="2026-09-03T00:00:01+00:00")
-    _insert(factory, id="at-cutoff", trip_id="trip-1", status="running", started_at="2026-09-03T00:00:05+00:00")
-    _insert(factory, id="after", trip_id="trip-1", status="running", started_at="2026-09-03T00:00:09+00:00")
-    _insert(factory, id="done", trip_id="trip-1", status="completed", started_at="2026-09-03T00:00:01+00:00")
-    _insert(factory, id="other-kind", trip_id="trip-1", kind="turn", status="running", started_at="2026-09-03T00:00:01+00:00")
+    _insert(
+        factory,
+        id="stale",
+        trip_id="trip-1",
+        status="running",
+        started_at="2026-09-03T00:00:01+00:00",
+    )
+    _insert(
+        factory,
+        id="at-cutoff",
+        trip_id="trip-1",
+        status="running",
+        started_at="2026-09-03T00:00:05+00:00",
+    )
+    _insert(
+        factory,
+        id="after",
+        trip_id="trip-1",
+        status="running",
+        started_at="2026-09-03T00:00:09+00:00",
+    )
+    _insert(
+        factory,
+        id="done",
+        trip_id="trip-1",
+        status="completed",
+        started_at="2026-09-03T00:00:01+00:00",
+    )
+    _insert(
+        factory,
+        id="other-kind",
+        trip_id="trip-1",
+        kind="turn",
+        status="running",
+        started_at="2026-09-03T00:00:01+00:00",
+    )
     swept = repo.sweep_running_before("research", "2026-09-03T00:00:05+00:00")
     assert swept == 1
     assert repo.get("stale").status == "interrupted"
