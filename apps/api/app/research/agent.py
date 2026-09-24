@@ -41,6 +41,7 @@ from app.research.memory import GuardedStoreBackend
 from app.research.state import ResearchState
 from app.research.tools import MAIN_TOOLS, SUBAGENT_TOOLS
 from app.research.validate import make_validate_proposal
+from app.tools.registry import available
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +136,7 @@ def _subagents() -> list[SubAgent]:
         SubAgent(
             name=name,
             description=_SUBAGENT_DESCRIPTIONS[name],
-            tools=SUBAGENT_TOOLS[name],
+            tools=available(SUBAGENT_TOOLS[name]),
             skills=["/skills/"],
             # Errors outermost: an ids pass only ever sees a successful result.
             middleware=[

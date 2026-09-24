@@ -93,6 +93,8 @@ SUBAGENT_TOOLS: dict[str, list[BaseTool]] = {
             "get_weather",
             "get_climate",
             "get_air_quality",
+            "search_web",
+            "find_places_live",
         ]
     ),
     "entry_season": _resolve(
@@ -102,6 +104,7 @@ SUBAGENT_TOOLS: dict[str, list[BaseTool]] = {
             "search_travel_knowledge",
             "get_climate",
             "get_packing",
+            "search_web",
         ]
     ),
     # ``expense_summary`` is deliberately absent: it takes ``trip_id`` from the MODEL
