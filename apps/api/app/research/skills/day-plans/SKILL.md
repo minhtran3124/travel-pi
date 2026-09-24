@@ -41,10 +41,9 @@ Turn the trip into day-by-day plans, one file per day at `/research/days/day-N.m
 5. Use the web tools only when the seeded tools return nothing for what the day needs:
    `search_web` for events or festivals on the trip's dates, which the seeded tools
    do not cover; `find_places_live` for a place the seeded tools did not return, or to
-   check the live hours of one they did. A web place
-   never goes into the proposal — ids come only from `search_places`,
-   `nearby_places`, or `resolve_place`. Never use either tool for prices. Cite each
-   web fact and list its page under `## Sources`.
+   check the live hours of one they did. A web place never goes into the proposal —
+   ids come only from `search_places`, `nearby_places`, or `resolve_place`. Never use
+   either tool for prices. Cite each web fact and list its page under `## Sources`.
 
 ## What belongs in each `/research/days/day-N.md`
 
