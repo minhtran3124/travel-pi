@@ -171,6 +171,12 @@ class Settings(BaseSettings):
     # Default IANA timezone grounding "today" when the client sends no valid timezone.
     agent_timezone: str = "Asia/Ho_Chi_Minh"
 
+    # Trip-research deep agent (specs/trip-research-deep-agent); on by default now that the feature ships (kill switch, design §12.2).
+    research_enabled: bool = True
+    research_timeout_s: int = 600
+    research_daily_limit: int = 3
+    research_stale_minutes: int = 30
+
     # Server-rendered /dashboard/* pages are operator tools: Basic auth when user+password are set, else open in dev but 404 in production.
     dashboard_basic_user: str | None = None
     dashboard_basic_password: str | None = None

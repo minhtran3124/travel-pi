@@ -12,9 +12,10 @@ ALL_SUBAGENTS: tuple[str, ...] = (
     "journal",
     "booking",
     "budget",
+    "research",
 )
 # Sub-agents unavailable on the free tier (routing is restricted to the rest).
-PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking"})
+PREMIUM_ONLY_SUBAGENTS: frozenset[str] = frozenset({"booking", "research"})
 
 # Convergence node label. Must equal a declared routing destination or LangGraph
 # silently drops a reflection REVISE routed back via ``goto=current_flow``.
@@ -33,6 +34,7 @@ FAST_AGENTS: frozenset[str] = frozenset(
         "reflection",
         "extract_memory",
         "date_resolution",
+        "trip_research_grader",
     }
 )
 
@@ -83,6 +85,52 @@ BOOKING_UPGRADE_MSG = (
 )
 
 NOT_SURE_MSG = "I'm not sure how to help with that yet."
+
+# Deep-trip-research launcher replies (English SOURCE; emitted via
+# ``app.agents.copy.system_reply`` for translation). Never name a trip id.
+RESEARCH_NEEDS_TRIP_MSG = (
+    "Deep trip research needs an active trip to dig into. Tell me which trip you "
+    "mean — by destination and rough dates — or start a new one, and I'll "
+    "research it in depth for you."
+)
+
+RESEARCH_STARTED_MSG = (
+    "I've started researching your trip in depth — pulling flights, stays, "
+    "things to do and local tips together into one dossier. This takes a little "
+    "while; feel free to keep chatting, and follow along in the Research tab."
+)
+
+RESEARCH_NEEDS_ORIGIN_MSG = (
+    "Happy to research this trip in depth! First, where will you be travelling "
+    "from? Tell me your departure city or airport and I'll get started."
+)
+
+RESEARCH_IN_PROGRESS_MSG = (
+    "I'm still researching your trip in depth. You can follow the progress live "
+    "in the Research tab — I'll have the full dossier there as soon as it's done."
+)
+
+RESEARCH_COMPLETED_MSG = (
+    "Your in-depth trip research is done! The full dossier — flights, stays, "
+    "things to do, local tips and a proposed plan — is ready in the Research tab. "
+    "Open it to review the proposal and apply what you like to your trip; to "
+    "change anything, use Revise there."
+)
+
+RESEARCH_NEEDS_REVIEW_MSG = (
+    "Your trip research is done, but a few parts couldn't be confirmed — some "
+    "options may be missing or need a second look. Check the Research tab, and "
+    "use Revise there to fill any gaps."
+)
+
+RESEARCH_UNAVAILABLE_MSG = (
+    "Deep trip research isn't available right now. Please try again a little later."
+)
+
+RESEARCH_LIMIT_REACHED_MSG = (
+    "You've used today's deep trip research runs. You can start another one "
+    "tomorrow — meanwhile, your existing dossier stays in the Research tab."
+)
 
 # HITL plan reject outcome. Approval has no reply line: it is state (plan_approved).
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."

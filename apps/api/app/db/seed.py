@@ -8,6 +8,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
+from app.core.config import get_settings
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.data.airlines import AIRLINE_COLORS, AIRLINES
 from app.data.airports import AIRPORTS
@@ -243,6 +244,41 @@ def _seed_agent_config(session) -> None:
         )
         if existing is None:
             session.add(models.AgentConfig(agent_name=name))
+    _seed_research_agent_config(session)
+
+
+# Research nodes, each mirroring a sibling's EFFECTIVE config so it is never seeded NULL
+# (a NULL model 403s at the provider boundary — docs/solutions/agent/
+# new-agent-config-node-seeds-null-model.md). The mirror also fixes the model tier: a
+# concrete row value wins over the FAST_AGENTS fallback in get_agent_llm, so the fast
+# grader must copy a FAST sibling (summarize), not the slow planner.
+_RESEARCH_AGENT_MIRRORS: tuple[tuple[str, str, bool], ...] = (
+    ("trip_research", "planner", False),
+    ("trip_research_grader", "summarize", True),
+)
+
+
+def _seed_research_agent_config(session) -> None:
+    settings = get_settings()
+    for name, sibling, fast in _RESEARCH_AGENT_MIRRORS:
+        if session.scalar(
+            select(models.AgentConfig).where(models.AgentConfig.agent_name == name)
+        ):
+            continue  # idempotent: never duplicate or null out an existing row
+        src = session.scalar(
+            select(models.AgentConfig).where(models.AgentConfig.agent_name == sibling)
+        )
+        # Effective config as get_agent_llm would resolve it: the stored override, or the
+        # tier-appropriate global default when the sibling column is NULL.
+        default_model = settings.fast_llm_model if fast else settings.llm_model
+        session.add(
+            models.AgentConfig(
+                agent_name=name,
+                provider=(src.provider if src else None) or settings.llm_provider,
+                model=(src.model if src else None) or default_model,
+                base_url=src.base_url if src else None,
+            )
+        )
 
 
 def _check_short_code_collisions(session) -> None:

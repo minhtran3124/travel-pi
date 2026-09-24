@@ -1,6 +1,6 @@
 ---
 slug: gh-193-booking-revise-idempotency
-status: active
+status: shipped
 owner: minhtran3124
 created: 2026-09-11
 ---
@@ -127,3 +127,5 @@ created: 2026-09-11
 - 2026-09-11 — task 4.1 complete; commit 5281c43. Task review: spec pass / approved (2 Minor). Fix re-review round 1 (enclosing-function, call-site-impact): finding A re-scored 0 at HEAD (fixed); two `unmodified-line` advisories recorded in SUMMARY (legacy cancelled rows keep their key; concurrent cancel/replay window). Correctness review complete → intent-review.
 - 2026-09-11 — intent review: 2 findings — 1 equivalent drift (advisory), 1 gap (no test drives a real LLM_RETRY re-run) → Task 5.1 + SC-9 added.
 - 2026-09-11 — task 5.1 complete; commit 4c5ffdf. Task review: spec pass / approved, 0 findings. Intent-review gap closed. All tasks 1.1-5.1 complete.
+
+- 2026-09-18 — marked shipped: PR #195 merged 2026-09-12. The stale `active` status made blast-radius and lane hooks bind to this spec for unrelated later work (redone after an earlier attempt at this fix was lost).

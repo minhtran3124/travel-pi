@@ -23,6 +23,38 @@ E005: SerpAPI deprecated the `google_events` engine — event questions go to `s
 
 `active.yaml`: concierge → 14. Others unchanged.
 
+## research-dossier-reader — trip_research_grader v2: per-file language, readable bodies
+
+- **trip_research_grader v2** — copied v1. Criterion 5 now opens every `/research/` file and
+  fails on any one written in another language than the `Language:` line (a live run passed v1
+  with a Vietnamese summary over English dimension files). New criterion 6: ids only in each
+  file's trailing `## Ids` section, tool names only inside citations, none in `summary.md`.
+- Code half: `_WriteInTravellerLanguage` names the language in every research model call
+  (subagents never saw the `Language:` line); the traveller-facing file reads go through
+  `reader_view`, which strips citations, ids and the `## Ids` section.
+
+`active.yaml`: trip_research_grader → 2. Others unchanged.
+
+## research-chat-summary — trip_research v2: a traveller summary, in the traveller's language
+
+- **trip_research v2** — copied v1; a final step writes `/research/summary.md` (≤5 plain
+  bullets, shown in the chat's research-done card and "done" reply), and a rule to write the
+  dossier and summary in the language named on the request's `Language:` line (the runner now
+  appends it — the model never saw `state["language"]`, although grader criterion 5 required it).
+  The `dossier-format` skill gains the summary.md row and a "Summary file" section.
+
+`active.yaml`: trip_research → 2. Others unchanged.
+
+## research-chat-status — supervisor v15: research status questions route to research
+
+- **supervisor v15** — copied v14; Rule 6 also routes a question about the status or result of
+  the trip's deep research ("is my research done?") to **research**, plus en/vi examples. The
+  launcher now answers such turns from the latest run (in progress / done) instead of booking a
+  new run. Goldens `research-status-{en,vi}-01`. Also: when research asked for the departure
+  point, the traveller's answer routes back to **research** with `origin` extracted.
+
+`active.yaml`: supervisor → 15. Others unchanged.
+
 ## memory-poisoning-hardening — memory extractor rejects tool output and injections (wave 1)
 
 specs/memory-poisoning-hardening (§3.6): persistent memory is re-injected into every future

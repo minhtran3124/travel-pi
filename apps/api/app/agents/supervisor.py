@@ -31,7 +31,7 @@ from app.prompts.registry import registry
 # Re-exported for callers that do `from app.agents.supervisor import SUBAGENTS`.
 # Single source of truth lives in context.py (avoids circular imports).
 SUBAGENTS = ALL_SUBAGENTS
-_Target = Literal["planner", "concierge", "journal", "booking", "budget"]
+_Target = Literal["planner", "concierge", "journal", "booking", "budget", "research"]
 # Secondary intent can never be "booking" (HLD non-goal — booking always needs
 # the HITL plan-approval path, never a queued follow-on); MIN-65 DESIGN D3.
 _SecondaryTarget = Literal["planner", "concierge", "journal", "budget"]

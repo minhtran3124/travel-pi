@@ -1,7 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { cn } from "@/lib/cn";
 import type { PanelArtifact } from "@/lib/stream/panel";
@@ -31,6 +37,8 @@ export interface ChatPanelProps {
    * in-sheet bottom sheet instead.
    */
   onOpenPanel?: (panel: PanelArtifact) => void;
+  /** A widget-level notice shown between the transcript and the composer. */
+  notice?: ReactNode;
 }
 
 const FOCUSABLE =
@@ -53,6 +61,7 @@ export function ChatPanel({
   onClose,
   isCompact = false,
   onOpenPanel,
+  notice,
 }: ChatPanelProps) {
   const t = useTranslations("Chat");
   const {
@@ -201,6 +210,8 @@ export function ChatPanel({
           onRegenerate={handleRegenerate}
         />
       )}
+
+      {notice}
 
       {interrupt !== null ? (
         <InterruptPrompt
