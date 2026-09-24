@@ -36,11 +36,17 @@ class SearchWebArgs(AppBaseModel):
     query: str = Field(..., description="Search query built from trip facts.")
     topic: Literal["general", "news"] = Field(
         "general",
-        description="'news' for recent/current events, 'general' otherwise.",
+        description=(
+            "'news' for breaking news and advisories from the last few days; "
+            "'general' for everything else, including upcoming events and festivals."
+        ),
     )
     time_range: Literal["day", "week", "month"] | None = Field(
         None,
-        description="Recency window for results; omit for no time filter.",
+        description=(
+            "Only keeps pages published within this window — leave it unset "
+            "when looking for upcoming events or dates in the future."
+        ),
     )
     domains: list[str] | None = Field(
         None,

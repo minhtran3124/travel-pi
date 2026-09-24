@@ -150,6 +150,11 @@ Intent review (fc5a6869..b5a2dc9a, plan-blind), 6 findings:
 
 Removed `find_events`. The SerpAPI `google_events` engine is deprecated, and `engine=google` returned no `events_results` on 4 event queries. Event questions now go to `search_web` (Tavily, `topic=general`). `WEB_SEARCH_TOOLS = [search_web, find_places_live]`. The MCP exclusion drops the name, and the served count is still 28. Concierge v14 was edited in place because it is unreleased (never on `main`); it is still a pure insertion over v13. The golden `web_search-happy-vi-01` now expects `search_web`. C4 is fixed: `_map_places` falls back to a single `place_results` dict.
 
+Review of the E005 change (d5918dfe..3b20af0b): no finding reached 75. The `place_results` fallback, the error mapping and the v14 insertion were verified clean. Fixed anyway because they are cheap model-facing text:
+- F1 (60) — the `topic` field said "'news' for current events", which contradicted the new routing of events to `general`.
+- F2 (55) — `time_range` is a publish-date recency filter. Its description now says to leave it unset for upcoming events.
+Advisory: F3 (45) — Tavily calls carry no locale hint for Vietnamese event questions (the removed SerpAPI tool sent `hl`/`gl`).
+
 ### Harness-Delta
 
 - backlog — `branch-isolation-guard` resolves the branch from the main checkout, so it flags Edit/Write into a sibling worktree as `unsafe-path:outside-root` even when that worktree is on its own task branch. The implementer used the audited `BRANCH_ISOLATION_REASON` override.
