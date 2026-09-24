@@ -30,7 +30,21 @@ flagged content before it becomes a ToolMessage.
 
 ## What changed
 
-Intake only. No code change yet.
+Every `search_web` and `find_places_live` result can now be screened by TypeSafe Jev before the
+concierge reads it. One yes/no question per result asks whether the text contains instructions
+aimed at an AI assistant. The feature ships with `INJECTION_SCREEN_MODE=off`, so nothing changes
+until it is switched on.
+
+- `shadow` calls the vendor and logs verdict counts, but the tool output stays byte-identical.
+- `enforce` adds `screened="true" flagged="…" p="…"` to each `<web_result>` block, or
+  `screened="false"` when the vendor did not answer. No result is ever dropped.
+- Any vendor failure (timeout, 429, 529, bad body) falls open to `screened="false"`. The tool never
+  fails because of the screen.
+- Concierge prompt v15 tells the model how to treat flagged and unscreened blocks.
+- A smoke script checks three canned passages against the real vendor.
+
+Commits: 69c919c7 (settings), 773a2ec1 (service), 36b3644d (tool attributes), f83dc786 (prompt
+v15), plus the Task 3.1 commit (smoke script + this record).
 
 ### Rationale
 
@@ -49,21 +63,34 @@ item as E001 (RAG / tool-output wrapping).
 
 ### Deviations
 
-- none
+- Rule 3 — `apps/api/scripts/` and `apps/api/tests/scripts/` match the root `.gitignore` `scripts/` rule. The two new files were force-added (`git add -f`), which is how every existing script there is tracked. Task 3.1 commit.
 
 ### Verify
 
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
-| intake shape | `python .claude/scripts/verify_summary.py --lane agent-injection-screen` | | run at intake | |
+| config defaults + mode Literal | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_injection_screen.py -q` | 0 | 5 passed | SC-1 |
+| service inactive + verdict | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k "inactive or verdict"` | 0 | 7 passed | SC-2 |
+| service cache | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k cache` | 0 | 4 passed | SC-3 |
+| service timeout / errors / empty | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/services/test_injection_screen_service.py -q -k "timeout or error or empty"` | 0 | 9 passed | SC-4 |
+| tool enforce attributes | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k enforce` | 0 | 5 passed | SC-5 |
+| tool shadow/off byte-identical | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "shadow or off_mode"` | 0 | 3 passed | SC-6 |
+| pre-existing web tool + binding tests | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py tests/tools/test_web_search_binding.py -q` | 0 | 28 passed | SC-7 |
+| concierge v15 + active versions | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py tests/prompts/test_active_versions_load.py -q` | 0 | 10 passed | SC-8 |
+| smoke script exits 2 without key | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/scripts/test_injection_screen_smoke.py -q` | 0 | 1 passed | SC-9 |
+| ruff on new/touched files | `cd apps/api && ../../.venv/bin/ruff check app/services/injection_screen_service.py app/tools/web_search_tools.py app/core/config.py scripts/injection_screen_smoke.py` | 0 | All checks passed | SC-10 |
 
 ### Not auto-verified
 
-- none yet (no implementation claims)
+- Jev's real accuracy on travel snippets and the `0.7` enforce threshold — reached traceability only; not run because no `TYPESAFE_API_KEY` is available on this machine. The smoke script was not run against the real vendor. Next step: set the key, run `python -m scripts.injection_screen_smoke`, then run `shadow` on the dev stack before `enforce`.
+- Vietnamese place data from `find_places_live` on an English-first model — not measured; shadow-mode logs are the check.
+- The exact `POST /v1/systemone` response shape — reached provenance (vendor docs, research-brief.md); not re-run against the live API.
+- Latency of about 5 concurrent vendor calls from this region — not measured; the 2 s budget caps it in code (SC-4).
 
 ### Rollback
 
-- `git revert <sha>` once code lands; the feature ships behind an off-by-default flag.
+- Runtime, no deploy: set `INJECTION_SCREEN_MODE=off` (the default). The tool output returns to the pre-change bytes (SC-6).
+- Code: `git revert <task-3.1-sha> f83dc786 36b3644d 773a2ec1 69c919c7`.
 
 ### Harness-Delta
 
