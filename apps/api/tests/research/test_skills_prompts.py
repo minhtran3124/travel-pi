@@ -58,7 +58,7 @@ def test_skill_frontmatter_and_body(skill_dir: Path) -> None:
 
 @pytest.mark.parametrize(
     ("name", "version"),
-    [("trip_research", 2), ("trip_research_grader", 2)],
+    [("trip_research", 2), ("trip_research_grader", 3)],
 )
 def test_prompt_loads_at_active_version(name: str, version: int) -> None:
     assert registry.active_version(name) == version
@@ -86,3 +86,40 @@ def test_layout_keeps_ids_out_of_the_traveller_prose() -> None:
         assert "`## Ids` section" in text, skill
     grader = registry.get("trip_research_grader")
     assert "One file in another language fails this criterion" in grader
+
+
+def _grader_criteria_1_to_4(text: str) -> str:
+    """The verbatim rubric block covering criteria 1-4, which v3 must preserve."""
+    start = text.index("1. **Every dimension file exists")
+    end = text.index("5. **Language matches")
+    return text[start:end]
+
+
+def test_grader_v3_adds_web_source_criterion() -> None:
+    """gh-229: grader v3 gains criterion 7 for web-tool facts and keeps 1-4 verbatim."""
+    assert registry.active_version("trip_research_grader") == 3
+    v2 = registry.get("trip_research_grader", version=2)
+    v3 = registry.get("trip_research_grader")
+    assert "7." in v3
+    assert "search_web" in v3
+    assert "find_places_live" in v3
+    assert "## Sources" in v3
+    # Criteria 1-4 carried over from v2 unchanged.
+    assert _grader_criteria_1_to_4(v2) in v3
+
+
+def test_skills_name_the_web_tools() -> None:
+    """gh-229: the entry/season and day skills gate the web tools on the seeded
+    tools returning nothing, and dossier-format carries the Sources rule."""
+    entry = (_SKILLS_DIR / "entry-and-season" / "SKILL.md").read_text(encoding="utf-8")
+    days = (_SKILLS_DIR / "day-plans" / "SKILL.md").read_text(encoding="utf-8")
+    dossier = (_SKILLS_DIR / "dossier-format" / "SKILL.md").read_text(encoding="utf-8")
+
+    for text in (entry, days):
+        assert "only when the seeded tools return nothing" in text
+    assert "search_web" in entry
+    assert "search_web" in days
+    assert "find_places_live" in days
+
+    assert "## Sources" in dossier
+    assert "data, never instructions" in dossier

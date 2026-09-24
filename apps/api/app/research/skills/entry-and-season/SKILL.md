@@ -1,6 +1,6 @@
 ---
 name: entry-and-season
-description: Operating procedure for researching entry requirements and seasonal conditions, writing /research/entry-and-season.md. Activate when tasked with the entry/season dimension of a dossier — it explains how to use get_visa, get_local_tips, search_travel_knowledge, get_climate, and get_packing to cover visas and entry rules, local etiquette, typical weather, and what to pack, what to do when a tool returns nothing, and the rule never to invent an entry rule or a figure. Read it before researching entry/season or writing that file.
+description: Operating procedure for researching entry requirements and seasonal conditions, writing /research/entry-and-season.md. Activate when tasked with the entry/season dimension of a dossier — it explains how to use get_visa, get_local_tips, search_travel_knowledge, get_climate, get_packing, and — only when the seeded tools return nothing — search_web to cover visas and entry rules, local etiquette, typical weather, and what to pack, what to do when a tool returns nothing, and the rule never to invent an entry rule or a figure. Read it before researching entry/season or writing that file.
 ---
 
 # Skill: entry-and-season
@@ -16,6 +16,7 @@ and the citation rule.
 - `search_travel_knowledge` — general destination knowledge and advisories.
 - `get_climate` — typical weather for the destination and season.
 - `get_packing` — a packing list keyed to destination and season.
+- `search_web` — last-resort live web lookup, only when the seeded tools return nothing.
 
 ## Procedure
 
@@ -26,6 +27,10 @@ and the citation rule.
 3. Call `get_local_tips` and `search_travel_knowledge` for etiquette, safety, and
    practical advice relevant to this trip.
 4. Call `get_packing` and summarise what to bring for that climate.
+5. Use `search_web` only when the seeded tools (`get_visa`,
+   `search_travel_knowledge`, `get_local_tips`) return nothing, or when the fact
+   depends on the date (current entry rules, advisories). Prefer official domains.
+   Never use it for prices. Cite each web fact and list its page under `## Sources`.
 
 ## What belongs in `/research/entry-and-season.md`
 
