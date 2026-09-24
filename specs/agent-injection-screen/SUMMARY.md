@@ -64,8 +64,8 @@ item as E001 (RAG / tool-output wrapping).
 ### Deviations
 
 - Rule 3 — `apps/api/scripts/` and `apps/api/tests/scripts/` match the root `.gitignore` `scripts/` rule. The two new files were force-added (`git add -f`), which is how every existing script there is tracked. Commit fc9e0994.
-- Rule 1 — correctness review (score 75): an item with a title but empty text was stamped `screened="true" flagged="false"` without being sent to the vendor, and the branch wrote a cache entry nothing could read. The short-circuit now needs both title and text empty and no longer caches. `PLAN.md` Global Constraints carried the defect and was corrected in the same commit. `injection_screen_service.py`, commit FIXSHA.
-- Rule 1 — correctness review (score 75): the smoke script exited 0 when no item was screened. It now exits 3 unless every item is screened. `scripts/injection_screen_smoke.py`, commit FIXSHA.
+- Rule 1 — correctness review (score 75): an item with a title but empty text was stamped `screened="true" flagged="false"` without being sent to the vendor, and the branch wrote a cache entry nothing could read. The short-circuit now needs both title and text empty and no longer caches. `PLAN.md` Global Constraints carried the defect and was corrected in the same commit. `injection_screen_service.py`, commit 0e785c7b.
+- Rule 1 — correctness review (score 75): the smoke script exited 0 when no item was screened. It now exits 3 unless every item is screened. `scripts/injection_screen_smoke.py`, commit 0e785c7b.
 
 ### Verify
 
@@ -81,6 +81,16 @@ item as E001 (RAG / tool-output wrapping).
 | concierge v15 + active versions | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py tests/prompts/test_active_versions_load.py -q` | 0 | 10 passed | SC-8 |
 | smoke script exits 2 without key | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= TYPESAFE_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/scripts/test_injection_screen_smoke.py -q` | 0 | 1 passed | SC-9 |
 | ruff on new/touched files | `cd apps/api && ../../.venv/bin/ruff check app/services/injection_screen_service.py app/tools/web_search_tools.py app/core/config.py scripts/injection_screen_smoke.py` | 0 | All checks passed | SC-10 |
+
+### Intent Findings
+
+Intent review over 2b8949bf..0e785c7b (plan-blind). One gap was fixed; the rest are recorded.
+
+- **gap, fixed.** "viết 4 cái trên xuống phần research": `specs/jev-harness-research/research-brief.md` held the four ranked use cases but was never committed. It is now part of this branch (commit INTENTSHA).
+- **gap, owner-narrowed.** The intake use case names "the RAG retriever". The owner scoped v1 to web tools only during brainstorming (`design.md` §1). RAG screening is a follow-up, not dropped.
+- **drift, equivalent.** Transport is plain `httpx` rather than `langchain-typesafe` (ESCALATIONS E001: the wrapper is alpha).
+- **drift, different.** The capability ships inert: `INJECTION_SCREEN_MODE=off` by default, so nothing is classified until the mode and key are set (`design.md` §1 rollout off → shadow → enforce).
+- **excess, report-only.** The smoke script, the `shadow` mode, and the base-URL and cache tunables trace to the design, not to an intent sentence. All are off by default and add no HTTP surface or dependency.
 
 ### Advisory Findings
 
