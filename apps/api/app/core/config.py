@@ -10,6 +10,7 @@ from app.core.llm_providers import PROVIDER_NAMES
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
+InjectionScreenMode = Literal["off", "shadow", "enforce"]
 
 
 def _validate_provider_profile(value: str | None) -> str | None:
@@ -107,6 +108,23 @@ class Settings(BaseSettings):
             self.web_search_enabled
             and self.serpapi_api_key
             and self.serpapi_api_key.strip()
+        )
+
+    # Prompt-injection screen over live web-search results (specs/agent-injection-screen). Off by default; active only when the mode is on and the key is non-blank.
+    injection_screen_mode: InjectionScreenMode = "off"
+    typesafe_api_key: str | None = None
+    injection_screen_model: str = "jev-1.13.0"
+    injection_screen_base_url: str = "https://api.typesafe.ai"
+    injection_screen_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+    injection_screen_timeout_seconds: float = 2.0
+    injection_screen_cache_ttl_seconds: int = 3600
+    injection_screen_cache_max_entries: int = 2048
+
+    @property
+    def injection_screen_active(self) -> bool:
+        """True when the injection screen is not off and a Typesafe API key is configured."""
+        return self.injection_screen_mode != "off" and bool(
+            (self.typesafe_api_key or "").strip()
         )
 
     # CORS — wide open by default for local dev.
