@@ -17,7 +17,6 @@ from app.exceptions import UpstreamError, WebSearchError, WebSearchUpstreamError
 from app.tools import web_search_tools
 from app.tools.web_search_tools import (
     WEB_SEARCH_TOOLS,
-    find_events,
     find_places_live,
     search_web,
 )
@@ -80,14 +79,6 @@ def test_search_web_schema_hides_user_id_and_describes_fields():
     assert search_web.args_schema.__module__.startswith("app.tools")
 
 
-def test_find_events_schema_hides_injected_and_describes_fields():
-    fields = find_events.tool_call_schema.model_fields
-    assert "user_id" not in fields and "language" not in fields
-    assert {"place", "date_filter"} <= set(fields)
-    for f in fields.values():
-        assert f.description
-
-
 def test_find_places_live_schema_hides_injected_and_describes_fields():
     fields = find_places_live.tool_call_schema.model_fields
     assert "user_id" not in fields and "language" not in fields
@@ -97,13 +88,12 @@ def test_find_places_live_schema_hides_injected_and_describes_fields():
 
 
 def test_web_search_tools_export_list():
-    assert list(WEB_SEARCH_TOOLS) == [search_web, find_events, find_places_live]
+    assert list(WEB_SEARCH_TOOLS) == [search_web, find_places_live]
 
 
 # Each tool paired with its service function name and its model-facing args.
 _TOOL_CASES = [
     (search_web, "search_web", {"query": "x"}),
-    (find_events, "find_events", {"place": "Hanoi"}),
     (find_places_live, "find_places_live", {"query": "coffee", "near": "Hanoi"}),
 ]
 _TOOL_IDS = [t.name for t, _, _ in _TOOL_CASES]
@@ -209,28 +199,6 @@ def test_search_web_no_results_content_message(monkeypatch):
     monkeypatch.setattr(web_search_tools.web_search_service, "search_web", fake)
     content = _run(search_web, {"query": "x"})
     assert content == "No web results for this query."
-
-
-def test_find_events_content_uses_web_result_tag(monkeypatch):
-    async def fake(*a, **k):
-        return {
-            "found": True,
-            "events": [
-                {
-                    "title": "Jazz Night",
-                    "date": "Fri, Aug 1",
-                    "venue": "The <Hall>",
-                    "address": "1 Main St",
-                    "url": "http://e",
-                }
-            ],
-        }
-
-    monkeypatch.setattr(web_search_tools.web_search_service, "find_events", fake)
-    content = _run(find_events, {"place": "Hanoi"})
-    assert content.count("<web_result") == 1
-    assert 'title="Jazz Night"' in content
-    assert "venue: The &lt;Hall&gt;" in content
 
 
 def test_find_places_live_content_uses_web_result_tag(monkeypatch):

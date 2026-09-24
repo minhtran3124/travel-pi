@@ -62,11 +62,10 @@ def test_flag_off_concierge_matches_pre_change(monkeypatch, clear_settings):
     assert _concierge_names() == _CONCIERGE_BEFORE
 
 
-def test_flag_on_both_keys_binds_all_three(monkeypatch, clear_settings):
+def test_flag_on_both_keys_binds_both_tools(monkeypatch, clear_settings):
     _configure(monkeypatch, enabled=True, tavily=True, serpapi=True)
     assert _concierge_names() == _CONCIERGE_BEFORE + [
         "search_web",
-        "find_events",
         "find_places_live",
     ]
 
@@ -76,6 +75,6 @@ def test_flag_on_tavily_only_binds_search_web(monkeypatch, clear_settings):
     assert _concierge_names() == _CONCIERGE_BEFORE + ["search_web"]
 
 
-def test_flag_on_serpapi_only_binds_serpapi_tools(monkeypatch, clear_settings):
+def test_flag_on_serpapi_only_binds_find_places_live(monkeypatch, clear_settings):
     _configure(monkeypatch, enabled=True, tavily=False, serpapi=True)
-    assert _concierge_names() == _CONCIERGE_BEFORE + ["find_events", "find_places_live"]
+    assert _concierge_names() == _CONCIERGE_BEFORE + ["find_places_live"]

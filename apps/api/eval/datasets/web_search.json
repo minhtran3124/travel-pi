@@ -7,9 +7,9 @@
     "suite": "full",
     "input": "Tôi đi Hội An từ ngày 15 đến 20 tháng 11 năm 2026, trong tuần đó có lễ hội hay sự kiện gì đang diễn ra không?",
     "expected_flow": "concierge",
-    "expected_tools": ["find_events"],
+    "expected_tools": ["search_web"],
     "metrics": ["tools_expected"],
-    "notes": "Time-boxed local events for a dated trip week -> find_events. Concrete future dates (Nov 2026) so the date rules don't force a clarification. Needs WEB_SEARCH_ENABLED=true + provider keys; with the flag off the tool is unbound and this fails."
+    "notes": "Time-boxed local events for a dated trip week -> search_web (topic=general, city + month in the query; find_events was removed with SerpAPI google_events on 2026-09-24, E005). Concrete future dates (Nov 2026) so the date rules don't force a clarification. Needs WEB_SEARCH_ENABLED=true + provider keys; with the flag off the tool is unbound and this fails."
   },
   {
     "id": "web_search-happy-en-01",
@@ -43,7 +43,7 @@
     "suite": "full",
     "input": "Tell me about Da Nang",
     "expected_flow": "concierge",
-    "forbidden_tools": ["search_web", "find_events", "find_places_live"],
+    "forbidden_tools": ["search_web", "find_places_live"],
     "metrics": ["flow_match", "tools_forbidden"],
     "notes": "General destination overview the concierge answers from its own knowledge — no live web lookup warranted."
   },
@@ -55,7 +55,7 @@
     "suite": "full",
     "input": "Mùa nào đẹp nhất để đi Hội An?",
     "expected_flow": "concierge",
-    "forbidden_tools": ["search_web", "find_events", "find_places_live"],
+    "forbidden_tools": ["search_web", "find_places_live"],
     "metrics": ["flow_match", "tools_forbidden"],
     "notes": "Evergreen best-season advice — answerable from general knowledge, no live web search needed."
   },
@@ -67,7 +67,7 @@
     "suite": "full",
     "input": "How much does a hotel in Da Nang cost per night?",
     "expected_flow": "concierge",
-    "forbidden_tools": ["search_web", "find_events", "find_places_live"],
+    "forbidden_tools": ["search_web", "find_places_live"],
     "metrics": ["flow_match", "tools_forbidden"],
     "notes": "Hotel price question lands on the concierge, where the web tools are bound — prices come from the internal hotel tools, never a live web search."
   }

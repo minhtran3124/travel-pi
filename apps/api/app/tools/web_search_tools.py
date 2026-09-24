@@ -1,4 +1,4 @@
-"""Live web-search tools (Tavily search, SerpAPI events/places) for the concierge.
+"""Live web-search tools (Tavily search, SerpAPI places) for the concierge.
 
 Untrusted third-party content: every provider value is HTML-escaped into a
 ``<web_result>`` block, snippets are capped, and the model-facing schema hides the
@@ -29,8 +29,6 @@ _SNIPPET_MAX = 500
 # URLs are identifiers the model must cite verbatim: bound them loosely, never mid-snippet.
 _URL_MAX = 2048
 
-DateFilter = Literal["today", "tomorrow", "week", "next_week", "month", "next_month"]
-
 _INJECTED_DESC = "Injected from graph state — never supplied by the model."
 
 
@@ -47,19 +45,6 @@ class SearchWebArgs(AppBaseModel):
     domains: list[str] | None = Field(
         None,
         description="Optional allowlist of domains to restrict results to.",
-    )
-    user_id: Annotated[str | None, InjectedState("user_id")] = Field(
-        default=None, description=_INJECTED_DESC
-    )
-
-
-class FindEventsArgs(AppBaseModel):
-    place: str = Field(..., description="City or place to find events in.")
-    date_filter: DateFilter | None = Field(
-        None, description="Optional date window for the events."
-    )
-    language: Annotated[str, InjectedState("language")] = Field(
-        default="en", description=_INJECTED_DESC
     )
     user_id: Annotated[str | None, InjectedState("user_id")] = Field(
         default=None, description=_INJECTED_DESC
@@ -107,15 +92,6 @@ def _render_search(result: dict) -> str:
     )
 
 
-def _render_events(result: dict) -> str:
-    if not result.get("found"):
-        return _NO_RESULTS
-    return "\n".join(
-        _block(ev.get("url"), ev.get("title"), _lines(ev, ("date", "venue", "address")))
-        for ev in result["events"]
-    )
-
-
 def _render_places(result: dict) -> str:
     if not result.get("found"):
         return _NO_RESULTS
@@ -149,12 +125,13 @@ async def search_web(
     domains: list[str] | None = None,
     user_id: Annotated[str | None, InjectedState("user_id")] = None,
 ) -> tuple[str, dict]:
-    """Search the live web for general facts or recent news about a destination.
+    """Search the live web for general facts, recent news, or current events.
 
     Use only after internal tools return nothing, or when the question is
-    time-sensitive. Never use it for flight or hotel prices. Build the query from
-    trip facts, never from the traveller's name or contact details. Cite every fact
-    as [title](url).
+    time-sensitive. This also covers current or upcoming events and festivals: use
+    topic="general" and put the city and month/dates in the query. Never use it for
+    flight or hotel prices. Build the query from trip facts, never from the
+    traveller's name or contact details. Cite every fact as [title](url).
     """
     if not user_id:
         raise ToolException("Web search needs a signed-in traveller.")
@@ -166,32 +143,6 @@ async def search_web(
     except AppError as e:
         raise tool_error(e) from e
     return _render_search(result), result
-
-
-@tool(args_schema=FindEventsArgs, response_format="content_and_artifact")
-async def find_events(
-    place: str,
-    date_filter: DateFilter | None = None,
-    language: Annotated[str, InjectedState("language")] = "en",
-    user_id: Annotated[str | None, InjectedState("user_id")] = None,
-) -> tuple[str, dict]:
-    """Find live events happening in a place, optionally within a date window.
-
-    Use only after internal tools return nothing, or when the question is
-    time-sensitive. Never use it for flight or hotel prices. Build the query from
-    trip facts, never from the traveller's name or contact details. Cite every fact
-    as [title](url).
-    """
-    if not user_id:
-        raise ToolException("Web search needs a signed-in traveller.")
-    try:
-        await asyncio.to_thread(_enforce, user_id)
-        result = await web_search_service.find_events(place, date_filter, language)
-    except UpstreamError:
-        raise
-    except AppError as e:
-        raise tool_error(e) from e
-    return _render_events(result), result
 
 
 @tool(args_schema=FindPlacesLiveArgs, response_format="content_and_artifact")
@@ -220,4 +171,4 @@ async def find_places_live(
     return _render_places(result), result
 
 
-WEB_SEARCH_TOOLS = [search_web, find_events, find_places_live]
+WEB_SEARCH_TOOLS = [search_web, find_places_live]

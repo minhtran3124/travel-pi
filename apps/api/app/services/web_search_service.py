@@ -1,4 +1,4 @@
-"""Live web search via Tavily (general/news search) and SerpAPI (events, places).
+"""Live web search via Tavily (general/news search) and SerpAPI (places).
 
 Pure provider + bounded TTL cache + result/error mapping — no rate limiting (that
 lives in the tool layer). Provider SDK exceptions are mapped to
@@ -135,38 +135,6 @@ async def search_web(
     return result
 
 
-async def find_events(
-    place: str,
-    date_filter: str | None = None,
-    language: str = "en",
-) -> dict:
-    hl = "vi" if language == "vi" else "en"
-    params = {"engine": "google_events", "q": f"Events in {place}", "hl": hl}
-    if language == "vi":
-        params["gl"] = "vn"
-    if date_filter:
-        params["htichips"] = f"date:{date_filter}"
-
-    if not get_settings().serpapi_search_available:
-        raise WebSearchError()
-    cache_key = ("serpapi", "google_events", place.strip().casefold(), date_filter, hl)
-    cached = _cache_get(cache_key)
-    if cached is not None:
-        logger.info("[web_search] provider=serpapi engine=google_events cache=hit")
-        return cached
-
-    started = _now()
-    body = await _serpapi_search(params)
-    result = _map_events(body)
-    _cache_set(cache_key, result, get_settings().web_search_cache_ttl_seconds)
-    logger.info(
-        "[web_search] provider=serpapi engine=google_events cache=miss latency_ms=%d count=%d",
-        int((_now() - started) * 1000),
-        len(result["events"]),
-    )
-    return result
-
-
 async def find_places_live(
     query: str,
     near: str,
@@ -265,32 +233,17 @@ def _hours_text(value: object) -> object:
     return value
 
 
-def _map_events(body: dict | None) -> dict:
-    events = []
-    for item in ((body or {}).get("events_results") or [])[:_MAX_ITEMS]:
-        date = item.get("date")
-        when = None
-        if isinstance(date, dict):
-            when = date.get("when") or date.get("start_date")
-        venue = item.get("venue")
-        address = item.get("address")
-        events.append(
-            {
-                "title": item.get("title") or "",
-                "date": when,
-                "venue": venue.get("name") if isinstance(venue, dict) else None,
-                "address": ", ".join(str(a) for a in address)
-                if isinstance(address, list)
-                else address,
-                "url": item.get("link"),
-            }
-        )
-    return {"found": bool(events), "events": events}
-
-
 def _map_places(body: dict | None) -> dict:
+    body = body or {}
+    # A single-venue google_maps query returns one `place_results` dict, not a
+    # `local_results` list; map it as a one-item list with the same fields.
+    items = body.get("local_results") or []
+    if not items:
+        single = body.get("place_results")
+        if isinstance(single, dict):
+            items = [single]
     places = []
-    for item in ((body or {}).get("local_results") or [])[:_MAX_ITEMS]:
+    for item in items[:_MAX_ITEMS]:
         url = item.get("website")
         place_id = item.get("place_id")
         if not url and place_id:

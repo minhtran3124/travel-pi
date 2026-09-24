@@ -25,7 +25,7 @@ Escalate: no (E001–E004 decided 2026-09-23: option A on all four)
 
 ## What changed
 
-The concierge agent gets three last-resort live-web tools. `search_web` runs on Tavily. `find_events` runs on SerpAPI google_events. `find_places_live` runs on SerpAPI google_maps.
+The concierge agent gets two last-resort live-web tools. `search_web` runs on Tavily and also covers current events and festivals. `find_places_live` runs on SerpAPI google_maps. A third tool, `find_events` on SerpAPI google_events, was removed after the real-key smoke run (E005): SerpAPI has deprecated that engine.
 
 - They are bound only when `WEB_SEARCH_ENABLED` is on and the matching provider key is set. The default is off, which leaves the concierge tool list unchanged.
 - Every call is rate-limited per user (30 an hour) and cached (1 h, 15 min for news, 512 entries).
@@ -119,7 +119,15 @@ Intent review (fc5a6869..b5a2dc9a, plan-blind), 6 findings:
 
 ### Not auto-verified
 
-- Live provider behaviour — no real Tavily/SerpAPI call was made: `place_results` shape (C4), `hl=vi` quality, latency. Owed: one manual smoke run per tool with real keys and `WEB_SEARCH_ENABLED=true`.
+- Live provider behaviour — a manual real-key smoke run was done on 2026-09-24 (a scratch script calling the tools through the real service and render path, with the rate limiter stubbed). It is manual, not a re-runnable gate. Results:
+  - `search_web` news (Paris strikes): 5 results, ~5.8 s.
+  - `search_web` with `domains=["louvre.fr"]`: 5 results, including the opening hours.
+  - `search_web` for Hoi An October events: results include the 23 Oct full-moon lantern night.
+  - `find_places_live` with `hl=vi` (phở, Hoàn Kiếm): 5 places with Vietnamese hours.
+  - `find_places_live` for a single venue (Sofitel Metropole): found after the C4 fix.
+  - Cache hit on a repeat call: 3 ms.
+  - `google_events`: HTTP 400 "Unsupported `google_events` search engine", which led to E005. SerpAPI is on the Free plan (250 searches a month).
+- Visible in the smoke output: `&` in source URLs reaches the model as `&amp;` (C14, advisory). Whether the model copies it into citations is unmeasured.
 - Concierge v14 with the flag off (default) — prompt names tools that are unbound; `make eval-check` on concierge goldens with the flag off not run (paid).
 - Lane classification — reached traceability; flags assigned by judgment from the request, no diff exists yet to corroborate against `hooks/risk-corroboration.sh`.
 - "No existing web-search tool" — searched `apps/api/app`, `apps/api/requirements.txt`, `specs/` for `tavily|serpapi|web_search|websearch`; only hit is a mention in `specs/web-trip-planner/research-brief.md`.
@@ -138,6 +146,11 @@ Intent review (fc5a6869..b5a2dc9a, plan-blind), 6 findings:
 - Task 5.1 (fixed in follow-up commit) — the dataset guard now pairs each metric with its field; README matrix gains a `web_search` row and a stale-total note.
 - Task 1.2 — `apps/api/evalkit/README.md:134` metric inventory omits `tools_forbidden` (and pre-existing `no_invented_date`, `no_injected_memory`, `memory_stored`).
 
+### Change request 2026-09-24 (E005)
+
+Removed `find_events`. The SerpAPI `google_events` engine is deprecated, and `engine=google` returned no `events_results` on 4 event queries. Event questions now go to `search_web` (Tavily, `topic=general`). `WEB_SEARCH_TOOLS = [search_web, find_places_live]`. The MCP exclusion drops the name, and the served count is still 28. Concierge v14 was edited in place because it is unreleased (never on `main`); it is still a pure insertion over v13. The golden `web_search-happy-vi-01` now expects `search_web`. C4 is fixed: `_map_places` falls back to a single `place_results` dict.
+
 ### Harness-Delta
 
+- backlog — `branch-isolation-guard` resolves the branch from the main checkout, so it flags Edit/Write into a sibling worktree as `unsafe-path:outside-root` even when that worktree is on its own task branch. The implementer used the audited `BRANCH_ISOLATION_REASON` override.
 - backlog — the sibling-worktree recipe (symlink the main `.venv`) silently mutates another branch's environment when the branches pin different versions; a worktree needs its own venv when its requirements differ.

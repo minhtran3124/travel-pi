@@ -17,7 +17,7 @@ questions have no live source: events during the trip week, travel advisories, o
 current entry rules. This plan adds three read-only tools:
 
 - `search_web` on Tavily
-- `find_events` on SerpAPI `google_events`
+- ~~`find_events` on SerpAPI `google_events`~~ — removed 2026-09-24 (E005: SerpAPI deprecated the engine); events go to `search_web`
 - `find_places_live` on SerpAPI `google_maps`
 
 They are bound to the **concierge only** (E004 = A). The trip-research wiring waits for
@@ -102,10 +102,10 @@ cached, and every result reaches the model as untrusted data.
 | SC-4 | A tool call with no `user_id` raises `ToolException` and the provider fake is called 0 times; the 31st call in an hour returns a rate-limit ToolException and the provider fake is not called for it | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "user_id or rate_limit"` | exit 0 |
 | SC-5 | Tool content: each result is inside a `<web_result` tag; a title containing `"` and `</web_result>` appears as `&quot;` and `&lt;/web_result&gt;`; snippets are ≤ 500 chars; artifact has no `kind` and no `raw_content` key | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k content` | exit 0 |
 | SC-6 | Each tool's model-facing schema has no `user_id` field and every field has a description; `UpstreamError` propagates while `WebSearchError` becomes `ToolException` with `__cause__` set | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_tools.py -q -k "schema or error"` | exit 0 |
-| SC-7 | Flag off: concierge tool names equal the pre-change list; flag on with only a Tavily key: `search_web` is bound and the two SerpAPI tools are not | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | exit 0 |
-| SC-8 | The MCP server serves none of `search_web`, `find_events`, `find_places_live`, and its tool count equals the pre-change count | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | exit 0 |
+| SC-7 | Flag off: concierge tool names equal the pre-change list; flag on with only a Tavily key: `search_web` is bound and `find_places_live` is not | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_binding.py -q` | exit 0 |
+| SC-8 | The MCP server serves neither `search_web` nor `find_places_live`, and its tool count equals the pre-change count | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/mcp/test_mcp_server.py -q` | exit 0 |
 | SC-9 | `tools_forbidden` metric fails when a forbidden tool was called, passes when none was, and is not-applicable when `forbidden_tools` is unset | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_metrics_deterministic.py -q -k forbidden` | exit 0 |
-| SC-10 | `registry.get("concierge")` returns text containing `search_web`, `find_events`, `find_places_live` and `web_result`; `active.yaml` parsed as YAML has `concierge == 14` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | exit 0 |
+| SC-10 | `registry.get("concierge")` returns text containing `search_web`, `find_places_live` and `web_result` and not `find_events`; `active.yaml` parsed as YAML has `concierge == 14` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/prompts/test_concierge_prompt.py -q` | exit 0 |
 | SC-11 | `web_search.json` loads with 6 goldens (3 declare `tools_expected`, 3 declare `tools_forbidden`), the real dataset totals 119 cases, and no web golden is in `suite=smoke` | `cd apps/api && DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/eval/test_datasets.py -q` | exit 0 |
 
 ## 4. Tasks
@@ -330,3 +330,4 @@ cached, and every result reaches the model as untrusted data.
 - 2026-09-23 — tasks 3.1, 4.1, 4.2 complete; commits 76bd8233, 8a612d98, 46fdb515, dc4f98b4, 904875fc; reviews pass/approved (3.1 cannot_verify resolved by controller re-run).
 - 2026-09-23 — task 5.1 complete; commits cb9b177e, 69951a3d; review pass/approved. All 7 tasks complete.
 - 2026-09-23 — correctness + intent reviews complete; fixes b5a2dc9a, ba156717, 7bc03be2; receipt at 7bc03be2.
+- 2026-09-24 — change request after the real-key smoke run: E005 = A removes `find_events` (SerpAPI `google_events` deprecated; `engine=google` returned no `events_results`), events route to `search_web`; C4 fixed (`place_results` fallback). SC-7, SC-8, SC-10 wording updated; task sections above are kept as history.

@@ -96,13 +96,13 @@ def _meta(name: str) -> dict[str, bool]:
 TOOL_METADATA: dict[str, dict[str, bool]] = {t.name: _meta(t.name) for t in ALL_TOOLS}
 
 
-_SERPAPI_TOOLS = {"find_events", "find_places_live"}
+_SERPAPI_TOOLS = {"find_places_live"}
 
 
 def available(tools: list[BaseTool]) -> list[BaseTool]:
     """Drop web-search tools whose provider is unavailable, read at call time.
 
-    ``search_web`` needs Tavily; ``find_events``/``find_places_live`` need SerpAPI.
+    ``search_web`` needs Tavily; ``find_places_live`` needs SerpAPI.
     Settings are read here (not at import) so a flag/key change takes effect on the
     next graph build without a re-import.
     """

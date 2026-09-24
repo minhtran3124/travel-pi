@@ -67,3 +67,19 @@ Default: **deny-on-no-response**. No recorded decision → work stays blocked.
 - decision: A (concierge-only v1 on main; research wiring is a follow-up after PR #221 merges)
 - decided_by: Minh Tran
 - decided_at: 2026-09-23
+
+## E005
+
+- raised_by: orchestrator (real-key smoke run, 2026-09-24)
+- date: 2026-09-24
+- trigger: in-flight (external provider changed)
+- question: SerpAPI deprecated `google_events` (HTTP 400 "Unsupported `google_events` search engine"; Google removed its Events surface ~2026-09-15) and `engine=google` returned no `events_results` on 4 event queries. What happens to `find_events`?
+- context: smoke run — search_web and find_places_live work; find_events fails on every call.
+- options:
+  - A) Remove find_events; event questions go to search_web (Tavily, topic=general).
+  - B) Keep the name, back it with Tavily.
+  - C) Keep it on engine=google events_results (currently always empty).
+- default_if_no_response: BLOCK
+- decision: A (remove find_events; events via search_web)
+- decided_by: Minh Tran
+- decided_at: 2026-09-24

@@ -146,36 +146,6 @@ def test_search_web_maps_results_shape(monkeypatch):
     assert "raw_content" not in out["results"][0]
 
 
-def test_find_events_maps_shape(monkeypatch):
-    _patch_serp(
-        monkeypatch,
-        result={
-            "events_results": [
-                {
-                    "title": "Fireworks Festival",
-                    "date": {"when": "Sat, Jun 8"},
-                    "address": ["Han River", "Da Nang"],
-                    "link": "https://ev.example/1",
-                    "venue": {"name": "Riverfront"},
-                }
-            ]
-        },
-    )
-    out = asyncio.run(wss.find_events("Da Nang", date_filter="week", language="vi"))
-    assert out == {
-        "found": True,
-        "events": [
-            {
-                "title": "Fireworks Festival",
-                "date": "Sat, Jun 8",
-                "venue": "Riverfront",
-                "address": "Han River, Da Nang",
-                "url": "https://ev.example/1",
-            }
-        ],
-    }
-
-
 def test_find_places_live_builds_maps_url_without_website(monkeypatch):
     _patch_serp(
         monkeypatch,
@@ -200,6 +170,46 @@ def test_find_places_live_builds_maps_url_without_website(monkeypatch):
     assert place["reviews"] == 120
     assert place["hours"] == "monday: 8am-9pm"
     assert place["url"] == "https://www.google.com/maps/place/?q=place_id:PID123"
+
+
+def test_find_places_live_falls_back_to_single_place_results(monkeypatch):
+    # A single-venue query returns one `place_results` dict, no `local_results`.
+    _patch_serp(
+        monkeypatch,
+        result={
+            "place_results": {
+                "title": "Sofitel Legend Metropole Hanoi",
+                "rating": 4.6,
+                "reviews": 8000,
+                "address": "15 Ngo Quyen",
+                "operating_hours": {"monday": "24 hours"},
+                "website": "https://sofitel.example",
+            }
+        },
+    )
+    out = asyncio.run(wss.find_places_live("Sofitel Legend Metropole", near="Hanoi"))
+    assert out["found"] is True
+    assert len(out["places"]) == 1
+    place = out["places"][0]
+    assert place["name"] == "Sofitel Legend Metropole Hanoi"
+    assert place["rating"] == 4.6
+    assert place["reviews"] == 8000
+    assert place["address"] == "15 Ngo Quyen"
+    assert place["hours"] == "monday: 24 hours"
+    assert place["url"] == "https://sofitel.example"
+
+
+def test_find_places_live_prefers_local_results_over_place_results(monkeypatch):
+    # When both are present, the `local_results` list wins.
+    _patch_serp(
+        monkeypatch,
+        result={
+            "local_results": [{"title": "Pho House"}],
+            "place_results": {"title": "Sofitel Legend Metropole Hanoi"},
+        },
+    )
+    out = asyncio.run(wss.find_places_live("pho", near="Hanoi"))
+    assert [p["name"] for p in out["places"]] == ["Pho House"]
 
 
 # --- Tavily error mapping --------------------------------------------------
@@ -263,32 +273,32 @@ def test_error_tavily_bad_request_maps_websearch(monkeypatch):
 def test_error_serpapi_missing_key_maps_websearch(monkeypatch):
     _patch_settings(monkeypatch, serpapi_search_available=False, serpapi_api_key=None)
     with pytest.raises(WebSearchError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_timeout_maps_upstream(monkeypatch):
     _patch_serp(monkeypatch, raises=serpapi.TimeoutError("timed out"))
     with pytest.raises(WebSearchUpstreamError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_connection_maps_upstream(monkeypatch):
     conn = requests.exceptions.ConnectionError("refused")
     _patch_serp(monkeypatch, raises=serpapi.HTTPConnectionError(conn))
     with pytest.raises(WebSearchUpstreamError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_http_5xx_maps_upstream(monkeypatch):
     _patch_serp(monkeypatch, raises=_serp_http_error(502))
     with pytest.raises(WebSearchUpstreamError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_http_401_maps_websearch(monkeypatch):
     _patch_serp(monkeypatch, raises=_serp_http_error(401))
     with pytest.raises(WebSearchError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_http_403_maps_websearch(monkeypatch):
@@ -300,13 +310,13 @@ def test_error_serpapi_http_403_maps_websearch(monkeypatch):
 def test_error_serpapi_http_429_maps_websearch(monkeypatch):
     _patch_serp(monkeypatch, raises=_serp_http_error(429))
     with pytest.raises(WebSearchError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_body_error_quota_maps_websearch(monkeypatch):
     _patch_serp(monkeypatch, result={"error": "Invalid API key provided."})
     with pytest.raises(WebSearchError):
-        asyncio.run(wss.find_events("Hue"))
+        asyncio.run(wss.find_places_live("cafe", "Hue"))
 
 
 def test_error_serpapi_no_results_body_returns_found_false(monkeypatch):
@@ -314,8 +324,8 @@ def test_error_serpapi_no_results_body_returns_found_false(monkeypatch):
         monkeypatch,
         result={"error": "Google hasn't returned any results for this query."},
     )
-    out = asyncio.run(wss.find_events("Nowhereville"))
-    assert out == {"found": False, "events": []}
+    out = asyncio.run(wss.find_places_live("cafe", "Nowhereville"))
+    assert out == {"found": False, "places": []}
 
 
 def test_error_serpapi_no_results_on_4xx_returns_found_false(monkeypatch):
@@ -404,25 +414,23 @@ def test_cache_serpapi_no_results_is_cached(monkeypatch):
         result={"error": "Google hasn't returned any results for this query."},
         counter=counter,
     )
-    asyncio.run(wss.find_events("Nowhereville"))
-    asyncio.run(wss.find_events("Nowhereville"))
+    asyncio.run(wss.find_places_live("cafe", "Nowhereville"))
+    asyncio.run(wss.find_places_live("cafe", "Nowhereville"))
     assert counter["calls"] == 1
 
 
 def test_cache_serpapi_hit_is_not_served_once_unavailable(monkeypatch):
-    _patch_serp(monkeypatch, result={"events_results": [{"title": "Lantern night"}]})
-    asyncio.run(wss.find_events("Hoi An"))
+    _patch_serp(monkeypatch, result={"local_results": [{"title": "Pho House"}]})
+    asyncio.run(wss.find_places_live("pho", "Hoi An"))
     _patch_settings(monkeypatch, serpapi_search_available=False)
     with pytest.raises(WebSearchError):
-        asyncio.run(wss.find_events("Hoi An"))
+        asyncio.run(wss.find_places_live("pho", "Hoi An"))
 
 
-def test_find_events_and_places_cap_results_at_five(monkeypatch):
+def test_find_places_live_caps_results_at_five(monkeypatch):
     many = [{"title": f"t{i}"} for i in range(12)]
-    _patch_serp(monkeypatch, result={"events_results": many, "local_results": many})
-    events = asyncio.run(wss.find_events("Hanoi"))
+    _patch_serp(monkeypatch, result={"local_results": many})
     places = asyncio.run(wss.find_places_live("cafe", "Hanoi"))
-    assert len(events["events"]) == 5
     assert len(places["places"]) == 5
 
 
@@ -460,12 +468,3 @@ def test_search_web_sends_only_supported_tavily_arguments(monkeypatch):
         "include_domains": None,
         "timeout": 10.0,
     }
-
-
-def test_find_events_joins_mixed_address_list(monkeypatch):
-    _patch_serp(
-        monkeypatch,
-        result={"events_results": [{"title": "Fest", "address": ["Hoi An", 42]}]},
-    )
-    out = asyncio.run(wss.find_events("Hoi An"))
-    assert out["events"][0]["address"] == "Hoi An, 42"

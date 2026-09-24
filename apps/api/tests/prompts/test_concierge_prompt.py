@@ -48,9 +48,10 @@ def test_concierge_prompt_names_the_web_tools():
 
     text = registry.get("concierge")
     assert "search_web" in text
-    assert "find_events" in text
     assert "find_places_live" in text
     assert "web_result" in text
+    # find_events was removed (2026-09-24, E005): SerpAPI deprecated google_events.
+    assert "find_events" not in text
 
 
 def test_active_yaml_points_concierge_at_14():

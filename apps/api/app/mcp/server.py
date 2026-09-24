@@ -17,7 +17,6 @@ from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 _MCP_EXCLUDED_BY_NAME = {
     "list_trips",
     "search_web",
-    "find_events",
     "find_places_live",
 }
 

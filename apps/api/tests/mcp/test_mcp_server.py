@@ -72,7 +72,7 @@ def test_web_search_tools_excluded_and_count_unchanged():
     from app.mcp.server import build_mcp_server
 
     names = {t.name for t in _list_tools(build_mcp_server())}
-    for name in ("search_web", "find_events", "find_places_live"):
+    for name in ("search_web", "find_places_live"):
         assert name not in names, f"{name} must not be exposed over MCP"
     assert len(names) == 28  # recorded before web-search tools entered the registry
 
