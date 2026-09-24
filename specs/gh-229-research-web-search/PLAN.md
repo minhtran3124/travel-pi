@@ -1,6 +1,6 @@
 ---
 slug: gh-229-research-web-search
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-24
 ---
@@ -134,3 +134,4 @@ The trip-research dossier can only cite seeded data. #227 shipped `search_web` a
 - 2026-09-24 — Plan written after design approval and the Deep local research brief. Status: proposed.
 - 2026-09-24 — plan review: round 1 found 5 issues, all fixed; round 2 approved. Status: active.
 - 2026-09-24 — tasks 1.1, 1.2, 1.3, 1.4 complete; commits af36a52d, b078b529, 729c305b, 420281fe, a58f27c1, 569b8425, cfd7440c, 29f7d060; task reviews pass.
+- 2026-09-24 — correctness review (6 angles, 3 fix rounds) and intent review done; smoke run inconclusive (pre-existing 600 s timeout, no web call); receipt at fc8e42c6.

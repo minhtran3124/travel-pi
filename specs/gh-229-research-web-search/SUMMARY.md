@@ -55,10 +55,20 @@ The dossier is persisted, and it is read by the traveller with citations strippe
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | intake lane evidence | `python .claude/scripts/verify_summary.py --lane gh-229-research-web-search` | 0 | intake-stage record | |
+| binding availability | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_research_web_binding.py -q` | 0 | 5 passed (at fc8e42c6) | SC-1 |
+| subagent binding + existing tests | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_research_web_binding.py tests/research/test_tools.py tests/research/test_tool_ids.py tests/research/test_agent_build.py -q` | 0 | 25 passed (at fc8e42c6) | SC-2 |
+| per-run cap | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/tools/test_web_search_run_cap.py -q` | 0 | 6 passed (at fc8e42c6) | SC-3 |
+| run-limit setting | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/core/test_config_web_search.py -q` | 0 | 8 passed (at fc8e42c6) | SC-4 |
+| reader keeps source links | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_reader.py -q` | 0 | 24 passed (at fc8e42c6) | SC-5 |
+| skills + grader v3 | `cd apps/api && TAVILY_API_KEY= SERPAPI_API_KEY= DATABASE_URL=sqlite:///:memory: ../../.venv/bin/python -m pytest tests/research/test_skills_prompts.py tests/prompts/test_active_versions_load.py -q` | 0 | 16 passed (at fc8e42c6) | SC-6 |
+| lint | `cd apps/api && ../../.venv/bin/ruff check app scripts` | 0 | All checks passed! (at fc8e42c6) | |
 
 ### Not auto-verified
 
-- Real-key smoke research run (issue #229 acceptance): **not run yet — owed.** It should show at least one fact cited `(search_web)` with a `## Sources` link and no web-cited price. It should also leave a `web_search_run` rate-limit row for that run's `run_id`; that row is the only proof that deepagents passes `ResearchContext` to subagent tool calls, because the offline tests monkeypatch `get_runtime`.
+- Real-key smoke research run (issue #229 acceptance): **run once, not conclusive.** It was run on 2026-09-24 with `eval.research_smoke` defaults, the seeded Da Nang trip, `WEB_SEARCH_ENABLED=true` and both keys; tool binding was confirmed (`days`: `search_web`, `find_places_live`; `entry_season`: `search_web`).
+  - The run hit the pre-existing 600 s `research_timeout_s` (PR #221 SUMMARY already records that 600 s is too tight; its valid smoke used `--timeout 1500 --max-usd 3.0`). It cost $1.33, and all 7 dimension files were written.
+  - No subagent called a web tool, and there are no `web_search_run` rows. For seeded Da Nang the seeded tools returned data, which is the last-resort rule behaving as intended. The run proves neither a web-cited fact nor that the run cap sees `ResearchContext` in a subagent call; both stay owed.
+  - Suggested rerun: `--instruction` asking for festivals or events on specific dates in a city with thin seed data, with `--timeout 1500 --max-usd 3.0`.
 - Model compliance with the skill rules (last resort, Sources placement): unmeasured, and graded only by v3 at run time.
 - Lane classification — reached traceability; the flags were assigned by judgement.
 
