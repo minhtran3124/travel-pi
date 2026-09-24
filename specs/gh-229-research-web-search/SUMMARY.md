@@ -75,6 +75,12 @@ Deduplicated into 7 locations. The fixes were cheap and unambiguous, so they wer
 - **D (1 angle, fixed).** The budget `ToolException` was chained from `RateLimitError`, so `describe_tool_failure` took the AppError branch ("not found or not allowed"). It now raises `from None`; a test asserts `__cause__ is None`.
 - **E+F (4 angles, fixed).** The verbatim `## Sources` block kept every line up to the next H1/H2, so an H3 or prose placed after the links leaked ids and tool names. A heading spelled differently lost the protection altogether. Replaced with a simpler rule: every markdown link `[title](url)` passes through untouched wherever it is, and everything else is stripped as usual. A citation after a link on the same line is stripped. Tests cover a heading variant, a trailing citation, and prose after the list.
 - **G (1 angle, fixed).** The skills told the subagent to use web tools that are not bound when the flag is off. Both steps now say "If … is among your tools".
+- **Fix re-review, round 2.** A, B, D and G were confirmed resolved; E+F only partly. Fixed:
+  - (92) a link whose URL has parentheses and a UUID lost its line. The link pattern now allows one level of parentheses.
+  - (95) a bare source URL with a UUID was dropped. Bare `http(s)://` URLs are now protected too.
+  - (88) the 10-year window left one row per run that was never pruned. The window is now 7 days, so rows are pruned within 14 days; a ≤ 600 s run crosses a boundary about 0.1% of the time. This is an accepted trade-off.
+
+  Recorded as accepted (80, bounded): with the run cap checked first, a call the per-user limit refuses spends a run slot, and after 6 such calls the message says "run budget" rather than "hourly quota".
 
 ### Intent review (2026-09-24)
 

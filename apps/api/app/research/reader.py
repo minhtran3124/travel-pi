@@ -32,7 +32,8 @@ _BARE_UUID = re.compile(
     re.IGNORECASE,
 )
 _IDS_HEADING = re.compile(r"^##[ \t]+Ids[ \t]*$", re.IGNORECASE)
-_LINK = re.compile(r"\[[^\]\n]*\]\([^()\s]+\)")
+# A markdown link (one level of parentheses allowed in the URL), or a bare URL.
+_LINK = re.compile(r"\[[^\]\n]*\]\((?:[^()\s]|\([^()\s]*\))+\)|<?https?://[^\s<>]+>?")
 _SECTION_HEADING = re.compile(r"^#{1,2}[ \t]")
 
 

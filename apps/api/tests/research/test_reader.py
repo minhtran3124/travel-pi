@@ -159,3 +159,13 @@ def test_blank_lines_after_sources_are_still_collapsed():
     out = reader_view(text)
     assert "- [a](https://example.com/a)\n\n## Next" in out
     assert "\n\n\n" not in out
+
+
+def test_a_link_with_parentheses_in_its_url_survives() -> None:
+    raw = f"- [N](https://gov.example/n_(city)/{UUID})"
+    assert reader_view(raw) == raw
+
+
+def test_a_bare_source_url_survives() -> None:
+    raw = f"## Sources\n\n- https://gov.example/notice/{UUID}\n"
+    assert reader_view(raw) == raw

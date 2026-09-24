@@ -133,13 +133,13 @@ def _enforce_run(run_id: str) -> None:
             name="web_search_run",
             subject=run_id,
             limit=settings.web_search_research_run_limit,
-            # run_id is unique per run, so one window far longer than any run means the
-            # count never resets mid-run (fixed windows align to the epoch).
             window_seconds=_RUN_WINDOW_SECONDS,
         )
 
 
-_RUN_WINDOW_SECONDS = 10 * 365 * 24 * 3600
+# A week: a run (≤ research_timeout_s) almost never straddles a boundary, and the
+# limiter still prunes old run rows. run_id is unique per run.
+_RUN_WINDOW_SECONDS = 7 * 24 * 3600
 
 
 async def _apply_run_cap() -> None:
