@@ -45,6 +45,13 @@ def create_app() -> FastAPI:
     register_middleware(app, settings)
     app.include_router(api_router)
 
+    # Trip-research surface is flag-gated: registered only when enabled, so with the
+    # flag off every /agent/research* path is a clean 404 (specs/trip-research-deep-agent).
+    if settings.research_enabled:
+        from app.routers.research import router as research_router
+
+        app.include_router(research_router)
+
     # Fail fast on duplicate operationIds — a duplicate handler name silently breaks TS codegen. Schema-hidden routes are exempt.
     ids = [
         r.operation_id or r.name

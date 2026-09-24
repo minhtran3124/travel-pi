@@ -1,5 +1,5 @@
 .PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint \
-        eval-smoke eval-full eval-baseline eval-compare eval-check eval-html
+        eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke
 
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
 VENV ?= ../../.venv
@@ -69,3 +69,6 @@ eval-compare:   ## Compare the latest report against the committed baseline (exi
 	$(VENV)/bin/python -c "from evalkit.baseline import compare, render_table; from evalkit.report import load_report; import sys; report = load_report('eval/reports/latest.json'); baseline = load_report('$(BASELINE)'); diff = compare(report, baseline); print(render_table(diff)); sys.exit(diff.exit_code())"
 
 eval-check: eval-full eval-compare  ## Local regression gate (E002: judged eval never runs on CI) — full judged run, then compare
+
+research-smoke:  ## Keyed trip-research smoke (NOT in CI): pass ARGS='--dry-run' for the keyless path
+	$(VENV)/bin/python -m eval.research_smoke $(ARGS)

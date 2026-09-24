@@ -27,6 +27,18 @@ export interface TripMapMarker {
   position: TripMapPosition;
   label: string;
   color?: string;
+  /** Short text drawn in a round badge instead of the default pin (e.g. a stop number). */
+  badge?: string;
+}
+
+const BADGE_CLASS =
+  "grid size-6 place-items-center rounded-pill bg-ink text-xs font-bold text-on-ink shadow-lift ring-2 ring-panel";
+
+function badgeElement(text: string): HTMLElement {
+  const el = document.createElement("div");
+  el.className = BADGE_CLASS;
+  el.textContent = text;
+  return el;
 }
 
 export interface TripMapRoute {
@@ -101,7 +113,11 @@ export function TripMap({ markers, route, className, ariaLabel }: TripMapProps) 
         }
 
         for (const marker of markers) {
-          new maplibre.Marker({ color: marker.color })
+          new maplibre.Marker(
+            marker.badge
+              ? { element: badgeElement(marker.badge) }
+              : { color: marker.color },
+          )
             .setLngLat([marker.position.lng, marker.position.lat])
             .setPopup(new maplibre.Popup().setText(marker.label))
             .addTo(map);

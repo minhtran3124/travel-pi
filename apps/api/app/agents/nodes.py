@@ -251,6 +251,29 @@ def _booking_committed_this_turn(messages: list) -> bool:
     return False
 
 
+def _research_started_this_turn(messages: list) -> bool:
+    """True when the research launcher started a job — or answered an existing
+    run's status — since the last HumanMessage.
+
+    The launcher (``app.research.launcher``) marks its reply with
+    ``additional_kwargs={"research_started": True}`` (or ``research_status``). Reflection ends — never
+    REVISEs — such a turn, so a REVISE cannot route ``goto=current_flow``
+    ('research') back into the launcher and start a second job (mirrors the
+    booking guard above).
+    """
+    last_human = -1
+    for i, msg in enumerate(messages):
+        if isinstance(msg, HumanMessage):
+            last_human = i
+    for msg in messages[last_human + 1 :]:
+        if isinstance(msg, AIMessage) and (
+            msg.additional_kwargs.get("research_started")
+            or msg.additional_kwargs.get("research_status")
+        ):
+            return True
+    return False
+
+
 def make_reflection_node(
     llm: BaseChatModel, max_revisions: int = DEFAULT_MAX_REVISIONS
 ):
@@ -284,6 +307,15 @@ def make_reflection_node(
         if _booking_committed_this_turn(state["messages"]):
             logger.info(
                 "[agent] reflection → END (booking committed this turn; not reviewable)"
+            )
+            return Command(goto=END)
+
+        # A turn that launched a deep-research job is terminal for the same reason:
+        # a REVISE would route goto=current_flow ('research') back into the launcher
+        # and start a second job. End before the judge.
+        if _research_started_this_turn(state["messages"]):
+            logger.info(
+                "[agent] reflection → END (research launched this turn; not reviewable)"
             )
             return Command(goto=END)
 

@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 #: Main-graph nodes whose terminal AIMessage never streams via ``messages`` mode,
 #: so the mapper surfaces it from ``updates`` gated on this set to avoid double-emit.
-_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan"})
+_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "research"})
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
@@ -261,6 +261,9 @@ async def stream_agent_events(
                     state.values.get("user_id") if state else None,
                 ),
                 preferences=(state.values.get("preferences", "") if state else ""),
+                # ``None`` (premium) keeps every specialist reachable; a missing
+                # context falls back to "no premium specialist", never all-allowed.
+                allowed_subagents=getattr(context, "allowed_subagents", frozenset()),
             )
         )
         usage = None

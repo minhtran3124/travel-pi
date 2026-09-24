@@ -12,6 +12,8 @@ from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
+from app.research.progress import ProgressBus
+from app.research.runtime import set_research_runtime
 from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
 
@@ -110,6 +112,36 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         except Exception:
             logger.exception("Agent graph build failed; agent endpoints disabled")
             app.state.travel_graph = None
+
+        # The trip-research deep agent is a second, independent graph sharing this
+        # checkpointer/store; it is off until wave 4 flips ``research_enabled``. Its
+        # build is isolated in its own try/except so a failure never touches the chat
+        # graph above — research routes degrade to 503 with the agent left None.
+        app.state.research_agent = None
+        app.state.research_bus = ProgressBus()
+        if settings.research_enabled:
+            try:
+                from app.research.agent import build_research_agent
+                from app.research.service import ResearchService
+
+                app.state.research_agent = build_research_agent(
+                    store=store, checkpointer=checkpointer
+                )
+                ResearchService(
+                    session_factory=get_session_factory(settings.database_url),
+                    store=store,
+                    agent=app.state.research_agent,
+                    bus=app.state.research_bus,
+                ).sweep_stale()
+                # Share the built agent + bus with the chat graph's ``research``
+                # node (which was wired before this agent existed) and the REST
+                # routes, so both drive one agent through one bus. On the failure
+                # path below the holder is left unset, so the node declines.
+                set_research_runtime(app.state.research_agent, app.state.research_bus)
+                logger.info("Trip-research agent ready")
+            except Exception:
+                logger.exception("Trip-research agent build failed; research disabled")
+                app.state.research_agent = None
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
         yield

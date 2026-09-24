@@ -1,0 +1,304 @@
+{
+  "all_tools": [
+    "add_expense",
+    "add_itinerary_item",
+    "add_place_to_trip",
+    "book_flight",
+    "book_hotel",
+    "browse_hotels",
+    "cancel_flight",
+    "cancel_hotel",
+    "create_trip",
+    "estimate_trip_budget",
+    "expense_summary",
+    "get_air_quality",
+    "get_city_route",
+    "get_climate",
+    "get_local_tips",
+    "get_packing",
+    "get_route",
+    "get_trip_budget",
+    "get_trip_summary",
+    "get_user_preferences",
+    "get_visa",
+    "get_weather",
+    "list_expenses",
+    "list_place_categories",
+    "list_trip_places",
+    "list_trips",
+    "nearby_places",
+    "parse_nl_query",
+    "recall_past_trips",
+    "resolve_date",
+    "resolve_place",
+    "save_user_preference",
+    "search_flights",
+    "search_hotels",
+    "search_places",
+    "search_travel_knowledge",
+    "set_trip_budget"
+  ],
+  "manifest": {
+    "subagents": [
+      "planner",
+      "concierge",
+      "journal",
+      "booking",
+      "budget"
+    ],
+    "tools": [
+      {
+        "description": "Get a trip's full snapshot: days, items, places, budget rollup, and gaps.",
+        "destructive": false,
+        "name": "get_trip_summary",
+        "read_only": true
+      },
+      {
+        "description": "Get the trip's budget: caps, spent-by-category, and remaining amounts.",
+        "destructive": false,
+        "name": "get_trip_budget",
+        "read_only": true
+      },
+      {
+        "description": "List the places shortlisted onto a trip.",
+        "destructive": false,
+        "name": "list_trip_places",
+        "read_only": true
+      },
+      {
+        "description": "Shortlist a place onto a trip.",
+        "destructive": false,
+        "name": "add_place_to_trip",
+        "read_only": false
+      },
+      {
+        "description": "Add an itinerary item to a trip day.",
+        "destructive": false,
+        "name": "add_itinerary_item",
+        "read_only": false
+      },
+      {
+        "description": "List every trip the traveller has, newest first, with a total count.",
+        "destructive": false,
+        "name": "list_trips",
+        "read_only": true
+      },
+      {
+        "description": "Create a new trip and make it the active trip for the rest of this turn.",
+        "destructive": false,
+        "name": "create_trip",
+        "read_only": false
+      },
+      {
+        "description": "Search places by city, category, minimum rating, or price level (1\u20134).",
+        "destructive": false,
+        "name": "search_places",
+        "read_only": true
+      },
+      {
+        "description": "Find places within radius_km of a known place (by id or PLC-XXXX code).",
+        "destructive": false,
+        "name": "nearby_places",
+        "read_only": true
+      },
+      {
+        "description": "Resolve a place by id or PLC-XXXX short code.",
+        "destructive": false,
+        "name": "resolve_place",
+        "read_only": true
+      },
+      {
+        "description": "Parse a free-text place query into structured filters.",
+        "destructive": false,
+        "name": "parse_nl_query",
+        "read_only": true
+      },
+      {
+        "description": "List all distinct place categories with display metadata (color, icon).",
+        "destructive": false,
+        "name": "list_place_categories",
+        "read_only": true
+      },
+      {
+        "description": "Search flights for a route and date with optional filters and sort.",
+        "destructive": false,
+        "name": "search_flights",
+        "read_only": true
+      },
+      {
+        "description": "Search hotels in a city with room availability for specific dates.",
+        "destructive": false,
+        "name": "search_hotels",
+        "read_only": true
+      },
+      {
+        "description": "Get the multi-day weather forecast for a city (temps, conditions, score).",
+        "destructive": false,
+        "name": "get_weather",
+        "read_only": true
+      },
+      {
+        "description": "Get a weather-driven packing suggestion for a city over the next days.",
+        "destructive": false,
+        "name": "get_packing",
+        "read_only": true
+      },
+      {
+        "description": "Get the current air-quality forecast (US AQI + category) for a city.",
+        "destructive": false,
+        "name": "get_air_quality",
+        "read_only": true
+      },
+      {
+        "description": "Get typical/average monthly weather conditions (climate normals) for a city.",
+        "destructive": false,
+        "name": "get_climate",
+        "read_only": true
+      },
+      {
+        "description": "Get distance and travel time between two places (by id or PLC-XXXX code).",
+        "destructive": false,
+        "name": "get_route",
+        "read_only": true
+      },
+      {
+        "description": "Get distance and travel time between two cities by name.",
+        "destructive": false,
+        "name": "get_city_route",
+        "read_only": true
+      },
+      {
+        "description": "Recall this traveller's past trip outcomes to personalise the plan (e.g.",
+        "destructive": false,
+        "name": "recall_past_trips",
+        "read_only": true
+      },
+      {
+        "description": "Resolve a relative/weekday/partial date expression to a concrete date.",
+        "destructive": false,
+        "name": "resolve_date",
+        "read_only": true
+      },
+      {
+        "description": "Get practical local travel tips for a destination (city or country).",
+        "destructive": false,
+        "name": "get_local_tips",
+        "read_only": true
+      },
+      {
+        "description": "Get visa / entry-requirement guidance for a destination (city or country).",
+        "destructive": false,
+        "name": "get_visa",
+        "read_only": true
+      },
+      {
+        "description": "Answer hotel info/search questions \u2014 price, location, amenities, rating \u2014 with no dates.",
+        "destructive": false,
+        "name": "browse_hotels",
+        "read_only": true
+      },
+      {
+        "description": "Search the travel knowledge base for visa rules and local tips matching a query.",
+        "destructive": false,
+        "name": "search_travel_knowledge",
+        "read_only": true
+      },
+      {
+        "description": "Remember a traveller preference for future trips (e.g. diet, airline, pace).",
+        "destructive": false,
+        "name": "save_user_preference",
+        "read_only": false
+      },
+      {
+        "description": "Recall the traveller's saved preferences (optionally filtered by a query).",
+        "destructive": false,
+        "name": "get_user_preferences",
+        "read_only": true
+      },
+      {
+        "description": "Book a flight. You MUST pass confirm=True to create the reservation.",
+        "destructive": true,
+        "name": "book_flight",
+        "read_only": false
+      },
+      {
+        "description": "Book a hotel room. You MUST pass confirm=True to create the reservation.",
+        "destructive": true,
+        "name": "book_hotel",
+        "read_only": false
+      },
+      {
+        "description": "Cancel a FLIGHT booking. You MUST pass confirm=True \u2014 this cannot be undone.",
+        "destructive": true,
+        "name": "cancel_flight",
+        "read_only": false
+      },
+      {
+        "description": "Cancel a HOTEL booking. You MUST pass confirm=True \u2014 this cannot be undone.",
+        "destructive": true,
+        "name": "cancel_hotel",
+        "read_only": false
+      },
+      {
+        "description": "Record a trip expense.",
+        "destructive": false,
+        "name": "add_expense",
+        "read_only": false
+      },
+      {
+        "description": "List all recorded expenses for a trip.",
+        "destructive": false,
+        "name": "list_expenses",
+        "read_only": true
+      },
+      {
+        "description": "Get the trip's expense rollup (totals by category, in USD).",
+        "destructive": false,
+        "name": "expense_summary",
+        "read_only": true
+      },
+      {
+        "description": "Estimate a trip's budget and propose per-category caps (read-only).",
+        "destructive": false,
+        "name": "estimate_trip_budget",
+        "read_only": true
+      },
+      {
+        "description": "Set the trip's per-category budget caps (USD).",
+        "destructive": false,
+        "name": "set_trip_budget",
+        "read_only": false
+      }
+    ]
+  },
+  "mcp": [
+    "add_expense",
+    "add_itinerary_item",
+    "add_place_to_trip",
+    "browse_hotels",
+    "estimate_trip_budget",
+    "expense_summary",
+    "get_air_quality",
+    "get_city_route",
+    "get_climate",
+    "get_local_tips",
+    "get_packing",
+    "get_route",
+    "get_trip_budget",
+    "get_trip_summary",
+    "get_visa",
+    "get_weather",
+    "list_expenses",
+    "list_place_categories",
+    "list_trip_places",
+    "nearby_places",
+    "parse_nl_query",
+    "resolve_date",
+    "resolve_place",
+    "search_flights",
+    "search_hotels",
+    "search_places",
+    "search_travel_knowledge",
+    "set_trip_budget"
+  ]
+}

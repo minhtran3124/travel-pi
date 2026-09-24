@@ -121,6 +121,77 @@
       "daysNeedPlan": "{count, plural, one {# day still needs a plan} other {# days still need a plan}}",
       "noStay": "{count, plural, one {# day still needs a place to stay} other {# days still need a place to stay}}",
       "dayChip": "Day {day}"
+    },
+    "research": {
+      "tabLabel": "Research",
+      "originLabel": "Where are you travelling from?",
+      "originPlaceholder": "e.g. Ho Chi Minh City or SGN",
+      "lockedTitle": "Deep research is a premium feature",
+      "lockedHint": "Upgrade to let the assistant research this trip in depth — destinations, stays, and things to do, gathered into a dossier you can apply to your plan.",
+      "upgradeCta": "Upgrade plan",
+      "emptyTitle": "Research this trip",
+      "emptyHint": "Let the assistant dig into your destination and pull together a detailed dossier of ideas you can add to your plan.",
+      "start": "Research this trip",
+      "running": "Researching your trip…",
+      "reviseTitle": "Want changes?",
+      "revisePlaceholder": "Tell the researcher what to adjust",
+      "revise": "Revise",
+      "filesHeading": "Research files",
+      "proposalHeading": "Proposed additions",
+      "apply": "Apply to trip",
+      "error": "Something went wrong while researching. Please try again.",
+      "progress": {
+        "flights": "Flights",
+        "stays": "Stays",
+        "days": "Itinerary",
+        "budget": "Budget",
+        "entry": "Entry & weather",
+        "quality": "Quality check"
+      },
+      "reviseChips": {
+        "cheaper": "Make it cheaper",
+        "localFood": "Add local food spots",
+        "relaxed": "A more relaxed pace"
+      },
+      "plan": {
+        "navLabel": "Plan sections",
+        "readyTitle": "Your plan is ready",
+        "readyTitleNeedsReview": "Your plan is ready — a few parts to check",
+        "needsReviewHint": "Some options couldn't be confirmed — open the detailed report or use Revise to fill the gaps.",
+        "statDays": "{count} days",
+        "statFlights": "{count} flights",
+        "budgetLine": "{spent} / {cap} USD",
+        "budgetLineNoCap": "{spent} USD estimated",
+        "itineraryHeading": "Itinerary",
+        "flightsHeading": "Flights",
+        "staysHeading": "Stays",
+        "budgetHeading": "Budget",
+        "entryHeading": "Entry & weather",
+        "dayLabel": "Day {n}",
+        "includeStop": "Include this stop when applying",
+        "perNight": "{price}/night",
+        "nonstop": "Nonstop",
+        "stops": "{count} stop(s)",
+        "unavailable": "This option couldn't be loaded.",
+        "applyResult": "{applied}/{total} added",
+        "report": {
+          "title": "Detailed report",
+          "count": "{count} sections",
+          "summary": "Summary",
+          "overview": "Overview",
+          "flights": "Flights",
+          "stays": "Stays",
+          "entry": "Entry & weather",
+          "budget": "Budget",
+          "day": "Day {n}",
+          "proposal": "Proposal data"
+        }
+      },
+      "unfinishedTitle": "Research didn't finish",
+      "failedHint": "This run stopped before it could finish. Run it again to pick up where it left off.",
+      "interruptedHint": "This run was interrupted before it finished. Run it again to complete it.",
+      "runAgain": "Run again",
+      "resumeInstruction": "Finish the research that was interrupted."
     }
   },
   "Budget": {
@@ -570,6 +641,24 @@
     "bookViaAssistantHint": "Ask the assistant in chat to book this for you."
   },
   "Chat": {
+    "researchDone": {
+      "title": "Your trip research is ready!",
+      "titleNeedsReview": "Your research is ready — a few gaps to check",
+      "hintNeedsReview": "Some options couldn't be confirmed. Review them in the Research tab and use Revise to fill the gaps.",
+      "hint": "Take a look and add what you like to your trip.",
+      "hintNoPlan": "Take a look whenever you're ready.",
+      "open": "See the research",
+      "openDetails": "See all the details",
+      "viewPlan": "View plan",
+      "dismiss": "Dismiss",
+      "sections": {
+        "days": "📅 {count}-day plan",
+        "flights": "✈️ Flights",
+        "stays": "🏨 Stays",
+        "entry": "🛂 Entry & best time",
+        "budget": "💰 Budget"
+      }
+    },
     "headerTitle": "Tin",
     "dialogLabel": "Travel Assistant",
     "statusReady": "Ready when you are",
@@ -628,6 +717,10 @@
         "addExpense": { "label": "Add expense ➕", "prompt": "Add an expense to my budget" },
         "remaining": { "label": "Remaining 💵", "prompt": "How much budget do I have left?" },
         "breakdown": { "label": "Breakdown 📊", "prompt": "Show me the budget breakdown" }
+      },
+      "research": {
+        "start": { "label": "Research my trip 🔎", "prompt": "Research this trip in depth" },
+        "view_progress": { "label": "View research 🔎", "prompt": "Show me the research progress for this trip" }
       },
       "book_hotel_next": { "label": "Find a hotel next 🏨", "prompt": "Find a hotel for this trip now" },
       "transport_to_hotel": { "label": "Get to my hotel 🚕", "prompt": "How do I get to my hotel from the airport?" },
@@ -743,7 +836,8 @@
       "weather": "Weather",
       "airQuality": "Air Quality",
       "flights": "Flights",
-      "hotels": "Hotels"
+      "hotels": "Hotels",
+      "researchPlan": "Plan"
     },
     "route": {
       "mapLabel": "Route map",
@@ -806,6 +900,31 @@
       "allInTotal": "All-in total",
       "roomsLeftLabel": "Rooms left",
       "amenities": "Amenities"
+    },
+    "researchPlan": {
+      "title": "Plan",
+      "tabs": {
+        "overview": "Overview",
+        "byDay": "By day",
+        "flightsStays": "Flights & stays"
+      },
+      "verdictPassed": "Ready",
+      "verdictNeedsReview": "A few parts to check",
+      "needsReviewHint": "Some options couldn't be confirmed — open the Research tab to fill the gaps.",
+      "statDays": "{count, plural, one {# day} other {# days}}",
+      "statFlights": "{count, plural, one {# flight} other {# flights}}",
+      "budgetLine": "{spent} / {cap} USD",
+      "budgetLineNoCap": "{spent} USD estimated",
+      "apply": "Apply to trip",
+      "applyResult": "{applied}/{total} added",
+      "dayChip": "Day {n}",
+      "mapLabel": "Day map",
+      "flightsHeading": "Flights",
+      "staysHeading": "Stays",
+      "byDayEmpty": "No day-by-day itinerary yet — open the Research tab for the full report.",
+      "empty": "No flights or stays yet — open the Research tab for the full report.",
+      "fullReport": "See it all in the Research tab",
+      "updating": "Updating…"
     }
   },
   "Errors": {

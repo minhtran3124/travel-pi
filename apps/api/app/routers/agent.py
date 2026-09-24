@@ -383,6 +383,7 @@ async def agent_chat(
                 trip_facts=result.get("trip_facts"),
                 profile=profile_for_suggestions(graph.store, uid),
                 preferences=result.get("preferences", ""),
+                allowed_subagents=ctx.allowed_subagents,
             )
         ),
         interrupt_pending=interrupt_pending,
@@ -569,7 +570,15 @@ def agent_manifest() -> AgentManifest:
         )
         for t in ALL_TOOLS
     ]
-    return AgentManifest(subagents=list(SUBAGENTS), tools=tools)
+    # The research launcher is declared only when its kill switch is on, mirroring
+    # main.py wiring the routes on the same flag: with research_enabled false the
+    # whole surface is invisible and /agent/manifest stays byte-identical to before
+    # the feature (design §12.2/§12.3); once 7.2 flips the flag, a reachable premium
+    # capability is honestly declared instead of silently omitted.
+    subagents = [
+        s for s in SUBAGENTS if s != "research" or get_settings().research_enabled
+    ]
+    return AgentManifest(subagents=subagents, tools=tools)
 
 
 @router.post(

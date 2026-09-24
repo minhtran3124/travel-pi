@@ -92,8 +92,9 @@ export interface InterruptState {
 
 export interface UseAgentStreamOptions {
   tripId?: string;
-  /** Called once an assistant turn finishes (stream end). */
-  onTurnComplete?: () => void;
+  /** Called once an assistant turn finishes (stream end), with the specialist
+   * that handled it (`done.current_flow`; null when the turn ended without one). */
+  onTurnComplete?: (turn: { currentFlow: string | null }) => void;
 }
 
 export interface UseAgentStream {
@@ -253,6 +254,8 @@ export function useAgentStream(
   // user Stop should still run the finally-block's state reset; set true by
   // stop(), consumed and cleared inside each stream loop's finally.
   const userStoppedRef = useRef(false);
+  // The current turn's `done.current_flow`, handed to `onTurnComplete`.
+  const lastFlowRef = useRef<string | null>(null);
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -571,6 +574,7 @@ export function useAgentStream(
                 break;
               }
               case "done":
+                lastFlowRef.current = event.currentFlow;
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
@@ -628,7 +632,8 @@ export function useAgentStream(
             setIsStreaming(false);
             // Delay onTurnComplete until after the user resolves the interrupt.
             if (!sawInterrupt) {
-              onTurnComplete?.();
+              onTurnComplete?.({ currentFlow: lastFlowRef.current });
+              lastFlowRef.current = null;
             }
             userStoppedRef.current = false;
           }
@@ -731,6 +736,7 @@ export function useAgentStream(
                 break;
               }
               case "done":
+                lastFlowRef.current = event.currentFlow;
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
@@ -764,7 +770,8 @@ export function useAgentStream(
               ),
             );
             setIsStreaming(false);
-            onTurnComplete?.();
+            onTurnComplete?.({ currentFlow: lastFlowRef.current });
+            lastFlowRef.current = null;
             userStoppedRef.current = false;
           }
           if (abortRef.current === controller) abortRef.current = null;
@@ -868,6 +875,7 @@ export function useAgentStream(
               break;
             }
             case "done":
+              lastFlowRef.current = event.currentFlow;
               // Terminal event — capture the turn's language for the panels.
               applyPanelLanguage(event.language);
               setSuggestions(event.suggestions);
@@ -914,7 +922,8 @@ export function useAgentStream(
           );
           setIsStreaming(false);
           if (!sawInterrupt) {
-            onTurnComplete?.();
+            onTurnComplete?.({ currentFlow: lastFlowRef.current });
+            lastFlowRef.current = null;
           }
           userStoppedRef.current = false;
         }

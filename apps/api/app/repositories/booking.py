@@ -1,12 +1,11 @@
 """Data-access layer for bookings; business rules live in services/booking_service.py."""
 
-import hashlib
-
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
 from app.db import models
 from app.db.base import Base
+from app.db.locks import advisory_lock_key, advisory_xact_lock
 from app.enums import BookingStatus
 from app.repositories.base import Repo
 from app.schemas.booking import Booking
@@ -33,9 +32,9 @@ def _row_to_booking(row: models.Booking) -> Booking:
 
 
 def _owner_lock_key(user_id: str) -> int:
-    """Hash the owner id to a stable signed int64 lock key; blake2b (not salted hash()) keeps it identical across processes."""
-    digest = hashlib.blake2b(f"booking:{user_id}".encode(), digest_size=8).digest()
-    return int.from_bytes(digest, "big", signed=True)
+    """The signed int64 advisory-lock key for a booking owner; delegates to the
+    shared hasher so bookings and other lock users share one mechanism."""
+    return advisory_lock_key(f"booking:{user_id}")
 
 
 class BookingRepository(Repo):
@@ -129,11 +128,7 @@ class BookingRepository(Repo):
                 "transaction to attach the lock to."
             )
         with self._session() as s:
-            if s.get_bind().dialect.name == "postgresql":
-                s.execute(
-                    text("SELECT pg_advisory_xact_lock(:key)"),
-                    {"key": _owner_lock_key(user_id)},
-                )
+            advisory_xact_lock(s, f"booking:{user_id}")
 
     def list_all_unscoped(self) -> list[Booking]:
         """Return every booking, newest first — the one deliberately unscoped read (operator dashboard only; no user-facing route)."""

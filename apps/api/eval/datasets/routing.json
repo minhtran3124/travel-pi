@@ -241,5 +241,53 @@
     "expected_tasks": ["planner", "concierge"],
     "metrics": ["tasks_expected", "ask_coverage", "reply_language"],
     "notes": "Measures per-task query delivery (specs/specialist-task-description) in Vietnamese: a planner-owned flight search and a concierge-only visa question are two independent asks, so the supervisor fans out and each specialist must receive its own ask; ask_coverage is judged. No expected_flow: fan-out ends in synthesize."
+  },
+  {
+    "id": "research-routing-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Research my whole trip in depth and put together a full dossier for it",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "trip-research-deep-agent SC-21: a deep, whole-trip research/dossier request routes to the research launcher under supervisor v14 (needs an active trip). An ordinary flight/hotel search stays with planner/concierge."
+  },
+  {
+    "id": "research-routing-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Nghiên cứu kỹ cả chuyến đi của mình giúp tôi",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "trip-research-deep-agent SC-21 (vi): a deep, whole-trip research request routes to the research launcher under supervisor v14."
+  },
+  {
+    "id": "research-status-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Is my trip research done yet?",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "research-chat-status: a question about the deep research run's status routes to the research launcher (supervisor v15), which answers from the run instead of booking another."
+  },
+  {
+    "id": "research-status-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Bạn chạy research xong chưa?",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "research-chat-status (vi): the UAT question that booked a wasted run; routes to research under supervisor v15."
   }
 ]
