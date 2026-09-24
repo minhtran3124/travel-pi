@@ -64,6 +64,13 @@ class HotelRepository(Repo):
             ]
         return hotels
 
+    def known_ids(self, ids: list[str]) -> set[str]:
+        """Return the subset of ``ids`` that exist as hotel rows; empty input skips the query."""
+        if not ids:
+            return set()
+        with self._session() as s:
+            return set(s.scalars(select(models.Hotel.id).where(models.Hotel.id.in_(ids))).all())
+
     def count_by_city(self) -> dict[str, int]:
         """Return ``{city: hotel_count}`` — feeds ``City.hotel_count``."""
         stmt = select(models.Hotel.city, func.count()).group_by(models.Hotel.city)

@@ -10,13 +10,47 @@ from app.repositories.agent_run import AgentRunRepository
 
 
 @pytest.fixture
-def repo(tmp_db):
-    factory = get_session_factory(tmp_db)
+def factory(tmp_db):
+    f = get_session_factory(tmp_db)
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
-    with factory() as s:
+    with f() as s:
         s.query(AgentRun).delete()
         s.commit()
+    return f
+
+
+@pytest.fixture
+def repo(factory):
     return AgentRunRepository(factory)
+
+
+def _insert(
+    factory,
+    *,
+    id,
+    trip_id,
+    kind="research",
+    status="running",
+    created_at="2026-09-03T00:00:00+00:00",
+    started_at="2026-09-03T00:00:00+00:00",
+    user_id="u1",
+):
+    with factory() as s:
+        s.add(
+            AgentRun(
+                id=id,
+                user_id=user_id,
+                conversation_id="c1",
+                thread_id="t1",
+                trip_id=trip_id,
+                channel="research",
+                kind=kind,
+                status=status,
+                created_at=created_at,
+                started_at=started_at,
+            )
+        )
+        s.commit()
 
 
 def _start(repo, id="run-1", user_id="u1"):
@@ -150,3 +184,135 @@ def test_totals_excludes_rows_before_since(repo):
     assert totals["tokens"] == 0
     assert totals["cost"] == 0
     assert totals["latencies"] == []
+
+
+def test_get_returns_row_or_none(repo):
+    _start(repo)
+    assert repo.get("run-1").id == "run-1"
+    assert repo.get("missing") is None
+
+
+def test_latest_for_trip_newest_and_excludes_other_kind_and_trip(repo, factory):
+    _insert(factory, id="old", trip_id="trip-1", created_at="2026-09-03T00:00:01+00:00")
+    _insert(factory, id="new", trip_id="trip-1", created_at="2026-09-03T00:00:09+00:00")
+    _insert(
+        factory,
+        id="other-trip",
+        trip_id="trip-2",
+        created_at="2026-09-03T00:00:20+00:00",
+    )
+    _insert(
+        factory,
+        id="other-kind",
+        trip_id="trip-1",
+        kind="turn",
+        created_at="2026-09-03T00:00:30+00:00",
+    )
+    latest = repo.latest_for_trip("trip-1", "research")
+    assert latest is not None
+    assert latest.id == "new"
+    assert repo.latest_for_trip("trip-3", "research") is None
+
+
+def test_running_for_first_running_excludes_other_status_kind_trip(repo, factory):
+    _insert(factory, id="done", trip_id="trip-1", status="completed")
+    _insert(factory, id="run", trip_id="trip-1", status="running")
+    _insert(factory, id="other-trip", trip_id="trip-2", status="running")
+    _insert(factory, id="other-kind", trip_id="trip-1", kind="turn", status="running")
+    found = repo.running_for("trip-1", "research")
+    assert found is not None
+    assert found.id == "run"
+    assert repo.running_for("trip-1", "turn").id == "other-kind"
+    assert repo.running_for("trip-9", "research") is None
+
+
+def test_running_for_sees_uncommitted_row_with_live_session(factory):
+    with factory() as s:
+        live_repo = AgentRunRepository(s)
+        s.add(
+            AgentRun(
+                id="r-live",
+                user_id="u1",
+                conversation_id="c1",
+                thread_id="t1",
+                trip_id="trip-x",
+                channel="research",
+                kind="research",
+                status="running",
+                started_at="2026-09-03T00:00:00+00:00",
+            )
+        )
+        s.flush()  # no commit — visible only within this session
+        found = live_repo.running_for("trip-x", "research")
+        assert found is not None
+        assert found.id == "r-live"
+        s.rollback()
+
+
+def test_count_for_trip_counts_kind_and_trip(repo, factory):
+    _insert(factory, id="a", trip_id="trip-1")
+    _insert(factory, id="b", trip_id="trip-1")
+    _insert(factory, id="other-trip", trip_id="trip-2")
+    _insert(factory, id="other-kind", trip_id="trip-1", kind="turn")
+    assert repo.count_for_trip("trip-1", "research") == 2
+    assert repo.count_for_trip("trip-2", "research") == 1
+    assert repo.count_for_trip("trip-3", "research") == 0
+
+
+def test_count_for_trip_upto_bounds_the_count(repo, factory):
+    _insert(factory, id="a", trip_id="trip-1", created_at="2026-09-03T00:00:01+00:00")
+    _insert(factory, id="b", trip_id="trip-1", created_at="2026-09-03T00:00:05+00:00")
+    _insert(factory, id="c", trip_id="trip-1", created_at="2026-09-03T00:00:09+00:00")
+    assert (
+        repo.count_for_trip("trip-1", "research", upto="2026-09-03T00:00:05+00:00") == 2
+    )
+    assert (
+        repo.count_for_trip("trip-1", "research", upto="2026-09-03T00:00:00+00:00") == 0
+    )
+    assert repo.count_for_trip("trip-1", "research") == 3
+
+
+def test_sweep_running_before_flips_stale_and_leaves_at_or_after_cutoff(repo, factory):
+    _insert(
+        factory,
+        id="stale",
+        trip_id="trip-1",
+        status="running",
+        started_at="2026-09-03T00:00:01+00:00",
+    )
+    _insert(
+        factory,
+        id="at-cutoff",
+        trip_id="trip-1",
+        status="running",
+        started_at="2026-09-03T00:00:05+00:00",
+    )
+    _insert(
+        factory,
+        id="after",
+        trip_id="trip-1",
+        status="running",
+        started_at="2026-09-03T00:00:09+00:00",
+    )
+    _insert(
+        factory,
+        id="done",
+        trip_id="trip-1",
+        status="completed",
+        started_at="2026-09-03T00:00:01+00:00",
+    )
+    _insert(
+        factory,
+        id="other-kind",
+        trip_id="trip-1",
+        kind="turn",
+        status="running",
+        started_at="2026-09-03T00:00:01+00:00",
+    )
+    swept = repo.sweep_running_before("research", "2026-09-03T00:00:05+00:00")
+    assert swept == 1
+    assert repo.get("stale").status == "interrupted"
+    assert repo.get("at-cutoff").status == "running"
+    assert repo.get("after").status == "running"
+    assert repo.get("done").status == "completed"
+    assert repo.get("other-kind").status == "running"

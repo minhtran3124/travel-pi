@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 
 from app.db import models
 from app.repositories.base import Repo
@@ -195,3 +195,74 @@ class AgentRunRepository(Repo):
         )
         with self._session() as s:
             return list(s.scalars(stmt).all())
+
+    def get(self, run_id: str) -> models.AgentRun | None:
+        """The run row, or ``None`` if unknown."""
+        with self._session() as s:
+            return s.get(models.AgentRun, run_id)
+
+    def latest_for_trip(
+        self,
+        trip_id: str,
+        kind: str,
+    ) -> models.AgentRun | None:
+        """The trip's most recent run of *kind*, newest ``created_at`` first, or ``None``."""
+        stmt = (
+            select(models.AgentRun)
+            .where(models.AgentRun.trip_id == trip_id, models.AgentRun.kind == kind)
+            .order_by(models.AgentRun.created_at.desc())
+        )
+        with self._session() as s:
+            return s.scalars(stmt).first()
+
+    def running_for(
+        self,
+        trip_id: str,
+        kind: str,
+    ) -> models.AgentRun | None:
+        """The trip's first ``running`` run of *kind*, or ``None``."""
+        stmt = select(models.AgentRun).where(
+            models.AgentRun.trip_id == trip_id,
+            models.AgentRun.kind == kind,
+            models.AgentRun.status == "running",
+        )
+        with self._session() as s:
+            return s.scalars(stmt).first()
+
+    def count_for_trip(
+        self,
+        trip_id: str,
+        kind: str,
+        *,
+        upto: str | None = None,
+    ) -> int:
+        """Count the trip's runs of *kind*, bounded to ``created_at <= upto`` when given."""
+        stmt = (
+            select(func.count())
+            .select_from(models.AgentRun)
+            .where(models.AgentRun.trip_id == trip_id, models.AgentRun.kind == kind)
+        )
+        if upto is not None:
+            stmt = stmt.where(models.AgentRun.created_at <= upto)
+        with self._session() as s:
+            return int(s.scalar(stmt) or 0)
+
+    def sweep_running_before(
+        self,
+        kind: str,
+        cutoff: str,
+    ) -> int:
+        """Flip *kind* rows still ``running`` with ``started_at < cutoff`` to ``interrupted``; return the row count."""
+        stmt = (
+            update(models.AgentRun)
+            .where(
+                models.AgentRun.kind == kind,
+                models.AgentRun.status == "running",
+                models.AgentRun.started_at < cutoff,
+            )
+            .values(status="interrupted")
+        )
+        with self._session() as s:
+            result = s.execute(stmt)
+            self._commit(s)
+            return int(result.rowcount or 0)
