@@ -1,11 +1,13 @@
 """Event bus: transcript, WebSocket fan-out, and static UI over one port."""
 
+import asyncio
 import json
 import time
 from pathlib import Path
 
 from websockets.asyncio.server import serve
 from websockets.datastructures import Headers
+from websockets.exceptions import ConnectionClosed
 from websockets.http11 import Response
 
 _CONTENT_TYPES = {
@@ -32,6 +34,7 @@ class Bus:
         self._server = None
         self._transcript = None
         self._start = None
+        self._running = False
 
     @property
     def port(self):
@@ -51,8 +54,10 @@ class Bus:
             process_request=self._process_request,
         )
         self._port = self._server.server.sockets[0].getsockname()[1]
+        self._running = True
 
     async def stop(self):
+        self._running = False
         if self._server is not None:
             self._server.close()
             await self._server.wait_closed()
@@ -62,25 +67,48 @@ class Bus:
             self._transcript = None
 
     async def publish(self, event):
+        if not self._running:
+            raise RuntimeError("Bus is not running; call start() first")
         stamped = dict(event)
         stamped["t"] = int((time.monotonic() - self._start) * 1000)
-        self.history.append(stamped)
         line = json.dumps(stamped)
+        # History append and queue fan-out happen with no await in between, so a
+        # late client's snapshot-and-register (also await-free) can never see an
+        # event both in its history snapshot and its queue.
+        self.history.append(stamped)
         self._transcript.write(line + "\n")
         self._transcript.flush()
-        for client in list(self._clients):
-            await client.send(line)
+        for queue in self._clients:
+            queue.put_nowait(line)
 
     async def _handler(self, connection):
-        self._clients.add(connection)
+        queue = asyncio.Queue()
+        for event in self.history:
+            queue.put_nowait(json.dumps(event))
+        self._clients.add(queue)
+        sender = asyncio.create_task(self._drain(connection, queue))
         try:
-            for event in list(self.history):
-                await connection.send(json.dumps(event))
             await connection.wait_closed()
         finally:
-            self._clients.discard(connection)
+            self._clients.discard(queue)
+            sender.cancel()
 
-    def _process_request(self, connection, request):
+    async def _drain(
+        self,
+        connection,
+        queue,
+    ):
+        try:
+            while True:
+                await connection.send(await queue.get())
+        except ConnectionClosed:
+            pass
+
+    def _process_request(
+        self,
+        connection,
+        request,
+    ):
         if request.headers.get("Upgrade", "").lower() == "websocket":
             return None
         rel = request.path.split("?", 1)[0].lstrip("/") or "index.html"
