@@ -71,9 +71,14 @@ class KeyServer:
             self._server.shutdown()
             self._server.server_close()
             self._server = None
+        if self._thread is not None:
+            self._thread.join(timeout=2.0)
+            self._thread = None
 
     @property
     def url(self) -> str:
+        if self._server is None:
+            raise RuntimeError("KeyServer.start() has not been called.")
         return f"http://{self._host}:{self._port}/.well-known/jwks.json"
 
     def token_for(self, persona_id: str) -> str:
