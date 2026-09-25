@@ -62,6 +62,7 @@ def test_to_ui_events_maps_the_fixture_in_order():
         },
         {"type": "bot_tool", "persona_id": "p1", "status": "ok", "id": "call-1"},
         {"type": "bot_token", "persona_id": "p1", "text": "Here "},
+        {"type": "bot_reset", "persona_id": "p1"},
         {
             "type": "bot_token",
             "persona_id": "p1",
@@ -79,11 +80,15 @@ def test_to_ui_events_maps_the_fixture_in_order():
 
 
 def test_to_ui_events_ignores_non_ui_events():
-    # start, panel, and reset carry no lobby animation.
+    # start and panel carry no lobby animation.
     events = {ev.name: ev for ev in _fixture_events()}
     assert to_ui_events("p1", events["start"]) == []
     assert to_ui_events("p1", events["panel"]) == []
-    assert to_ui_events("p1", events["reset"]) == []
+
+
+def test_to_ui_events_maps_reset_to_bot_reset():
+    reset = next(ev for ev in _fixture_events() if ev.name == "reset")
+    assert to_ui_events("p1", reset) == [{"type": "bot_reset", "persona_id": "p1"}]
 
 
 def _run_stream(handler, token="tok"):
@@ -129,3 +134,16 @@ def test_stream_turn_raises_on_non_200(status):
     with pytest.raises(HttpStatusError) as exc:
         _run_stream(handler)
     assert exc.value.status == status
+
+
+def test_parse_skips_malformed_event_payload():
+    lines = [
+        "event: token",
+        "data: {not json",
+        "",
+        "event: done",
+        "data: {}",
+        "",
+    ]
+    events = list(parse(lines))
+    assert [ev.name for ev in events] == ["done"]

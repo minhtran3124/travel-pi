@@ -558,6 +558,42 @@ def test_terminal_leave_failure_keeps_status_and_leaves_once(monkeypatch):
     assert result.sessions[0].error is None
 
 
+def test_j_seat_returns_when_walk_to_desk_publish_raises(monkeypatch):
+    # The bus fails the first walk_to_desk; that session drops to driver_error
+    # but its seat must return so the other session still gets a seat.
+    run, _ = _fake_claude({}, default={"message": "", "intent_done": True})
+    _patch(monkeypatch, run)
+
+    class _WalkRaisingBus(_FakeBus):
+        def __init__(self) -> None:
+            super().__init__()
+            self.raised = False
+
+        async def publish(self, event: dict) -> None:
+            if event["type"] == "walk_to_desk" and not self.raised:
+                self.raised = True
+                raise RuntimeError("bus down on walk_to_desk")
+            await super().publish(event)
+
+    bus = _WalkRaisingBus()
+
+    def handler(request):
+        return httpx.Response(
+            200, content=_sse([("start", {"conversation_id": "c"}), ("done", {})])
+        )
+
+    personas = [_tagged("j1"), _tagged("j2")]
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                personas, 1, BASE_URL, _FakeKeys(), bus, client, None
+            )
+
+    result = _run(go())
+    assert sorted(s.status for s in result.sessions) == ["done", "driver_error"]
+
+
 @pytest.fixture(autouse=True)
 def _reset_quota():
     original = claude_cli.last_quota

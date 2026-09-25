@@ -150,15 +150,17 @@ function handle(ev){
       if (!p || !p.seat) break;
       const status = ev.status || 'running';
       const seat = p.seat;
-      const settle = t => { t.status = status; t.until = status === 'running' ? 0 : animT + 1.6; };
-      if (ev.name){
-        seat.tool = { id: ev.id != null ? ev.id : null, name: ev.name, status, until: status === 'running' ? 0 : animT + 1.6 };
-        if (status === 'running') p.transcript.push({ who: 'tool', text: ev.name });
+      // only a running event creates or replaces the chip; a result settles the
+      // chip it correlates to by id and never overwrites a different running one
+      if (status === 'running'){
+        seat.tool = { id: ev.id != null ? ev.id : null, name: ev.name, status, until: 0 };
+        p.transcript.push({ who: 'tool', text: ev.name });
       } else if (seat.tool){
         const cur = seat.tool;
         const idMatch = ev.id != null && cur.id != null && String(cur.id) === String(ev.id);
-        // correlate by id; fall back to the running chip only when either side has no id
-        if (idMatch || ((ev.id == null || cur.id == null) && cur.status === 'running')) settle(cur);
+        if (idMatch || ((ev.id == null || cur.id == null) && cur.status === 'running')){
+          cur.status = status; cur.until = animT + 1.6;
+        }
       }
       break;
     }
@@ -167,6 +169,12 @@ function handle(ev){
       if (!p.stream) p.stream = { text: '' };
       p.stream.text += ev.text || '';
       if (p.seat) p.seat.bubble = { who: 'bot', text: p.stream.text };
+      break;
+    }
+    case 'bot_reset': {
+      if (!p) break;
+      p.stream = null;
+      if (p.seat) p.seat.bubble = null;
       break;
     }
     case 'bot_done': {
@@ -192,6 +200,7 @@ function handle(ev){
     }
     case 'persona_leave': {
       if (!p) break;
+      const qi = state.queue.indexOf(p); if (qi >= 0) state.queue.splice(qi, 1);
       const seat = p.seat;
       if (seat){ Object.assign(seat, { busy: null, sub: null, tool: null, bubble: null, approval: false }); }
       p.seat = null;

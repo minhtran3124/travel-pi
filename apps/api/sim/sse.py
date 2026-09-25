@@ -12,10 +12,13 @@ events) and ``bot_done.reply`` (assembled from the accumulated ``bot_token`` tex
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import AsyncIterator, Iterable, Iterator
 from dataclasses import dataclass
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 
 class HttpStatusError(Exception):
@@ -69,11 +72,18 @@ class _Accumulator:
         if self._name is None:
             self._data = []
             return None
+        name = self._name
         payload = "\n".join(self._data)
-        event = SseEvent(self._name, json.loads(payload) if payload else {})
         self._name = None
         self._data = []
-        return event
+        if not payload:
+            return SseEvent(name, {})
+        try:
+            data = json.loads(payload)
+        except json.JSONDecodeError:
+            logger.warning("[sim.sse] dropping malformed SSE event %r", name)
+            return None
+        return SseEvent(name, data)
 
 
 def parse(lines: Iterable[str]) -> Iterator[SseEvent]:
@@ -123,8 +133,9 @@ def to_ui_events(
 ) -> list[dict]:
     """Map one SSE event to zero or more UI events (design §5.7).
 
-    ``start``, ``panel``, and ``reset`` carry no lobby animation, so they map to
-    nothing. Both ``bot_tool`` events carry the wire ``id`` so the caller can
+    ``start`` and ``panel`` carry no lobby animation, so they map to nothing;
+    ``reset`` maps to ``bot_reset`` so the UI can clear the streaming bot bubble.
+    Both ``bot_tool`` events carry the wire ``id`` so the caller can
     correlate ``tool_result`` back to its ``tool_call`` and fill ``name``;
     ``bot_done.reply`` is likewise filled by the token-accumulating caller.
     """
@@ -152,6 +163,8 @@ def to_ui_events(
                 "id": data.get("id"),
             }
         ]
+    if ev.name == "reset":
+        return [{"type": "bot_reset", "persona_id": persona_id}]
     if ev.name == "token":
         return [
             {

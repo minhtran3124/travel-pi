@@ -189,6 +189,7 @@ The targets live in `apps/api/Makefile`. The root `Makefile` gets thin delegatin
 | `bot_tool` | `id` (the tool-call id, correlates a result with its call), `name`, `status` (`running`/`ok`/`error`). The SSE mapper leaves `name` off result events; the driver fills it in from the matching `id`. |
 | `bot_token` | `text` (the chunk) |
 | `bot_done` | `reply` (the full text, assembled by the driver from the `bot_token` chunks), `usage` |
+| `bot_reset` | — (the SSE `reset`; the UI clears the streaming bot bubble) |
 | `bot_interrupt` | `kind` |
 | `bot_error` | `code`, `message` |
 | `persona_leave` | `reason` (`done`/`max_turns`/`bot_error`/`driver_error`/`quota`/`aborted`; `aborted` means the batch aborted (a 401, a 429, or a tier-setup failure) before this traveller finished) |

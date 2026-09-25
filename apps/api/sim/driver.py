@@ -272,17 +272,19 @@ async def _run_session(
                 await _leave(bus, persona.id, "quota")
                 return result
 
-            seat = seats.popleft()
-            result.started_at = _now()
-            await bus.publish(
-                {"type": "walk_to_desk", "persona_id": persona.id, "seat": seat}
-            )
+            seat = None
             try:
+                seat = seats.popleft()
+                result.started_at = _now()
+                await bus.publish(
+                    {"type": "walk_to_desk", "persona_id": persona.id, "seat": seat}
+                )
                 await _converse(
                     persona, base_url, keys, bus, client, ctx, result, set_tier
                 )
             finally:
-                seats.append(seat)
+                if seat is not None:
+                    seats.append(seat)
 
         if ctx.abort and result.status not in _FINISHED:
             pending_return, reason = None, "aborted"
