@@ -510,6 +510,54 @@ def test_set_tier_failure_aborts_batch_as_tier_misconfigured(monkeypatch):
     _assert_queue_leave_paired(bus)
 
 
+def test_terminal_leave_failure_keeps_status_and_leaves_once(monkeypatch):
+    run, _ = _fake_claude(
+        {
+            "l1": [
+                {"message": "hi", "intent_done": False},
+                {"message": "", "intent_done": True},
+            ]
+        }
+    )
+    _patch(monkeypatch, run)
+
+    class _LeaveRaisingBus(_FakeBus):
+        def __init__(self) -> None:
+            super().__init__()
+            self.leave_attempts = 0
+
+        async def publish(self, event: dict) -> None:
+            if event["type"] == "persona_leave":
+                self.leave_attempts += 1
+                raise RuntimeError("bus down on leave")
+            await super().publish(event)
+
+    bus = _LeaveRaisingBus()
+
+    def handler(request):
+        return httpx.Response(
+            200,
+            content=_sse(
+                [
+                    ("start", {"conversation_id": "c"}),
+                    ("token", {"content": "ok"}),
+                    ("done", {}),
+                ]
+            ),
+        )
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                [_tagged("l1")], 1, BASE_URL, _FakeKeys(), bus, client, None
+            )
+
+    result = _run(go())
+    assert bus.leave_attempts == 1
+    assert result.sessions[0].status == "done"
+    assert result.sessions[0].error is None
+
+
 @pytest.fixture(autouse=True)
 def _reset_quota():
     original = claude_cli.last_quota

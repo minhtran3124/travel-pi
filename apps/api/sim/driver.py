@@ -256,6 +256,11 @@ async def _run_session(
     result = SessionResult(persona=persona, conversation_id=None, status="quota")
     await bus.publish({"type": "persona_queue", "persona_id": persona.id})
 
+    # Once the session has settled we publish its terminal persona_leave; the
+    # flag guards the blanket handler so a failure there neither overwrites the
+    # settled status with driver_error nor publishes a second leave.
+    leave_started = False
+    pending_return: SessionResult | None = result
     try:
         async with sem:
             if ctx.abort:
@@ -279,14 +284,18 @@ async def _run_session(
             finally:
                 seats.append(seat)
 
-        # Terminal leave lives inside the try so a publish failure surfaces here
-        # instead of silently dropping a completed session.
         if ctx.abort and result.status not in _FINISHED:
-            await _leave(bus, persona.id, "aborted")
-            return None
-        await _leave(bus, persona.id, result.status)
-        return result
+            pending_return, reason = None, "aborted"
+        else:
+            pending_return, reason = result, result.status
+        leave_started = True
+        await _leave(bus, persona.id, reason)
+        return pending_return
     except Exception as exc:  # noqa: BLE001 - one crash must not stop the batch
+        if leave_started:
+            # The session already settled; only the terminal leave failed.
+            logger.exception("[sim.driver] persona_leave failed for %s", persona.id)
+            return pending_return
         logger.exception("[sim.driver] session for %s failed", persona.id)
         result.status = "driver_error"
         result.error = {"code": "driver_error", "message": str(exc)}
