@@ -150,11 +150,15 @@ function handle(ev){
       if (!p || !p.seat) break;
       const status = ev.status || 'running';
       const seat = p.seat;
+      const settle = t => { t.status = status; t.until = status === 'running' ? 0 : animT + 1.6; };
       if (ev.name){
         seat.tool = { id: ev.id != null ? ev.id : null, name: ev.name, status, until: status === 'running' ? 0 : animT + 1.6 };
         if (status === 'running') p.transcript.push({ who: 'tool', text: ev.name });
-      } else if (seat.tool && seat.tool.id != null && seat.tool.id === ev.id){
-        seat.tool.status = status; seat.tool.until = status === 'running' ? 0 : animT + 1.6;
+      } else if (seat.tool){
+        const cur = seat.tool;
+        const idMatch = ev.id != null && cur.id != null && String(cur.id) === String(ev.id);
+        // correlate by id, else fall back to the current chip only while it is still running
+        if (idMatch || cur.status === 'running') settle(cur);
       }
       break;
     }
@@ -198,10 +202,11 @@ function handle(ev){
     }
     case 'session_graded': {
       if (!p) break;
-      const verdict = VERDICTS.has(ev.verdict) ? ev.verdict : null;
+      let verdict = null;
+      if (VERDICTS.has(ev.verdict)) verdict = ev.verdict;
+      else if (ev.verdict != null) warn(`session_graded: invalid verdict ${JSON.stringify(ev.verdict)}`);
       p.grade = { score: ev.score, verdict };
-      if (verdict) p.status = verdict;
-      p.transcript.push({ who: 'grade', text: '', score: ev.score, verdict });
+      if (verdict){ p.status = verdict; p.transcript.push({ who: 'grade', text: '', score: ev.score, verdict }); }
       break;
     }
     case 'quota': {

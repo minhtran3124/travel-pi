@@ -186,9 +186,9 @@ The targets live in `apps/api/Makefile`. The root `Makefile` gets thin delegatin
 | `walk_to_desk` | `seat` |
 | `user_say` | `text` |
 | `bot_subagent` | `name` |
-| `bot_tool` | `name`, `status` (`running`/`ok`/`error`) |
+| `bot_tool` | `id` (the tool-call id, correlates a result with its call), `name`, `status` (`running`/`ok`/`error`). The SSE mapper leaves `name` off result events; the driver fills it in from the matching `id`. |
 | `bot_token` | `text` (the chunk) |
-| `bot_done` | `reply` (the full text), `usage` |
+| `bot_done` | `reply` (the full text, assembled by the driver from the `bot_token` chunks), `usage` |
 | `bot_interrupt` | `kind` |
 | `bot_error` | `code`, `message` |
 | `persona_leave` | `reason` (`done`/`max_turns`/`bot_error`/`driver_error`/`quota`) |
