@@ -40,6 +40,8 @@ class Persona(BaseModel):
     name: str
     home_city: str | None = None
     country_code: str | None = None
+    email: str | None = None
+    phone: str | None = None
     language: str
     budget: Budget
     trip_goal: TripGoal
@@ -76,6 +78,12 @@ def _read(name: str) -> str:
     return (_PROMPTS / name).read_text(encoding="utf-8")
 
 
+def _check_unique_ids(personas: list[Persona]) -> None:
+    ids = [p.id for p in personas]
+    if len(set(ids)) != len(ids):
+        raise DriverError("duplicate persona ids")
+
+
 def _default_run_dir() -> Path:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
     return _RUNS / f"{stamp}-{uuid4().hex[:6]}"
@@ -95,10 +103,7 @@ async def generate(
     if not isinstance(raw, list):
         raise DriverError("persona generation returned no personas array")
     personas = [Persona.model_validate(item) for item in raw]
-
-    ids = [p.id for p in personas]
-    if len(set(ids)) != len(ids):
-        raise DriverError("persona generation produced duplicate ids")
+    _check_unique_ids(personas)
 
     target = Path(out_dir) if out_dir is not None else _default_run_dir()
     target.mkdir(parents=True, exist_ok=True)
@@ -114,7 +119,9 @@ def load(path: Path | str) -> list[Persona]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise DriverError("personas.json must hold a JSON array of personas")
-    return [Persona.model_validate(item) for item in data]
+    personas = [Persona.model_validate(item) for item in data]
+    _check_unique_ids(personas)
+    return personas
 
 
 def _persona_card(persona: Persona) -> str:
@@ -126,10 +133,14 @@ def _persona_card(persona: Persona) -> str:
     )
     dates = goal.date_window or "unknown (you have not fixed the dates)"
     interests = ", ".join(goal.interests) or "open to suggestions"
+    contact = ", ".join(c for c in (persona.email, persona.phone) if c) or (
+        "no contact details on file"
+    )
     return "\n".join(
         [
             f"- Name: {persona.name}",
             f"- Home / origin: {origin}",
+            f"- Contact: {contact}",
             f"- Language: {persona.language}",
             f"- Budget: {persona.budget.amount:g} {persona.budget.currency}",
             f"- Destination: {goal.destination}",

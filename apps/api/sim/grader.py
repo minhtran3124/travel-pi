@@ -110,6 +110,18 @@ def _ungraded(
     )
 
 
+def _coerce_score(raw: object) -> float:
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return 0.0
+    if value < 0.0:
+        return 0.0
+    if value > 5.0:
+        return 5.0
+    return value
+
+
 async def grade(
     session: SessionResult,
     db_rows: dict,
@@ -117,20 +129,22 @@ async def grade(
     user_prompt = json.dumps(_payload(session, db_rows), ensure_ascii=False, indent=2)
     try:
         result = await claude_cli.run(_read("grader.md"), user_prompt, GRADER_SCHEMA)
+        verdict = result.get("verdict")
+        if verdict not in _VERDICTS:
+            verdict = "fail"
+        return Grade(
+            persona_id=session.persona.id,
+            verdict=verdict,
+            score=_coerce_score(result.get("score")),
+            criteria=result.get("criteria") or {},
+            summary=str(result.get("summary", "")),
+        )
     except claude_cli.QuotaExhausted:
         return _ungraded(session, "ungraded: quota exhausted")
     except claude_cli.DriverError:
         return _ungraded(session, "ungraded: grader claude -p failed")
-    verdict = result.get("verdict")
-    if verdict not in _VERDICTS:
-        verdict = "fail"
-    return Grade(
-        persona_id=session.persona.id,
-        verdict=verdict,
-        score=float(result.get("score", 0.0)),
-        criteria=result.get("criteria") or {},
-        summary=str(result.get("summary", "")),
-    )
+    except Exception as exc:  # noqa: BLE001 - a grader crash must not lose reports
+        return _ungraded(session, f"ungraded: grader error: {type(exc).__name__}")
 
 
 def _capability(session: SessionResult) -> str:
@@ -157,18 +171,31 @@ def _has_user_turn(session: SessionResult) -> bool:
     return any(t.get("role") == "user" for t in session.turns)
 
 
+_RESUME_MARKER = "[resume approved="
+
+
 def _candidate(
     batch_ts: str,
     session: SessionResult,
 ) -> dict:
-    return {
+    user_turns = [t for t in session.turns if t.get("role") == "user"]
+    resume = next(
+        (t for t in user_turns if t["text"].startswith(_RESUME_MARKER)),
+        None,
+    )
+    candidate = {
         "id": f"sim-{batch_ts}-{session.persona.id}",
-        "suite": "sim",
+        "suite": "full",
         "language": session.persona.language,
         "capability": _capability(session),
         "scenario": _scenario(session),
-        "turns": [t["text"] for t in session.turns if t.get("role") == "user"],
+        "turns": [
+            t["text"] for t in user_turns if not t["text"].startswith(_RESUME_MARKER)
+        ],
     }
+    if resume is not None:
+        candidate["hitl"] = "approve" if "approved=True" in resume["text"] else "reject"
+    return candidate
 
 
 def _total_usage(sessions: list[SessionResult]) -> dict:
@@ -178,13 +205,6 @@ def _total_usage(sessions: list[SessionResult]) -> dict:
             if isinstance(value, (int, float)):
                 total[key] = total.get(key, 0) + value
     return total
-
-
-def _cli_version() -> str:
-    try:
-        return claude_cli.cli_version()
-    except claude_cli.DriverError:
-        return "unknown"
 
 
 _FABRICATION_NOTE = (
@@ -213,6 +233,10 @@ def _render_md(
         "",
         _FABRICATION_NOTE,
         "",
+        "Golden candidates below carry no expectations or metrics; add "
+        "`expected_*`/`oracle_checks`/`metrics` during human review before "
+        "promoting them into an eval dataset.",
+        "",
         "| Persona | Verdict | Score | Transcript |",
         "|---|---|---|---|",
     ]
@@ -227,6 +251,7 @@ def write_reports(
     run_dir: str | Path,
     batch: BatchResult,
     grades: list[Grade],
+    cli_version: str = "unknown",
 ) -> None:
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -234,7 +259,7 @@ def write_reports(
     sessions_by_id = {s.persona.id: s for s in batch.sessions}
     ordered = sorted(grades, key=lambda g: (g.graded, _RANK.get(g.verdict, 0)))
     usage = _total_usage(batch.sessions)
-    version = _cli_version()
+    version = cli_version
 
     report = {
         "batch_ts": batch_ts,
@@ -245,7 +270,7 @@ def write_reports(
         "sessions": [
             {
                 "persona_id": g.persona_id,
-                "verdict": g.verdict,
+                "verdict": g.verdict if g.graded else "ungraded",
                 "graded": g.graded,
                 "score": g.score,
                 "summary": g.summary,

@@ -164,3 +164,34 @@ def test_traveller_system_prompt_carries_card_and_taubench_rules():
     assert "{{" not in prompt
     assert "intent_done" in prompt
     assert "one message per turn" in prompt
+
+
+def test_load_rejects_duplicate_ids(tmp_path):
+    dup = [THREE_PERSONAS["personas"][0], THREE_PERSONAS["personas"][0]]
+    bad = tmp_path / "dup.json"
+    bad.write_text(json.dumps(dup), encoding="utf-8")
+    with pytest.raises(personas.DriverError):
+        personas.load(bad)
+
+
+def test_persona_card_renders_contact_details():
+    payload = {
+        **THREE_PERSONAS["personas"][0],
+        "email": "mai@example.com",
+        "phone": "+1-555-0100",
+    }
+    persona = personas.Persona.model_validate(payload)
+    card = personas.traveller_system_prompt(persona)
+    assert "mai@example.com" in card
+    assert "+1-555-0100" in card
+
+
+def test_old_payload_without_contact_loads_and_card_notes_absence(tmp_path):
+    # THREE_PERSONAS predate the email/phone fields — they must still load.
+    old = tmp_path / "old.json"
+    old.write_text(json.dumps(THREE_PERSONAS["personas"]), encoding="utf-8")
+    loaded = personas.load(old)
+    assert loaded[0].email is None
+    assert loaded[0].phone is None
+    card = personas.traveller_system_prompt(loaded[0])
+    assert "no contact details on file" in card

@@ -191,3 +191,105 @@ def test_run_failure_returns_three(calls_file, env_file, monkeypatch):
     )
     assert code == 3
     _assert_no_claude_call(calls_file)
+
+
+@pytest.mark.parametrize("parallel", ["7", "0", "-1"])
+def test_parallel_out_of_range_exits_two(calls_file, env_file, parallel):
+    code = main(
+        [
+            "--base-url",
+            "http://localhost:8001",
+            "--env-file",
+            str(env_file),
+            "--parallel",
+            parallel,
+        ]
+    )
+    assert code == 2
+    _assert_no_claude_call(calls_file)
+
+
+def _session_with_turns(pid, turns):
+    from sim.driver import SessionResult
+    from sim.personas import Budget, Persona, TripGoal
+
+    persona = Persona(
+        id=pid,
+        name=pid,
+        language="en",
+        budget=Budget(amount=1000, currency="USD"),
+        trip_goal=TripGoal(destination="Rome", party_size=1),
+        style="terse",
+        will_book=False,
+        max_turns=4,
+    )
+    return SessionResult(
+        persona=persona,
+        conversation_id=None,
+        status="done",
+        turns=turns,
+    )
+
+
+@pytest.mark.asyncio
+async def test_grade_all_skips_sessions_that_never_ran(monkeypatch):
+    from datetime import datetime, timezone
+
+    from sim import __main__ as cli
+    from sim import claude_cli
+    from sim.driver import BatchResult
+    from sim.grader import Grade
+
+    monkeypatch.setattr(cli, "sim_session_factory", lambda url: None)
+    claude_cli.last_quota = None
+    calls = []
+
+    async def _fake_grade(session, rows):
+        calls.append(session.persona.id)
+        return Grade(persona_id=session.persona.id, verdict="pass", score=5.0)
+
+    monkeypatch.setattr(cli, "grade", _fake_grade)
+
+    ran = _session_with_turns("ran", [{"role": "user", "text": "hi"}])
+    never = _session_with_turns("never", [])
+    batch = BatchResult(sessions=[never, ran], status="quota", claude_calls=0)
+
+    grades = await cli._grade_all(batch, _CollectingBus(), datetime.now(timezone.utc))
+    by_id = {g.persona_id: g for g in grades}
+    assert calls == ["ran"]
+    assert by_id["never"].graded is False
+    assert "never ran" in by_id["never"].summary
+    assert by_id["ran"].graded is True
+
+
+@pytest.mark.asyncio
+async def test_grade_all_stops_grading_over_quota_ceiling(monkeypatch):
+    from datetime import datetime, timezone
+
+    from sim import __main__ as cli
+    from sim import claude_cli
+    from sim.driver import DEFAULT_CEILING, BatchResult
+    from sim.grader import Grade
+
+    monkeypatch.setenv("SIM_QUOTA_CEILING", str(DEFAULT_CEILING))
+    monkeypatch.setattr(cli, "sim_session_factory", lambda url: None)
+    claude_cli.last_quota = claude_cli.Quota(
+        five_hour=0.99, seven_day=0.1, resets_at=None
+    )
+    calls = []
+
+    async def _fake_grade(session, rows):
+        calls.append(session.persona.id)
+        return Grade(persona_id=session.persona.id, verdict="pass", score=5.0)
+
+    monkeypatch.setattr(cli, "grade", _fake_grade)
+
+    a = _session_with_turns("a", [{"role": "user", "text": "hi"}])
+    b = _session_with_turns("b", [{"role": "user", "text": "yo"}])
+    batch = BatchResult(sessions=[a, b], status="ok", claude_calls=0)
+
+    grades = await cli._grade_all(batch, _CollectingBus(), datetime.now(timezone.utc))
+    claude_cli.last_quota = None
+    assert calls == []
+    assert all(not g.graded for g in grades)
+    assert all("quota ceiling" in g.summary for g in grades)

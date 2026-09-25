@@ -10,6 +10,9 @@ Rules for the cast:
   `vi`, `en`, and at least one other language.
 - Vary `style` across `terse`, `chatty`, `changes_mind`, and `impatient`.
 - Vary budgets, currencies, destinations, party sizes, and interests.
+- Give every persona plausible fake contact details: an `email` on an example
+  domain (`@example.com`, `@example.org`) and a fictional `phone` number
+  (e.g. `+1-555-0100`). These are the only contact facts a traveller may share.
 - Include at least one traveller who leaves out a key fact: either no home city
   and country (unknown origin) or a `date_window` of `null` (no dates). This
   exercises the assistant's never-assume-the-departure-point rule.

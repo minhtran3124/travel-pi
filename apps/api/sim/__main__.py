@@ -24,11 +24,11 @@ from urllib.parse import urlparse
 import httpx
 
 import sim
-from sim import driver
+from sim import claude_cli, driver
 from sim import personas as personas_mod
 from sim.bus import Bus
 from sim.db_check import sim_session_factory, snapshot
-from sim.grader import grade, write_reports
+from sim.grader import _has_user_turn, _ungraded, grade, write_reports
 from sim.keys import KeyServer
 
 logger = logging.getLogger(__name__)
@@ -86,6 +86,8 @@ def _healthz_ok(base_url: str) -> bool:
 
 
 def _preflight(args: argparse.Namespace) -> str | None:
+    if not 1 <= args.parallel <= 6:
+        return f"--parallel must be between 1 and 6 (got {args.parallel})"
     port = urlparse(args.base_url).port
     if port != SIM_PORT and not args.i_know:
         return (
@@ -194,10 +196,23 @@ async def _grade_all(batch, bus, since_floor) -> list:
     except Exception:  # noqa: BLE001 - fall back to empty rows, still write reports
         logger.exception("[sim] could not open the sim database")
         factory = None
+    ceiling = float(os.environ.get("SIM_QUOTA_CEILING", str(driver.DEFAULT_CEILING)))
     grades = []
+    quota_hit = False
     for session in batch.sessions:
+        if not _has_user_turn(session):
+            grades.append(_ungraded(session, "ungraded: never ran"))
+            continue
+        if quota_hit or driver._over_ceiling(claude_cli.last_quota, ceiling):
+            quota_hit = True
+            grades.append(_ungraded(session, "ungraded: quota ceiling"))
+            continue
         rows = _snapshot_safe(factory, session, since_floor)
-        result = await grade(session, rows)
+        try:
+            result = await grade(session, rows)
+        except Exception:  # noqa: BLE001 - one grader crash must not lose reports
+            logger.exception("[sim] grade failed for %s", session.persona.id)
+            result = _ungraded(session, "ungraded: grader error")
         grades.append(result)
         if result.graded:
             await bus.publish(
@@ -222,6 +237,11 @@ async def _run(args: argparse.Namespace) -> int:
         keys.start()
         await bus.start()
         print(f"UI: http://localhost:{bus.port}/")
+
+        try:
+            cli_version = await claude_cli.cli_version_async()
+        except claude_cli.DriverError:
+            cli_version = "unknown"
 
         if args.personas is not None:
             personas = personas_mod.load(args.personas)
@@ -260,7 +280,7 @@ async def _run(args: argparse.Namespace) -> int:
 
         if batch.status in ABORT_STATUSES:
             _print_checklist(batch.status)
-            write_reports(run_dir, batch, [])
+            write_reports(run_dir, batch, [], cli_version)
             summary = {
                 "status": batch.status,
                 "sessions": len(batch.sessions),
@@ -269,7 +289,7 @@ async def _run(args: argparse.Namespace) -> int:
             exit_code = 1
         else:
             grades = await _grade_all(batch, bus, since_floor)
-            write_reports(run_dir, batch, grades)
+            write_reports(run_dir, batch, grades, cli_version)
             summary = {
                 "status": batch.status,
                 "sessions": len(batch.sessions),

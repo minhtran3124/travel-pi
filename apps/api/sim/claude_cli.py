@@ -99,11 +99,11 @@ def _parse_events(text: str) -> list[dict]:
 
 def _update_quota(event: dict) -> str | None:
     global last_quota
-    info = event.get("rate_limit_info", {})
-    windows = info.get("unifiedWindows", {})
+    info = event.get("rate_limit_info") or {}
+    windows = info.get("unifiedWindows") or {}
     last_quota = Quota(
-        five_hour=windows.get("five_hour", {}).get("utilization"),
-        seven_day=windows.get("seven_day", {}).get("utilization"),
+        five_hour=(windows.get("five_hour") or {}).get("utilization"),
+        seven_day=(windows.get("seven_day") or {}).get("utilization"),
         resets_at=info.get("resetsAt"),
     )
     return info.get("status")
@@ -190,3 +190,22 @@ def cli_version() -> str:
     except subprocess.TimeoutExpired as exc:
         raise DriverError(f"claude --version timed out for {_binary()!r}") from exc
     return proc.stdout.strip()
+
+
+async def cli_version_async(timeout: float = 30.0) -> str:
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            _binary(),
+            "--version",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+    except (FileNotFoundError, PermissionError) as exc:
+        raise DriverError(f"could not launch claude binary {_binary()!r}") from exc
+    try:
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout)
+    except (asyncio.TimeoutError, TimeoutError) as exc:
+        proc.kill()
+        await proc.wait()
+        raise DriverError(f"claude --version timed out for {_binary()!r}") from exc
+    return stdout.decode(errors="replace").strip()

@@ -78,7 +78,7 @@ def test_reports_fail_first_and_candidate_loads(tmp_path, monkeypatch):
 
     batch = BatchResult(sessions=sessions, status="ok", claude_calls=7)
     run_dir = tmp_path / "20260101T000000Z-abc123"
-    grader.write_reports(run_dir, batch, grades)
+    grader.write_reports(run_dir, batch, grades, cli_version="claude 9.9.9")
 
     store = JsonDatasetStore(run_dir / "candidates", TAXONOMY)
     goldens = store.load()
@@ -86,7 +86,7 @@ def test_reports_fail_first_and_candidate_loads(tmp_path, monkeypatch):
     candidate = goldens[0]
     assert candidate.capability == "flight_search"
     assert candidate.scenario == "multi_turn"
-    assert candidate.suite == "sim"
+    assert candidate.suite == "full"
     assert candidate.turns == ["flyer asks for a flight"]
     assert candidate.id == "sim-20260101T000000Z-abc123-flyer"
 
@@ -230,3 +230,104 @@ def test_ungraded_excluded_from_candidates_but_listed_first(tmp_path, monkeypatc
     broken_idx = next(i for i, ln in enumerate(lines) if "broken" in ln)
     ok_idx = next(i for i, ln in enumerate(lines) if "| ok " in ln)
     assert broken_idx < ok_idx
+
+
+def _fake_run_returning(payload):
+    async def run(system_prompt, user_prompt, schema, model=None, timeout=120):
+        return payload
+
+    return run
+
+
+def test_grade_coerces_null_score_to_zero(monkeypatch):
+    monkeypatch.setattr(
+        claude_cli, "run", _fake_run_returning({"verdict": "pass", "score": None})
+    )
+    grade = asyncio.run(grader.grade(_session("n", []), {"bookings": [], "trips": []}))
+    assert grade.graded is True
+    assert grade.verdict == "pass"
+    assert grade.score == 0.0
+
+
+def test_grade_coerces_non_numeric_and_clamps_score(monkeypatch):
+    monkeypatch.setattr(
+        claude_cli, "run", _fake_run_returning({"verdict": "pass", "score": "8/10"})
+    )
+    bad = asyncio.run(grader.grade(_session("s1", []), {"bookings": [], "trips": []}))
+    assert bad.score == 0.0
+
+    monkeypatch.setattr(
+        claude_cli, "run", _fake_run_returning({"verdict": "pass", "score": 9.0})
+    )
+    high = asyncio.run(grader.grade(_session("s2", []), {"bookings": [], "trips": []}))
+    assert high.score == 5.0
+
+
+def test_grade_survives_arbitrary_grader_crash(monkeypatch):
+    async def run(system_prompt, user_prompt, schema, model=None, timeout=120):
+        raise RuntimeError("spawn failed")
+
+    monkeypatch.setattr(claude_cli, "run", run)
+    grade = asyncio.run(grader.grade(_session("c", []), {"bookings": [], "trips": []}))
+    assert grade.graded is False
+    assert grade.verdict == "fail"
+    assert grade.score == 0.0
+    assert "grader error" in grade.summary
+
+
+def test_report_json_verdict_is_ungraded_when_not_graded(tmp_path, monkeypatch):
+    monkeypatch.setattr(claude_cli, "cli_version", lambda: "claude 1.0")
+    session = _session("u", ["search_flights"])
+    grades = [
+        grader.Grade("u", "fail", 0.0, summary="ungraded: grader error", graded=False)
+    ]
+    batch = BatchResult(sessions=[session], status="ok", claude_calls=1)
+    run_dir = tmp_path / "ts-verdict"
+    grader.write_reports(run_dir, batch, grades)
+    report = json.loads((run_dir / "report.json").read_text(encoding="utf-8"))
+    assert report["sessions"][0]["verdict"] == "ungraded"
+    assert report["sessions"][0]["graded"] is False
+
+
+def _resume_session(pid, approved):
+    return SessionResult(
+        persona=_persona(pid),
+        conversation_id=f"conv-{pid}",
+        status="done",
+        turns=[
+            {"role": "user", "text": f"{pid} wants to book"},
+            {"role": "bot", "text": "Approve?"},
+            {"role": "user", "text": f"[resume approved={approved}]"},
+            {"role": "bot", "text": "Booked"},
+        ],
+        tools=["book_flight"],
+        panels=[],
+        usage={},
+    )
+
+
+def test_candidate_full_suite_marker_excluded_and_hitl_set(tmp_path):
+    session = _resume_session("booker", True)
+    grade = grader.Grade("booker", "fail", 1.0)
+    batch = BatchResult(sessions=[session], status="ok", claude_calls=1)
+    run_dir = tmp_path / "20260101T000000Z-hit"
+    grader.write_reports(run_dir, batch, [grade])
+
+    goldens = JsonDatasetStore(run_dir / "candidates", TAXONOMY).load(suite="full")
+    assert len(goldens) == 1
+    candidate = goldens[0]
+    assert candidate.suite == "full"
+    assert candidate.hitl == "approve"
+    assert candidate.capability == "booking"
+    assert candidate.turns == ["booker wants to book"]
+    assert all("resume approved" not in t for t in candidate.turns)
+
+
+def test_candidate_hitl_reject_when_resume_declined(tmp_path):
+    session = _resume_session("decliner", False)
+    grade = grader.Grade("decliner", "warn", 2.0)
+    batch = BatchResult(sessions=[session], status="ok", claude_calls=1)
+    run_dir = tmp_path / "20260101T000000Z-rej"
+    grader.write_reports(run_dir, batch, [grade])
+    goldens = JsonDatasetStore(run_dir / "candidates", TAXONOMY).load()
+    assert goldens[0].hitl == "reject"

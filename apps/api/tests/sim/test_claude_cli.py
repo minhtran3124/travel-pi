@@ -193,3 +193,36 @@ def test_cli_version_missing_binary_raises_driver_error(fake_env, monkeypatch):
 
 def test_cli_version_reads_the_binary(fake_env):
     assert claude_cli.cli_version().startswith("1.2.3")
+
+
+@pytest.mark.asyncio
+async def test_cli_version_async_reads_the_binary(fake_env):
+    version = await claude_cli.cli_version_async()
+    assert version.startswith("1.2.3")
+
+
+@pytest.mark.asyncio
+async def test_cli_version_async_missing_binary_raises_driver_error(
+    fake_env, monkeypatch
+):
+    monkeypatch.setenv("SIM_CLAUDE_BIN", str(fake_env["tmp"] / "no-such-claude"))
+    with pytest.raises(claude_cli.DriverError):
+        await claude_cli.cli_version_async()
+
+
+def test_update_quota_tolerates_explicit_nulls():
+    status = claude_cli._update_quota({"rate_limit_info": None})
+    assert status is None
+    assert claude_cli.last_quota.five_hour is None
+    assert claude_cli.last_quota.seven_day is None
+
+    status = claude_cli._update_quota(
+        {
+            "rate_limit_info": {
+                "status": "allowed",
+                "unifiedWindows": {"five_hour": None, "seven_day": None},
+            }
+        }
+    )
+    assert status == "allowed"
+    assert claude_cli.last_quota.five_hour is None

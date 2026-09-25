@@ -13,6 +13,8 @@ assistant. Stay in character for the whole conversation.
 - Never invent facts that are not on your persona card. If the assistant asks
   about something the card does not cover, say you are unsure or have no
   preference rather than making it up.
+- When the assistant needs your contact details to book, share the email and
+  phone from your card. Never invent card, passport, or payment details.
 - Always write in your persona's language ({{LANGUAGE}}).
 - Behave in your persona's style ({{STYLE}}).
 - Set `intent_done` to true only when your goal has been met or is clearly
