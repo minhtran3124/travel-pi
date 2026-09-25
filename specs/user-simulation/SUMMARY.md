@@ -40,7 +40,15 @@ Splitting the two LLM roles keeps the chatbot's real model (gpt-5.4-mini, which 
 
 ### Deviations
 
-- none
+- Rule 3 — `api-sim` uses `env_file: [{path: .env, required: false}]` so `docker compose config -q` validates in a worktree without `apps/api/.env` (Task 1.7, 91fa966d). The missing-key case is caught by the sim preflight (Task 3.1).
+- Rule 1 — The sim-UI chip correlates tool results by `id`, which led to a contract amendment: design §5.7 `bot_tool` now carries `id`, and the driver fills in `name` on results and `reply` on `bot_done` (Tasks 1.3 and 1.6, e163934a, 12f16b84).
+- Rule 1 — Only a `rejected` rate-limit status counts as quota exhaustion; `allowed_warning` just updates the gauge. Design §5.1 was aligned to match (Task 1.1, 2fe04570, 3cb33dcf).
+- Controller correction — The Task 1.6 dispatch note allowed Google Fonts, which contradicted the plan's "no CDN" rule. The links were removed and the plan won (3d5e4b0f).
+
+Open Minor findings (forwarded to the final review):
+- 1.5: two test helpers keep multi-parameter signatures on one line; `make_url` is parsed twice in `sim_session_factory`.
+- 1.7: the `required: false` long syntax needs Docker Compose 2.24 or later (local 5.4.0).
+- 1.2: the wrong-signature test reads the private `KeyServer._kid`.
 
 ### Verify
 
