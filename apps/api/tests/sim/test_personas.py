@@ -1,0 +1,134 @@
+"""SC-6 — the persona generator, exercised through the fake ``claude``.
+
+The fake runs in ``ok`` mode and returns a fixture structured output listing
+three personas. The suite stays fully offline.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+from sim import personas
+
+FAKE = Path(__file__).parent / "fixtures" / "fake_claude.py"
+
+THREE_PERSONAS = {
+    "personas": [
+        {
+            "id": "mai-hanoi",
+            "name": "Mai",
+            "home_city": "Hanoi",
+            "country_code": "VN",
+            "language": "vi",
+            "budget": {"amount": 1500, "currency": "USD"},
+            "trip_goal": {
+                "destination": "Da Nang",
+                "date_window": "early May 2026",
+                "party_size": 2,
+                "interests": ["beaches", "food"],
+            },
+            "style": "chatty",
+            "will_book": True,
+            "max_turns": 6,
+        },
+        {
+            "id": "sam-london",
+            "name": "Sam",
+            "home_city": "London",
+            "country_code": "GB",
+            "language": "en",
+            "budget": {"amount": 2000, "currency": "GBP"},
+            "trip_goal": {
+                "destination": "Tokyo",
+                "date_window": None,
+                "party_size": 1,
+                "interests": ["temples"],
+            },
+            "style": "terse",
+            "will_book": False,
+            "max_turns": 4,
+        },
+        {
+            "id": "lea-paris",
+            "name": "Lea",
+            "home_city": None,
+            "country_code": None,
+            "language": "fr",
+            "budget": {"amount": 3000, "currency": "EUR"},
+            "trip_goal": {
+                "destination": "Rome",
+                "date_window": "sometime in autumn",
+                "party_size": 3,
+                "interests": ["museums", "wine"],
+            },
+            "style": "changes_mind",
+            "will_book": True,
+            "max_turns": 8,
+        },
+    ]
+}
+
+
+@pytest.fixture()
+def fake_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("SIM_CLAUDE_BIN", str(FAKE))
+    argv_file = tmp_path / "argv.json"
+    output_file = tmp_path / "personas_out.json"
+    output_file.write_text(json.dumps(THREE_PERSONAS), encoding="utf-8")
+    monkeypatch.setenv("FAKE_CLAUDE_ARGV_FILE", str(argv_file))
+    monkeypatch.setenv("FAKE_CLAUDE_OUTPUT_FILE", str(output_file))
+    monkeypatch.delenv("FAKE_CLAUDE_MODE", raising=False)
+    return {"argv": argv_file, "tmp": tmp_path}
+
+
+@pytest.mark.asyncio
+async def test_generate_returns_three_personas_and_writes_file(fake_env):
+    out_dir = fake_env["tmp"] / "run"
+    result = await personas.generate(3, seed=1, out_dir=out_dir)
+    assert len(result) == 3
+    assert all(isinstance(p, personas.Persona) for p in result)
+    assert (out_dir / "personas.json").is_file()
+
+
+@pytest.mark.asyncio
+async def test_argv_holds_the_json_schema_flag(fake_env):
+    await personas.generate(3, seed=1, out_dir=fake_env["tmp"] / "run")
+    argv = json.loads(fake_env["argv"].read_text())
+    assert "--json-schema" in argv
+
+
+@pytest.mark.asyncio
+async def test_load_round_trips_the_written_cast(fake_env):
+    out_dir = fake_env["tmp"] / "run"
+    result = await personas.generate(3, seed=1, out_dir=out_dir)
+    assert personas.load(out_dir / "personas.json") == result
+
+
+@pytest.mark.asyncio
+async def test_generate_rejects_duplicate_ids(fake_env, monkeypatch):
+    dup = {"personas": [THREE_PERSONAS["personas"][0]] * 2}
+    out = fake_env["tmp"] / "dup.json"
+    out.write_text(json.dumps(dup), encoding="utf-8")
+    monkeypatch.setenv("FAKE_CLAUDE_OUTPUT_FILE", str(out))
+    with pytest.raises(personas.DriverError):
+        await personas.generate(2, seed=1, out_dir=fake_env["tmp"] / "run")
+
+
+def test_persona_rejects_bad_slug_and_out_of_range_turns():
+    base = THREE_PERSONAS["personas"][0]
+    with pytest.raises(ValueError):
+        personas.Persona.model_validate({**base, "id": "Not A Slug"})
+    with pytest.raises(ValueError):
+        personas.Persona.model_validate({**base, "max_turns": 9})
+
+
+def test_traveller_system_prompt_carries_card_and_taubench_rules():
+    persona = personas.Persona.model_validate(THREE_PERSONAS["personas"][0])
+    prompt = personas.traveller_system_prompt(persona)
+    assert "Mai" in prompt
+    assert "Da Nang" in prompt
+    assert "vi" in prompt
+    assert "intent_done" in prompt
+    assert "one message per turn" in prompt
