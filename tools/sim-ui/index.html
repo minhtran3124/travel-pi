@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Travel Sim Lobby</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="sim.css">
+</head>
+<body>
+<div class="app">
+  <header class="board">
+    <div class="board-id">
+      <span class="label">Help desk · simulation</span>
+      <h1>Travel Sim Lobby</h1>
+    </div>
+    <dl class="stats">
+      <div><dt class="label">Batch</dt><dd id="batch-id">—</dd></div>
+      <div><dt class="label">Done</dt><dd id="done-count">0/0</dd></div>
+      <div><dt class="label">At desk</dt><dd id="inflight">0/0</dd></div>
+      <div><dt class="label">Clock</dt><dd id="clock">00:00</dd></div>
+    </dl>
+    <div class="quota" aria-label="Claude Code quota">
+      <span class="label">Claude 5h</span><span class="bar"><i id="quota-5h"></i><b title="Ceiling 85%"></b></span><span class="pct" id="quota-5h-pct">0%</span>
+      <span class="label">Claude 7d</span><span class="bar"><i id="quota-7d"></i><b title="Ceiling 85%"></b></span><span class="pct" id="quota-7d-pct">0%</span>
+      <span class="cap">Admission stops at the 85% mark</span>
+    </div>
+    <div class="status-line">
+      <span class="conn is-connecting" id="conn"><span class="dot"></span><span id="conn-text">Connecting…</span></span>
+      <span>Bus <strong id="conn-url">/ws</strong></span>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="stage" aria-label="Lobby">
+      <canvas id="scene" width="960" height="520"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--info)"></i>At the desk</span>
+        <span><i class="dot" style="background:var(--ok)"></i>Pass</span>
+        <span><i class="dot" style="background:var(--warn)"></i>Warn</span>
+        <span><i class="dot" style="background:var(--fail)"></i>Fail or chatbot error</span>
+        <span>Click a traveller to open their transcript</span>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Selected traveller">
+      <div class="card" id="card"><p class="empty">Waiting for the batch to start.</p></div>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-t" aria-selected="true">Transcript</button>
+        <button type="button" role="tab" id="tab-e" aria-selected="false">Event stream</button>
+      </div>
+      <ul class="feed" id="transcript"></ul>
+      <ul class="feed events" id="events" hidden></ul>
+    </aside>
+  </main>
+
+  <section class="roster" aria-label="Batch roster">
+    <h3 class="label">Batch roster</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th class="label">Traveller</th><th class="label">From</th><th class="label">Lang</th><th class="label">Turns</th><th class="label">Status</th><th class="label">Score</th></tr></thead>
+        <tbody id="roster"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script type="module" src="sim.js"></script>
+</body>
+</html>
