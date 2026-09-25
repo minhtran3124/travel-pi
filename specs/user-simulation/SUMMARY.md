@@ -27,7 +27,22 @@ Escalate: no (E001–E004 decided 2026-09-25: HTTP+JWT now, standalone UI, live,
 
 ## What changed
 
-Intake only — no code yet. Classified the initiative and opened ESCALATIONS.md for the direction choices that brainstorming needs before design.
+Added a user-simulation environment for the travel chatbot. The sections below list what it contains, and the Verify table records the evidence for each part.
+
+- **`apps/api/sim/`** — an orchestrator package, exposed as `python -m sim` and `make sim-run`:
+  - `claude_cli` is the `claude -p` wrapper. It carries the quota gauge and runs on the subscription, never with `--bare`.
+  - `keys` is a local RS256 JWKS server that signs tokens.
+  - `sse` is the `/agent/stream` client.
+  - `bus` fans events out over WebSocket, replays history to late clients, and serves the UI files.
+  - `personas` generates travellers with tau-bench style rules.
+  - `driver` holds the conversation loop, seat handling, resume, the quota guard, and error handling.
+  - `grader` scores against a rubric and writes the reports and eval candidates.
+  - `db_check` is a read-only snapshot of what each traveller left in the database.
+- **Sim stack** — `docker-compose.sim.yml` runs `api-sim` on :8001 and `db-sim` on :5434, with JWKS pointed at the host. It has matching `sim-*` make targets.
+- **`tools/sim-ui/`** — the live flat-isometric lobby (UI contract v1) and a Playwright smoke test that runs against the real bus.
+- **Docs** — a README for the package and a `user-sim` launcher skill in the main checkout's `.claude/skills/`.
+
+No file under `apps/api/app/` or `apps/web/` changed, and no dependency was added.
 
 ### Rationale
 
@@ -64,14 +79,32 @@ Open Minor findings (forwarded to the final review):
 | Check | Command | Exit | Notes | Criterion |
 | --- | --- | --- | --- | --- |
 | summary shape | `python .claude/scripts/verify_summary.py --lane user-simulation` | 0 | intake-time check | |
+| claude_cli | `.venv/bin/python -m pytest apps/api/tests/sim/test_claude_cli.py -q` | 0 | 17 passed at 4bef4b72 | SC-1 |
+| JWT round trip | `.venv/bin/python -m pytest apps/api/tests/sim/test_keys.py -q` | 0 | 3 passed | SC-2 |
+| SSE mapping | `.venv/bin/python -m pytest apps/api/tests/sim/test_sse.py -q` | 0 | 7 passed | SC-3 |
+| bus | `.venv/bin/python -m pytest apps/api/tests/sim/test_bus.py -q` | 0 | 4 passed | SC-4 |
+| driver | `.venv/bin/python -m pytest apps/api/tests/sim/test_driver.py -q` | 0 | 14 passed | SC-5 |
+| personas | `.venv/bin/python -m pytest apps/api/tests/sim/test_personas.py -q` | 0 | 8 passed | SC-6 |
+| db_check | `.venv/bin/python -m pytest apps/api/tests/sim/test_db_check.py -q` | 0 | 3 passed | SC-7 |
+| CLI preflight | `.venv/bin/python -m pytest apps/api/tests/sim/test_main.py -q` | 0 | 7 passed | SC-8 |
+| sim compose | `docker compose -f apps/api/docker-compose.sim.yml config -q` | 0 | | SC-9 |
+| UI smoke | `$HOME/.nvm/versions/node/v24.17.0/bin/node tools/sim-ui/smoke.mjs` | 0 | SMOKE PASS | SC-10 |
+| ruff check | `.venv/bin/ruff check apps/api/sim apps/api/tests/sim` | 0 | | SC-11 |
+| grader | `.venv/bin/python -m pytest apps/api/tests/sim/test_grader.py -q` | 0 | 15 passed | SC-12 |
+| ruff format | `.venv/bin/ruff format --check apps/api/sim apps/api/tests/sim` | 0 | 22 files | SC-13 |
+| launcher skill | `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"` | 0 | | SC-14 |
 
 ### Not auto-verified
 
-- Claude subscription / Agent SDK usage terms (help-center monthly-credit article) — reached traceability only (cited by a research subagent); not re-read first-hand. xia2 must re-check them.
+- Claude subscription and headless usage terms — reached provenance. The help-center article was read first-hand during research on 2026-09-25 (the credit change is paused, so `claude -p` draws from plan limits), but the terms can change.
+- The live end-to-end batch (`make sim-up` then `make sim-run N=2 PARALLEL=2`, watched in the browser) has not been run yet. It spends real Claude plan quota and OpenAI tokens, so it is phase-level user-acceptance testing and still owed. Every piece is covered by offline tests with a fake `claude` and a mock API, and the UI smoke runs against the real bus.
+- Grader quality (whether the rubric verdicts are sensible) reached traceability only: the prompt was reviewed, but it has not been run against real sessions.
 
 ### Rollback
 
-- `rm -rf specs/user-simulation` (intake artifacts only, nothing committed)
+- `git revert f1553879..HEAD`, or drop the unmerged branch `feat/user-simulation`. The change is additive and no `app/` code changed.
+- `make sim-reset` removes the sim stack and its `pgdata-sim` volume.
+- Delete the launcher skill with `rm -r /Users/minhtran/Documents/minhtran3124/developer/travel-pi/.claude/skills/user-sim` (it is outside git).
 
 ### Harness-Delta
 
