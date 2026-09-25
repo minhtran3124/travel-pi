@@ -116,6 +116,37 @@ async def test_generate_rejects_duplicate_ids(fake_env, monkeypatch):
         await personas.generate(2, seed=1, out_dir=fake_env["tmp"] / "run")
 
 
+def test_load_rejects_non_list_payload(tmp_path):
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"personas": []}), encoding="utf-8")
+    with pytest.raises(personas.DriverError):
+        personas.load(bad)
+
+
+def _collect_refs(node):
+    refs = []
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "$ref" and isinstance(value, str):
+                refs.append(value)
+            else:
+                refs.extend(_collect_refs(value))
+    elif isinstance(node, list):
+        for item in node:
+            refs.extend(_collect_refs(item))
+    return refs
+
+
+def test_list_schema_refs_resolve_at_document_root():
+    schema = personas._LIST_SCHEMA
+    refs = _collect_refs(schema)
+    assert refs, "expected the persona schema to use $ref for nested models"
+    defs = schema.get("$defs", {})
+    for ref in refs:
+        assert ref.startswith("#/$defs/")
+        assert ref.split("/", 2)[2] in defs
+
+
 def test_persona_rejects_bad_slug_and_out_of_range_turns():
     base = THREE_PERSONAS["personas"][0]
     with pytest.raises(ValueError):
@@ -129,6 +160,7 @@ def test_traveller_system_prompt_carries_card_and_taubench_rules():
     prompt = personas.traveller_system_prompt(persona)
     assert "Mai" in prompt
     assert "Da Nang" in prompt
-    assert "vi" in prompt
+    assert "- Language: vi" in prompt
+    assert "{{" not in prompt
     assert "intent_done" in prompt
     assert "one message per turn" in prompt

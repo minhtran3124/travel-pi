@@ -11,6 +11,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -47,16 +48,28 @@ class Persona(BaseModel):
     max_turns: int = Field(ge=4, le=8)
 
 
-_LIST_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "personas": {
-            "type": "array",
-            "items": Persona.model_json_schema(),
-        }
-    },
-    "required": ["personas"],
-}
+def _list_schema() -> dict:
+    # Hoist `$defs` to the document root so the nested `$ref`s (which point at
+    # `#/$defs/X`) resolve; leaving them under `properties.personas.items` would
+    # leave every ref dangling.
+    item = Persona.model_json_schema()
+    defs = item.pop("$defs", None)
+    schema = {
+        "type": "object",
+        "properties": {
+            "personas": {
+                "type": "array",
+                "items": item,
+            }
+        },
+        "required": ["personas"],
+    }
+    if defs:
+        schema["$defs"] = defs
+    return schema
+
+
+_LIST_SCHEMA = _list_schema()
 
 
 def _read(name: str) -> str:
@@ -64,8 +77,8 @@ def _read(name: str) -> str:
 
 
 def _default_run_dir() -> Path:
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    return _RUNS / stamp
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+    return _RUNS / f"{stamp}-{uuid4().hex[:6]}"
 
 
 async def generate(
@@ -99,6 +112,8 @@ async def generate(
 
 def load(path: Path | str) -> list[Persona]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(data, list):
+        raise DriverError("personas.json must hold a JSON array of personas")
     return [Persona.model_validate(item) for item in data]
 
 
