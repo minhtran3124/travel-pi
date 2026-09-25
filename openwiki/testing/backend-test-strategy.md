@@ -5,7 +5,7 @@ description: How the FastAPI backend is tested — the pytest layout by layer, t
 tags: [testing, pytest, fixtures, fake-llm, sqlite, postgres, architecture-tests, backend]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-41b70976e433ce7b0af3f31e
     resource: repo://apps/api/app/services/weather_service.py
@@ -31,9 +31,11 @@ sources:
     resource: repo://apps/api/tests/db/test_session.py
   - id: openwiki-source-40248636edebdb53838d13f7
     resource: repo://apps/api/tests/rag/conftest.py
+  - id: openwiki-source-9a1d32c3bc25c6c5240034cb
+    resource: repo://apps/api/tests/research/conftest.py
   - id: openwiki-source-205128f194082ee3dd5bbb77
     resource: repo://apps/api/tests/tools/conftest.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 ---
 
 # Backend test strategy
@@ -42,7 +44,7 @@ The backend suite under `apps/api/tests/` is fast, offline and zero-config: `mak
 
 ## Layout
 
-Tests are grouped by layer rather than by feature: `api/` (endpoint tests per domain, plus `agent/`, `agent_config/`, `admin/`, `auth/`), `services/`, `repositories/`, `db/` (models, seeding, migrations, determinism goldens), `tools/`, `agents/` (about fifty files covering routing, HITL, memory, reflection, tier gating, PII, fault tolerance and prompt versions), `memory/`, `streaming/`, `rag/`, `prompts/`, `mcp/`, `clients/`, `core/`, `infra/` (middleware, errors, health, operation ids, rate-limit headers), `unit/`, `eval/` (the eval engine's own tests, see [Agent evaluation harness](agent-eval-harness.md)) and `architecture/`. Ruff formats tests the same way as application code but only `app` and `scripts` are lint-gated.
+Tests are grouped by layer rather than by feature: `api/` (endpoint tests per domain, plus `agent/`, `agent_config/`, `admin/`, `auth/`), `services/`, `repositories/`, `db/` (models, seeding, migrations, determinism goldens), `tools/`, `agents/` (about fifty files covering routing, HITL, memory, reflection, tier gating, PII, fault tolerance and prompt versions), `memory/`, `streaming/`, `rag/`, `prompts/`, `mcp/`, `clients/`, `core/`, `infra/` (middleware, errors, health, operation ids, rate-limit headers), `unit/`, `data/` (seed-inventory checks such as the Phu Quoc stock), `research/` (the trip-research deep agent, see below), `eval/` (the eval engine's own tests, see [Agent evaluation harness](agent-eval-harness.md)) and `architecture/`. Research REST routes live under `api/research/`. Ruff formats tests the same way as application code but only `app` and `scripts` are lint-gated.
 
 ## The client fixture: real app, two overrides
 
@@ -62,6 +64,10 @@ Agent tools and the RAG store do not receive a request session; they read `get_s
 ## Keeping the agent offline
 
 `FakeLLM` (`app/clients/llm.py`) is a scripted chat model: `responses` drive prose and tool calls, `structured_responses` drive the supervisor's structured output, and every message carries deterministic usage metadata so the metrics path is exercised (see [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md)). Agent tests build the graph with `build_graph(llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore())`, injecting fakes for both tiers. API-level agent tests (`tests/api/agent/`) build the graph **once per app** and override the `get_travel_graph` dependencies with it, deliberately not `app.state.travel_graph`, because a per-request rebuild would lose the in-memory checkpointer and break HITL resume. Streaming tests feed synthetic event iterators through the persistence and run-recording wrappers.
+
+## The trip-research suite
+
+`tests/research/conftest.py` builds the deep agent fully offline. It uses `FakeLLM` for both the agent and the grader, an `InMemoryStore` for the dossier and memory routes, and a `MemorySaver` so thread resume can be exercised. A `RecordingFakeLLM` records which tools were bound, which lets tests assert each subagent's tool exposure. Every invoke passes an explicit `ResearchContext`. `FakeLLM` never serializes content blocks to a provider, so this suite cannot catch a provider wire-format regression; the keyed `eval/research_smoke.py` exists to catch those (see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).
 
 ## Architecture tests
 

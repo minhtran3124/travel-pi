@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ece43a43976e52305c4becddd1cfdff39fba771c352ca34bcc0894e052e5ef81",
+  "pageVersion": "sha256:888ad2b88fd875672fc1dc608fad87fad8c44b8f244058fb9f45f4c8796f4a42",
   "claims": [
     {
       "id": "claim_c3d0b82a10c9473bb98ddc514489ad71",
-      "statement": "The trip detail route reads the enriched trip once and renders seven self-contained tabs (today, itinerary, budget, expenses, bookings, shortlist, map) that each receive only the trip id and fetch their own data, with a skeleton while pending and an error card linking back to the list.",
+      "statement": "The trip detail route reads the enriched trip once and renders self-contained tabs (today, itinerary, budget, expenses, bookings, shortlist, map, plus research when the research flag is on) that each receive only the trip id and fetch their own data, with a skeleton while pending and an error card linking back to the list.",
       "evidence": [
         {
-          "resource": "repo://apps/web/src/app/trips/%5BtripId%5D/page.tsx#L19-L70",
-          "version": "repo-lines-v1:sha256:2ebb437fbe36c6f7ef7de962b7126431c25e0f6bd27efc5e621223f067d38fe3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0Zjk3YTRkMWQ3NmZhZjE0YTg5ZjY2NjMyMTY2NDdkNzU2YTY1YWY2MWJkNGUwYzBhMTllYjA1Nzc0MzA5MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxMWE2YTU0ZmY3MjEwYjRhMzkyMTNhMzcxMWFmOTMyZWIxYWVkZDU0M2Q1NWQ1NDIyZDk4YWMyMzZkZjlhM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+          "resource": "repo://apps/web/src/app/trips/%5BtripId%5D/page.tsx#L21-L88",
+          "version": "repo-lines-v1:sha256:bfcbd38e8daf45545f44c5a3f5152f92a5ff636e5b267e6d3606270fda896db2:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0Zjk3YTRkMWQ3NmZhZjE0YTg5ZjY2NjMyMTY2NDdkNzU2YTY1YWY2MWJkNGUwYzBhMTllYjA1Nzc0MzA5MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3ZTI3MDViYjIxNzRiOWMzNDllMWJhMmQwNmUxMzY3OTI0YmZiMGI5ODRhMWFiZTM4ZWEyYTNiYzAyZGY5NWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -183,10 +183,20 @@
           "version": "repo-lines-v1:sha256:316cdb59633f04439100eacf47c046b9c385052eb244cdb4ba461da945b975b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1OTJlNDA0MjlkZWY2ZWIyMzEwZjRhNDI5MjJiMThiMDEwNDBhYWU2MDQzM2Q4MGUyYTdlZDNmYzAwNjRmZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyNGM2MzQ4NTVkZmQ4ZWM5MGU3ZThiMzQyNDk4NGI3NzM0ZDE5OTg1MmJlYWVjYjFiZGU0OTg1YzI3ODQ4YTQifQ"
         }
       ]
+    },
+    {
+      "id": "claim_959a4c1c5269449eab09d6ee0d0852fb",
+      "statement": "The trip page seeds and follows the active tab from the ?tab= search parameter and falls back to the itinerary tab when the id is unknown or disabled.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/trips/%5BtripId%5D/page.tsx#L26-L51",
+          "version": "repo-lines-v1:sha256:6a20f77428f41c568e309467d6e28f4212d835b8dfcd424c0600f3f89d10ce3a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YTgxM2EyM2ViOGZlZjAyYzk3ZTIzZDAzYjZhNmMzMjhlM2IyODU1MWNlNzNiMjNiNDRiMDcwODQwYTc0ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1MTJhYTE4ZGVmODFhMWM2N2JhYTIwYmI4ZjA5YTE2NjYyZjhlOGJjNWZiYjg3YzUwNTQwMzM2NTc3MjBmNzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0OGZiNGE0MWVkYTUyZjM1YjFjNjgzMTEwMDY5ZjZmMjZjODAzYThmY2VmOTQ1MDkyNDMwZjA1N2ViZTMyZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1Njc3MmRmZDIzYjYwYzEzMGYwYmY4YTMyMzI3MzdjZmM2Mzg4ZmZjYTMxM2YzOTE2MGRiYjYzNmU0MzFlYzkifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

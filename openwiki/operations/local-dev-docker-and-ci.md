@@ -32,10 +32,10 @@ sources:
     resource: repo://Makefile
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
-generated: { by: "claude-code", at: "2026-09-21T09:36:49.315Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:36:49.315Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Local development, Docker and CI
@@ -62,9 +62,9 @@ The API runs on its SQLite default with no `.env` and no LLM key, though day-to-
 
 ## Make targets
 
-The root `Makefile` delegates: `dev`, `build`, `lint` run through Turbo; `test`, `test-docker`, `seed`, `api`, `up`, `down` and every `eval-*` target call `make -C apps/api`; `fe`/`web` start the Next dev server; `diagram` renders `WORKFLOW_DIAGRAM.md` to HTML.
+The root `Makefile` delegates: `dev`, `build`, `lint` run through Turbo; `test`, `test-docker`, `seed`, `api`, `up`, `down`, every `eval-*` target and `research-smoke` call `make -C apps/api`; `fe`/`web` start the Next dev server; `diagram` renders `WORKFLOW_DIAGRAM.md` to HTML.
 
-`apps/api/Makefile` owns the backend lifecycle: `install` (uv venv + requirements), `dev` (uvicorn with reload on port 8000), `up`/`down`/`logs`/`exec-api`/`exec-db` for the Docker stack, `migrate` (`alembic upgrade head`), `seed` (runs `seed_all` against the configured `DATABASE_URL`), `test` (pytest on SQLite), `test-docker`, `fmt`/`lint` (ruff over `app` and `scripts`; tests are formatted the same way but not gated, and `alembic/` is excluded), and the eval targets (`eval-smoke`, `eval-full` with `--repeat 3`, `eval-html`, `eval-baseline`, `eval-compare` which exits 1 on regression, and `eval-check` = full + compare). Run a single test file with `../../.venv/bin/python -m pytest tests/<path> -xvs` from `apps/api/`.
+`apps/api/Makefile` owns the backend lifecycle: `install` (uv venv + requirements), `dev` (uvicorn with reload on port 8000), `up`/`down`/`logs`/`exec-api`/`exec-db` for the Docker stack, `migrate` (`alembic upgrade head`), `seed` (runs `seed_all` against the configured `DATABASE_URL`), `test` (pytest on SQLite), `test-docker`, `fmt`/`lint` (ruff over `app` and `scripts`; tests are formatted the same way but not gated, and `alembic/` is excluded), and the eval targets (`eval-smoke`, `eval-full` with `--repeat 3`, `eval-html`, `eval-baseline`, `eval-compare` which exits 1 on regression, and `eval-check` = full + compare), plus `research-smoke`. That target runs `python -m eval.research_smoke`, a keyed end-to-end trip-research run that is **not** in CI; `ARGS='--dry-run'` runs the keyless path. Run a single test file with `../../.venv/bin/python -m pytest tests/<path> -xvs` from `apps/api/`.
 
 ## Docker
 
@@ -74,7 +74,7 @@ The root `Makefile` delegates: `dev`, `build`, `lint` run through Turbo; `test`,
 
 ## Dependencies and pins
 
-`apps/api/requirements.txt` pins upper bounds to the current majors so a fresh install cannot pull a breaking release; FastAPI is capped below 0.137 (and Starlette below 1.3) because that release's route-tree refactor breaks the operation-id and route-enumeration tests, and `requirements-ai.txt` (the LangChain and LangGraph stack) is split out so its large transitive tree resolves independently and must never force those caps upward. The AI floors were last raised to the minimums a future `deepagents` dependency would need, without adding it.
+`apps/api/requirements.txt` pins upper bounds to the current majors so a fresh install cannot pull a breaking release; FastAPI is capped below 0.137 (and Starlette below 1.3) because that release's route-tree refactor breaks the operation-id and route-enumeration tests, and `requirements-ai.txt` (the LangChain and LangGraph stack) is split out so its large transitive tree resolves independently and must never force those caps upward. `deepagents>=0.7.15,<0.8` is now a dependency, because the trip-research agent is built on it. It also forced a `langchain-openai>=1.6.2` floor: deepagents emits LangChain v1 content blocks, and the 0.3.x line serialized them into a part type the OpenAI API rejects with a 400 on the second turn of every research run. `FakeLLM` never serializes, so only a keyed run catches that regression. The same file adds `tavily-python` and `serpapi` (the official SDKs) for live web search, which stays off by default.
 
 ## Seeding and data scripts
 

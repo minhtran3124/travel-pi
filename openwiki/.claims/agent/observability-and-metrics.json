@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ee5f2cf2a704a11f78c74151b47b65de125824a49440a7797ccca17af7a9cf80",
+  "pageVersion": "sha256:154e904030f677e7ac35c10f83afdef8bccfccf8c5e59577e22f2024654fa711",
   "claims": [
     {
       "id": "claim_83488b0484c74bcb8d53d705cc331c23",
@@ -197,10 +197,38 @@
           "version": "repo-lines-v1:sha256:469a276d4de898ff39162dc320e5da51cfc9bcf8ba9086b3eceb1f3109aacc25:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ODJjYmRiNGM4YjA3NTE4YmY0ODZjNTg5OTBmYzM5MTc4M2FhMjBhOTE2YmZiMjdhZDIxMWViMWQ1YzM2NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZDg5N2QxNmJlZDQ2YTIyODc4Mjc0YzRhYTRhNDJkYTVlMmE2Y2QzOTgyNGQ1NzBhNzU5NzRmMjE5Y2Q5ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYWY3NjM3Y2I2ZTdlNWRiODVkNjM0Mjc0NjAxNGRmMDQxY2NkNTU4YTkyMGIyOWViNmFjNzE5ZDdiYWY1YzIifQ"
         }
       ]
+    },
+    {
+      "id": "claim_c8f0131bd6cf4601970b34b6808f05f3",
+      "statement": "Research runs are recorded in agent_runs with channel and kind research and the per-trip dossier thread as thread and conversation id; failures are durable only as a terminal error step carrying error_type, and the grader verdict as a rubric step with meta.rubric_status.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L119-L146",
+          "version": "repo-lines-v1:sha256:6129453181a85e3e8b198ea738800b5cb21bca6ebace9287ba3b7a7514d3b451:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzYWYwMGRjOTE0NjBkZGYyOTUyNmU3MTg2NjU4MGFjNjhlMzMwMzlkYmM5YzJlZGY0N2FmYjM0YjUxYmY2NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiNDY4YWQwYWJkNWRmODYyMGJiOTRiZGZmZTg1ZjQyMTEwZWNkYThhZjc2NGE0ZDVjM2JhMDZiYWE1Zjc3M2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0NzQxZDQ5OWViYzk1OWFkYjZhZGU3YWNjYzIzYTQ5NDhjZmQ4MThhNWM1YjJmNTdjNjBmM2YxNjNjZTk3MWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L165-L216",
+          "version": "repo-lines-v1:sha256:6437d994e057c6766dcb150fd1b3194a5c062b4745de0fe59cb0ef9eaeacac2b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNWZlYjdlOTcyZjgxOTIxNTcxOWRlZjY0N2EyZjkyMDU2OGQ4MmJhM2U0Mzc3ZjVkNzQxZTc1OTNhN2MxNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYTQ3NzFjMTEwNjhiYjA4ZDJlMWZiNGRjYmQzZWRhMjc4OGE5MzIxMWU2NzgyNDkxZGI4ZGY3MTk0NDc4NzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0Mjg5NjRmYjQxMWIzMjQxZDcwN2E4N2ZhZDc0MmJiNzA3MjA3ZTllMjIzYmEyZDhlNzc4ZjNjYWU4OWUzY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlOWYyOTUxZTRhYzg2ZWI0YjI0YTkwMmE4ZmQzZjRjZmMyMGJiNWI0NGE5MDVjMTliYTUwNjkzZjE5YjJkNTkifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L346-L366",
+          "version": "repo-lines-v1:sha256:e34051609b2087f257927dbac6ca9f223a440a917916d89deef2d7cac8783766:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1ZDBjYmVjMWI1MmU0Zjk2ZDYyNmIyOTUwMzY1NTI3MWFlYjMzYTIwZmRiZWI1ZThkZTRhYjA1MWNiYjA2YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzOGRkMGViMDExNDY0NTY1OTE5YzRmNjU5MjNmZGQzZmUxOGUxYWM3MmUxZGZkY2VhMGY1MTY4ZmEzYzA2OGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3YzhhNGY0YjI1MTBiYmFjYWI4MzcxOWY4ZGI5ODZkOTJjMzhkYzY0M2MxOTI1MTYwZDRkNDQ0MGFhOTc1N2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5a653e2395bb4f3ea3021fd5bd03ec8f",
+      "statement": "AgentRunRepository re-applies a step meta allowlist of scalar finish_reason, resumed_from and rubric_status regardless of what the caller passes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/agent_run.py#L26-L42",
+          "version": "repo-lines-v1:sha256:f3a79e5f030a4c168368c6f362304c5bca6caa0f4ba9b99c50aef7eb5a5937f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2ODg4MDQ0NDBmMWRjMzM5MmMzZGEyYWRmNDZlMThmYzEzMDIxZWU5OWI3MzhiZDM3NTNkNzNiMGZhOGNhYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMjE4MmI0ODU4MDMxNzJjODIzOTlhYmZmNWUwM2RjNWM1ZDgwMjk4YjUwZjY3MDM2YWMxYmE2MGMyYjU1ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5M2FiMjE4MjMzODY3N2I5ZTRkZGU0YmYxMTFlNDlmMzQ5MjZmOTg2ZWQyMmYzMDY0Y2YyMTcwYmI3OGY1MDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiNDY4YWQwYWJkNWRmODYyMGJiOTRiZGZmZTg1ZjQyMTEwZWNkYThhZjc2NGE0ZDVjM2JhMDZiYWE1Zjc3M2YifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

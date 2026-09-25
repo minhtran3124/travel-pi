@@ -3,9 +3,6 @@ type: architecture
 title: Agent chat endpoints, SSE streaming and side panels
 description: The /agent REST surface (chat, stream, conversations, messages, manifest, claim, feedback), how a turn is set up before the graph runs, the typed Server-Sent Events taxonomy and the mapper that turns a LangGraph stream into it with de-duplication and drafts reset, side-panel artifacts and their localization, the persistence and run-recording wrappers, follow-up suggestions, and the failure and interrupt semantics a client can rely on.
 tags: [sse, streaming, api, agent-endpoints, side-panel, persistence, suggestions, feedback, conversations]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-21f28c5be11ee9c6a18ea317
     resource: repo://apps/api/app/agents/suggestions.py
@@ -39,7 +36,10 @@ sources:
     resource: repo://apps/api/tests/streaming/test_persistence.py
   - id: openwiki-source-44a3b1409223fa52f93ba58d
     resource: repo://apps/api/tests/streaming/test_synthesize_stream_chunks.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Agent chat endpoints, SSE streaming and side panels
@@ -86,7 +86,7 @@ The stream endpoint returns `sse_response(persist_assistant_turn(record_agent_ru
 `stream_agent_events` drives `graph.astream` with `stream_mode=["messages","updates"]` and `subgraphs=True`. Token deltas come from `messages` mode; completed messages, and therefore tool calls and results (the token chunks only carry partial tool-call fragments), come from `updates` mode. Rules the client can rely on:
 
 - **A specialist handoff emits `subagent` and, if tokens were already streamed, `reset`**, so the client and the persistence accumulator discard the superseded draft. A reflection revision within the same specialist is detected as a new message id and also emits `reset`.
-- **Only user-facing prose streams**: chunks from synthesis workers and their inner specialists are suppressed; the top-level `synthesize` answer streams and is de-duplicated by message id (not "first chunk only", which would ship a one-character reply). Terminal supervisor and `plan` messages never stream via `messages` mode, so the mapper surfaces them from `updates` as a `token`, which is why an unknown-intent, tier-gated or cancelled-booking turn still shows an explanation instead of a blank bubble.
+- **Only user-facing prose streams**: chunks from synthesis workers and their inner specialists are suppressed; the top-level `synthesize` answer streams and is de-duplicated by message id (not "first chunk only", which would ship a one-character reply). Terminal messages from `supervisor`, `plan` and the model-free `research` launcher never stream via `messages` mode. The mapper surfaces them from `updates` as a `token`, which is why an unknown-intent, tier-gated, cancelled-booking or research-launch turn still shows an explanation instead of a blank bubble.
 - **Tool events are emitted once per tool call id.** The same `ToolMessage` is seen twice per turn (subgraph `tools` node and parent specialist node), and a subgraph update replays the whole thread history, so the mapper seeds its seen-sets from the pre-turn checkpoint's message and tool-call ids. `tests/streaming/test_mapper_tool_event_dedup.py` pins that history is never replayed as new events.
 - **Panels precede their `tool_result` pill.** A tool declared with `response_format="content_and_artifact"` (weather, air quality, hotel search, flights, places, route) returns a `{kind, data}` artifact via `panel_result`; the mapper localizes it and emits `panel` before `tool_result`.
 - **Language is seeded from the checkpoint** before the loop so a resume turn, which skips the supervisor, still tags its panels and `done` with the persisted language, and is updated the moment a node persists a new value.
@@ -105,7 +105,9 @@ Each panel kind is a module under `app/streaming/panels/` that defines its paylo
 
 ## Follow-up suggestions
 
-`suggestions_for_flow` (`app/agents/suggestions.py`) returns up to three **locale-agnostic keys** that the web client resolves to localized chips. An ordered rule table runs first using `trip_facts`, the traveller profile and preferences (booking handoff nudges, trip starting within 14 days, family signals, budget-conscious signals, concierge with a known destination), then the static per-flow catalog backfills so a bare call with only `current_flow` reproduces the static behaviour exactly. Unknown or missing flows return an empty list; the profile lookup is best-effort.
+`suggestions_for_flow` (`app/agents/suggestions.py`) returns up to three **locale-agnostic keys** that the web client resolves to localized chips. An ordered rule table runs first using `trip_facts`, the traveller profile and preferences (booking handoff nudges, trip starting within 14 days, family signals, budget-conscious signals, concierge with a known destination, and a planner flow with a known destination that offers `research.start`), then the static per-flow catalog backfills so a bare call with only `current_flow` reproduces the static behaviour exactly. Unknown or missing flows return an empty list; the profile lookup is best-effort. The `research.start` nudge is gated twice: `research_enabled` must be on, and the caller must be able to reach the `research` specialist. The caller passes this in as `allowed_subagents`. Both chat endpoints forward the turn's `AgentContext.allowed_subagents`, and the parameter defaults to an empty set, so a free-tier user or a caller that does not pass it never sees the chip. A `research` flow backfills with `research.view_progress`.
+
+`GET /agent/manifest` lists `research` among the subagents only while `research_enabled` is on. The same flag decides whether the research routes are mounted at all (see [Trip-research deep agent](trip-research-deep-agent.md)).
 
 ## History, claiming and feedback
 

@@ -12,7 +12,7 @@ tags:
   - headers
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-5300fab0b97a7cfb93201ea7
     resource: repo://apps/api/app/core/config.py
@@ -28,12 +28,16 @@ sources:
     resource: repo://apps/api/app/repositories/conversation.py
   - id: openwiki-source-fd4730dbc7970ad15a86934c
     resource: repo://apps/api/app/repositories/rate_limit.py
+  - id: openwiki-source-b842553da9494f6fbfc62431
+    resource: repo://apps/api/app/research/service.py
   - id: openwiki-source-40fb538510ad8b559a8e282e
     resource: repo://apps/api/app/routers/agent.py
   - id: openwiki-source-1dfc4194f3074148c4c9d16d
     resource: repo://apps/api/app/routers/feedback.py
   - id: openwiki-source-c0a7e6f1ad1c76847a455b8a
     resource: repo://apps/api/app/services/quota_service.py
+  - id: openwiki-source-e367aa7aabde754472afac4e
+    resource: repo://apps/api/app/tools/web_search_tools.py
   - id: openwiki-source-1ca9f0ece8c96c923bf27fdc
     resource: repo://apps/api/tests/api/agent/test_feedback_rate_limit.py
   - id: openwiki-source-dc59508a81e3e800fdc5629f
@@ -42,7 +46,7 @@ sources:
     resource: repo://apps/api/tests/api/test_rate_limit_dependency.py
   - id: openwiki-source-ecc662dd273923f2f408732a
     resource: repo://apps/api/tests/db/test_rate_limit_repository.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 ---
 
 # Rate limiting and quotas
@@ -79,7 +83,13 @@ The `rate_limit_counters` table has a unique constraint over `(bucket, subject, 
 
 ### Where it is applied
 
-Today the only enforced policy is **feedback**: `POST /agent/feedback` declares `feedback_rate_limit` as its first dependency, reads `FEEDBACK_RATE_LIMIT_MAX` and `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` per request so environment overrides apply, and resolves the subject as the JWT id, else `anon:<anonymous_user_id>` from the body, else `None` (in which case the limit is skipped and the service answers 401). Authenticated and anonymous subjects count separately. The feedback service itself is idempotent per client event and refuses to rate anything but a completed run (see [Agent chat endpoints, SSE streaming and side panels](../agent/streaming-and-side-panels.md)).
+Three policies are enforced today.
+
+**Feedback.** `POST /agent/feedback` declares `feedback_rate_limit` as its first dependency, reads `FEEDBACK_RATE_LIMIT_MAX` and `FEEDBACK_RATE_LIMIT_WINDOW_SECONDS` per request so environment overrides apply, and resolves the subject as the JWT id, else `anon:<anonymous_user_id>` from the body, else `None` (in which case the limit is skipped and the service answers 401). Authenticated and anonymous subjects count separately. The feedback service itself is idempotent per client event and refuses to rate anything but a completed run (see [Agent chat endpoints, SSE streaming and side panels](../agent/streaming-and-side-panels.md)).
+
+**Live web search.** `search_web` and `find_places_live` call `enforce_rate_limit` with bucket `web_search`, the traveller's injected `user_id` as the subject, `WEB_SEARCH_USER_HOURLY_LIMIT` hits (default 30) and a 3600-second window, on a fresh `session_scope()` session before any provider call. A tool with no signed-in traveller refuses instead of skipping the limit. Over the limit, the `RateLimitError` is folded into a tool error the model reads, not an HTTP 429 (see [Live web search](../integrations/live-web-search.md)).
+
+**Trip-research starts.** `ResearchService` calls `RateLimitRepository.hit` directly with bucket `research_start`, the user id as the subject, `RESEARCH_DAILY_LIMIT` (default 3) and a 24-hour fixed window. It commits on its own session factory, so the hit counts even if the booking then fails. The cap is spent only for a start that wins the per-trip lock and is not a resume, so a 409 or a resumed orphan run is free. All three launch paths go through it: the REST start and revise routes return 429, and the chat launcher replies `research_limit_reached` (see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).
 
 ## The free-tier daily quota
 

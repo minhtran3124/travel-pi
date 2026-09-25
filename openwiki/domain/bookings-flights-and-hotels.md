@@ -1,10 +1,9 @@
 ---
 type: "Reference"
 title: "Bookings, flights and hotels"
+description: "How flight search, hotel search and availability, and bookings work: the deterministic synthetic flight index and hotel inventory, the booking lifecycle with idempotency, sold-out and opt-in duplicate checks under a per-owner advisory lock, the premium-gated REST book routes, and the agent booking tools."
+tags: [bookings, flights, hotels, synthetic-inventory, idempotency, advisory-lock, domain]
 openwiki_generated: true
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-a5adc42be2756996fccf803d
     resource: repo://apps/api/app/db/models/booking.py
@@ -16,6 +15,10 @@ sources:
     resource: repo://apps/api/app/repositories/booking.py
   - id: openwiki-source-ce11f205406b62705b4be062
     resource: repo://apps/api/app/repositories/flight.py
+  - id: openwiki-source-a74ad515a45edaaee7c4752c
+    resource: repo://apps/api/app/repositories/hotel_ref.py
+  - id: openwiki-source-78962817c8892c18c792d9cf
+    resource: repo://apps/api/app/research/validate.py
   - id: openwiki-source-70c0c0e827a77385ba90791d
     resource: repo://apps/api/app/routers/bookings.py
   - id: openwiki-source-fc1d96b9ff665fbf4704c239
@@ -52,7 +55,10 @@ sources:
     resource: repo://apps/api/tests/tools/test_booking_idempotency_tools.py
   - id: openwiki-source-a2a23a764d4745867a521fec
     resource: repo://apps/api/tests/tools/test_tool_registry.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 
@@ -80,7 +86,7 @@ Hotels themselves are seeded catalog rows (see [Destinations, places and travel 
 - **Trip linking.** An optional `trip_id` is verified to belong to the caller (a foreign or missing trip is a 404, never an existence oracle) and stored on the booking so budgets can roll it up (see [Trips, itinerary and budget](trips-itinerary-and-budget.md)).
 - **Flight booking** resolves the flight by id or by flight number plus route and date (404 with a hint to re-run the search when an old id no longer resolves), prices it as `price × passengers`, and stores the flight details and passenger contact in the JSON `details`.
 - **Hotel booking** resolves the hotel by id or `HTL-` short code, raises a `409` when the hotel cannot take the rooms and party on those dates, and prices the stay per night, night count and rooms.
-- **Duplicate detection is opt-in** (`check_duplicate=True`). It runs after the sold-out check, takes a **per-owner transaction-scoped advisory lock** on Postgres (`pg_advisory_xact_lock`; a no-op on SQLite, and it requires a caller-owned live session), re-runs the replay under the lock so a concurrent same-key request receives the original booking rather than a duplicate error, and then raises `DuplicateBookingError` (a `ConflictError`) if an active booking exists for the same flight and passenger count, or the same hotel and exact dates. The error's detail always carries a machine-readable `[possible-duplicate:<id>]` marker and lists every matching booking.
+- **Duplicate detection is opt-in** (`check_duplicate=True`). It runs after the sold-out check, takes a **per-owner transaction-scoped advisory lock** on Postgres (`pg_advisory_xact_lock` keyed on `booking:{user_id}` through the shared `app/db/locks.py` helper; a no-op on SQLite, and it requires a caller-owned live session), re-runs the replay under the lock so a concurrent same-key request receives the original booking rather than a duplicate error, and then raises `DuplicateBookingError` (a `ConflictError`) if an active booking exists for the same flight and passenger count, or the same hotel and exact dates. The error's detail always carries a machine-readable `[possible-duplicate:<id>]` marker and lists every matching booking.
 - **Cancellation is idempotent** and keeps the row: cancelling an already-cancelled booking returns it unchanged, and cancelling **releases the idempotency key** so a cancelled booking is never a replay target (rebooking in the same turn creates a new row).
 
 ## The REST surface
@@ -95,3 +101,7 @@ Only the booking specialist, which sits behind the plan-approval interrupt, is b
 - **Duplicate warnings and the override guard.** The tools call the service with `check_duplicate=not allow_duplicate`, so a duplicate surfaces to the model as a tool error carrying the marker and a hint to tell the traveller and ask. Because a blocked duplicate leaves no row to replay, `allow_duplicate=True` is honoured **only if the traveller has spoken since the warning**: `duplicate_warned_ids_this_turn` scans error `ToolMessage`s since the last human message for the marker, and an override that targets any booking flagged this turn (or a malformed marker, which acts as a wildcard) is refused with `OVERRIDE_REFUSED_HINT`. When the override stands, the tool re-books on the same session so the advisory lock is still held. `tests/tools/test_booking_duplicate_tools.py` covers both the refusal and the accepted override after a new message.
 
 Results from the search tools are re-ranked by the traveller's stored preferences in a **boost-only, stable** way (word-boundary keyword matches of at least three characters, ties keep search order) so the same query and preferences always yield the same order.
+
+## Id validation for trip-research proposals
+
+`FlightIndexRepository`, `HotelRepository` and `PlaceRepository` each provide `known_ids(ids)`. It returns the subset of the given ids that exist as rows, and skips the query when the input is empty. The trip-research grader's `validate_proposal` uses it to reject a proposal that cites an invented flight offer, hotel or place id, so a proposal can only reference real inventory (see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).

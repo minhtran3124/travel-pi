@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8e10820fd97afc4a8dd8da66efacbb0a6678f088773bfb7a1a437f3ad6d5ec91",
+  "pageVersion": "sha256:ad95dab04f286fe5fe4109142cc5a4216ae0c88776f2d4eb105802978fbfb949",
   "claims": [
     {
       "id": "claim_9e814f8e4d2b41d793d9c4ab3f7c40e6",
@@ -114,15 +114,15 @@
     },
     {
       "id": "claim_78efa95b20e14f2b96b1581ecd94480c",
-      "statement": "Duplicate detection is opt-in, runs after the sold-out check, takes a per-owner transaction-scoped advisory lock on Postgres (no-op on SQLite, requiring a live caller-owned session), re-runs the idempotency replay under the lock, and raises DuplicateBookingError with an id-bearing marker and all matching bookings.",
+      "statement": "Duplicate detection is opt-in, runs after the sold-out check, takes a per-owner transaction-scoped advisory lock on Postgres through the shared locks helper (no-op on SQLite, requiring a live caller-owned session), re-runs the idempotency replay under the lock, and raises DuplicateBookingError with an id-bearing marker and all matches.",
       "evidence": [
         {
           "resource": "repo://apps/api/app/exceptions.py#L46-L79",
           "version": "repo-lines-v1:sha256:b98a784d64d3a6a70f1c468d1661c96fb27f3f8c3496ee1979857de5430f1709:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2YzVmZTVjODJiNmIxYmRiYzY3MGQ5Mjc3ZjRlODM5M2FlOTJlYTE3ZTVmNGNiMGY3MjIxOTdhZTgxOGJiZTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMjM1ODZkZjY5ZTMwNzc5NGY5ZWEyODU2NDdjNWExNjJmMjE0MWFmYjcyYjNiMDE5YjVjZmFjNGI3NmNiYjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MWIzYTdkZmMyNGI4YTEyNWQ3YzU1NTVmMGU4MTM4ODExODg2YWIzYmEwZWE5YzZlZjI1ZTVmNGM0M2YwY2YifQ"
         },
         {
-          "resource": "repo://apps/api/app/repositories/booking.py#L123-L137",
-          "version": "repo-lines-v1:sha256:003396f2d33ca5d589c7c899a6233b3224c68ccaec88cc44e8b3048ef768075a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNzFjMTllMjMyNDAwYjYyYjI4OTVjN2RhNmQyMDQxYTM2MzEwMDlmMDhmMTk5ZDY2NTFjZjg5OTJiMDI4NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFmZjY2Nzg5MGEzMDg4YTFiNTk1MTUwZTI5ZTk3ZDFmYjg3ZmQ0MWZiYzUyMWYwYTk2M2ExMThmMzBkNjk0ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmMjc1OTQwODY2ZjQ3N2I4M2IzMjI4NjU2ODc3NDdiMWMwODJlYTkyNzM0YWE5NDUyYWQ1ZTk4YzUyZTViMjgifQ"
+          "resource": "repo://apps/api/app/repositories/booking.py#L122-L131",
+          "version": "repo-lines-v1:sha256:19568bb8fb48d43b6dee2965b94b03dd442d40f7bbada5fcf401562c5cb1ade3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNzFjMTllMjMyNDAwYjYyYjI4OTVjN2RhNmQyMDQxYTM2MzEwMDlmMDhmMTk5ZDY2NTFjZjg5OTJiMDI4NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOWVmNTE5NzI4YWZhMjFjNTYwYzgzOGI1ODJiNjkwYmE4MTdhNzcxZTUyZmE5OTViOGU0MGIyZGVmMTNjZmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFmZjY2Nzg5MGEzMDg4YTFiNTk1MTUwZTI5ZTk3ZDFmYjg3ZmQ0MWZiYzUyMWYwYTk2M2ExMThmMzBkNjk0ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhOTEwYTZjNjFhYmFmZjYzMjMyMDg4NTI2NTAwZDg3NDU1YzdjZGYwMmNjMGNkMmI5MDBkYzMzOGRjNDY4ZjYifQ"
         },
         {
           "resource": "repo://apps/api/app/services/booking_service.py#L278-L305",
@@ -233,10 +233,28 @@
           "version": "repo-lines-v1:sha256:c0bca4230e67668777f3d3052933363dce3f5edeba3c5e04edd6324a6dac82fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2ODNmYTJlNDQ2OTE0ZGI3ZjI4ZDA2YjM1MDdiZDgyZDBhOWIyYmZjYjBlYjE1MTcxNjEwMDdiZmNlZTQxMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4Njk0YzBlZTI3NDI2YmRjMzBmOGVlYTBlOThjYTg3YzNkMzc5MjU3YTk3ZTcxZTQ3NzZkNjViMmNhNDlkMDgifQ"
         }
       ]
+    },
+    {
+      "id": "claim_48bee0295dab4df1b457ce848946d394",
+      "statement": "Flight-index, hotel and place repositories expose known_ids, which returns the subset of ids that exist and is used by the research grader's validate_proposal to reject invented ids.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/flight.py#L64-L70",
+          "version": "repo-lines-v1:sha256:823bc17b1bccea778b7f4ea58c10a5654047f4acc96a3dadfcedaac32e07603a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjg0NjVjMmUxZDY3Y2UwNzg1MTI5YjU1ZWZlZjBjOWVkYzY2YjgzZTYxNTUxOWUxNmVjYmUyOTVkYjMyYjJjOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzA1OGM1MTcyMTA2MzIwNWUxOTg4NmZjYTE4OWFkM2E2MGJkMjNjZTQzYmY5ZTQwMDk2OWVmZTQ2YWVhZTcwNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWNlZWJhMWIxMWU1YjY2ODRjYTQ5NDY4ODEwMjViNWY2MjNhYjVlNDY3OWUwMjMyYjZkNDBjZWNiMTg4ZWQxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzhhNTcwNzhiYWZkNzVmMzAwMWNlMjIwYzJhMzQ5Y2RjOGFkNWJhZTc1OTczZWM4MTMxODM0YjFhYzM1MGIyZiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/repositories/hotel_ref.py#L67-L73",
+          "version": "repo-lines-v1:sha256:da28ede6b92fb5e7f33fb6c1c095134bc94f7f6d14a4f3b05a14ec48a1d7366f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjg0NjVjMmUxZDY3Y2UwNzg1MTI5YjU1ZWZlZjBjOWVkYzY2YjgzZTYxNTUxOWUxNmVjYmUyOTVkYjMyYjJjOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzFmOGM2Mzk1ZWNhM2Y5MjRkZWY1YjE4ZmZlNWYxOWJhZDdhNjkwN2RlMTE1ZmU3YjE3ZjI4ZTYyMmFmN2RlZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmU0ODg1NzY5NWQ2YzBhZTk2MTdiMGQzZjYyZGVmZTc1NWZkNzllNDFlZGU0N2FkZWMyNDhmYjBlMjkwNzQyYyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/research/validate.py#L40-L53",
+          "version": "repo-lines-v1:sha256:af3d3ad59ab3ab7c7f3fd5be3596dd66e51ed6bd2dd2b81b5910b62f27f27de9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxNWNlMDYwMWE1Zjc4MGUxY2E4MDZlNjE1ZGMwZjU0NmRiZjhmMDZiYzRmNDM2NmU4MGU0YjZjODVlNTRiOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmMmFjMjQ0ZmM3ZTU0OTg5NzAyNDBmMzhiYWNhZGRhYTVkYzYzMzM5MTEzYzkyMzE4ZDNjYjZkODU1MDcyYzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiNThhMGU5MGIyNTMwNzk1NjM0YjViZmRiYTM4NWJhYWM0ZGZiOGJiZDkxYjhhZTZjYzMyMTNiOGE0OTJlY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlZTgyOTEwYWI2NDIwOTVhM2YzMWNkZTg5OTY2YjE5NjFiYzc1MTQxYjUyOWQ1OWYzZTY4YjM2Y2UxM2EzZDcifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }
