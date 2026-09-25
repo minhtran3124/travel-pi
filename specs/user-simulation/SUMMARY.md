@@ -94,6 +94,35 @@ Open Minor findings (forwarded to the final review):
 | ruff format | `.venv/bin/ruff format --check apps/api/sim apps/api/tests/sim` | 0 | 22 files | SC-13 |
 | launcher skill | `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"` | 0 | | SC-14 |
 
+### Correctness review (2026-09-25)
+
+- **Finder angles:** six (enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art) over fb824f69..7336a3c3.
+- **Locations:** 21 after deduplication, each scored by an independent scorer. The threshold was 75.
+- **Fixed from the fix loop (score 75 or above):**
+  - A — a grader exception lost every report;
+  - H — load() accepted duplicate persona ids;
+  - L — a traveller who left while queued stayed stuck in the UI;
+  - M — grading spent quota on sessions that never ran;
+  - N — personas had no email or phone, so booking was impossible;
+  - O — golden candidates used `suite: "sim"`, which the eval CLI cannot select;
+  - Q — a blocking `claude --version` ran on the event loop;
+  - S — the UI replaced running tool chips on any result;
+  - U — SSE `reset` did not reach the UI.
+- **Advisory, fixed because the change was small:** B (null rate-limit windows), E (report.json said fail for ungraded sessions), J (seat leak on a publish failure), K (malformed SSE payload), P (resume marker copied into candidates, now `hitl`), R (`--parallel` bounded to 1..6).
+- **Commits:** 9b59a347, d93ab873, and f2e4d455, which fixed three P3 regressions the re-review found (a version-probe OSError, NaN scores, marker-only candidates).
+- **Re-review:** all 15 fixed ids confirmed resolved; tests/sim 100 passed.
+
+### Advisory Findings
+
+Below the threshold and not fixed; recorded for a human to act on:
+
+- C (25) `claude_cli.py:153` — quota detection accepts only `rejected` and `error_rate*`/`error_usage_limit`. This is a deliberate design choice; revisit it if the real CLI shows other hard-stop statuses.
+- D (50) `claude_cli.py:134` — spawn OSError other than FileNotFoundError/PermissionError, and stdout UnicodeDecodeError, bypass the driver's single retry. The session still ends as `driver_error`, and the grader path is now protected by the catch-all.
+- F (50) `bus.py:63` — `stop()` does not drain client queues. With the default 30 s linger this is harmless.
+- G (50) `driver.py:266` — `leave_started` guards only the terminal leave, so a publish failure on a quota or aborted leave could double-publish.
+- I (50) `keys.py:92` — the token is minted once per session with a 1 h TTL; a session over an hour would 401 and abort the batch as `auth_misconfigured`. The worst case computed from the code is about 57 min. This is a JWT change, so it is Rule 4 and needs a human decision.
+- T (0) `driver.py:347` — a traveller message that comes with `intent_done` is not sent. This follows design §5.6; revisit after the live run shows whether closing messages matter.
+
 ### Not auto-verified
 
 - Claude subscription and headless usage terms — reached provenance. The help-center article was read first-hand during research on 2026-09-25 (the credit change is paused, so `claude -p` draws from plan limits), but the terms can change.
