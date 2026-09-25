@@ -1,6 +1,6 @@
 ---
 slug: llm-pricing-coverage
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-25
 ---
@@ -51,6 +51,7 @@ only as good as the price coverage. It implements items 5 and 6 of
 | SC-2 | Loading agent_config rows whose model is unpriced logs a WARNING naming the agent and the model. Priced rows log nothing. | `cd apps/api && ../../.venv/bin/python -m pytest tests/core/test_agent_config_cache.py -q` | exit 0 |
 | SC-3 | `python -m scripts.cost_report --since 30d` prints each month's priced cost, the count and tokens of NULL-cost runs with their unpriced models, and the unpriced background tokens. | `cd apps/api && ../../.venv/bin/python -m pytest tests/scripts/test_cost_report.py -q` | exit 0 |
 | SC-4 | The new and changed code passes lint | `cd apps/api && ruff check app scripts` | exit 0 |
+| SC-5 | Saving an unpriced model in the config dashboard still succeeds and the list page shows a warning banner naming the agent and the model. A priced model shows no banner. | `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_agent_config_dashboard.py -q` | exit 0 |
 
 ## 4. Tasks
 
@@ -105,6 +106,15 @@ only as good as the price coverage. It implements items 5 and 6 of
 - **Criteria:** SC-2, SC-4
 - **Interfaces:** Consumes: `app/core/pricing.py::is_priced` (Task 1.1). Produces: `app/core/agent_config_cache.py::reload_from_db` unpriced-model warning.
 
+### Task 3.1 — Dashboard warning on saving an unpriced model (wave 3)
+
+- **Files:** apps/api/app/routers/dashboard.py, apps/api/app/templates/agent_config.html, apps/api/tests/api/agent_config/test_agent_config_dashboard.py
+- **Action:** Added after intent-review escalation E001 (decision B). After a successful save, if the model is not priced, the PRG redirect carries `unpriced_agent` and `unpriced_model`, and the list page renders a non-blocking `ac-warn` banner. The save is never rejected.
+- **Verify:** `cd apps/api && ../../.venv/bin/python -m pytest tests/api/agent_config/test_agent_config_dashboard.py -q`
+- **Done:** An unpriced save redirects with the params and the banner renders escaped. A priced save shows no banner.
+- **Criteria:** SC-5
+- **Interfaces:** Consumes: `app/core/pricing.py::is_priced`. Produces: `app/templates/agent_config.html` warning banner.
+
 ## 5. Risks
 
 - **Log noise.** A misconfigured model would warn on every call. Mitigation: dedup per process
@@ -121,3 +131,5 @@ only as good as the price coverage. It implements items 5 and 6 of
 - 2026-09-25: plan written after intake (normal / medium). Worktree
   `../travel-pi-llm-pricing-coverage`, branch `feat/llm-pricing-coverage`. Baseline suite: 3129
   passed, 9 skipped.
+- 2026-09-25: tasks 1.1-2.1 were reviewed, the correctness-review fixes are in 2116a435, and the full suite gives 3145 passed. Intent review raised E001, and the owner chose B, which added Task 3.1.
+- 2026-09-25: Task 3.1 was reviewed, and its follow-up fixes are in 56c7efd4 and 1a10a582. The full suite gives 3152 passed. The receipt pins 1a10a582. Ready for PR.
