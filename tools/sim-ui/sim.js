@@ -15,6 +15,8 @@ const qSlot = i => ({ x: 84 + i * 40, y: QUEUE_Y });
 const BODY = ['#C0504D', '#4F7CAC', '#8E6BB0', '#D08A3A', '#3E8E7E', '#B5577E', '#5B8C5A', '#C77F3B'];
 const SKIN = ['#F1C9A5', '#F3D6C1', '#9C6645', '#EFC8A6', '#D6A17A', '#C48660', '#E8B98C', '#7A4A2B'];
 const HAIR = ['#1F1A17', '#D9A441', '#1C1410', '#3A2419', '#171311', '#6B3A1E', '#2E2A26', '#4A2E1A'];
+const VERDICTS = new Set(['pass', 'warn', 'fail']);
+const MAX_SEATS = 6;
 function hash(s){ let h = 2166136261; for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 const pick = (arr, id, salt) => arr[hash(id + salt) % arr.length];
 
@@ -78,13 +80,15 @@ function makePerson(meta){
 }
 
 function resetBatch(personas, seats){
-  const n = Math.max(1, Math.min(6, Number.isFinite(seats) ? seats : (Array.isArray(seats) ? seats.length : 3)));
+  const requested = Number.isFinite(seats) ? seats : (Array.isArray(seats) ? seats.length : 3);
+  const n = Math.max(1, Math.min(MAX_SEATS, requested));
   state = {
-    tMs: 0, q5: 0, q7: 0, resets: null,
+    tMs: 0, q5: 0, q7: 0, resets: null, requestedSeats: requested,
     order: [], people: new Map(), queue: [], events: [],
-    done: 0, total: personas.length, ended: false, summary: null,
+    total: personas.length, ended: false, summary: null,
     seats: seatXs(n).map((x, i) => ({ i, x, y: 204, busy: null, sub: null, tool: null, bubble: null, approval: false })),
   };
+  if (requested > n) warn(`batch_start requested ${requested} seats; rendering ${n} (layout cap)`);
   for (const meta of personas){
     const p = makePerson(meta);
     state.people.set(p.id, p);
@@ -95,6 +99,13 @@ function resetBatch(personas, seats){
 resetBatch([], 3);
 
 const person = id => state.people.get(id);
+
+// --- event stream warnings (visible in the #events tab) ---
+function warn(message){
+  if (!state) return;
+  state.events.push({ t: state.tMs, type: 'ui_warning', persona_id: null, message });
+  if (state.events.length > 500) state.events.shift();
+}
 
 // --- event handling ---
 function handle(ev){
@@ -114,13 +125,12 @@ function handle(ev){
     }
     case 'walk_to_desk': {
       if (!p) break;
-      const seat = state.seats[ev.seat] || state.seats[0];
+      const seat = state.seats[ev.seat];
+      if (!seat){ warn(`walk_to_desk: seat ${ev.seat} out of range (${state.seats.length} seats)`); break; }
       const i = state.queue.indexOf(p); if (i >= 0) state.queue.splice(i, 1);
-      if (seat){
-        seat.busy = p; seat.sub = null; seat.tool = null; seat.bubble = null; seat.approval = false;
-        p.seat = seat; p.seatIdx = seat.i;
-        p.path = [{ x: p.x, y: AISLE_Y }, { x: seat.x, y: AISLE_Y }, { x: seat.x, y: seat.y }];
-      }
+      seat.busy = p; seat.sub = null; seat.tool = null; seat.bubble = null; seat.approval = false;
+      p.seat = seat; p.seatIdx = seat.i;
+      p.path = [{ x: p.x, y: AISLE_Y }, { x: seat.x, y: AISLE_Y }, { x: seat.x, y: seat.y }];
       p.phase = 'walking'; p.status = 'talking';
       break;
     }
@@ -139,8 +149,13 @@ function handle(ev){
     case 'bot_tool': {
       if (!p || !p.seat) break;
       const status = ev.status || 'running';
-      p.seat.tool = { name: ev.name, status, until: status === 'running' ? 0 : animT + 1.6 };
-      if (status === 'running') p.transcript.push({ who: 'tool', text: ev.name });
+      const seat = p.seat;
+      if (ev.name){
+        seat.tool = { id: ev.id != null ? ev.id : null, name: ev.name, status, until: status === 'running' ? 0 : animT + 1.6 };
+        if (status === 'running') p.transcript.push({ who: 'tool', text: ev.name });
+      } else if (seat.tool && seat.tool.id != null && seat.tool.id === ev.id){
+        seat.tool.status = status; seat.tool.until = status === 'running' ? 0 : animT + 1.6;
+      }
       break;
     }
     case 'bot_token': {
@@ -178,15 +193,15 @@ function handle(ev){
       p.seat = null;
       const from = seat ? { x: seat.x, y: AISLE_Y } : { x: p.x, y: AISLE_Y };
       p.path = [from, { x: EXIT.x, y: AISLE_Y }, { x: EXIT.x, y: EXIT.y }];
-      p.phase = 'leaving'; p.leaveReason = ev.reason || 'done';
-      state.done++;
+      p.phase = 'leaving'; p.leaveReason = ev.reason || 'done'; p.left = true;
       break;
     }
     case 'session_graded': {
       if (!p) break;
-      p.grade = { score: ev.score, verdict: ev.verdict };
-      if (p.status !== 'error' || ev.verdict) p.status = ev.verdict || p.status;
-      p.transcript.push({ who: 'grade', text: '', score: ev.score, verdict: ev.verdict });
+      const verdict = VERDICTS.has(ev.verdict) ? ev.verdict : null;
+      p.grade = { score: ev.score, verdict };
+      if (verdict) p.status = verdict;
+      p.transcript.push({ who: 'grade', text: '', score: ev.score, verdict });
       break;
     }
     case 'quota': {
@@ -349,7 +364,7 @@ function draw(){
     if (s.tool && s.tool.until && s.tool.status !== 'running' && animT > s.tool.until) s.tool = null;
     const f = up(iso(s.x, 118), 30);
     if (s.approval) pill(f.x, f.y, 'Approve booking?', T.lime, T['on-accent'], '600 11px Inter, sans-serif');
-    else if (s.tool){
+    else if (s.tool && s.tool.name){
       const c = s.tool.status === 'error' ? T.fail : s.tool.status === 'ok' ? T.ok : T.lime;
       const mark = s.tool.status === 'running' ? '⟳ ' : s.tool.status === 'ok' ? '✓ ' : '✕ ';
       pill(f.x, f.y, mark + TOOL_ICON(s.tool.name) + ' ' + s.tool.name, T.board, c);
@@ -369,7 +384,8 @@ function draw(){
 
 // --- DOM rendering ---
 function renderHeader(){
-  $('done-count').textContent = `${state.done}/${state.total}`;
+  const done = state.order.filter(id => state.people.get(id).left).length;
+  $('done-count').textContent = `${done}/${state.total}`;
   $('inflight').textContent = `${state.seats.filter(s => s.busy).length}/${state.seats.length}`;
   $('clock').textContent = mmss(state.tMs / 1000);
   const c5 = Math.max(0, Math.min(1, state.q5)), c7 = Math.max(0, Math.min(1, state.q7));
@@ -385,7 +401,7 @@ function renderPanel(){
     <div class="card-head">
       <span class="avatar">${avatarSVG(p)}</span>
       <div><h2>${esc(p.name)}</h2><p>${esc(p.cc)} · ${esc(p.lang)} · sim-${esc(p.id)}</p></div>
-      <span class="pill label s-${p.status}">${statusLabel(p.status)}</span>
+      <span class="pill label s-${esc(p.status)}">${esc(statusLabel(p.status))}</span>
     </div>
     <dl class="facts">
       <dt>Turns</dt><dd>${p.turns}</dd>
@@ -412,7 +428,7 @@ function renderRoster(){
       <td><span class="who"><span class="avatar">${avatarSVG(p)}</span>${esc(p.name)}</span></td>
       <td>${esc(p.cc)}</td><td>${esc(p.lang)}</td>
       <td class="num">${p.turns}</td>
-      <td><span class="pill label s-${p.status}">${statusLabel(p.status)}</span></td>
+      <td><span class="pill label s-${esc(p.status)}">${esc(statusLabel(p.status))}</span></td>
       <td class="num">${graded ? p.grade.score.toFixed(1) : '—'}</td>
     </tr>`;
   }).join('');
