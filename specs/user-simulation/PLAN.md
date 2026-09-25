@@ -1,6 +1,6 @@
 ---
 slug: user-simulation
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-25
 ---
@@ -328,3 +328,4 @@ desk and talking.
 - 2026-09-25 — wave 1: tasks 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7 complete; commits a3266b32 2fe04570 3cb33dcf (1.1), a79498e0 990530dd (1.2), 7a02eff3 e163934a (1.3), c1944924 791ed698 dcf1e298 (1.4), cc5ed5d6 (1.5), 93b42134 3d5e4b0f 12f16b84 2c3628bd (1.6), 91fa966d (1.7). All per-task reviews spec pass + quality approved. tests/sim 34 passed.
 - 2026-09-25 — wave 2: tasks 2.1, 2.2, 2.3 complete (run in order 2.1 → 2.2 → 2.3 because 2.2 imports Persona and 2.3 imports SessionResult); commits a4233636 85abc7ce (2.1), f6a32698 890287b7 9d962988 40f8ea00 (2.2), 2f9f4667 0c2b2983 72d3578f (2.3). All reviews spec pass + quality approved. tests/sim 71 passed.
 - 2026-09-25 — wave 3: tasks 3.1, 3.2, 3.3 complete; commits b3127234 57ab186a 4bef4b72 (3.1), 319c1bd7 dac72889 (3.2), 373d8c0f 5b8472a9 (3.3). All reviews spec pass + quality approved. SC-1..SC-14 all exit 0 at 4bef4b72.
+- 2026-09-25 — review chain complete. Correctness review: 9 findings fixed plus 6 advisories fixed (9b59a347, d93ab873, f2e4d455). Intent review: no divergence. Receipt reviewed at 365da3fd. Status set to shipped; PR opened against main. Live end-to-end UAT is still owed.

@@ -4,19 +4,19 @@
   "base": "fb824f69",
   "reviews": [
     {
-      "type": "task-review",
+      "type": "task",
       "result": "pass",
       "blocking_open": 0,
       "note": "all 13 tasks spec pass + quality approved"
     },
     {
-      "type": "correctness-review",
+      "type": "correctness",
       "result": "pass",
       "blocking_open": 0,
       "note": "21 locations scored; 9 >=75 fixed (9b59a347, d93ab873), 6 advisory fixed, 3 P3 regressions fixed (f2e4d455); 6 advisories recorded in SUMMARY"
     },
     {
-      "type": "intent-review",
+      "type": "intent",
       "result": "pass",
       "blocking_open": 0,
       "note": "no intent divergence at a4f8f038"
