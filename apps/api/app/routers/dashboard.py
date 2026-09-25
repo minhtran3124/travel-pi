@@ -768,11 +768,22 @@ def agent_config_page(
 ) -> HTMLResponse:
     """List every agent's LLM config, grouped into sections (edit in a modal)."""
     groups = AgentConfigService(session).list_grouped()
+    # Re-check on render so a hand-crafted link cannot show a banner for a priced model.
+    unpriced_model = request.query_params.get("unpriced_model", "")
+    unpriced = (
+        {
+            "agent": request.query_params.get("unpriced_agent", ""),
+            "model": unpriced_model,
+        }
+        if unpriced_model and not is_priced(unpriced_model)
+        else None
+    )
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="agent_config.html",
         context={
             "groups": groups,
+            "unpriced": unpriced,
             "providers": sorted(PROVIDER_NAMES),
             "provider_models": {
                 name: list(p.models) for name, p in LLM_PROVIDERS.items()
@@ -842,9 +853,10 @@ def agent_config_save(
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
     params = {"saved": 1}
-    if model and not is_priced(model):
+    saved_model = model.strip()  # what the service persists (blank → default)
+    if saved_model and not is_priced(saved_model):
         # Non-blocking: the save stands; the list page warns that cost will be NULL.
-        params |= {"unpriced_agent": agent_name, "unpriced_model": model}
+        params |= {"unpriced_agent": agent_name, "unpriced_model": saved_model}
     return RedirectResponse(
         url=f"/dashboard/agent-config?{urlencode(params)}", status_code=303
     )

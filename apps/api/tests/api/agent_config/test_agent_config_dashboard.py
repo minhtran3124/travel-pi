@@ -1,5 +1,6 @@
 import re
 
+import pytest
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.services.agent_config_service import AgentConfigService
@@ -253,3 +254,25 @@ def test_post_priced_model_has_no_warning(client):
     )
     assert "unpriced" not in r.headers["location"]
     assert 'class="ac-warn"' not in client.get(r.headers["location"]).text
+
+
+@pytest.mark.parametrize("model", ["gpt-5 ", "   "])
+def test_post_whitespace_padded_or_blank_model_does_not_warn(client, model):
+    r = client.post(
+        "/dashboard/agent-config/planner",
+        data={
+            "provider": "openai",
+            "model": model,
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert "unpriced" not in r.headers["location"]
+
+
+def test_list_page_ignores_crafted_banner_for_priced_model(client):
+    r = client.get(
+        "/dashboard/agent-config?saved=1&unpriced_agent=planner&unpriced_model=gpt-5"
+    )
+    assert 'class="ac-warn"' not in r.text

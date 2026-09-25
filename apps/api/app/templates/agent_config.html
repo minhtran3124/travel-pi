@@ -24,10 +24,10 @@
 {% if request.query_params.get('saved') %}
   <p class="ac-saved">✓ Configuration saved.</p>
 {% endif %}
-{% if request.query_params.get('unpriced_model') %}
+{% if unpriced %}
   <p class="ac-warn" role="alert">
-    ⚠ <strong>{{ request.query_params.get('unpriced_agent') }}</strong> now uses
-    <code>{{ request.query_params.get('unpriced_model') }}</code>, which has no price in
+    ⚠ <strong>{{ unpriced.agent }}</strong> now uses
+    <code>{{ unpriced.model }}</code>, which has no price in
     <code>app/core/pricing.py</code>. Its runs will be recorded with a NULL cost and left out of
     cost reports until a price is added.
   </p>
