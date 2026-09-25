@@ -3,6 +3,7 @@
 MIN-47 adds a TTL-based lazy refresh + a generation counter — covered below.
 """
 
+import logging
 import threading
 import time
 
@@ -327,3 +328,32 @@ def test_cache_detects_a_write_made_without_invalidate(tmp_path):
     AgentConfigCache._loaded_at = time.monotonic() - 10_000  # force past interval
 
     assert AgentConfigCache.get("reflection").enabled is False  # picked up via poll
+
+
+def test_reload_warns_only_for_unpriced_models(tmp_path, caplog):
+    """A reload logs one WARNING naming the agent + model for an unpriced row; priced rows stay silent."""
+    import app.core.agent_config_cache as cache_mod
+
+    url = f"sqlite:///{tmp_path / 'unpriced.db'}"
+    factory = get_session_factory(url)
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    repo = AgentConfigRepository(factory)
+    repo.upsert("planner", model="gpt-5")  # priced
+    repo.upsert("concierge", model="totally-made-up-model")  # unpriced
+
+    cache_mod._WARNED_UNPRICED.clear()  # per-process dedupe; isolate from other tests
+    with caplog.at_level(logging.WARNING, logger="app.core.agent_config_cache"):
+        reload_from_db(factory)
+
+    warnings = [
+        r
+        for r in caplog.records
+        if r.levelno == logging.WARNING and "unpriced model" in r.getMessage()
+    ]
+    assert len(warnings) == 1
+    msg = warnings[0].getMessage()
+    assert "concierge" in msg  # names the agent
+    assert "totally-made-up-model" in msg  # names the model
+    assert "planner" not in msg  # priced row stays silent
+    assert "gpt-5" not in msg

@@ -8,7 +8,12 @@ from typing import ClassVar
 
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.pricing import is_priced, normalize_model
+
 logger = logging.getLogger(__name__)
+
+# Normalized model names already warned about, so a reload can't flood the logs.
+_WARNED_UNPRICED: set[str] = set()
 
 # Fallback poll interval (seconds) until ``configure`` wires the settings-driven value.
 _DEFAULT_POLL_INTERVAL_SECONDS = 5.0
@@ -146,7 +151,28 @@ def reload_from_db(session_factory) -> None:
         )
         for row in repo.list_all()
     }
+    _warn_unpriced_models(cache)
     AgentConfigCache.sync_from_cache(cache)
+
+
+def _warn_unpriced_models(cache: dict[str, AgentModelOverride]) -> None:
+    """Log a WARNING for each agent pinned to an unpriced model (once per model, never raising)."""
+    try:
+        for name, override in cache.items():
+            model = override.model
+            if not model or is_priced(model):
+                continue
+            normalized = normalize_model(model)
+            if normalized in _WARNED_UNPRICED:
+                continue
+            _WARNED_UNPRICED.add(normalized)
+            logger.warning(
+                "[AgentConfigCache] agent %r uses unpriced model %r — its cost will be NULL",
+                name,
+                model,
+            )
+    except Exception as exc:  # noqa: BLE001 - the cost warning must never break a reload
+        logger.error(f"[AgentConfigCache] unpriced-model check failed: {exc}")
 
 
 def max_updated_at(session_factory) -> str | None:
