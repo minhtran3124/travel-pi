@@ -90,6 +90,7 @@ def _parse_events(text: str) -> list[dict]:
         try:
             parsed = json.loads(line)
         except json.JSONDecodeError:
+            # A malformed line is skipped; a run is judged by its result event.
             continue
         if isinstance(parsed, dict):
             events.append(parsed)
@@ -123,12 +124,15 @@ async def run(
     args = _build_args(system_prompt, user_prompt, schema, model)
     cwd = tempfile.mkdtemp(prefix="sim-claude-")
     try:
-        proc = await asyncio.create_subprocess_exec(
-            *args,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=cwd,
-        )
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *args,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=cwd,
+            )
+        except (FileNotFoundError, PermissionError) as exc:
+            raise DriverError(f"could not launch claude binary {_binary()!r}") from exc
         try:
             stdout, _ = await asyncio.wait_for(proc.communicate(), timeout)
         except (asyncio.TimeoutError, TimeoutError) as exc:
@@ -144,7 +148,9 @@ async def run(
 
     if rate_event is not None:
         status = _update_quota(rate_event)
-        if status is not None and status != "allowed":
+        # Only an outright rejection exhausts quota; warning-level statuses
+        # (e.g. ``allowed_warning``) still run.
+        if status == "rejected":
             raise QuotaExhausted(f"rate limit status: {status}")
 
     if proc.returncode not in (0, None):
@@ -171,10 +177,15 @@ async def run(
 
 
 def cli_version() -> str:
-    proc = subprocess.run(
-        [_binary(), "--version"],
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
+    try:
+        proc = subprocess.run(
+            [_binary(), "--version"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (FileNotFoundError, PermissionError) as exc:
+        raise DriverError(f"could not launch claude binary {_binary()!r}") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise DriverError(f"claude --version timed out for {_binary()!r}") from exc
     return proc.stdout.strip()

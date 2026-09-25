@@ -94,9 +94,36 @@ def main() -> int:
         )
         return 1
 
+    if mode == "error_rate_limit":
+        # Status stays allowed; the rate limit surfaces only in the error result.
+        _emit(
+            [
+                system,
+                _rate_limit_event("allowed"),
+                {"type": "result", "subtype": "error_rate_limit", "is_error": True},
+            ]
+        )
+        return 1
+
     if mode == "bad_json":
         _emit([system, _rate_limit_event("allowed")])
-        sys.stdout.write(json.dumps({"type": "result", "is_error": False}) + "\n")
+        # A genuinely malformed line, and no valid result event.
+        sys.stdout.write('{"type": "result", not-json\n')
+        return 0
+
+    if mode == "warn":
+        _emit(
+            [
+                system,
+                _rate_limit_event("allowed_warning"),
+                {
+                    "type": "result",
+                    "subtype": "success",
+                    "is_error": False,
+                    "structured_output": _structured_output(),
+                },
+            ]
+        )
         return 0
 
     result = {
@@ -112,6 +139,12 @@ def main() -> int:
         sys.stdout.write(
             json.dumps([system, _rate_limit_event("allowed"), result]) + "\n"
         )
+        return 0
+
+    if mode == "mixed":
+        _emit([system, _rate_limit_event("allowed")])
+        sys.stdout.write("this line is not json\n")
+        _emit([result])
         return 0
 
     _emit([system, _rate_limit_event("allowed"), result])

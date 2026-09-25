@@ -133,5 +133,43 @@ async def test_timeout_raises_driver_error(fake_env, monkeypatch):
         )
 
 
+@pytest.mark.asyncio
+async def test_warning_status_still_returns_and_updates_quota(fake_env, monkeypatch):
+    monkeypatch.setenv("FAKE_CLAUDE_MODE", "warn")
+    monkeypatch.setenv("FAKE_CLAUDE_FIVE_HOUR", "0.9")
+    result = await _run()
+    assert result == {"ok": True}
+    assert claude_cli.last_quota.five_hour == 0.9
+
+
+@pytest.mark.asyncio
+async def test_is_error_rate_limit_result_raises_quota_exhausted(fake_env, monkeypatch):
+    monkeypatch.setenv("FAKE_CLAUDE_MODE", "error_rate_limit")
+    with pytest.raises(claude_cli.QuotaExhausted):
+        await _run()
+
+
+@pytest.mark.asyncio
+async def test_malformed_line_among_valid_ones_is_tolerated(fake_env, monkeypatch):
+    monkeypatch.setenv("FAKE_CLAUDE_MODE", "mixed")
+    out = fake_env["tmp"] / "out.json"
+    out.write_text(json.dumps({"message": "mixed"}))
+    monkeypatch.setenv("FAKE_CLAUDE_OUTPUT_FILE", str(out))
+    assert await _run() == {"message": "mixed"}
+
+
+@pytest.mark.asyncio
+async def test_missing_binary_raises_driver_error(fake_env, monkeypatch):
+    monkeypatch.setenv("SIM_CLAUDE_BIN", str(fake_env["tmp"] / "no-such-claude"))
+    with pytest.raises(claude_cli.DriverError):
+        await _run()
+
+
+def test_cli_version_missing_binary_raises_driver_error(fake_env, monkeypatch):
+    monkeypatch.setenv("SIM_CLAUDE_BIN", str(fake_env["tmp"] / "no-such-claude"))
+    with pytest.raises(claude_cli.DriverError):
+        claude_cli.cli_version()
+
+
 def test_cli_version_reads_the_binary(fake_env):
     assert claude_cli.cli_version().startswith("1.2.3")
