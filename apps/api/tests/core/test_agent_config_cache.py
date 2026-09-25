@@ -357,3 +357,27 @@ def test_reload_warns_only_for_unpriced_models(tmp_path, caplog):
     assert "totally-made-up-model" in msg  # names the model
     assert "planner" not in msg  # priced row stays silent
     assert "gpt-5" not in msg
+
+
+def test_reload_names_every_agent_sharing_an_unpriced_model(tmp_path, caplog):
+    import app.core.agent_config_cache as cache_mod
+
+    url = f"sqlite:///{tmp_path / 'shared.db'}"
+    factory = get_session_factory(url)
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    repo = AgentConfigRepository(factory)
+    repo.upsert("planner", model="totally-made-up-model")
+    repo.upsert("concierge", model="totally-made-up-model")
+
+    cache_mod._WARNED_UNPRICED.clear()
+    with caplog.at_level(logging.WARNING, logger="app.core.agent_config_cache"):
+        reload_from_db(factory)
+        reload_from_db(factory)
+
+    msgs = [
+        r.getMessage() for r in caplog.records if "unpriced model" in r.getMessage()
+    ]
+    assert len(msgs) == 2
+    assert any("planner" in m for m in msgs)
+    assert any("concierge" in m for m in msgs)

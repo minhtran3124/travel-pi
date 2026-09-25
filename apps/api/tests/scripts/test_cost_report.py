@@ -152,3 +152,22 @@ def test_main_invalid_since_is_argparse_error(capsys):
     # argparse usage error exits 2, not an unhandled ValueError traceback.
     assert exc.value.code == 2
     assert "--since" in capsys.readouterr().err
+
+
+def test_build_report_zero_token_null_cost_run_is_not_unpriced():
+    from types import SimpleNamespace
+
+    from scripts.cost_report import build_report
+
+    row = SimpleNamespace(
+        created_at="2026-09-02T00:00:00",
+        input_tokens=0,
+        output_tokens=0,
+        cost_usd=None,
+        by_model={},
+        background_tokens=0,
+    )
+    (month,) = build_report([row])["months"]
+    assert month["runs"] == 1
+    assert month["unpriced_runs"] == 0
+    assert month["priced_cost_usd"] == 0.0

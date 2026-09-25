@@ -50,12 +50,14 @@ def build_report(rows) -> dict:
         m = agg[r.created_at[:7]]
         m["runs"] += 1
         m["background_tokens"] += r.background_tokens or 0
-        if r.cost_usd is None:
+        tokens = (r.input_tokens or 0) + (r.output_tokens or 0)
+        if r.cost_usd is None and tokens:
+            # A NULL-cost run with no tokens made no LLM call; it is not unpriced.
             m["unpriced_runs"] += 1
-            m["unpriced_tokens"] += (r.input_tokens or 0) + (r.output_tokens or 0)
+            m["unpriced_tokens"] += tokens
             for name in r.by_model or {}:
                 m["unpriced_models"].add(name)
-        else:
+        elif r.cost_usd is not None:
             m["priced_cost_usd"] += r.cost_usd
 
     months = []
