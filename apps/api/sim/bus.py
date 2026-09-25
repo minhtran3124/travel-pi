@@ -1,6 +1,7 @@
 """Event bus: transcript, WebSocket fan-out, and static UI over one port."""
 
 import asyncio
+import contextlib
 import json
 import time
 from pathlib import Path
@@ -29,12 +30,15 @@ class Bus:
         self.run_dir = Path(run_dir)
         self.static_dir = Path(static_dir)
         self._port = port
+        # History and per-client queues are unbounded on purpose: one local
+        # operator watches one batch, so the event count is small and bounded.
         self.history = []
         self._clients = set()
         self._server = None
         self._transcript = None
         self._start = None
         self._running = False
+        self.on_register = None
 
     @property
     def port(self):
@@ -83,15 +87,20 @@ class Bus:
 
     async def _handler(self, connection):
         queue = asyncio.Queue()
+        snapshot = len(self.history)
         for event in self.history:
             queue.put_nowait(json.dumps(event))
         self._clients.add(queue)
+        if self.on_register is not None:
+            self.on_register(snapshot)
         sender = asyncio.create_task(self._drain(connection, queue))
         try:
             await connection.wait_closed()
         finally:
             self._clients.discard(queue)
             sender.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await sender
 
     async def _drain(
         self,
