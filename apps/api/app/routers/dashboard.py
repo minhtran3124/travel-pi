@@ -769,7 +769,7 @@ def agent_config_page(
     """List every agent's LLM config, grouped into sections (edit in a modal)."""
     groups = AgentConfigService(session).list_grouped()
     # Re-check on render so a hand-crafted link cannot show a banner for a priced model.
-    unpriced_model = request.query_params.get("unpriced_model", "")
+    unpriced_model = request.query_params.get("unpriced_model", "").strip()
     unpriced = (
         {
             "agent": request.query_params.get("unpriced_agent", ""),

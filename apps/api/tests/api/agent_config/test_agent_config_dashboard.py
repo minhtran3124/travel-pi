@@ -271,8 +271,9 @@ def test_post_whitespace_padded_or_blank_model_does_not_warn(client, model):
     assert "unpriced" not in r.headers["location"]
 
 
-def test_list_page_ignores_crafted_banner_for_priced_model(client):
+@pytest.mark.parametrize("model", ["gpt-5", "gpt-5%20"])
+def test_list_page_ignores_crafted_banner_for_priced_model(client, model):
     r = client.get(
-        "/dashboard/agent-config?saved=1&unpriced_agent=planner&unpriced_model=gpt-5"
+        f"/dashboard/agent-config?saved=1&unpriced_agent=planner&unpriced_model={model}"
     )
     assert 'class="ac-warn"' not in r.text
