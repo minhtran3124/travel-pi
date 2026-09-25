@@ -1,4 +1,5 @@
 {"type":"batch_start","persona_id":null,"v":1,"seats":2,"personas":[{"id":"p1","name":"Aoi Tanaka","country_code":"JP","language":"ja"},{"id":"p2","name":"Bruno Costa","country_code":"BR","language":"pt"}]}
+{"type":"quota","persona_id":null,"five_hour":0.42,"seven_day":0.18,"resets_at":"2026-09-25T21:00:00Z"}
 {"type":"persona_queue","persona_id":"p1"}
 {"type":"persona_queue","persona_id":"p2"}
 {"type":"walk_to_desk","persona_id":"p1","seat":0}

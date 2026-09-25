@@ -3,11 +3,13 @@
 Test seam for the UI smoke script (not a user-facing replay mode): it starts a
 Bus on ``port=0`` so it never collides with a live ``sim-run`` on 8765, preloads
 the fixture events into history, prints ``PORT=<n>`` on its first stdout line,
-then blocks until killed while the bus replays history to any late client.
+then blocks until a SIGTERM/SIGINT arrives while the bus replays history to any
+late client. The temp run dir is cleaned up on exit.
 """
 
 import asyncio
 import json
+import signal
 import sys
 import tempfile
 from pathlib import Path
@@ -28,19 +30,24 @@ def _load_events(path):
 
 
 async def _serve(events):
-    bus = Bus(
-        run_dir=tempfile.mkdtemp(prefix="sim-replay-"),
-        static_dir=_STATIC_DIR,
-        port=0,
-    )
-    await bus.start()
-    try:
-        for event in events:
-            await bus.publish(event)
-        print(f"PORT={bus.port}", flush=True)
-        await asyncio.Event().wait()
-    finally:
-        await bus.stop()
+    stop = asyncio.Event()
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, stop.set)
+    with tempfile.TemporaryDirectory(prefix="sim-replay-") as run_dir:
+        bus = Bus(
+            run_dir=run_dir,
+            static_dir=_STATIC_DIR,
+            port=0,
+        )
+        await bus.start()
+        try:
+            for event in events:
+                await bus.publish(event)
+            print(f"PORT={bus.port}", flush=True)
+            await stop.wait()
+        finally:
+            await bus.stop()
 
 
 def main(argv):
