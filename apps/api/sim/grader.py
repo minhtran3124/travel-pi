@@ -95,12 +95,30 @@ def _payload(
     }
 
 
+def _ungraded(
+    session: SessionResult,
+    summary: str,
+) -> Grade:
+    return Grade(
+        persona_id=session.persona.id,
+        verdict="fail",
+        score=0.0,
+        criteria={},
+        summary=summary,
+    )
+
+
 async def grade(
     session: SessionResult,
     db_rows: dict,
 ) -> Grade:
     user_prompt = json.dumps(_payload(session, db_rows), ensure_ascii=False, indent=2)
-    result = await claude_cli.run(_read("grader.md"), user_prompt, GRADER_SCHEMA)
+    try:
+        result = await claude_cli.run(_read("grader.md"), user_prompt, GRADER_SCHEMA)
+    except claude_cli.QuotaExhausted:
+        return _ungraded(session, "ungraded: quota exhausted")
+    except claude_cli.DriverError:
+        return _ungraded(session, "ungraded: grader claude -p failed")
     verdict = result.get("verdict")
     if verdict not in _VERDICTS:
         verdict = "fail"
@@ -114,14 +132,14 @@ async def grade(
 
 
 def _capability(session: SessionResult) -> str:
+    if any(name.startswith("book_") for name in session.tools):
+        return "booking"
     if session.tools:
         name = session.tools[0]
         if name == "search_flights":
             return "flight_search"
         if "hotel" in name:
             return "hotels"
-        if name.startswith("book_"):
-            return "booking"
         if "budget" in name:
             return "budget"
     if session.status == "bot_error":
@@ -131,6 +149,10 @@ def _capability(session: SessionResult) -> str:
 
 def _scenario(session: SessionResult) -> str:
     return "tool_failure" if session.status == "bot_error" else "multi_turn"
+
+
+def _has_user_turn(session: SessionResult) -> bool:
+    return any(t.get("role") == "user" for t in session.turns)
 
 
 def _candidate(
@@ -184,15 +206,17 @@ def _render_md(
         f"- Chatbot usage: {json.dumps(usage, ensure_ascii=False)}",
         f"- `claude` CLI version: {version}",
         "",
+        "Transcript links carry the `persona_id` to grep in `transcript.jsonl`; "
+        "true per-session line ranges are deferred.",
+        "",
         _FABRICATION_NOTE,
         "",
         "| Persona | Verdict | Score | Transcript |",
         "|---|---|---|---|",
     ]
     for g in ordered:
-        lines.append(
-            f"| {g.persona_id} | {g.verdict} | {g.score:g} | transcript.jsonl |"
-        )
+        transcript = f"transcript.jsonl (persona_id={g.persona_id})"
+        lines.append(f"| {g.persona_id} | {g.verdict} | {g.score:g} | {transcript} |")
     return "\n".join(lines) + "\n"
 
 
@@ -241,7 +265,9 @@ def write_reports(
     candidates = [
         _candidate(batch_ts, sessions_by_id[g.persona_id])
         for g in ordered
-        if g.verdict in _CANDIDATE_VERDICTS and g.persona_id in sessions_by_id
+        if g.verdict in _CANDIDATE_VERDICTS
+        and g.persona_id in sessions_by_id
+        and _has_user_turn(sessions_by_id[g.persona_id])
     ]
     (candidates_dir / "golden_candidates.json").write_text(
         json.dumps(candidates, ensure_ascii=False, indent=2),

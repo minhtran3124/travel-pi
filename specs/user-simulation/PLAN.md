@@ -248,7 +248,7 @@ desk and talking.
   - `language`: the persona's language;
   - `turns`: the traveller's messages in order;
   - `scenario`: `tool_failure` when the session ended in `bot_error`, otherwise `multi_turn`;
-  - `capability`: from the first `bot_tool` name. `search_flights` maps to `flight_search`; `search_hotels` and any other name containing `hotel` to `hotels`; `book_*` to `booking`; any name containing `budget` (e.g. `estimate_trip_budget`) to `budget`. A `bot_error` session maps to `errors`, and anything else to `routing`.
+  - `capability`: `booking` if any tool in the session starts with `book_`; otherwise from the first `bot_tool` name. `search_flights` maps to `flight_search`; `search_hotels` and any other name containing `hotel` to `hotels`; `book_*` to `booking`; any name containing `budget` (e.g. `estimate_trip_budget`) to `budget`. A `bot_error` session maps to `errors`, and anything else to `routing`.
 
   The test loads `runs/<ts>/candidates/` through `JsonDatasetStore(dir, TAXONOMY)` and asserts that `report.md` lists the `fail` session before a `pass` session.
 - **Verify:** `.venv/bin/python -m pytest apps/api/tests/sim/test_grader.py -q`

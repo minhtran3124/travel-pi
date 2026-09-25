@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 
+import pytest
 from eval.adapters.config import TAXONOMY
 from evalkit.dataset import JsonDatasetStore
 from sim import claude_cli, grader
@@ -122,3 +123,81 @@ def test_bot_error_session_maps_to_tool_failure_and_errors(tmp_path, monkeypatch
     assert len(goldens) == 1
     assert goldens[0].capability == "errors"
     assert goldens[0].scenario == "tool_failure"
+
+
+def test_grade_degrades_on_quota_exhausted(monkeypatch):
+    async def run(system_prompt, user_prompt, schema, model=None, timeout=120):
+        raise claude_cli.QuotaExhausted("no quota")
+
+    monkeypatch.setattr(claude_cli, "run", run)
+    grade = asyncio.run(grader.grade(_session("q", []), {"bookings": [], "trips": []}))
+    assert grade.verdict == "fail"
+    assert grade.score == 0.0
+    assert "quota" in grade.summary
+
+
+def test_grade_degrades_on_driver_error(monkeypatch):
+    async def run(system_prompt, user_prompt, schema, model=None, timeout=120):
+        raise claude_cli.DriverError("boom")
+
+    monkeypatch.setattr(claude_cli, "run", run)
+    grade = asyncio.run(grader.grade(_session("d", []), {"bookings": [], "trips": []}))
+    assert grade.verdict == "fail"
+    assert grade.score == 0.0
+    assert "ungraded" in grade.summary
+
+
+@pytest.mark.parametrize(
+    ("tools", "status", "expected"),
+    [
+        (["search_flights"], "done", "flight_search"),
+        (["search_hotels"], "done", "hotels"),
+        (["search_hotels", "book_hotel"], "done", "booking"),
+        (["book_flight"], "done", "booking"),
+        (["estimate_trip_budget"], "done", "budget"),
+        (["mystery_tool"], "done", "routing"),
+        ([], "bot_error", "errors"),
+        ([], "done", "routing"),
+    ],
+)
+def test_capability_mapping(tools, status, expected):
+    assert grader._capability(_session("c", tools, status=status)) == expected
+
+
+def test_report_md_orders_fail_warn_pass(tmp_path, monkeypatch):
+    monkeypatch.setattr(claude_cli, "cli_version", lambda: "claude 1.0")
+    sessions = [
+        _session("winner", []),
+        _session("loser", ["search_flights"]),
+        _session("meh", []),
+    ]
+    grades = [
+        grader.Grade("winner", "pass", 5.0),
+        grader.Grade("loser", "fail", 0.0),
+        grader.Grade("meh", "warn", 2.0),
+    ]
+    batch = BatchResult(sessions=sessions, status="ok", claude_calls=3)
+    run_dir = tmp_path / "ts-order"
+    grader.write_reports(run_dir, batch, grades)
+
+    lines = (run_dir / "report.md").read_text(encoding="utf-8").splitlines()
+    fail_idx = next(i for i, ln in enumerate(lines) if "loser" in ln)
+    warn_idx = next(i for i, ln in enumerate(lines) if "meh" in ln)
+    pass_idx = next(i for i, ln in enumerate(lines) if "winner" in ln)
+    assert fail_idx < warn_idx < pass_idx
+
+
+def test_candidates_skip_sessions_without_user_turns(tmp_path, monkeypatch):
+    monkeypatch.setattr(claude_cli, "cli_version", lambda: "claude 1.0")
+    empty = SessionResult(
+        persona=_persona("silent"),
+        conversation_id=None,
+        status="quota",
+        turns=[],
+        tools=[],
+    )
+    batch = BatchResult(sessions=[empty], status="quota", claude_calls=0)
+    run_dir = tmp_path / "ts-empty"
+    grader.write_reports(run_dir, batch, [grader.Grade("silent", "fail", 0.0)])
+    goldens = JsonDatasetStore(run_dir / "candidates", TAXONOMY).load()
+    assert goldens == []
