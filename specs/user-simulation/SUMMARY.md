@@ -112,6 +112,10 @@ Open Minor findings (forwarded to the final review):
 - **Commits:** 9b59a347, d93ab873, and f2e4d455, which fixed three P3 regressions the re-review found (a version-probe OSError, NaN scores, marker-only candidates).
 - **Re-review:** all 15 fixed ids confirmed resolved; tests/sim 100 passed.
 
+### Intent Findings
+
+- 2026-09-25, intent review (fresh context, a different model from the implementers, blind to PLAN and the research brief) over fb824f69..a4f8f038 found no intent divergence. It checked every clause: virtual travellers with trip plans; the Claude Code quota driving the travellers and grading; the chatbot staying on OpenAI; the live 2D lobby; decisions D1–D6; and the non-goals (the diffs of `apps/api/app`, `apps/web` and the dependency manifests are empty).
+
 ### Advisory Findings
 
 Below the threshold and not fixed; recorded for a human to act on:
