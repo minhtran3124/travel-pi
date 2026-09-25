@@ -30,6 +30,12 @@ make sim-run N=8 PARALLEL=3 PERSONAS=<file> SEED=<n>   # optional overrides
 
 Watch it live in the UI at <http://localhost:8765/>.
 
+Two CLI flags (passed through `python -m sim`, rarely overridden):
+
+- `--base-url` — the api-sim base URL (default `http://localhost:8001`). The simulator refuses any
+  other port unless `--i-know` is also passed, so a batch can never hit the dev stack on `:8000`.
+- `--env-file` — the env file to load (default `apps/api/.env`).
+
 ## Outputs
 
 Each batch writes to `apps/api/sim/runs/<UTC-timestamp>/` (gitignored):

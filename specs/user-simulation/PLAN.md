@@ -90,7 +90,7 @@ desk and talking.
 | SC-11 | The sim package and its tests are lint-clean | `.venv/bin/ruff check apps/api/sim apps/api/tests/sim` | exit 0 |
 | SC-12 | The grader's `golden_candidates.json` loads through `evalkit.dataset.JsonDatasetStore`, and `report.md` lists failing sessions first | `.venv/bin/python -m pytest apps/api/tests/sim/test_grader.py -q` | exit 0 |
 | SC-13 | The sim package and its tests are ruff-format clean | `.venv/bin/ruff format --check apps/api/sim apps/api/tests/sim` | exit 0 |
-| SC-14 | The launcher skill has frontmatter and names `make sim-run` | `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"` | exit 0 |
+| SC-14 | The launcher skill has frontmatter and names `make sim-run` | `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"` | exit 0 |
 
 ## 4. Tasks
 
@@ -304,7 +304,7 @@ desk and talking.
 - **Action:**
   - The README covers setup (`make sim-up`), a run (`make sim-run N= PARALLEL=`), where outputs land, the quota guard and `SIM_QUOTA_CEILING`, `SIM_CLAUDE_MODEL`, and the terms note dated 2026-09-25: `claude -p` draws from shared plan limits, and `--bare` is never used.
   - The skill checks for `api-sim` health (and runs `make sim-up` when it is down), runs `make sim-run`, prints the UI URL, and summarises the failing rows of `report.md` when the batch ends. It holds no simulation logic.
-- **Verify:** `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"`
+- **Verify:** `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"`
 - **Done:** The skill has frontmatter and names `make sim-run`. The README contains the strings `SIM_QUOTA_CEILING` and `--bare`.
 - **Criteria:** SC-14
 - **Interfaces:** Consumes the make targets from Task 1.7. Produces `.claude/skills/user-sim/SKILL.md` and `apps/api/sim/README.md`.
