@@ -38,6 +38,9 @@ class _FakeBus:
     def types(self) -> list[str]:
         return [e["type"] for e in self.events]
 
+    def of(self, kind: str) -> list[dict]:
+        return [e for e in self.events if e["type"] == kind]
+
 
 class _FakeKeys:
     def token_for(self, persona_id: str) -> str:
@@ -56,8 +59,6 @@ def _fake_claude(scripts: dict[str, list[dict]], default: dict | None = None):
 
     async def run(system_prompt, user_prompt, schema, model=None, timeout=120):
         calls["n"] += 1
-        # The persona id is embedded by the system prompt via the persona card;
-        # tests key scripts on a marker the prompt carries.
         for pid, script in scripts.items():
             if f"marker:{pid}" in system_prompt:
                 if script:
@@ -90,6 +91,12 @@ def _client(handler):
 def _tagged(pid, **over):
     over.setdefault("name", f"marker:{pid}")
     return _persona(id=pid, **over)
+
+
+def _assert_queue_leave_paired(bus: _FakeBus) -> None:
+    queued = {e["persona_id"] for e in bus.of("persona_queue")}
+    left = {e["persona_id"] for e in bus.of("persona_leave")}
+    assert queued == left
 
 
 def test_a_session_stops_on_intent_done(monkeypatch):
@@ -169,7 +176,7 @@ def test_b_session_stops_at_max_turns(monkeypatch):
     assert len([t for t in session.turns if t["role"] == "user"]) == 4
 
 
-def test_c_plan_approval_resume_uses_will_book_and_conversation_id(monkeypatch):
+def test_c_plan_approval_resume_order_and_body(monkeypatch):
     run, _ = _fake_claude(
         {
             "c1": [
@@ -216,9 +223,12 @@ def test_c_plan_approval_resume_uses_will_book_and_conversation_id(monkeypatch):
     assert len(resume_bodies) == 1
     assert resume_bodies[0]["resume"]["approved"] is True
     assert resume_bodies[0]["conversation_id"] == "conv-9"
-    assert {"role": "user", "text": "[resume approved=True]"} in result.sessions[
-        0
-    ].turns
+    assert result.sessions[0].turns == [
+        {"role": "user", "text": "book it"},
+        {"role": "bot", "text": ""},
+        {"role": "user", "text": "[resume approved=True]"},
+        {"role": "bot", "text": "Booked"},
+    ]
 
 
 def test_d_peak_in_flight_never_exceeds_parallel(monkeypatch):
@@ -276,6 +286,7 @@ def test_e_quota_ceiling_blocks_all_admission(monkeypatch):
 def test_f_401_aborts_batch_as_auth_misconfigured(monkeypatch):
     run, _ = _fake_claude({}, default={"message": "hi", "intent_done": False})
     _patch(monkeypatch, run)
+    bus = _FakeBus()
 
     def handler(request):
         return httpx.Response(401, json={"detail": "no"})
@@ -285,16 +296,19 @@ def test_f_401_aborts_batch_as_auth_misconfigured(monkeypatch):
     async def go():
         async with _client(handler) as client:
             return await driver.run_batch(
-                personas, 2, BASE_URL, _FakeKeys(), _FakeBus(), client, None
+                personas, 2, BASE_URL, _FakeKeys(), bus, client, None
             )
 
     result = _run(go())
     assert result.status == "auth_misconfigured"
+    assert result.sessions == []
+    _assert_queue_leave_paired(bus)
 
 
 def test_g_429_aborts_batch_as_tier_misconfigured(monkeypatch):
     run, _ = _fake_claude({}, default={"message": "hi", "intent_done": False})
     _patch(monkeypatch, run)
+    bus = _FakeBus()
 
     def handler(request):
         return httpx.Response(429, json={"detail": "slow down"})
@@ -304,11 +318,13 @@ def test_g_429_aborts_batch_as_tier_misconfigured(monkeypatch):
     async def go():
         async with _client(handler) as client:
             return await driver.run_batch(
-                personas, 2, BASE_URL, _FakeKeys(), _FakeBus(), client, None
+                personas, 2, BASE_URL, _FakeKeys(), bus, client, None
             )
 
     result = _run(go())
     assert result.status == "tier_misconfigured"
+    assert result.sessions == []
+    _assert_queue_leave_paired(bus)
 
 
 def test_h_500_marks_one_session_bot_error_others_finish(monkeypatch):
@@ -350,6 +366,118 @@ def test_h_500_marks_one_session_bot_error_others_finish(monkeypatch):
     assert by_id["bad"].status == "bot_error"
     assert by_id["bad"].error["code"] == "http_500"
     assert by_id["good"].status == "done"
+    assert result.status == "ok"
+
+
+def test_set_tier_called_once_per_persona_before_first_request(monkeypatch):
+    run, _ = _fake_claude(
+        {
+            "s1": [{"message": "hi", "intent_done": False}],
+            "s2": [{"message": "hi", "intent_done": False}],
+        }
+    )
+    _patch(monkeypatch, run)
+    log: list[str] = []
+
+    def set_tier(persona_id):
+        log.append(f"tier:{persona_id}")
+
+    def handler(request):
+        pid = request.headers.get("Authorization", "").removeprefix("Bearer tok-")
+        log.append(f"req:{pid}")
+        return httpx.Response(
+            200, content=_sse([("start", {"conversation_id": "c"}), ("done", {})])
+        )
+
+    personas = [_tagged("s1"), _tagged("s2")]
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                personas, 2, BASE_URL, _FakeKeys(), _FakeBus(), client, set_tier
+            )
+
+    _run(go())
+    tier_calls = [e for e in log if e.startswith("tier:")]
+    assert sorted(tier_calls) == ["tier:s1", "tier:s2"]
+    for pid in ("s1", "s2"):
+        assert log.index(f"tier:{pid}") < log.index(f"req:{pid}")
+
+
+def test_sse_error_without_code_marks_bot_error(monkeypatch):
+    run, _ = _fake_claude({"e1": [{"message": "hi", "intent_done": False}]})
+    _patch(monkeypatch, run)
+
+    def handler(request):
+        return httpx.Response(
+            200,
+            content=_sse(
+                [
+                    ("start", {"conversation_id": "c"}),
+                    ("error", {"message": "boom"}),
+                ]
+            ),
+        )
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                [_tagged("e1")], 1, BASE_URL, _FakeKeys(), _FakeBus(), client, None
+            )
+
+    result = _run(go())
+    assert result.status == "ok"
+    session = result.sessions[0]
+    assert session.status == "bot_error"
+    assert session.error["code"] is None
+
+
+def test_transport_error_marks_bot_error(monkeypatch):
+    run, _ = _fake_claude({"t1": [{"message": "hi", "intent_done": False}]})
+    _patch(monkeypatch, run)
+
+    def handler(request):
+        raise httpx.ConnectError("connection refused")
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                [_tagged("t1")], 1, BASE_URL, _FakeKeys(), _FakeBus(), client, None
+            )
+
+    result = _run(go())
+    session = result.sessions[0]
+    assert session.status == "bot_error"
+    assert session.error["code"] == "transport"
+
+
+def test_one_session_crash_does_not_stop_others(monkeypatch):
+    async def run(system_prompt, user_prompt, schema, model=None, timeout=120):
+        if "marker:crash" in system_prompt:
+            raise ValueError("unexpected boom")
+        if "user:" in user_prompt:
+            return {"message": "", "intent_done": True}
+        return {"message": "hi", "intent_done": False}
+
+    _patch(monkeypatch, run)
+
+    def handler(request):
+        return httpx.Response(
+            200, content=_sse([("start", {"conversation_id": "c"}), ("done", {})])
+        )
+
+    personas = [_tagged("crash"), _tagged("ok")]
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                personas, 2, BASE_URL, _FakeKeys(), _FakeBus(), client, None
+            )
+
+    result = _run(go())
+    by_id = {s.persona.id: s for s in result.sessions}
+    assert by_id["crash"].status == "driver_error"
+    assert by_id["ok"].status == "done"
     assert result.status == "ok"
 
 

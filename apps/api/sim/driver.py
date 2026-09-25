@@ -24,6 +24,7 @@ from sim.sse import HttpStatusError, stream_turn, to_ui_events
 TIMEZONE = "UTC"
 TURN_TIMEOUT = 180
 DEFAULT_CEILING = 0.85
+_FINISHED = ("done", "max_turns", "bot_error", "driver_error")
 
 TRAVELLER_SCHEMA = {
     "type": "object",
@@ -106,6 +107,13 @@ def _user_prompt(turns: list[dict]) -> str:
     return "\n".join(f"{turn['role']}: {turn['text']}" for turn in turns)
 
 
+async def _maybe_await(fn, *args):
+    outcome = fn(*args)
+    if asyncio.iscoroutine(outcome):
+        return await outcome
+    return outcome
+
+
 async def _publish_quota(bus) -> None:
     quota = claude_cli.last_quota
     if quota is None:
@@ -118,6 +126,16 @@ async def _publish_quota(bus) -> None:
             "seven_day": quota.seven_day,
             "resets_at": quota.resets_at,
         }
+    )
+
+
+async def _leave(
+    bus,
+    persona_id: str,
+    reason: str,
+) -> None:
+    await bus.publish(
+        {"type": "persona_leave", "persona_id": persona_id, "reason": reason}
     )
 
 
@@ -160,6 +178,7 @@ async def _stream_once(
                 if payload.get("type") == "plan_approval":
                     turn.interrupt = True
             elif ev.name == "error":
+                # to_ui_events already publishes the matching bot_error below.
                 turn.error = {
                     "code": ev.data.get("code"),
                     "message": ev.data.get("message"),
@@ -171,6 +190,7 @@ async def _stream_once(
                     ui["reply"] = "".join(reply_parts)
                 await bus.publish(ui)
     except HttpStatusError as exc:
+        turn.reply = "".join(reply_parts)
         if exc.status == 401:
             turn.abort_status = "auth_misconfigured"
         elif exc.status == 429:
@@ -180,19 +200,42 @@ async def _stream_once(
                 "code": f"http_{exc.status}",
                 "message": f"api-sim returned {exc.status}",
             }
+            await _publish_bot_error(bus, pid, turn.error)
+        return turn
+    except httpx.HTTPError as exc:
         turn.reply = "".join(reply_parts)
+        turn.error = {"code": "transport", "message": str(exc)}
+        await _publish_bot_error(bus, pid, turn.error)
         return turn
     turn.reply = "".join(reply_parts)
     return turn
 
 
+async def _publish_bot_error(
+    bus,
+    persona_id: str,
+    error: dict,
+) -> None:
+    await bus.publish(
+        {
+            "type": "bot_error",
+            "persona_id": persona_id,
+            "code": error.get("code"),
+            "message": error.get("message"),
+        }
+    )
+
+
 async def _call_claude(
+    ctx: _Ctx,
     system_prompt: str,
     user_prompt: str,
 ) -> dict:
     try:
+        ctx.claude_calls += 1
         return await claude_cli.run(system_prompt, user_prompt, TRAVELLER_SCHEMA)
     except claude_cli.DriverError:
+        ctx.claude_calls += 1
         return await claude_cli.run(system_prompt, user_prompt, TRAVELLER_SCHEMA)
 
 
@@ -205,45 +248,43 @@ async def _run_session(
     ctx: _Ctx,
     sem: asyncio.Semaphore,
     seats: deque[int],
+    set_tier,
 ) -> SessionResult | None:
-    result = SessionResult(
-        persona=persona,
-        conversation_id=None,
-        status="quota",
-    )
+    result = SessionResult(persona=persona, conversation_id=None, status="quota")
     await bus.publish({"type": "persona_queue", "persona_id": persona.id})
 
-    async with sem:
-        if ctx.abort:
-            return None
-        if ctx.stop_admission or _over_ceiling(claude_cli.last_quota, ctx.ceiling):
-            ctx.stop_admission = True
-            ctx.batch_status = "quota"
+    try:
+        async with sem:
+            if ctx.abort:
+                await _leave(bus, persona.id, "aborted")
+                return None
+            if ctx.stop_admission or _over_ceiling(claude_cli.last_quota, ctx.ceiling):
+                ctx.stop_admission = True
+                ctx.batch_status = "quota"
+                await _leave(bus, persona.id, "quota")
+                return result
+
+            seat = seats.popleft()
+            result.started_at = _now()
             await bus.publish(
-                {"type": "persona_leave", "persona_id": persona.id, "reason": "quota"}
+                {"type": "walk_to_desk", "persona_id": persona.id, "seat": seat}
             )
-            return result
+            try:
+                await _converse(
+                    persona, base_url, keys, bus, client, ctx, result, set_tier
+                )
+            finally:
+                seats.append(seat)
+    except Exception as exc:  # noqa: BLE001 - one crash must not stop the batch
+        result.status = "driver_error"
+        result.error = {"code": "driver_error", "message": str(exc)}
+        await _leave(bus, persona.id, "driver_error")
+        return result
 
-        seat = seats.popleft()
-        result.started_at = _now()
-        await bus.publish(
-            {"type": "walk_to_desk", "persona_id": persona.id, "seat": seat}
-        )
-        try:
-            await _converse(persona, base_url, keys, bus, client, ctx, result)
-        finally:
-            seats.append(seat)
-
-    if ctx.abort and result.status not in (
-        "done",
-        "max_turns",
-        "bot_error",
-        "driver_error",
-    ):
+    if ctx.abort and result.status not in _FINISHED:
+        await _leave(bus, persona.id, "aborted")
         return None
-    await bus.publish(
-        {"type": "persona_leave", "persona_id": persona.id, "reason": result.status}
-    )
+    await _leave(bus, persona.id, result.status)
     return result
 
 
@@ -255,26 +296,30 @@ async def _converse(
     client: httpx.AsyncClient,
     ctx: _Ctx,
     result: SessionResult,
+    set_tier,
 ) -> None:
     system_prompt = traveller_system_prompt(persona)
     token = keys.token_for(persona.id)
+    if set_tier is not None:
+        await _maybe_await(set_tier, persona.id)
     turns_taken = 0
 
     while turns_taken < persona.max_turns:
         if ctx.abort or ctx.stop_admission:
             return
 
-        ctx.claude_calls += 1
         try:
-            reply = await _call_claude(system_prompt, _user_prompt(result.turns))
+            reply = await _call_claude(ctx, system_prompt, _user_prompt(result.turns))
         except claude_cli.QuotaExhausted:
             ctx.stop_admission = True
             ctx.batch_status = "quota"
             result.status = "quota"
+            await _publish_quota(bus)
             return
         except claude_cli.DriverError:
             result.status = "driver_error"
             result.error = {"code": "driver_error", "message": "claude -p failed"}
+            await _publish_quota(bus)
             return
         await _publish_quota(bus)
 
@@ -300,18 +345,10 @@ async def _converse(
         except TimeoutError:
             result.status = "bot_error"
             result.error = {"code": "turn_timeout", "message": "turn exceeded 180s"}
-            await bus.publish(
-                {
-                    "type": "bot_error",
-                    "persona_id": persona.id,
-                    "code": "turn_timeout",
-                    "message": "turn exceeded 180s",
-                }
-            )
+            await _publish_bot_error(bus, persona.id, result.error)
             return
 
         _add_usage(result.usage, turn.usage)
-        result.turns.append({"role": "bot", "text": turn.reply})
 
         if turn.abort_status is not None:
             ctx.abort = True
@@ -320,15 +357,6 @@ async def _converse(
         if turn.error is not None:
             result.status = "bot_error"
             result.error = turn.error
-            if turn.error["code"].startswith("http_"):
-                await bus.publish(
-                    {
-                        "type": "bot_error",
-                        "persona_id": persona.id,
-                        "code": turn.error["code"],
-                        "message": turn.error["message"],
-                    }
-                )
             return
 
         turns_taken += 1
@@ -346,6 +374,7 @@ async def _run_turn(
     body: dict,
 ) -> _Turn:
     turn = await _stream_once(body, persona, token, base_url, client, bus, result)
+    result.turns.append({"role": "bot", "text": turn.reply})
     if turn.abort_status is not None or turn.error is not None or not turn.interrupt:
         return turn
 
@@ -358,23 +387,14 @@ async def _run_turn(
     resumed = await _stream_once(
         resume_body, persona, token, base_url, client, bus, result
     )
-    _add_usage_turn(turn, resumed)
-    return turn
-
-
-def _add_usage_turn(
-    turn: _Turn,
-    resumed: _Turn,
-) -> None:
+    result.turns.append({"role": "bot", "text": resumed.reply})
     if resumed.usage is not None:
-        base = turn.usage or {}
-        merged = dict(base)
+        merged = dict(turn.usage or {})
         _add_usage(merged, resumed.usage)
         turn.usage = merged
-    if resumed.reply:
-        turn.reply = f"{turn.reply}{resumed.reply}" if turn.reply else resumed.reply
     turn.abort_status = resumed.abort_status or turn.abort_status
     turn.error = resumed.error or turn.error
+    return turn
 
 
 async def run_batch(
@@ -386,11 +406,6 @@ async def run_batch(
     client: httpx.AsyncClient,
     set_tier,
 ) -> BatchResult:
-    if set_tier is not None:
-        outcome = set_tier()
-        if asyncio.iscoroutine(outcome):
-            await outcome
-
     ceiling = float(os.environ.get("SIM_QUOTA_CEILING", str(DEFAULT_CEILING)))
     ctx = _Ctx(ceiling=ceiling)
     sem = asyncio.Semaphore(parallel)
@@ -398,12 +413,14 @@ async def run_batch(
 
     tasks = [
         asyncio.create_task(
-            _run_session(persona, base_url, keys, bus, client, ctx, sem, seats)
+            _run_session(
+                persona, base_url, keys, bus, client, ctx, sem, seats, set_tier
+            )
         )
         for persona in personas
     ]
-    gathered = await asyncio.gather(*tasks)
-    sessions = [item for item in gathered if item is not None]
+    gathered = await asyncio.gather(*tasks, return_exceptions=True)
+    sessions = [item for item in gathered if isinstance(item, SessionResult)]
     return BatchResult(
         sessions=sessions,
         status=ctx.batch_status,
