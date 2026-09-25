@@ -132,16 +132,19 @@ async def _set_tier(persona_id: str) -> None:
         "scripts.set_tier",
         f"sim-{persona_id}",
         "premium",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
     )
     try:
-        await asyncio.wait_for(proc.wait(), timeout=60)
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=60)
     except (asyncio.TimeoutError, TimeoutError) as exc:
         proc.kill()
         await proc.wait()
         raise RuntimeError(f"set_tier timed out for sim-{persona_id}") from exc
     if proc.returncode != 0:
+        tail = stdout.decode(errors="replace")[-500:]
         raise RuntimeError(
-            f"set_tier failed for sim-{persona_id} (exit {proc.returncode})"
+            f"set_tier failed for sim-{persona_id} (exit {proc.returncode}): {tail}"
         )
 
 
@@ -292,6 +295,9 @@ def main(argv: list[str] | None = None) -> int:
         return asyncio.run(_run(args))
     except KeyboardInterrupt:
         return 130
+    except Exception as exc:  # noqa: BLE001 - surface the cause, exit distinctly
+        print(f"sim run failed: {exc}", file=sys.stderr)
+        return 3
 
 
 if __name__ == "__main__":

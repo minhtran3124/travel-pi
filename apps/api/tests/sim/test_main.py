@@ -169,3 +169,25 @@ async def test_snapshot_failure_still_writes_reports(monkeypatch, tmp_path):
 
     assert (tmp_path / "report.json").is_file()
     assert (tmp_path / "report.md").is_file()
+
+
+def test_run_failure_returns_three(calls_file, env_file, monkeypatch):
+    from sim import __main__ as cli
+
+    def _boom(args):
+        raise RuntimeError("the batch blew up")
+
+    # Preflight passes (fake claude on PATH, valid env), and healthz is stubbed
+    # so the failure comes from _run, not the network probe.
+    monkeypatch.setattr(cli, "_healthz_ok", lambda base_url: True)
+    monkeypatch.setattr(cli, "_run", _boom)
+    code = cli.main(
+        [
+            "--base-url",
+            "http://localhost:8001",
+            "--env-file",
+            str(env_file),
+        ]
+    )
+    assert code == 3
+    _assert_no_claude_call(calls_file)
