@@ -63,6 +63,7 @@ class Grade:
     score: float
     criteria: dict = field(default_factory=dict)
     summary: str = ""
+    graded: bool = True
 
 
 def _read(name: str) -> str:
@@ -105,6 +106,7 @@ def _ungraded(
         score=0.0,
         criteria={},
         summary=summary,
+        graded=False,
     )
 
 
@@ -216,7 +218,8 @@ def _render_md(
     ]
     for g in ordered:
         transcript = f"transcript.jsonl (persona_id={g.persona_id})"
-        lines.append(f"| {g.persona_id} | {g.verdict} | {g.score:g} | {transcript} |")
+        verdict = g.verdict if g.graded else "ungraded"
+        lines.append(f"| {g.persona_id} | {verdict} | {g.score:g} | {transcript} |")
     return "\n".join(lines) + "\n"
 
 
@@ -229,7 +232,7 @@ def write_reports(
     run_dir.mkdir(parents=True, exist_ok=True)
     batch_ts = run_dir.name
     sessions_by_id = {s.persona.id: s for s in batch.sessions}
-    ordered = sorted(grades, key=lambda g: _RANK.get(g.verdict, 0))
+    ordered = sorted(grades, key=lambda g: (g.graded, _RANK.get(g.verdict, 0)))
     usage = _total_usage(batch.sessions)
     version = _cli_version()
 
@@ -243,6 +246,7 @@ def write_reports(
             {
                 "persona_id": g.persona_id,
                 "verdict": g.verdict,
+                "graded": g.graded,
                 "score": g.score,
                 "summary": g.summary,
                 "criteria": g.criteria,
@@ -265,7 +269,8 @@ def write_reports(
     candidates = [
         _candidate(batch_ts, sessions_by_id[g.persona_id])
         for g in ordered
-        if g.verdict in _CANDIDATE_VERDICTS
+        if g.graded
+        and g.verdict in _CANDIDATE_VERDICTS
         and g.persona_id in sessions_by_id
         and _has_user_turn(sessions_by_id[g.persona_id])
     ]

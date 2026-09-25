@@ -133,6 +133,7 @@ def test_grade_degrades_on_quota_exhausted(monkeypatch):
     grade = asyncio.run(grader.grade(_session("q", []), {"bookings": [], "trips": []}))
     assert grade.verdict == "fail"
     assert grade.score == 0.0
+    assert grade.graded is False
     assert "quota" in grade.summary
 
 
@@ -144,6 +145,7 @@ def test_grade_degrades_on_driver_error(monkeypatch):
     grade = asyncio.run(grader.grade(_session("d", []), {"bookings": [], "trips": []}))
     assert grade.verdict == "fail"
     assert grade.score == 0.0
+    assert grade.graded is False
     assert "ungraded" in grade.summary
 
 
@@ -201,3 +203,30 @@ def test_candidates_skip_sessions_without_user_turns(tmp_path, monkeypatch):
     grader.write_reports(run_dir, batch, [grader.Grade("silent", "fail", 0.0)])
     goldens = JsonDatasetStore(run_dir / "candidates", TAXONOMY).load()
     assert goldens == []
+
+
+def test_ungraded_excluded_from_candidates_but_listed_first(tmp_path, monkeypatch):
+    monkeypatch.setattr(claude_cli, "cli_version", lambda: "claude 1.0")
+    sessions = [
+        _session("ok", ["search_flights"]),
+        _session("broken", ["search_flights"]),
+    ]
+    grades = [
+        grader.Grade("ok", "fail", 1.0),
+        grader.Grade(
+            "broken", "fail", 0.0, summary="ungraded: quota exhausted", graded=False
+        ),
+    ]
+    batch = BatchResult(sessions=sessions, status="ok", claude_calls=2)
+    run_dir = tmp_path / "ts-ungraded"
+    grader.write_reports(run_dir, batch, grades)
+
+    goldens = JsonDatasetStore(run_dir / "candidates", TAXONOMY).load()
+    assert [g.id for g in goldens] == ["sim-ts-ungraded-ok"]
+
+    lines = (run_dir / "report.md").read_text(encoding="utf-8").splitlines()
+    broken_line = next(ln for ln in lines if "broken" in ln)
+    assert "ungraded" in broken_line
+    broken_idx = next(i for i, ln in enumerate(lines) if "broken" in ln)
+    ok_idx = next(i for i, ln in enumerate(lines) if "| ok " in ln)
+    assert broken_idx < ok_idx

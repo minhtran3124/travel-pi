@@ -191,7 +191,7 @@ The targets live in `apps/api/Makefile`. The root `Makefile` gets thin delegatin
 | `bot_done` | `reply` (the full text, assembled by the driver from the `bot_token` chunks), `usage` |
 | `bot_interrupt` | `kind` |
 | `bot_error` | `code`, `message` |
-| `persona_leave` | `reason` (`done`/`max_turns`/`bot_error`/`driver_error`/`quota`/`aborted`; `aborted` means the batch stopped on a 401 or 429 before this traveller finished) |
+| `persona_leave` | `reason` (`done`/`max_turns`/`bot_error`/`driver_error`/`quota`/`aborted`; `aborted` means the batch aborted (a 401, a 429, or a tier-setup failure) before this traveller finished) |
 | `session_graded` | `score` (0–5), `verdict` (`pass`/`warn`/`fail`) |
 | `quota` | `five_hour`, `seven_day` (0–1), `resets_at` |
 | `batch_end` | `summary` |
@@ -232,7 +232,7 @@ The targets live in `apps/api/Makefile`. The root `Makefile` gets thin delegatin
   - `bot_tool` shows a tool icon above the bot (✈️ flights, 🏨 hotels, 💰 budget, 🌤️ weather,
     🔎 search, ⚙️ anything else).
   - `persona_leave` walks the traveller out with a ✅, ⚠️, or ❌ badge once
-    `session_graded` arrives.
+    `session_graded` arrives. A traveller that leaves with reason `aborted` is never graded, so it walks out at once with no badge.
 - A side panel shows the full transcript of the traveller you click. A header shows batch
   progress (done/total) and the quota status.
 - It auto-reconnects the WebSocket and rebuilds the scene from the replayed history.
