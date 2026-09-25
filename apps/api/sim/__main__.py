@@ -240,7 +240,7 @@ async def _run(args: argparse.Namespace) -> int:
 
         try:
             cli_version = await claude_cli.cli_version_async()
-        except claude_cli.DriverError:
+        except (claude_cli.DriverError, OSError):
             cli_version = "unknown"
 
         if args.personas is not None:

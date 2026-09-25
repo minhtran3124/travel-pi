@@ -115,6 +115,8 @@ def _coerce_score(raw: object) -> float:
         value = float(raw)
     except (TypeError, ValueError):
         return 0.0
+    if value != value:
+        return 0.0
     if value < 0.0:
         return 0.0
     if value > 5.0:
@@ -167,11 +169,14 @@ def _scenario(session: SessionResult) -> str:
     return "tool_failure" if session.status == "bot_error" else "multi_turn"
 
 
-def _has_user_turn(session: SessionResult) -> bool:
-    return any(t.get("role") == "user" for t in session.turns)
-
-
 _RESUME_MARKER = "[resume approved="
+
+
+def _has_user_turn(session: SessionResult) -> bool:
+    return any(
+        t.get("role") == "user" and not t["text"].startswith(_RESUME_MARKER)
+        for t in session.turns
+    )
 
 
 def _candidate(

@@ -331,3 +331,13 @@ def test_candidate_hitl_reject_when_resume_declined(tmp_path):
     grader.write_reports(run_dir, batch, [grade])
     goldens = JsonDatasetStore(run_dir / "candidates", TAXONOMY).load()
     assert goldens[0].hitl == "reject"
+
+
+def test_coerce_score_maps_nan_to_zero():
+    assert grader._coerce_score(float("nan")) == 0.0
+
+
+def test_marker_only_session_is_not_a_candidate():
+    session = _session("p9", ["search_flights"])
+    session.turns = [{"role": "user", "text": "[resume approved=True]"}]
+    assert not grader._has_user_turn(session)
