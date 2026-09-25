@@ -99,3 +99,73 @@ def test_healthz_unreachable_exits_two(calls_file, env_file):
     )
     assert code == 2
     _assert_no_claude_call(calls_file)
+
+
+def test_client_read_timeout_covers_a_full_turn():
+    from sim import driver
+    from sim.__main__ import _client_timeout
+
+    timeout = _client_timeout()
+    assert timeout.read >= driver.TURN_TIMEOUT
+    assert timeout.connect >= 10.0
+
+
+class _CollectingBus:
+    def __init__(self) -> None:
+        self.events = []
+
+    async def publish(self, event) -> None:
+        self.events.append(event)
+
+
+def _one_session_batch():
+    from datetime import datetime, timezone
+
+    from sim.driver import BatchResult, SessionResult
+    from sim.personas import Budget, Persona, TripGoal
+
+    persona = Persona(
+        id="p1",
+        name="Ana",
+        country_code="US",
+        language="en",
+        budget=Budget(amount=1000, currency="USD"),
+        trip_goal=TripGoal(destination="Rome", party_size=1),
+        style="terse",
+        will_book=False,
+        max_turns=4,
+    )
+    session = SessionResult(
+        persona=persona,
+        conversation_id="c1",
+        status="done",
+        turns=[{"role": "user", "text": "hi"}],
+        started_at=datetime.now(timezone.utc),
+    )
+    return BatchResult(sessions=[session], status="ok", claude_calls=1)
+
+
+@pytest.mark.asyncio
+async def test_snapshot_failure_still_writes_reports(monkeypatch, tmp_path):
+    from datetime import datetime, timezone
+
+    from sim import __main__ as cli
+    from sim.grader import Grade
+
+    def _raise(*args, **kwargs):
+        raise RuntimeError("db-sim is down")
+
+    async def _fake_grade(session, rows):
+        assert rows == {"bookings": [], "trips": []}
+        return Grade(persona_id=session.persona.id, verdict="pass", score=5.0)
+
+    monkeypatch.setattr(cli, "sim_session_factory", lambda url: object())
+    monkeypatch.setattr(cli, "snapshot", _raise)
+    monkeypatch.setattr(cli, "grade", _fake_grade)
+
+    batch = _one_session_batch()
+    grades = await cli._grade_all(batch, _CollectingBus(), datetime.now(timezone.utc))
+    cli.write_reports(tmp_path, batch, grades)
+
+    assert (tmp_path / "report.json").is_file()
+    assert (tmp_path / "report.md").is_file()

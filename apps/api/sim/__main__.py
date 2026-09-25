@@ -13,9 +13,9 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import logging
 import os
 import shutil
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,12 +24,14 @@ from urllib.parse import urlparse
 import httpx
 
 import sim
+from sim import driver
 from sim import personas as personas_mod
 from sim.bus import Bus
 from sim.db_check import sim_session_factory, snapshot
-from sim.driver import run_batch
 from sim.grader import grade, write_reports
 from sim.keys import KeyServer
+
+logger = logging.getLogger(__name__)
 
 BASE_URL_DEFAULT = "http://localhost:8001"
 SIM_PORT = 8001
@@ -37,6 +39,7 @@ JWKS_PORT = 8766
 BUS_PORT = 8765
 DB_SIM_URL = "postgresql+psycopg://travel:travel@localhost:5434/travel"
 ABORT_STATUSES = {"auth_misconfigured", "tier_misconfigured"}
+_EMPTY_ROWS = {"bookings": [], "trips": []}
 
 # Held after batch_end so a late or reconnecting UI can render the final state.
 # Tests set it to 0.
@@ -98,27 +101,48 @@ def _preflight(args: argparse.Namespace) -> str | None:
     return None
 
 
-def _set_tier(persona_id: str) -> None:
-    subprocess.run(
-        [
-            "docker",
-            "compose",
-            "-p",
-            "travel-sim",
-            "-f",
-            str(_COMPOSE_FILE),
-            "exec",
-            "-T",
-            "api-sim",
-            "python",
-            "-m",
-            "scripts.set_tier",
-            f"sim-{persona_id}",
-            "premium",
-        ],
-        check=True,
-        timeout=60,
+def _client_timeout() -> httpx.Timeout:
+    # A turn covers a whole SSE stream, so the read timeout must clear the
+    # driver's per-turn wall clock; the default 5 s would kill real turns.
+    return httpx.Timeout(
+        connect=10.0,
+        read=driver.TURN_TIMEOUT,
+        write=30.0,
+        pool=30.0,
     )
+
+
+def _build_client() -> httpx.AsyncClient:
+    return httpx.AsyncClient(timeout=_client_timeout())
+
+
+async def _set_tier(persona_id: str) -> None:
+    proc = await asyncio.create_subprocess_exec(
+        "docker",
+        "compose",
+        "-p",
+        "travel-sim",
+        "-f",
+        str(_COMPOSE_FILE),
+        "exec",
+        "-T",
+        "api-sim",
+        "python",
+        "-m",
+        "scripts.set_tier",
+        f"sim-{persona_id}",
+        "premium",
+    )
+    try:
+        await asyncio.wait_for(proc.wait(), timeout=60)
+    except (asyncio.TimeoutError, TimeoutError) as exc:
+        proc.kill()
+        await proc.wait()
+        raise RuntimeError(f"set_tier timed out for sim-{persona_id}") from exc
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"set_tier failed for sim-{persona_id} (exit {proc.returncode})"
+        )
 
 
 def _print_checklist(status: str) -> None:
@@ -146,12 +170,30 @@ def _verdict_counts(grades) -> dict:
     return counts
 
 
+def _snapshot_safe(
+    factory,
+    session,
+    since_floor,
+) -> dict:
+    if factory is None:
+        return dict(_EMPTY_ROWS)
+    try:
+        since = session.started_at or since_floor
+        return snapshot(factory, f"sim-{session.persona.id}", since)
+    except Exception:  # noqa: BLE001 - a DB read failure must not stop the report
+        logger.exception("[sim] db_check snapshot failed for %s", session.persona.id)
+        return dict(_EMPTY_ROWS)
+
+
 async def _grade_all(batch, bus, since_floor) -> list:
-    factory = sim_session_factory(DB_SIM_URL)
+    try:
+        factory = sim_session_factory(DB_SIM_URL)
+    except Exception:  # noqa: BLE001 - fall back to empty rows, still write reports
+        logger.exception("[sim] could not open the sim database")
+        factory = None
     grades = []
     for session in batch.sessions:
-        since = session.started_at or since_floor
-        rows = snapshot(factory, f"sim-{session.persona.id}", since)
+        rows = _snapshot_safe(factory, session, since_floor)
         result = await grade(session, rows)
         grades.append(result)
         if result.graded:
@@ -170,14 +212,14 @@ async def _run(args: argparse.Namespace) -> int:
     run_dir = _RUNS_DIR / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    keys = KeyServer(port=JWKS_PORT)
-    keys.start()
+    keys = KeyServer(host="0.0.0.0", port=JWKS_PORT)
     bus = Bus(run_dir, _STATIC_DIR, port=BUS_PORT)
-    await bus.start()
-    print(f"UI: http://localhost:{bus.port}/")
-
     exit_code = 0
     try:
+        keys.start()
+        await bus.start()
+        print(f"UI: http://localhost:{bus.port}/")
+
         if args.personas is not None:
             personas = personas_mod.load(args.personas)
         else:
@@ -202,8 +244,8 @@ async def _run(args: argparse.Namespace) -> int:
         )
 
         since_floor = datetime.now(timezone.utc)
-        async with httpx.AsyncClient() as client:
-            batch = await run_batch(
+        async with _build_client() as client:
+            batch = await driver.run_batch(
                 personas,
                 args.parallel,
                 args.base_url,
@@ -215,6 +257,7 @@ async def _run(args: argparse.Namespace) -> int:
 
         if batch.status in ABORT_STATUSES:
             _print_checklist(batch.status)
+            write_reports(run_dir, batch, [])
             summary = {
                 "status": batch.status,
                 "sessions": len(batch.sessions),
@@ -245,7 +288,10 @@ def main(argv: list[str] | None = None) -> int:
     if problem is not None:
         print(f"preflight failed: {problem}", file=sys.stderr)
         return 2
-    return asyncio.run(_run(args))
+    try:
+        return asyncio.run(_run(args))
+    except KeyboardInterrupt:
+        return 130
 
 
 if __name__ == "__main__":
