@@ -157,8 +157,8 @@ function handle(ev){
       } else if (seat.tool){
         const cur = seat.tool;
         const idMatch = ev.id != null && cur.id != null && String(cur.id) === String(ev.id);
-        // correlate by id, else fall back to the current chip only while it is still running
-        if (idMatch || cur.status === 'running') settle(cur);
+        // correlate by id; fall back to the running chip only when either side has no id
+        if (idMatch || ((ev.id == null || cur.id == null) && cur.status === 'running')) settle(cur);
       }
       break;
     }
