@@ -47,33 +47,40 @@ def test_to_ui_events_maps_interrupt_to_bot_interrupt():
     ]
 
 
-def test_to_ui_events_maps_the_streaming_events():
-    events = {ev.name: ev for ev in _fixture_events()}
-    assert to_ui_events("p1", events["subagent"]) == [
-        {"type": "bot_subagent", "persona_id": "p1", "name": "planner"}
-    ]
-    assert to_ui_events("p1", events["tool_call"]) == [
+def test_to_ui_events_maps_the_fixture_in_order():
+    # Map every fixture event in order and flatten, so both `token` events
+    # (before and after `reset`) are asserted in sequence.
+    ui = [u for ev in _fixture_events() for u in to_ui_events("p1", ev)]
+    assert ui == [
+        {"type": "bot_subagent", "persona_id": "p1", "name": "planner"},
         {
             "type": "bot_tool",
             "persona_id": "p1",
             "name": "search_flights",
             "status": "running",
-        }
-    ]
-    assert to_ui_events("p1", events["tool_result"]) == [
-        {"type": "bot_tool", "persona_id": "p1", "status": "ok"}
-    ]
-    assert to_ui_events("p1", events["token"]) == [
+            "id": "call-1",
+        },
+        {"type": "bot_tool", "persona_id": "p1", "status": "ok", "id": "call-1"},
+        {"type": "bot_token", "persona_id": "p1", "text": "Here "},
         {
             "type": "bot_token",
             "persona_id": "p1",
             "text": "Here are your flight options.",
-        }
+        },
+        {"type": "bot_interrupt", "persona_id": "p1", "kind": "plan_approval"},
+        {"type": "bot_done", "persona_id": "p1", "usage": {"total_tokens": 42}},
+        {
+            "type": "bot_error",
+            "persona_id": "p1",
+            "code": "internal",
+            "message": "boom",
+        },
     ]
-    assert to_ui_events("p1", events["error"]) == [
-        {"type": "bot_error", "persona_id": "p1", "code": "internal", "message": "boom"}
-    ]
+
+
+def test_to_ui_events_ignores_non_ui_events():
     # start, panel, and reset carry no lobby animation.
+    events = {ev.name: ev for ev in _fixture_events()}
     assert to_ui_events("p1", events["start"]) == []
     assert to_ui_events("p1", events["panel"]) == []
     assert to_ui_events("p1", events["reset"]) == []

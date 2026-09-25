@@ -3,6 +3,10 @@
 Parses the typed event stream defined in ``app/streaming/events.py`` and maps it
 to the lobby UI event types from design §5.7. The bus stamps ``t`` on each UI
 event; the mapper only supplies ``type``, ``persona_id``, and payload fields.
+
+The caller owns two fields the mapper cannot fill statelessly: ``name`` on the
+``bot_tool`` result event (correlated from the ``id`` carried on both bot_tool
+events) and ``bot_done.reply`` (assembled from the accumulated ``bot_token`` text).
 """
 
 from __future__ import annotations
@@ -120,7 +124,9 @@ def to_ui_events(
     """Map one SSE event to zero or more UI events (design §5.7).
 
     ``start``, ``panel``, and ``reset`` carry no lobby animation, so they map to
-    nothing. ``bot_done.reply`` is filled by the caller that accumulates tokens.
+    nothing. Both ``bot_tool`` events carry the wire ``id`` so the caller can
+    correlate ``tool_result`` back to its ``tool_call`` and fill ``name``;
+    ``bot_done.reply`` is likewise filled by the token-accumulating caller.
     """
     data = ev.data
     if ev.name == "subagent":
@@ -134,11 +140,17 @@ def to_ui_events(
                 "persona_id": persona_id,
                 "name": data.get("name"),
                 "status": "running",
+                "id": data.get("id"),
             }
         ]
     if ev.name == "tool_result":
         return [
-            {"type": "bot_tool", "persona_id": persona_id, "status": data.get("status")}
+            {
+                "type": "bot_tool",
+                "persona_id": persona_id,
+                "status": data.get("status"),
+                "id": data.get("id"),
+            }
         ]
     if ev.name == "token":
         return [
