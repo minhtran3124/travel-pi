@@ -45,6 +45,15 @@ Splitting the two LLM roles keeps the chatbot's real model (gpt-5.4-mini, which 
 - Rule 1 — Only a `rejected` rate-limit status counts as quota exhaustion; `allowed_warning` just updates the gauge. Design §5.1 was aligned to match (Task 1.1, 2fe04570, 3cb33dcf).
 - Controller correction — The Task 1.6 dispatch note allowed Google Fonts, which contradicted the plan's "no CDN" rule. The links were removed and the plan won (3d5e4b0f).
 
+- Plan gap — Wave 2 tasks depend on each other (2.2 imports `Persona` from 2.1; 2.3 imports `SessionResult` from 2.2), so they ran in order 2.1 → 2.2 → 2.3 instead of in parallel.
+- Contract amendments during review:
+  - design §5.7 `persona_leave` gains the `aborted` reason (401, 429, or tier-setup failure);
+  - §5.9 says aborted travellers walk out at once with no badge;
+  - `set_tier` is called per traveller as `set_tier(persona_id)`;
+  - any `book_*` tool maps the session to the `booking` capability (a plan-owner decision recorded in PLAN Task 2.3).
+- Recorded decision — One traveller's `set_tier` failure aborts the whole batch as `tier_misconfigured`. This is conservative: it prevents a storm of free-tier 429s. Sessions that already finished are kept.
+- Task 3.3 — `.claude/` is excluded from git (`.git/info/exclude`), so the launcher skill lives in the main checkout's `.claude/skills/user-sim/` alongside every other repo skill and is not part of the PR diff.
+
 Open Minor findings (forwarded to the final review):
 - 1.5: two test helpers keep multi-parameter signatures on one line; `make_url` is parsed twice in `sim_session_factory`.
 - 1.7: the `required: false` long syntax needs Docker Compose 2.24 or later (local 5.4.0).
