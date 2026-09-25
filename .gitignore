@@ -71,3 +71,6 @@ specs/**/events.jsonl.lock
 
 # Local harness state (session log, SDD scratch, runtime diagnosis) — never tracked
 .harness-state/
+
+# User-simulation batch outputs (design §5.1 runs dir)
+apps/api/sim/runs/
