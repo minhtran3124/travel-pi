@@ -39,6 +39,7 @@ depth: Deep (from intake lane high-risk; no upgrade needed)
 | Label | Evidence |
 |---|---|
 | `Local` | A real `claude -p` run from a clean temp dir with `--system-prompt --tools "" --disable-slash-commands --strict-mcp-config --no-session-persistence --output-format json --json-schema`: exit 0, 4–5 s, `apiKeySource: "none"` (OAuth/subscription), `structured_output` held the schema object, input about 1,148 cache-creation tokens (Opus) or 1,044 (Sonnet). The whole system prompt is small, so user `~/.claude/CLAUDE.md` is not loaded. |
+| `Local` | The schema was passed inline as a JSON string, the literal invocation being `claude -p "..." --system-prompt "..." --tools "" ... --output-format json --json-schema '{"type":"object","properties":{"message":{"type":"string"},"intent_done":{"type":"boolean"}},"required":["message","intent_done"]}'`. It returned `structured_output` with both fields. |
 | `Local` | Without `--model`, the CLI used `claude-opus-5-5`, the user's default. Sonnet cost $0.0057 of equivalent spend per call, against $0.0145 for Opus. |
 | `Local` | `--setting-sources ""` keeps OAuth working (exit 0) and cuts loaded plugins from 12 to 2 and agents from 51 to 5. |
 | `Local` | The user settings have `"verbose": true`. With the default setting sources, `--output-format json` printed a JSON **array** of events; with `--setting-sources ""` it printed a single object. The parser must not depend on the shape. |

@@ -111,7 +111,7 @@ def _update_quota(event: dict) -> str | None:
 
 def _is_rate_limit_error(result: dict) -> bool:
     subtype = str(result.get("subtype", ""))
-    return "rate" in subtype or "limit" in subtype
+    return subtype.startswith("error_rate") or subtype == "error_usage_limit"
 
 
 async def run(
@@ -134,7 +134,7 @@ async def run(
         except (FileNotFoundError, PermissionError) as exc:
             raise DriverError(f"could not launch claude binary {_binary()!r}") from exc
         try:
-            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout)
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout)
         except (asyncio.TimeoutError, TimeoutError) as exc:
             proc.kill()
             await proc.wait()
@@ -160,7 +160,8 @@ async def run(
             and _is_rate_limit_error(result)
         ):
             raise QuotaExhausted("rate limit reported on a failed run")
-        raise DriverError(f"claude -p exited with code {proc.returncode}")
+        tail = stderr.decode(errors="replace")[-500:]
+        raise DriverError(f"claude -p exited with code {proc.returncode}: {tail}")
 
     if result is None:
         raise DriverError("no result event in claude output")

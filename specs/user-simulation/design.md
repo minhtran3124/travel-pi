@@ -88,7 +88,7 @@ one wrapper, `claude_cli.py`, so tests can swap in a fake.
 - It returns the parsed `structured_output`. A process timeout defaults to 120 s. The parser tolerates both output shapes: a JSON array of events and a single object.
 - It records `claude --version` once per batch in the report.
 - Error mapping:
-  - A usage or rate limit becomes `QuotaExhausted`: either an `is_error` result with a rate-limit status, or a `rate_limit_event` whose status is not `allowed`.
+  - A usage or rate limit becomes `QuotaExhausted`: either an `is_error` result with a rate-limit status, or a `rate_limit_event` whose status is `rejected`. Warning statuses such as `allowed_warning` are not exhaustion; they only update the gauge.
   - Output that fails the schema, or an unexpected exit, becomes `DriverError`.
   - A timeout also becomes `DriverError`.
 

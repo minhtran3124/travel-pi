@@ -43,15 +43,28 @@ async def _run():
     )
 
 
+def _flag_value(argv, flag):
+    return argv[argv.index(flag) + 1]
+
+
 @pytest.mark.asyncio
-async def test_argv_has_setting_sources_empty_and_no_bare(fake_env):
+async def test_argv_holds_the_full_mandated_flag_set(fake_env):
     await _run()
     argv = json.loads(fake_env["argv"].read_text())
     assert "--bare" not in argv
-    idx = argv.index("--setting-sources")
-    assert argv[idx + 1] == ""
-    assert "--system-prompt" in argv
-    assert "--json-schema" in argv
+    for flag in (
+        "--disable-slash-commands",
+        "--strict-mcp-config",
+        "--no-session-persistence",
+        "--verbose",
+    ):
+        assert flag in argv
+    assert _flag_value(argv, "--tools") == ""
+    assert _flag_value(argv, "--setting-sources") == ""
+    assert _flag_value(argv, "--output-format") == "stream-json"
+    assert _flag_value(argv, "--model") == "sonnet"
+    assert _flag_value(argv, "--system-prompt") == "you are a traveller"
+    assert json.loads(_flag_value(argv, "--json-schema")) == SCHEMA
 
 
 @pytest.mark.asyncio
@@ -146,6 +159,13 @@ async def test_warning_status_still_returns_and_updates_quota(fake_env, monkeypa
 async def test_is_error_rate_limit_result_raises_quota_exhausted(fake_env, monkeypatch):
     monkeypatch.setenv("FAKE_CLAUDE_MODE", "error_rate_limit")
     with pytest.raises(claude_cli.QuotaExhausted):
+        await _run()
+
+
+@pytest.mark.asyncio
+async def test_non_rate_error_result_maps_to_driver_error(fake_env, monkeypatch):
+    monkeypatch.setenv("FAKE_CLAUDE_MODE", "error_other")
+    with pytest.raises(claude_cli.DriverError):
         await _run()
 
 

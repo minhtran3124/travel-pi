@@ -3,7 +3,8 @@
 
 Replaces ``claude`` in tests through ``SIM_CLAUDE_BIN``. It records its argv,
 optionally counts calls, and emits ``stream-json`` lines chosen by
-``$FAKE_CLAUDE_MODE`` (``ok``, ``rate_limited``, ``bad_json``, ``array_shape``).
+``$FAKE_CLAUDE_MODE`` (``ok``, ``rate_limited``, ``error_rate_limit``,
+``bad_json``, ``array_shape``, ``warn``, ``mixed``).
 """
 
 from __future__ import annotations
@@ -90,6 +91,17 @@ def main() -> int:
                 system,
                 _rate_limit_event("rejected"),
                 {"type": "result", "subtype": "error_rate_limit", "is_error": True},
+            ]
+        )
+        return 1
+
+    if mode == "error_other":
+        sys.stderr.write("fatal: agent stopped after max turns\n")
+        _emit(
+            [
+                system,
+                _rate_limit_event("allowed"),
+                {"type": "result", "subtype": "error_max_turns", "is_error": True},
             ]
         )
         return 1
