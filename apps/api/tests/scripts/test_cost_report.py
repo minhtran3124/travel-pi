@@ -171,3 +171,54 @@ def test_build_report_zero_token_null_cost_run_is_not_unpriced():
     assert month["runs"] == 1
     assert month["unpriced_runs"] == 0
     assert month["priced_cost_usd"] == 0.0
+
+
+def test_build_report_lists_only_the_unpriced_models_of_a_mixed_run():
+    from types import SimpleNamespace
+
+    from scripts.cost_report import build_report
+
+    row = SimpleNamespace(
+        created_at="2026-09-02T00:00:00",
+        input_tokens=100,
+        output_tokens=50,
+        cost_usd=None,
+        by_model={"gpt-5-2026-01-15": {}, "mystery-model": {}},
+        background_tokens=0,
+    )
+    (month,) = build_report([row])["months"]
+    assert month["unpriced_models"] == ["mystery-model"]
+
+
+def test_main_huge_since_is_argparse_error(capsys):
+    from scripts.cost_report import main
+
+    with pytest.raises(SystemExit) as exc:
+        main(["--since", "100000000000d"])
+    assert exc.value.code == 2
+
+
+def test_print_table_marks_only_the_partial_first_month(capsys):
+    from datetime import datetime, timezone
+
+    from scripts.cost_report import _print_table
+
+    report = {
+        "months": [
+            {
+                "month": month,
+                "runs": 1,
+                "priced_cost_usd": 1.0,
+                "unpriced_runs": 0,
+                "unpriced_tokens": 0,
+                "unpriced_models": [],
+                "background_tokens": 0,
+            }
+            for month in ("2026-08", "2026-09")
+        ]
+    }
+    _print_table(report, datetime(2026, 8, 26, tzinfo=timezone.utc))
+    out = capsys.readouterr().out
+    assert "2026-08*" in out
+    assert "2026-09*" not in out
+    assert "partial month" in out

@@ -156,10 +156,17 @@ def reload_from_db(session_factory) -> None:
 
 
 def _warn_unpriced_models(cache: dict[str, AgentModelOverride]) -> None:
-    """Log a WARNING for each agent pinned to an unpriced model (once per agent and model, never raising)."""
+    """Log a WARNING for each agent pinned to an unpriced model, and for an unpriced env default model that un-pinned agents fall back to (once per agent and model, never raising)."""
     try:
-        for name, override in cache.items():
-            model = override.model
+        from app.core.config import get_settings
+
+        s = get_settings()
+        pinned = [(name, o.model) for name, o in cache.items() if o.model]
+        defaults = [
+            ("<default llm_model>", s.llm_model),
+            ("<default fast_llm_model>", s.fast_llm_model),
+        ]
+        for name, model in pinned + defaults:
             if not model or is_priced(model):
                 continue
             key = (name, normalize_model(model))

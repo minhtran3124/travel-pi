@@ -7,6 +7,8 @@ live in ``pricing.py`` and are re-verified by a human against the pricing page.
 
 from __future__ import annotations
 
+import logging
+
 import pytest
 from app.core import pricing
 from app.core.llm_providers import LLM_PROVIDERS
@@ -141,3 +143,19 @@ def test_is_priced_true_for_dated_snapshot():
 
 def test_is_priced_false_for_unknown_model():
     assert is_priced("mystery-model") is False
+
+
+def test_every_unpriced_model_in_a_run_is_named(clear_unpriced_dedup, caplog):
+    with caplog.at_level(logging.WARNING, logger="app.core.pricing"):
+        cost = estimate_cost(
+            {
+                "gpt-5": {"input_tokens": 1},
+                "mystery-a": {"input_tokens": 1},
+                "mystery-b": {"input_tokens": 1},
+            }
+        )
+    assert cost is None
+    msgs = " ".join(r.getMessage() for r in caplog.records)
+    assert "mystery-a" in msgs
+    assert "mystery-b" in msgs
+    assert "gpt-5" not in msgs

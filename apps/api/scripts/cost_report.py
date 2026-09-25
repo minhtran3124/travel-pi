@@ -20,6 +20,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 from app.core.config import get_settings
+from app.core.pricing import is_priced, normalize_model
 from app.db.engine import get_session_factory
 from app.repositories.agent_run import AgentRunRepository
 
@@ -56,7 +57,8 @@ def build_report(rows) -> dict:
             m["unpriced_runs"] += 1
             m["unpriced_tokens"] += tokens
             for name in r.by_model or {}:
-                m["unpriced_models"].add(name)
+                if not is_priced(name):
+                    m["unpriced_models"].add(normalize_model(name))
         elif r.cost_usd is not None:
             m["priced_cost_usd"] += r.cost_usd
 
@@ -77,10 +79,14 @@ def build_report(rows) -> dict:
     return {"months": months}
 
 
-def _print_table(report: dict) -> None:
-    """Print the per-month coverage table plus the reconciliation footer."""
+def _print_table(
+    report: dict,
+    since: datetime,
+) -> None:
+    """Print the per-month coverage table plus the reconciliation footer; the month the window starts inside is marked ``*`` (partial)."""
+    partial = since.strftime("%Y-%m")
     header = (
-        f"{'month':<7} {'runs':>6} {'priced_usd':>12} {'unpriced':>9} "
+        f"{'month':<8} {'runs':>6} {'priced_usd':>12} {'unpriced':>9} "
         f"{'unpr_tokens':>12} {'bg_tokens':>10}  unpriced_models"
     )
     print(header)
@@ -88,7 +94,7 @@ def _print_table(report: dict) -> None:
     for m in report["months"]:
         models = ", ".join(m["unpriced_models"]) or "-"
         print(
-            f"{m['month']:<7} {m['runs']:>6} {m['priced_cost_usd']:>12.4f} "
+            f"{m['month'] + ('*' if m['month'] == partial else ''):<8} {m['runs']:>6} {m['priced_cost_usd']:>12.4f} "
             f"{m['unpriced_runs']:>9} {m['unpriced_tokens']:>12} "
             f"{m['background_tokens']:>10}  {models}"
         )
@@ -97,6 +103,10 @@ def _print_table(report: dict) -> None:
         "Reconcile: compare each month's priced_usd with the provider invoice "
         "for the same month; unpriced runs and background_tokens are not costed."
     )
+    if any(m["month"] == partial for m in report["months"]):
+        print(
+            f"* partial month: the window starts at {since.isoformat(timespec='minutes')}."
+        )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -108,11 +118,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        window = _parse_since(args.since)
-    except ValueError as exc:
+        since = datetime.now(timezone.utc) - _parse_since(args.since)
+    except (ValueError, OverflowError) as exc:
         # Surface a clean argparse usage error (exit 2), not a raw traceback.
-        parser.error(str(exc))
-    since = datetime.now(timezone.utc) - window
+        parser.error(f"Invalid --since {args.since!r}: {exc}")
     factory = get_session_factory(get_settings().database_url)
     rows = AgentRunRepository(factory).cost_rows_since(since)
 
@@ -121,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"no agent runs matched --since {args.since!r}; nothing to report.")
         return 3
 
-    _print_table(report)
+    _print_table(report, since)
     return 0
 
 

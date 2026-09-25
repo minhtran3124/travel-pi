@@ -381,3 +381,25 @@ def test_reload_names_every_agent_sharing_an_unpriced_model(tmp_path, caplog):
     assert len(msgs) == 2
     assert any("planner" in m for m in msgs)
     assert any("concierge" in m for m in msgs)
+
+
+def test_reload_warns_for_unpriced_env_default_model(tmp_path, caplog, monkeypatch):
+    import app.core.agent_config_cache as cache_mod
+    from app.core import config
+
+    url = f"sqlite:///{tmp_path / 'default.db'}"
+    factory = get_session_factory(url)
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    AgentConfigRepository(factory).upsert("planner", enabled=True)  # no model pin
+
+    monkeypatch.setattr(config.get_settings(), "llm_model", "totally-made-up-default")
+    cache_mod._WARNED_UNPRICED.clear()
+    with caplog.at_level(logging.WARNING, logger="app.core.agent_config_cache"):
+        reload_from_db(factory)
+
+    msgs = [
+        r.getMessage() for r in caplog.records if "unpriced model" in r.getMessage()
+    ]
+    assert len(msgs) == 1
+    assert "totally-made-up-default" in msgs[0]
+    assert "llm_model" in msgs[0]
