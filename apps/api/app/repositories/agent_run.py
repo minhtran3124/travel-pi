@@ -184,6 +184,20 @@ class AgentRunRepository(Repo):
             "latencies": [r.latency_ms for r in rows if r.latency_ms is not None],
         }
 
+    def cost_rows_since(self, since: datetime) -> list:
+        """Per-run cost columns for runs at or after *since* (same ISO string cutoff as ``totals``)."""
+        cutoff = since.isoformat()
+        stmt = select(
+            models.AgentRun.created_at,
+            models.AgentRun.input_tokens,
+            models.AgentRun.output_tokens,
+            models.AgentRun.cost_usd,
+            models.AgentRun.by_model,
+            models.AgentRun.background_tokens,
+        ).where(models.AgentRun.created_at >= cutoff)
+        with self._session() as s:
+            return s.execute(stmt).all()
+
     def llm_steps_since(self, since: datetime) -> list[models.AgentRunStep]:
         """Return ``llm`` steps created at or after *since*, oldest first (tool/node steps carry no cache tokens)."""
         cutoff = since.isoformat()
