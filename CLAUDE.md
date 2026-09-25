@@ -24,7 +24,7 @@ make up / down    # api + Postgres in Docker
 make test         # BE suite on SQLite (fast, zero-config)
 make test-docker  # same suite on Postgres in Docker
 make lint         # lint all apps (turbo)
-make eval-smoke   # agent eval, 18 cases, real agent, no judge (needs Docker db + apps/api/.env)
+make eval-smoke   # agent eval, 20 cases, real agent, no judge (needs Docker db + apps/api/.env)
 make eval-check   # judged full eval + regression gate vs eval/baselines/main.json (paid; see apps/api/eval/README.md)
 
 # Single test file (from apps/api/)

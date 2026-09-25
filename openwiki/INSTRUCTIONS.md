@@ -69,8 +69,8 @@ that part of the system. Keep its routing table in sync whenever pages move.
   line range. Where a document under `techstacks/` or `docs/` disagrees with
   the implementation, follow the implementation and say so on the page.
 - Do not describe planned work as shipped. A spec with no corresponding code is
-  not behaviour: the trip-research deep agent is designed, but `deepagents` is
-  not a dependency.
+  not behaviour; check the code and the dependency manifests before calling a
+  feature live.
 - Synthetic and deterministic behaviour is deliberate here. Flights, hotel
   availability and FX are generated from seed data on purpose; explain the
   mechanism rather than flagging it as a gap.
