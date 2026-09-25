@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections import Counter
 
 import httpx
 import pytest
@@ -94,8 +95,8 @@ def _tagged(pid, **over):
 
 
 def _assert_queue_leave_paired(bus: _FakeBus) -> None:
-    queued = {e["persona_id"] for e in bus.of("persona_queue")}
-    left = {e["persona_id"] for e in bus.of("persona_leave")}
+    queued = Counter(e["persona_id"] for e in bus.of("persona_queue"))
+    left = Counter(e["persona_id"] for e in bus.of("persona_leave"))
     assert queued == left
 
 
@@ -302,6 +303,7 @@ def test_f_401_aborts_batch_as_auth_misconfigured(monkeypatch):
     result = _run(go())
     assert result.status == "auth_misconfigured"
     assert result.sessions == []
+    assert {e["reason"] for e in bus.of("persona_leave")} == {"aborted"}
     _assert_queue_leave_paired(bus)
 
 
@@ -324,6 +326,7 @@ def test_g_429_aborts_batch_as_tier_misconfigured(monkeypatch):
     result = _run(go())
     assert result.status == "tier_misconfigured"
     assert result.sessions == []
+    assert {e["reason"] for e in bus.of("persona_leave")} == {"aborted"}
     _assert_queue_leave_paired(bus)
 
 
@@ -479,6 +482,32 @@ def test_one_session_crash_does_not_stop_others(monkeypatch):
     assert by_id["crash"].status == "driver_error"
     assert by_id["ok"].status == "done"
     assert result.status == "ok"
+
+
+def test_set_tier_failure_aborts_batch_as_tier_misconfigured(monkeypatch):
+    run, calls = _fake_claude({}, default={"message": "hi", "intent_done": False})
+    _patch(monkeypatch, run)
+    bus = _FakeBus()
+
+    def set_tier(persona_id):
+        raise RuntimeError("docker compose exec failed")
+
+    def handler(request):  # pragma: no cover - never reached after tier failure
+        raise AssertionError("no request should be sent when tier setup fails")
+
+    personas = [_tagged("st1"), _tagged("st2")]
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                personas, 2, BASE_URL, _FakeKeys(), bus, client, set_tier
+            )
+
+    result = _run(go())
+    assert result.status == "tier_misconfigured"
+    assert result.sessions == []
+    assert {e["reason"] for e in bus.of("persona_leave")} == {"aborted"}
+    _assert_queue_leave_paired(bus)
 
 
 @pytest.fixture(autouse=True)

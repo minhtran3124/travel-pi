@@ -191,7 +191,7 @@ The targets live in `apps/api/Makefile`. The root `Makefile` gets thin delegatin
 | `bot_done` | `reply` (the full text, assembled by the driver from the `bot_token` chunks), `usage` |
 | `bot_interrupt` | `kind` |
 | `bot_error` | `code`, `message` |
-| `persona_leave` | `reason` (`done`/`max_turns`/`bot_error`/`driver_error`/`quota`) |
+| `persona_leave` | `reason` (`done`/`max_turns`/`bot_error`/`driver_error`/`quota`/`aborted`; `aborted` means the batch stopped on a 401 or 429 before this traveller finished) |
 | `session_graded` | `score` (0–5), `verdict` (`pass`/`warn`/`fail`) |
 | `quota` | `five_hour`, `seven_day` (0–1), `resets_at` |
 | `batch_end` | `summary` |

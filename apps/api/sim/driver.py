@@ -10,6 +10,7 @@ from the SSE stream.
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 from collections import deque
 from dataclasses import dataclass, field
@@ -20,6 +21,8 @@ import httpx
 from sim import claude_cli
 from sim.personas import Persona, traveller_system_prompt
 from sim.sse import HttpStatusError, stream_turn, to_ui_events
+
+logger = logging.getLogger(__name__)
 
 TIMEZONE = "UTC"
 TURN_TIMEOUT = 180
@@ -275,17 +278,20 @@ async def _run_session(
                 )
             finally:
                 seats.append(seat)
+
+        # Terminal leave lives inside the try so a publish failure surfaces here
+        # instead of silently dropping a completed session.
+        if ctx.abort and result.status not in _FINISHED:
+            await _leave(bus, persona.id, "aborted")
+            return None
+        await _leave(bus, persona.id, result.status)
+        return result
     except Exception as exc:  # noqa: BLE001 - one crash must not stop the batch
+        logger.exception("[sim.driver] session for %s failed", persona.id)
         result.status = "driver_error"
         result.error = {"code": "driver_error", "message": str(exc)}
         await _leave(bus, persona.id, "driver_error")
         return result
-
-    if ctx.abort and result.status not in _FINISHED:
-        await _leave(bus, persona.id, "aborted")
-        return None
-    await _leave(bus, persona.id, result.status)
-    return result
 
 
 async def _converse(
@@ -301,7 +307,13 @@ async def _converse(
     system_prompt = traveller_system_prompt(persona)
     token = keys.token_for(persona.id)
     if set_tier is not None:
-        await _maybe_await(set_tier, persona.id)
+        try:
+            await _maybe_await(set_tier, persona.id)
+        except Exception:  # noqa: BLE001 - a tier-setup failure is an env error
+            logger.exception("[sim.driver] set_tier failed for %s", persona.id)
+            ctx.abort = True
+            ctx.batch_status = "tier_misconfigured"
+            return
     turns_taken = 0
 
     while turns_taken < persona.max_turns:
@@ -420,6 +432,9 @@ async def run_batch(
         for persona in personas
     ]
     gathered = await asyncio.gather(*tasks, return_exceptions=True)
+    for item in gathered:
+        if isinstance(item, BaseException):
+            logger.error("[sim.driver] session task raised", exc_info=item)
     sessions = [item for item in gathered if isinstance(item, SessionResult)]
     return BatchResult(
         sessions=sessions,
