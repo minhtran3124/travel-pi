@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:12cc1fa828da17defeccc65129dcb222e6731e5bb37c501f106d2cd56b35dc72",
+  "pageVersion": "sha256:ea3559327607cea047121fa51bfa0cfe753c637b2794f8af382488ec9c9d1a8c",
   "claims": [
     {
       "id": "claim_73928376aeb243dfb1913c540816dfbd",
@@ -168,17 +168,41 @@
     },
     {
       "id": "claim_41745ac90a0b46ad8636daaebc0cfb0e",
-      "statement": "The web app requires NEXT_PUBLIC_API_URL and the public Supabase URL and publishable key even in local development, and the E2E credentials are read only by the Playwright runner with specs skipping when they are absent.",
+      "statement": "The web app requires NEXT_PUBLIC_API_URL and the public Supabase URL and publishable key even in local development, NEXT_PUBLIC_RESEARCH_ENABLED optionally hides the research UI to match the API kill switch, and the E2E credentials are read only by the Playwright runner with specs skipping when they are absent.",
       "evidence": [
         {
-          "resource": "repo://apps/web/.env.example#L1-L13",
-          "version": "repo-lines-v1:sha256:0c02edcd1963eb9c19ffd15d11476b61352152bbeddfb09b9d8479b55c6b1a9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMDc4YTNmZjYwZWFhNWYyMTdiZWRhNTMwMzhhYTEwZmIzYzkzZjgxMTZkMDI5NzBkZTJlYzhiZDU2ZjgwZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3ZWJlNDQwYWE4MTkzZDk5YzhlNzI3YWYzZjdmODJiYjljODVjNzI0YzA5M2VlMTUyZDBjNmM5YmY1ZTVmNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/web/.env.example#L1-L17",
+          "version": "repo-lines-v1:sha256:2f90e3b93246dda505b4569d691e9e3a1225ccfb8548b89777eb1fce606c0183:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMDc4YTNmZjYwZWFhNWYyMTdiZWRhNTMwMzhhYTEwZmIzYzkzZjgxMTZkMDI5NzBkZTJlYzhiZDU2ZjgwZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3ZWJlNDQwYWE4MTkzZDk5YzhlNzI3YWYzZjdmODJiYjljODVjNzI0YzA5M2VlMTUyZDBjNmM5YmY1ZTVmNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/features.ts#L1-L10",
+          "version": "repo-lines-v1:sha256:51d407175b44b0a6257ab52fecf1c44748d44e8031730b735890a2d97948bc7a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cc641c6132444e619f8abacde3e8fff8",
+      "statement": "Web search is off by default and each provider is available only when web_search_enabled is true and its API key is non-blank; the hourly per-user limit must be positive.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L84-L110",
+          "version": "repo-lines-v1:sha256:cadeda0d4f4f617373c4039672622cf624210c77cd9176cbc622c0318a2e8dd9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2NTUwNzNhOWIxMGMxYjJiY2Y0MzY1MzZlYTQ0YWQ1NzI3YzE1ZWJjOGFjNTg3Y2ViNmUxODgwOGRiYmU3MzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViNmRmYTFhNmI0ODc4YjY5MWVmMWQwZWM2YjQwYTc1ZjM4YjNhZjRlZmFiZmYxMjJiNGQ3OWQwYjQ0MjUzMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyM2M0ZWY3NDg4OTE5ZjgwYWFiOTgzM2NjYjllMjlmZDQ4MmU2YjJhZWQ3ZTU1ZjdiMDQ3OTZjNzNlNTdmZmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_98993ed8ebda4b40bae848eb0701139b",
+      "statement": "research_enabled defaults to true, with research_timeout_s 600, research_daily_limit 3 and research_stale_minutes 30.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L174-L178",
+          "version": "repo-lines-v1:sha256:26090dd88634acda6b73a540a83d91e5b3edf5a2dceb411ea6654b01afa51719:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjJlZDZjNmQ2NjViODU3Nzk4YzMxOWIwZjc4NDg2MzMyMTVkY2VlYTNhYjkzNDg3OGI1YzE1NjEwMmJmNTQxNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzE4MTM3NjkwZjVhNDI0MzJhYWEwZTAyYTEzZmNlYjEzNWZlZmE4ZDAyMjI5MmZjNTg3MjM4OTk1ZjI0MTVjNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWU4ZjBkYzFjNjdiYTUyYzg4YjVjNDk1Y2E2ZjliOGEwMTU5YThhZDkzODQ2YjMyMzY3MjZhMjFlOWZhYTE2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTg4ZjU0YmVlNGIwMGI5ZWMzN2QzNGNlMGZiMDBlZTgwNzM4NThkN2I1NjVmODgwNjUyNGU2NGM0MDM0MDY5NCJ9"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:19:54.601Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

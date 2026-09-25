@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:3f87ec726ac82886b0412913b89a95ca5cd3d926defe98cce0f06febda844944",
+  "pageVersion": "sha256:32b3282a3858739efd53cde1e44e66e66f0dd99dba3a85db6e75122d3b5f3298",
   "claims": [
     {
       "id": "claim_8238a48962fd4ad6bca3983cf6358082",
@@ -130,11 +130,11 @@
     },
     {
       "id": "claim_9428c1a73b27402d844ba7fe3f96ba75",
-      "statement": "system_reply stores only English source copy, translates once per target language through the LLM translator with a persona note, caches the result under a key including a digest of the source so edits invalidate stale translations, and serves English on any failure.",
+      "statement": "system_reply stores only English source copy (including the research launcher replies), translates once per target language through the LLM translator with a persona note, caches the result under a key including a digest of the source so edits invalidate stale translations, and serves English on any failure.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/copy.py#L28-L77",
-          "version": "repo-lines-v1:sha256:02122a2a89fe6662d3dbfbb77d24bc0b53247becb02f0a26537ff82b4d688db7:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YjMzYzJkZTA0ZjMzYjQwMzE4MDAwNDg4ZWMyOTZiOWNhMGFlMWM5MGRlNWNmYmQ5NTI0NDc0OGU0MGNhNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZjNkYjg2Zjg4ODAyMmJmZmYwNjYzYjQwMzg2MGU1NzNhYjNmNjJmZWE0MTIxM2FjMDZhZmMyOTU4NGRmODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/api/app/agents/copy.py#L36-L93",
+          "version": "repo-lines-v1:sha256:eedd75dc2801b7b3d1b589897b348d8c529c0c403a648709237d0d24844c1b64:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YjMzYzJkZTA0ZjMzYjQwMzE4MDAwNDg4ZWMyOTZiOWNhMGFlMWM5MGRlNWNmYmQ5NTI0NDc0OGU0MGNhNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZjNkYjg2Zjg4ODAyMmJmZmYwNjYzYjQwMzg2MGU1NzNhYjNmNjJmZWE0MTIxM2FjMDZhZmMyOTU4NGRmODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/tests/agents/test_system_copy.py#L58-L110",
@@ -159,6 +159,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:19:54.601Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

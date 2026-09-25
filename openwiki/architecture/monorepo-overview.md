@@ -6,8 +6,12 @@ tags: [monorepo, pnpm, turborepo, nextjs, fastapi, architecture, overview, entry
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
+  - id: openwiki-source-798ba55c4480c62612a305f8
+    resource: repo://apps/api/app/research/agent.py
   - id: openwiki-source-74dac8f3a8700bf870db47a8
     resource: repo://apps/api/Makefile
+  - id: openwiki-source-433db6b1a4d324432630a14a
+    resource: repo://apps/api/requirements-ai.txt
   - id: openwiki-source-999f60ece775e48a66373ded
     resource: repo://apps/web/next.config.ts
   - id: openwiki-source-99de51df25f29bfc72caf823
@@ -26,10 +30,10 @@ sources:
     resource: repo://techstacks/architecture.md
   - id: openwiki-source-440ae1e215cb02721dda855c
     resource: repo://turbo.json
-generated: { by: "claude-code", at: "2026-09-21T09:36:49.315Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:36:49.315Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Monorepo overview
@@ -48,7 +52,8 @@ apps/web (Next.js, TypeScript)
    ▼
 apps/api (FastAPI)
    routers → services → repositories → SQLite / Postgres
-   └─ LangGraph agent: supervisor → specialists → tools, streamed over SSE
+   ├─ LangGraph agent: supervisor → specialists → tools, streamed over SSE
+   └─ trip-research deep agent (deepagents): background runs, progress over SSE
 ```
 
 - The web app's API client is `openapi-fetch` typed against `src/lib/api/schema.d.ts`, which `pnpm gen:api` regenerates from the running backend's `/openapi.json`. That is why the backend fails startup on duplicate operationIds. The client uses a relative `baseUrl` of `/api/be`, and `next.config.ts` rewrites `/api/be/:path*` to the backend origin (`NEXT_PUBLIC_API_URL`, default `http://localhost:8000`). A client middleware attaches the Supabase bearer token and mints idempotency keys for trip-creating POSTs. See [Web app shell, routing and auth](../frontend/app-shell-and-routing.md).
@@ -68,6 +73,7 @@ Inside `apps/api/app/`:
 | `db/`, `data/`, `alembic/` | Engine and session DI, ORM models, idempotent seeder; `data/` is the seed source of truth; migrations |
 | `schemas/` | Pydantic v2 request and response models |
 | `agents/`, `tools/`, `prompts/`, `memory/`, `streaming/`, `rag/`, `clients/` | The travel agent: graph, specialists, tool registry, versioned prompts, memory, SSE mapping, retrieval, LLM client |
+| `research/` | The trip-research deep agent: build, run service, background runner, progress bus, chat launcher, skills ([Trip-research deep agent](../agent/trip-research-deep-agent.md)) |
 | `mcp/` | A FastMCP server that exposes the tool registry to external clients |
 | `templates/` | Jinja2 pages for the operator dashboard |
 
@@ -79,7 +85,7 @@ The layering rule is **routers → services → repositories** with no use-case 
 
 ## Entrypoints and everyday commands
 
-The root `Makefile` is a thin layer: `make dev` runs both dev servers through Turbo, `make api` and `make web` run one side, `make test` runs the backend suite on SQLite, `make test-docker` runs it on Postgres, `make up`/`make down` manage the Docker stack, `make seed` seeds the database, `make lint` lints both apps, and the `eval-*` targets delegate to the backend's evaluation harness. Turbo's pipeline (`turbo.json`) defines `build` (depends on upstream builds, caches `.next/` and `dist/`), `dev` (persistent, uncached), `lint` and `test`. Backend commands run from `apps/api/` and frontend commands from `apps/web/`. Full setup and toolchain notes are on [Local development, Docker and CI](../operations/local-dev-docker-and-ci.md).
+The root `Makefile` is a thin layer: `make dev` runs both dev servers through Turbo, `make api` and `make web` run one side, `make test` runs the backend suite on SQLite, `make test-docker` runs it on Postgres, `make up`/`make down` manage the Docker stack, `make seed` seeds the database, `make lint` lints both apps, the `eval-*` targets delegate to the backend's evaluation harness, and `make research-smoke` runs the keyed trip-research smoke (`ARGS='--dry-run'` for the keyless path). Turbo's pipeline (`turbo.json`) defines `build` (depends on upstream builds, caches `.next/` and `dist/`), `dev` (persistent, uncached), `lint` and `test`. Backend commands run from `apps/api/` and frontend commands from `apps/web/`. Full setup and toolchain notes are on [Local development, Docker and CI](../operations/local-dev-docker-and-ci.md).
 
 ## Where the cross-cutting documents live
 

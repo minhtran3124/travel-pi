@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:eb0dbaa6e346945219f151f97739ef5a5dad76e0cf047e2487eab10c5a2b8b2e",
+  "pageVersion": "sha256:15eb0db5f0540d8614323ab894d65573a9873f7cfdc765c2b3f8b6c7f9032930",
   "claims": [
     {
       "id": "claim_2c62915bc31340f6bd143c73039e41a5",
@@ -26,7 +26,7 @@
         },
         {
           "resource": "repo://apps/api/app/prompts/active.yaml#L1-L12",
-          "version": "repo-lines-v1:sha256:bee585b64673804681829a0bf1be88975a4bdbe9442e04eb51554ad8bd2986db:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGFmNTk1NTY1Y2I3YTY0YjFhOTA5YWM4MzNmNTEwYTdkNjEwNTcyNjMzNmMyOGZmNmRiMzY3ZmI1NDQ0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyNmYyNTlkODQ0YTMyM2JjY2E5MGFmYWRiNjlhNTlmNzA5YmVhYjA2YzNkNWM1ZTg5YTJjMWI4MTI0OTgwMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "version": "repo-lines-v1:sha256:edaeb72189f04c9a27f6a0ca1c25744be4f6334a3d295b4a112f449e911d5de2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGFmNTk1NTY1Y2I3YTY0YjFhOTA5YWM4MzNmNTEwYTdkNjEwNTcyNjMzNmMyOGZmNmRiMzY3ZmI1NDQ0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkMTY0MzFlZGQ5YjcxZTNjNTY4MGUwODJmNjQyMWMxZDEzYmFhNTE3ZGViOWZhZjI1M2RmYWQzZjliN2RjMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/app/prompts/registry.py#L43-L54",
@@ -74,15 +74,15 @@
     },
     {
       "id": "claim_92d75da4a2ab4ea594a7bacafff9a0c3",
-      "statement": "PROMPTS_FOR_NODE maps node keys in the <ns_root>/<node> form to the prompts they compose: specialists to their own prompt plus communication_style, supervisor and reflection to their own prompt, and promptless nodes to an empty list, because keying on the bare inner node name would collapse all specialists onto one key.",
+      "statement": "PROMPTS_FOR_NODE maps node keys in the <ns_root>/<node> form to the prompts they compose: specialists to their own prompt plus communication_style, supervisor and reflection to their own prompt, promptless nodes to an empty list, and the model-free research launcher to a single empty root key with no inner keys, because keying on the bare inner node name would collapse all specialists onto one key.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/prompt_map.py#L1-L52",
-          "version": "repo-lines-v1:sha256:72549e5ef9700810ad733e6f043ad6299cf41ee70a31e1a8e564c713ce41130b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NTg3ZjBiMDY0MWI1M2ZjODgzMDQwYjZkZTk5YmZhMDIwMTBkMDZlZDI0NzdiYmNiZWZiODg0YjdlYzNmZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViNGU3MWU2ZWJmNjdiNmM3OTdlNjFhM2ViNThmOWNhZmI5NGMyNzJlY2U5NWJiNTM4NzY3ZWFlZjlhOGUyNGEifQ"
+          "resource": "repo://apps/api/app/agents/prompt_map.py#L1-L60",
+          "version": "repo-lines-v1:sha256:4c11e52e8802905c63b29817f4b2fcca94ac57dee7cc694bc19ab93f22373c7c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NTg3ZjBiMDY0MWI1M2ZjODgzMDQwYjZkZTk5YmZhMDIwMTBkMDZlZDI0NzdiYmNiZWZiODg0YjdlYzNmZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MjRlYTEyNjEwNmYyYzRlMDE0OGVkZmQ1NDUzN2RjMGMwODM3Njk0N2RkMzc3MmY1MjFjM2NhYThkOTQ5NWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5ZjkzMDgzYzE5NzEyMWI5ODI3MDBiYThhZmFiZDE3MjJjZjFkM2U3NDA0NTA5ZTgwZWZhMjcyNDdmNjJmMDcifQ"
         },
         {
-          "resource": "repo://apps/api/tests/agents/test_prompt_map.py#L52-L100",
-          "version": "repo-lines-v1:sha256:16f7d247621b667e511536830f42d999995f67b4c8dee9d434d5dfdfb392fc69:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxOGMxY2FkYjVkNWY0OGQ1ZDIyMjczMTBmMjY5OTNhZmYzYzgxM2I3ZDFhMDQxMTRlNjE5NmFiMTJlMzRiNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjNTNlODc0MjYxZDY3ZTQ3ZGRjNzZlMmEzNTIyOWE2NDYyODBhYmExZDVlMjA1Nzk4OGMwYTE3NmFhZjcxZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhMmI3ZDVjNDlkOTZhNGU4ZjliMDExMDVhNTU3NzE5YThmZGU0Y2QzM2Y5N2EyZTYzNzg5ZGNkNjNlMWUyMWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0NGE0ZWJmMWIzYjBkZWM4NWM0ZWQzZWI4NjlmOWZiMzE3MzQwNzRmOGU0NzlhZDNmZmQ4YzJkYTYyODdjYjEifQ"
+          "resource": "repo://apps/api/tests/agents/test_prompt_map.py#L60-L90",
+          "version": "repo-lines-v1:sha256:a4973577a7cc4707110783d8b43df07de8b6223f7d254b8f3d363d9265af6ff1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkMTI1NjE1ZjM5MTk2MmFiZGQ1YmEwYmI0NDZhZTI2NGIyMjNiNDE1ODMwYmQ1Njc3MmNjMzhiMmVlMmQ2ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YzEwMDg3MWVhNDk3OTY3MmI0ZjFiOGQ3MDRlN2I4MDY3YTIzZWNhYTljOTI4MzdjMDdkNjgwYTBlZjE2MWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxMDRhNWQzNTE1MjhiMGVkY2RmZTUwMzMxMGExYzE4ODBjODY1NTk0MDRmNTRkOWYzNWZhMWY4YTE5MDEzZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ODBiMGYyOTI4YWMwZGJmM2RkNGEzMWQ1YzE2ZTkxOThhMjlhNjA4NmQzOWNmYjU3YzIwZjYwYmUzM2E2NWQifQ"
         }
       ]
     },
@@ -113,10 +113,34 @@
           "version": "repo-lines-v1:sha256:7e0dfeea4b63628d0c2fbaca94cc9383559de06d14c1b271f2b5888d301209c3:eyJzZWxlY3RlZExpbmVDb3VudCI6OTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2MjllZWQ4YmViMzBkNzBhYzcyMzNkZWM1NTViYTE1MjQwNzdlNTk3YjZiYjJiZWNlYTFhOTU4MDI2NjZmNzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ODViMDRlNzQ2M2IxYzk1ZjFhOWI1NDFkNjhkYmMzYjJlYmMxY2Y3NDM1MWU2YzNkNzcwNTk1YWRlNGQ3NDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA2NDhhOWM0ZjI0MDUwOTJkYmZkMGQzODJiNWZlMDc5MzBkNTE2MzUwYTZhNmI1ZTA0MGVjYWUzNDdjZWFjZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhY2M5YWQ3OGFmMWZlYjE1M2MwNzQyZTUwN2I4MjI2MjY2NGFiOTJiM2Y0YmZmMTg0YTU5ZmIyOGUzNDgxOTIifQ"
         }
       ]
+    },
+    {
+      "id": "claim_ef3bf415cc8b4f20b4874b9d5276e424",
+      "statement": "The research runner reads the trip_research_grader prompt per run as the rubric and falls back to an empty rubric (grading disabled) with a warning when the prompt is unavailable, so a missing prompt never aborts a run.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L44-L74",
+          "version": "repo-lines-v1:sha256:dd3af46908a9273a5adcb8ae8c1ced6ce6361c593c512c6d6eb6a5cc8d60a20b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhYTlkMjc4ZGEwZTQ0NDcyNmM5YzM2ZTc3Y2YyY2ZhMzMxZTVlMzlkNWVkNDIwMzc2NzVkOTc0MjkzZTk2ZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllZjFhMzExYzM2ZGVjMTE3YzRhYmYyNDk0OWNkODJjMDA2YjVkNjMyYmRkNTI1ZDgzZWRkYTkyYjcxZTA5OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZGUxYTA0NzgzMjcxZTVlNWExOTg0ZDUyMzliNTBhYjYxYTUxNmYwOTAyYWRiNDE2MmExNjY4MjcyMzc1MmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_33e0964e7cb94520b392bc6eb5430083",
+      "statement": "active.yaml selects trip_research and trip_research_grader versions alongside the chat prompts, and the deep agent uses registry.get(\"trip_research\") as its system prompt at build time.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/prompts/active.yaml#L1-L14",
+          "version": "repo-lines-v1:sha256:edaeb72189f04c9a27f6a0ca1c25744be4f6334a3d295b4a112f449e911d5de2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGFmNTk1NTY1Y2I3YTY0YjFhOTA5YWM4MzNmNTEwYTdkNjEwNTcyNjMzNmMyOGZmNmRiMzY3ZmI1NDQ0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkMTY0MzFlZGQ5YjcxZTNjNTY4MGUwODJmNjQyMWMxZDEzYmFhNTE3ZGViOWZhZjI1M2RmYWQzZjliN2RjMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L331-L336",
+          "version": "repo-lines-v1:sha256:e274134e939baff4bf0d949bd376c48acf2a4fee486c687e787965572bc1edbf:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGViOTJhN2Q4NjFjYWM5MDQyNWJkNGUzMWZmZDBiYTExYWY1Njk3OWVhMThmY2Q5OTFjNjkyNWY3NDZjY2UxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmYyY2Y3MDcxN2I4YWJlOGZmOWM2ZDRjMjM5MTc5ZmQ3YTIxMjQ2ZjgwZDgwNTk2YmFlYjIwMGMzZGM1MmI1MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWJiMjQ3ZTA4NDVkOGZhY2M3MmI2MzZlY2MzODI1MzYxNTYwYzcwMDhiN2YwNzlkMTdjYTQ1NTI3MDZkMjRhYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmRmMWUyMDhmMWNmNzJkYTUzMTFhNGViZjI0NzFmZWM1MzkwMTUxZWU1MDNlOWFiMGE5YTQxZTdjMmM3ZGIzMCJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

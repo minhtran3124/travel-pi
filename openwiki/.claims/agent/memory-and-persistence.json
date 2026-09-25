@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:cdd18ddf5c04533474b2669ec814a531168837e45c0017834e0951de18eb3115",
+  "pageVersion": "sha256:3ac46df2fc9df0d65c9c23ace30f32a65855523d7c6e1989c99507c1017c399e",
   "claims": [
     {
       "id": "claim_628663a10d924a529e1e2ea58389be2e",
@@ -285,10 +285,38 @@
           "version": "repo-lines-v1:sha256:a2526746cbc9af25221413db101c3c761a6001e65c5c514d90b6de4d56800cf6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyNTA3OWFlYjE1NjkzNTdiNDNiNzUwNzgxMTdlNWMyY2ZhZmExYmYwNzdkZmJlYzRhZjNmNWQ3YjBmYTlmZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllMmE1Y2YzNzM5ZWY4MDFkNTZiMGZjYWEwMjVmNjdiMDk1NTIzMzRjMzE5NzFkNjc3MjFjODI0NDA1MDE3ODcifQ"
         }
       ]
+    },
+    {
+      "id": "claim_0d85bdd6ee57480dbfc30fb9677bdaac",
+      "statement": "The trip-research agent is built on the same checkpointer and store as the chat graph and separates its state by key: checkpoint thread research:{user_id}:{trip_id}, dossier/plan files under (users, uid, research, trip_id), and research memory under (users, uid, research_memory).",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L116-L130",
+          "version": "repo-lines-v1:sha256:c2973df666bc8cd66fded1fd175b86bde2df4c32119f0c724006949613a16b19:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkMzIzMGE5YzY1NDQxNjY0YjViZmEyOGNmOTQwZjVkNzYwMDc4YmE1YmFhMWI1NmRjZGNmYTU4NGU1NzJhNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0NDExZjJiYzlkMmM2OTY2MjRiMjFiZmNjMDE1YWU5YTVhNzhhYTZhNTVhOTFjNTljMjRkODBiZDViNzI3YmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmM2JmNWIyNDJmMzRjMTAzY2Y5Y2UxNzJjODc2YTI2MjQyODdiYzUwNTUyYzg1YTBmMmUzMWIzMTg2M2NjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhMTA2MWY0MTI1YzIxNDNmNGYzZWNiYjYwNGE4ZDljOWRiMjZlNjhiODAwZWMyMzM2MGIwNmY3NzFlYzhhYWQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L112-L129",
+          "version": "repo-lines-v1:sha256:315d6790349968e0074c38b533ffd7f7e23082172625958ce4e1cb50ac75c128:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhMWRhODQ2OWZmM2I3Y2JjYWE0OTMyOWIxYzI2NmIwZDRkOThjYTBhYmM1MjNkOWM1MTMzNWQzZWExOTI4MmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhODJlYmU5ZWQ0MDdjM2E2YmE0YjAwMzQyOTJiYWE1MmMxMWNlNWFlMjg2MTA3NDAyZGU0NzkyZWVlY2FjZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhMDMyYzFjYjU1NmEwZmM0NDdiYjkwMDI0M2FhMmNlOWIxNGU3OWYyMTVjNjI1MzgzZTk2MTllM2QwNDZjOTAifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L55-L60",
+          "version": "repo-lines-v1:sha256:653555aed26976c97528958ea087dc5891f53fdad759b10aca2f4701390763ff:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDcxNTAzYWQ3YzJiODU5NjIyOTk0M2JmYmRmZWFmMjdmMDM5ODcxYTVlN2M0NjQyMDg5YzFjOTFhNTZlYzVkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODcyMTVkN2ZlYzA4YmU4M2U0OWIwNTE2MDZiNmUyMmRmOGNhZTBlMmZmNzEyMGY4MDZkOTVhYjY1YzUyZDE4ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWQ0NmY3YWU0MjZkOTYxMDZkYmQ1ZThhNGFkNGY3MTVkNjg2NWQ0NzdkOGMwYTgyYWFkZmUyMThmZDMyN2FhMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWNkYThlMjBiYTQ2ZDFiYjU0ZmUzOTAzNjhlYjE3YmQwYjBhNTFkZTk1ZmM1YTRjMzA4NTY4YzNlMDZjYjYzZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4f14b133653d4d5d9d153d3f4aea274d",
+      "statement": "seed_agents_md writes an initial /memory/AGENTS.md from the traveller's chat preference store only when the file does not exist yet, after which the agent owns it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/memory.py#L57-L78",
+          "version": "repo-lines-v1:sha256:86d557d795aa8e44a7e42c7f024eb38e58e697ff3bf7bac2893236595e1bc6dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzYTQyMGQ5MDMxMWE5YTE5YWI2OTU0NDRjMmEyNjE5ZmYyZTZkZDhkMzU3ZTdmMDFjNWI0ZWJkZDBjNmU1ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZjFkYWMzNDdlZjg0MDg2ODMyZDk5ZjQyMDA2NTRmNzljMTViYjRlY2RkODUyYjMzM2M3OWYyNmY1MWNlYmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0YWEzMDhlNzMwYzk5MGUzN2Y3MjFiOGEyM2JhOWVlMmRjNDI3ZjlmN2E2NDA2MDM5ZmQwN2Q4YmIxMDgzMDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1ZDU1MTY5ODMzMmUxNzY4MTkyZmU1OThiZWE4OTU1ZTNiZDIxYWNhNDUxYzY4ZWVhNGRiNmMyNTEyNzI4ZTEifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:19:54.601Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

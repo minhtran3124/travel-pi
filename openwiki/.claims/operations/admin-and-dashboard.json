@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:525cb5861da97f996b8040ee422d68e61b07450191fba42502fe26b5941ea5ae",
+  "pageVersion": "sha256:5bcd2ab6784d7d0e4ad5a9263e50f42619ac2d5a2ec4e783241bc923d0d25a8b",
   "claims": [
     {
       "id": "claim_6ccca3d3419846ef8ae25d47c2223709",
@@ -111,10 +111,42 @@
           "version": "repo-lines-v1:sha256:8e386e9757f7c98f879723aef4e010a364a58ac0e0ad613f22d6cd4fedf53a46:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmU4NDgxOTY5YTcwNDA0YWRlODkwZDM5ZGRmNmIzM2E5MTdlYzMzNjkyNmY4MzQ1Yzc5NWE0YzM1OTcwYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxZjU5ZTU2NjVmMzEyNmU0N2ZkYTgyMmM0MGJmN2E2MDYyYmM3N2ViYWYyM2NlMzg4ZDM0MDRhZmI1NmZmZjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4OTczYWI1ZjliMzYxZjQ1ZmYzOTg0ZjI4YmU2YjQwZWUxYjk1Nzg0M2FlZDgxNzVjNTQyMTBiZmVhZGFlZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
+    },
+    {
+      "id": "claim_86a7c8e001864d44afe868ad24730c6a",
+      "statement": "The dashboard layout has Sunset, Nightfall and Daylight themes; a saved tp-theme choice wins, otherwise a pre-paint script follows the OS preference (light to Daylight, dark to Sunset), and the header button cycles Sunset, Nightfall, Daylight.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/templates/base.html#L1148-L1175",
+          "version": "repo-lines-v1:sha256:97a4de087a156b9d9bfcb83752f3b35749f08c2148c2194594fb1bc0c541d5f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjOWNjZThmNjEzMzkwZDI3NzhmZGVkNWY5YTVlYzE1NTVhYmI0OTAzNzdhNjEwYzE3MTMxZDQzZmU3ZjRiYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmYWY3MjYzOGM3NTEwZDUxNjMxOWQ0YmFkYTdkYmQ5MjZmZTA4ZTVmZjQ4MjJlYzVmMjgwYzY1MmU3NjAxODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmMzBlMGRkNmRlMTg5ZWUyNTI3N2I2MTk1MjAwOWQ1YzI2MmUxMjAwZmNiODkwZjBmN2U0YjI1NWVlNzI2OWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5M2RjZjQzZmU3N2RlYzQ2NDk3YjM3ZWFlZjViOTdkNzBjZDQ5ZWQxYjE4OTk0MGJhN2VjMTliYjVkYjA2YjUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/templates/base.html#L80-L116",
+          "version": "repo-lines-v1:sha256:a4a67e9004ef7d265971a2ce2807b143c79fb9a26df56013192b66fc90af5b53:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0M2NjZDQ4ZTQ0MzlmNjdkODQ1NjFjMmU0YzY5YjViN2QzMTdmNThjYTg4MTBmNmRlMGY3ZmY2ZGQ1OTZkNzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0NGE3ZDFkYmY0NWMyMTgxNGIwMWMwNjkzZDZiNDUyMDg5MWIyZjBhNWUwZDA0MjdlMjM3Yjc5YjI5MDUwZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzYmQ5YzM2ZWRlN2UwODRlNjFlYjA0OWEyMDM3ZGE1MDRlNmZlOWIyZjBkY2I5MzExM2Y1NDJjNDg4YjU2NmUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/templates/base.html#L883-L892",
+          "version": "repo-lines-v1:sha256:f7cd1a0632bab474e6161b3db4f54b8d0dd8cd6b52fd85194aa5e797bdfee2ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjOWNjZThmNjEzMzkwZDI3NzhmZGVkNWY5YTVlYzE1NTVhYmI0OTAzNzdhNjEwYzE3MTMxZDQzZmU3ZjRiYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmZTM0MWJmODlkYTMyZmQ5MjZlNTRjNGFiY2RiZDhjODUxNjFkM2QyNGM0ZmZiMjY5N2RjYmNlMjEyYjM3ODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3OTJmOTgzNDNjZTk1OTJmM2I2ZjNmMWUzMDA0ZDZlYWU4NDUzNTZjMjQyZmJmYzliN2UzZDgxN2NhNWNlMDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxNTMxNDE4MjhlYzBjNGM5ZGM1YWQ2YjBhYTcwMDkyNzI1NTNkMjVlN2NkNWFhY2QyYTJkMzMxYzU5YzQyYTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8e377e33cfbe4703a750d5e3749ef5dc",
+      "statement": "AgentConfigService lists and edits only AGENT_CONFIG_NODES and raises NotFoundError for other names, so the separately seeded trip_research rows are not editable from the dashboard.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L250-L281",
+          "version": "repo-lines-v1:sha256:f157a523ac00c5c41f79c992b659f7736c20e219d578be23d4aeac2cf2f68afb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1NjMyZGI5YmY2YWViZmE5NWIxNzVjZTdlMGEwNDg0MTQ5ZTA0MWRjYmNkODdiZDgwMGI5NWU3NTVjN2ExODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1MjMwY2YzNTliMzI4NmI0YmE0MDM3NGI2OTg1MzU2ZWYyNTE2Y2RmNWI3YmJmYTE4MDc1OTk0MTk1NDM2NDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkMWIyMTA4MTgyZjViMjk1MmZhZmRlOTQ2NDhjNTBiYTE2OTg5ZjhjZmJlZDQ5NmNiZjQ1MjJiYWEwOWRkNGIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/agent_config_service.py#L67-L125",
+          "version": "repo-lines-v1:sha256:c323a0ae31b3eb6f114d7d8484e3349e58996c158b1afde0dd4fedb86f992dca:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNTFkNmMwN2ZjNzc0OTc2NzYzNDczNjBjMWVmNDdmMWMxNDdlYjRhNGMzOGY4OGQ4OTkxMDVhMjczNDUzNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwNWEwODY0M2E5YmYwYWRkZWU3MjM0MGFkMzFlMTEwYjE1Y2QyYTBiYmNhOGNkYTBmY2ZjNzczMDgwMDc5MTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5YTA0NTRjNTBiZjU0YzA2NDFmM2ZiMjk5NGJhZDVmMmVkMTMzYTQ2NmQxN2I5MGI0OWQ1MmY0ZGRkNjZmYTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJiMzNkY2ZhODMxMDIwYWM2YTNmZWZiODlkZmFmMGRjYzRjZDQyZTM2MDQwMGFhZmJiN2NjZTA4ZmMwMDJiYzAifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

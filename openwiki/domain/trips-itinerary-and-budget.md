@@ -5,7 +5,7 @@ description: The trip aggregate and its business rules — owner-scoped trips wi
 tags: [trips, itinerary, budget, expenses, shortlist, saved-places, idempotency, ownership, domain]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-376b2cbcfa274a01852a15f2
     resource: repo://apps/api/app/db/models/expense.py

@@ -1,11 +1,8 @@
 ---
 type: integration
 title: MCP server exposure of agent tools
-description: How the standalone Model Context Protocol server publishes the agent's tool registry to external clients, which tools are withheld (destructive booking and cancellation tools, tools needing an injected store or tool-call id, and the by-name exclusion of list_trips) and why the unauthenticated surface forces those choices, how read-only and destructive annotations are derived from tool metadata, and how the same registry feeds the agent's public manifest.
+description: How the standalone Model Context Protocol server publishes the agent's tool registry to external clients, which tools are withheld (destructive booking and cancellation tools, tools needing an injected store or tool-call id, and the by-name exclusion of list_trips and the two live web-search tools) and why the unauthenticated surface forces those choices, how read-only and destructive annotations are derived from tool metadata, and how the same registry feeds the agent's public manifest.
 tags: [mcp, tools, integration, security, registry, annotations]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-9d08d722fd7b0056ba5981b9
     resource: repo://apps/api/app/mcp/server.py
@@ -17,7 +14,10 @@ sources:
     resource: repo://apps/api/app/tools/trip_tools.py
   - id: openwiki-source-874d3e2f46ad3afec7649d3a
     resource: repo://apps/api/tests/tools/test_clarification_tools.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # MCP server exposure of agent tools
@@ -35,6 +35,9 @@ FastMCP serves a function's **raw signature**, so any parameter that LangGraph w
 1. **Tools that need an injected `store` or `tool_call_id` are skipped.** An external client can supply neither the long-term memory store nor a LangGraph tool-call id, so the memory tools and the clarification signal tool cannot function over MCP. (The clarification tool is additionally kept out of the registry altogether, so it never reaches this check.)
 2. **Destructive tools are not exposed.** `book_flight`, `book_hotel`, `cancel_flight` and `cancel_hotel` require an authenticated owner and, on the agent path, run behind the human-in-the-loop plan approval and the premium tier gate. The unauthenticated MCP surface can provide none of that, so booking and cancellation stay on the in-agent path (see [Guardrails](../agent/guardrails-pii-and-hitl.md) and [Bookings, flights and hotels](../domain/bookings-flights-and-hotels.md)).
 3. **`list_trips` is excluded by name.** Its `user_id` is an injected owner argument on the agent path, but over MCP it would be caller-supplied, and that single argument would be enough to enumerate any user's trips. Other trip-scoped tools survive because they need a `trip_id` the caller cannot guess and return a plain `no_active_trip` guidance dict when it is absent, but they should be read with the same caution: an injected `user_id` on the MCP surface is an untrusted input.
+4. **The live web-search tools are excluded by name too.** `search_web` and `find_places_live` take an injected `user_id` that drives their per-user hourly limit and spends paid provider quota. Over MCP that id would be caller-supplied, so they are withheld next to `list_trips` (see [Live web search](live-web-search.md)).
+
+The trip-research deep agent does not change this surface. It binds a read-only subset of the existing registry and registers nothing new, and its grader-only `validate_proposal` tool is never added to the registry (see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).
 
 `tests/mcp/` and `tests/tools/test_clarification_tools.py` pin that destructive tools and the clarification tool stay off the server.
 

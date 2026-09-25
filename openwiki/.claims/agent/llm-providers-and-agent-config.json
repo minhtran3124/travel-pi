@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:d529b55095a13a68e007adf12318898112862819a8e71ef4d243b26ecbb4722f",
+  "pageVersion": "sha256:eea8a13b7ac7edb96f0d7de911dc25a75819ebae19702efabfdd986530bd1231",
   "claims": [
     {
       "id": "claim_1f8a92a4d349487a99995748b53b4e7f",
@@ -50,11 +50,11 @@
     },
     {
       "id": "claim_4cc92e1cba7a45f983fec79fb0ae47de",
-      "statement": "FAST_AGENTS names the nodes that default to the cheap fast_llm_model (summarize, journal, budget, reflection, extract_memory, date_resolution); all other model-resolving nodes default to the full llm_model.",
+      "statement": "FAST_AGENTS names the nodes that default to the cheap fast_llm_model (summarize, journal, budget, reflection, extract_memory, date_resolution, trip_research_grader); all other model-resolving nodes default to the full llm_model.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/constants.py#L27-L37",
-          "version": "repo-lines-v1:sha256:6a5d241ecea44db7f65e05cc607b74407fdc1648cad2c0944e5daee9b4ff6b79:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwNDc3MjE3MjRmZTA1ZGRkMTZiNjc5Nzc0N2E3NjQzYmRmMzE4NjQ4MDFkY2MwMDk0MWJiNzlkMGM2ODJjNTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhZDkzYThkYTJjNDJjZmYzMGExMmEyM2RhMzgyMDJhZGY3OTVkOTA2NzQ4ODE0MWRjNDIyZDcxYmM5NmJkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyNjgwNGI3NTZhNDQzNWFlMGNhNWExYjE5NzI0N2Y5ODM4NWFjYzY3Yzk3YWFhNmE1MGExOTI0Mjk0ODk0MzIifQ"
+          "resource": "repo://apps/api/app/agents/constants.py#L28-L39",
+          "version": "repo-lines-v1:sha256:b8e69fdca28bfcb498b2ef37b54dba12cb472f7b99f3a6d01c5088381e016cdf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwNDc3MjE3MjRmZTA1ZGRkMTZiNjc5Nzc0N2E3NjQzYmRmMzE4NjQ4MDFkY2MwMDk0MWJiNzlkMGM2ODJjNTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhZDkzYThkYTJjNDJjZmYzMGExMmEyM2RhMzgyMDJhZGY3OTVkOTA2NzQ4ODE0MWRjNDIyZDcxYmM5NmJkYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyNjgwNGI3NTZhNDQzNWFlMGNhNWExYjE5NzI0N2Y5ODM4NWFjYzY3Yzk3YWFhNmE1MGExOTI0Mjk0ODk0MzIifQ"
         },
         {
           "resource": "repo://apps/api/app/clients/llm.py#L63-L82",
@@ -102,15 +102,15 @@
     },
     {
       "id": "claim_dd7550d50ef9456ba8c6f4b0ff19aca2",
-      "statement": "A coverage test scans source for every node name passed to get_agent_llm or pick and asserts each has a config row name, with synthesis_worker excluded by design because it resolves the specialist's own name at runtime.",
+      "statement": "A coverage test scans source for every node name passed to get_agent_llm or pick and asserts each has a config row, counting the mirror-seeded research nodes as covered, with synthesis_worker and the model-free research launcher excluded by design.",
       "evidence": [
         {
-          "resource": "repo://apps/api/tests/agents/test_agent_config_coverage.py#L12-L30",
-          "version": "repo-lines-v1:sha256:6ba9c579a454a0917f54b564c4cc5ebf8352e89e082352b4fcf799d6b7d4fc68:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMzMzZDlkNWYxZDFmYWFiMmFkMmQ0NmE4YzM4OTVjNjg3ZWRhYjFiNTVjMjk2ZjI2NDUyMmRkNGI5YjEwMTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViODFkZjQyODQ3ODNkYzc2MmY2ZDFhOTJjZmNlMWQzOTJkZDVlY2M4OGIwMzYxYWQ0OGQ3MDA1ODgxNzI2MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5NzhlY2Y4ZWE0OWYxNGJjZjA3OGUwODdkNDUyOGNkOWExYTEzNzMxM2FjOWMyNTY1ZjNiZTI0ZDc1NTQxN2IifQ"
+          "resource": "repo://apps/api/tests/agents/test_agent_config_coverage.py#L13-L36",
+          "version": "repo-lines-v1:sha256:8336d73d53c3cb64752d98e9518940a0147a7603f21134296fb0a0aea5856e99:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1NWY4NjViYWZiYzhlMDNmMWQ2ZWRkZDliZDRlNzAyNWI0YjY1NTJhYTM0NTBmMGIzNDI3NDQ5MTU0YmQ1YTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViODFkZjQyODQ3ODNkYzc2MmY2ZDFhOTJjZmNlMWQzOTJkZDVlY2M4OGIwMzYxYWQ0OGQ3MDA1ODgxNzI2MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhMzA3Y2I5MTBkNmU0ZGEyYWZhYjAwNjBjODA4MmI1NmIyMDU5NjA1OWU1NDExN2Q1ZmFjZWNiODUxNDQwYmIifQ"
         },
         {
-          "resource": "repo://apps/api/tests/agents/test_agent_config_coverage.py#L59-L90",
-          "version": "repo-lines-v1:sha256:10435fb176231029f0f4a6a9db33eff0049d77272459d4d526c69389373918f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1OTU2ZTlmOWE0MDk3YjFiNjljNmI5M2Y2MzhkNGI5MmU0MDdlNmQ1ZGU3NzAxYzI5NGY5NGIyNjViYjMyMWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZGJhN2U2ZWJkNTFhNzhkZGU0OTBlYmNmMDU3YmE0MmJjMDExYWMwMzZmZmY5NWQ1ZDVjNzQyNDYwOGU2MGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4ZTU3N2ZkODE4N2JiMjRiYzA4MDdhNDc0MjQxMGE5Nzg0YmIyMmU0OGRkMmRkM2FlNTEwOGIzMDJkNWExMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMifQ"
+          "resource": "repo://apps/api/tests/agents/test_agent_config_coverage.py#L91-L103",
+          "version": "repo-lines-v1:sha256:934171b69e624ce1283c04ce43d5aaae45a3b3d17b6a73215287bc39adb55f0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyYzA1ZmVjZTY2MGFiOWViYzU5ZTFkZGYzYTAzNDFlNzViZGVlM2ZjYTUwYjEwZDkzMDhjNjI3NzljMGRlNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -150,8 +150,12 @@
     },
     {
       "id": "claim_e1de606fb2b741799a6e98dd06c6978c",
-      "statement": "Fresh databases have no agent_config override rows and inherit env globals; scripts/seed_agent_config.py is the idempotent operational path to switch a deployment to DB-driven config.",
+      "statement": "Startup seeding inserts an all-NULL agent_config row per AGENT_CONFIG_NODES entry, so those nodes inherit env globals; scripts/seed_agent_config.py is the idempotent operational path to switch a deployment to DB-driven config.",
       "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L239-L247",
+          "version": "repo-lines-v1:sha256:95e17066573de2975200961f2de476681b35b44dd2122bc9c5ba9e6a20b983dc:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODEzYTM4MDI2NWE5YjliNWU1YWZlOTJkYjY0YTMzNWE2M2E3ZDQ0ZGRjYTdmMTNmYzAzZmU5MDAzN2RhOTY4OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZThmYzU0YWY5NWUzOTU4YzJmNTM5ZDZhZGViOTUzYTYzMjgwNWUwZGE0YTI2NGFjYjVlMmQ5ZjkwMWI3MzI3ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGNjNGE3ZDFjYzc5NmFiYTNlNDY3MjMzMjdmNTE3ZTlmODExOTgyZDI1MGYwNzAyOTg2ZTRiNTc2NGFkOTU4OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjYyYmM0NjJmNWU4NjcyZmRhNTliZWQ0MjFkNWE4NWY2YzFhZGI2MWI5NDI5ZjA5MmEzNDNhZmNlMWQ0YTI3OCJ9"
+        },
         {
           "resource": "repo://apps/api/scripts/seed_agent_config.py#L1-L15",
           "version": "repo-lines-v1:sha256:9dbc83e15a52b29e9e121fd33e5ea1d0c5a9ecc05baef540548d4b8c8f66a42f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ODJjYmRiNGM4YjA3NTE4YmY0ODZjNTg5OTBmYzM5MTc4M2FhMjBhOTE2YmZiMjdhZDIxMWViMWQ1YzM2NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4Njc4OGRjOTUzMWE3ZjkxOGVkOWYxZDY3ODY5NGFhYTNmZWYzN2UxNjE2MDdiYTQxOWUzZThkMWEwNmJjNzgifQ"
@@ -181,10 +185,34 @@
           "version": "repo-lines-v1:sha256:28ff0c42463fcd343441a972e438973d2ec55a1303543cad14e64ec8db7b582b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYjRiNTMyOGEzNGJlNDIyNWYyNGRjZDk5M2FjOGZlM2EyODA3ZTIzZTRiZTMwNDU5ZjQ5NDc1YTU2NDNkNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NzAyN2NiODJjNTAzNDFjYmIyMDYxYmViZWI4MTQ1YTBkNGE1MzMyYjNhZjQxZGU3YmE3NWRhNmUzMmFlODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFjOTE3OWFiOWYyYzA2MWFmNjlhZTk4YzIwZDI3YjA2ZDliM2U1YjY5NThjMTkxOWZmYTJmODA3YmExNjBhNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
+    },
+    {
+      "id": "claim_ace7cd95bd70457fb7bf33e25b26a256",
+      "statement": "trip_research and trip_research_grader rows are seeded idempotently by mirroring the effective config of planner and summarize respectively, falling back to the tier-appropriate global model so neither is ever seeded with a NULL model.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/seed.py#L250-L281",
+          "version": "repo-lines-v1:sha256:f157a523ac00c5c41f79c992b659f7736c20e219d578be23d4aeac2cf2f68afb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1NjMyZGI5YmY2YWViZmE5NWIxNzVjZTdlMGEwNDg0MTQ5ZTA0MWRjYmNkODdiZDgwMGI5NWU3NTVjN2ExODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1MjMwY2YzNTliMzI4NmI0YmE0MDM3NGI2OTg1MzU2ZWYyNTE2Y2RmNWI3YmJmYTE4MDc1OTk0MTk1NDM2NDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkMWIyMTA4MTgyZjViMjk1MmZhZmRlOTQ2NDhjNTBiYTE2OTg5ZjhjZmJlZDQ5NmNiZjQ1MjJiYWEwOWRkNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_08e77ff675874d23832ce1ae4be79ce7",
+      "statement": "The trip-research agent resolves its models once when lifespan builds it, and resolve_travel_graph only rebuilds the chat graph, so a trip_research config change needs a process restart.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L116-L144",
+          "version": "repo-lines-v1:sha256:24ff4b3e77df13a125a934f0ffba80e94f724c4e62bc155da3cd0a849e72f169:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkMzIzMGE5YzY1NDQxNjY0YjViZmEyOGNmOTQwZjVkNzYwMDc4YmE1YmFhMWI1NmRjZGNmYTU4NGU1NzJhNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5YjQyOWMyNTdhZjhhY2ZjY2U1OTlhNDIyNmZiNzE0N2Q3NGE5NGRhNTZiNzk4OTE0YTZiMWI1OGZiYWIxMjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmM2JmNWIyNDJmMzRjMTAzY2Y5Y2UxNzJjODc2YTI2MjQyODdiYzUwNTUyYzg1YTBmMmUzMWIzMTg2M2NjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlZWVhMDk4OGQwZTU5ZGM5M2NjZmVkOTc0NGYxMWQxZGQyNGNmZjdkNDE2MWJlYjJhNjE2ZTdmNWQ3NDBmNjMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L310-L325",
+          "version": "repo-lines-v1:sha256:0cb23055b4b85a3b3747717a8f65c543ea993e6d2d24714060267cc9742bac58:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZTYwMmFhNGYxNjgzN2IzYjQxMzIwYzA2ZWYyN2NkMjJiZDE1OWE4ZGZkY2E4NjQ5OTVlNTdhOTk3N2JlZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1N2Q4ZmYwYzRjYmNhNThkMGZhNzI5ZjBjOGU3YjQ5YzFhNWM2Y2JmNjllOWNjNjU4NDc2MTFhN2IzNDM5MGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxNGVlZjVkMTI2MDAzZjAzNjExNmJkMzM5NzYwNmRkN2ViNmQwYjczYjI0MTkxYTg4ZmRiNGNmZjc5NTA3OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyZjZiY2E0ZGZlYTU0NDA5YTk3NDBmNjZkZDllZTg2YzhjNjg4MmQzMDhkODNlMmRjOGRmN2NjMjE1NTA4MDYifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

@@ -47,7 +47,7 @@ sources:
 generated: { by: "claude-code", at: "2026-09-21T09:36:49.315Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:36:49.315Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Web app shell, routing and auth

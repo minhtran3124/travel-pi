@@ -5,7 +5,7 @@ description: How the web app is tested — the Vitest and Testing Library unit r
 tags: [testing, vitest, testing-library, msw, playwright, e2e, frontend]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-164e2da859b5277df81c7d94
     resource: repo://.github/workflows/ci.yml
