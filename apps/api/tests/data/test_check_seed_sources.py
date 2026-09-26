@@ -22,6 +22,7 @@ _GOOD_HOTEL_TEMPLATE = {
     "breakfast_included": False,
     "free_cancellation": True,
     "languages_spoken": ["English", "Japanese"],
+    "wikidata": "Q11681721",
     "source_url": "https://en.wikipedia.org/wiki/Osaka",
 }
 
@@ -38,6 +39,7 @@ _GOOD_PLACE_TEMPLATE = {
     "is_recommended": True,
     "latitude": 34.6873,
     "longitude": 135.5262,
+    "wikidata": "Q210053",
     "source_url": "https://en.wikipedia.org/wiki/Osaka_Castle",
 }
 
@@ -152,6 +154,22 @@ def test_too_few_hotels_is_flagged(tmp_path):
     path = _write(tmp_path, "japan.json", [entry])
     violations = check_path(path)
     assert any("expected 6-8 hotels" in v for v in violations), violations
+
+
+def test_missing_wikidata_on_hotel_is_flagged(tmp_path):
+    entry = _good_city_entry()
+    del entry["hotels"][0]["wikidata"]
+    path = _write(tmp_path, "japan.json", [entry])
+    violations = check_path(path)
+    assert any("wikidata is not a QID" in v for v in violations), violations
+
+
+def test_malformed_wikidata_on_place_is_flagged(tmp_path):
+    entry = _good_city_entry()
+    entry["places"][0]["wikidata"] = "not-a-qid"
+    path = _write(tmp_path, "japan.json", [entry])
+    violations = check_path(path)
+    assert any("wikidata is not a QID" in v for v in violations), violations
 
 
 def test_countries_file_good_and_bad(tmp_path):

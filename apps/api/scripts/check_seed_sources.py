@@ -20,10 +20,21 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
+import time
 from pathlib import Path
 
+import certifi
+import httpx
 from app.core.geo import haversine_km
+
+USER_AGENT = "travel-pi-seed-check/1.0 (https://github.com/minhtran3124/travel-pi)"
+WIKIDATA_API = "https://www.wikidata.org/w/api.php"
+_WIKIDATA_QID_RE = re.compile(r"^Q\d+$")
+_ONLINE_COORD_RADIUS_KM = 1.0
+_ONLINE_HTTP_TIMEOUT = 30.0
+_ONLINE_MAX_TRIES = 3
 
 _PLACE_RADIUS_KM = 60.0
 _AIRPORT_RADIUS_KM = 80.0
@@ -77,6 +88,7 @@ _HOTEL_KEYS = {
     "breakfast_included",
     "free_cancellation",
     "languages_spoken",
+    "wikidata",
     "source_url",
 }
 _PLACE_KEYS = {
@@ -93,6 +105,7 @@ _PLACE_KEYS = {
     "is_recommended",
     "latitude",
     "longitude",
+    "wikidata",
     "source_url",
 }
 _TIP_KEYS = {"category", "title", "content", "is_essential", "source_url"}
@@ -146,6 +159,113 @@ def _check_image_url(record: dict, field: str = "image_url") -> str | None:
     if not isinstance(url, str) or not url.startswith("https://upload.wikimedia.org/"):
         return f"{field} does not start with https://upload.wikimedia.org/: {url!r}"
     return None
+
+
+def _check_wikidata_field(record: dict) -> str | None:
+    qid = record.get("wikidata")
+    if not isinstance(qid, str) or not _WIKIDATA_QID_RE.match(qid):
+        return f"wikidata is not a QID like 'Q123': {qid!r}"
+    return None
+
+
+def _wikidata_entity_coords(qid: str) -> tuple[float, float] | None:
+    """Fetch a Wikidata entity's P625 (coordinate location), or None if absent/unreachable."""
+    headers = {"User-Agent": USER_AGENT}
+    last_exc: Exception | None = None
+    for attempt in range(_ONLINE_MAX_TRIES):
+        try:
+            resp = httpx.get(
+                WIKIDATA_API,
+                params={
+                    "action": "wbgetentities",
+                    "ids": qid,
+                    "props": "claims",
+                    "format": "json",
+                },
+                headers=headers,
+                timeout=_ONLINE_HTTP_TIMEOUT,
+                verify=certifi.where(),
+            )
+        except httpx.HTTPError as exc:
+            last_exc = exc
+            time.sleep(2.0 * (attempt + 1))
+            continue
+        if resp.status_code == 429 or resp.status_code >= 500:
+            time.sleep(2.0 * (attempt + 1))
+            continue
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        entity = data.get("entities", {}).get(qid)
+        if not entity or "missing" in entity:
+            return None
+        claims = entity.get("claims", {}).get("P625")
+        if not claims:
+            return None
+        try:
+            value = claims[0]["mainsnak"]["datavalue"]["value"]
+            return float(value["latitude"]), float(value["longitude"])
+        except (KeyError, TypeError, ValueError):
+            return None
+    raise RuntimeError(
+        f"wbgetentities failed for {qid} after {_ONLINE_MAX_TRIES} tries"
+    ) from last_exc
+
+
+def _check_image_reachable(url: str) -> bool:
+    """True if a ranged GET on ``url`` returns 200 or 206, with retries on 429/5xx."""
+    headers = {"User-Agent": USER_AGENT, "Range": "bytes=0-0"}
+    for attempt in range(_ONLINE_MAX_TRIES):
+        try:
+            resp = httpx.get(
+                url,
+                headers=headers,
+                timeout=_ONLINE_HTTP_TIMEOUT,
+                verify=certifi.where(),
+            )
+        except httpx.HTTPError:
+            time.sleep(2.0 * (attempt + 1))
+            continue
+        if resp.status_code in (200, 206):
+            return True
+        if resp.status_code == 429 or resp.status_code >= 500:
+            time.sleep(2.0 * (attempt + 1))
+            continue
+        return False
+    return False
+
+
+def _check_online_wikidata(record: dict, label: str) -> list[str]:
+    """Verify the record's ``wikidata`` QID exists, its P625 is within 1 km of the
+    record's own coordinates, and its ``image_url`` loads. Assumes offline checks passed."""
+    problems: list[str] = []
+    qid = record.get("wikidata")
+    if not isinstance(qid, str):
+        return problems
+
+    coords = _wikidata_entity_coords(qid)
+    if coords is None:
+        problems.append(f"{label}: wikidata {qid} does not exist or has no P625")
+    else:
+        lat = record.get("latitude")
+        lon = record.get("longitude")
+        if isinstance(lat, (int, float)) and isinstance(lon, (int, float)):
+            distance = haversine_km(lat, lon, coords[0], coords[1])
+            if distance > _ONLINE_COORD_RADIUS_KM:
+                problems.append(
+                    f"{label}: coordinates are {distance:.2f} km from {qid}'s P625, "
+                    f"exceeds {_ONLINE_COORD_RADIUS_KM} km"
+                )
+
+    image_url = record.get("image_url")
+    if (
+        isinstance(image_url, str)
+        and image_url
+        and not _check_image_reachable(image_url)
+    ):
+        problems.append(f"{label}: image_url did not return 200/206: {image_url}")
+
+    return problems
 
 
 def _check_lat_lon(record: dict) -> list[str]:
@@ -213,7 +333,7 @@ def _collect_city_centres(dir_path: Path) -> dict[str, tuple[float, float]]:
     return centres
 
 
-def _check_city_file(filename: str, data: list) -> list[str]:
+def _check_city_file(filename: str, data: list, *, online: bool = False) -> list[str]:
     violations: list[str] = []
 
     for entry in data:
@@ -273,6 +393,14 @@ def _check_city_file(filename: str, data: list) -> list[str]:
             err = _check_image_url(hotel)
             if err:
                 violations.append(f"{filename}: {label} hotel '{name}': {err}")
+            err = _check_wikidata_field(hotel)
+            if err:
+                violations.append(f"{filename}: {label} hotel '{name}': {err}")
+            elif online:
+                for problem in _check_online_wikidata(
+                    hotel, f"{filename}: {label} hotel '{name}'"
+                ):
+                    violations.append(problem)
 
             stars = hotel.get("star_rating")
             if not isinstance(stars, (int, float)) or not 1 <= stars <= 5:
@@ -337,6 +465,14 @@ def _check_city_file(filename: str, data: list) -> list[str]:
             err = _check_image_url(place)
             if err:
                 violations.append(f"{filename}: {label} place '{name}': {err}")
+            err = _check_wikidata_field(place)
+            if err:
+                violations.append(f"{filename}: {label} place '{name}': {err}")
+            elif online:
+                for problem in _check_online_wikidata(
+                    place, f"{filename}: {label} place '{name}'"
+                ):
+                    violations.append(problem)
 
             category = place.get("category")
             if category not in _PLACE_CATEGORIES:
@@ -545,9 +681,13 @@ def _check_foundations_file(
     return violations
 
 
-def check_path(path: str | Path) -> list[str]:
+def check_path(path: str | Path, *, online: bool = False) -> list[str]:
     """Validate ``path`` (a single provenance ``*.json`` file, or a directory of
-    them) and return one violation string per problem found, empty if clean."""
+    them) and return one violation string per problem found, empty if clean.
+
+    With ``online=True``, every hotel and place also has its ``wikidata`` QID
+    checked against the live Wikidata API (existence, coordinates within 1 km)
+    and its ``image_url`` checked with a ranged GET."""
     p = Path(path)
 
     if p.is_dir():
@@ -576,7 +716,7 @@ def check_path(path: str | Path) -> list[str]:
         elif _is_countries_file(data):
             violations.extend(_check_countries_file(filename, data))
         elif _is_city_file(data):
-            violations.extend(_check_city_file(filename, data))
+            violations.extend(_check_city_file(filename, data, online=online))
         else:
             violations.append(
                 f"{filename}: <root>: unrecognised shape "
@@ -589,6 +729,11 @@ def check_path(path: str | Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", help="A provenance *.json file, or a directory of them")
+    parser.add_argument(
+        "--online",
+        action="store_true",
+        help="Also verify each wikidata QID and image_url against the live APIs",
+    )
     args = parser.parse_args(argv)
 
     p = Path(args.path)
@@ -596,7 +741,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{args.path}: <root>: path does not exist")
         return 1
 
-    violations = check_path(p)
+    violations = check_path(p, online=args.online)
     for line in violations:
         print(line)
 
