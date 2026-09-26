@@ -15,7 +15,7 @@
     "hotels": [
       {
         "name": "InterContinental Osaka",
-        "address": "530-0011 大阪府大阪市北区大深町3-60 グランフロント大阪北館タワーC",
+        "address": "Ofuka-cho, Osaka",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -46,7 +46,7 @@
       },
       {
         "name": "Osaka Marriott Miyako Hotel",
-        "address": "545-0052 大阪府大阪市阿倍野区阿倍野筋1丁目1-43",
+        "address": "Abenosuji, Osaka",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -77,7 +77,7 @@
       },
       {
         "name": "ANA Crowne Plaza Osaka",
-        "address": "530-0004 大阪府大阪市北区堂島浜1丁目3-1",
+        "address": "Kita-ku, Osaka",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -108,7 +108,7 @@
       },
       {
         "name": "The Ritz-Carlton, Osaka",
-        "address": "530-0001 大阪市北区梅田2丁目5-25",
+        "address": "Umeda, Osaka",
         "star_rating": 5,
         "price_per_night": 400,
         "amenities": [
@@ -139,7 +139,7 @@
       },
       {
         "name": "Hilton Osaka",
-        "address": "530-0001 大阪府大阪市北区梅田1丁目8-8",
+        "address": "Osaka, Osaka",
         "star_rating": 4,
         "price_per_night": 250,
         "amenities": [
@@ -169,40 +169,40 @@
         "description": "Hilton Osaka is a 4-star hotel in Osaka, Japan, offering restaurant, pool, gym and bar. It holds a 4.4/5 guest rating across 1,800 reviews."
       },
       {
-        "name": "Rihga Royal Hotel",
-        "address": "Nakanoshima",
-        "star_rating": 4,
-        "price_per_night": 220,
+        "name": "Hotel Granvia Osaka",
+        "address": "Umeda, Osaka",
+        "star_rating": 3,
+        "price_per_night": 115,
         "amenities": [
           "Restaurant",
           "Gym",
-          "Bar",
           "Free WiFi"
         ],
-        "rating": 4.3,
-        "review_count": 1600,
+        "rating": 4.0,
+        "review_count": 1200,
         "property_type": "Hotel",
-        "chain": null,
+        "chain": "JR",
         "check_in_time": "15:00",
         "check_out_time": "11:00",
         "breakfast_included": false,
-        "free_cancellation": true,
+        "free_cancellation": false,
         "languages_spoken": [
+          "English",
           "Japanese"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Rrh01s2816.jpg/1280px-Rrh01s2816.jpg",
-        "latitude": 34.69063,
-        "longitude": 135.48709,
-        "wikidata": "Q11348723",
-        "source_url": "https://www.wikidata.org/wiki/Q11348723",
-        "description": "Rihga Royal Hotel is a 4-star hotel in Osaka, Japan, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,600 reviews."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/South_Gate_Building_Osaka_Japan01-r.jpg/1280px-South_Gate_Building_Osaka_Japan01-r.jpg",
+        "latitude": 34.701726,
+        "longitude": 135.496375,
+        "wikidata": "Q11337863",
+        "source_url": "https://www.wikidata.org/wiki/Q11337863",
+        "description": "Hotel Granvia Osaka is a 3-star hotel in Osaka, Japan, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 1,200 reviews."
       },
       {
         "name": "Imperial Hotel, Osaka",
-        "address": "530-0042 大阪府大阪市北区天満橋1丁目8-50",
-        "star_rating": 3,
-        "price_per_night": 120,
+        "address": "Kita-ku, Osaka",
+        "star_rating": 5,
+        "price_per_night": 360,
         "amenities": [
           "Restaurant",
           "Gym",
@@ -225,11 +225,11 @@
         "longitude": 135.51931,
         "wikidata": "Q111406803",
         "source_url": "https://www.wikidata.org/wiki/Q111406803",
-        "description": "Imperial Hotel, Osaka is a 3-star hotel in Osaka, Japan, offering restaurant, gym and bar. It holds a 4.0/5 guest rating across 900 reviews."
+        "description": "Imperial Hotel, Osaka is a 5-star hotel in Osaka, Japan, offering restaurant, gym and bar. It holds a 4.0/5 guest rating across 900 reviews."
       },
       {
         "name": "Hotel New Hankyu Osaka",
-        "address": "530-8310 大阪府大阪市北区芝田1丁目1-35",
+        "address": "Shibata, Osaka",
         "star_rating": 3,
         "price_per_night": 110,
         "amenities": [
@@ -272,7 +272,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Ōsaka-jō, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
         "latitude": 34.687222,
         "longitude": 135.525833,
@@ -294,7 +294,7 @@
           "shopping"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Abenosuji, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abeno_Harukas_Osaka_Japan01-r.jpg/1280px-Abeno_Harukas_Osaka_Japan01-r.jpg",
         "latitude": 34.645947,
         "longitude": 135.514267,
@@ -316,7 +316,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Shitennōji, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Shitennoji03s3200.jpg/1280px-Shitennoji03s3200.jpg",
         "latitude": 34.6539,
         "longitude": 135.51645,
@@ -338,7 +338,7 @@
           "family"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Sakurajima, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Harry_Potter_and_the_Forbidden_Journey_USJ.JPG/1280px-Harry_Potter_and_the_Forbidden_Journey_USJ.JPG",
         "latitude": 34.6647,
         "longitude": 135.433,
@@ -360,7 +360,7 @@
           "scenic"
         ],
         "is_recommended": false,
-        "address": "Osaka",
+        "address": "Shiga Prefecture, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Yodogawa_1.jpg/1280px-Yodogawa_1.jpg",
         "latitude": 34.6831,
         "longitude": 135.4197,
@@ -382,7 +382,7 @@
           "local"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Nipponbashi, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/%E9%BB%92%E9%96%80%E5%B8%82%E5%A0%B4_2024%281%29.jpg/1280px-%E9%BB%92%E9%96%80%E5%B8%82%E5%A0%B4_2024%281%29.jpg",
         "latitude": 34.665328,
         "longitude": 135.506979,
@@ -404,7 +404,7 @@
           "local"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Chūō-ku, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Harijyu_Doutonbori_honten.jpg/1280px-Harijyu_Doutonbori_honten.jpg",
         "latitude": 34.668556,
         "longitude": 135.500639,
@@ -426,7 +426,7 @@
           "desserts"
         ],
         "is_recommended": false,
-        "address": "〒542-0086　大阪府大阪市中央区西心斎橋1-6-22大石ビル1F",
+        "address": "Osaka, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
         "latitude": 34.672306,
         "longitude": 135.498389,
@@ -449,7 +449,7 @@
           "Japanese"
         ],
         "is_recommended": true,
-        "address": "Osaka",
+        "address": "Edobori, Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
         "latitude": 34.688639,
         "longitude": 135.496028,
@@ -510,7 +510,7 @@
     "hotels": [
       {
         "name": "Tawaraya Ryokan",
-        "address": "Nakagyō Ward",
+        "address": "Nakagyō Ward, Kyoto",
         "star_rating": 5,
         "price_per_night": 520,
         "amenities": [
@@ -539,7 +539,7 @@
       },
       {
         "name": "The Westin Miyako Kyoto",
-        "address": "605-0052 京都府京都市東山区粟田口華頂町1",
+        "address": "Higashiyama-ku, Kyoto",
         "star_rating": 5,
         "price_per_night": 420,
         "amenities": [
@@ -570,7 +570,7 @@
       },
       {
         "name": "Hyatt Regency Kyoto",
-        "address": "Higashiyama-ku",
+        "address": "Higashiyama-ku, Kyoto",
         "star_rating": 5,
         "price_per_night": 400,
         "amenities": [
@@ -600,7 +600,7 @@
       },
       {
         "name": "The Ritz-Carlton, Kyoto",
-        "address": "604-0902 京都府京都市中京区二条大橋上る鉾田町543",
+        "address": "Nakagyō Ward, Kyoto",
         "star_rating": 5,
         "price_per_night": 450,
         "amenities": [
@@ -631,7 +631,7 @@
       },
       {
         "name": "ANA Crowne Plaza Kyoto",
-        "address": "604-0055 京都府京都市中京区堀川通二条下ル土橋町10",
+        "address": "Nakagyō Ward, Kyoto",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -662,7 +662,7 @@
       },
       {
         "name": "The Prince Kyoto Takaragaike",
-        "address": "606-8505 京都府京都市左京区岩倉幡枝町1092-2",
+        "address": "Takaragaike, Sakyo-ku, Kyoto City, Kyoto",
         "star_rating": 5,
         "price_per_night": 480,
         "amenities": [
@@ -692,7 +692,7 @@
       },
       {
         "name": "Hotel Emion Kyoto",
-        "address": "〒600-8842 京都府京都市下京区朱雀堂ノ口町20-4",
+        "address": "Shimogyō-ku, Kyoto",
         "star_rating": 3,
         "price_per_night": 95,
         "amenities": [
@@ -721,7 +721,7 @@
       },
       {
         "name": "Utano Youth Hostel",
-        "address": "Ukyō Ward",
+        "address": "Ukyō Ward, Kyoto",
         "star_rating": 2,
         "price_per_night": 45,
         "amenities": [
@@ -764,7 +764,7 @@
           "UNESCO"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Higashiyama-ku, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg/1280px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg",
         "latitude": 34.994831,
         "longitude": 135.785003,
@@ -786,7 +786,7 @@
           "UNESCO"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Kita-ku, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Water_reflection_of_Kinkaku-ji_Temple_a_sunny_day%2C_Kyoto%2C_Japan.jpg/1280px-Water_reflection_of_Kinkaku-ji_Temple_a_sunny_day%2C_Kyoto%2C_Japan.jpg",
         "latitude": 35.0395,
         "longitude": 135.7285,
@@ -808,7 +808,7 @@
           "iconic"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Kii district, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Fushimiinari-taisha%2C_naihaiden-1.jpg/1280px-Fushimiinari-taisha%2C_naihaiden-1.jpg",
         "latitude": 34.967202,
         "longitude": 135.773386,
@@ -830,7 +830,7 @@
           "imperial"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Kamigyō-ku, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Kyoto-gosho_Kenreimon_%28open%29.JPG/1280px-Kyoto-gosho_Kenreimon_%28open%29.JPG",
         "latitude": 35.025278,
         "longitude": 135.762222,
@@ -852,7 +852,7 @@
           "architecture"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Nakagyō Ward, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Nijo_Castle.jpg/1280px-Nijo_Castle.jpg",
         "latitude": 35.014167,
         "longitude": 135.7475,
@@ -874,7 +874,7 @@
           "geisha"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Higashiyama-ku, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Gion.jpg/1280px-Gion.jpg",
         "latitude": 35.00349,
         "longitude": 135.77505,
@@ -896,7 +896,7 @@
           "shopping"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Nakagyō Ward, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Nishiki_ichiba_kyoto.jpg/1280px-Nishiki_ichiba_kyoto.jpg",
         "latitude": 35.005028,
         "longitude": 135.766139,
@@ -918,7 +918,7 @@
           "traditional"
         ],
         "is_recommended": false,
-        "address": "Kyoto",
+        "address": "Higashiyama-ku, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Goryukaku_Kyoto01-r.jpg/1280px-Goryukaku_Kyoto01-r.jpg",
         "latitude": 34.995694,
         "longitude": 135.781167,
@@ -940,7 +940,7 @@
           "garden"
         ],
         "is_recommended": true,
-        "address": "Kyoto",
+        "address": "Sakyō-ku, Kyoto",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Heian-jingu%2C_keidai-1.jpg/1280px-Heian-jingu%2C_keidai-1.jpg",
         "latitude": 35.016667,
         "longitude": 135.782222,
@@ -991,7 +991,7 @@
     "hotels": [
       {
         "name": "Fukuoka Sunpalace",
-        "address": "812-0021福岡市博多区築港本町2番1号",
+        "address": "2-1, Chikkō-honmachi, Hakata-ku, Fukuoka City 812-0021",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -1021,7 +1021,7 @@
       },
       {
         "name": "Hotel Okura Fukuoka",
-        "address": "Shimo-kawabatamachi",
+        "address": "Shimo-kawabatamachi, Fukuoka",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -1052,7 +1052,7 @@
       },
       {
         "name": "Hotel Il Palazzo",
-        "address": "春吉三丁目1番",
+        "address": "13-1, Haruyoshi 3-chōme, Chūō-ku, Fukuoka City 8100003",
         "star_rating": 4,
         "price_per_night": 240,
         "amenities": [
@@ -1082,7 +1082,7 @@
       },
       {
         "name": "Hilton Fukuoka Sea Hawk",
-        "address": "810-8650福岡市中央区地行浜二丁目2番3号",
+        "address": "2-3, Jigyō-hama 2-chōme, Chūō-ku, Fukuoka City 8108650",
         "star_rating": 4,
         "price_per_night": 320,
         "amenities": [
@@ -1113,7 +1113,7 @@
       },
       {
         "name": "The Ritz-Carlton, Fukuoka",
-        "address": "810-0041福岡市中央区大名二丁目6番50号",
+        "address": "6-50, Daimyo 2-chōme, Chūō-ku, Fukuoka City 8100041",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -1145,7 +1145,7 @@
       },
       {
         "name": "Tenza Hotel Hakata Station",
-        "address": "812-0013福岡市博多区博多駅東二丁目5番33号",
+        "address": "5-33, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City, Japan 812-0013",
         "star_rating": 3,
         "price_per_night": 95,
         "amenities": [
@@ -1173,7 +1173,7 @@
       },
       {
         "name": "Hotel Cabinas Fukuoka",
-        "address": "812-0011福岡市博多区博多駅前二丁目18番1号",
+        "address": "18-1, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
         "star_rating": 3,
         "price_per_night": 85,
         "amenities": [
@@ -1201,7 +1201,7 @@
       },
       {
         "name": "Grand Hyatt Fukuoka",
-        "address": "Sumiyoshi",
+        "address": "Sumiyoshi, Fukuoka",
         "star_rating": 5,
         "price_per_night": 360,
         "amenities": [
@@ -1246,7 +1246,7 @@
           "scenic"
         ],
         "is_recommended": true,
-        "address": "Fukuoka",
+        "address": "3-26, Momochi-hama 2-chōme, Sawara-ku, Fukuoka City 8140001",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Fukuoka_Tower_October_2011_01.jpg/1280px-Fukuoka_Tower_October_2011_01.jpg",
         "latitude": 33.593306,
         "longitude": 130.3515,
@@ -1268,7 +1268,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Fukuoka",
+        "address": "6-1, Gokushomachi, Hakata-ku, Fukuoka City 812-0037",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Shoufukuji02.jpg",
         "latitude": 33.597389,
         "longitude": 130.414472,
@@ -1290,7 +1290,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Fukuoka",
+        "address": "Ōhorikōen, Fukuoka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Fukuoka_castle_2006_01.jpg/1280px-Fukuoka_castle_2006_01.jpg",
         "latitude": 33.584381,
         "longitude": 130.383103,
@@ -1312,7 +1312,7 @@
           "culture"
         ],
         "is_recommended": true,
-        "address": "Fukuoka",
+        "address": "1-6, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Fukuoka_art_museum.JPG/1280px-Fukuoka_art_museum.JPG",
         "latitude": 33.58383,
         "longitude": 130.37951,
@@ -1334,7 +1334,7 @@
           "spiritual"
         ],
         "is_recommended": true,
-        "address": "Fukuoka",
+        "address": "Naka district, Fukuoka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Hakozakigu01.jpg",
         "latitude": 33.614749,
         "longitude": 130.422887,
@@ -1356,7 +1356,7 @@
           "fresh"
         ],
         "is_recommended": true,
-        "address": "810-0072福岡市中央区長浜三丁目11番3号",
+        "address": "11-3, Nagahama 3-chōme, Chūō-ku, Fukuoka City, 810-0072",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Fukuoka_City_Fish_Market_Center_11-3_Nagahama-3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221004.jpg/1280px-Fukuoka_City_Fish_Market_Center_11-3_Nagahama-3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221004.jpg",
         "latitude": 33.594775,
         "longitude": 130.389569,
@@ -1378,7 +1378,7 @@
           "shopping"
         ],
         "is_recommended": false,
-        "address": "812-0026福岡市博多区上川端町168番及び169番",
+        "address": "10-256, Kami-kawabatamachi, Hakata-ku, Fukuoka City 8120026",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Kawabata_Zenzai_NE_from_the_left_bank_of_Hakata_River_10-256_Kami-kawabatamachi_Hakata-ku_Fukuoka_20231215.jpg/1280px-Kawabata_Zenzai_NE_from_the_left_bank_of_Hakata_River_10-256_Kami-kawabatamachi_Hakata-ku_Fukuoka_20231215.jpg",
         "latitude": 33.593778,
         "longitude": 130.407694,
@@ -1400,7 +1400,7 @@
           "modern"
         ],
         "is_recommended": false,
-        "address": "810-0002福岡市中央区西中洲6番36号",
+        "address": "6-36, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Hareno_Garden_East_6-36_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221129.jpg/1280px-Hareno_Garden_East_6-36_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221129.jpg",
         "latitude": 33.592111,
         "longitude": 130.404306,
@@ -1422,7 +1422,7 @@
           "culture"
         ],
         "is_recommended": true,
-        "address": "Fukuoka",
+        "address": "1-1, Momochi-hama 3-chōme, Sawara-ku, Fukuoka City 8100001",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/FukuokaCity_Museum_2018.jpg/1280px-FukuokaCity_Museum_2018.jpg",
         "latitude": 33.58975,
         "longitude": 130.353083,
@@ -1481,7 +1481,7 @@
     "hotels": [
       {
         "name": "JR INN Sapporo",
-        "address": "Chūō-ku",
+        "address": "Chūō-ku, Sapporo",
         "star_rating": 3,
         "price_per_night": 110,
         "amenities": [
@@ -1510,7 +1510,7 @@
       },
       {
         "name": "New Otani Inn Sapporo",
-        "address": "Chūō-ku",
+        "address": "Chūō-ku, Sapporo",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -1541,7 +1541,7 @@
       },
       {
         "name": "Jozankei View Hotel",
-        "address": "Minami-ku",
+        "address": "Minami-ku, Sapporo",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -1571,7 +1571,7 @@
       },
       {
         "name": "Jozankei Hotel",
-        "address": "Minami-ku",
+        "address": "Minami-ku, Sapporo",
         "star_rating": 5,
         "price_per_night": 360,
         "amenities": [
@@ -1601,7 +1601,7 @@
       },
       {
         "name": "Sapporo Park Hotel",
-        "address": "Chūō-ku",
+        "address": "Chūō-ku, Sapporo",
         "star_rating": 4,
         "price_per_night": 300,
         "amenities": [
@@ -1630,7 +1630,7 @@
       },
       {
         "name": "Shogetsu Grand Hotel",
-        "address": "Minami-ku",
+        "address": "Minami-ku, Sapporo",
         "star_rating": 5,
         "price_per_night": 240,
         "amenities": [
@@ -1660,7 +1660,7 @@
       },
       {
         "name": "Sapporo Kokusai Youth Hostel",
-        "address": "Toyohira-ku",
+        "address": "Toyohira-ku, Sapporo",
         "star_rating": 2,
         "price_per_night": 50,
         "amenities": [
@@ -1689,7 +1689,7 @@
       },
       {
         "name": "Hotel Monterey Sapporo",
-        "address": "Chūō-ku",
+        "address": "Chūō-ku, Sapporo",
         "star_rating": 4,
         "price_per_night": 120,
         "amenities": [
@@ -1733,7 +1733,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "Sapporo, Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Odori_Park_%2815982613668%29.jpg/1280px-Odori_Park_%2815982613668%29.jpg",
         "latitude": 43.059722,
         "longitude": 141.346389,
@@ -1755,7 +1755,7 @@
           "scenic"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "Ōdōri-Nishi, Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Sapporo_television_tower_01.jpg/1280px-Sapporo_television_tower_01.jpg",
         "latitude": 43.061111,
         "longitude": 141.356389,
@@ -1777,7 +1777,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "474 Miyagaoka, Chūō-ku, Sapporo, Hokkaidō 064-8505",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Hokkaido_Jingu.JPG",
         "latitude": 43.054235,
         "longitude": 141.307705,
@@ -1799,7 +1799,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "Q60985766, Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/20200119_Sapporo_Clock_Tower.jpg/1280px-20200119_Sapporo_Clock_Tower.jpg",
         "latitude": 43.062602,
         "longitude": 141.353681,
@@ -1821,7 +1821,7 @@
           "venue"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "Miyanomori, Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Okurayama_August_2007.jpg/1280px-Okurayama_August_2007.jpg",
         "latitude": 43.050667,
         "longitude": 141.286306,
@@ -1843,7 +1843,7 @@
           "fresh"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "Chūō-ku, Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Nijo_fish_Market_2014.jpg/1280px-Nijo_fish_Market_2014.jpg",
         "latitude": 43.058306,
         "longitude": 141.358472,
@@ -1911,7 +1911,7 @@
           "nature"
         ],
         "is_recommended": true,
-        "address": "Sapporo",
+        "address": "Higashi-ku, Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Moere02.jpg",
         "latitude": 43.124472,
         "longitude": 141.429914,

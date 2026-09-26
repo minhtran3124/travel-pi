@@ -14,7 +14,7 @@
     "hotels": [
       {
         "name": "Lotte Hotel Busan",
-        "address": "Busan",
+        "address": "Busan, Busan",
         "star_rating": 5,
         "price_per_night": 180,
         "amenities": [
@@ -277,7 +277,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Haeundae District, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Haeundae_Beach_in_Busan.jpg/1280px-Haeundae_Beach_in_Busan.jpg",
         "latitude": 35.158552,
         "longitude": 129.160539,
@@ -299,7 +299,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Busan, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/In_late_summer_%2829385325145%29.jpg/1280px-In_late_summer_%2829385325145%29.jpg",
         "latitude": 35.101222,
         "longitude": 129.032306,
@@ -321,7 +321,7 @@
           "coastal"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Gijang County, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg/1280px-Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg",
         "latitude": 35.188333,
         "longitude": 129.223333,
@@ -343,7 +343,7 @@
           "viewpoint"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Busan, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gwangan_Bridge1.jpg/1280px-Gwangan_Bridge1.jpg",
         "latitude": 35.146333,
         "longitude": 129.128639,
@@ -365,7 +365,7 @@
           "cultural"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Geumjeong District, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Korea-Busan-Beomeosa-01.jpg",
         "latitude": 35.283913,
         "longitude": 129.068992,
@@ -409,7 +409,7 @@
           "food"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Busan, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Busan_Hafen_Fischmarkt_2.jpg/1280px-Busan_Hafen_Fischmarkt_2.jpg",
         "latitude": 35.0884,
         "longitude": 129.0252,
@@ -431,7 +431,7 @@
           "culture"
         ],
         "is_recommended": true,
-        "address": "Busan",
+        "address": "Busan, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Korea_National_Maritime_Museum_Maritime_Library.jpg/1280px-Korea_National_Maritime_Museum_Maritime_Library.jpg",
         "latitude": 35.0787,
         "longitude": 129.08,
@@ -453,7 +453,7 @@
           "cultural"
         ],
         "is_recommended": false,
-        "address": "Busan",
+        "address": "Busan, Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/UN_Memorial_Cemetery.JPG",
         "latitude": 35.12845,
         "longitude": 129.09623,
@@ -795,7 +795,7 @@
           "hiking"
         ],
         "is_recommended": true,
-        "address": "Jeju",
+        "address": "Jeju Province, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%ED%95%9C%EB%9D%BC%EC%82%B01.jpg",
         "latitude": 33.35,
         "longitude": 126.516667,
@@ -817,7 +817,7 @@
           "viewpoint"
         ],
         "is_recommended": true,
-        "address": "Jeju",
+        "address": "Jeju Province, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg/1280px-%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg",
         "latitude": 33.458056,
         "longitude": 126.9425,
@@ -839,7 +839,7 @@
           "scenic"
         ],
         "is_recommended": true,
-        "address": "Jeju",
+        "address": "Seogwi-dong, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Jeongbang_Falls.jpg/1280px-Jeongbang_Falls.jpg",
         "latitude": 33.244647,
         "longitude": 126.571661,
@@ -861,7 +861,7 @@
           "cultural"
         ],
         "is_recommended": true,
-        "address": "Jeju",
+        "address": "Seogwi-dong, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Cheonjiyeon_Waterfall_20160616_092608.jpg/1280px-Cheonjiyeon_Waterfall_20160616_092608.jpg",
         "latitude": 33.246928,
         "longitude": 126.554406,
@@ -892,7 +892,7 @@
         "evidence": "The falls are a popular tourist attraction, and one of the three famous waterfalls of Jeju, alongside Cheonjiyeon Waterfall and Jeongbang Waterfall."
       },
       {
-        "name": "Gimnyeong Cave, Manjanggul Cave",
+        "name": "Manjanggul",
         "category": "attraction",
         "description": "The world's second-longest lava tube at 8.928 km, showcasing Jeju's volcanic geology.",
         "rating": 4.5,
@@ -905,7 +905,7 @@
           "geological"
         ],
         "is_recommended": true,
-        "address": "Jeju",
+        "address": "Gimnyeong-ri, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Manjanggul_Lava_tube.jpg",
         "latitude": 33.52825,
         "longitude": 126.770139,
@@ -949,7 +949,7 @@
           "botanical"
         ],
         "is_recommended": true,
-        "address": "Jeju",
+        "address": "Seogwipo, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Yeomiji.jpg",
         "latitude": 33.2518,
         "longitude": 126.415,
@@ -971,7 +971,7 @@
           "interactive"
         ],
         "is_recommended": false,
-        "address": "Jeju",
+        "address": "South Korea, Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Nexon_Computer_Museum.jpg/1280px-Nexon_Computer_Museum.jpg",
         "latitude": 33.4721,
         "longitude": 126.486,
@@ -1076,7 +1076,7 @@
     "hotels": [
       {
         "name": "Grand Hotel",
-        "address": "臺北市中山區中山北路四段1巷1號",
+        "address": "Zhongshan District, Taipei",
         "star_rating": 5,
         "price_per_night": 200,
         "amenities": [
@@ -1107,7 +1107,7 @@
       },
       {
         "name": "Grand Hyatt Taipei",
-        "address": "11051臺北市信義區松壽路2號",
+        "address": "Xingya Village, Taipei",
         "star_rating": 5,
         "price_per_night": 280,
         "amenities": [
@@ -1138,7 +1138,7 @@
       },
       {
         "name": "Mandarin Oriental, Taipei",
-        "address": "台灣台北市敦化北路 158 號 郵遞區號：10548",
+        "address": "No. 158 Dunhua North Road, 10548 Taipei, Taiwan",
         "star_rating": 5,
         "price_per_night": 260,
         "amenities": [
@@ -1169,7 +1169,7 @@
       },
       {
         "name": "W Taipei",
-        "address": "Xingya Village",
+        "address": "Xingya Village, Taipei",
         "star_rating": 5,
         "price_per_night": 240,
         "amenities": [
@@ -1200,7 +1200,7 @@
       },
       {
         "name": "Zhongxing Guesthouse",
-        "address": "Beitou District",
+        "address": "Beitou District, Taipei",
         "star_rating": 3,
         "price_per_night": 95,
         "amenities": [
@@ -1228,7 +1228,7 @@
       },
       {
         "name": "CHECK inn Express Taipei Yongkang",
-        "address": "Zhongzheng District",
+        "address": "Zhongzheng District, Taipei",
         "star_rating": 2,
         "price_per_night": 85,
         "amenities": [
@@ -1258,7 +1258,7 @@
       },
       {
         "name": "Shangri-La Far Eastern, Taipei",
-        "address": "Da'an District",
+        "address": "Da'an District, Taipei",
         "star_rating": 5,
         "price_per_night": 250,
         "amenities": [
@@ -1289,7 +1289,7 @@
       },
       {
         "name": "Sheraton Grand Taipei Hotel",
-        "address": "臺北市忠孝東路一段12號",
+        "address": "Zhongzheng District, Taipei",
         "star_rating": 4,
         "price_per_night": 140,
         "amenities": [
@@ -1333,7 +1333,7 @@
           "modern"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Xicun Village, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Taipei_101_from_Xiangshan_20250731.jpg/1280px-Taipei_101_from_Xiangshan_20250731.jpg",
         "latitude": 25.033611,
         "longitude": 121.564722,
@@ -1355,7 +1355,7 @@
           "art"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Shilin District, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/NationalPalace_MuseumFrontView.jpg/1280px-NationalPalace_MuseumFrontView.jpg",
         "latitude": 25.102222,
         "longitude": 121.548611,
@@ -1377,7 +1377,7 @@
           "cultural"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Taipei, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chiang_Kai-shek_memorial_amk.jpg/1280px-Chiang_Kai-shek_memorial_amk.jpg",
         "latitude": 25.034444,
         "longitude": 121.521667,
@@ -1399,7 +1399,7 @@
           "cultural"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Da'an District, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Taipei_Grand_Mosque_20060112.jpg/1280px-Taipei_Grand_Mosque_20060112.jpg",
         "latitude": 25.027933,
         "longitude": 121.534219,
@@ -1421,7 +1421,7 @@
           "nature"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Wenshan District, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Taipei_Zoo_Entrance.jpg/1280px-Taipei_Zoo_Entrance.jpg",
         "latitude": 25.0026,
         "longitude": 121.582,
@@ -1443,7 +1443,7 @@
           "historic"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Taipei, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Cafe_Astoria%2C_Taipei_20140426.jpg/1280px-Cafe_Astoria%2C_Taipei_20140426.jpg",
         "latitude": 25.044215,
         "longitude": 121.512781,
@@ -1465,7 +1465,7 @@
           "food"
         ],
         "is_recommended": true,
-        "address": "臺北市中山區民族東路410巷2弄20號",
+        "address": "Zhongshan District, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Taipei_Fish_Market.JPG/1280px-Taipei_Fish_Market.JPG",
         "latitude": 25.0668,
         "longitude": 121.537,
@@ -1487,7 +1487,7 @@
           "local"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Songshan District, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/%E6%9D%BE%E5%B1%B1%E5%B8%82%E5%A0%B4.jpg/1280px-%E6%9D%BE%E5%B1%B1%E5%B8%82%E5%A0%B4.jpg",
         "latitude": 25.050219,
         "longitude": 121.576096,
@@ -1509,7 +1509,7 @@
           "local"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Shilin District, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/ShiLin.jpg/1280px-ShiLin.jpg",
         "latitude": 25.0866,
         "longitude": 121.5254,
@@ -1531,7 +1531,7 @@
           "culture"
         ],
         "is_recommended": true,
-        "address": "Taipei",
+        "address": "Fumin Village, Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/%E5%8F%B0%E5%8C%97%E5%B8%82%E8%89%8B%E8%88%BA%E9%BE%8D%E5%B1%B1%E5%AF%BA.jpg/1280px-%E5%8F%B0%E5%8C%97%E5%B8%82%E8%89%8B%E8%88%BA%E9%BE%8D%E5%B1%B1%E5%AF%BA.jpg",
         "latitude": 25.037223,
         "longitude": 121.499898,

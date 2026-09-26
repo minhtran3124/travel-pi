@@ -24,7 +24,9 @@
       "sitelinks": 24,
       "en_title": "Hollywood Roosevelt Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "California"
     },
     {
       "qid": "Q5161852",
@@ -36,7 +38,9 @@
       "sitelinks": 20,
       "en_title": "Cecil Hotel (Los Angeles)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "640 S Main St, Los Angeles, CA 90014",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q741123",
@@ -48,7 +52,9 @@
       "sitelinks": 12,
       "en_title": "Chateau Marmont",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q3857987",
@@ -60,7 +66,9 @@
       "sitelinks": 12,
       "en_title": "The Biltmore Los Angeles",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q371058",
@@ -72,7 +80,9 @@
       "sitelinks": 7,
       "en_title": "Westin Bonaventure Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q13636698",
@@ -84,7 +94,9 @@
       "sitelinks": 6,
       "en_title": "Hotel Bel-Air",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "701 Stone Canyon Rd, Los Angeles, CA 90077-2909",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q2795889",
@@ -96,7 +108,9 @@
       "sitelinks": 6,
       "en_title": "Fairmont Century Plaza",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7191010",
@@ -108,7 +122,9 @@
       "sitelinks": 4,
       "en_title": "Pico House",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "430 North Main Street, Los Angeles",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q14681990",
@@ -120,7 +136,9 @@
       "sitelinks": 4,
       "en_title": "Fremont Hotel, Los Angeles",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Downtown Los Angeles"
     },
     {
       "qid": "Q2632626",
@@ -132,7 +150,9 @@
       "sitelinks": 4,
       "en_title": "Hollywood Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q3365423",
@@ -144,7 +164,9 @@
       "sitelinks": 4,
       "en_title": "Park Plaza Hotel (Los Angeles)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7769777",
@@ -156,7 +178,9 @@
       "sitelinks": 3,
       "en_title": "The Town House (Los Angeles)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q12060422",
@@ -168,7 +192,9 @@
       "sitelinks": 3,
       "en_title": "Hollywood Studio Club",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5882835",
@@ -180,7 +206,9 @@
       "sitelinks": 3,
       "en_title": "Hollywood Melrose Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5911174",
@@ -192,7 +220,9 @@
       "sitelinks": 3,
       "en_title": "Hotel Alexandria",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q18148849",
@@ -204,7 +234,9 @@
       "sitelinks": 2,
       "en_title": "Hotel Rosslyn Annex",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q22022691",
@@ -216,7 +248,9 @@
       "sitelinks": 2,
       "en_title": "Hollywood Plaza Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q124304668",
@@ -228,7 +262,9 @@
       "sitelinks": 2,
       "en_title": "Barclay Hotel (Los Angeles)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q4952526",
@@ -240,7 +276,9 @@
       "sitelinks": 2,
       "en_title": "Boyle Hotel – Cummings Block",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5314148",
@@ -252,7 +290,9 @@
       "sitelinks": 2,
       "en_title": "Dunbar Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q26689456",
@@ -264,7 +304,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "251 South Olive Street",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q111393604",
@@ -276,7 +318,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hollywood"
     },
     {
       "qid": "Q111393619",
@@ -288,7 +332,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q111393621",
@@ -300,7 +346,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q111393665",
@@ -312,7 +360,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q130341657",
@@ -324,7 +374,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2151 Avenue of the Stars, Century City, Los Angeles, 90067, United States",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q111393626",
@@ -336,7 +388,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q111393627",
@@ -348,7 +402,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q111887747",
@@ -360,7 +416,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "8639 Lincoln Blvd, Los Angeles, CA 90045",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q135767343",
@@ -372,7 +430,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "5711 West Century Boulevard, Los Angeles, CA 90045",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q140715619",
@@ -384,7 +444,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "1100 S Broadway, Los Angeles, CA 90015",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q141396868",
@@ -396,7 +458,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "15 Rose Avenue, Venice, CA 90291",
+      "district_en": "Los Angeles"
     }
   ],
   "places": [
@@ -411,7 +475,9 @@
       ],
       "sitelinks": 154,
       "en_title": "Hollywood, Los Angeles",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q127856",
@@ -424,7 +490,9 @@
       ],
       "sitelinks": 106,
       "en_title": "Beverly Hills, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q47164",
@@ -438,7 +506,9 @@
       ],
       "sitelinks": 104,
       "en_title": "Santa Monica, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q485176",
@@ -453,7 +523,9 @@
       ],
       "sitelinks": 101,
       "en_title": "Pasadena, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q168383",
@@ -467,7 +539,9 @@
       ],
       "sitelinks": 94,
       "en_title": "Universal Pictures",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q104994",
@@ -480,7 +554,9 @@
       ],
       "sitelinks": 93,
       "en_title": "Los Angeles County, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "California"
     },
     {
       "qid": "Q39561",
@@ -495,7 +571,9 @@
       ],
       "sitelinks": 92,
       "en_title": "Burbank, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q434841",
@@ -511,7 +589,9 @@
       ],
       "sitelinks": 88,
       "en_title": "20th Century Studios",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q485716",
@@ -526,7 +606,9 @@
       ],
       "sitelinks": 88,
       "en_title": "Glendale, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q174710",
@@ -540,7 +622,9 @@
       ],
       "sitelinks": 82,
       "en_title": "University of California, Los Angeles",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "405 Hilgard Ave, Los Angeles, CA, 90095-1405",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q71719",
@@ -555,7 +639,9 @@
       ],
       "sitelinks": 76,
       "en_title": "Hollywood Walk of Fame",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q621549",
@@ -570,7 +656,9 @@
       ],
       "sitelinks": 75,
       "en_title": "Inglewood, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q487119",
@@ -584,7 +672,9 @@
       ],
       "sitelinks": 68,
       "en_title": "Compton, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q8731",
@@ -599,7 +689,9 @@
       ],
       "sitelinks": 68,
       "en_title": "Los Angeles International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q4614",
@@ -615,7 +707,9 @@
       ],
       "sitelinks": 67,
       "en_title": "University of Southern California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q192557",
@@ -629,7 +723,9 @@
       ],
       "sitelinks": 65,
       "en_title": "DreamWorks Pictures",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Glendale"
     },
     {
       "qid": "Q493378",
@@ -643,7 +739,9 @@
       ],
       "sitelinks": 63,
       "en_title": "Culver City, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q494690",
@@ -656,7 +754,9 @@
       ],
       "sitelinks": 61,
       "en_title": "Carson, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q595550",
@@ -670,7 +770,9 @@
       ],
       "sitelinks": 60,
       "en_title": "El Monte, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q488946",
@@ -685,7 +787,9 @@
       ],
       "sitelinks": 59,
       "en_title": "Downey, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q189325",
@@ -700,7 +804,9 @@
       ],
       "sitelinks": 58,
       "en_title": "Jet Propulsion Laboratory",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "4800 Oak Grove Dr, La Cañada Flintridge, California 91011",
+      "district_en": "La Cañada Flintridge"
     },
     {
       "qid": "Q752681",
@@ -714,7 +820,9 @@
       ],
       "sitelinks": 58,
       "en_title": "Alhambra, California",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Los Angeles County"
     },
     {
       "qid": "Q575901",
@@ -725,7 +833,25 @@
       "instance_of": [],
       "sitelinks": 32,
       "en_title": "Griffith Observatory",
-      "strategy": "manual"
+      "strategy": "manual",
+      "address_en": null,
+      "district_en": "Los Angeles"
+    },
+    {
+      "qid": "Q595439",
+      "label": "Santa Monica Pier",
+      "latitude": 34.008611111,
+      "longitude": -118.498611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Aerial_Photo_of_Santa_Monica_Pier.jpg/1280px-Aerial_Photo_of_Santa_Monica_Pier.jpg",
+      "instance_of": [
+        "amusement park",
+        "pier"
+      ],
+      "sitelinks": 16,
+      "en_title": "Santa Monica Pier",
+      "strategy": "manual",
+      "address_en": null,
+      "district_en": "Santa Monica"
     }
   ],
   "restaurants": [
@@ -741,7 +867,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q1453665",
@@ -755,7 +883,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7102584",
@@ -769,7 +899,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q121143548",
@@ -783,7 +915,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q135441274",
@@ -797,7 +931,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Hollywood"
     },
     {
       "qid": "Q6266013",
@@ -811,7 +947,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q6943139",
@@ -825,7 +963,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7680476",
@@ -839,7 +979,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7913805",
@@ -853,7 +995,9 @@
       "strategy": "p131",
       "instance_of": [
         "bakery"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q16890674",
@@ -867,7 +1011,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q16971747",
@@ -881,7 +1027,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q18706021",
@@ -895,7 +1043,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q64039330",
@@ -909,7 +1059,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "11925 Santa Monica Blvd",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q85746004",
@@ -923,7 +1075,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q117149006",
@@ -937,7 +1091,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "13301 Ventura Blvd, Sherman Oaks, CA 91423",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q121143543",
@@ -951,7 +1107,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "16573 Ventura Blvd, Encino, CA 91436",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q130349159",
@@ -965,7 +1123,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q136955229",
@@ -979,7 +1139,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": "317 S Broadway, Los Angeles, California, United States",
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5015241",
@@ -993,7 +1155,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5351079",
@@ -1007,7 +1171,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5566363",
@@ -1021,7 +1187,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q5894869",
@@ -1035,7 +1203,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q6650522",
@@ -1049,7 +1219,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7102558",
@@ -1063,7 +1235,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7312396",
@@ -1077,7 +1251,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Hollywood"
     },
     {
       "qid": "Q7641264",
@@ -1091,7 +1267,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q7998090",
@@ -1105,7 +1283,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Los Angeles"
     },
     {
       "qid": "Q17066014",
@@ -1119,7 +1299,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Hollywood"
     },
     {
       "qid": "Q18636210",
@@ -1133,7 +1315,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Hollywood"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Los_Angeles_with_Mount_Baldy.jpg/1280px-Los_Angeles_with_Mount_Baldy.jpg",
@@ -1421,6 +1605,10 @@
     "Q18636210": {
       "title": "The Cat & Fiddle",
       "extract": "The Cat & Fiddle is British Pub and restaurant located in Hollywood, California."
+    },
+    "Q595439": {
+      "title": "Santa Monica Pier",
+      "extract": "The Santa Monica Pier is a large pier at the foot of Colorado Avenue in Santa Monica, California, United States. It contains a small amusement park, concession stands, and areas for views and fishing. The pier is part of the greater Santa Monica Mountains National Recreation Area."
     }
   },
   "wikivoyage": {

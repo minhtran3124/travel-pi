@@ -27,4 +27,4 @@ checks afterwards (`python -m scripts.build_city_sources`, `check_seed_sources.p
 | Dubai | `Dubai Q612 --max-km 25` |
 | Istanbul | `Istanbul Q406 --max-km 25 --extra-hotel Q111857299 --extra-hotel Q111857392` |
 | New York | `"New York" Q60 --max-km 20` |
-| Los Angeles | `"Los Angeles" Q65 --max-km 25 --extra-place Q575901` |
+| Los Angeles | `"Los Angeles" Q65 --max-km 25 --extra-place Q575901` (Santa Monica Pier, Q595439, added by hand post-hoc via the same `_items_query`/image-resolution helpers `fetch_city_candidates.py` uses for `--extra-place`, to avoid a full city refetch changing other candidates -- replaces University of California, Los Angeles (Q174710) in selections, which SCHEMA.md excludes as a university) |

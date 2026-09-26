@@ -24,7 +24,9 @@
       "sitelinks": 4,
       "en_title": "Fukuoka Sunpalace",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2-1, Chikkō-honmachi, Hakata-ku, Fukuoka City 812-0021",
+      "district_en": "Chikkō-honmachi"
     },
     {
       "qid": "Q11315374",
@@ -36,7 +38,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2-43, Tenjin 2-chōme, Chūō-ku, Fukuoka City 8100001",
+      "district_en": "Tenjin"
     },
     {
       "qid": "Q11325964",
@@ -48,7 +52,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "14-1, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City, Japan 812-0013",
+      "district_en": "Hakata-eki-higashi"
     },
     {
       "qid": "Q11337854",
@@ -60,7 +66,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimo-kawabatamachi"
     },
     {
       "qid": "Q11337914",
@@ -72,7 +80,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "13-1, Haruyoshi 3-chōme, Chūō-ku, Fukuoka City 8100003",
+      "district_en": "Haruyoshi"
     },
     {
       "qid": "Q11408974",
@@ -84,7 +94,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "1-1, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City 812－0013",
+      "district_en": "Hakata-eki-higashi"
     },
     {
       "qid": "Q17229982",
@@ -96,7 +108,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2-3, Jigyō-hama 2-chōme, Chūō-ku, Fukuoka City 8108650",
+      "district_en": "Jigyō-hama"
     },
     {
       "qid": "Q109598223",
@@ -108,7 +122,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "6-50, Daimyo 2-chōme, Chūō-ku, Fukuoka City 8100041",
+      "district_en": "Daimyō"
     },
     {
       "qid": "Q111406557",
@@ -120,7 +136,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hakata-ku"
     },
     {
       "qid": "Q11300336",
@@ -132,7 +150,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Sumiyoshi"
     },
     {
       "qid": "Q111406554",
@@ -144,7 +164,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hakata-ku"
     },
     {
       "qid": "Q111406555",
@@ -156,7 +178,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "18-25, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+      "district_en": "Hakata-ekimae"
     },
     {
       "qid": "Q111406553",
@@ -168,7 +192,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Higashi-ku"
     },
     {
       "qid": "Q111406567",
@@ -180,7 +206,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "6-60, Daimyō 2-chōme, Chūō-ku, Fukuoka City 8100041",
+      "district_en": "Daimyō"
     },
     {
       "qid": "Q125266103",
@@ -192,7 +220,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "8-15, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+      "district_en": "Hakata-ekimae"
     },
     {
       "qid": "Q125555901",
@@ -204,7 +234,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "5-33, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City, Japan 812-0013",
+      "district_en": "Hakata-eki-higashi"
     },
     {
       "qid": "Q125824026",
@@ -216,7 +248,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "18-1, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+      "district_en": "Hakata-ekimae"
     },
     {
       "qid": "Q126920524",
@@ -228,7 +262,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2-20, Sumiyoshi 1-chōme, Hakata-ku, Fukuoka City 8120018",
+      "district_en": "Sumiyoshi"
     }
   ],
   "places": [
@@ -243,7 +279,9 @@
       ],
       "sitelinks": 100,
       "en_title": "Fukuoka Prefecture",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Japan"
     },
     {
       "qid": "Q385762",
@@ -258,7 +296,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Ōnojō",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
     },
     {
       "qid": "Q728218",
@@ -271,7 +311,9 @@
       ],
       "sitelinks": 41,
       "en_title": "Dazaifu, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
     },
     {
       "qid": "Q47084",
@@ -286,7 +328,9 @@
       ],
       "sitelinks": 41,
       "en_title": "Kasuga, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
     },
     {
       "qid": "Q1137465",
@@ -301,7 +345,9 @@
       ],
       "sitelinks": 32,
       "en_title": "Fukuoka Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hakata-ku"
     },
     {
       "qid": "Q1047664",
@@ -314,7 +360,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Chikuzen Province",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Saikaidō"
     },
     {
       "qid": "Q1206001",
@@ -327,7 +375,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Nakagawa, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
     },
     {
       "qid": "Q945518",
@@ -340,7 +390,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Umi, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q1365961",
@@ -353,7 +405,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Mizuho PayPay Dome Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "2-2, Jigyō-hama 2-chōme, Chūō-ku, Fukuoka-shi 8108650",
+      "district_en": "Jigyō-hama"
     },
     {
       "qid": "Q148543",
@@ -367,7 +421,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Kyushu National Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dazaifu"
     },
     {
       "qid": "Q179185",
@@ -380,7 +436,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Shingū, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q1206130",
@@ -393,7 +451,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Sasaguri, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q1206141",
@@ -406,7 +466,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Kasuya, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q1206887",
@@ -419,7 +481,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Shime, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q1205588",
@@ -432,7 +496,9 @@
       ],
       "sitelinks": 18,
       "en_title": "Sue, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q1206089",
@@ -445,7 +511,9 @@
       ],
       "sitelinks": 17,
       "en_title": "Hisayama, Fukuoka",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
     },
     {
       "qid": "Q847033",
@@ -459,7 +527,9 @@
       ],
       "sitelinks": 16,
       "en_title": "Fukuoka Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "3-26, Momochi-hama 2-chōme, Sawara-ku, Fukuoka City 8140001",
+      "district_en": "Momochi-hama"
     },
     {
       "qid": "Q1749262",
@@ -473,7 +543,9 @@
       ],
       "sitelinks": 16,
       "en_title": "Hakata Gion Yamakasa",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hakata-ku"
     },
     {
       "qid": "Q710786",
@@ -486,7 +558,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Dazaifu Tenmangū",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dazaifu"
     },
     {
       "qid": "Q2237622",
@@ -499,7 +573,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Battle of Kōan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1366106",
@@ -512,7 +588,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Best Denki Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "1-1 Higashihirao Koen, Hakata-ku Fukuoka",
+      "district_en": "Hakata-ku"
     },
     {
       "qid": "Q5507696",
@@ -525,7 +603,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Fukuoka Mosque",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka"
     },
     {
       "qid": "Q3274581",
@@ -538,7 +618,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Garuda Indonesia Flight 865",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q2237386",
@@ -551,7 +633,9 @@
       ],
       "sitelinks": 13,
       "en_title": "Battle of Bun'ei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q2344806",
@@ -564,7 +648,9 @@
       ],
       "sitelinks": 13,
       "en_title": "Hakata Bay",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka"
     },
     {
       "qid": "Q144845",
@@ -578,7 +664,9 @@
       ],
       "sitelinks": 12,
       "en_title": "Dazaifu (government)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Mikasa district"
     },
     {
       "qid": "Q657825",
@@ -591,7 +679,9 @@
       ],
       "sitelinks": 12,
       "en_title": "Shōfuku-ji (Fukuoka)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "6-1, Gokushomachi, Hakata-ku, Fukuoka City 812-0037",
+      "district_en": "Gokushomachi"
     },
     {
       "qid": "Q3073273",
@@ -604,7 +694,9 @@
       ],
       "sitelinks": 12,
       "en_title": "Fukuoka Art Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "1-6, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "district_en": "Ōhorikōen"
     },
     {
       "qid": "Q1143944",
@@ -618,7 +710,9 @@
       ],
       "sitelinks": 11,
       "en_title": "Fukuoka Castle",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Ōhorikōen"
     },
     {
       "qid": "Q2607897",
@@ -633,7 +727,9 @@
       ],
       "sitelinks": 11,
       "en_title": "Fukuoka Convention Center",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hakata-ku"
     },
     {
       "qid": "Q11592224",
@@ -646,7 +742,9 @@
       ],
       "sitelinks": 10,
       "en_title": "Fukuoka City Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "1-1, Momochi-hama 3-chōme, Sawara-ku, Fukuoka City 8100001",
+      "district_en": "Momochi-hama"
     },
     {
       "qid": "Q11592587",
@@ -660,7 +758,9 @@
       ],
       "sitelinks": 10,
       "en_title": "Fukuoka Prefectural Museum of Art",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Tenjin"
     },
     {
       "qid": "Q11548410",
@@ -674,7 +774,9 @@
       ],
       "sitelinks": 10,
       "en_title": "Mizuki Castle",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
     },
     {
       "qid": "Q714742",
@@ -690,7 +792,9 @@
       ],
       "sitelinks": 10,
       "en_title": "Hakozaki Shrine",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Naka district"
     }
   ],
   "restaurants": [
@@ -706,7 +810,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "10-256, Kami-kawabatamachi, Hakata-ku, Fukuoka City 8120026",
+      "district_en": "Kami-kawabatamachi"
     },
     {
       "qid": "Q131863980",
@@ -720,7 +826,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "6-36, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "district_en": "Nishi-nakasu"
     },
     {
       "qid": "Q131866670",
@@ -734,7 +842,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "6-17, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "district_en": "Nishi-nakasu"
     },
     {
       "qid": "Q135487570",
@@ -748,7 +858,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "13-1, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "district_en": "Nishi-nakasu"
     },
     {
       "qid": "Q136681960",
@@ -762,7 +874,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Akasaka"
     },
     {
       "qid": "Q139765483",
@@ -776,7 +890,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "1-3, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "district_en": "Ōhorikōen"
     },
     {
       "qid": "Q139985359",
@@ -790,7 +906,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": "1-8, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "district_en": "Ōhorikōen"
     },
     {
       "qid": "Q116769345",
@@ -804,7 +922,9 @@
       "strategy": "p131",
       "instance_of": [
         "fish market"
-      ]
+      ],
+      "address_en": "11-3, Nagahama 3-chōme, Chūō-ku, Fukuoka City, 810-0072",
+      "district_en": "Nagahama"
     },
     {
       "qid": "Q135271063",
@@ -818,7 +938,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Chūō-ku"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Hakata_Port_from_Fukuoka_Tower.jpg/1280px-Hakata_Port_from_Fukuoka_Tower.jpg",

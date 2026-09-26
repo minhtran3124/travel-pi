@@ -24,7 +24,9 @@
       "sitelinks": 9,
       "en_title": "The Westin Excelsior Rome",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q18350121",
@@ -36,7 +38,9 @@
       "sitelinks": 5,
       "en_title": "Hotel d'Inghilterra",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q17985469",
@@ -48,7 +52,9 @@
       "sitelinks": 4,
       "en_title": "Aldrovandi Villa Borghese",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q25295909",
@@ -60,7 +66,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q118210895",
@@ -72,7 +80,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q16844927",
@@ -84,7 +94,9 @@
       "sitelinks": 2,
       "en_title": "Anantara Palazzo Naiadi Rome Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q56704602",
@@ -96,7 +108,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q52886668",
@@ -108,7 +122,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q122888694",
@@ -120,7 +136,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q111413226",
@@ -132,7 +150,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q111878207",
@@ -144,7 +164,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q111878232",
@@ -156,7 +178,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q135901210",
@@ -168,7 +192,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q135901240",
@@ -180,7 +206,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q136512398",
@@ -192,7 +220,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q136563105",
@@ -204,7 +234,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lazio"
     },
     {
       "qid": "Q138722414",
@@ -216,7 +248,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Via Emanuele Filiberto, 173",
+      "district_en": "Rome"
     }
   ],
   "places": [
@@ -231,7 +265,9 @@
       ],
       "sitelinks": 207,
       "en_title": "Roman Empire",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1747689",
@@ -244,7 +280,9 @@
       ],
       "sitelinks": 165,
       "en_title": "Ancient Rome",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q10285",
@@ -264,7 +302,9 @@
       ],
       "sitelinks": 148,
       "en_title": "Colosseum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Roma Capitale"
     },
     {
       "qid": "Q26319",
@@ -277,7 +317,9 @@
       ],
       "sitelinks": 134,
       "en_title": "Università degli Studi Niccolò Cusano",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q12512",
@@ -294,7 +336,9 @@
       ],
       "sitelinks": 129,
       "en_title": "St. Peter's Basilica",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Vatican City"
     },
     {
       "qid": "Q170174",
@@ -308,7 +352,9 @@
       ],
       "sitelinks": 91,
       "en_title": "Papal States",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q2943",
@@ -323,7 +369,9 @@
       ],
       "sitelinks": 90,
       "en_title": "Sistine Chapel",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Vatican City"
     },
     {
       "qid": "Q204344",
@@ -336,7 +384,9 @@
       ],
       "sitelinks": 82,
       "en_title": "World Food Programme",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q99309",
@@ -358,7 +408,9 @@
       ],
       "sitelinks": 81,
       "en_title": "Pantheon, Rome",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q201038",
@@ -372,7 +424,9 @@
       ],
       "sitelinks": 79,
       "en_title": "Roman Kingdom",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q183191",
@@ -386,7 +440,9 @@
       ],
       "sitelinks": 75,
       "en_title": "European Convention on Human Rights",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q159884",
@@ -401,7 +457,9 @@
       ],
       "sitelinks": 73,
       "en_title": "Stadio Olimpico",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q180212",
@@ -419,7 +477,9 @@
       ],
       "sitelinks": 72,
       "en_title": "Roman Forum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q213678",
@@ -434,7 +494,9 @@
       ],
       "sitelinks": 71,
       "en_title": "Vatican Library",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Vatican City"
     },
     {
       "qid": "Q209344",
@@ -447,7 +509,9 @@
       ],
       "sitelinks": 70,
       "en_title": "Sapienza University of Rome",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q185382",
@@ -461,7 +525,9 @@
       ],
       "sitelinks": 68,
       "en_title": "Trevi Fountain",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q15119",
@@ -474,7 +540,9 @@
       ],
       "sitelinks": 68,
       "en_title": "Province of Rome",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Lazio"
     },
     {
       "qid": "Q34925",
@@ -487,7 +555,9 @@
       ],
       "sitelinks": 68,
       "en_title": "Capitoline Hill",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q83425",
@@ -501,7 +571,9 @@
       ],
       "sitelinks": 66,
       "en_title": "St. Peter's Square",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Vatican City"
     },
     {
       "qid": "Q242513",
@@ -514,7 +586,9 @@
       ],
       "sitelinks": 65,
       "en_title": "Ciampino",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Metropolitan City of Rome"
     },
     {
       "qid": "Q182955",
@@ -528,7 +602,9 @@
       ],
       "sitelinks": 64,
       "en_title": "Vatican Museums",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Vatican City"
     },
     {
       "qid": "Q189417",
@@ -541,7 +617,9 @@
       ],
       "sitelinks": 63,
       "en_title": "Appian Way",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Brindisi"
     },
     {
       "qid": "Q200642",
@@ -554,7 +632,9 @@
       ],
       "sitelinks": 63,
       "en_title": "Palatine Hill",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Municipio I"
     }
   ],
   "restaurants": [
@@ -570,7 +650,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q3664378",
@@ -584,7 +666,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q3673823",
@@ -598,7 +682,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q2932918",
@@ -612,7 +698,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q85792375",
@@ -626,7 +714,9 @@
       "strategy": "p131",
       "instance_of": [
         "bakery"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q102385082",
@@ -640,7 +730,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q56478550",
@@ -654,7 +746,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q84267499",
@@ -668,7 +762,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     },
     {
       "qid": "Q131277274",
@@ -682,7 +778,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Rome"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Rome_Skyline_%288012016319%29.jpg/1280px-Rome_Skyline_%288012016319%29.jpg",

@@ -24,7 +24,9 @@
       "sitelinks": 78,
       "en_title": "Burj Al Arab",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q1244144",
@@ -36,7 +38,9 @@
       "sitelinks": 26,
       "en_title": "JW Marriott Marquis Dubai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q647585",
@@ -48,7 +52,9 @@
       "sitelinks": 20,
       "en_title": "Jumeirah Beach Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q550379",
@@ -60,7 +66,9 @@
       "sitelinks": 7,
       "en_title": "Conrad Dubai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q34204337",
@@ -72,7 +80,9 @@
       "sitelinks": 4,
       "en_title": "Waldorf Astoria Dubai Palm Jumeirah",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Crescent Road",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150450",
@@ -84,7 +94,9 @@
       "sitelinks": 4,
       "en_title": "InterContinental Dubai Festival City",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q22976715",
@@ -96,7 +108,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Tower B, The Walk, Jumeirah Beach Residence, Dubai, United Arab Emirates",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q27981667",
@@ -108,7 +122,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "22nd St, Al Barsha",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q30147522",
@@ -120,7 +136,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Tower A, The Walk, Jumeirah Beach Residence, Dubai, United Arab Emirates",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q50308536",
@@ -132,7 +150,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "The Walk, Dubai Marina, Dubai, United Arab Emirates",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q60732352",
@@ -144,7 +164,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Al Jaddaf",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q66437370",
@@ -156,7 +178,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Bay Square 5, Business Bay, Dubai, United Arab Emirates",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q76620470",
@@ -168,7 +192,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Al Barsha 1 Street, Al Barsha 1, Dubai, United Arab Emirates",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q96755874",
@@ -180,7 +206,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Al Seef St, Umm Hurair 1",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q99976218",
@@ -192,7 +220,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q110221761",
@@ -204,7 +234,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Sheikh Zayed Road",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150218",
@@ -216,7 +248,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150220",
@@ -228,7 +262,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150302",
@@ -240,7 +276,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150395",
@@ -252,7 +290,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Al Mina St",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150434",
@@ -264,7 +304,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "5668 20th St - Umm Hurair 2 - Dubai Healthcare City",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150433",
@@ -276,7 +318,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Sheikh Khalifa Bin Zayed St",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150454",
@@ -288,7 +332,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Al Seef St, Umm Hurair 1",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q111150458",
@@ -300,7 +346,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dubai"
     }
   ],
   "places": [
@@ -316,7 +364,9 @@
       ],
       "sitelinks": 140,
       "en_title": "Burj Khalifa",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "1 Sheikh Mohammed bin Rashid Boulevard",
+      "district_en": "Dubai"
     },
     {
       "qid": "Q613",
@@ -329,7 +379,9 @@
       ],
       "sitelinks": 101,
       "en_title": "Emirate of Dubai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "United Arab Emirates"
     },
     {
       "qid": "Q289693",
@@ -343,7 +395,9 @@
       ],
       "sitelinks": 86,
       "en_title": "Sharjah",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Sharjah"
     },
     {
       "qid": "Q62939",
@@ -357,7 +411,9 @@
       ],
       "sitelinks": 78,
       "en_title": "Burj Al Arab",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q193439",
@@ -372,7 +428,9 @@
       ],
       "sitelinks": 77,
       "en_title": "Dubai International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Al Garhoud"
     },
     {
       "qid": "Q530171",
@@ -386,7 +444,9 @@
       ],
       "sitelinks": 62,
       "en_title": "Ajman",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Ajman"
     },
     {
       "qid": "Q83787",
@@ -399,7 +459,9 @@
       ],
       "sitelinks": 50,
       "en_title": "Dubai Metro",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q211844",
@@ -413,7 +475,9 @@
       ],
       "sitelinks": 48,
       "en_title": "Palm Islands",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q270844",
@@ -426,7 +490,9 @@
       ],
       "sitelinks": 46,
       "en_title": "The World (archipelago)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q635826",
@@ -440,7 +506,9 @@
       ],
       "sitelinks": 46,
       "en_title": "Sharjah International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Sharjah"
     },
     {
       "qid": "Q1133309",
@@ -453,7 +521,9 @@
       ],
       "sitelinks": 38,
       "en_title": "Dubai Mall",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q277294",
@@ -468,7 +538,9 @@
       ],
       "sitelinks": 37,
       "en_title": "Palm Jumeirah",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q648338",
@@ -482,7 +554,9 @@
       ],
       "sitelinks": 37,
       "en_title": "Rose Rayhaan by Rotana",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q845182",
@@ -495,7 +569,9 @@
       ],
       "sitelinks": 35,
       "en_title": "Emirates Office Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q1049027",
@@ -508,7 +584,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Jumeirah Emirates Towers Hotel",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q65091338",
@@ -521,7 +599,9 @@
       ],
       "sitelinks": 32,
       "en_title": "World Chess Championship 2021",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1244204",
@@ -535,7 +615,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Queen Elizabeth 2",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1142971",
@@ -549,7 +631,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Jumeirah",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q26212179",
@@ -564,7 +648,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Emirates Flight 521",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q140673",
@@ -578,7 +664,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Bur Dubai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q756690",
@@ -591,7 +679,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Atlantis, The Palm",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "Crescent Rd, The Palm Jumeirah",
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q1066448",
@@ -604,7 +694,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Mall of the Emirates",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q401098",
@@ -617,7 +709,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Gevora Hotel",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q677823",
@@ -630,7 +724,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Address Downtown",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q1067672",
@@ -644,7 +740,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Ski Dubai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q1470076",
@@ -657,7 +755,9 @@
       ],
       "sitelinks": 26,
       "en_title": "HHHR Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q1808295",
@@ -671,7 +771,9 @@
       ],
       "sitelinks": 26,
       "en_title": "AHS Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     },
     {
       "qid": "Q2125281",
@@ -684,7 +786,9 @@
       ],
       "sitelinks": 26,
       "en_title": "Dubai Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Bur Dubai"
     },
     {
       "qid": "Q1244144",
@@ -697,7 +801,9 @@
       ],
       "sitelinks": 26,
       "en_title": "JW Marriott Marquis Dubai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Emirate of Dubai"
     }
   ],
   "restaurants": [
@@ -713,7 +819,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q135903184",
@@ -727,7 +835,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q139801933",
@@ -741,7 +851,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Dubai"
     },
     {
       "qid": "Q140577438",
@@ -755,7 +867,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Dubai"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",

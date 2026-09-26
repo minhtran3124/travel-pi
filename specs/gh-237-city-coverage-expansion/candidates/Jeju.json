@@ -26,7 +26,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Seogwipo"
     },
     {
       "qid": "Q111123630",
@@ -38,7 +40,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123631",
@@ -50,7 +54,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123628",
@@ -62,7 +68,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123629",
@@ -74,7 +82,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123634",
@@ -86,7 +96,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123635",
@@ -98,7 +110,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123632",
@@ -110,7 +124,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123633",
@@ -122,7 +138,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123638",
@@ -134,7 +152,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123639",
@@ -146,7 +166,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123636",
@@ -158,7 +180,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111123637",
@@ -170,7 +194,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406526",
@@ -182,7 +208,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406527",
@@ -194,7 +222,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406530",
@@ -206,7 +236,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406531",
@@ -218,7 +250,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406528",
@@ -230,7 +264,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406529",
@@ -242,7 +278,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406534",
@@ -254,7 +292,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406535",
@@ -266,7 +306,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406532",
@@ -278,7 +320,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406533",
@@ -290,7 +334,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406538",
@@ -302,7 +348,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406539",
@@ -314,7 +362,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406536",
@@ -326,7 +376,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406537",
@@ -338,7 +390,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406542",
@@ -350,7 +404,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406543",
@@ -362,7 +418,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406540",
@@ -374,7 +432,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406541",
@@ -386,7 +446,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416194",
@@ -398,7 +460,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416195",
@@ -410,7 +474,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416200",
@@ -422,7 +488,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111865483",
@@ -434,7 +502,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     }
   ],
   "places": [
@@ -449,7 +519,9 @@
       ],
       "sitelinks": 80,
       "en_title": "Jeju Island",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q41164",
@@ -462,7 +534,9 @@
       ],
       "sitelinks": 71,
       "en_title": "Jeju Province",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "South Korea"
     },
     {
       "qid": "Q494645",
@@ -475,7 +549,9 @@
       ],
       "sitelinks": 46,
       "en_title": "Hallasan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q42103",
@@ -491,7 +567,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Seogwipo",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q482497",
@@ -506,7 +584,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Jeju International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q482585",
@@ -519,7 +599,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Jeju World Cup Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seogwipo"
     },
     {
       "qid": "Q495733",
@@ -532,7 +614,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Jeju Volcanic Island and Lava Tubes",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q483458",
@@ -546,7 +630,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Jeju uprising",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q495590",
@@ -560,7 +646,9 @@
       ],
       "sitelinks": 18,
       "en_title": "Love Land (South Korea)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju"
     },
     {
       "qid": "Q122225",
@@ -575,7 +663,9 @@
       ],
       "sitelinks": 16,
       "en_title": "Seongsan Ilchulbong",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q5642786",
@@ -589,7 +679,9 @@
       ],
       "sitelinks": 16,
       "en_title": "Hallasan National Park",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q6750353",
@@ -605,7 +697,9 @@
       ],
       "sitelinks": 11,
       "en_title": "Manjanggul",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Gimnyeong-ri"
     },
     {
       "qid": "Q2647348",
@@ -618,7 +712,9 @@
       ],
       "sitelinks": 8,
       "en_title": "Samyang-dong",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Gangbuk District"
     },
     {
       "qid": "Q12600001",
@@ -633,7 +729,9 @@
       ],
       "sitelinks": 8,
       "en_title": "Sanbangsan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seogwipo"
     },
     {
       "qid": "Q625993",
@@ -646,7 +744,9 @@
       ],
       "sitelinks": 7,
       "en_title": "Jeongbang Waterfall",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seogwi-dong"
     },
     {
       "qid": "Q6176560",
@@ -659,7 +759,9 @@
       ],
       "sitelinks": 7,
       "en_title": "Jeju National Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q7410332",
@@ -672,7 +774,9 @@
       ],
       "sitelinks": 7,
       "en_title": "Samseonghyeol",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju"
     },
     {
       "qid": "Q2157711",
@@ -689,7 +793,9 @@
       ],
       "sitelinks": 6,
       "en_title": "Daepo Jusangjeolli Cliff",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     },
     {
       "qid": "Q17042632",
@@ -702,7 +808,9 @@
       ],
       "sitelinks": 6,
       "en_title": "Nexon Computer Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "South Korea"
     },
     {
       "qid": "Q21709992",
@@ -715,7 +823,9 @@
       ],
       "sitelinks": 6,
       "en_title": "Yakcheonsa",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q486315",
@@ -728,7 +838,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Yeomiji Botanical Garden",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seogwipo"
     },
     {
       "qid": "Q495557",
@@ -741,7 +853,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Cheonjeyeon Waterfalls",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q626162",
@@ -754,7 +868,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Cheonjiyeon Waterfall",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seogwi-dong"
     },
     {
       "qid": "Q5535541",
@@ -767,7 +883,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Geomunoreum Lava Tube System",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q6176564",
@@ -781,7 +899,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Jeju Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju"
     },
     {
       "qid": "Q12616503",
@@ -794,7 +914,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Port of Jeju",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju"
     },
     {
       "qid": "Q12623480",
@@ -807,7 +929,9 @@
       ],
       "sitelinks": 5,
       "en_title": "Korean VLBI Network",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju City"
     },
     {
       "qid": "Q12601997",
@@ -820,7 +944,9 @@
       ],
       "sitelinks": 4,
       "en_title": null,
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seogwipo"
     },
     {
       "qid": "Q11270772",
@@ -833,7 +959,9 @@
       ],
       "sitelinks": 4,
       "en_title": "International Convention Center Jeju",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Jeju Province"
     }
   ],
   "restaurants": [
@@ -849,7 +977,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Jeju"
     },
     {
       "qid": "Q12593341",
@@ -861,7 +991,9 @@
       "sitelinks": 3,
       "en_title": "Jeju Dongmun Traditional Market",
       "strategy": "manual",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q130240134",
@@ -875,7 +1007,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",

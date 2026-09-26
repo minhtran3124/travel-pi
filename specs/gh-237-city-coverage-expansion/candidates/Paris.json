@@ -25,7 +25,9 @@
       "sitelinks": 31,
       "en_title": "Hyatt Regency Paris Étoile",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "17th arrondissement of Paris"
     },
     {
       "qid": "Q692768",
@@ -37,7 +39,9 @@
       "sitelinks": 21,
       "en_title": "Hôtel de Crillon",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q851372",
@@ -49,7 +53,9 @@
       "sitelinks": 14,
       "en_title": "Buddha Bar",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Paris"
     },
     {
       "qid": "Q1515595",
@@ -61,7 +67,9 @@
       "sitelinks": 14,
       "en_title": "Hôtel Lutetia",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q16632474",
@@ -73,7 +81,9 @@
       "sitelinks": 13,
       "en_title": "The Peninsula Paris",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "16th arrondissement of Paris"
     },
     {
       "qid": "Q217708",
@@ -85,7 +95,9 @@
       "sitelinks": 11,
       "en_title": "Four Seasons Hotel George V",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3145596",
@@ -97,7 +109,9 @@
       "sitelinks": 11,
       "en_title": "Le Meurice",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q2915167",
@@ -109,7 +123,9 @@
       "sitelinks": 10,
       "en_title": "Hotel Napoleon",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3145551",
@@ -121,7 +137,9 @@
       "sitelinks": 9,
       "en_title": "Hôtel Le Bristol Paris",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q2375304",
@@ -133,7 +151,9 @@
       "sitelinks": 8,
       "en_title": "Plaza Athénée",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3145649",
@@ -145,7 +165,9 @@
       "sitelinks": 8,
       "en_title": "Hôtel Raphael",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "16th arrondissement of Paris"
     },
     {
       "qid": "Q3145996",
@@ -157,7 +179,9 @@
       "sitelinks": 8,
       "en_title": "Hôtel de Vendôme (place Vendôme, Paris)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q23283",
@@ -169,7 +193,9 @@
       "sitelinks": 7,
       "en_title": "L'Hôtel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q655072",
@@ -181,7 +207,9 @@
       "sitelinks": 7,
       "en_title": "Beat Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q904945",
@@ -193,7 +221,9 @@
       "sitelinks": 7,
       "en_title": "Hôtel Costes",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q23265",
@@ -205,7 +235,9 @@
       "sitelinks": 6,
       "en_title": "Hotel des Trois Collèges",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "5th arrondissement of Paris"
     },
     {
       "qid": "Q3145495",
@@ -217,7 +249,9 @@
       "sitelinks": 6,
       "en_title": "Hôtel Barrière Le Fouquet's",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3153054",
@@ -229,7 +263,9 @@
       "sitelinks": 6,
       "en_title": "InterContinental Paris Le Grand Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "9th arrondissement of Paris"
     },
     {
       "qid": "Q3285427",
@@ -241,7 +277,9 @@
       "sitelinks": 6,
       "en_title": "Mandarin Oriental, Paris",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q29645460",
@@ -253,7 +291,9 @@
       "sitelinks": 6,
       "en_title": "Maison Souquet",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "9th arrondissement of Paris"
     },
     {
       "qid": "Q749558",
@@ -265,7 +305,9 @@
       "sitelinks": 5,
       "en_title": "Pullman Paris Montparnasse Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "14th arrondissement of Paris"
     },
     {
       "qid": "Q3523350",
@@ -277,7 +319,9 @@
       "sitelinks": 5,
       "en_title": "The Westin Paris – Vendôme",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q3010267",
@@ -289,7 +333,9 @@
       "sitelinks": 4,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q23274",
@@ -301,7 +347,9 @@
       "sitelinks": 4,
       "en_title": "Castille Paris",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q3146289",
@@ -313,7 +361,9 @@
       "sitelinks": 4,
       "en_title": "Hôtel du Louvre",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q3145620",
@@ -325,7 +375,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "2nd arrondissement of Paris"
     },
     {
       "qid": "Q3145636",
@@ -337,7 +389,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3445992",
@@ -349,7 +403,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3463860",
@@ -361,7 +417,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "16th arrondissement of Paris"
     },
     {
       "qid": "Q28041305",
@@ -373,7 +431,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "11th arrondissement of Paris"
     },
     {
       "qid": "Q48749736",
@@ -385,7 +445,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q48750208",
@@ -397,7 +459,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "20 rue de l'Arcade, 75008 Paris, France",
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q2992084",
@@ -409,7 +473,9 @@
       "sitelinks": 3,
       "en_title": "Hilton Paris Opéra",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q3145660",
@@ -421,7 +487,9 @@
       "sitelinks": 3,
       "en_title": "Hôtel Régina",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q111113654",
@@ -433,7 +501,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "manual",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     }
   ],
   "places": [
@@ -450,7 +520,9 @@
       ],
       "sitelinks": 191,
       "en_title": "Eiffel Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "7th arrondissement of Paris"
     },
     {
       "qid": "Q19675",
@@ -464,7 +536,9 @@
       ],
       "sitelinks": 169,
       "en_title": "Louvre",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Saint-Germain-l'Auxerrois"
     },
     {
       "qid": "Q13917",
@@ -477,7 +551,9 @@
       ],
       "sitelinks": 146,
       "en_title": "Île-de-France",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "metropolitan France"
     },
     {
       "qid": "Q2981",
@@ -491,7 +567,9 @@
       ],
       "sitelinks": 125,
       "en_title": "Notre-Dame de Paris",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Quartier Notre-Dame"
     },
     {
       "qid": "Q23402",
@@ -505,7 +583,9 @@
       ],
       "sitelinks": 122,
       "en_title": "Musée d'Orsay",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "7th arrondissement of Paris"
     },
     {
       "qid": "Q41550",
@@ -520,7 +600,9 @@
       ],
       "sitelinks": 105,
       "en_title": "OECD",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q21479779",
@@ -533,7 +615,9 @@
       ],
       "sitelinks": 101,
       "en_title": "November 2015 Paris attacks",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Saint-Denis"
     },
     {
       "qid": "Q12543",
@@ -546,7 +630,9 @@
       ],
       "sitelinks": 101,
       "en_title": "Hauts-de-Seine",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Île-de-France"
     },
     {
       "qid": "Q12761",
@@ -559,7 +645,9 @@
       ],
       "sitelinks": 99,
       "en_title": "Seine-Saint-Denis",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Île-de-France"
     },
     {
       "qid": "Q172455",
@@ -573,7 +661,9 @@
       ],
       "sitelinks": 97,
       "en_title": "Boulogne-Billancourt",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "arrondissement of Boulogne-Billancourt"
     },
     {
       "qid": "Q12788",
@@ -586,7 +676,9 @@
       ],
       "sitelinks": 97,
       "en_title": "Val-de-Marne",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Île-de-France"
     },
     {
       "qid": "Q131575588",
@@ -599,7 +691,9 @@
       ],
       "sitelinks": 94,
       "en_title": "Saint-Denis, Seine-Saint-Denis",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grand Paris"
     },
     {
       "qid": "Q550",
@@ -613,7 +707,9 @@
       ],
       "sitelinks": 94,
       "en_title": "Champs-Élysées",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Quartier des Champs-Élysées"
     },
     {
       "qid": "Q193563",
@@ -629,7 +725,9 @@
       ],
       "sitelinks": 91,
       "en_title": "Bibliothèque nationale de France",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "13th arrondissement of Paris"
     },
     {
       "qid": "Q101730",
@@ -642,7 +740,9 @@
       ],
       "sitelinks": 90,
       "en_title": "1998 FIFA World Cup",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q21707860",
@@ -657,7 +757,9 @@
       ],
       "sitelinks": 90,
       "en_title": "Paris Agreement",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q48958",
@@ -670,7 +772,9 @@
       ],
       "sitelinks": 90,
       "en_title": "Neuilly-sur-Seine",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grand Paris"
     },
     {
       "qid": "Q43605",
@@ -683,7 +787,9 @@
       ],
       "sitelinks": 88,
       "en_title": "French Open",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Paris"
     },
     {
       "qid": "Q209842",
@@ -698,7 +804,9 @@
       ],
       "sitelinks": 87,
       "en_title": "University of Paris",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Paris"
     },
     {
       "qid": "Q71084",
@@ -713,7 +821,9 @@
       ],
       "sitelinks": 86,
       "en_title": "First French Empire",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q64436",
@@ -726,7 +836,9 @@
       ],
       "sitelinks": 85,
       "en_title": "Arc de Triomphe",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q70802",
@@ -739,7 +851,9 @@
       ],
       "sitelinks": 83,
       "en_title": "French Third Republic",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q181946",
@@ -752,7 +866,9 @@
       ],
       "sitelinks": 83,
       "en_title": "Argenteuil",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grand Paris"
     },
     {
       "qid": "Q193929",
@@ -765,7 +881,9 @@
       ],
       "sitelinks": 83,
       "en_title": "Suresnes",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grand Paris"
     },
     {
       "qid": "Q199820",
@@ -778,7 +896,9 @@
       ],
       "sitelinks": 83,
       "en_title": "Paris Peace Conference (1919–1920)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q170507",
@@ -792,7 +912,9 @@
       ],
       "sitelinks": 82,
       "en_title": "Nanterre",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "arrondissement of Nanterre"
     },
     {
       "qid": "Q183213",
@@ -807,7 +929,9 @@
       ],
       "sitelinks": 81,
       "en_title": "Institut polytechnique des sciences avancées",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Ivry-sur-Seine"
     },
     {
       "qid": "Q46135",
@@ -821,7 +945,9 @@
       ],
       "sitelinks": 79,
       "en_title": "Créteil",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "arrondissement of Créteil"
     },
     {
       "qid": "Q249852",
@@ -834,7 +960,9 @@
       ],
       "sitelinks": 78,
       "en_title": "Bourg-la-Reine",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grand Paris"
     },
     {
       "qid": "Q987729",
@@ -848,7 +976,9 @@
       ],
       "sitelinks": 78,
       "en_title": "La Défense",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hauts-de-Seine"
     },
     {
       "qid": "Q189715",
@@ -861,7 +991,9 @@
       ],
       "sitelinks": 78,
       "en_title": "Courbevoie",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grand Paris"
     },
     {
       "qid": "Q18718876",
@@ -875,7 +1007,9 @@
       ],
       "sitelinks": 75,
       "en_title": "Charlie Hebdo shooting",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "11th arrondissement of Paris"
     },
     {
       "qid": "Q163891",
@@ -888,7 +1022,9 @@
       ],
       "sitelinks": 74,
       "en_title": "St. Bartholomew's Day massacre",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     }
   ],
   "restaurants": [
@@ -904,7 +1040,9 @@
       "strategy": "p131",
       "instance_of": [
         "food market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q1025693",
@@ -918,7 +1056,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q1025686",
@@ -932,7 +1072,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q1147912",
@@ -946,7 +1088,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q751293",
@@ -960,7 +1104,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q1235554",
@@ -974,7 +1120,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "8th arrondissement of Paris"
     },
     {
       "qid": "Q1025695",
@@ -988,7 +1136,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "14th arrondissement of Paris"
     },
     {
       "qid": "Q1338260",
@@ -1002,7 +1152,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "5th arrondissement of Paris"
     },
     {
       "qid": "Q2933008",
@@ -1016,7 +1168,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "9th arrondissement of Paris"
     },
     {
       "qid": "Q851372",
@@ -1030,7 +1184,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Paris"
     },
     {
       "qid": "Q868676",
@@ -1044,7 +1200,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "6th arrondissement of Paris"
     },
     {
       "qid": "Q1025611",
@@ -1058,7 +1216,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "17th arrondissement of Paris"
     },
     {
       "qid": "Q1810254",
@@ -1072,7 +1232,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "12th arrondissement of Paris"
     },
     {
       "qid": "Q1025688",
@@ -1086,7 +1248,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "9th arrondissement of Paris"
     },
     {
       "qid": "Q2593762",
@@ -1100,7 +1264,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "18th arrondissement of Paris"
     },
     {
       "qid": "Q2399858",
@@ -1114,7 +1280,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "9th arrondissement of Paris"
     },
     {
       "qid": "Q1441258",
@@ -1128,7 +1296,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Quartier Notre-Dame-des-Champs"
     },
     {
       "qid": "Q2894560",
@@ -1142,7 +1312,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "2nd arrondissement of Paris"
     },
     {
       "qid": "Q45107",
@@ -1156,7 +1328,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q2896854",
@@ -1170,7 +1344,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "1st arrondissement of Paris"
     },
     {
       "qid": "Q2010697",
@@ -1184,7 +1360,9 @@
       "strategy": "p131",
       "instance_of": [
         "market hall"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "19th arrondissement of Paris"
     },
     {
       "qid": "Q3040039",
@@ -1198,7 +1376,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Gaillon"
     },
     {
       "qid": "Q1064672",
@@ -1212,7 +1392,9 @@
       "strategy": "p131",
       "instance_of": [
         "market hall"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "3rd arrondissement of Paris"
     },
     {
       "qid": "Q614681",
@@ -1226,7 +1408,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Paris"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg/1280px-La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg",

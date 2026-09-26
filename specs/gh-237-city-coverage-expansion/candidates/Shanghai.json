@@ -25,7 +25,9 @@
       "sitelinks": 17,
       "en_title": "Park Hotel Shanghai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Huangpu District"
     },
     {
       "qid": "Q877527",
@@ -37,7 +39,9 @@
       "sitelinks": 11,
       "en_title": "Astor House Hotel (Shanghai)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q377875",
@@ -49,7 +53,9 @@
       "sitelinks": 10,
       "en_title": "Peace Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Waitan Subdistrict"
     },
     {
       "qid": "Q23804",
@@ -61,7 +67,9 @@
       "sitelinks": 9,
       "en_title": "Broadway Mansions",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beiwaitan Subdistrict"
     },
     {
       "qid": "Q1068235",
@@ -73,7 +81,9 @@
       "sitelinks": 6,
       "en_title": "Shanghai Jinjiang Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Ruijinerlu Subdistrict"
     },
     {
       "qid": "Q10867930",
@@ -85,7 +95,9 @@
       "sitelinks": 6,
       "en_title": "New Asia Hotel (Shanghai)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hongkou"
     },
     {
       "qid": "Q5594663",
@@ -97,7 +109,9 @@
       "sitelinks": 4,
       "en_title": "Grand Hyatt Shanghai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lujiazui Subdistrict"
     },
     {
       "qid": "Q25112761",
@@ -109,7 +123,9 @@
       "sitelinks": 4,
       "en_title": "Pacific Hotel Shanghai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nanjingdonglu Subdistrict"
     },
     {
       "qid": "Q3792147",
@@ -121,7 +137,9 @@
       "sitelinks": 3,
       "en_title": "JW Marriott Shanghai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Huangpu District"
     },
     {
       "qid": "Q5189548",
@@ -133,7 +151,9 @@
       "sitelinks": 3,
       "en_title": "Crowne Plaza Shanghai Anting Golf",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q7773702",
@@ -145,7 +165,9 @@
       "sitelinks": 3,
       "en_title": "The Water House",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q106878338",
@@ -157,7 +179,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Changning District"
     },
     {
       "qid": "Q7591597",
@@ -169,7 +193,9 @@
       "sitelinks": 2,
       "en_title": "Hongla Hotel Shanghai",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q109413335",
@@ -181,7 +207,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nanjingdonglu Subdistrict"
     },
     {
       "qid": "Q123200364",
@@ -193,7 +221,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhangjiang Hi-Tech Park"
     },
     {
       "qid": "Q123278344",
@@ -205,7 +235,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nanjingdonglu Subdistrict"
     },
     {
       "qid": "Q7553767",
@@ -217,7 +249,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Pudong"
     },
     {
       "qid": "Q26308310",
@@ -229,7 +263,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q111404374",
@@ -241,7 +277,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "111 Pudong Road (S), Pudong, Shanghai 200120",
+      "district_en": "Pudong"
     },
     {
       "qid": "Q56242332",
@@ -253,7 +291,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shanghai"
     }
   ],
   "places": [
@@ -268,7 +308,9 @@
       ],
       "sitelinks": 60,
       "en_title": "Shanghai World Financial Center",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "100 Century Avenue, Pudong, Shanghai, China",
+      "district_en": "Pudong"
     },
     {
       "qid": "Q125378",
@@ -283,7 +325,9 @@
       ],
       "sitelinks": 58,
       "en_title": "Pudong",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q18547",
@@ -296,7 +340,9 @@
       ],
       "sitelinks": 57,
       "en_title": "Shanghai Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q495015",
@@ -311,7 +357,9 @@
       ],
       "sitelinks": 55,
       "en_title": "Fudan University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Yangpu District"
     },
     {
       "qid": "Q80813",
@@ -324,7 +372,9 @@
       ],
       "sitelinks": 52,
       "en_title": "Jin Mao Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q223207",
@@ -340,7 +390,9 @@
       ],
       "sitelinks": 52,
       "en_title": "Oriental Pearl Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q421811",
@@ -355,7 +407,9 @@
       ],
       "sitelinks": 46,
       "en_title": "Shanghai Hongqiao International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Minhang District"
     },
     {
       "qid": "Q192452",
@@ -368,7 +422,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Expo 2010",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q99785",
@@ -381,7 +437,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Huangpu River",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q728085",
@@ -394,7 +452,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Shanghai Masters (tennis)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q254599",
@@ -408,7 +468,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Battle of Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q660185",
@@ -421,7 +483,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Huangpu, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q2034790",
@@ -435,7 +499,9 @@
       ],
       "sitelinks": 36,
       "en_title": "East China Normal University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q125474",
@@ -449,7 +515,9 @@
       ],
       "sitelinks": 35,
       "en_title": "The Bund",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q1051293",
@@ -462,7 +530,9 @@
       ],
       "sitelinks": 35,
       "en_title": "Shanghai Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Huangpu District"
     },
     {
       "qid": "Q660789",
@@ -475,7 +545,9 @@
       ],
       "sitelinks": 34,
       "en_title": "Jing'an, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q661828",
@@ -488,7 +560,9 @@
       ],
       "sitelinks": 32,
       "en_title": "Baoshan, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q660952",
@@ -501,7 +575,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Putuo, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q57002",
@@ -514,7 +590,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Xuhui, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q1161278",
@@ -527,7 +605,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Shanghai Shimao Festival City",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q661695",
@@ -540,7 +620,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Minhang, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q739528",
@@ -553,7 +635,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Shanghai Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Xuhui District"
     },
     {
       "qid": "Q579977",
@@ -567,7 +651,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Nanjing Road",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q660626",
@@ -580,7 +666,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Changning, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q661364",
@@ -593,7 +681,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Hongkou, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q1328025",
@@ -607,7 +697,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Yu Garden",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Huangpu District"
     },
     {
       "qid": "Q769591",
@@ -623,7 +715,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Shanghai maglev train",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Pudong"
     },
     {
       "qid": "Q661533",
@@ -637,7 +731,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Yangpu, Shanghai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q515545",
@@ -651,7 +747,9 @@
       ],
       "sitelinks": 27,
       "en_title": "January 28 incident",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q907674",
@@ -664,7 +762,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Suzhou Creek",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Suzhou"
     },
     {
       "qid": "Q314645",
@@ -677,7 +777,9 @@
       ],
       "sitelinks": 26,
       "en_title": "Shanghai Ghetto",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q477369",
@@ -690,7 +792,9 @@
       ],
       "sitelinks": 26,
       "en_title": "Shanghai International Film Festival",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1078123",
@@ -703,7 +807,9 @@
       ],
       "sitelinks": 25,
       "en_title": "People's Square (Shanghai)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q197124",
@@ -716,7 +822,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Zhabei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q1325611",
@@ -731,7 +839,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Shanghai Grand Theatre",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Nanjingdonglu Subdistrict"
     },
     {
       "qid": "Q1343386",
@@ -744,7 +854,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Shanghai University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shanghai"
     },
     {
       "qid": "Q201773",
@@ -757,7 +869,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Hongkou Football Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hongkou"
     },
     {
       "qid": "Q865312",
@@ -770,7 +884,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Shanghai Disneyland",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Chuanshaxin Town"
     }
   ],
   "restaurants": [
@@ -786,7 +902,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q97186240",
@@ -800,7 +918,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q97300320",
@@ -814,7 +934,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Nanjingdonglu Subdistrict"
     },
     {
       "qid": "Q16925170",
@@ -828,7 +950,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q15904498",
@@ -842,7 +966,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q132278418",
@@ -856,7 +982,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Hongkou"
     },
     {
       "qid": "Q16836639",
@@ -870,7 +998,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg/1280px-20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg",

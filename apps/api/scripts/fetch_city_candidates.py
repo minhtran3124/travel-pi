@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import math
 import re
 import sys
 import time
@@ -173,14 +174,21 @@ def _throttle() -> None:
 
 def _retry_after_seconds(value: str | None, attempt: int) -> float:
     """Parse a ``Retry-After`` header value -- delay-seconds or an HTTP-date --
-    falling back to the exponential backoff on anything unparsable. Never raises."""
+    falling back to the exponential backoff on anything unparsable. Never raises.
+    Clamped to [0, 120]: a non-finite (inf/nan) or absurdly large value from either
+    branch (a malformed seconds value or a date far in the future/past) must never
+    stall or busy-loop the retry."""
     backoff = 2.0 * (attempt + 1)
     if not value:
         return backoff
     try:
-        return float(value)
+        seconds = float(value)
     except ValueError:
         pass
+    else:
+        if not math.isfinite(seconds):
+            return backoff
+        return max(0.0, min(seconds, 120.0))
     try:
         when = parsedate_to_datetime(value)
     except (TypeError, ValueError):
@@ -189,7 +197,10 @@ def _retry_after_seconds(value: str | None, attempt: int) -> float:
         return backoff
     if when.tzinfo is None:
         when = when.replace(tzinfo=timezone.utc)
-    return max((when - datetime.now(timezone.utc)).total_seconds(), 0.0)
+    seconds = (when - datetime.now(timezone.utc)).total_seconds()
+    if not math.isfinite(seconds):
+        return backoff
+    return max(0.0, min(seconds, 120.0))
 
 
 def _get_with_retry(
@@ -987,10 +998,103 @@ def fetch_city_candidates(
     }
 
 
+def _address_enrichment_query(qids: list[str]) -> str:
+    """One item per row: the item's own English P131 district label (its immediate
+    ``located in`` administrative area) and, only when it exists, an English-tagged
+    P6375 street address. ``SAMPLE`` collapses an item with more than one P131/P6375
+    statement to a single row each -- a curated address only ever needs one of each,
+    and the label service already restricts ``?districtLabel`` to English text (an
+    entity with no English label leaves it unbound rather than falling back to a
+    non-Latin script), so neither aggregate can surface non-Latin text."""
+    values = " ".join(f"wd:{q}" for q in qids)
+    # Deliberately flat (no GROUP BY/SAMPLE): wrapping this in an aggregating subquery
+    # measured 100x+ slower on live WDQS (a ~60s query vs ~0.4s here) and, combined
+    # with the label service, silently dropped ?districtLabel entirely. An item with
+    # more than one P131/P6375(en) statement yields one row per combination; the
+    # caller dedups by QID and keeps the first.
+    return f"""
+    SELECT ?item ?districtLabel ?addrEn WHERE {{
+      VALUES ?item {{ {values} }}
+      OPTIONAL {{ ?item wdt:P131 ?district . }}
+      OPTIONAL {{ ?item wdt:P6375 ?addr . FILTER(lang(?addr) = "en") BIND(STR(?addr) AS ?addrEn) }}
+      SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
+    }}
+    """
+
+
+def fetch_address_enrichment(qids: list[str]) -> dict[str, dict[str, str | None]]:
+    """Fetch ``district_en``/``address_en`` for each QID, batched in groups of 50 to
+    keep the SPARQL request body and the WDQS query cost bounded. Returns only the
+    QIDs that resolved to at least one of the two fields; a QID with neither an
+    English P131 label nor an English P6375 statement is simply absent from the
+    result, and the caller leaves its existing ``address`` untouched."""
+    out: dict[str, dict[str, str | None]] = {}
+    for batch in _chunks(sorted(set(qids)), 50):
+        rows = (
+            _sparql_or_none(_address_enrichment_query(batch), what="address enrichment")
+            or []
+        )
+        for row in rows:
+            qid = _qid_from_uri(_val(row, "item"))
+            if not qid:
+                continue
+            district_en = _val(row, "districtLabel")
+            address_en = _val(row, "addrEn")
+            if not (district_en or address_en):
+                continue
+            # The query is flat (no GROUP BY -- see _address_enrichment_query), so an
+            # item with more than one matching P131/P6375(en) statement yields more
+            # than one row; keep the first non-null value found for each field rather
+            # than letting a later row blank one out.
+            existing = out.setdefault(qid, {"district_en": None, "address_en": None})
+            if district_en and not existing["district_en"]:
+                existing["district_en"] = district_en
+            if address_en and not existing["address_en"]:
+                existing["address_en"] = address_en
+    return out
+
+
+def enrich_candidate_file(path: Path) -> tuple[int, int]:
+    """Backfill ``address_en``/``district_en`` onto every hotel/place/restaurant entry
+    in one existing ``candidates/<city>.json`` that does not already carry them --
+    idempotent, and never touches any other field or re-runs the full fetch (which
+    could change which candidates were selected). Returns (checked, updated)."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    entries = [
+        e
+        for group in ("hotels", "places", "restaurants")
+        for e in data.get(group, [])
+        if "qid" in e and "address_en" not in e and "district_en" not in e
+    ]
+    if not entries:
+        return (0, 0)
+    qids = [e["qid"] for e in entries]
+    enrichment = fetch_address_enrichment(qids)
+    updated = 0
+    for entry in entries:
+        info = enrichment.get(entry["qid"])
+        entry["address_en"] = info.get("address_en") if info else None
+        entry["district_en"] = info.get("district_en") if info else None
+        if info:
+            updated += 1
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    return (len(entries), updated)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("city", help="City name, e.g. Osaka")
-    parser.add_argument("qid", help="The city's Wikidata QID, e.g. Q35765")
+    parser.add_argument("city", nargs="?", help="City name, e.g. Osaka")
+    parser.add_argument("qid", nargs="?", help="The city's Wikidata QID, e.g. Q35765")
+    parser.add_argument(
+        "--enrich-addresses",
+        nargs="+",
+        metavar="CANDIDATE_JSON",
+        help=(
+            "Backfill address_en/district_en onto one or more existing "
+            "candidates/<city>.json files in place, without refetching the city "
+            "(city/qid are ignored in this mode)"
+        ),
+    )
     parser.add_argument(
         "--out",
         default="../../specs/gh-237-city-coverage-expansion/candidates",
@@ -1030,6 +1134,21 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     args = parser.parse_args(argv)
+
+    if args.enrich_addresses:
+        total_checked = 0
+        total_updated = 0
+        for raw_path in args.enrich_addresses:
+            path = Path(raw_path)
+            checked, updated = enrich_candidate_file(path)
+            total_checked += checked
+            total_updated += updated
+            print(f"{path}: checked {checked}, enriched {updated}")
+        print(f"TOTAL: checked {total_checked}, enriched {total_updated}")
+        return 0
+
+    if not args.city or not args.qid:
+        parser.error("city and qid are required unless --enrich-addresses is used")
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)

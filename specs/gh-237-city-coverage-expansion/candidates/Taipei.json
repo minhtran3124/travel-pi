@@ -25,7 +25,9 @@
       "sitelinks": 10,
       "en_title": "Grand Hotel (Taipei)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q5594666",
@@ -37,7 +39,9 @@
       "sitelinks": 6,
       "en_title": "Grand Hyatt Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Xingya Village"
     },
     {
       "qid": "Q10882911",
@@ -49,7 +53,9 @@
       "sitelinks": 4,
       "en_title": "The Landis Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q15931142",
@@ -61,7 +67,9 @@
       "sitelinks": 4,
       "en_title": "Shangri-La Far Eastern, Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Da'an District"
     },
     {
       "qid": "Q8070981",
@@ -73,7 +81,9 @@
       "sitelinks": 3,
       "en_title": "Zhongxing Guesthouse",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beitou District"
     },
     {
       "qid": "Q10914091",
@@ -85,7 +95,9 @@
       "sitelinks": 3,
       "en_title": "W Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Xingya Village"
     },
     {
       "qid": "Q16926539",
@@ -97,7 +109,9 @@
       "sitelinks": 3,
       "en_title": "Le Méridien Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Xinyi District"
     },
     {
       "qid": "Q16926542",
@@ -109,7 +123,9 @@
       "sitelinks": 3,
       "en_title": "Mandarin Oriental, Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "No. 158 Dunhua North Road, 10548 Taipei, Taiwan",
+      "district_en": "Songshan District"
     },
     {
       "qid": "Q17374602",
@@ -121,7 +137,9 @@
       "sitelinks": 3,
       "en_title": "Regent Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q30948242",
@@ -133,7 +151,9 @@
       "sitelinks": 3,
       "en_title": "The Okura Prestige Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q80214453",
@@ -145,7 +165,9 @@
       "sitelinks": 3,
       "en_title": "Grand Mayfull Hotel Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q108294971",
@@ -157,7 +179,9 @@
       "sitelinks": 3,
       "en_title": "Hotel Metropolitan Premier Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q110852267",
@@ -169,7 +193,9 @@
       "sitelinks": 3,
       "en_title": "Marriott Taipei",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q113499115",
@@ -181,7 +207,9 @@
       "sitelinks": 3,
       "en_title": "Sheraton Grand Taipei Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q113961474",
@@ -193,7 +221,9 @@
       "sitelinks": 2,
       "en_title": "Hotel Indigo Taipei North",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q10893396",
@@ -205,7 +235,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q28411270",
@@ -217,7 +249,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Datong District"
     },
     {
       "qid": "Q130633434",
@@ -229,7 +263,9 @@
       "sitelinks": 1,
       "en_title": "The Blue (hotel)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "No. 22, Guanqian Rd, Zhongzheng District, Taipei City, Taiwan 100",
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q125569242",
@@ -241,7 +277,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beitou District"
     },
     {
       "qid": "Q140528754",
@@ -253,7 +291,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "No. 535, Sec. 4, Zhongxiao East Road, Xinyi Distrist, Taipei, Taiwan",
+      "district_en": "Xinyi District"
     },
     {
       "qid": "Q56670657",
@@ -265,7 +305,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Wanhua District"
     },
     {
       "qid": "Q97695677",
@@ -277,7 +319,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Da'an District"
     },
     {
       "qid": "Q110852293",
@@ -289,7 +333,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q113961554",
@@ -301,7 +347,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shilin District"
     },
     {
       "qid": "Q115969423",
@@ -313,7 +361,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q115969446",
@@ -325,7 +375,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q115969468",
@@ -337,7 +389,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Songshan District"
     },
     {
       "qid": "Q115969558",
@@ -349,7 +403,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q115969641",
@@ -361,7 +417,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Da'an District"
     },
     {
       "qid": "Q115969657",
@@ -373,7 +431,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q128752465",
@@ -385,7 +445,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q137013738",
@@ -397,7 +459,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q137144340",
@@ -409,7 +473,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q137160566",
@@ -421,7 +487,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q138498408",
@@ -433,7 +501,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q138498438",
@@ -445,7 +515,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q138498510",
@@ -457,7 +529,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q72913529",
@@ -469,7 +543,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Songshan District"
     }
   ],
   "places": [
@@ -484,7 +560,9 @@
       ],
       "sitelinks": 84,
       "en_title": "Taipei 101",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Xicun Village"
     },
     {
       "qid": "Q244898",
@@ -500,7 +578,9 @@
       ],
       "sitelinks": 76,
       "en_title": "New Taipei City",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taiwan"
     },
     {
       "qid": "Q540668",
@@ -514,7 +594,9 @@
       ],
       "sitelinks": 50,
       "en_title": "National Palace Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shilin District"
     },
     {
       "qid": "Q32746",
@@ -530,7 +612,9 @@
       ],
       "sitelinks": 47,
       "en_title": "National Taiwan University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Da'an District"
     },
     {
       "qid": "Q685664",
@@ -544,7 +628,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Fu Jen Catholic University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Xinzhuang District"
     },
     {
       "qid": "Q714810",
@@ -558,7 +644,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Taipei Metro",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q18951344",
@@ -571,7 +659,9 @@
       ],
       "sitelinks": 41,
       "en_title": "TransAsia Airways Flight 235",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q715869",
@@ -586,7 +676,9 @@
       ],
       "sitelinks": 35,
       "en_title": "Legislative Yuan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q540794",
@@ -600,7 +692,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Chiang Kai-shek Memorial Hall",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q702019",
@@ -616,7 +710,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Songshan Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Songshan District"
     },
     {
       "qid": "Q570090",
@@ -629,7 +725,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Banqiao District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New Taipei City"
     },
     {
       "qid": "Q337266",
@@ -642,7 +740,9 @@
       ],
       "sitelinks": 25,
       "en_title": "Academia Sinica",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q254626",
@@ -655,7 +755,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Shilin District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q271151",
@@ -668,7 +770,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Xinyi District, Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q252864",
@@ -681,7 +785,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Beitou District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q197859",
@@ -694,7 +800,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Zhonghe District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q271094",
@@ -707,7 +815,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Neihu District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q708976",
@@ -720,7 +830,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Keelung River",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q712849",
@@ -735,7 +847,9 @@
       ],
       "sitelinks": 22,
       "en_title": "National Chengchi University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Wenshan District"
     },
     {
       "qid": "Q570880",
@@ -748,7 +862,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Yonghe District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q175581",
@@ -761,7 +877,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Zhongzheng District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q271073",
@@ -774,7 +892,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Nangang District, Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q271143",
@@ -787,7 +907,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Wenshan District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q252951",
@@ -800,7 +922,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Daan District, Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q271060",
@@ -813,7 +937,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Datong District, Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q271124",
@@ -826,7 +952,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Songshan District, Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q717882",
@@ -839,7 +967,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Taipei Grand Mosque",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Da'an District"
     },
     {
       "qid": "Q340192",
@@ -852,7 +982,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Xindian District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New Taipei City"
     },
     {
       "qid": "Q718405",
@@ -865,7 +997,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Examination Yuan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q271134",
@@ -878,7 +1012,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Wanhua District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q373768",
@@ -891,7 +1027,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Xinzhuang District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q570382",
@@ -904,7 +1042,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Shiding District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New Taipei City"
     },
     {
       "qid": "Q570501",
@@ -917,7 +1057,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Taishan District, New Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q570601",
@@ -930,7 +1072,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Xizhi District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei County"
     },
     {
       "qid": "Q706712",
@@ -946,7 +1090,9 @@
       ],
       "sitelinks": 18,
       "en_title": "National Taiwan Normal University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q271167",
@@ -959,7 +1105,9 @@
       ],
       "sitelinks": 18,
       "en_title": "Zhongshan District, Taipei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q591131",
@@ -970,7 +1118,9 @@
       "instance_of": [],
       "sitelinks": 16,
       "en_title": "Taipei Zoo",
-      "strategy": "manual"
+      "strategy": "manual",
+      "address_en": null,
+      "district_en": "Wenshan District"
     },
     {
       "qid": "Q63227",
@@ -981,7 +1131,9 @@
       "instance_of": [],
       "sitelinks": 16,
       "en_title": "Ximending",
-      "strategy": "manual"
+      "strategy": "manual",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q706761",
@@ -992,7 +1144,9 @@
       "instance_of": [],
       "sitelinks": 15,
       "en_title": "Longshan Temple (Taipei)",
-      "strategy": "manual"
+      "strategy": "manual",
+      "address_en": null,
+      "district_en": "Fumin Village"
     }
   ],
   "restaurants": [
@@ -1006,7 +1160,9 @@
       "sitelinks": 10,
       "en_title": "Shilin Night Market",
       "strategy": "manual",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shilin District"
     },
     {
       "qid": "Q5017087",
@@ -1020,7 +1176,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q10940854",
@@ -1034,7 +1192,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q60992442",
@@ -1048,7 +1208,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Songshan District"
     },
     {
       "qid": "Q119520955",
@@ -1062,7 +1224,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Zhongzheng District"
     },
     {
       "qid": "Q126284072",
@@ -1076,7 +1240,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Datong District"
     },
     {
       "qid": "Q16242253",
@@ -1090,7 +1256,9 @@
       "strategy": "p131",
       "instance_of": [
         "fish market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Zhongshan District"
     },
     {
       "qid": "Q10379836",
@@ -1104,7 +1272,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q120860704",
@@ -1118,7 +1288,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Xicun Village"
     },
     {
       "qid": "Q137536951",
@@ -1132,7 +1304,9 @@
       "strategy": "p131",
       "instance_of": [
         "bakery"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Ciyou Village"
     },
     {
       "qid": "Q138864417",
@@ -1146,7 +1320,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Wanhua District"
     },
     {
       "qid": "Q84956489",
@@ -1160,7 +1336,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q133974913",
@@ -1174,7 +1352,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Taipei"
     },
     {
       "qid": "Q139678619",
@@ -1188,7 +1368,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Da'an District"
     },
     {
       "qid": "Q139959828",
@@ -1202,7 +1384,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Yongle Village"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/20260204_Taipei%2C_Taiwan_Skyline.jpg/1280px-20260204_Taipei%2C_Taiwan_Skyline.jpg",

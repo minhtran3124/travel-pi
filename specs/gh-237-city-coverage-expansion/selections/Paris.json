@@ -49,8 +49,8 @@
     },
     {
       "qid": "Q1515595",
-      "star_rating": 4,
-      "price_per_night": 250,
+      "star_rating": 5,
+      "price_per_night": 340,
       "amenities": [
         "Restaurant",
         "Gym",
@@ -68,7 +68,8 @@
       "languages_spoken": [
         "English",
         "French"
-      ]
+      ],
+      "status_reviewed": "extract: 'branded since 2025 as the Mandarin Oriental Lutetia, Paris, ... is one of the best-known hotels on the Rive Gauche'; the Mandarin Oriental rebrand and its status among Paris's best-known Left Bank hotels place it in the city's 5-star/palace tier -- reclassified from the seeded 4-star/$250"
     },
     {
       "qid": "Q217708",

@@ -15,7 +15,7 @@
     "hotels": [
       {
         "name": "Waldorf-Astoria Hotel (New York, N.Y.)",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -47,7 +47,7 @@
       },
       {
         "name": "Plaza Hotel",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -78,7 +78,7 @@
       },
       {
         "name": "The St. Regis Hotel",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 5,
         "price_per_night": 400,
         "amenities": [
@@ -141,7 +141,7 @@
       },
       {
         "name": "Hotel Chelsea",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 3,
         "price_per_night": 120,
         "amenities": [
@@ -170,7 +170,7 @@
       },
       {
         "name": "New Yorker Hotel",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 3,
         "price_per_night": 95,
         "amenities": [
@@ -199,7 +199,7 @@
       },
       {
         "name": "New York Marriott Marquis",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -230,7 +230,7 @@
       },
       {
         "name": "M Social Hotel New York Downtown",
-        "address": "Manhattan",
+        "address": "Manhattan, New York",
         "star_rating": 4,
         "price_per_night": 200,
         "amenities": [
@@ -274,7 +274,7 @@
           "unesco"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "New York City, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg/1280px-Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg",
         "latitude": 40.689209,
         "longitude": -74.044425,
@@ -296,7 +296,7 @@
           "observation tower"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Empire_State_Building_from_Rockefeller_Center_%2851197886181%29_%28cropped%29.jpg/1280px-Empire_State_Building_from_Rockefeller_Center_%2851197886181%29_%28cropped%29.jpg",
         "latitude": 40.748333,
         "longitude": -73.985556,
@@ -318,7 +318,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Southwest_corner_of_Central_Park%2C_looking_east%2C_NYC.jpg/1280px-Southwest_corner_of_Central_Park%2C_looking_east%2C_NYC.jpg",
         "latitude": 40.7825,
         "longitude": -73.966111,
@@ -340,7 +340,7 @@
           "historic"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Brooklyn, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg/1280px-Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg",
         "latitude": 40.705667,
         "longitude": -73.996333,
@@ -362,7 +362,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/New_york_times_square-terabass.jpg/1280px-New_york_times_square-terabass.jpg",
         "latitude": 40.7575,
         "longitude": -73.985833,
@@ -384,7 +384,7 @@
           "historic"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg/1280px-Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg",
         "latitude": 40.779444,
         "longitude": -73.963333,
@@ -406,7 +406,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Photos_NewYork1_032.jpg",
         "latitude": 40.706185,
         "longitude": -74.009107,
@@ -428,7 +428,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Chrysler_Building_by_David_Shankbone_Retouched.jpg",
         "latitude": 40.751431,
         "longitude": -73.975719,
@@ -450,7 +450,7 @@
           "casual"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Lozupone_katz2.png/1280px-Lozupone_katz2.png",
         "latitude": 40.7223,
         "longitude": -73.9874,
@@ -472,7 +472,7 @@
           "views"
         ],
         "is_recommended": true,
-        "address": "New York",
+        "address": "Manhattan, New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Rainbow_Room_at_Rockefeller_Center_in_New_York.jpg/1280px-Rainbow_Room_at_Rockefeller_Center_in_New_York.jpg",
         "latitude": 40.759,
         "longitude": -73.979,
@@ -523,7 +523,7 @@
     "hotels": [
       {
         "name": "Hollywood Roosevelt Hotel",
-        "address": "California",
+        "address": "California, Los Angeles",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -554,7 +554,7 @@
       },
       {
         "name": "Chateau Marmont",
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "star_rating": 5,
         "price_per_night": 420,
         "amenities": [
@@ -585,7 +585,7 @@
       },
       {
         "name": "The Biltmore Los Angeles",
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -646,7 +646,7 @@
       },
       {
         "name": "Hotel Angeleno",
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "star_rating": 3,
         "price_per_night": 125,
         "amenities": [
@@ -673,7 +673,7 @@
       },
       {
         "name": "Westin Bonaventure Hotel",
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "star_rating": 4,
         "price_per_night": 240,
         "amenities": [
@@ -704,7 +704,7 @@
       },
       {
         "name": "Fairmont Century Plaza",
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -736,7 +736,7 @@
       },
       {
         "name": "Park Plaza Hotel",
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "star_rating": 3,
         "price_per_night": 105,
         "amenities": [
@@ -778,7 +778,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hollywood_sign_hill_view.jpg/1280px-Hollywood_sign_hill_view.jpg",
         "latitude": 34.098333,
         "longitude": -118.326667,
@@ -800,7 +800,7 @@
           "historic"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Stan_Freberg_Walk_of_fame.jpg/1280px-Stan_Freberg_Walk_of_fame.jpg",
         "latitude": 34.1014,
         "longitude": -118.344967,
@@ -822,7 +822,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles County, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg/1280px-Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg",
         "latitude": 34.073056,
         "longitude": -118.399444,
@@ -844,7 +844,7 @@
           "resort"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles County, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Ocean_Avenue.jpg/1280px-Ocean_Avenue.jpg",
         "latitude": 34.021944,
         "longitude": -118.481389,
@@ -888,7 +888,7 @@
           "city"
         ],
         "is_recommended": false,
-        "address": "Los Angeles",
+        "address": "Los Angeles County, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Pasadena_City_Hall_2.jpg/1280px-Pasadena_City_Hall_2.jpg",
         "latitude": 34.1475,
         "longitude": -118.143889,
@@ -910,7 +910,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif/lossy-page1-1280px-Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif.jpg",
         "latitude": 34.118561,
         "longitude": -118.300369,
@@ -919,26 +919,26 @@
         "evidence": "The observatory is a popular tourist attraction with a close view of the Hollywood Sign and an extensive array of space and science-related displays."
       },
       {
-        "name": "University of California, Los Angeles",
+        "name": "Santa Monica Pier",
         "category": "attraction",
-        "description": "Major public research university in Westwood. Home to renowned academic and research programs and iconic Royce Hall.",
-        "rating": 4.3,
-        "review_count": 15000,
+        "description": "A historic pier in Santa Monica with a small amusement park, concession stands, and ocean views along its boardwalk.",
+        "rating": 4.5,
+        "review_count": 18000,
         "price_level": 1,
         "opening_hours": "Open 24 hours",
         "tags": [
-          "university",
-          "academic",
-          "cultural"
+          "pier",
+          "amusement park",
+          "beachfront"
         ],
-        "is_recommended": false,
-        "address": "Los Angeles",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Royce_Hall%2C_University_of_California%2C_Los_Angeles_%2823-09-2003%29.jpg",
-        "latitude": 34.072222,
-        "longitude": -118.442778,
-        "wikidata": "Q174710",
-        "source_url": "https://en.wikipedia.org/wiki/University_of_California,_Los_Angeles",
-        "evidence": "public research university"
+        "is_recommended": true,
+        "address": "Santa Monica, Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Aerial_Photo_of_Santa_Monica_Pier.jpg/1280px-Aerial_Photo_of_Santa_Monica_Pier.jpg",
+        "latitude": 34.008611,
+        "longitude": -118.498611,
+        "wikidata": "Q595439",
+        "source_url": "https://en.wikipedia.org/wiki/Santa_Monica_Pier",
+        "evidence": "contains a small amusement park, concession stands, and areas for views and fishing"
       },
       {
         "name": "Pink's Hot Dogs",
@@ -954,7 +954,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pinks_Hot_Dogs.jpg/1280px-Pinks_Hot_Dogs.jpg",
         "latitude": 34.0839,
         "longitude": -118.344,
@@ -976,7 +976,7 @@
           "fine dining"
         ],
         "is_recommended": true,
-        "address": "Los Angeles",
+        "address": "Los Angeles, Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Musso%26Franks_05.jpg/1280px-Musso%26Franks_05.jpg",
         "latitude": 34.1017,
         "longitude": -118.335,

@@ -24,7 +24,9 @@
       "sitelinks": 5,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Avenidas Novas"
     },
     {
       "qid": "Q10343981",
@@ -36,7 +38,9 @@
       "sitelinks": 4,
       "en_title": "Pestana Palace",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Alcântara"
     },
     {
       "qid": "Q1631052",
@@ -48,7 +52,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q48869166",
@@ -60,7 +66,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q66814330",
@@ -72,7 +80,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q73760891",
@@ -84,7 +94,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Misericórdia"
     },
     {
       "qid": "Q90334779",
@@ -96,7 +108,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q111408393",
@@ -108,7 +122,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408400",
@@ -120,7 +136,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408484",
@@ -132,7 +150,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Campolide"
     },
     {
       "qid": "Q111408488",
@@ -144,7 +164,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q111408507",
@@ -156,7 +178,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q111408560",
@@ -168,7 +192,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Alcântara"
     },
     {
       "qid": "Q111408567",
@@ -180,7 +206,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Belém"
     },
     {
       "qid": "Q112010675",
@@ -192,7 +220,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Parque das Nações"
     },
     {
       "qid": "Q112010730",
@@ -204,7 +234,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q134359743",
@@ -216,7 +248,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q30337468",
@@ -228,7 +262,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Rua Engenheiro Vieira da Silva 2, Lisbon, 1050-105",
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q69870243",
@@ -240,7 +276,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q96756370",
@@ -252,7 +290,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q96756371",
@@ -264,7 +304,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q111124433",
@@ -276,7 +318,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408387",
@@ -288,7 +332,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408388",
@@ -300,7 +346,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Parque das Nações"
     },
     {
       "qid": "Q111408392",
@@ -312,7 +360,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408397",
@@ -324,7 +374,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408409",
@@ -336,7 +388,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Avenidas Novas"
     },
     {
       "qid": "Q111408439",
@@ -348,7 +402,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408448",
@@ -360,7 +416,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q111408458",
@@ -372,7 +430,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408459",
@@ -384,7 +444,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408457",
@@ -396,7 +458,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408467",
@@ -408,7 +472,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408473",
@@ -420,7 +486,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408481",
@@ -432,7 +500,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q111408498",
@@ -444,7 +514,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408519",
@@ -456,7 +528,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111408541",
@@ -468,7 +542,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q111870739",
@@ -480,7 +556,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Arroios"
     }
   ],
   "places": [
@@ -495,7 +573,9 @@
       ],
       "sitelinks": 91,
       "en_title": "Portuguese Empire",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q25408640",
@@ -508,7 +588,9 @@
       ],
       "sitelinks": 71,
       "en_title": "Eurovision Song Contest 2018",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q102920",
@@ -521,7 +603,9 @@
       ],
       "sitelinks": 68,
       "en_title": "UEFA Euro 2004",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q126681",
@@ -534,7 +618,9 @@
       ],
       "sitelinks": 66,
       "en_title": "Sacavém",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sacavém e Prior Velho"
     },
     {
       "qid": "Q189166",
@@ -547,7 +633,9 @@
       ],
       "sitelinks": 65,
       "en_title": "Amadora",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grande Lisboa Subregion"
     },
     {
       "qid": "Q328015",
@@ -560,7 +648,9 @@
       ],
       "sitelinks": 62,
       "en_title": "Almada",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Península de Setúbal Subregion"
     },
     {
       "qid": "Q215003",
@@ -577,7 +667,9 @@
       ],
       "sitelinks": 57,
       "en_title": "Belém Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Belém"
     },
     {
       "qid": "Q272781",
@@ -591,7 +683,9 @@
       ],
       "sitelinks": 53,
       "en_title": "Jerónimos Monastery",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Belém"
     },
     {
       "qid": "Q233737",
@@ -608,7 +702,9 @@
       ],
       "sitelinks": 52,
       "en_title": "Vasco da Gama Bridge",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sacavém e Prior Velho"
     },
     {
       "qid": "Q403671",
@@ -624,7 +720,9 @@
       ],
       "sitelinks": 50,
       "en_title": "Lisbon Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Santa Maria dos Olivais"
     },
     {
       "qid": "Q7875112",
@@ -639,7 +737,9 @@
       ],
       "sitelinks": 49,
       "en_title": "Estádio da Luz",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "São Domingos de Benfica"
     },
     {
       "qid": "Q217394",
@@ -652,7 +752,9 @@
       ],
       "sitelinks": 49,
       "en_title": "Barreiro, Portugal",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Península de Setúbal Subregion"
     },
     {
       "qid": "Q926700",
@@ -665,7 +767,9 @@
       ],
       "sitelinks": 44,
       "en_title": "Oeiras, Portugal",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grande Lisboa Subregion"
     },
     {
       "qid": "Q1122926",
@@ -679,7 +783,9 @@
       ],
       "sitelinks": 43,
       "en_title": "University of Lisbon",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q917535",
@@ -692,7 +798,9 @@
       ],
       "sitelinks": 43,
       "en_title": "Loures",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grande Lisboa Subregion"
     },
     {
       "qid": "Q850837",
@@ -705,7 +813,9 @@
       ],
       "sitelinks": 41,
       "en_title": "Odivelas",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Grande Lisboa Subregion"
     },
     {
       "qid": "Q990448",
@@ -718,7 +828,9 @@
       ],
       "sitelinks": 41,
       "en_title": "Seixal",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Península de Setúbal Subregion"
     },
     {
       "qid": "Q287359",
@@ -733,7 +845,9 @@
       ],
       "sitelinks": 39,
       "en_title": "Estádio José Alvalade",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Lumiar"
     },
     {
       "qid": "Q826511",
@@ -746,7 +860,9 @@
       ],
       "sitelinks": 39,
       "en_title": "Montijo, Portugal",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Península de Setúbal Subregion"
     },
     {
       "qid": "Q27689",
@@ -759,7 +875,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Lisbon (region)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "continental Portugal"
     },
     {
       "qid": "Q539296",
@@ -773,7 +891,9 @@
       ],
       "sitelinks": 34,
       "en_title": "Eurosport 1",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q985517",
@@ -787,7 +907,9 @@
       ],
       "sitelinks": 34,
       "en_title": "Alfama",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q721152",
@@ -804,7 +926,9 @@
       ],
       "sitelinks": 33,
       "en_title": "25 de Abril Bridge",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Almada, Cova da Piedade, Pragal e Cacilhas"
     },
     {
       "qid": "Q740564",
@@ -817,7 +941,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Assembly of the Republic (Portugal)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q742117",
@@ -830,7 +956,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Estremadura Province (1936–1976)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Portugal"
     }
   ],
   "restaurants": [
@@ -846,7 +974,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q1517035",
@@ -860,7 +990,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Misericórdia"
     },
     {
       "qid": "Q30589995",
@@ -874,7 +1006,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Campo de Ourique"
     },
     {
       "qid": "Q1092410",
@@ -888,7 +1022,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q7689027",
@@ -902,7 +1038,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Misericórdia"
     },
     {
       "qid": "Q1056404",
@@ -916,7 +1054,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q10326949",
@@ -930,7 +1070,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q26794408",
@@ -944,7 +1086,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q48869091",
@@ -958,7 +1102,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santa Maria Maior"
     },
     {
       "qid": "Q1103277",
@@ -972,7 +1118,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q10328802",
@@ -986,7 +1134,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q124305026",
@@ -1000,7 +1150,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Avenidas Novas"
     },
     {
       "qid": "Q9672601",
@@ -1014,7 +1166,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q66814298",
@@ -1028,7 +1182,9 @@
       "strategy": "p131",
       "instance_of": [
         "bakery"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Campo de Ourique"
     },
     {
       "qid": "Q73767133",
@@ -1042,7 +1198,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Belém"
     },
     {
       "qid": "Q88691990",
@@ -1056,7 +1214,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q97361806",
@@ -1070,7 +1230,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Avenidas Novas"
     },
     {
       "qid": "Q98969070",
@@ -1084,7 +1246,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Santo António"
     },
     {
       "qid": "Q107722587",
@@ -1098,7 +1262,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Belém"
     },
     {
       "qid": "Q126901673",
@@ -1112,7 +1278,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Misericórdia"
     },
     {
       "qid": "Q126902409",
@@ -1126,7 +1294,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Misericórdia"
     },
     {
       "qid": "Q127693833",
@@ -1140,7 +1310,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Beato"
     },
     {
       "qid": "Q131879069",
@@ -1154,7 +1326,9 @@
       "strategy": "p131",
       "instance_of": [
         "market hall"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Avenidas Novas"
     },
     {
       "qid": "Q133296124",
@@ -1168,7 +1342,9 @@
       "strategy": "p131",
       "instance_of": [
         "market hall"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Arroios"
     },
     {
       "qid": "Q135153169",
@@ -1182,7 +1358,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Carnide"
     },
     {
       "qid": "Q136698466",
@@ -1196,7 +1374,9 @@
       "strategy": "p131",
       "instance_of": [
         "bakery"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Misericórdia"
     },
     {
       "qid": "Q88693258",
@@ -1210,7 +1390,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q88795040",
@@ -1224,7 +1406,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q88802667",
@@ -1238,7 +1422,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     },
     {
       "qid": "Q88806422",
@@ -1252,7 +1438,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Lisbon"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/4/43/Lisboa837.png",

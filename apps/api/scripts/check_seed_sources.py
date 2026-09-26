@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import time
@@ -209,14 +210,21 @@ def _chunks(items: list[str], size: int) -> list[list[str]]:
 
 def _retry_after_seconds(value: str | None, attempt: int) -> float:
     """Parse a ``Retry-After`` header value -- delay-seconds or an HTTP-date --
-    falling back to the exponential backoff on anything unparsable. Never raises."""
+    falling back to the exponential backoff on anything unparsable. Never raises.
+    Clamped to [0, 120]: a non-finite (inf/nan) or absurdly large value from either
+    branch (a malformed seconds value or a date far in the future/past) must never
+    stall or busy-loop the retry."""
     backoff = 2.0 * (attempt + 1)
     if not value:
         return backoff
     try:
-        return float(value)
+        seconds = float(value)
     except ValueError:
         pass
+    else:
+        if not math.isfinite(seconds):
+            return backoff
+        return max(0.0, min(seconds, 120.0))
     try:
         when = parsedate_to_datetime(value)
     except (TypeError, ValueError):
@@ -225,7 +233,10 @@ def _retry_after_seconds(value: str | None, attempt: int) -> float:
         return backoff
     if when.tzinfo is None:
         when = when.replace(tzinfo=timezone.utc)
-    return max((when - datetime.now(timezone.utc)).total_seconds(), 0.0)
+    seconds = (when - datetime.now(timezone.utc)).total_seconds()
+    if not math.isfinite(seconds):
+        return backoff
+    return max(0.0, min(seconds, 120.0))
 
 
 _NETWORK_ERROR_PREFIX = "NETWORK ERROR: "

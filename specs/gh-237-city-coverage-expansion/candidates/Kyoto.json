@@ -24,7 +24,9 @@
       "sitelinks": 6,
       "en_title": "Kyoto State Guest House",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Kamigyō-ku"
     },
     {
       "qid": "Q1520972",
@@ -36,7 +38,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q11288502",
@@ -48,7 +52,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q30595894",
@@ -60,7 +66,9 @@
       "sitelinks": 2,
       "en_title": "Heihachi Jaya",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Sakyō-ku"
     },
     {
       "qid": "Q11325962",
@@ -72,7 +80,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q11337956",
@@ -84,7 +94,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimogyō-ku"
     },
     {
       "qid": "Q11501050",
@@ -96,7 +108,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Minami-ku"
     },
     {
       "qid": "Q17209588",
@@ -108,7 +122,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q42418606",
@@ -120,7 +136,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q100152436",
@@ -132,7 +150,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Takaragaike, Sakyo-ku, Kyoto City, Kyoto",
+      "district_en": "Sakyō-ku"
     },
     {
       "qid": "Q111406779",
@@ -144,7 +164,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimogyō-ku"
     },
     {
       "qid": "Q111406782",
@@ -156,7 +178,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimogyō-ku"
     },
     {
       "qid": "Q17213069",
@@ -168,7 +192,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q17216981",
@@ -180,7 +206,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Ukyō Ward"
     },
     {
       "qid": "Q61056966",
@@ -192,7 +220,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Sakyō-ku"
     },
     {
       "qid": "Q100152663",
@@ -204,7 +234,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Kawaramachi-Oike, Nakagyo-ku, Kyoto",
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q100231049",
@@ -216,7 +248,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto 605-0932, Japan",
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q100252088",
@@ -228,7 +262,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimogyō-ku"
     },
     {
       "qid": "Q100253376",
@@ -240,7 +276,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimogyō-ku"
     },
     {
       "qid": "Q100254216",
@@ -252,7 +290,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "84 Ohashicho, Higashiyama-ku, Kyoto, 605-0009 Japan",
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q100256040",
@@ -264,7 +304,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "284 Nijoaburanokoji-cho, Aburano-koji St. Nijo-sagaru, Nakagyo-ku, Kyoto 604-0051",
+      "district_en": "Nakagyō Ward"
     }
   ],
   "places": [
@@ -280,7 +322,9 @@
       ],
       "sitelinks": 106,
       "en_title": "Kyoto Prefecture",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Japan"
     },
     {
       "qid": "Q131358",
@@ -293,7 +337,9 @@
       ],
       "sitelinks": 98,
       "en_title": "Shiga Prefecture",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Japan"
     },
     {
       "qid": "Q221716",
@@ -306,7 +352,9 @@
       ],
       "sitelinks": 77,
       "en_title": "Kiyomizu-dera",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q202907",
@@ -322,7 +370,9 @@
       ],
       "sitelinks": 70,
       "en_title": "Ōtsu",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Shiga Prefecture"
     },
     {
       "qid": "Q326956",
@@ -336,7 +386,9 @@
       ],
       "sitelinks": 60,
       "en_title": "Uji",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kyoto Prefecture"
     },
     {
       "qid": "Q270983",
@@ -350,7 +402,9 @@
       ],
       "sitelinks": 57,
       "en_title": "Kinkaku-ji",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kita-ku"
     },
     {
       "qid": "Q714828",
@@ -368,7 +422,9 @@
       ],
       "sitelinks": 41,
       "en_title": "Fushimi Inari-taisha",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kii district"
     },
     {
       "qid": "Q850640",
@@ -381,7 +437,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Mukō",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kyoto Prefecture"
     },
     {
       "qid": "Q861246",
@@ -394,7 +452,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Nagaokakyō, Kyoto",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kyoto Prefecture"
     },
     {
       "qid": "Q874027",
@@ -408,7 +468,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Historic Monuments of Ancient Kyoto (Kyoto, Uji and Otsu Cities)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Uji"
     },
     {
       "qid": "Q748040",
@@ -424,7 +486,9 @@
       ],
       "sitelinks": 39,
       "en_title": "Mount Hiei",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sakyō-ku"
     },
     {
       "qid": "Q61094",
@@ -437,7 +501,9 @@
       ],
       "sitelinks": 37,
       "en_title": "Byōdō-in",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Uji"
     },
     {
       "qid": "Q2859566",
@@ -451,7 +517,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Arashiyama",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Nishikyō Ward"
     },
     {
       "qid": "Q751907",
@@ -467,7 +535,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Heian-kyō",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kadono district"
     },
     {
       "qid": "Q257473",
@@ -481,7 +551,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Ginkaku-ji",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sakyō-ku"
     },
     {
       "qid": "Q1202239",
@@ -496,7 +568,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Kyoto Imperial Palace",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kamigyō-ku"
     },
     {
       "qid": "Q587371",
@@ -509,7 +583,9 @@
       ],
       "sitelinks": 32,
       "en_title": "Ryōan-ji",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Ukyō Ward"
     },
     {
       "qid": "Q917195",
@@ -522,7 +598,9 @@
       ],
       "sitelinks": 32,
       "en_title": "Enryaku-ji",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sakamotohonmachi"
     },
     {
       "qid": "Q926312",
@@ -537,7 +615,9 @@
       ],
       "sitelinks": 32,
       "en_title": "Gion",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q1046403",
@@ -551,7 +631,9 @@
       ],
       "sitelinks": 30,
       "en_title": "Tō-ji",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Minami-ku"
     },
     {
       "qid": "Q1013399",
@@ -565,7 +647,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Nijō Castle",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q921088",
@@ -578,7 +662,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Doshisha University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kyoto Prefecture"
     },
     {
       "qid": "Q385141",
@@ -593,7 +679,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Heian Shrine",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sakyō-ku"
     },
     {
       "qid": "Q700448",
@@ -611,7 +699,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Kamigamo Shrine",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "339 Kamigamomotoyama, Kita-ku, Kyōto-shi, Kyōto-fu 603-8047",
+      "district_en": "Kita-ku"
     },
     {
       "qid": "Q1196273",
@@ -624,7 +714,9 @@
       ],
       "sitelinks": 26,
       "en_title": "Fushimi Castle",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fushimi-ku"
     },
     {
       "qid": "Q749276",
@@ -637,7 +729,9 @@
       ],
       "sitelinks": 26,
       "en_title": "Yamashiro Province",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kinai"
     },
     {
       "qid": "Q842357",
@@ -650,7 +744,9 @@
       ],
       "sitelinks": 26,
       "en_title": "Hōgen rebellion",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     }
   ],
   "restaurants": [
@@ -666,7 +762,9 @@
       "strategy": "p131",
       "instance_of": [
         "food market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q11372742",
@@ -680,7 +778,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Higashiyama-ku"
     },
     {
       "qid": "Q11374968",
@@ -694,7 +794,9 @@
       "strategy": "p131",
       "instance_of": [
         "market hall"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Shimogyō-ku"
     },
     {
       "qid": "Q11671937",
@@ -708,7 +810,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Nakagyō Ward"
     },
     {
       "qid": "Q140053172",
@@ -722,7 +826,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "416 Shimomaruyachō, Nakagyo Ward, Kyoto, 604-8006",
+      "district_en": "Kyoto"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Pedestrian_road_with_pavements%2C_paper_umbrellas_and_people_in_yukata%2C_Higashiyama-ku%2C_Kyoto%2C_Japan.jpg/1280px-Pedestrian_road_with_pavements%2C_paper_umbrellas_and_people_in_yukata%2C_Higashiyama-ku%2C_Kyoto%2C_Japan.jpg",

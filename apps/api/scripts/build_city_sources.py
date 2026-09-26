@@ -22,6 +22,7 @@ import json
 import re
 import sys
 import tempfile
+import unicodedata
 from pathlib import Path
 
 SPEC = Path(__file__).resolve().parents[3] / "specs" / "gh-237-city-coverage-expansion"
@@ -343,6 +344,42 @@ def _wiki_url(title: str | None, qid: str) -> str:
     return f"https://www.wikidata.org/wiki/{qid}"
 
 
+def _is_latin_text(text: str) -> bool:
+    """True unless some non-ASCII *letter* in ``text`` is outside the Latin script
+    (Han, Kana, Hangul, Arabic, ...). Non-ASCII punctuation/marks/digits (accented
+    Latin letters, em dashes, curly quotes) are allowed -- only letters are checked
+    against their Unicode name, since Latin-script languages routinely use them."""
+    for ch in text:
+        if ch.isascii():
+            continue
+        if not unicodedata.category(ch).startswith("L"):
+            continue
+        try:
+            name = unicodedata.name(ch)
+        except ValueError:
+            return False
+        if "LATIN" not in name:
+            return False
+    return True
+
+
+def _resolve_address(
+    candidate: dict, city: str, fallback_address: str | None = None
+) -> str:
+    """Prefer the fetcher's enrichment fields (an English P6375 street address, or
+    else the English P131 district label rendered as "<district>, <city>") over the
+    candidate's raw ``address`` -- which for many JP/CN/TW hotels is a native-script
+    P6375 statement with no language filter applied at fetch time -- and only fall
+    back to the raw address (then the bare city name) when neither is available."""
+    address_en = candidate.get("address_en")
+    if address_en:
+        return address_en
+    district_en = candidate.get("district_en")
+    if district_en:
+        return f"{district_en}, {city}"
+    return candidate.get("address") or fallback_address or city
+
+
 def _allowed_amenities() -> set[str]:
     from app.streaming.panels.hotels import AMENITY_VI
 
@@ -425,9 +462,14 @@ def build_city(
             )
         use_landmark = h.get("image") == "landmark" or not c.get("image_url")
         image = cand["landmark_image"] if use_landmark else c["image_url"]
+        address = _resolve_address(c, city)
+        if not _is_latin_text(address):
+            errors.append(
+                f"{city}: hotel {c['label']}: address is not Latin-script: {address!r}"
+            )
         record = {
             "name": name,
-            "address": c.get("address") or city,
+            "address": address,
             **{k: h[k] for k in _HOTEL_VALUE_KEYS},
             "currency": "USD",
             "image_url": image,
@@ -493,10 +535,15 @@ def build_city(
                 name = c["en_title"]
         use_landmark = h.get("image") == "landmark" or not c.get("image_url")
         image = cand["landmark_image"] if use_landmark else c["image_url"]
+        address = _resolve_address(c, city, p.get("address"))
+        if not _is_latin_text(address):
+            errors.append(
+                f"{city}: place {c['label']}: address is not Latin-script: {address!r}"
+            )
         record = {
             "name": name,
             **{k: p[k] for k in _PLACE_VALUE_KEYS},
-            "address": c.get("address") or p.get("address") or city,
+            "address": address,
             "image_url": image,
             "latitude": round(c["latitude"], 6),
             "longitude": round(c["longitude"], 6),

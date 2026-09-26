@@ -24,7 +24,9 @@
       "sitelinks": 35,
       "en_title": "Metropolitan Life Insurance Company Tower",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "1 Madison Avenue, New York City, NY, United States",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q1123997",
@@ -36,7 +38,9 @@
       "sitelinks": 34,
       "en_title": "Waldorf Astoria New York",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q1066676",
@@ -48,7 +52,9 @@
       "sitelinks": 31,
       "en_title": "Plaza Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q240711",
@@ -60,7 +66,9 @@
       "sitelinks": 30,
       "en_title": "Hotel Chelsea",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q466979",
@@ -72,7 +80,9 @@
       "sitelinks": 15,
       "en_title": "American Radiator Building",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "40 West 40th Street",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q3378613",
@@ -84,7 +94,9 @@
       "sitelinks": 12,
       "en_title": "Carlyle Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q1631006",
@@ -96,7 +108,9 @@
       "sitelinks": 10,
       "en_title": "Hotel Pennsylvania",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q3066336",
@@ -108,7 +122,9 @@
       "sitelinks": 10,
       "en_title": "New Yorker Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7013741",
@@ -120,7 +136,9 @@
       "sitelinks": 10,
       "en_title": "New York Marriott Marquis",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q689447",
@@ -132,7 +150,9 @@
       "sitelinks": 9,
       "en_title": "Algonquin Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "59 West 44th Street",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7757079",
@@ -144,7 +164,9 @@
       "sitelinks": 9,
       "en_title": "The Pierre",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q2228209",
@@ -156,7 +178,9 @@
       "sitelinks": 7,
       "en_title": "Savoy-Plaza Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q2322983",
@@ -168,7 +192,9 @@
       "sitelinks": 7,
       "en_title": "St. Regis New York",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5102958",
@@ -180,7 +206,9 @@
       "sitelinks": 7,
       "en_title": "M Social Hotel New York Downtown",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q18749268",
@@ -192,7 +220,9 @@
       "sitelinks": 7,
       "en_title": "Waldorf-Astoria (1893–1929)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7137669",
@@ -204,7 +234,9 @@
       "sitelinks": 7,
       "en_title": "Park Central Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q4642538",
@@ -216,7 +248,9 @@
       "sitelinks": 6,
       "en_title": "The Knickerbocker Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "142 West 42nd Street",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5359415",
@@ -228,7 +262,9 @@
       "sitelinks": 6,
       "en_title": "Elephantine Colossus",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Brooklyn"
     },
     {
       "qid": "Q5447471",
@@ -240,7 +276,9 @@
       "sitelinks": 6,
       "en_title": "Fifth Avenue Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5903297",
@@ -252,7 +290,9 @@
       "sitelinks": 6,
       "en_title": "Hotel Astor",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7494693",
@@ -264,7 +304,9 @@
       "sitelinks": 6,
       "en_title": "Sheraton New York Times Square Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7761492",
@@ -276,7 +318,9 @@
       "sitelinks": 6,
       "en_title": "Roosevelt Hotel (Manhattan)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q3446105",
@@ -288,7 +332,9 @@
       "sitelinks": 5,
       "en_title": "Royalton Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q3488860",
@@ -300,7 +346,9 @@
       "sitelinks": 5,
       "en_title": "Sofitel New York Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5189543",
@@ -312,7 +360,9 @@
       "sitelinks": 5,
       "en_title": "Hyatt Regency Times Square",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "1605 Broadway, New York, NY 10019",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5305604",
@@ -324,7 +374,9 @@
       "sitelinks": 5,
       "en_title": "Drake Hotel (New York City)",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5397234",
@@ -336,7 +388,9 @@
       "sitelinks": 5,
       "en_title": "Hotel Gerard",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q44406603",
@@ -348,7 +402,9 @@
       "sitelinks": 5,
       "en_title": "Hampshire House",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "150 Central Park South",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5911374",
@@ -360,7 +416,9 @@
       "sitelinks": 5,
       "en_title": "Hotel Claridge",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q6774600",
@@ -372,7 +430,9 @@
       "sitelinks": 5,
       "en_title": "Martha Washington Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Manhattan"
     }
   ],
   "places": [
@@ -390,7 +450,9 @@
       ],
       "sitelinks": 157,
       "en_title": "Statue of Liberty",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q35934",
@@ -404,7 +466,9 @@
       ],
       "sitelinks": 157,
       "en_title": "Interlingua",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q11299",
@@ -418,7 +482,9 @@
       ],
       "sitelinks": 139,
       "en_title": "Manhattan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q18419",
@@ -431,7 +497,9 @@
       ],
       "sitelinks": 128,
       "en_title": "Brooklyn",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q9188",
@@ -445,7 +513,9 @@
       ],
       "sitelinks": 125,
       "en_title": "Empire State Building",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q25395",
@@ -460,7 +530,9 @@
       ],
       "sitelinks": 116,
       "en_title": "Newark, New Jersey",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Essex County"
     },
     {
       "qid": "Q18426",
@@ -474,7 +546,9 @@
       ],
       "sitelinks": 114,
       "en_title": "The Bronx",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q18424",
@@ -488,7 +562,9 @@
       ],
       "sitelinks": 106,
       "en_title": "Queens",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q18432",
@@ -502,7 +578,9 @@
       ],
       "sitelinks": 100,
       "en_title": "Staten Island",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q26339",
@@ -516,7 +594,9 @@
       ],
       "sitelinks": 98,
       "en_title": "Jersey City, New Jersey",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hudson County"
     },
     {
       "qid": "Q49088",
@@ -532,7 +612,9 @@
       ],
       "sitelinks": 96,
       "en_title": "Columbia University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "West 116 St and Broadway, New York, NY 10027",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q13974",
@@ -546,7 +628,9 @@
       ],
       "sitelinks": 95,
       "en_title": "NBC",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q82059",
@@ -560,7 +644,9 @@
       ],
       "sitelinks": 92,
       "en_title": "Nasdaq",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q3140",
@@ -573,7 +659,9 @@
       ],
       "sitelinks": 91,
       "en_title": "Hudson River",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York"
     },
     {
       "qid": "Q160236",
@@ -590,7 +678,9 @@
       ],
       "sitelinks": 88,
       "en_title": "Metropolitan Museum of Art",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q13677",
@@ -603,7 +693,9 @@
       ],
       "sitelinks": 88,
       "en_title": "New York Stock Exchange",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q160409",
@@ -616,7 +708,9 @@
       ],
       "sitelinks": 87,
       "en_title": "Central Park",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q11690",
@@ -629,7 +723,9 @@
       ],
       "sitelinks": 87,
       "en_title": "Wall Street",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q125006",
@@ -647,7 +743,9 @@
       ],
       "sitelinks": 84,
       "en_title": "Brooklyn Bridge",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Brooklyn"
     },
     {
       "qid": "Q123577",
@@ -661,7 +759,9 @@
       ],
       "sitelinks": 83,
       "en_title": "US Open (tennis)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q49210",
@@ -676,7 +776,9 @@
       ],
       "sitelinks": 78,
       "en_title": "New York University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "70 Washington Sq South, New York, NY, 10012-1091",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q11274",
@@ -689,7 +791,9 @@
       ],
       "sitelinks": 75,
       "en_title": "Chrysler Building",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q138578",
@@ -702,7 +806,9 @@
       ],
       "sitelinks": 74,
       "en_title": "Hoboken, New Jersey",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hudson County"
     },
     {
       "qid": "Q51402",
@@ -715,7 +821,9 @@
       ],
       "sitelinks": 74,
       "en_title": "Stonewall riots",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "New York"
     },
     {
       "qid": "Q11245",
@@ -729,7 +837,9 @@
       ],
       "sitelinks": 73,
       "en_title": "One World Trade Center",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "285 Fulton Street, Manhattan, New York City, U.S.",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q11259",
@@ -742,7 +852,9 @@
       ],
       "sitelinks": 72,
       "en_title": "Times Square",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Manhattan"
     }
   ],
   "restaurants": [
@@ -758,7 +870,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q1184537",
@@ -772,7 +886,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q2611788",
@@ -786,7 +902,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q618114",
@@ -800,7 +918,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q564293",
@@ -814,7 +934,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q10846129",
@@ -828,7 +950,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q919751",
@@ -842,7 +966,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q87732338",
@@ -856,7 +982,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "129 Mac Dougal Street",
+      "district_en": "Greenwich Village"
     },
     {
       "qid": "Q5359767",
@@ -870,7 +998,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q6731861",
@@ -884,7 +1014,9 @@
       "strategy": "p131",
       "instance_of": [
         "bakery"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q1255039",
@@ -898,7 +1030,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "New York City"
     },
     {
       "qid": "Q1814591",
@@ -912,7 +1046,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q3359494",
@@ -926,7 +1062,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7423790",
@@ -940,7 +1078,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q4957928",
@@ -954,7 +1094,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q5001422",
@@ -968,7 +1110,9 @@
       "strategy": "p131",
       "instance_of": [
         "market hall"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Brooklyn"
     },
     {
       "qid": "Q6097298",
@@ -982,7 +1126,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q6309626",
@@ -996,7 +1142,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "155-159 West 10th Street",
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q6506539",
@@ -1010,7 +1158,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q564259",
@@ -1024,7 +1174,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q564516",
@@ -1038,7 +1190,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q3417784",
@@ -1052,7 +1206,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q4022491",
@@ -1066,7 +1222,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q8054887",
@@ -1080,7 +1238,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q7923183",
@@ -1094,7 +1254,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q4966208",
@@ -1108,7 +1270,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     },
     {
       "qid": "Q4974859",
@@ -1122,7 +1286,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Brooklyn"
     },
     {
       "qid": "Q5216318",
@@ -1136,7 +1302,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Manhattan"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/NYC_Downtown_Manhattan_Skyline_seen_from_Paulus_Hook_2019-12-20_IMG_7347_FRD_%28cropped%29.jpg/1280px-NYC_Downtown_Manhattan_Skyline_seen_from_Paulus_Hook_2019-12-20_IMG_7347_FRD_%28cropped%29.jpg",

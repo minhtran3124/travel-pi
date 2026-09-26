@@ -25,7 +25,9 @@
       "sitelinks": 9,
       "en_title": "White Swan Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "1 Shamian South Street",
+      "district_en": "Liwan District"
     },
     {
       "qid": "Q700526",
@@ -37,7 +39,9 @@
       "sitelinks": 6,
       "en_title": "China Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yuexiu District"
     },
     {
       "qid": "Q7735826",
@@ -49,7 +53,9 @@
       "sitelinks": 5,
       "en_title": "The Garden Hotel, Guangzhou",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Huale Subdistrict"
     },
     {
       "qid": "Q11062068",
@@ -61,7 +67,9 @@
       "sitelinks": 5,
       "en_title": "Guangzhou Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q11073866",
@@ -73,7 +81,9 @@
       "sitelinks": 5,
       "en_title": "Oi Kwan Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q11062178",
@@ -85,7 +95,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Huadu District"
     },
     {
       "qid": "Q32162552",
@@ -97,7 +109,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yuexiu District"
     },
     {
       "qid": "Q32164786",
@@ -109,7 +123,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q55718376",
@@ -121,7 +137,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yuexiu District"
     },
     {
       "qid": "Q32167595",
@@ -133,7 +151,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q5473342",
@@ -145,7 +165,9 @@
       "sitelinks": 1,
       "en_title": "Crowne Plaza Foshan Hotel",
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111125854",
@@ -157,7 +179,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111125855",
@@ -169,7 +193,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111404399",
@@ -181,7 +207,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111404402",
@@ -193,7 +221,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111404400",
@@ -205,7 +235,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111404404",
@@ -217,7 +249,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111404410",
@@ -229,7 +263,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111404414",
@@ -241,7 +277,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416040",
@@ -253,7 +291,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416062",
@@ -265,7 +305,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416073",
@@ -277,7 +319,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416086",
@@ -289,7 +333,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416102",
@@ -301,7 +347,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416117",
@@ -313,7 +361,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416121",
@@ -325,7 +375,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416135",
@@ -337,7 +389,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416141",
@@ -349,7 +403,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416171",
@@ -361,7 +417,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416179",
@@ -373,7 +431,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111416184",
@@ -385,7 +445,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     }
   ],
   "places": [
@@ -401,7 +463,9 @@
       ],
       "sitelinks": 81,
       "en_title": "Foshan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangdong"
     },
     {
       "qid": "Q201463",
@@ -414,7 +478,9 @@
       ],
       "sitelinks": 75,
       "en_title": "Pearl River",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guizhou"
     },
     {
       "qid": "Q168400",
@@ -429,7 +495,9 @@
       ],
       "sitelinks": 53,
       "en_title": "Canton Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Chigang Subdistrict"
     },
     {
       "qid": "Q245246",
@@ -442,7 +510,9 @@
       ],
       "sitelinks": 42,
       "en_title": "CITIC Plaza",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "No. 233 Tianhe North Road, Tianhe District, Guangzhou, Guangdong",
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q244322",
@@ -455,7 +525,9 @@
       ],
       "sitelinks": 38,
       "en_title": "2010 Asian Games",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1043438",
@@ -469,7 +541,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Guangzhou International Finance Center",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q917049",
@@ -482,7 +556,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Tianhe, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q992508",
@@ -495,7 +571,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Huaisheng Mosque",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Yuexiu District"
     },
     {
       "qid": "Q1022928",
@@ -508,7 +586,9 @@
       ],
       "sitelinks": 31,
       "en_title": "Yuexiu, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q168575",
@@ -521,7 +601,9 @@
       ],
       "sitelinks": 28,
       "en_title": "Guangzhou CTF Finance Centre",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q590891",
@@ -534,7 +616,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Liwan, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q1022913",
@@ -547,7 +631,9 @@
       ],
       "sitelinks": 27,
       "en_title": "Haizhu, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q178972",
@@ -563,7 +649,9 @@
       ],
       "sitelinks": 25,
       "en_title": "Sun Yat-sen University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q929126",
@@ -576,7 +664,9 @@
       ],
       "sitelinks": 25,
       "en_title": "Tianhe Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Tianhe District"
     },
     {
       "qid": "Q948245",
@@ -589,7 +679,9 @@
       ],
       "sitelinks": 25,
       "en_title": "Panyu, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q1023893",
@@ -602,7 +694,9 @@
       ],
       "sitelinks": 25,
       "en_title": "Nanhai, Foshan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Foshan"
     },
     {
       "qid": "Q80946",
@@ -615,7 +709,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Baiyun, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q249319",
@@ -628,7 +724,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Pearl River Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q589779",
@@ -641,7 +739,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Leatop Plaza",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q1023890",
@@ -654,7 +754,9 @@
       ],
       "sitelinks": 23,
       "en_title": "Huangpu, Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q401470",
@@ -667,7 +769,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Guangdong Olympic Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Huangcun Subdistrict"
     },
     {
       "qid": "Q1061690",
@@ -680,7 +784,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Chancheng, Foshan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Foshan"
     },
     {
       "qid": "Q139815",
@@ -693,7 +799,9 @@
       ],
       "sitelinks": 19,
       "en_title": "The Pinnacle (Guangzhou)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q588648",
@@ -706,7 +814,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Battle of Canton (1857)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q3354553",
@@ -719,7 +829,9 @@
       ],
       "sitelinks": 18,
       "en_title": "Guangzhou Opera House",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q15456024",
@@ -732,7 +844,9 @@
       ],
       "sitelinks": 18,
       "en_title": "Guangzhou Circle",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q5473352",
@@ -748,7 +862,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Foshan Shadi Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Nanhai District"
     },
     {
       "qid": "Q1195445",
@@ -761,7 +877,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Sacred Heart Cathedral (Guangzhou)",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q371818",
@@ -775,7 +893,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Thirteen Factories",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangdong"
     },
     {
       "qid": "Q548358",
@@ -788,7 +908,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Canton Fair",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1364293",
@@ -801,7 +923,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Archdiocese of Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1552767",
@@ -814,7 +938,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Fortune Center",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q1572975",
@@ -827,7 +953,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Port of Guangzhou",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q2268165",
@@ -840,7 +968,9 @@
       ],
       "sitelinks": 14,
       "en_title": "3rd National Congress of the Chinese Communist Party",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q401475",
@@ -853,7 +983,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Yuexiushan Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q529977",
@@ -866,7 +998,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Shamian",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q683127",
@@ -880,7 +1014,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Temple of the Six Banyan Trees",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q971312",
@@ -893,7 +1029,9 @@
       ],
       "sitelinks": 14,
       "en_title": "Dapeng International Plaza",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q56425980",
@@ -907,7 +1045,9 @@
       ],
       "sitelinks": 13,
       "en_title": "2018 Guangzhou International Women's Open",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q67398471",
@@ -921,7 +1061,9 @@
       ],
       "sitelinks": 13,
       "en_title": "2019 Guangzhou International Women's Open",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q835366",
@@ -935,7 +1077,9 @@
       ],
       "sitelinks": 13,
       "en_title": "South China University of Technology",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Guangzhou"
     }
   ],
   "restaurants": [
@@ -951,7 +1095,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q10934207",
@@ -965,7 +1111,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Guangzhou"
     },
     {
       "qid": "Q32162133",
@@ -979,7 +1127,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Yuexiu District"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Canton_Tower_20220626_%28cropped%29.jpg/1280px-Canton_Tower_20220626_%28cropped%29.jpg",

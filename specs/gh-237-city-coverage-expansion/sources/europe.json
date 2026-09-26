@@ -15,7 +15,7 @@
     "hotels": [
       {
         "name": "Hyatt Regency Paris Etoile",
-        "address": "17th arrondissement of Paris",
+        "address": "17th arrondissement of Paris, Paris",
         "star_rating": 5,
         "price_per_night": 320,
         "amenities": [
@@ -46,7 +46,7 @@
       },
       {
         "name": "Hôtel de Crillon",
-        "address": "8th arrondissement of Paris",
+        "address": "8th arrondissement of Paris, Paris",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -77,9 +77,9 @@
       },
       {
         "name": "Hôtel Lutetia",
-        "address": "6th arrondissement of Paris",
-        "star_rating": 4,
-        "price_per_night": 250,
+        "address": "6th arrondissement of Paris, Paris",
+        "star_rating": 5,
+        "price_per_night": 340,
         "amenities": [
           "Restaurant",
           "Gym",
@@ -104,11 +104,11 @@
         "longitude": 2.327203,
         "wikidata": "Q1515595",
         "source_url": "https://www.wikidata.org/wiki/Q1515595",
-        "description": "Hôtel Lutetia is a 4-star hotel in Paris, France, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 2,200 reviews."
+        "description": "Hôtel Lutetia is a 5-star hotel in Paris, France, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 2,200 reviews."
       },
       {
         "name": "Hôtel George-V",
-        "address": "8th arrondissement of Paris",
+        "address": "8th arrondissement of Paris, Paris",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -139,7 +139,7 @@
       },
       {
         "name": "Plaza Athénée",
-        "address": "8th arrondissement of Paris",
+        "address": "8th arrondissement of Paris, Paris",
         "star_rating": 5,
         "price_per_night": 360,
         "amenities": [
@@ -170,7 +170,7 @@
       },
       {
         "name": "Hôtel des 3 Collèges",
-        "address": "5th arrondissement of Paris",
+        "address": "5th arrondissement of Paris, Paris",
         "star_rating": 2,
         "price_per_night": 95,
         "amenities": [
@@ -199,7 +199,7 @@
       },
       {
         "name": "Hôtel Le Bristol Paris",
-        "address": "112 rue du Faubourg-Saint-Honoré, 75008 Paris, France",
+        "address": "8th arrondissement of Paris, Paris",
         "star_rating": 5,
         "price_per_night": 370,
         "amenities": [
@@ -274,7 +274,7 @@
           "views"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "7th arrondissement of Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/1280px-Tour_Eiffel_Wikimedia_Commons.jpg",
         "latitude": 48.858296,
         "longitude": 2.294479,
@@ -296,7 +296,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "Saint-Germain-l'Auxerrois, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Cour_Napol%C3%A9on_at_night_-_Louvre.jpg/1280px-Cour_Napol%C3%A9on_at_night_-_Louvre.jpg",
         "latitude": 48.861111,
         "longitude": 2.335833,
@@ -318,7 +318,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "Quartier Notre-Dame, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Notre-Dame_de_Paris_2013-07-24.jpg/1280px-Notre-Dame_de_Paris_2013-07-24.jpg",
         "latitude": 48.853,
         "longitude": 2.3498,
@@ -340,7 +340,7 @@
           "impressionist"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "7th arrondissement of Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gare_d%27Orsay_%2849570190081%29.jpg/1280px-Gare_d%27Orsay_%2849570190081%29.jpg",
         "latitude": 48.859972,
         "longitude": 2.326527,
@@ -362,7 +362,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "8th arrondissement of Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Arc_de_Triomphe_-_Ao%C3%BBt_2026.jpg/1280px-Arc_de_Triomphe_-_Ao%C3%BBt_2026.jpg",
         "latitude": 48.87378,
         "longitude": 2.29504,
@@ -384,7 +384,7 @@
           "left-bank"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "6th arrondissement of Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Caf%C3%A9_de_Flore%2C_172_boulevard_Saint-Germain%2C_Paris_6e.jpg/1280px-Caf%C3%A9_de_Flore%2C_172_boulevard_Saint-Germain%2C_Paris_6e.jpg",
         "latitude": 48.853889,
         "longitude": 2.3325,
@@ -406,7 +406,7 @@
           "chess"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "1st arrondissement of Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Chez_Angelina_pour_le_th%C3%A9.JPG/1280px-Chez_Angelina_pour_le_th%C3%A9.JPG",
         "latitude": 48.865167,
         "longitude": 2.328083,
@@ -428,7 +428,7 @@
           "culture"
         ],
         "is_recommended": true,
-        "address": "Paris",
+        "address": "13th arrondissement of Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Biblioth%C3%A8que_Mitterrand_Mai_2022.jpg/1280px-Biblioth%C3%A8que_Mitterrand_Mai_2022.jpg",
         "latitude": 48.833611,
         "longitude": 2.375833,
@@ -450,7 +450,7 @@
           "tournament"
         ],
         "is_recommended": false,
-        "address": "Paris",
+        "address": "Paris, Paris",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Court_Philippe_Chatrier_2023_cropped.jpg/1280px-Court_Philippe_Chatrier_2023_cropped.jpg",
         "latitude": 48.847167,
         "longitude": 2.24925,
@@ -510,7 +510,7 @@
     "hotels": [
       {
         "name": "Goring Hotel",
-        "address": "London",
+        "address": "London, London",
         "star_rating": 5,
         "price_per_night": 340,
         "amenities": [
@@ -628,7 +628,7 @@
       },
       {
         "name": "Mandarin Oriental Mayfair, London",
-        "address": "22 Hanover Square, Mayfair, London W1S 1JP",
+        "address": "City of Westminster, London",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -762,7 +762,7 @@
           "artifacts"
         ],
         "is_recommended": true,
-        "address": "London",
+        "address": "Great Russell St, Bloomsbury, London WC1B 3DG, UK",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/British_Museum_from_NE_2_%28cropped%29.JPG/1280px-British_Museum_from_NE_2_%28cropped%29.JPG",
         "latitude": 51.519444,
         "longitude": -0.126944,
@@ -784,7 +784,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "London",
+        "address": "London SW1A 1AA",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Buckingham_Palace%2C_London_-_April_2009.jpg/1280px-Buckingham_Palace%2C_London_-_April_2009.jpg",
         "latitude": 51.501,
         "longitude": -0.142,
@@ -806,7 +806,7 @@
           "crown"
         ],
         "is_recommended": true,
-        "address": "London",
+        "address": "Tower Hill, London EC3N 4AB",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Tower_of_London_viewed_from_the_River_Thames.jpg/1280px-Tower_of_London_viewed_from_the_River_Thames.jpg",
         "latitude": 51.5082,
         "longitude": -0.076198,
@@ -828,7 +828,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "London",
+        "address": "City of Westminster, London",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Westminster-Abbey.JPG/1280px-Westminster-Abbey.JPG",
         "latitude": 51.4994,
         "longitude": -0.127367,
@@ -850,7 +850,7 @@
           "gothic"
         ],
         "is_recommended": true,
-        "address": "London",
+        "address": "London Borough of Southwark, London",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/London_-_London_Tower_Bridge_-_140806_171049.jpg/1280px-London_-_London_Tower_Bridge_-_140806_171049.jpg",
         "latitude": 51.505556,
         "longitude": -0.075278,
@@ -872,7 +872,7 @@
           "french"
         ],
         "is_recommended": false,
-        "address": "London",
+        "address": "London, London",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/13/Eu_j%C3%A1_comi_duas_vezes_o_ravioli_de_frutos_do_mar_que_%C3%A9_um_prato-assinatura_do_Gordon_Ramsay_at_Royal_Hospital_Road_%2826672111050%29.jpg",
         "latitude": 51.4855,
         "longitude": -0.162,
@@ -916,7 +916,7 @@
           "soho"
         ],
         "is_recommended": true,
-        "address": "London",
+        "address": "City of Westminster, London",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/WILLY_CLARKSON_-_Wong_Kei_-_41-43_Wardour_Street_Soho_London_W1D_6PY.jpg/1280px-WILLY_CLARKSON_-_Wong_Kei_-_41-43_Wardour_Street_Soho_London_W1D_6PY.jpg",
         "latitude": 51.511483,
         "longitude": -0.132407,
@@ -938,7 +938,7 @@
           "tournament"
         ],
         "is_recommended": false,
-        "address": "London",
+        "address": "Wimbledon, London",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Wimbledon_Court_1.jpg",
         "latitude": 51.43375,
         "longitude": -0.214028,
@@ -997,7 +997,7 @@
     "hotels": [
       {
         "name": "Sheraton Lisboa Hotel & Spa",
-        "address": "Avenidas Novas",
+        "address": "Avenidas Novas, Lisbon",
         "star_rating": 5,
         "price_per_night": 310,
         "amenities": [
@@ -1028,7 +1028,7 @@
       },
       {
         "name": "Pestana Palace",
-        "address": "Alcântara",
+        "address": "Alcântara, Lisbon",
         "star_rating": 5,
         "price_per_night": 330,
         "amenities": [
@@ -1059,7 +1059,7 @@
       },
       {
         "name": "Hotel Tivoli",
-        "address": "Santo António",
+        "address": "Santo António, Lisbon",
         "star_rating": 4,
         "price_per_night": 240,
         "amenities": [
@@ -1090,7 +1090,7 @@
       },
       {
         "name": "Hotel Britania",
-        "address": "Rua Rodrigues Sampaio, 17, 1150-278 Lisboa",
+        "address": "Santo António, Lisbon",
         "star_rating": 4,
         "price_per_night": 210,
         "amenities": [
@@ -1121,7 +1121,7 @@
       },
       {
         "name": "Heritage Avenida Liberdade, a Lisbon Heritage Collection",
-        "address": "Santo António",
+        "address": "Santo António, Lisbon",
         "star_rating": 3,
         "price_per_night": 125,
         "amenities": [
@@ -1151,7 +1151,7 @@
       },
       {
         "name": "Altis Avenida Hotel",
-        "address": "Santa Maria Maior",
+        "address": "Santa Maria Maior, Lisbon",
         "star_rating": 4,
         "price_per_night": 200,
         "amenities": [
@@ -1182,7 +1182,7 @@
       },
       {
         "name": "Altis Belém Hotel & Spa",
-        "address": "Belém",
+        "address": "Belém, Lisbon",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -1213,7 +1213,7 @@
       },
       {
         "name": "Ibis Styles Lisboa Centro Liberdade NE",
-        "address": "Santo António",
+        "address": "Santo António, Lisbon",
         "star_rating": 3,
         "price_per_night": 110,
         "amenities": [
@@ -1257,7 +1257,7 @@
           "monument"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Belém, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Belem_Tower_-_April_2019_%282%29.jpg/1280px-Belem_Tower_-_April_2019_%282%29.jpg",
         "latitude": 38.691389,
         "longitude": -9.215833,
@@ -1279,7 +1279,7 @@
           "architecture"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Belém, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/1502_legte_K%C3%B6nig_Manuel_I._den_Grundstein_f%C3%BCr_das_Hieronymus_Kloster_in_Lissabon._06.jpg/1280px-1502_legte_K%C3%B6nig_Manuel_I._den_Grundstein_f%C3%BCr_das_Hieronymus_Kloster_in_Lissabon._06.jpg",
         "latitude": 38.697846,
         "longitude": -9.205601,
@@ -1301,7 +1301,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Sacavém e Prior Velho, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Vasco_da_Gama_Bridge_03.JPG",
         "latitude": 38.762194,
         "longitude": -9.043306,
@@ -1323,7 +1323,7 @@
           "views"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Santa Maria Maior, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Lissabon_Strassenbahn.jpg",
         "latitude": 38.710662,
         "longitude": -9.132385,
@@ -1345,7 +1345,7 @@
           "views"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Almada, Cova da Piedade, Pragal e Cacilhas, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Ponte25Abril1.jpg",
         "latitude": 38.694183,
         "longitude": -9.178146,
@@ -1367,7 +1367,7 @@
           "chiado"
         ],
         "is_recommended": true,
-        "address": "Rua Garrett 120–122, 1200-273 Lisboa",
+        "address": "Santa Maria Maior, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/A_BRASILEIRA_DO_CHIADO.jpg",
         "latitude": 38.710692,
         "longitude": -9.142047,
@@ -1389,7 +1389,7 @@
           "seafood"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Misericórdia, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Mercado_Ribeira_Lisbon.JPG",
         "latitude": 38.707089,
         "longitude": -9.145718,
@@ -1411,7 +1411,7 @@
           "local"
         ],
         "is_recommended": true,
-        "address": "Lisbon",
+        "address": "Campo de Ourique, Lisbon",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Mercado_de_Campo_de_Ourique_01.jpg/1280px-Mercado_de_Campo_de_Ourique_01.jpg",
         "latitude": 38.716152,
         "longitude": -9.166832,
@@ -1492,7 +1492,7 @@
     "hotels": [
       {
         "name": "The Westin Excelsior, Rome",
-        "address": "Rome",
+        "address": "Rome, Rome",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -1523,7 +1523,7 @@
       },
       {
         "name": "Hotel d'Inghilterra",
-        "address": "Rome",
+        "address": "Rome, Rome",
         "star_rating": 5,
         "price_per_night": 370,
         "amenities": [
@@ -1554,7 +1554,7 @@
       },
       {
         "name": "Aldrovandi Villa Borghese",
-        "address": "Rome",
+        "address": "Rome, Rome",
         "star_rating": 5,
         "price_per_night": 360,
         "amenities": [
@@ -1585,7 +1585,7 @@
       },
       {
         "name": "Palazzo Naiadi Rome",
-        "address": "Rome",
+        "address": "Rome, Rome",
         "star_rating": 5,
         "price_per_night": 340,
         "amenities": [
@@ -1616,7 +1616,7 @@
       },
       {
         "name": "Select Hotel",
-        "address": "via del Tritone, 152, 00187 Roma",
+        "address": "Rome, Rome",
         "star_rating": 3,
         "price_per_night": 120,
         "amenities": [
@@ -1646,7 +1646,7 @@
       },
       {
         "name": "Rome Cavalieri, A Waldorf Astoria Hotel",
-        "address": "Via Alberto Cadlolo 101, I-00136 Roma",
+        "address": "Rome, Rome",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -1677,7 +1677,7 @@
       },
       {
         "name": "Casa del passeggero",
-        "address": "via del Viminale 18",
+        "address": "Rome, Rome",
         "star_rating": 3,
         "price_per_night": 110,
         "amenities": [
@@ -1706,7 +1706,7 @@
       },
       {
         "name": "Palazzo dei Tribunali",
-        "address": "Rome",
+        "address": "Rome, Rome",
         "star_rating": 4,
         "price_per_night": 230,
         "amenities": [
@@ -1751,7 +1751,7 @@
           "history"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Roma Capitale, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1280px-Colosseo_2020.jpg",
         "latitude": 41.890278,
         "longitude": 12.492222,
@@ -1773,7 +1773,7 @@
           "architecture"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Vatican City, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg/1280px-Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg",
         "latitude": 41.902222,
         "longitude": 12.453417,
@@ -1795,7 +1795,7 @@
           "art"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Vatican City, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Sistina-interno.jpg",
         "latitude": 41.902956,
         "longitude": 12.454433,
@@ -1817,7 +1817,7 @@
           "plaza"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Rome, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Foro_Romano_Musei_Capitolini_Roma.jpg/1280px-Foro_Romano_Musei_Capitolini_Roma.jpg",
         "latitude": 41.8922,
         "longitude": 12.4852,
@@ -1839,7 +1839,7 @@
           "architecture"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Rome, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Pantheon_%28Rome%29_-_Right_side_and_front.jpg/1280px-Pantheon_%28Rome%29_-_Right_side_and_front.jpg",
         "latitude": 41.898611,
         "longitude": 12.476944,
@@ -1861,7 +1861,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Rome, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Trevi_Fountain_-_Roma.jpg/1280px-Trevi_Fountain_-_Roma.jpg",
         "latitude": 41.900932,
         "longitude": 12.483313,
@@ -1883,7 +1883,7 @@
           "coffee"
         ],
         "is_recommended": true,
-        "address": "Piazza Sant’Eustachio 82, I-00186 Roma",
+        "address": "Rome, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Caff%C3%A8_Sant%27Eustachio.JPG/1280px-Caff%C3%A8_Sant%27Eustachio.JPG",
         "latitude": 41.898333,
         "longitude": 12.475278,
@@ -1905,7 +1905,7 @@
           "trastevere"
         ],
         "is_recommended": true,
-        "address": "vicolo del Cinque, 3",
+        "address": "Rome, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Cencio_la_Parolaccia.jpeg",
         "latitude": 41.890453,
         "longitude": 12.468894,
@@ -1927,7 +1927,7 @@
           "vatican"
         ],
         "is_recommended": true,
-        "address": "Rome",
+        "address": "Vatican City, Rome",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Mura_vaticane_-_ingresso_ai_Musei_00410.JPG/1280px-Mura_vaticane_-_ingresso_ai_Musei_00410.JPG",
         "latitude": 41.906389,
         "longitude": 12.454444,

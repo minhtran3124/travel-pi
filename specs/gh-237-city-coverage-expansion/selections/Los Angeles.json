@@ -295,20 +295,20 @@
       "is_recommended": true
     },
     {
-      "qid": "Q174710",
+      "qid": "Q595439",
       "category": "attraction",
-      "description": "Major public research university in Westwood. Home to renowned academic and research programs and iconic Royce Hall.",
-      "evidence": "public research university",
-      "rating": 4.3,
-      "review_count": 15000,
+      "description": "A historic pier in Santa Monica with a small amusement park, concession stands, and ocean views along its boardwalk.",
+      "evidence": "contains a small amusement park, concession stands, and areas for views and fishing",
+      "rating": 4.5,
+      "review_count": 18000,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
       "tags": [
-        "university",
-        "academic",
-        "cultural"
+        "pier",
+        "amusement park",
+        "beachfront"
       ],
-      "is_recommended": false
+      "is_recommended": true
     },
     {
       "qid": "Q1453665",

@@ -25,7 +25,9 @@
       "sitelinks": 3,
       "en_title": "Hotel Windsor, Melbourne",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q14935088",
@@ -37,7 +39,9 @@
       "sitelinks": 2,
       "en_title": "Devonshire Arms Hotel, Fitzroy",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "34-38 Fitzroy Street Fitzroy",
+      "district_en": "City of Yarra"
     },
     {
       "qid": "Q57078805",
@@ -49,7 +53,9 @@
       "sitelinks": 2,
       "en_title": "Keilor Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "670-674 Old Calder Highway Keilor VIC 3036",
+      "district_en": "City of Brimbank"
     },
     {
       "qid": "Q56651024",
@@ -61,7 +67,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "85 Nelson Place Williamstown",
+      "district_en": "City of Hobsons Bay"
     },
     {
       "qid": "Q111146767",
@@ -73,7 +81,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q33382454",
@@ -85,7 +95,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "270 Flinders Street",
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q111407355",
@@ -97,7 +109,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Werribee"
     },
     {
       "qid": "Q111407423",
@@ -109,7 +123,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2 Convention Centre Place South Wharf, Melbourne Victoria 3006",
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q112009682",
@@ -121,7 +137,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "18 Little Queen St, Melbourne, VIC, 3000",
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q122224044",
@@ -133,7 +151,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Prahran"
     },
     {
       "qid": "Q111407382",
@@ -145,7 +165,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "manual",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Victoria"
     }
   ],
   "places": [
@@ -160,7 +182,9 @@
       ],
       "sitelinks": 83,
       "en_title": "Australian Open",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q319078",
@@ -174,7 +198,9 @@
       ],
       "sitelinks": 58,
       "en_title": "University of Melbourne",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q7870",
@@ -188,7 +214,9 @@
       ],
       "sitelinks": 52,
       "en_title": "Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q733738",
@@ -202,7 +230,9 @@
       ],
       "sitelinks": 49,
       "en_title": "Melbourne Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Hume"
     },
     {
       "qid": "Q330136",
@@ -218,7 +248,9 @@
       ],
       "sitelinks": 48,
       "en_title": "Melbourne Cricket Ground",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "120 Brunton Avenue, East Melbourne, Victoria 3004",
+      "district_en": "City of Melbourne"
     },
     {
       "qid": "Q598841",
@@ -234,7 +266,9 @@
       ],
       "sitelinks": 44,
       "en_title": "Monash University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q695935",
@@ -248,7 +282,9 @@
       ],
       "sitelinks": 44,
       "en_title": "Royal Exhibition Building",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "9 Nicholson Street, Carlton VIC 3053",
+      "district_en": "City of Melbourne"
     },
     {
       "qid": "Q171288",
@@ -261,7 +297,9 @@
       ],
       "sitelinks": 43,
       "en_title": "Albert Park Circuit",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Port Phillip"
     },
     {
       "qid": "Q270407",
@@ -274,7 +312,9 @@
       ],
       "sitelinks": 39,
       "en_title": "Eureka Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Melbourne"
     },
     {
       "qid": "Q695081",
@@ -287,7 +327,9 @@
       ],
       "sitelinks": 37,
       "en_title": "Yarra River",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q15070",
@@ -300,7 +342,9 @@
       ],
       "sitelinks": 37,
       "en_title": "2009 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q829338",
@@ -315,7 +359,9 @@
       ],
       "sitelinks": 37,
       "en_title": "Carlton Gardens",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Melbourne"
     },
     {
       "qid": "Q15069",
@@ -328,7 +374,9 @@
       ],
       "sitelinks": 36,
       "en_title": "2008 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q15073",
@@ -341,7 +389,9 @@
       ],
       "sitelinks": 36,
       "en_title": "2012 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q15298266",
@@ -354,7 +404,9 @@
       ],
       "sitelinks": 35,
       "en_title": "2014 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q45047629",
@@ -368,7 +420,9 @@
       ],
       "sitelinks": 34,
       "en_title": "2018 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111228281",
@@ -382,7 +436,9 @@
       ],
       "sitelinks": 34,
       "en_title": "2022 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q15072",
@@ -395,7 +451,9 @@
       ],
       "sitelinks": 34,
       "en_title": "2011 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q917998",
@@ -408,7 +466,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Docklands Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "740 Bourke Street, Melbourne, VIC 3008",
+      "district_en": "City of Melbourne"
     },
     {
       "qid": "Q28058799",
@@ -422,7 +482,9 @@
       ],
       "sitelinks": 33,
       "en_title": "2017 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q15068",
@@ -435,7 +497,9 @@
       ],
       "sitelinks": 33,
       "en_title": "2007 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q1489615",
@@ -448,7 +512,9 @@
       ],
       "sitelinks": 32,
       "en_title": "2013 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q60853029",
@@ -461,7 +527,9 @@
       ],
       "sitelinks": 32,
       "en_title": "2019 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q1464509",
@@ -477,7 +545,9 @@
       ],
       "sitelinks": 31,
       "en_title": "National Gallery of Victoria",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "180 St Kilda Road, Melbourne VIC 3006",
+      "district_en": "City of Melbourne"
     },
     {
       "qid": "Q12780091",
@@ -491,7 +561,9 @@
       ],
       "sitelinks": 30,
       "en_title": "2014 Australian Open",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q18712769",
@@ -505,7 +577,9 @@
       ],
       "sitelinks": 30,
       "en_title": "2015 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q115912604",
@@ -519,7 +593,9 @@
       ],
       "sitelinks": 30,
       "en_title": "2026 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q15067",
@@ -532,7 +608,9 @@
       ],
       "sitelinks": 30,
       "en_title": "2006 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
     },
     {
       "qid": "Q15071",
@@ -545,7 +623,9 @@
       ],
       "sitelinks": 30,
       "en_title": "2010 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q21674869",
@@ -558,7 +638,9 @@
       ],
       "sitelinks": 30,
       "en_title": "2016 Australian Grand Prix",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     }
   ],
   "restaurants": [
@@ -574,7 +656,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "City of Yarra"
     },
     {
       "qid": "Q14935088",
@@ -588,7 +672,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": "34-38 Fitzroy Street Fitzroy",
+      "district_en": "City of Yarra"
     },
     {
       "qid": "Q25184541",
@@ -602,7 +688,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q57078805",
@@ -616,7 +704,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": "670-674 Old Calder Highway Keilor VIC 3036",
+      "district_en": "City of Brimbank"
     },
     {
       "qid": "Q120912912",
@@ -630,7 +720,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q5462155",
@@ -644,7 +736,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q136085560",
@@ -658,7 +752,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q56596809",
@@ -672,7 +768,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "City of Yarra"
     },
     {
       "qid": "Q56651024",
@@ -686,7 +784,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": "85 Nelson Place Williamstown",
+      "district_en": "City of Hobsons Bay"
     },
     {
       "qid": "Q134699915",
@@ -700,7 +800,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": "280 Collins St, Melbourne VIC 3000, Australia",
+      "district_en": "Melbourne"
     },
     {
       "qid": "Q53857955",
@@ -714,7 +816,9 @@
       "strategy": "p131",
       "instance_of": [
         "pub"
-      ]
+      ],
+      "address_en": "114 Smith Street, Collingwood VIC 3066",
+      "district_en": "City of Yarra"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",

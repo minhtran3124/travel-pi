@@ -274,7 +274,8 @@
         "geological"
       ],
       "is_recommended": true,
-      "status_reviewed": "regularly open to the public per its own extract; only part of the cave interior is closed to visitors, the cave system itself operates today"
+      "status_reviewed": "regularly open to the public per its own extract; only part of the cave interior is closed to visitors, the cave system itself operates today",
+      "name": "en_title"
     },
     {
       "qid": "Q21709992",

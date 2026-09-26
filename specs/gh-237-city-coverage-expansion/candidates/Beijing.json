@@ -24,7 +24,9 @@
       "sitelinks": 10,
       "en_title": "Beijing Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dongcheng District"
     },
     {
       "qid": "Q3364705",
@@ -36,7 +38,9 @@
       "sitelinks": 9,
       "en_title": "Minzu Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jinrongjie Subdistrict"
     },
     {
       "qid": "Q1812590",
@@ -48,7 +52,9 @@
       "sitelinks": 7,
       "en_title": "Grand Hyatt Beijing",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dongcheng District"
     },
     {
       "qid": "Q16892903",
@@ -60,7 +66,9 @@
       "sitelinks": 7,
       "en_title": "Jingxi Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q16924733",
@@ -72,7 +80,9 @@
       "sitelinks": 7,
       "en_title": "Jing Guang Centre",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hujialou Subdistrict"
     },
     {
       "qid": "Q16241516",
@@ -84,7 +94,9 @@
       "sitelinks": 5,
       "en_title": "China World Hotel, Beijing",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
     },
     {
       "qid": "Q266853",
@@ -96,7 +108,9 @@
       "sitelinks": 5,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q30593754",
@@ -108,7 +122,9 @@
       "sitelinks": 4,
       "en_title": "The Peninsula Beijing",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q4898267",
@@ -120,7 +136,9 @@
       "sitelinks": 4,
       "en_title": "Pangu Plaza",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yayuncun Subdistrict"
     },
     {
       "qid": "Q5153991",
@@ -132,7 +150,9 @@
       "sitelinks": 4,
       "en_title": "Commune by the Great Wall",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shifosi"
     },
     {
       "qid": "Q5430583",
@@ -144,7 +164,9 @@
       "sitelinks": 4,
       "en_title": "Fairmont Beijing",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
     },
     {
       "qid": "Q18651834",
@@ -156,7 +178,9 @@
       "sitelinks": 3,
       "en_title": "V-Continent Beijing Parkview Wuzhou Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yayuncun Subdistrict"
     },
     {
       "qid": "Q9398171",
@@ -168,7 +192,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Sanlitun Subdistrict"
     },
     {
       "qid": "Q9482461",
@@ -180,7 +206,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q10357289",
@@ -192,7 +220,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yangfangdian Subdistrict"
     },
     {
       "qid": "Q11651692",
@@ -204,7 +234,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
     },
     {
       "qid": "Q15939384",
@@ -216,7 +248,9 @@
       "sitelinks": 3,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q9384264",
@@ -228,7 +262,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yangfangdian Subdistrict"
     },
     {
       "qid": "Q10883111",
@@ -240,7 +276,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
     },
     {
       "qid": "Q10902069",
@@ -252,7 +290,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yuetan Subdistrict"
     },
     {
       "qid": "Q10902432",
@@ -264,7 +304,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q10903985",
@@ -276,7 +318,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Aoyuncun Subdistrict"
     },
     {
       "qid": "Q11087373",
@@ -288,7 +332,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zuojiazhuang Subdistrict"
     },
     {
       "qid": "Q15903886",
@@ -300,7 +346,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shichahai Subdistrict"
     },
     {
       "qid": "Q15943960",
@@ -312,7 +360,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Maizidian Subdistrict"
     },
     {
       "qid": "Q16075106",
@@ -324,7 +374,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Xiangshan Subdistrict"
     },
     {
       "qid": "Q16928673",
@@ -336,7 +388,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianguomen Subdistrict"
     },
     {
       "qid": "Q16928803",
@@ -348,7 +402,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q16928957",
@@ -360,7 +416,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianguomen Subdistrict"
     },
     {
       "qid": "Q18651836",
@@ -372,7 +430,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yayuncun Subdistrict"
     },
     {
       "qid": "Q18651854",
@@ -384,7 +444,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
     },
     {
       "qid": "Q18651853",
@@ -396,7 +458,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yanqi"
     },
     {
       "qid": "Q30943740",
@@ -408,7 +472,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Tianqiao Subdistrict"
     },
     {
       "qid": "Q30949947",
@@ -420,7 +486,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zizhuyuan Subdistrict"
     },
     {
       "qid": "Q30949949",
@@ -432,7 +500,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q30949959",
@@ -444,7 +514,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhanlanlu Subdistrict"
     },
     {
       "qid": "Q48895552",
@@ -456,7 +528,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     }
   ],
   "places": [
@@ -474,7 +548,9 @@
       ],
       "sitelinks": 104,
       "en_title": "Forbidden City",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q7313",
@@ -489,7 +565,9 @@
       ],
       "sitelinks": 102,
       "en_title": "Yuan dynasty",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q193074",
@@ -502,7 +580,9 @@
       ],
       "sitelinks": 95,
       "en_title": "2022 Winter Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q99717",
@@ -516,7 +596,9 @@
       ],
       "sitelinks": 90,
       "en_title": "1989 Tiananmen Square protests and massacre",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q16952",
@@ -531,7 +613,9 @@
       ],
       "sitelinks": 80,
       "en_title": "Peking University",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q164055",
@@ -544,7 +628,9 @@
       ],
       "sitelinks": 78,
       "en_title": "Tiananmen Square",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q200106",
@@ -558,7 +644,9 @@
       ],
       "sitelinks": 77,
       "en_title": "People's Liberation Army",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q32190",
@@ -572,7 +660,9 @@
       ],
       "sitelinks": 76,
       "en_title": "Beijing Capital International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Chaoyang District"
     },
     {
       "qid": "Q125445",
@@ -586,7 +676,9 @@
       ],
       "sitelinks": 68,
       "en_title": "Temple of Heaven",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Tiantan Subdistrict"
     },
     {
       "qid": "Q133525",
@@ -599,7 +691,9 @@
       ],
       "sitelinks": 64,
       "en_title": "Beijing National Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Aoyuncun Subdistrict"
     },
     {
       "qid": "Q4132",
@@ -612,7 +706,9 @@
       ],
       "sitelinks": 61,
       "en_title": "Summer Palace",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Haidian District"
     },
     {
       "qid": "Q732353",
@@ -625,7 +721,9 @@
       ],
       "sitelinks": 51,
       "en_title": "National Library of China",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Zizhuyuan Subdistrict"
     },
     {
       "qid": "Q219230",
@@ -638,7 +736,9 @@
       ],
       "sitelinks": 50,
       "en_title": "Marco Polo Bridge incident",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Wanping County"
     },
     {
       "qid": "Q1074318",
@@ -653,7 +753,9 @@
       ],
       "sitelinks": 45,
       "en_title": "National Museum of China",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
     },
     {
       "qid": "Q1026555",
@@ -666,7 +768,9 @@
       ],
       "sitelinks": 45,
       "en_title": "2015 World Championships in Athletics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q30138",
@@ -679,7 +783,9 @@
       ],
       "sitelinks": 45,
       "en_title": "Xicheng, Beijing",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q189941",
@@ -692,7 +798,9 @@
       ],
       "sitelinks": 44,
       "en_title": "Athletics at the 2008 Summer Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q72891",
@@ -705,7 +813,9 @@
       ],
       "sitelinks": 44,
       "en_title": "Great Hall of the People",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q83973",
@@ -718,7 +828,9 @@
       ],
       "sitelinks": 44,
       "en_title": "Tiananmen",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dongcheng District"
     },
     {
       "qid": "Q393454",
@@ -731,7 +843,9 @@
       ],
       "sitelinks": 43,
       "en_title": "Haidian, Beijing",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q394681",
@@ -744,7 +858,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Dongcheng, Beijing",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q530471",
@@ -760,7 +876,9 @@
       ],
       "sitelinks": 42,
       "en_title": "Chinese Academy of Sciences",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q216864",
@@ -775,7 +893,9 @@
       ],
       "sitelinks": 41,
       "en_title": "2008 Summer Paralympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q191948",
@@ -788,7 +908,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Football at the 2008 Summer Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q394701",
@@ -801,7 +923,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Chaoyang, Beijing",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q203194",
@@ -814,7 +938,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Handball at the 2008 Summer Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q244877",
@@ -827,7 +953,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Water Cube",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Chaoyang District"
     },
     {
       "qid": "Q197889",
@@ -843,7 +971,9 @@
       ],
       "sitelinks": 39,
       "en_title": "Zhongnanhai",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Xichang'anjie Subdistrict"
     },
     {
       "qid": "Q186533",
@@ -856,7 +986,9 @@
       ],
       "sitelinks": 38,
       "en_title": "2004 AFC Asian Cup",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q207439",
@@ -869,7 +1001,9 @@
       ],
       "sitelinks": 38,
       "en_title": "Cycling at the 2008 Summer Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q754321",
@@ -882,7 +1016,9 @@
       ],
       "sitelinks": 37,
       "en_title": "CCTV Headquarters",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hujialou Subdistrict"
     }
   ],
   "restaurants": [
@@ -898,7 +1034,9 @@
       "strategy": "p131",
       "instance_of": [
         "market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Panjiayuan Subdistrict"
     },
     {
       "qid": "Q10902409",
@@ -912,7 +1050,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Zhanlanlu Subdistrict"
     },
     {
       "qid": "Q15932176",
@@ -926,7 +1066,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Andingmen Subdistrict"
     },
     {
       "qid": "Q137828776",
@@ -940,7 +1082,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Beijing"
     },
     {
       "qid": "Q29469163",
@@ -954,7 +1098,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Shichahai Subdistrict"
     },
     {
       "qid": "Q11174550",
@@ -968,7 +1114,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Zhanlanlu Subdistrict"
     },
     {
       "qid": "Q17034532",
@@ -982,7 +1130,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Beixinqiao Subdistrict"
     },
     {
       "qid": "Q28418442",
@@ -996,7 +1146,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Sijiqing"
     },
     {
       "qid": "Q105639806",
@@ -1010,7 +1162,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Zhongcang Subdistrict"
     },
     {
       "qid": "Q138862955",
@@ -1024,7 +1178,9 @@
       "strategy": "p131",
       "instance_of": [
         "marketplace"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Dahanji"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Skyline_of_Beijing_CBD_with_B-5906_approaching_%2820211016171955%29.jpg/1280px-Skyline_of_Beijing_CBD_with_B-5906_approaching_%2820211016171955%29.jpg",

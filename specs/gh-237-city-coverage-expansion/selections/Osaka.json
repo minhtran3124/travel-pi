@@ -77,24 +77,24 @@
       "languages_spoken": ["English", "Japanese"]
     },
     {
-      "qid": "Q11348723",
-      "star_rating": 4,
-      "price_per_night": 220,
-      "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"],
-      "rating": 4.3,
-      "review_count": 1600,
+      "qid": "Q11337863",
+      "star_rating": 3,
+      "price_per_night": 115,
+      "amenities": ["Restaurant", "Gym", "Free WiFi"],
+      "rating": 4.0,
+      "review_count": 1200,
       "property_type": "Hotel",
-      "chain": null,
+      "chain": "JR",
       "check_in_time": "15:00",
       "check_out_time": "11:00",
       "breakfast_included": false,
-      "free_cancellation": true,
-      "languages_spoken": ["Japanese"]
+      "free_cancellation": false,
+      "languages_spoken": ["English", "Japanese"]
     },
     {
       "qid": "Q111406803",
-      "star_rating": 3,
-      "price_per_night": 120,
+      "star_rating": 5,
+      "price_per_night": 360,
       "amenities": ["Restaurant", "Gym", "Bar"],
       "rating": 4.0,
       "review_count": 900,
@@ -104,7 +104,8 @@
       "check_out_time": "10:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Japanese"]
+      "languages_spoken": ["Japanese"],
+      "status_reviewed": "no enwiki article/extract in the candidate file (Wikidata label only, no P5116 hotel-rating statement); the Imperial Hotel brand builds only flagship 5-star luxury properties (cf. its historic Tokyo flagship) -- reclassified from the seeded 3-star/$120 on that brand-positioning basis, not a sourced extract quote"
     },
     {
       "qid": "Q111406811",

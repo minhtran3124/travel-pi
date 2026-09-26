@@ -4353,7 +4353,7 @@
     "entity_type": "hotel",
     "entity_id": "9c76d808-1813-570b-90dc-151235e26243",
     "field": "description",
-    "text": "Hôtel Lutetia là một khách sạn 4 sao ở Paris, France, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 2.200 đánh giá của khách."
+    "text": "Hôtel Lutetia là một khách sạn 5 sao ở Paris, France, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 2.200 đánh giá của khách."
   },
   {
     "entity_type": "hotel",
@@ -4563,13 +4563,13 @@
     "entity_type": "hotel",
     "entity_id": "9a714d79-275f-5891-9d1b-c342ef9b71fb",
     "field": "description",
-    "text": "Rihga Royal Hotel là một khách sạn 4 sao ở Osaka, Japan, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.600 đánh giá của khách."
+    "text": "Hotel Granvia Osaka là một khách sạn 3 sao ở Osaka, Japan, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 4,0/5 từ 1.200 đánh giá của khách."
   },
   {
     "entity_type": "hotel",
     "entity_id": "0fc0b849-d6d4-5f2c-b357-e0e82369cd5a",
     "field": "description",
-    "text": "Imperial Hotel, Osaka là một khách sạn 3 sao ở Osaka, Japan, với nhà hàng, phòng gym và quầy bar. Nó đạt 4,0/5 từ 900 đánh giá của khách."
+    "text": "Imperial Hotel, Osaka là một khách sạn 5 sao ở Osaka, Japan, với nhà hàng, phòng gym và quầy bar. Nó đạt 4,0/5 từ 900 đánh giá của khách."
   },
   {
     "entity_type": "hotel",
@@ -5809,12 +5809,6 @@
   },
   {
     "entity_type": "place",
-    "entity_id": "b67fce61-8fa8-5e67-b701-766335aee555",
-    "field": "description",
-    "text": "Ống dung nham dài thứ hai thế giới với chiều dài 8.928 km, thể hiện địa chất núi lửa của Jeju."
-  },
-  {
-    "entity_type": "place",
     "entity_id": "b4046d46-b277-5930-87ec-0fa882c70603",
     "field": "description",
     "text": "Một ngôi chùa Phật giáo nằm yên ở Seogwipo thể hiện kiến trúc tâm linh Hàn Quốc truyền thống."
@@ -6223,12 +6217,6 @@
   },
   {
     "entity_type": "place",
-    "entity_id": "6acf72ce-8ad0-5e42-b005-39b32f7e51e9",
-    "field": "description",
-    "text": "Đại học công lập nghiên cứu lớn ở Westwood. Là nơi ở của các chương trình học thuật và nghiên cứu nổi tiếng và Royce Hall biểu tượng."
-  },
-  {
-    "entity_type": "place",
     "entity_id": "6bf35a6d-e857-5124-be9d-4f8383634494",
     "field": "description",
     "text": "Nhà hàng hot dog mốc tiêu ở Quận Fairfax. Nổi tiếng với những chiếc hot dog biểu tượng."
@@ -6238,5 +6226,17 @@
     "entity_id": "025997dc-1941-5e8e-825e-f950efa34c31",
     "field": "description",
     "text": "Nhà hàng lâu đời nhất ở Hollywood thành lập năm 1919. Cơ sở ăn uống cổ điển nổi tiếng với ẩm thực tinh tế."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "1a5aecf7-5a92-51ce-a67e-249349dd8fcc",
+    "field": "description",
+    "text": "Ống dung nham dài thứ hai thế giới với chiều dài 8.928 km, thể hiện địa chất núi lửa của Jeju."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9050d0ec-415e-56ed-a917-ad099fac8ffd",
+    "field": "description",
+    "text": "Một bến tàu lịch sử ở Santa Monica với một công viên giải trí nhỏ, các quầy đồ ăn nhẹ và tầm nhìn ra biển dọc theo lối đi bộ ven biển."
   }
 ]

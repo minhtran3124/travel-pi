@@ -24,7 +24,9 @@
       "sitelinks": 8,
       "en_title": "Goring Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q5764648",
@@ -36,7 +38,9 @@
       "sitelinks": 4,
       "en_title": "Hilton London Metropole",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "225 Edgware Road, London, W2 1JU",
+      "district_en": "London"
     },
     {
       "qid": "Q7832418",
@@ -48,7 +52,9 @@
       "sitelinks": 4,
       "en_title": "The Trafalgar St. James London",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2 Spring Gardens, Trafalgar Square, London, SW1A 2TS",
+      "district_en": "London"
     },
     {
       "qid": "Q7374201",
@@ -60,7 +66,9 @@
       "sitelinks": 3,
       "en_title": "Royal Garden Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q13529180",
@@ -72,7 +80,9 @@
       "sitelinks": 3,
       "en_title": "Hilton London Hyde Park",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "129 Bayswater Road",
+      "district_en": "London"
     },
     {
       "qid": "Q23646439",
@@ -84,7 +94,9 @@
       "sitelinks": 3,
       "en_title": "100 Queen's Gate Hotel London Kensington",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "100 Queen's Gate, London, SW7 5AG",
+      "district_en": "Royal Borough of Kensington and Chelsea"
     },
     {
       "qid": "Q28803116",
@@ -96,7 +108,9 @@
       "sitelinks": 3,
       "en_title": "De Keyser's Royal Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q16994989",
@@ -108,7 +122,9 @@
       "sitelinks": 2,
       "en_title": "Conrad London St. James",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "22-28 Broadway",
+      "district_en": "London"
     },
     {
       "qid": "Q21585367",
@@ -120,7 +136,9 @@
       "sitelinks": 2,
       "en_title": "Morley's Hotel",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q20089924",
@@ -132,7 +150,9 @@
       "sitelinks": 2,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "100 - 110 Euston Road",
+      "district_en": "London"
     },
     {
       "qid": "Q17444904",
@@ -144,7 +164,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "265A Rotherhithe Street, London, SE16 5HW",
+      "district_en": "London"
     },
     {
       "qid": "Q18112026",
@@ -156,7 +178,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Imperial Road",
+      "district_en": "London"
     },
     {
       "qid": "Q30097763",
@@ -168,7 +192,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "30 John Islip Street",
+      "district_en": "Westminster"
     },
     {
       "qid": "Q119807270",
@@ -180,7 +206,9 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Battersea"
     },
     {
       "qid": "Q42341625",
@@ -192,7 +220,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q51824364",
@@ -204,7 +234,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "179-199 Holland Park Avenue, London, W11 4UL",
+      "district_en": "London"
     },
     {
       "qid": "Q53632218",
@@ -216,7 +248,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2 Festoon Way, London, E16 1RH",
+      "district_en": "London"
     },
     {
       "qid": "Q61100884",
@@ -228,7 +262,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "92 Southampton Row",
+      "district_en": "London"
     },
     {
       "qid": "Q63608863",
@@ -240,7 +276,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "2 Bridge Place",
+      "district_en": "London"
     },
     {
       "qid": "Q109468735",
@@ -252,7 +290,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Edgware Road 450",
+      "district_en": "London"
     },
     {
       "qid": "Q111874369",
@@ -264,7 +304,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q111874394",
@@ -276,7 +318,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "45 Whitechapel Rd",
+      "district_en": "London"
     },
     {
       "qid": "Q111874405",
@@ -288,7 +332,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "10-11 Albert Embankment",
+      "district_en": "London"
     },
     {
       "qid": "Q123594700",
@@ -300,7 +346,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "60 Pentonville Road",
+      "district_en": "London"
     },
     {
       "qid": "Q126551884",
@@ -312,7 +360,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q131758134",
@@ -324,7 +374,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q132196165",
@@ -336,7 +388,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "7 Nine Elms Ln",
+      "district_en": "London"
     },
     {
       "qid": "Q135458377",
@@ -348,7 +402,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "10a, Chestnut Plaza, Westfield stratford city",
+      "district_en": "London"
     },
     {
       "qid": "Q135458465",
@@ -360,7 +416,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "The Grove, Bath Rd",
+      "district_en": "London"
     },
     {
       "qid": "Q135658703",
@@ -372,7 +430,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "10B, Chestnut Plaza, Westfield Stratford City",
+      "district_en": "London"
     },
     {
       "qid": "Q135779125",
@@ -384,7 +444,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": "Hammersmith Rd",
+      "district_en": "London"
     }
   ],
   "places": [
@@ -400,7 +462,9 @@
       ],
       "sitelinks": 156,
       "en_title": "Commonwealth of Nations",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "Marlborough House, Pall Mall, London SW1Y 5HX",
+      "district_en": null
     },
     {
       "qid": "Q9531",
@@ -414,7 +478,9 @@
       ],
       "sitelinks": 149,
       "en_title": "BBC",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "Broadcasting House, Portland Place, London W1A 1AA",
+      "district_en": null
     },
     {
       "qid": "Q8577",
@@ -427,7 +493,9 @@
       ],
       "sitelinks": 132,
       "en_title": "2012 Summer Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q9616",
@@ -440,7 +508,9 @@
       ],
       "sitelinks": 127,
       "en_title": "Chelsea F.C.",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q11148",
@@ -454,7 +524,9 @@
       ],
       "sitelinks": 111,
       "en_title": "The Guardian",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q6373",
@@ -471,7 +543,9 @@
       ],
       "sitelinks": 109,
       "en_title": "British Museum",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "Great Russell St, Bloomsbury, London WC1B 3DG, UK",
+      "district_en": "London Borough of Camden"
     },
     {
       "qid": "Q42182",
@@ -488,7 +562,9 @@
       ],
       "sitelinks": 95,
       "en_title": "Buckingham Palace",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "London SW1A 1AA",
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q23306",
@@ -502,7 +578,9 @@
       ],
       "sitelinks": 95,
       "en_title": "Greater London",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q23311",
@@ -521,7 +599,9 @@
       ],
       "sitelinks": 94,
       "en_title": "City of London",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q41520",
@@ -535,7 +615,9 @@
       ],
       "sitelinks": 94,
       "en_title": "Wimbledon Championships",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Wimbledon"
     },
     {
       "qid": "Q179351",
@@ -551,7 +633,9 @@
       ],
       "sitelinks": 93,
       "en_title": "City of Westminster",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Greater London"
     },
     {
       "qid": "Q5933",
@@ -568,7 +652,9 @@
       ],
       "sitelinks": 91,
       "en_title": "Westminster Abbey",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q123885",
@@ -586,7 +672,9 @@
       ],
       "sitelinks": 89,
       "en_title": "Royal Society",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q62378",
@@ -602,7 +690,9 @@
       ],
       "sitelinks": 88,
       "en_title": "Tower of London",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "Tower Hill, London EC3N 4AB",
+      "district_en": "London Borough of Tower Hamlets"
     },
     {
       "qid": "Q41225",
@@ -624,7 +714,9 @@
       ],
       "sitelinks": 88,
       "en_title": "Big Ben",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q83125",
@@ -638,7 +730,9 @@
       ],
       "sitelinks": 86,
       "en_title": "Tower Bridge",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "London Borough of Southwark"
     }
   ],
   "restaurants": [
@@ -654,7 +748,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q839257",
@@ -668,7 +764,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q7918202",
@@ -682,7 +780,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q14955152",
@@ -696,7 +796,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q15242357",
@@ -710,7 +812,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q4035249",
@@ -724,7 +828,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q4857936",
@@ -738,7 +844,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": "22 Frith Street",
+      "district_en": "London"
     },
     {
       "qid": "Q7775450",
@@ -752,7 +860,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q27958123",
@@ -766,7 +876,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q125850669",
@@ -780,7 +892,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q4705649",
@@ -794,7 +908,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q4882628",
@@ -808,7 +924,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q5094644",
@@ -822,7 +940,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q5278421",
@@ -836,7 +956,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q5750787",
@@ -850,7 +972,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q6455633",
@@ -864,7 +988,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q6664714",
@@ -878,7 +1004,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q7191475",
@@ -892,7 +1020,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q7414691",
@@ -906,7 +1036,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q7429966",
@@ -920,7 +1052,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q8050323",
@@ -934,7 +1068,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q8064290",
@@ -948,7 +1084,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q16895543",
@@ -962,7 +1100,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": "20 Queen Street, Mayfair, London W1J 5PP",
+      "district_en": "City of Westminster"
     },
     {
       "qid": "Q18648895",
@@ -976,7 +1116,9 @@
       "strategy": "p131",
       "instance_of": [
         "café"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     },
     {
       "qid": "Q20713981",
@@ -990,7 +1132,9 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "London"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_%28125508655%29.jpeg/1280px-London_Skyline_%28125508655%29.jpeg",

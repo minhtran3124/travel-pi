@@ -26,7 +26,9 @@
       "sitelinks": 2,
       "en_title": "Lotte Hotel Busan",
       "strategy": "p131",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q111126727",
@@ -38,7 +40,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126730",
@@ -50,7 +54,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126729",
@@ -62,7 +68,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126734",
@@ -74,7 +82,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126735",
@@ -86,7 +96,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126732",
@@ -98,7 +110,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126737",
@@ -110,7 +124,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126742",
@@ -122,7 +138,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126740",
@@ -134,7 +152,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126746",
@@ -146,7 +166,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126744",
@@ -158,7 +180,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126750",
@@ -170,7 +194,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126748",
@@ -182,7 +208,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126754",
@@ -194,7 +222,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126752",
@@ -206,7 +236,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111126756",
@@ -218,7 +250,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406514",
@@ -230,7 +264,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406515",
@@ -242,7 +278,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406518",
@@ -254,7 +292,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406519",
@@ -266,7 +306,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406522",
@@ -278,7 +320,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406523",
@@ -290,7 +334,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406520",
@@ -302,7 +348,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406521",
@@ -314,7 +362,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406524",
@@ -326,7 +376,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q111406525",
@@ -338,7 +390,9 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "radius",
-      "instance_of": []
+      "instance_of": [],
+      "address_en": null,
+      "district_en": null
     }
   ],
   "places": [
@@ -354,7 +408,9 @@
       ],
       "sitelinks": 47,
       "en_title": "Gimhae",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "South Gyeongsang"
     },
     {
       "qid": "Q55501",
@@ -367,7 +423,9 @@
       ],
       "sitelinks": 40,
       "en_title": "Nakdong River",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "North Gyeongsang"
     },
     {
       "qid": "Q42123",
@@ -381,7 +439,9 @@
       ],
       "sitelinks": 36,
       "en_title": "Yangsan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "South Gyeongsang"
     },
     {
       "qid": "Q483223",
@@ -397,7 +457,9 @@
       ],
       "sitelinks": 33,
       "en_title": "Gimhae International Airport",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50449",
@@ -410,7 +472,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Haeundae District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q482589",
@@ -423,7 +487,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Busan Asiad Main Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": "344 World cup-daero, Yeonje-gu, Busan, Republic of Korea",
+      "district_en": "Busan"
     },
     {
       "qid": "Q482633",
@@ -436,7 +502,9 @@
       ],
       "sitelinks": 29,
       "en_title": "Busan International Film Festival",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50217",
@@ -449,7 +517,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Gijang County",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50383",
@@ -464,7 +534,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Dongnae District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50417",
@@ -478,7 +550,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Suyeong District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50390",
@@ -492,7 +566,9 @@
       ],
       "sitelinks": 24,
       "en_title": "Busanjin District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q489904",
@@ -505,7 +581,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Air China Flight 129",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q50378",
@@ -518,7 +596,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Dong District, Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50422",
@@ -531,7 +611,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Yeonje District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50394",
@@ -544,7 +626,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Buk District, Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50191",
@@ -557,7 +641,9 @@
       ],
       "sitelinks": 22,
       "en_title": "Gangseo District, Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50358",
@@ -570,7 +656,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Geumjeong District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50363",
@@ -583,7 +671,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Nam District, Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50423",
@@ -597,7 +687,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Yeongdo District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50406",
@@ -610,7 +702,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Seo District, Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q12438381",
@@ -624,7 +718,9 @@
       ],
       "sitelinks": 21,
       "en_title": "Port of Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50440",
@@ -637,7 +733,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Jung District, Busan",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q50400",
@@ -651,7 +749,9 @@
       ],
       "sitelinks": 20,
       "en_title": "Saha District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q482979",
@@ -664,7 +764,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Battle of the Pusan Perimeter",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q496218",
@@ -677,7 +779,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Busan Lotte Town Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q562008",
@@ -690,7 +794,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Sailing at the 1988 Summer Olympics",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q50398",
@@ -704,7 +810,9 @@
       ],
       "sitelinks": 19,
       "en_title": "Sasang District",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q66201394",
@@ -718,7 +826,9 @@
       ],
       "sitelinks": 18,
       "en_title": "Gaya Tumuli",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q487662",
@@ -731,7 +841,9 @@
       ],
       "sitelinks": 17,
       "en_title": "Beomeosa",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Geumjeong District"
     },
     {
       "qid": "Q490777",
@@ -744,7 +856,9 @@
       ],
       "sitelinks": 16,
       "en_title": "Busan Tower",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q15465499",
@@ -758,7 +872,9 @@
       ],
       "sitelinks": 16,
       "en_title": "United Nations Memorial Cemetery",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q130628",
@@ -773,7 +889,9 @@
       ],
       "sitelinks": 16,
       "en_title": "National Maritime Museum of Korea",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q491203",
@@ -787,7 +905,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Haeundae Beach",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Haeundae District"
     },
     {
       "qid": "Q497046",
@@ -800,7 +920,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Siege of Busanjin",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q5001263",
@@ -813,7 +935,9 @@
       ],
       "sitelinks": 15,
       "en_title": "Busan Gudeok Stadium",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Seodaesin-dong"
     },
     {
       "qid": "Q485443",
@@ -826,7 +950,9 @@
       ],
       "sitelinks": 13,
       "en_title": "Gwangan Bridge",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q2494268",
@@ -839,7 +965,9 @@
       ],
       "sitelinks": 13,
       "en_title": "Haedong Yonggungsa",
-      "strategy": "radius"
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Gijang County"
     }
   ],
   "restaurants": [
@@ -855,7 +983,9 @@
       "strategy": "radius",
       "instance_of": [
         "market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q5001260",
@@ -869,7 +999,9 @@
       "strategy": "p131",
       "instance_of": [
         "fish market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Busan"
     },
     {
       "qid": "Q130199265",
@@ -883,7 +1015,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q130240129",
@@ -897,7 +1031,9 @@
       "strategy": "radius",
       "instance_of": [
         "restaurant"
-      ]
+      ],
+      "address_en": null,
+      "district_en": null
     },
     {
       "qid": "Q137612150",
@@ -911,7 +1047,9 @@
       "strategy": "p131",
       "instance_of": [
         "market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Geumjeong District"
     },
     {
       "qid": "Q137612434",
@@ -925,7 +1063,9 @@
       "strategy": "p131",
       "instance_of": [
         "market"
-      ]
+      ],
+      "address_en": null,
+      "district_en": "Suyeong District"
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
