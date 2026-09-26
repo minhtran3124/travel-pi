@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 TIMEZONE = "UTC"
 TURN_TIMEOUT = 180
+PLAN_APPROVAL_MARKER = "[plan approval requested]"
 DEFAULT_CEILING = 0.85
 _FINISHED = ("done", "max_turns", "bot_error", "driver_error")
 
@@ -397,7 +398,10 @@ async def _run_turn(
     body: dict,
 ) -> _Turn:
     turn = await _stream_once(body, persona, token, base_url, client, bus, result)
-    result.turns.append({"role": "bot", "text": turn.reply})
+    if turn.reply or not turn.interrupt:
+        result.turns.append({"role": "bot", "text": turn.reply})
+    if turn.interrupt:
+        result.turns.append({"role": "bot", "text": PLAN_APPROVAL_MARKER})
     if turn.abort_status is not None or turn.error is not None or not turn.interrupt:
         return turn
 

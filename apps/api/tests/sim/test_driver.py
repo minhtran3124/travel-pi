@@ -226,7 +226,7 @@ def test_c_plan_approval_resume_order_and_body(monkeypatch):
     assert resume_bodies[0]["conversation_id"] == "conv-9"
     assert result.sessions[0].turns == [
         {"role": "user", "text": "book it"},
-        {"role": "bot", "text": ""},
+        {"role": "bot", "text": driver.PLAN_APPROVAL_MARKER},
         {"role": "user", "text": "[resume approved=True]"},
         {"role": "bot", "text": "Booked"},
     ]

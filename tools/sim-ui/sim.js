@@ -79,13 +79,13 @@ function makePerson(meta){
   };
 }
 
-function resetBatch(personas, seats){
+function resetBatch(personas, seats, batchId){
   const requested = Number.isFinite(seats) ? seats : (Array.isArray(seats) ? seats.length : 3);
   const n = Math.max(1, Math.min(MAX_SEATS, requested));
   state = {
     tMs: 0, q5: 0, q7: 0, resets: null, requestedSeats: requested,
     order: [], people: new Map(), queue: [], events: [],
-    total: personas.length, ended: false, summary: null,
+    total: personas.length, ended: false, summary: null, departed: 0, batchId: batchId || null,
     seats: seatXs(n).map((x, i) => ({ i, x, y: 204, busy: null, sub: null, tool: null, bubble: null, approval: false })),
   };
   if (requested > n) warn(`batch_start requested ${requested} seats; rendering ${n} (layout cap)`);
@@ -114,7 +114,7 @@ function handle(ev){
   const p = ev.persona_id != null ? person(ev.persona_id) : null;
   switch (ev.type){
     case 'batch_start': {
-      resetBatch(Array.isArray(ev.personas) ? ev.personas : [], ev.seats);
+      resetBatch(Array.isArray(ev.personas) ? ev.personas : [], ev.seats, ev.batch);
       break;
     }
     case 'persona_queue': {
@@ -180,8 +180,10 @@ function handle(ev){
     case 'bot_done': {
       if (!p) break;
       const reply = ev.reply != null ? ev.reply : (p.stream ? p.stream.text : '');
-      if (p.seat) p.seat.bubble = { who: 'bot', text: reply };
-      p.transcript.push({ who: 'bot', text: reply });
+      if (reply.trim()){
+        if (p.seat) p.seat.bubble = { who: 'bot', text: reply };
+        p.transcript.push({ who: 'bot', text: reply });
+      }
       p.stream = null;
       break;
     }
@@ -205,7 +207,8 @@ function handle(ev){
       if (seat){ Object.assign(seat, { busy: null, sub: null, tool: null, bubble: null, approval: false }); }
       p.seat = null;
       const from = seat ? { x: seat.x, y: AISLE_Y } : { x: p.x, y: AISLE_Y };
-      p.path = [from, { x: EXIT.x, y: AISLE_Y }, { x: EXIT.x, y: EXIT.y }];
+      const slot = state.departed++;
+      p.path = [from, { x: EXIT.x, y: AISLE_Y }, { x: EXIT.x, y: EXIT.y }, { x: EXIT.x - 44 - slot * 46, y: EXIT.y + 34 }];
       p.phase = 'leaving'; p.leaveReason = ev.reason || 'done'; p.left = true;
       break;
     }
@@ -372,7 +375,7 @@ function draw(){
   }
   const dq = iso(24, 470), eq = iso(616, 470);
   pill(dq.x, dq.y - 44, 'ARRIVALS', T.board, T.lime, '700 10.5px Inter, sans-serif');
-  pill(eq.x, eq.y - 44, 'EXIT', T.board, T.lime, '700 10.5px Inter, sans-serif');
+  pill(eq.x + 30, eq.y - 62, 'EXIT', T.board, T.lime, '700 10.5px Inter, sans-serif');
 
   for (const s of state.seats){
     if (s.tool && s.tool.until && s.tool.status !== 'running' && animT > s.tool.until) s.tool = null;
@@ -400,6 +403,7 @@ function draw(){
 function renderHeader(){
   const done = state.order.filter(id => state.people.get(id).left).length;
   $('done-count').textContent = `${done}/${state.total}`;
+  $('batch-id').textContent = state.batchId || '—';
   $('inflight').textContent = `${state.seats.filter(s => s.busy).length}/${state.seats.length}`;
   $('clock').textContent = mmss(state.tMs / 1000);
   const c5 = Math.max(0, Math.min(1, state.q5)), c7 = Math.max(0, Math.min(1, state.q7));

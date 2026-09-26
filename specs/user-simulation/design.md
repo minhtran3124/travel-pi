@@ -181,7 +181,7 @@ The targets live in `apps/api/Makefile`. The root `Makefile` gets thin delegatin
 
 | type | extra fields |
 |---|---|
-| `batch_start` | `personas: [{id, name, country_code, language}]`, `seats` |
+| `batch_start` | `batch` (the run directory name, a UTC timestamp), `personas: [{id, name, country_code, language}]`, `seats` |
 | `persona_queue` | — |
 | `walk_to_desk` | `seat` |
 | `user_say` | `text` |

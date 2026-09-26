@@ -1,16 +1,16 @@
-{"type":"batch_start","persona_id":null,"v":1,"seats":2,"personas":[{"id":"p1","name":"Aoi Tanaka","country_code":"JP","language":"ja"},{"id":"p2","name":"Bruno Costa","country_code":"BR","language":"pt"}]}
-{"type":"quota","persona_id":null,"five_hour":0.42,"seven_day":0.18,"resets_at":"2026-09-25T21:00:00Z"}
-{"type":"persona_queue","persona_id":"p1"}
-{"type":"persona_queue","persona_id":"p2"}
-{"type":"walk_to_desk","persona_id":"p1","seat":0}
-{"type":"user_say","persona_id":"p1","text":"Hi, I want to plan a trip to Kyoto next month."}
-{"type":"bot_subagent","persona_id":"p1","name":"planner"}
-{"type":"bot_tool","persona_id":"p1","id":"call-1","name":"search_flights","status":"running"}
-{"type":"bot_tool","persona_id":"p1","id":"call-1","status":"ok"}
-{"type":"bot_token","persona_id":"p1","text":"I found several options "}
-{"type":"bot_token","persona_id":"p1","text":"for your trip."}
-{"type":"bot_done","persona_id":"p1","reply":"I found several options for your trip.","usage":{"input_tokens":10,"output_tokens":8}}
-{"type":"user_say","persona_id":"p1","text":"Great, book the cheapest one."}
-{"type":"bot_done","persona_id":"p1","reply":"Your flight is booked. Have a great trip!","usage":{"input_tokens":6,"output_tokens":9}}
-{"type":"persona_leave","persona_id":"p1","reason":"done"}
-{"type":"session_graded","persona_id":"p1","score":4.5,"verdict":"pass"}
+{"type": "batch_start", "persona_id": null, "v": 1, "seats": 2, "personas": [{"id": "p1", "name": "Aoi Tanaka", "country_code": "JP", "language": "ja"}, {"id": "p2", "name": "Bruno Costa", "country_code": "BR", "language": "pt"}], "batch": "20260925T000000Z"}
+{"type": "quota", "persona_id": null, "five_hour": 0.42, "seven_day": 0.18, "resets_at": "2026-09-25T21:00:00Z"}
+{"type": "persona_queue", "persona_id": "p1"}
+{"type": "persona_queue", "persona_id": "p2"}
+{"type": "walk_to_desk", "persona_id": "p1", "seat": 0}
+{"type": "user_say", "persona_id": "p1", "text": "Hi, I want to plan a trip to Kyoto next month."}
+{"type": "bot_subagent", "persona_id": "p1", "name": "planner"}
+{"type": "bot_tool", "persona_id": "p1", "id": "call-1", "name": "search_flights", "status": "running"}
+{"type": "bot_tool", "persona_id": "p1", "id": "call-1", "status": "ok"}
+{"type": "bot_token", "persona_id": "p1", "text": "I found several options "}
+{"type": "bot_token", "persona_id": "p1", "text": "for your trip."}
+{"type": "bot_done", "persona_id": "p1", "reply": "I found several options for your trip.", "usage": {"input_tokens": 10, "output_tokens": 8}}
+{"type": "user_say", "persona_id": "p1", "text": "Great, book the cheapest one."}
+{"type": "bot_done", "persona_id": "p1", "reply": "Your flight is booked. Have a great trip!", "usage": {"input_tokens": 6, "output_tokens": 9}}
+{"type": "persona_leave", "persona_id": "p1", "reason": "done"}
+{"type": "session_graded", "persona_id": "p1", "score": 4.5, "verdict": "pass"}

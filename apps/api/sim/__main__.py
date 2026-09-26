@@ -253,6 +253,7 @@ async def _run(args: argparse.Namespace) -> int:
                 "type": "batch_start",
                 "persona_id": None,
                 "v": 1,
+                "batch": run_dir.name,
                 "personas": [
                     {
                         "id": p.id,

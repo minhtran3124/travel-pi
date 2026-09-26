@@ -133,6 +133,7 @@ async function main() {
           card.textContent.includes(name) &&
           !!done &&
           done.textContent.trim() === "1/2" &&
+          document.querySelector("#batch-id").textContent.trim() === "20260925T000000Z" &&
           lines.length >= 4
         );
       },
