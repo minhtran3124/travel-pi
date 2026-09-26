@@ -34,7 +34,8 @@ const TOOL_ICON = name => {
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mmss = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
-const statusLabel = s => ({ pending: 'not arrived', queued: 'queued', talking: 'at desk', pass: 'pass', warn: 'warn', fail: 'fail', error: 'error' }[s] || s);
+const statusLabel = s => ({ pending: 'not arrived', queued: 'queued', talking: 'at desk', grading: 'grading', ungraded: 'ungraded', skipped: 'skipped', aborted: 'aborted', pass: 'pass', warn: 'warn', fail: 'fail', error: 'error' }[s] || s);
+const LEAVE_STATUS = { done: 'grading', max_turns: 'grading', quota: 'skipped', aborted: 'aborted', driver_error: 'error', bot_error: 'error' };
 
 const canvas = $('scene');
 let ctx = null;
@@ -214,6 +215,7 @@ function handle(ev){
       const slot = state.departed++;
       p.path = [from, { x: EXIT.x, y: AISLE_Y }, { x: EXIT.x, y: EXIT.y }, { x: EXIT.x - 44 - (slot % 8) * 46, y: EXIT.y + 34 + Math.floor(slot / 8) * 34 }];
       p.phase = 'leaving'; p.leaveReason = ev.reason || 'done'; p.left = true;
+      if (p.status !== 'error') p.status = LEAVE_STATUS[p.leaveReason] || 'grading';
       break;
     }
     case 'session_graded': {
@@ -233,6 +235,7 @@ function handle(ev){
     }
     case 'batch_end': {
       state.ended = true; state.summary = ev.summary || null;
+      for (const q of state.people.values()) if (q.status === 'grading') q.status = 'ungraded';
       break;
     }
   }
