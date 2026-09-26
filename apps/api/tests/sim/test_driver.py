@@ -232,6 +232,55 @@ def test_c_plan_approval_resume_order_and_body(monkeypatch):
     ]
 
 
+def test_c2_interrupt_with_streamed_draft_records_one_bot_turn(monkeypatch):
+    run, _ = _fake_claude(
+        {
+            "c2": [
+                {"message": "book it", "intent_done": False},
+                {"message": "", "intent_done": True},
+            ]
+        }
+    )
+    _patch(monkeypatch, run)
+
+    def handler(request):
+        body = json.loads(request.content)
+        if "resume" in body:
+            return httpx.Response(
+                200, content=_sse([("token", {"content": "Booked"}), ("done", {})])
+            )
+        return httpx.Response(
+            200,
+            content=_sse(
+                [
+                    ("start", {"conversation_id": "conv-10"}),
+                    ("token", {"content": "Plan: TG312"}),
+                    ("interrupt", {"payload": {"type": "plan_approval", "draft": "x"}}),
+                    ("done", {}),
+                ]
+            ),
+        )
+
+    async def go():
+        async with _client(handler) as client:
+            return await driver.run_batch(
+                [_tagged("c2", will_book=True)],
+                1,
+                BASE_URL,
+                _FakeKeys(),
+                _FakeBus(),
+                client,
+                None,
+            )
+
+    turns = _run(go()).sessions[0].turns
+    assert turns[1] == {
+        "role": "bot",
+        "text": f"Plan: TG312\n{driver.PLAN_APPROVAL_MARKER}",
+    }
+    assert [t["role"] for t in turns] == ["user", "bot", "user", "bot"]
+
+
 def test_d_peak_in_flight_never_exceeds_parallel(monkeypatch):
     state = {"cur": 0, "max": 0}
 

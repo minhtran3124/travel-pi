@@ -183,13 +183,17 @@ function handle(ev){
       if (reply.trim()){
         if (p.seat) p.seat.bubble = { who: 'bot', text: reply };
         p.transcript.push({ who: 'bot', text: reply });
+      } else if (!p.awaitingApproval){
+        p.transcript.push({ who: 'error', text: '(empty reply)' });
       }
+      p.awaitingApproval = false;
       p.stream = null;
       break;
     }
     case 'bot_interrupt': {
       if (!p) break;
       if (p.seat) p.seat.approval = true;
+      p.awaitingApproval = true;
       p.transcript.push({ who: 'approval', text: `Tin asks to approve (${ev.kind || 'approval'})` });
       break;
     }
@@ -208,7 +212,7 @@ function handle(ev){
       p.seat = null;
       const from = seat ? { x: seat.x, y: AISLE_Y } : { x: p.x, y: AISLE_Y };
       const slot = state.departed++;
-      p.path = [from, { x: EXIT.x, y: AISLE_Y }, { x: EXIT.x, y: EXIT.y }, { x: EXIT.x - 44 - slot * 46, y: EXIT.y + 34 }];
+      p.path = [from, { x: EXIT.x, y: AISLE_Y }, { x: EXIT.x, y: EXIT.y }, { x: EXIT.x - 44 - (slot % 8) * 46, y: EXIT.y + 34 + Math.floor(slot / 8) * 34 }];
       p.phase = 'leaving'; p.leaveReason = ev.reason || 'done'; p.left = true;
       break;
     }

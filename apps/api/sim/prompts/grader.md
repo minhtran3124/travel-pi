@@ -25,4 +25,4 @@ Return the per-criterion scores and evidence, a single overall `score` from 0
 to 5, and a `verdict`: `pass` (strong), `warn` (usable with issues), or `fail`
 (a real defect worth turning into an eval golden). Keep evidence short.
 
-A bot turn that reads `[plan approval requested]` means the assistant paused to ask the traveller to approve a booking plan. The next user turn, `[resume approved=...]`, is that approval. Neither is an empty or broken reply, so do not penalise them.
+A bot turn that reads or ends with `[plan approval requested]` means the assistant paused to ask the traveller to approve a booking plan. The next user turn, `[resume approved=...]`, is that approval. Neither is an empty or broken reply, so do not penalise them.

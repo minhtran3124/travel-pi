@@ -398,10 +398,15 @@ async def _run_turn(
     body: dict,
 ) -> _Turn:
     turn = await _stream_once(body, persona, token, base_url, client, bus, result)
-    if turn.reply or not turn.interrupt:
-        result.turns.append({"role": "bot", "text": turn.reply})
     if turn.interrupt:
-        result.turns.append({"role": "bot", "text": PLAN_APPROVAL_MARKER})
+        text = (
+            f"{turn.reply}\n{PLAN_APPROVAL_MARKER}"
+            if turn.reply
+            else PLAN_APPROVAL_MARKER
+        )
+        result.turns.append({"role": "bot", "text": text})
+    else:
+        result.turns.append({"role": "bot", "text": turn.reply})
     if turn.abort_status is not None or turn.error is not None or not turn.interrupt:
         return turn
 
