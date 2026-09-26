@@ -46,6 +46,7 @@ _WIKIDATA_QID_RE = re.compile(r"^Q\d+$")
 _ONLINE_COORD_RADIUS_KM = 1.0
 _ONLINE_HTTP_TIMEOUT = 30.0
 _ONLINE_MAX_TRIES = 3
+_ONLINE_REQUEST_SLEEP_S = 0.5
 
 _PLACE_RADIUS_KM = 60.0
 _AIRPORT_RADIUS_KM = 80.0
@@ -103,6 +104,8 @@ _HOTEL_KEYS = {
     "breakfast_included",
     "free_cancellation",
     "languages_spoken",
+    "latitude",
+    "longitude",
     "wikidata",
     "source_url",
 }
@@ -198,35 +201,60 @@ def _check_wikidata_field(record: dict) -> str | None:
     return None
 
 
-def _wikidata_entity_coords(qid: str) -> tuple[float, float] | None:
-    """Fetch a Wikidata entity's P625 (coordinate location), or None if absent/unreachable."""
-    headers = {"User-Agent": USER_AGENT}
-    last_exc: Exception | None = None
-    for attempt in range(_ONLINE_MAX_TRIES):
-        try:
-            resp = httpx.get(
-                WIKIDATA_API,
-                params={
-                    "action": "wbgetentities",
-                    "ids": qid,
-                    "props": "claims",
-                    "format": "json",
-                },
-                headers=headers,
-                timeout=_ONLINE_HTTP_TIMEOUT,
-                verify=certifi.where(),
-            )
-        except httpx.HTTPError as exc:
-            last_exc = exc
-            time.sleep(2.0 * (attempt + 1))
-            continue
-        if resp.status_code == 429 or resp.status_code >= 500:
-            time.sleep(2.0 * (attempt + 1))
-            continue
-        if resp.status_code != 200:
-            return None
-        data = resp.json()
-        entity = data.get("entities", {}).get(qid)
+def _chunks(items: list[str], size: int) -> list[list[str]]:
+    return [items[i : i + size] for i in range(0, len(items), size)]
+
+
+_NETWORK_ERROR_PREFIX = "NETWORK ERROR: "
+
+
+class _OnlineCache:
+    """Batched Wikidata entity lookups for one ``--online`` run: up to 50 QIDs per
+    ``wbgetentities`` call, sleeping between batches and honouring ``Retry-After``, so
+    checking hundreds of hotels/places does not mean hundreds of individual requests."""
+
+    def __init__(self, qids: list[str]) -> None:
+        self.coords: dict[str, tuple[float, float] | None] = {}
+        self.unresolved: set[str] = set()
+        unique = sorted(set(qids))
+        for batch in _chunks(unique, 50):
+            self._resolve_batch(batch)
+
+    def _resolve_batch(self, batch: list[str]) -> None:
+        headers = {"User-Agent": USER_AGENT}
+        for attempt in range(_ONLINE_MAX_TRIES):
+            time.sleep(_ONLINE_REQUEST_SLEEP_S)
+            try:
+                resp = httpx.get(
+                    WIKIDATA_API,
+                    params={
+                        "action": "wbgetentities",
+                        "ids": "|".join(batch),
+                        "props": "claims",
+                        "format": "json",
+                    },
+                    headers=headers,
+                    timeout=_ONLINE_HTTP_TIMEOUT,
+                    verify=certifi.where(),
+                )
+            except httpx.HTTPError:
+                time.sleep(2.0 * (attempt + 1))
+                continue
+            if resp.status_code == 429 or resp.status_code >= 500:
+                retry_after = resp.headers.get("Retry-After")
+                wait_s = float(retry_after) if retry_after else 2.0 * (attempt + 1)
+                time.sleep(wait_s)
+                continue
+            if resp.status_code != 200:
+                break
+            entities = resp.json().get("entities", {})
+            for qid in batch:
+                self.coords[qid] = self._entity_coord(entities.get(qid))
+            return
+        self.unresolved.update(batch)
+
+    @staticmethod
+    def _entity_coord(entity: dict | None) -> tuple[float, float] | None:
         if not entity or "missing" in entity:
             return None
         claims = entity.get("claims", {}).get("P625")
@@ -237,13 +265,12 @@ def _wikidata_entity_coords(qid: str) -> tuple[float, float] | None:
             return float(value["latitude"]), float(value["longitude"])
         except (KeyError, TypeError, ValueError):
             return None
-    raise RuntimeError(
-        f"wbgetentities failed for {qid} after {_ONLINE_MAX_TRIES} tries"
-    ) from last_exc
 
 
-def _check_image_reachable(url: str) -> bool:
-    """True if a ranged GET on ``url`` returns 200 or 206, with retries on 429/5xx."""
+def _check_image_reachable(url: str) -> str:
+    """``"ok"`` on a 200/206 ranged GET, ``"unreachable"`` on a definitive non-2xx
+    response, or ``"network_error"`` once retries on 429/5xx/connection errors are
+    exhausted -- the caller must not conflate the last with a real data violation."""
     headers = {"User-Agent": USER_AGENT, "Range": "bytes=0-0"}
     for attempt in range(_ONLINE_MAX_TRIES):
         try:
@@ -257,43 +284,61 @@ def _check_image_reachable(url: str) -> bool:
             time.sleep(2.0 * (attempt + 1))
             continue
         if resp.status_code in (200, 206):
-            return True
+            return "ok"
         if resp.status_code == 429 or resp.status_code >= 500:
-            time.sleep(2.0 * (attempt + 1))
+            retry_after = resp.headers.get("Retry-After")
+            wait_s = float(retry_after) if retry_after else 2.0 * (attempt + 1)
+            time.sleep(wait_s)
             continue
-        return False
-    return False
+        return "unreachable"
+    return "network_error"
 
 
-def _check_online_wikidata(record: dict, label: str) -> list[str]:
+def _check_online_wikidata(record: dict, label: str, cache: _OnlineCache) -> list[str]:
     """Verify the record's ``wikidata`` QID exists, its P625 is within 1 km of the
-    record's own coordinates, and its ``image_url`` loads. Assumes offline checks passed."""
+    record's own coordinates, and its ``image_url`` loads. Assumes offline checks passed.
+    A record without its own coordinates is a violation here, not a silently skipped
+    check -- the whole point of ``--online`` is that the 1 km check actually runs."""
     problems: list[str] = []
     qid = record.get("wikidata")
     if not isinstance(qid, str):
         return problems
 
-    coords = _wikidata_entity_coords(qid)
-    if coords is None:
-        problems.append(f"{label}: wikidata {qid} does not exist or has no P625")
+    if qid in cache.unresolved:
+        problems.append(
+            f"{_NETWORK_ERROR_PREFIX}{label}: could not verify wikidata {qid} "
+            "(network exhausted after retries)"
+        )
     else:
-        lat = record.get("latitude")
-        lon = record.get("longitude")
-        if isinstance(lat, (int, float)) and isinstance(lon, (int, float)):
-            distance = haversine_km(lat, lon, coords[0], coords[1])
-            if distance > _ONLINE_COORD_RADIUS_KM:
+        coords = cache.coords.get(qid)
+        if coords is None:
+            problems.append(f"{label}: wikidata {qid} does not exist or has no P625")
+        else:
+            lat = record.get("latitude")
+            lon = record.get("longitude")
+            if not (isinstance(lat, (int, float)) and isinstance(lon, (int, float))):
                 problems.append(
-                    f"{label}: coordinates are {distance:.2f} km from {qid}'s P625, "
-                    f"exceeds {_ONLINE_COORD_RADIUS_KM} km"
+                    f"{label}: missing latitude/longitude, cannot run the online "
+                    "coordinate check"
                 )
+            else:
+                distance = haversine_km(lat, lon, coords[0], coords[1])
+                if distance > _ONLINE_COORD_RADIUS_KM:
+                    problems.append(
+                        f"{label}: coordinates are {distance:.2f} km from {qid}'s P625, "
+                        f"exceeds {_ONLINE_COORD_RADIUS_KM} km"
+                    )
 
     image_url = record.get("image_url")
-    if (
-        isinstance(image_url, str)
-        and image_url
-        and not _check_image_reachable(image_url)
-    ):
-        problems.append(f"{label}: image_url did not return 200/206: {image_url}")
+    if isinstance(image_url, str) and image_url:
+        status = _check_image_reachable(image_url)
+        if status == "unreachable":
+            problems.append(f"{label}: image_url did not return 200/206: {image_url}")
+        elif status == "network_error":
+            problems.append(
+                f"{_NETWORK_ERROR_PREFIX}{label}: could not verify image_url "
+                f"(network exhausted after retries): {image_url}"
+            )
 
     return problems
 
@@ -389,7 +434,12 @@ def _collect_country_centres(dir_path: Path) -> dict[str, tuple[float, float]]:
 
 
 def _check_city_file(
-    filename: str, data: list, *, online: bool = False, state: _RunState
+    filename: str,
+    data: list,
+    *,
+    online: bool = False,
+    state: _RunState,
+    cache: _OnlineCache | None = None,
 ) -> list[str]:
     violations: list[str] = []
     state.city_files_seen += 1
@@ -465,9 +515,11 @@ def _check_city_file(
                 violations.append(f"{filename}: {label} hotel '{name}': {err}")
             elif online:
                 for problem in _check_online_wikidata(
-                    hotel, f"{filename}: {label} hotel '{name}'"
+                    hotel, f"{filename}: {label} hotel '{name}'", cache
                 ):
                     violations.append(problem)
+            for err in _check_lat_lon(hotel):
+                violations.append(f"{filename}: {label} hotel '{name}': {err}")
 
             stars = hotel.get("star_rating")
             if not isinstance(stars, (int, float)) or not 1 <= stars <= 5:
@@ -542,7 +594,7 @@ def _check_city_file(
                 violations.append(f"{filename}: {label} place '{name}': {err}")
             elif online:
                 for problem in _check_online_wikidata(
-                    place, f"{filename}: {label} place '{name}'"
+                    place, f"{filename}: {label} place '{name}'", cache
                 ):
                     violations.append(problem)
 
@@ -896,6 +948,7 @@ def check_path(
     country_centres = _collect_country_centres(scan_dir)
     state = _RunState()
 
+    parsed_files: list[tuple[str, object]] = []
     violations: list[str] = []
     for file_path in json_files:
         filename = file_path.name
@@ -907,7 +960,27 @@ def check_path(
         except OSError as exc:
             violations.append(f"{filename}: <root>: could not read file: {exc}")
             continue
+        parsed_files.append((filename, data))
 
+    cache: _OnlineCache | None = None
+    if online:
+        qids: list[str] = []
+        for _, data in parsed_files:
+            if not _is_city_file(data):
+                continue
+            for entry in data:
+                if not isinstance(entry, dict):
+                    continue
+                for record in list(entry.get("hotels") or []) + list(
+                    entry.get("places") or []
+                ):
+                    if isinstance(record, dict) and isinstance(
+                        record.get("wikidata"), str
+                    ):
+                        qids.append(record["wikidata"])
+        cache = _OnlineCache(qids)
+
+    for filename, data in parsed_files:
         if _is_foundations_file(data):
             violations.extend(
                 _check_foundations_file(
@@ -918,7 +991,9 @@ def check_path(
             violations.extend(_check_countries_file(filename, data))
         elif _is_city_file(data):
             violations.extend(
-                _check_city_file(filename, data, online=online, state=state)
+                _check_city_file(
+                    filename, data, online=online, state=state, cache=cache
+                )
             )
         else:
             violations.append(
@@ -961,7 +1036,15 @@ def main(argv: list[str] | None = None) -> int:
     for line in violations:
         print(line)
 
-    if violations:
+    network_errors = [v for v in violations if _NETWORK_ERROR_PREFIX in v]
+    data_violations = [v for v in violations if _NETWORK_ERROR_PREFIX not in v]
+    if network_errors:
+        print(
+            f"ERROR: {len(network_errors)} check(s) could not be verified "
+            "(network exhausted after retries), distinct from a data violation"
+        )
+        return 2
+    if data_violations:
         return 1
 
     n_files = len(list(p.glob("*.json"))) if p.is_dir() else 1

@@ -19,6 +19,7 @@ A JSON list of city objects:
     "property_type": "Hotel", "chain": "Hyatt" /* or null */, "check_in_time": "15:00",
     "check_out_time": "11:00", "breakfast_included": false, "latitude": 34.70, "longitude": 135.49, "free_cancellation": true,
     "languages_spoken": ["English", "Japanese"], "wikidata": "Q1234567", "source_url": "https://www.wikidata.org/wiki/Q1234567"
+    /* latitude/longitude are REQUIRED (offline rule), from the candidate's own P625 */
   }],
   "places": [ /* 8+ ; >=5 attraction, >=2 restaurant|cafe */ {
     "name": "Osaka Castle", "category": "attraction", "description": "one or two sentences, English",
@@ -32,7 +33,9 @@ A JSON list of city objects:
 }
 ```
 
-- **Every hotel and place carries `wikidata`** (its QID). Its coordinates, image and name come from that item in the candidate file (`candidates/<city>.json`, produced by `scripts/fetch_city_candidates.py`). `check_seed_sources.py --online` verifies them. Hotels also carry `latitude`/`longitude` from P625, used only for verification; the importer drops them.
+- **Every hotel and place carries `wikidata`** (its QID). Its coordinates, image and name come from that item in the candidate file (`candidates/<city>.json`, produced by `scripts/fetch_city_candidates.py`). `check_seed_sources.py --online` verifies them. Hotels also carry `latitude`/`longitude` from P625: this is an **offline-required** field (not just an online nicety) so the online 1 km check always has something to check against, used only for verification; the importer drops them. `--online` treats a hotel or place with non-numeric/missing coordinates as its own violation rather than silently skipping the 1 km check.
+- **`image_url`** is a 1280px-wide Commons thumb on `upload.wikimedia.org` with no query string (`.../thumb/<a>/<ab>/<File>/1280px-<File>`), or the original (query stripped) when it is narrower than 1280px; an SVG's thumb keeps Commons' own `.png` suffix. `landmark_image` (top-level, in the candidate file) is the city's own P18, resolved the same way, for the restaurant/place image fallback.
+- Place candidates exclude non-places (events/disasters, railway/metro stations and station groups, transit systems, broadcasters, universities/schools, private residences, and anything demolished/destroyed per P576/P5816) and anything farther than `--max-km` (default 15 km; a sprawling metro may need 25) from the city's own P625 -- the value used is recorded in the candidate file's `max_km`.
 - `property_type` is one of: Hotel, Resort, Boutique Hotel, Villa Resort, Homestay, Hostel, Apartment.
 - `category` (places) is one of: attraction, restaurant, cafe, shopping, activity, nightlife.
 - `price_level` is 1–4. `star_rating` is 1–5. `rating` is 1.0–5.0.

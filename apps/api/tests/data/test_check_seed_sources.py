@@ -22,6 +22,8 @@ _GOOD_HOTEL_TEMPLATE = {
     "breakfast_included": False,
     "free_cancellation": True,
     "languages_spoken": ["English", "Japanese"],
+    "latitude": 34.6950,
+    "longitude": 135.5010,
     "wikidata": "Q11681721",
     "source_url": "https://en.wikipedia.org/wiki/Osaka",
 }
@@ -176,6 +178,26 @@ def test_malformed_wikidata_on_place_is_flagged(tmp_path):
     path = _write(tmp_path, "japan.json", [entry])
     violations = check_path(path)
     assert any("wikidata is not a QID" in v for v in violations), violations
+
+
+def test_missing_hotel_latitude_is_flagged(tmp_path):
+    entry = _good_city_entry()
+    del entry["hotels"][0]["latitude"]
+    path = _write(tmp_path, "japan.json", [entry])
+    violations = check_path(path)
+    assert any("hotel 'Hotel 0': missing key 'latitude'" in v for v in violations), (
+        violations
+    )
+
+
+def test_hotel_latitude_out_of_range_is_flagged(tmp_path):
+    entry = _good_city_entry()
+    entry["hotels"][0]["latitude"] = 95.0
+    path = _write(tmp_path, "japan.json", [entry])
+    violations = check_path(path)
+    assert any("hotel 'Hotel 0': latitude out of range" in v for v in violations), (
+        violations
+    )
 
 
 def test_countries_file_good_and_bad(tmp_path):
