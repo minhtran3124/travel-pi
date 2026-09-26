@@ -68,8 +68,8 @@
       "name": "Turkey",
       "code": "TR",
       "region": "Europe",
-      "latitude": 39.917,
-      "longitude": 32.85,
+      "latitude": 39.0,
+      "longitude": 35.0,
       "source_url": "https://en.wikipedia.org/wiki/Turkey"
     },
     {
@@ -185,7 +185,7 @@
     },
     {
       "code": "ITM",
-      "name": "Osaka Itami Airport",
+      "name": "Osaka International Airport (Itami)",
       "city": "Osaka",
       "country": "Japan",
       "latitude": 34.78444,
@@ -436,7 +436,7 @@
     },
     {
       "code": "BR",
-      "name": "EVA Airways Corporation",
+      "name": "EVA Air",
       "source_url": "https://en.wikipedia.org/wiki/EVA_Air"
     },
     {
@@ -482,7 +482,7 @@
   ],
   "fx": {
     "date": "2026-09-25",
-    "method": "units per USD = ECB per-EUR rate / ECB USD per-EUR rate (1.1403); EUR = 1/1.1403; rounded to 4 significant decimals",
+    "method": "units per USD = ECB per-EUR rate / ECB USD per-EUR rate (1.1403); EUR = 1/1.1403; 4 decimals for rates under 10, 2 decimals otherwise (existing file style)",
     "ecb": {
       "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
       "per_eur": {
@@ -494,7 +494,6 @@
         "CNY": 7.6551,
         "HKD": 8.9445,
         "IDR": 20427.22,
-        "INR": 109.2605,
         "KRW": 1545.16,
         "MYR": 4.6456,
         "PHP": 71.244,
